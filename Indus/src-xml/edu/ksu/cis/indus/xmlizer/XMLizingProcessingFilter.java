@@ -38,6 +38,21 @@ import soot.SootMethod;
  */
 public final class XMLizingProcessingFilter
   extends AbstractProcessingFilter {
+	/** 
+	 * Singleton instance of class comparator.
+	 */
+	private static final Comparator classComparator = new LexographicalClassComparator();
+
+	/** 
+	 * Singleton instance of field comparator.
+	 */
+	private static final Comparator fieldComparator = new LexographicalFieldComparator();
+
+	/** 
+	 * Singleton instance of method comparator.
+	 */
+	private static final Comparator methodComparator = new LexographicalMethodComparator();
+
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
 	 *
@@ -45,7 +60,7 @@ public final class XMLizingProcessingFilter
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private final class LexographicalClassComparator
+	private static final class LexographicalClassComparator
 	  implements Comparator {
 		/**
 		 * Compares the given classes based on their name.
@@ -73,7 +88,7 @@ public final class XMLizingProcessingFilter
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private final class LexographicalFieldComparator
+	private static final class LexographicalFieldComparator
 	  implements Comparator {
 		/**
 		 * Compares the given fields based on their name.
@@ -101,7 +116,7 @@ public final class XMLizingProcessingFilter
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private final class LexographicalMethodComparator
+	private static final class LexographicalMethodComparator
 	  implements Comparator {
 		/**
 		 * Compares the given methods based on their name.
@@ -129,7 +144,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterClasses(final Collection classes) {
 		final List _result = new ArrayList(classes);
-		Collections.sort(_result, new LexographicalClassComparator());
+		Collections.sort(_result, classComparator);
 		return _result;
 	}
 
@@ -141,7 +156,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterFields(final Collection fields) {
 		final List _result = new ArrayList(fields);
-		Collections.sort(_result, new LexographicalFieldComparator());
+		Collections.sort(_result, fieldComparator);
 		return _result;
 	}
 
@@ -153,7 +168,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterMethods(final Collection methods) {
 		final List _result = new ArrayList(methods);
-		Collections.sort(_result, new LexographicalMethodComparator());
+		Collections.sort(_result, methodComparator);
 		return _result;
 	}
 }
@@ -161,12 +176,13 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/24 22:25:56  venku
+   - documentation
    Revision 1.8  2004/02/11 09:37:21  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
    - ofa xmlizer was implemented.
    - xml-based ofa tester was implemented.
-
    Revision 1.7  2004/02/09 07:31:21  venku
    - in cases where fields and methods from different classes are
      compared, a fixed ordering may not result. FIXED.
