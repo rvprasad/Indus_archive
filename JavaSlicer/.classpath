@@ -8,5 +8,7 @@
     <classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
+    <classpathentry kind="var" path="BANDERA/lib/bandera/banderaTools.jar"/>
+    <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
