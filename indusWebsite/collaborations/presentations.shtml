@@ -4,7 +4,12 @@
 
 <!--#include virtual="/header.shtml" -->
 
-<p>There are no presentations on Indus at this time.</p>
+<p>
+  <ul>
+    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/78/CC04.ppt">Pruning Interference and Ready Dependence for Slicing Concurrent Java Programs.</a> 
+		Presented at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of ETAPS 2004.</li>
+  </ul>
+</p>
 
 
 <!--#include virtual="/footer.shtml" -->

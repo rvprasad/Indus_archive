@@ -32,7 +32,7 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck" severity="warning">
             <config-properties>
-                <config-property name="excludedClasses" value="^.*[Driver|Test|Tester|XMLizer]$"/>
+                <config-property name="excludedClasses" value="^.*[Driver|Test|Tester|XMLizer|CLI]$"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
@@ -78,7 +78,7 @@
             <config-properties/>
         </rule-configuration>
         <rule-configuration
-            classname="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck" severity="warning">
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck" severity="info">
             <config-properties/>
         </rule-configuration>
         <rule-configuration

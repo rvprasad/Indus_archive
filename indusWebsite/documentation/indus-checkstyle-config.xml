@@ -56,7 +56,7 @@
             <property name="severity" value="warning"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck">
-            <property name="severity" value="warning"/>
+            <property name="severity" value="info"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck">
             <property name="severity" value="warning"/>

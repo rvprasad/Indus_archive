@@ -5,18 +5,16 @@
 <!--#include virtual="/header.shtml" -->
 
 <p>
-  <ul>
-    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/68/cc04.pdf">Pruning
-Interference and Ready Dependence for Slicing Concurrent Java Programs.</a> 
-<a href="http://projects.cis.ksu.edu/docman/view.php/12/69/cc04.ps">(.ps)</a>
-<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. Accepted at <i>13th International Conference 
-on Compiler Construction (CC) 2004</i> held as part of ETAPS 2004.
-<i>Last updated: January 9, 2004.</i><br><br>
-    <li><a href="http://projects.cis.ksu.edu/docman/view.php/16/54/SAnToS-TR2003-6.pdf">Honing 
-the Detection of Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
-<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. July 2003, Technical Report, SAnToS
--TR2003-6. <i>Last updated: July 14, 2003.</i><br><br>
-  </ul>
+	<ul>
+    	<li><a href="http://projects.cis.ksu.edu/docman/view.php/12/68/cc04.pdf">Pruning Interference and Ready Dependence for Slicing Concurrent Java Programs.</a> 
+			<a href="http://projects.cis.ksu.edu/docman/view.php/12/69/cc04.ps">(.ps)</a>
+			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. Accepted at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of ETAPS 2004.
+			<i>Last updated: January 9, 2004.</i></li>
+	</ul>
+	<ul>
+	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/16/54/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
+			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. July 2003, Technical Report, SAnToS-TR2003-6. <i>Last updated: July 14, 2003.</i></li>
+	</ul>  
 </p>
 
 <!--#include virtual="/footer.shtml" -->
