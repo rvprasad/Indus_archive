@@ -24,7 +24,9 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +50,7 @@ import org.eclipse.ui.PlatformUI;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.toolkits.eclipse.EclipseIndusDriver;
 import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
@@ -133,13 +136,27 @@ public class IndusRunner implements IRunnableWithProgress {
 		if (editor != null) {
 			highlightEditor();
 		}
+		returnCriteriaToPool();
 		//final Collection _coll = driver.getSlicer().getCriteria();
 		//final Iterator _it = _coll.iterator();
 		//while (_it.hasNext()) {
-		// System.out.println(_it.next());
-		// }
+		 //System.out.println(_it.next());
+		 //}
 		//dumpJimple();
 
+	}
+
+	/**
+	 * Returns the crtiria to the pool.
+	 */
+	private void returnCriteriaToPool() {
+		final Collection _coll = driver.getSlicer().getCriteria();
+		final Iterator _it = _coll.iterator();
+		while (_it.hasNext()) {
+			final ISliceCriterion _crt = (ISliceCriterion) _it.next();
+			_crt.returnToPool();
+		}
+		
 	}
 
 	/**
@@ -322,16 +339,16 @@ public class IndusRunner implements IRunnableWithProgress {
 			final ArrayList array) {
 		for (int _i = 0; _i < array.size(); _i++) {
 			final ArrayList _lst = (ArrayList) array.get(_i);
-			final int _criteriaExpSize = 4;
+			final int _criteriaExpSize = 5; // class, method, line number, index, value
 			if (_lst.size() == _criteriaExpSize) {
 				final String _classname = (String) _lst.get(0);
 				final String _methodname = (String) _lst.get(1);
 				final int _nLine = ((Integer) _lst.get(2)).intValue();
 				final int _stindex = ((Integer) _lst.get(3)).intValue();
-
+				final boolean _considerVal = ((Boolean) _lst.get(4)).booleanValue();
 				if (PrettySignature.getSignature(type).equals(_classname)) {
 					setCriteria(file, type, array, _methodname, _stindex,
-							_nLine);
+							_nLine, _considerVal);
 				}
 			}
 		}
@@ -345,10 +362,11 @@ public class IndusRunner implements IRunnableWithProgress {
 	 * @param methodName The method name
 	 * @param stindex The index of the chosen Jimple Stmt in the list of Stmts 
 	 * @param nLine The selected line number.
+	 * @param considerVal Consider value for execution.
 	 */
 	private void setCriteria(final IFile file, final IType type,
 			final ArrayList array, final String methodName, final int stindex,
-			final int nLine) {
+			final int nLine, final boolean considerVal) {
 		try {
 			final IMethod[] _methods = type.getMethods();
 			for (int _j = 0; _j < _methods.length; _j++) {
@@ -361,7 +379,7 @@ public class IndusRunner implements IRunnableWithProgress {
 						final SootMethod _sootmethod = (SootMethod) _stmtlist
 								.get(1);
 						final Stmt _stmt = (Stmt) _stmtlist.get(2 + stindex);
-						driver.setCriteria(_sootmethod, _stmt);
+						driver.setCriteria(_sootmethod, _stmt, considerVal);
 						System.out
 								.println(Messages.getString("IndusRunner.15") + _stmt); //$NON-NLS-1$
 					}
