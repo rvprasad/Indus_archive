@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!-- <!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
-[<!ENTITY include SYSTEM "message.xml">]> -->
+<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
+[<!ENTITY include SYSTEM "message.xml">]>
 <!-- $Revision$ -->
 <project name="indus.staticanalyses" default="build" basedir=".">
 
@@ -148,6 +148,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.32  2004/04/19 05:09:13  venku
+.xml files should also be copied into build directory. ;-)
+
 Revision 1.31  2004/04/18 01:27:33  venku
 .properties files were not being copied during compilation.  FIXED.
 

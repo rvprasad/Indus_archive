@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!--<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
-[<!ENTITY include SYSTEM "message.xml">]> -->
+<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
+[<!ENTITY include SYSTEM "message.xml">]>
 <!-- $Revision$ -->
 <project name="indus.javaslicer" default="build" basedir=".">
 
@@ -150,6 +150,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.27  2004/04/19 05:08:49  venku
+.xml files should also be copied into build directory. ;-)
+
 Revision 1.26  2004/04/18 01:28:06  venku
 .properties files were not being compiled on compilation.  FIXED.
 
