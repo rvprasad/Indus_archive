@@ -59,7 +59,7 @@
     		</xsd:documentation>
 	    </xsd:annotation>
 	    <xsd:attributeGroup ref="accessSpec"/>
-		<xsd:seqence>
+		<xsd:sequence>
 			<xsd:element name="typeSpec" type="indus:typeSpec"/>
 		</xsd:sequence>
 	</xsd:complexType>
@@ -71,7 +71,7 @@
     		</xsd:documentation>
 	    </xsd:annotation>
 	    <xsd:attributeGroup ref="accessSpec"/>	    
-		<xsd:seqence>
+		<xsd:sequence>
 			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
 			<xsd:element name="returnTypeSpec" type="indus:typeSpec"/>
 			<xsd:element name="methodNameSpec" type="xsd:normalizedString"/>
@@ -88,7 +88,7 @@
     		</xsd:documentation>
 	    </xsd:annotation>
 	    <xsd:attributeGroup ref="accessSpec"/>	    
-		<xsd:seqence>
+		<xsd:sequence>
 			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
 			<xsd:element name="fieldTypeSpec" type="indus:typeSpec"/>
 			<xsd:element name="fieldNameSpec" type="xsd:normalizedString"/>
