@@ -492,25 +492,19 @@ public class CallGraph
 			LOGGER.debug("Starting construction of call graph...");
 		}
 
-		Collection c = new ArrayList();
-		Collection temp;
-
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
-			temp = (Collection) caller2callees.get(sm);
+			Collection temp = (Collection) caller2callees.get(sm);
 
 			INode callerNode = graphCache.getNode(sm);
 
 			if (temp != null) {
-				c.clear();
-
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
 
 					graphCache.addEdgeFromTo(callerNode, graphCache.getNode(method));
 				}
-				temp.removeAll(c);
 			}
 		}
 
@@ -538,7 +532,6 @@ public class CallGraph
 		result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
 		result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		result.append("top-down\n");
-
 		final List _temp1 = new ArrayList();
 		final List _temp2 = new ArrayList();
 		_temp1.addAll(caller2callees.keySet());
@@ -678,6 +671,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/01/21 02:52:09  venku
+   - the argument to getSCCs was used to create topDownSCC
+     rather than just using it to select the ordered SCCs.
+
    Revision 1.48  2004/01/21 01:34:56  venku
    - logging.
 
