@@ -20,22 +20,17 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.SootClass;
 import soot.SootMethod;
 
 
 /**
  * This class manages of  method variants.  This only provides the implementation to create new method variants.  The super
  * class is responsible of managing the variants.
- * 
- * <p>
- * Created: Tue Jan 22 05:21:42 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class MethodVariantManager
+class MethodVariantManager
   extends AbstractVariantManager {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -64,34 +59,8 @@ public class MethodVariantManager
 		super(theAnalysis, indexManager);
 		this.astIMPrototype = astIndexManagerPrototype;
 	}
-
-	/**
-	 * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
-	 *
-	 * @param sc the class from which to start the search in the class hierarchy.  This parameter cannot be
-	 * 		  <code>null</code>.
-	 * @param sm the method to search for in the class hierarchy.  This parameter cannot be <code>null</code>.
-	 *
-	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
-	 *
-	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
-	 *
-	 * @pre sc != null and sm != null
-	 * @post result != null
-	 */
-	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
-		final SootMethod _result;
-
-		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
-			_result = sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
-		} else if (sc.hasSuperclass()) {
-			_result = findDeclaringMethod(sc.getSuperclass(), sm);
-		} else {
-			throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
-		}
-		return _result;
-	}
-
+    
+    
 	/**
 	 * Returns a new variant of the method represented by <code>o</code>.
 	 *
