@@ -393,6 +393,7 @@ public class ReadyDAv1
 			ppc.register(EnterMonitorStmt.class, this);
 			ppc.register(ExitMonitorStmt.class, this);
 			ppc.register(InvokeStmt.class, this);
+            ppc.register(this);
 		}
 
 		/**
@@ -402,6 +403,7 @@ public class ReadyDAv1
 			ppc.unregister(EnterMonitorStmt.class, this);
 			ppc.unregister(ExitMonitorStmt.class, this);
 			ppc.unregister(InvokeStmt.class, this);
+            ppc.unregister(this);
 		}
 	}
 
@@ -920,6 +922,12 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/08/27 12:41:30  venku
+   It is possible that in ill balanced wait/notify lead to a situation
+   where there are no entities to match them, in particular, when
+   there are single wait or notify, the error was not be flagged.  FIXED.
+   It now flags a log error indicating the source has anamolies.
+
    Revision 1.11  2003/08/26 16:54:33  venku
    exit sets are initialized to EMPTY_LIST rather than null.  This
    was overlooked when they were set for the first time.  FIXED.

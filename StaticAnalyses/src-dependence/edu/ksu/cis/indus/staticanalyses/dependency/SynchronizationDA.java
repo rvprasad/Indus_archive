@@ -170,6 +170,7 @@ public class SynchronizationDA
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
 			ppc.register(ExitMonitorStmt.class, this);
+            ppc.register(this);
 		}
 
 		/**
@@ -178,6 +179,7 @@ public class SynchronizationDA
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
 			ppc.unregister(ExitMonitorStmt.class, this);
+            ppc.unregister(this);
 		}
 	}
 
@@ -360,7 +362,6 @@ nextBasicBlock:
 						currStmts = (HashSet) pair.getSecond();
 						currStmts.add(stmt);
 						monitorTriples.add(new Triple(enter, stmt, method));
-						System.out.println(monitorTriples);
 						coupled.add(stmt);
 
 						if (enterStack.isEmpty()) {
@@ -510,6 +511,12 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/07 09:02:13  venku
+   - Synchronization dependence now handles exception based
+     sync dep edges.  This requires a Value Flow analysis which can
+     provides value binding information for a local at a program point.
+   - Ripple effect of the above change.
+
    Revision 1.6  2003/08/21 03:56:18  venku
    Ripple effect of adding IStatus.
    Revision 1.5  2003/08/11 08:49:34  venku
