@@ -18,5 +18,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
