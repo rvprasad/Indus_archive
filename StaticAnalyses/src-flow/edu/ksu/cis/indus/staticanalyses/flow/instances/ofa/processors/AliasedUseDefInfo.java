@@ -95,7 +95,7 @@ public class AliasedUseDefInfo
 	/**
 	 * This manages <code>Pair</code> objects.
 	 */
-	private final PairManager PairMgr = new PairManager();
+	private final PairManager pairMgr = new PairManager();
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
@@ -104,16 +104,16 @@ public class AliasedUseDefInfo
 	 *
 	 * @pre analyzer != null
 	 */
-	AliasedUseDefInfo(IValueAnalyzer iva) {
+	AliasedUseDefInfo(final IValueAnalyzer iva) {
 		defsMap = new HashMap();
 		usesMap = new HashMap();
 		analyzer = iva;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt,     Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt, Context)
 	 */
-	public Collection getDefs(AssignStmt useStmt, Context context) {
+	public Collection getDefs(final AssignStmt useStmt, final Context context) {
 		Map stmt2defs = (Map) usesMap.get(context.getCurrentMethod());
 		Collection result = null;
 
@@ -126,9 +126,9 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(AssignStmt,     Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(AssignStmt, Context)
 	 */
-	public Collection getUses(AssignStmt defStmt, Context context) {
+	public Collection getUses(final AssignStmt defStmt, final Context context) {
 		Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
 		Collection result = null;
 
@@ -251,8 +251,8 @@ public class AliasedUseDefInfo
 								defs = new HashSet();
 								stmt2defs.setValue(defs);
 							}
-							defs.add(PairMgr.getOptimizedPair(defStmt, defMethod));
-							uses.add(PairMgr.getOptimizedPair(useStmt, useMethod));
+							defs.add(pairMgr.getOptimizedPair(defStmt, defMethod));
+							uses.add(pairMgr.getOptimizedPair(useStmt, useMethod));
 						}
 					}
 				}
@@ -284,6 +284,10 @@ public class AliasedUseDefInfo
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/13 08:49:10  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosed later on in implementaions.
+
    
    Revision 1.2  2003/08/11 04:27:33  venku
    - Ripple effect of changes to Pair
