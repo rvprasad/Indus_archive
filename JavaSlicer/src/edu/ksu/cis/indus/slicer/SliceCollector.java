@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
-import edu.ksu.cis.indus.slicer.processing.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -223,6 +221,9 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/13 07:48:03  venku
+   - exposed the methods that are included in the slice via getMethodsInSlice() method.
+
    Revision 1.1  2004/01/13 04:33:39  venku
    - Renamed TaggingBasedSliceCollector to SliceCollector.
    - Ripple effect in the engine.
