@@ -29,7 +29,9 @@
         <pathelement location="${jars.dir}/junit.jar"/>        
         <pathelement location="${jars.dir}/trove.jar"/>
         <pathelement location="${jars.dir}/xmlunit.jar"/>
-        <pathelement location="${jars.dir}/swt/swt.jar"/>    
+        <pathelement location="${jars.dir}/swt/swt.jar"/>   
+        <pathelement location="${jars.dir}/jibx-run.jar"/>
+        <pathelement location="${jars.dir}/xpp3.jar"/>           
     </path>
 
     <path id="universal.classpath">
@@ -44,4 +46,30 @@
    	    <path refid="indus.javaslicer.srcpath"/>
     </path>
 
+	<path id="bind.classpath">
+      <pathelement location="${jars.dir}/bcel.jar"/>
+      <pathelement location="${jars.dir}/jibx-bind.jar"/>
+      <pathelement location="${jars.dir}/jibx-run.jar"/>
+      <pathelement location="${jars.dir}/xpp3.jar"/>  
+    </path>
+   
+    <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
+       <classpath refid="bind.classpath"/>
+     </taskdef>
+  
+    <target name="bind">
+        <bind verbose="true">
+        	<bindingfileset dir="${basedir}/auxiliary/">
+        		<include name="**/*_JiBXBinding.xml"/>
+        	</bindingfileset>
+        	<classpath>
+        		<path refid="bind.classpath"/>
+    	        <pathelement location="${build.dir}"/>
+        	</classpath>
+        </bind>
+    </target>
+    
+    <target name="custombuild">
+        <antcall target="bind"/>
+    </target>
 </project>

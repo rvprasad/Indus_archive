@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema id="scopeSpecification" version="1.0" xml:lang="en"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
+    targetNamespace="http://indus.projects.cis.ksu.edu/indus"
+    elementFormDefault="qualified"
+    attributeFormDefault="qualified"
+    blockDefault="restriction"
+    finalDefault="restriction">
+
+	<xsd:simpleType id="hierarchySpec" name="hierarchySpec">
+      <xsd:annotation>
+        <xsd:documentation>
+          This represents the scope across inheritence hierarchy.  EXCLUSIVE_ values indicate the relatives excluding the current type.
+          INCLUSIVE_ values indicate the relatives including the current type.  ONLY_MATCH indicates that only the current type is considered.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="EXCLUSIVE_ANCESTORS"/>
+        <xsd:enumeration value="EXCLUSIVE_DESCENDANTS"/>
+        <xsd:enumeration value="INCLUSIVE_ANCESTORS"/>
+        <xsd:enumeration value="INCLUSIVE_DESCENDANTS"/>
+        <xsd:enumeration value="ONLY_MATCH"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
+	<xsd:complexType id="typeSpec" name="typeSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+    	    This contains the the name specification of the type along with it's inclusion requirement and hierarchical application requirement.
+    	    That is, if "inclusion" is true, then the types matching this name are considered; not otherwise.  Depending on the value of 
+    	    "hierarchySpec" either the type or it's relatives based on inheritance hierarchy are considered.
+    	    </xsd:documentation>
+    	</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:normalizedString">
+				<xsd:attribute name="hierarchySpec" type="indus:hierarchySpec"/>
+				<xsd:attribute name="inclusion" type="xsd:boolean"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+	<xsd:attributeGroup id="accessSpec" name="accessSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+        		This captures access specification information.
+    		</xsd:documentation>
+	    </xsd:annotation>
+		<xsd:attribute name="publicAccess" type="xsd:boolean" use="optional" default="true"/>
+		<xsd:attribute name="protectedAccess" type="xsd:boolean" use="optional" default="true"/>
+		<xsd:attribute name="defaultAccess" type="xsd:boolean" use="optional" default="false"/>		
+		<xsd:attribute name="privateAccess" type="xsd:boolean" use="optional" default="false"/>				
+	</xsd:attributeGroup>
+
+	<xsd:complexType id="classSpec" name="classSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+        		This captures class/interface-level scope information.
+    		</xsd:documentation>
+	    </xsd:annotation>
+	    <xsd:attributeGroup ref="accessSpec"/>
+		<xsd:seqence>
+			<xsd:element name="typeSpec" type="indus:typeSpec"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType id="methodSpec" name="methodSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+        		This captures method-level scope information.
+    		</xsd:documentation>
+	    </xsd:annotation>
+	    <xsd:attributeGroup ref="accessSpec"/>	    
+		<xsd:seqence>
+			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
+			<xsd:element name="returnTypeSpec" type="indus:typeSpec"/>
+			<xsd:element name="methodNameSpec" type="xsd:normalizedString"/>
+			<xsd:sequence>
+				<xsd:element name="parameterTypeSpec" type="indus:typeSpec"  minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType id="fieldSpec" name="fieldSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+        		This captures field-level scope information.
+    		</xsd:documentation>
+	    </xsd:annotation>
+	    <xsd:attributeGroup ref="accessSpec"/>	    
+		<xsd:seqence>
+			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
+			<xsd:element name="fieldTypeSpec" type="indus:typeSpec"/>
+			<xsd:element name="fieldNameSpec" type="xsd:normalizedString"/>
+		</xsd:sequence>
+	</xsd:complexType>
+    
+    <xsd:element name="scopeSpec">
+    	<xsd:sequence>
+    		<xsd:element name="classSpec" type="indus:classSpec" minOccurs="0" maxOccurs="unbounded"/>
+    		<xsd:element name="methodSpec" type="indus:methodSpec" minOccurs="0" maxOccurs="unbounded"/>
+    		<xsd:element name="fieldSpec" type="indus:fieldSpec" minOccurs="0" maxOccurs="unbounded"/>    		    		
+    	</xsd:sequence>
+    </xsd:element>
+    
+</xsd:schema>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding>
+    <namespace uri="http://indus.projects.cis.ksu.edu/indus" prefix="indus"/>
+    
+	<mapping name="scopeSpec" class="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition"
+        ns="http://indus.projects.cis.ksu.edu/indus">
+        <collection field="classSpecs" item-type="edu.ksu.cis.indus.common.scoping.ClassLevelSpec" 
+        	factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createClassLevelSpecContainer"/>
+		<collection field="methodSpecs" item-type="edu.ksu.cis.indus.common.scoping.MethodLevelSpec"
+			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createMethodLevelSpecContainer"/>
+		<collection field="fieldSpecs" item-type="edu.ksu.cis.indus.common.scoping.FieldLevelSpec"
+			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createFieldLevelSpecContainer"/>
+    </mapping>
+    
+    <mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification"
+        ns="http://indus.projects.cis.ksu.edu/indus">
+    	<value style="attribute" name="hierarchySpec" type="java.lang.String" set-method="setHierarchySpec" 
+    		get-method="getHierarchySpec"/>
+    	<value style="attribute" name="inclusion" type="boolean" set-method="setInclusion" get-method="isInclusion"/>
+    	<value style="cdata" type="java.lang.String" set-method="setNamePattern" get-method="getNamePattern"/>
+    </mapping>
+    
+    <mapping name="classSpec" class="edu.ksu.cis.indus.common.scoping.ClassSpecification"
+        ns="http://indus.projects.cis.ksu.edu/indus">
+        <structure field="accessSpec" style="attribute" label="accessSpecStructure">
+        	<value name="publicAccess" type="boolean" set-method="setPublicAccess" get-method="isPublicAccess" />
+        	<value name="protectedAccess" type="boolean" set-method="setProtectedAccess" get-method="isProtectedAccess" />
+        	<value name="defaultAccess" type="boolean" set-method="setDefaultAccess" get-method="isDefaultAccess" />
+        	<value name="privateAccess" type="boolean" set-method="setPrivateAccess" get-method="isPrivateAccess" />	
+		</structure>									
+		<value style="element" name="typeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			set-method="setTypeSpec" get-method="getTypeSpec"/>
+    </mapping>
+    
+    <mapping name="fieldSpec" class="edu.ksu.cis.indus.common.scoping.FieldSpecification"
+        ns="http://indus.projects.cis.ksu.edu/indus">
+       	<structure field="accessSpec" using="accessSpecStructure"/>					
+		<value style="element" name="declaringClassSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			set-method="setDeclaringClassSpec" get-method="getDeclaringClassSpec"/>
+		<value style="element" name="fieldTypeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			set-method="setFieldTypeSpec" get-method="getFieldTypeSpec"/>						
+		<value style="element" name="fieldNameSpec" type="java.lang.String"  set-method="setFieldNameSpec"
+			get-method="getFieldNameSpec"/>
+    </mapping>
+    
+    <mapping name="methodSpec" class="edu.ksu.cis.indus.common.scoping.MethodSpecification"
+        ns="http://indus.projects.cis.ksu.edu/indus">
+       	<structure field="accessSpec" using="accessSpecStructure"/>					
+		<value style="element" name="declaringClassSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			set-method="setDeclaringClassSpec" get-method="getDeclaringClassSpec"/>						
+		<value style="element" name="returnTypeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			set-method="setReturnTypeSpec" get-method="getReturnTypeSpec"/>						
+		<value style="element" name="methodNameSpec" type="java.lang.String"  set-method="setMethodNameSpec"
+			get-method="getMethodNameSpec"/>
+		<collection field="parameterTypeSpecs" item-type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
+			factory="edu.ksu.cis.indus.common.scoping.MethodSpecification.createParameterTypeSpecContainer"/>
+    </mapping>
+
+</binding>
