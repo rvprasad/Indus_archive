@@ -88,8 +88,6 @@ import soot.SootMethod;
 
 import soot.jimple.Stmt;
 
-import soot.toolkits.graph.UnitGraph;
-
 
 /**
  * This is a facade that exposes the slicer as a tool.  This is recommended interface to interact with the slicer if the
@@ -702,17 +700,18 @@ public final class SlicerTool
 						LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
 							+ ".  Moving on.");
 					}
-				} else {
-					final BasicBlock _head = _bbg.getHead();
+					continue;
+				}
 
-					if (_head != null) {
-						_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt()));
+				final BasicBlock _head = _bbg.getHead();
 
-						for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
-							final BasicBlock _bb = (BasicBlock) _j.next();
-							final Stmt _stmt = _bb.getTrailerStmt();
-							_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
-						}
+				if (_head != null) {
+					_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt()));
+
+					for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+						final BasicBlock _bb = (BasicBlock) _j.next();
+						final Stmt _stmt = _bb.getTrailerStmt();
+						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
 					}
 				}
 			} else {
@@ -790,6 +789,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.69  2004/01/22 13:35:14  venku
+   - while generating deadlock criteria, return and entry statements
+     of synchronized methods were included in their entirety when
+     all that is required is just the reachability to this statement. FIXED.
    Revision 1.68  2004/01/22 01:06:13  venku
    - coding convention.
    Revision 1.67  2004/01/22 01:01:40  venku
