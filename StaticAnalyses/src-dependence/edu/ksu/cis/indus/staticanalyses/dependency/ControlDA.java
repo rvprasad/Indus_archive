@@ -65,9 +65,48 @@ public class ControlDA
 	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	public static final Object FORWARD = "forward direction";
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	public static final Object BACKWARD = "backward direction";
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final boolean forward;
+
+	/**
 	 * This provides the call graph information.
 	 */
 	private ICallGraphInfo callgraph;
+
+	/**
+	 * Creates a new ControlDA object.
+	 *
+	 * @param direction DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public ControlDA(final Object direction) {
+		if (direction.equals(BACKWARD)) {
+			forward = false;
+		} else if (direction.equals(FORWARD)) {
+			forward = true;
+		} else {
+			throw new IllegalArgumentException(
+				"theDirection argument should be DependencyAnalysis.FORWARD or DependencyAnalysis.BACKWARD.");
+		}
+	}
 
 	/**
 	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
@@ -237,12 +276,25 @@ public class ControlDA
 		BitSet currResult = new BitSet();
 		BitSet temp1 = new BitSet();
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
-		wb.addAllWorkNoDuplicates(graph.getHeads());
+		Collection roots;
+
+		if (forward) {
+			roots = graph.getHeads();
+		} else {
+			roots = graph.getTails();
+		}
+		wb.addAllWorkNoDuplicates(roots);
 
 		while (wb.hasWork()) {
 			BasicBlock bb = (BasicBlock) wb.getWork();
 			Pair dagBlock = (Pair) dag.get(bb);
-			Collection preds = (Collection) dagBlock.getFirst();
+			Collection preds;
+
+			if (forward) {
+				preds = (Collection) dagBlock.getSecond();
+			} else {
+				preds = (Collection) dagBlock.getFirst();
+			}
 
 			if (!processed.containsAll(preds)) {
 				wb.addWorkNoDuplicates(bb);
@@ -251,7 +303,14 @@ public class ControlDA
 
 			// propogate data to the successors   
 			int currIndex = NODES.indexOf(bb);
-			Collection succs = (Collection) dagBlock.getSecond();
+			Collection succs;
+
+			if (forward) {
+				succs = (Collection) dagBlock.getFirst();
+			} else {
+				succs = (Collection) dagBlock.getSecond();
+			}
+
 			BitSet[] currCD = cd[currIndex];
 			succsSize[currIndex] = succs.size();
 
@@ -320,18 +379,22 @@ public class ControlDA
 						}
 					}
 				}
+			} else {
+				// add dependence to the reachable roots
+				for (Iterator i = roots.iterator(); i.hasNext();) {
+					BasicBlock root = (BasicBlock) i.next();
 
-				result[currIndex] = currResult;
-				currResult = new BitSet();
+					if (graph.isReachable(bb, root, !forward)) {
+						currResult.set(NODES.indexOf(root));
+					}
+				}
 			}
+			result[currIndex] = currResult;
+			currResult = new BitSet();
 
 			// Add the successors of the node 
 			wb.addAllWorkNoDuplicates(succs);
 			processed.add(bb);
-		}
-
-		for (int i = 0; i < NUM_OF_NODES; i++) {
-			System.out.println(i + " " + result[i] + " " + ((BasicBlock) NODES.get(i)).getStmtsOf());
 		}
 
 		return result;
@@ -369,27 +432,33 @@ public class ControlDA
 			BitSet cd = bbCDBitSets[i];
 			flag |= cd != null;
 
-			if (cd != null && !cd.isEmpty()) {
-				Collection cdp = new ArrayList();
-				BasicBlock bb = (BasicBlock) nodes.get(i);
+			Collection cdp = new ArrayList();
+			BasicBlock bb = (BasicBlock) nodes.get(i);
 
-				for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
-					mDependee.set(sl.indexOf(j.next()), cdp);
+			for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
+				mDependee.set(sl.indexOf(j.next()), cdp);
+			}
+
+			for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
+				BasicBlock cdbb = (BasicBlock) nodes.get(j);
+				Object cdStmt;
+
+				if (forward) {
+					cdStmt = cdbb.getLeaderStmt();
+				} else {
+					cdStmt = cdbb.getTrailerStmt();
 				}
 
-				for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
-					BasicBlock cdbb = (BasicBlock) nodes.get(j);
-					cdp.add(cdbb.getTrailerStmt());
+				cdp.add(cdStmt);
 
-					int deIndex = sl.indexOf(cdbb.getTrailerStmt());
-					Collection dees = (Collection) mDependent.get(deIndex);
+				int deIndex = sl.indexOf(cdStmt);
+				Collection dees = (Collection) mDependent.get(deIndex);
 
-					if (dees == null) {
-						dees = new ArrayList();
-						mDependent.set(deIndex, dees);
-					}
-					dees.add(bb.getStmtsOf());
+				if (dees == null) {
+					dees = new ArrayList();
+					mDependent.set(deIndex, dees);
 				}
+				dees.add(bb.getStmtsOf());
 			}
 		}
 
@@ -406,6 +475,8 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/09/28 12:27:31  venku
+   -  The control dep was buggy. FIXED.
    Revision 1.14  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
