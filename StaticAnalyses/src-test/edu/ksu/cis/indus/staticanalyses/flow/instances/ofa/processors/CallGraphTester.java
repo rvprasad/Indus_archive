@@ -36,13 +36,14 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -109,7 +110,9 @@ public class CallGraphTester
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -149,10 +152,17 @@ public class CallGraphTester
 	 */
 	public final void testGetCalleesInvokeExprContext() {
 		Context context = new Context();
+		Collection calleeMethods = new ArrayList();
 
 		for (Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod caller = (SootMethod) i.next();
 			Collection callees = cgi.getCallees(caller);
+			calleeMethods.clear();
+
+			for (Iterator j = callees.iterator(); j.hasNext();) {
+				CallTriple ctrp = (CallTriple) j.next();
+				calleeMethods.add(ctrp.getMethod());
+			}
 
 			for (Iterator j = callees.iterator(); j.hasNext();) {
 				CallTriple ctrp1 = (CallTriple) j.next();
@@ -168,8 +178,9 @@ public class CallGraphTester
 						assertTrue(newCallees.contains(ctrp2.getMethod()));
 					}
 				}
-				assertTrue(callees.containsAll(newCallees));
+				calleeMethods.removeAll(newCallees);
 			}
+			assertTrue(calleeMethods.isEmpty());
 		}
 	}
 
@@ -379,4 +390,6 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/29 09:35:44  venku
+   - added test support for processors.  CallGraph, in particular.
  */
