@@ -51,7 +51,6 @@ import soot.TrapManager;
 import soot.Type;
 import soot.Value;
 
-import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
@@ -71,17 +70,17 @@ import soot.jimple.ThrowStmt;
  */
 public final class ExecutableSlicePostProcessor
   implements ISlicePostProcessor {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExecutableSlicePostProcessor.class);
 
-	/**
+	/** 
 	 * The basic block manager.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
-	/**
+	/** 
 	 * This tracks the methods processed in <code>process()</code>.
 	 *
 	 * @invariant processedMethodCache != null
@@ -89,7 +88,7 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private final Collection processedMethodCache = new HashSet();
 
-	/**
+	/** 
 	 * This tracks the methods processed in <code>processStmts()</code>.
 	 *
 	 * @invariant processedStmtCache != null
@@ -97,31 +96,31 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private final Collection processedStmtCache = new HashSet();
 
-	/**
+	/** 
 	 * This is the workbag of methods to process.
 	 *
 	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
 	 */
 	private final IWorkBag methodWorkBag = new HistoryAwareFIFOWorkBag(processedMethodCache);
 
-	/**
+	/** 
 	 * This is the workbag of statements to process.
 	 *
 	 * @invariant stmtWorkBag != null and stmtWorkBag.getWork().oclIsKindOf(Stmt)
 	 */
 	private final IWorkBag stmtWorkBag = new HistoryAwareFIFOWorkBag(processedStmtCache);
 
-	/**
+	/** 
 	 * This provides entry-based control dependency information required to include exit points.
 	 */
 	private EntryControlDA cd = new EntryControlDA();
 
-	/**
+	/** 
 	 * The slice collector to be used to add on to the slice.
 	 */
 	private SliceCollector collector;
 
-	/**
+	/** 
 	 * This indicates if any statements of the method were included during post processing.  If so, other statement based
 	 * post processings are triggered.
 	 */
@@ -312,9 +311,9 @@ public final class ExecutableSlicePostProcessor
 	private void pickARandomReturnPoint(final Collection returnPoints) {
 		Stmt _exitStmt = null;
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("pickARandomReturnPoint(returnPoints = " + returnPoints + ")");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("pickARandomReturnPoint(returnPoints = " + returnPoints + ")");
+		}
 
 		for (final Iterator _i = returnPoints.iterator(); _i.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
@@ -329,10 +328,10 @@ public final class ExecutableSlicePostProcessor
 				_exitStmt = _stmt;
 			} else if (_exitStmt == null) {
 				// if there have been no exit points, then grab the psedu exit and continue to look.
-			    _exitStmt = _stmt;
+				_exitStmt = _stmt;
 			}
 		}
-	    processAndIncludeExitStmt(_exitStmt);
+		processAndIncludeExitStmt(_exitStmt);
 	}
 
 	/**
@@ -367,9 +366,9 @@ public final class ExecutableSlicePostProcessor
 				final BasicBlock _bb = (BasicBlock) _j.next();
 				final Stmt _stmt = _bb.getTrailerStmt();
 				final Collection _dependees = cd.getDependees(_stmt, method);
-				final boolean _flag = _dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty();
 
-				if (!_stmt.hasTag(_tagName) && _flag) {
+				if (!collector.hasBeenCollected(_stmt)
+					  && (_dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty())) {
 					processAndIncludeExitStmt(_stmt);
 					_tailWasNotPicked = false;
 
@@ -565,9 +564,11 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/08/02 04:45:05  venku
+   - logging.
+   - pseudo tail were not considered properly in pickRandomReturnPoints(). FIXED.
    Revision 1.27  2004/07/10 00:52:20  venku
    - throw statements need to suck in the class of the exception that is thrown. FIXED.
-
    Revision 1.26  2004/07/09 09:15:02  venku
    - corner case while picking return points was addressed.
    - refactoring.
