@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,70 +30,72 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.slicer;
+package edu.ksu.cis.indus.slicer;
 
-import ca.mcgill.sable.soot.RefType;
-import ca.mcgill.sable.soot.SootClass;
-import ca.mcgill.sable.soot.SootField;
-import ca.mcgill.sable.soot.SootMethod;
+import soot.Local;
+import soot.RefType;
+import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
+import soot.Value;
 
-import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
-import ca.mcgill.sable.soot.jimple.ArrayRef;
-import ca.mcgill.sable.soot.jimple.AssignStmt;
-import ca.mcgill.sable.soot.jimple.BreakpointStmt;
-import ca.mcgill.sable.soot.jimple.CastExpr;
-import ca.mcgill.sable.soot.jimple.CaughtExceptionRef;
-import ca.mcgill.sable.soot.jimple.DoubleConstant;
-import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
-import ca.mcgill.sable.soot.jimple.ExitMonitorStmt;
-import ca.mcgill.sable.soot.jimple.FloatConstant;
-import ca.mcgill.sable.soot.jimple.GotoStmt;
-import ca.mcgill.sable.soot.jimple.IdentityStmt;
-import ca.mcgill.sable.soot.jimple.IfStmt;
-import ca.mcgill.sable.soot.jimple.InstanceFieldRef;
-import ca.mcgill.sable.soot.jimple.InstanceOfExpr;
-import ca.mcgill.sable.soot.jimple.IntConstant;
-import ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr;
-import ca.mcgill.sable.soot.jimple.InvokeExpr;
-import ca.mcgill.sable.soot.jimple.InvokeStmt;
-import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
-import ca.mcgill.sable.soot.jimple.LengthExpr;
-import ca.mcgill.sable.soot.jimple.Local;
-import ca.mcgill.sable.soot.jimple.LongConstant;
-import ca.mcgill.sable.soot.jimple.LookupSwitchStmt;
-import ca.mcgill.sable.soot.jimple.NewArrayExpr;
-import ca.mcgill.sable.soot.jimple.NewExpr;
-import ca.mcgill.sable.soot.jimple.NewInvokeExpr;
-import ca.mcgill.sable.soot.jimple.NewMultiArrayExpr;
-import ca.mcgill.sable.soot.jimple.NopStmt;
-import ca.mcgill.sable.soot.jimple.NullConstant;
-import ca.mcgill.sable.soot.jimple.ParameterRef;
-import ca.mcgill.sable.soot.jimple.RetStmt;
-import ca.mcgill.sable.soot.jimple.ReturnStmt;
-import ca.mcgill.sable.soot.jimple.ReturnVoidStmt;
-import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
-import ca.mcgill.sable.soot.jimple.StaticFieldRef;
-import ca.mcgill.sable.soot.jimple.StaticInvokeExpr;
-import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtSwitch;
-import ca.mcgill.sable.soot.jimple.StringConstant;
-import ca.mcgill.sable.soot.jimple.TableSwitchStmt;
-import ca.mcgill.sable.soot.jimple.ThisRef;
-import ca.mcgill.sable.soot.jimple.ThrowStmt;
-import ca.mcgill.sable.soot.jimple.Value;
-import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
+import soot.jimple.AbstractJimpleValueSwitch;
+import soot.jimple.ArrayRef;
+import soot.jimple.AssignStmt;
+import soot.jimple.BreakpointStmt;
+import soot.jimple.CastExpr;
+import soot.jimple.CaughtExceptionRef;
+import soot.jimple.DoubleConstant;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
+import soot.jimple.FloatConstant;
+import soot.jimple.GotoStmt;
+import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceOfExpr;
+import soot.jimple.IntConstant;
+import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
+import soot.jimple.Jimple;
+import soot.jimple.LengthExpr;
+import soot.jimple.LongConstant;
+import soot.jimple.LookupSwitchStmt;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.NopStmt;
+import soot.jimple.NullConstant;
+import soot.jimple.ParameterRef;
+import soot.jimple.RetStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticFieldRef;
+import soot.jimple.StaticInvokeExpr;
+import soot.jimple.Stmt;
+import soot.jimple.StmtSwitch;
+import soot.jimple.StringConstant;
+import soot.jimple.TableSwitchStmt;
+import soot.jimple.ThisRef;
+import soot.jimple.ThrowStmt;
+import soot.jimple.VirtualInvokeExpr;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
- * <p>
  * This class "clones" a given Soot Jimple AST chunk (statement and expression).  Our interpretation of clone here is an
  * semantically identical copy of the given AST chunk.  This is used during construction of the new body after slicing.  The
- * methods of this class walkover the given AST using <i>visitor pattern</i> to cloning parts of the given AST chunk.
- * </p>
+ * methods of this class walkover the given AST using <i>visitor pattern</i> to clone the given AST chunk.  Note that we
+ * cannot use <code>clone()</code> on the all of the chunks as we have to get the references to the chunks created in the
+ * clone rather than the clonee.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -103,71 +105,50 @@ public class ASTCloner
   extends AbstractJimpleValueSwitch
   implements StmtSwitch {
 	/**
-	 * <p>
 	 * The static reference to the singleton object used to create Jimple AST chunks.
-	 * </p>
+	 *
+	 * @invariant JIMPLE != null
 	 */
 	private static final Jimple JIMPLE = Jimple.v();
 
 	/**
-	 * <p>
 	 * This provides information about parts of the clone(d) system that is required during cloning chunks involving fields
 	 * and such.
-	 * </p>
+	 *
+	 * @invariant helper != null
 	 */
 	private final IASTClonerHelper helper;
 
 	/**
-	 * <p>
 	 * The method in which the cloned statement occurs.
-	 * </p>
 	 */
 	private SootMethod method;
 
 	/**
-	 * <p>
 	 * The clone statement.
-	 * </p>
 	 */
-	private Stmt resStmt;
+	private Stmt cloneStmt;
 
 	/**
-	 * <p>
-	 * The cloned statement.
-	 * </p>
-	 */
-	private Stmt stmt;
-
-	/**
-	 * <p>
 	 * The clone value/expression.
-	 * </p>
 	 */
-	private Value resValue;
+	private Value cloneValue;
 
 	/**
-	 * <p>
-	 * The cloned value/expression.
-	 * </p>
-	 */
-	private Value value;
-
-	/**
-	 * <p>
 	 * Creates a new ASTCloner object.
-	 * </p>
 	 *
-	 * @param helper is the instance that provides information about parts of the system such as fields during cloning.
+	 * @param cloningHelper is the instance that provides information about parts of the system such as fields during
+	 * 		  cloning.
+	 *
+	 * @pre cloningHelper != null
 	 */
-	public ASTCloner(IASTClonerHelper helper) {
-		this.helper = helper;
+	public ASTCloner(final IASTClonerHelper cloningHelper) {
+		this.helper = cloningHelper;
 	}
 
 	/**
-	 * <p>
 	 * This interface can be used to obtain information about parts (class, methods, and fields) of the original system being
 	 * cloned.
-	 * </p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -175,9 +156,7 @@ public class ASTCloner
 	 */
 	public interface IASTClonerHelper {
 		/**
-		 * <p>
 		 * Returns the clone of the given method, if it exists.  Otherwise, <code>null</code> is returned.
-		 * </p>
 		 *
 		 * @param method in the cloned system.
 		 *
@@ -186,9 +165,7 @@ public class ASTCloner
 		SootMethod getCloneOf(SootMethod method);
 
 		/**
-		 * <p>
 		 * Returns the clone of the given field, if it exists.  Otherwise, <code>null</code> is returned.
-		 * </p>
 		 *
 		 * @param field in the cloned system.
 		 *
@@ -197,9 +174,7 @@ public class ASTCloner
 		SootField getCloneOf(SootField field);
 
 		/**
-		 * <p>
 		 * Returns the clone of the given class, if it exists.  Otherwise, <code>null</code> is returned.
-		 * </p>
 		 *
 		 * @param clazz is the class in the cloned system.
 		 *
@@ -208,9 +183,7 @@ public class ASTCloner
 		SootClass getCloneOf(SootClass clazz);
 
 		/**
-		 * <p>
 		 * Returns the clone of the given class, if it exists.  Otherwise, <code>null</code> is returned.
-		 * </p>
 		 *
 		 * @param clazz is the fully qualified name of the class in the cloned system.
 		 *
@@ -230,382 +203,609 @@ public class ASTCloner
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseArrayRef(ca.mcgill.sable.soot.jimple.ArrayRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 	 */
-	public void caseArrayRef(ArrayRef v) {
+	public void caseArrayRef(final ArrayRef v) {
 		v.getBase().apply(this);
 
-		Value base = resValue;
+		Value base = cloneValue;
 		v.getIndex().apply(this);
-		resValue = JIMPLE.newArrayRef(base, resValue);
+		cloneValue = JIMPLE.newArrayRef(base, cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseAssignStmt(ca.mcgill.sable.soot.jimple.AssignStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
-	public void caseAssignStmt(AssignStmt stmt) {
+	public void caseAssignStmt(final AssignStmt stmt) {
 		stmt.getLeftOp().apply(this);
 
-		Value left = resValue;
+		Value left = cloneValue;
 		stmt.getRightOp().apply(this);
 
-		Value right = resValue;
-		resStmt = JIMPLE.newAssignStmt(left, right);
+		Value right = cloneValue;
+		cloneStmt = JIMPLE.newAssignStmt(left, right);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseBreakpointStmt(ca.mcgill.sable.soot.jimple.BreakpointStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 	 */
-	public void caseBreakpointStmt(BreakpointStmt stmt) {
-		resStmt = JIMPLE.newBreakpointStmt();
+	public void caseBreakpointStmt(final BreakpointStmt stmt) {
+		cloneStmt = (BreakpointStmt) stmt.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseCastExpr(ca.mcgill.sable.soot.jimple.CastExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
 	 */
-	public void caseCastExpr(CastExpr v) {
+	public void caseCastExpr(final CastExpr v) {
 		v.getOp().apply(this);
-		resValue = JIMPLE.newCastExpr(resValue, v.getType());
+		cloneValue = JIMPLE.newCastExpr(cloneValue, v.getType());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseCaughtExceptionRef(ca.mcgill.sable.soot.jimple.CaughtExceptionRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseCaughtExceptionRef(soot.jimple.CaughtExceptionRef)
 	 */
-	public void caseCaughtExceptionRef(CaughtExceptionRef v) {
-		resValue = JIMPLE.newCaughtExceptionRef((JimpleBody) method.getBody(JIMPLE));
+	public void caseCaughtExceptionRef(final CaughtExceptionRef v) {
+		cloneValue = (CaughtExceptionRef) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseDoubleConstant(ca.mcgill.sable.soot.jimple.DoubleConstant)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ConstantSwitch#caseDoubleConstant(soot.jimple.DoubleConstant)
 	 */
-	public void caseDoubleConstant(DoubleConstant v) {
-		resValue = DoubleConstant.v(v.value);
+	public void caseDoubleConstant(final DoubleConstant v) {
+		cloneValue = (DoubleConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseEnterMonitorStmt(ca.mcgill.sable.soot.jimple.EnterMonitorStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 	 */
-	public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
+	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = JIMPLE.newEnterMonitorStmt(resValue);
+		cloneStmt = JIMPLE.newEnterMonitorStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseExitMonitorStmt(ca.mcgill.sable.soot.jimple.ExitMonitorStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 	 */
-	public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
+	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = JIMPLE.newExitMonitorStmt(resValue);
+		cloneStmt = JIMPLE.newExitMonitorStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseFloatConstant(ca.mcgill.sable.soot.jimple.FloatConstant)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ConstantSwitch#caseFloatConstant(soot.jimple.FloatConstant)
 	 */
-	public void caseFloatConstant(FloatConstant v) {
-		resValue = FloatConstant.v(v.value);
+	public void caseFloatConstant(final FloatConstant v) {
+		cloneValue = (FloatConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseGotoStmt(ca.mcgill.sable.soot.jimple.GotoStmt)
+	 * Clones the given goto statement.  However, the cloning is broken purposefully.  At the time of cloning it is
+	 * impossible to know if the target exists in the clone.  Hence, we create a clone which points to the original target.
+	 * This way the application can fix the target information once the entire method's body has been cloned.
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 	 */
-	public void caseGotoStmt(GotoStmt stmt) {
-		resStmt = JIMPLE.newGotoStmt(stmt.getTarget());
+	public void caseGotoStmt(final GotoStmt stmt) {
+		cloneStmt = JIMPLE.newGotoStmt(stmt.getTarget());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseIdentityStmt(ca.mcgill.sable.soot.jimple.IdentityStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
-	public void caseIdentityStmt(IdentityStmt stmt) {
+	public void caseIdentityStmt(final IdentityStmt stmt) {
 		stmt.getLeftOp().apply(this);
 
-		Value left = resValue;
+		Value left = cloneValue;
 		stmt.getRightOp().apply(this);
 
-		Value right = resValue;
-		resStmt = JIMPLE.newIdentityStmt(left, right);
+		Value right = cloneValue;
+		cloneStmt = JIMPLE.newIdentityStmt(left, right);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseIfStmt(ca.mcgill.sable.soot.jimple.IfStmt)
+	 * Clones the given if statement.  Please refer to {@link #caseGotoStmt(GotoStmt) caseGotoStmt} for details about how the
+	 * target is handled.
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 	 */
-	public void caseIfStmt(IfStmt stmt) {
+	public void caseIfStmt(final IfStmt stmt) {
 		stmt.getCondition().apply(this);
-		resStmt = JIMPLE.newIfStmt(resValue, stmt.getTarget());
+		cloneStmt = JIMPLE.newIfStmt(cloneValue, stmt.getTarget());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseInstanceFieldRef(ca.mcgill.sable.soot.jimple.InstanceFieldRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 	 */
-	public void caseInstanceFieldRef(InstanceFieldRef v) {
+	public void caseInstanceFieldRef(final InstanceFieldRef v) {
 		v.getBase().apply(this);
-		resValue = JIMPLE.newInstanceFieldRef(resValue, v.getField());
+		cloneValue = JIMPLE.newInstanceFieldRef(cloneValue, helper.getCloneOf(v.getField()));
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInstanceOfExpr(ca.mcgill.sable.soot.jimple.InstanceOfExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
 	 */
-	public void caseInstanceOfExpr(InstanceOfExpr v) {
+	public void caseInstanceOfExpr(final InstanceOfExpr v) {
 		v.getOp().apply(this);
-		resValue = JIMPLE.newInstanceOfExpr(resValue, v.getCheckType());
+		cloneValue = JIMPLE.newInstanceOfExpr(cloneValue, v.getCheckType());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseIntConstant(ca.mcgill.sable.soot.jimple.IntConstant)
+	 * @see soot.jimple.ConstantSwitch#caseIntConstant(soot.jimple.IntConstant)
 	 */
-	public void caseIntConstant(IntConstant v) {
-		resValue = IntConstant.v(v.value);
+	public void caseIntConstant(final IntConstant v) {
+		cloneValue = (IntConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 	 */
-	public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
+	public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 		v.getBase().apply(this);
 
-		Local base = (Local) resValue;
-		resValue = JIMPLE.newInterfaceInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		Local base = (Local) cloneValue;
+		cloneValue = JIMPLE.newInterfaceInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseInvokeStmt(ca.mcgill.sable.soot.jimple.InvokeStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 	 */
-	public void caseInvokeStmt(InvokeStmt stmt) {
+	public void caseInvokeStmt(final InvokeStmt stmt) {
 		stmt.getInvokeExpr().apply(this);
-		resStmt = JIMPLE.newInvokeStmt(resValue);
+		cloneStmt = JIMPLE.newInvokeStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseLengthExpr(ca.mcgill.sable.soot.jimple.LengthExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseLengthExpr(soot.jimple.LengthExpr)
 	 */
-	public void caseLengthExpr(LengthExpr v) {
+	public void caseLengthExpr(final LengthExpr v) {
 		v.getOp().apply(this);
-		resValue = JIMPLE.newLengthExpr(resValue);
+		cloneValue = JIMPLE.newLengthExpr(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.JimpleValueSwitch#caseLocal(ca.mcgill.sable.soot.jimple.Local)
+	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.jimple.Local)
 	 */
-	public void caseLocal(Local l) {
-		resValue = helper.getLocal(l.getName(), method);
+	public void caseLocal(final Local l) {
+		cloneValue = helper.getLocal(l.getName(), method);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseLongConstant(ca.mcgill.sable.soot.jimple.LongConstant)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ConstantSwitch#caseLongConstant(soot.jimple.LongConstant)
 	 */
-	public void caseLongConstant(LongConstant v) {
-		resValue = LongConstant.v(v.value);
+	public void caseLongConstant(final LongConstant v) {
+		cloneValue = (LongConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseLookupSwitchStmt(ca.mcgill.sable.soot.jimple.LookupSwitchStmt)
+	 * Clones the given lookup statement.  The lookup values are cloned but the targets are not.  So, the clone statement
+	 * refers to the targets in the clonee statement.  This happens as at the time of processing of the lookup statement the
+	 * targets may not exists.  Hence, it is the responsibility of the application to later fix up the targets suitably.
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt is the statement to be cloned.
+	 *
+	 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 	 */
-	public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
+	public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 		stmt.getKey().apply(this);
-		resStmt = JIMPLE.newLookupSwitchStmt(resValue, stmt.getLookupValues(), stmt.getTargets(), stmt.getDefaultTarget());
+
+		List temp = new ArrayList();
+
+		for (Iterator i = stmt.getLookupValues().iterator(); i.hasNext();) {
+			Value v = (Value) i.next();
+			v.apply(this);
+			temp.add(cloneValue);
+		}
+		cloneStmt = JIMPLE.newLookupSwitchStmt(cloneValue, temp, stmt.getTargets(), stmt.getDefaultTarget());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewArrayExpr(ca.mcgill.sable.soot.jimple.NewArrayExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
 	 */
-	public void caseNewArrayExpr(NewArrayExpr v) {
+	public void caseNewArrayExpr(final NewArrayExpr v) {
 		v.getSize().apply(this);
-		resValue = JIMPLE.newNewArrayExpr(v.getBaseType(), resValue);
+		cloneValue = JIMPLE.newNewArrayExpr(v.getBaseType(), cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr(ca.mcgill.sable.soot.jimple.NewExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 	 */
-	public void caseNewExpr(NewExpr v) {
-		resValue = JIMPLE.newNewExpr(v.getBaseType());
+	public void caseNewExpr(final NewExpr v) {
+		cloneValue = JIMPLE.newNewExpr(v.getBaseType());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewInvokeExpr(ca.mcgill.sable.soot.jimple.NewInvokeExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 	 */
-	public void caseNewInvokeExpr(NewInvokeExpr v) {
-		throw new IllegalArgumentException("Control should never reach here.  "
-			+ "An instance of NewInvokeExpr cannot be created in Jimple.");
-	}
-
-	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewMultiArrayExpr(ca.mcgill.sable.soot.jimple.NewMultiArrayExpr)
-	 */
-	public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-		ca.mcgill.sable.util.List sizes = new ca.mcgill.sable.util.ArrayList();
+	public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
+		List sizes = new ArrayList();
 
 		for (int i = sizes.size() - 1; i >= 0; i--) {
 			v.getSize(i).apply(this);
-			sizes.add(i, resValue);
+			sizes.add(i, cloneValue);
 		}
-		resValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), sizes);
+		cloneValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), sizes);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseNopStmt(ca.mcgill.sable.soot.jimple.NopStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 	 */
-	public void caseNopStmt(NopStmt stmt) {
-		resStmt = JIMPLE.newNopStmt();
+	public void caseNopStmt(final NopStmt stmt) {
+		cloneStmt = (NopStmt) stmt.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseNullConstant(ca.mcgill.sable.soot.jimple.NullConstant)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
 	 */
-	public void caseNullConstant(NullConstant v) {
-		resValue = NullConstant.v();
+	public void caseNullConstant(final NullConstant v) {
+		cloneValue = (NullConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseParameterRef(ca.mcgill.sable.soot.jimple.ParameterRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
 	 */
-	public void caseParameterRef(ParameterRef v) {
-		resValue = JIMPLE.newParameterRef(helper.getCloneOf(v.getMethod()), v.getIndex());
+	public void caseParameterRef(final ParameterRef v) {
+		cloneValue = (ParameterRef) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseRetStmt(ca.mcgill.sable.soot.jimple.RetStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 	 */
-	public void caseRetStmt(RetStmt stmt) {
+	public void caseRetStmt(final RetStmt stmt) {
 		stmt.getStmtAddress().apply(this);
-		resStmt = JIMPLE.newRetStmt(resValue);
+		cloneStmt = JIMPLE.newRetStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseReturnStmt(ca.mcgill.sable.soot.jimple.ReturnStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 	 */
-	public void caseReturnStmt(ReturnStmt stmt) {
-		stmt.getReturnValue().apply(this);
-		resStmt = JIMPLE.newReturnStmt(resValue);
+	public void caseReturnStmt(final ReturnStmt stmt) {
+		stmt.getOp().apply(this);
+		cloneStmt = JIMPLE.newReturnStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseReturnVoidStmt(ca.mcgill.sable.soot.jimple.ReturnVoidStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 	 */
-	public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
-		resStmt = JIMPLE.newReturnVoidStmt();
+	public void caseReturnVoidStmt(final ReturnVoidStmt stmt) {
+		cloneStmt = (ReturnVoidStmt) stmt.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseSpecialInvokeExpr(ca.mcgill.sable.soot.jimple.SpecialInvokeExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 	 */
-	public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
+	public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 		v.getBase().apply(this);
 
-		Local base = (Local) resValue;
-		resValue = JIMPLE.newSpecialInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		Local base = (Local) cloneValue;
+		cloneValue = JIMPLE.newSpecialInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseStaticFieldRef(ca.mcgill.sable.soot.jimple.StaticFieldRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
 	 */
-	public void caseStaticFieldRef(StaticFieldRef v) {
-		resValue = JIMPLE.newStaticFieldRef(helper.getCloneOf(v.getField()));
+	public void caseStaticFieldRef(final StaticFieldRef v) {
+		cloneValue = JIMPLE.newStaticFieldRef(helper.getCloneOf(v.getField()));
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr(ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
-	public void caseStaticInvokeExpr(StaticInvokeExpr v) {
-		resValue = JIMPLE.newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
+	public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
+		cloneValue = JIMPLE.newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ConstantSwitch#caseStringConstant(ca.mcgill.sable.soot.jimple.StringConstant)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
 	 */
-	public void caseStringConstant(StringConstant v) {
-		resValue = StringConstant.v(v.value);
+	public void caseStringConstant(final StringConstant v) {
+		cloneValue = (StringConstant) v.clone();
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseTableSwitchStmt(ca.mcgill.sable.soot.jimple.TableSwitchStmt)
+	 * Clones the given statement. Please refer to {@link #caseLookupSwitchStmt(LookupSwitchStmt) caseLookupSwitchStmt} for
+	 * details about how targets are handled.
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 	 */
-	public void caseTableSwitchStmt(TableSwitchStmt stmt) {
+	public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 		stmt.getKey().apply(this);
-		resStmt =
-			JIMPLE.newTableSwitchStmt(resValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
+		cloneStmt =
+			JIMPLE.newTableSwitchStmt(cloneValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
 				stmt.getDefaultTarget());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseThisRef(ca.mcgill.sable.soot.jimple.ThisRef)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
-	public void caseThisRef(ThisRef v) {
-		resValue = JIMPLE.newThisRef(helper.getCloneOf(((RefType) v.getType()).className));
+	public void caseThisRef(final ThisRef v) {
+		cloneValue = JIMPLE.newThisRef((RefType) v.getType());
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseThrowStmt(ca.mcgill.sable.soot.jimple.ThrowStmt)
+	 * {@inheritDoc}
+	 *
+	 * @param stmt is the statement to be cloned.
+	 *
+	 * @pre stmt != null
+	 *
+	 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 	 */
-	public void caseThrowStmt(ThrowStmt stmt) {
+	public void caseThrowStmt(final ThrowStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = JIMPLE.newThrowStmt(resValue);
+		cloneStmt = JIMPLE.newThrowStmt(cloneValue);
 	}
 
 	/**
-	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseVirtualInvokeExpr(ca.mcgill.sable.soot.jimple.VirtualInvokeExpr)
+	 * {@inheritDoc}
+	 *
+	 * @param v is the value to be cloned.
+	 *
+	 * @pre v != null
+	 *
+	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 	 */
-	public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
-		super.caseVirtualInvokeExpr(v);
+	public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
+		v.getBase().apply(this);
+
+		Local base = (Local) cloneValue;
+		cloneValue = JIMPLE.newVirtualInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
-	 * <p>
 	 * Clones a given Jimple statement that occurs in the given method.
-	 * </p>
 	 *
 	 * @param stmt is the Jimple statement to be cloned.
-	 * @param method in which <code>stmt</code> occurs.
+	 * @param cloneeMethod in which <code>stmt</code> occurs.
 	 *
 	 * @return the clone of <code>stmt</code>.
+	 *
+	 * @pre stmt != null and cloneeMethod != null
+	 * @post result != null and result.oclIsTypeOf(stmt.evaluationType())
 	 */
-	public Stmt cloneASTFragment(Stmt stmt, SootMethod method) {
-		this.stmt = stmt;
-		this.method = method;
+	public Stmt cloneASTFragment(final Stmt stmt, final SootMethod cloneeMethod) {
+		this.method = cloneeMethod;
 		stmt.apply(this);
-		return resStmt;
+		return cloneStmt;
 	}
 
 	/**
-	 * <p>
 	 * Clones a given Jimple value that occurs in the given method.
-	 * </p>
 	 *
 	 * @param value is the Jimple value to be cloned.
-	 * @param method in which <code>value</code> occurs.
+	 * @param cloneeMethod in which <code>value</code> occurs.
 	 *
 	 * @return the clone of <code>value</code>.
+	 *
+	 * @pre value != null and cloneeMethod != null
+	 * @post result != null and result.oclIsTypeOf(stmt.evaluationType())
 	 */
-	public Value cloneASTFragment(Value value, SootMethod method) {
-		this.value = value;
-		this.method = method;
+	public Value cloneASTFragment(final Value value, final SootMethod cloneeMethod) {
+		this.method = cloneeMethod;
 		value.apply(this);
-		return resValue;
+		return cloneValue;
 	}
 
 	/**
-	 * <p>
 	 * Returns the AST chunks(Jimple <code>Value</code>s) corresponding to the arguments to the given invoke expression.
-	 * </p>
 	 *
 	 * @param v is the method invocation of interest.
 	 *
 	 * @return a collection of AST chunks.
 	 *
-	 * @post result.size() = v.getArgCount()
+	 * @pre v != null
+	 * @post result != null
+	 * @post result.oclIsKindOf(Sequence(Value)) and result.size() == v.getArgCount()
+	 * @post v.getArgs()->forall(o | result->at(v.getArgs().indexOf(o)).oclIsKindOf(o.evaluationType()))
 	 */
-	private ca.mcgill.sable.util.List getArgs(InvokeExpr v) {
-		ca.mcgill.sable.util.List result = new ca.mcgill.sable.util.ArrayList();
+	private List getArgs(final InvokeExpr v) {
+		List result = new ArrayList();
 
 		for (int i = result.size() - 1; i >= 0; i--) {
 			v.getArg(i).apply(this);
-			result.add(i, resValue);
+			result.add(i, cloneValue);
 		}
 		return result;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.5  2003/05/22 22:23:49  venku
+   Changed interface names to start with a "I".
+   Formatting.
+ */
