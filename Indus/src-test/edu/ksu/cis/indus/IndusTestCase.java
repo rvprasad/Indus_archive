@@ -32,12 +32,12 @@ public class IndusTestCase
 	/**
 	 * The name of the method being run.
 	 */
-	private String testMethodName;
+	private String testMethodName = "";
 
 	/**
 	 * The name of the test case instance.
 	 */
-	private String testName;
+	private String testName = "";
 
 	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
@@ -52,7 +52,7 @@ public class IndusTestCase
 	public String getName() {
 		final String _result;
 
-		if (testName != null) {
+		if (!testName.equals("")) {
 			_result = testName;
 		} else {
 			_result = testMethodName;
@@ -95,4 +95,11 @@ public class IndusTestCase
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
  */

@@ -90,15 +90,23 @@ public final class TestHelper {
 	 * @pre suite != null
 	 */
 	public static void appendSuiteNameToTestsIn(final TestSuite suite, final boolean recursive) {
+		String _suiteName = suite.getName();
+
 		for (final Enumeration _e = suite.tests(); _e.hasMoreElements();) {
 			final Test _test = (Test) _e.nextElement();
 
 			if (_test instanceof IndusTestCase) {
 				final IndusTestCase _t = (IndusTestCase) _test;
-				_t.setTestName(suite.getName() + ":" + _t.getName());
+
+				if (_suiteName != null) {
+					_t.setTestName(suite.getName() + ":" + _t.getName());
+				}
 			} else if (_test instanceof TestSuite) {
 				final TestSuite _t = (TestSuite) _test;
-				_t.setName(suite.getName() + ":" + _t.getName());
+
+				if (_suiteName != null) {
+					_t.setName(suite.getName() + ":" + _t.getName());
+				}
 
 				if (recursive) {
 					appendSuiteNameToTestsIn((TestSuite) _test, recursive);
@@ -111,11 +119,12 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 00:42:29  venku
+   - output formatting.
    Revision 1.4  2004/02/09 00:39:50  venku
    - output formatting.
    - UnitTestSuites alter the name of the test instances
      via appendSuiteTestName().
-
    Revision 1.3  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

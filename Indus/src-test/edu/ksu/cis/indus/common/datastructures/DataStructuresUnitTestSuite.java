@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.TestHelper;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -44,9 +45,9 @@ public final class DataStructuresUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-        final TestRunner _runner = new TestRunner();
-        final String[] _suiteName = { "edu.ksu.cis.indus.common.datastructures.DataStructuresUnitTestSuite" };
-        _runner.start(_suiteName);
+		final TestRunner _runner = new TestRunner();
+		final String[] _suiteName = { "edu.ksu.cis.indus.common.datastructures.DataStructuresUnitTestSuite" };
+		_runner.start(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -59,7 +60,7 @@ public final class DataStructuresUnitTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.datastructures");
+		final TestSuite _suite = new TestSuite();
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(FastUnionFindElementTest.class);
@@ -69,9 +70,10 @@ public final class DataStructuresUnitTestSuite {
 		_suite.addTestSuite(PairTest.class);
 		_suite.addTestSuite(TripleTest.class);
 		_suite.addTestSuite(QuadrapleTest.class);
-        _suite.addTestSuite(MarkerTest.class);
+		_suite.addTestSuite(MarkerTest.class);
 		//$JUnit-END$
-        TestHelper.appendSuiteNameToTestsIn(_suite, true);
+		TestHelper.appendSuiteNameToTestsIn(_suite, true);
+		_suite.setName(DataStructuresUnitTestSuite.class.getName());
 		return _suite;
 	}
 }
@@ -79,22 +81,21 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 00:39:50  venku
+   - output formatting.
+   - UnitTestSuites alter the name of the test instances
+     via appendSuiteTestName().
    Revision 1.3  2004/02/08 20:58:58  venku
    - class loading during testing was fixed.
-
    Revision 1.2  2004/02/08 20:52:22  venku
    - changed the way unit test suites can be run as applications.
    - renamed GraphUnitestSuite to GraphUnitTestSuite.
-
    Revision 1.1  2004/02/08 03:34:30  venku
    - renamed NoArgTestSuite to UnitTestSuite
-
    Revision 1.1  2004/02/08 01:04:13  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
-
    Revision 1.3  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
-
    Revision 1.2  2004/01/13 23:26:32  venku
    - documentation.
    Revision 1.1  2004/01/06 15:06:23  venku

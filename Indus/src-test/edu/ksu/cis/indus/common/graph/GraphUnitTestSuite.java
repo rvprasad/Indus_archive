@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.TestHelper;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -45,13 +46,13 @@ public final class GraphUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-        final TestRunner _runner = new TestRunner();
-        final String[] _suiteName = { "edu.ksu.cis.indus.common.graph.GraphUnitTestSuite" };
-        _runner.setLoading(false);
-        _runner.start(_suiteName);
+		final TestRunner _runner = new TestRunner();
+		final String[] _suiteName = { "edu.ksu.cis.indus.common.graph.GraphUnitTestSuite" };
+		_runner.setLoading(false);
+		_runner.start(_suiteName);
 	}
 
-    ///CLOVER:ON
+	///CLOVER:ON
 
 	/**
 	 * Creates the test suite.
@@ -61,16 +62,17 @@ public final class GraphUnitTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.graph");
+		final TestSuite _suite = new TestSuite();
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(SimpleNodeGraphTest.class);
-        _suite.addTestSuite(SimpleNodeGraphNoCycleTest.class);
-        _suite.addTestSuite(SimpleNodeGraphTest2.class);
-        _suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
+		_suite.addTestSuite(SimpleNodeGraphNoCycleTest.class);
+		_suite.addTestSuite(SimpleNodeGraphTest2.class);
+		_suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
 		_suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
-        TestHelper.appendSuiteNameToTestsIn(_suite, true);
+		TestHelper.appendSuiteNameToTestsIn(_suite, true);
+		_suite.setName(GraphUnitTestSuite.class.getName());
 		return _suite;
 	}
 }
@@ -78,25 +80,23 @@ public final class GraphUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 00:39:50  venku
+   - output formatting.
+   - UnitTestSuites alter the name of the test instances
+     via appendSuiteTestName().
    Revision 1.2  2004/02/08 20:58:58  venku
    - class loading during testing was fixed.
-
    Revision 1.1  2004/02/08 20:52:21  venku
    - changed the way unit test suites can be run as applications.
    - renamed GraphUnitestSuite to GraphUnitTestSuite.
-
    Revision 1.1  2004/02/08 03:34:30  venku
    - renamed NoArgTestSuite to UnitTestSuite
-
    Revision 1.1  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
-
    Revision 1.2  2004/02/05 16:12:36  venku
    - added a new test case for testing pseudoTails.
-
    Revision 1.1  2004/01/06 01:51:06  venku
    - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
@@ -106,7 +106,6 @@ public final class GraphUnitTestSuite {
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
      GraphNoArgTestSuite.
    - added checks to test exceptional behavior as well.
-
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -129,7 +128,7 @@ public final class GraphUnitTestSuite {
    - renamed test2 and test3 to JikesBased and JavacBased tests.
    Revision 1.2  2003/09/28 23:19:36  venku
  *** empty log message ***
-               Revision 1.1  2003/09/11 02:37:12  venku
-               - added a test case for javac compilation of Divergent04 test.
-               - created test suite to test directed and simple node graph.
+                 Revision 1.1  2003/09/11 02:37:12  venku
+                 - added a test case for javac compilation of Divergent04 test.
+                 - created test suite to test directed and simple node graph.
  */
