@@ -4,11 +4,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/xstream.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Indus-Plugin/lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="/Indus-Plugin/lib/commons-logging-api.jar"/>
-	<classpathentry sourcepath="/home/ganeshan/Desktop/Downloads/temp/sootc/temp/soot-2.1.0-barebones.jar" kind="lib" path="/Indus-Plugin/lib/soot-2.1.0-modified.jar"/>
-	<classpathentry kind="lib" path="/Indus-Plugin/lib/indus.jar"/>
-	<classpathentry kind="lib" path="/Indus-Plugin/lib/slicer.jar"/>
-	<classpathentry kind="lib" path="/Indus-Plugin/lib/staticanalyses.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -418,7 +418,12 @@ public class IndusConfigurationDialog
 						   + ":Consider value: " + _c.isBConsiderValue();
 						   criteriasList.add(_disp);*/
 					}
-
+					if (_lst.size() == 0) {
+						for (int _i = 0; _i < 5; _i++) {
+							final TableItem _item = new TableItem(criteriasList, SWT.NULL);
+							_item.setText(new String[] {" ", " ", " ", " "});
+						}	
+					}					
 					for (int _i = 0; _i < _colnames.length; _i++) {
 						criteriasList.getColumn(_i).pack();
 					}
