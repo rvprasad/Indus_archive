@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.common.CustomToStringStyle;
 
 import edu.ksu.cis.indus.interfaces.AbstractPoolable;
 
+import java.util.Stack;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import soot.SootMethod;
@@ -35,29 +37,23 @@ abstract class AbstractSliceCriterion
   extends AbstractPoolable
   implements Cloneable,
 	  ISliceCriterion {
-	/**
+	/** 
 	 * The method in which <code>stmt</code> occurs.
 	 */
 	protected SootMethod method;
 
-	/**
+	/** 
+	 * This captures the call sequence that caused this criterion in the callee to occur.  So, when slicing, if this field is
+	 * non-null, we only will return to the call-site instead of all possible call-sites (which is what happend if this
+	 * field is null).
+	 */
+	private Stack callStack;
+
+	/** 
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
 	 * value <code>false</code> to indicate execution should not be considered.
 	 */
 	private boolean considerExecution;
-
-	/**
-	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
-	 *
-	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
-	 * 		  considered while slicing.  This also means all the subexpressions of the associated expression are also
-	 * 		  considered as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching
-	 * 		  this criterion should be considered while slicing.  This means none of the subexpressions of the associated
-	 * 		  expression are considered as slice criteria.
-	 */
-	final void setConsiderExecution(final boolean shouldConsiderExecution) {
-		considerExecution = shouldConsiderExecution;
-	}
 
 	/**
 	 * Checks if the given object is "equal" to this object.
@@ -71,8 +67,9 @@ abstract class AbstractSliceCriterion
 
 		if (o instanceof AbstractSliceCriterion) {
 			_result =
-				((AbstractSliceCriterion) o).method == method
-				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
+				((AbstractSliceCriterion) o).method.equals(method)
+				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution
+				  && ((AbstractSliceCriterion) o).callStack.equals(callStack);
 		}
 		return _result;
 	}
@@ -84,6 +81,10 @@ abstract class AbstractSliceCriterion
 		int _hash = 17;
 		_hash = _hash * 37 + Boolean.valueOf(considerExecution).hashCode();
 		_hash = _hash * 37 + method.hashCode();
+
+		if (callStack != null) {
+			_hash = _hash * 37 + callStack.hashCode();
+		}
 		return _hash;
 	}
 
@@ -124,6 +125,37 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
+	 * Sets the value of <code>callStack</code>.
+	 *
+	 * @param theCallStack value of <code>callStack</code>.
+	 */
+	final void setCallStack(final Stack theCallStack) {
+		callStack = theCallStack;
+	}
+
+	/**
+	 * Retrieves the value in <code>callStack</code>.
+	 *
+	 * @return the value in <code>callStack</code>.
+	 */
+	final Stack getCallStack() {
+		return callStack;
+	}
+
+	/**
+	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
+	 *
+	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
+	 * 		  considered while slicing.  This also means all the subexpressions of the associated expression are also
+	 * 		  considered as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching
+	 * 		  this criterion should be considered while slicing.  This means none of the subexpressions of the associated
+	 * 		  expression are considered as slice criteria.
+	 */
+	final void setConsiderExecution(final boolean shouldConsiderExecution) {
+		considerExecution = shouldConsiderExecution;
+	}
+
+	/**
 	 * Returns the stored criterion object.
 	 *
 	 * @return Object representing the criterion.
@@ -140,14 +172,25 @@ abstract class AbstractSliceCriterion
 	final boolean isConsiderExecution() {
 		return considerExecution;
 	}
+
+	/**
+	 * Reset some of the member fields.
+	 */
+	void reset() {
+		callStack = null;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/09 05:05:25  venku
+   - refactored the code to enable the criteria creation to be completely hidden
+     from the user.
+   - exposed the setting of the considerExecution flag of the criteria in the factory.
+   - made SliceCriteriaFactory a singleton.
    Revision 1.17  2004/07/01 00:40:13  venku
    - added setConsiderExecution(boolean) to the public interface of SliceCriterion.
-
    Revision 1.16  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.15  2004/06/24 06:53:53  venku

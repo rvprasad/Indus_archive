@@ -32,6 +32,7 @@ Version 0.4
 ------------
 	- Feature requests 397, 411, 427.
 	- Class file and Sources are now v1.4 compatible.
+	- Slicing is more interprocedural now.
 	
 
 Version 0.3
