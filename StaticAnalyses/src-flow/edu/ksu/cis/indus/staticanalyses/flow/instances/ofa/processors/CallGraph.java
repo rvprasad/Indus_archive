@@ -287,8 +287,8 @@ public class CallGraph
 		final Context _context = new Context();
 		_context.setRootMethod(root);
 
-		final Collection _result = new HashSet();
 		final Collection _callees = getCallees(_ie, _context);
+		final Collection _result = new HashSet(_callees);
 
 		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
 			_result.addAll(getMethodsReachableFrom((SootMethod) _i.next(), true));
@@ -676,6 +676,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.60  2004/07/23 10:00:26  venku
+   - enabled toggling the topological sort direction.
+
    Revision 1.59  2004/07/23 09:53:21  venku
    - extended call graph interface to extract methods in topologically sorted order.
 
