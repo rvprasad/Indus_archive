@@ -44,7 +44,7 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-import soot.tagkit.Tag;
+import soot.tagkit.StringTag;
 
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 
@@ -80,7 +80,7 @@ public class TagBasedSlicingTransformer
 	/** 
 	 * Default name of slicing tags.
 	 */
-	private static final String SLICING_TAG = SlicingTag.class.toString();
+	private static final String SLICING_TAG = "Slicing Tag";
 
 	/**
 	 * The system to be transformed.
@@ -95,50 +95,12 @@ public class TagBasedSlicingTransformer
 	/**
 	 * The tag to be used during transformation.
 	 */
-	private SlicingTag tag;
+	private StringTag tag;
 
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName = SLICING_TAG;
-
-	/**
-	 * The tag used to annotate the system with slicing information.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public class SlicingTag
-	  implements Tag {
-		/**
-		 * The name of the tag.
-		 */
-		private final String tagName;
-
-		/**
-		 * Creates a new SlicingTag object.
-		 *
-		 * @param name to be used to identify this tag instance.
-		 */
-		SlicingTag(final String name) {
-			tagName = name;
-		}
-
-		/**
-		 * @see soot.tagkit.Tag#getName()
-		 */
-		public String getName() {
-			return tagName;
-		}
-
-		/**
-		 * @see soot.tagkit.Tag#getValue()
-		 */
-		public byte[] getValue() {
-			return EMPTY_BYTE_ARRAY;
-		}
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
@@ -305,14 +267,14 @@ public class TagBasedSlicingTransformer
 	 *
 	 * @pre theSystem != null
 	 */
-	protected void initialize(final Scene theSystem, final String theTagName) {
+	public void initialize(final Scene theSystem, final String theTagName) {
 		system = theSystem;
 
 		if (theTagName != null) {
-			tag = new SlicingTag(theTagName);
+			tag = new StringTag(theTagName);
 			tagName = theTagName;
 		} else {
-			tag = new SlicingTag(tagName);
+			tag = new StringTag(tagName);
 		}
 	}
 }
@@ -320,6 +282,10 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/21 09:30:31  venku
+    - added a new transform() method which can transform at the level of ValueBox.
+    - CloningBasedSlicingTransformer does not do anything in this new method.
+
    Revision 1.2  2003/08/20 18:31:22  venku
    Documentation errors fixed.
    Revision 1.1  2003/08/19 12:55:50  venku

@@ -247,7 +247,7 @@ public class CloningBasedSlicingTransformer
 	 *
 	 * @pre theCloner != null and theSystem != null and theTransformedSystem != null
 	 */
-	protected void initialize(final Cloner theCloner, final Scene theSystem, final Scene theTransformedSystem) {
+	public void initialize(final Cloner theCloner, final Scene theSystem, final Scene theTransformedSystem) {
 		cloner = theCloner;
 		untransformedSystem = theSystem;
 		transformedSystem = theTransformedSystem;
@@ -312,6 +312,10 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/08/21 09:30:31  venku
+    - added a new transform() method which can transform at the level of ValueBox.
+    - CloningBasedSlicingTransformer does not do anything in this new method.
+
    Revision 1.17  2003/08/21 07:34:41  venku
    Documentation.
 
