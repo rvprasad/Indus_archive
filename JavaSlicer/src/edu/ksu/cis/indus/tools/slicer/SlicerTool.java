@@ -474,11 +474,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/27 01:27:46  venku
+   - documentation.
    Revision 1.5  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.
    - documentation.
-
    Revision 1.4  2003/09/26 15:08:02  venku
    - completed support for exposing slicer as a tool
      and configuring it both in Bandera and outside it.

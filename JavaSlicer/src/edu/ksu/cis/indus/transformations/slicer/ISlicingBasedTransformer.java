@@ -42,4 +42,7 @@ public interface ISlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/15 07:52:08  venku
+   - added a new transformer interface specifically targetted for slicing.
+   - implemented the above interface.
  */

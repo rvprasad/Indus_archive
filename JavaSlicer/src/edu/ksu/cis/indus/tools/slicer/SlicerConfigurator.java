@@ -49,7 +49,6 @@ public final class SlicerConfigurator
 	SlicerConfigurator() {
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -82,7 +81,8 @@ public final class SlicerConfigurator
 		oneSpanHorzBegin.horizontalAlignment = GridData.HORIZONTAL_ALIGN_BEGINNING;
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, button,
+				configuration));
 
 		// Slice type related group
 		Group group = new Group(composite, SWT.NONE);
@@ -137,7 +137,8 @@ public final class SlicerConfigurator
 			  .booleanValue());
 		button.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INTERFERENCEDA,
-				button, configuration));
+				button,
+				configuration));
 
 		// Divergence dependence related group
 		group = new Group(composite, SWT.NONE);
@@ -148,14 +149,16 @@ public final class SlicerConfigurator
 		button.setText("use divergence dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA, button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use interprocedural variant");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA))
 			  .booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
+				button, configuration));
 
 		// Ready dependence related group
 		group = new Group(composite, SWT.NONE);
@@ -169,49 +172,60 @@ public final class SlicerConfigurator
 		button.setText("use ready dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA, button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use equivalence class-based analysis");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_READYDA))
 			  .booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.EQUIVALENCE_CLASS_BASED_READYDA,
+				button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use rule 1 of ready dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use rule 2 of ready dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use rule 3 of ready dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
+				configuration));
 
 		button = new Button(group, SWT.TOGGLE);
 		button.setText("use rule 4 of ready dependence");
 		button.setLayoutData(oneSpanHorzBegin);
 		button.setSelection(((Boolean) configuration.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button, configuration));
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
+				configuration));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/27 01:09:35  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.5  2003/09/26 15:30:39  venku
    - removed PropertyIdentifier class.
    - ripple effect of the above change.
    - formatting
-
    Revision 1.4  2003/09/26 15:08:02  venku
    - completed support for exposing slicer as a tool
      and configuring it both in Bandera and outside it.

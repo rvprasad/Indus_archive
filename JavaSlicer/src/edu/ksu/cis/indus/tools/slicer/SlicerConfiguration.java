@@ -442,6 +442,10 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/27 01:09:35  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.6  2003/09/26 15:30:39  venku
    - removed PropertyIdentifier class.
    - ripple effect of the above change.
@@ -450,7 +454,7 @@ class SlicerConfiguration
    - checkpoint commit.
    Revision 1.4  2003/09/26 05:55:41  venku
  *** empty log message ***
-         Revision 1.1  2003/09/24 07:32:23  venku
-         - Created an implementation of indus tool api specific to Slicer.
-           The GUI needs to be setup and bandera adapter needs to be fixed.
+           Revision 1.1  2003/09/24 07:32:23  venku
+           - Created an implementation of indus tool api specific to Slicer.
+             The GUI needs to be setup and bandera adapter needs to be fixed.
  */

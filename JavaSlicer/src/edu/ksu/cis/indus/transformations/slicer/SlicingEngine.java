@@ -229,7 +229,7 @@ public class SlicingEngine {
 			if (id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
 				  || id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
 				  || id.equals(DependencyAnalysis.CONTROL_DA)
-                  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
+				  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
 				intraProceduralDependencies.add(controller.getAnalysis(id));
 			}
 		}
@@ -785,6 +785,10 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/09/15 08:09:17  venku
+   - fixed param dependency.  However, this needs to be addressed
+     in a generic setting.  Also, the theoretics concerned to inclusion
+     should be dealt appropriately.
    Revision 1.13  2003/08/21 10:25:08  venku
    Now here is where things get interesting.  Inclusion has 2 meanings.
    One is should the entity be included in the transformed system.

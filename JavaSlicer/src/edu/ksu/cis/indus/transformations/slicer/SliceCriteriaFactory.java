@@ -211,6 +211,10 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/15 08:09:17  venku
+   - fixed param dependency.  However, this needs to be addressed
+     in a generic setting.  Also, the theoretics concerned to inclusion
+     should be dealt appropriately.
    Revision 1.9  2003/08/21 09:31:52  venku
    If the SliceExpr was created based on a Def Box, it would not have
    included the statement.  This was fixed.

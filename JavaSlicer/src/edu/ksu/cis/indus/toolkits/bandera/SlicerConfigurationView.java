@@ -47,7 +47,7 @@ public class SlicerConfigurationView
 	 */
 	private final AbstractToolConfigurator configurator;
 
-	/** 
+	/**
 	 * The window in which the configuration interface of the slicer will be displayed.
 	 */
 	private Shell shell;
@@ -124,6 +124,10 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/27 01:09:35  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.3  2003/09/26 15:07:51  venku
    - completed support for exposing slicer as a tool
      and configuring it both in Bandera and outside it.

@@ -318,9 +318,10 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/09/27 01:08:38  venku
+   - documentation.
    Revision 1.21  2003/09/26 15:08:35  venku
    - ripple effect of changes in ITransformer.
-
    Revision 1.20  2003/09/15 07:52:08  venku
    - added a new transformer interface specifically targetted for slicing.
    - implemented the above interface.
