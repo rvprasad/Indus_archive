@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
-import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -31,7 +30,7 @@ import java.util.Collection;
  * @version $Revision$
  */
 public class CGBasedProcessingController
-  extends ProcessingController {
+  extends ValueAnalyzerBasedProcessingController {
 	/**
 	 * Provides the call graph information to drive the processing.
 	 */
@@ -67,8 +66,10 @@ public class CGBasedProcessingController
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
+
    Revision 1.5  2003/10/21 08:41:04  venku
    - Changed the methods/classes get filtered.
+
    Revision 1.4  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
