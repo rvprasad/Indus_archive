@@ -370,7 +370,7 @@ public class ReadyDAv1
 	 * @return a collection of statement.
 	 *
 	 * @pre dependentStmt.isOclKindOf(Stmt) and method.isOclIsKindOf(SootMethod)
-	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod))) or result.isOclKindOf(Collection(Pair(null, SootMethod)))
+	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod)))
 	 *
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
@@ -389,7 +389,7 @@ public class ReadyDAv1
 	 * @return a collection of statement.
 	 *
 	 * @pre dependeeStmt.isOclKindOf(Stmt) and method.oclIsKindOf(SootMethod)
-	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod))) or result.isOclKindOf(Collection(Pair(null, SootMethod)))
+	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod)))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents( java.lang.Object,
 	 * 		java.lang.Object)
