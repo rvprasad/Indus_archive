@@ -42,12 +42,14 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
-import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -66,12 +68,12 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public final class IATester
+public final class EADriver
   extends Tester {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(IATester.class);
+	private static final Log LOGGER = LogFactory.getLog(EADriver.class);
 
 	/**
 	 * The provided command line arguments.
@@ -79,11 +81,13 @@ public final class IATester
 	private String[] args;
 
 	/**
-	 * Creates a new IATester object.
+	 * Creates a new EADriver object.
 	 *
 	 * @param argsParam is the command line arguments.
+	 *
+	 * @post args.oclAsType(Sequence(String)) == argsParam.oclAsType(Sequence(String))
 	 */
-	private IATester(final String[] argsParam) {
+	private EADriver(final String[] argsParam) {
 		this.args = argsParam;
 	}
 
@@ -96,7 +100,7 @@ public final class IATester
 		if (argsParam.length == 0) {
 			System.out.println("Please specify a class to consider for the analysis.");
 		}
-		(new IATester(argsParam)).execute();
+		(new EADriver(argsParam)).execute();
 	}
 
 	/**
@@ -104,7 +108,7 @@ public final class IATester
 	 */
 	protected void execute() {
 		Scene scm = loadupClassesAndCollectMains(args);
-		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: BFA analysis");
@@ -123,30 +127,36 @@ public final class IATester
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
 
+        // Create call graph
 		CallGraph cg = new CallGraph();
 		cg.hookup(ppc);
-
-		ThreadGraph tg = new ThreadGraph(cg);
-		tg.hookup(ppc);
-
-		EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
-		analysis.hookup(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: BFA postprocessing");
 		}
 		start = System.currentTimeMillis();
 		ppc.process();
-		stop = System.currentTimeMillis();
-
-		analysis.unhook(ppc);
-		tg.unhook(ppc);
 		cg.unhook(ppc);
+
+        ppc = new CGBasedProcessingController(cg);
+        ppc.setAnalyzer(aa);
+        // Create Thread graph 
+		ThreadGraph tg = new ThreadGraph(cg);
+		tg.hookup(ppc);
+		ppc.process();
+        tg.unhook(ppc);
+        
+        // Perform equivalence-class-based escape analysis
+        EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
+        analysis.hookup(ppc);
+        ppc.process();
+        stop = System.currentTimeMillis();
+		analysis.unhook(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: BFA postprocessing");
 		}
-		addTimeLog(", BFA postprocessing took ", stop - start);
+		addTimeLog("BFA postprocessing took ", stop - start);
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
