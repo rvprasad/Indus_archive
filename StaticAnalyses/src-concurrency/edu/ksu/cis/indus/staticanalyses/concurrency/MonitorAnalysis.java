@@ -58,6 +58,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,12 +85,7 @@ public final class MonitorAnalysis
 	/** 
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
-	public static final Predicate ENTER_MONITOR_STMT_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object obj) {
-				return obj instanceof EnterMonitorStmt;
-			}
-		};
+	public static final Predicate ENTER_MONITOR_STMT_PREDICATE = PredicateUtils.instanceofPredicate(EnterMonitorStmt.class);
 
 	/** 
 	 * A predicate used to filter statements with invoke expressions. Filter expression is

@@ -50,6 +50,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -218,22 +219,6 @@ public class ThreadGraph
 		cfgAnalysis = cfa;
 	}
 
-	/**
-	 * This predicate class can be used to detect <code>NewExpr</code> objects.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static final class NewExprPredicate
-	  implements Predicate {
-		/**
-		 * @see Predicate#evaluate(java.lang.Object)
-		 */
-		public boolean evaluate(final Object object) {
-			return object instanceof NewExpr;
-		}
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
@@ -454,7 +439,7 @@ public class ThreadGraph
 			LOGGER.debug("New thread expressions are: " + _values);
 		}
 
-		final Predicate _pred = new NewExprPredicate();
+		final Predicate _pred = PredicateUtils.instanceofPredicate(NewExpr.class);
 
 		for (final Iterator _i = IteratorUtils.filteredIterator(_values.iterator(), _pred); _i.hasNext();) {
 			final NewExpr _value = (NewExpr) _i.next();
