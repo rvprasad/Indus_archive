@@ -18,14 +18,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.IWorkBag;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-
-import junit.extensions.TestSetup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -36,17 +30,16 @@ import junit.swingui.TestRunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.ArrayType;
-import soot.RefType;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.VoidType;
 
 
 /**
- * This test flow analysis framework instance.
+ * This tests a flow analysis framework instance.  This test cannot be run by itself.  It needs to be run via a decorator.
+ * This approach lets any future tests that use flow analysis framework can be extended easily to drive this test too. (More
+ * test the  merrier.)   <code>FATestSetup</code> is the decorator provided for this purpose.  Refer to
+ * <code>FATestSetup</code> for more details.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -55,88 +48,38 @@ import soot.VoidType;
 public final class FATester
   extends TestCase {
 	/**
-	 * This is a white space separated list of class names that are the application classes in the system.
-	 */
-	static String classes;
-
-	/**
-	 * The flow analysis framework instance to test.
-	 */
-	static FA fa;
-
-	/**
-	 * The tag used by the flow analysis instance.
-	 */
-	private static final String TAG_NAME = "FATester:TestTag";
-
-	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FATester.class);
 
 	/**
-	 * This is the setup in which various tests are run.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
+	 * The flow analysis framework instance to test.
 	 */
-	private static final class FATestSetup
-	  extends TestSetup {
-		/**
-		 * Creates a new FATestSetup object.
-		 *
-		 * @param test is the test to run in this setup.
-		 *
-		 * @pre test != null
-		 */
-		FATestSetup(final Test test) {
-			super(test);
-		}
+	FA fa;
 
-		/**
-		 * @see TestCase#setUp()
-		 */
-		protected void setUp() {
-			final AbstractAnalyzer _ofa = OFAnalyzer.getFSOSAnalyzer(TAG_NAME);
-			final Scene _scene = Scene.v();
+	/**
+	 * The name of that tag used to identify parts of the system that was touched by the analysis.
+	 */
+	private String faTagName;
 
-			if (classes == null) {
-				classes = System.getProperty("fatester.classes");
-			}
+	/**
+	 * @see IFATester#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
+	 */
+	public void setFA(final FA theFA) {
+		fa = theFA;
+	}
 
-			if (classes == null || classes.length() == 0) {
-				throw new RuntimeException("fatester.classes property was empty.  Aborting.");
-			}
-
-			final StringBuffer _sb = new StringBuffer(classes);
-			final String[] _j = _sb.toString().split(" ");
-			final Collection _rootMethods = new ArrayList();
-
-			for (int _i = _j.length - 1; _i >= 0; _i--) {
-				final SootClass _sc = _scene.loadClassAndSupport(_j[_i]);
-
-				if (_sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-						  VoidType.v())) {
-					final SootMethod _sm =
-						_sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-							VoidType.v());
-
-					if (_sm.isPublic() && _sm.isConcrete()) {
-						_rootMethods.add(_sm);
-					}
-				}
-			}
-
-			_ofa.analyze(_scene, _rootMethods);
-			fa = _ofa.fa;
-		}
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.FATestSetup.IFATester#setFATagName(java.lang.String)
+	 */
+	public void setFATagName(final String tagName) {
+		faTagName = tagName;
 	}
 
 	/**
 	 * This is the entry point via command-line.
 	 *
-	 * @param args are the command line arguments
+	 * @param args are a list of space separated names of classes to be analyzed.
 	 *
 	 * @pre args != null
 	 */
@@ -147,7 +90,7 @@ public final class FATester
 			_sb.append(args[_i] + " ");
 		}
 
-		classes = _sb.toString();
+		System.setProperty(FATestSetup.CLASSES_PROPERTY, _sb.toString());
 
 		final TestRunner _runner = new TestRunner();
 		_runner.setLoading(false);
@@ -164,7 +107,7 @@ public final class FATester
 	 * @post result != null
 	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.FA");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.FATester");
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(FATester.class);
@@ -190,7 +133,7 @@ public final class FATester
 		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (_sc.hasTag(TAG_NAME)) {
+			if (_sc.hasTag(faTagName)) {
 				if (_sc.hasSuperclass()) {
 					_wb.addWorkNoDuplicates(_sc.getSuperclass());
 				}
@@ -202,10 +145,10 @@ public final class FATester
 
 		while (_wb.hasWork()) {
 			final SootClass _sc = (SootClass) _wb.getWork();
-			assertTrue(_sc.hasTag(TAG_NAME));
+			assertTrue(_sc.hasTag(faTagName));
 			assertTrue(_processedClasses.contains(_sc));
 
-			if (_sc.hasTag(TAG_NAME)) {
+			if (_sc.hasTag(faTagName)) {
 				if (_sc.hasSuperclass()) {
 					_wb.addWorkNoDuplicates(_sc.getSuperclass());
 				}
@@ -223,12 +166,31 @@ public final class FATester
 		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (_sc.hasTag(TAG_NAME)) {
+			if (_sc.hasTag(faTagName)) {
 				assertTrue(_processedClasses.contains(_sc));
 			} else {
 				assertFalse(_processedClasses.contains(_sc));
 			}
 		}
+	}
+
+	/**
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp()
+	  throws Exception {
+		if (fa == null || faTagName == null) {
+			throw new IllegalStateException("Please call setFA() and setFATagName() before using this test.");
+		}
+	}
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		fa = null;
+		faTagName = null;
 	}
 
 	/**
@@ -239,14 +201,14 @@ public final class FATester
 			final SootClass _sc = (SootClass) _i.next();
 			boolean _flag = false;
 
-			if (LOGGER.isDebugEnabled() && _sc.hasTag(TAG_NAME)) {
+			if (LOGGER.isDebugEnabled() && _sc.hasTag(faTagName)) {
 				LOGGER.debug("TAGGED Class: " + _sc);
 			}
 
 			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
 				final SootField _sf = (SootField) _j.next();
 
-				if (_sf.hasTag(TAG_NAME)) {
+				if (_sf.hasTag(faTagName)) {
 					_flag = true;
 
 					if (LOGGER.isDebugEnabled()) {
@@ -258,7 +220,7 @@ public final class FATester
 			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
 
-				if (_sm.hasTag(TAG_NAME)) {
+				if (_sm.hasTag(faTagName)) {
 					assertNotNull(fa.queryMethodVariant(_sm));
 					_flag = true;
 
@@ -271,7 +233,7 @@ public final class FATester
 			}
 
 			if (_flag) {
-				assertTrue(_sc.hasTag(TAG_NAME));
+				assertTrue(_sc.hasTag(faTagName));
 			}
 		}
 	}
@@ -283,13 +245,13 @@ public final class FATester
 		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (!_sc.hasTag(TAG_NAME)) {
+			if (!_sc.hasTag(faTagName)) {
 				for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
-					assertFalse(((SootField) _j.next()).hasTag(TAG_NAME));
+					assertFalse(((SootField) _j.next()).hasTag(faTagName));
 				}
 
 				for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-					assertFalse(((SootMethod) _j.next()).hasTag(TAG_NAME));
+					assertFalse(((SootMethod) _j.next()).hasTag(faTagName));
 				}
 			}
 		}
@@ -299,10 +261,11 @@ public final class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/30 10:06:41  venku
+    empty log message
    Revision 1.9  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.8  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -315,7 +278,7 @@ public final class FATester
    Revision 1.5  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
    - made use of AbstractDirectedGraphTest in
-     CallGraphTester to test the constructed call graphs.
+     CallGraphInfoTester to test the constructed call graphs.
    Revision 1.4  2003/12/07 08:39:23  venku
    - added more tests.
    Revision 1.3  2003/12/07 03:32:21  venku
