@@ -290,9 +290,9 @@ public final class DependenceExtractor
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 					final Object _t = _j.next();
 					final boolean _containsKey = criteriabase2contexts.containsKey(_t);
-
-					if (_t instanceof Pair
-						  && (!_containsKey || (_containsKey && !((Collection) criteriabase2contexts.get(_t)).contains(null)))) {
+					final boolean _b = !((Collection) criteriabase2contexts.get(_t)).contains(null);
+                    
+                    if (_t instanceof Pair  && (!_containsKey || (_containsKey && _b))) {
 						final Pair _pair = (Pair) _t;
 						final Stmt _stmt = (Stmt) _pair.getFirst();
 						_context.setStmt(_stmt);
