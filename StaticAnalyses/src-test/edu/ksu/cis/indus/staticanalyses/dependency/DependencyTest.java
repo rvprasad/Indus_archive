@@ -17,23 +17,15 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,7 +55,7 @@ public final class DependencyTest
 	/**
 	 * This provides the information for the test.  This drives the analyses and this object tests the output.
 	 */
-	private DependencyXMLizer xmlizer;
+	DependencyXMLizer xmlizer;
 
 	/**
 	 * This is the directory in which the regression test inputs are stored.
@@ -81,27 +73,6 @@ public final class DependencyTest
 	public DependencyTest(final DependencyXMLizer dt, final String xmlInputDir) {
 		xmlizer = dt;
 		xmlInDir = xmlInputDir;
-	}
-
-	/**
-	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-	 * <code>indus.staticanalyses.dependency.DependencyTest.properties.file</code> system property.  Refer to
-	 * <code>edu.ksu.cis.indus.staticanalyses.dependency.DependencyTest.properties</code> for the format of the file.
-	 *
-	 * @return the suite of tests.
-	 *
-	 * @throws RuntimeException when <code>indus.dependencytest.properties.file</code> property is unspecified.
-	 */
-	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
-		final String _propFileName = System.getProperty("indus.staticanalyses.dependency.DependencyTest.properties.file");
-
-		if (_propFileName == null) {
-			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
-				+ "-Dindus.dependencytest.properties.file");
-		}
-		setupTests(_propFileName, _suite);
-		return _suite;
 	}
 
 	/**
@@ -159,74 +130,15 @@ public final class DependencyTest
 		G.reset();
 		xmlizer.reset();
 	}
-
-	/**
-	 * Sets up the test fixture.
-	 *
-	 * @param propFileName is the name of the file with the data to setup the test fixture.
-	 * @param suite will contain new tests based on the fixture data (upon return).
-	 *
-	 * @throws IllegalArgumentException when the fixture data is invalid.
-	 *
-	 * @pre propFileName != null and suite != null
-	 */
-	private static void setupTests(final String propFileName, final TestSuite suite) {
-		final Properties _props = new Properties();
-		final IJimpleIDGenerator _generator = new UniqueJimpleIDGenerator();
-
-		try {
-			_props.load(new FileInputStream(new File(propFileName)));
-
-			final String[] _configs = _props.getProperty("configs").split(" ");
-
-			for (int _i = 0; _i < _configs.length; _i++) {
-				final String _config = _configs[_i];
-				final String[] _temp = _props.getProperty(_config + ".classNames").split(" ");
-				final String _xmlOutputDir = _props.getProperty(_config + ".xmlOutputDir");
-				final String _xmlInputDir = _props.getProperty(_config + ".xmlInputDir");
-				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlInputDir);
-
-				if (!_f.exists() || !_f.canRead()) {
-					LOGGER.error("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-				_f = new File(_xmlOutputDir);
-
-				if (!_f.exists() || !_f.canWrite()) {
-					LOGGER.error("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-
-				DependencyTest _test;
-
-				try {
-					_test = new DependencyTest(new DependencyXMLizer(true), _xmlInputDir);
-					_test.xmlizer.setClassNames(_temp);
-					_test.xmlizer.setXMLOutputDir(_xmlOutputDir);
-					_test.xmlizer.setGenerator(_generator);
-					_test.xmlizer.populateDAs();
-
-					if (_classpath != null) {
-						_test.xmlizer.addToSootClassPath(_classpath);
-					}
-				} catch (IllegalArgumentException _e) {
-					_test = null;
-				}
-
-				if (_test != null) {
-					suite.addTest(_test);
-				}
-			}
-		} catch (IOException _e) {
-			throw new IllegalArgumentException("Specified property file does not exist.");
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/03 21:07:07  venku
+   - changed the system property name.
+   - documentation.
+
    Revision 1.10  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

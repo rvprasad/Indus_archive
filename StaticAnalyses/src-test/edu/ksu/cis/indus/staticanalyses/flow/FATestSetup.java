@@ -137,6 +137,13 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/03 19:52:54  venku
+   - renamed CallGraphInfoTest to CallGraphTest
+   - all tests of a kind have to be exposed via a suite like
+     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
+     automated testing.
+   - all properties should start with indus and not edu.ksu.cis.indus...
+
    Revision 1.1  2003/12/31 08:48:59  venku
    - Refactoring.
    - Setup classes setup each tests by data created by a common setup.

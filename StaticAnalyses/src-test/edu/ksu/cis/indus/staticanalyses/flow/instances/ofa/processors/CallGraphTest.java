@@ -23,8 +23,10 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.IProcessor;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
+import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -49,7 +51,8 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public final class CallGraphTest
-  extends AbstractDirectedGraphTest {
+  extends AbstractDirectedGraphTest
+  implements IFAProcessorTest {
 	/**
 	 * The call graph to be tested.
 	 */
@@ -71,37 +74,32 @@ public final class CallGraphTest
 	private SimpleNodeGraph cg;
 
 	/**
-	 * Sets the call graph to be used during test.
-	 *
-	 * @param sng is the graph.
-	 *
-	 * @pre sng != null
-	 */
-	public void setCallGraph(final SimpleNodeGraph sng) {
-		cg = sng;
-		dg = cg;
-	}
-
-	/**
-	 * Sets the call graph information instance to be used during test.
-	 *
-	 * @param callGraphInfo provides call graph information.
-	 *
-	 * @pre callGraphInfo != null
-	 */
-	public void setCallGraphInfo(final ICallGraphInfo callGraphInfo) {
-		cgi = callGraphInfo;
-	}
-
-	/**
 	 * Sets the instance of OFAnalyzer to be used during testing.
 	 *
 	 * @param valueAnalyzer to be used by the test.
 	 *
 	 * @pre valueAnalyzer != null
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setFA(IValueAnalyzer)
 	 */
-	public void setOFA(final IValueAnalyzer valueAnalyzer) {
+	public void setFA(final IValueAnalyzer valueAnalyzer) {
 		ofa = (OFAnalyzer) valueAnalyzer;
+	}
+
+	/**
+	 * Sets the call graph information instance to be used during test.
+	 *
+	 * @param processor provides call graph information.
+	 *
+	 * @pre processor != null
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(IProcessor)
+	 */
+	public void setProcessor(final IProcessor processor) {
+		final CallGraph _cg = (CallGraph) processor;
+		cgi = (ICallGraphInfo) _cg;
+		cg = (SimpleNodeGraph) _cg.getCallGraph();
+		dg = cg;
 	}
 
 	/**
@@ -368,13 +366,14 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/06 01:51:55  venku
+   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.1  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like
-     FATestSuite or CallGraphTestSuite.  This is to enable
+     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
      automated testing.
    - all properties should start with indus and not edu.ksu.cis.indus...
-
    Revision 1.1  2003/12/31 08:48:59  venku
    - Refactoring.
    - Setup classes setup each tests by data created by a common setup.
@@ -392,7 +391,7 @@ public final class CallGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphTestSuite.
+     GraphNoArgTestSuite.
    - added checks to test exceptional behavior as well.
    Revision 1.17  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and

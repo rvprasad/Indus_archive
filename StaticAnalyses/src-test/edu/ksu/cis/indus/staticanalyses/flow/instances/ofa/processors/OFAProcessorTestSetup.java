@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
+import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import java.util.Collection;
@@ -39,7 +40,7 @@ import soot.G;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CallGraphTestSetup
+public final class OFAProcessorTestSetup
   extends FATestSetup {
 	/**
 	 * The call graph implementation to be tested.
@@ -47,11 +48,11 @@ public final class CallGraphTestSetup
 	protected CallGraph cgiImpl;
 
 	/**
-	 * Creates a new CallGraphTestSetup object.
+	 * Creates a new OFAProcessorTestSetup object.
 	 *
 	 * @param test to be run in this set up.
 	 */
-	CallGraphTestSetup(final TestSuite test) {
+	OFAProcessorTestSetup(final TestSuite test) {
 		super(test);
 		cgiImpl = new CallGraph();
 	}
@@ -71,14 +72,13 @@ public final class CallGraphTestSetup
 		_pc.process();
 		cgiImpl.unhook(_pc);
 
-        Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
+		Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
 
-        for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-            final CallGraphTest _tester = (CallGraphTest) _i.next();
-            _tester.setOFA(valueAnalyzer);
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			final IFAProcessorTest _tester = (IFAProcessorTest) _i.next();
+			_tester.setFA(valueAnalyzer);
 			_tester.setScene(scene);
-            _tester.setCallGraphInfo(cgiImpl);
-            _tester.setCallGraph((SimpleNodeGraph) cgiImpl.getCallGraph());
+			_tester.setProcessor(cgiImpl);
 		}
 	}
 
@@ -94,11 +94,16 @@ public final class CallGraphTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/03 19:52:54  venku
+   - renamed CallGraphInfoTest to CallGraphTest
+   - all tests of a kind have to be exposed via a suite like
+     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
+     automated testing.
+   - all properties should start with indus and not edu.ksu.cis.indus...
    Revision 1.1  2003/12/31 08:48:59  venku
    - Refactoring.
    - Setup classes setup each tests by data created by a common setup.
    - Tests and Setups are structured such that if test A requires
      data that can be tested by test B then testSetup B can
      be used to drive test A as well.
-
  */

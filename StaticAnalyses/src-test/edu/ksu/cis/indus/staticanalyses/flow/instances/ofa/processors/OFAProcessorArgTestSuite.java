@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
+import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -25,13 +25,13 @@ import junit.swingui.TestRunner;
 
 
 /**
- * This is the test suite used to run FA related tests using JUnit's textual interface to the runner.
+ * This is the test suite used to run FA related processor tests using JUnit's swing interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CallGraphTestSuite {
+public class OFAProcessorArgTestSuite {
 	/**
 	 * This is the entry point via the command-line.
 	 *
@@ -48,9 +48,9 @@ public class CallGraphTestSuite {
 		System.setProperty(FATestSetup.CLASSES_PROPERTY, _sb.toString());
 
 		final TestRunner _runner = new TestRunner();
-        _runner.setLoading(false);
-        _runner.startTest(suite());
-        _runner.runSuite();
+		_runner.setLoading(false);
+		_runner.startTest(suite());
+		_runner.runSuite();
 	}
 
 	/**
@@ -68,11 +68,17 @@ public class CallGraphTestSuite {
 		_suite.addTestSuite(CallGraphTest.class);
 		_suite.addTestSuite(FATest.class);
 		//$JUnit-END$
-		return new CallGraphTestSetup(_suite);
+		return new OFAProcessorTestSetup(_suite);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/03 19:52:54  venku
+   - renamed CallGraphInfoTest to CallGraphTest
+   - all tests of a kind have to be exposed via a suite like
+     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
+     automated testing.
+   - all properties should start with indus and not edu.ksu.cis.indus...
  */

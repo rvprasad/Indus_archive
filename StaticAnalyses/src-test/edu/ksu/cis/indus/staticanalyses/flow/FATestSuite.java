@@ -18,11 +18,12 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import junit.swingui.TestRunner;
 
 
 /**
- * This is the test suite used to run FA related tests using JUnit's textual interface to the runner.
+ * This is the test suite used to run FA related tests using JUnit's swing interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -48,7 +49,7 @@ public class FATestSuite
 
 		final TestRunner _runner = new TestRunner();
 		_runner.setLoading(false);
-        _runner.startTest(suite());
+		_runner.startTest(suite());
 		_runner.runSuite();
 	}
 
@@ -72,4 +73,10 @@ public class FATestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/03 19:52:54  venku
+   - renamed CallGraphInfoTest to CallGraphTest
+   - all tests of a kind have to be exposed via a suite like
+     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
+     automated testing.
+   - all properties should start with indus and not edu.ksu.cis.indus...
  */
