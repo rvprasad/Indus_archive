@@ -377,10 +377,10 @@ public class ThreadGraph
 
 				class2runCallees.put(sc, methods);
 			}
-			methods = (Collection) class2runCallees.get(sc);
-			thread2methods.put(extractNewExprTripleFor(value), methods);
 
 			NewExprTriple thread = extractNewExprTripleFor(value);
+			methods = (Collection) class2runCallees.get(sc);
+			thread2methods.put(thread, methods);
 
 			for (Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
@@ -625,6 +625,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.7  2003/09/08 02:21:53  venku
    - supports a new method to extract thread allocation sites
      which may be executed multiple times.
