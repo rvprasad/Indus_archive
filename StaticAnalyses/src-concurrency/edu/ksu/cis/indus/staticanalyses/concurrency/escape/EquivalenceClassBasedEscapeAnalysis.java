@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -617,7 +618,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @param callees is the collection of methods called.
 		 * @param caller is the calling method.
 		 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
-		 * @param methodContext corresponding to the invocation expression.
+		 * @param siteContext corresponding to the invocation expression.
 		 *
 		 * @throws RuntimeException when cloning fails.
 		 *
@@ -625,7 +626,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre callees.oclIsKindOf(Collection(SootMethod))
 		 */
 		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
-			final MethodContext methodContext) {
+			final MethodContext siteContext) {
 			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 				final SootMethod _callee = (SootMethod) _i.next();
 				final Triple _triple = (Triple) method2Triple.get(_callee);
@@ -658,9 +659,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				}
 
 				if (_delayUnification) {
-					addToDelayedUnificationSet(methodContext, _mc);
+					addToDelayedUnificationSet(siteContext, _mc);
 				} else {
-					methodContext.unify(_mc, false);
+					siteContext.unify(_mc, false);
 				}
 			}
 		}
@@ -786,12 +787,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				if ((_as1.getReadyEntity() != null) && (_as2.getReadyEntity() != null)) {
 					_result = _as1.getReadyEntity() == _as2.getReadyEntity();
 				} else {
-					/*
-					 * This is the case where a start site has wait and notify called on a reference.
-					 * In such cases, wait and notify fields are set on the alias set but there is not alias set
-					 * with set values to trigger the change of Entity field.
-					 * Only if the start site is loop enclosed should these cases flag dependency by setting Entity.
-					 */
+					 //There is the case where only unnotified wait() or unwaiting notify() occurs.  
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(
 							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
@@ -875,7 +871,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		} catch (RuntimeException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("There is no information about " + v + " occurring in " + sm
+				LOGGER.warn("There is no information about " + v + "[" + v.getType() + "] occurring in " + sm
 					+ ".  So, providing pessimistic info (true).", _e);
 			}
 		}
@@ -1075,7 +1071,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @post delayedSet.get(siteContext) == methodContext
 	 */
 	void addToDelayedUnificationSet(final MethodContext siteContext, final MethodContext methodContext) {
-		delayedSet.put(siteContext, methodContext);
+	    CollectionsUtilities.putIntoSetInMap(delayedSet, siteContext, methodContext);
 	}
 
 	/**
@@ -1126,9 +1122,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @post delayedSet.isEmpty()
 	 */
 	private void performDelayedUnification() {
-		for (final Iterator _i = delayedSet.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _element = (Map.Entry) _i.next();
-			((MethodContext) _element.getKey()).unify((MethodContext) _element.getValue(), true);
+		for (final Iterator _i = delayedSet.keySet().iterator(); _i.hasNext();) {
+		    final MethodContext _siteContext = (MethodContext) _i.next();
+		    for (final Iterator _j = ((Collection) delayedSet.get(_siteContext)).iterator(); _j.hasNext();) {
+                final MethodContext _methodContext = (MethodContext) _j.next();
+                _siteContext.unify(_methodContext, true);
+            }
 		}
 		delayedSet.clear();
 	}
@@ -1149,7 +1148,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final SootMethod _sm = (SootMethod) _j.next();
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Processing " + _sm);
+					LOGGER.debug("Processing method " + _sm);
 				}
 
 				if (!_sm.isConcrete()) {
@@ -1276,6 +1275,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/07/17 06:05:47  venku
+   - coding conventions.
+
    Revision 1.50  2004/07/11 14:17:40  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
