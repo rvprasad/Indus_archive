@@ -57,7 +57,7 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 	/**
 	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
 	 *
-	 * @param namesOfExceptionToIgnore DOCUMENT ME!
+	 * @param namesOfExceptionToIgnore are the names of the exceptions that determine the control edges to be ignored. 
 	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
 	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
 	 * 		  <code>false</code>, otherwise.
@@ -103,6 +103,9 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/05 11:59:40  venku
+   - documentation.
+
    Revision 1.3  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.
