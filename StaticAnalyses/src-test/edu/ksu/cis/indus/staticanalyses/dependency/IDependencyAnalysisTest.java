@@ -23,7 +23,7 @@ import junit.framework.Test;
 /**
  * This is the interface of unit tests that test instances of dependency analysis.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */

@@ -22,7 +22,7 @@ import java.util.Collection;
  * This interface is used by the slicer tool to retrieve seed slicing criteria.  An implementation of this interface can be
  * used to generate criteria that is based on property of the program points rather than hand-picked by the user.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */

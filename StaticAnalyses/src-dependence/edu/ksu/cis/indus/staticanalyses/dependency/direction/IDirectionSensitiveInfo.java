@@ -26,7 +26,7 @@ import soot.jimple.Stmt;
 /**
  * This is the interface that can be used to access direction-sensitive information.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
