@@ -119,17 +119,29 @@ public class Triple {
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o != null && o instanceof Triple) {
+		if (o instanceof Triple) {
 			final Triple _temp = (Triple) o;
 
-			_result = first == _temp.first || first.equals(_temp.first);
-
-			if (_result) {
-				_result = second == _temp.second || second.equals(_temp.second);
+			if (first == null) {
+				_result = first == _temp.first;
+			} else {
+				_result = first.equals(_temp.first);
 			}
 
 			if (_result) {
-				_result = third == _temp.third || third.equals(_temp.third);
+				if (second == null) {
+					_result = second == _temp.second;
+				} else {
+					_result = second.equals(_temp.second);
+				}
+			}
+
+			if (_result) {
+				if (third == null) {
+					_result = third == _temp.third;
+				} else {
+					_result = third.equals(_temp.third);
+				}
 			}
 		}
 		return _result;
@@ -225,24 +237,23 @@ public class Triple {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.6  2003/12/31 10:01:48  venku
    - removed unused code.
-
    Revision 1.5  2003/12/31 09:12:52  venku
    - clone() is not used, hence, deleted it.
-
    Revision 1.4  2003/12/30 09:15:57  venku
    - deleted TripleManager.
    - deleted unnecessary constructor.
    - all triples are created in unoptimized state.
-
    Revision 1.3  2003/12/28 03:07:04  venku
    - renamed field triple/quadraple to tripleCache/quadrapleCache.
-
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -267,12 +278,12 @@ public class Triple {
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-             Revision 1.2  2003/08/11 04:20:19  venku
-             - Pair and Triple were changed to work in optimized and unoptimized mode.
-             - Ripple effect of the previous change.
-             - Documentation and specification of other classes.
-             Revision 1.1  2003/08/07 06:42:16  venku
-             Major:
-              - Moved the package under indus umbrella.
-              - Renamed isEmpty() to hasWork() in IWorkBag.
+               Revision 1.2  2003/08/11 04:20:19  venku
+               - Pair and Triple were changed to work in optimized and unoptimized mode.
+               - Ripple effect of the previous change.
+               - Documentation and specification of other classes.
+               Revision 1.1  2003/08/07 06:42:16  venku
+               Major:
+                - Moved the package under indus umbrella.
+                - Renamed isEmpty() to hasWork() in IWorkBag.
  */
