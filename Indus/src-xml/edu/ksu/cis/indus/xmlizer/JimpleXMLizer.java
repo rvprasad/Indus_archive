@@ -173,12 +173,12 @@ public class JimpleXMLizer
 	public final void callback(SootMethod method) {
 		try {
 			if (processingMethod) {
-				xmlizedSystem.write("<method/>");
+				xmlizedSystem.write("</method>");
 			} else {
 				processingMethod = true;
 			}
 
-			xmlizedSystem.write("<class signature=\"" + method.getSubSignature() + "\" id=\""
+			xmlizedSystem.write("<method signature=\"" + method.getSubSignature() + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\"/>");
 			stmtXmlizer.setMethod(method);
 			idGenerator.resetStmtCounter();
@@ -204,12 +204,15 @@ public class JimpleXMLizer
 	 */
 	public final void callback(SootClass clazz) {
 		try {
+			if (processingMethod) {
+				xmlizedSystem.write("</method>");
+			}
+
 			if (processingClass) {
 				xmlizedSystem.write("</class>");
 			} else {
 				processingClass = true;
 			}
-
 			xmlizedSystem.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
 				+ "\"/>");
 			processingMethod = false;
@@ -271,6 +274,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/10 02:42:00  venku
+   - uses register/unregister for all statements.
    Revision 1.2  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.
