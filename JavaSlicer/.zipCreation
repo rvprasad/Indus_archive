@@ -4,6 +4,7 @@
       include-java-output="true" location="/JavaSlicer" manifest="false" name="slicer.jar">
       <source>
          <container path="/JavaSlicer/src"/>
+         <container path="/JavaSlicer/auxiliary"/>
       </source>
    </target>
 </zip-info>

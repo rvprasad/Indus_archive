@@ -3,12 +3,13 @@
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
     <classpathentry kind="src" path="/StaticAnalyses"/>
-    <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
     <classpathentry kind="src" path="/Indus"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
     <classpathentry kind="var" path="BANDERA/lib/bandera/banderaTools.jar"/>
-    <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
+    <classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+    <classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
+    <classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
