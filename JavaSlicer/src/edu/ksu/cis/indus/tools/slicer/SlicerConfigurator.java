@@ -52,7 +52,7 @@ public final class SlicerConfigurator
 	 *
 	 * @throws RuntimeException when <code>toolConfiguration</code> is an unhandled type of exception.
 	 *
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#validateConfiguration(AbstractToolConfiguration)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(AbstractToolConfiguration)
 	 */
 	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
 		if (!(toolConfiguration instanceof SlicerConfiguration)) {
@@ -424,6 +424,10 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/05 08:26:42  venku
+   - changed the xml schema for the slicer configuration.
+   - The configruator, driver, and the configuration handle
+     these changes.
    Revision 1.15  2003/11/03 08:05:34  venku
    - lots of changes
      - changes to get the configuration working with JiBX
