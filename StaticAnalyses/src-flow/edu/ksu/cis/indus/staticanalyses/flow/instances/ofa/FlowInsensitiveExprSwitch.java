@@ -250,16 +250,16 @@ class FlowInsensitiveExprSwitch
 	 * @pre e != null
 	 */
 	public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
-		ArrayType _arrayType = e.getBaseType();
+		final ArrayType _arrayType = e.getBaseType();
 		final Type _baseType = _arrayType.baseType;
 		int _sizes = e.getSizeCount();
 
 		for (int _i = _arrayType.numDimensions; _i > 0; _i--, _sizes--) {
-			_arrayType = ArrayType.v(_baseType, _i);
-
-			final ArrayVariant _array = fa.getArrayVariant(_arrayType, context);
-
+			final ArrayType _aType = ArrayType.v(_baseType, _i);
+			final ArrayVariant _array = fa.getArrayVariant(_aType, context);
+			
 			if (_sizes > 0) {
+				process(e.getSizeBox(_sizes - 1));
 				_array.getFGNode().injectValue(e);
 			}
 		}
@@ -479,6 +479,9 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/08/17 16:59:52  venku
+   - code cleanup.
+
    Revision 1.6  2004/05/20 07:29:42  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
