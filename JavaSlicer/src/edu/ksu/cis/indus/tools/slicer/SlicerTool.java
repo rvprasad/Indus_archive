@@ -52,6 +52,7 @@ import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
+import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
@@ -159,16 +160,6 @@ public final class SlicerTool
 	private final Phase phase;
 
 	/**
-	 * This is a call-graph based pre processing controller.
-	 */
-	private final ValueAnalyzerBasedProcessingController cgBasedPreProcessCtrl;
-
-	/**
-	 * This controls the processing of callgraph.
-	 */
-	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
-
-	/**
 	 * This is the slicing engine that identifies the slice.
 	 */
 	private final SlicingEngine engine;
@@ -177,6 +168,16 @@ public final class SlicerTool
 	 * This provides thread graph.
 	 */
 	private final ThreadGraph threadGraph;
+
+	/**
+	 * This is a call-graph based pre processing controller.
+	 */
+	private final ValueAnalyzerBasedProcessingController cgBasedPreProcessCtrl;
+
+	/**
+	 * This controls the processing of callgraph.
+	 */
+	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
 
 	/**
 	 * This is the slice transformer.
@@ -193,8 +194,10 @@ public final class SlicerTool
 	 */
 	private final SliceCriteriaFactory criteriaFactory;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
@@ -354,19 +357,48 @@ public final class SlicerTool
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * This implimentation will load a default configuration if the the given configuration cannot be loaded.
+	 * </p>
 	 */
-	public void destringizeConfiguration(final String stringizedForm) {
+	public boolean destringizeConfiguration(final String stringizedForm) {
+		IBindingFactory bindingFactory;
+		IUnmarshallingContext unmarshallingContext;
+		boolean result = false;
+
 		try {
-			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
-			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			configurationInfo = (AbstractToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
-			configurator =
-				new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
-					SlicerConfiguration.getFactory());
+			bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
+			unmarshallingContext = bindingFactory.createUnmarshallingContext();
 		} catch (JiBXException e) {
-			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
+			LOGGER.fatal("Error while setting up JiBX.  Aborting.", e);
 			throw new RuntimeException(e);
 		}
+
+		IToolConfigurationFactory factory = SlicerConfiguration.getFactory();
+		configurationInfo = null;
+
+		if (stringizedForm != null && stringizedForm.length() != 0) {
+			try {
+				StringReader reader = new StringReader(stringizedForm);
+				configurationInfo = (AbstractToolConfiguration) unmarshallingContext.unmarshalDocument(reader, null);
+				result = true;
+			} catch (JiBXException e) {
+				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
+					+ " configuration.", e);
+			}
+		}
+
+		if (configurationInfo == null) {
+			configurationInfo = new CompositeToolConfiguration();
+
+			AbstractToolConfiguration toolConfig = factory.createToolConfiguration();
+			toolConfig.initialize();
+			((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
+		}
+		configurator =
+			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(), factory);
+		return result;
 	}
 
 	/**
@@ -410,7 +442,7 @@ public final class SlicerTool
 			ecba.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			ecba.unhook(cgBasedPreProcessCtrl);
-            ecba.execute();
+			ecba.execute();
 			phase.nextMajorPhase();
 			ph = phase;
 		}
@@ -449,11 +481,20 @@ public final class SlicerTool
 			if (slicerConfig.sliceForDeadlock) {
 				populateDeadlockCriteria();
 			}
-			transformer.initialize(system);
-			engine.initialize(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice,
-				daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse(), bbgMgr);
-			engine.setSliceCriteria(criteria);
-			engine.slice();
+
+			if (!criteria.isEmpty()) {
+				transformer.initialize(system);
+				engine.initialize(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice,
+					daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse(), bbgMgr);
+				engine.setSliceCriteria(criteria);
+				engine.slice();
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn(
+						"No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
+						+ "selected then the system did not have any synchronized methods are blocks.");
+				}
+			}
 		}
 		phase.finished();
 	}
@@ -545,20 +586,20 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/07 12:25:48  venku
+   - equivalence class-based analysis was preprocessed but
+     not executed. FIXED.
    Revision 1.19  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.18  2003/11/05 03:16:21  venku
    - changes in creating the criteria.
    - coding convention.
-
    Revision 1.17  2003/11/03 08:14:17  venku
    - fixed processing for equivalence class based escape analysis.
-
    Revision 1.16  2003/11/03 08:05:34  venku
    - lots of changes
      - changes to get the configuration working with JiBX
