@@ -556,17 +556,13 @@ public final class SlicerTool
 			}
 
 			if (!criteria.isEmpty()) {
-                // sort the criteria to inject determinism into slicing.
-                final List _temp = new ArrayList(criteria);
-                Collections.sort(_temp);
-                
-                // setup the slicing engine and slice
+				// setup the slicing engine and slice
 				engine.setCgi(callGraph);
 				engine.setSliceType(_slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, _slicerConfig.getNamesOfDAsToUse());
-				engine.setSliceCriteria(_temp);
+				engine.setSliceCriteria(criteria);
 				engine.initialize();
 				engine.slice();
 
@@ -773,6 +769,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.62  2004/01/19 23:00:23  venku
+   - imposed ordering on the criteria to try to make slicing
+     deterministic.
    Revision 1.61  2004/01/19 08:45:20  venku
    - formatting.
    Revision 1.60  2004/01/19 08:30:55  venku

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -137,16 +139,14 @@ public final class SlicingEngine {
 	private AnalysesController controller;
 
 	/**
-	 * The collection of slice criteria.
-	 *
-	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
-	 */
-	private Collection criteria = new HashSet();
-
-	/**
 	 * The ids of the dependencies to be considered for slicing.
 	 */
 	private final Collection dependencies = new HashSet();
+
+	/**
+	 * This is the collection of methods whose exits were transformed.
+	 */
+	private final Collection exitTransformedMethods = new HashSet();
 
 	/**
 	 * The work bag used during slicing.
@@ -164,11 +164,6 @@ public final class SlicingEngine {
 	 * 			  o.getId().equals(DependencyAnalysis.CONTROL_DA))
 	 */
 	private Collection controlflowBasedDAs = new ArrayList();
-
-	/**
-	 * This is the collection of methods whose exits were transformed.
-	 */
-	private final Collection exitTransformedMethods = new HashSet();
 
 	/**
 	 * This is the set of methods that were included in the slice due to invocation.  Refer to <code>required</code> for more
@@ -191,6 +186,13 @@ public final class SlicingEngine {
 	 * This provides the call graph information in the system being sliced.
 	 */
 	private ICallGraphInfo cgi;
+
+	/**
+	 * The list of slice criteria.
+	 *
+	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
+	 */
+	private List criteria = new ArrayList();
 
 	/**
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
@@ -319,6 +321,7 @@ public final class SlicingEngine {
 			}
 		}
 		criteria.addAll(sliceCriteria);
+		Collections.sort(criteria, new ToStringBasedComparator());
 	}
 
 	/**
@@ -1190,6 +1193,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/01/19 22:55:11  venku
+   - formatting and coding convention.
    Revision 1.52  2004/01/19 22:52:49  venku
    - inclusion of method declaration with identical signature in the
      super classes/interfaces is a matter of executability.  Hence,
