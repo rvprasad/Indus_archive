@@ -314,10 +314,6 @@ public class ThreadGraph
 
 		considerMultipleExecutions();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: equivalence class based escape analysis consolidation");
-		}
-
 		final long _stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -760,6 +756,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/08/14 01:24:23  venku
+   - removed a stray println.
+
    Revision 1.38  2004/08/11 08:52:04  venku
    - massive changes.
      - Changed the way threads were represented in ThreadGraph.
