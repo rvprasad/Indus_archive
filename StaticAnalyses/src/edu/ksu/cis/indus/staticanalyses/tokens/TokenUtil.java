@@ -23,9 +23,9 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
  */
 public final class TokenUtil {
 	/**
-	 * The name of the property the user can use to configure the token manager type.
+	 * The name of the property the user can use to configure the token manager class.
 	 */
-	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = "indus.staticanalyses.TokenManagerType";
+	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = "indus.staticanalyses.TokenManagerClass";
 
 	///CLOVER:OFF
 
@@ -38,7 +38,7 @@ public final class TokenUtil {
 	///CLOVER:ON
 
 	/**
-	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerType".  The user
+	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerClass".  The user
 	 * can specify the name of the class of the manager to instanstiate via this property.  It has to be one of the following.
 	 * <ul>
 	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</li>
@@ -75,6 +75,9 @@ public final class TokenUtil {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/09 19:32:18  venku
+   Documentation
+
    Revision 1.1  2004/04/24 08:23:35  venku
    - moved OFAXMLizerCLI.getTokenManager() into this utility class.
 
