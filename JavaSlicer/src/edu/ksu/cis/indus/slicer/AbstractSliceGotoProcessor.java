@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
@@ -85,13 +84,12 @@ public abstract class AbstractSliceGotoProcessor {
 
 		processForIntraBasicBlockGotos(bbg);
 
-		IWorkBag _workBag = new FIFOWorkBag();
 		Collection processed = new HashSet();
 		final UnitGraph _unitGraph = bbg.getStmtGraph();
 		final List _units = new ArrayList(_unitGraph.getBody().getUnits());
 
 		while (workBag.hasWork()) {
-			final BasicBlock _bb = (BasicBlock) _workBag.getWork();
+			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			processed.add(_bb);
 
 			final Stmt _leader = _bb.getLeaderStmt();
@@ -143,6 +141,10 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/13 23:34:54  venku
+   - fixed the processing of intra basicblock jumps and
+     inter basic block jumps.
+
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.
