@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+
 import edu.ksu.cis.indus.tools.Phase;
 
 import org.apache.commons.cli.BasicParser;
@@ -37,6 +41,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
  * This is the command-line driver class for the slicer tool.
@@ -58,7 +67,7 @@ public class SlicerDriver {
 		"<slicerConfiguration " + "xmlns:slicer=\"http://indus.projects.cis.ksu.edu/slicer\""
 		+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 		+ "xsi:schemaLocation=\"http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd\" activeConfiguration=\"base\">"
-		+ "<configurationInfo slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" sliceForDeadlock=\"true\">"
+		+ "<configurationInfo executableSlice=\"true\" slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" sliceForDeadlock=\"true\">"
 		+ "<divergence active=\"true\" interprocedural=\"true\"/>" + "<interference equivalenceClassBased=\"true\"/>"
 		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" "
 		+ "equivalenceClassBased=\"true\"/>" + "</configurationInfo>" + "</slicerConfiguration>";
@@ -80,15 +89,16 @@ public class SlicerDriver {
 	 */
 	public static void main(final String[] args) {
 		// parse command line arguments
-		parseCommandLine(args);
+		List classList = parseCommandLine(args);
+		System.out.println("INFO: Finished parsing command line arguments.");
 
 		// create the slicer tool
 		SlicerTool slicer = new SlicerTool();
 		slicer.destringizeConfiguration(configuration);
 
 		// call the configurator on the slicer
-        Display display = new Display();
-        Shell shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		Display display = new Display();
+		Shell shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		shell.setText("Slicer configuration");
 		slicer.getConfigurator().initialize(shell);
 		shell.pack();
@@ -99,7 +109,8 @@ public class SlicerDriver {
 				display.sleep();
 			}
 		}
-        display.dispose();
+		display.dispose();
+		System.out.println("INFO: Finished accepting input.");
 
 		// save the configuration
 		try {
@@ -119,27 +130,71 @@ public class SlicerDriver {
 			System.out.println(slicer.stringizeConfiguration());
 		}
 
+		// load the classes into the scene
+		Scene scene = Scene.v();
+		Collection rootMethods = loadScene(scene, classList);
+		System.out.println("INFO: Finished Loading classes.");
+
 		// execute the slicer
-        
+		slicer.setSystem(scene);
+		slicer.setRootMethods(rootMethods);
 		slicer.run(Phase.STARTING_PHASE);
 
 		// serialize the output of the slicer
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param scene DOCUMENT ME!
+	 * @param classList DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private static Collection loadScene(final Scene scene, final List classList) {
+		Collection result = new HashSet();
+
+		for (Iterator i = classList.iterator(); i.hasNext();) {
+			String element = (String) i.next();
+			scene.loadClassAndSupport(element);
+		}
+
+		for (Iterator i = scene.getClasses().iterator(); i.hasNext();) {
+			SootClass sc = (SootClass) i.next();
+
+			if (classList.contains(sc.getName())) {
+				for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
+					SootMethod sm = (SootMethod) j.next();
+
+					if (sm.getSubSignature().equals("void main(java.lang.String[])") && sm.isStatic() && sm.isPublic()) {
+						result.add(sm);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Parses the command line argument.
 	 *
 	 * @param args contains the command line arguments.
+	 *
+	 * @return DOCUMENT ME!
 	 */
-	private static void parseCommandLine(final String[] args) {
+	private static List parseCommandLine(final String[] args) {
 		// create options
 		Options options = new Options();
 		options.addOption("c", false, "The configuration file to use.");
 		options.addOption("o", false, "The output directory to dump the slice info into.");
 
+		CommandLine cl = null;
+
 		// parse the arguments
 		try {
-			CommandLine cl = (new BasicParser()).parse(options, args);
+			cl = (new BasicParser()).parse(options, args);
 			configFileName = cl.getOptionValue("c");
 
 			if (configFileName == null) {
@@ -185,12 +240,19 @@ public class SlicerDriver {
 			LOGGER.fatal("Incorrect command line", e);
 			System.exit(1);
 		}
+		return cl.getArgList();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
    Revision 1.2  2003/10/14 05:35:41  venku
    - documentation.
    Revision 1.1  2003/10/14 05:33:26  venku
