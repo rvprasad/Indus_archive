@@ -31,6 +31,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Trap;
 
 import soot.jimple.Stmt;
@@ -47,6 +50,11 @@ import soot.toolkits.graph.UnitGraph;
  */
 public final class BasicBlockGraph
   extends AbstractMutableDirectedGraph {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	static final Log LOGGER = LogFactory.getLog(BasicBlockGraph.class);
+
 	/** 
 	 * The list of statements in the method being represented by this graph.
 	 *
@@ -251,7 +259,17 @@ public final class BasicBlockGraph
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Stmt _stmt = (Stmt) _i.next();
-			_result.add(getEnclosingBlock(_stmt));
+			final BasicBlock _enclosingBlock = getEnclosingBlock(_stmt);
+
+			if (_enclosingBlock != null) {
+				_result.add(_enclosingBlock);
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn(
+						"getEnclosedBasicBlocks() - One of the given statement is not represented by any block in the graph"
+						+ _stmt);
+				}
+			}
 		}
 		return _result;
 	}
@@ -474,6 +492,8 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/24 09:56:44  venku
+   - added new convenience methods.
    Revision 1.6  2004/07/20 08:04:32  venku
    - documentation.
    Revision 1.5  2004/07/16 05:37:17  venku
