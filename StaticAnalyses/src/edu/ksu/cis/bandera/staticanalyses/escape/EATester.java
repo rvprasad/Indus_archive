@@ -178,14 +178,6 @@ public class EATester
 					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
 						+ ea.tpgetInfo(sm, local, threadMap) + "\n");
 				}
-
-				/*
-				   for (java.util.Iterator l = cg.getCallees(sm).iterator(); l.hasNext();) {
-				       CallTriple ctrp = (CallTriple) l.next();
-				       ctrp = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
-				       System.out.println("Info for call site " + ctrp.getStmt() + "\n" + ea.tpgetInfo(ctrp, threadMap));
-				   }
-				 */
 			}
 		}
 	}
@@ -195,6 +187,9 @@ public class EATester
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/02/20 19:19:09  venku
+Affected by the refactoring processing and controlling logic.
+
 Revision 1.2  2003/02/19 17:31:10  venku
 Things are in flux.  Stabilizing them with CVS.
 
