@@ -88,17 +88,17 @@ public class EntryControlDA
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependent2dependee.get(method);
+		Collection _result = Collections.EMPTY_LIST;
+		final List _list = (List) dependent2dependee.get(method);
 
-		if (list != null) {
-			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
+		if (_list != null) {
+			final int _index = getStmtList((SootMethod) method).indexOf(dependentStmt);
 
-			if (list.get(index) != null) {
-				result = Collections.unmodifiableCollection((Collection) list.get(index));
+			if (_list.get(_index) != null) {
+				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -117,24 +117,24 @@ public class EntryControlDA
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependee2dependent.get(method);
+		Collection _result = Collections.EMPTY_LIST;
+		final List _list = (List) dependee2dependent.get(method);
 
-		if (list != null) {
-			int index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
+		if (_list != null) {
+			final int _index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
 
-			if (list.get(index) != null) {
-				result = Collections.unmodifiableCollection((Collection) list.get(index));
+			if (_list.get(_index) != null) {
+				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return AbstractDependencyAnalysis.CONTROL_DA;
+		return IDependencyAnalysis.CONTROL_DA;
 	}
 
 	/**
@@ -161,21 +161,21 @@ public class EntryControlDA
 			LOGGER.info("BEGIN: Control Dependence processing");
 		}
 
-		for (Iterator i = methods.iterator(); i.hasNext();) {
-			SootMethod currMethod = (SootMethod) i.next();
-			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _currMethod = (SootMethod) _i.next();
+			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_currMethod);
 
-			if (bbGraph == null) {
-				LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
+			if (_bbGraph == null) {
+				LOGGER.error("Method " + _currMethod.getSignature() + " did not have a basic block graph.");
 				continue;
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing method: " + currMethod.getSignature());
+				LOGGER.debug("Processing method: " + _currMethod.getSignature());
 			}
 
-			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
-			fixupMaps(bbGraph, bbCDBitSets, currMethod);
+			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
+			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
 
 		if (LOGGER.isInfoEnabled()) {
@@ -190,43 +190,43 @@ public class EntryControlDA
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for control dependence as calculated by " + getClass().getName() + "\n");
-		int localEdgeCount = 0;
-		int edgeCount = 0;
+		int _localEdgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependent2dependee.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod method = (SootMethod) entry.getKey();
-			localEdgeCount = 0;
+		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final SootMethod _method = (SootMethod) _entry.getKey();
+			_localEdgeCount = 0;
 
-			List stmts = getStmtList(method);
-			List cd = (List) entry.getValue();
+			final List _stmts = getStmtList(_method);
+			final List _cd = (List) _entry.getValue();
 
-			for (int j = 0; j < stmts.size(); j++) {
-				if (cd == null) {
+			for (int _j = 0; _j < _stmts.size(); _j++) {
+				if (_cd == null) {
 					continue;
 				}
 
-				Collection dees = (Collection) cd.get(j);
+				final Collection _dees = (Collection) _cd.get(_j);
 
-				if (dees != null) {
-					temp.append("\t\t" + stmts.get(j) + " --> " + dees + "\n");
-					localEdgeCount += dees.size();
+				if (_dees != null) {
+					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
+					_localEdgeCount += _dees.size();
 				} else {
-					temp.append("\t\t" + stmts.get(j) + " --> METHOD_ENTRY\n");
+					_temp.append("\t\t" + _stmts.get(_j) + " --> METHOD_ENTRY\n");
 				}
 			}
 
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " control dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges.\n");
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " control dependence edges exist.");
-		return result.toString();
+		_result.append("A total of " + _edgeCount + " control dependence edges exist.");
+		return _result.toString();
 	}
 
 	/**
@@ -245,116 +245,113 @@ public class EntryControlDA
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
 	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
-		Map dag = graph.getDAG();
-		final List NODES = graph.getNodes();
-		final int NUM_OF_NODES = NODES.size();
-		int[] succsSize = new int[NUM_OF_NODES];
-		BitSet[][] cd = new BitSet[NUM_OF_NODES][NUM_OF_NODES];
-		BitSet[] result = new BitSet[NUM_OF_NODES];
-		Collection processed = new ArrayList();
-		BitSet currResult = new BitSet();
-		BitSet temp1 = new BitSet();
-		IWorkBag wb = new FIFOWorkBag();
-		Collection roots;
+		final Map _dag = graph.getDAG();
+		final List _nodes = graph.getNodes();
+		final int _noOfNodes = _nodes.size();
+		final int[] _succsSize = new int[_noOfNodes];
+		final BitSet[][] _cd = new BitSet[_noOfNodes][_noOfNodes];
+		final BitSet[] _result = new BitSet[_noOfNodes];
+		final Collection _processed = new ArrayList();
+		BitSet _currResult = new BitSet();
+		final BitSet _temp1 = new BitSet();
+		final IWorkBag _wb = new FIFOWorkBag();
+		final Collection _roots = graph.getHeads();
+		
+		_wb.addAllWorkNoDuplicates(_roots);
 
-		roots = graph.getHeads();
-		wb.addAllWorkNoDuplicates(roots);
+		while (_wb.hasWork()) {
+			final BasicBlock _bb = (BasicBlock) _wb.getWork();
+			final Pair _dagBlock = (Pair) _dag.get(_bb);
+			final Collection _preds = (Collection) _dagBlock.getFirst();
 
-		while (wb.hasWork()) {
-			BasicBlock bb = (BasicBlock) wb.getWork();
-			Pair dagBlock = (Pair) dag.get(bb);
-			final Collection preds = (Collection) dagBlock.getFirst();
-
-			if (!processed.containsAll(preds)) {
-				wb.addWorkNoDuplicates(bb);
+			if (!_processed.containsAll(_preds)) {
+				_wb.addWorkNoDuplicates(_bb);
 				continue;
 			}
 
 			// propogate data to the successors   
-			int currIndex = NODES.indexOf(bb);
-			Collection succs;
+			final int _currIndex = _nodes.indexOf(_bb);
+			final Collection _succs = (Collection) _dagBlock.getSecond();
 
-			succs = (Collection) dagBlock.getSecond();
+			final BitSet[] _currCD = _cd[_currIndex];
+			_succsSize[_currIndex] = _succs.size();
 
-			BitSet[] currCD = cd[currIndex];
-			succsSize[currIndex] = succs.size();
+			for (final Iterator _j = _processed.iterator(); _j.hasNext();) {
+				final int _pIndex = _nodes.indexOf(_j.next());
+				final BitSet _pCD = _currCD[_pIndex];
 
-			for (Iterator j = processed.iterator(); j.hasNext();) {
-				int pIndex = NODES.indexOf(j.next());
-				BitSet pCD = currCD[pIndex];
+				if (_pCD != null) {
+					final boolean _assignFlag = _pCD.cardinality() == _succsSize[_pIndex];
 
-				if (pCD != null) {
-					boolean assignFlag = pCD.cardinality() == succsSize[pIndex];
-
-					if (!assignFlag) {
-						currResult.set(pIndex);
+					if (!_assignFlag) {
+						_currResult.set(_pIndex);
 					}
 
-					for (Iterator i = succs.iterator(); i.hasNext();) {
-						int succIndex = NODES.indexOf(i.next());
-						BitSet[] succCDs = cd[succIndex];
+					for (final Iterator _i = _succs.iterator(); _i.hasNext();) {
+						final int _succIndex = _nodes.indexOf(_i.next());
+						final BitSet[] _succCDs = _cd[_succIndex];
 
-						if (assignFlag) {
-							succCDs[pIndex] = pCD;
+						if (_assignFlag) {
+							_succCDs[_pIndex] = _pCD;
 						} else {
-							BitSet succCD = succCDs[pIndex];
+							BitSet _succCD = _succCDs[_pIndex];
 
-							if (succCD == null) {
-								succCD = new BitSet();
-								succCDs[pIndex] = succCD;
+							if (_succCD == null) {
+								_succCD = new BitSet();
+								_succCDs[_pIndex] = _succCD;
 							}
-							succCD.or(pCD);
+							_succCD.or(_pCD);
 						}
 					}
 				}
 			}
 
-			if (succsSize[currIndex] > 1) {
-				int count = 0;
+			if (_succsSize[_currIndex] > 1) {
+				int _count = 0;
 
-				for (Iterator i = succs.iterator(); i.hasNext();) {
-					int succIndex = NODES.indexOf(i.next());
-					BitSet succCD = cd[succIndex][currIndex];
+				for (final Iterator _i = _succs.iterator(); _i.hasNext();) {
+					final int _succIndex = _nodes.indexOf(_i.next());
+					BitSet _succCD = _cd[_succIndex][_currIndex];
 
-					if (succCD == null) {
-						succCD = new BitSet();
-						cd[succIndex][currIndex] = succCD;
+					if (_succCD == null) {
+						_succCD = new BitSet();
+						_cd[_succIndex][_currIndex] = _succCD;
 					}
 
-					succCD.set(count++);
+					_succCD.set(_count++);
 				}
 			}
 
-			if (!currResult.isEmpty()) {
-				if (currResult.length() > 1) {
+			if (!_currResult.isEmpty()) {
+				if (_currResult.length() > 1) {
 					// prune the dom set to a mere control-dom set.
-					temp1.clear();
+					_temp1.clear();
 
-					for (Iterator i = preds.iterator(); i.hasNext();) {
-						BitSet t = result[NODES.indexOf(i.next())];
+					for (final Iterator _i = _preds.iterator(); _i.hasNext();) {
+						final BitSet _t = _result[_nodes.indexOf(_i.next())];
 
-						if (t != null) {
-							temp1.and(t);
+						if (_t != null) {
+							_temp1.and(_t);
 						}
 					}
 
-					for (int j = currResult.nextSetBit(0); j >= 0; j = currResult.nextSetBit(j + 1)) {
-						if (!preds.contains(NODES.get(j)) && (preds.size() == 1 || !temp1.get(j))) {
-							currResult.clear(j);
+					for (int _j = _currResult.nextSetBit(0); _j >= 0; _j = _currResult.nextSetBit(_j + 1)) {
+						if (!_preds.contains(_nodes.get(_j)) && (_preds.size() == 1 || !_temp1.get(_j))) {
+							_currResult.clear(_j);
 						}
 					}
 				}
 
-				result[currIndex] = currResult;
-				currResult = new BitSet();
+				_result[_currIndex] = _currResult;
+				_currResult = new BitSet();
 			}
 
 			// Add the successors of the node 
-			wb.addAllWorkNoDuplicates(succs);
-			processed.add(bb);
+			_wb.addAllWorkNoDuplicates(_succs);
+			_processed.add(_bb);
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -382,7 +379,7 @@ public class EntryControlDA
 	 *
 	 * @param graph is the basic block graph corresponding to <code>method</code>.
 	 * @param bbCDBitSets is the array that contains the basic block level dependence information as calculated by {@link
-	 * 		  #computeControlDependency(DirectedGraph) computeControlDependency}.
+	 * 		  #computeControlDependency(IDirectedGraph) computeControlDependency}.
 	 * @param method for which the maps are being populated.
 	 *
 	 * @pre graph != null and bbCDBitSets != null and method != null
@@ -392,52 +389,50 @@ public class EntryControlDA
 	 * @post dependent2dependee.values()->forall(o | o->forall(p | p != null()))
 	 */
 	private void fixupMaps(final BasicBlockGraph graph, final BitSet[] bbCDBitSets, final SootMethod method) {
-		List nodes = graph.getNodes();
-		List sl = getStmtList(method);
-		List mDependee = new ArrayList();
-		List mDependent = new ArrayList();
+		final List _nodes = graph.getNodes();
+		final List _sl = getStmtList(method);
+		final List _mDependee = new ArrayList();
+		final List _mDependent = new ArrayList();
 
-		for (int i = sl.size(); i > 0; i--) {
-			mDependee.add(null);
-			mDependent.add(null);
+		for (int _i = _sl.size(); _i > 0; _i--) {
+			_mDependee.add(null);
+			_mDependent.add(null);
 		}
 
-		boolean flag = false;
+		boolean _flag = false;
 
-		for (int i = bbCDBitSets.length - 1; i >= 0; i--) {
-			BitSet cd = bbCDBitSets[i];
-			flag |= cd != null;
+		for (int _i = bbCDBitSets.length - 1; _i >= 0; _i--) {
+			final BitSet _cd = bbCDBitSets[_i];
+			_flag |= _cd != null;
 
-			if (cd != null) {
-				Collection cdp = new ArrayList();
-				BasicBlock bb = (BasicBlock) nodes.get(i);
+			if (_cd != null) {
+				final Collection _cdp = new ArrayList();
+				final BasicBlock _bb = (BasicBlock) _nodes.get(_i);
 
-				for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
-					mDependee.set(sl.indexOf(j.next()), cdp);
+				for (final Iterator _j = _bb.getStmtsOf().iterator(); _j.hasNext();) {
+					_mDependee.set(_sl.indexOf(_j.next()), _cdp);
 				}
 
-				for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
-					BasicBlock cdbb = (BasicBlock) nodes.get(j);
-					Object cdStmt;
+				for (int _j = _cd.nextSetBit(0); _j != -1; _j = _cd.nextSetBit(_j + 1)) {
+					final BasicBlock _cdbb = (BasicBlock) _nodes.get(_j);
+					final Object _cdStmt = _cdbb.getTrailerStmt();
+					_cdp.add(_cdStmt);
 
-					cdStmt = cdbb.getTrailerStmt();
-					cdp.add(cdStmt);
+					final int _deIndex = _sl.indexOf(_cdStmt);
+					Collection _dees = (Collection) _mDependent.get(_deIndex);
 
-					int deIndex = sl.indexOf(cdStmt);
-					Collection dees = (Collection) mDependent.get(deIndex);
-
-					if (dees == null) {
-						dees = new ArrayList();
-						mDependent.set(deIndex, dees);
+					if (_dees == null) {
+						_dees = new ArrayList();
+						_mDependent.set(_deIndex, _dees);
 					}
-					dees.addAll(bb.getStmtsOf());
+					_dees.addAll(_bb.getStmtsOf());
 				}
 			}
 		}
 
-		if (flag) {
-			dependee2dependent.put(method, new ArrayList(mDependent));
-			dependent2dependee.put(method, new ArrayList(mDependee));
+		if (_flag) {
+			dependee2dependent.put(method, new ArrayList(_mDependent));
+			dependent2dependee.put(method, new ArrayList(_mDependee));
 		} else {
 			dependee2dependent.put(method, null);
 			dependent2dependee.put(method, null);
@@ -448,6 +443,10 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/31 21:38:08  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.16  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.15  2004/03/29 01:55:03  venku

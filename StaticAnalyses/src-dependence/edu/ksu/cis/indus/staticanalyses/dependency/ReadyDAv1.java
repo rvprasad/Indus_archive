@@ -1022,7 +1022,7 @@ public class ReadyDAv1
 			final List _stmts = getStmtList(_method);
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection _dependees = (Collection) _method2dependeeMap.get(_method);
-			final Map _dents2dees = (Map) CollectionsUtilities.getFromMap(dependent2dependee, _method, new HashMap());
+			final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _method);
 
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Stmt _dependee = (Stmt) _j.next();
@@ -1038,7 +1038,7 @@ public class ReadyDAv1
 				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
 					final Stmt _stmt = (Stmt) _k.next();
 
-					CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
+					CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
 
 					// record dependee to dependent direction information
 					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1067,7 +1067,7 @@ public class ReadyDAv1
 						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
 							final Stmt _stmt = (Stmt) _k.next();
 
-							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
+							CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
 
 							// record dependee to dependent direction information
 							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1091,8 +1091,8 @@ public class ReadyDAv1
 				}
 
 				//add dependee to dependent direction information.
-				final Map _dees2dents = (Map) CollectionsUtilities.getFromMap(dependee2dependent, _method, new HashMap());
-				CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _dependee, _temp, new HashSet());
+				final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _method);
+				CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _dependee, _temp);
 			}
 		}
 	}
@@ -1159,14 +1159,13 @@ public class ReadyDAv1
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
 								final Map dees2dents =
-									(Map) CollectionsUtilities.getFromMap(dependee2dependent, _exitMethod, new HashMap());
-								CollectionsUtilities.putAllIntoCollectionInMap(dees2dents, _bb.getTrailerStmt(), _dtSet,
-									new HashSet());
+									CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+								CollectionsUtilities.putAllIntoSetInMap(dees2dents, _bb.getTrailerStmt(), _dtSet);
 							}
 						} else {
 							final Map dees2dents =
-								(Map) CollectionsUtilities.getFromMap(dependee2dependent, _exitMethod, new HashMap());
-							CollectionsUtilities.putAllIntoCollectionInMap(dees2dents, _exit, _dtSet, new HashSet());
+								CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+							CollectionsUtilities.putAllIntoSetInMap(dees2dents, _exit, _dtSet);
 						}
 					}
 				}
@@ -1187,8 +1186,8 @@ public class ReadyDAv1
 					}
 
 					final Map dents2dees =
-						(Map) CollectionsUtilities.getFromMap(dependent2dependee, _enterMethod, new HashMap());
-					CollectionsUtilities.putAllIntoCollectionInMap(dents2dees, _key, _deSet, new HashSet());
+						CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
+					CollectionsUtilities.putAllIntoSetInMap(dents2dees, _key, _deSet);
 				}
 			}
 		}
@@ -1225,7 +1224,7 @@ public class ReadyDAv1
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
 							final Map _dents2dees =
-								(Map) CollectionsUtilities.getFromMap(dependent2dependee, _wMethod, new HashMap());
+								CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
 							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
 							_dependents.add(_wPair);
 						}
@@ -1235,7 +1234,7 @@ public class ReadyDAv1
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
 					final Map _dees2dents =
-						(Map) CollectionsUtilities.getFromMap(dependee2dependent, _nMethod, new HashMap());
+						CollectionsUtilities.getMapFromMap(dependee2dependent, _nMethod);
 					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
 				}
 			}
@@ -1246,6 +1245,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/05/31 21:38:08  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.52  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

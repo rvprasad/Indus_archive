@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -104,6 +105,24 @@ public final class CollectionsUtilities {
 	 */
 	public static List getListFromMap(final Map map, final Object key) {
 		return (List) getFromMap(map, key, new ArrayList());
+	}
+
+	/**
+	 * <code>getFromMap</code> version specialized for cases when the value is of type <code>java.util.Map</code>.
+	 *
+	 * @param map to be read.
+	 * @param key for which the value should be retrieved.
+	 *
+	 * @return the value mapped to <code>key</code>.
+	 *
+	 * @pre map != null and key != null and value != null
+	 * @post map.get(key) != null
+	 * @post result != null
+	 *
+	 * @see #getFromMap(Map,Object,Object)
+	 */
+	public static Map getMapFromMap(final Map map, final Object key) {
+		return (Map) getFromMap(map, key, new HashMap());
 	}
 
 	/**
@@ -266,6 +285,11 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/01 01:12:16  venku
+   - added a new testcase to test BasicBlockGraph.
+   - documentation.
+   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
+     return only statement captured in the graph.
    Revision 1.2  2004/05/31 20:50:20  venku
    - documentation.
    Revision 1.1  2004/05/21 22:11:49  venku
