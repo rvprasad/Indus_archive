@@ -40,6 +40,7 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.JimpleBody;
+import ca.mcgill.sable.soot.jimple.StmtGraph;
 
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
@@ -126,8 +127,6 @@ public abstract class Controller {
 	 * </p>
 	 */
 	protected final Collection preprocessors;
-	
-	protected final ProcessingController preprocessController;
 
 	/**
 	 * <p>
@@ -143,6 +142,13 @@ public abstract class Controller {
 	 * </p>
 	 */
 	protected final Map participatingAnalyses;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected final ProcessingController preprocessController;
 
 	/**
 	 * <p>
@@ -168,6 +174,7 @@ public abstract class Controller {
 	 * @param info is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
 	 * 		  controller.
 	 * @param pc is the preprocessing controller.
+	 *
 	 * @pre pc != null;
 	 */
 	public Controller(Map info, ProcessingController pc) {
@@ -211,17 +218,29 @@ public abstract class Controller {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public StmtGraph getStmtGraph(SootMethod method) {
+		return (StmtGraph) method2cmpltStmtGraph.get(method);
+	}
+
+	/**
 	 * <p>
 	 * Initializes the controller.  The data structures dependent on <code>methods</code> are initialized, the interested
 	 * analyses are asked to preprocess the data, and then the analyses are initialized.
 	 * </p>
+	 *
 	 * @param methods that form the system to be analyzed.
 	 */
 	public void initialize(Collection methods) {
 		stable = false;
 
 		preprocessController.process();
-		
+
 		for(Iterator i = methods.iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			CompleteStmtGraph sg = new CompleteStmtGraph(((JimpleBody) method.getBody(Jimple.v())).getStmtList());
