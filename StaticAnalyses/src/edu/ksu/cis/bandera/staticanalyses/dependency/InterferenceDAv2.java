@@ -424,12 +424,10 @@ public class InterferenceDAv2
 	 * 		  <code>false</code>, otherwise.
 	 *
 	 * @pre method != null
-	 * @post method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap
-	 * @pre.get(method)) or  not method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap
-	 * @pre.get(method))
-	 * @post onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite
-	 * @pre.get(method)) or  not onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite
-	 * @pre.get(method))
+	 * @post method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap$pre.get(method))  or not
+	 * 		 method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap$pre.get(method))
+	 * @post onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite$pre.get(method))  or  not
+	 * 		 onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite$pre.get(method))
 	 */
 	private void fixupIntraMethodDependencies(SootMethod method, Map defSiteMap, boolean mergePostInvocationInfo) {
 		processing.add(method);
@@ -562,10 +560,8 @@ public class InterferenceDAv2
 	 *
 	 * @pre invokeExprSiteMap.oclIsKindOf(Map(Pair(Stmt, SootMethod),  Map(SootField, Set(Pair(Stmt, SootMethod)))))
 	 * @pre methodEndPointsMap.oclIsKindOf(Map(SootMethod, Map(SootField, Set(Pair(Stmt, SootMethod)))))
-	 * @post invokeExprSiteMap.equals(invokeExprSiteMap
-	 * @pre)
-	 * @post methodEndPointsMap.equals(methodEndPointsMap
-	 * @pre)
+	 * @post invokeExprSiteMap.equals(invokeExprSiteMap$pre)
+	 * @post methodEndPointsMap.equals(methodEndPointsMap$pre)
 	 */
 	private void fixupOnCallDependencies(Map invokeExprSiteMap, Map methodEndPointsMap) {
 		WorkBag methodList = new WorkBag(WorkBag.FIFO);
@@ -628,9 +624,7 @@ public class InterferenceDAv2
 	 *
 	 * @pre stmt.getLeftOp().oclIsKindOf(FieldRef)
 	 * @pre field2DefSite.oclIsKindOf(Map(SootField, Collection(Pair(Stmt, Method))))
-	 * @post field2DefSite.equals(fieldDefSite
-	 * @pre) or not field2DefSite.equals(fieldDefSite
-	 * @pre)
+	 * @post field2DefSite.equals(fieldDefSite$pre) or not field2DefSite.equals(fieldDefSite$pre)
 	 */
 	private void processDefSites(AssignStmt stmt, SootMethod method, Map field2DefSite) {
 		FieldRef value = (FieldRef) stmt.getLeftOp();
@@ -652,12 +646,12 @@ public class InterferenceDAv2
 
 			/*
 			 * This fails for instance fields.  Use symbolic method local analysis to kill information in the set.
-			                       if(fieldDefSiteSet == null) {
-			                           fieldDefSiteSet = new HashSet();
-			                           field2DefSite.put(field, fieldDefSiteSet);
-			                       } else {
-			                           fieldDefSiteSet.clear();
-			                       }
+			                           if(fieldDefSiteSet == null) {
+			                               fieldDefSiteSet = new HashSet();
+			                               field2DefSite.put(field, fieldDefSiteSet);
+			                           } else {
+			                               fieldDefSiteSet.clear();
+			                           }
 			 */
 			fieldDefSiteSet.add(pairMgr.getPair(stmt, method));
 		}
@@ -671,9 +665,7 @@ public class InterferenceDAv2
 	 * @param field2DefSite is a map of fields and their def site at the given call-site.
 	 *
 	 * @pre field2DefSite.oclIsKindOf(Map(SootField, Set(Pair(Stmt, SootMethod))))
-	 * @post field2DefSite.equals(field2DefSite
-	 * @pre) or not field2DefSite.equals(field2DefSite
-	 * @pre)
+	 * @post field2DefSite.equals(field2DefSite$pre) or not field2DefSite.equals(field2DefSite$pre)
 	 */
 	private void processInvokeExprStmt(Stmt stmt, SootMethod method, Map field2DefSite) {
 		InvokeExpr expr = null;
@@ -722,8 +714,7 @@ public class InterferenceDAv2
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param field2DefSite is the reaching definition set for fields to be used at <code>stmt</code>.
 	 *
-	 * @post field2DefSite.equals(field2DefSite
-	 * @pre)
+	 * @post field2DefSite.equals(field2DefSite$pre)
 	 * @post field2DefSite.oclIsKindOf(Map(SootField, Collection(Pair(Stmt, Method))))
 	 */
 	private void processUseSites(Stmt stmt, SootMethod method, Map field2DefSite) {
@@ -812,9 +803,5 @@ public class InterferenceDAv2
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 16:03:36  venku
-Well, minor changes like formatting before I split these into
-implementations that provide info in increasing order.
-
 
 *****/

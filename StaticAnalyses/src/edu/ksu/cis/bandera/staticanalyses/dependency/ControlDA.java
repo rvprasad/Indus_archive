@@ -84,9 +84,9 @@ public class ControlDA
 	 *
 	 * @return a collection of statements.
 	 *
-	 * @pre dependentStmt.oclType = Stmt
+	 * @pre dependentStmt.isOclKindOf(Stmt)
 	 * @pre method.oclType = SootMethod
-	 * @post result->forall(o | o.oclType = Stmt) and result.size() = 1
+	 * @post result->forall(o | o.isOclKindOf(Stmt)) and result.size() = 1
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
@@ -112,9 +112,9 @@ public class ControlDA
 	 *
 	 * @return a collection of statements.
 	 *
-	 * @pre dependeeStmt.oclType = Stmt
+	 * @pre dependeeStmt.isOclKindOf(Stmt)
 	 * @pre method.oclType = SootMethod
-	 * @post result->forall(o | o.oclType = Stmt)
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
 	 * 		java.lang.Object)

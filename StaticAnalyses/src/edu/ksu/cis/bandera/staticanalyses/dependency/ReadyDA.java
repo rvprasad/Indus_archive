@@ -46,10 +46,12 @@ import ca.mcgill.sable.soot.jimple.InvokeExpr;
 import ca.mcgill.sable.soot.jimple.InvokeStmt;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtGraph;
 import ca.mcgill.sable.soot.jimple.StmtList;
 
 import edu.ksu.cis.bandera.staticanalyses.InitializationException;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Environment;
@@ -66,6 +68,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -90,14 +93,14 @@ public class ReadyDA
 	 *
 	 * @invariant notifyMethods->forall(o | o.oclType = SootMethod)
 	 */
-	private static Collection notifyMethods;
+	static Collection notifyMethods;
 
 	/**
 	 * The collection of <code>wait</code> methods as available in the <code>Object</code> class.
 	 *
 	 * @invariant waitMethods->forall(o | o.oclType = SootMethod)
 	 */
-	private static Collection waitMethods;
+	static Collection waitMethods;
 
 	/**
 	 * This indicates rule 1 of ready dependency as described in the report.
@@ -124,38 +127,38 @@ public class ReadyDA
 	 *
 	 * @invariant enterMonitors.oclIsKindOf(Map(SootMethod, Set(EnterMonitorStmt)))
 	 */
-	private final Map enterMonitors = new HashMap();
+	final Map enterMonitors = new HashMap();
 
 	/**
 	 * This maps methods to collection of exit monitor statements.
 	 *
 	 * @invariant exitMonitors.oclIsKindOf(Map(SootMethod, Set(ExitMonitorStmt)))
 	 */
-	private final Map exitMonitors = new HashMap();
+	final Map exitMonitors = new HashMap();
 
 	/**
 	 * This maps methods to <code>Object.notifyXX</code> method calls in them.
 	 *
 	 * @invariant notifies.oclIsKindOf(Map(SootMethod, Set(NonStaticInvokeExpr)))
 	 */
-	private final Map notifies = new HashMap();
+	final Map notifies = new HashMap();
 
 	/**
 	 * This maps methods to <code>Object.wait</code> method calls in them.
 	 *
 	 * @invariant wait.oclIsKindOf(Map(SootMethod, Set(NonStaticInvokeExpr)))
 	 */
-	private final Map waits = new HashMap();
+	final Map waits = new HashMap();
+
+	/**
+	 * This stores the methods that are synchronized or have synchronized blocks in them.
+	 */
+	Collection monitorMethods = new HashSet();
 
 	/**
 	 * This provide call graph information about the analyzed system.  This is required by the analysis.
 	 */
 	private CallGraphInfo callgraph;
-
-	/**
-	 * This stores the methods that are synchronized or have synchronized blocks in them.
-	 */
-	private Collection monitorMethods = new HashSet();
 
 	/**
 	 * This provides information
@@ -174,6 +177,105 @@ public class ReadyDA
 	private int rules = RULE_1 | RULE_2 | RULE_3 | RULE_4;
 
 	/**
+	 * Creates a new ReadyDA object.
+	 */
+	public ReadyDA() {
+		preprocessor = new PreProcessor();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private class PreProcessor
+	  extends AbstractProcessor {
+		/**
+		 * Preprocesses the given method.  It collects synchronized methods.the monitor statements and statements with
+		 * <code>Object.wait()</code> and <code>Object.notifyXX()</code> method invocations.
+		 *
+		 * @param method to be preprocessed.
+		 */
+		public void callback(SootMethod method) {
+			if(Modifier.isSynchronized(method.getModifiers())) {
+				monitorMethods.add(method);
+			}
+		}
+
+		/**
+		 * Preprocesses the given stmt.  It collects monitor statements and statements with <code>Object.wait()</code> and
+		 * <code>Object.notifyXX()</code> method invocations.
+		 *
+		 * @param stmt to be preprocessed.
+		 * @param context in which <code>stmt</code> occurs.
+		 */
+		public void callback(Stmt stmt, Context context) {
+			SootMethod method = context.getCurrentMethod();
+			Map map = null;
+
+			if(stmt instanceof EnterMonitorStmt) {
+				map = enterMonitors;
+				monitorMethods.add(method);
+			} else if(stmt instanceof ExitMonitorStmt) {
+				map = exitMonitors;
+				monitorMethods.add(method);
+			}
+
+			if(map != null) {
+				Collection temp;
+
+				if(map.containsKey(method)) {
+					temp = (Collection) map.get(method);
+				} else {
+					temp = new HashSet();
+					map.put(method, temp);
+				}
+				temp.add(stmt);
+			} else {
+				InvokeExpr expr = null;
+
+				if(stmt instanceof InvokeStmt) {
+					expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
+				}
+
+				if(expr != null && expr instanceof NonStaticInvokeExpr) {
+					NonStaticInvokeExpr invokeExpr = (NonStaticInvokeExpr) expr;
+					SootMethod callee = invokeExpr.getMethod();
+
+					if(waitMethods.contains(callee)) {
+						map = waits;
+					} else if(notifyMethods.contains(callee)) {
+						map = notifies;
+					}
+
+					if(map != null) {
+						Collection temp;
+
+						if(map.containsKey(method)) {
+							temp = (Collection) map.get(method);
+						} else {
+							temp = new HashSet();
+							map.put(method, temp);
+						}
+						temp.add(stmt);
+					}
+				}
+			}
+		}
+
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void hookup(ProcessingController ppc) {
+			ppc.register(InvokeStmt.class, this);
+		}
+	}
+
+	/**
 	 * Returns the statements on which the <code>dependentStmt</code> depends on.
 	 *
 	 * @param dependentStmt is the statement for which the dependee info is requested.
@@ -181,8 +283,8 @@ public class ReadyDA
 	 *
 	 * @return a collection of statement.
 	 *
-	 * @pre dependentStmt.oclType = Stmt
-	 * @post result->forall(o | o.oclType = Stmt)
+	 * @pre dependentStmt.isOclKindOf(Stmt)
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.
 	 * 		Object)
@@ -199,8 +301,8 @@ public class ReadyDA
 	 *
 	 * @return a collection of statement.
 	 *
-	 * @pre dependeeStmt.oclType = Stmt
-	 * @post result->forall(o | o.oclType = Stmt)
+	 * @pre dependeeStmt.isOclKindOf(Stmt)
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
 	 * 		java.lang.Object)
@@ -261,86 +363,12 @@ public class ReadyDA
 	}
 
 	/**
-	 * Preprocesses the given method.  It collects the monitor statements and statements with <code>Object.wait()</code> and
-	 * <code>Object.notifyXX()</code> method invocations.
-	 *
-	 * @param method to be preprocessed.
-	 */
-	protected void preprocess(SootMethod method) {
-		Map map = null;
-		StmtList sl = ((StmtGraph) method2stmtGraph.get(method)).getBody().getStmtList();
-
-		if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
-			monitorMethods.add(method);
-		}
-
-		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-
-			if(stmt instanceof EnterMonitorStmt) {
-				map = enterMonitors;
-				monitorMethods.add(method);
-			} else if(stmt instanceof ExitMonitorStmt) {
-				map = exitMonitors;
-				monitorMethods.add(method);
-			}
-
-			if(map != null) {
-				Collection temp;
-
-				if(map.containsKey(method)) {
-					temp = (Collection) map.get(method);
-				} else {
-					temp = new HashSet();
-					map.put(method, temp);
-				}
-				temp.add(stmt);
-			} else {
-				InvokeExpr expr = null;
-
-				if(stmt instanceof InvokeStmt) {
-					expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
-				} 
-				/*
-				 * This cannot happen as only non-void invoke expressions can happen on RHS of an Assignment statement.
-				else if(stmt instanceof AssignStmt && (((AssignStmt) stmt).getRightOp() instanceof InvokeExpr)) {
-					expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
-				}
-				*/
-
-				if(expr != null && expr instanceof NonStaticInvokeExpr) {
-					NonStaticInvokeExpr invokeExpr = (NonStaticInvokeExpr) expr;
-					SootMethod callee = invokeExpr.getMethod();
-
-					if(waitMethods.contains(callee)) {
-						map = waits;
-					} else if(notifyMethods.contains(callee)) {
-						map = notifies;
-					}
-
-					if(map != null) {
-						Collection temp;
-
-						if(map.containsKey(method)) {
-							temp = (Collection) map.get(method);
-						} else {
-							temp = new HashSet();
-							map.put(method, temp);
-						}
-						temp.add(stmt);
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Extracts information as provided by environment at initialization time.  It collects <code>wait</code> and
 	 * <code>notifyXX</code> methods as represented in the AST system. It also extract call graph info, pair manaing
 	 * service, and environment from the <code>info</code> member.
 	 *
-	 * @throws InitializationException when call graph info, pair managing service, or environment is not
-	 * 		   available in <code>info</code> member.
+	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
+	 * 		   <code>info</code> member.
 	 */
 	protected void setup() {
 		if(waitMethods == null) {
@@ -482,10 +510,6 @@ public class ReadyDA
 			for(Iterator i = waits.keySet().iterator(); i.hasNext();) {
 				SootMethod method = (SootMethod) i.next();
 
-				if(waits.get(method) == null) {
-					continue;
-				}
-
 				if(map.get(method) != null) {
 					((Collection) map.get(method)).addAll((Collection) waits.get(method));
 				} else {
@@ -499,11 +523,13 @@ public class ReadyDA
 			SootMethod method = (SootMethod) i.next();
 			StmtList stmts = getStmtList(method);
 			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
+			Collection dependees = (Collection) map.get(method);
 
-			for(Iterator j = ((Collection) map.get(method)).iterator(); j.hasNext();) {
+			for(Iterator j = dependees.iterator(); j.hasNext();) {
 				Stmt dependee = (Stmt) j.next();
 				BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
-				Collection sl = bb.getStmtFrom(stmts.indexOf(dependee));
+				List sl = bb.getStmtFrom(stmts.indexOf(dependee));
+				sl.remove(0); // remove the dependee from the list
 				temp = new HashSet();
 
 				Pair pair = pairMgr.getPair(dependee, method);
@@ -511,7 +537,10 @@ public class ReadyDA
 				for(Iterator k = sl.iterator(); k.hasNext();) {
 					Object o = k.next();
 					dependeeMap.put(o, pair);
-					temp.add(pairMgr.getPair(o, method));
+
+					if(!dependees.contains(o)) {
+						temp.add(pairMgr.getPair(o, method));
+					}
 				}
 				workbag.clear();
 				processed.clear();
@@ -523,7 +552,10 @@ public class ReadyDA
 					for(Iterator k = work.getStmtsOf().iterator(); k.hasNext();) {
 						Object o = k.next();
 						dependeeMap.put(o, pair);
-						temp.add(pairMgr.getPair(o, method));
+
+						if(!dependees.contains(o)) {
+							temp.add(pairMgr.getPair(o, method));
+						}
 					}
 
 					if(!processed.contains(bb)) {
@@ -537,7 +569,7 @@ public class ReadyDA
 	}
 
 	/**
-	 * Processes the system as per to rule 2 in the report.  For each possible enter- and exit=monitor statement, a simple
+	 * Processes the system as per to rule 2 in the report.  For each possible enter- and exit-monitor statement, a simple
 	 * class hierarchy based dependency is calculated.  <i>BFA can be used to improve the precision here.</i>
 	 */
 	private void processRule2() {

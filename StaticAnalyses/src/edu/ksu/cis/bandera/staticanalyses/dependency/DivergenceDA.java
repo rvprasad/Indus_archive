@@ -84,8 +84,8 @@ public class DivergenceDA
 	 * @return a collection of statements.  However, in this case the collection contains only one statement.
 	 *
 	 * @pre method.oclType = SootMethod
-	 * @pre dependentStmt = Stmt
-	 * @post result->forall( o | o.oclType = Stmt)
+	 * @pre dependentStmt.isOclKindOf(Stmt)
+	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 * @post result.size = 1
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
@@ -103,8 +103,8 @@ public class DivergenceDA
 	 * @return a collection of statements.
 	 *
 	 * @pre method.oclType = SootMethod
-	 * @pre dependentStmt = Stmt
-	 * @post result->forall( o | o.oclType = Stmt)
+	 * @pre dependentStmt.isOclKindOf(Stmt)
+	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
 	 * 		java.lang.Object)

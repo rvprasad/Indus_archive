@@ -91,7 +91,7 @@ public class SynchronizationDA
 	/**
 	 * This collects the enter-monitor statements while preprocessing the system.  This is used during analysis.
 	 *
-	 * @invariant pointsOfInterest->forall(o | o.oclType = EnterMonitorStmt))
+	 * @invariant pointsOfInterest->forall(o | o.isOclKindOf(EnterMonitorStmt)))
 	 */
 	Collection pointsOfInterest = new HashSet();
 
@@ -104,13 +104,14 @@ public class SynchronizationDA
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
-	class PreProcessor
+	private class PreProcessor
 	  extends AbstractProcessor {
 		/**
 		 * Preprocesses the given method.  This implementation records if the method is synchronized.
@@ -129,7 +130,7 @@ public class SynchronizationDA
 		 * @param stmt DOCUMENT ME!
 		 * @param context DOCUMENT ME!
 		 *
-		 * @pre stmt.oclType = EnterMonitorStmt
+		 * @pre stmt.isOclKindOf(EnterMonitorStmt)
 		 *
 		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
 		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
@@ -155,7 +156,7 @@ public class SynchronizationDA
 	 * @return a collection of dependee statements.
 	 *
 	 * @pre method.oclType = SootMethod
-	 * @pre dependentStmt.oclType = Stmt
+	 * @pre dependentStmt.isOclKindOf(Stmt)
 	 * @post result->forall( o | o.oclIsKindOf(EnterMonitorStmt) || o.oclIsKindOf(ExitMonitorStmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
@@ -173,8 +174,8 @@ public class SynchronizationDA
 	 * @return a collection of dependent statements.
 	 *
 	 * @pre method.oclType = SootMethod
-	 * @pre dependeeStmt.oclType = Stmt
-	 * @post result->forall( o | o.oclType = Stmt)
+	 * @pre dependeeStmt.isOclKindOf(Stmt)
+	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
@@ -278,8 +279,8 @@ public class SynchronizationDA
 	 * @return a collection of statements.
 	 *
 	 * @pre method.oclType = ca.mcgill.sable.soot.SootMethod
-	 * @pre stmt = ca.mcgill.sable.soot.jimple.Stmt
-	 * @post result->forall( o | o.oclType ca.mcgill.sable.soot.jimple.Stmt)
+	 * @pre stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.Stmt)
+	 * @post result->forall( o | o.isOclKindOf(ca.mcgill.sable.soot.jimple.Stmt))
 	 */
 	protected static Collection getHelper(Map map, Object stmt, Object method) {
 		Collection result = Collections.EMPTY_LIST;

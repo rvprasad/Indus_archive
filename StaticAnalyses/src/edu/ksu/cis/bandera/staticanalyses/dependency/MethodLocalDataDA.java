@@ -101,10 +101,10 @@ public class MethodLocalDataDA
 	 * @return a collection of <code>Stmt</code>s on which <code>o</code> depends.
 	 *
 	 * @pre o.oclType = Pair
-	 * @pre o.getFirst().ocltype = Stmt
-	 * @pre o.getSecond().ocltype = ValueBox
+	 * @pre o.getFirst().isOclKindOf(Stmt)
+	 * @pre o.getSecond().isOclKindOf(ValueBox)
 	 * @pre context.oclType = SootMethod
-	 * @post result->forall(o | o.oclType = Stmt)
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
 	public Collection getDependees(Object o, Object context) {
 		Pair pair = (Pair) o;
@@ -127,9 +127,9 @@ public class MethodLocalDataDA
 	 *
 	 * @return a collection of <code>Stmt</code>s which depend on <code>o</code>.
 	 *
-	 * @pre o.ocltype = Stmt
+	 * @pre o.isOclKindOf(Stmt)
 	 * @pre context.oclType = SootMethod
-	 * @post result->forall(o | o.oclType = Stmt)
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
 	public Collection getDependents(Object o, Object context) {
 		Stmt stmt = (Stmt) o;

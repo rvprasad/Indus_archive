@@ -112,7 +112,6 @@ public abstract class DependencyAnalysis {
 	 * @return a collection of objects.  The subclasses will further specify the  types of these entities.
 	 *
 	 * @post result != null
-	 * @post result->forall(o | o.oclType = Object)
 	 */
 	public abstract Collection getDependees(Object dependent, Object context);
 
@@ -126,7 +125,6 @@ public abstract class DependencyAnalysis {
 	 * @return a collection of objects.  The subclasses will further specify the  types of these entities.
 	 *
 	 * @post result != null
-	 * @post result->forall(o | o.oclType = Object)
 	 */
 	public abstract Collection getDependents(Object dependee, Object context);
 
@@ -232,16 +230,6 @@ public abstract class DependencyAnalysis {
 			result = ((JimpleBody) stmtGraph.getBody()).getStmtList();
 		}
 		return result;
-	}
-
-	/**
-	 * Called by the environment when given method is encountered during pre-processing phase.  The analysis can collect
-	 * information at this time which may be required during analysis.
-	 *
-	 * @param method to be pre-processed.
-	 */
-	protected void preprocess(SootMethod method) {
-		// we do nothing here.  Subclass should implement it as they please.
 	}
 
 	/**
