@@ -32,28 +32,28 @@ import java.util.Collection;
 public class LIFOWorkBag
   extends FIFOWorkBag {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWork(java.util.Collection)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWork(java.util.Collection)
 	 */
 	public void addAllWork(final Collection c) {
 		container.addAll(0, c);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWorkNoDuplicates(java.util.Collection)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public void addAllWorkNoDuplicates(final Collection c) {
 		container.addAll(0, CollectionUtils.subtract(c, container));
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(0, o);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWorkNoDuplicates(java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public void addWorkNoDuplicates(final Object o) {
 		if (!container.contains(o)) {
@@ -65,7 +65,10 @@ public class LIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/06 05:01:57  venku
+   - finalized the parameters.
+
    Revision 1.1  2003/11/05 09:27:10  venku
-   - Split WorkBag into an interface and an implementation
+   - Split IWorkBag into an interface and an implementation
      for the sake of performance.
  */

@@ -95,7 +95,7 @@ public class BasicBlockGraph
 		int trailer = numOfStmt;
 		Collection processed = new HashSet();
 		List stmts = new ArrayList();
-		WorkBag wb = new LIFOWorkBag();
+		IWorkBag wb = new LIFOWorkBag();
 		wb.addWork(stmtList.get(0));
 
 		while (wb.hasWork()) {
@@ -383,6 +383,9 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/05 09:28:10  venku
+   - ripple effect of splitting IWorkBag.
+
    Revision 1.11  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -423,5 +426,5 @@ public class BasicBlockGraph
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
  */

@@ -15,12 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
 
 
 /**
@@ -33,7 +28,7 @@ import java.util.Stack;
  *
  * @since Created: Thu Jul 25 18:37:24 2002.
  */
-public interface WorkBag {
+public interface IWorkBag {
 	/**
 	 * Returns a work pieces.
 	 *
@@ -46,29 +41,12 @@ public interface WorkBag {
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
 	 *
-	 * @param o the work pieces to be added.
-	 *
-	 * @invariant self->includesAll(self$pre)
-	 * @post self->includesAll(c)
-	 *
-	void addAllWork(final Object[] o);
-
-	/**
-	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
-	 *
 	 * @param c the work pieces to be added.
 	 *
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includesAll(c)
 	 */
 	void addAllWork(final Collection c);
-
-	/**
-	 * Adds all the work pieces in <code>c</code> to the bag, if they do not exist in the bag.
-	 *
-	 * @param o the work pieces to the added.
-	 *
-	void addAllWorkNoDuplicates(final Object[] o);
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag, if they do not exist in the bag.
@@ -123,15 +101,16 @@ public interface WorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/05 09:27:10  venku
+   - Split IWorkBag into an interface and an implementation
+     for the sake of performance.
    Revision 1.7  2003/11/05 08:46:13  venku
    - coding convention.
-
    Revision 1.6  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/08/17 10:33:03  venku
-   WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
+   WorkList does not inherit from IWorkBag rather contains an instance of IWorkBag.
    Ripple effect of the above change.
    Revision 1.4  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
@@ -147,7 +126,7 @@ public interface WorkBag {
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.7  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

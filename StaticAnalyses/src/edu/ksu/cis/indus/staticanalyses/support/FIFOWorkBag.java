@@ -32,7 +32,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public class FIFOWorkBag
-  implements WorkBag {
+  implements IWorkBag {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -41,35 +41,35 @@ public class FIFOWorkBag
 	protected List container = new ArrayList();
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#getWork()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#getWork()
 	 */
 	public Object getWork() {
 		return container.get(0);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWork(java.util.Collection)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWork(java.util.Collection)
 	 */
 	public void addAllWork(final Collection c) {
 		container.addAll(c);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWorkNoDuplicates(java.util.Collection)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public void addAllWorkNoDuplicates(final Collection c) {
 		container.addAll(CollectionUtils.subtract(c, container));
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(o);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWorkNoDuplicates(java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public void addWorkNoDuplicates(final Object o) {
 		if (!container.contains(o)) {
@@ -78,14 +78,14 @@ public class FIFOWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#clear()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#clear()
 	 */
 	public void clear() {
 		container.clear();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#hasWork()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#hasWork()
 	 */
 	public boolean hasWork() {
 		return !container.isEmpty();
@@ -95,7 +95,10 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/06 05:01:57  venku
+   - finalized the parameters.
+
    Revision 1.1  2003/11/05 09:27:10  venku
-   - Split WorkBag into an interface and an implementation
+   - Split IWorkBag into an interface and an implementation
      for the sake of performance.
  */

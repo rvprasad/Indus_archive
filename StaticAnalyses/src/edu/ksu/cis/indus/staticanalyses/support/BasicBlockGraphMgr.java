@@ -128,6 +128,10 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/28 07:31:28  venku
+   - ensured that null graph is returned if the method does not
+     have a body.
+
    Revision 1.9  2003/09/28 06:54:17  venku
    - one more small change to the interface.
    Revision 1.8  2003/09/28 06:46:49  venku
@@ -155,7 +159,7 @@ public class BasicBlockGraphMgr {
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.5  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

@@ -206,7 +206,7 @@ public abstract class DirectedGraph {
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		boolean result = false;
 		Collection processed = new HashSet();
-		WorkBag worklist = new LIFOWorkBag();
+		IWorkBag worklist = new LIFOWorkBag();
 		worklist.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
 
 		while (worklist.hasWork()) {
@@ -304,7 +304,7 @@ public abstract class DirectedGraph {
 	 */
 	public final Collection getCycles() {
 		Collection result = new ArrayList();
-		WorkBag wb = new LIFOWorkBag();
+		IWorkBag wb = new LIFOWorkBag();
 		Stack dfsPath = new Stack();
 
 		for (Iterator i = getNodes().iterator(); i.hasNext();) {
@@ -529,7 +529,7 @@ public abstract class DirectedGraph {
 			spanningSuccs.clear();
 		}
 
-		WorkBag order = new LIFOWorkBag();
+		IWorkBag order = new LIFOWorkBag();
 		List nodes = getNodes();
 
 		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here. 
@@ -594,6 +594,9 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/05 09:27:48  venku
+   - ripple effect of splitting IWorkBag.
+
    Revision 1.11  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -632,7 +635,7 @@ public abstract class DirectedGraph {
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.6  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

@@ -30,7 +30,7 @@ import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -299,6 +299,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/02 20:14:33  venku
+   - thread body is fixed external to the driver in Util.
+
    Revision 1.4  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -311,5 +314,5 @@ public final class Util {
        Revision 1.1  2003/08/07 06:42:16  venku
        Major:
         - Moved the package under indus umbrella.
-        - Renamed isEmpty() to hasWork() in WorkBag.
+        - Renamed isEmpty() to hasWork() in IWorkBag.
  */

@@ -191,6 +191,9 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/02 20:14:32  venku
+   - thread body is fixed external to the driver in Util.
+
    Revision 1.8  2003/09/28 12:11:44  venku
    - the unit graphs used by default are TrapUnitGraphs.
 
@@ -219,5 +222,5 @@ public abstract class Driver {
            Revision 1.1  2003/08/07 06:42:16  venku
            Major:
             - Moved the package under indus umbrella.
-            - Renamed isEmpty() to hasWork() in WorkBag.
+            - Renamed isEmpty() to hasWork() in IWorkBag.
  */
