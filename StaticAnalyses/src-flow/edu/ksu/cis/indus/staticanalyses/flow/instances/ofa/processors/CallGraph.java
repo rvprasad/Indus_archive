@@ -368,8 +368,8 @@ public class CallGraph
 					if (o instanceof Marker) {
 						Object temp = ((Marker) o)._content;
 
-						for (Object obj = callStack.pop(); !temp.equals(obj); obj = callStack.pop()) {
-							;
+						for (Object obj = callStack.pop(); !temp.equals(obj);) {
+                            obj = callStack.pop();
 						}
 					} else {
 						Triple triple = (Triple) o;
@@ -764,6 +764,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/09/13 04:24:42  venku
+   - boundary conditions, boundary conditions.  Well, we did not
+     handle the case when there was no calls in the system. FIXED.
+
    Revision 1.15  2003/09/12 01:24:12  venku
    - As preprocessing before CallGraph exists happen based on the
      parts of the system touched.  Non-reachable methods will be
