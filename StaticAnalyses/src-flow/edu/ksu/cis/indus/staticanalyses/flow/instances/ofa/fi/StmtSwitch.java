@@ -35,8 +35,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
-import soot.RefLikeType;
-
 import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
@@ -52,6 +50,7 @@ import soot.jimple.ThrowStmt;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +93,7 @@ public class StmtSwitch
 	 * @return the new instance of this class.
 	 *
 	 * @pre o != null and o.oclIsKindOf(MethodVariant)
-     * @post result != null and result.oclIsKindOf(StmtSwitch)
+	 * @post result != null and result.oclIsKindOf(StmtSwitch)
 	 */
 	public Object getClone(final Object o) {
 		return new StmtSwitch((MethodVariant) o);
@@ -115,7 +114,7 @@ public class StmtSwitch
 
 		rexpr.process(stmt.getRightOpBox());
 
-		if (stmt.getRightOp().getType() instanceof RefLikeType) {
+		if (OFAnalyzer.isReferenceType(stmt.getRightOp().getType())) {
 			IFGNode right = (IFGNode) rexpr.getResult();
 			lexpr.process(stmt.getLeftOpBox());
 
@@ -167,7 +166,7 @@ public class StmtSwitch
 			LOGGER.debug("Processing statement: " + stmt);
 		}
 
-		if (stmt.getRightOp().getType() instanceof RefLikeType) {
+		if (OFAnalyzer.isReferenceType(stmt.getRightOp().getType())) {
 			rexpr.process(stmt.getRightOpBox());
 
 			IFGNode right = (IFGNode) rexpr.getResult();
@@ -255,10 +254,12 @@ public class StmtSwitch
 			LOGGER.debug("BEGIN: processing " + stmt);
 		}
 
-		rexpr.process(stmt.getOpBox());
+		if (OFAnalyzer.isReferenceType(stmt.getOp().getType())) {
+			rexpr.process(stmt.getOpBox());
 
-		IFGNode retNode = (IFGNode) rexpr.getResult();
-		retNode.addSucc(method.queryReturnNode());
+			IFGNode retNode = (IFGNode) rexpr.getResult();
+			retNode.addSucc(method.queryReturnNode());
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processed " + stmt);
@@ -298,9 +299,12 @@ public class StmtSwitch
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.2  2003/08/15 02:54:06  venku
+   Spruced up specification and documentation for flow-insensitive classes.
+   Changed names in AbstractExprSwitch.
+   Ripple effect of above change.
+   Formatting changes to IPrototype.
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

@@ -35,9 +35,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import soot.ArrayType;
 import soot.Modifier;
+import soot.RefType;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
@@ -99,6 +102,18 @@ public final class OFAnalyzer
 		mf.setRHSExprVisitorPrototype(rexpr);
 		mf.setClassManagerPrototype(new ClassManager(null));
 		setModeFactory(mf);
+	}
+
+	/**
+	 * Checks if the given type is a valid reference type.
+	 *
+	 * @param t is the type to checked.
+	 *
+	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
+     * @pre t != null
+	 */
+	public static final boolean isReferenceType(final Type t) {
+		return t instanceof RefType || t instanceof ArrayType;
 	}
 
 	/**
@@ -214,17 +229,19 @@ public final class OFAnalyzer
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.4  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.3  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.
    Renamed a few fields/parameter variables to avoid name confusion.
 
-   
    Revision 1.2  2003/08/09 21:52:57  venku
    Change parameter names.
-   
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

@@ -37,8 +37,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
 import soot.ArrayType;
 import soot.Local;
-import soot.RefLikeType;
-import soot.RefType;
 import soot.SootField;
 import soot.Type;
 import soot.Value;
@@ -77,6 +75,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,14 +153,12 @@ public class ExprSwitch
 	public void caseCastExpr(final CastExpr e) {
 		process(e.getOpBox());
 
-		Type t = e.getCastType();
-
-		if (t instanceof RefType || t instanceof ArrayType) {
+		if (OFAnalyzer.isReferenceType(e.getCastType())) {
 			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
 			// run-time.
 			IFGNode base = (IFGNode) getResult();
 			IFGNode cast = method.getASTNode(e);
-			cast.setFilter(new TypeBasedFilter(t, fa));
+			cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
 			base.addSucc(cast);
 			setResult(cast);
 		}
@@ -331,10 +328,14 @@ public class ExprSwitch
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef e) {
 		SootField field = e.getField();
-		IFGNode ast = method.getASTNode(e);
-		IFGNode nonast = fa.getFieldVariant(field).getFGNode();
-		connector.connect(ast, nonast);
-		setResult(ast);
+		Type t = field.getType();
+
+		if (OFAnalyzer.isReferenceType(t)) {
+			IFGNode ast = method.getASTNode(e);
+			IFGNode nonast = fa.getFieldVariant(field).getFGNode();
+			connector.connect(ast, nonast);
+			setResult(ast);
+		}
 	}
 
 	/**
@@ -352,13 +353,15 @@ public class ExprSwitch
 		MethodVariant callee = fa.getMethodVariant(e.getMethod(), context);
 
 		for (int i = 0; i < e.getArgCount(); i++) {
-			process(e.getArgBox(i));
+			if (OFAnalyzer.isReferenceType(e.getArg(i).getType())) {
+				process(e.getArgBox(i));
 
-			IFGNode argNode = (IFGNode) getResult();
-			argNode.addSucc(callee.queryParameterNode(i));
+				IFGNode argNode = (IFGNode) getResult();
+				argNode.addSucc(callee.queryParameterNode(i));
+			}
 		}
 
-		if (e.getMethod().getReturnType() instanceof RefLikeType) {
+		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
 			IFGNode ast = method.getASTNode(e);
 			callee.queryReturnNode().addSucc(ast);
 			setResult(ast);
@@ -449,7 +452,7 @@ public class ExprSwitch
 			process(e.getArgBox(i));
 		}
 
-		if (e.getMethod().getReturnType() instanceof RefLikeType) {
+		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
 			setResult(method.getASTNode(e));
 		} else {
 			setResult(null);
@@ -468,8 +471,9 @@ public class ExprSwitch
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.4  2003/08/20 18:14:38  venku
+   Log4j was used instead of logging.  That is fixed.
    Revision 1.3  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
@@ -478,7 +482,6 @@ public class ExprSwitch
    Changed names in AbstractExprSwitch.
    Ripple effect of above change.
    Formatting changes to IPrototype.
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
