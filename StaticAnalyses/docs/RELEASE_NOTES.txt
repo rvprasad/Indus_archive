@@ -28,11 +28,13 @@ Required software:
 
 Version 0.5
 ------------
+    - Added escape information preserving calling context retriever.
+    - Added Non-termination insensitive control dependence and pure inter-procedural divergence dependence analysis.
 	- Added support to dynamically update relation between types and tokens in the token management framework.
 	- Incorporated SCC-based optimizations into flow analysis framework.
 	- Optimized certain graph algorithms.
-	- Enabled side-effect analysis. 
-	- Implemented a trivial atomicity analysis.  This supports detection of atomic regions and "independent"/atomic statements.
+	- Added a side-effect analysis. 
+	- Added an atomicity analysis.  This supports detection of atomic regions and "independent"/atomic statements.
 	- Support for tracking thread "escape" information across method boundaries.
 	- Fixed bugs in Reference-based DA and OFAXMLizer.
 	- Added analysis to calculate static field-based use-def info.
