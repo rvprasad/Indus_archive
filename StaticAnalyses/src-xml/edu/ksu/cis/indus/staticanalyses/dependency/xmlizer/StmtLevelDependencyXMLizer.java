@@ -203,7 +203,7 @@ public final class StmtLevelDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			writer.write("<dependency id=\"" + analysis.getId() + " class=\"" + analysis.getClass().toString() + "\">\n");
+			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().toString() + "\">\n");
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -230,6 +230,10 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.9  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
