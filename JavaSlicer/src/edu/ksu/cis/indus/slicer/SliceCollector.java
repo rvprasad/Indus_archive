@@ -208,7 +208,7 @@ public final class SliceCollector {
 	 */
 	public void includeInSlice(final Collection hosts) {
 		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
-			Host _host = (Host) _i.next();
+			final Host _host = (Host) _i.next();
 			includeInSlice(_host);
 		}
 	}
@@ -269,6 +269,10 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/19 11:39:11  venku
+   - added new batched includeInSlice() method to SliceCollector.
+   - used new includeInSlice() method in CompleteSliceGotoProcessor.
+
    Revision 1.3  2004/01/13 09:42:52  venku
    - coding convention.
    Revision 1.2  2004/01/13 07:48:03  venku

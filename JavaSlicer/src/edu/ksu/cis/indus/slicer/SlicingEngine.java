@@ -1092,7 +1092,7 @@ public final class SlicingEngine {
 			_sb.append("BEGIN: Transforming value boxes [");
 
 			for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
-				ValueBox _vBox = (ValueBox) _i.next();
+				final ValueBox _vBox = (ValueBox) _i.next();
 				_sb.append(_vBox.getValue());
 				_sb.append("[" + _vBox + "]");
 				_sb.append(", ");
@@ -1232,6 +1232,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.60  2004/01/21 02:37:51  venku
+   - logging.
+
    Revision 1.59  2004/01/20 17:32:28  venku
    - logging.
    Revision 1.58  2004/01/20 17:16:45  venku

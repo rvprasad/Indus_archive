@@ -29,8 +29,11 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.slicer.*;
 import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
+import edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor;
+import edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor;
+import edu.ksu.cis.indus.slicer.CompleteSliceGotoProcessor;
+import edu.ksu.cis.indus.slicer.ForwardSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
@@ -753,7 +756,7 @@ public final class SlicerTool
 		}
 
 		if (((Boolean) _slicerConfig.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
-			ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
+			final ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
 			_postProcessor.process(_methods, bbgMgr, _collector);
 		}
 		_gotoProcessor.process(_methods, bbgMgr);
@@ -763,6 +766,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.66  2004/01/21 02:53:43  venku
+   - logging
+   - call to reset() methods controllers.
+
    Revision 1.65  2004/01/20 22:26:12  venku
    - AnalysisController can now set basic block graph managers
      on the controlled analyses.

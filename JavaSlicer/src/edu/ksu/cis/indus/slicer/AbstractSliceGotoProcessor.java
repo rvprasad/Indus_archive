@@ -84,19 +84,19 @@ public abstract class AbstractSliceGotoProcessor {
 
 		processForIntraBasicBlockGotos(bbg);
 
-		Collection processed = new HashSet();
+		final Collection _processed = new HashSet();
 		final UnitGraph _unitGraph = bbg.getStmtGraph();
 		final List _units = new ArrayList(_unitGraph.getBody().getUnits());
 
 		while (workBag.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
-			processed.add(_bb);
+			_processed.add(_bb);
 
 			final Stmt _leader = _bb.getLeaderStmt();
-			int lind = _units.indexOf(_leader);
+			final int _lind = _units.indexOf(_leader);
 
-			if (lind > 0) {
-				final Stmt _predStmtInUnits = (Stmt) _units.get(lind - 1);
+			if (_lind > 0) {
+				final Stmt _predStmtInUnits = (Stmt) _units.get(_lind - 1);
 				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtInUnits);
 
 				if (!_succsOfPred.contains(_leader)) {
@@ -141,6 +141,9 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/14 11:18:17  venku
+   - subtle bug in which local variable overrode the field.  FIXED.
+
    Revision 1.4  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.

@@ -43,15 +43,15 @@ public class BackwardSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	public BackwardSliceGotoProcessor(SliceCollector collector) {
+	public BackwardSliceGotoProcessor(final SliceCollector collector) {
 		super(collector);
 	}
 
 	/**
 	 * @see AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
-	protected List getStmtsOfForProcessing(BasicBlock bb) {
-		List _result = new ArrayList(bb.getStmtsOf());
+	protected List getStmtsOfForProcessing(final BasicBlock bb) {
+		final List _result = new ArrayList(bb.getStmtsOf());
 		Collections.reverse(_result);
 		return _result;
 	}
@@ -84,6 +84,10 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/13 23:34:54  venku
+   - fixed the processing of intra basicblock jumps and
+     inter basic block jumps.
+
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.

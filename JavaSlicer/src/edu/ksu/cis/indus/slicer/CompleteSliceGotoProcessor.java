@@ -42,7 +42,7 @@ public final class CompleteSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	public CompleteSliceGotoProcessor(SliceCollector collector) {
+	public CompleteSliceGotoProcessor(final SliceCollector collector) {
 		super(collector);
 	}
 
@@ -80,6 +80,10 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/19 11:39:11  venku
+   - added new batched includeInSlice() method to SliceCollector.
+   - used new includeInSlice() method in CompleteSliceGotoProcessor.
+
    Revision 1.10  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.

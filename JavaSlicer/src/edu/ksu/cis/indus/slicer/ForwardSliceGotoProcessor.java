@@ -36,14 +36,14 @@ public final class ForwardSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	public ForwardSliceGotoProcessor(SliceCollector collector) {
+	public ForwardSliceGotoProcessor(final SliceCollector collector) {
 		super(collector);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
-	protected List getStmtsOfForProcessing(BasicBlock bb) {
+	protected List getStmtsOfForProcessing(final BasicBlock bb) {
 		return bb.getStmtsOf();
 	}
 }
@@ -51,6 +51,10 @@ public final class ForwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/13 23:34:54  venku
+   - fixed the processing of intra basicblock jumps and
+     inter basic block jumps.
+
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.
