@@ -46,7 +46,7 @@ abstract class AbstractMemberDataAccessExprWork
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ArrayAccessExprWork.class);
+	private static final Log LOGGER = LogFactory.getLog(AbstractMemberDataAccessExprWork.class);
 
 	/**
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
@@ -119,6 +119,12 @@ abstract class AbstractMemberDataAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/16 20:10:38  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.1  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
