@@ -57,25 +57,11 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 public abstract class AbstractProcessor
   implements IProcessor {
 	/**
-	 * This indicates if the processor has stabilized.  If so, it is safe to query this object for information. By default,
-	 * this field is initialized to indicate that the processor is in a stable state.  The subclasses will need to toggle it
-	 * suitably.
-	 */
-	protected boolean stable = true;
-
-	/**
 	 * Does nothing.
 	 *
 	 * @see IProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzer) {
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
 	}
 
 	/**
@@ -130,6 +116,9 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/21 03:32:37  venku
+   Incorporated IStatus interface into any interface that provides analysis information.
+
    Revision 1.4  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
