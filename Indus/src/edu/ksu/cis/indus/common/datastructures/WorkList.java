@@ -63,8 +63,14 @@ public final class WorkList {
 	/**
 	 * Executes the work pieces in the worklist.  This method returns when the worklist is empty, i.e., all the work peices
 	 * have been executed.
+	 *
+	 * @return the number of work pieces processed in this cycle.
+     * 
+     * @post resutl &gt;= 0
 	 */
-	public void process() {
+	public int process() {
+		int _result = 0;
+
 		while (workbag.hasWork()) {
 			final Object _o = workbag.getWork();
 
@@ -80,7 +86,9 @@ public final class WorkList {
 			if (_o instanceof IPoolable) {
 				((IPoolable) _o).returnToPool();
 			}
+			_result++;
 		}
+		return _result;
 	}
 }
 
