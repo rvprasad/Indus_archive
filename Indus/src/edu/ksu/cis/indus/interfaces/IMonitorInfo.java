@@ -15,7 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 
 import java.util.Collection;
 
@@ -42,10 +44,11 @@ public interface IMonitorInfo
 	/** 
 	 * The id of this interface.
 	 */
-	String ID = "Synchronization monitor Information";
+	String ID = "Monitor Information";
 
 	/**
-	 * Retrieves the statements enclosed in the monitor acquired on entering the given synchronized method.
+	 * Retrieves the statements enclosed in the monitor acquired on entering the given synchronized method. Only the
+	 * statements occurring in the method in which the monitor occurs are returned.
 	 *
 	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
@@ -58,7 +61,8 @@ public interface IMonitorInfo
 	Collection getEnclosedStmts(final SootMethod method, final boolean transitive);
 
 	/**
-	 * Retrieves the statements enclosed in the monitor respresented by the given monitor statement in the given method.
+	 * Retrieves the statements enclosed in the monitor respresented by the given monitor statement in the given method. Only
+	 * the statements occurring in the method in which the monitor occurs are returned.
 	 *
 	 * @param monitorStmt is the monitor statement.
 	 * @param method in which the monitor occurs.
@@ -73,7 +77,43 @@ public interface IMonitorInfo
 	Collection getEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive);
 
 	/**
-	 * Retrieves the monitor statements enclosing in the given monitor statement in the given method.
+	 * Retrieves the statements enclosed by the given monitor triple. Only the statements occurring in the method in which
+	 * the monitor occurs are returned.
+	 *
+	 * @param monitorTriple describes the monitor of interest.
+	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
+	 *
+	 * @return a collection of statements.
+	 *
+	 * @pre monitorTriple != null
+	 * @pre monitorTriple.getFirst.oclIsKindOf(EnterMonitorStmt)
+	 * @pre monitorTriple.getSecond().oclIsKindOf(ExitMonitorStmt)
+	 * @pre monitorTriple.getThird().oclIsKindOf(SootMethod)
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	Collection getEnclosedStmts(final Triple monitorTriple, final boolean transitive);
+
+	/**
+	 * Retrieves the monitor triples for monitors enclosing in the given statement in the given method. Only the monitors
+	 * occurring in the method in which the statement occurs are returned.
+	 *
+	 * @param stmt obviously.
+	 * @param method in which the monitor occurs.
+	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
+	 *
+	 * @return a collection of triples
+	 *
+	 * @pre stmt != null and method != null
+	 * @post result != null and result.oclIsKindOf(Collection(Triple))
+	 * @post result->forall(o | o.getFirst() != null implies o.getFirst().oclIsKindOf(EnterMonitorStmt))
+	 * @post result->forall(o | o.getSecond() != null implies o.getSecond().oclIsKindOf(ExitMonitorStmt))
+	 * @post result->forall(o | o.getThird() != null and o.getThird().oclIsKindOf(SootMethod))
+	 */
+	Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive);
+
+	/**
+	 * Retrieves the monitor statements enclosing in the given statement in the given method. Only the monitors occurring in
+	 * the method in which the statement occurs are returned.
 	 *
 	 * @param stmt obviously.
 	 * @param method in which the monitor occurs.
@@ -99,7 +139,7 @@ public interface IMonitorInfo
 	 *
 	 * @post result != null
 	 */
-	IDirectedGraph getMonitorGraph(final ICallGraphInfo callgraphInfo);
+	IObjectDirectedGraph getMonitorGraph(final ICallGraphInfo callgraphInfo);
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
@@ -149,11 +189,34 @@ public interface IMonitorInfo
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
 	Collection getMonitorTriplesIn(final SootMethod method);
+
+	/**
+	 * Retrieves the statements that form the given monitor.
+	 *
+	 * @param monitor of interest.
+	 *
+	 * @return a collection of statements.
+	 *
+	 * @pre monitor != null
+	 * @post result != null
+	 * @post result->forall(o | o.oclIsKindOf(EnterMonitorStmt) or o.oclIsKindOf(ExitMonitorStmt))
+	 * @post monitor.getFirst() = null implies resutl.isEmpty()
+	 */
+	Collection getStmtsOfMonitor(final Triple monitor);
+
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/23 13:10:06  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
    Revision 1.7  2004/07/22 07:18:47  venku
    - extended interface to query for enclosed statements in sychronized methods.
    - provided suitable implementation in SychronizationDA.

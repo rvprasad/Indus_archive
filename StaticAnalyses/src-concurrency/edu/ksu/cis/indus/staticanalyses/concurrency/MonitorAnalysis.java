@@ -16,27 +16,31 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
+import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -137,6 +141,11 @@ public final class MonitorAnalysis
 	 */
 	private final Map syncedMethod2enclosedStmts = new HashMap();
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private IObjectDirectedGraph monitorGraph;
+
 	/**
 	 * Creates a new MonitorAnalysis object.
 	 */
@@ -152,7 +161,7 @@ public final class MonitorAnalysis
 	 * @version $Revision$
 	 */
 	private final class PreProcessor
-	  extends AbstractValueAnalyzerBasedProcessor {
+	  extends AbstractProcessor {
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
 		 *
@@ -260,6 +269,41 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(edu.ksu.cis.indus.common.datastructures.Triple,
+	 * 		boolean)
+	 */
+	public Collection getEnclosedStmts(final Triple monitorTriple, final boolean transitive) {
+		final Collection _result = new HashSet();
+		final EnterMonitorStmt _enterMonitorStmt = (EnterMonitorStmt) monitorTriple.getFirst();
+		final SootMethod _sootMethod = (SootMethod) monitorTriple.getThird();
+
+		if (_enterMonitorStmt == null) {
+			_result.addAll(getEnclosedStmts(_sootMethod, transitive));
+		} else {
+			_result.addAll(getEnclosedStmts(_enterMonitorStmt, _sootMethod, transitive));
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorTriples(soot.jimple.Stmt, soot.SootMethod, boolean)
+	 */
+	public Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive) {
+		final Collection _result = new HashSet();
+		final Collection _temp = getEnclosingMonitors(stmt, method, transitive);
+		CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+
+		final Iterator _i = _temp.iterator();
+		final int _iEnd = _temp.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final EnterMonitorStmt _stmt = (EnterMonitorStmt) _i.next();
+			_result.addAll(getMonitorTriplesFor(_stmt, method));
+		}
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitors(soot.jimple.Stmt, SootMethod, boolean)
 	 */
 	public Collection getEnclosingMonitors(final Stmt stmt, final SootMethod method, final boolean transitive) {
@@ -291,7 +335,7 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
 	 */
 	public Object getId() {
 		return IMonitorInfo.ID;
@@ -300,9 +344,67 @@ public final class MonitorAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorGraph(edu.ksu.cis.indus.interfaces.ICallGraphInfo)
 	 */
-	public IDirectedGraph getMonitorGraph(final ICallGraphInfo callgraphInfo) {
-		// TODO: Auto-generated method stub
-		return null;
+	public IObjectDirectedGraph getMonitorGraph(final ICallGraphInfo callgraphInfo) {
+		if (monitorGraph == null) {
+			final SimpleNodeGraph _result = new SimpleNodeGraph();
+			final Collection _temp = new HashSet();
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+			final Iterator _i = monitorTriples.iterator();
+			final int _iEnd = monitorTriples.size();
+
+			// we use a backward search on the call graph to construct the monitor graph.
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Triple _monitor = (Triple) _i.next();
+				final INode _dest = _result.getNode(_monitor);
+				final Stmt _stmt = (Stmt) _monitor.getFirst();
+				final SootMethod _method = (SootMethod) _monitor.getThird();
+				final Collection _enclosingMonitors = new HashSet();
+
+				if (_stmt != null) {
+					_enclosingMonitors.addAll(getEnclosingMonitorTriples(_stmt, _method, false));
+				}
+
+				if (!_enclosingMonitors.isEmpty()) {
+					final Iterator _j = _enclosingMonitors.iterator();
+					final int _jEnd = _enclosingMonitors.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Triple _t = (Triple) _j.next();
+						final INode _src = _result.getNode(_t);
+						_result.addEdgeFromTo(_src, _dest);
+					}
+				} else {
+					_temp.clear();
+					_wb.clear();
+					_wb.addAllWork(callgraphInfo.getCallers(_method));
+
+					while (_wb.hasWork()) {
+						final CallTriple _ctrp = (CallTriple) _wb.getWork();
+						final SootMethod _sm = _ctrp.getMethod();
+						final Collection _mons = getEnclosingMonitorTriples(_ctrp.getStmt(), _sm, false);
+
+						if (_mons.isEmpty()) {
+							_wb.addAllWorkNoDuplicates(callgraphInfo.getCallers(_sm));
+						} else {
+							_enclosingMonitors.addAll(_mons);
+						}
+					}
+
+					if (!_enclosingMonitors.isEmpty()) {
+						final Iterator _j = _enclosingMonitors.iterator();
+						final int _jEnd = _enclosingMonitors.size();
+
+						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+							final Triple _t = (Triple) _j.next();
+							final INode _src = _result.getNode(_t);
+							_result.addEdgeFromTo(_src, _dest);
+						}
+					}
+				}
+			}
+			monitorGraph = _result;
+		}
+		return monitorGraph;
 	}
 
 	/**
@@ -350,6 +452,28 @@ public final class MonitorAnalysis
 			if (_triple.getThird().equals(method)) {
 				_result.add(_triple);
 			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getStmtsOfMonitor(edu.ksu.cis.indus.common.datastructures.Triple)
+	 */
+	public Collection getStmtsOfMonitor(final Triple monitor) {
+		final Collection _result;
+		final Stmt _monitorStmt = (Stmt) monitor.getFirst();
+
+		if (_monitorStmt != null) {
+			_result = new HashSet();
+			_result.add(_monitorStmt);
+
+			for (final Iterator _i = getMonitorTriplesFor(_monitorStmt, (SootMethod) monitor.getThird()).iterator();
+				  _i.hasNext();) {
+				final Triple _monitor = (Triple) _i.next();
+				_result.add(_monitor.getSecond());
+			}
+		} else {
+			_result = Collections.EMPTY_SET;
 		}
 		return _result;
 	}
@@ -411,6 +535,7 @@ public final class MonitorAnalysis
 		monitorTriples.clear();
 		syncedMethods.clear();
 		syncedMethod2enclosedStmts.clear();
+		monitorGraph = null;
 	}
 
 	///CLOVER:OFF
@@ -817,4 +942,12 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
  */
