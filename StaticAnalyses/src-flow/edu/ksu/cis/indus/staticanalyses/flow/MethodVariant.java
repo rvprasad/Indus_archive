@@ -139,6 +139,11 @@ public class MethodVariant
 	 */
 	protected SimpleLocalDefs defs;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	protected boolean unRetrievable = false;
+
 	/**
 	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is
 	 * accomplished via call to <code>process()</code>.
@@ -198,15 +203,31 @@ public class MethodVariant
 		}
 
 		astvm = astVariantManager;
+		sm.addTag(_fa.getTag());
 
+        try {
+        // process the bodies required by the method body        
 		fa.processClass(sm.getDeclaringClass());
 
 		for (final Iterator i = typesToProcess.iterator(); i.hasNext();) {
 			fa.processType((Type) i.next());
 		}
+        
+        if (_method.isConcrete()) {
+        JimpleBody jb = (JimpleBody) _method.retrieveActiveBody();
 
-		sm.addTag(_fa.getTag());
+        for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
+            Type localType = ((Local) i.next()).getType();
 
+            if (localType instanceof RefLikeType) {
+                _fa.processType(localType);
+            }
+        }
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        }
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
 		}
@@ -251,10 +272,19 @@ public class MethodVariant
 	 * @pre l != null and s != null
 	 */
 	public List getDefsOfAt(final Local l, final Stmt s) {
-		if (defs == null) {
+		if (unRetrievable) {
 			return Collections.EMPTY_LIST;
 		} else {
-			return defs.getDefsOfAt(l, s);
+			if (defs == null) {
+				defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
+			}
+
+			if (defs == null) {
+				unRetrievable = true;
+				return Collections.EMPTY_LIST;
+			} else {
+				return defs.getDefsOfAt(l, s);
+			}
 		}
 	}
 
@@ -271,21 +301,12 @@ public class MethodVariant
 		// We assume the user has closed the system.
 		if (_method.isConcrete()) {
 			jb = (JimpleBody) _method.retrieveActiveBody();
-
-			for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
-				Type localType = ((Local) i.next()).getType();
-
-				if (localType instanceof RefLikeType) {
-					_fa.processType(localType);
-				}
-			}
-
-			List stmtList = new ArrayList(_method.retrieveActiveBody().getUnits());
-			defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
+			List stmtList = new ArrayList(jb.getUnits());
 			stmt = _fa.getStmt(this);
 
 			for (Iterator i = stmtList.iterator(); i.hasNext();) {
-				stmt.process((Stmt) i.next());
+				Stmt temp = (Stmt) i.next();
+				stmt.process(temp);
 			}
 
 			Collection caught = new HashSet();
@@ -492,6 +513,12 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
    Revision 1.11  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
