@@ -15,10 +15,6 @@
 
 package edu.ksu.cis.indus.common.structures;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 /**
  * This class represents a triplet of objects.  The hashcode/stringized rep. of this object is derived from it's
  * constituents.
@@ -229,6 +225,9 @@ public class Triple {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/31 09:12:52  venku
+   - clone() is not used, hence, deleted it.
+
    Revision 1.4  2003/12/30 09:15:57  venku
    - deleted TripleManager.
    - deleted unnecessary constructor.

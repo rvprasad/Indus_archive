@@ -192,9 +192,24 @@ public final class Util {
 		}
 
 		if (_flag) {
-			final SootClass _sc = scm.getSootClass("java.lang.Thread");
-			final SootMethod _sm = _sc.getMethodByName("start");
-			Util.setThreadStartBody(_sm);
+			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
+			final SootMethod _sm = _declClass.getMethodByName("start");
+			_sm.setModifiers(_sm.getModifiers() ^ Modifier.NATIVE);
+
+			final Jimple _jimple = Jimple.v();
+			final JimpleBody _threadStartBody = _jimple.newBody(_sm);
+			final PatchingChain _sl = _threadStartBody.getUnits();
+			final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
+			_threadStartBody.getLocals().add(_thisRef);
+			// adds $this := @this;
+			_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+
+			// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
+			final VirtualInvokeExpr _ve =
+				_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
+			_sl.addLast(_jimple.newInvokeStmt(_ve));
+			_sl.addLast(_jimple.newReturnVoidStmt());
+			_sm.setActiveBody(_threadStartBody);
 		}
 	}
 
@@ -221,51 +236,15 @@ public final class Util {
 		}
 		return _result;
 	}
-
-	/**
-	 * Hooks in a <i>non-native</i><code>start</code> method to facilitate smooth callgraph construction.
-	 *
-	 * @param sm is the method to be changed.  It is changed only if the method is <code>java.lang.Thread.start</code>.
-	 *
-	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
-	 */
-	private static boolean setThreadStartBody(final SootMethod sm) {
-		boolean _result = false;
-		final SootClass _declClass = sm.getDeclaringClass();
-		_declClass.setApplicationClass();
-
-		if (sm.isNative()
-			  && sm.getName().equals("start")
-			  && sm.getParameterCount() == 0
-			  && _declClass.getName().equals("java.lang.Thread")) {
-			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
-
-			final Jimple _jimple = Jimple.v();
-			final JimpleBody _threadStartBody = _jimple.newBody(sm);
-			final PatchingChain _sl = _threadStartBody.getUnits();
-			final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
-			_threadStartBody.getLocals().add(_thisRef);
-			// adds $this := @this;
-			_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
-
-			// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
-			final VirtualInvokeExpr _ve =
-				_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
-			_sl.addLast(_jimple.newInvokeStmt(_ve));
-			_sl.addLast(_jimple.newReturnVoidStmt());
-			sm.setActiveBody(_threadStartBody);
-			_result = true;
-		}
-		return _result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/31 09:52:20  venku
+   - removed unused code.
    Revision 1.4  2003/12/31 09:34:22  venku
    - formatting and clover directives.
-
    Revision 1.3  2003/12/31 09:30:18  venku
    - removed unused code.
    Revision 1.2  2003/12/13 02:28:53  venku
