@@ -194,7 +194,6 @@ public class EntryControlDA
 		}
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(toString());
 			LOGGER.info("END: Control Dependence processing");
 		}
 		stable = true;
@@ -567,6 +566,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/06/06 08:33:45  venku
+   - completed documentation.
+
    Revision 1.20  2004/06/06 02:28:25  venku
    - completed implementation of indirect control dependence calculation.
    Revision 1.19  2004/06/05 09:52:24  venku
