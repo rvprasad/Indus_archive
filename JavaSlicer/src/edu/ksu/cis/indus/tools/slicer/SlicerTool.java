@@ -22,7 +22,6 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
-import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -227,8 +226,9 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
+        unitGraphProvider = new TrapUnitGraphFactory();
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
+		bbgMgr.setUnitGraphProvider(unitGraphProvider);
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 		// create equivalence class-based escape analysis.
@@ -244,7 +244,6 @@ public final class SlicerTool
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
-		unitGraphProvider = new CompleteUnitGraphFactory();
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, unitGraphProvider);
@@ -395,6 +394,7 @@ public final class SlicerTool
 			} catch (JiBXException e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
 					+ " configuration.", e);
+                configurationInfo = null;
 			}
 		}
 
@@ -532,9 +532,6 @@ public final class SlicerTool
 		AbstractToolConfiguration toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
 		toolConfig.initialize();
 		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
-
-		SlicerConfiguration config = new SlicerConfiguration();
-		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
 	}
 
 	/**
@@ -635,6 +632,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/11/26 08:19:10  venku
+   - aliasBasedUseDef information analysis was not driven. FIXED.
+
    Revision 1.33  2003/11/24 22:51:09  venku
    - deleted transformer field as it was not used.
 
