@@ -106,8 +106,7 @@ public abstract class AbstractVariantManager {
 		IVariant temp = null;
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.isStable() + "\n"
-				+ index.hashCode());
+			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context);
 		}
 
 		if (index2variant.containsKey(index)) {
@@ -162,6 +161,9 @@ public abstract class AbstractVariantManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

@@ -93,17 +93,16 @@ public class MethodVariantManager
 	/**
 	 * Returns a new variant of the method represented by <code>o</code>.
 	 *
-	 * @param o the method whose variant is to be returned.  The actual type of <code>o</code> needs to be
-	 * 		  <code>SootMethod</code>.
+	 * @param o the method whose variant is to be returned.  
 	 *
 	 * @return the new <code>MethodVariant</code> corresponding to method <code>o</code>.
 	 *
-	 * @pre o != null
+	 * @pre o != null and o.oclIsKindOf(SootMethod)
 	 * @post result != null
 	 */
 	protected IVariant getNewVariant(final Object o) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("STATS: Processing method number: " + (auxGetVariantCount() + 1));
+			LOGGER.debug("STATS: Processing method: " + o + "\t number: " + (auxGetVariantCount() + 1));
 		}
 
 		return new MethodVariant((SootMethod) o, new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()),
@@ -114,6 +113,10 @@ public class MethodVariantManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.7  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
