@@ -177,7 +177,7 @@ public class JimpleXMLizer
 			}
 
 			xmlizedSystem.write("<method signature=\"" + method.getSubSignature() + "\" id=\""
-				+ idGenerator.getIdForMethod(method) + "\"/>");
+				+ idGenerator.getIdForMethod(method) + "\">");
 			idGenerator.resetStmtCounter();
 
 			if (method.isConcrete()) {
@@ -213,7 +213,7 @@ public class JimpleXMLizer
 				processingClass = true;
 			}
 			xmlizedSystem.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
-				+ "\"/>");
+				+ "\">");
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -291,6 +291,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/10 07:52:58  venku
+   - beginning tag for xmlized jimple element was missing. FIXED.
+
    Revision 1.7  2003/11/10 07:49:22  venku
    - documentation.
    Revision 1.6  2003/11/10 03:29:51  venku
