@@ -50,6 +50,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,15 +58,16 @@ import java.util.Map;
 
 
 /**
- * This class is provides the control class for the analyses suite. The analyses progress in phases. It may be so
- * that some application require a particular sequence in which each analysis should progress. Hence, the applications
- * provide an implementation of controller interface to drive the analyses in a particular sequence of phases.
+ * This class is provides the control class for the analyses suite. The analyses progress in phases. It may be so that some
+ * application require a particular sequence in which each analysis should progress. Hence, the applications provide an
+ * implementation of controller interface to drive the analyses in a particular sequence of phases.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractAnalysesController implements ISystemInfo {
+public abstract class AbstractAnalysesController
+  implements ISystemInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -74,9 +76,9 @@ public abstract class AbstractAnalysesController implements ISystemInfo {
 	/**
 	 * The collection of names used to identify various analyses.  This is just a collection of the above defined constants.
 	 *
-	 * @invariant participatingAnalysesNames != null
+	 * @invariant participatingAnalysesIDs != null
 	 */
-	protected Collection participatingAnalysesNames;
+	protected Collection participatingAnalysesIDs;
 
 	/**
 	 * The collection of analysis which want to preprocess the system.
@@ -148,6 +150,22 @@ public abstract class AbstractAnalysesController implements ISystemInfo {
 	}
 
 	/**
+	 * Returns the ids of the participating analyses.
+	 *
+	 * @return a collection of ids.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection)
+	 */
+	public Collection getIDsOfParticipatingAnalyses() {
+		Collection result = Collections.EMPTY_LIST;
+
+		if (participatingAnalysesIDs == null || participatingAnalysesIDs.isEmpty()) {
+			result = Collections.unmodifiableCollection(participatingAnalysesIDs);
+		}
+		return result;
+	}
+
+	/**
 	 * Provides the statement graph for the given method.
 	 *
 	 * @param method for which the statement graph is requested.
@@ -171,7 +189,7 @@ public abstract class AbstractAnalysesController implements ISystemInfo {
 		do {
 			analyzing = false;
 
-			for (Iterator i = participatingAnalysesNames.iterator(); i.hasNext();) {
+			for (Iterator i = participatingAnalysesIDs.iterator(); i.hasNext();) {
 				String daName = (String) i.next();
 				AbstractAnalysis temp = (AbstractAnalysis) participatingAnalyses.get(daName);
 
@@ -254,7 +272,7 @@ public abstract class AbstractAnalysesController implements ISystemInfo {
 	 * @pre name != null and analysis != null
 	 */
 	protected final void setAnalysis(final String name, final AbstractAnalysis analysis) {
-		if (!participatingAnalysesNames.contains(name)) {
+		if (!participatingAnalysesIDs.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
 		participatingAnalyses.put(name, analysis);
@@ -270,39 +288,32 @@ public abstract class AbstractAnalysesController implements ISystemInfo {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/08/25 07:28:01  venku
+   Ripple effect of renaming AbstractController to AbstractAnalysesController.
    Revision 1.10  2003/08/18 04:44:35  venku
    Established an interface which will provide the information about the underlying system as required by transformations.
    It is called ISystemInfo.
    Ripple effect of the above change.
-
    Revision 1.9  2003/08/18 04:10:10  venku
    Documentation change.
-
    Revision 1.8  2003/08/18 04:08:22  venku
    Removed unnecessary method.
-
    Revision 1.7  2003/08/18 00:59:50  venku
    Changed specification to fit the last change.
-
    Revision 1.6  2003/08/18 00:59:11  venku
    Changed the type of the IDs to java.lang.Object to provide extensibility.
    Ripple effect of that happens in AbstractController.
-
    Revision 1.5  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.
-
    Revision 1.4  2003/08/15 08:23:09  venku
    Renamed getDAnalysis to getAnalysis.
-
    Revision 1.3  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
-
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

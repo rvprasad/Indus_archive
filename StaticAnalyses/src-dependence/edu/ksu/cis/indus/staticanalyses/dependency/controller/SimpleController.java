@@ -110,13 +110,16 @@ public class SimpleController
 		temp.add(INTERFERENCE_DA);
 		temp.add(DIVERGENCE_DA);
 		temp.add(READY_DA);
-		participatingAnalysesNames = Collections.unmodifiableList(temp);
+		participatingAnalysesIDs = Collections.unmodifiableList(temp);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/25 07:28:01  venku
+   Ripple effect of renaming AbstractController to AbstractAnalysesController.
+
    Revision 1.7  2003/08/18 00:59:11  venku
    Changed the type of the IDs to java.lang.Object to provide extensibility.
    Ripple effect of that happens in AbstractController.
