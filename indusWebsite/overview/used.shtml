@@ -1,6 +1,6 @@
-<!--#set var="menuItem" value="Overview.Dependent" -->
-<!--#set var="title" value="Dependent Projects" -->
-<!--#set var="description" value="Projects on which Indus and it's subprojects depend on" -->
+<!--#set var="menuItem" value="Overview.Used" -->
+<!--#set var="title" value="Used Projects" -->
+<!--#set var="description" value="Projects whose artifacts are used in Indus" -->
 
 <!--#include virtual="/header.shtml" -->
 
