@@ -162,6 +162,11 @@ public class AbstractXMLBasedTestSetup
 			stmtGraphFactory.reset();
 			stmtGraphFactory = null;
 		}
+
+		if (idGenerator != null) {
+			idGenerator.reset();
+			idGenerator = null;
+		}
 		System.gc();
 	}
 }
@@ -169,6 +174,12 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.12  2004/04/20 06:53:18  venku
    - documentation.
    Revision 1.11  2004/04/19 05:10:27  venku

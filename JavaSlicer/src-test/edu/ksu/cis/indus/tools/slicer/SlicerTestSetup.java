@@ -149,6 +149,7 @@ public class SlicerTestSetup
 			((DependencyAnalysis) _iter.next()).reset();
 		}
 		driver = null;
+		super.tearDown();
 	}
 
 	/**
@@ -194,6 +195,11 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/14 03:10:42  venku
+   - The destructively updated jimple can be dumped during tearDown() as
+     by then all tests would have completed, hence, not impacting the id
+     generation.
+
    Revision 1.12  2004/05/11 22:17:16  venku
    - privatized some methods.
    - enabled dumping of pre-residulization and post-residualization jimple.
