@@ -128,7 +128,7 @@ public class ControlDA
 			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
 
 			if (list.get(index) != null) {
-				result = Collections.singletonList(list.get(index));
+				result = Collections.unmodifiableCollection((Collection) list.get(index));
 			}
 		}
 		return result;
@@ -481,6 +481,8 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/05 04:20:05  venku
+   - formatting.
    Revision 1.19  2003/11/05 04:17:28  venku
    - subtle bug caused when enabled bi-directional support. FIXED.
    Revision 1.18  2003/11/05 00:44:51  venku
