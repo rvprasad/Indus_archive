@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import soot.PatchingChain;
 import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
@@ -39,7 +40,7 @@ public abstract class AbstractUnitGraphFactory {
 	 *
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
 	 */
-	protected final Map method2StmtGraph = new HashMap();
+	protected final Map method2UnitGraph = new HashMap();
 
 	/**
 	 * Provides the set of methods for which this object has provided graphs.
@@ -48,8 +49,8 @@ public abstract class AbstractUnitGraphFactory {
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	public Collection getManagedMethods() {
-		return Collections.unmodifiableCollection(method2StmtGraph.keySet());
+	public final Collection getManagedMethods() {
+		return Collections.unmodifiableCollection(method2UnitGraph.keySet());
 	}
 
 	/**
@@ -61,17 +62,19 @@ public abstract class AbstractUnitGraphFactory {
 	 *
 	 * @post result != null
 	 */
-	public abstract UnitGraph getStmtGraph(final SootMethod method);
+	public abstract UnitGraph getUnitGraph(final SootMethod method);
 
 	/**
 	 * Resets all internal datastructures.
 	 */
-	public void reset() {
-		method2StmtGraph.clear();
+	public final void reset() {
+		method2UnitGraph.clear();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
  */

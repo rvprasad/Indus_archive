@@ -81,7 +81,7 @@ public class BasicBlockGraphMgr {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
 				+ "calling this method.");
 		}
-		return getBasicBlockGraph(unitGraphProvider.getStmtGraph(sm));
+		return getBasicBlockGraph(unitGraphProvider.getUnitGraph(sm));
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class BasicBlockGraphMgr {
 	 * @post result != null
 	 */
 	public UnitGraph getUnitGraph(final SootMethod method) {
-		return unitGraphProvider.getStmtGraph(method);
+		return unitGraphProvider.getUnitGraph(method);
 	}
 
 	/**
@@ -119,6 +119,9 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
+
    Revision 1.7  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates

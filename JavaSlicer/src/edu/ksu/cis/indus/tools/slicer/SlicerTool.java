@@ -466,7 +466,7 @@ public final class SlicerTool
 
 			if (mTriple.getFirst() == null) {
 				// add all return points (including throws) of the method as the criteria
-				UnitGraph graph = unitGraphProvider.getStmtGraph(method);
+				UnitGraph graph = unitGraphProvider.getUnitGraph(method);
 
 				for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
@@ -483,6 +483,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
+
    Revision 1.8  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates

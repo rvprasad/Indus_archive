@@ -30,8 +30,6 @@ import soot.jimple.Stmt;
 
 import soot.util.Chain;
 
-import edu.ksu.cis.indus.interfaces.ISystemInfo;
-
 import java.util.Iterator;
 
 
@@ -57,12 +55,6 @@ public class Cloner
 	 * @invariant jimple != null
 	 */
 	private final Jimple jimple = Jimple.v();
-
-	/**
-	 * This provides information about the system such as statement graphs and such that are common to analyses and
-	 * transformations.
-	 */
-	private ISystemInfo sysInfo;
 
 	/**
 	 * The class manager which manages clonee classes.
@@ -122,7 +114,7 @@ public class Cloner
 	 * Clones the given method if one does not exists.  If one exists, that is returned.  The statement list of the method
 	 * body of the clone is equal in length to that of the given method but it only contains <code>NopStmt</code>s.
 	 *
-	 * @param cloneeMethod is the method to be cloned.
+	 * @param cloneeMethod is the method to be cloned.  It is required that cloneeMethod should have an active body.
 	 *
 	 * @return the clone of <code>cloneMethod</code>.
 	 *
@@ -151,7 +143,7 @@ public class Cloner
 			Chain sl = jb.getUnits();
 			Stmt nop = jimple.newNopStmt();
 
-			for (int i = sysInfo.getUnits(cloneeMethod).size() - 1; i >= 0; i--) {
+			for (int i = cloneeMethod.getActiveBody().getUnits().size() - 1; i >= 0; i--) {
 				sl.addLast(nop);
 			}
 			result.setActiveBody(jb);
@@ -242,14 +234,12 @@ public class Cloner
 	 *
 	 * @param theSystem is the classes that form the system to be clone.
 	 * @param cloneSystem is the system after slicing.
-	 * @param systemInfo that provides information about the system.
 	 *
 	 * @pre cloneeSystem != null and cloneSystem != null and theController != null
 	 */
-	public void initialize(final Scene theSystem, final Scene cloneSystem, final ISystemInfo systemInfo) {
+	public void initialize(final Scene theSystem, final Scene cloneSystem) {
 		clazzManager = theSystem;
 		cloneClazzManager = cloneSystem;
-		sysInfo = systemInfo;
 	}
 
 	/**
@@ -257,7 +247,6 @@ public class Cloner
 	 * <code>initialize()</code> should be called before calling any other methods.
 	 */
 	public void reset() {
-		sysInfo = null;
 		clazzManager = null;
 	}
 
@@ -291,6 +280,9 @@ public class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
+
    Revision 1.6  2003/09/27 23:21:42  venku
    *** empty log message ***
 
