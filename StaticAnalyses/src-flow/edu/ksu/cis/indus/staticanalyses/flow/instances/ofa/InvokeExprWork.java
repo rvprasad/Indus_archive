@@ -41,7 +41,6 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.InstanceInvokeExpr;
-import soot.jimple.Jimple;
 import soot.jimple.NullConstant;
 
 
@@ -58,11 +57,6 @@ import soot.jimple.NullConstant;
  */
 class InvokeExprWork
   extends AbstractAccessExprWork {
-	/**
-	 * This instance is used to create new virtual invoke ast nodes.
-	 */
-	protected static final Jimple JIMPLE = Jimple.v();
-
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -223,6 +217,12 @@ class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/16 20:10:38  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.15  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
