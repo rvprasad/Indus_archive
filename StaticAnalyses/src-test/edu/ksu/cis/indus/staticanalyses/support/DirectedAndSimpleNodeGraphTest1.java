@@ -36,7 +36,6 @@
 package edu.ksu.cis.indus.staticanalyses.support;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 
@@ -462,6 +461,9 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/11 02:37:12  venku
+   - added a test case for javac compilation of Divergent04 test.
+   - created test suite to test directed and simple node graph.
    Revision 1.6  2003/09/11 01:52:07  venku
    - prenum, postnum, and back edges support has been added.
    - added test case to test the above addition.
