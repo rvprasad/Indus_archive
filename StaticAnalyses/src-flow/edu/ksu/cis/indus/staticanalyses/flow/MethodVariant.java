@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,27 +70,6 @@ public class MethodVariant
 	private static final Log LOGGER = LogFactory.getLog(MethodVariant.class);
 
 	/**
-	 * The context which resulted in the creation of this variant.
-	 *
-	 * @invariant _context != null
-	 */
-	public final Context _context;
-
-	/**
-	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
-	 *
-	 * @invariant _fa != null
-	 */
-	public final FA _fa;
-
-	/**
-	 * The method represented by this variant.
-	 *
-	 * @invariant _method != null
-	 */
-	public final SootMethod _method;
-
-	/**
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
 	 *
@@ -134,15 +115,36 @@ public class MethodVariant
 	protected final IFGNode[] parameters;
 
 	/**
-	 * This provides the def sites for local variables in the associated method.  This is used in conjunction with
-	 * flow-sensitive information calculation.
+	 * This is a weak reference to the local def information and it provides the def sites for local variables in the
+	 * associated method.  This is used in conjunction with flow-sensitive information calculation.
 	 */
-	protected SimpleLocalDefs defs;
+	protected WeakReference defs = new WeakReference(null);
 
 	/**
 	 * This indicates if the method variant is unretrievale due to various reasons such as non-concrete body.
 	 */
 	protected boolean unRetrievable;
+
+	/**
+	 * The context which resulted in the creation of this variant.
+	 *
+	 * @invariant context != null
+	 */
+	private final Context context;
+
+	/**
+	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
+	 *
+	 * @invariant fa != null
+	 */
+	private final FA fa;
+
+	/**
+	 * The method represented by this variant.
+	 *
+	 * @invariant method != null
+	 */
+	private final SootMethod method;
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is
@@ -151,30 +153,30 @@ public class MethodVariant
 	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
 	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>.  This
 	 * 		  parameter cannot be <code>null</code>.
-	 * @param fa the instance of <code>FA</code> which was responsible for the creation of this variant.  This parameter
+	 * @param theFA the instance of <code>FA</code> which was responsible for the creation of this variant.  This parameter
 	 * 		  cannot be <code>null</code>.
 	 *
-	 * @pre sm != null and astvm != null and fa != null
+	 * @pre sm != null and astvm != null and theFA != null
 	 */
-	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final FA fa) {
+	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final FA theFA) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: preprocessing of " + sm);
 		}
-		_method = sm;
-		_fa = fa;
-		_context = (Context) fa._analyzer.context.clone();
-		_context.callNewMethod(sm);
+		method = sm;
+		fa = theFA;
+		context = (Context) fa._analyzer.context.clone();
+		context.callNewMethod(sm);
 
-		Collection typesToProcess = new HashSet();
-		int pCount = sm.getParameterCount();
+		final Collection _typesToProcess = new HashSet();
+		final int _pCount = sm.getParameterCount();
 
-		if (pCount > 0) {
-			parameters = new AbstractFGNode[pCount];
+		if (_pCount > 0) {
+			parameters = new AbstractFGNode[_pCount];
 
-			for (int i = 0; i < pCount; i++) {
-				if (sm.getParameterType(i) instanceof RefLikeType) {
-					parameters[i] = fa.getNewFGNode();
-					typesToProcess.add(sm.getParameterType(i));
+			for (int _i = 0; _i < _pCount; _i++) {
+				if (sm.getParameterType(_i) instanceof RefLikeType) {
+					parameters[_i] = fa.getNewFGNode();
+					_typesToProcess.add(sm.getParameterType(_i));
 				}
 			}
 		} else {
@@ -197,29 +199,29 @@ public class MethodVariant
 
 		if (sm.getReturnType() instanceof RefLikeType) {
 			returnVar = fa.getNewFGNode();
-			typesToProcess.add(sm.getReturnType());
+			_typesToProcess.add(sm.getReturnType());
 		} else {
 			returnVar = null;
 		}
 
 		astvm = astVariantManager;
-		sm.addTag(_fa.getTag());
+		sm.addTag(fa.getTag());
 
 		// process the types required by the method body        
 		fa.processClass(sm.getDeclaringClass());
 
-		for (final Iterator i = typesToProcess.iterator(); i.hasNext();) {
-			fa.processType((Type) i.next());
+		for (final Iterator _i = _typesToProcess.iterator(); _i.hasNext();) {
+			fa.processType((Type) _i.next());
 		}
 
-		if (_method.isConcrete()) {
-			JimpleBody jb = (JimpleBody) _method.retrieveActiveBody();
+		if (method.isConcrete()) {
+			final JimpleBody _jb = (JimpleBody) method.retrieveActiveBody();
 
-			for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
-				Type localType = ((Local) i.next()).getType();
+			for (final Iterator _i = _jb.getLocals().iterator(); _i.hasNext();) {
+				final Type _localType = ((Local) _i.next()).getType();
 
-				if (localType instanceof RefLikeType) {
-					_fa.processType(localType);
+				if (_localType instanceof RefLikeType) {
+					fa.processType(_localType);
 				}
 			}
 		}
@@ -239,7 +241,7 @@ public class MethodVariant
 	 * @pre v != null
 	 */
 	public final IFGNode getASTNode(final Value v) {
-		return getASTVariant(v, _context).getFGNode();
+		return getASTVariant(v, context).getFGNode();
 	}
 
 	/**
@@ -258,6 +260,17 @@ public class MethodVariant
 	}
 
 	/**
+	 * Retrieves the context used by this method variant.
+	 *
+	 * @return the context used by this method.
+	 *
+	 * @post result != null
+	 */
+	public final Context getContext() {
+		return context;
+	}
+
+	/**
 	 * Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.
 	 *
 	 * @param l the local for which the definitions are requested.
@@ -268,20 +281,46 @@ public class MethodVariant
 	 * @pre l != null and s != null
 	 */
 	public List getDefsOfAt(final Local l, final Stmt s) {
-		if (unRetrievable) {
-			return Collections.EMPTY_LIST;
-		} else {
-			if (defs == null) {
-				defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
-			}
+		List _result = Collections.EMPTY_LIST;
 
-			if (defs == null) {
-				unRetrievable = true;
-				return Collections.EMPTY_LIST;
+		if (!unRetrievable) {
+			final SimpleLocalDefs _temp = (SimpleLocalDefs) defs.get();
+
+			if (_temp != null) {
+				_result = _temp.getDefsOfAt(l, s);
 			} else {
-				return defs.getDefsOfAt(l, s);
+				if (method.hasActiveBody()) {
+					final SimpleLocalDefs _temp2 = new SimpleLocalDefs(new CompleteUnitGraph(method.retrieveActiveBody()));
+					defs = new WeakReference(_temp2);
+					_result = _temp2.getDefsOfAt(l, s);
+				} else {
+					unRetrievable = true;
+				}
 			}
 		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the flow analysis instance used by this method variant.
+	 *
+	 * @return the flow analysis instance used by this method.
+	 *
+	 * @post result != null
+	 */
+	public final FA getFA() {
+		return fa;
+	}
+
+	/**
+	 * Retrieves the method used by this method variant.
+	 *
+	 * @return the method used by this method.
+	 *
+	 * @post result != null
+	 */
+	public final SootMethod getMethod() {
+		return method;
 	}
 
 	/**
@@ -289,69 +328,71 @@ public class MethodVariant
 	 */
 	public void process() {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing of " + _method);
+			LOGGER.debug("BEGIN: processing of " + method);
 		}
 
-		JimpleBody jb = null;
+		JimpleBody _jb = null;
 
 		// We assume the user has closed the system.
-		if (_method.isConcrete()) {
-			jb = (JimpleBody) _method.retrieveActiveBody();
+		if (method.isConcrete()) {
+			_jb = (JimpleBody) method.retrieveActiveBody();
 
-			List stmtList = new ArrayList(jb.getUnits());
-			stmt = _fa.getStmt(this);
+			final List _stmtList = new ArrayList(_jb.getUnits());
+			stmt = fa.getStmt(this);
 
-			for (Iterator i = stmtList.iterator(); i.hasNext();) {
-				Stmt temp = (Stmt) i.next();
-				stmt.process(temp);
+			for (final Iterator _i = _stmtList.iterator(); _i.hasNext();) {
+				stmt.process((Stmt) _i.next());
 			}
 
-			Collection caught = new HashSet();
-			boolean flag = false;
-			InvokeExpr expr = null;
+			final Collection _caught = new HashSet();
+			boolean _flag = false;
+			InvokeExpr _expr = null;
 
-			for (Iterator i = jb.getTraps().iterator(); i.hasNext();) {
-				Trap trap = (Trap) i.next();
-				Stmt begin = (Stmt) trap.getBeginUnit();
-				Stmt end = (Stmt) trap.getEndUnit();
+			for (final Iterator _i = _jb.getTraps().iterator(); _i.hasNext();) {
+				final Trap _trap = (Trap) _i.next();
+				final Stmt _begin = (Stmt) _trap.getBeginUnit();
+				final Stmt _end = (Stmt) _trap.getEndUnit();
 
 				// we assume that the first statement in the handling block will be the identity statement that retrieves the 
 				// caught expression.
-				CaughtExceptionRef catchRef = (CaughtExceptionRef) ((IdentityStmt) trap.getHandlerUnit()).getRightOp();
-				SootClass exception = trap.getException();
+				final CaughtExceptionRef _catchRef =
+					(CaughtExceptionRef) ((IdentityStmt) _trap.getHandlerUnit()).getRightOp();
+				final SootClass _exception = _trap.getException();
 
-				for (int j = stmtList.indexOf(begin), k = stmtList.indexOf(end); j < k; j++) {
-					Stmt tmp = (Stmt) stmtList.get(j);
+				final int _k = _stmtList.indexOf(_end);
 
-					if (tmp instanceof ThrowStmt) {
-						ThrowStmt ts = (ThrowStmt) tmp;
+				for (int _j = _stmtList.indexOf(_begin); _j < _k; _j++) {
+					final Stmt _tmp = (Stmt) _stmtList.get(_j);
 
-						if (!caught.contains(ts)) {
-							SootClass scTemp = _fa.getClass(((RefType) ts.getOp().getType()).getClassName());
+					if (_tmp instanceof ThrowStmt) {
+						final ThrowStmt _ts = (ThrowStmt) _tmp;
 
-							if (Util.isDescendentOf(scTemp, exception)) {
-								_context.setStmt(ts);
+						if (!_caught.contains(_ts)) {
+							final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
 
-								IFGNode throwNode = getASTNode(ts.getOp(), _context);
-								throwNode.addSucc(getASTNode(catchRef));
-								caught.add(ts);
+							if (Util.isDescendentOf(_scTemp, _exception)) {
+								context.setStmt(_ts);
+
+								final IFGNode _throwNode = getASTNode(_ts.getOp(), context);
+								_throwNode.addSucc(getASTNode(_catchRef));
+								_caught.add(_ts);
 							}
 						}
-					} else if (tmp.containsInvokeExpr()) {
-						expr = tmp.getInvokeExpr();
-						flag = true;
+					} else if (_tmp.containsInvokeExpr()) {
+						_expr = _tmp.getInvokeExpr();
+						_flag = true;
 					}
 
-					if (flag) {
-						flag = false;
+					if (_flag) {
+						_flag = false;
 
-						if (!caught.contains(tmp)) {
-							_context.setStmt(tmp);
+						if (!_caught.contains(_tmp)) {
+							context.setStmt(_tmp);
 
-							IFGNode tempNode = queryThrowNode(expr, exception);
+							final IFGNode _tempNode = queryThrowNode(_expr, _exception);
 
-							if (tempNode != null) {
-								tempNode.addSucc(getASTNode(catchRef));
+							if (_tempNode != null) {
+								_tempNode.addSucc(getASTNode(_catchRef));
 							}
 						}
 					}
@@ -359,12 +400,12 @@ public class MethodVariant
 			}
 		} else {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(_method + " is not a concrete method. Hence, it's body could not be retrieved.");
+				LOGGER.debug(method + " is not a concrete method. Hence, it's body could not be retrieved.");
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processing of " + _method);
+			LOGGER.debug("END: processing of " + method);
 		}
 	}
 
@@ -379,7 +420,7 @@ public class MethodVariant
 	 * @pre v != null
 	 */
 	public final IFGNode queryASTNode(final Value v) {
-		return queryASTNode(v, _context);
+		return queryASTNode(v, context);
 	}
 
 	/**
@@ -394,13 +435,13 @@ public class MethodVariant
 	 * @pre v != null and c != null
 	 */
 	public final IFGNode queryASTNode(final Value v, final Context c) {
-		ValuedVariant var = queryASTVariant(v, c);
-		IFGNode temp = null;
+		final ValuedVariant _var = queryASTVariant(v, c);
+		IFGNode _temp = null;
 
-		if (var != null) {
-			temp = var.getFGNode();
+		if (_var != null) {
+			_temp = _var.getFGNode();
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -428,13 +469,13 @@ public class MethodVariant
 	 * 		   type.
 	 */
 	public final IFGNode queryParameterNode(final int index) {
-		IFGNode temp = null;
+		IFGNode _temp = null;
 
-		if (index >= 0 && index <= _method.getParameterCount()) {
-			temp = parameters[index];
+		if (index >= 0 && index <= method.getParameterCount()) {
+			_temp = parameters[index];
 		}
 
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -468,7 +509,7 @@ public class MethodVariant
 	 * @pre e != null and exception != null
 	 */
 	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception) {
-		return queryThrowNode(e, exception, _context);
+		return queryThrowNode(e, exception, context);
 	}
 
 	/**
@@ -483,13 +524,13 @@ public class MethodVariant
 	 * @pre e != null and exception != null and c != null
 	 */
 	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception, final Context c) {
-		InvocationVariant var = (InvocationVariant) queryASTVariant(e, c);
-		IFGNode temp = null;
+		final InvocationVariant _var = (InvocationVariant) queryASTVariant(e, c);
+		IFGNode _temp = null;
 
-		if (var != null) {
-			temp = var.queryThrowNode(exception);
+		if (_var != null) {
+			_temp = _var.queryThrowNode(exception);
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -510,6 +551,8 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/01/09 21:13:22  venku
+   - formatting and documentation.
    Revision 1.19  2003/12/31 10:35:53  venku
    - logging.
    Revision 1.18  2003/12/13 02:29:08  venku

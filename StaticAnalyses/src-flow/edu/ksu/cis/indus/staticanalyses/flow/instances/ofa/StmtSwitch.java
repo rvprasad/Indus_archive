@@ -13,9 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
@@ -23,16 +24,12 @@ import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.Value;
-
-import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
-import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
-import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.LookupSwitchStmt;
 import soot.jimple.RetStmt;
@@ -93,26 +90,7 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseAssignStmt(final AssignStmt stmt) {
-		boolean flag = Util.isReferenceType(stmt.getRightOp().getType());
-		IFGNode left = null;
-		Value leftOp = stmt.getLeftOp();
-
-		if (flag || leftOp instanceof ArrayRef || leftOp instanceof FieldRef) {
-			lexpr.process(stmt.getLeftOpBox());
-			left = (IFGNode) lexpr.getResult();
-		}
-
-		IFGNode right = null;
-		Value rightOp = stmt.getRightOp();
-
-		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef || rightOp instanceof InvokeExpr) {
-			rexpr.process(stmt.getRightOpBox());
-			right = (IFGNode) rexpr.getResult();
-		}
-
-		if (flag) {
-			right.addSucc(left);
-		}
+		processDefinitionStmt(stmt);
 	}
 
 	/**
@@ -146,26 +124,7 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseIdentityStmt(final IdentityStmt stmt) {
-		boolean flag = Util.isReferenceType(stmt.getRightOp().getType());
-		IFGNode left = null;
-		Value leftOp = stmt.getLeftOp();
-
-		if (flag || leftOp instanceof ArrayRef || leftOp instanceof FieldRef) {
-			lexpr.process(stmt.getLeftOpBox());
-			left = (IFGNode) lexpr.getResult();
-		}
-
-		IFGNode right = null;
-		Value rightOp = stmt.getRightOp();
-
-		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef || rightOp instanceof InvokeExpr) {
-			rexpr.process(stmt.getRightOpBox());
-			right = (IFGNode) rexpr.getResult();
-		}
-
-		if (flag) {
-			right.addSucc(left);
-		}
+		processDefinitionStmt(stmt);
 	}
 
 	/**
@@ -266,19 +225,41 @@ public class StmtSwitch
 
 		rexpr.process(stmt.getOpBox());
 	}
+
+	/**
+	 * Processes the definition statements.  It processes the rhs expression and the lhs expression and connects the flow
+	 * graph nodes corresponding to these expressions.
+	 *
+	 * @param stmt the defintion statement to be processed.
+	 *
+	 * @pre stmt != null
+	 */
+	private void processDefinitionStmt(final DefinitionStmt stmt) {
+		lexpr.process(stmt.getLeftOpBox());
+
+		final IFGNode _left = (IFGNode) lexpr.getResult();
+
+		rexpr.process(stmt.getRightOpBox());
+
+		final IFGNode _right = (IFGNode) rexpr.getResult();
+
+		if (Util.isReferenceType(stmt.getRightOp().getType())) {
+			_right.addSucc(_left);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/26 08:31:21  venku
+   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.7  2003/12/07 09:59:50  venku
    - logging.
    - rhs of assign/identity stmt is executed when it
      is an invoke expression.
-
    Revision 1.6  2003/12/05 15:31:05  venku
    - identity and assignment statements skipped certain values.  FIXED.
-
    Revision 1.5  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -13,13 +13,14 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,33 +28,32 @@ import org.apache.commons.logging.LogFactory;
 import soot.Local;
 import soot.ValueBox;
 
-import soot.jimple.ArrayRef;
 import soot.jimple.DefinitionStmt;
-import soot.jimple.InstanceFieldRef;
+import soot.jimple.Stmt;
 
 
 /**
- * The expression visitor used in flow sensitive mode of object flow analysis.  Created: Sun Jan 27 14:29:14 2002
+ * The expression visitor used in flow sensitive mode of object flow analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
-public class ExprSwitch
-  extends edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch {
+public class FlowSensitiveExprSwitch
+  extends edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExprSwitch.class);
+	private static final Log LOGGER = LogFactory.getLog(FlowSensitiveExprSwitch.class);
 
 	/**
-	 * Creates a new <code>ExprSwitch</code> instance.
+	 * Creates a new <code>FlowSensitiveExprSwitch</code> instance.
 	 *
 	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
 	 *
 	 * @pre stmtSwitchParam != null and nodeConnector != null
 	 */
-	public ExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
+	public FlowSensitiveExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
 		super(stmtSwitchParam, nodeConnector);
 	}
 
@@ -65,79 +65,57 @@ public class ExprSwitch
 	 * @return the new visitor instance.
 	 *
 	 * @pre o != null and o.oclIsKindOf(AbstractStmtSwitch)
-	 * @post result != null and result.oclIsKindOf(AbstractExprSwitch)
+	 * @post result != null and result.oclIsKindOf(FlowSensitiveExprSwitch)
 	 */
 	public Object getClone(final Object o) {
-		return new ExprSwitch((AbstractStmtSwitch) o, connector);
+		return new FlowSensitiveExprSwitch((AbstractStmtSwitch) o, connector);
 	}
 
 	/**
-	 * Handles the array reference expressions.
+	 * Processes the local expression.  This implementation connects the nodes at the def sites to the nodes at the use site
+	 * of the local.
 	 *
-	 * @param e the array ref expression to be processed.
-	 *
-	 * @pre e != null
-	 */
-	public void caseArrayRef(final ArrayRef e) {
-		super.caseArrayRef(e);
-		postProcessBase(e.getBaseBox());
-	}
-
-	/**
-	 * Handles the instance field reference expressions.
-	 *
-	 * @param e the instance field ref expression to be processed.
+	 * @param e the expression to be processed.
 	 *
 	 * @pre e != null
 	 */
-	public void caseInstanceFieldRef(final InstanceFieldRef e) {
-		super.caseInstanceFieldRef(e);
-		postProcessBase(e.getBaseBox());
-	}
+	public void caseLocal(final Local e) {
+		final IFGNode _localNode = method.getASTNode(e);
+		final Stmt _stmt = context.getStmt();
+		final ValueBox _backup = context.setProgramPoint(null);
 
-	/**
-	 * Connects the flow graph nodes corresponding to definition of the primary to the use of the primary at the reference
-	 * site.  This method assumes that the primary in a access expression is a local variable.  The idea is that once the
-	 * nodes have been set up for the primary and the identifier, the nodes corresponding to the primary is connected
-	 * according to the mode of operation to instigate flow of values into fields and array components according to the
-	 * mode.
-	 *
-	 * @param e the reference program point to be processed.
-	 *
-	 * @pre e != null
-	 */
-	protected void postProcessBase(final ValueBox e) {
-		Local l = (Local) e.getValue();
-		ValueBox backup = context.setProgramPoint(e);
-		IFGNode localNode = method.getASTNode(l);
+		if (_stmt.getUseBoxes().contains(_backup)) {
+			final List _defs = method.getDefsOfAt(e, _stmt);
 
-		for (Iterator i = method.getDefsOfAt(l, context.getStmt()).iterator(); i.hasNext();) {
-			DefinitionStmt defStmt = (DefinitionStmt) i.next();
-			context.setProgramPoint(defStmt.getLeftOpBox());
+			for (final Iterator _i = _defs.iterator(); _i.hasNext();) {
+				final DefinitionStmt _defStmt = (DefinitionStmt) _i.next();
+				context.setProgramPoint(_defStmt.getLeftOpBox());
 
-			IFGNode defNode = method.getASTNode(defStmt.getLeftOp());
+				final IFGNode _defNode = method.getASTNode(_defStmt.getLeftOp());
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);
+				}
+				_defNode.addSucc(_localNode);
 			}
-			defNode.addSucc(localNode);
 		}
 
-		// end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
-		context.setProgramPoint(backup);
+		context.setProgramPoint(_backup);
+		setResult(_localNode);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 15:31:41  venku
+   - deleted method as it contained redundant logic.
    Revision 1.8  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
        getCurrentStmt()
    - context holds current information and only it must be used
      to retrieve this information.  No auxiliary arguments. FIXED.
-
    Revision 1.7  2003/12/02 09:42:39  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

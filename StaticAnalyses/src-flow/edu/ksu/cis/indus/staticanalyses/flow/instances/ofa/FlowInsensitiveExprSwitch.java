@@ -13,9 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
@@ -24,10 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.TypeBasedFilter;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,20 +65,20 @@ import soot.jimple.VirtualInvokeExpr;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class ExprSwitch
+public class FlowInsensitiveExprSwitch
   extends AbstractExprSwitch {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExprSwitch.class);
+	private static final Log LOGGER = LogFactory.getLog(FlowInsensitiveExprSwitch.class);
 
 	/**
-	 * Creates a new <code>ExprSwitch</code> instance.
+	 * Creates a new <code>FlowInsensitiveExprSwitch</code> instance.
 	 *
 	 * @param stmtSwitchParam the statement visitor which uses this object.
 	 * @param nodeConnector the connector to be used to connect ast and non-ast flow graph node.
 	 */
-	public ExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
+	public FlowInsensitiveExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
 		super(stmtSwitchParam, nodeConnector);
 	}
 
@@ -93,10 +90,10 @@ public class ExprSwitch
 	 * @return the new instance of this class.
 	 *
 	 * @pre o != null and o.oclIsKindOf(StmtSwitch)
-	 * @post result != null and result.oclIsKindOf(ExprSwitch)
+	 * @post result != null and result.oclIsKindOf(FlowInsensitiveExprSwitch)
 	 */
 	public Object getClone(final Object o) {
-		return new ExprSwitch((StmtSwitch) o, connector);
+		return new FlowInsensitiveExprSwitch((StmtSwitch) o, connector);
 	}
 
 	/**
@@ -114,14 +111,14 @@ public class ExprSwitch
 			LOGGER.debug(e.getBaseBox());
 		}
 
-		IFGNode baseNode = (IFGNode) getResult();
-		IFGNode ast = method.getASTNode(e);
-		AbstractWork work = new ArrayAccessExprWork(method, context, ast, connector);
-		FGAccessNode temp = new FGAccessNode(work, getWorkList());
-		baseNode.addSucc(temp);
-		work.setFGNode(temp);
+		final IFGNode _baseNode = (IFGNode) getResult();
+		final IFGNode _ast = method.getASTNode(e);
+		final AbstractWork _work = new ArrayAccessExprWork(method, context, _ast, connector);
+		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
+		_baseNode.addSucc(_temp);
+		_work.setFGNode(_temp);
 		process(e.getIndexBox());
-		setResult(ast);
+		setResult(_ast);
 	}
 
 	/**
@@ -137,11 +134,11 @@ public class ExprSwitch
 		if (Util.isReferenceType(e.getCastType())) {
 			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
 			// run-time.
-			IFGNode base = (IFGNode) getResult();
-			IFGNode cast = method.getASTNode(e);
-			cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
-			base.addSucc(cast);
-			setResult(cast);
+			final IFGNode _base = (IFGNode) getResult();
+			final IFGNode _cast = method.getASTNode(e);
+			_cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
+			_base.addSucc(_cast);
+			setResult(_cast);
 		}
 	}
 
@@ -153,8 +150,8 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseCaughtExceptionRef(final CaughtExceptionRef e) {
-		IFGNode node = method.getASTNode(e);
-		setResult(node);
+		final IFGNode _node = method.getASTNode(e);
+		setResult(_node);
 	}
 
 	/**
@@ -167,13 +164,13 @@ public class ExprSwitch
 	public void caseInstanceFieldRef(final InstanceFieldRef e) {
 		process(e.getBaseBox());
 
-		IFGNode baseNode = (IFGNode) getResult();
-		IFGNode ast = method.getASTNode(e);
-		AbstractWork work = new FieldAccessExprWork(method, context, ast, connector);
-		FGAccessNode temp = new FGAccessNode(work, getWorkList());
-		baseNode.addSucc(temp);
-		work.setFGNode(temp);
-		setResult(ast);
+		final IFGNode _baseNode = (IFGNode) getResult();
+		final IFGNode _ast = method.getASTNode(e);
+		final AbstractWork _work = new FieldAccessExprWork(method, context, _ast, connector);
+		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
+		_baseNode.addSucc(_temp);
+		_work.setFGNode(_temp);
+		setResult(_ast);
 	}
 
 	/**
@@ -206,8 +203,8 @@ public class ExprSwitch
 	 * @pre != null
 	 */
 	public void caseLocal(final Local e) {
-		IFGNode node = method.getASTNode(e);
-		setResult(node);
+		final IFGNode _node = method.getASTNode(e);
+		setResult(_node);
 	}
 
 	/**
@@ -220,10 +217,10 @@ public class ExprSwitch
 	public void caseNewArrayExpr(final NewArrayExpr e) {
 		process(e.getSizeBox());
 
-		IFGNode ast = method.getASTNode(e);
+		final IFGNode _ast = method.getASTNode(e);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
-		ast.addValue(e);
-		setResult(ast);
+		_ast.addValue(e);
+		setResult(_ast);
 	}
 
 	/**
@@ -234,9 +231,9 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseNewExpr(final NewExpr e) {
-		IFGNode ast = method.getASTNode(e);
-		ast.addValue(e);
-		setResult(ast);
+		final IFGNode _ast = method.getASTNode(e);
+		_ast.addValue(e);
+		setResult(_ast);
 	}
 
 	/**
@@ -248,23 +245,23 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
-		ArrayType arrayType = e.getBaseType();
-		Type baseType = arrayType.baseType;
+		ArrayType _arrayType = e.getBaseType();
+		final Type _baseType = _arrayType.baseType;
 		int sizes = e.getSizeCount();
 
-		for (int i = arrayType.numDimensions; i > 0; i--, sizes--) {
-			arrayType = ArrayType.v(baseType, i);
+		for (int _i = _arrayType.numDimensions; _i > 0; _i--, sizes--) {
+			_arrayType = ArrayType.v(_baseType, _i);
 
-			ArrayVariant array = fa.getArrayVariant(arrayType, context);
+			ArrayVariant array = fa.getArrayVariant(_arrayType, context);
 
 			if (sizes > 0) {
 				array.getFGNode().addValue(e);
 			}
 		}
 
-		IFGNode ast = method.getASTNode(e);
-		ast.addValue(e);
-		setResult(ast);
+		final IFGNode _ast = method.getASTNode(e);
+		_ast.addValue(e);
+		setResult(_ast);
 	}
 
 	/**
@@ -275,9 +272,9 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseNullConstant(final NullConstant e) {
-		IFGNode ast = method.getASTNode(e);
-		ast.addValue(e);
-		setResult(ast);
+		final IFGNode _ast = method.getASTNode(e);
+		_ast.addValue(e);
+		setResult(_ast);
 	}
 
 	/**
@@ -297,9 +294,9 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
-		final SootMethod callee = e.getMethod();
+		final SootMethod _callee = e.getMethod();
 
-		if (callee.getName().equals("<init>")) {
+		if (_callee.getName().equals("<init>")) {
 			processInvokedMethod(e);
 		} else {
 			processInstanceInvokeExpr(e);
@@ -314,12 +311,12 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef e) {
-		SootField field = e.getField();
+		final SootField _field = e.getField();
 
-		IFGNode ast = method.getASTNode(e);
-		IFGNode nonast = fa.getFieldVariant(field).getFGNode();
-		connector.connect(ast, nonast);
-		setResult(ast);
+		final IFGNode _ast = method.getASTNode(e);
+		final IFGNode _nonast = fa.getFieldVariant(_field).getFGNode();
+		connector.connect(_ast, _nonast);
+		setResult(_ast);
 	}
 
 	/**
@@ -341,9 +338,9 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseStringConstant(final StringConstant e) {
-		IFGNode ast = method.getASTNode(e);
-		ast.addValue(e);
-		setResult(ast);
+		final IFGNode _ast = method.getASTNode(e);
+		_ast.addValue(e);
+		setResult(_ast);
 	}
 
 	/**
@@ -377,15 +374,15 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void defaultCase(final Object o) {
-		Value v = (Value) o;
+		final Value _v = (Value) o;
 
-		if (v instanceof BinopExpr) {
-			BinopExpr temp = (BinopExpr) v;
-			process(temp.getOp1Box());
-			process(temp.getOp2Box());
-		} else if (v instanceof UnopExpr) {
-			UnopExpr temp = (UnopExpr) v;
-			process(temp.getOpBox());
+		if (_v instanceof BinopExpr) {
+			final BinopExpr _temp = (BinopExpr) _v;
+			process(_temp.getOp1Box());
+			process(_temp.getOp2Box());
+		} else if (_v instanceof UnopExpr) {
+			final UnopExpr _temp = (UnopExpr) _v;
+			process(_temp.getOpBox());
 		} else {
 			super.defaultCase(o);
 		}
@@ -406,10 +403,10 @@ public class ExprSwitch
 		fa.processClass(e.getMethod().getDeclaringClass());
 		process(e.getBaseBox());
 
-		IFGNode temp = (IFGNode) getResult();
+		final IFGNode _temp = (IFGNode) getResult();
 
-		for (int i = 0; i < e.getArgCount(); i++) {
-			process(e.getArgBox(i));
+		for (int _i = 0; _i < e.getArgCount(); _i++) {
+			process(e.getArgBox(_i));
 		}
 
 		if (Util.isReferenceType(e.getMethod().getReturnType())) {
@@ -418,10 +415,10 @@ public class ExprSwitch
 			setResult(null);
 		}
 
-		AbstractWork work = new InvokeExprWork(method, context, this);
-		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
-		work.setFGNode(baseNode);
-		temp.addSucc(baseNode);
+		final AbstractWork _work = new InvokeExprWork(method, context, this);
+		final FGAccessNode _baseNode = new FGAccessNode(_work, getWorkList());
+		_work.setFGNode(_baseNode);
+		_temp.addSucc(_baseNode);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processed " + e);
@@ -441,30 +438,30 @@ public class ExprSwitch
 			LOGGER.debug("BEGIN: processing " + e);
 		}
 
-		MethodVariant callee = fa.getMethodVariant(e.getMethod(), context);
+		final MethodVariant _callee = fa.getMethodVariant(e.getMethod(), context);
 
 		if (e instanceof SpecialInvokeExpr) {
-			SpecialInvokeExpr expr = (SpecialInvokeExpr) e;
-			IFGNode thisNode = callee.queryThisNode();
-			process(expr.getBaseBox());
+			final SpecialInvokeExpr _expr = (SpecialInvokeExpr) e;
+			final IFGNode _thisNode = _callee.queryThisNode();
+			process(_expr.getBaseBox());
 
-			IFGNode thisArgNode = (IFGNode) getResult();
-			thisArgNode.addSucc(thisNode);
+			final IFGNode _thisArgNode = (IFGNode) getResult();
+			_thisArgNode.addSucc(_thisNode);
 		}
 
-		for (int i = 0; i < e.getArgCount(); i++) {
-			if (Util.isReferenceType(e.getArg(i).getType())) {
-				process(e.getArgBox(i));
+		for (int _i = 0; _i < e.getArgCount(); _i++) {
+			if (Util.isReferenceType(e.getArg(_i).getType())) {
+				process(e.getArgBox(_i));
 
-				IFGNode argNode = (IFGNode) getResult();
-				argNode.addSucc(callee.queryParameterNode(i));
+				final IFGNode _argNode = (IFGNode) getResult();
+				_argNode.addSucc(_callee.queryParameterNode(_i));
 			}
 		}
 
 		if (Util.isReferenceType(e.getMethod().getReturnType())) {
-			IFGNode ast = method.getASTNode(e);
-			callee.queryReturnNode().addSucc(ast);
-			setResult(ast);
+			final IFGNode _ast = method.getASTNode(e);
+			_callee.queryReturnNode().addSucc(_ast);
+			setResult(_ast);
 		} else {
 			setResult(null);
 		}
@@ -478,6 +475,8 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/26 08:31:21  venku
+   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.13  2003/12/16 00:19:25  venku
    - specialinvoke was handled incorrectly.  FIXED
      It behaves like virtual in cases when a non-instance
@@ -485,7 +484,6 @@ public class ExprSwitch
      like static invocation. We deal with the first case
      by treating it as virtual invocation and the second
      case as static invoke expr but only with a primary.
-
    Revision 1.12  2003/12/07 08:40:29  venku
    - declared class was not being processed in case of
      virtual invoke.  FIXED.

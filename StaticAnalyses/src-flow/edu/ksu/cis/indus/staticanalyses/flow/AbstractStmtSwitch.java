@@ -75,9 +75,9 @@ public abstract class AbstractStmtSwitch
 		method = m;
 
 		if (m != null) {
-			context = m._context;
-			lexpr = m._fa.getLHSExpr(this);
-			rexpr = m._fa.getRHSExpr(this);
+			context = m.getContext();
+			lexpr = m.getFA().getLHSExpr(this);
+			rexpr = m.getFA().getRHSExpr(this);
 		} else {
 			context = null;
 			lexpr = null;
@@ -148,6 +148,9 @@ public abstract class AbstractStmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/31 09:21:35  venku
+   - logging level.
+
    Revision 1.10  2003/12/07 09:58:30  venku
    - logging.
 

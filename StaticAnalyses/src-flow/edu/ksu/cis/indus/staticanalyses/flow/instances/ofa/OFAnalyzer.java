@@ -95,12 +95,10 @@ public final class OFAnalyzer
 	 * @post result != null and tagName != null
 	 */
 	public static OFAnalyzer getFIOIAnalyzer(final String tagName) {
-		final AbstractIndexManager _temp = new IndexManager();
-
-		return new OFAnalyzer(tagName, _temp, _temp,
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+		return new OFAnalyzer(tagName, new IndexManager(), new IndexManager(),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
 	/**
@@ -116,9 +114,9 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFIOSAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
 	/**
@@ -134,9 +132,9 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFSOIAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
 	/**
@@ -152,75 +150,9 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFSOSAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
-	}
-
-	/**
-	 * Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes when the IR has the
-	 * following properties.
-	 * 
-	 * <ul>
-	 * <li>
-	 * local splitting transformation has been done.
-	 * </li>
-	 * <li>
-	 * locals are defined only once.
-	 * </li>
-	 * </ul>
-	 * 
-	 * <p>
-	 * These properties are ensured if the IR is created with options available from
-	 * <code>edu.ksu.cis.indus.common.soot.Util.getSootOptions()</code>.
-	 * </p>
-	 *
-	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
-	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
-	 * 		  detail.
-	 *
-	 * @return the instance of analyzer correponding to the given name.
-	 *
-	 * @post result != null and tagName != null
-	 */
-	public static OFAnalyzer getFSv2OIAnalyzer(final String tagName) {
-		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitchv2(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitchv2(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
-	}
-
-	/**
-	 * Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes  when the IR has the
-	 * following properties.
-	 * 
-	 * <ul>
-	 * <li>
-	 * local splitting transformation has been done.
-	 * </li>
-	 * <li>
-	 * locals are defined only once.
-	 * </li>
-	 * </ul>
-	 * 
-	 * <p>
-	 * These properties are ensured if the IR is created with options available from
-	 * <code>edu.ksu.cis.indus.common.soot.Util.getSootOptions()</code>.
-	 * </p>
-	 *
-	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
-	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
-	 * 		  detail.
-	 *
-	 * @return the instance of analyzer correponding to the given name.
-	 *
-	 * @post result != null and tagName != null
-	 */
-	public static OFAnalyzer getFSv2OSAnalyzer(final String tagName) {
-		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitchv2(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitchv2(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
 	/**
@@ -260,6 +192,9 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/01 19:18:29  venku
+   - stmtGraphFactory was not set.
+
    Revision 1.11  2004/02/26 08:31:21  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.10  2003/12/13 19:38:58  venku

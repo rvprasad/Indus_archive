@@ -18,24 +18,17 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import edu.ksu.cis.indus.AbstractXMLBasedTestSetup;
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
+
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 
 import junit.framework.TestSuite;
 
-import soot.ArrayType;
 import soot.G;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.VoidType;
-
 
 /**
  * This is the setup in which various tests of flow analyses are run.  The classes to be processed during the test can be
@@ -91,29 +84,11 @@ public class FATestSetup
 	  throws Exception {
 		super.setUp();
 
-		final String[] _j = classNames.toString().split(" ");
-		final Collection _rootMethods = new ArrayList();
-
-		// retrieve the scene from the "G" afresh.
-		final Scene _scene = Scene.v();
-		_scene.setSootClassPath(sootClassPath);
-
-		for (int _i = _j.length - 1; _i >= 0; _i--) {
-			final SootClass _sc = _scene.loadClassAndSupport(_j[_i]);
-
-			if (_sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-					  VoidType.v())) {
-				final SootMethod _sm =
-					_sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-						VoidType.v());
-
-				if (_sm.isPublic() && _sm.isConcrete()) {
-					_rootMethods.add(_sm);
-				}
-			}
-		}
-
-		valueAnalyzer.analyze(_scene, _rootMethods);
+		final SootBasedDriver _driver = new SootBasedDriver();
+		_driver.addToSootClassPath(sootClassPath);
+		_driver.setClassNames(classNames.toString().split(" "));
+		_driver.initialize();
+		valueAnalyzer.analyze(_driver.getScene(), _driver.getRootMethods());
 
 		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
 
@@ -139,6 +114,11 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.9  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

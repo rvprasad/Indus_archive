@@ -70,14 +70,14 @@ public class OFAFGNode
 	 * @pre succ != null
 	 */
 	public void onNewSucc(final IFGNode succ) {
-		Collection temp = diffValues(succ);
+		Collection _temp = diffValues(succ);
 
 		if (filter != null) {
-			temp = filter.filter(temp);
+			_temp = filter.filter(_temp);
 		}
 
-		if (!temp.isEmpty()) {
-			worklist.addWork(SendValuesWork.getWork(succ, temp));
+		if (!_temp.isEmpty()) {
+			worklist.addWork(SendValuesWork.getWork(succ, _temp));
 		}
 	}
 
@@ -89,11 +89,17 @@ public class OFAFGNode
 	 * @pre value != null
 	 */
 	public void onNewValue(final Object value) {
-		for (Iterator i = succs.iterator(); i.hasNext();) {
-			IFGNode succ = (IFGNode) i.next();
+		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
+			final IFGNode _succ = (IFGNode) _i.next();
 
-			if (!succ.getValues().contains(value) && !filter.filter(value)) {
-				worklist.addWork(SendValuesWork.getWork(succ, value));
+			boolean _filterOut = false;
+
+			if (filter != null) {
+				_filterOut = filter.filter(value);
+			}
+
+			if (!_succ.getValues().contains(value) && !_filterOut) {
+				worklist.addWork(SendValuesWork.getWork(_succ, value));
 			}
 		}
 	}
@@ -107,17 +113,17 @@ public class OFAFGNode
 	 * @pre arrivingValues != null
 	 */
 	public void onNewValues(final Collection arrivingValues) {
-		Collection temp = arrivingValues;
+		Collection _temp = arrivingValues;
 
 		if (filter != null) {
-			temp = filter.filter(temp);
+			_temp = filter.filter(_temp);
 		}
 
-		for (Iterator i = succs.iterator(); i.hasNext();) {
-			IFGNode succ = (IFGNode) i.next();
+		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
+			final IFGNode _succ = (IFGNode) _i.next();
 
-			if (!diffValues(succ).isEmpty()) {
-				worklist.addWork(SendValuesWork.getWork(succ, temp));
+			if (!diffValues(_succ).isEmpty()) {
+				worklist.addWork(SendValuesWork.getWork(_succ, _temp));
 			}
 		}
 	}
@@ -126,6 +132,9 @@ public class OFAFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

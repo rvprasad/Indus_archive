@@ -94,7 +94,7 @@ public abstract class AbstractExprSwitch
 		if (stmtSwitch != null) {
 			context = ((AbstractStmtSwitch) stmtSwitch).context;
 			method = ((AbstractStmtSwitch) stmtSwitch).method;
-			fa = ((AbstractStmtSwitch) stmtSwitch).method._fa;
+			fa = ((AbstractStmtSwitch) stmtSwitch).method.getFA();
 		} else {
 			context = null;
 			method = null;
@@ -176,6 +176,10 @@ public abstract class AbstractExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.9  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()

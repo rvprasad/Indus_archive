@@ -55,15 +55,15 @@ import soot.jimple.NullConstant;
  */
 public class InvokeExprWork
   extends AbstractAccessExprWork {
+    /**
+     * This instance is used to create new virtual invoke ast nodes.
+     */
+    protected static final Jimple JIMPLE = Jimple.v();
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(InvokeExprWork.class);
-
-	/**
-	 * This instance is used to create new virtual invoke ast nodes.
-	 */
-	protected static final Jimple JIMPLE = Jimple.v();
 
 	/**
 	 * The expression visitor that created this object.  This is used to plugin a new method call into the flow graph.
@@ -95,15 +95,15 @@ public class InvokeExprWork
 		final AbstractExprSwitch exprSwitchParam) {
 		super(callerMethod, callContext);
 
-		ValueBox invocationExpr = callContext.getProgramPoint();
+		final ValueBox _invocationExpr = callContext.getProgramPoint();
 
-		if (!(invocationExpr.getValue() instanceof InstanceInvokeExpr)) {
+		if (!(_invocationExpr.getValue() instanceof InstanceInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has to contain a InstanceInvokeExpr object as value.");
 		}
 		this.exprSwitch = exprSwitchParam;
 
-		InstanceInvokeExpr ie = (InstanceInvokeExpr) invocationExpr.getValue();
-		this.returnsRefLikeType = ie.getMethod().getReturnType() instanceof RefLikeType;
+		final InstanceInvokeExpr _ie = (InstanceInvokeExpr) _invocationExpr.getValue();
+		this.returnsRefLikeType = _ie.getMethod().getReturnType() instanceof RefLikeType;
 	}
 
 	/**
@@ -112,80 +112,78 @@ public class InvokeExprWork
 	 * from native method calls.
 	 */
 	public synchronized void execute() {
-		InstanceInvokeExpr e = (InstanceInvokeExpr) accessExprBox.getValue();
-		SootMethod sm = e.getMethod();
-		FA fa = caller._fa;
-		SootClass sc;
-		ValueBox vb = context.getProgramPoint();
+		final InstanceInvokeExpr _e = (InstanceInvokeExpr) accessExprBox.getValue();
+		final FA _fa = caller.getFA();
+		final ValueBox _vb = context.getProgramPoint();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value) i.next();
+		for (final Iterator _i = values.iterator(); _i.hasNext();) {
+			final Value _v = (Value) _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Value: " + v);
+				LOGGER.debug("Value: " + _v);
 			}
 
-			if (v instanceof NullConstant) {
+			if (_v instanceof NullConstant) {
 				continue;
 			}
 
-			Type t = v.getType();
-
-			if (t instanceof RefType) {
-				sc = fa.getClass(((RefType) v.getType()).getClassName());
-			} else if (t instanceof ArrayType) {
-				sc = fa.getClass("java.lang.Object");
+			final Type _t = _v.getType();
+			final SootClass _sc;
+			if (_t instanceof RefType) {
+				_sc = _fa.getClass(((RefType) _v.getType()).getClassName());
+			} else if (_t instanceof ArrayType) {
+				_sc = _fa.getClass("java.lang.Object");
 			} else {
-				RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
-
+                final RuntimeException _excp = new RuntimeException("Non-reference/array type flowing into invocation site.");
 				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error(ee);
+					LOGGER.error( _e);
 				}
-				context.setProgramPoint(vb);
-				throw ee;
+				context.setProgramPoint(_vb);
+				throw _excp;
 			}
 
+            final SootMethod _sm;
 			try {
-				sm = MethodVariantManager.findDeclaringMethod(sc, e.getMethod());
-			} catch (RuntimeException ee) {
-				LOGGER.error(sc + ":" + context.getCurrentMethod() + "@" + e, ee);
-				context.setProgramPoint(vb);
-				throw ee;
+				_sm = MethodVariantManager.findDeclaringMethod(_sc, _e.getMethod());
+			} catch (final IllegalStateException _excp) {
+				LOGGER.error(_sc + ":" + context.getCurrentMethod() + "@" + _e, _excp);
+				context.setProgramPoint(_vb);
+				throw _excp;
 			}
 
-			MethodVariant mv = fa.getMethodVariant(sm, context);
+			final MethodVariant _mv = _fa.getMethodVariant(_sm, context);
 
-			if (!installedVariants.contains(mv)) {
-				IFGNode param;
-				IFGNode arg;
+			if (!installedVariants.contains(_mv)) {
+				IFGNode _param;
+				IFGNode _arg;
 
-				for (int j = 0; j < sm.getParameterCount(); j++) {
-					if (sm.getParameterType(j) instanceof RefLikeType) {
-						param = mv.queryParameterNode(j);
-						context.setProgramPoint(e.getArgBox(j));
-						arg = caller.queryASTNode(e.getArg(j), context);
-						arg.addSucc(param);
+				for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
+					if (_sm.getParameterType(_j) instanceof RefLikeType) {
+						_param = _mv.queryParameterNode(_j);
+						context.setProgramPoint(_e.getArgBox(_j));
+						_arg = caller.queryASTNode(_e.getArg(_j), context);
+						_arg.addSucc(_param);
 					}
 				}
-				param = mv.queryThisNode();
-				context.setProgramPoint(e.getBaseBox());
-				arg = caller.queryASTNode(e.getBase(), context);
-				arg.addSucc(param);
+				_param = _mv.queryThisNode();
+				context.setProgramPoint(_e.getBaseBox());
+				_arg = caller.queryASTNode(_e.getBase(), context);
+				_arg.addSucc(_param);
 
 				if (returnsRefLikeType) {
-					arg = mv.queryReturnNode();
+					_arg = _mv.queryReturnNode();
 					context.setProgramPoint(accessExprBox);
-					param = caller.queryASTNode(e, context);
-					arg.addSucc(param);
+					_param = caller.queryASTNode(_e, context);
+					_arg.addSucc(_param);
 				}
-				installedVariants.add(mv);
+				installedVariants.add(_mv);
 			}
 		}
-		context.setProgramPoint(vb);
+		context.setProgramPoint(_vb);
 	}
 
 	/**
@@ -196,13 +194,16 @@ public class InvokeExprWork
 	 * @post result != null
 	 */
 	public String toString() {
-		return "InvokeExprWork: " + caller._method + "@" + accessExprBox.getValue();
+		return "InvokeExprWork: " + caller.getMethod() + "@" + accessExprBox.getValue();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/07 05:02:34  venku
+   - formatting.
+
    Revision 1.12  2003/12/05 21:13:56  venku
    - special invokes are treated just like virtual invoke.
    Revision 1.11  2003/12/05 02:27:20  venku

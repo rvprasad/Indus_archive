@@ -90,7 +90,7 @@ public class ArrayAccessExprWork
 	 */
 	public synchronized void execute() {
 		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		FA fa = caller._fa;
+		FA fa = caller.getFA();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype
@@ -119,6 +119,13 @@ public class ArrayAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
+
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

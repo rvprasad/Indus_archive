@@ -88,23 +88,23 @@ public class FieldAccessExprWork
 	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the field access expression.
 	 */
 	public synchronized void execute() {
-		SootField sf = ((FieldRef) accessExprBox.getValue()).getField();
-		FA fa = caller._fa;
+		final SootField _sf = ((FieldRef) accessExprBox.getValue()).getField();
+		final FA _fa = caller.getFA();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value) i.next();
+		for (final Iterator _i = values.iterator(); _i.hasNext();) {
+			final Value _v = (Value) _i.next();
 
-			if (v instanceof NullConstant) {
+			if (_v instanceof NullConstant) {
 				continue;
 			}
-			context.setAllocationSite(v);
+			context.setAllocationSite(_v);
 
-			IFGNode nonast = fa.getFieldVariant(sf, context).getFGNode();
-			connector.connect(ast, nonast);
+			final IFGNode _nonast = _fa.getFieldVariant(_sf, context).getFGNode();
+			connector.connect(ast, _nonast);
 		}
 	}
 }
@@ -112,6 +112,12 @@ public class FieldAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
