@@ -49,21 +49,21 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		sng = new SimpleNodeGraph();
-		name2node.put("a", sng.getNode("a"));
-		name2node.put("b", sng.getNode("b"));
-		name2node.put("c", sng.getNode("c"));
-		name2node.put("d", sng.getNode("d"));
-		name2node.put("e", sng.getNode("e"));
+		final SimpleNodeGraph _sng = new SimpleNodeGraph();
+		name2node.put("a", _sng.getNode("a"));
+		name2node.put("b", _sng.getNode("b"));
+		name2node.put("c", _sng.getNode("c"));
+		name2node.put("d", _sng.getNode("d"));
+		name2node.put("e", _sng.getNode("e"));
 
-		sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("d"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("e"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("d"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("e"));
 		// add loop edges
-		sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("b"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("b"));
-        dg = sng;
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("b"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("b"));
+        setSNG(_sng);
 	}
 
 	/**
@@ -89,6 +89,16 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/30 09:24:59  venku
+   - Refactored DirectedAndSimpleNodeGraphTest into
+      - AbstractDirectedGraphTest
+      - SimpleNodeGraphTest
+   - Introduced SimpleNodeGraphNoCycleTest
+   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+     DirectedGraphTestSuite.
+   - added checks to test exceptional behavior as well.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

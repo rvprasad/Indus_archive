@@ -122,7 +122,7 @@ public class CallGraphTester
 		 * Sets up the test.
 		 */
 		protected void setUp() {
-			dg = (SimpleNodeGraph) cgi.getCallGraph();
+			setSNG((SimpleNodeGraph) cgi.getCallGraph());
 		}
 
 		/**
@@ -496,6 +496,16 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/30 09:24:55  venku
+   - Refactored DirectedAndSimpleNodeGraphTest into
+      - AbstractDirectedGraphTest
+      - SimpleNodeGraphTest
+   - Introduced SimpleNodeGraphNoCycleTest
+   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+     DirectedGraphTestSuite.
+   - added checks to test exceptional behavior as well.
+
    Revision 1.17  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -40,9 +40,8 @@ public class SimpleNodeGraphTest
 	protected final Map name2node = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The reference to a simple node graph used for testing.  This should be the same as dg, so set this via <code>setSNG</code>.
+     * @invariant dg = sng
 	 */
 	protected SimpleNodeGraph sng;
 
@@ -97,35 +96,47 @@ public class SimpleNodeGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		sng = new SimpleNodeGraph();
+		final SimpleNodeGraph _sng = new SimpleNodeGraph();
 
-		name2node.put("a", sng.getNode("a"));
-		name2node.put("b", sng.getNode("b"));
-		name2node.put("c", sng.getNode("c"));
-		name2node.put("d", sng.getNode("d"));
-		name2node.put("e", sng.getNode("e"));
-		name2node.put("f", sng.getNode("f"));
-		name2node.put("g", sng.getNode("g"));
-		name2node.put("h", sng.getNode("h"));
+		name2node.put("a", _sng.getNode("a"));
+		name2node.put("b", _sng.getNode("b"));
+		name2node.put("c", _sng.getNode("c"));
+		name2node.put("d", _sng.getNode("d"));
+		name2node.put("e", _sng.getNode("e"));
+		name2node.put("f", _sng.getNode("f"));
+		name2node.put("g", _sng.getNode("g"));
+		name2node.put("h", _sng.getNode("h"));
 		// connect them now
-		sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("d"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("h"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("g"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("h"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("f"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("f"), (SimpleNode) name2node.get("g"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("f"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("f"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
-		sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
-		dg = sng;
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("d"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("h"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("g"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("h"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("f"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("f"), (SimpleNode) name2node.get("g"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("f"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("f"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
+		setSNG(_sng);
 	}
 
 	/**
+     * Set the graph to be tested.
+     * 
+     * @param _sng is the graph to be tested.
+     * @pre _sng != null
+     * @post sng = _sng and dg = _sng
+     */
+    protected void setSNG(final SimpleNodeGraph _sng) {
+        sng = _sng;
+        dg = _sng;        
+    }
+
+    /**
 	 * @see AbstractDirectedGraphTest#localtestAddEdgeFromTo
 	 */
 	protected void localtestAddEdgeFromTo() {
@@ -232,4 +243,14 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/30 09:24:59  venku
+   - Refactored DirectedAndSimpleNodeGraphTest into
+      - AbstractDirectedGraphTest
+      - SimpleNodeGraphTest
+   - Introduced SimpleNodeGraphNoCycleTest
+   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+     DirectedGraphTestSuite.
+   - added checks to test exceptional behavior as well.
+
  */
