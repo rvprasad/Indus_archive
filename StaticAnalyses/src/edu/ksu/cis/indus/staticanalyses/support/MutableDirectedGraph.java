@@ -144,8 +144,8 @@ public abstract class MutableDirectedGraph
 		boolean result = false;
 
 		if (containsNodes(src) && containsNodes(dest)) {
-			((MutableNode) src).addSuccessors(dest);
-			((MutableNode) dest).addPredecessors(src);
+			src.addSuccessors(dest);
+			dest.addPredecessors(src);
 			tails.remove(src);
 			heads.remove(dest);
 			result = true;
@@ -169,6 +169,10 @@ public abstract class MutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.1  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
