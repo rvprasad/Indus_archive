@@ -86,7 +86,7 @@
     </target>
 
     <target name="buildAllDoc" depends="init">
-        <subant target="docs" inheritAll="false" inheritRefs="true">
+        <subant target="docs">
            	<property file="distbuild.properties"/>            	
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
