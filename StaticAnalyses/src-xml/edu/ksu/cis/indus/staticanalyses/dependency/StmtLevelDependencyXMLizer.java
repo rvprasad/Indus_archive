@@ -110,7 +110,7 @@ final class StmtLevelDependencyXMLizer
 
 		try {
 			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
-				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
+				writer.write("\t\t\t<dependency_info stmtId=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
 				totalDependences += _dependents.size();
 
 				for (final Iterator _i = _dependents.iterator(); _i.hasNext();) {
@@ -118,10 +118,10 @@ final class StmtLevelDependencyXMLizer
 
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
-						writer.write("\t\t\t\t<dependent id=\""
+						writer.write("\t\t\t\t<dependent tid=\""
 							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
 					} else if (_o instanceof Stmt) {
-						writer.write("\t\t\t\t<dependent id=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
+						writer.write("\t\t\t\t<dependent tid=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
 					}
 				}
 
@@ -130,10 +130,10 @@ final class StmtLevelDependencyXMLizer
 
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
-						writer.write("\t\t\t\t<dependee id=\""
+						writer.write("\t\t\t\t<dependee eid=\""
 							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
 					} else if (_o instanceof Stmt) {
-						writer.write("\t\t\t\t<dependee id=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
+						writer.write("\t\t\t\t<dependee eid=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
 					}
 				}
 				writer.write("\t\t\t</dependency_info>\n");
@@ -220,7 +220,7 @@ final class StmtLevelDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().toString() + "\">\n");
+			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().getName().toString() + "\">\n");
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -247,6 +247,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/25 23:34:29  venku
+   - classes that should not be visible should be invisible :-)
+
    Revision 1.4  2004/02/25 00:04:02  venku
    - documenation.
 
