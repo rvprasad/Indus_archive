@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * This class encapsulates the index creation logic.  It is abstract and it provides an interface through which new indices
@@ -39,13 +42,17 @@ public abstract class AbstractIndexManager
 	public static final String PROCESSOR_INTENSIVE_INDEX_MANAGEMENT = "PROCESSOR_INTENSIVE_INDEX_MANAGEMENT";
 
 	/** 
-	 * The name of the property via which index management strategy can be altered. 
+	 * The name of the property via which index management strategy can be altered.
 	 */
-	public static final String INDEX_MANAGEMENT_STRATEGY =
-		"edu.ksu.cis.indus.staticanalyses.flow.indexManagementStrategy";
+	public static final String INDEX_MANAGEMENT_STRATEGY = "edu.ksu.cis.indus.staticanalyses.flow.indexManagementStrategy";
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractIndexManager.class);
+
+	/** 
+	 * The strategy used to manage indices.
 	 */
 	private final IIndexManagementStrategy strategizedIndexMgr;
 
@@ -59,6 +66,10 @@ public abstract class AbstractIndexManager
 			strategizedIndexMgr = new MemoryIntensiveStrategy();
 		} else {
 			strategizedIndexMgr = new ProcessorIntensiveStrategy();
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("AbstractIndexManager() - The index management strategy is " + _prop);
 		}
 	}
 
