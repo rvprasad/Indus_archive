@@ -60,37 +60,37 @@ public class SimpleController
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
-	public static final String CLASS_DATA_DA = "CLASS_DATA_DA";
+	public static final Object CLASS_DATA_DA = "CLASS_DATA_DA";
 
 	/**
 	 * This identifies control dependency analysis.
 	 */
-	public static final String CONTROL_DA = "CONTROL_DA";
+	public static final Object CONTROL_DA = "CONTROL_DA";
 
 	/**
 	 * This identifies divergence dependency analysis.
 	 */
-	public static final String DIVERGENCE_DA = "DIVERGENCE_DA";
+	public static final Object DIVERGENCE_DA = "DIVERGENCE_DA";
 
 	/**
 	 * This identifies inteference dependency analysis.
 	 */
-	public static final String INTERFERENCE_DA = "INTERFERENCE_DA";
+	public static final Object INTERFERENCE_DA = "INTERFERENCE_DA";
 
 	/**
 	 * This identifies method local data dependency analysis.
 	 */
-	public static final String METHOD_LOCAL_DATA_DA = "METHOD_LOCAL_DATA_DA";
+	public static final Object METHOD_LOCAL_DATA_DA = "METHOD_LOCAL_DATA_DA";
 
 	/**
 	 * This identifies ready dependency analysis.
 	 */
-	public static final String READY_DA = "READY_DA";
+	public static final Object READY_DA = "READY_DA";
 
 	/**
 	 * This identifies synchronization dependency analysis.
 	 */
-	public static final String SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
+	public static final Object SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
 
 	/**
 	 * Creates a new SimpleController object.
@@ -117,6 +117,10 @@ public class SimpleController
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/16 02:41:37  venku
+   Renamed AController to AbstractController.
+   Renamed AAnalysis to AbstractAnalysis.
+
    Revision 1.5  2003/08/11 08:52:56  venku
    Moved an invariant from constructor to type level.
 

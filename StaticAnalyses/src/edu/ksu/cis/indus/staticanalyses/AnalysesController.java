@@ -138,12 +138,12 @@ public abstract class AbstractController {
 	/**
 	 * Provides the implementation registered for the given analysis purpose.
 	 *
-	 * @param name of the requested analysis.  This has to be one of the names(XXX_DA) defined in this class.
+	 * @param id of the requested analysis.  This has to be one of the names(XXX_DA) defined in this class.
 	 *
 	 * @return the implementation registered for the given purpose.  <code>null</code>, if there is no registered analysis.
 	 */
-	public final AbstractAnalysis getAnalysis(final String name) {
-		return (AbstractAnalysis) participatingAnalyses.get(name);
+	public final AbstractAnalysis getAnalysis(final Object id) {
+		return (AbstractAnalysis) participatingAnalyses.get(id);
 	}
 
 	/**
@@ -278,6 +278,10 @@ public abstract class AbstractController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/16 02:41:37  venku
+   Renamed AController to AbstractController.
+   Renamed AAnalysis to AbstractAnalysis.
+
    Revision 1.4  2003/08/15 08:23:09  venku
    Renamed getDAnalysis to getAnalysis.
 
