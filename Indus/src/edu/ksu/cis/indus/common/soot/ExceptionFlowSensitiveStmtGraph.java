@@ -35,8 +35,6 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 
-import soot.jimple.toolkits.callgraph.Units;
-
 import soot.toolkits.graph.UnitGraph;
 
 import soot.util.Chain;
@@ -259,6 +257,10 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/06/15 10:18:17  venku
+   - pruning control flow edges based on exception was incorrect. FIXED.
+   - info pertaining to units represented was incorrect. FIXED.
+
    Revision 1.12  2004/06/14 04:55:04  venku
    - documentation.
    - coding conventions.
