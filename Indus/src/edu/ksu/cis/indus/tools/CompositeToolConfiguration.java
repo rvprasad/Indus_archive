@@ -42,7 +42,7 @@ public final class CompositeToolConfiguration
 	/**
 	 * The list of constituent configuration.
 	 */
-	protected final List configurations = new ArrayList();
+	protected final ArrayList configurations = new ArrayList();
 
 	/**
 	 * The active constituent configuration.
@@ -56,7 +56,7 @@ public final class CompositeToolConfiguration
 	 *
 	 * @post result != null
 	 */
-	public static List createConfigurations() {
+	public static ArrayList createConfigurations() {
 		return new ArrayList();
 	}
 
@@ -201,6 +201,9 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/27 01:27:47  venku
+   - documentation.
+
    Revision 1.6  2003/09/27 01:09:36  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.
