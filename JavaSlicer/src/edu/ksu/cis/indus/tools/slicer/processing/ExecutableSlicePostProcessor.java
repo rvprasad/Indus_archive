@@ -92,14 +92,6 @@ public final class ExecutableSlicePostProcessor
 	private final Collection processedStmtCache = new HashSet();
 
 	/**
-	 * This is the traps of a method that need to be retained.
-	 *
-	 * @invariant trapsToRetain != null
-	 * @invariant trapsToRetain.oclIsKindOf(Set(Trap))
-	 */
-	private final Collection trapsToRetain = new HashSet();
-
-	/**
 	 * This is the workbag of methods to process.
 	 *
 	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
@@ -165,8 +157,6 @@ public final class ExecutableSlicePostProcessor
 
 				if (stmtCollected) {
 					pickReturnPoints(_method);
-					pruneHandlers(_method);
-					pruneLocals(_method);
 				}
 			} else {
 				if (LOGGER.isWarnEnabled()) {
@@ -408,7 +398,6 @@ public final class ExecutableSlicePostProcessor
 			collector.includeInSlice(_trap.getException());
 			addToStmtWorkBag(_handlerUnit);
 		}
-		trapsToRetain.addAll(_temp);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Pruning handlers " + stmt + "@" + method);
@@ -526,60 +515,14 @@ public final class ExecutableSlicePostProcessor
 			}
 		}
 	}
-
-	/**
-	 * Prunes the exception handlers in the given method's slice body.
-	 *
-	 * @param method in which the exception handlers need to be pruned.
-	 *
-	 * @pre method != null and method.isConcrete() and method.hasActiveBody()
-	 */
-	private void pruneHandlers(final SootMethod method) {
-		final Body _body = method.getActiveBody();
-		_body.getTraps().retainAll(trapsToRetain);
-	}
-
-	/**
-	 * Prunes the locals in the given method's slice body.
-	 *
-	 * @param method in which to process the locals.
-	 *
-	 * @pre method != null and method.isConcrete() and method.hasActiveBody()
-	 */
-	private void pruneLocals(final SootMethod method) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Pruning locals in " + method);
-		}
-
-		final Body _body = method.getActiveBody();
-		final Collection _localsToKeep = new ArrayList();
-
-		for (final Iterator _j = _body.getUnits().iterator(); _j.hasNext();) {
-			final Stmt _stmt = (Stmt) _j.next();
-
-			if (collector.hasBeenCollected(_stmt)) {
-				for (final Iterator _k = _stmt.getUseAndDefBoxes().iterator(); _k.hasNext();) {
-					final ValueBox _vBox = (ValueBox) _k.next();
-					final Value _value = _vBox.getValue();
-
-					if (collector.hasBeenCollected(_vBox) && _value instanceof Local) {
-						_localsToKeep.add(_value);
-					}
-				}
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Locals " + _body.getLocals());
-			LOGGER.debug("Retaining:" + _localsToKeep);
-		}
-		_body.getLocals().retainAll(_localsToKeep);
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/02/06 07:09:02  venku
+   - refactoring.
+   - types of methods signatures were not sucked in. FIXED.
    Revision 1.17  2004/02/06 00:12:16  venku
    - coding convention.
    Revision 1.16  2004/02/05 18:20:58  venku

@@ -63,6 +63,8 @@ import soot.VoidType;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -1224,7 +1226,8 @@ public final class SlicingEngine {
 		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
 
 		// include the statement to capture control dependency and generate criteria from it
-		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
+		final boolean _flag = _stmt instanceof EnterMonitorStmt || _stmt instanceof ExitMonitorStmt;
+		transformAndGenerateNewCriteriaForStmt(_stmt, _method, _flag);
 
 		// generate new slice criteria
 		if (_considerExecution) {
@@ -1273,6 +1276,8 @@ public final class SlicingEngine {
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+			} else if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.SYNCHRONIZATION_DA);
 			}
 		}
 
@@ -1292,6 +1297,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.72  2004/02/23 04:40:51  venku
+   - does a naive tracking of the call chain back to the roots.
    Revision 1.71  2004/02/13 08:39:38  venku
    - reafactored code related to marking to facilitate
      ease of tracking updates to required and invoked.

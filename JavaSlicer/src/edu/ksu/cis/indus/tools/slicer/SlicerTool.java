@@ -536,7 +536,7 @@ public final class SlicerTool
 			// process escape analyses.
 			cgBasedPreProcessCtrl.reset();
 			ecba.hookup(cgBasedPreProcessCtrl);
-            aliasUD.reset();
+			aliasUD.reset();
 			aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			aliasUD.unhook(cgBasedPreProcessCtrl);
@@ -752,7 +752,7 @@ public final class SlicerTool
 				setConsiderExecution(_criteria, true);
 				_temp.addAll(_criteria);
 				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond());
-                setConsiderExecution(_criteria, true);
+				setConsiderExecution(_criteria, true);
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
@@ -798,41 +798,40 @@ public final class SlicerTool
 	 */
 	private void postProcessSlice() {
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Object _sliceType = _slicerConfig.getSliceType();
-		final SliceCollector _collector = engine.getCollector();
-		final Collection _methods = _collector.getMethodsInSlice();
-		AbstractSliceGotoProcessor _gotoProcessor = null;
-
-		if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
-		} else if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
-		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			_gotoProcessor = new CompleteSliceGotoProcessor(_collector);
-		}
 
 		if (((Boolean) _slicerConfig.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
 			final ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
+			final Object _sliceType = _slicerConfig.getSliceType();
+			final SliceCollector _collector = engine.getCollector();
+			final Collection _methods = _collector.getMethodsInSlice();
+			AbstractSliceGotoProcessor _gotoProcessor = null;
+
+			if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+				_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
+			} else if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+				_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
+			} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+				_gotoProcessor = new CompleteSliceGotoProcessor(_collector);
+			}
 			_postProcessor.process(_methods, bbgMgr, _collector);
+			_gotoProcessor.process(_methods, bbgMgr);
 		}
-		_gotoProcessor.process(_methods, bbgMgr);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.77  2004/03/03 05:59:37  venku
+   - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.76  2004/03/03 02:17:54  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.
    - made aliased use-def call-graph sensitive.
-
    Revision 1.75  2004/02/27 10:15:51  venku
    - incorrect initialization of seed criteria. FIXED.
-
    Revision 1.74  2004/02/23 07:22:32  venku
    - logging.
-
    Revision 1.73  2004/02/23 06:49:17  venku
    - logging.
    Revision 1.72  2004/02/23 04:40:17  venku
