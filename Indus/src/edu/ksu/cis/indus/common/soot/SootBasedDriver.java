@@ -171,7 +171,9 @@ public class SootBasedDriver {
 
 			if (rootClasses != null) {
 				_result = rootClasses.matcher(sc.getName()).matches();
-			} else if (theClassNames != null) {
+			}
+
+			if (!_result && theClassNames != null) {
 				_result = theClassNames.contains(sc.getName());
 			}
 			return _result;
@@ -351,7 +353,7 @@ public class SootBasedDriver {
 
 		if (_rmt == null) {
 			_rmt = new RootMethodTrapper();
-            _rmt.theClassNames = Collections.unmodifiableCollection(classNames);
+			_rmt.theClassNames = Collections.unmodifiableCollection(classNames);
 		}
 
 		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
@@ -377,13 +379,15 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/16 21:18:57  venku
+   - renamed setUnitGraphProvider() to setUnitGraphFactory()
+     in BasicBlockGraphMgr.
+   - ripple effect.
    Revision 1.8  2003/12/28 03:17:54  venku
    - checking if the class exists in a collection of class names.  FIXED.
-
    Revision 1.7  2003/12/28 02:08:29  venku
    - the specified rootclasses overrides the selection of
      root methods from application classes.
-
    Revision 1.6  2003/12/28 01:32:21  venku
    - coding convention.
    Revision 1.5  2003/12/28 01:08:04  venku
