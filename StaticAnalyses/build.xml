@@ -69,7 +69,7 @@
     <jar jarfile="${filename}.jar" basedir="${build}" excludes="*.jar, *.tar, *.tgz"/>
     <tar tarfile="${filename}.tar" basedir="."
          excludes="**/\..*, **/rational/html/**"
-         includes="${demo}/, edu/, ${filename}.jar, ${design}/, ${docs}/**, ${docs}/README.TXT, ${bin}/, build.xml"/>
+         includes="${demo}/, src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"/>
     <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
     <delete file="${filename}.tar"/>
 </target>
@@ -85,6 +85,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.4  2003/08/11 08:51:26  venku
+Javadoc generation uses -breakiterator.
+
 Revision 1.7  2003/08/11 04:31:14  venku
 *** empty log message ***
 

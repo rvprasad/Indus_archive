@@ -4,11 +4,11 @@
     <classpathentry excluding=".cono" kind="src" path="src-flow"/>
     <classpathentry excluding=".cono" kind="src" path="src-dependence"/>
     <classpathentry excluding=".cono" kind="src" path="src-escape"/>
-    <classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
     <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
-    <classpathentry kind="var" path="DRISHTI_UTILS/drishti.jar"/>
     <classpathentry kind="lib" path="/usr/local/javaclasses/commons-collections.jar"/>
     <classpathentry kind="lib" path="/usr/local/javaclasses/sootclasses-2.0.1.jar"/>
     <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
+    <classpathentry kind="src" path="/Indus"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
