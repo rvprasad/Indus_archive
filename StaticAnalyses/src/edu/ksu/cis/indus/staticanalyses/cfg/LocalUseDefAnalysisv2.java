@@ -108,6 +108,14 @@ public final class LocalUseDefAnalysisv2
 		}
 	}
 
+	/// CLOVER:OFF
+	/**
+	 * Creates a new LocalUseDefAnalysisv2 object.
+	 */
+	private LocalUseDefAnalysisv2() {
+	}
+	/// CLOVER:ON
+	
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
 	 *
@@ -359,6 +367,9 @@ public final class LocalUseDefAnalysisv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/22 09:42:40  venku
+   - altered IUseDefInfo to use tighter types.
+   - ripple effect.
    Revision 1.1  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -366,7 +377,6 @@ public final class LocalUseDefAnalysisv2
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.5  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
