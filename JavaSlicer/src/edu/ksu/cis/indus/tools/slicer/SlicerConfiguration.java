@@ -22,7 +22,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
-import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -442,6 +442,10 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.7  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

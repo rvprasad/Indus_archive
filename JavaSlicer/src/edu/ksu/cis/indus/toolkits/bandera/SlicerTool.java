@@ -22,8 +22,8 @@ import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
+import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -137,7 +137,7 @@ public class SlicerTool
 	 *
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
 	 * @pre inputArgs.get(CRITERIA) != null and
-	 * 		inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.transformations.slicer.AbstractSliceCriterion))
+	 * 		inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
 	 * @pre inputArgs.get(TAG_NAME) != null and inputArgs.get(TAG_NAME).oclIsKindOf(String)
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 *
@@ -239,6 +239,10 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/12 19:45:05  venku
+    - Changed valus of input/output args Ids as per the suggestion
+      of Todd.
+
    Revision 1.8  2003/09/28 23:16:18  venku
    - documentation
    Revision 1.7  2003/09/27 22:38:30  venku

@@ -46,9 +46,9 @@ import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer;
-import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
-import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
+import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -336,7 +336,7 @@ public final class SlicerTool
 	 */
 	public void destringizeConfiguration(final String stringizedForm) {
 		try {
-			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
+			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
 			configurationInfo = (AbstractToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
 
@@ -442,7 +442,7 @@ public final class SlicerTool
 		StringWriter result = new StringWriter();
 
 		try {
-			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
+			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(4);
 			mctx.marshalDocument(this, "UTF-8", null, result);
@@ -483,6 +483,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/28 06:54:17  venku
+   - one more small change to the interface.
+
    Revision 1.9  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
 

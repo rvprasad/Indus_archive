@@ -26,6 +26,7 @@ import soot.ValueBox;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
 
@@ -216,7 +217,7 @@ public class CloningBasedSlicingTransformer
 	 *
 	 * @return false;
 	 *
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return false;
@@ -318,6 +319,10 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.22  2003/09/27 01:08:38  venku
    - documentation.
    Revision 1.21  2003/09/26 15:08:35  venku

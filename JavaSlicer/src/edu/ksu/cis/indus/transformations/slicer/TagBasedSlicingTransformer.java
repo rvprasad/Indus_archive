@@ -26,6 +26,7 @@ import soot.jimple.Stmt;
 
 import soot.tagkit.StringTag;
 
+import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ public class TagBasedSlicingTransformer
 	 *
 	 * @return <code>true</code>
 	 *
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return true;
@@ -279,6 +280,10 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.7  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.6  2003/09/26 15:08:35  venku

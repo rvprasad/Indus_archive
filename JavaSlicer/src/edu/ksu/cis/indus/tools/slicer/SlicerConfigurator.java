@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
-import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -218,6 +218,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/29 04:20:30  venku
+   - coding convention.
+
    Revision 1.7  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
