@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
 
 import java.util.Collection;
 
-import soot.Type;
-
 
 /**
  * This is the interface to a type manager.
@@ -43,18 +41,39 @@ public interface ITypeManager {
 	Collection getAllTypes(Object value);
 
 	/**
-	 * Retrieves a type for the given IR type.  The user may use a type system orthogonal to the type system provided by the
-	 * intermediate representation used to represent the system.  In such cases, this decouples the IR type system from the
-	 * user's type system.
+	 * Retreives dynamic token-type relation evaluating implementation.
 	 *
-	 * @param type is the intermediate representation type.
+	 * @return dynamic token-type relation evaluating implementation.
+	 */
+	IDynamicTokenTypeRelationEvaluator getDynamicTokenTypeRelationEvaluator();
+
+	/**
+	 * Retrieves the specific type of the value.  It may be that the value is of type T1, T2, .. Tn of which Tn is it's
+	 * declared type and the rest are types by some sort of subtyping relation.  This method should return Tn.
 	 *
-	 * @return the type based on the type system represented by this type manager.
+	 * @param value whose type is requested.
+	 *
+	 * @return the type of the value.
+	 *
+	 * @pre value != null
+	 * @post result != null
+	 */
+	IType getExactType(Object value);
+
+	/**
+	 * Retrieves a type in the "user's" type system that corresponds to the type in the representation's type system.  The
+	 * user may use a (user's) type system for the tokens that is orthogonal to the type system of the representation  (e.g.
+	 * IR) used for the system.  In such cases, this decouples the representation's type system from the user's type system.
+	 * We refer to the "user's" type system as the token's type system as it is tightly  coupled with the token management.
+	 *
+	 * @param type is the representation's type system
+	 *
+	 * @return the type in token's type system that corresponds to the given type.
 	 *
 	 * @pre type != null
 	 * @post result != null
 	 */
-	IType getTypeForIRType(Type type);
+	IType getTokenTypeForRepType(Object type);
 
 	/**
 	 * Resets the type manager.

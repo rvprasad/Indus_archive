@@ -15,20 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.Constants;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
+import gnu.trove.TObjectIntHashMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Factory;
 
 
 /**
@@ -57,123 +55,18 @@ public class IntegerTokenManager
 	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
-	 * @invariant type2tokens.oclIsKindOf(Map(IType, MutableInteger))
+	 * @invariant type2tokens.oclIsKindOf(TObjectIntHashMap(IType, int))
 	 */
-	final Map type2tokens = new HashMap(Constants.getNumOfClassesInApplication());
+	final TObjectIntHashMap type2tokens = new TObjectIntHashMap(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
 	 *
-	 * @param typeManager to be used.
-	 *
-	 * @pre typeManager != null
+	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
 	public IntegerTokenManager(final ITypeManager typeManager) {
 		super(typeManager);
 	}
-
-	/**
-	 * This class represents a token filter based on bit representation of tokens via integers.
-	 *
-	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
-	 */
-	public class IntegerTokenFilter
-	  implements ITokenFilter {
-		/** 
-		 * The type of values to let through the filter.
-		 *
-		 * @invariant filterType != null
-		 */
-		final Object filterType;
-
-		/**
-		 * Creates an instance of this class.
-		 *
-		 * @param type is the filter type.
-		 *
-		 * @pre type != null
-		 */
-		IntegerTokenFilter(final Object type) {
-			filterType = type;
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
-		 */
-		public ITokens filter(final ITokens tokens) {
-			final IntegerTokens _result = new IntegerTokens(IntegerTokenManager.this);
-			_result.integer |= ((IntegerTokens) tokens).integer;
-
-			final MutableInteger _tokens =
-				(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, filterType, MutableInteger.FACTORY);
-			_result.integer &= _tokens.intValue();
-			return _result;
-		}
-	}
-
-
-	/**
-	 * This class is the mutable counterpart of <code>java.lang.Integer</code>.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static class MutableInteger
-	  extends Number {
-		/** 
-		 * A factory to create <code>MutableInteger</code>.
-		 */
-		public static final Factory FACTORY =
-			new Factory() {
-				public Object create() {
-					return new MutableInteger();
-				}
-			};
-
-		/** 
-		 * The value of this integer.
-		 */
-		private int value;
-
-		/**
-		 * Set the value of this integer to the given value.
-		 *
-		 * @param newValue is the new value.
-		 */
-		public void setValue(final int newValue) {
-			value = newValue;
-		}
-
-		/**
-		 * @see java.lang.Number#doubleValue()
-		 */
-		public double doubleValue() {
-			return value;
-		}
-
-		/**
-		 * @see java.lang.Number#floatValue()
-		 */
-		public float floatValue() {
-			return value;
-		}
-
-		/**
-		 * @see java.lang.Number#intValue()
-		 */
-		public int intValue() {
-			return value;
-		}
-
-		/**
-		 * @see java.lang.Number#longValue()
-		 */
-		public long longValue() {
-			return value;
-		}
-	}
-
 
 	/**
 	 * This class represents a collection of tokens represented as bits in an integer.
@@ -262,6 +155,43 @@ public class IntegerTokenManager
 		}
 	}
 
+
+	/**
+	 * This class represents a token filter based on bit representation of tokens via integers.
+	 *
+	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 */
+	private class IntegerTokenFilter
+	  implements ITokenFilter {
+		/** 
+		 * The type of values to let through the filter.
+		 *
+		 * @invariant filterType != null
+		 */
+		final Object filterType;
+
+		/**
+		 * Creates an instance of this class.
+		 *
+		 * @param type is the filter type.
+		 *
+		 * @pre type != null
+		 */
+		IntegerTokenFilter(final Object type) {
+			filterType = type;
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
+		 */
+		public ITokens filter(final ITokens tokens) {
+			final IntegerTokens _result = new IntegerTokens(IntegerTokenManager.this);
+			_result.integer |= ((IntegerTokens) tokens).integer;
+			_result.integer &= type2tokens.get(filterType);
+			return _result;
+		}
+	}
+
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
 	 */
@@ -299,9 +229,8 @@ public class IntegerTokenManager
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final MutableInteger _integer =
-						(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, _type, MutableInteger.FACTORY);
-					_integer.setValue(_integer.intValue() | _index);
+					final int _t = type2tokens.get(_type);
+					type2tokens.put(_type, _t | _index);
 				}
 				_index <<= 1;
 			}
@@ -320,10 +249,17 @@ public class IntegerTokenManager
 	}
 
 	/**
-	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
+	 * @see AbstractTokenManager#getNewFilterForType(IType)
 	 */
 	protected ITokenFilter getNewFilterForType(final IType type) {
 		return new IntegerTokenFilter(type);
+	}
+
+	/**
+	 * @see AbstractTokenManager#recordNewTokenTypeRelation(Object, Object)
+	 */
+	protected void recordNewTokenTypeRelation(final Object value, final Object type) {
+		type2tokens.put(type, type2tokens.get(type) | valueList.indexOf(value));
 	}
 }
 

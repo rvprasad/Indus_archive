@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -68,9 +69,7 @@ public final class BitSetTokenManager
 	/**
 	 * Creates an instacne of this class.
 	 *
-	 * @param typeManager to be used.
-	 *
-	 * @pre typeManager != null
+	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
 	public BitSetTokenManager(final ITypeManager typeManager) {
 		super(typeManager);
@@ -131,7 +130,7 @@ public final class BitSetTokenManager
 
 		/** 
 		 * The token manager associated with this instance of collection of tokens.
-		 * 
+		 *
 		 * @invariant tokenMgr != null
 		 */
 		private final BitSetTokenManager tokenMgr;
@@ -202,14 +201,14 @@ public final class BitSetTokenManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 * @see ITokenManager#getNewTokenSet()
 	 */
 	public ITokens getNewTokenSet() {
 		return new BitSetTokens(this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
+	 * @see ITokenManager#getTokens(java.util.Collection)
 	 */
 	public ITokens getTokens(final Collection values) {
 		final BitSetTokens _result = new BitSetTokens(this);
@@ -222,6 +221,7 @@ public final class BitSetTokenManager
 				_result.bitset.set(valueList.indexOf(_o));
 			}
 
+			final Collection _typeCol = new HashSet();
 			final Collection _diff = CollectionUtils.subtract(values, _commons);
 			int _index = valueList.size();
 
@@ -239,13 +239,16 @@ public final class BitSetTokenManager
 					_tokens.set(_index);
 				}
 				_index++;
+				_typeCol.addAll(_types);
 			}
+
+			fixupTokenTypeRelation(valueList, _typeCol);
 		}
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
+	 * @see ITokenManager#reset()
 	 */
 	public void reset() {
 		super.reset();
@@ -254,13 +257,20 @@ public final class BitSetTokenManager
 	}
 
 	/**
-	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
+	 * @see AbstractTokenManager#getNewFilterForType(IType)
 	 */
 	protected ITokenFilter getNewFilterForType(final IType type) {
 		final BitSet _mask =
 			(BitSet) CollectionsUtilities.getFromMap(type2tokens, type, CollectionsUtilities.BIT_SET_FACTORY);
 
 		return new BitSetTokenFilter(_mask);
+	}
+
+	/**
+	 * @see AbstractTokenManager#recordNewTokenTypeRelation(Object, Object)
+	 */
+	protected void recordNewTokenTypeRelation(final Object value, final Object type) {
+		((BitSet) type2tokens.get(type)).set(valueList.indexOf(value));
 	}
 }
 
