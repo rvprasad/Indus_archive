@@ -5,15 +5,11 @@
 
 	<target name="website.ftp">
 		<query name="login"/>
-		<query name="password" password="true"/>
-	
-		<ftp server="projects.cis.ksu.edu"
-       			userid="${login}"
-       			password="${password}"
-       			remotedir="../../groups/indus/htdocs"
-       			depends="no">
-       	   	<fileset dir="${basedir}" excludes=".project .cvsignore build.xml"/>
-  		</ftp>		
+
+       	<scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
+       		keyfile="${user.home}/.ssh/id_rsa" passphrase="">
+       	   	<fileset dir="${basedir}" excludes=".project .cvsignore build.xml lib"/>
+  		</scp>		
 	</target>
 	
 </project>
