@@ -502,10 +502,10 @@ public class CallGraph
 			SootMethod sm = (SootMethod) i.next();
 			temp = (Collection) caller2callees.get(sm);
 
+			INode callerNode = graphCache.getNode(sm);
+
 			if (temp != null) {
 				c.clear();
-
-				INode callerNode = graphCache.getNode(sm);
 
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
@@ -673,6 +673,13 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2003/12/16 00:19:25  venku
+   - specialinvoke was handled incorrectly.  FIXED
+     It behaves like virtual in cases when a non-instance
+     initialization method is invoked.  Otherwise, it acts
+     like static invocation. We deal with the first case
+     by treating it as virtual invocation and the second
+     case as static invoke expr but only with a primary.
    Revision 1.42  2003/12/13 19:38:58  venku
    - removed unnecessary imports.
    Revision 1.41  2003/12/13 02:29:08  venku
@@ -775,7 +782,7 @@ public class CallGraph
    Revision 1.10  2003/08/17 11:54:25  venku
    Formatting and documentation.
    Revision 1.9  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Renamed BFA to FA.  Also renamed bfa variables to valueAnalyzer.
    Ripple effect was huge.
    Revision 1.8  2003/08/15 23:23:32  venku
    Removed redundant "implement IValueAnalyzerBasedProcessor".
