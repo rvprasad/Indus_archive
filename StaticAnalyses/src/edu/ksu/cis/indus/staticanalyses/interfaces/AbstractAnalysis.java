@@ -191,7 +191,7 @@ public abstract class AbstractAnalysis {
 	}
 
 	/**
-	 * Returns the list of statements in the given method.  Each call returns a new list.
+	 * Returns the list of statements in the given method, if it exists.  Each call returns a new list.
 	 *
 	 * @param method of interest.
 	 *
@@ -224,6 +224,9 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/10 10:52:44  venku
+   - new basic block graphs can be added.
+
    Revision 1.7  2003/09/09 01:13:58  venku
    - made basic block graph manager configurable in AbstractAnalysis
    - ripple effect of the above change in DADriver.  This should also affect Slicer.
