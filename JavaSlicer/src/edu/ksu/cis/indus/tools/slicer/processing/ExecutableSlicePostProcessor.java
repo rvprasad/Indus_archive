@@ -27,6 +27,8 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
+import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,10 +116,21 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private final IWorkBag stmtWorkBag = new FIFOWorkBag();
 
+	/** 
+	 * This provides entry-based control dependency information required to include exit points.
+	 */
+	private EntryControlDA cd = new EntryControlDA();
+
 	/**
 	 * The slice collector to be used to add on to the slice.
 	 */
 	private SliceCollector collector;
+
+	/** 
+	 * This indicates if any statements of the method were included during post processing.  If so, other statement based 
+     * post processings are triggered.
+	 */
+	private boolean stmtCollected;
 
 	/**
 	 * Processes the given methods.
@@ -137,6 +150,7 @@ public final class ExecutableSlicePostProcessor
 
 		collector = theCollector;
 		bbgMgr = basicBlockMgr;
+        cd.setBasicBlockGraphManager(basicBlockMgr);
 		methodWorkBag.addAllWorkNoDuplicates(taggedMethods);
 
 		// process the methods and gather the collected classes
@@ -149,10 +163,14 @@ public final class ExecutableSlicePostProcessor
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Post Processing method " + _method);
 				}
+                stmtCollected = false;
 				processStmts(_method);
-				pickReturnPoints(_method);
-				pruneHandlers(_method);
-				pruneLocals(_method);
+
+				if (stmtCollected) {
+					pickReturnPoints(_method);
+					pruneHandlers(_method);
+					pruneLocals(_method);
+				}
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Could not get body for method " + _method.getSignature());
@@ -333,16 +351,24 @@ public final class ExecutableSlicePostProcessor
 		}
 
 		// pick all return/throw points in the methods.
+		final String _tagName = collector.getTagName();
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = new HashSet();
 		_tails.addAll(_bbg.getTails());
 		_tails.addAll(_bbg.getPseudoTails());
+        cd.analyze(Collections.singleton(method));
 
 		for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
 			final Stmt _stmt = _bb.getTrailerStmt();
 
-			if (_stmt.getTag(collector.getTagName()) == null) {
+			boolean _flag = false;
+
+			for (final Iterator _i = cd.getDependees(_stmt, method).iterator(); _i.hasNext() && !_flag;) {
+				_flag = ((Stmt) _i.next()).hasTag(_tagName);
+			}
+
+			if (!_stmt.hasTag(_tagName) && _flag) {
 				collector.includeInSlice(_stmt);
 				collector.includeInSlice(method);
 
@@ -480,6 +506,7 @@ public final class ExecutableSlicePostProcessor
 					}
 				}
 				processHandlers(method, _stmt);
+				stmtCollected = true;
 			}
 		}
 	}
@@ -533,11 +560,12 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/25 09:06:23  venku
+   - coding convention.
    Revision 1.11  2004/01/25 07:50:20  venku
    - changes to accomodate class hierarchy fixup and handling of
      statements which are marked as true but in which none of the
      expressions are marked as true.
-
    Revision 1.10  2004/01/24 02:03:55  venku
    - added logic to fix up class hierarchy when
      abstract methods are included in the slice.
