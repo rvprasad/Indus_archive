@@ -16,12 +16,19 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.NamedTag;
 
+import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import java.io.File;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -34,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Scene;
+import soot.SootClass;
 
 
 /**
@@ -96,12 +104,31 @@ public final class JimpleXMLizerCLI {
 				_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
 			} else {
 				if (_args.length > 0) {
-					_scene.setSootClassPath(_cl.getOptionValue('p') + File.pathSeparator + _scene.getSootClassPath());
+					if (_cl.hasOption('p')) {
+						_scene.setSootClassPath(_cl.getOptionValue('p') + File.pathSeparator + _scene.getSootClassPath());
+					}
+
+					final NamedTag _tag = new NamedTag("JimpleXMLizer");
 
 					for (int _i = 0; _i < _args.length; _i++) {
-						_scene.loadClassAndSupport(_args[_i]);
+						final SootClass _sc = _scene.loadClassAndSupport(_args[_i]);
+						_sc.addTag(_tag);
 					}
-					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), null);
+					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(),
+						new AbstractProcessingFilter() {
+							public Collection localFilterClasses(final Collection _classes) {
+								final Collection _result = new HashSet();
+
+								for (final Iterator _i = _classes.iterator(); _i.hasNext();) {
+									final SootClass _element = (SootClass) _i.next();
+
+									if (_element.hasTag(_tag.getName())) {
+										_result.add(_element);
+									}
+								}
+								return _result;
+							}
+						});
 				} else {
 					System.out.println("No classes were specified.");
 				}
@@ -149,6 +176,8 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/05/11 21:49:29  venku
+   - added class path specification feature to CLI.
    Revision 1.2  2004/05/10 11:28:24  venku
    - Jimple is dumped only for the reachable parts of the system.
    Revision 1.1  2004/04/25 21:18:39  venku
