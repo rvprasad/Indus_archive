@@ -182,11 +182,7 @@ public abstract class AbstractTool
 					wait();
 
 					if (childException != null) {
-						if (childException instanceof RuntimeException) {
-							throw (RuntimeException) childException;
-						} else {
-							throw new RuntimeException(childException);
-						}
+						throw new RuntimeException(childException);
 					}
 				} catch (InterruptedException _e) {
 					LOGGER.error("Interrupted while waiting on the run to complete.", _e);
@@ -235,7 +231,7 @@ public abstract class AbstractTool
 	 *
 	 * @return <code>true</code> if the tool is not alive; <code>false</code>, otherwise.
 	 */
-	private final boolean isNotAlive() {
+	private boolean isNotAlive() {
 		return thread == null || !thread.isAlive();
 	}
 }
@@ -243,6 +239,11 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/01/16 22:11:47  venku
+   - join does not relinquish the lock.  Hence, a new solution
+     to communicate the death of the child thread has been
+     implemented.
+
    Revision 1.16  2004/01/13 10:01:35  venku
    - added a provision for the tool to check if it can be configured
      according to the given configuration.

@@ -31,56 +31,56 @@ public final class FastUnionFindElementTest
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testFind() {
+	public void testFind() {
 		//TODO: Implement find().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testGetType() {
+	public void testGetType() {
 		//TODO: Implement getType().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testIsAtomic() {
+	public void testIsAtomic() {
 		//TODO: Implement isAtomic().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testIsBound() {
+	public void testIsBound() {
 		//TODO: Implement isBound().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testSameType() {
+	public void testSameType() {
 		//TODO: Implement sameType().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testUnify() {
+	public void testUnify() {
 		//TODO: Implement unify().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testUnifyChildren() {
+	public void testUnifyChildren() {
 		//TODO: Implement unifyChildren().
 	}
 
 	/**
 	 * DOCUMENT ME! <p></p>
 	 */
-	public final void testUnion() {
+	public void testUnion() {
 		//TODO: Implement union().
 	}
 
@@ -105,4 +105,7 @@ public final class FastUnionFindElementTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 15:06:23  venku
+   - started to add test case for data structures.
+
  */

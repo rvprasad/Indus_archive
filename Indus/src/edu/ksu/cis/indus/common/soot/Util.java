@@ -294,7 +294,7 @@ public final class Util {
 	public static Collection findMethodInSuperClassesAndInterfaces(final SootMethod method) {
 		final IWorkBag _toProcess = new FIFOWorkBag();
 		final Collection _processed = new HashSet();
-		final Collection _result = new HashSet();
+		Collection _result = new HashSet();
 		_toProcess.addWork(method.getDeclaringClass());
 
 		final List _parameterTypes = method.getParameterTypes();
@@ -326,8 +326,10 @@ public final class Util {
 			}
 		}
 
-		return _result.isEmpty() ? Collections.EMPTY_SET
-								 : _result;
+		if (_result.isEmpty()) {
+			_result = Collections.EMPTY_SET;
+		}
+		return _result;
 	}
 
 	/**
@@ -401,16 +403,16 @@ public final class Util {
 	}
 
 	/**
-     * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
-     * This is the counterpart of <code>retainMethodsWithSignature</code>.
-     *
-     * @param methods is the collection of methods to be modified.
-     * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
-     *
-     * @pre methods != null and methodsToRemove != null
-     * @pre methods.oclIsKindOf(Collection(SootMethod))
-     * @pre methodsToRemove.oclIsKindOf(Collection(SootMethod))
-     */
+	 * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
+	 * This is the counterpart of <code>retainMethodsWithSignature</code>.
+	 *
+	 * @param methods is the collection of methods to be modified.
+	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
+	 *
+	 * @pre methods != null and methodsToRemove != null
+	 * @pre methods.oclIsKindOf(Collection(SootMethod))
+	 * @pre methodsToRemove.oclIsKindOf(Collection(SootMethod))
+	 */
 	public static void removeMethodsWithSameSignature(final Collection methods, final Collection methodsToRemove) {
 		final Collection _removeSet = new HashSet();
 		_removeSet.addAll(methods);
@@ -421,7 +423,7 @@ public final class Util {
 	/**
 	 * Retains methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
 	 * This is the counterpart of <code>removeMethodsWithSignature</code>.
-     * 
+	 *
 	 * @param methods is the collection of methods to be modified.
 	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
 	 *
@@ -433,7 +435,7 @@ public final class Util {
 		final Collection _retainSet = new HashSet();
 
 		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
-			SootMethod _abstractMethod = (SootMethod) _j.next();
+			final SootMethod _abstractMethod = (SootMethod) _j.next();
 
 			for (final Iterator _k = methodsToRetain.iterator(); _k.hasNext();) {
 				final SootMethod _method = (SootMethod) _k.next();
@@ -458,7 +460,7 @@ public final class Util {
 	 * @post sc.getName().equals("java.lang.Object") implies result = true
 	 * @post (not sc.getName().equals("java.lang.Object")) implies result = false
 	 */
-	private static boolean hasSuperclass(SootClass sc) {
+	private static boolean hasSuperclass(final SootClass sc) {
 		boolean _result = false;
 
 		if (!sc.getName().equals("java.lang.Object")) {
@@ -471,6 +473,10 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/01/24 01:42:50  venku
+   - added methods to filter graphs based on identical-ness
+     of signature.
+   - added method to extract default "Value"s for soot types.
    Revision 1.12  2004/01/20 17:10:44  venku
    - added a new method to collect ancestors of a given class.
    Revision 1.11  2004/01/19 22:44:04  venku

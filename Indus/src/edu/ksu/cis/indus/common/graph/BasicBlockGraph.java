@@ -282,8 +282,12 @@ public final class BasicBlockGraph
 	 */
 	public BasicBlock getHead() {
 		final Collection _heads = getHeads();
-		return _heads.isEmpty() ? null
-								: (BasicBlock) _heads.iterator().next();
+		BasicBlock _result = null;
+
+		if (!_heads.isEmpty()) {
+			_result = (BasicBlock) _heads.iterator().next();
+		}
+		return _result;
 	}
 
 	/**
@@ -402,6 +406,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/25 03:20:52  venku
+   - getLeaderStmt()/getTrailerStmt() will return null in case there
+     are not leader/trailter statements.
    Revision 1.11  2004/01/22 09:00:54  venku
    - getHead assumed that the basic block graph had some nodes.
      This is not true for native methods. FIXED.

@@ -64,16 +64,16 @@ public final class CollectionsModifier {
 	 * @param map to be altered.
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param value to be added into the collection mapped to <code>key</code>.
-	 * @param collection to be used if there is no collection mapped to <code>key</code>.
+	 * @param col to be used if there is no collection mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and values != null and collection != null
+	 * @pre map != null and key != null and values != null and col != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putIntoCollectionInMap(final Map map, final Object key, final Object value, final Collection collection) {
+	public static void putIntoCollectionInMap(final Map map, final Object key, final Object value, final Collection col) {
 		Collection _temp = (Collection) map.get(key);
 
 		if (_temp == null) {
-			_temp = collection;
+			_temp = col;
 			map.put(key, _temp);
 		}
 		_temp.add(value);
@@ -83,6 +83,8 @@ public final class CollectionsModifier {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/22 00:53:32  venku
+   - formatting and coding convention.
    Revision 1.1  2004/01/21 13:41:49  venku
     - a new class to provide methods with common collection operations.
  */

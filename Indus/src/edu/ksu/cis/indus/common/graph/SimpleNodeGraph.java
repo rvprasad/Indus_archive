@@ -38,15 +38,15 @@ import org.apache.commons.logging.LogFactory;
 public final class SimpleNodeGraph
   extends AbstractMutableDirectedGraph {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
-
-	/**
 	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes.  If the
 	 * collection has objects of other type then the transformation will insert null into the collection being operated.
 	 */
 	public static final Transformer OBJECT_EXTRACTOR = new ObjectExtractor();
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
 
 	/**
 	 * The sequence of nodes in this graph.  They are stored in the order that the nodes are created.
@@ -121,8 +121,12 @@ public final class SimpleNodeGraph
 		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
 		 */
 		public Object transform(final Object input) {
-			return input instanceof SimpleNode ? ((SimpleNode) input).getObject()
-											   : null;
+			Object _result = null;
+
+			if (input instanceof SimpleNode) {
+				_result = ((SimpleNode) input).getObject();
+			}
+			return _result;
 		}
 	}
 
@@ -180,6 +184,9 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/24 01:41:23  venku
+   - added a Commons-Collection transformer to
+     extract objects from a given set of SimpleNodes.
    Revision 1.4  2003/12/31 10:01:36  venku
    - clover directives.
    Revision 1.3  2003/12/30 09:12:50  venku

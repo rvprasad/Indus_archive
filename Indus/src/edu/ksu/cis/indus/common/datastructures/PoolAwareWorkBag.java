@@ -97,7 +97,7 @@ public final class PoolAwareWorkBag
 	 * @pre o != null and o.oclIsKindOf(IPoolable)
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
-		boolean _result = container.addWorkNoDuplicates(o);
+		final boolean _result = container.addWorkNoDuplicates(o);
 
 		if (!_result) {
 			((IPoolable) o).returnToPool();
@@ -123,6 +123,9 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/22 11:45:43  venku
+   - the status of addition into the workbag needs to communicated. FIXED.
+
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

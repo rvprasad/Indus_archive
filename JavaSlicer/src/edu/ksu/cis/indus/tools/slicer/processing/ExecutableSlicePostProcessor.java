@@ -332,7 +332,6 @@ public final class ExecutableSlicePostProcessor
 			LOGGER.debug("Picking up return points in " + method);
 		}
 
-		// TODO: There may be methods without tails.  We should detect psuedo-tails and include them.
 		// pick all return/throw points in the methods.
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = new HashSet();
@@ -534,6 +533,11 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/25 07:50:20  venku
+   - changes to accomodate class hierarchy fixup and handling of
+     statements which are marked as true but in which none of the
+     expressions are marked as true.
+
    Revision 1.10  2004/01/24 02:03:55  venku
    - added logic to fix up class hierarchy when
      abstract methods are included in the slice.

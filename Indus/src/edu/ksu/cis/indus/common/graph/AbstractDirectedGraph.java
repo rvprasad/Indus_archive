@@ -234,8 +234,8 @@ public abstract class AbstractDirectedGraph
 			// get the tails of the graph into _tails
 			final Collection _tails = getTails();
 
-			// for each dtail that is not a tail, check if tail is reachable from it.  If so, dtail is not a pseudo tail.  If not,
-			// it is a pseudo tail.
+			// for each dtail that is not a tail, check if tail is reachable from it.  
+            // If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
 			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true);
 			pseudoTails.addAll(getDestUnreachableSources(_temp, _temp, true));
 			pseudoTailsCalculated = true;
@@ -399,19 +399,19 @@ public abstract class AbstractDirectedGraph
             final Collection _temp = new HashSet(destinations);
 			for (final Iterator _i = sources.iterator(); _i.hasNext();) {
 				final INode _src = (INode) _i.next();
-				boolean flag = true;
+				boolean _flag = true;
 
                 _temp.remove(_src);
-				for (final Iterator _k = _temp.iterator(); _k.hasNext() && flag;) {
+				for (final Iterator _k = _temp.iterator(); _k.hasNext() && _flag;) {
 					final INode _dest = (INode) _k.next();
 
 					if (_src != _dest) {
-						flag &= !isReachable(_src, _dest, forward);
+						_flag &= !isReachable(_src, _dest, forward);
 					}
 				}
                 _temp.add(_src);
 
-				if (flag) {
+				if (_flag) {
 					_result.add(_src);
 				}
 			}
@@ -664,6 +664,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/22 12:23:30  venku
+   - subtle boundary condition bug in getPseudoTails. FIXED.
+
    Revision 1.9  2004/01/22 08:15:55  venku
    - added a new method to calculated pseudo tails.
    - added a new method that can be used to indicate the
