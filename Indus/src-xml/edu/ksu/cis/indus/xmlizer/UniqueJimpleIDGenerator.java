@@ -66,11 +66,6 @@ public final class UniqueJimpleIDGenerator
 	private List classes = new ArrayList();
 
 	/**
-	 * This is a cache variable.
-	 */
-	private List tempList = new ArrayList();
-
-	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewClassId()
 	 */
 	public String getIdForClass(final SootClass clazz) {
@@ -134,8 +129,7 @@ public final class UniqueJimpleIDGenerator
 
 		if (method.isConcrete()) {
 			final PatchingChain _c = method.getActiveBody().getUnits();
-			tempList.clear();
-			tempList.addAll(_c);
+			List tempList = new ArrayList(_c);
 			_result = String.valueOf(tempList.indexOf(stmt));
 		}
 		return getIdForMethod(method) + "_s" + _result;
@@ -181,6 +175,10 @@ public final class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.8  2003/12/02 11:36:16  venku
    - coding convention.
    Revision 1.7  2003/12/02 09:42:24  venku

@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -1210,6 +1209,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/12/16 09:57:25  venku
+   - removed redundant object and local.
+
    Revision 1.28  2003/12/15 02:16:47  venku
    - logging.
 
