@@ -27,6 +27,7 @@
         <cvs cvsroot="${cvs.root}"
             compression="true" compressionlevel="3"
             package="${cvs.modules}"
+            cvsRsh="ssh"
             dest=".." failonerror="true"
             command="update -dP"/>
     </target>
