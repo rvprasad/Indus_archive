@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +89,8 @@ public class XMLBasedCallGraphTest
 	  throws Exception {
 		CallGraphXMLizer xmlizer = new CallGraphXMLizer();
 		xmlizer.setXmlOutputDir(xmlOutputDir);
-		info.put(AbstractXMLizer.FILE_NAME_ID, xmlizer);
+        xmlizer.setGenerator(new UniqueJimpleIDGenerator());
+		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 		xmlizer.writeXML(info);
 	}
 }
@@ -96,6 +98,9 @@ public class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 06:49:02  venku
+   - deleted dependency xmlization and test classes.
+
    Revision 1.4  2004/02/09 04:39:36  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
