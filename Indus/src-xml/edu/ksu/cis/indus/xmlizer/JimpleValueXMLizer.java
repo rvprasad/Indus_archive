@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
 
+import java.nio.charset.Charset;
+
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.ArrayType;
@@ -527,7 +529,7 @@ public class JimpleValueXMLizer
 		try {
 			xmlWriter.startTag("string");
 			xmlWriter.attribute("id", newId.toString());
-			xmlWriter.cdata(String.valueOf(v.value));
+			xmlWriter.cdata(AbstractXMLizer.encode(String.valueOf(v.value), xmlWriter.getEncoding()));
 			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
@@ -792,12 +794,13 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/13 01:14:21  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
    Revision 1.5  2004/05/12 18:18:08  venku
    - the value of string is stored as a CDATA element rather than as a attribute.
-
    Revision 1.4  2004/05/09 09:28:18  venku
    - documentation.
-
    Revision 1.3  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
    Revision 1.2  2004/05/06 09:31:01  venku

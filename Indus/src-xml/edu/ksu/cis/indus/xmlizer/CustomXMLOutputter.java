@@ -32,10 +32,13 @@ import org.znerd.xmlenc.XMLOutputter;
 public final class CustomXMLOutputter
   extends XMLOutputter {
 	/**
-	 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter()
+	 * This creates an instance which encodes output in UTF-16 format.
+	 *
+	 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter(Writer)
 	 */
-	public CustomXMLOutputter() {
-		super();
+	public CustomXMLOutputter(final Writer writer)
+	  throws IllegalStateException, IllegalArgumentException, UnsupportedEncodingException {
+		super(writer, "UTF-8");
 		initialize();
 	}
 
@@ -61,9 +64,12 @@ public final class CustomXMLOutputter
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/05/10 12:31:00  venku
+   - a pretty printer should be used while viewing the xml doc rather
+     than writing the XML doc in pretty format.  Fixed CustomXMLOutputter
+     to output lean-mean XML document.
    Revision 1.2  2004/05/09 08:23:31  venku
    - generalized creation logic.
-
    Revision 1.1  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.

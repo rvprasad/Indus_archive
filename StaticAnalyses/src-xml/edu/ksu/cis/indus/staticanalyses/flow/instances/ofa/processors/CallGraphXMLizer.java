@@ -78,7 +78,7 @@ final class CallGraphXMLizer
 		try {
 			_writer = new FileWriter(_f);
 
-			final XMLOutputter _xmlWriter = new CustomXMLOutputter(_writer, "UTF-8");
+			final XMLOutputter _xmlWriter = new CustomXMLOutputter(_writer);
 			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 			_xmlWriter.declaration();
 			_xmlWriter.dtd("callgraph", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA.PROCESSORS.CALLGRAPH//DTD project//EN",
@@ -135,6 +135,10 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/13 01:14:20  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
+
    Revision 1.16  2004/05/10 11:44:26  venku
    - incorrect attributes were being written. FIXED.
    Revision 1.15  2004/05/09 08:24:08  venku

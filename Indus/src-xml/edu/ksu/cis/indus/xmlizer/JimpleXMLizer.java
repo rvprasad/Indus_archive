@@ -356,9 +356,9 @@ public class JimpleXMLizer
 
 		if (dumpDirectory == null) {
 			if (writer == null) {
-				writer = new CustomXMLOutputter(new BufferedWriter(new OutputStreamWriter(System.out)), "UTF-8");
+				writer = new CustomXMLOutputter(new BufferedWriter(new OutputStreamWriter(System.out)));
 			} else {
-				writer.reset(writer.getWriter(), "UTF-8");
+				writer.reset(writer.getWriter(), writer.getEncoding());
 			}
 			stmtXmlizer.setWriter(writer);
 		} else {
@@ -370,7 +370,7 @@ public class JimpleXMLizer
 				}
 
 				final File _file = new File(_filename);
-				writer = new CustomXMLOutputter(new BufferedWriter(new FileWriter(_file)), "UTF-8");
+				writer = new CustomXMLOutputter(new BufferedWriter(new FileWriter(_file)));
 				stmtXmlizer.setWriter(writer);
 				writer.declaration();
 				writer.dtd("class", "-//INDUS:JIMPLE//DTD project//EN", "jimple.dtd");
@@ -431,6 +431,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/05/13 01:14:46  venku
+   - it should be synchronized.
+
    Revision 1.39  2004/05/13 01:14:21  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.

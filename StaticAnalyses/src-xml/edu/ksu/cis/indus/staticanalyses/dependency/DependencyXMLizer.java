@@ -173,7 +173,7 @@ public final class DependencyXMLizer
 
 		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
 			try {
-				_result = new StmtLevelDependencyXMLizer(new CustomXMLOutputter(writer, "UTF-8"), getIdGenerator(), da);
+				_result = new StmtLevelDependencyXMLizer(new CustomXMLOutputter(writer), getIdGenerator(), da);
 			} catch (final UnsupportedEncodingException _e) {
 				LOGGER.error("UTF-8 encoding is unsupported.  Now, this contradicts the documentation!!", _e);
 			}
@@ -248,6 +248,9 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
+
    Revision 1.16  2004/04/25 23:18:18  venku
    - coding conventions.
    Revision 1.15  2004/04/25 21:18:37  venku

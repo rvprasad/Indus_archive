@@ -340,7 +340,7 @@ final class TagBasedSliceXMLizer
 		try {
 			final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
 			final FileWriter _writer = new FileWriter(_f);
-			processor.writer = new CustomXMLOutputter(_writer, "UTF-8");
+			processor.writer = new CustomXMLOutputter(_writer);
 			processor.hookup(_ctrl);
 			_ctrl.process();
 			processor.unhook(_ctrl);
@@ -355,6 +355,10 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/13 01:14:21  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
+
    Revision 1.22  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.

@@ -19,6 +19,10 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.File;
 
+import java.nio.ByteBuffer;
+
+import java.nio.charset.Charset;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +45,11 @@ public abstract class AbstractXMLizer
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
+
+	/**
+	 * The hexadecimal digits!
+	 */
+	private static char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 	/**
 	 * This is the id generator used during xmlization.
@@ -205,6 +214,32 @@ public abstract class AbstractXMLizer
 	}
 
 	/**
+	 * Encodes the given string according to the specified encoding.
+	 *
+	 * @param string to be encoded.
+	 * @param encoding to be used.
+	 *
+	 * @return the encoded string.
+	 *
+	 * @pre string != null and encoding != null
+	 * @post result != null
+	 */
+	public static String encode(final String string, final String encoding) {
+		final Charset _cs = Charset.forName(encoding);
+		final ByteBuffer _bb = _cs.encode(string);
+		final byte[] _bytes = _bb.array();
+		final StringBuffer _sb = new StringBuffer("\\u");
+
+		for (int _i = 0; _i < _bytes.length; _i++) {
+			final byte _b = _bytes[_i];
+			char[] _chars = { HEX_DIGITS[(_b >> 4) & 0x0f], HEX_DIGITS[_b & 0x0f] };
+			_sb.append(new String(_chars));
+		}
+
+		return _sb.toString();
+	}
+
+	/**
 	 * Checks if the characters in the given array should be encoded.
 	 *
 	 * @param charArray which is checked if it requires encoding.
@@ -238,6 +273,8 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/04/25 23:18:21  venku
+   - coding conventions.
    Revision 1.21  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.

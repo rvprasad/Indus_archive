@@ -118,7 +118,7 @@ public final class OFAXMLizer
 			ofa = analyzer;
 
 			try {
-				xmlWriter = new CustomXMLOutputter(filewriter, "UTF-8");
+				xmlWriter = new CustomXMLOutputter(filewriter);
 			} catch (final UnsupportedEncodingException _e) {
 				LOGGER.error("This is not supposed to happen", _e);
 			}
@@ -290,6 +290,10 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/13 01:14:21  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
+
    Revision 1.12  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
 
