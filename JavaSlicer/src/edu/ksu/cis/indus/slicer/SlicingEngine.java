@@ -360,7 +360,7 @@ public final class SlicingEngine {
 	private class CompleteSliceClosure
 	  extends AbstractCriteriaClosure {
 		/**
-		 * @see AbstractCriteriaClosure#getCriteria(AbstractDependencyAnalysis)
+		 * @see AbstractCriteriaClosure#getCriteria(IDependencyAnalysis)
 		 */
 		protected Collection getCriteria(final IDependencyAnalysis da) {
 			final Collection _result = new HashSet();
@@ -1297,6 +1297,12 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.77  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
+
    Revision 1.76  2004/05/31 21:38:10  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
