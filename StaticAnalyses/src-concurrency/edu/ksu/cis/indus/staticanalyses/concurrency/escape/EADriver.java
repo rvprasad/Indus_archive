@@ -144,7 +144,7 @@ public final class EADriver
 			tg.unhook(ppc);
 
 			// Perform equivalence-class-based escape analysis
-			EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(scm, cg, tg, bbm);
+			EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(cg, tg, bbm);
 			analysis.hookup(ppc);
 			ppc.process();
 			stop = System.currentTimeMillis();
@@ -248,6 +248,9 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/10/31 01:02:04  venku
+   - added code for extracting data for CC04 paper.
+
    Revision 1.12  2003/10/09 00:17:39  venku
    - changes to instrumetn statistics numbers.
    Revision 1.11  2003/10/05 06:31:35  venku

@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
 import soot.Modifier;
-import soot.Scene;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
@@ -152,11 +151,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 	final Map method2Triple;
 
 	/**
-	 * The soot class management entity that manages the classes being analyzed.
-	 */
-	final Scene scm;
-
-	/**
 	 * This is the statement processor used to analyze the methods.
 	 */
 	final StmtProcessor stmtProcessor;
@@ -194,16 +188,15 @@ public class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
-	 * @param scene provides and manages the classes to be analysed.
 	 * @param callgraph provides call-graph information.
 	 * @param tgiPrm provides thread-graph information.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final Scene scene, final ICallGraphInfo callgraph,
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph,
 		final IThreadGraphInfo tgiPrm, final BasicBlockGraphMgr basicBlockGraphMgr) {
-		this.scm = scene;
+	
 		this.cgi = callgraph;
 		this.tgi = tgiPrm;
 
@@ -1120,6 +1113,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/01 23:50:00  venku
+   - documentation.
+
    Revision 1.20  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
 

@@ -169,7 +169,7 @@ public abstract class DADriver
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(aa));
 
 		if (ecbaRequired) {
-			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi, bbm);
+			ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, tgi, bbm);
 			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		}
 
@@ -184,7 +184,10 @@ public abstract class DADriver
 			long start = System.currentTimeMillis();
 			aa.reset();
 			bbm.reset();
-			ecba.reset();
+
+			if (ecbaRequired) {
+				ecba.reset();
+			}
 			aa.analyze(scm, rm);
 
 			long stop = System.currentTimeMillis();
@@ -195,6 +198,7 @@ public abstract class DADriver
 			}
 
 			((CallGraph) cgi).reset();
+            processors.clear();
 			processors.add(cgi);
 			process(pc, processors);
 			System.out.println("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
@@ -353,13 +357,13 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/10/05 16:24:01  venku
+   - coding convention.
    Revision 1.23  2003/10/05 16:21:21  venku
    - removed option to use local names.
-
    Revision 1.22  2003/09/29 07:30:51  venku
    - added support to spit out local variables names as they occur
      in the source rather than jimplified names.
-
    Revision 1.21  2003/09/29 06:37:31  venku
    - Each driver now handles each root method separately.
    Revision 1.20  2003/09/29 04:20:30  venku
