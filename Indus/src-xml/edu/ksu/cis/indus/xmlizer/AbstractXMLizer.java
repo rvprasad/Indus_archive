@@ -18,8 +18,6 @@ package edu.ksu.cis.indus.xmlizer;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
@@ -163,20 +161,11 @@ public abstract class AbstractXMLizer
 	 */
 	public final void dumpJimple(final String name, final ProcessingController xmlcgipc) {
 		final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
-		Writer _writer;
 
-		try {
-			_writer = new FileWriter(new File(getXmlOutputDir() + File.separator + "jimple_" + getFileName(name)));
-			_t.setWriter(_writer);
-			_t.hookup(xmlcgipc);
-			xmlcgipc.process();
-			_t.unhook(xmlcgipc);
-			_writer.flush();
-			_writer.close();
-		} catch (IOException _e) {
-			LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", _e);
-			System.exit(1);
-		}
+		_t.setDumpOptions(getXmlOutputDir(), getFileName(name));
+		_t.hookup(xmlcgipc);
+		xmlcgipc.process();
+		_t.unhook(xmlcgipc);
 	}
 
 	/**
@@ -190,19 +179,82 @@ public abstract class AbstractXMLizer
 	 * @post result != null
 	 */
 	public static final String xmlizeString(final String string) {
-		if (string == null) {
-			return "";
+		String _result = "";
+
+		if (string != null) {
+			final char[] _chars = string.toCharArray();
+
+			// if the string doesn't have any of the magic characters, leave
+			// it alone.
+			final boolean _needsEncoding = needsEncoding(_chars);
+
+			String _ret = string;
+
+			if (_needsEncoding) {
+				final StringBuffer _strBuf = new StringBuffer();
+
+				for (int _i = 0; _i < _chars.length; _i++) {
+					final int _printableCharCode = 127;
+
+					switch (_chars[_i]) {
+						case '&' :
+							_strBuf.append("&amp;");
+							break;
+
+						case '\"' :
+							_strBuf.append("&quot;");
+							break;
+
+						case '\'' :
+							_strBuf.append("&apos;");
+							break;
+
+						case '<' :
+							_strBuf.append("&lt;");
+							break;
+
+						case '\r' :
+							_strBuf.append("&#xd;");
+							break;
+
+						case '>' :
+							_strBuf.append("&gt;");
+							break;
+
+						default :
+
+							if ((_chars[_i]) > _printableCharCode) {
+								_strBuf.append("&#");
+								_strBuf.append((int) _chars[_i]);
+								_strBuf.append(";");
+							} else {
+								_strBuf.append(_chars[_i]);
+							}
+					}
+				}
+
+				_ret = _strBuf.toString();
+			}
+			_result = _ret.replaceAll(":", "_");
 		}
+		return _result;
+	}
 
-		final char[] _chars = string.toCharArray();
-
-		// if the string doesn't have any of the magic characters, leave
-		// it alone.
+	/**
+	 * Checks if the characters in the given array should be encoded.
+	 *
+	 * @param charArray which is checked if it requires encoding.
+	 *
+	 * @return <code>true</code> if there are characters in the array that should be encoded; <code>false</code>, otherwise.
+	 *
+	 * @pre charArray != null
+	 */
+	private static boolean needsEncoding(final char[] charArray) {
 		boolean _needsEncoding = false;
 
 search: 
-		for (int _i = 0; _i < _chars.length; _i++) {
-			switch (_chars[_i]) {
+		for (int _i = 0; _i < charArray.length; _i++) {
+			switch (charArray[_i]) {
 				case '&' :
 				case '"' :
 				case '\'' :
@@ -215,59 +267,15 @@ search:
 					continue;
 			}
 		}
-
-		String _ret = string;
-
-		if (_needsEncoding) {
-			final StringBuffer _strBuf = new StringBuffer();
-
-			for (int _i = 0; _i < _chars.length; _i++) {
-				switch (_chars[_i]) {
-					case '&' :
-						_strBuf.append("&amp;");
-						break;
-
-					case '\"' :
-						_strBuf.append("&quot;");
-						break;
-
-					case '\'' :
-						_strBuf.append("&apos;");
-						break;
-
-					case '<' :
-						_strBuf.append("&lt;");
-						break;
-
-					case '\r' :
-						_strBuf.append("&#xd;");
-						break;
-
-					case '>' :
-						_strBuf.append("&gt;");
-						break;
-
-					default :
-
-						if ((_chars[_i]) > 127) {
-							_strBuf.append("&#");
-							_strBuf.append((int) _chars[_i]);
-							_strBuf.append(";");
-						} else {
-							_strBuf.append(_chars[_i]);
-						}
-				}
-			}
-
-			_ret = _strBuf.toString();
-		}
-		return _ret.replaceAll(":", "_");
+		return _needsEncoding;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/18 08:59:02  venku
+   - enabled test support for slicer.
    Revision 1.16  2004/04/01 22:34:19  venku
    - changed xmlization logic.
    Revision 1.15  2004/03/26 07:15:49  venku

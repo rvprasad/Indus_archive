@@ -1,4 +1,6 @@
 Required software:
+    Jakarta Commons CLI (1.0)
+        (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
     Jakarta Commons Collection 3.0 
         (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
     Jakarta Commons Lang 2.0 

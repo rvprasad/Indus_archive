@@ -29,9 +29,7 @@ import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -69,11 +67,6 @@ public class SlicerTestSetup
 	 */
 	SliceXMLizerCLI driver;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private String jimpleDumpDir;
-
 	/**
 	 * Creates a new instance of this class.
 	 *
@@ -103,12 +96,13 @@ public class SlicerTestSetup
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the directory in which to dump xmlized jimple output.
 	 *
-	 * @param dumpDir
+	 * @param dumpDir is the location where xmlized jimple will be dumped.  If <code>null</code>, no xmlized jimple is
+	 * 		  dumped.
 	 */
 	public void setJimpleXMLDumpLocation(final String dumpDir) {
-		jimpleDumpDir = dumpDir;
+		driver.jimpleXMLDumpDir = dumpDir;
 	}
 
 	/**
@@ -142,13 +136,6 @@ public class SlicerTestSetup
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
 		// write Jimple XML
-		try {
-			if (jimpleDumpDir != null) {
-				driver.xmlizedJimpleWriter = new FileWriter(new File(jimpleDumpDir + File.separator + "jimple.xml"));
-			}
-		} catch (IOException _e) {
-			LOGGER.fatal("IO error while creating file to dump jimple.", _e);
-		}
 		driver.writeXML();
 	}
 
@@ -211,6 +198,8 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/22 08:00:20  venku
+   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
    Revision 1.3  2004/04/21 02:24:02  venku
    - test clean up code was added.
    Revision 1.2  2004/04/20 06:53:15  venku

@@ -23,11 +23,20 @@ import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import java.util.Iterator;
+
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,6 +91,16 @@ public class JimpleXMLizer
 	private String currType;
 
 	/**
+	 * The directory in which xmlized jimple will be dumped.  If <code>null</code>, it will be redirected to standard output.
+	 */
+	private String dumpDirectory;
+
+	/**
+	 * The suffix to be added to jimple files when they dumped.
+	 */
+	private String fileSuffix;
+
+	/**
 	 * The stream into which the xmlized data is written into.
 	 */
 	private Writer xmlizedSystem;
@@ -109,18 +128,6 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * Sets the writer/stream to be used by this xmlizer.  This is the stream into which the xml data is written into.
-	 *
-	 * @param writer used to write the xml data into a stream.
-	 *
-	 * @pre writer != null
-	 */
-	public final void setWriter(final Writer writer) {
-		xmlizedSystem = writer;
-		stmtXmlizer.setWriter(writer);
-	}
-
-	/**
 	 * The entry point to execute this xmlizer from command prompt.
 	 *
 	 * @param s is the command-line arguments.
@@ -130,42 +137,86 @@ public class JimpleXMLizer
 	public static void main(final String[] s) {
 		final Scene _scene = Scene.v();
 
-		for (int _i = 0; _i < s.length; _i++) {
-			_scene.loadClassAndSupport(s[_i]);
-		}
+		final Options _options = new Options();
+		Option _o =
+			new Option("d", "dump directory", true,
+				"The directory in which to write the xml files.  "
+				+ "If unspecified, the xml output will be directed standard out.");
+		_o.setArgName("path");
+		_o.setArgs(1);
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("h", "help", false, "Display message.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 
-		writeJimpleAsXML(_scene, new BufferedWriter(new OutputStreamWriter(System.out)));
+		final HelpFormatter _help = new HelpFormatter();
+
+		try {
+			final CommandLine _cl = (new BasicParser()).parse(_options, s);
+			final String[] _args = _cl.getArgs();
+
+			if (_cl.hasOption('h')) {
+				_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
+			} else {
+				for (int _i = 0; _i < _args.length; _i++) {
+					_scene.loadClassAndSupport(_args[_i]);
+				}
+				writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null);
+			}
+		} catch (ParseException _e) {
+			LOGGER.error("Error while parsing command line");
+			_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
+		}
 	}
 
 	/**
 	 * Writes the jimple in the scene via the writer.
 	 *
 	 * @param scene in which the jimple to be dumped resides.
-	 * @param writer with which jimple is dumped.
+	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad output.
+	 * @param suffix to be appended each file name.  If <code>null</code>, no suffix is appended.
 	 *
-	 * @pre scene != null and writer != null
+	 * @pre scene != null
 	 */
-	public static void writeJimpleAsXML(final Scene scene, final Writer writer) {
+	public static void writeJimpleAsXML(final Scene scene, final String directory, final String suffix) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
+		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
 		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
 				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 				true));
-
-		final Environment _env = new Environment(scene);
 		_pc.setEnvironment(_env);
 		_pc.setProcessingFilter(new XMLizingProcessingFilter());
-
-		_xmlizer.setWriter(writer);
+		_xmlizer.setDumpOptions(directory, suffix);
 		_xmlizer.hookup(_pc);
 		_pc.process();
 		_xmlizer.unhook(_pc);
+	}
 
-		try {
-			writer.flush();
-			writer.close();
-		} catch (IOException _e) {
-			_e.printStackTrace();
+	/**
+	 * Sets the options to xmlize jimple.
+	 *
+	 * @param directory into which xmlized jimple will be dumped.  If the given non-<code>null</code> directory does not
+	 * 		  exist then it will be created.  In case of <code>null</code> directory, it will dump the output into
+	 * 		  <code>System.out</code>.
+	 * @param suffix is appended to the generated file.  If <code>null</code>, no suffix is appended.
+	 */
+	public final void setDumpOptions(final String directory, final String suffix) {
+		dumpDirectory = directory;
+
+		if (directory != null) {
+			final File _dir = new File(directory);
+
+			if (!_dir.exists()) {
+				_dir.mkdirs();
+			}
+		}
+
+		if (suffix == null) {
+			fileSuffix = "";
+		} else {
+			fileSuffix = "_" + suffix;
 		}
 	}
 
@@ -262,17 +313,25 @@ public class JimpleXMLizer
 
 			if (processingClass) {
 				xmlizedSystem.write("\t</" + currType + ">\n");
+
+				if (dumpDirectory != null) {
+					xmlizedSystem.flush();
+					xmlizedSystem.close();
+				}
 			} else {
 				processingClass = true;
 			}
+
+			// Create new file
+			final String _classId = setupFile(clazz);
 
 			if (clazz.isInterface()) {
 				currType = "interface";
 			} else {
 				currType = "class";
 			}
-			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getJavaStyleName() + "\" id=\""
-				+ idGenerator.getIdForClass(clazz) + "\" package=\"" + clazz.getJavaPackageName() + "\"\n");
+			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getJavaStyleName() + "\" id=\"" + _classId
+				+ "\" package=\"" + clazz.getJavaPackageName() + "\"\n");
 
 			xmlizedSystem.write("\t  abstract=\"" + clazz.isAbstract() + "\"\n");
 
@@ -337,8 +396,9 @@ public class JimpleXMLizer
 
 			if (processingClass) {
 				xmlizedSystem.write("\t</" + currType + ">\n");
+				xmlizedSystem.flush();
+				xmlizedSystem.close();
 			}
-			xmlizedSystem.write("</jimple>\n");
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", _e);
@@ -352,20 +412,6 @@ public class JimpleXMLizer
 	public final void hookup(final ProcessingController ppc) {
 		ppc.registerForAllStmts(this);
 		ppc.register(this);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
-	 */
-	public final void processingBegins() {
-		try {
-			xmlizedSystem.write("<!DOCTYPE jimple PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
-			xmlizedSystem.write("<jimple>\n");
-		} catch (IOException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", _e);
-			}
-		}
 	}
 
 	/**
@@ -397,11 +443,48 @@ public class JimpleXMLizer
 		}
 		return _result;
 	}
+
+	/**
+	 * Sets up the file to write the xmlized jimple for the given class.
+	 *
+	 * @param clazz to be xmlized.
+	 *
+	 * @return the id of the class.
+	 *
+	 * @throws IOException when there is an error while operating on the file corresponding to the class.
+	 *
+	 * @pre clazz != null
+	 * @post result != null
+	 */
+	private String setupFile(final SootClass clazz)
+	  throws IOException {
+		final String _classId = idGenerator.getIdForClass(clazz);
+
+		if (dumpDirectory == null && xmlizedSystem == null) {
+			xmlizedSystem = new BufferedWriter(new OutputStreamWriter(System.out));
+			stmtXmlizer.setWriter(xmlizedSystem);
+		} else if (dumpDirectory != null) {
+			final String _filename = dumpDirectory + File.separator + _classId + fileSuffix + ".xml";
+
+			try {
+				final File _file = new File(_filename);
+				xmlizedSystem = new BufferedWriter(new FileWriter(_file));
+				stmtXmlizer.setWriter(xmlizedSystem);
+				xmlizedSystem.write("<!DOCTYPE class PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
+			} catch (final IOException _e) {
+				LOGGER.error("Exception while trying to open " + _filename, _e);
+				throw _e;
+			}
+		}
+		return _classId;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/04/20 06:53:18  venku
+   - documentation.
    Revision 1.29  2004/04/18 00:02:18  venku
    - added support to dump jimple.xml while testing.
    Revision 1.28  2004/03/29 01:55:16  venku

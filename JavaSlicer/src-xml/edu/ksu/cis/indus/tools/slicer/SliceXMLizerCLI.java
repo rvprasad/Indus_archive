@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.Writer;
 
 import java.net.URL;
 
@@ -109,9 +108,9 @@ public class SliceXMLizerCLI
 	SlicerTool slicer;
 
 	/**
-	 * This is the writer used to write the xmlized Jimple.
+	 * This directory into which jimple should be dumped.
 	 */
-	Writer xmlizedJimpleWriter;
+	String jimpleXMLDumpDir;
 
 	/**
 	 * The id generator used during xmlization.
@@ -239,31 +238,29 @@ public class SliceXMLizerCLI
 	 * Write Jimple representation of the system as XML document.
 	 */
 	private void dumpJimple() {
-		final ICallGraphInfo _cgi = slicer.getCallGraph();
-		final ProcessingController _ctrl = new ProcessingController();
-		_ctrl.setStmtGraphFactory(getStmtGraphFactory());
-		_ctrl.setEnvironment(slicer.getEnvironment());
-		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
+		if (jimpleXMLDumpDir != null) {
+			final ICallGraphInfo _cgi = slicer.getCallGraph();
+			final ProcessingController _ctrl = new ProcessingController();
+			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
+			_ctrl.setEnvironment(slicer.getEnvironment());
+			_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
-		JimpleXMLizer _jimpler = null;
+			JimpleXMLizer _jimpler = null;
 
-		if (xmlizedJimpleWriter != null) {
 			_jimpler = new JimpleXMLizer(idGenerator);
-			_jimpler.setWriter(xmlizedJimpleWriter);
+			_jimpler.setDumpOptions(jimpleXMLDumpDir, SUFFIX_FOR_XMLIZATION_PURPOSES);
+			//_jimpler.setWriter(dumpJimple);
 			_jimpler.hookup(_ctrl);
-		}
+			_ctrl.process();
 
-		_ctrl.process();
-
-		if (_jimpler != null) {
 			_jimpler.unhook(_ctrl);
 
-			try {
-				xmlizedJimpleWriter.flush();
-				xmlizedJimpleWriter.close();
-			} catch (IOException _e) {
-				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
-			}
+			/*try {
+			   dumpJimple.flush();
+			   dumpJimple.close();
+			   } catch (IOException _e) {
+			       LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
+			   }*/
 		}
 	}
 
@@ -388,13 +385,9 @@ public class SliceXMLizerCLI
 		}
 
 		if (cl.hasOption('j')) {
-			try {
-				xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
-			} catch (IOException _e) {
-				LOGGER.fatal("IO error while creating jimple dump file.  Aborting", _e);
-				System.exit(1);
-			}
+			xmlizer.jimpleXMLDumpDir = _outputDir;
 		}
+
 		xmlizer.setOutputDirectory(_outputDir);
 	}
 
@@ -556,9 +549,12 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/22 10:23:11  venku
+   - added getTokenManager() method to OFAXMLizerCLI to create
+     token manager based on a system property.
+   - ripple effect.
    Revision 1.13  2004/04/20 06:53:15  venku
    - documentation.
-
    Revision 1.12  2004/04/20 00:43:40  venku
    - The processing during residualization was driven by a graph.  This
      caused errors when the graph did not cover all of the statements.

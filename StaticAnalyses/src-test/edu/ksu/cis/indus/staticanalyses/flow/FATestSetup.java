@@ -124,8 +124,7 @@ public class FATestSetup
 		}
 
 		if (dumpLocation != null) {
-			JimpleXMLizer.writeJimpleAsXML(_driver.getScene(),
-				new FileWriter(new File(dumpLocation + File.separatorChar + "jimple.xml")));
+			JimpleXMLizer.writeJimpleAsXML(_driver.getScene(), dumpLocation, null);
 		}
 	}
 
@@ -144,9 +143,11 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/21 04:13:20  venku
+   - jimple dumping takes time.  Instead, the user can control this
+     per configuration.
    Revision 1.17  2004/04/20 06:53:17  venku
    - documentation.
-
    Revision 1.16  2004/04/19 05:10:26  venku
    - NPE's in test setup caused by unchecked reseting.
    Revision 1.15  2004/04/18 02:05:18  venku
