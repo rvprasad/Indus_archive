@@ -40,15 +40,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This provides junit-style regression test support to test dependency.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -69,9 +68,11 @@ public final class DependencyTest
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * This is the junit test case that tests dependency information.
 	 *
-	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
 	 */
 	static class TestEntity
 	  extends XMLTestCase {
@@ -81,24 +82,22 @@ public final class DependencyTest
 		private static final Log LOCAL_LOGGER = LogFactory.getLog(TestEntity.class);
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * This provides the information for the test.  This drives the analyses and this object tests the output.
 		 */
 		private DependencyTest xmlizer;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * This is the directory in which the regression test inputs are stored.
 		 */
 		private String xmlInDir;
 
 		/**
 		 * Creates a new TestEntity object.
 		 *
-		 * @param dt DOCUMENT ME!
-		 * @param xmlInputDir DOCUMENT ME!
+		 * @param dt may be called as the fixture which creates the test data for regression testing.
+		 * @param xmlInputDir is the directory in which the base test data of regression test exists.
+		 *
+		 * @pre dt != null and xmlInputDir != null
 		 */
 		public TestEntity(final DependencyTest dt, final String xmlInputDir) {
 			xmlizer = dt;
@@ -106,15 +105,13 @@ public final class DependencyTest
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 		 */
 		public void testDA() {
-			List das = xmlizer.das;
-			String xmlOutDir = xmlizer.xmlOutDir;
+			List das = xmlizer.getDAs();
+			String xmlOutDir = xmlizer.getXmlOutputDir();
 
-			for (Iterator i = xmlizer.rootMethods.iterator(); i.hasNext();) {
+			for (Iterator i = xmlizer.getRootMethods().iterator(); i.hasNext();) {
 				SootMethod root = (SootMethod) i.next();
 				String rootName = root.getSignature();
 
@@ -142,6 +139,8 @@ public final class DependencyTest
 		}
 
 		/**
+		 * Initializes and drives the fixture.
+		 *
 		 * @see junit.framework.TestCase#setUp()
 		 */
 		protected void setUp()
@@ -151,6 +150,8 @@ public final class DependencyTest
 		}
 
 		/**
+		 * Resets the underlying Soot framework and associated fixture.
+		 *
 		 * @see junit.framework.TestCase#tearDown()
 		 */
 		protected void teardown()
@@ -161,13 +162,11 @@ public final class DependencyTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Provides the suite of tests in junit-style.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the suite of tests.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when <code>indus.dependencytest.properties.file</code> property is unspecified.
 	 */
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
@@ -182,14 +181,47 @@ public final class DependencyTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the dependency analyses available in the fixture.
 	 *
-	 * @param propFileName DOCUMENT ME!
-	 * @param suite DOCUMENT ME!
+	 * @return a collection of analyses.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @post result != null and resutl.oclIsKindOf(Collection(DependencyAnalysis))
+	 */
+	private List getDAs() {
+		return das;
+	}
+
+	/**
+	 * Retrieves the methods in the fixture that act as entry point to the system.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @post result != null and resutl.oclIsKindOf(Collection(SootMethod))
+	 */
+	private Collection getRootMethods() {
+		return rootMethods;
+	}
+
+	/**
+	 * Retrieves the directory into which xml output should be written into.
+	 *
+	 * @return the directory for xml output.
+	 *
+	 * @post result != null
+	 */
+	private String getXmlOutputDir() {
+		return xmlOutDir;
+	}
+
+	/**
+	 * Sets up the test fixture.
+	 *
+	 * @param propFileName is the name of the file with the data to setup the test fixture.
+	 * @param suite will contain new tests based on the fixture data (upon return).
+	 *
+	 * @throws IllegalArgumentException when the fixture data is invalid.
+	 *
+	 * @pre propFileName != null and suite != null
 	 */
 	private static final void setupTests(final String propFileName, final TestSuite suite) {
 		Properties props = new Properties();
@@ -250,10 +282,11 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/16 18:41:18  venku
+   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
    Revision 1.4  2003/11/12 10:45:36  venku
    - soot class path can be set in SootBasedDriver.
    - dependency tests are xmlunit based.
-
    Revision 1.3  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.2  2003/11/12 05:05:45  venku
