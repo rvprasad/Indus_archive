@@ -17,9 +17,9 @@
             </slicer:returnTypeName>
             
             <slicer:parameters>
-                <slicer:typeName>
+                <slicer:parameterTypeName>
                     java.lang.String[
-                </slicer:typeName>
+                </slicer:parameterTypeName>
             </slicer:parameters>
         </slicer:method>    
         

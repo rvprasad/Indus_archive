@@ -14,7 +14,7 @@
 			<value name="returnTypeName" field="returnTypeName" type="java.lang.String"/>
 			<collection field="parameterTypeNames" ordered="true" name="parameters"
 				factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec.createParameterTypeNamesContainer">
-				<value name="typeName" type="java.lang.String"/>
+				<value name="parameterTypeName" type="java.lang.String"/>
 			</collection>
 		</structure>
 		<structure name="stmt">

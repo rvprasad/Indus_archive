@@ -55,8 +55,8 @@
 		<xsd:sequence>
 			<xsd:element name="className" type="xsd:string"/>
 			<xsd:element name="method" type="slicer:method"/>
-			<xsd:element name="stmt" type="slicer:stmt"/>
-			<xsd:element name="expr" type="slicer:expr" minOccurs="0"/>
+			<xsd:element name="stmt" type="slicer:stmt" maxOccurs="unbounded"/>
+			<xsd:element name="expr" type="slicer:expr" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:sequence>
 		<xsd:attribute name="considerExecution" type="xsd:boolean" use="optional"/>
 	</xsd:complexType>
@@ -78,7 +78,7 @@
 			As for specifying types, provide the fully-qualified names of the types as specified in the class file.  So, the name of 
 			java.lang.String array type would written as "java.lang.String[".
 			</xsd:documentation>
-		<xsd:annotation>
+		</xsd:annotation>
 	</xsd:complexType>
 
 </xsd:schema>
