@@ -29,6 +29,8 @@
         <pathelement location="/usr/local/javaclasses/commons-lang.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
         <pathelement location="/usr/local/javaclasses/xmlenc.jar"/>
+        <pathelement location="/usr/local/javaclasses/junit.jar"/>        
+        <pathelement location="/usr/local/javaclasses/xmlunit.jar"/>
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>    
     </path>
 
