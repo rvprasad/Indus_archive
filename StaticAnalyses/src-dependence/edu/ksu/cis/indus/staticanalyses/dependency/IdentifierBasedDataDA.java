@@ -47,7 +47,7 @@ import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
-import soot.toolkits.scalar.ValueUnitPair;
+import soot.toolkits.scalar.UnitValueBoxPair;
 
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
@@ -110,7 +110,7 @@ public class IdentifierBasedDataDA
 		SootMethod m = (SootMethod) method;
 		List dependees = (List) dependeeMap.get(method);
 		Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
-		return (Collection) local2defs.get(vBox);
+		return Collections.unmodifiableCollection((Collection) local2defs.get(vBox));
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class IdentifierBasedDataDA
 	public Collection getDependents(final Object stmt, final Object context) {
 		SootMethod method = (SootMethod) context;
 		List dependents = (List) dependentMap.get(method);
-		return (Collection) dependents.get(getStmtList(method).indexOf(stmt));
+		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(method).indexOf(stmt)));
 	}
 
 	/**
@@ -160,8 +160,8 @@ public class IdentifierBasedDataDA
 					if (temp.size() != 0) {
 						currUses = new ArrayList();
 
-						for (Iterator k = currUses.iterator(); k.hasNext();) {
-							ValueUnitPair element = (ValueUnitPair) k.next();
+						for (Iterator k = temp.iterator(); k.hasNext();) {
+							UnitValueBoxPair element = (UnitValueBoxPair) k.next();
 							currUses.add(element.getUnit());
 						}
 					}
@@ -197,7 +197,7 @@ public class IdentifierBasedDataDA
 	 */
 	public String toString() {
 		StringBuffer result =
-			new StringBuffer("Statistics for Non-Aliased Data dependence as calculated by " + this.getClass().getName()
+			new StringBuffer("Statistics for Identifier-based Data dependence as calculated by " + this.getClass().getName()
 				+ "\n");
 		int localEdgeCount = 0;
 		int edgeCount = 0;
@@ -209,23 +209,22 @@ public class IdentifierBasedDataDA
 			localEdgeCount = 0;
 
 			List stmts = getStmtList((SootMethod) entry.getKey());
-
-			for (Iterator j = ((List) entry.getValue()).iterator(); j.hasNext();) {
+            int count = 0;
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				Collection c = (Collection) j.next();
-				int count = 0;
-
+                Stmt stmt = (Stmt) stmts.get(count++);
 				for (Iterator k = c.iterator(); k.hasNext();) {
-					temp.append("\t\t" + stmts.get(count++) + " --> " + k.next() + "\n");
+					temp.append("\t\t" + stmt + " <-- " + k.next() + "\n");
 				}
 				localEdgeCount += c.size();
 			}
 			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount
-				+ " Non-Aliased Data dependence edges.\n");
+				+ " Identifier-based Data dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Non-Aliased Data dependence edges exist.");
+		result.append("A total of " + edgeCount + " Identifier-based Data dependence edges exist.");
 		return result.toString();
 	}
 }
@@ -233,6 +232,11 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/25 09:30:41  venku
+   Renamed AliasedDataDA to ReferenceBasedDataDA.
+   Renamed NonAliasedDataDA to IdentifierBasedDataDA.
+   Renamed the IDs for the above analyses.
+
    Revision 1.4  2003/08/18 11:07:16  venku
    Tightened specification.
    Revision 1.3  2003/08/11 06:34:52  venku
