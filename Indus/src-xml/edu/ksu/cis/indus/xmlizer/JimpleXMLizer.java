@@ -191,7 +191,7 @@ public class JimpleXMLizer
 			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", e);
 			}
 		}
 	}
@@ -217,7 +217,7 @@ public class JimpleXMLizer
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", e);
 			}
 		}
 	}
@@ -231,7 +231,7 @@ public class JimpleXMLizer
 				+ idGenerator.getIdForField(field) + "\"/>");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", e);
 			}
 		}
 	}
@@ -252,7 +252,7 @@ public class JimpleXMLizer
 			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", e);
 			}
 		}
 	}
@@ -279,6 +279,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/10 03:29:51  venku
+   - logged exceptions.
+
    Revision 1.5  2003/11/10 03:13:04  venku
    - uses abstract implementation of IProcessor.
    Revision 1.4  2003/11/10 03:04:17  venku
