@@ -13,17 +13,16 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency;
+package edu.ksu.cis.indus.tools.slicer;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import soot.G;
-import soot.SootMethod;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -40,6 +39,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -52,17 +52,26 @@ import java.util.Properties;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DependencyTest
+public final class SlicerTest
   extends XMLTestCase {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyTest.class);
+	private static final Log LOGGER = LogFactory.getLog(SlicerTest.class);
 
 	/**
-	 * This provides the information for the test.  This drives the analyses and this object tests the output.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private DependencyXMLizer xmlizer;
+	SlicerDriver driver;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Properties properties;
 
 	/**
 	 * This is the directory in which the regression test inputs are stored.
@@ -70,15 +79,13 @@ public final class DependencyTest
 	private String xmlInDir;
 
 	/**
-	 * Creates a new DependencyTest object.
+	 * DOCUMENT ME!
 	 *
-	 * @param dt is the xmlizer used in this test case.
-	 * @param xmlInputDir is the directory in which the base test data of regression test exists.
-	 *
-	 * @pre dt != null and xmlInputDir != null
+	 * @param object
+	 * @param xmlInputDir DOCUMENT ME!
 	 */
-	public DependencyTest(final DependencyXMLizer dt, final String xmlInputDir) {
-		xmlizer = dt;
+	public SlicerTest(final SlicerDriver object, final String xmlInputDir) {
+		driver = object;
 		xmlInDir = xmlInputDir;
 	}
 
@@ -87,15 +94,15 @@ public final class DependencyTest
 	 *
 	 * @return the suite of tests.
 	 *
-	 * @throws RuntimeException when <code>indus.dependencytest.properties.file</code> property is unspecified.
+	 * @throws RuntimeException when <code>indus.slicertest.properties.file</code> property is unspecified.
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
-		String propFileName = System.getProperty("indus.dependencytest.properties.file");
+		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.tools.slicer");
+		String propFileName = System.getProperty("indus.slicertest.properties.file");
 
 		if (propFileName == null) {
-			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
-				+ "-Dindus.dependencytest.properties.file");
+			throw new RuntimeException("Please provide a property file like SlicerTest.properties via"
+				+ "-Dindus.slicertest.properties.file");
 		}
 		setupTests(propFileName, suite);
 		return suite;
@@ -105,33 +112,41 @@ public final class DependencyTest
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testDA() {
-		List das = xmlizer.getDAs();
-		String xmlOutDir = xmlizer.getXmlOutDir();
+		List das = new ArrayList(driver.slicer.getDAs());
+		String xmlOutDir = driver.outputDirectory;
+		String name = properties.getProperty("name");
 
-		for (Iterator i = xmlizer.getRootMethods().iterator(); i.hasNext();) {
-			SootMethod root = (SootMethod) i.next();
-			String rootName = root.getSignature();
+		for (Iterator iter = das.iterator(); iter.hasNext();) {
+			DependencyAnalysis da = (DependencyAnalysis) iter.next();
 
-			for (Iterator iter = das.iterator(); iter.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) iter.next();
-
-				try {
-					Reader current =
-						new FileReader(new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-								+ rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-					Reader previous =
-						new FileReader(new File(xmlInDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-								+ rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-					assertXMLEqual(previous, current);
-				} catch (IOException e) {
-					LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at method "
-						+ rootName, e);
-				} catch (SAXException e) {
-					LOGGER.error("Exception while parsing XML", e);
-				} catch (ParserConfigurationException e) {
-					LOGGER.error("XML parser configuration related exception", e);
-				}
+			try {
+				Reader current =
+					new FileReader(new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
+							+ name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+				Reader previous =
+					new FileReader(new File(xmlInDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
+							+ name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+				assertXMLEqual(previous, current);
+			} catch (IOException e) {
+				LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at " + name, e);
+			} catch (SAXException e) {
+				LOGGER.error("Exception while parsing XML", e);
+			} catch (ParserConfigurationException e) {
+				LOGGER.error("XML parser configuration related exception", e);
 			}
+		}
+		driver.writeXML();
+
+		try {
+			Reader current = new FileReader(new File(xmlOutDir + File.separator + name + "_slice.xml"));
+			Reader previous = new FileReader(new File(xmlInDir + File.separator + name + "_slice.xml"));
+			assertXMLEqual(previous, current);
+		} catch (IOException e) {
+			LOGGER.error("Failed to write the xml file based configuration " + name, e);
+		} catch (SAXException e) {
+			LOGGER.error("Exception while parsing XML", e);
+		} catch (ParserConfigurationException e) {
+			LOGGER.error("XML parser configuration related exception", e);
 		}
 	}
 
@@ -142,8 +157,9 @@ public final class DependencyTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		xmlizer.initialize();
-		xmlizer.execute();
+		driver.initialize();
+		driver.setUpTransformer();
+		driver.execute();
 	}
 
 	/**
@@ -154,7 +170,6 @@ public final class DependencyTest
 	protected void teardown()
 	  throws Exception {
 		G.reset();
-		xmlizer.reset();
 	}
 
 	/**
@@ -169,7 +184,7 @@ public final class DependencyTest
 	 */
 	private static final void setupTests(final String propFileName, final TestSuite suite) {
 		Properties props = new Properties();
-		IJimpleIDGenerator generator = new UniqueJimpleIDGenerator();
+		IJimpleIDGenerator idGenerator = new UniqueJimpleIDGenerator();
 
 		try {
 			props.load(new FileInputStream(new File(propFileName)));
@@ -178,6 +193,8 @@ public final class DependencyTest
 
 			for (int i = 0; i < configs.length; i++) {
 				String config = configs[i];
+				props.setProperty("name", config);
+
 				String[] temp = props.getProperty(config + ".classNames").split(" ");
 				String xmlOutputDir = props.getProperty(config + ".xmlOutputDir");
 				String xmlInputDir = props.getProperty(config + ".xmlInputDir");
@@ -195,16 +212,17 @@ public final class DependencyTest
 					continue;
 				}
 
-				DependencyTest test;
+				SlicerTest test;
 
 				try {
-					test = new DependencyTest(new DependencyXMLizer(true), xmlInputDir);
-					test.xmlizer.setClassNames(temp);
-					test.xmlizer.setXMLOutputDir(xmlOutputDir);
-					test.xmlizer.setGenerator(generator);
+					test = new SlicerTest(new SlicerDriver(idGenerator), xmlInputDir);
+					test.driver.setClassNames(temp);
+					test.driver.setOutputDirectory(xmlOutputDir);
+					test.setProperties(props);
+					test.driver.setUpTransformer();
 
 					if (classpath != null) {
-						test.xmlizer.addToSootClassPath(classpath);
+						test.driver.addToSootClassPath(classpath);
 					}
 				} catch (IllegalArgumentException e) {
 					test = null;
@@ -217,6 +235,17 @@ public final class DependencyTest
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Specified property file does not exist.");
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param props DOCUMENT ME!
+	 */
+	private void setProperties(final Properties props) {
+		properties = props;
 	}
 }
 
@@ -234,7 +263,7 @@ public final class DependencyTest
    - moved xmlizing classes to a different class.
    Revision 1.2  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
-   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Switched the contents of DependencyXMLizer and SlicerTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
    Revision 1.1  2003/11/11 10:11:27  venku

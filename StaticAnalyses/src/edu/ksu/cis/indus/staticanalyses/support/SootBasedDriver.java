@@ -136,6 +136,19 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
+	 * Records the given classpath in intention of using it while loading classes into the scene.
+	 *
+	 * @param classpath to be considered.
+	 *
+	 * @pre classpath != null
+	 */
+	public void addToSootClassPath(final String classpath) {
+		classpathToAdd =
+			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
+			+ "rt.jar";
+	}
+
+	/**
 	 * Initialize the driver.  Loads up the classes and sets up the scene.
 	 *
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
@@ -171,19 +184,6 @@ public abstract class SootBasedDriver {
 	 */
 	protected void addTimeLog(final String name, final long milliseconds) {
 		times.put("[" + count++ + "]" + name, new Long(milliseconds));
-	}
-
-	/**
-	 * Records the given classpath in intention of using it while loading classes into the scene.
-	 *
-	 * @param classpath to be considered.
-	 *
-	 * @pre classpath != null
-	 */
-	protected void addToSootClassPath(final String classpath) {
-		classpathToAdd =
-			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
-			+ "rt.jar";
 	}
 
 	/**
@@ -302,6 +302,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/17 02:23:56  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.7  2003/11/15 21:30:21  venku
    - added a new method to added class names stored in a collection.
    Revision 1.6  2003/11/14 21:12:00  venku

@@ -80,6 +80,11 @@ public class SlicerDriver
 	public static final String ROOT_FOR_XMLIZATION_PURPOSES = "slicer";
 
 	/**
+	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
+	 */
+	protected String outputDirectory;
+
+	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
@@ -94,15 +99,13 @@ public class SlicerDriver
 	private IJimpleIDGenerator idGenerator;
 
 	/**
-	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
-	 */
-	private String outputDirectory;
-
-	/**
 	 * DOCUMENT ME!
+	 *
+	 * @param generator DOCUMENT ME!
 	 */
-	protected SlicerDriver() {
+	protected SlicerDriver(final IJimpleIDGenerator generator) {
 		slicer = new SlicerTool();
+		idGenerator = generator;
 	}
 
 	/**
@@ -139,7 +142,7 @@ public class SlicerDriver
 	 * @param args contains the command line arguments.
 	 */
 	public static void main(final String[] args) {
-		SlicerDriver driver = new SlicerDriver();
+		SlicerDriver driver = new SlicerDriver(new UniqueJimpleIDGenerator());
 
 		// parse command line arguments
 		parseCommandLine(args, driver);
@@ -149,6 +152,24 @@ public class SlicerDriver
 		driver.execute();
 		// serialize the output of the slicer
 		driver.writeXML();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param configuration DOCUMENT ME!
+	 */
+	protected void setConfiguration(final String configuration) {
+		slicer.destringizeConfiguration(configuration);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param oDir DOCUMENT ME!
+	 */
+	protected void setOutputDirectory(final String oDir) {
+		outputDirectory = oDir;
 	}
 
 	/**
@@ -168,8 +189,6 @@ public class SlicerDriver
 	 * @throws RuntimeException DOCUMENT ME!
 	 */
 	protected AbstractSliceXMLizer getXMLizer() {
-		idGenerator = new UniqueJimpleIDGenerator();
-
 		AbstractSliceXMLizer result;
 
 		try {
@@ -184,28 +203,10 @@ public class SlicerDriver
 
 	/**
 	 * DOCUMENT ME!
-	 *
-	 * @param configuration DOCUMENT ME!
-	 */
-	private void setConfiguration(final String configuration) {
-		slicer.destringizeConfiguration(configuration);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param oDir DOCUMENT ME!
-	 */
-	private void setOutputDirectory(final String oDir) {
-		outputDirectory = oDir;
-	}
-
-	/**
-	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
 	 */
-	private void execute() {
+	protected void execute() {
 		// execute the slicer
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
@@ -349,7 +350,7 @@ public class SlicerDriver
 	 * 
 	 * <p></p>
 	 */
-	private void writeXML() {
+	void writeXML() {
 		ICallGraphInfo cgi = slicer.getCallGraph();
 		CGBasedXMLizingController ctrl = new CGBasedXMLizingController(cgi);
 		ctrl.setEnvironment(slicer.getEnvironment());
@@ -358,7 +359,6 @@ public class SlicerDriver
 		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
 		dep.setClassNames(rootMethods);
 		dep.setGenerator(idGenerator);
-		dep.populateDAs();
 		sliceIP.hookup(ctrl);
 
 		Map xmlizers = dep.initXMLizers(ROOT_FOR_XMLIZATION_PURPOSES, ctrl);
@@ -371,6 +371,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.1  2003/11/17 01:39:42  venku
    - added slice XMLization support.
    Revision 1.7  2003/11/09 07:58:33  venku

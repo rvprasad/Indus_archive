@@ -70,6 +70,7 @@ import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -187,10 +188,22 @@ public class DependencyXMLizer
 	 *
 	 * @param useECBA DOCUMENT ME!
 	 */
-	protected DependencyXMLizer(final boolean useECBA) {
+	public DependencyXMLizer(final boolean useECBA) {
 		setLogger(LogFactory.getLog(DependencyXMLizer.class));
 		setProperties(PROPERTIES);
 		ecbaRequired = useECBA;
+		populateDAs();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public List getDAs() {
+		return Collections.unmodifiableList(das);
 	}
 
 	/**
@@ -230,7 +243,6 @@ public class DependencyXMLizer
 			xmlizer.setXMLOutputDir(outputDir);
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-			xmlizer.populateDAs();
 			xmlizer.initialize();
 			xmlizer.execute();
 			xmlizer.printTimingStats();
@@ -239,6 +251,17 @@ public class DependencyXMLizer
 			LOGGER.error("Error while parsing command line.", e);
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", options);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public Collection getRootMethods() {
+		return Collections.unmodifiableCollection(rootMethods);
 	}
 
 	/**
@@ -259,6 +282,17 @@ public class DependencyXMLizer
 			}
 		}
 		xmlOutDir = xmlOutputDir;
+	}
+
+	/**
+	 * Returns the directory into which xml output will be written into.
+	 *
+	 * @return the directory into which xml output will be written
+	 *
+	 * @post result != null
+	 */
+	public String getXmlOutDir() {
+		return this.xmlOutDir;
 	}
 
 	/**
@@ -430,6 +464,17 @@ public class DependencyXMLizer
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 *
+	 * @param generator DOCUMENT ME!
+	 */
+	public void setGenerator(final IJimpleIDGenerator generator) {
+		idGenerator = generator;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public void reset() {
 		das.clear();
@@ -437,17 +482,6 @@ public class DependencyXMLizer
 		cgipc = null;
 		info.clear();
 		ecba = null;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param generator DOCUMENT ME!
-	 */
-	public void setGenerator(final IJimpleIDGenerator generator) {
-		idGenerator = generator;
 	}
 
 	/**
@@ -611,6 +645,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/16 18:45:32  venku
+   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
+   - logging.
+   - split writeXML() such that it can be used from other drivers
+     such as SlicerDriver.
    Revision 1.3  2003/11/15 21:27:49  venku
    - added logging.
    Revision 1.2  2003/11/12 10:45:36  venku
