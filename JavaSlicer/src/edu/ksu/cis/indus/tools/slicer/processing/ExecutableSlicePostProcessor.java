@@ -55,12 +55,12 @@ import soot.util.Chain;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class BackwardSlicePostProcessor
+public final class ExecutableSlicePostProcessor
   implements ISlicePostProcessor {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(BackwardSlicePostProcessor.class);
+	private static final Log LOGGER = LogFactory.getLog(ExecutableSlicePostProcessor.class);
 
 	/**
 	 * <p>
@@ -103,8 +103,6 @@ public final class BackwardSlicePostProcessor
 		final SliceCollector theCollector) {
 		collector = theCollector;
 		bbgMgr = basicBlockMgr;
-		processed.clear();
-		workBag.clear();
 		workBag.addAllWorkNoDuplicates(taggedMethods);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -113,6 +111,7 @@ public final class BackwardSlicePostProcessor
 
 		while (workBag.hasWork()) {
 			final SootMethod _method = (SootMethod) workBag.getWork();
+            processed.add(_method);
 
 			if (_method.isConcrete()) {
 				processStmts(_method);
@@ -128,6 +127,15 @@ public final class BackwardSlicePostProcessor
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Post Processing.");
 		}
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	public void reset() {
+		workBag.clear();
+		processed.clear();
+		bbgMgr = null;
 	}
 
 	/**
@@ -174,7 +182,7 @@ public final class BackwardSlicePostProcessor
 	 * @param method DOCUMENT ME!
 	 */
 	private void processStmts(final SootMethod method) {
-		final Body _body = method.getActiveBody();
+		final Body _body = method.retrieveActiveBody();
 		final Chain _sl = _body.getUnits();
 
 		for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
@@ -250,6 +258,13 @@ public final class BackwardSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 07:53:51  venku
+   - as post processing beyond retention of semantics of slice is
+     particular to the application or the tool.  Hence, moved the
+     post processors into processing package under slicer tool.
+   - added a new method to AbstractSliceGotoProcessor to
+     process a collection of methods given a basic block graph
+     manager.
    Revision 1.2  2004/01/13 04:39:29  venku
    - method and class visibility.
    Revision 1.1  2004/01/13 04:35:08  venku
