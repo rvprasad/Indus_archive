@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -94,14 +93,11 @@ public class DependencyAnalysisTestSetup
 	 * @param test is the test to run in this setup.
 	 * @param theNameOfClasses is the list of classes.
 	 * @param classpath to be used to find the classes.
-	 * @param cfgFactory to be used to process method bodies.
 	 *
-	 * @pre test != null and theNameOfClasses != null and cfgFactory != null
+	 * @pre test != null and theNameOfClasses != null
 	 */
-	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
-		final IStmtGraphFactory cfgFactory) {
+	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
-		setStmtGraphFactory(cfgFactory);
 	}
 
 	/**
@@ -233,6 +229,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/29 09:44:41  venku
+   - finished the xml-based testing framework for dependence.
+
    Revision 1.3  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

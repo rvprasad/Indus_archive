@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
@@ -109,6 +112,9 @@ public class DependencyAnalysisRegresssionTestSuite {
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 			final Collection _das = new ArrayList();
+			final IStmtGraphFactory stmtGraphFactory =
+				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+					true);
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -169,6 +175,7 @@ public class DependencyAnalysisRegresssionTestSuite {
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final DependencyAnalysisTestSetup _test = new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
+					_test.setStmtGraphFactory(stmtGraphFactory);
 					_test.setSecondXmlInputDir(_xmlSecondInputDir);
 					_test.setFirstXmlInputDir(_xmlFirstInputDir);
 					suite.addTest(_test);
@@ -185,6 +192,8 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/29 09:44:41  venku
+   - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 18:40:03  venku
    - refactoring.
    - moved methods common to XMLBased Test into AbstractXMLBasedTest.

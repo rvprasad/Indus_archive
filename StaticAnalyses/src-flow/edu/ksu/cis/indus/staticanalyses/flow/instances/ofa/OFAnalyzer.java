@@ -34,6 +34,7 @@ import java.util.Iterator;
 import soot.Modifier;
 import soot.SootField;
 
+
 /**
  * This  class serves as the interface to the external world for Object flow analysis information.
  * 
@@ -68,18 +69,18 @@ public final class OFAnalyzer
 		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt) {
 		super(new AllocationContext(), tagName);
 
-		ModeFactory mf = new ModeFactory();
-		mf.setASTIndexManagerPrototype(astim);
-		mf.setInstanceFieldIndexManagerPrototype(allocationim);
-		mf.setArrayIndexManagerPrototype(allocationim);
-		mf.setMethodIndexManagerPrototype(new IndexManager());
-		mf.setStaticFieldIndexManagerPrototype(new IndexManager());
-		mf.setNodePrototype(new OFAFGNode(null));
-		mf.setStmtVisitorPrototype(stmt);
-		mf.setLHSExprVisitorPrototype(lexpr);
-		mf.setRHSExprVisitorPrototype(rexpr);
-		mf.setClassManagerPrototype(new ClassManager(null));
-		setModeFactory(mf);
+		final ModeFactory _mf = new ModeFactory();
+		_mf.setASTIndexManagerPrototype(astim);
+		_mf.setInstanceFieldIndexManagerPrototype(allocationim);
+		_mf.setArrayIndexManagerPrototype(allocationim);
+		_mf.setMethodIndexManagerPrototype(new IndexManager());
+		_mf.setStaticFieldIndexManagerPrototype(new IndexManager());
+		_mf.setNodePrototype(new OFAFGNode(null));
+		_mf.setStmtVisitorPrototype(stmt);
+		_mf.setLHSExprVisitorPrototype(lexpr);
+		_mf.setRHSExprVisitorPrototype(rexpr);
+		_mf.setClassManagerPrototype(new ClassManager(null));
+		setModeFactory(_mf);
 	}
 
 	/**
@@ -94,9 +95,9 @@ public final class OFAnalyzer
 	 * @post result != null and tagName != null
 	 */
 	public static OFAnalyzer getFIOIAnalyzer(final String tagName) {
-		AbstractIndexManager temp = new IndexManager();
+		final AbstractIndexManager _temp = new IndexManager();
 
-		return new OFAnalyzer(tagName, temp, temp,
+		return new OFAnalyzer(tagName, _temp, _temp,
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
@@ -114,13 +115,10 @@ public final class OFAnalyzer
 	 * @post result != null and tagName != null
 	 */
 	public static OFAnalyzer getFIOSAnalyzer(final String tagName) {
-		OFAnalyzer temp =
-			new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
-
-		return temp;
+		return new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 	}
 
 	/**
@@ -153,12 +151,76 @@ public final class OFAnalyzer
 	 * @post result != null and tagName != null
 	 */
 	public static OFAnalyzer getFSOSAnalyzer(final String tagName) {
-		OFAnalyzer temp =
-			new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
-		return temp;
+		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+	}
+
+	/**
+	 * Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes when the IR has the
+	 * following properties.
+	 * 
+	 * <ul>
+	 * <li>
+	 * local splitting transformation has been done.
+	 * </li>
+	 * <li>
+	 * locals are defined only once.
+	 * </li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * These properties are ensured if the IR is created with options available from
+	 * <code>edu.ksu.cis.indus.common.soot.Util.getSootOptions()</code>.
+	 * </p>
+	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
+	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null and tagName != null
+	 */
+	public static OFAnalyzer getFSv2OIAnalyzer(final String tagName) {
+		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitchv2(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitchv2(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
+	}
+
+	/**
+	 * Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes  when the IR has the
+	 * following properties.
+	 * 
+	 * <ul>
+	 * <li>
+	 * local splitting transformation has been done.
+	 * </li>
+	 * <li>
+	 * locals are defined only once.
+	 * </li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * These properties are ensured if the IR is created with options available from
+	 * <code>edu.ksu.cis.indus.common.soot.Util.getSootOptions()</code>.
+	 * </p>
+	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
+	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null and tagName != null
+	 */
+	public static OFAnalyzer getFSv2OSAnalyzer(final String tagName) {
+		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitchv2(null, new LHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitchv2(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 	}
 
 	/**
@@ -174,40 +236,39 @@ public final class OFAnalyzer
 	 * @pre sites.oclIsKindOf(Collection(Object))
 	 */
 	public Collection getValues(final SootField f, final Collection sites) {
-		Object temp = null;
-		Collection retValues;
-		AllocationContext ctxt = (AllocationContext) context;
+		Object _temp = null;
+		Collection _retValues;
+		final AllocationContext _ctxt = (AllocationContext) context;
 
 		if (Modifier.isStatic(f.getModifiers())) {
-			retValues = getValues(f);
+			_retValues = getValues(f);
 		} else {
-			retValues = new HashSet();
-			temp = ctxt.getAllocationSite();
+			_retValues = new HashSet();
+			_temp = _ctxt.getAllocationSite();
 
-			for (Iterator i = sites.iterator(); i.hasNext();) {
-				ctxt.setAllocationSite(i.next());
-				retValues.addAll(getValues(f));
+			for (final Iterator _i = sites.iterator(); _i.hasNext();) {
+				_ctxt.setAllocationSite(_i.next());
+				_retValues.addAll(getValues(f));
 			}
-			ctxt.setAllocationSite(temp);
+			_ctxt.setAllocationSite(_temp);
 		}
-		return retValues.isEmpty() ? Collections.EMPTY_SET
-								   : retValues;
+		return _retValues.isEmpty() ? Collections.EMPTY_SET
+									: _retValues;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/26 08:31:21  venku
+   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.10  2003/12/13 19:38:58  venku
    - removed unnecessary imports.
-
    Revision 1.9  2003/12/05 00:53:09  venku
    - removed unused method and restricted access to certain methods.
-
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.7  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
