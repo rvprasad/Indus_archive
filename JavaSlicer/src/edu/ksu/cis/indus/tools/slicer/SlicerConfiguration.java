@@ -228,9 +228,15 @@ public final class SlicerConfiguration
 	 * Sets the executability of the generated slice.
 	 *
 	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalStateException DOCUMENT ME!
 	 */
 	public void setExecutableSlice(final boolean value) {
-		setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
+		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));			
+		} else if (value){
+		    throw new IllegalStateException("Forward Executable Slices are not supported.");
+		}
 	}
 
 	/**
@@ -409,8 +415,8 @@ public final class SlicerConfiguration
 				_c.clear();
 				_c.add(new EntryControlDA());
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
-			    _c.clear();
-			    _c.add(new ExitControlDA());
+				_c.clear();
+				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
@@ -830,9 +836,11 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/07/20 05:20:28  venku
+   - EntryControlDA needs to be added only for daController based execution
+     and not for slicer execution purposes during forward slicing.  FIXED.
    Revision 1.45  2004/07/20 01:19:48  venku
    - addressed bug #408.
-
    Revision 1.44  2004/07/20 01:04:34  venku
    - addressed bug #408.
    Revision 1.43  2004/07/20 00:53:09  venku

@@ -111,6 +111,10 @@ public final class SlicerConfigurator
 		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
 		executableSliceButton.addSelectionListener(_sl);
 
+		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			executableSliceButton.setEnabled(false);
+		}
+
 		setupRow2();
 		setupRow3();
 		setupRow4();
@@ -469,6 +473,8 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/07/20 00:31:04  venku
+   - addressed bug #408.
    Revision 1.23  2004/02/25 00:09:12  venku
    - documenation.
    Revision 1.22  2004/02/12 21:30:05  venku
