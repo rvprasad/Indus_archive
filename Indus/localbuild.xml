@@ -1,0 +1,23 @@
+<project>
+    <import file="../StaticAnalyses/localbuild.xml"/>
+    <import file="../JavaSlicer/localbuild.xml"/>
+        
+    <property name="package" value="edu.ksu.cis.indus"/>
+    <property name="ant.project.name" value="indus"/>
+
+    <path id="srcpath">
+	    <pathelement location="src"/>
+   	    <pathelement location="src-xml"/>
+   	    <path refid="staticanalyses.srcpath"/>
+   	    <path refid="javaslicer.srcpath"/>
+    </path>
+
+    <path id="classpath">
+        <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+        <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
+        <path refid="javaslicer.classpath"/>
+        <path refid="staticanalyses.classpath"/>
+    </path>
+</project>

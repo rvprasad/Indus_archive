@@ -9,29 +9,13 @@
 <property name="bin" value="bin"/>
 <property name="dist" value="dist"/>
 <property name="build" value="build"/>
-<property name="design" value="design"/>
-<property name="demo" value="demo"/>
 <property name="docs" value="docs"/>
-<property name="gui" value="GUI"/>
-<property name="package" value="edu.ksu.cis.indus"/>
 <property name="remote_jdklink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
 <property name="remote_sootlink" value="http://www.sable.mcgill.ca/soot/doc/"/>
 <property name="local_jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.2/api/"/>
 <property name="local_sootlink" value="http://127.0.0.1/docs/compilers/soot-2.0-api"/>
 
-<path id="srcpath">
-	<pathelement location="src"/>
-</path>
-
-<path id="classpath">
-	<pathelement location="../Indus/build/"/>
-	<pathelement location="../StaticAnalyses/build/"/>
-    <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
-    <pathelement location="/usr/local/javaclasses/junit.jar"/>
-    <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
-    <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
-    <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
-</path>
+<import file="localbuild.xml"/>
 
 <target name="init">
     <tstamp/>
@@ -107,7 +91,7 @@
     <jar jarfile="${filename}.jar" basedir="${build}" excludes="*.jar, *.tar, *.tgz"/>
     <tar tarfile="${filename}.tar" basedir="."
          excludes="**/\..*, **/rational/html/**"
-         includes="${demo}/, src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"/>
+         includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"/>
     <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
     <delete file="${filename}.tar"/>
 </target>
@@ -123,6 +107,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.7  2003/09/28 06:52:22  venku
+*** empty log message ***
+
 Revision 1.6  2003/09/12 08:11:02  venku
 - javadoc target spruced.
 

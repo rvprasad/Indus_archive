@@ -1,0 +1,29 @@
+<project>
+    <property name="package" value="edu.ksu.cis.indus.staticanalyses"/>
+    <property name="ant.project.name" value="indus.staticanalyses"/>
+    
+    <path id="staticanalyses.srcpath">
+    	<pathelement location="../StaticAnalyses/src"/>
+	    <pathelement location="../StaticAnalyses/src-xml"/>
+	    <pathelement location="../StaticAnalyses/src-flow"/>
+    	<pathelement location="../StaticAnalyses/src-dependence"/>
+	    <pathelement location="../StaticAnalyses/src-concurrency"/>
+    	<pathelement location="../StaticAnalyses/src-test"/>
+    </path>
+    
+    <path id="srcpath" refid="staticanalyses.srcpath"/>
+    
+    <path id="staticanalyses.classpath">
+        <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
+        <pathelement location="/usr/local/javaclasses/junit.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+    </path>
+    
+    <path id="classpath">
+        <path refid="staticanalyses.classpath"/>
+        <pathelement location="../Indus/build/"/>
+	    <pathelement location="../StaticAnalyses/build/"/>
+    </path>
+</project>
