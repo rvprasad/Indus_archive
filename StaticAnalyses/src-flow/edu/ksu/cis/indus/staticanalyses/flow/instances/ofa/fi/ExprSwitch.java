@@ -193,7 +193,6 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr e) {
-        fa.processClass(e.getMethod().getDeclaringClass());
 		processInstanceInvokeExpr(e);
 	}
 
@@ -296,7 +295,6 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
-        fa.processClass(e.getMethod().getDeclaringClass());
 		processInstanceInvokeExpr(e);
 	}
 
@@ -422,6 +420,7 @@ public class ExprSwitch
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + e);
 		}
+        fa.processClass(e.getMethod().getDeclaringClass());
 		process(e.getBaseBox());
 
 		IFGNode temp = (IFGNode) getResult();
@@ -450,6 +449,10 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/07 03:23:21  venku
+   - interfaces and classes involved in interface/special invokes
+     are not being processed.  FIXED.
+
    Revision 1.10  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
