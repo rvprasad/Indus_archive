@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -12,7 +11,6 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
-
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
@@ -148,15 +146,7 @@ public class AnalysesController
 					final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
 
 					if (_analysis != null && !_done.contains(_analysis)) {
-						if (LOGGER.isDebugEnabled()) {
-							final long _start = System.currentTimeMillis();
-							_analysis.analyze();
-
-							final long _stop = System.currentTimeMillis();
-							LOGGER.debug(_analysis.getClass().getName() + " took " + (_stop - _start) + "ms.");
-						} else {
-							_analysis.analyze();
-						}
+						_analysis.analyze();
 
 						final boolean _t = _analysis.isStable();
 
@@ -241,6 +231,9 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/24 09:57:49  venku
+   - extracted interface from AbstractAnalysis.
+   - ripple effect.
    Revision 1.38  2004/07/20 04:59:06  venku
    - documentation.
    Revision 1.37  2004/07/11 14:46:18  venku
