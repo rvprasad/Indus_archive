@@ -1,0 +1,4 @@
+build
+.clover
+staticanalyses.jar
+staticanalyses-src.jar
