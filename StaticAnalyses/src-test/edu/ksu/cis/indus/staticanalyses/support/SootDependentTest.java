@@ -1,0 +1,268 @@
+
+/*
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ *
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
+ */
+
+package edu.ksu.cis.indus.staticanalyses.support;
+
+import junit.framework.TestCase;
+
+import soot.ArrayType;
+import soot.G;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+
+import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+
+import org.apache.commons.logging.Log;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * DOCUMENT ME!
+ * 
+ * <p></p>
+ *
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
+ * @version $Revision$ $Date$
+ */
+public abstract class SootDependentTest
+  extends TestCase {
+	/**
+	 * This is the type of <code>String[]</code> in Soot type system.
+	 */
+	public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
+
+	/**
+	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
+	 * <code>TrapUnitGraphFactory</code>.
+	 */
+	protected AbstractUnitGraphFactory cfgProvider;
+
+	/**
+	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
+	 */
+	protected BasicBlockGraphMgr bbm;
+
+	/**
+	 * This is the set of methods which serve as the entry point into the system being analyzed.
+	 *
+	 * @invariant rootMethods.oclIsTypeOf(SootMethod)
+	 */
+	protected Collection rootMethods = new HashSet();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected List classNames;
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	protected Log logger;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected Scene scene;
+
+	/**
+	 * This is used to maintain the execution time of each analysis/transformation.  This timing information is printed via
+	 * <code>printTimingStats</code>.
+	 *
+	 * @invariant times.oclIsTypeOf(Map(String, Long))
+	 */
+	private final Map times = new LinkedHashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private int count;
+
+	/**
+	 * Creates a new Test object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code>
+	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
+	 * graph provider.
+	 */
+	protected SootDependentTest() {
+		cfgProvider = getUnitGraphFactory();
+		bbm = new BasicBlockGraphMgr();
+		bbm.setUnitGraphProvider(cfgProvider);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param s DOCUMENT ME!
+	 */
+	public void setClassNames(final String[] s) {
+		classNames = Arrays.asList(s);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected AbstractUnitGraphFactory getUnitGraphFactory() {
+		return new TrapUnitGraphFactory();
+	}
+
+	/**
+	 * @see TestCase#setUp()
+	 */
+	protected void setUp() {
+		if (classNames == null) {
+			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
+		}
+		scene = loadupClassesAndCollectMains();
+	}
+
+	/**
+	 * Adds an entry into the time log of this test.  The subclasses should use this method to add time logs corresponding to
+	 * each analysis they test/drive.
+	 *
+	 * @param name of the analysis for which the timing log is being created.
+	 * @param milliseconds taken by the analysis.
+	 *
+	 * @pre name != null
+	 */
+	protected void addTimeLog(final String name, final long milliseconds) {
+		times.put("[" + count++ + "]" + name, new Long(milliseconds));
+	}
+
+	/**
+	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
+	 * system being analyzed.  All <code>public static void main()</code> methods defined in <code>public</code> classes
+	 * that are named via <code>args</code>are considered as entry points.
+	 *
+	 * @return a soot scene that provides the classes to be analyzed.
+	 *
+	 * @pre args != null and classNames != null
+	 */
+	protected final Scene loadupClassesAndCollectMains() {
+		Scene result = Scene.v();
+
+		for (int i = 0; i < classNames.size(); i++) {
+			result.loadClassAndSupport((String) classNames.get(i));
+		}
+
+		Collection mc = new HashSet();
+		mc.addAll(result.getClasses());
+
+		for (Iterator i = mc.iterator(); i.hasNext();) {
+			SootClass sc = (SootClass) i.next();
+
+			if (considerClassForEntryPoint(sc)) {
+				Collection methods = sc.getMethods();
+
+				for (Iterator j = methods.iterator(); j.hasNext();) {
+					SootMethod sm = (SootMethod) j.next();
+					trapRootMethods(sm);
+				}
+			}
+		}
+		Util.fixupThreadStartBody(result);
+		return result;
+	}
+
+	/**
+	 * Checks if the methods of the given class should be explored for entry points.
+	 *
+	 * @param sc is the class that may provide entry points.
+	 *
+	 * @return <code>true</code> if <code>sc</code> should be explored; <code>false</code>, otherwise.
+	 *
+	 * @pre sc != null and classNames != null
+	 */
+	protected boolean considerClassForEntryPoint(final SootClass sc) {
+		return classNames.contains(sc.getName()) && sc.isPublic();
+	}
+
+	/**
+	 * Prints the timing statistics into the given stream.
+	 *
+	 * @pre stream != null
+	 */
+	protected void printTimingStats() {
+		writeInfo("Timing statistics:");
+
+		for (Iterator i = times.keySet().iterator(); i.hasNext();) {
+			Object e = i.next();
+			writeInfo(e + " => " + times.get(e) + "ms");
+		}
+	}
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		G.reset();
+	}
+
+	/**
+	 * Records methods that should be considered as entry points into the system being analyzed.
+	 *
+	 * @param sm is the method that may be an entry point into the system.
+	 *
+	 * @post rootMethods->includes(sm) or not rootMethods->includes(sm)
+	 * @pre sm != null
+	 */
+	protected void trapRootMethods(final SootMethod sm) {
+		if (sm.getName().equals("main")
+			  && sm.isStatic()
+			  && sm.getParameterCount() == 1
+			  && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
+			rootMethods.add(sm);
+		}
+	}
+
+	/**
+	 * Logs the given object via the logging api.  Configure the logging via the logging implementation's configuration
+	 * support.
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.support.SootDependentTest#writeInfo(java.lang.Object)
+	 */
+	protected void writeInfo(Object object) {
+		if (logger != null && logger.isInfoEnabled()) {
+			logger.info(object.toString());
+		}
+	}
+}
+
+/*
+   ChangeLog:
+   $Log$
+ */
