@@ -201,7 +201,7 @@ public final class DependencyXMLizer
 		final Map _result = new HashMap();
 
 		if (getXmlOutputDir() == null) {
-			LOGGER.fatal("Defaulting to current directory for xml output.");
+			LOGGER.fatal("Please specify an output directory while using the xmlizer.");
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 
@@ -248,6 +248,13 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/05/14 09:02:56  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
    Revision 1.20  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 
