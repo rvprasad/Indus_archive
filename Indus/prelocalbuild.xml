@@ -4,6 +4,10 @@
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus.indus"/>
 
+    <condition property="custombuild.exists">
+        <equals arg1="${ant.project.name}" arg2="indus.indus"/>
+    </condition>
+
     <import file="../StaticAnalyses/prelocalbuild.xml"/>
     <import file="../JavaSlicer/prelocalbuild.xml"/>
 
