@@ -593,8 +593,7 @@ public final class DivergenceDA
 
 		for (final Iterator _i = dependents.iterator(); _i.hasNext();) {
 			final Stmt _dependent = (Stmt) _i.next();
-			final Collection _dees =
-				(Collection) CollectionsUtilities.getAtIndexFromList(_de, _sl.indexOf(_dependent), new ArrayList());
+			final Collection _dees = (Collection) CollectionsUtilities.getListAtIndexFromList(_de, _sl.indexOf(_dependent));
 			_dees.addAll(dependees);
 		}
 
@@ -611,9 +610,12 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.37  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.36  2004/07/09 08:54:43  venku
    - documentation.
    Revision 1.35  2004/07/08 11:02:57  venku

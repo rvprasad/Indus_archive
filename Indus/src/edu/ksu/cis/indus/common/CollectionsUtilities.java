@@ -69,8 +69,8 @@ public final class CollectionsUtilities {
 		}
 
 		if (index > list.size()) {
-		    ensureSize(list, index, null);
-		    list.set(index, defaultValue);
+			ensureSize(list, index, null);
+			list.set(index, defaultValue);
 		} else if (list.get(index) == null) {
 			list.set(index, defaultValue);
 		}
@@ -120,6 +120,26 @@ public final class CollectionsUtilities {
 	}
 
 	/**
+	 * <code>getAtIndexFromListMap</code> version specialized for cases when the stored value is of type
+	 * <code>java.util.List</code>.
+	 *
+	 * @param list from which to retrieve the value.
+	 * @param index in <code>list</code> from which to retrive the value.
+	 *
+	 * @return the value at <code>index</code> in <code>list</code>.
+	 *
+	 * @pre list != null and index != null and defaultValue != null
+	 * @post result != null
+	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result.oclIsKindOf(java.util.List)
+	 * @post list.get(index) = result
+	 *
+	 * @see #getAtIndexFromList(List, int, Object)
+	 */
+	public static Object getListAtIndexFromList(final List list, final int index) {
+		return getAtIndexFromList(list, index, new ArrayList());
+	}
+
+	/**
 	 * <code>getFromMap</code> version specialized for cases when the value is of type <code>java.util.List</code>.
 	 *
 	 * @param map to be read.
@@ -153,6 +173,26 @@ public final class CollectionsUtilities {
 	 */
 	public static Map getMapFromMap(final Map map, final Object key) {
 		return (Map) getFromMap(map, key, new HashMap());
+	}
+
+	/**
+	 * <code>getAtIndexFromListMap</code> version specialized for cases when the stored value is of type
+	 * <code>java.util.Set</code>.
+	 *
+	 * @param list from which to retrieve the value.
+	 * @param index in <code>list</code> from which to retrive the value.
+	 *
+	 * @return the value at <code>index</code> in <code>list</code>.
+	 *
+	 * @pre list != null and index != null and defaultValue != null
+	 * @post result != null
+	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result.oclIsKindOf(java.util.Set)
+	 * @post list.get(index) = result
+	 *
+	 * @see #getAtIndexFromList(List, int, Object)
+	 */
+	public static Object getSetAtIndexFromList(final List list, final int index) {
+		return getAtIndexFromList(list, index, new HashSet());
 	}
 
 	/**
@@ -310,9 +350,11 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/09 05:42:30  venku
+   - deleted CollectionsUtilities.addAllFromTo().
+   - used CollectionUtils.addAll() instead of CollectionsUtilities.addAllFromTo().
    Revision 1.6  2004/07/04 11:17:32  venku
    - added a new method "ensureSize()" to expand a list.
-
    Revision 1.5  2004/06/27 09:10:58  venku
    - added a new method to retrieve values from a list.
    Revision 1.4  2004/06/01 06:29:58  venku
