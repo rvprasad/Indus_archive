@@ -236,8 +236,8 @@ public final class SlicerTool
 		_residualizer.setTagToResidualize(TAG_NAME);
 		_residualizer.residualizeSystem(tool.getSystem());
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: bandera slicer tool");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: bandera slicer tool");
 		}
 	}
 }
@@ -245,6 +245,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/02/06 00:22:09  venku
+   - logging.
+
    Revision 1.23  2004/02/06 00:19:16  venku
    - logging.
 
