@@ -143,7 +143,7 @@ public final class OFAXMLizer
 					final Stmt _stmt = context.getStmt();
 					final SootMethod _method = context.getCurrentMethod();
 					xmlWriter.startTag("program_point");
-					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method) + context.getStmt());
+					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
 
 					for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
 						xmlWriter.startTag("object");
@@ -226,7 +226,7 @@ public final class OFAXMLizer
 			processingMethod = false;
 
 			try {
-			    xmlWriter.declaration();
+				xmlWriter.declaration();
 				xmlWriter.startTag("ofa");
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
@@ -288,39 +288,34 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/13 07:34:25  venku
+   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
    Revision 1.16  2004/05/13 06:50:59  venku
    - renamed .xsd's to XML.xsd's.
    - ripple effect.
-
    Revision 1.15  2004/05/13 03:32:04  venku
    - documentation.  refactoring of getFileName() in IXMLizer.
-
    Revision 1.14  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.
    - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
    - ripple effect.
-
    Revision 1.13  2004/05/13 01:14:21  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.
-
    Revision 1.12  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
-
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.10  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.9  2004/04/01 22:37:53  venku
    - changed output format.
    Revision 1.8  2004/04/01 20:57:49  venku
