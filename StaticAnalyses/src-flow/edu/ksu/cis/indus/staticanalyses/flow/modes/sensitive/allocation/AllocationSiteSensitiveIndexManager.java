@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
@@ -40,8 +40,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -54,9 +54,9 @@ import org.apache.log4j.Logger;
 public class AllocationSiteSensitiveIndexManager
   extends AbstractIndexManager {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(AllocationSiteSensitiveIndexManager.class);
+	private static final Log LOGGER = LogFactory.getLog(AllocationSiteSensitiveIndexManager.class);
 
 	/**
 	 * Returns a new instance of this class.
@@ -71,12 +71,13 @@ public class AllocationSiteSensitiveIndexManager
 	 * Returns an index corresponding to the given entity and context.
 	 *
 	 * @param o the entity for which the index in required.  Although it is not enforced, this should be of type
-	 *           <code>FielRef</code> or <code>ArrayRef</code>.
+	 * 		  <code>FielRef</code> or <code>ArrayRef</code>.
 	 * @param c the context in which information pertaining to <code>o</code> needs to be captured.
 	 *
 	 * @return the index that uniquely identifies <code>o</code> in context, <code>c</code>.
 	 *
-	 * @pre c.oclIsKindof(SymbolicContext)
+	 * @pre o != null and c != null and
+	 * 		c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
 	 */
 	protected IIndex getIndex(Object o, Context c) {
 		if (LOGGER.isDebugEnabled()) {
@@ -89,13 +90,16 @@ public class AllocationSiteSensitiveIndexManager
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.5  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 1.5  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
@@ -54,7 +54,7 @@ public class AllocationContext
 	protected Object allocationSite;
 
 	/**
-	 * Creates a new SymbolicContext object.
+	 * Creates a new AllocationContext object.
 	 */
 	public AllocationContext() {
 		super();
@@ -91,17 +91,15 @@ public class AllocationContext
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(Object o) {
-		boolean result = this == o;
+		boolean result = false;
 
-		if (!result && o instanceof AllocationContext) {
+		if (o != null && o instanceof AllocationContext) {
 			AllocationContext c = (AllocationContext) o;
 
-			if (allocationSite != null && c.allocationSite != null) {
-				result &= allocationSite.equals(c.allocationSite);
-			} else if (allocationSite != null) {
-				result &= allocationSite.equals(c.allocationSite);
+			if (allocationSite != null) {
+				result = allocationSite.equals(c.allocationSite);
 			} else {
-				result &= c.allocationSite.equals(allocationSite);
+				result = c.allocationSite == allocationSite;
 			}
 		}
 		return result && super.equals(o);
@@ -113,17 +111,23 @@ public class AllocationContext
 	 * @return the hash code.
 	 */
 	public int hashCode() {
-		return allocationSite.hashCode() + super.hashCode();
+        int result = 17;
+        result = 37 * result + allocationSite.hashCode();
+        result = 37 * result + super.hashCode();
+		return result;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.4  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 1.4  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
