@@ -215,7 +215,7 @@ public class SafeLockAnalysis
 			final IMonitorGraph _monitorGraph = monitorInfo.getMonitorGraph(callgraphInfo);
 			processMonitorAndWaitsForLockBasedRelation();
 			processMonitorsAndWaitsForEnclosureBaseRelation(_monitorGraph);
-			
+
 			/*
 			 * Assume there is an API that can be used to check if waits and notifies are valid.
 			 * For each method do the following.  [processMethod]
@@ -239,8 +239,6 @@ public class SafeLockAnalysis
 			final Iterator _i = _monitors.iterator();
 			final int _iEnd = _monitors.size();
 
-			final long _t4 = System.currentTimeMillis();
-			
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Triple _monitor = (Triple) _i.next();
 
@@ -250,14 +248,8 @@ public class SafeLockAnalysis
 					}
 				}
 			}
-			final long _t5 = System.currentTimeMillis();
-			System.out.println("4: " + (_t5 - _t4));
-			
+
 			propagateSafetyInformation(_seedUnsafeMonitors, _monitorGraph);
-			
-			final long _t6 = System.currentTimeMillis();
-			System.out.println("5: " + (_t6 - _t5));
-			
 			stable();
 
 			if (LOGGER.isDebugEnabled()) {
@@ -587,6 +579,8 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/08/09 10:15:05  venku
+   - used monitor graphs to achieve some speed up.
    Revision 1.16  2004/08/05 09:28:54  venku
    - documentation.
    - removed safeByCondition3() as it was checking of dependence on any
