@@ -47,7 +47,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class Init2NewExprMapper
+public class NewExpr2InitMapper
   extends AbstractValueAnalyzerBasedProcessor {
 	/**
 	 * This is a cache of the context.
@@ -181,11 +181,15 @@ public class Init2NewExprMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.2  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
    Revision 1.1  2003/11/22 00:42:22  venku
-   - renamed InitResolved to Init2NewExprMapper.
+   - renamed InitResolved to NewExpr2InitMapper.
    - added logic to realize the functionality.
    Revision 1.1  2003/11/20 08:22:33  venku
    - added support to include calls to <init> based on new expressions.

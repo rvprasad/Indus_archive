@@ -31,7 +31,7 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -189,9 +189,8 @@ public final class SlicingEngine {
 	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of control Dependence analysis to be used during slicing.
+     * @invariant controlDAs->forall(o | o.oclIsKindOf(DependencyAnalysis) and o.getId().equals(DependencyAnalysis.CONTROL_DA)) 
 	 */
 	private Collection controlDAs = new ArrayList();
 
@@ -201,11 +200,9 @@ public final class SlicingEngine {
 	private ICallGraphInfo cgi;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps new expressions to corresponding init call sites.
 	 */
-	private Init2NewExprMapper initMapper;
+	private NewExpr2InitMapper initMapper;
 
 	/**
 	 * <p>
@@ -307,7 +304,7 @@ public final class SlicingEngine {
 	 *
 	 * @param mapper DOCUMENT ME!
 	 */
-	public void setInitMapper(final Init2NewExprMapper mapper) {
+	public void setInitMapper(final NewExpr2InitMapper mapper) {
 		initMapper = mapper;
 	}
 
@@ -1113,6 +1110,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/12/13 19:46:33  venku
+   - documentation of TaggingBasedSliceCollector.
+   - renamed collect() to includeInSlice().
+
    Revision 1.33  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.

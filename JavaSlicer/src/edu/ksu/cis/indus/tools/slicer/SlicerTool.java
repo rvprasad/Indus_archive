@@ -42,7 +42,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -215,7 +215,7 @@ public final class SlicerTool
 	/**
 	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
-	private Init2NewExprMapper initMapper;
+	private NewExpr2InitMapper initMapper;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -269,7 +269,7 @@ public final class SlicerTool
 		engine = new SlicingEngine();
 
 		// create the <init> call to new expr mapper
-		initMapper = new Init2NewExprMapper();
+		initMapper = new NewExpr2InitMapper();
 
 		criteriaFactory = new SliceCriteriaFactory();
 	}
@@ -660,6 +660,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.46  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
