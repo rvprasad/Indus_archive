@@ -70,8 +70,12 @@ abstract class AbstractSliceCriterion
 				((AbstractSliceCriterion) o).method.equals(method)
 				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
 
-			if (_result && callStack != null) {
-				_result = callStack.equals(((AbstractSliceCriterion) o).callStack);
+			if (_result) {
+				if (callStack != null) {
+					_result = callStack.equals(((AbstractSliceCriterion) o).callStack);
+				} else {
+					_result = callStack == ((AbstractSliceCriterion) o).callStack;
+				}
 			}
 		}
 		return _result;
