@@ -127,7 +127,7 @@ public class IntegerTokenManager
 		 *
 		 * @param newValue is the new value.
 		 */
-		public void setValue(int newValue) {
+		public void setValue(final int newValue) {
 			value = newValue;
 		}
 
@@ -305,6 +305,11 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/17 09:17:44  venku
+   - introduced the mutable counterpart of Integer class.
+   - used that in this manager.
+   - fixed some "counting" errors.
+
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
