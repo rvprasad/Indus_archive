@@ -21,6 +21,8 @@
 package edu.ksu.cis.indus.kaveri;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextRepository;
+import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
@@ -109,6 +111,11 @@ public class IndusConfiguration {
 	private PartialStmtData stmtList;
 
 	/**
+	 * The context repository.
+	 */
+	private ContextRepository ctxRepository;
+	
+	/**
 	 * The dependence history.
 	 */
 	private DependenceHistoryData depHistory;
@@ -161,6 +168,7 @@ public class IndusConfiguration {
 		rManager = new ResourceManager();
 		scopeMap = new HashMap();
 		scopeSpecification = "";
+		ctxRepository = new ContextRepository();
 		nNoOfSlicesRun = 0;
 	}
 
@@ -323,6 +331,7 @@ public class IndusConfiguration {
 		criteria.clear();	
 		KaveriPlugin.getDefault().reset();
 		depHistory.reset();		
+		ctxRepository.reset();
 	}
 	/**
 	 * Returns the set of statements.
@@ -434,5 +443,21 @@ public class IndusConfiguration {
      */
    public void resetSliceCount() {
         nNoOfSlicesRun = 0;
+    }
+
+    /**
+     * Adds the given context to the repository.
+     * @param context The context
+     */
+    public void addContext(MethodCallContext context) {
+        ctxRepository.addCallStack(context);        
+    }
+    
+    /**
+     * Returns the repository instance.
+     * @return Returns the ctxRepository.
+     */
+    public ContextRepository getCtxRepository() {
+        return ctxRepository;
     }
 }

@@ -1,4 +1,4 @@
-/*
+	/*
  *
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -15,23 +15,29 @@
  
 package edu.ksu.cis.indus.kaveri.callgraph;
 
-import org.eclipse.jdt.core.IJavaElement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.corext.callhierarchy.CallLocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
-//import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
-
+import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
 import org.eclipse.jface.action.IAction;
-
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
+import soot.SootMethod;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
+import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 /**
  * @author ganeshan
@@ -42,13 +48,13 @@ import org.eclipse.ui.IViewPart;
 public class AddToContext implements IViewActionDelegate {
 
     private IStructuredSelection sSel;
-  //  private CallHierarchyViewPart callViewPart;
+    private CallHierarchyViewPart callViewPart;
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
      */
     public void init(IViewPart view) {        
-    //    this.callViewPart = (CallHierarchyViewPart) view;
+        this.callViewPart = (CallHierarchyViewPart) view;        
     }
 
     /* (non-Javadoc)
@@ -57,37 +63,103 @@ public class AddToContext implements IViewActionDelegate {
     public void run(IAction action) {
         if (sSel != null) {
             if (sSel.getFirstElement() instanceof MethodWrapper) {
-                MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());                
-                final IJavaElement _method = (IJavaElement) _mw.getAdapter(IJavaElement.class);
-                if (_method != null && _method.getElementType() == IJavaElement.METHOD) {
-                    final IMethod _jmethod = (IMethod) _method;
-                    Display.getCurrent().asyncExec(
-                            new Runnable() {
-                                public void run() {
-                                    try {
-                                        Document d = new Document(_jmethod.getCompilationUnit().getSource());
-                                        final IRegion _r =  d.getLineInformation(37);
-                                        System.out.println(d.get(_r.getOffset(), _r.getLength()));
-                                    } catch(JavaModelException jme) {
-                                        
-                                    } catch (BadLocationException e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
-                                    }
-                                    
-                                }
-                            }
-                            );
-                    
-                    //final ASTParser _parser = ASTParser.newParser(AST.JLS2);
-                    //_parser.setResolveBindings(true);
-                    //_parser.setSource(_jmethod.getCompilationUnit());
-                    //final CompilationUnit _cu = (CompilationUnit) _parser.createAST(null);
-//                    /_cu.accept(new MyAstVistor(_cu, _jmethod.getElementName()));
+                System.out.println();
+                MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());
+                final boolean _result = validateForCalleeView(_mw, _mw.getParent());
+                if (!_result) {
+                    MessageDialog.openError(null, "Please Switch", "Switch to callee view before using this function");
+                } else {
+                    final Collection _coll = new ArrayList();
+                    MethodCallContext _context = null;
+                    generateCallStacks(_coll, _mw, new Stack());
+                    for (Iterator iter = _coll.iterator(); iter.hasNext();) {
+                        final Stack _stk = (Stack) iter.next();
+                        if (_context == null) {
+                            final Triple _botTriple = (Triple)  _stk.get(0);
+                            final MethodWrapper _mStart = (MethodWrapper) _botTriple.getFirst();
+                            final Triple _ltTriple = (Triple) _stk.peek();
+                            final MethodWrapper _mEnd = (MethodWrapper) _ltTriple.getSecond();
+                            
+                            final IMethod _srcMethod = (IMethod) _mStart.getMember();
+                            final IMethod _destMethod = (IMethod) _mEnd.getMember();
+                            
+                            _context = new MethodCallContext(_srcMethod, _destMethod);                                
+                        }
+                        _context.addContext(_stk);                        
+                    }
+                    if (_context != null) {
+                        KaveriPlugin.getDefault().getIndusConfiguration().addContext(_context);                        
+                    }
                 }
             }
         }
 
+    }
+
+    /**
+     * Generate all the call stack traces from the given method wrapper, using DFS.
+     * @param stkcoll The collection of call stacks.
+     * @param mw The method wrapper.
+     * @param pathStack The stack on the individual call trace.
+     */
+    private void generateCallStacks(Collection stkcoll, MethodWrapper mw, final Stack pathStack) {
+        final Collection _coll = mw.getMethodCall().getCallLocations();
+        if (_coll == null) {
+            stkcoll.add(pathStack.clone());
+            return;
+        }
+        for (Iterator iter = _coll.iterator(); iter.hasNext();) {
+            final CallLocation _callLoc = (CallLocation) iter.next();
+            final Triple _triple = new Triple(mw, mw.getParent(), _callLoc);
+            pathStack.push(_triple);
+            generateCallStacks(stkcoll, mw.getParent(), pathStack);
+            pathStack.pop();
+        }
+        
+    }
+
+    /**
+     * Get the invoke expression for the given method.
+     * @param jimplelist The list of jimple in which the call lies.
+     * @param callee
+     * @param caller
+     * @return
+     */
+    private CallTriple fetchTriple(final List jimplelist, final SootMethod callee, final SootMethod caller) {
+        CallTriple _triple = null;
+        for (Iterator iter = jimplelist.iterator(); iter.hasNext();) {
+            final Stmt _stmt = (Stmt) iter.next();
+            if (_stmt.containsInvokeExpr()) {
+                final InvokeExpr _expr1 = _stmt.getInvokeExpr();                
+                if (_expr1.getMethod().equals(callee)) {
+                    _triple = new CallTriple(caller, _stmt, _expr1);
+                    break;
+                }
+            }                        
+        }
+        return _triple;
+    }
+
+    /**
+     * Checks if the callee view has been activated.
+     * @param mw The source method wrapper.
+     * @param parent The parent method wrapper.
+     * @return 
+     */
+    private boolean validateForCalleeView(MethodWrapper mw, MethodWrapper parent) {
+        boolean _result = false;
+        if (mw != null && parent != null) {
+            final CallLocation _loc = mw.getMethodCall().getFirstCallLocation();
+            if (_loc != null) {
+                final IMethod _methodCall= (IMethod) _loc.getMember();
+                final IMethod _srcMethod = (IMethod) mw .getMember();
+                final IMethod _callMethod = (IMethod) parent.getMember();
+                if (_methodCall.equals(_callMethod)) {
+                    _result = true;
+                }
+            }
+        }
+        return _result;
     }
 
     /* (non-Javadoc)

@@ -19,13 +19,7 @@
  */
 package edu.ksu.cis.indus.kaveri.soot;
 
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.Messages;
-
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,14 +28,13 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-
 import org.eclipse.core.runtime.IPath;
-
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
 import soot.Body;
@@ -49,15 +42,15 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
-
 import soot.jimple.Stmt;
-
 import soot.options.Options;
-
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
-
 import soot.util.Chain;
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 /**
  * This class is responsible for performing the conversion from a specified Java
@@ -107,69 +100,11 @@ public final class SootConvertor {
                     "getStmtForLine expects non-null arguments");
         }
 
-        //G.reset();
-        IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
-                .getString("SootConvertor.1")); //$NON-NLS-1$
-        _jreclasspath = JavaCore.getClasspathVariable(Messages
-                .getString("SootConvertor.2"));
-        /*
-         * Added for "compatibilty" with eclipse 3MX versions. Remove in the
-         * future
-         */
-
-        final String _pathseparator = System.getProperty(Messages
-                .getString("SootConvertor.3")); //$NON-NLS-1$
-        final String _fileseparator = System.getProperty(Messages
-                .getString("SootConvertor.4")); //$NON-NLS-1$
-
-        if (_jreclasspath != null) {
-            _sootClassPath = _jreclasspath.toOSString();
-            _sootClassPath += _pathseparator;
-
-            final IProject _project = thefile.getProject();
-            final IJavaProject _jproject = JavaCore.create(_project);
-
-            final Set _set = SECommons.getClassPathForProject(_jproject,
-                    new HashSet(), false);
-            for (Iterator iter = _set.iterator(); iter.hasNext();) {
-                _sootClassPath += (String) iter.next();
-            }
-
-            //G.reset();
-            final Scene _scene = Scene.v();
-            Options.v().parse(Util.getSootOptions());
-            // Fix for the soot.CompilationDeathError.
-           // Options.v().set_src_prec(Options.src_prec_java);
-            Options.v().set_keep_line_number(true);
-
-            String _cpString = _scene.getSootClassPath();
-
-            if (_cpString != null) {
-                _cpString += File.pathSeparator
-                        + _sootClassPath
-                        + File.pathSeparator
-                        + System.getProperty(Messages
-                                .getString("SootConvertor.5")); //$NON-NLS-1$
-            } else {
-                _cpString = _sootClassPath;
-            }
-
-            _scene.setSootClassPath(_cpString);
-
-            SootClass _sootclass = null;
-
-            try {
-                _sootclass = _scene.loadClassAndSupport(theclass
-                        .getFullyQualifiedName());
-            } catch (RuntimeException _rme) {
-                KaveriErrorLog.logException("Unable to load soot class", _rme);
-                SECommons.handleException(_rme);
-            }
+        final SootClass _sootclass = loadClass(theclass); 
 
             if (_sootclass != null) {
                 _stmtlist = getStmtLine(_sootclass, themethod, theline);
-            }
-        }
+            }        
 
         //G.reset();
         return _stmtlist;
@@ -416,4 +351,109 @@ public final class SootConvertor {
         }        
         return _nLine;
     }
+    
+    
+    /**
+     * Get the soot method for the given JDT Method.
+     * @param method The JDT method.
+     * @return
+     */
+    public static SootMethod getSootMethod(final IMethod method) {
+        SootMethod _sm = null;
+        final IType _type = method.getDeclaringType();
+        if (Scene.v().containsClass(_type.getFullyQualifiedName())) {
+            _sm = getCorrSootMethod(method, Scene.v().getSootClass(_type.getFullyQualifiedName()));            
+        } else {
+            //  Load the class.
+            final SootClass _sootClass = loadClass(method.getDeclaringType());
+            if (_sootClass != null) {
+                _sm = getCorrSootMethod(method, _sootClass);
+            }            
+        }
+        
+        return _sm;
+    }
+    
+    
+    /**
+     * Load the given JDT class.
+     * @param javaClass
+     * @return
+     */
+    private static SootClass loadClass(final IType javaClass) {
+        SootClass _sootclass = null;
+        final ICompilationUnit _unit  = javaClass.getCompilationUnit();
+        if (_unit == null)  {
+            System.out.println("Nothing found");
+            return _sootclass;
+        }
+        IFile _file = null;
+        try {
+        _file = (IFile) _unit.getCorrespondingResource();
+        } catch (JavaModelException _jme) {
+            SECommons.handleException(_jme);
+            KaveriErrorLog.logException("Java Model Exception", _jme);
+        }
+        if (_file == null) return _sootclass;
+        
+        IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
+                .getString("SootConvertor.1")); //$NON-NLS-1$
+        _jreclasspath = JavaCore.getClasspathVariable(Messages
+                .getString("SootConvertor.2"));
+        /*
+         * Added for "compatibilty" with eclipse 3MX versions. Remove in the
+         * future
+         */
+        String _sootClassPath = "";
+        final String _pathseparator = System.getProperty(Messages
+                .getString("SootConvertor.3")); //$NON-NLS-1$
+        final String _fileseparator = System.getProperty(Messages
+                .getString("SootConvertor.4")); //$NON-NLS-1$
+
+        if (_jreclasspath != null) {
+            _sootClassPath = _jreclasspath.toOSString();
+            _sootClassPath += _pathseparator;
+
+            final IProject _project = _file.getProject();
+            final IJavaProject _jproject = JavaCore.create(_project);
+
+            final Set _set = SECommons.getClassPathForProject(_jproject,
+                    new HashSet(), false);
+            for (Iterator iter = _set.iterator(); iter.hasNext();) {
+                _sootClassPath += (String) iter.next();
+            }
+
+            //G.reset();
+            final Scene _scene = Scene.v();
+            Options.v().parse(Util.getSootOptions());
+            // Fix for the soot.CompilationDeathError.
+           // Options.v().set_src_prec(Options.src_prec_java);
+            Options.v().set_keep_line_number(true);
+
+            String _cpString = _scene.getSootClassPath();
+
+            if (_cpString != null) {
+                _cpString += File.pathSeparator
+                        + _sootClassPath
+                        + File.pathSeparator
+                        + System.getProperty(Messages
+                                .getString("SootConvertor.5")); //$NON-NLS-1$
+            } else {
+                _cpString = _sootClassPath;
+            }
+
+            _scene.setSootClassPath(_cpString);
+            Scene.v().loadNecessaryClasses();
+            try {
+                _sootclass = _scene.loadClassAndSupport(javaClass
+                        .getFullyQualifiedName());
+            } catch (RuntimeException _rme) {
+                KaveriErrorLog.logException("Unable to load soot class", _rme);
+                SECommons.handleException(_rme);
+            }
+        }
+
+        return _sootclass;
+    }
+    
 }

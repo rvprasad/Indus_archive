@@ -326,7 +326,7 @@ public class EclipseIndusDriver
 		}
 
 		final Collection _coll = factory.getCriteria(sootMethod, stmt, true, considerVal);
-
+		
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
 		}
@@ -409,7 +409,7 @@ public class EclipseIndusDriver
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
 		final String _scopeStr = KaveriPlugin.getDefault().getIndusConfiguration()
-		.getScopeSpecification();
+		.getScopeSpecification();		
 		try {
 		if (!(_scopeStr == null || _scopeStr.equals("") )) {
 			slicer.setSliceScopeDefinition(SpecificationBasedScopeDefinition.deserialize(_scopeStr));

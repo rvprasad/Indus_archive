@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.alias.CannotResolveClassException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextDialog;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
@@ -319,6 +320,10 @@ public class IndusConfigurationDialog extends Dialog {
         final Button _btnScope = new Button(_subcomposite2, SWT.PUSH);
         _btnScope.setText("Setup Scope");
         handleScope(_btnScope);
+        
+        final Button _btnCallStack = new Button(_subcomposite2, SWT.PUSH);
+        _btnCallStack.setText("Setup Context");
+        handleContext(_btnCallStack);
 
         // Add griddata
         GridData _data = new GridData();
@@ -335,6 +340,24 @@ public class IndusConfigurationDialog extends Dialog {
         KaveriPlugin.getDefault().getIndusConfiguration()
                 .setScopeSpecification("");
         return _composite;
+    }
+
+    /**
+     * Display and handle the context.
+     * @param callStack
+     */
+    private void handleContext(Button callStack) {
+        callStack.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        ContextDialog _cd = new ContextDialog(new Shell());
+                        if (_cd.open() == IDialogConstants.OK_ID) {
+                            // TODO - Fill me.
+                        }
+                    }
+                }
+                );
+        
     }
 
     /**

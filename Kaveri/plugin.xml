@@ -31,7 +31,7 @@
       <import plugin="org.eclipse.jdt.launching"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="edu.ksu.cis.indus"/>
+      <import plugin="edu.ksu.cis.indus" version="0.5.0" match="greaterOrEqual"/>
    </requires>
 
 <!-- The document -->
@@ -303,7 +303,7 @@
                   id="edu.ksu.cis.indus.kaveri.callgraph">
                <menu
                      label="Indus"
-                     path="additions"
+                     path="additons"
                      id="edu.ksu.cis.indus.kaveri.callgraph.menu">
                   <separator name="group1"/>
                </menu>
