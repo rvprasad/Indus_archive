@@ -24,8 +24,8 @@ package edu.ksu.cis.indus.interfaces;
  */
 public interface IActivePart {
 	/**
-	 * This implementation can be used as a component to be responsible for the "active" part of an object.  By default, the 
-     * part is in an executable state. 
+	 * This implementation can be used as a component to be responsible for the "active" part of an object.  By default, the
+	 * part is in an executable state.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -36,13 +36,13 @@ public interface IActivePart {
 		/** 
 		 * This indicates if the active object can proceed with processing.
 		 */
-		private boolean proceed = true;
+		private boolean active = true;
 
 		/**
-		 * Indicates that the active object should abort processing.
+		 * @see IActivePart#activate()
 		 */
-		public void abort() {
-			proceed = false;
+		public void activate() {
+			active = true;
 		}
 
 		/**
@@ -51,21 +51,26 @@ public interface IActivePart {
 		 * @return <code>true</code> if the active object can proceed; <code>false</code>, otherwise.
 		 */
 		public boolean canProceed() {
-			return proceed;
+			return active;
 		}
 
 		/**
-		 * Resets the internal data structures.  This enables the execution state of the part.
+		 * @see IActivePart#deactivate()
 		 */
-		public void reset() {
-			proceed = true;
+		public void deactivate() {
+			active = false;
 		}
 	}
 
 	/**
-	 * Abort current execution.
+	 * Activates the active object.  Any subsequent executions will be proceed.
 	 */
-	void abort();
+	void activate();
+
+	/**
+	 * Inactivates the active object.  Any current execution will be aborted.
+	 */
+	void deactivate();
 }
 
 // End of File
