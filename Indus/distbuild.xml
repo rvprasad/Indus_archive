@@ -23,7 +23,7 @@
     </target>
 
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
-		<anttask target="package"/>
+		<antcall target="package"/>
 	</target>
 	
 	<target name="package">
