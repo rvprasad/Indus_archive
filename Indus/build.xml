@@ -4,7 +4,7 @@
 <!-- $Revision$ -->
 <project name="indus" default="build" basedir=".">
 
-<import file="localbuild.xml"/>
+<import file="prelocalbuild.xml"/>
 
 <target name="init">
     <tstamp/>
@@ -27,7 +27,11 @@
     </javac>
 </target>
 
-<target name="jar" depends="jardepends">
+<target name="jar" depends="init">
+	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+</target>
+
+<target name="buildAndJar" depends="build">
 	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
 </target>
 
@@ -108,12 +112,19 @@
     <delete dir="${docs}"/>
 </target>
 
+<import file="postlocalbuild.xml"/>
+
 </project>
 
 <!--
 ChangeLog:
 
 $Log$
+Revision 1.15  2003/11/14 20:56:48  venku
+- moved jar dependencies into localbuild.xml
+- added inclusion for build targets
+- fiddled with JavaSlicer build.xml to get binding to work.
+
 Revision 1.14  2003/11/13 15:29:03  venku
 - moved property import into localbuild.xml file.
 - added binding compiler support to slicer build process.

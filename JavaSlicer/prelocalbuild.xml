@@ -49,6 +49,4 @@
         </bind>
     </target>
     
-    <target name="jardepends" depends="build, bind"/>
-  
 </project>

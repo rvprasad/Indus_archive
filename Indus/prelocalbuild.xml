@@ -1,6 +1,6 @@
 <project>
-    <import file="../StaticAnalyses/localbuild.xml"/>
-    <import file="../JavaSlicer/localbuild.xml"/>
+    <import file="../StaticAnalyses/prelocalbuild.xml"/>
+    <import file="../JavaSlicer/prelocalbuild.xml"/>
 
     <property file="antbuild.properties"/>        
     <property name="package" value="edu.ksu.cis.indus"/>
@@ -29,7 +29,4 @@
         <path refid="javaslicer.classpath"/>
         <path refid="staticanalyses.classpath"/>
     </path>
-    
-    <target name="jardepends" depends="build"/>
-    
 </project>

@@ -1,0 +1,11 @@
+<project>
+
+    <target name="jar" depends="init, bind">
+	    <jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+    </target>
+
+    <target name="buildAndJar" depends="build, bind">
+	    <jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+    </target>
+
+</project>
