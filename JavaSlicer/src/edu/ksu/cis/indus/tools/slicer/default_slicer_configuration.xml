@@ -7,7 +7,7 @@
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-executable" slicer:sliceForDeadlock="true"> 
 	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
-	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
+	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
 	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"
 	        slicer:useSafeLockAnalysis="true"/> 
@@ -16,7 +16,7 @@
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward" slicer:sliceForDeadlock="true"> 
 	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
-	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
+	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
 	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"
 	        slicer:useSafeLockAnalysis="true"/> 
@@ -25,7 +25,7 @@
 		slicer:slicetype="FORWARD_SLICE" indus:name="forward" slicer:sliceForDeadlock="true"> 
 	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
-	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
+	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
 	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"
 	        slicer:useSafeLockAnalysis="true"/> 
@@ -34,7 +34,7 @@
 		slicer:slicetype="COMPLETE_SLICE" indus:name="complete" slicer:sliceForDeadlock="true"> 
 	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
-	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
+	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
 	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"
 	        slicer:useSafeLockAnalysis="true"/> 
