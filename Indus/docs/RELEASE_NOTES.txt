@@ -25,6 +25,8 @@ Required software:
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
+    GNU Trove (1.1b3)
+    	(trove.jar) [http://trove4j.sourceforge.net/]
 
 
 Version 0.4
