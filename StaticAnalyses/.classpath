@@ -10,5 +10,6 @@
     <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
     <classpathentry kind="src" path="/Indus"/>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
