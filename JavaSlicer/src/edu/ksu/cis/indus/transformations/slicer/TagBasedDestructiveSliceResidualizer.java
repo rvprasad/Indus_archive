@@ -646,9 +646,11 @@ public final class TagBasedDestructiveSliceResidualizer
 					_ch.insertAfter(_newStmt, _pred);
 				}
 			}
+
+			// REMOVE: BEGIN
 			System.out.println("Method Body of " + currMethod);
 
-			for (final Iterator _i = _ch.iterator(); _i.hasNext();) {
+			for (final Iterator _i = currMethod.getActiveBody().getUnits().iterator(); _i.hasNext();) {
 				try {
 					System.out.println(_i.next());
 				} catch (RuntimeException r) {
@@ -656,6 +658,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 			}
 
+			// REMOVE: END
 			oldStmt2newStmt.clear();
 			_body.validateLocals();
 			_body.validateTraps();
@@ -669,6 +672,8 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/16 12:43:33  venku
+   - fixed many errors during destruction of the system.
    Revision 1.4  2003/12/15 16:30:57  venku
    - safety checks and formatting.
    Revision 1.3  2003/12/14 17:00:51  venku
