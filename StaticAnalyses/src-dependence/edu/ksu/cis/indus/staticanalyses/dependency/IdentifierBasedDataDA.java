@@ -98,17 +98,24 @@ public class IdentifierBasedDataDA
 			Stmt stmt = (Stmt) programPoint;
 			SootMethod m = (SootMethod) method;
 			List dependees = (List) dependeeMap.get(method);
-			Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
 
-			for (Iterator i = stmt.getUseBoxes().iterator(); i.hasNext();) {
-				Value o = ((ValueBox) i.next()).getValue();
+			if (dependees != null) {
+				Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
 
-				if (o instanceof Local) {
-					Collection c = (Collection) local2defs.get(o);
+				for (Iterator i = stmt.getUseBoxes().iterator(); i.hasNext();) {
+					Value o = ((ValueBox) i.next()).getValue();
 
-					if (c != null) {
-						result.addAll(c);
+					if (o instanceof Local) {
+						Collection c = (Collection) local2defs.get(o);
+
+						if (c != null) {
+							result.addAll(c);
+						}
 					}
+				}
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Now dependence information available for " + method);
 				}
 			}
 		} else if (programPoint instanceof Pair) {
@@ -299,10 +306,11 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/12 05:00:36  venku
+   - documentation.
    Revision 1.22  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
-
    Revision 1.21  2003/11/10 02:12:52  venku
    - coding convention.
    Revision 1.20  2003/11/05 00:44:51  venku
