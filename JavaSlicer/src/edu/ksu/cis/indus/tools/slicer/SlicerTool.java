@@ -68,11 +68,14 @@ import org.jibx.runtime.JiBXException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 
@@ -199,7 +202,12 @@ public final class SlicerTool
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
-    private Init2NewExprMapper initMapper;
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Init2NewExprMapper initMapper;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -250,9 +258,9 @@ public final class SlicerTool
 
 		// create the slicing transformer.
 		transformer = new TagBasedSlicingTransformer();
-        
-        // create the <init> call to new expr mapper
-        initMapper = new Init2NewExprMapper();
+
+		// create the <init> call to new expr mapper
+		initMapper = new Init2NewExprMapper();
 
 		criteriaFactory = new SliceCriteriaFactory();
 	}
@@ -289,10 +297,12 @@ public final class SlicerTool
 	 * @post result != null and result.oclIsKindOf(Set(DependencyAnalysis))
 	 */
 	public Collection getDAs() {
-		Collection result = new HashSet();
+		Collection result = new LinkedHashSet();
 		SlicerConfiguration config = ((SlicerConfiguration) getActiveConfiguration());
+		List daNames = new ArrayList(config.getNamesOfDAsToUse());
+		Collections.sort(daNames);
 
-		for (Iterator i = config.getNamesOfDAsToUse().iterator(); i.hasNext();) {
+		for (Iterator i = daNames.iterator(); i.hasNext();) {
 			result.addAll(config.getDependenceAnalysis(i.next()));
 		}
 		return result;
@@ -458,13 +468,13 @@ public final class SlicerTool
 			movingToNextPhase();
 
 			// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
-            // mapper.
+			// mapper.
 			threadGraph.reset();
-            initMapper.hookup(cgBasedPreProcessCtrl);
+			initMapper.hookup(cgBasedPreProcessCtrl);
 			threadGraph.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			threadGraph.unhook(cgBasedPreProcessCtrl);
-            initMapper.unhook(cgBasedPreProcessCtrl);
+			initMapper.unhook(cgBasedPreProcessCtrl);
 			phase.nextMinorPhase();
 
 			movingToNextPhase();
@@ -513,13 +523,13 @@ public final class SlicerTool
 
 			if (!criteria.isEmpty()) {
 				transformer.initialize(system);
-                engine.setCgi(callGraph);
-                engine.setExecutableSlice(slicerConfig.executableSlice);
-                engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
-                engine.setInitMapper(initMapper);
-                engine.setSlicedBBGMgr(bbgMgr);
-                engine.setTransformer(transformer);
-                engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
+				engine.setCgi(callGraph);
+				engine.setExecutableSlice(slicerConfig.executableSlice);
+				engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+				engine.setInitMapper(initMapper);
+				engine.setSlicedBBGMgr(bbgMgr);
+				engine.setTransformer(transformer);
+				engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
 				engine.initialize();
 				engine.setSliceCriteria(criteria);
 				engine.slice();
@@ -646,9 +656,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/11/22 00:44:23  venku
+   - ripple effect of splitting initialize() in SliceEngine into many methods.
    Revision 1.28  2003/11/18 21:42:03  venku
    - altered the phase locking logic along with new documentation.
-
    Revision 1.27  2003/11/17 17:56:21  venku
    - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
      way to intialize the tool independent of how it's dependent
