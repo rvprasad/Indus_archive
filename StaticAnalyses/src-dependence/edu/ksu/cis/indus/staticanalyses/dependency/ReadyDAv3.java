@@ -68,6 +68,8 @@ public class ReadyDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/30 07:47:06  venku
+   - changed the way optional features were handled (OFA/SLA).
    Revision 1.8  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.

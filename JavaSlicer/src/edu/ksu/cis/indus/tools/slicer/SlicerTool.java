@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -273,6 +274,11 @@ public final class SlicerTool
 	private NewExpr2InitMapper initMapper;
 
 	/** 
+	 * This provides pair management.
+	 */
+	private final PairManager pairMgr;
+
+	/** 
 	 * This provides safe lock information.
 	 */
 	private SafeLockAnalysis safelockAnalysis;
@@ -311,6 +317,9 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 		cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
+		// create pair manager
+		pairMgr = new Pair.PairManager(false, true);
+		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
 		// create the thread graph.
@@ -322,14 +331,14 @@ public final class SlicerTool
 		// create safe lock analysis
 		safelockAnalysis = new SafeLockAnalysis();
 		// create alias use def analysis
-		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr);
+		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr, pairMgr);
 
 		// set up data required for dependency analyses.
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
-		info.put(Pair.PairManager.ID, new Pair.PairManager());
+		info.put(PairManager.ID, pairMgr);
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		info.put(IMonitorInfo.ID, monitorInfo);
@@ -903,6 +912,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.110  2004/08/02 04:53:45  venku
+   - simplified goto processing logic and collapsed 5 classes into 1 class, SliceGotoProcessor.
+   - ripple effect.
    Revision 1.109  2004/08/01 23:55:43  venku
    - logging.
    Revision 1.108  2004/08/01 21:30:15  venku

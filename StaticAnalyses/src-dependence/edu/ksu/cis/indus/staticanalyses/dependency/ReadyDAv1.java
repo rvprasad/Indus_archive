@@ -925,7 +925,7 @@ public class ReadyDAv1
 					_headStmt = _head.getLeaderStmt();
 				}
 
-				final Pair _special = pairMgr.getOptimizedPair(_headStmt, _sm);
+				final Pair _special = pairMgr.getPair(_headStmt, _sm);
 				specials.add(_special);
 				_result.add(_special);
 			}
@@ -969,7 +969,7 @@ public class ReadyDAv1
 						_tailStmt = _tail.getTrailerStmt();
 					}
 
-					final Pair _special = pairMgr.getOptimizedPair(_tailStmt, _sm);
+					final Pair _special = pairMgr.getPair(_tailStmt, _sm);
 					specials.add(_special);
 					_result.add(_special);
 				}
@@ -1047,7 +1047,7 @@ public class ReadyDAv1
 							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
 								_col.remove(SYNC_METHOD_PROXY_STMT);
 								_temp.clear();
-								_temp.add(pairMgr.getUnOptimizedPair(SYNC_METHOD_PROXY_STMT, _method));
+								_temp.add(pairMgr.getPair(SYNC_METHOD_PROXY_STMT, _method));
 								normalizeEntryInformation(_temp);
 
 								for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
@@ -1097,7 +1097,7 @@ public class ReadyDAv1
 				_temp.clear();
 
 				boolean _shouldContinue = true;
-				final Pair _pair = pairMgr.getOptimizedPair(_dependee, _method);
+				final Pair _pair = pairMgr.getPair(_dependee, _method);
 
 				// add dependent to dependee direction information.
 				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
@@ -1106,7 +1106,7 @@ public class ReadyDAv1
 					CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
 
 					// record dependee to dependent direction information
-					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
+					_temp.add(pairMgr.getPair(_stmt, _method));
 
 					/*
 					 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method call-site,
@@ -1135,7 +1135,7 @@ public class ReadyDAv1
 							CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
 
 							// record dependee to dependent direction information
-							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
+							_temp.add(pairMgr.getPair(_stmt, _method));
 
 							/*
 							 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method
@@ -1175,7 +1175,7 @@ public class ReadyDAv1
 
 			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
 				final Object _o = _j.next();
-				_temp.add(pairMgr.getOptimizedPair(_o, _method));
+				_temp.add(pairMgr.getPair(_o, _method));
 			}
 		}
 
@@ -1196,7 +1196,7 @@ public class ReadyDAv1
 			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
 				final Object _enter = _j.next();
 
-				final Pair _enterPair = pairMgr.getOptimizedPair(_enter, _enterMethod);
+				final Pair _enterPair = pairMgr.getPair(_enter, _enterMethod);
 				_deSet.clear();
 
 				// add dependee to dependent information 
@@ -1275,7 +1275,7 @@ public class ReadyDAv1
 
 			for (final Iterator _j = ((Collection) _nEntry.getValue()).iterator(); _j.hasNext();) {
 				final InvokeStmt _notify = (InvokeStmt) _j.next();
-				final Pair _nPair = pairMgr.getOptimizedPair(_notify, _nMethod);
+				final Pair _nPair = pairMgr.getPair(_notify, _nMethod);
 				_dependents.clear();
 
 				// add dependee to dependent information
@@ -1286,7 +1286,7 @@ public class ReadyDAv1
 					for (final Iterator _l = ((Collection) _wEntry.getValue()).iterator(); _l.hasNext();) {
 						final InvokeStmt _wait = (InvokeStmt) _l.next();
 
-						final Pair _wPair = pairMgr.getOptimizedPair(_wait, _wMethod);
+						final Pair _wPair = pairMgr.getPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
 							final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
@@ -1311,6 +1311,8 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.66  2004/07/30 07:47:06  venku
+   - changed the way optional features were handled (OFA/SLA).
    Revision 1.65  2004/07/28 02:46:55  venku
    - documentation.
    Revision 1.64  2004/07/27 11:07:20  venku

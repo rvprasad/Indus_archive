@@ -809,7 +809,7 @@ public abstract class AbstractDirectedGraph
 				workBag.addWork(_succ);
 				_flag = false;
 			} else {
-				backedges.add(new Pair(nodeToProcess, _succ, false));
+				backedges.add(new Pair(nodeToProcess, _succ));
 			}
 		}
 
@@ -824,6 +824,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/26 08:27:34  venku
+   - optimization.
+
    Revision 1.21  2004/07/25 10:26:35  venku
    - generalized findCycles() to a given set of nodes (not just a SCC).
    Revision 1.20  2004/07/11 13:42:05  venku

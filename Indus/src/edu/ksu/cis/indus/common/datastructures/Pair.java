@@ -47,22 +47,27 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class Pair {
-	/**
+	/** 
 	 * The first element of this pair.
 	 */
 	protected Object first;
 
-	/**
+	/** 
 	 * The second element of this pair.
 	 */
 	protected Object second;
 
-	/**
+	/** 
 	 * A cached copy of the stringized representation of this object.
 	 */
 	private String str;
 
-	/**
+	/** 
+	 * This indicates if this pair is optimized for hash code calls.
+	 */
+	private boolean hashOptimized;
+
+	/** 
 	 * A cached copy of the hash code of this object.
 	 */
 	private int hashCode;
@@ -72,32 +77,39 @@ public final class Pair {
 	 *
 	 * @param firstParam the first element of this pair.
 	 * @param secondParam the second element of this pair.
-	 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object should
-	 * 		  be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these values shoudl
-	 * 		  be calculated on the fly upon request.
+	 */
+	public Pair(final Object firstParam, final Object secondParam) {
+		this.first = firstParam;
+		this.second = secondParam;
+	}
+
+	/**
+	 * Creates a new Pair object.
+	 *
+	 * @param firstParam the first element of this pair.
+	 * @param secondParam the second element of this pair.
+	 * @param hashcodeOptimized <code>true</code> indicates that the the hashcode of this object should be calculated and
+	 * 		  cached for the rest of it's lifetime. <code>false</code> indicates that this value should be calculated on the
+	 * 		  fly upon request.
+	 * @param toStringOptimized <code>true</code> indicates that the the hashcode of this object should be calculated and
+	 * 		  cached for the rest of it's lifetime. <code>false</code> indicates that this value should be calculated on the
+	 * 		  fly upon request.
 	 *
 	 * @post optimized == false implies str == null
 	 * @post optimized == true implies str != null
 	 */
-	public Pair(final Object firstParam, final Object secondParam, final boolean optimized) {
+	public Pair(final Object firstParam, final Object secondParam, final boolean hashcodeOptimized,
+		final boolean toStringOptimized) {
 		this.first = firstParam;
 		this.second = secondParam;
 
-		if (optimized) {
-			optimize();
+		if (hashcodeOptimized) {
+			optimizeHashCode();
 		}
-	}
 
-	/**
-	 * Creates a new optimized Pair object.
-	 *
-	 * @param firstParam the first element of this pair.
-	 * @param secondParam the second element of this pair.
-	 *
-	 * @post str != null
-	 */
-	public Pair(final Object firstParam, final Object secondParam) {
-		this(firstParam, secondParam, true);
+		if (toStringOptimized) {
+			optimizeToString();
+		}
 	}
 
 	/**
@@ -108,54 +120,41 @@ public final class Pair {
 	 * @version $Revision$
 	 */
 	public static final class PairManager {
-		/**
+		/** 
 		 * This is the id of this service.
 		 */
 		public static final String ID = "Pair management service";
 
-		/**
+		/** 
 		 * The collection of managed pairs.
 		 */
 		private final List pairs = new ArrayList();
 
-		/**
+		/** 
 		 * The scratch pad pair object to be used for does-it-manage check.
 		 */
-		private final Pair pairCache = new Pair(null, null, false);
+		private final Pair pairCache = new Pair(null, null);
+
+		
+	/** 
+	 *  This indicates if the generated pairs should be optimized for hash code.
+ */
+		private final boolean hashcodeOptimized;
+
+		/** 
+		 *  This indicates if the generated pairs should be optimized for string generation.
+	 */
+		private final boolean stringOptimized;
 
 		/**
-		 * Provides an optimized pair containing 2 given objects in the given order.
+		 * Creates a new PairManager object.
 		 *
-		 * @param firstParam first element of the requested pair.
-		 * @param secondParam second element of the requested pair.
-		 *
-		 * @return the optimized pair containing the given objects.
-		 *
-		 * @post result != null
+		 * @param optimizeToString <code>true</code> indicates generated pairs are optimized for string generation; <code>false</code>, otherwise.
+		 * @param optimizeHashCode <code>true</code> indicates generated pairs are optimized for hash code generation; <code>false</code>, otherwise.
 		 */
-		public Pair getOptimizedPair(final Object firstParam, final Object secondParam) {
-			return getPair(firstParam, secondParam, true);
-		}
-
-		/**
-		 * Provides an unoptimized pair containing 2 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested pair.
-		 * @param secondParam second element of the requested pair.
-		 *
-		 * @return the unoptimized pair containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		public Pair getUnOptimizedPair(final Object firstParam, final Object secondParam) {
-			return getPair(firstParam, secondParam, false);
-		}
-
-		/**
-		 * Forgets about all managed pairs.
-		 */
-		public void reset() {
-			pairs.clear();
+		public PairManager(final boolean optimizeToString, final boolean optimizeHashCode) {
+			stringOptimized = optimizeToString;
+			hashcodeOptimized = optimizeHashCode;
 		}
 
 		/**
@@ -163,15 +162,12 @@ public final class Pair {
 		 *
 		 * @param firstParam first element of the requested pair.
 		 * @param secondParam second element of the requested pair.
-		 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object
-		 * 		  should be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these
-		 * 		  values should be calculated on the fly upon request.
 		 *
 		 * @return the pair containing the given objects.
 		 *
 		 * @post result != null
 		 */
-		private Pair getPair(final Object firstParam, final Object secondParam, final boolean optimized) {
+		public Pair getPair(final Object firstParam, final Object secondParam) {
 			Pair _result;
 			pairCache.first = firstParam;
 			pairCache.second = secondParam;
@@ -179,10 +175,25 @@ public final class Pair {
 			if (pairs.contains(pairCache)) {
 				_result = (Pair) pairs.get(pairs.indexOf(pairCache));
 			} else {
-				_result = new Pair(firstParam, secondParam, optimized);
+				_result = new Pair(firstParam, secondParam);
+
+				if (stringOptimized) {
+					_result.optimizeToString();
+				}
+
+				if (hashcodeOptimized) {
+					_result.optimizeHashCode();
+				}
 				pairs.add(0, _result);
 			}
 			return _result;
+		}
+
+		/**
+		 * Forgets about all managed pairs.
+		 */
+		public void reset() {
+			pairs.clear();
 		}
 	}
 
@@ -246,10 +257,10 @@ public final class Pair {
 	public int hashCode() {
 		final int _result;
 
-		if (str == null) {
-			_result = hash();
-		} else {
+		if (hashOptimized) {
 			_result = hashCode;
+		} else {
+			_result = hash();
 		}
 		return _result;
 	}
@@ -301,13 +312,21 @@ public final class Pair {
 	}
 
 	/**
-	 * Optimizes this object with regard to hashCode and stringized representation retrival.  It (re)calculates the hashcode
-	 * and the stringized representation of this object and caches the new values.
+	 * Optimizes this object with regard to hashCode representation retrival.  It (re)calculates the hashcode representation
+	 * of this object and caches the new values.
+	 */
+	public void optimizeHashCode() {
+		hashOptimized = true;
+		hashCode = hash();
+	}
+
+	/**
+	 * Optimizes this object with regard to it's stringized representation retrival.  It (re)calculates the stringized
+	 * representation of this object and caches the new values.
 	 *
 	 * @post str != null
 	 */
-	public void optimize() {
-		hashCode = hash();
+	public void optimizeToString() {
 		str = stringize();
 	}
 
@@ -329,12 +348,20 @@ public final class Pair {
 	}
 
 	/**
-	 * Unoptimizes this object with regard to hashCode and stringized representation retrival.  It forgets any cached values
-	 * so that they calculates on the fly when requested next.
+	 * Unoptimizes this object with regard to hashCode representation retrival.  It forgets any cached values so that they
+	 * calculates on the fly when requested next.
+	 */
+	public void unoptimizeHashCode() {
+		hashOptimized = false;
+	}
+
+	/**
+	 * Unoptimizes this object with regard to stringized representation retrival.  It forgets any cached values so that they
+	 * calculates on the fly when requested next.
 	 *
 	 * @post str == null
 	 */
-	public void unoptimize() {
+	public void unoptimizeToString() {
 		str = null;
 	}
 
@@ -369,6 +396,8 @@ public final class Pair {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/25 15:39:20  venku
+   - when the elements were null, a NPE could occur. FIXED.
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
@@ -410,15 +439,15 @@ public final class Pair {
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-                     Revision 1.2  2003/08/11 04:20:19  venku
-                     - Pair and Triple were changed to work in optimized and unoptimized mode.
-                     - Ripple effect of the previous change.
-                     - Documentation and specification of other classes.
-                     Revision 1.1  2003/08/07 06:42:16  venku
-                     Major:
-                      - Moved the package under indus umbrella.
-                      - Renamed isEmpty() to hasWork() in IWorkBag.
-                     Revision 1.4  2003/05/22 22:18:31  venku
-                     All the interfaces were renamed to start with an "I".
-                     Optimizing changes related Strings were made.
+                       Revision 1.2  2003/08/11 04:20:19  venku
+                       - Pair and Triple were changed to work in optimized and unoptimized mode.
+                       - Ripple effect of the previous change.
+                       - Documentation and specification of other classes.
+                       Revision 1.1  2003/08/07 06:42:16  venku
+                       Major:
+                        - Moved the package under indus umbrella.
+                        - Renamed isEmpty() to hasWork() in IWorkBag.
+                       Revision 1.4  2003/05/22 22:18:31  venku
+                       All the interfaces were renamed to start with an "I".
+                       Optimizing changes related Strings were made.
  */

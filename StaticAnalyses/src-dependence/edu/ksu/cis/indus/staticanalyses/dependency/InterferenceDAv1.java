@@ -156,7 +156,7 @@ public class InterferenceDAv1
 			}
 
 			if (_temp != null) {
-				_temp.put(pairMgr.getOptimizedPair(stmt, context.getCurrentMethod()), null);
+				_temp.put(pairMgr.getPair(stmt, context.getCurrentMethod()), null);
 			}
 		}
 
@@ -218,7 +218,7 @@ public class InterferenceDAv1
 			_pair2set = (Map) MapUtils.getObject(dependent2dependee, _dependent, Collections.EMPTY_MAP);
 
 			if (_pair2set != null) {
-				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
+				final Collection _set = (Collection) _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -257,7 +257,7 @@ public class InterferenceDAv1
 			_pair2set = (Map) MapUtils.getObject(dependee2dependent, _dependee, Collections.EMPTY_MAP);
 
 			if (_pair2set != null) {
-				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
+				final Collection _set = (Collection) _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -625,6 +625,8 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/08/01 22:59:23  venku
+   - used CollectionsUtilities.
    Revision 1.44  2004/07/30 07:47:06  venku
    - changed the way optional features were handled (OFA/SLA).
    Revision 1.43  2004/07/24 10:02:46  venku

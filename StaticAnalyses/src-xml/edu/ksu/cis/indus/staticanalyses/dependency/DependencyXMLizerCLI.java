@@ -292,16 +292,17 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
+		final PairManager _pairManager = new PairManager(false, true);
 		final AliasedUseDefInfo _aliasUD;
 
 		if (useAliasedUseDefv1) {
-			_aliasUD = new AliasedUseDefInfo(aa, bbm);
+			_aliasUD = new AliasedUseDefInfo(aa, bbm, _pairManager);
 		} else {
-			_aliasUD = new AliasedUseDefInfov2(aa, _cgi, _tgi, bbm);
+			_aliasUD = new AliasedUseDefInfov2(aa, _cgi, _tgi, bbm, _pairManager);
 		}
 		info.put(ICallGraphInfo.ID, _cgi);
 		info.put(IThreadGraphInfo.ID, _tgi);
-		info.put(PairManager.ID, new PairManager());
+		info.put(PairManager.ID, _pairManager);
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
@@ -391,26 +392,23 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/08/01 21:30:15  venku
+   - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.
-
    Revision 1.39  2004/07/30 07:05:18  venku
    - documentation.
-
    Revision 1.38  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
    - ripple effect.
    - deleted entry control dependence and renamed direct entry control da as
      entry control da.
-
    Revision 1.37  2004/07/27 11:38:31  venku
    - tweaked command line options.
-
    Revision 1.36  2004/07/27 11:31:32  venku
    - tweaked command line options.
-
    Revision 1.35  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku
@@ -678,26 +676,23 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/08/01 21:30:15  venku
+   - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.
-
    Revision 1.39  2004/07/30 07:05:18  venku
    - documentation.
-
    Revision 1.38  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
    - ripple effect.
    - deleted entry control dependence and renamed direct entry control da as
      entry control da.
-
    Revision 1.37  2004/07/27 11:38:31  venku
    - tweaked command line options.
-
    Revision 1.36  2004/07/27 11:31:32  venku
    - tweaked command line options.
-
    Revision 1.35  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku

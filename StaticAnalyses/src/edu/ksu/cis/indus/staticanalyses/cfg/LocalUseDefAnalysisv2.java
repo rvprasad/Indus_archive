@@ -263,7 +263,7 @@ public final class LocalUseDefAnalysisv2
 
 		// calculate information at intra bb level and record the use-def information.
 		final Collection _defStmts = new HashSet();
-		final PairManager _pairMgr = new PairManager();
+		final PairManager _pairMgr = new PairManager(false, true);
 		final Map _local2defStmts = CollectionsUtilities.invertMap(defStmt2local);
 
 		// process each basic block.
@@ -292,7 +292,7 @@ public final class LocalUseDefAnalysisv2
 
 					if (_value instanceof Local) {
 						final Collection _d = CollectionUtils.intersection((Collection) _local2defStmts.get(_value), _rDefs);
-						defInfo.put(_pairMgr.getOptimizedPair(_value, _stmt), _d);
+						defInfo.put(_pairMgr.getPair(_value, _stmt), _d);
 						_defStmts.addAll(_d);
 					}
 				}
@@ -383,6 +383,8 @@ public final class LocalUseDefAnalysisv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/25 01:42:44  venku
+   - refactoring.
    Revision 1.3  2004/07/25 01:37:32  venku
    - added a private constructor to prevent illegal instantiations.
    Revision 1.2  2004/07/22 09:42:40  venku

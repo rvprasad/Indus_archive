@@ -242,7 +242,7 @@ public final class LocalUseDefAnalysis
 	 */
 	private void extract(final BitSet[][] local2defs, final List localList) {
 		final Collection _cache = new ArrayList();
-		final PairManager _pairMgr = new PairManager();
+		final PairManager _pairMgr = new PairManager(false, true);
 
 		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
@@ -265,7 +265,7 @@ public final class LocalUseDefAnalysis
 							_cache.add(_defStmt);
 							CollectionsUtilities.getListFromMap(useInfo, _defStmt).add(_stmt);
 						}
-						CollectionsUtilities.putAllIntoSetInMap(defInfo, _pairMgr.getUnOptimizedPair(_local, _stmt), _cache);
+						CollectionsUtilities.putAllIntoSetInMap(defInfo, _pairMgr.getPair(_local, _stmt), _cache);
 					}
 				}
 			}
@@ -329,6 +329,9 @@ public final class LocalUseDefAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/22 09:42:40  venku
+   - altered IUseDefInfo to use tighter types.
+   - ripple effect.
    Revision 1.6  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -336,7 +339,6 @@ public final class LocalUseDefAnalysis
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.5  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.IndusTestCase;
+
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import java.util.ArrayList;
@@ -33,12 +34,12 @@ import java.util.Map;
  */
 public class PairTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * One of the pairs.
 	 */
 	private Pair pair1;
 
-	/**
+	/** 
 	 * Another pair.
 	 */
 	private Pair pair2;
@@ -118,9 +119,9 @@ public class PairTest
 		_second.add("second");
 
 		assertTrue(_p1.hashCode() == _hash1);
-		_p1.unoptimize();
+		_p1.unoptimizeHashCode();
 		assertTrue(_p1.hashCode() != _hash1);
-		_p1.optimize();
+		_p1.optimizeHashCode();
 		assertTrue(_p1.hashCode() != _hash1);
 	}
 
@@ -136,9 +137,9 @@ public class PairTest
 		_second.append("second");
 
 		assertTrue(_p1.hashCode() == _hash1);
-		_p1.unoptimize();
+		_p1.unoptimizeHashCode();
 		assertTrue(_p1.hashCode() == _hash1);
-		_p1.optimize();
+		_p1.optimizeHashCode();
 		assertTrue(_p1.hashCode() == _hash1);
 	}
 
@@ -146,17 +147,17 @@ public class PairTest
 	 * Tests <code>PairManager</code>.
 	 */
 	public final void testPairManager() {
-		final PairManager _pmgr = new PairManager();
-		final Pair _p1 = _pmgr.getOptimizedPair("first", "second");
-		final Pair _p2 = _pmgr.getOptimizedPair("first", "second");
-		final Pair _p3 = _pmgr.getUnOptimizedPair("first", "second");
-		final Pair _p4 = _pmgr.getUnOptimizedPair("first", "second");
+		final PairManager _pmgr = new PairManager(true, true);
+		final Pair _p1 = _pmgr.getPair("first", "second");
+		final Pair _p2 = _pmgr.getPair("first", "second");
+		final Pair _p3 = _pmgr.getPair("first", "second");
+		final Pair _p4 = _pmgr.getPair("first", "second");
 		assertTrue(_p1 == _p2);
 		assertTrue(_p3 == _p4);
 		assertTrue(_p1 == _p3);
 		_pmgr.reset();
 
-		final Pair _p5 = _pmgr.getUnOptimizedPair("first", "second");
+		final Pair _p5 = _pmgr.getPair("first", "second");
 		assertTrue(_p1 != _p5);
 	}
 
@@ -168,15 +169,15 @@ public class PairTest
 		_second.append(true);
 
 		final Pair _p1 = new Pair("first", _second);
-		_p1.optimize();
+		_p1.optimizeToString();
 
 		final String _str1 = _p1.toString();
-		_p1.unoptimize();
+		_p1.unoptimizeToString();
 		_second.append(false);
 
 		final String _str2 = _p1.toString();
 		assertFalse(_str1.equals(_str2));
-		_p1.optimize();
+		_p1.optimizeToString();
 
 		final String _str3 = _p1.toString();
 		assertFalse(_str1.equals(_str3));
@@ -205,6 +206,9 @@ public class PairTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/14 04:55:03  venku
+   - documentation.
+   - coding conventions.
    Revision 1.3  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the
@@ -212,10 +216,8 @@ public class PairTest
    - all test cases in indus extends IndusTestCase.
    - added a new method TestHelper to append container's name
      to the test cases.
-
    Revision 1.2  2004/01/28 01:47:58  venku
    - coding convention.
-
    Revision 1.1  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
  */

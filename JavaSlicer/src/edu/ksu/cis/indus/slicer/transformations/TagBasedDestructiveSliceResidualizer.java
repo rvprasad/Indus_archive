@@ -961,19 +961,18 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @pre method != null and stmt != null
 	 */
 	private void processHandlers(final Stmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Collecting handlers " + stmt + "@" + currMethod);
-		}
-
-		final Body _body = currMethod.retrieveActiveBody();
-
 		// calculate the relevant traps
 		if (stmt.hasTag(theNameOfTagToResidualize)) {
-			trapsToRetain.addAll(TrapManager.getTrapsAt(stmt, _body));
-		}
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("BEGIN: Collecting handlers " + stmt + "@" + currMethod);
+			}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Collecting handlers " + stmt + "@" + currMethod);
+			final Body _body = currMethod.retrieveActiveBody();
+			trapsToRetain.addAll(TrapManager.getTrapsAt(stmt, _body));
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("END: Collecting handlers " + stmt + "@" + currMethod);
+			}
 		}
 	}
 
@@ -985,11 +984,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @pre stmt != null
 	 */
 	private void pruneLocals(final Stmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Pruning locals in " + stmt);
-		}
-
 		if (stmt.hasTag(theNameOfTagToResidualize)) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Pruning locals in " + stmt);
+			}
+
 			for (final Iterator _k = Util.getHostsWithTag(stmt.getUseAndDefBoxes(), theNameOfTagToResidualize).iterator();
 				  _k.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _k.next();
@@ -1006,6 +1005,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/07/25 01:34:36  venku
+   - if a throw was marked and not the exception value, then the code to create
+     a value is injected independent of the fact that the thrown value is in the slice.
+     This was fixed by using local use def analysis.  FIXED.
    Revision 1.18  2004/07/23 11:28:22  venku
    - jimple specific residualization fixes.
    Revision 1.17  2004/07/21 07:09:26  venku

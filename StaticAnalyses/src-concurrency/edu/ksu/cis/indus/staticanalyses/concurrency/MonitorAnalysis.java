@@ -162,7 +162,7 @@ public final class MonitorAnalysis
 	/** 
 	 * The pair manager.
 	 */
-	private final PairManager pairMgr = new PairManager();
+	private PairManager pairMgr;
 
 	/**
 	 * Creates a new MonitorAnalysis object.
@@ -610,7 +610,6 @@ public final class MonitorAnalysis
 		monitorTriples.clear();
 		syncedMethods.clear();
 		syncedMethod2enclosedStmts.clear();
-		pairMgr.reset();
 		method2enclosedStmts2monitors.clear();
 		method2monitor2enclosedStmts.clear();
 		method2enterMonitors.clear();
@@ -686,6 +685,7 @@ public final class MonitorAnalysis
 	 * @throws InitializationException when object flow analysis is not provided.
 	 *
 	 * @pre info.get(OFAnalyzer.ID) != null and info.get(OFAnalyzer.ID).oclIsTypeOf(OFAnalyzer)
+	 * @pre info.get(PairManager.ID) != null and info.get(PairManager.ID).oclIsTypeOf(PairManager)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
@@ -697,6 +697,12 @@ public final class MonitorAnalysis
 
 		if (ofa == null) {
 			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
+		}
+
+		pairMgr = (PairManager) info.get(PairManager.ID);
+
+		if (pairMgr == null) {
+			throw new InitializationException(PairManager.ID + " was not provided in the info.");
 		}
 	}
 
@@ -780,7 +786,7 @@ public final class MonitorAnalysis
 
 		for (final Iterator _i = stmtsWithInvokeExpr; _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
-			_wb.addWork(pairMgr.getOptimizedPair(_stmt, method));
+			_wb.addWork(pairMgr.getPair(_stmt, method));
 		}
 
 		while (_wb.hasWork()) {
@@ -804,7 +810,7 @@ public final class MonitorAnalysis
 					for (final Iterator _j = IteratorUtils.filteredIterator(_stmts.iterator(), INVOKE_EXPR_PREDICATE);
 						  _j.hasNext();) {
 						final Stmt _s = (Stmt) _j.next();
-						_wb.addWork(pairMgr.getOptimizedPair(_s, _callee));
+						_wb.addWork(pairMgr.getPair(_s, _callee));
 					}
 				}
 			}
@@ -1152,6 +1158,8 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/27 11:07:20  venku
+   - updated project to use safe lock analysis.
    Revision 1.3  2004/07/27 07:08:25  venku
    - revamped IMonitorInfo interface.
    - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.

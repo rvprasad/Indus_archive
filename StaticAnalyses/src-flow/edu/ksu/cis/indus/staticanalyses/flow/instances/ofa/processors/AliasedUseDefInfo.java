@@ -106,21 +106,23 @@ public class AliasedUseDefInfo
 	/** 
 	 * This manages <code>Pair</code> objects.
 	 */
-	private final PairManager pairMgr = new PairManager();
+	private final PairManager pairMgr;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param bbgManager is the basic block graph manager to use.
+	 * @param pairManager to be used.
 	 *
-	 * @pre analyzer != null and cg != null and bbgMgr != null
+	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
 		use2defsMap = new HashMap();
 		def2usesMap = new HashMap();
 		analyzer = iva;
 		bbgMgr = bbgManager;
+		pairMgr = pairManager;
 	}
 
 	/**
@@ -252,8 +254,8 @@ public class AliasedUseDefInfo
 									_defs = new HashSet();
 									_useStmt2defStmts.setValue(_defs);
 								}
-								_defs.add(pairMgr.getOptimizedPair(_defStmt, _defMethod));
-								_uses.add(pairMgr.getOptimizedPair(_useStmt, _useMethod));
+								_defs.add(pairMgr.getPair(_defStmt, _defMethod));
+								_uses.add(pairMgr.getPair(_useStmt, _useMethod));
 							}
 						}
 					}
@@ -286,7 +288,6 @@ public class AliasedUseDefInfo
 		unstable();
 		def2usesMap.clear();
 		use2defsMap.clear();
-		pairMgr.reset();
 	}
 
 	/**
@@ -457,6 +458,8 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/07/25 00:19:24  venku
+   - result for class initializers was being overwritten in isReachableViaInterProceduralFlow().  FIXED.
    Revision 1.42  2004/07/22 09:42:40  venku
    - altered IUseDefInfo to use tighter types.
    - ripple effect.

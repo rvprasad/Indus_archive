@@ -26,8 +26,8 @@ import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -100,13 +100,6 @@ public class SafeLockAnalysis
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	final PairManager pairMgr = new PairManager();
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
 	ICallGraphInfo callgraphInfo;
 
 	/** 
@@ -115,6 +108,13 @@ public class SafeLockAnalysis
 	 * </p>
 	 */
 	IMonitorInfo monitorInfo;
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	PairManager pairMgr;
 
 	/** 
 	 * <p>
@@ -190,7 +190,7 @@ public class SafeLockAnalysis
 			final SootMethod _currentMethod = context.getCurrentMethod();
 
 			if (Util.isWaitInvocation((InvokeStmt) stmt, _currentMethod, callgraphInfo)) {
-				waits.add(pairMgr.getOptimizedPair(stmt, _currentMethod));
+				waits.add(pairMgr.getPair(stmt, _currentMethod));
 			}
 		}
 
@@ -207,6 +207,29 @@ public class SafeLockAnalysis
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(InvokeStmt.class, this);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 *
+	 * @return
+	 */
+	public boolean isLockSafe(final SootMethod method) {
+		return !unsafeMonitors.contains(new Triple(null, null, method));
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param stmt
+	 * @param method
+	 *
+	 * @return
+	 */
+	public boolean isLockSafe(final Stmt stmt, final SootMethod method) {
+		return !CollectionUtils.containsAny(unsafeMonitors, monitorInfo.getMonitorTriplesFor(stmt, method));
 	}
 
 	/**
@@ -282,7 +305,6 @@ public class SafeLockAnalysis
 	 */
 	public void reset() {
 		super.reset();
-		pairMgr.reset();
 		unsafeMonitors.clear();
 		monitor2relatedMonitors.clear();
 		monitor2relatedWaits.clear();
@@ -324,6 +346,14 @@ public class SafeLockAnalysis
 			LOGGER.error(_msg);
 			throw new InitializationException(_msg);
 		}
+
+		pairMgr = (PairManager) info.get(PairManager.ID);
+
+		if (pairMgr == null) {
+			final String _msg = "An interface with id, " + PairManager.ID + ", was not provided.";
+			LOGGER.error(_msg);
+			throw new InitializationException(_msg);
+		}
 	}
 
 	/**
@@ -350,46 +380,6 @@ public class SafeLockAnalysis
 	 */
 	private Collection getWaitStmtsInMonitor(final Triple monitor) {
 		return (Collection) MapUtils.getObject(monitor2waits, monitor, Collections.EMPTY_LIST);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	private void processMonitorsAndWaitsForEnclosureBaseRelation() {
-		final Collection _temp = new HashSet();
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
-		final Iterator _i = waits.iterator();
-		final int _iEnd = waits.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Pair _waitMethodPair = (Pair) _i.next();
-			final Stmt _waitStmt = (Stmt) _waitMethodPair.getFirst();
-			final SootMethod _method = (SootMethod) _waitMethodPair.getSecond();
-			_temp.clear();
-			_wb.clear();
-			_wb.addWork(new CallTriple(_method, _waitStmt, _waitStmt.getInvokeExpr()));
-
-			while (_wb.hasWork()) {
-				final CallTriple _ctrp = (CallTriple) _wb.getWork();
-				final Stmt _stmt = _ctrp.getStmt();
-				final SootMethod _sm = _ctrp.getMethod();
-				final Collection _enclosingMonitors = monitorInfo.getEnclosingMonitorTriples(_stmt, _sm, false);
-
-				if (_enclosingMonitors.isEmpty()) {
-					_wb.addAllWorkNoDuplicates(callgraphInfo.getCallers(_sm));
-				} else {
-					final Iterator _j = _enclosingMonitors.iterator();
-					final int _jEnd = _enclosingMonitors.size();
-
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Triple _monitor = (Triple) _j.next();
-						CollectionsUtilities.putIntoListInMap(monitor2waits, _monitor, _waitMethodPair);
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -480,6 +470,7 @@ public class SafeLockAnalysis
 			}
 
 			_temp.removeAll(_mons);
+
 			final Iterator _j = _temp.iterator();
 			final int _jEnd = _temp.size();
 
@@ -519,12 +510,52 @@ public class SafeLockAnalysis
 				final VirtualInvokeExpr _invokeExpr = (VirtualInvokeExpr) _stmt.getInvokeExpr();
 				_context.setRootMethod(_sm);
 				_context.setStmt(_stmt);
-				_context.setProgramPoint(_invokeExpr.getBaseBox());				
+				_context.setProgramPoint(_invokeExpr.getBaseBox());
 
-                final Collection _c2 = iva.getValues((_invokeExpr).getBase(), _context);
+				final Collection _c2 = iva.getValues((_invokeExpr).getBase(), _context);
 
 				if (CollectionUtils.containsAny(_c1, _c2)) {
 					CollectionsUtilities.putIntoSetInMap(monitor2relatedWaits, _monitor1, _waitMethodPair);
+				}
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	private void processMonitorsAndWaitsForEnclosureBaseRelation() {
+		final Collection _temp = new HashSet();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+		final Iterator _i = waits.iterator();
+		final int _iEnd = waits.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Pair _waitMethodPair = (Pair) _i.next();
+			final Stmt _waitStmt = (Stmt) _waitMethodPair.getFirst();
+			final SootMethod _method = (SootMethod) _waitMethodPair.getSecond();
+			_temp.clear();
+			_wb.clear();
+			_wb.addWork(new CallTriple(_method, _waitStmt, _waitStmt.getInvokeExpr()));
+
+			while (_wb.hasWork()) {
+				final CallTriple _ctrp = (CallTriple) _wb.getWork();
+				final Stmt _stmt = _ctrp.getStmt();
+				final SootMethod _sm = _ctrp.getMethod();
+				final Collection _enclosingMonitors = monitorInfo.getEnclosingMonitorTriples(_stmt, _sm, false);
+
+				if (_enclosingMonitors.isEmpty()) {
+					_wb.addAllWorkNoDuplicates(callgraphInfo.getCallers(_sm));
+				} else {
+					final Iterator _j = _enclosingMonitors.iterator();
+					final int _jEnd = _enclosingMonitors.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Triple _monitor = (Triple) _j.next();
+						CollectionsUtilities.putIntoListInMap(monitor2waits, _monitor, _waitMethodPair);
+					}
 				}
 			}
 		}
@@ -613,7 +644,7 @@ public class SafeLockAnalysis
 		final Collection _c1;
 
 		if (_monitorStmt != null) {
-		    _context.setProgramPoint(_monitorStmt.getOpBox());
+			_context.setProgramPoint(_monitorStmt.getOpBox());
 			_c1 = iva.getValues(_monitorStmt.getOp(), _context);
 		} else {
 			if (_monitorMethod.isStatic()) {
@@ -636,7 +667,7 @@ public class SafeLockAnalysis
 			_context.setStmt(_waitStmt);
 			_context.setProgramPoint(_invokeExpr.getBaseBox());
 
-            final Collection _c2 = iva.getValues((_invokeExpr).getBase(), _context);
+			final Collection _c2 = iva.getValues((_invokeExpr).getBase(), _context);
 
 			_safe = _c1.size() == 1 && _c1.equals(_c2);
 		}
@@ -704,35 +735,15 @@ public class SafeLockAnalysis
 
 		return _safe;
 	}
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param method
-     * @return
-     */
-    public boolean isLockSafe(final SootMethod method) {
-        return !unsafeMonitors.contains(new Triple(null, null, method));
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param stmt
-     * @param method
-     * @return
-     */
-    public boolean isLockSafe(final Stmt stmt, final SootMethod method) {
-        return !CollectionUtils.containsAny(unsafeMonitors, monitorInfo.getMonitorTriplesFor(stmt, method));
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/07/30 05:17:08  venku
+   - moved the methods to check for wait(), notify(), and start() invocations into Util.
    Revision 1.13  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
-
    Revision 1.12  2004/07/27 07:08:25  venku
    - revamped IMonitorInfo interface.
    - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.

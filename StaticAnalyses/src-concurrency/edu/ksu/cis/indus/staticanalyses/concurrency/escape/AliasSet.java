@@ -233,7 +233,7 @@ final class AliasSet
 	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
 	 *
 	 * @param clonee2clone maps an representative alias set to it's clone.  This is also an out parameter that will contain
-	 * new mappings.
+	 * 		  new mappings.
 	 *
 	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
 	 */
@@ -253,10 +253,11 @@ final class AliasSet
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Object _field = _i.next();
+
 				/*
 				 * We use the representative alias set as it is possible that a field may have 2 alias sets in different
 				 * contexts but the same representative alias set in both contexts.  We don't do the same for clones as they
-				 * are representation until they are unified, which happens in the following block. 
+				 * are representation until they are unified, which happens in the following block.
 				 */
 				final Object _cloneeFieldAS = (AliasSet) ((AliasSet) _cloneeFieldMap.get(_field)).find();
 				Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
@@ -461,7 +462,7 @@ final class AliasSet
 	 */
 	static void propogateInfoFromTo(final AliasSet from, final AliasSet to) {
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-		_wb.addWork(new Pair(from, to, false));
+		_wb.addWork(new Pair(from, to));
 
 		while (_wb.hasWork()) {
 			final Pair _pair = (Pair) _wb.getWork();
@@ -499,7 +500,7 @@ final class AliasSet
 				final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
 
 				if ((_to != null) && (_from != null)) {
-					_wb.addWork(new Pair(_from, _to, false));
+					_wb.addWork(new Pair(_from, _to));
 				}
 			}
 		}
@@ -609,8 +610,8 @@ final class AliasSet
 		final AliasSet _n = (AliasSet) as2.find();
 
 		if (_m != _n) {
-		    _m.union(_n);
-		    
+			_m.union(_n);
+
 			final AliasSet _rep1 = (AliasSet) _m.find();
 			final AliasSet _rep2;
 
@@ -693,13 +694,14 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/08/01 23:27:08  venku
+   - changed output of toString().
    Revision 1.20  2004/08/01 22:58:25  venku
    - ECBA was erroneous for 2 reasons.
      - top-down propagation was not complete. FIXED.
      - cloning of alias sets was not complete. FIXED.
    - optimized certain other aspects of ECBA.
    - removed RufsEscapeAnalysis.
-
    Revision 1.19  2004/07/30 07:47:35  venku
    - there was a bug in escape analysis cloning and union algorithm.  FIXED.
    Revision 1.18  2004/07/17 19:37:18  venku

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -76,11 +77,11 @@ public class AliasedUseDefInfov2
 	 *
 	 * @param cg is the call graph to use.
 	 *
-	 * @pre iva != null and cg != null tg != null and bbgManager != null
+	 * @pre iva != null and cg != null tg != null and bbgManager != null and pairManager != null
 	 */
 	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
-		final BasicBlockGraphMgr bbgManager) {
-		super(iva, bbgManager);
+		final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
+		super(iva, bbgManager, pairManager);
 		cgi = cg;
 		tgi = tg;
 	}
@@ -250,6 +251,12 @@ public class AliasedUseDefInfov2
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/28 09:09:27  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
    Revision 1.1  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
