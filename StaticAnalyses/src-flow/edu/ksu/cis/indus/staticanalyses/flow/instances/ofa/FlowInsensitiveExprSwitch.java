@@ -69,7 +69,7 @@ import soot.jimple.VirtualInvokeExpr;
  */
 class FlowInsensitiveExprSwitch
   extends AbstractExprSwitch {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FlowInsensitiveExprSwitch.class);
@@ -139,8 +139,6 @@ class FlowInsensitiveExprSwitch
 			// run-time.
 			final IFGNode _base = (IFGNode) getResult();
 			final IFGNode _cast = method.getASTNode(e);
-
-			//_cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
 			final ITokenManager _tokenMgr = fa.getTokenManager();
 			_cast.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getExactType(e)));
 			_base.addSucc(_cast);
@@ -239,8 +237,6 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseNewExpr(final NewExpr e) {
 		final IFGNode _ast = method.getASTNode(e);
-
-		//_ast.addValue(e);
 		_ast.injectValue(e);
 		setResult(_ast);
 	}
@@ -264,14 +260,11 @@ class FlowInsensitiveExprSwitch
 			final ArrayVariant _array = fa.getArrayVariant(_arrayType, context);
 
 			if (_sizes > 0) {
-				//_array.getFGNode().addValue(e);
 				_array.getFGNode().injectValue(e);
 			}
 		}
 
 		final IFGNode _ast = method.getASTNode(e);
-
-		//_ast.addValue(e);
 		_ast.injectValue(e);
 		setResult(_ast);
 	}
@@ -285,8 +278,6 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseNullConstant(final NullConstant e) {
 		final IFGNode _ast = method.getASTNode(e);
-
-		//_ast.addValue(e);
 		_ast.injectValue(e);
 		setResult(_ast);
 	}
@@ -326,7 +317,6 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef e) {
 		final SootField _field = e.getField();
-
 		final IFGNode _ast = method.getASTNode(e);
 		final IFGNode _nonast = fa.getFieldVariant(_field).getFGNode();
 		connector.connect(_ast, _nonast);
@@ -353,8 +343,6 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseStringConstant(final StringConstant e) {
 		final IFGNode _ast = method.getASTNode(e);
-
-		//_ast.addValue(e);
 		_ast.injectValue(e);
 		setResult(_ast);
 	}
@@ -491,6 +479,9 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/20 07:29:42  venku
+   - optimized the token set to be optimal when created.
+   - added new method to retrieve empty token sets (getNewTokenSet()).
    Revision 1.5  2004/05/19 06:50:30  venku
    - changes to use two-level worklist iteration.  That is, while processing
      work peice in a worklist, any newly generated work is added to another
