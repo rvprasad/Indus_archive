@@ -61,8 +61,9 @@ import java.util.Map;
 
 
 /**
- * This class provides intraprocedural data dependency information.  Local variables of primitive types and reference types
- * in a method constitute intraprocedural data.
+ * This class provides data dependency information independent of aliasing.  Local variables in a method enable such
+ * dependence. Hence, information about field/array access via primaries which are local variables is not provided by this
+ * class. Please refer to {@link AliasedDataDA AliasedDataDA} for such information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -73,7 +74,7 @@ import java.util.Map;
  * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Map(ValueBox, Set(ca.mcgill. sable.soot.jimple.Stmt)))))
  * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
-public class IntraProceduralDataDA
+public class NonAliasedDataDA
   extends DependencyAnalysis {
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
@@ -195,7 +196,7 @@ public class IntraProceduralDataDA
 	 */
 	public String toString() {
 		StringBuffer result =
-			new StringBuffer("Statistics for Intraprocedural Data dependence as calculated by " + this.getClass().getName()
+			new StringBuffer("Statistics for Non-Aliased Data dependence as calculated by " + this.getClass().getName()
 				+ "\n");
 		int localEdgeCount = 0;
 		int edgeCount = 0;
@@ -218,12 +219,12 @@ public class IntraProceduralDataDA
 				localEdgeCount += c.size();
 			}
 			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount
-				+ " Intraprocedural Data dependence edges.\n");
+				+ " Non-Aliased Data dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Intraprocedural Data dependence edges exist.");
+		result.append("A total of " + edgeCount + " Non-Aliased Data dependence edges exist.");
 		return result.toString();
 	}
 }
