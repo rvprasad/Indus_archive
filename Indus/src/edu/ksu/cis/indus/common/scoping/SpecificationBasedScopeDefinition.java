@@ -38,21 +38,21 @@ public final class SpecificationBasedScopeDefinition {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Collection classSpecs = new ArrayList();
+	private Collection classSpecs;
 
 	/** 
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Collection fieldSpecs = new ArrayList();
+	private Collection fieldSpecs;
 
 	/** 
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Collection methodSpecs = new ArrayList();
+	private Collection methodSpecs;
 
 	/**
 	 * DOCUMENT ME!
@@ -102,25 +102,57 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the value of <code>classSpecs</code>.
 	 *
-	 * @return DOCUMENT ME!
+	 * @param classSpecs the new value of <code>classSpecs</code>.
 	 */
-	Collection createClassLevelSpecContainer() {
+	void setClassSpecs(Collection classSpecs) {
+		this.classSpecs = classSpecs;
+	}
+
+	/**
+	 * Retrieves the value in <code>classSpecs</code>.
+	 *
+	 * @return the value in <code>classSpecs</code>.
+	 */
+	Collection getClassSpecs() {
 		return classSpecs;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the value of <code>fieldSpecs</code>.
 	 *
-	 * @return DOCUMENT ME!
+	 * @param fieldSpecs the new value of <code>fieldSpecs</code>.
 	 */
-	Collection createFieldLevelSpecContainer() {
+	void setFieldSpecs(Collection fieldSpecs) {
+		this.fieldSpecs = fieldSpecs;
+	}
+
+	/**
+	 * Retrieves the value in <code>fieldSpecs</code>.
+	 *
+	 * @return the value in <code>fieldSpecs</code>.
+	 */
+	Collection getFieldSpecs() {
 		return fieldSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>methodSpecs</code>.
+	 *
+	 * @param methodSpecs the new value of <code>methodSpecs</code>.
+	 */
+	void setMethodSpecs(Collection methodSpecs) {
+		this.methodSpecs = methodSpecs;
+	}
+
+	/**
+	 * Retrieves the value in <code>methodSpecs</code>.
+	 *
+	 * @return the value in <code>methodSpecs</code>.
+	 */
+	Collection getMethodSpecs() {
+		return methodSpecs;
 	}
 
 	/**
@@ -130,8 +162,30 @@ public final class SpecificationBasedScopeDefinition {
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	Collection createMethodLevelSpecContainer() {
-		return methodSpecs;
+	static Collection createClassSpecContainer() {
+		return new ArrayList();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	static Collection createFieldSpecContainer() {
+		return new ArrayList();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	static Collection createMethodSpecContainer() {
+		return new ArrayList();
 	}
 }
 

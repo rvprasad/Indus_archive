@@ -5,11 +5,14 @@
 	<mapping name="scopeSpec" class="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition"
         ns="http://indus.projects.cis.ksu.edu/indus">
         <collection field="classSpecs" item-type="edu.ksu.cis.indus.common.scoping.ClassSpecification"
-        	factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createClassLevelSpecContainer"/>
+        	factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createClassSpecContainer"
+        	set-method="setClassSpecs" get-method="getClassSpecs"/>
 		<collection field="methodSpecs" item-type="edu.ksu.cis.indus.common.scoping.MethodSpecification"
-			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createMethodLevelSpecContainer"/>
+			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createMethodSpecContainer"
+        	set-method="setMethodSpecs" get-method="getMethodSpecs"/>
 		<collection field="fieldSpecs" item-type="edu.ksu.cis.indus.common.scoping.FieldSpecification"
-			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createFieldLevelSpecContainer"/>
+			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createFieldSpecContainer"
+        	set-method="setFieldSpecs" get-method="getFieldSpecs"/>
     </mapping>
     
     <mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification"
@@ -22,12 +25,12 @@
 
     <mapping name="classSpec" class="edu.ksu.cis.indus.common.scoping.ClassSpecification"
         ns="http://indus.projects.cis.ksu.edu/indus">
-        <structure field="accessSpec" style="attribute" label="accessSpecStructure">
+        <structure field="accessSpec" value-style="attribute" label="accessSpecStructure">
         	<value name="publicAccess" type="boolean" set-method="setPublicAccess" get-method="isPublicAccess" />
         	<value name="protectedAccess" type="boolean" set-method="setProtectedAccess" get-method="isProtectedAccess" />
         	<value name="defaultAccess" type="boolean" set-method="setDefaultAccess" get-method="isDefaultAccess" />
         	<value name="privateAccess" type="boolean" set-method="setPrivateAccess" get-method="isPrivateAccess" />	
-		</structure>									
+		</structure>
 		<value style="element" name="typeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
 			set-method="setTypeSpec" get-method="getTypeSpec"/>
     </mapping>
@@ -53,7 +56,8 @@
 		<value style="element" name="methodNameSpec" type="java.lang.String"  set-method="setMethodNameSpec"
 			get-method="getMethodNameSpec"/>
 		<collection field="parameterTypeSpecs" item-type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
-			factory="edu.ksu.cis.indus.common.scoping.MethodSpecification.createParameterTypeSpecContainer"/>
+			factory="edu.ksu.cis.indus.common.scoping.MethodSpecification.createParameterTypeSpecContainer"
+        	set-method="setParameterTypeSpecs" get-method="getParameterTypeSpecs"/>
     </mapping>
 
 </binding>

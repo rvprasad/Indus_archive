@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import java.util.regex.Pattern;
@@ -153,12 +154,14 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	Collection createParameterTypeSpecContainer() {
-		return parameterTypeSpecs;
+	static Collection createParameterTypeSpecContainer() {
+		return new ArrayList();
 	}
 }
 

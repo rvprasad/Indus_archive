@@ -47,6 +47,21 @@ final class TypeSpecification {
 	private boolean inclusion;
 
 	/**
+	 * Creates a new TypeSpecification object.
+	 */
+	TypeSpecification() {
+	}
+
+	/**
+	 * Creates a new TypeSpecification object.
+	 *
+	 * @param nameSpec DOCUMENT ME!
+	 */
+	TypeSpecification(final String nameSpec) {
+		namePattern = nameSpec;
+	}
+
+	/**
 	 * Sets the value of <code>hierarchySpec</code>.
 	 *
 	 * @param theHierarchySpec the new value of <code>hierarchySpec</code>.
