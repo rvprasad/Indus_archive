@@ -173,8 +173,8 @@ public class MethodVariant
 	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final BFA bfa) {
 		_method = sm;
 		_bfa = bfa;
-		_context = (Context) bfa._ANALYZER.context.clone();
-		bfa._ANALYZER.context.callNewMethod(sm);
+		_context = (Context) bfa._analyzer.context.clone();
+		bfa._analyzer.context.callNewMethod(sm);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: preprocessing of " + sm);
@@ -218,7 +218,7 @@ public class MethodVariant
 		}
 
 		this.astvm = astVariantManager;
-		bfa._ANALYZER.context.returnFromCurrentMethod();
+		bfa._analyzer.context.returnFromCurrentMethod();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
@@ -263,9 +263,9 @@ public class MethodVariant
 	 *
 	 * @pre v != null
 	 */
-	public final ASTVariant getASTVariant(final Value v) {
+	public final ValuedVariant getASTVariant(final Value v) {
 		_bfa.processType(v.getType());
-		return (ASTVariant) astvm.select(v, _context);
+		return (ValuedVariant) astvm.select(v, _context);
 	}
 
 	/**
@@ -278,8 +278,8 @@ public class MethodVariant
 	 *
 	 * @pre v != null and context != null
 	 */
-	public final ASTVariant getASTVariant(final Value v, final Context context) {
-		return (ASTVariant) astvm.select(v, context);
+	public final ValuedVariant getASTVariant(final Value v, final Context context) {
+		return (ValuedVariant) astvm.select(v, context);
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class MethodVariant
 	 * @pre v != null and c != null
 	 */
 	public final IFGNode queryASTNode(final Value v, final Context c) {
-		ASTVariant var = queryASTVariant(v, c);
+		ValuedVariant var = queryASTVariant(v, c);
 		IFGNode temp = null;
 
 		if (var != null) {
@@ -430,8 +430,8 @@ public class MethodVariant
 	 *
 	 * @pre v != null and c != null
 	 */
-	public final ASTVariant queryASTVariant(final Value v, final Context c) {
-		return (ASTVariant) astvm.query(v, c);
+	public final ValuedVariant queryASTVariant(final Value v, final Context c) {
+		return (ValuedVariant) astvm.query(v, c);
 	}
 
 	/**
@@ -513,6 +513,10 @@ public class MethodVariant
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

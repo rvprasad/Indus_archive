@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -39,16 +39,18 @@ import soot.SootClass;
 import soot.SootMethod;
 
 import soot.jimple.InvokeExpr;
-import soot.Value;
-
-import java.util.Iterator;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
 /**
- * This class provides the logic to create new variants of AST nodes.  Created: Tue Jan 22 12:46:24 2002
+ * This class provides the logic to create new variants of AST nodes.
+ * 
+ * <p>
+ * Created: Tue Jan 22 12:46:24 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -58,11 +60,13 @@ public class ASTVariantManager
 	/**
 	 * Creates a new <code>ASTVariantManager</code> instance.
 	 *
-	 * @param bfa the instance of the framework in which this instance exists.
+	 * @param theAnalysis the instance of the framework in which this instance exists.
 	 * @param indexManager the manager that shall provide the indices to lookup the variants.
+	 *
+	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ASTVariantManager(BFA bfa, AbstractIndexManager indexManager) {
-		super(bfa, indexManager);
+	ASTVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
+		super(theAnalysis, indexManager);
 	}
 
 	/**
@@ -72,10 +76,11 @@ public class ASTVariantManager
 	 *
 	 * @return the variant representing the AST node, <code>o</code>.
 	 *
+	 * @pre o != null
 	 * @post o.oclIsKindOf(InvokeExpr) implies result.oclType = InvocationVariant
 	 * @post (not o.oclIsKindOf(InvokeExpr)) implies result.oclType = ASTVariant
 	 */
-	protected IVariant getNewVariant(Object o) {
+	protected IVariant getNewVariant(final Object o) {
 		IVariant result;
 
 		if (o instanceof InvokeExpr) {
@@ -83,28 +88,33 @@ public class ASTVariantManager
 			SootMethod sm = expr.getMethod();
 			Map exception2node = new HashMap();
 
-			// for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown 
-			// by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the 
-			// exception classes mentioned at the invoke expression.
+			/*
+			 * for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown
+			 * by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the
+			 *  exception classes mentioned at the invoke expression. 
+             */
 			for (Iterator i = sm.getExceptions().iterator(); i.hasNext();) {
 				SootClass exception = (SootClass) i.next();
 				exception2node.put(exception, bfa.getNewFGNode());
 			}
-			result = new InvocationVariant(expr, bfa.getNewFGNode(), exception2node);
+			result = new InvocationVariant(bfa.getNewFGNode(), exception2node);
 		} else {
-			result = new ASTVariant((Value) o, bfa.getNewFGNode());
+			result = new ValuedVariant(bfa.getNewFGNode());
 		}
 		return result;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 0.7  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 0.7  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -44,7 +44,7 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 
-import edu.ksu.cis.indus.staticanalyses.*;
+import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -58,7 +58,7 @@ import java.util.HashSet;
 /**
  * The instance of the framework which controls and manages the analysis on execution.  It acts the central repository for
  * information pertaining to various components of the framework when the analysis is in progress.  It also serves as the
- * central repository for various instances of the framework at a given time.    Created: Tue Jan 22 00:45:10 2002
+ * central repository for various instances of the framework at a given time.    <p>Created: Tue Jan 22 00:45:10 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -72,43 +72,49 @@ public class BFA
 
 	/**
 	 * The analyzer associated with this instance of the framework.
+	 *
+	 * @invariant _analyzer != null
 	 */
-	public final AbstractAnalyzer _ANALYZER;
+	public final AbstractAnalyzer _analyzer;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * This is the collection of methods that serve as entry points into the system being analyzed.
+	 *
+	 * @invariant rootMethods != null
 	 */
-	protected Collection rootMethods = new HashSet();
+	protected final Collection rootMethods = new HashSet();
 
 	/**
 	 * The worklist associated with this instance of the framework.
+	 *
+	 * @invariant worklist != null
 	 */
 	final WorkList worklist;
 
 	/**
 	 * The manager of array variants.
 	 */
-	ArrayVariantManager arrayManager;
+	private ArrayVariantManager arrayVariantManager;
 
 	/**
 	 * The manager of class related primitive information and processing.
 	 */
-	ClassManager classManager;
+	private ClassManager classManager;
 
 	/**
 	 * The manager of instance field variants.
 	 */
-	FieldVariantManager instanceFieldManager;
+	private FieldVariantManager instanceFieldVariantManager;
 
 	/**
 	 * The manager of static field variants.
 	 */
-	FieldVariantManager staticFieldManager;
+	private FieldVariantManager staticFieldVariantManager;
 
 	/**
 	 * The manager of method variants.
 	 */
-	MethodVariantManager methodManager;
+	private MethodVariantManager methodVariantManager;
 
 	/**
 	 * The factory that provides the components during the analysis performed by this instance of the framework.
@@ -123,23 +129,28 @@ public class BFA
 	/**
 	 * Creates a new <code>BFA</code> instance.
 	 *
-	 * @param analyzer the analyzer associated with this instance of the framework.
+	 * @param analyzer to be associated with this instance of the framework.
+	 *
+	 * @pre analyzer != null
 	 */
-	BFA(AbstractAnalyzer analyzer) {
+	BFA(final AbstractAnalyzer analyzer) {
 		worklist = new WorkList();
-		this._ANALYZER = analyzer;
+		this._analyzer = analyzer;
 	}
 
 	/**
 	 * Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.  If none
-	 * exists, a new variant is greated
+	 * exists, a new variant is created.
 	 *
 	 * @param a the array type whose variant is to be returned.
 	 *
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
+	 *
+	 * @pre a != null
+	 * @post result != null
 	 */
-	public final ArrayVariant getArrayVariant(ArrayType a) {
-		return getArrayVariant(a, _ANALYZER.context);
+	public final ArrayVariant getArrayVariant(final ArrayType a) {
+		return getArrayVariant(a, _analyzer.context);
 	}
 
 	/**
@@ -150,10 +161,13 @@ public class BFA
 	 * @param context the context corresponding to which the variant is requested.
 	 *
 	 * @return the variant corresponding to <code>a</code> in context <code>context</code>.
+	 *
+	 * @pre a != null and context != null
+	 * @post result != null
 	 */
-	public final ArrayVariant getArrayVariant(ArrayType a, Context context) {
+	public final ArrayVariant getArrayVariant(final ArrayType a, final Context context) {
 		processType(a.baseType);
-		return (ArrayVariant) arrayManager.select(a, context);
+		return (ArrayVariant) arrayVariantManager.select(a, context);
 	}
 
 	/**
@@ -162,8 +176,10 @@ public class BFA
 	 * @param className the name of the class whose Jimple representation is to be returned.
 	 *
 	 * @return the requested class.
+	 *
+	 * @pre className != null
 	 */
-	public final SootClass getClass(String className) {
+	public final SootClass getClass(final String className) {
 		return scm.getSootClass(className);
 	}
 
@@ -172,7 +188,7 @@ public class BFA
 	 *
 	 * @return a collection of classes.
 	 *
-	 * @post result->forall(o | o.oclType = soot.SootClass)
+	 * @post result != null and result->forall(o | o.oclIsTypeOf(soot.SootClass))
 	 */
 	public Collection getClasses() {
 		return Collections.unmodifiableCollection(classManager.classes);
@@ -185,9 +201,12 @@ public class BFA
 	 * @param sf the field whose variant is to be returned.
 	 *
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.
+	 *
+	 * @pre sf != null
+	 * @post result != null
 	 */
-	public final FieldVariant getFieldVariant(SootField sf) {
-		return getFieldVariant(sf, _ANALYZER.context);
+	public final FieldVariant getFieldVariant(final SootField sf) {
+		return getFieldVariant(sf, _analyzer.context);
 	}
 
 	/**
@@ -197,16 +216,19 @@ public class BFA
 	 * @param context the context corresponding to which the variant is requested.
 	 *
 	 * @return the variant associated with the given field in the given context.
+	 *
+	 * @pre sf != null and context != null
+	 * @post result != null
 	 */
-	public final FieldVariant getFieldVariant(SootField sf, Context context) {
+	public final FieldVariant getFieldVariant(final SootField sf, final Context context) {
 		IVariant temp = null;
 		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
 
 		if (Modifier.isStatic(sf.getModifiers())) {
-			temp = staticFieldManager.select(sf, context);
+			temp = staticFieldVariantManager.select(sf, context);
 		} else {
-			temp = instanceFieldManager.select(sf, context);
+			temp = instanceFieldVariantManager.select(sf, context);
 		}
 		return (FieldVariant) temp;
 	}
@@ -217,8 +239,10 @@ public class BFA
 	 * @param e the statement visitor which parameterizes the expression visitor.
 	 *
 	 * @return a new LHS expression visitor.
+	 *
+	 * @pre e != null
 	 */
-	public final AbstractExprSwitch getLHSExpr(AbstractStmtSwitch e) {
+	public final AbstractExprSwitch getLHSExpr(final AbstractStmtSwitch e) {
 		return modeFactory.getLHSExprVisitor(e);
 	}
 
@@ -229,9 +253,12 @@ public class BFA
 	 * @param sm the method corresponding to which the variant is requested.
 	 *
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>.
+	 *
+	 * @pre sm != null
+	 * @post result != null
 	 */
-	public final MethodVariant getMethodVariant(SootMethod sm) {
-		return getMethodVariant(sm, _ANALYZER.context);
+	public final MethodVariant getMethodVariant(final SootMethod sm) {
+		return getMethodVariant(sm, _analyzer.context);
 	}
 
 	/**
@@ -242,9 +269,12 @@ public class BFA
 	 * @param context the context of the requested variant.
 	 *
 	 * @return the variant corresonding to <code>sm</code> in the given context.
+	 *
+	 * @pre sm != null and context != null
+	 * @post result != null
 	 */
-	public final MethodVariant getMethodVariant(SootMethod sm, Context context) {
-		return (MethodVariant) methodManager.select(sm, context);
+	public final MethodVariant getMethodVariant(final SootMethod sm, final Context context) {
+		return (MethodVariant) methodVariantManager.select(sm, context);
 	}
 
 	/**
@@ -262,8 +292,10 @@ public class BFA
 	 * @param e the statement visitor which parameterizes the expression visitor.
 	 *
 	 * @return a new RHS expression visitor.
+	 *
+	 * @pre e != null
 	 */
-	public final AbstractExprSwitch getRHSExpr(AbstractStmtSwitch e) {
+	public final AbstractExprSwitch getRHSExpr(final AbstractStmtSwitch e) {
 		return modeFactory.getRHSExprVisitor(e);
 	}
 
@@ -278,6 +310,8 @@ public class BFA
 	 * Returns the associated <code>Scene</code>.
 	 *
 	 * @return the associated <code>Scene</code>.
+	 *
+	 * @post result != null
 	 */
 	public final Scene getScene() {
 		return scm;
@@ -289,8 +323,10 @@ public class BFA
 	 * @param e the method variant which parameterizes the statement visitor.
 	 *
 	 * @return a new statement visitor.
+	 *
+	 * @pre e != null
 	 */
-	public final AbstractStmtSwitch getStmt(MethodVariant e) {
+	public final AbstractStmtSwitch getStmt(final MethodVariant e) {
 		return modeFactory.getStmtVisitor(e);
 	}
 
@@ -301,9 +337,12 @@ public class BFA
 	 *
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
 	 * 		   <code>null</code> if none exist.
+	 *
+	 * @pre a != null
+	 * @post result != null
 	 */
-	public final ArrayVariant queryArrayVariant(ArrayType a) {
-		return queryArrayVariant(a, _ANALYZER.context);
+	public final ArrayVariant queryArrayVariant(final ArrayType a) {
+		return queryArrayVariant(a, _analyzer.context);
 	}
 
 	/**
@@ -313,9 +352,12 @@ public class BFA
 	 * @param context the context corresponding to which the variant is requested.
 	 *
 	 * @return the variant corresponding to <code>a</code> in context <code>context</code>. <code>null</code> if none exist.
+	 *
+	 * @pre a != null and context != null
+	 * @post result != null
 	 */
-	public final ArrayVariant queryArrayVariant(ArrayType a, Context context) {
-		return (ArrayVariant) arrayManager.query(a, context);
+	public final ArrayVariant queryArrayVariant(final ArrayType a, final Context context) {
+		return (ArrayVariant) arrayVariantManager.query(a, context);
 	}
 
 	/**
@@ -325,9 +367,12 @@ public class BFA
 	 *
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.<code>null</code>
 	 * 		   if none exists.
+	 *
+	 * @pre sf != null
+	 * @post result != null
 	 */
-	public final FieldVariant queryFieldVariant(SootField sf) {
-		return queryFieldVariant(sf, _ANALYZER.context);
+	public final FieldVariant queryFieldVariant(final SootField sf) {
+		return queryFieldVariant(sf, _analyzer.context);
 	}
 
 	/**
@@ -337,17 +382,18 @@ public class BFA
 	 * @param context the context corresponding to which the variant is requested.
 	 *
 	 * @return the variant associated with the given field in the given context.  <code>null</code> if none exists.
+	 *
+	 * @pre sf != null and context != null
+	 * @post result != null
 	 */
-	public final FieldVariant queryFieldVariant(SootField sf, Context context) {
+	public final FieldVariant queryFieldVariant(final SootField sf, final Context context) {
 		IVariant temp = null;
 
 		if (Modifier.isStatic(sf.getModifiers())) {
-			temp = staticFieldManager.query(sf, context);
+			temp = staticFieldVariantManager.query(sf, context);
 		} else {
-			temp = instanceFieldManager.query(sf, context);
+			temp = instanceFieldVariantManager.query(sf, context);
 		}
-
-		// end of else
 		return (FieldVariant) temp;
 	}
 
@@ -357,9 +403,12 @@ public class BFA
 	 * @param sm the method corresponding to which the variant is requested.
 	 *
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>. <code>null</code> if none exist.
+	 *
+	 * @pre sm != null
+	 * @post result != null
 	 */
-	public final MethodVariant queryMethodVariant(SootMethod sm) {
-		return queryMethodVariant(sm, _ANALYZER.context);
+	public final MethodVariant queryMethodVariant(final SootMethod sm) {
+		return queryMethodVariant(sm, _analyzer.context);
 	}
 
 	/**
@@ -369,19 +418,22 @@ public class BFA
 	 * @param context the context of the requested variant.
 	 *
 	 * @return the variant corresonding to <code>sm</code> in the given context.  <code>null</code> if none exist.
+	 *
+	 * @pre sm != null and context != null
+	 * @post result != null
 	 */
-	public final MethodVariant queryMethodVariant(SootMethod sm, Context context) {
-		return (MethodVariant) methodManager.query(sm, context);
+	public final MethodVariant queryMethodVariant(final SootMethod sm, final Context context) {
+		return (MethodVariant) methodVariantManager.query(sm, context);
 	}
 
 	/**
 	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
 	 */
 	public void reset() {
-		arrayManager.reset();
-		instanceFieldManager.reset();
-		methodManager.reset();
-		staticFieldManager.reset();
+		arrayVariantManager.reset();
+		instanceFieldVariantManager.reset();
+		methodVariantManager.reset();
+		staticFieldVariantManager.reset();
 		worklist.clear();
 		rootMethods.clear();
 		scm = null;
@@ -392,32 +444,36 @@ public class BFA
 	 *
 	 * @param mf is the factory object which provides the objects that dictate the mode of analysis.
 	 */
-	void setModeFactory(ModeFactory mf) {
+	void setModeFactory(final ModeFactory mf) {
 		modeFactory = mf;
 		this.classManager = mf.getClassManager(this);
-		arrayManager = new ArrayVariantManager(this, mf.getArrayIndexManager());
-		instanceFieldManager = new FieldVariantManager(this, mf.getInstanceFieldIndexManager());
-		methodManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
-		staticFieldManager = new FieldVariantManager(this, mf.getStaticFieldIndexManager());
+		arrayVariantManager = new ArrayVariantManager(this, mf.getArrayIndexManager());
+		instanceFieldVariantManager = new FieldVariantManager(this, mf.getInstanceFieldIndexManager());
+		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
+		staticFieldVariantManager = new FieldVariantManager(this, mf.getStaticFieldIndexManager());
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param root DOCUMENT ME!
 	 */
-	void addRootMethod(SootMethod root) {
+	void addRootMethod(final SootMethod root) {
 		rootMethods.add(root);
 	}
 
 	/**
 	 * Analyzes the given classes starting with <code>root</code> method.
 	 *
-	 * @param scm <code>Scene</code> object which contains the classes to be analyzed.
+	 * @param scene <code>Scene</code> object which contains the classes to be analyzed.
 	 * @param root the method to start the analysis from.
+	 *
+	 * @pre scene != null and root != null
 	 */
-	void analyze(Scene scm, SootMethod root) {
-		this.scm = scm;
+	void analyze(final Scene scene, final SootMethod root) {
+		this.scm = scene;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Starting system processing...");
@@ -434,8 +490,10 @@ public class BFA
 	 * Performs type-based processing of the given class.
 	 *
 	 * @param clazz is the class to be processed.
+	 *
+	 * @pre clazz != null
 	 */
-	void processClass(SootClass clazz) {
+	void processClass(final SootClass clazz) {
 		classManager.process(clazz);
 	}
 
@@ -443,8 +501,10 @@ public class BFA
 	 * Performs type-based processing.
 	 *
 	 * @param type to be processed.
+	 *
+	 * @pre type != null
 	 */
-	void processType(Type type) {
+	void processType(final Type type) {
 		if (type instanceof RefType) {
 			classManager.process(getClass(((RefType) type).getClassName()));
 		} else if (type instanceof ArrayType && ((ArrayType) type).baseType instanceof RefType) {
@@ -455,7 +515,16 @@ public class BFA
 
 /*
    ChangeLog:
+
    $Log$
+
+   Revision 1.2  2003/08/11 07:11:47  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+   Moved getRoots() into the environment.
+   Added support to inject new roots in BFA.
+   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

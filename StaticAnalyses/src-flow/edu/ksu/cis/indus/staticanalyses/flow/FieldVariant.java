@@ -49,7 +49,7 @@ import soot.SootField;
  * @version $Revision$
  */
 public class FieldVariant
-  extends AbstractValuedVariant {
+  extends ValuedVariant {
 	/**
 	 * The field represented by this variant.
 	 *
@@ -75,6 +75,9 @@ public class FieldVariant
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/16 03:01:49  venku
+   Spruced up documentation and specification.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

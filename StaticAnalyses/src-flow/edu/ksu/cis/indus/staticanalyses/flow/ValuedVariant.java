@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -39,11 +39,9 @@ import java.util.Collection;
 
 
 /**
- * <p>
- * IVariant of entities associated with data such as AST nodes and fields.  All such data related variants should extend this
- * class.
- * </p>
- *
+ * This class represents the variants of entities associated with AST nodes and fields.  This class should be extended as
+ * required for such entities.
+ * 
  * <p>
  * Created: Tue Jan 22 15:44:48 2002
  * </p>
@@ -51,7 +49,7 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractValuedVariant
+public class ValuedVariant
   implements IVariant {
 	/**
 	 * <p>
@@ -61,65 +59,66 @@ public abstract class AbstractValuedVariant
 	protected IFGNode node;
 
 	/**
-	 * <p>
-	 * Creates a new <code>AbstractValuedVariant</code> instance.
-	 * </p>
+	 * Creates a new <code>ValuedVariant</code> instance.
 	 *
-	 * @param nodeParam the flow graph node associated with this variant.
+	 * @param flowNode the flow graph node associated with this variant.
+	 *
+	 * @pre flowNode != null
 	 */
-	AbstractValuedVariant(IFGNode nodeParam) {
-		this.node = nodeParam;
+	ValuedVariant(final IFGNode flowNode) {
+		this.node = flowNode;
 	}
 
 	/**
-	 * <p>
 	 * Sets the given node as the flow graph node of this variant.
-	 * </p>
 	 *
-	 * @param node the node to be set as the flow graph node of this variant.
+	 * @param flowNode the node to be set as the flow graph node of this variant.
+	 *
+	 * @pre flowNode != null
 	 */
-	public void setFGNode(IFGNode node) {
-		this.node = node;
+	public void setFGNode(final IFGNode flowNode) {
+		this.node = flowNode;
 	}
 
 	/**
-	 * <p>
 	 * Returns the flow graph node associated with this node.
-	 * </p>
 	 *
 	 * @return the flow graph node associated with this node.
+	 *
+	 * @post result != null
 	 */
 	public IFGNode getFGNode() {
 		return node;
 	}
 
 	/**
-	 * <p>
 	 * Returns the set of values associated with this variant.
-	 * </p>
 	 *
 	 * @return the set of values associated with this variant.
+	 *
+	 * @post result != null
 	 */
 	public final Collection getValues() {
 		return node.getValues();
 	}
 
 	/**
-	 * <p>
-	 * Performs nothing.  This will be called after a variant is created.
-	 * </p>
+	 * Performs nothing.  This will be called after a variant is created and should be implemented by subclasses.
 	 */
 	public void process() {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 0.9  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 0.9  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

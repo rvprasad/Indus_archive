@@ -37,8 +37,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import soot.SootClass;
 
-import soot.jimple.InvokeExpr;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +51,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class InvocationVariant
-  extends ASTVariant {
+  extends ValuedVariant {
 	/**
 	 * This maps exception classes to nodes.
 	 *
@@ -64,14 +62,13 @@ public class InvocationVariant
 	/**
 	 * Creates a new InvocationVariant object.
 	 *
-	 * @param e is the invoke expression being represented by this object.
 	 * @param returnNode is the node associated with the return value of <code>e</code>.
 	 * @param thrownExceptions2node is the map from class of exceptions thrown by <code>e</code>to nodes.
 	 *
-	 * @pre e != null and returnNode != null and thrownExceptions2node != null
+	 * @pre returnNode != null and thrownExceptions2node != null
 	 */
-	protected InvocationVariant(final InvokeExpr e, final IFGNode returnNode, final Map thrownExceptions2node) {
-		super(e, returnNode);
+	protected InvocationVariant(final IFGNode returnNode, final Map thrownExceptions2node) {
+		super(returnNode);
 
 		if (thrownExceptions2node.isEmpty()) {
 			this.exception2node = Collections.EMPTY_MAP;
@@ -98,6 +95,10 @@ public class InvocationVariant
    ChangeLog:
 
    $Log$
+   Revision 1.2  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
