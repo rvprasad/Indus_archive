@@ -771,7 +771,7 @@ public final class SlicerTool
 	 */
 	private void populateDeadlockCriteria() {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Populating deadlock criteria.");
+			LOGGER.debug("BEGIN: Populating deadlock criteria.");
 		}
 
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
@@ -794,6 +794,10 @@ public final class SlicerTool
 		}
 
 		generateDeadlockCriteria(_im);
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Populating deadlock criteria. - " + criteria);
+		}
 	}
 
 	/**
@@ -870,6 +874,14 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.89  2004/06/24 06:53:53  venku
+   - refactored SliceConfiguration
+     - added processBooleanProperty()
+     - renamed getNamesOfDAToUse() to getIDOfDAToUse()
+   - ripple effect
+   - made AbstractSliceCriterion package private
+   - made ISliceCriterion public
+
    Revision 1.88  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.
