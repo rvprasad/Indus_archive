@@ -84,7 +84,9 @@ public final class DependencyTest
 	}
 
 	/**
-	 * Provides the suite of tests in junit-style.
+	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
+	 * <code>indus.staticanalyses.dependency.DependencyTest.properties.file</code> system property.  Refer to
+	 * <code>edu.ksu.cis.indus.staticanalyses.dependency.DependencyTest.properties</code> for the format of the file.
 	 *
 	 * @return the suite of tests.
 	 *
@@ -92,7 +94,7 @@ public final class DependencyTest
 	 */
 	public static Test suite() {
 		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
-		final String _propFileName = System.getProperty("indus.dependencytest.properties.file");
+		final String _propFileName = System.getProperty("indus.staticanalyses.dependency.DependencyTest.properties.file");
 
 		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
@@ -225,6 +227,9 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.9  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
