@@ -32,7 +32,7 @@ public final class SootUnitTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new GraphUnitestSuite object.
+	 * Creates a new GraphUnitTestSuite object.
 	 */
 	private SootUnitTestSuite() {
 	}
@@ -43,11 +43,9 @@ public final class SootUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-		final TestRunner _runner = new TestRunner();
-		_runner.setLoading(false);
-		_runner.start(new String[0]);
-		_runner.startTest(suite());
-		_runner.runSuite();
+        final TestRunner _runner = new TestRunner();
+        final String[] _suiteName = { "edu.ksu.cis.indus.common.SootUnitTestSuite" };
+        _runner.start(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -74,6 +72,9 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 03:34:30  venku
+   - renamed NoArgTestSuite to UnitTestSuite
+
    Revision 1.1  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
 

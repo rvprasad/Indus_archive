@@ -44,10 +44,8 @@ public final class CommonUnitTestSuite {
 	 */
 	public static void main(final String[] s) {
 		final TestRunner _runner = new TestRunner();
-		_runner.setLoading(false);
-		_runner.start(new String[0]);
-		_runner.startTest(suite());
-		_runner.runSuite();
+		final String[] _suiteName = { "edu.ksu.cis.indus.common.CommonUnitTestSuite" };
+		_runner.start(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -72,16 +70,14 @@ public final class CommonUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 03:34:30  venku
+   - renamed NoArgTestSuite to UnitTestSuite
    Revision 1.1  2004/02/08 01:04:13  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
-
    Revision 1.3  2004/02/05 18:16:21  venku
    - coding convention.
-
    Revision 1.2  2004/01/28 23:03:09  venku
    - added clover source code directives.
-
    Revision 1.1  2004/01/28 22:55:23  venku
    - added test suites for classes in common package.
-
  */
