@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -172,7 +173,7 @@ public class DivergenceDA
 
 		final List DEPENDENTS = new ArrayList();
 		final Collection SUCCS = new HashSet();
-		WorkBag wb = new WorkBag(WorkBag.LIFO);
+		WorkBag wb = new LIFOWorkBag();
 		final Collection PREDIVPOINTBBS = new HashSet();
 
 		// Pass 2:Record dependence information from pre-divergence points to pre-divergence points or exits.
@@ -386,7 +387,7 @@ public class DivergenceDA
 		Collection succs = new ArrayList();
 
 		if (considerCallSites) {
-			preDivMethods = new WorkBag(WorkBag.LIFO);
+			preDivMethods = new LIFOWorkBag();
 		}
 
 		// Pass 1: Calculate pre-divergence points
@@ -565,6 +566,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
+
    Revision 1.17  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates

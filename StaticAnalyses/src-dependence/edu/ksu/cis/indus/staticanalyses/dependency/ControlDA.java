@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -281,7 +282,7 @@ public class ControlDA
 		Collection processed = new ArrayList();
 		BitSet currResult = new BitSet();
 		BitSet temp1 = new BitSet();
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		WorkBag wb = new FIFOWorkBag();
 		Collection roots;
 
 		if (forward) {
@@ -481,6 +482,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/05 04:25:34  venku
+   - return value of getDependees() was type incorrect.  FIXED.
+
    Revision 1.20  2003/11/05 04:20:05  venku
    - formatting.
    Revision 1.19  2003/11/05 04:17:28  venku

@@ -38,6 +38,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -611,7 +612,7 @@ public class ReadyDAv1
 	 */
 	private void processRule1And3() {
 		Collection temp = new HashSet();
-		WorkBag workbag = new WorkBag(WorkBag.LIFO);
+		WorkBag workbag = new LIFOWorkBag();
 		Collection processed = new HashSet();
 		Map map = new HashMap();
 
@@ -848,6 +849,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
+
    Revision 1.21  2003/09/29 06:40:51  venku
    - redundant call to super.reset was deleted.
    Revision 1.20  2003/09/29 06:35:48  venku

@@ -29,6 +29,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Quadraple;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -232,7 +233,7 @@ public class SynchronizationDA
 			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
 
-		WorkBag workbag = new WorkBag(WorkBag.LIFO);
+		WorkBag workbag = new LIFOWorkBag();
 		Collection temp = new HashSet();
 		Collection col;
 		Stack stack = new Stack();
@@ -499,6 +500,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
+
    Revision 1.13  2003/11/03 07:54:56  venku
    - added logging.
 

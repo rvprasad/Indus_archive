@@ -56,6 +56,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -819,7 +820,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	public void execute() {
 		SimpleNodeGraph sng = cgi.getCallGraph();
 		Collection sccs = sng.getSCCs(false);
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		WorkBag wb = new FIFOWorkBag();
 		Collection processed = new HashSet();
 
 		// Phase 2: The SCCs are ordered bottom up. 
@@ -1113,6 +1114,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/02 22:09:57  venku
+   - changed the signature of the constructor of
+     EquivalenceClassBasedEscapeAnalysis.
+
    Revision 1.21  2003/11/01 23:50:00  venku
    - documentation.
 

@@ -206,7 +206,7 @@ public abstract class DirectedGraph {
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		boolean result = false;
 		Collection processed = new HashSet();
-		WorkBag worklist = new WorkBag(WorkBag.LIFO);
+		WorkBag worklist = new LIFOWorkBag();
 		worklist.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
 
 		while (worklist.hasWork()) {
@@ -304,7 +304,7 @@ public abstract class DirectedGraph {
 	 */
 	public final Collection getCycles() {
 		Collection result = new ArrayList();
-		WorkBag wb = new WorkBag(WorkBag.LIFO);
+		WorkBag wb = new LIFOWorkBag();
 		Stack dfsPath = new Stack();
 
 		for (Iterator i = getNodes().iterator(); i.hasNext();) {
@@ -529,7 +529,7 @@ public abstract class DirectedGraph {
 			spanningSuccs.clear();
 		}
 
-		WorkBag order = new WorkBag(WorkBag.LIFO);
+		WorkBag order = new LIFOWorkBag();
 		List nodes = getNodes();
 
 		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here. 
@@ -594,6 +594,10 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.10  2003/09/14 23:20:48  venku
    - added support to retrieve a DAG from a graph.
    - removed support to extract preds/succs as a bitst from the graph.
