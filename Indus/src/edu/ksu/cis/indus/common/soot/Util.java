@@ -179,8 +179,8 @@ public final class Util {
 	}
 
 	/**
-	 * Collects all the method with signature identical to <code>method</code> in the superclasses of <code>method</code>'s
-	 * declaring class.
+	 * Collects all the method with signature identical to <code>method</code> in the superclasses/interfaces of
+	 * <code>method</code>'s declaring class.
 	 *
 	 * @param method that needs to be included in the heirarchy to make the slice executable.
 	 *
@@ -189,7 +189,7 @@ public final class Util {
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	public static Collection findMethodInSuperClasses(final SootMethod method) {
+	public static Collection findMethodInSuperClassesAndInterfaces(final SootMethod method) {
 		final IWorkBag _toProcess = new FIFOWorkBag();
 		final Collection _processed = new HashSet();
 		final Collection _result = new HashSet();
@@ -211,7 +211,15 @@ public final class Util {
 				final SootClass _superClass = _sc.getSuperclass();
 
 				if (!_processed.contains(_superClass)) {
-					_toProcess.addWork(_superClass);
+					_toProcess.addWorkNoDuplicates(_superClass);
+				}
+			}
+
+			for (final Iterator _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
+				final SootClass _interface = (SootClass) _i.next();
+
+				if (!_processed.contains(_interface)) {
+					_toProcess.addWorkNoDuplicates(_interface);
 				}
 			}
 		}
@@ -315,6 +323,8 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/19 11:38:03  venku
+   - moved findMethodInSuperClasses into Util.
    Revision 1.9  2004/01/08 23:44:09  venku
    - SootClass.hasSuperclass() is finicky.  I have introduced a
      simple local version.
