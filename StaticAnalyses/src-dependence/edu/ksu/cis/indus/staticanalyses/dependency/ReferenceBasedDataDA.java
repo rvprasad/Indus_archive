@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
 
+import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
@@ -29,6 +30,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -73,11 +77,15 @@ public class ReferenceBasedDataDA
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
-        Collection result = Collections.EMPTY_LIST;
 
-        result = aliasedUD.getDefs((Stmt) stmt, contextCache);
-        return result;
-        
+		Collection result = Collections.EMPTY_LIST;
+		Stmt theStmt = (Stmt) stmt;
+
+		if (theStmt.containsArrayRef() || theStmt.containsFieldRef()) {
+			contextCache.setRootMethod((SootMethod) method);
+			result = aliasedUD.getDefs(theStmt, contextCache);
+		}
+		return result;
 	}
 
 	/**
@@ -88,7 +96,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
 	 *
-	 * @pre stmt.isOclKindOf(DefinitionStmt) and method.isOclKindOf(SootMethod)
+	 * @pre stmt.isOclKindOf(AssignStmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
@@ -96,12 +104,15 @@ public class ReferenceBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
-		contextCache.setRootMethod((SootMethod) method);
-
 		Collection result = Collections.EMPTY_LIST;
 
-		if (stmt instanceof DefinitionStmt) {
-			result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+		if (stmt instanceof AssignStmt) {
+			AssignStmt assign = (AssignStmt) stmt;
+
+			if (assign.containsArrayRef() || assign.containsFieldRef()) {
+				contextCache.setRootMethod((SootMethod) method);
+				result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+			}
 		}
 		return result;
 	}
@@ -134,6 +145,46 @@ public class ReferenceBasedDataDA
 	}
 
 	/**
+	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
+	 *
+	 * @return a stringized representation of this object.
+	 */
+	public String toString() {
+		StringBuffer result =
+			new StringBuffer("Statistics for Reference-based Data dependence as calculated by " + this.getClass().getName()
+				+ "\n");
+		int localEdgeCount = 0;
+		int edgeCount = 0;
+
+		StringBuffer temp = new StringBuffer();
+
+		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+			Map.Entry entry = (Map.Entry) i.next();
+			localEdgeCount = 0;
+
+			List stmts = getStmtList((SootMethod) entry.getKey());
+			int count = 0;
+
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+				Collection c = (Collection) j.next();
+				Stmt stmt = (Stmt) stmts.get(count++);
+
+				for (Iterator k = c.iterator(); k.hasNext();) {
+					temp.append("\t\t" + stmt + " <-- " + k.next() + "\n");
+				}
+				localEdgeCount += c.size();
+			}
+			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount
+				+ " Reference-based Data dependence edges.\n");
+			result.append(temp);
+			temp.delete(0, temp.length());
+			edgeCount += localEdgeCount;
+		}
+		result.append("A total of " + edgeCount + " Reference-based Data dependence edges exist.");
+		return result.toString();
+	}
+
+	/**
 	 * Extracts information provided by environment at initialization time.
 	 *
 	 * @throws InitializationException if an implementation that provides aliased interprocedural use-def information is not
@@ -158,9 +209,10 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/16 18:41:03  venku
+   - incorrect ID was returned.  FIXED.
    Revision 1.14  2003/11/12 03:56:32  venku
    - requires DefinitionStmt as input for getDependents()
-
    Revision 1.13  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
