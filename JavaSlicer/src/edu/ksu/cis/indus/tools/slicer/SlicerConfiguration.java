@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
+
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
@@ -57,132 +59,132 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public final class SlicerConfiguration
   extends AbstractToolConfiguration
   implements IToolConfigurationFactory {
-	/**
+	/** 
 	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
 	 * of naive type-based interference dependence. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>
 	 * attribute in <code>slicerConfig_JiBXBinding.xml</code>.
 	 */
 	static final Object EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
 	 * used  instead of naive type-based interference dependence. This is tied to values of
 	 * <i>slicer:natureOfInterThreadAnalysis</i>  attribute in <code>slicerConfig_JiBXBinding.xml</code>.
 	 */
 	static final Object SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
 
-	/**
+	/** 
 	 * This indicates type based information. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>  attribute
 	 * in <code>slicerConfig_JiBXBinding.xml</code>.
 	 */
 	static final Object TYPE_BASED_INFO = "TYPE_BASED_INFO";
 
-	/**
+	/** 
 	 * This identifies the property that indicates the nature of interference dependence, i.e., type based, etc.
 	 */
 	static final Object NATURE_OF_INTERFERENCE_DA = "nature of interference dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates the nature of ready dependence, i.e., type based, etc.
 	 */
 	static final Object NATURE_OF_READY_DA = "nature of ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
 	 * intraprocedural divergent dependence.
 	 */
 	static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if ready dependence should be considered for slicing.
 	 */
 	static final Object USE_READYDA = "use ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if rule1 of ready dependence be used.  Rule 1:  m is dependent on n if m
 	 * and n occur in the same thread and n is an enter monitor statement.
 	 */
 	static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if rule2 of ready dependence be used.  Rule 2: m is dependent on n if m
 	 * and n occur in different threads and m and n are is exit monitor and enter monitor statements, respectively.
 	 */
 	static final Object USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if rule3 of ready dependence be used.  Rule 3: m is dependent on n if m
 	 * and n occur in the same thread and m has a call to java.lang.Object.wait.
 	 */
 	static final Object USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if rule4 of ready dependence be used.  Rule 4: m is dependent on n if m
 	 * and n occur in the different thread and m and n have calls to java.lang.Object.wait(XXX) and
 	 * java.lang.Object.notifyXXX(), respectively..
 	 */
 	static final Object USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
 	 */
 	static final Object USE_DIVERGENCEDA = "use divergence dependence";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if slice criteria should be automatically picked for slicing such that the
 	 * slice has the same deadlock behavior as the original program.
 	 */
 	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
-	/**
+	/** 
 	 * This identifies the option to create executable slice.
 	 */
 	static final Object EXECUTABLE_SLICE = "executable slice";
 
-	/**
+	/** 
 	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
 	 */
 	static final Object SLICE_TYPE = "slice type";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if object flow information should be used in the context of interference
 	 * dependence.
 	 */
 	static final Object USE_OFA_FOR_INTERFERENCE_DA = "use ofa for interference";
 
-	/**
+	/** 
 	 * This identifies the property that indicates if object flow information should be used in the context of ready
 	 * dependence.
 	 */
 	static final Object USE_OFA_FOR_READY_DA = "use ofa for ready";
 
-	/**
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
 
-	/**
+	/** 
 	 * This indicates if the tool should criteria that ensure the deadlock behavior of the slice is same as that of the
-	 * original program.
+	 * original program.  This is in place partially due to serialization reasons.
 	 */
 	boolean sliceForDeadlock;
 
-	/**
+	/** 
 	 * The collection of ids of the dependences to be considered for slicing.
 	 *
 	 * @invariant dependencesToUse.oclIsKindOf(String)
 	 */
 	private final Collection dependencesToUse = new HashSet();
 
-	/**
+	/** 
 	 * This maps IDs to dependency analyses.
 	 *
 	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(AbstractDependencyAnalysis)))
 	 */
 	private final Map id2dependencyAnalyses = new HashMap();
 
-	/**
-	 * This indicates if executable slice should be generated.
+	/** 
+	 * This indicates if executable slice should be generated.   This is in place partially due to serialization reasons.
 	 */
 	private boolean executableSlice = true;
 
@@ -215,7 +217,7 @@ public final class SlicerConfiguration
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
 	 */
-	public Collection getDependenceAnalysis(final Object id) {
+	public Collection getDependenceAnalyses(final Object id) {
 		Collection _result = (Collection) id2dependencyAnalyses.get(id);
 
 		if (_result == null) {
@@ -387,35 +389,17 @@ public final class SlicerConfiguration
 		if (SlicingEngine.SLICE_TYPES.contains(type)) {
 			properties.put(SLICE_TYPE, type);
 
-			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(IDependencyAnalysis.CONTROL_DA);
+			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
 
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(IDependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
+			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
+				_c.clear();
 				_c.add(new EntryControlDA());
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(IDependencyAnalysis.CONTROL_DA);
-
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(IDependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
+				_c.clear();
 				_c.add(new ExitControlDA());
+				processBooleanProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(IDependencyAnalysis.CONTROL_DA);
-
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(IDependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
+				_c.clear();
 				_c.add(new EntryControlDA());
 				_c.add(new ExitControlDA());
 			}
@@ -470,7 +454,6 @@ public final class SlicerConfiguration
 				new EqualsBuilder().appendSuper(super.equals(object)).append(this.propertyIds, _config.propertyIds)
 									 .append(this.sliceForDeadlock, _config.sliceForDeadlock)
 									 .append(this.id2dependencyAnalyses, _config.id2dependencyAnalyses)
-									 .append(this.executableSlice, _config.executableSlice)
 									 .append(this.dependencesToUse, _config.dependencesToUse)
 									 .append(this.properties, _config.properties).isEquals();
 		}
@@ -596,13 +579,13 @@ public final class SlicerConfiguration
 	 * @pre value != null
 	 */
 	protected boolean processProperty(final Object propertyID, final Object value) {
-		boolean _result = true;
+		boolean _result = false;
 
 		if (value instanceof Boolean) {
-			processBooleanProperty(propertyID, (Boolean) value);
+			_result = processBooleanProperty(propertyID, (Boolean) value);
 		} else if (propertyID.equals(SLICE_TYPE)) {
-			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
-				_result = false;
+			if (SlicingEngine.SLICE_TYPES.contains(value)) {
+				_result = true;
 			}
 			setSliceType(value.toString());
 		} else if (propertyID.equals(NATURE_OF_INTERFERENCE_DA)) {
@@ -663,9 +646,13 @@ public final class SlicerConfiguration
 	 * @param propertyID is the id of the property to be set based on <code>booleanValue</code>.
 	 * @param booleanValue is the value  that decides the value of the property identified by <code>propertyID</code>.
 	 *
+	 * @return <code>true</code> if the property to value mapping should be recorded; <code>false</code>, otherwise.
+	 *
 	 * @pre propertyID != null and booleanValue != null
 	 */
-	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
+	private boolean processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
+		boolean _result = true;
+
 		if (propertyID.equals(USE_READYDA)) {
 			processUseProperty(booleanValue, IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
 		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
@@ -675,7 +662,8 @@ public final class SlicerConfiguration
 		} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
 			sliceForDeadlock = booleanValue.booleanValue();
 		} else if (propertyID.equals(EXECUTABLE_SLICE)) {
-			executableSlice = booleanValue.booleanValue();
+			executableSlice = booleanValue.booleanValue() && (properties.get(SLICE_TYPE) != SlicingEngine.FORWARD_SLICE);
+			_result = executableSlice;
 		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
 			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
 				  _i.hasNext();) {
@@ -691,6 +679,7 @@ public final class SlicerConfiguration
 		} else {
 			processRDARuleProperties(propertyID);
 		}
+		return _result;
 	}
 
 	/**
@@ -828,6 +817,8 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/07/02 05:28:53  venku
+   - changed access specifiers on some fields.
    Revision 1.40  2004/06/26 06:45:43  venku
    - documentation.
    Revision 1.39  2004/06/24 07:05:44  venku

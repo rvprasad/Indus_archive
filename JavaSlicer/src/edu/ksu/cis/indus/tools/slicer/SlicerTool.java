@@ -386,7 +386,7 @@ public final class SlicerTool
 		Collections.sort(_daNames);
 
 		for (final Iterator _i = _daNames.iterator(); _i.hasNext();) {
-			_result.addAll(_config.getDependenceAnalysis(_i.next()));
+			_result.addAll(_config.getDependenceAnalyses(_i.next()));
 		}
 		return _result;
 	}
@@ -638,7 +638,7 @@ public final class SlicerTool
 
 		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
-			final Collection _c = slicerConfig.getDependenceAnalysis(_id);
+			final Collection _c = slicerConfig.getDependenceAnalyses(_id);
 			daController.addAnalyses(_id, _c);
 		}
 		daController.initialize();
@@ -784,7 +784,7 @@ public final class SlicerTool
 		}
 
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Collection _das = _slicerConfig.getDependenceAnalysis(IDependencyAnalysis.SYNCHRONIZATION_DA);
+		final Collection _das = _slicerConfig.getDependenceAnalyses(IDependencyAnalysis.SYNCHRONIZATION_DA);
 		IMonitorInfo _im = null;
 
 		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
@@ -883,6 +883,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.95  2004/07/16 06:38:48  venku
+   - added  a more precise implementation of aliased use-def information.
+   - ripple effect.
+
    Revision 1.94  2004/07/11 14:17:40  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

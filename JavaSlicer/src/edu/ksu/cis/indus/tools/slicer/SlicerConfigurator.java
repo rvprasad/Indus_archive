@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.tools.IToolConfiguration;
 
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
@@ -43,10 +44,23 @@ import org.eclipse.swt.widgets.Group;
  */
 public final class SlicerConfigurator
   extends AbstractToolConfigurator {
+	/** 
+	 * This is the button used to toggle executability.
+	 */
+	Button executableSliceButton;
+
 	/**
 	 * Creates a new SlicerConfigurator object.
 	 */
 	SlicerConfigurator() {
+	}
+
+	/**
+	 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
+	 */
+	public void widgetDisposed(final DisposeEvent evt) {
+		super.widgetDisposed(evt);
+		executableSliceButton = null;
 	}
 
 	/**
@@ -79,10 +93,10 @@ public final class SlicerConfigurator
 		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		_gridData.horizontalSpan = 1;
 
-		Button _button = new Button(parent, SWT.CHECK);
+		final Button _button = new Button(parent, SWT.CHECK);
 		_button.setText("Slice for Deadlock");
 		_button.setLayoutData(_gridData);
-		_button.setSelection(_cfg.sliceForDeadlock);
+		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
 
 		SelectionListener _sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg);
 		_button.addSelectionListener(_sl);
@@ -90,12 +104,12 @@ public final class SlicerConfigurator
 		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		_gridData.horizontalSpan = 1;
 
-		_button = new Button(parent, SWT.CHECK);
-		_button.setText("Executable slice");
-		_button.setLayoutData(_gridData);
-		_button.setSelection(_cfg.sliceForDeadlock);
-		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _button, _cfg);
-		_button.addSelectionListener(_sl);
+		executableSliceButton = new Button(parent, SWT.CHECK);
+		executableSliceButton.setText("Executable slice");
+		executableSliceButton.setLayoutData(_gridData);
+		executableSliceButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue());
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
+		executableSliceButton.addSelectionListener(_sl);
 
 		setupRow2();
 		setupRow3();
@@ -135,12 +149,16 @@ public final class SlicerConfigurator
 				public void widgetSelected(final SelectionEvent evt) {
 					Object _value = null;
 
-					if (evt.widget == _backwardSlice) {
-						_value = SlicingEngine.BACKWARD_SLICE;
-					} else if (evt.widget == _completeSlice) {
-						_value = SlicingEngine.COMPLETE_SLICE;
-					} else if (evt.widget == _forwardSlice) {
+					if (evt.widget == _forwardSlice) {
 						_value = SlicingEngine.FORWARD_SLICE;
+						executableSliceButton.setEnabled(false);
+					} else {
+						if (evt.widget == _backwardSlice) {
+							_value = SlicingEngine.BACKWARD_SLICE;
+						} else if (evt.widget == _completeSlice) {
+							_value = SlicingEngine.COMPLETE_SLICE;
+						}
+						executableSliceButton.setEnabled(true);
 					}
 
 					if (_value != null) {
@@ -451,9 +469,10 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/02/25 00:09:12  venku
+   - documenation.
    Revision 1.22  2004/02/12 21:30:05  venku
    - cut-and-paste error when handling boolean properity (useOFA). FIXED.
-
    Revision 1.21  2004/01/25 16:19:52  venku
    - enabled configuration support for using object flow information.
    Revision 1.20  2003/12/13 02:29:16  venku
