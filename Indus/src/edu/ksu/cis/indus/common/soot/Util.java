@@ -15,9 +15,14 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -174,6 +179,48 @@ public final class Util {
 	}
 
 	/**
+	 * Collects all the method with signature identical to <code>method</code> in the superclasses of <code>method</code>'s
+	 * declaring class.
+	 *
+	 * @param method that needs to be included in the heirarchy to make the slice executable.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @pre method != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	public static Collection findMethodInSuperClasses(final SootMethod method) {
+		final IWorkBag _toProcess = new FIFOWorkBag();
+		final Collection _processed = new HashSet();
+		final Collection _result = new HashSet();
+		_toProcess.addWork(method.getDeclaringClass());
+
+		final List _parameterTypes = method.getParameterTypes();
+		final Type _retType = method.getReturnType();
+		final String _methodName = method.getName();
+
+		while (_toProcess.hasWork()) {
+			final SootClass _sc = (SootClass) _toProcess.getWork();
+			_processed.add(_sc);
+
+			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
+				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
+			}
+
+			if (_sc.hasSuperclass()) {
+				final SootClass _superClass = _sc.getSuperclass();
+
+				if (!_processed.contains(_superClass)) {
+					_toProcess.addWork(_superClass);
+				}
+			}
+		}
+
+		return _result.isEmpty() ? Collections.EMPTY_SET
+								 : _result;
+	}
+
+	/**
 	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
 	 * target or self.  This is required to complete the call graph.  This leaves the body untouched if it is not native.
 	 *
@@ -268,6 +315,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/08 23:44:09  venku
+   - SootClass.hasSuperclass() is finicky.  I have introduced a
+     simple local version.
    Revision 1.8  2003/12/31 10:32:26  venku
    - safe fixing of thread method is desired.  FIXED.
    Revision 1.7  2003/12/31 10:05:08  venku

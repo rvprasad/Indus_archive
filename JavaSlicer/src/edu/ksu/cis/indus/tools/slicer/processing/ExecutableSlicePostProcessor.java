@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
@@ -192,48 +193,6 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * Collects all the method with signature identical to <code>method</code> in the superclasses of <code>method</code>'s
-	 * declaring class.
-	 *
-	 * @param method that needs to be included in the heirarchy to make the slice executable.
-	 *
-	 * @return a collection of methods.
-	 *
-	 * @pre method != null
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-	 */
-	private Collection findMethodInSuperClasses(final SootMethod method) {
-		final IWorkBag _toProcess = new FIFOWorkBag();
-		final Collection _processed = new HashSet();
-		final Collection _result = new HashSet();
-		_toProcess.addWork(method.getDeclaringClass());
-
-		final List _parameterTypes = method.getParameterTypes();
-		final Type _retType = method.getReturnType();
-		final String _methodName = method.getName();
-
-		while (_toProcess.hasWork()) {
-			final SootClass _sc = (SootClass) _toProcess.getWork();
-			_processed.add(_sc);
-
-			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
-				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
-			}
-
-			if (_sc.hasSuperclass()) {
-				final SootClass _superClass = _sc.getSuperclass();
-
-				if (!_processed.contains(_superClass)) {
-					_toProcess.addWork(_superClass);
-				}
-			}
-		}
-
-		return _result.isEmpty() ? Collections.EMPTY_SET
-								 : _result;
-	}
-
-	/**
 	 * Picks the return points of the method required to make it's slice executable.
 	 *
 	 * @param method to be processed.
@@ -245,8 +204,7 @@ public final class ExecutableSlicePostProcessor
 			LOGGER.debug("Picking up return points in " + method);
 		}
 
-        // TODO: There may be methods without tails.  We should detect psuedo-tails and include them.
-
+		// TODO: There may be methods without tails.  We should detect psuedo-tails and include them.
 		// pick all return/throw points in the methods.
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = _bbg.getTails();
@@ -355,7 +313,7 @@ public final class ExecutableSlicePostProcessor
 		if (!(_expr instanceof StaticInvokeExpr)) {
 			final SootMethod _t = _expr.getMethod();
 
-			for (final Iterator _i = findMethodInSuperClasses(_t).iterator(); _i.hasNext();) {
+			for (final Iterator _i = Util.findMethodInSuperClasses(_t).iterator(); _i.hasNext();) {
 				final SootMethod _sm = (SootMethod) _i.next();
 				collector.includeInSlice(_sm);
 
@@ -450,6 +408,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/17 00:35:35  venku
+   - post process of statements was optimized.
+   - handler processing was fixed.
+   - processing of invoke expression was fixed.
    Revision 1.3  2004/01/15 23:20:37  venku
    - When handler unit was included for a trap, it's exception
      was not included.  FIXED.
