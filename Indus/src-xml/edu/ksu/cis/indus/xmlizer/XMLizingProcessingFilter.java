@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import edu.ksu.cis.indus.processing.IProcessingFilter;
+import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 
 
@@ -36,7 +37,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public final class XMLizingProcessingFilter
-  implements IProcessingFilter {
+  extends AbstractProcessingFilter {
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
 	 *
@@ -61,6 +62,34 @@ public final class XMLizingProcessingFilter
 			final SootClass _sc1 = (SootClass) o1;
 			final SootClass _sc2 = (SootClass) o2;
 			return _sc1.getName().compareTo(_sc2.getName());
+		}
+	}
+
+
+	/**
+	 * This compares <code>SootField</code> objects lexographically based on their java signature.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private final class LexographicalFieldComparator
+	  implements Comparator {
+		/**
+		 * Compares the given classes based on their name.
+		 *
+		 * @param o1 is one of the method to be compared.
+		 * @param o2 is the other method to be compared.
+		 *
+		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
+		 * 		   <code>o2</code>.
+		 *
+		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
+		 */
+		public int compare(final Object o1, final Object o2) {
+			final String _sig1 = ((SootField) o1).getSubSignature();
+			final String _sig2 = ((SootField) o2).getSubSignature();
+			return _sig1.substring(_sig1.indexOf(' ')).compareTo(_sig2.substring(_sig2.indexOf(' ')));
 		}
 	}
 
@@ -105,6 +134,18 @@ public final class XMLizingProcessingFilter
 	}
 
 	/**
+	 * This implementation returns the fields in alphabetical order as required to assing unique id to entities while
+	 * XMLizing.
+	 *
+	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterFields(java.util.Collection)
+	 */
+	public Collection filterFields(final Collection fields) {
+		final List _result = new ArrayList(fields);
+		Collections.sort(_result, new LexographicalFieldComparator());
+		return _result;
+	}
+
+	/**
 	 * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
 	 *
@@ -120,6 +161,9 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.4  2003/12/02 09:42:24  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

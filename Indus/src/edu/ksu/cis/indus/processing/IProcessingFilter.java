@@ -40,6 +40,19 @@ public interface IProcessingFilter {
 	Collection filterClasses(Collection classes);
 
 	/**
+	 * Filter out fields from the given collection of methods.
+	 *
+	 * @param fields is the collection to be filtered.
+	 *
+	 * @return a collection of fields that were not filtered.
+	 *
+	 * @pre methods.oclIsKindOf(Collection(soot.SootField)
+	 * @post result.oclIsKinfOf(Collection(soot.SootField))
+	 * @post result->forall(o | fields.contains(o))
+	 */
+	Collection filterFields(Collection fields);
+
+	/**
 	 * Filter out methods from the given collection of methods.
 	 *
 	 * @param methods is the collection to be filtered.
@@ -56,6 +69,9 @@ public interface IProcessingFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.3  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

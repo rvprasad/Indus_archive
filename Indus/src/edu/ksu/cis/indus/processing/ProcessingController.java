@@ -938,18 +938,16 @@ public class ProcessingController {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processing classes");
 		}
-        
-        initializeProcessors();
 
-        final Collection _processors = new HashSet();
-        _processors.addAll(interfaceProcessors);
+		initializeProcessors();
 
-        for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
-            _processors.addAll((Collection) _i.next());
-        }
+		final Collection _processors = new HashSet();
+		_processors.addAll(interfaceProcessors);
 
-        
-        
+		for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
+			_processors.addAll((Collection) _i.next());
+		}
+
 		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).processingBegins();
 		}
@@ -1129,7 +1127,15 @@ public class ProcessingController {
 				final IProcessor _pp = (IProcessor) _k.next();
 				_pp.callback(_sc);
 
-				for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
+				Collection _methods;
+
+				if (processingFilter == null) {
+					_methods = _sc.getFields();
+				} else {
+					_methods = processingFilter.filterFields(_sc.getFields());
+				}
+
+				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 					_pp.callback((SootField) _j.next());
 				}
 			}
@@ -1209,6 +1215,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.25  2003/12/08 09:17:55  venku
    - added a reset() method.
    Revision 1.24  2003/12/05 15:34:17  venku

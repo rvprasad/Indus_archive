@@ -29,30 +29,21 @@ import java.util.Collection;
 public abstract class AbstractProcessingFilter
   implements IProcessingFilter {
 	/**
-	 * Filter out classes from the given collection of classes. Default implementation returns the given methods as is.
-	 *
-	 * @param classes is the collection to be filtered.
-	 *
-	 * @return a collection of classes that were not filtered.
-	 *
-	 * @pre classes.oclIsKindOf(Collection(soot.SootClass)
-	 * @post result.oclIsKinfOf(Collection(soot.SootClass))
-	 * @post result->forall(o | classes.contains(o))
+	 * {@inheritDoc}  Default implementation returns the given classes as is.
 	 */
 	public Collection filterClasses(final Collection classes) {
 		return classes;
 	}
 
 	/**
-	 * Filter out methods from the given collection of methods.  Default implementation returns the given methods as is.
-	 *
-	 * @param methods is the collection to be filtered.
-	 *
-	 * @return a collection of methods that were not filtered.
-	 *
-	 * @pre methods.oclIsKindOf(Collection(soot.SootMethod)
-	 * @post result.oclIsKinfOf(Collection(soot.SootMethod))
-	 * @post result->forall(o | methods.contains(o))
+	 * {@inheritDoc}  Default implementation returns the given fields as is.
+	 */
+	public Collection filterFields(Collection fields) {
+		return fields;
+	}
+
+	/**
+	 * {@inheritDoc}  Default implementation returns the given methods as is.
 	 */
 	public Collection filterMethods(final Collection methods) {
 		return methods;
@@ -62,6 +53,9 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.4  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
