@@ -343,6 +343,11 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.4  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.
@@ -360,7 +365,7 @@ public abstract class AbstractDirectedGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     DirectedGraphTestSuite.
+     GraphTestSuite.
    - added checks to test exceptional behavior as well.
    Revision 1.3  2003/12/14 20:35:26  venku
    - SCC test was buggy.  FIXED.

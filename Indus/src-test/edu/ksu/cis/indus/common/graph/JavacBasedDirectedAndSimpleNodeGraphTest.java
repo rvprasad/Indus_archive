@@ -89,6 +89,11 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/30 10:04:25  venku
+   - sng in SimpleNodeGraphTest should track dg or the otherway
+     round to make the hierarchy of test work.  This has
+     been fixed by adding setSNG().
+
    Revision 1.2  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
@@ -96,7 +101,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     DirectedGraphTestSuite.
+     GraphTestSuite.
    - added checks to test exceptional behavior as well.
 
    Revision 1.1  2003/12/09 04:22:03  venku

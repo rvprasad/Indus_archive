@@ -105,6 +105,9 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 10:02:02  venku
+   *** empty log message ***
+
    Revision 1.3  2003/12/31 08:29:58  venku
    - changed the graph.
    - added localtestAddEdgeFromTo() to override that
@@ -120,6 +123,6 @@ public class SimpleNodeGraphNoCycleTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     DirectedGraphTestSuite.
+     GraphTestSuite.
    - added checks to test exceptional behavior as well.
  */

@@ -239,6 +239,9 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/03 19:02:38  venku
+   - formatting and coding conventions.
+
    Revision 1.3  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.
@@ -253,6 +256,6 @@ public class SimpleNodeGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     DirectedGraphTestSuite.
+     GraphTestSuite.
    - added checks to test exceptional behavior as well.
  */

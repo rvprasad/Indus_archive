@@ -29,13 +29,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DirectedGraphTestSuite {
+public final class GraphTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DirectedGraphTestSuite object.
+	 * Creates a new GraphTestSuite object.
 	 */
-	private DirectedGraphTestSuite() {
+	private GraphTestSuite() {
 	}
 
 	/**
@@ -76,6 +76,16 @@ public final class DirectedGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/30 09:24:59  venku
+   - Refactored DirectedAndSimpleNodeGraphTest into
+      - AbstractDirectedGraphTest
+      - SimpleNodeGraphTest
+   - Introduced SimpleNodeGraphNoCycleTest
+   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+     GraphTestSuite.
+   - added checks to test exceptional behavior as well.
+
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
