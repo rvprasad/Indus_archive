@@ -671,7 +671,6 @@ public final class SlicingEngine {
 		_context.setStmt(stmt);
 
 		final Collection _callees = cgi.getCallees(_expr, _context);
-		System.out.println(_expr + " @ " + _context + "\n" + _callees);
 		generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
 
 		if (useReady) {
@@ -789,7 +788,7 @@ public final class SlicingEngine {
 	 */
 	private void generateNewCriteriaForTheCallToEnclosingMethod(final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller)");
+			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + callee);
 		}
 
 		// generate criteria to include invocation sites only if the method has not been collected.
@@ -805,8 +804,13 @@ public final class SlicingEngine {
 				final Stmt _stmt = _ctrp.getStmt();
 
 				if (considerMethodEntranceForCriteriaGeneration(callee, _caller, _stmt)) {
+					/*
+					 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
+					 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
+					 * callee
+					 */
 					generateSliceStmtCriterion(_stmt, _caller, false);
-					generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
+					generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, true);
 
 					if (_notStatic) {
 						final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
@@ -845,8 +849,8 @@ public final class SlicingEngine {
 			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Adding expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature()
-					+ " to workbag.");
+				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
+					+ method.getSignature() + " to workbag.");
 			}
 		}
 	}
@@ -873,7 +877,7 @@ public final class SlicingEngine {
 			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Adding " + stmt + " in " + method.getSignature() + " to workbag.");
+				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
 		}
 	}
@@ -1097,7 +1101,7 @@ public final class SlicingEngine {
 		final Value _value = _vBox.getValue();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox + " at " + _stmt + " in " + _method);
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
 		}
 
 		// collect the expresssion
@@ -1120,7 +1124,7 @@ public final class SlicingEngine {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming expr criteria: " + _vBox + " at " + _stmt + " in " + _method);
+			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
 		}
 	}
 
@@ -1177,6 +1181,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2003/12/15 16:34:12  venku
+   - teased out the logic to suck in the class initializers.
+   - removed includeInSlice as it was not used.
+   - added method includeClassHierarchyInSlice.
    Revision 1.39  2003/12/15 08:09:53  venku
    - safety check.
    Revision 1.38  2003/12/15 08:09:09  venku
