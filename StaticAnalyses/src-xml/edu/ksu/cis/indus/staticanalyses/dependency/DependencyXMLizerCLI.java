@@ -73,7 +73,7 @@ public class DependencyXMLizerCLI
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyXMLizer.class);
+	private static final Log LOGGER = LogFactory.getLog(DependencyXMLizerCLI.class);
 
 	/**
 	 * This is the flow analyser used by the analyses being tested.
@@ -372,6 +372,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/06/15 08:55:27  venku
+   - added command line option for new id-based DA.
+
    Revision 1.16  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
 
@@ -587,6 +590,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/06/15 08:55:27  venku
+   - added command line option for new id-based DA.
+
    Revision 1.16  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
 
