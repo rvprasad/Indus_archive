@@ -112,7 +112,7 @@ public abstract class AbstractSliceGotoProcessor {
 
                 /*
                  *  if the leader is not a successor of the statement that preceeds it in the sequence of byte codes or
-                 *     if it is a successor and it is also a trap handler then include the preceeding statement in the 
+                 *     if it is a successor and also a trap handler then include the preceeding statement in the 
                  *     slice.
                  */
 				if (!_succsOfPred.contains(_leader) || (_succsOfPred.contains(_leader) && _flag)) {
@@ -137,10 +137,9 @@ public abstract class AbstractSliceGotoProcessor {
 			final SootMethod _sm = (SootMethod) _i.next();
 			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_sm);
 
-			if (_bbg == null) {
-				continue;
-			}
-			process(_sm, _bbg);
+			if (_bbg != null) {
+				process(_sm, _bbg);
+            }
 		}
 	}
 
@@ -157,6 +156,10 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/27 01:48:24  venku
+   - statements preceeding exception handlers need to be included
+     not considering the jump based on exception.  FIXED.
+
    Revision 1.8  2004/01/27 00:41:34  venku
    - coding convention.
    Revision 1.7  2004/01/26 23:54:13  venku
