@@ -129,11 +129,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	final Collection methodsToKill = new HashSet();
 
 	/** 
-	 * This is used to create new AST chunks.
-	 */
-	final Jimple jimple = Jimple.v();
-
-	/** 
 	 * This is a mapping from classes to it's members that should be removed.
 	 *
 	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
@@ -260,7 +255,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			if (stmt.getInvokeExprBox().hasTag(theNameOfTagToResidualize)) {
 				valueProcessor.residualize(stmt.getInvokeExprBox());
 			} else {
-				setResult(jimple.newNopStmt());
+				setResult(Jimple.v().newNopStmt());
 			}
 		}
 
@@ -489,11 +484,11 @@ public final class TagBasedDestructiveSliceResidualizer
 
 				if (stmt.containsInvokeExpr()) {
 					final Value _expr = stmt.getRightOp();
-					final Stmt _stmt = jimple.newInvokeStmt(_expr);
+					final Stmt _stmt = Jimple.v().newInvokeStmt(_expr);
 					valueProcessor.residualize(stmt.getRightOpBox());
 					setResult(_stmt);
 				} else {
-					setResult(jimple.newNopStmt());
+					setResult(Jimple.v().newNopStmt());
 				}
 			} else {
 				valueProcessor.residualize(stmt.getRightOpBox());
@@ -1062,6 +1057,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/08/16 21:08:40  venku
+   - Traps were sucked in based on TrapManager which was transparent to the
+     shape of the stmt graph.  This has been fixed.
+
    Revision 1.24  2004/08/15 00:02:13  venku
    - previous changes addressing "classes of types used in cast and instanceof expressions
      were being ignored during residualization" is more of an executability problem.  Hence, this

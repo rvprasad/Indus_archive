@@ -50,13 +50,6 @@ public final class Cloner
 	private final ASTCloner astCloner = new ASTCloner(this);
 
 	/**
-	 * This is a reference to the jimple body representation.
-	 *
-	 * @invariant jimple != null
-	 */
-	private final Jimple jimple = Jimple.v();
-
-	/**
 	 * The class manager which manages clonee classes.
 	 */
 	private Scene clazzManager;
@@ -139,9 +132,9 @@ public final class Cloner
 				_result.addException(_exception);
 			}
 
-			final JimpleBody _jb = jimple.newBody(_result);
+			final JimpleBody _jb = Jimple.v().newBody(_result);
 			final Chain _sl = _jb.getUnits();
-			final Stmt _nop = jimple.newNopStmt();
+			final Stmt _nop = Jimple.v().newNopStmt();
 
 			for (int _i = cloneeMethod.getActiveBody().getUnits().size() - 1; _i >= 0; _i--) {
 				_sl.addLast(_nop);
@@ -280,6 +273,10 @@ public final class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.9  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

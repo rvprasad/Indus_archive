@@ -85,13 +85,6 @@ public final class ASTCloner
   extends AbstractJimpleValueSwitch
   implements StmtSwitch {
 	/**
-	 * The static reference to the singleton object used to create Jimple AST chunks.
-	 *
-	 * @invariant JIMPLE != null
-	 */
-	private static final Jimple JIMPLE = Jimple.v();
-
-	/**
 	 * This provides information about parts of the clone(d) system that is required during cloning chunks involving fields
 	 * and such.
 	 *
@@ -196,7 +189,7 @@ public final class ASTCloner
 
 		final Value _base = cloneValue;
 		v.getIndex().apply(this);
-		cloneValue = JIMPLE.newArrayRef(_base, cloneValue);
+		cloneValue = Jimple.v().newArrayRef(_base, cloneValue);
 	}
 
 	/**
@@ -215,7 +208,7 @@ public final class ASTCloner
 		stmt.getRightOp().apply(this);
 
 		final Value _right = cloneValue;
-		cloneStmt = JIMPLE.newAssignStmt(_left, _right);
+		cloneStmt = Jimple.v().newAssignStmt(_left, _right);
 	}
 
 	/**
@@ -242,7 +235,7 @@ public final class ASTCloner
 	 */
 	public void caseCastExpr(final CastExpr v) {
 		v.getOp().apply(this);
-		cloneValue = JIMPLE.newCastExpr(cloneValue, v.getType());
+		cloneValue = Jimple.v().newCastExpr(cloneValue, v.getType());
 	}
 
 	/**
@@ -282,7 +275,7 @@ public final class ASTCloner
 	 */
 	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		cloneStmt = JIMPLE.newEnterMonitorStmt(cloneValue);
+		cloneStmt = Jimple.v().newEnterMonitorStmt(cloneValue);
 	}
 
 	/**
@@ -296,7 +289,7 @@ public final class ASTCloner
 	 */
 	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		cloneStmt = JIMPLE.newExitMonitorStmt(cloneValue);
+		cloneStmt = Jimple.v().newExitMonitorStmt(cloneValue);
 	}
 
 	/**
@@ -324,7 +317,7 @@ public final class ASTCloner
 	 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 	 */
 	public void caseGotoStmt(final GotoStmt stmt) {
-		cloneStmt = JIMPLE.newGotoStmt(stmt.getTarget());
+		cloneStmt = Jimple.v().newGotoStmt(stmt.getTarget());
 	}
 
 	/**
@@ -343,7 +336,7 @@ public final class ASTCloner
 		stmt.getRightOp().apply(this);
 
 		final Value _right = cloneValue;
-		cloneStmt = JIMPLE.newIdentityStmt(_left, _right);
+		cloneStmt = Jimple.v().newIdentityStmt(_left, _right);
 	}
 
 	/**
@@ -358,7 +351,7 @@ public final class ASTCloner
 	 */
 	public void caseIfStmt(final IfStmt stmt) {
 		stmt.getCondition().apply(this);
-		cloneStmt = JIMPLE.newIfStmt(cloneValue, stmt.getTarget());
+		cloneStmt = Jimple.v().newIfStmt(cloneValue, stmt.getTarget());
 	}
 
 	/**
@@ -372,7 +365,7 @@ public final class ASTCloner
 	 */
 	public void caseInstanceFieldRef(final InstanceFieldRef v) {
 		v.getBase().apply(this);
-		cloneValue = JIMPLE.newInstanceFieldRef(cloneValue, helper.getCloneOf(v.getField()));
+		cloneValue = Jimple.v().newInstanceFieldRef(cloneValue, helper.getCloneOf(v.getField()));
 	}
 
 	/**
@@ -386,7 +379,7 @@ public final class ASTCloner
 	 */
 	public void caseInstanceOfExpr(final InstanceOfExpr v) {
 		v.getOp().apply(this);
-		cloneValue = JIMPLE.newInstanceOfExpr(cloneValue, v.getCheckType());
+		cloneValue = Jimple.v().newInstanceOfExpr(cloneValue, v.getCheckType());
 	}
 
 	/**
@@ -409,7 +402,7 @@ public final class ASTCloner
 		v.getBase().apply(this);
 
 		final Local _base = (Local) cloneValue;
-		cloneValue = JIMPLE.newInterfaceInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		cloneValue = Jimple.v().newInterfaceInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -423,7 +416,7 @@ public final class ASTCloner
 	 */
 	public void caseInvokeStmt(final InvokeStmt stmt) {
 		stmt.getInvokeExpr().apply(this);
-		cloneStmt = JIMPLE.newInvokeStmt(cloneValue);
+		cloneStmt = Jimple.v().newInvokeStmt(cloneValue);
 	}
 
 	/**
@@ -437,7 +430,7 @@ public final class ASTCloner
 	 */
 	public void caseLengthExpr(final LengthExpr v) {
 		v.getOp().apply(this);
-		cloneValue = JIMPLE.newLengthExpr(cloneValue);
+		cloneValue = Jimple.v().newLengthExpr(cloneValue);
 	}
 
 	/**
@@ -481,7 +474,7 @@ public final class ASTCloner
 			_v.apply(this);
 			_temp.add(cloneValue);
 		}
-		cloneStmt = JIMPLE.newLookupSwitchStmt(cloneValue, _temp, stmt.getTargets(), stmt.getDefaultTarget());
+		cloneStmt = Jimple.v().newLookupSwitchStmt(cloneValue, _temp, stmt.getTargets(), stmt.getDefaultTarget());
 	}
 
 	/**
@@ -495,7 +488,7 @@ public final class ASTCloner
 	 */
 	public void caseNewArrayExpr(final NewArrayExpr v) {
 		v.getSize().apply(this);
-		cloneValue = JIMPLE.newNewArrayExpr(v.getBaseType(), cloneValue);
+		cloneValue = Jimple.v().newNewArrayExpr(v.getBaseType(), cloneValue);
 	}
 
 	/**
@@ -508,7 +501,7 @@ public final class ASTCloner
 	 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 	 */
 	public void caseNewExpr(final NewExpr v) {
-		cloneValue = JIMPLE.newNewExpr(v.getBaseType());
+		cloneValue = Jimple.v().newNewExpr(v.getBaseType());
 	}
 
 	/**
@@ -527,7 +520,7 @@ public final class ASTCloner
 			v.getSize(_i).apply(this);
 			_sizes.add(_i, cloneValue);
 		}
-		cloneValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), _sizes);
+		cloneValue = Jimple.v().newNewMultiArrayExpr(v.getBaseType(), _sizes);
 	}
 
 	/**
@@ -580,7 +573,7 @@ public final class ASTCloner
 	 */
 	public void caseRetStmt(final RetStmt stmt) {
 		stmt.getStmtAddress().apply(this);
-		cloneStmt = JIMPLE.newRetStmt(cloneValue);
+		cloneStmt = Jimple.v().newRetStmt(cloneValue);
 	}
 
 	/**
@@ -594,7 +587,7 @@ public final class ASTCloner
 	 */
 	public void caseReturnStmt(final ReturnStmt stmt) {
 		stmt.getOp().apply(this);
-		cloneStmt = JIMPLE.newReturnStmt(cloneValue);
+		cloneStmt = Jimple.v().newReturnStmt(cloneValue);
 	}
 
 	/**
@@ -623,7 +616,7 @@ public final class ASTCloner
 		v.getBase().apply(this);
 
 		final Local _base = (Local) cloneValue;
-		cloneValue = JIMPLE.newSpecialInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		cloneValue = Jimple.v().newSpecialInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -636,7 +629,7 @@ public final class ASTCloner
 	 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef v) {
-		cloneValue = JIMPLE.newStaticFieldRef(helper.getCloneOf(v.getField()));
+		cloneValue = Jimple.v().newStaticFieldRef(helper.getCloneOf(v.getField()));
 	}
 
 	/**
@@ -649,7 +642,7 @@ public final class ASTCloner
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
 	public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
-		cloneValue = JIMPLE.newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
+		cloneValue = Jimple.v().newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -678,7 +671,7 @@ public final class ASTCloner
 	public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 		stmt.getKey().apply(this);
 		cloneStmt =
-			JIMPLE.newTableSwitchStmt(cloneValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
+			Jimple.v().newTableSwitchStmt(cloneValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
 				stmt.getDefaultTarget());
 	}
 
@@ -692,7 +685,7 @@ public final class ASTCloner
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
 	public void caseThisRef(final ThisRef v) {
-		cloneValue = JIMPLE.newThisRef((RefType) v.getType());
+		cloneValue = Jimple.v().newThisRef((RefType) v.getType());
 	}
 
 	/**
@@ -706,7 +699,7 @@ public final class ASTCloner
 	 */
 	public void caseThrowStmt(final ThrowStmt stmt) {
 		stmt.getOp().apply(this);
-		cloneStmt = JIMPLE.newThrowStmt(cloneValue);
+		cloneStmt = Jimple.v().newThrowStmt(cloneValue);
 	}
 
 	/**
@@ -722,7 +715,7 @@ public final class ASTCloner
 		v.getBase().apply(this);
 
 		final Local _base = (Local) cloneValue;
-		cloneValue = JIMPLE.newVirtualInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		cloneValue = Jimple.v().newVirtualInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -785,6 +778,10 @@ public final class ASTCloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.13  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
