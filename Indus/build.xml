@@ -21,7 +21,7 @@
 
 <target name="build" depends="init">
     <mkdir dir="${build}"/>
-    <javac destdir="${build}" debug="on" include="**/*java">
+    <javac destdir="${build}" debug="on" includes="**/*java">
         <src refid="indus.srcpath"/>
         <classpath refid="indus.classpath"/>
     </javac>
@@ -120,6 +120,11 @@
 ChangeLog:
 
 $Log$
+Revision 1.16  2003/11/17 17:07:13  venku
+- build process can now be configured for each project
+  via pre and post build files.
+- replaced localbuild.xml by prelocalbuild.xml and postlocalbuild.xml.
+
 Revision 1.15  2003/11/14 20:56:48  venku
 - moved jar dependencies into localbuild.xml
 - added inclusion for build targets
