@@ -191,12 +191,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * This is the collection of notify methods in the system that can lead to ready dependences.
 	 */
-	private Collection notifyMethods = new ArrayList();
+	private Collection notifyMethods = new HashSet();
 
 	/**
 	 * This is the collection of wait methods in the system that can lead to ready dependences.
 	 */
-	private Collection waitMethods = new ArrayList();
+	private Collection waitMethods = new HashSet();
 
 	/**
 	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
@@ -1242,6 +1242,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/01/20 16:01:46  venku
+   - logging.
+
    Revision 1.40  2004/01/09 01:00:15  venku
    - throwStmt() in StmtProcessor() did not check if the processing
      of the thrown expression could yeild null alias set. FIXED.
