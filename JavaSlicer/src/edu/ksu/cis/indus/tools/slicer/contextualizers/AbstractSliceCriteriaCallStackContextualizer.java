@@ -39,7 +39,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSliceCriteriaContextualizer
+public abstract class AbstractSliceCriteriaCallStackContextualizer
   implements ISliceCriteriaContextualizer {
 	/** 
 	 * This is the slicer tool provides the context in which filtering occurs.

@@ -35,22 +35,22 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DeadlockPreservingCriteriaContextualizer
-  extends AbstractSliceCriteriaContextualizer {
+public final class DeadlockPreservingCriteriaCallStackContextualizer
+  extends AbstractSliceCriteriaCallStackContextualizer {
 	/** 
 	 * The context retriever to be used during contextualization.
 	 */
 	private final ThreadEscapeInfoBasedCallingContextRetriever ecr;
 
 	/**
-	 * Creates a new DeadlockPreservingCriteriaContextualizer object.
+	 * Creates a new DeadlockPreservingCriteriaCallStackContextualizer object.
 	 */
-	public DeadlockPreservingCriteriaContextualizer() {
+	public DeadlockPreservingCriteriaCallStackContextualizer() {
 		ecr = new ThreadEscapeInfoBasedCallingContextRetriever();
 	}
 
 	/**
-	 * @see AbstractSliceCriteriaContextualizer#getCallingContextsForProgramPoint(Context)
+	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForProgramPoint(Context)
 	 */
 	protected Collection getCallingContextsForProgramPoint(final Context context) {
 		final EquivalenceClassBasedEscapeAnalysis _ecba = getSlicerTool().getECBA();
@@ -68,7 +68,7 @@ public final class DeadlockPreservingCriteriaContextualizer
 	}
 
 	/**
-	 * @see AbstractSliceCriteriaContextualizer#getCallingContextsForThis(SootMethod)
+	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForThis(SootMethod)
 	 */
 	protected Collection getCallingContextsForThis(final SootMethod method) {
 		final EquivalenceClassBasedEscapeAnalysis _ecba = getSlicerTool().getECBA();

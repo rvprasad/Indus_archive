@@ -31,34 +31,34 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class StaticSliceCriteriaContextualizer
-  extends AbstractSliceCriteriaContextualizer {
+public final class StaticSliceCriteriaCallStackContextualizer
+  extends AbstractSliceCriteriaCallStackContextualizer {
 	/** 
 	 * The calling contexts to be returned.
 	 */
 	private final Collection contexts;
 
 	/**
-	 * Creates a new StaticSliceCriteriaContextualizer object.
+	 * Creates a new StaticSliceCriteriaCallStackContextualizer object.
 	 *
 	 * @param callingContexts to be used.  The call triples in the calling contexts correspond to the caller side, i.e, they
 	 * 		  contain caller and call-site information.
 	 *
 	 * @pre callingContexts != null and callingContext.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
-	public StaticSliceCriteriaContextualizer(final Collection callingContexts) {
+	public StaticSliceCriteriaCallStackContextualizer(final Collection callingContexts) {
 		contexts = new ArrayList(callingContexts);
 	}
 
 	/**
-	 * @see AbstractSliceCriteriaContextualizer#getCallingContextsForProgramPoint(Context)
+	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForProgramPoint(Context)
 	 */
 	protected Collection getCallingContextsForProgramPoint(final Context programPoint) {
 		return contexts;
 	}
 
 	/**
-	 * @see AbstractSliceCriteriaContextualizer#getCallingContextsForThis(SootMethod)
+	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForThis(SootMethod)
 	 */
 	protected Collection getCallingContextsForThis(final SootMethod method) {
 		return contexts;
