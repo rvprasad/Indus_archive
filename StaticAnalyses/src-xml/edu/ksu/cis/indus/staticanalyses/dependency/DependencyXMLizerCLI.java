@@ -180,7 +180,8 @@ public class DependencyXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java " + DependencyXMLizerCLI.class.getName(), _options);
+			    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
 				System.exit(1);
 			}
 
@@ -224,7 +225,8 @@ public class DependencyXMLizerCLI
 			_cli.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java " + DependencyXMLizerCLI.class.getName(), _options);
+		    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 			System.exit(1);
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
@@ -368,6 +370,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.12  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 
@@ -564,6 +572,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.12  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 

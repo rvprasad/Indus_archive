@@ -339,9 +339,8 @@ public class SliceXMLizerCLI
 		}
 
 		if (_exception != null || _cl.hasOption("h")) {
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SliceXMLizerCLI <options> <class names>",
-				_options, true);
-
+		    final String _cmdLineSyn = "java " + SliceXMLizerCLI.class.getName() + "<options> <class names>";
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 			if (_exception != null) {
 				LOGGER.fatal("Incorrect command line.  Aborting.", _exception);
 				System.exit(1);
@@ -599,6 +598,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/05/29 00:11:44  venku
+   - moved the OK button out of the composite configurator.
+   - the client will provide a composite to the configurator to display and
+     collect info and the client will handle the closing of the composite's parent.
+
    Revision 1.36  2004/05/28 21:53:20  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.

@@ -91,14 +91,18 @@ public final class CallGraphXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
+		_option = new Option("h", "help", false, "Display message.");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
 		try {
 			final CommandLine _cl = _parser.parse(_options, args);
 
-			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options);
+			if (_cl.hasOption('h')) {
+			    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -125,7 +129,8 @@ public final class CallGraphXMLizerCLI
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options, true);
+		    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
 		}
 	}
 
@@ -202,6 +207,9 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/25 21:20:44  venku
+   - changed the root name used to dump files.
+
    Revision 1.12  2004/05/25 19:11:31  venku
    - added option to control class path and dump reachables.
    Revision 1.11  2004/05/11 22:30:21  venku

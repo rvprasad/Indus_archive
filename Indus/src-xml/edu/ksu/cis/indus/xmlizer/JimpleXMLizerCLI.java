@@ -100,7 +100,8 @@ public final class JimpleXMLizerCLI {
 			final String[] _args = _cl.getArgs();
 
 			if (_cl.hasOption('h')) {
-				_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
+			    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
+			    _help.printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 			} else {
 				if (_args.length > 0) {
 					if (_cl.hasOption('p')) {
@@ -134,7 +135,8 @@ public final class JimpleXMLizerCLI {
 			}
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line");
-			_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
+		    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
+		    _help.printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 		}
 	}
 
@@ -173,6 +175,10 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/05/28 21:53:21  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
+
    Revision 1.6  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.

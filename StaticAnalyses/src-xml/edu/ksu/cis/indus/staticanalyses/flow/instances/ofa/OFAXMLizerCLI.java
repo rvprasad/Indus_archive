@@ -84,6 +84,9 @@ public final class OFAXMLizerCLI
 		_options.addOption(_option);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
+		_option = new Option("h", "help", false, "Display message.");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -91,7 +94,8 @@ public final class OFAXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java " + OFAXMLizerCLI.class.getName(), _options);
+			    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -113,7 +117,8 @@ public final class OFAXMLizerCLI
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java " + OFAXMLizerCLI.class.getName(), _options);
+		    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
 		}
 	}
 
@@ -191,6 +196,9 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/10 11:28:25  venku
+   - Jimple is dumped only for the reachable parts of the system.
+
    Revision 1.10  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
