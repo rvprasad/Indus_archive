@@ -105,7 +105,7 @@ final class DependencyXMLizer
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
 	 */
 	public String getFileName(final String name) {
-		return "dependence_" + xmlizeString(name);
+		return "dependence_" + xmlizeString(name) + ".xml";
 	}
 
 	/**
@@ -147,6 +147,17 @@ final class DependencyXMLizer
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param _da
+	 *
+	 * @return
+	 */
+	String getDAPartOfFileName(final DependencyAnalysis _da) {
+		return _da.getId() + ":" + _da.getClass().getName();
+	}
+
+	/**
 	 * Initializes the xmlizers.
 	 *
 	 * @param info is the name of the root method.
@@ -178,13 +189,10 @@ final class DependencyXMLizer
 					String _providedFileName = (String) info.get(FILE_NAME_ID);
 
 					if (_providedFileName == null) {
-						_providedFileName = "";
-					} else {
-						_providedFileName += "_";
+						_providedFileName = getDAPartOfFileName(_da);
 					}
 
-					final String _filename =
-						getFileName(_providedFileName + _da.getId() + "_" + _da.getClass().getName()) + ".xml";
+					final String _filename = getFileName(_providedFileName);
 					filenames.add(_filename);
 
 					final File _f = new File(getXmlOutputDir() + File.separator + _filename);
@@ -239,6 +247,14 @@ final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.10  2004/03/09 18:40:03  venku
    - refactoring.
    - moved methods common to XMLBased Test into AbstractXMLBasedTest.
