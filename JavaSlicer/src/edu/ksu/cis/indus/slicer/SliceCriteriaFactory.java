@@ -87,7 +87,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * This stores a reference to the factory object.
 	 */
-	private static final SliceCriteriaFactory singleton = new SliceCriteriaFactory();
+	private static final SliceCriteriaFactory SINGLETON = new SliceCriteriaFactory();
 
 	///CLOVER:OFF
 	/**
@@ -103,8 +103,8 @@ public final class SliceCriteriaFactory {
 	 * @return the factory object.
 	 * @post result != null
 	 */
-	public static final SliceCriteriaFactory getFactory() {
-		return singleton;
+	public static SliceCriteriaFactory getFactory() {
+		return SINGLETON;
 	}
 
 	/**
@@ -123,9 +123,9 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null and expression != null
 	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression,
+	public Collection getCriteria(final SootMethod method, final Stmt stmt, final ValueBox expression,
 		final boolean considerExecution) {
-		return getCriterion(method, stmt, expression, false, considerExecution);
+		return getCriteria(method, stmt, expression, false, considerExecution);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null and expr != null
 	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend,
+	public Collection getCriteria(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
 		final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
@@ -163,11 +163,6 @@ public final class SliceCriteriaFactory {
 				_result.add(_temp);
 			}
 		}
-
-		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
-		_stmtCriterion.initialize(method, stmt);
-		_result.add(_stmtCriterion);
-
 		return _result;
 	}
 
@@ -186,8 +181,8 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
-		return getCriterion(method, stmt, false, considerExecution);
+	public Collection getCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
+		return getCriteria(method, stmt, false, considerExecution);
 	}
 
 	/**
@@ -207,10 +202,9 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean descend,
+	public Collection getCriteria(final SootMethod method, final Stmt stmt, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
-
 		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
 		_stmtCriterion.initialize(method, stmt);
 		_stmtCriterion.setConsiderExecution(considerExecution);
@@ -246,7 +240,7 @@ public final class SliceCriteriaFactory {
 	 * @pre stmt.oclIsKindOf(Collection(Stmt)) and method.retrieveActiveBody().getUnits().containsAll(stmts)
 	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final Local local, final Collection stmts, final SootMethod method,
+	public Collection getCriteria(final Local local, final Collection stmts, final SootMethod method,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
 
@@ -288,6 +282,12 @@ public final class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/09 05:05:25  venku
+   - refactored the code to enable the criteria creation to be completely hidden
+     from the user.
+   - exposed the setting of the considerExecution flag of the criteria in the factory.
+   - made SliceCriteriaFactory a singleton.
+
    Revision 1.8  2004/06/26 09:53:15  venku
    - documentation.
    Revision 1.7  2004/05/10 08:12:03  venku

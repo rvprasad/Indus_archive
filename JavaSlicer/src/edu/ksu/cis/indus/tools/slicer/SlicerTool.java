@@ -716,20 +716,20 @@ public final class SlicerTool
 				final BasicBlock _head = _bbg.getHead();
 
 				if (_head != null) {
-					_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt(), false));
+					_temp.addAll(criteriaFactory.getCriteria(_method, _head.getLeaderStmt(), false));
 
 					for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
 						final BasicBlock _bb = (BasicBlock) _j.next();
 						final Stmt _stmt = _bb.getTrailerStmt();
-						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt, false));
+						_temp.addAll(criteriaFactory.getCriteria(_method, _stmt, false));
 					}
 				} else {
 					LOGGER.error("Skipping slicing criteria generation for " + _method + " as it has 0 or more than 1 head.");
 				}
 			} else {
-				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst(), true, true);
+				Collection _criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getFirst(), true, true);
 				_temp.addAll(_criteria);
-				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond(), true, true);
+				_criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true);
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
@@ -915,6 +915,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.99  2004/07/20 05:20:28  venku
+   - EntryControlDA needs to be added only for daController based execution
+     and not for slicer execution purposes during forward slicing.  FIXED.
+
    Revision 1.98  2004/07/20 01:19:48  venku
    - addressed bug #408.
    Revision 1.97  2004/07/20 00:53:09  venku

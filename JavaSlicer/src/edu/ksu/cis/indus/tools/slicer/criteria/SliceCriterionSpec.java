@@ -167,10 +167,10 @@ final class SliceCriterionSpec
 		final Stmt _stmt = (Stmt) _stmts.get(stmtIndex);
 
 		if (exprIndex == -1) {
-			_result = CRITERIA_FACTORY.getCriterion(_sm, _stmt, considerEntireStmt, considerExecution);
+			_result = CRITERIA_FACTORY.getCriteria(_sm, _stmt, considerEntireStmt, considerExecution);
 		} else {
 			_result =
-				CRITERIA_FACTORY.getCriterion(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex),
+				CRITERIA_FACTORY.getCriteria(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex),
 					considerExecution);
 		}
 
@@ -330,6 +330,12 @@ final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/09 05:05:24  venku
+   - refactored the code to enable the criteria creation to be completely hidden
+     from the user.
+   - exposed the setting of the considerExecution flag of the criteria in the factory.
+   - made SliceCriteriaFactory a singleton.
+
    Revision 1.2  2004/07/03 00:14:45  venku
    - optional structures are not fully supported in JiBX.  Hence, a "solution"
      to handle this situation was coded in.
