@@ -41,6 +41,8 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.Tool;
+import edu.ksu.cis.indus.tools.ToolConfiguration;
+import edu.ksu.cis.indus.tools.ToolConfigurationCollection;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
@@ -240,15 +242,15 @@ public class SlicerTool
 		try {
 			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			configuration = (SlicerConfigurationCollection) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
+			configurationInfo = (ToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
 
 			if (configurator != null) {
 				configurator.hide();
 				configurator.dispose();
 			}
-			configurator = new SlicerConfigurator((SlicerConfigurationCollection) configuration);
+			configurator = new SlicerConfigurator((SlicerConfigurationCollection) configurationInfo);
 		} catch (JiBXException e) {
-			LOGGER.error("Error while unmarshalling Slicer configuration.", e);
+			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -288,7 +290,7 @@ public class SlicerTool
 
 		movingToNextPhase();
 
-		SlicerConfiguration slicerConfig = ((SlicerConfigurationCollection) configuration).getActiveConfiguration();
+		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
 		if (ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
 			// perform dependency analyses
@@ -315,9 +317,18 @@ public class SlicerTool
 				populateDeadlockCriteria();
 			}
 			engine.setSliceCriteria(criteria, daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse());
-			engine.slice(configuration.getProperty(SlicerConfiguration.SLICE_TYPE));
+			engine.slice(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 		}
 		phase.finished();
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.Tool#initialize()
+	 */
+	public void initialize() {
+		SlicerConfiguration config = new SlicerConfiguration();
+		config.initialize();
+		((ToolConfigurationCollection) configurationInfo).addToolConfiguration(config);
 	}
 
 	/**
@@ -332,7 +343,7 @@ public class SlicerTool
 			mctx.setIndent(4);
 			mctx.marshalDocument(this, "UTF-8", null, result);
 		} catch (JiBXException e) {
-			LOGGER.error("Error while marshalling Slicer configuration.");
+			LOGGER.error("Error while marshalling Slicer configurationCollection.");
 			throw new RuntimeException(e);
 		}
 		return result.toString();
@@ -342,8 +353,8 @@ public class SlicerTool
 	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 */
 	private void populateDeadlockCriteria() {
-		IMonitorInfo im =
-			(IMonitorInfo) ((SlicerConfiguration) configuration).getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		IMonitorInfo im = (IMonitorInfo) slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
 
 		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
 			Triple mTriple = (Triple) i.next();
@@ -368,6 +379,8 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/26 05:55:28  venku
+   - a checkpoint commit. Also a cvs fix commit.
    Revision 1.1  2003/09/24 07:32:23  venku
    - Created an implementation of indus tool api specific to Slicer.
      The GUI needs to be setup and bandera adapter needs to be fixed.

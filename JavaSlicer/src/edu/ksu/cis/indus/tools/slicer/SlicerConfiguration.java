@@ -32,8 +32,8 @@ import java.util.Map;
 
 
 /**
- * This represents a configuration of the slicer.  The slicer tool should be configured via an object of this class obtained
- * from the slicer tool.  The type of the propoerty values are documented with the property identifiers.
+ * This represents a configurationCollection of the slicer.  The slicer tool should be configured via an object of this class
+ * obtained from the slicer tool.  The type of the propoerty values are documented with the property identifiers.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -158,6 +158,18 @@ class SlicerConfiguration
 			PROPERTY_IDS.add(SLICE_TYPE);
 			uninitialized = false;
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#initialize()
+	 */
+	public void initialize() {
+		setProperty(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.TRUE);
+		setProperty(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.TRUE);
+		setProperty(USE_READYDA, Boolean.FALSE);
+		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
+		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 	}
 
 	/**
@@ -439,7 +451,9 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
-   Revision 1.1  2003/09/24 07:32:23  venku
-   - Created an implementation of indus tool api specific to Slicer.
-     The GUI needs to be setup and bandera adapter needs to be fixed.
+   Revision 1.4  2003/09/26 05:55:41  venku
+ *** empty log message ***
+     Revision 1.1  2003/09/24 07:32:23  venku
+     - Created an implementation of indus tool api specific to Slicer.
+       The GUI needs to be setup and bandera adapter needs to be fixed.
  */
