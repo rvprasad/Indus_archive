@@ -62,9 +62,23 @@ final class AliasSet
 	static final String ARRAY_FIELD = "$ELT";
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static int shareEntityCount = 0;
+
+	/**
 	 * This holds the reference of the clone object being created.  This is used to handle cycles during cloning.
 	 */
 	private AliasSet theClone;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection shareEntities;
 
 	/**
 	 * This maps field signatures to their alias sets.
@@ -81,7 +95,7 @@ final class AliasSet
 	/**
 	 * This represents if the variable associated with alias set was accessed (read/written).
 	 */
-	private boolean accessed;
+	boolean accessed;
 
 	/**
 	 * This indicates if this alias set is associated with a static field.
@@ -100,6 +114,13 @@ final class AliasSet
 	private boolean propogating;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean read;
+
+	/**
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
 	 */
 	private boolean shared;
@@ -108,6 +129,13 @@ final class AliasSet
 	 * This indicates if the variable associated with this alias set is the receiver of <code>wait()</code> call.
 	 */
 	private boolean waits;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean written;
 
 	/**
 	 * Creates a new AliasSet object.
@@ -120,6 +148,9 @@ final class AliasSet
 		global = false;
 		propogating = false;
 		readyEntity = null;
+		read = false;
+		written = false;
+		shareEntities = null;
 	}
 
 	/**
@@ -193,6 +224,7 @@ final class AliasSet
 		if (canHaveAliasSet(type)) {
 			result = new AliasSet();
 		}
+
 		return result;
 	}
 
@@ -233,6 +265,7 @@ final class AliasSet
 		if (rep.global) {
 			return;
 		}
+
 		rep.global = true;
 		rep.shared = true;
 
@@ -287,6 +320,17 @@ final class AliasSet
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	Collection getShareEntities() {
+		return ((AliasSet)find()).shareEntities;
+	}
+
+	/**
 	 * Checks if this object is waited on.
 	 *
 	 * @return <code>true</code> if this object is waited on; <code>false</code>, otherwise.
@@ -302,6 +346,15 @@ final class AliasSet
 	 */
 	void setWaits() {
 		((AliasSet) find()).waits = true;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	void setWritten() {
+		((AliasSet) find()).written = true;
 	}
 
 	/**
@@ -361,6 +414,15 @@ final class AliasSet
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	void setRead() {
+		((AliasSet) find()).read = true;
+	}
+
+	/**
 	 * Retrieves the ready entity object of this alias set.
 	 *
 	 * @return the associated readyentity object.
@@ -394,14 +456,18 @@ final class AliasSet
 		if (propogating) {
 			return;
 		}
+
 		propogating = true;
 
 		AliasSet rep1 = (AliasSet) find();
 		AliasSet rep2 = (AliasSet) as.find();
 		rep2.shared |= rep1.shared;
+        
+        if (rep1.shared)
+            System.out.println("------" + rep1.hashCode() + " " + rep2.hashCode());
 
 		/*
-		 * This is tricky.  A constructor can be called to construct 2 instances on which one is used in
+		 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
 		 * wait/notify but not the other.  This means on top-down propogation of alias set in ECBA, the 2 alias
 		 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
 		 * and the other may come and erase it if the check is not made.
@@ -410,14 +476,22 @@ final class AliasSet
 			rep2.readyEntity = rep1.readyEntity;
 		}
 
-		for (Iterator i = rep2.fieldMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			AliasSet to = (AliasSet) rep2.fieldMap.get(entry.getKey());
-			AliasSet from = (AliasSet) rep1.fieldMap.get(entry.getKey());
+		if (rep1.shareEntities != null) {
+			if (rep2.shareEntities == null) {
+				rep2.shareEntities = new HashSet();
+			}
 
-			if (to != null && from != null) {
-				to = (AliasSet) to.find();
-				from = (AliasSet) from.find();
+			rep2.shareEntities.addAll(rep1.shareEntities);
+		}
+
+		for (Iterator i = rep2.fieldMap.keySet().iterator(); i.hasNext();) {
+			Object key = i.next();
+			AliasSet to = (AliasSet) rep2.fieldMap.get(key);
+			AliasSet from = (AliasSet) rep1.fieldMap.get(key);
+
+			if ((to != null) && (from != null)) {
+//				to = (AliasSet) to.find();
+//				from = (AliasSet) from.find();
 				from.propogateInfoFromTo(to);
 			}
 		}
@@ -434,7 +508,7 @@ final class AliasSet
 	 * @pre as != null
 	 */
 	void putASForField(final String field, final AliasSet as) {
-		((AliasSet) find()).fieldMap.put(field, as);
+		((AliasSet) find()).fieldMap.put(field, as.find());
 
 		if (isGlobal()) {
 			as.setGlobal();
@@ -459,6 +533,7 @@ final class AliasSet
 		if (m == n) {
 			return;
 		}
+
 		m.union(n);
 
 		AliasSet rep1 = (AliasSet) m.find();
@@ -472,9 +547,16 @@ final class AliasSet
 
 		if (unifyAll) {
 			rep1.shared |= rep1.accessed && rep2.accessed;
-
+            
+            if(rep1.shared)
+                System.out.println("++++++" + rep1.hashCode() + " " + rep2.hashCode());
+            
 			if (rep1.readyEntity == null && ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits))) {
 				rep1.readyEntity = getNewReadyEntity();
+			}
+			if ((rep1.shareEntities == null) && ((rep1.read && rep2.written) || (rep1.written && rep2.read))) {
+				rep1.shareEntities = new HashSet();
+				rep1.shareEntities.add(getNewShareEntity());
 			}
 		} else {
 			rep1.shared |= rep2.shared;
@@ -483,6 +565,8 @@ final class AliasSet
 		rep1.waits |= rep2.waits;
 		rep1.notifies |= rep2.notifies;
 		rep1.accessed |= rep2.accessed;
+		rep1.read |= rep2.read;
+		rep1.written |= rep2.written;
 
 		Collection toBeProcessed = new HashSet();
 		Collection keySet = new ArrayList(rep2.fieldMap.keySet());
@@ -495,7 +579,6 @@ final class AliasSet
 			if (field != null) {
 				AliasSet repAS = (AliasSet) field;
 				toBeProcessed.remove(fieldName);
-
 				FastUnionFindElement temp = (FastUnionFindElement) rep2.fieldMap.get(fieldName);
 
 				if (temp != null) {
@@ -506,7 +589,7 @@ final class AliasSet
 
 		for (Iterator i = toBeProcessed.iterator(); i.hasNext();) {
 			String field = (String) i.next();
-			AliasSet rep2AS = (AliasSet) ((FastUnionFindElement) rep2.fieldMap.get(field)).find();
+			AliasSet rep2AS = (AliasSet) ((FastUnionFindElement) rep2.fieldMap.get(field));
 			rep1.putASForField(field, rep2AS);
 		}
 
@@ -525,11 +608,24 @@ final class AliasSet
 	private Object getNewReadyEntity() {
 		return new String("Entity:" + readyEntityCount++);
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Object getNewShareEntity() {
+		return new String("Entity:" + shareEntityCount++);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/29 13:34:31  venku
+   - #@$#%
    Revision 1.5  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

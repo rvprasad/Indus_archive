@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
 import soot.Modifier;
-import soot.RefType;
 import soot.Scene;
 import soot.SootField;
 import soot.SootMethod;
@@ -230,14 +229,20 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
+			boolean temp = valueProcessor.read;
+			valueProcessor.read = true;
 			stmt.getRightOp().apply(valueProcessor);
+			valueProcessor.read = temp;
 
 			AliasSet r = (AliasSet) valueProcessor.getResult();
+			temp = valueProcessor.read;
+			valueProcessor.read = false;
 			stmt.getLeftOp().apply(valueProcessor);
+			valueProcessor.read = temp;
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
-			if (r != null && l != null) {
+			if ((r != null) && (l != null)) {
 				l.unify(r, false);
 			}
 		}
@@ -260,14 +265,20 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
 		public void caseIdentityStmt(final IdentityStmt stmt) {
+			boolean temp = valueProcessor.read;
+			valueProcessor.read = true;
 			stmt.getRightOp().apply(valueProcessor);
+			valueProcessor.read = temp;
 
 			AliasSet r = (AliasSet) valueProcessor.getResult();
+			temp = valueProcessor.read;
+			valueProcessor.read = false;
 			stmt.getLeftOp().apply(valueProcessor);
+			valueProcessor.read = temp;
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
-			if (r != null && l != null) {
+			if ((r != null) && (l != null)) {
 				l.unify(r, false);
 			}
 		}
@@ -323,6 +334,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 */
 		boolean accessed;
 
+		/** 
+		 * <p>DOCUMENT ME! </p>
+		 */
+		boolean read = true;
+
 		/**
 		 * Provides the alias set associated with the array element being referred.  All elements in a dimension of an array
 		 * are abstracted by a single alias set.
@@ -330,7 +346,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 		 */
 		public void caseArrayRef(final ArrayRef v) {
+			boolean temp = read;
+			read = true;
 			v.getBase().apply(this);
+			read = temp;
 
 			AliasSet base = (AliasSet) getResult();
 			AliasSet elt = base.getASForField(AliasSet.ARRAY_FIELD);
@@ -345,7 +364,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			if (elt != null) {
 				elt.setAccessedTo(accessed);
+				setReadOrWritten(elt);
 			}
+
 			setResult(elt);
 		}
 
@@ -353,7 +374,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
+			boolean temp = read;
+			read = true;
 			v.getBase().apply(this);
+			read = temp;
 
 			AliasSet base = (AliasSet) getResult();
 			String fieldSig = v.getField().getSignature();
@@ -369,7 +393,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			if (field != null) {
 				field.setAccessedTo(accessed);
+				setReadOrWritten(field);
 			}
+
 			setResult(field);
 		}
 
@@ -396,7 +422,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			if (s != null) {
 				s.setAccessedTo(accessed);
+				setReadOrWritten(s);
 			}
+
 			setResult(s);
 		}
 
@@ -404,7 +432,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseParameterRef( soot.jimple.ParameterRef)
 		 */
 		public void caseParameterRef(final ParameterRef v) {
-			setResult(methodCtxtCache.getParamAS(v.getIndex()));
+			AliasSet as = methodCtxtCache.getParamAS(v.getIndex());
+			setReadOrWritten(as);
+			setResult(as);
 		}
 
 		/**
@@ -439,7 +469,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 		 */
 		public void caseThisRef(final ThisRef v) {
-			setResult(methodCtxtCache.getThisAS());
+			AliasSet as = methodCtxtCache.getThisAS();
+			setReadOrWritten(as);
+			setResult(as);
 		}
 
 		/**
@@ -465,15 +497,31 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
+		 * DOCUMENT ME! <p></p>
+		 *
+		 * @param as DOCUMENT ME!
+		 */
+		private void setReadOrWritten(final AliasSet as) {
+			if (as != null) {
+				if (read) {
+					as.setRead();
+				} else {
+					as.setWritten();
+				}
+			}
+		}
+
+		/**
 		 * Processes invoke expressions/call-sites.
 		 *
 		 * @param v invocation expresison to be processed.
+		 *
+		 * @throws RuntimeException DOCUMENT ME!
 		 */
 		private void processInvokeExpr(final InvokeExpr v) {
 			Collection callees = new ArrayList();
 			SootMethod caller = context.getCurrentMethod();
 			SootMethod sm = v.getMethod();
-			Collection loopSet = new HashSet();
 
 			// fix up "return" alias set.
 			AliasSet retAS = null;
@@ -504,6 +552,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 						v.getArg(i).apply(valueProcessor);
 						temp = valueProcessor.getResult();
 					}
+
 					argASs.add(temp);
 				}
 			}
@@ -521,15 +570,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			for (Iterator i = callees.iterator(); i.hasNext();) {
 				boolean unifyAll = false;
-				boolean loopEnclosed = false;
+				boolean multiExecution = false;
 				SootMethod callee = (SootMethod) i.next();
 				Triple triple = (Triple) method2Triple.get(callee);
 
 				// This is needed when the system is not closed.
 				if (triple == null) {
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO TRIPLE.  May be due to open system.");
+						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + callee.getSignature());
 					}
+
 					continue;
 				}
 
@@ -541,7 +591,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 					unifyAll = true;
 
 					if (cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-						loopEnclosed = true;
+						multiExecution = true;
 					}
 				} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
 					  && callee.getReturnType() instanceof VoidType
@@ -569,26 +619,65 @@ public class EquivalenceClassBasedEscapeAnalysis
 						mc = (MethodContext) mc.clone();
 					} catch (CloneNotSupportedException e) {
 						LOGGER.error("Hell NO!  This should not happen.", e);
-                        throw new RuntimeException(e);
+						throw new RuntimeException(e);
 					}
 				}
+
+                System.out.println("========================================================");
+                if (sc.thisAS != null) {
+                    System.out.println(caller.getSignature() + " " + context.getStmt());
+                    System.out.println(((AliasSet)sc.thisAS.find()).accessed + " " + ((AliasSet)sc.thisAS.find()).hashCode());
+                    System.out.println(((AliasSet)mc.thisAS.find()).accessed + " " + ((AliasSet)mc.thisAS.find()).hashCode());
+                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
+                        Object b = j.next();
+                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
+                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
+                        
+                    }
+                    for (int j = 0; j < callee.getParameterCount(); j++) {
+                        AliasSet as = sc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
+                        as = mc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
+
+                    }
+                }
+
 				sc.unify(mc, unifyAll);
 
-				if (loopEnclosed) {
-					loopSet.clear();
-					sc.addReachableAliasSetsTo(loopSet);
+                if (sc.thisAS != null) {
+                    System.out.println(caller.getSignature() + " " + context.getStmt());
+                    System.out.println(((AliasSet)sc.thisAS.find()).escapes() + " " + ((AliasSet)sc.thisAS.find()).hashCode());
+                    System.out.println(((AliasSet)mc.thisAS.find()).escapes() + " " + ((AliasSet)mc.thisAS.find()).hashCode());
 
-					for (Iterator j = loopSet.iterator(); j.hasNext();) {
-						AliasSet as = (AliasSet) j.next();
+                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
+                        Object b = j.next();
+                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
+                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
+                        
+                    }
+                    for (int j = 0; j < callee.getParameterCount(); j++) {
+                        AliasSet as = sc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
+                        as = mc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
 
-						if (as.isNotified() && as.isWaitedOn()) {
-							as.setReadyEntity();
-						}
-                        if (as.isAccessed())
-                            as.setEscapes();
-					}
+                    }
+                }
+                System.out.println("========================================================");
+                
+				if (multiExecution) {
+					// It would suffice to unify the site context with it self in the case of loop enclosure
+					// as this is more semantically close to what happens during execution.
+					sc.unify(sc, unifyAll);
+                    System.out.println("*****************************");
 				}
 			}
+
 			setResult(retAS);
 		}
 	}
@@ -635,17 +724,17 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			if (wSM.getDeclaringClass().getName().equals("java.lang.Object")
 				  && wSM.getReturnType() instanceof VoidType
-				  && wSM.getParameterCount() == 0
+				  && (wSM.getParameterCount() == 0)
 				  && wSM.getName().equals("wait")
 				  && nSM.getDeclaringClass().getName().equals("java.lang.Object")
 				  && nSM.getReturnType() instanceof VoidType
-				  && nSM.getParameterCount() == 0
+				  && (nSM.getParameterCount() == 0)
 				  && (nSM.getName().equals("notify") || nSM.getName().equals("notifyAll"))) {
 				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get(wTemp.getBase());
 				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get(nTemp.getBase());
 
-				if (as1.getReadyEntity() != null && as2.getReadyEntity() != null) {
-					result = as1.getReadyEntity().equals(as2.getReadyEntity());
+				if ((as1.getReadyEntity() != null) && (as2.getReadyEntity() != null)) {
+					result = as1.getReadyEntity() == as2.getReadyEntity();
 				} else {
 					/*
 					 * This is the case where a start site has wait and notify called on a reference.
@@ -661,6 +750,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 				}
 			}
 		}
+
 		return result;
 	}
 
@@ -697,38 +787,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Checks if the object bound to the given value in the given method shared or escapes.
-	 *
-	 * @param v is the object value being checked for sharing.
-	 * @param sm is the method in which <code>v</code> occurs.
-	 *
-	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
-	 *
-	 * @pre v != null and sm != null
-	 */
-	public boolean escapes(final Value v, final SootMethod sm) {
-		boolean result = true;
-
-		try {
-			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
-			// allocation sites which are executed only once. 
-			if (AliasSet.canHaveAliasSet(v.getType())) {
-				if (CollectionUtils.intersection(tgi.getMultiThreadAllocSites(), tgi.getExecutionThreads(sm)).isEmpty()) {
-                    result = getAliasSetFor(v, sm).escapes();
-   				}
-			} else {
-				result = false;
-			}
-		} catch (RuntimeException e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("There is no information about " + v + " occurring in " + sm
-					+ ".  So, providing pessimistic info (true).", e);
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
@@ -753,7 +811,47 @@ public class EquivalenceClassBasedEscapeAnalysis
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Update method2Triple for " + sm);
 		}
+
 		method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
+	}
+
+	/**
+	 * Checks if the object bound to the given value in the given method shared or escapes.
+	 *
+	 * @param v is the object value being checked for sharing.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre v != null and sm != null
+	 */
+	public boolean escapes(final Value v, final SootMethod sm) {
+		boolean result = true;
+
+		try {
+			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
+			// allocation sites which are executed only once. 
+			if (AliasSet.canHaveAliasSet(v.getType())) {
+				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
+				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
+				// marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
+				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
+				// different sites.  In case the threads are started at the same site, then the processing of call-site during
+				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
+				// structure and the language semantics along with the rules above ensure that the escape information is 
+				// polluted (pessimistic) only when necessary.
+				result = getAliasSetFor(v, sm).escapes();
+			} else {
+				result = false;
+			}
+		} catch (RuntimeException e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing pessimistic info (true).", e);
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -765,7 +863,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 		SimpleNodeGraph sng = cgi.getCallGraph();
 		Collection sccs = sng.getSCCs(false);
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
-        Collection processed = new HashSet();
+		Collection processed = new HashSet();
 
 		// Phase 2: The SCCs are ordered bottom up. 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
@@ -781,6 +879,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 				if (!sm.isConcrete()) {
 					LOGGER.warn("NO BODY: " + sm.getSignature());
+
 					continue;
 				}
 
@@ -794,8 +893,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("NO METHOD TRIPLE: " + sm.getSignature());
 					}
+
 					continue;
 				}
+
 				methodCtxtCache = (MethodContext) triple.getFirst();
 				localASsCache = (Map) triple.getSecond();
 				scCache = (Map) triple.getThird();
@@ -809,8 +910,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 				BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
 				wb.clear();
-                processed.clear();
+				processed.clear();
 				wb.addAllWork(bbg.getHeads());
+
 				while (wb.hasWork()) {
 					BasicBlock bb = (BasicBlock) wb.getWork();
 					processed.add(bb);
@@ -833,13 +935,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 				if (valueProcessor.accessed) {
 					continue;
 				}
-				wb.clear();
 
+				wb.clear();
 				AliasSet aTemp = methodCtxtCache.getReturnAS();
 
 				if (aTemp != null) {
 					wb.addWork(aTemp);
 				}
+
 				wb.addWork(methodCtxtCache.getThrownAS());
 
 				for (int k = sm.getParameterCount() - 1; k >= 0; k--) {
@@ -849,6 +952,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 						wb.addWork(aTemp);
 					}
 				}
+                if (!sm.isStatic())
+                    wb.addWork(methodCtxtCache.thisAS);
+
 				processed.clear();
 
 				while (wb.hasWork()) {
@@ -857,6 +963,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 					if (processed.contains(as)) {
 						continue;
 					}
+
 					processed.add(as);
 					as.setAccessedTo(true);
 
@@ -868,11 +975,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 						}
 					}
 				}
-                
+
 			}
 		}
 
-		// Phase 3
+        // Phase 3
 		processed.clear();
 		wb.addAllWork(cgi.getHeads());
 
@@ -904,12 +1011,31 @@ public class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("NO CALLEE TRIPLE: " + callee.getSignature());
 					}
+
 					continue;
 				}
 
 				MethodContext mc = (MethodContext) (triple.getFirst());
 				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
+                if (sc.thisAS != null) {
+                    System.out.println(caller.getSignature() + " " + ctrp.getStmt() + " " + ((AliasSet)sc.thisAS.find()).escapes() + ((AliasSet)sc.thisAS.find()).hashCode());
+                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
+                        Object b = j.next();
+                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
+                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
+                        
+                    }
+                    for (int j = 0; j < callee.getParameterCount(); j++) {
+                        AliasSet as = sc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).escapes() + " " + ((AliasSet)as.find()).hashCode());
+                        as = mc.getParamAS(j);
+                        if (as != null)
+                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).escapes() + " " + ((AliasSet)as.find()).hashCode());
+
+                    }
+                }
 				sc.propogateInfoFromTo(mc);
 
 				if (!processed.contains(callee)) {
@@ -918,6 +1044,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -933,6 +1060,47 @@ public class EquivalenceClassBasedEscapeAnalysis
 	public void reset() {
 		globalASs.clear();
 		method2Triple.clear();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param v1 DOCUMENT ME!
+	 * @param sm1 DOCUMENT ME!
+	 * @param v2 DOCUMENT ME!
+	 * @param sm2 DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
+		boolean result = escapes(v1, sm1) && escapes(v2, sm2);
+
+		if (result) {
+			try {
+				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
+				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
+				// marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
+				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
+				// different sites.  In case the threads are started at the same site, then the processing of call-site during
+				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
+				// structure and the language semantics along with the rules above ensure that the escape information is 
+				// polluted (pessimistic) only when necessary.
+				Collection o1 = getAliasSetFor(v1, sm1).getShareEntities();
+				Collection o2 = getAliasSetFor(v2, sm2).getShareEntities();
+				System.out.println(v1 + "@" + sm1 + "-------" + o1);
+				System.out.println(v2 + "@" + sm2 + "-------" + o2);
+				result = (o1 != null) && (o2 != null) && !(CollectionUtils.intersection(o1, o2).isEmpty());
+			} catch (RuntimeException e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
+						+ ".  So, providing pessimistic info (true).", e);
+				}
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -978,6 +1146,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 				result = (AliasSet) local2AS.get(v);
 			}
 		}
+		System.out.println(((AliasSet)result.find()).hashCode() + " " + result.isAccessed() + " " + result.escapes());
 		return result;
 	}
 }
@@ -985,9 +1154,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/09/29 14:54:46  venku
+   - don't use "use-orignal-names" option with Jimple.
+     The variables referring to objects need to be unique if the
+     results of the analyses should be meaningful.
    Revision 1.13  2003/09/29 06:36:31  venku
    - added reset() method.
-
    Revision 1.12  2003/09/28 06:20:39  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
