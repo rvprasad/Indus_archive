@@ -45,13 +45,15 @@ import java.util.Map;
 
 
 /**
- * An naive implementation of AController. This implementation will run the analyses in the order following order: 
- * IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis, 
- * Interference dependency analysis, Ready dependency analysis, Divergence dependency analysis
+ * An naive implementation of AController. This implementation will run the analyses in the order following order:
+ * IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis,  Interference
+ * dependency analysis, Ready dependency analysis, Divergence dependency analysis
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @invariant participatingAnalyses.values()->forall(o | o.oclIsKindOf(DependencyAnalysis))
  */
 public class SimpleController
   extends AController {
@@ -96,8 +98,6 @@ public class SimpleController
 	 * @param info is a map from name to objects which provide information that analyses may use, but is of no use to the
 	 * 		  controller.
 	 * @param pc is the preprocess controller.
-	 *
-	 * @invariant participatingAnalyses.values()->forall(o | o.oclIsKindOf(DependencyAnalysis))
 	 */
 	public SimpleController(final Map info, final ProcessingController pc) {
 		super(info, pc);
@@ -117,6 +117,8 @@ public class SimpleController
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku
