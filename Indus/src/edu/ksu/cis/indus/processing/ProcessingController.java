@@ -1367,7 +1367,6 @@ public class ProcessingController {
 			processedLocals.clear();
 
 			final Collection _col1 = stmtSequencesRetriever.retreiveStmtSequences(method);
-            LOGGER.debug("COL: " + _col1);
 			final Iterator _j = _col1.iterator();
 			final int _jEnd = _col1.size();
 
@@ -1379,8 +1378,8 @@ public class ProcessingController {
 				} else {
 					_seq = (Collection) _j.next();
 				}
-                LOGGER.debug("SEQ: " + _seq);
-				final Iterator _i = _seq.iterator();
+
+                final Iterator _i = _seq.iterator();
 				final int _iEnd = _seq.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd && activePart.canProceed(); _iIndex++) {

@@ -748,6 +748,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+        _ssr.setBbgFactory(bbgMgr);
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(theNameOfTagToResidualize));
 		_pc.setEnvironment(env);
