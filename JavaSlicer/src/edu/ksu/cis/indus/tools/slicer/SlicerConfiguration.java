@@ -38,9 +38,12 @@ import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AssertionSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +53,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import soot.jimple.AssignStmt;
+import soot.jimple.ThrowStmt;
 
 
 /**
@@ -146,6 +152,12 @@ public final class SlicerConfiguration
 	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
 	/** 
+	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve assertions in
+	 * the program.
+	 */
+	static final Object SLICE_TO_PRESERVE_ASSERTIONS = "slice to preserve assertions";
+
+	/** 
 	 * This indicates all-synchronization-constructs-should-be-considered deadlock criteria selection strategy.
 	 */
 	static final Object ALL_SYNC_CONSTRUCTS = "ALL_SYNC_CONSTRUCTS";
@@ -201,6 +213,16 @@ public final class SlicerConfiguration
 	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
 
 	/** 
+	 * This is the id of criteria generator for deadlock preserving criteria generation.
+	 */
+	private static final Object DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID = "deadlock preserving criteria generator id";
+
+	/** 
+	 * This is the id of criteria generator for assertion preserving criteria generation.
+	 */
+	private static final Object ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID = "assertion preserving criteria generator id";
+
+	/** 
 	 * The collection of ids of the dependences to be considered for slicing.
 	 *
 	 * @invariant dependencesToUse.oclIsKindOf(String)
@@ -208,16 +230,18 @@ public final class SlicerConfiguration
 	private final Collection dependencesToUse = new HashSet();
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final Map id2critGenerators = new HashMap();
+
+	/** 
 	 * This maps IDs to dependency analyses.
 	 *
 	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(AbstractDependencyAnalysis)))
 	 */
 	private final Map id2dependencyAnalyses = new HashMap();
-
-	/** 
-	 * This criteria generator to for deadlock criteria generation.
-	 */
-	private ISliceCriteriaGenerator criteriaGenerator;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
@@ -237,6 +261,7 @@ public final class SlicerConfiguration
 		propertyIds.add(USE_RULE4_IN_READYDA);
 		propertyIds.add(USE_SLA_FOR_READY_DA);
 		propertyIds.add(SLICE_FOR_DEADLOCK);
+		propertyIds.add(SLICE_TO_PRESERVE_ASSERTIONS);
 		propertyIds.add(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
@@ -259,17 +284,6 @@ public final class SlicerConfiguration
 	 */
 	public String getDeadlockCriteriaSelectionStrategy() {
 		return (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
-	}
-
-	/**
-	 * Retrieves slicing criteria generator.
-	 *
-	 * @return the slice criteria generator.
-	 *
-	 * @post result != null
-	 */
-	public ISliceCriteriaGenerator getDeadlockPreservingSliceCriteriaGenerator() {
-		return criteriaGenerator;
 	}
 
 	/**
@@ -490,6 +504,36 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Toggles the preservation of assertions in the slice.
+	 *
+	 * @param value <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
+	 */
+	public void setSliceToPreserveAssertions(final boolean value) {
+		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.valueOf(value));
+
+		if (value) {
+			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
+			final Collection _stmtTypes = new ArrayList();
+			_stmtTypes.add(AssignStmt.class);
+			_stmtTypes.add(ThrowStmt.class);
+			_t.setStmtTypes(_stmtTypes);
+			_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
+			id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
+		} else {
+			id2critGenerators.remove(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID);
+		}
+	}
+
+	/**
+	 * Checks if the slice was done to preserve assertions.
+	 *
+	 * @return <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
+	 */
+	public boolean getSliceToPreserveAssertions() {
+		return ((Boolean) getProperty(SLICE_TO_PRESERVE_ASSERTIONS)).booleanValue();
+	}
+
+	/**
 	 * Sets the type of slice to be generated.
 	 *
 	 * @param type specifies the type of slice.  It has to be one of values defined by
@@ -605,6 +649,7 @@ public final class SlicerConfiguration
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
+		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.FALSE);
 		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
 		setProperty(USE_OFA_FOR_INTERFERENCE_DA, Boolean.TRUE);
 		setProperty(USE_READYDA, Boolean.TRUE);
@@ -618,7 +663,7 @@ public final class SlicerConfiguration
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 
-		criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
+		id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, new DeadlockPreservingCriteriaGenerator());
 		setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
 
 		// default required fixed dependency analyses
@@ -764,6 +809,17 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Retrieves slicing criteria generators.
+	 *
+	 * @return the slice criteria generators.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriteriaGenerator))
+	 */
+	Collection getSliceCriteriaGenerators() {
+		return id2critGenerators.values();
+	}
+
+	/**
 	 * Factory method to create a configuration. This is used by the factory and in java-2-xml binding.  It is adviced to use
 	 * the factory object rather than using this method.
 	 *
@@ -830,15 +886,18 @@ public final class SlicerConfiguration
 		if (getSliceForDeadlock()) {
 			_result = true;
 
+			final ISliceCriteriaGenerator _t =
+				(ISliceCriteriaGenerator) id2critGenerators.get(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID);
+
 			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(ISliceCriteriaPredicate.DUMMY_FILTER);
-				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
+				_t.setCriteriaFilter(ISliceCriteriaPredicate.DUMMY_FILTER);
+				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
-				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
+				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
+				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
-				criteriaGenerator.setCriteriaContextualizer(new DeadlockPreservingCriteriaContextualizer());
+				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
+				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaContextualizer());
 			} else {
 				_result = false;
 			}

@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.tools.slicer.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-import edu.ksu.cis.indus.tools.slicer.criteria.filters.ISliceCriteriaFilter;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.util.Collection;
 
@@ -43,7 +43,7 @@ public abstract class AbstractSliceCriteriaGenerator
 	/** 
 	 * The filter to use.
 	 */
-	private ISliceCriteriaFilter criteriaFilter;
+	private ISliceCriteriaPredicate criteriaFilter;
 
 	/** 
 	 * The slicer that defines the context in which generator functions.
@@ -74,9 +74,9 @@ public abstract class AbstractSliceCriteriaGenerator
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setCriteriaFilter(ISliceCriteriaFilter)
+	 * @see ISliceCriteriaGenerator#setCriteriaFilter(ISliceCriteriaPredicate)
 	 */
-	public final void setCriteriaFilter(final ISliceCriteriaFilter theCriteriaFilter) {
+	public final void setCriteriaFilter(final ISliceCriteriaPredicate theCriteriaFilter) {
 		criteriaFilter = theCriteriaFilter;
 	}
 
@@ -145,7 +145,7 @@ public abstract class AbstractSliceCriteriaGenerator
 		final boolean _result;
 
 		if (criteriaFilter != null) {
-			_result = criteriaFilter.shouldGenerateCriteriaFrom(entity);
+			_result = criteriaFilter.evaluate(entity);
 		} else {
 			_result = true;
 		}

@@ -13,9 +13,11 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer.criteria.filters;
+package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
+import org.apache.commons.collections.Predicate;
 
 
 /**
@@ -25,16 +27,17 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * @author $Author$
  * @version $Revision$
  */
-public interface ISliceCriteriaFilter {
+public interface ISliceCriteriaPredicate
+  extends Predicate {
 	/** 
 	 * A dummy filter that allows every basis to be considered for criteria generation.
 	 */
-	ISliceCriteriaFilter DUMMY_FILTER =
-		new ISliceCriteriaFilter() {
+	ISliceCriteriaPredicate DUMMY_FILTER =
+		new ISliceCriteriaPredicate() {
 			public void setSlicerTool(final SlicerTool slicer) {
 			}
 
-			public boolean shouldGenerateCriteriaFrom(final Object entity) {
+			public boolean evaluate(final Object entity) {
 				return true;
 			}
 		};
@@ -47,15 +50,15 @@ public interface ISliceCriteriaFilter {
 	void setSlicerTool(SlicerTool slicer);
 
 	/**
-	 * Checks if  criteria should be generated based on the given entity.
+	 * Checks if the entity should be generated based on the given entity.
 	 *
 	 * @param entity forms the base for the criteria.
 	 *
-	 * @return <code>true</code>
+	 * @return <code>true</code> if
 	 *
 	 * @pre entity != null and slicer != null
 	 */
-	boolean shouldGenerateCriteriaFrom(final Object entity);
+	boolean evaluate(final Object entity);
 }
 
 // End of File

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer.criteria.filters;
+package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -25,15 +25,15 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSliceCriteriaFilter
-  implements ISliceCriteriaFilter {
+public abstract class AbstractSliceCriteriaPredicate
+  implements ISliceCriteriaPredicate {
 	/** 
 	 * This is the slicer tool provides the context in which filtering occurs.
 	 */
 	private SlicerTool slicerTool;
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.criteria.filters.ISliceCriteriaFilter#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
 	 */
 	public void setSlicerTool(final SlicerTool slicer) {
 		slicerTool = slicer;

@@ -920,16 +920,14 @@ public final class SlicerTool
 		// perform slicing
 		engine.reset();
 
-		final Iterator _i = criteriaGenerators.iterator();
-		final int _iEnd = criteriaGenerators.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+		for (final Iterator _i = criteriaGenerators.iterator(); _i.hasNext();) {
 			final ISliceCriteriaGenerator _e = (ISliceCriteriaGenerator) _i.next();
 			criteria.addAll(_e.getCriteria(this));
 		}
 
-		if (slicerConfig.getSliceForDeadlock()) {
-			criteria.addAll(slicerConfig.getDeadlockPreservingSliceCriteriaGenerator().getCriteria(this));
+		for (final Iterator _j = slicerConfig.getSliceCriteriaGenerators().iterator(); _j.hasNext();) {
+			final ISliceCriteriaGenerator _generator = (ISliceCriteriaGenerator) _j.next();
+			criteria.addAll(_generator.getCriteria(this));
 		}
 
 		if (!criteria.isEmpty()) {

@@ -34,12 +34,13 @@ Required software:
 
 Version 0.5
 -----------
+	- Added support to toggle interference dependence. (feature request #540)
 	- Added support to inject context into seed criteria.  This support was also used to generate context-sensitive criteria 
 	  that preserve dead locking properties of the program.
   	- Added support to perform property-aware (thread locality) context-sensitive slicing.  This extends context 
   	  injection into seed criteria.
 	- The user can now specify scope of slicing via a scope specification file.	  
-	- Feature request 232.
+	- Added support to generate criteria based on class-level entities (feature request #232)
 	- Provided a new class "FieldBasedCriteriaGenerator" to generated criteria based on fields.
 	- Refactored classes related criteria filters, generators, and specification.
 	- A whole lot of bug fixes.

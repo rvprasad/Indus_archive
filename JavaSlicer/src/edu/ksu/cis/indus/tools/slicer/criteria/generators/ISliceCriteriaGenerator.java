@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
 import edu.ksu.cis.indus.tools.slicer.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-import edu.ksu.cis.indus.tools.slicer.criteria.filters.ISliceCriteriaFilter;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.util.Collection;
 
@@ -60,7 +60,7 @@ public interface ISliceCriteriaGenerator {
 	 *
 	 * @pre criteriaFilter != null
 	 */
-	void setCriteriaFilter(ISliceCriteriaFilter criteriaFilter);
+	void setCriteriaFilter(ISliceCriteriaPredicate criteriaFilter);
 }
 
 // End of File

@@ -84,182 +84,113 @@ public final class SlicerConfigurator
 	 */
 	protected void setup() {
 		final GridLayout _gridLayout = new GridLayout();
-		_gridLayout.numColumns = 2;
+		_gridLayout.numColumns = 3;
 		parent.setLayout(_gridLayout);
 
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData.horizontalSpan = 2;
 
 		executableSliceButton = new Button(parent, SWT.CHECK);
 		executableSliceButton.setText("Executable slice");
-		executableSliceButton.setLayoutData(_gridData);
-		executableSliceButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue());
 
-		final SelectionListener _sl =
+		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData1.horizontalSpan = 2;
+		_gridData1.horizontalAlignment = SWT.LEFT;
+		executableSliceButton.setLayoutData(_gridData1);
+
+		final Boolean _executableProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE);
+		executableSliceButton.setSelection(_executableProperty.booleanValue());
+
+		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
-		executableSliceButton.addSelectionListener(_sl);
+		executableSliceButton.addSelectionListener(_sl1);
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
 
-		setupRow2();
-		setupRow3();
-		setupRow4();
-		setupRow5();
+		final Button _assertionPreservingSliceButton = new Button(parent, SWT.CHECK);
+		_assertionPreservingSliceButton.setText("Preserve assertions");
+
+		final GridData _gridData2 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData2.horizontalSpan = 1;
+		_gridData2.horizontalAlignment = SWT.LEFT;
+		_assertionPreservingSliceButton.setLayoutData(_gridData2);
+
+		final Boolean _assertionsProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS);
+		_assertionPreservingSliceButton.setSelection(_assertionsProperty.booleanValue());
+
+		final SelectionListener _sl2 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _assertionPreservingSliceButton, _cfg);
+		_assertionPreservingSliceButton.addSelectionListener(_sl2);
+
+		setupSliceInfoUI();
+		setupInteferenceDepUI();
+		setupDivergenceDepUI();
+		setupReadyDepUI();
 		parent.pack();
 	}
 
 	/**
-	 * Sets up row 2 to configure deadlock preserving slicing  and slice type.
+	 * Sets up row corresponding to Divergence DA in the configurator composite.
 	 */
-	private void setupRow2() {
+	private void setupDivergenceDepUI() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-		final Composite _comp = new Composite(parent, SWT.NONE);
-		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
-		_gridData1.horizontalSpan = 1;
-		_comp.setLayoutData(_gridData1);
 
-		final RowLayout _rowLayout1 = new RowLayout();
-		_rowLayout1.type = SWT.VERTICAL;
-		_rowLayout1.fill = true;
-		_comp.setLayout(_rowLayout1);
+		// Divergence dependence related group
+		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
+		_gridData.horizontalSpan = 3;
 
-		final Button _button = new Button(_comp, SWT.CHECK);
-		_button.setText("Slice for Deadlock");
-		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
+		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Divergence dependence");
+		_group.setLayoutData(_gridData);
 
-		final Group _group1 = new Group(_comp, SWT.SHADOW_ETCHED_IN);
-		_group1.setText("Deadlock Criteria Selection Strategy");
+		final GridLayout _gridLayout = new GridLayout();
+		_gridLayout.numColumns = 2;
+		_group.setLayout(_gridLayout);
 
-		final RowLayout _rowLayout2 = new RowLayout();
-		_rowLayout2.type = SWT.VERTICAL;
-		_group1.setLayout(_rowLayout2);
+		final Button _useDDAButton = new Button(_group, SWT.CHECK);
+		_useDDAButton.setText("use divergence dependence");
+		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
+		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
+				_useDDAButton, _cfg));
 
-		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
-		_allSycnStrategy.setText("All Synchronization constructs");
+		final Button _interProceduralDivergenceDAButton = new Button(_group, SWT.CHECK);
+		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
 
-		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
-		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
+		if (_useDDAButton.getSelection()) {
+			final Boolean _interProceduralDDA = (Boolean) _cfg.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA);
 
-		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
-		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
-
-		final SelectionListener _sl2 =
-			new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					Object _value = null;
-
-					if (evt.widget == _ctxtsensEscapingSyncStrategy) {
-						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
-					} else if (evt.widget == _escapingSyncStrategy) {
-						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
-					} else if (evt.widget == _allSycnStrategy) {
-						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
-					}
-
-					if (_value != null) {
-						_cfg.setProperty(SlicerConfiguration.DEADLOCK_CRITERIA_SELECTION_STRATEGY, _value);
-					}
-				}
-
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			};
-		_allSycnStrategy.addSelectionListener(_sl2);
-		_escapingSyncStrategy.addSelectionListener(_sl2);
-		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl2);
-
-		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
-
-		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
-			_allSycnStrategy.setSelection(true);
-		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
-			_escapingSyncStrategy.setSelection(true);
-		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
-			_ctxtsensEscapingSyncStrategy.setSelection(true);
+			if (_interProceduralDDA != null) {
+				_interProceduralDivergenceDAButton.setSelection(_interProceduralDDA.booleanValue());
+			} else {
+				_interProceduralDivergenceDAButton.setSelection(false);
+			}
+		} else {
+			_interProceduralDivergenceDAButton.setEnabled(false);
 		}
-
-		final SelectionListener _sl1 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg) {
+		_interProceduralDivergenceDAButton.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
+				_interProceduralDivergenceDAButton,
+				_cfg));
+		_useDDAButton.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					final boolean _value = button.getSelection();
-					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
-					_group1.setEnabled(_value);
-					_allSycnStrategy.setEnabled(_value);
-					_escapingSyncStrategy.setEnabled(_value);
-				}
-			};
-		_button.addSelectionListener(_sl1);
-
-		//Slice type related group
-		final Group _group2 = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group2.setText("Slice Type");
-
-		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData.horizontalSpan = 1;
-		_group2.setLayoutData(_gridData);
-
-		final RowLayout _rowLayout = new RowLayout();
-		_rowLayout.type = SWT.VERTICAL;
-		_group2.setLayout(_rowLayout);
-
-		final Button _backwardSlice = new Button(_group2, SWT.RADIO);
-		_backwardSlice.setText("Backward slice");
-
-		final Button _forwardSlice = new Button(_group2, SWT.RADIO);
-		_forwardSlice.setText("Forward slice");
-
-		final Button _completeSlice = new Button(_group2, SWT.RADIO);
-		_completeSlice.setText("Complete slice");
-
-		final SelectionListener _sl3 =
-			new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					Object _value = null;
-
-					if (evt.widget == _forwardSlice) {
-						_value = SlicingEngine.FORWARD_SLICE;
-						executableSliceButton.setEnabled(false);
+					if (_useDDAButton.getSelection()) {
+						_interProceduralDivergenceDAButton.setEnabled(true);
 					} else {
-						if (evt.widget == _backwardSlice) {
-							_value = SlicingEngine.BACKWARD_SLICE;
-						} else if (evt.widget == _completeSlice) {
-							_value = SlicingEngine.COMPLETE_SLICE;
-						}
-						executableSliceButton.setEnabled(true);
-					}
-
-					if (_value != null) {
-						_cfg.setProperty(SlicerConfiguration.SLICE_TYPE, _value);
+						_interProceduralDivergenceDAButton.setEnabled(false);
 					}
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
 					widgetSelected(evt);
 				}
-			};
-		_backwardSlice.addSelectionListener(_sl3);
-		_completeSlice.addSelectionListener(_sl3);
-		_forwardSlice.addSelectionListener(_sl3);
-
-		final Object _sliceType = _cfg.getSliceType();
-
-		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			_backwardSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			_completeSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			_forwardSlice.setSelection(true);
-		}
+			});
 	}
 
 	/**
-	 * Sets up row 3 corresponding Interference DA in the configurator composite.
+	 * Sets up row corresponding Interference DA in the configurator composite.
 	 */
-	private void setupRow3() {
+	private void setupInteferenceDepUI() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Interference dependence related group
@@ -267,7 +198,7 @@ public final class SlicerConfigurator
 		_group.setText("Interference dependence");
 
 		final GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
-		_gridData.horizontalSpan = 2;
+		_gridData.horizontalSpan = 3;
 		_group.setLayoutData(_gridData);
 
 		final GridLayout _gridLayout = new GridLayout();
@@ -376,7 +307,8 @@ public final class SlicerConfigurator
 					_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(_val);
 					_typedIDA.setEnabled(_val);
 					_symbolBasedEscapeAnalysisBasedIDA.setEnabled(_val);
-					_useOFAForInterference.setSelection(_val);
+					_useOFAForInterference.setEnabled(_val);
+					_precisionGroup.setEnabled(_val);
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -385,83 +317,27 @@ public final class SlicerConfigurator
 			});
 
 		if (_useIDAButton.getSelection()) {
+			final Boolean _b = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
+			_useOFAForInterference.setSelection(_b.booleanValue());
 			_natureOfIDAGroup.setEnabled(true);
 			_typedIDA.setEnabled(true);
 			_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(true);
 			_symbolBasedEscapeAnalysisBasedIDA.setEnabled(true);
-
-			final Boolean _b = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
-			_useOFAForInterference.setSelection(_b.booleanValue());
+			_precisionGroup.setEnabled(true);
 		} else {
+			_useOFAForInterference.setEnabled(false);
 			_natureOfIDAGroup.setEnabled(false);
 			_typedIDA.setEnabled(false);
 			_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(false);
 			_symbolBasedEscapeAnalysisBasedIDA.setEnabled(false);
-			_useOFAForInterference.setEnabled(false);
+			_precisionGroup.setEnabled(false);
 		}
 	}
 
 	/**
-	 * Sets up row 4 corresponding to Divergence DA in the configurator composite.
+	 * Sets up row corresponding to Ready DA in the configurator composite.
 	 */
-	private void setupRow4() {
-		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-
-		// Divergence dependence related group
-		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
-		_gridData.horizontalSpan = 2;
-
-		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Divergence dependence");
-		_group.setLayoutData(_gridData);
-
-		final GridLayout _gridLayout = new GridLayout();
-		_gridLayout.numColumns = 2;
-		_group.setLayout(_gridLayout);
-
-		final Button _useDDAButton = new Button(_group, SWT.CHECK);
-		_useDDAButton.setText("use divergence dependence");
-		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
-		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
-				_useDDAButton, _cfg));
-
-		final Button _interProceduralDivergenceDAButton = new Button(_group, SWT.CHECK);
-		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
-
-		if (_useDDAButton.getSelection()) {
-			final Boolean _interProceduralDDA = (Boolean) _cfg.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA);
-
-			if (_interProceduralDDA != null) {
-				_interProceduralDivergenceDAButton.setSelection(_interProceduralDDA.booleanValue());
-			} else {
-				_interProceduralDivergenceDAButton.setSelection(false);
-			}
-		} else {
-			_interProceduralDivergenceDAButton.setEnabled(false);
-		}
-		_interProceduralDivergenceDAButton.addSelectionListener(new BooleanPropertySelectionListener(
-				SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
-				_interProceduralDivergenceDAButton,
-				_cfg));
-		_useDDAButton.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					if (_useDDAButton.getSelection()) {
-						_interProceduralDivergenceDAButton.setEnabled(true);
-					} else {
-						_interProceduralDivergenceDAButton.setEnabled(false);
-					}
-				}
-
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			});
-	}
-
-	/**
-	 * Sets up row 5 corresponding to Ready DA in the configurator composite.
-	 */
-	private void setupRow5() {
+	private void setupReadyDepUI() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Ready dependence related group
@@ -469,7 +345,7 @@ public final class SlicerConfigurator
 		_group.setText("Ready dependence");
 
 		GridData _twoSpanHorzFill = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		_twoSpanHorzFill.horizontalSpan = 2;
+		_twoSpanHorzFill.horizontalSpan = 3;
 		_group.setLayoutData(_twoSpanHorzFill);
 
 		final GridLayout _gridLayout1 = new GridLayout();
@@ -618,6 +494,7 @@ public final class SlicerConfigurator
 					if (_useRDAButton.getSelection()) {
 						_val = true;
 					}
+					_precisionGroup.setEnabled(_val);
 					_natureOfRDAGroup.setEnabled(_val);
 					_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(_val);
 					_typedRDA.setEnabled(_val);
@@ -636,6 +513,7 @@ public final class SlicerConfigurator
 			});
 
 		if (_useRDAButton.getSelection()) {
+			_precisionGroup.setEnabled(true);
 			_natureOfRDAGroup.setEnabled(true);
 			_typedRDA.setEnabled(true);
 			_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(true);
@@ -654,6 +532,7 @@ public final class SlicerConfigurator
 			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA);
 			_useSLAForReady.setSelection(_bool.booleanValue());
 		} else {
+			_precisionGroup.setEnabled(false);
 			_natureOfRDAGroup.setEnabled(false);
 			_typedRDA.setEnabled(false);
 			_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(false);
@@ -664,6 +543,155 @@ public final class SlicerConfigurator
 			_rule4RDAButton.setEnabled(false);
 			_useOFAForReady.setEnabled(false);
 			_useSLAForReady.setEnabled(false);
+		}
+	}
+
+	/**
+	 * Sets up row to configure deadlock preserving slicing  and slice type.
+	 */
+	private void setupSliceInfoUI() {
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
+		final Group _deadlockGroup = new Group(parent, SWT.NONE);
+		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
+		_gridData1.horizontalSpan = 2;
+		_deadlockGroup.setLayoutData(_gridData1);
+
+		final RowLayout _rowLayout1 = new RowLayout();
+		_rowLayout1.type = SWT.VERTICAL;
+		_rowLayout1.fill = true;
+		_deadlockGroup.setLayout(_rowLayout1);
+		_deadlockGroup.setText("Slice for Deadlock");
+
+		final Button _button = new Button(_deadlockGroup, SWT.CHECK);
+		_button.setText("Preserve Deadlock");
+		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
+
+		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
+		_group1.setText("Deadlock Criteria Selection Strategy");
+
+		final RowLayout _rowLayout2 = new RowLayout();
+		_rowLayout2.type = SWT.VERTICAL;
+		_group1.setLayout(_rowLayout2);
+
+		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
+		_allSycnStrategy.setText("All Synchronization constructs");
+
+		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
+
+		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
+
+		final SelectionListener _sl2 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					Object _value = null;
+
+					if (evt.widget == _ctxtsensEscapingSyncStrategy) {
+						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _escapingSyncStrategy) {
+						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _allSycnStrategy) {
+						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
+					}
+
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.DEADLOCK_CRITERIA_SELECTION_STRATEGY, _value);
+					}
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		_allSycnStrategy.addSelectionListener(_sl2);
+		_escapingSyncStrategy.addSelectionListener(_sl2);
+		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl2);
+
+		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
+
+		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
+			_allSycnStrategy.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
+			_escapingSyncStrategy.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
+			_ctxtsensEscapingSyncStrategy.setSelection(true);
+		}
+
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg) {
+				public void widgetSelected(final SelectionEvent evt) {
+					final boolean _value = button.getSelection();
+					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
+					_group1.setEnabled(_value);
+					_allSycnStrategy.setEnabled(_value);
+					_escapingSyncStrategy.setEnabled(_value);
+					_ctxtsensEscapingSyncStrategy.setEnabled(_value);
+				}
+			};
+		_button.addSelectionListener(_sl1);
+
+		//Slice type related group
+		final Group _group2 = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group2.setText("Slice Type");
+
+		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData.horizontalSpan = 1;
+		_gridData.verticalAlignment = SWT.TOP;
+		_gridData.horizontalAlignment = SWT.RIGHT;
+		_group2.setLayoutData(_gridData);
+
+		final RowLayout _rowLayout = new RowLayout();
+		_rowLayout.type = SWT.VERTICAL;
+		_group2.setLayout(_rowLayout);
+
+		final Button _backwardSlice = new Button(_group2, SWT.RADIO);
+		_backwardSlice.setText("Backward slice");
+
+		final Button _forwardSlice = new Button(_group2, SWT.RADIO);
+		_forwardSlice.setText("Forward slice");
+
+		final Button _completeSlice = new Button(_group2, SWT.RADIO);
+		_completeSlice.setText("Complete slice");
+
+		final SelectionListener _sl3 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					Object _value = null;
+
+					if (evt.widget == _forwardSlice) {
+						_value = SlicingEngine.FORWARD_SLICE;
+						executableSliceButton.setEnabled(false);
+					} else {
+						if (evt.widget == _backwardSlice) {
+							_value = SlicingEngine.BACKWARD_SLICE;
+						} else if (evt.widget == _completeSlice) {
+							_value = SlicingEngine.COMPLETE_SLICE;
+						}
+						executableSliceButton.setEnabled(true);
+					}
+
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.SLICE_TYPE, _value);
+					}
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		_backwardSlice.addSelectionListener(_sl3);
+		_completeSlice.addSelectionListener(_sl3);
+		_forwardSlice.addSelectionListener(_sl3);
+
+		final Object _sliceType = _cfg.getSliceType();
+
+		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			_backwardSlice.setSelection(true);
+		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+			_completeSlice.setSelection(true);
+		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+			_forwardSlice.setSelection(true);
 		}
 	}
 }

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer.criteria.filters;
+package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
@@ -33,12 +33,12 @@ import soot.jimple.EnterMonitorStmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class EscapingSliceCriteriaFilter
-  extends AbstractSliceCriteriaFilter {
+public final class EscapingSliceCriteriaPredicate
+  extends AbstractSliceCriteriaPredicate {
 	/**
-	 * @see ISliceCriteriaFilter#shouldGenerateCriteriaFrom(Object)
+	 * @see org.apache.commons.collections.Predicate#evaluate(Object)
 	 */
-	public boolean shouldGenerateCriteriaFrom(final Object entity) {
+	public boolean evaluate(final Object entity) {
 		final boolean _result;
 
 		if (ConcurrencyHelper.isMonitorTriple(entity)) {

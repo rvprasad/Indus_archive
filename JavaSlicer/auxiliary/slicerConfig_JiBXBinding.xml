@@ -18,13 +18,18 @@
 			get-method="getExecutableSlice"/>
 		<value style="attribute" name="name" type="java.lang.String" ns="http://indus.projects.cis.ksu.edu/indus"
 		    set-method="setConfigName" get-method="getConfigName"/>
-		<structure name="deadlock">
-			<value style="attribute" name="sliceForDeadlock" type="boolean" set-method="setSliceForDeadlock"
-				get-method="getSliceForDeadlock"/>
-			<value style="attribute" name="deadlockCriteriaSelectionStrategy" type="java.lang.String" 
-				set-method="setDeadlockCriteriaSelectionStrategy" get-method="getDeadlockCriteriaSelectionStrategy"/>
-		</structure>		    
-
+		<structure name="criteria">
+			<structure name="deadlock">
+				<value style="attribute" name="sliceForDeadlock" type="boolean" set-method="setSliceForDeadlock"
+					get-method="getSliceForDeadlock" default="true"/>
+				<value style="attribute" name="deadlockCriteriaSelectionStrategy" type="java.lang.String" 
+					set-method="setDeadlockCriteriaSelectionStrategy" get-method="getDeadlockCriteriaSelectionStrategy"/>
+			</structure>		    
+			<structure name="assertion">
+				<value style="attribute" name="sliceToPreserveAssertions" type="boolean" 
+					set-method="setSliceToPreserveAssertions" get-method="getSliceToPreserveAssertions" default="false"/>
+			</structure>
+		</structure>
 		<structure name="interference">
 			<value style="attribute" name="active" type="boolean" set-method="useInterferenceDepAnalysis" 
 				get-method="isInterferenceDepAnalysisUsed"/>

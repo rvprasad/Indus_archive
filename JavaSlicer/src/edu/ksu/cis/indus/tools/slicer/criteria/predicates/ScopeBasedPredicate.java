@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer.criteria.filters;
+package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 
@@ -27,8 +27,8 @@ import soot.SootField;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ScopeBasedFilter
-  extends AbstractSliceCriteriaFilter {
+public class ScopeBasedPredicate
+  extends AbstractSliceCriteriaPredicate {
 	/** 
 	 * The specification-based matcher to be used.
 	 */
@@ -54,9 +54,9 @@ public class ScopeBasedFilter
 	 *
 	 * @pre entity.oclIsKindOf(SootField)
 	 *
-	 * @see ISliceCriteriaFilter#shouldGenerateCriteriaFrom(java.lang.Object)
+	 * @see ISliceCriteriaPredicate#shouldGenerateCriteriaFrom(java.lang.Object)
 	 */
-	public boolean shouldGenerateCriteriaFrom(final Object entity) {
+	public boolean evaluate(final Object entity) {
 		return matcher.isInScope((SootField) entity, getSlicerTool().getSystem());
 	}
 }

@@ -1,122 +1,124 @@
-<xsd:schema id="slicerConfig" version="1.0" xml:lang="en"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
-    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
-    targetNamespace="http://indus.projects.cis.ksu.edu/slicer"
-    elementFormDefault="qualified"
-    attributeFormDefault="qualified"
-    blockDefault="restriction"
-    finalDefault="restriction">
-
+<xsd:schema 
+  attributeFormDefault="qualified" 
+  blockDefault="restriction" 
+  elementFormDefault="qualified"
+  finalDefault="restriction" 
+  id="slicerConfig" 
+  targetNamespace="http://indus.projects.cis.ksu.edu/slicer" 
+  version="1.0"
+  xml:lang="en" 
+  xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
+  xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
   <xsd:import id="indusConfig" namespace="http://indus.projects.cis.ksu.edu/indus" schemaLocation="indusConfig.xsd"/>
-
+    
   <xsd:complexType id="slicerConfiguration" name="slicerConfiguration">
-      <xsd:annotation>
-        <xsd:appinfo>
-          Slicer configuration
-        </xsd:appinfo>
-        <xsd:documentation>
-          This is a configuration of the Slicer.
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:complexContent>
-        <xsd:extension base="indus:configuration">
+    <xsd:annotation>
+      <xsd:appinfo> Slicer configuration </xsd:appinfo>
+      <xsd:documentation> This is a configuration of the Slicer. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="indus:configuration">
         <xsd:sequence>
-          <xsd:element name="deadlock" type="slicer:deadlock"/>
+          <xsd:element name="criteria" type="slicer:criteria"/>
           <xsd:element name="interference" type="slicer:interference"/>
           <xsd:element name="divergence" type="slicer:divergence"/>
           <xsd:element name="ready" type="slicer:ready"/>
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
-        </xsd:extension>
-      </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:simpleType id="slicingType" name="slicingType">
-      <xsd:annotation>
-        <xsd:documentation>
-          This captures the type of the slice based on the direction of the slice.
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:restriction base="xsd:token">
-        <xsd:enumeration value="BACKWARD_SLICE"/>
-        <xsd:enumeration value="FORWARD_SLICE"/>
-        <xsd:enumeration value="COMPLETE_SLICE"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType id="deadlockCriteriaSelectionStrategy" name="deadlockCriteriaSelectionStrategy">
-      <xsd:annotation>
-        <xsd:documentation>
-          This captures the strategy used to generate deadlock criteria.
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:restriction base="xsd:token">
-        <xsd:enumeration value="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-        <xsd:enumeration value="ESCAPING_SYNC_CONSTRUCTS"/>
-        <xsd:enumeration value="ALL_SYNC_CONSTRUCTS"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-
-	<xsd:element id="deadlock" name="deadlock">
-		<xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
-		<xsd:attribute name="deadlockCriteriaSelectionStrategy" type="slicer:deadlockCriteriaSelectionStrategy" 
-			default="ESCAPING_SYNC_CONSTRUCTS"/>
-	</xsd:element>
-
-    <xsd:simpleType id="natureOfInterThreadAnalysis1" name="natureOfInterThreadAnalysis1">
-      <xsd:annotation>
-        <xsd:documentation>
-          This captures the information to be used in dependences such as interference and ready dependence.
-        </xsd:documentation>
-      </xsd:annotation>
-      <xsd:restriction base="xsd:token">
-        <xsd:enumeration value="SYMBOL_AND_EQUIVCLS_BASED_INFO"/>
-        <xsd:enumeration value="EQUIVALENCE_CLASS_BASED_INFO"/>
-        <xsd:enumeration value="TYPE_BASED_INFO"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:attribute name="natureOfInterThreadAnalysis" type="slicer:natureOfInterThreadAnalysis1" 
-        default="SYMBOL_AND_EQUIVCLS_BASED_INFO"/> 
-   <xsd:attribute name="active" type="xsd:boolean"/> 
-
-    <xsd:complexType id="divergence" name="divergence">
-     <xsd:annotation>
-       <xsd:documentation>
-         This captures divergence dependence information.
-       </xsd:documentation>
-     </xsd:annotation>
-     <xsd:attribute name="interprocedural" use="required" type="xsd:boolean"/>
-     <xsd:attribute ref="slicer:active" use="required"/>
-    </xsd:complexType>
-
-    <xsd:complexType id="interference" name="interference">
-     <xsd:annotation>
-       <xsd:documentation>
-         This captures interference dependence information.
-       </xsd:documentation>
-     </xsd:annotation>
-     <xsd:attribute ref="slicer:active" use="required"/>
-     <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
-     <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
-    </xsd:complexType>
-
-    <xsd:complexType id="ready" name="ready">
-     <xsd:annotation>
-       <xsd:documentation>
-         This captures ready dependence information.
-       </xsd:documentation>
-     </xsd:annotation>
-     <xsd:attribute id="rule1" name="rule1" use="required" type="xsd:boolean"/>
-     <xsd:attribute id="rule2" name="rule2" use="required" type="xsd:boolean"/>
-     <xsd:attribute id="rule3" name="rule3" use="required" type="xsd:boolean"/>
-     <xsd:attribute id="rule4" name="rule4" use="required" type="xsd:boolean"/>
-     <xsd:attribute ref="slicer:active" use="required"/>
-     <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
-     <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
-     <xsd:attribute id="useSafeLockAnalysis" name="useSafeLockAnalysis" use="required" type="xsd:boolean"/>     
-    </xsd:complexType>
-
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType id="criteria" name="criteria">
+    <xsd:annotation>
+      <xsd:documentation> This captures info about mechanical criteria generation facilities. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="deadlock" type="slicer:deadlock"/>
+      <xsd:element name="assertion" type="slicer:assertion"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:simpleType id="slicingType" name="slicingType">
+    <xsd:annotation>
+      <xsd:documentation> This captures the type of the slice based on the direction of the slice. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="BACKWARD_SLICE"/>
+      <xsd:enumeration value="FORWARD_SLICE"/>
+      <xsd:enumeration value="COMPLETE_SLICE"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType id="deadlockCriteriaSelectionStrategy" name="deadlockCriteriaSelectionStrategy">
+    <xsd:annotation>
+      <xsd:documentation> This captures the strategy used to generate deadlock criteria. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
+      <xsd:enumeration value="ESCAPING_SYNC_CONSTRUCTS"/>
+      <xsd:enumeration value="ALL_SYNC_CONSTRUCTS"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:complexType id="deadlock" name="deadlock">
+	<xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
+    <xsd:attribute default="ESCAPING_SYNC_CONSTRUCTS" name="deadlockCriteriaSelectionStrategy"
+		type="slicer:deadlockCriteriaSelectionStrategy"/>
+  </xsd:complexType>
+  
+  <xsd:complexType id="assertion" name="assertion">  	
+	<xsd:attribute name="sliceToPreserveAssertions" type="xsd:boolean" use="required"/>
+  </xsd:complexType>	    
+  
+  <xsd:simpleType id="natureOfInterThreadAnalysis1" name="natureOfInterThreadAnalysis1">
+    <xsd:annotation>
+      <xsd:documentation> This captures the information to be used in dependences such as interference and ready
+        dependence. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="SYMBOL_AND_EQUIVCLS_BASED_INFO"/>
+      <xsd:enumeration value="EQUIVALENCE_CLASS_BASED_INFO"/>
+      <xsd:enumeration value="TYPE_BASED_INFO"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:attribute default="SYMBOL_AND_EQUIVCLS_BASED_INFO" name="natureOfInterThreadAnalysis"
+    type="slicer:natureOfInterThreadAnalysis1"/>
+    
+  <xsd:attribute name="active" type="xsd:boolean"/>
+  
+  <xsd:complexType id="divergence" name="divergence">
+    <xsd:annotation>
+      <xsd:documentation> This captures divergence dependence information. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="interprocedural" type="xsd:boolean" use="required"/>
+    <xsd:attribute ref="slicer:active" use="required"/>
+  </xsd:complexType>
+  
+  <xsd:complexType id="interference" name="interference">
+    <xsd:annotation>
+      <xsd:documentation> This captures interference dependence information. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute ref="slicer:active" use="required"/>
+    <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
+    <xsd:attribute name="useOFA" type="xsd:boolean" use="required"/>
+  </xsd:complexType>
+  
+  <xsd:complexType id="ready" name="ready">
+    <xsd:annotation>
+      <xsd:documentation> This captures ready dependence information. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute id="rule1" name="rule1" type="xsd:boolean" use="required"/>
+    <xsd:attribute id="rule2" name="rule2" type="xsd:boolean" use="required"/>
+    <xsd:attribute id="rule3" name="rule3" type="xsd:boolean" use="required"/>
+    <xsd:attribute id="rule4" name="rule4" type="xsd:boolean" use="required"/>
+    <xsd:attribute ref="slicer:active" use="required"/>
+    <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
+    <xsd:attribute name="useOFA" type="xsd:boolean" use="required"/>
+    <xsd:attribute id="useSafeLockAnalysis" name="useSafeLockAnalysis" type="xsd:boolean" use="required"/>
+  </xsd:complexType>
 </xsd:schema>

@@ -44,6 +44,7 @@
       <pathelement location="${jars.dir}/jibx-bind.jar"/>
       <pathelement location="${jars.dir}/jibx-run.jar"/>
       <pathelement location="${jars.dir}/xpp3.jar"/>  
+      <pathelement location="${jars.dir}/commons-collections.jar"/>
     </path>
    
     <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
