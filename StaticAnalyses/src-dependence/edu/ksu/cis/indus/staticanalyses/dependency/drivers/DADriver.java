@@ -103,6 +103,11 @@ public abstract class DADriver
 	 */
 	ValueAnalyzerBasedProcessingController cgipc;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private AliasedUseDefInfo aliasUD;
+
 	/**
 	 * The command line arguments.
 	 */
@@ -148,6 +153,7 @@ public abstract class DADriver
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		Collection rm = new ArrayList();
 		cgipc = new CGBasedProcessingController(cgi);
+		aliasUD = new AliasedUseDefInfo(aa);
 
 		pc.setAnalyzer(aa);
 		cgipc.setAnalyzer(aa);
@@ -157,7 +163,7 @@ public abstract class DADriver
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
-		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(aa));
+		info.put(IUseDefInfo.ID, aliasUD);
 
 		if (ecbaRequired) {
 			ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, tgi, bbm);
@@ -308,6 +314,7 @@ public abstract class DADriver
 		if (ecbaRequired) {
 			ecba.hookup(cgipc);
 		}
+		aliasUD.hookup(cgipc);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: preprocessing for dependency analyses");
@@ -322,6 +329,8 @@ public abstract class DADriver
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: preprocessing for dependency analyses");
 		}
+
+		aliasUD.unhook(cgipc);
 
 		if (ecbaRequired) {
 			ecba.unhook(cgipc);
@@ -341,6 +350,8 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/11 10:10:29  venku
+   - moved run() and initialize() into Driver.
    Revision 1.27  2003/11/06 05:31:07  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
