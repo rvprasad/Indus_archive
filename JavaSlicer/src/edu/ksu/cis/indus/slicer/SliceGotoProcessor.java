@@ -126,7 +126,10 @@ public final class SliceGotoProcessor {
 		final int _jEnd = _bbInPathBetweenBBInSlice.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			processForIntraBasicBlockGotos((BasicBlock) _j.next(), _bbInSlice);
+		    final BasicBlock _bb = ((BasicBlock) _j.next());
+			final List _stmtsOf = new ArrayList(_bb.getStmtsOf());
+			CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
+			sliceCollector.includeInSlice(_stmtsOf);
 		}
 	}
 
