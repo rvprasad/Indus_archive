@@ -54,6 +54,33 @@ import java.util.Iterator;
 
 /**
  * This class hides the work involved in the creation of slice criteria from the environment.
+ * 
+ * <p>
+ * The interesting issue while  creating slicing criteria is the inclusion information.  Please refer to {@link Slicer
+ * Slicer}  for the sort of slices we discuss here.  In case of expression-level slice criterion, inclusion would mean that
+ * the entire statement containing the expression needs to be included independent of the slice type, i.e., backward or
+ * complete.  The same applies to statement-level slice criterion.
+ * </p>
+ * 
+ * <p>
+ * On the otherhand, non-inclusion in the case complete slicing does not make sense.  However, in case of backward slicing
+ * considering expresison-level slice criterion would mean that the expression should not be included in the sliced system
+ * which only makes sense, but this introduces a dependency between the expression and the containing statement.  In
+ * particular, the expression is control dependent on the statement, and so the statement should be included for capturing
+ * control dependency.  This is exactly what  our implementation does.
+ * </p>
+ * 
+ * <p>
+ * On mentioning a statement as a non-inclusive slice criterion, we interpret that as all artifacts that affect the reaching
+ * of that statement. On mentioning  an expression as a non-inclusive slice criterion, we interpret that as all artifacts
+ * leading to the value of the expression in the statement  it occurs in, hence we will include the statement containing the
+ * expression in a non-inclusive manner to capture control dependency leading to that statement.
+ * </p>
+ * 
+ * <p>
+ * As we are interested in meaningful slices, inclusive expression-level slice criterion is the same as inclusive
+ * statement-level slice criterion which  refers to the statement that contains the expression.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -72,7 +99,7 @@ public class SliceCriteriaFactory {
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param vBox is the criterion.
-	 * @param inclusive <code>true</code> indicates include the criterion in the slice; <code>false</code> indicates
+	 * @param inclusive <code>true</code> indicates to include the criterion in the slice; <code>false</code> indicates
 	 * 		  otherwise.
 	 *
 	 * @return a collection of slice criterion objects corresponding to the given criterion.
@@ -88,10 +115,15 @@ public class SliceCriteriaFactory {
 
 		if (temp.size() > 0) {
 			for (Iterator i = temp.iterator(); i.hasNext();) {
-				result.add(new SliceExpr(method, stmt, (ValueBox) i.next(), inclusive));
+				SliceExpr exprCriterion = SliceExpr.getSliceExpr();
+				exprCriterion.initialize(method, stmt, vBox, inclusive);
+				result.add(exprCriterion);
 			}
 		}
-		result.add(new SliceStmt(method, stmt, inclusive));
+
+		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
+		stmtCriterion.initialize(method, stmt, inclusive);
+		result.add(stmtCriterion);
 		return result;
 	}
 
@@ -115,10 +147,15 @@ public class SliceCriteriaFactory {
 
 		if (temp.size() > 0) {
 			for (Iterator i = temp.iterator(); i.hasNext();) {
-				result.add(new SliceExpr(method, stmt, (ValueBox) i.next(), inclusive));
+				SliceExpr exprCriterion = SliceExpr.getSliceExpr();
+				exprCriterion.initialize(method, stmt, (ValueBox) i.next(), inclusive);
+				result.add(exprCriterion);
 			}
 		}
-		result.add(new SliceStmt(method, stmt, inclusive));
+
+		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
+		stmtCriterion.initialize(method, stmt, inclusive);
+		result.add(stmtCriterion);
 		return result;
 	}
 
@@ -147,7 +184,9 @@ public class SliceCriteriaFactory {
 					ValueBox vBox = (ValueBox) j.next();
 
 					if (vBox.getValue().equals(local)) {
-						result.add(new SliceExpr(method, stmt, vBox, true));
+						SliceExpr exprCriterion = SliceExpr.getSliceExpr();
+						exprCriterion.initialize(method, stmt, vBox, true);
+						result.add(exprCriterion);
 					}
 				}
 			}
@@ -162,11 +201,11 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/18 05:01:45  venku
+   Committing package name change in source after they were moved.
    Revision 1.5  2003/08/18 04:56:47  venku
    Spruced up Documentation and specification.
    But committing before moving slicer under transformation umbrella of Indus.
-
-   
    Revision 1.4  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.

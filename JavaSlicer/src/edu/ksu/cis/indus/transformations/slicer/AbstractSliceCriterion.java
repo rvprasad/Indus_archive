@@ -35,28 +35,33 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool.ObjectPool;
+
+
 /**
- * This class represents a slice criterion.
+ * This class represents a slice criterion.  This class has support builtin for object pooling.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractSliceCriterion {
+abstract class AbstractSliceCriterion {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractSliceCriterion.class);
+
+	/**
+	 * The pool to which this object belongs to.
+	 */
+	protected ObjectPool pool;
+
 	/**
 	 * This indicates if this criterion is included in the slice or not.
 	 */
 	protected boolean inclusive;
-
-	/**
-	 * Creates a new AbstractSliceCriterion object.
-	 *
-	 * @param shouldBeIncluded <code>true</code> indicates this criterion should be included in the slice;
-	 * 		  <code>false</code>, otherwise.
-	 */
-	protected AbstractSliceCriterion(final boolean shouldBeIncluded) {
-		this.inclusive = shouldBeIncluded;
-	}
 
 	/**
 	 * Returns the stored criterion object.
@@ -107,11 +112,44 @@ public abstract class AbstractSliceCriterion {
 		}
 		return result;
 	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param shouldBeIncluded <code>true</code> indicates this criterion should be included in the slice;
+	 * 		  <code>false</code>, otherwise.
+	 */
+	protected void initialize(final boolean shouldBeIncluded) {
+		this.inclusive = shouldBeIncluded;
+	}
+
+	/**
+	 * Performs cleanup.  This will/should be called after this object has been used as slice criterion or it has been
+	 * decided  that is no longer required as a slice criterion.
+	 *
+	 * @throws RuntimeException if the returning of the object to it's pool failed.
+	 */
+	void sliced() {
+		if (pool != null) {
+			try {
+				pool.returnObject(this);
+			} catch (Exception e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("How can this happen?", e);
+				}
+				throw new RuntimeException(e);
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+
+   Revision 1.2  2003/08/18 05:01:45  venku
+   Committing package name change in source after they were moved.
+
    Revision 1.1  2003/08/17 11:56:18  venku
    Renamed SliceCriterion to AbstractSliceCriterion.
    Formatting, documentation, and specification.

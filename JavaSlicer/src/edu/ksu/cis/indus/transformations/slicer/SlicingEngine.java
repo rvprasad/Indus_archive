@@ -48,15 +48,20 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
-import soot.jimple.AssignStmt;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.GotoStmt;
-import soot.jimple.InstanceFieldRef;
+import soot.jimple.IfStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
+import soot.jimple.LookupSwitchStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
+
+import soot.jimple.toolkits.scalar.NopEliminator;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -65,7 +70,6 @@ import soot.util.Chain;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.controller.SimpleController;
-import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -80,11 +84,10 @@ import edu.ksu.cis.indus.transformations.common.ITransformMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 
@@ -94,6 +97,24 @@ import java.util.Set;
  * <p>
  * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given term
  * depends on, not the transitive closure.
+ * </p>
+ * 
+ * <p>
+ * There are 2 flavours of executable slicing: forward and backward.  Backward slicing is inclusion of anything that leads to
+ * the slice criterion from the given entry points to the system.  This can provide a executable system which will  simulate
+ * the given system along all paths from the entry points leading to the slice criterion independent of the input.   In case
+ * the input causes a divergence in this path then the simulation ends there.
+ * </p>
+ * 
+ * <p>
+ * However, in case of forward slicing, one would include everything that is affected by the slice criterion.  This  will
+ * never lead to an semantically meaningful executable slice as the part of the system that leads to the slice criterion is
+ * not captured. Rather a more meaningful notion is that of a complete slice. This includes everything that affects the
+ * given slice criterion and  everything affected by the slice criterion.
+ * </p>
+ * 
+ * <p>
+ * Due to the above view we only support backward and complete slicing.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -131,15 +152,10 @@ public class Slicer {
 
 	/**
 	 * This provides the cloning functionality required while creating the sliced system.
+	 *
+	 * @invariant cloner != null
 	 */
 	private final Cloner cloner = new Cloner();
-
-	/**
-	 * The controller used to access the dependency analysis info during slicing.
-	 *
-	 * @invariant controller != null
-	 */
-	private AbstractController controller;
 
 	/**
 	 * The collection of slice criteria.
@@ -156,6 +172,11 @@ public class Slicer {
 	private final Jimple jimple = Jimple.v();
 
 	/**
+	 * The controller used to access the dependency analysis info during slicing.
+	 */
+	private SimpleController controller;
+
+	/**
 	 * The work bag used during slicing.
 	 *
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
@@ -169,6 +190,16 @@ public class Slicer {
 	 * @invariant clonedGraphMgr != null
 	 */
 	private BasicBlockGraphMgr clonedGraphMgr = new BasicBlockGraphMgr();
+
+	/**
+	 * The ids of the dependencies to be considered for slicing.
+	 */
+	private final Collection dependencies = new HashSet();
+
+	/**
+	 * The dependency analyses to be considered for intra-procedural slicing.
+	 */
+	private final Collection intraProceduralDependencies = new ArrayList();
 
 	/**
 	 * This provides the call graph information in the system being sliced.
@@ -209,14 +240,17 @@ public class Slicer {
 	 * 		  transformation may to record this mapping.  The application that uses the slicer should provide an
 	 * 		  implementation of this interface to record this mapping in a sound manner as the slicer uses these mappings
 	 * 		  too.
+	 * @param dependenciesToUse is the ids of the dependecies to be considered for slicing.
 	 *
 	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
 	 *
 	 * @pre theSystem != null and callgraph != null and dependenceInfoController != null and sliceCriteria != null and
-	 * 		slicedSystem != null and theSlicemap != null
+	 * 		slicedSystem != null and theSlicemap != null and dependenciesToUse != null
+	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
 	public void setSliceCriteria(final Collection sliceCriteria, final Scene theSystem, final Scene slicedSystem,
-		final AbstractController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap) {
+		final SimpleController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap,
+		final Collection dependenciesToUse) {
 		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
 			Object o = i.next();
 
@@ -233,31 +267,52 @@ public class Slicer {
 		slicedClazzManager = slicedSystem;
 		slicemap = theSlicemap;
 		cloner.initialize(clazzManager, slicedClazzManager, dependenceInfoController);
+		dependencies.addAll(dependenciesToUse);
+		intraProceduralDependencies.clear();
+
+		for (Iterator i = dependencies.iterator(); i.hasNext();) {
+			Object id = i.next();
+
+			if (id.equals(SimpleController.METHOD_LOCAL_DATA_DA)
+				  || id.equals(SimpleController.SYNCHRONIZATION_DA)
+				  || id.equals(SimpleController.CONTROL_DA)) {
+				intraProceduralDependencies.add(controller.getAnalysis(id));
+			}
+		}
 	}
 
 	/**
-	 * Resets internal data structures.
+	 * Resets internal data structures and removes all references to objects provided at initialization time. For other
+	 * operations to be meaningful following a call to this method, the user should call <code>initialize</code> before
+	 * calling any other methods.
 	 */
 	public void reset() {
 		clazzManager = null;
 		slicedClazzManager = null;
+		cgi = null;
+		slicemap = null;
 		cloner.reset();
 		criteria.clear();
-		workbag.clear();
+
+		// clear the work bag of slice criterion
+		while (workbag.hasWork()) {
+			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
+			work.sliced();
+		}
 	}
 
 	/**
-	 * Slices the given system for the given criteria in the given <code>direction</code>.
+	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
 	 *
-	 * @param slice is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in this
-	 * 		  class.
+	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
+	 * 		  this class.
 	 *
 	 * @throws IllegalStateException when slice criteria, class manager, or controller is unspecified.
 	 * @throws IllegalArgumentException when direction is not one of the <code>XXX_SLICE</code> values.
 	 *
-	 * @pre slice != null
+	 * @pre theSliceType != null
 	 */
-	public void slice(final Object slice) {
+	public void slice(final Object theSliceType) {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
@@ -266,23 +321,19 @@ public class Slicer {
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
-		if (!SLICE_TYPES.contains(slice)) {
+		if (!SLICE_TYPES.contains(theSliceType)) {
 			throw new IllegalArgumentException("sliceType is not one of XXX_SLICE values defined in this class.");
 		}
-		this.sliceType = slice;
+		sliceType = theSliceType;
 
 		workbag.addAllWorkNoDuplicates(criteria);
 
-		boolean flag = slice.equals(COMPLETE_SLICE);
-		Collection processed = new HashSet();
+		boolean flag = theSliceType.equals(COMPLETE_SLICE);
 
+		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
+		// reappearing.  
 		while (workbag.hasWork()) {
 			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
-
-			if (processed.contains(work)) {
-				continue;
-			}
-			processed.add(work);
 
 			if (work instanceof SliceStmt) {
 				SliceStmt temp = (SliceStmt) work;
@@ -291,6 +342,7 @@ public class Slicer {
 			} else if (work instanceof SliceExpr) {
 				sliceExpr((SliceExpr) work);
 			}
+			work.sliced();
 		}
 		fixupMethods();
 		slicemap.fixupMappings();
@@ -314,10 +366,31 @@ public class Slicer {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the sliced statement corresponding to the given unsliced statement.
+	 *
+	 * @param unslicedStmt for which the corresponding sliced statement is requested.
+	 * @param unslicedMethod in which <code>unslicedStmt</code> occurs.
+	 *
+	 * @return the sliced statement corresponding to the given unsliced statement
+	 *
+	 * @pre unslicedStmt != null and unslicedMethod != null
+	 * @post result != null
 	 */
+	private Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
+		Stmt result = null;
+		SootMethod slicedMethod = cloner.getCloneOf(unslicedMethod);
+		Iterator j = slicedMethod.getActiveBody().getUnits().iterator();
+
+		for (Iterator i = unslicedMethod.getActiveBody().getUnits().iterator(); i.hasNext();) {
+			Stmt stmt = (Stmt) i.next();
+			result = (Stmt) j.next();
+
+			if (stmt.equals(unslicedStmt)) {
+				break;
+			}
+		}
+		return result;
+	}
 
 	/*
 	   private void fixupGoto(StmtList clonedSl, StmtList cloneSl, SootMethod clonedMethod, SootMethod cloneMethod) {
@@ -374,6 +447,8 @@ public class Slicer {
 	 * exception list at the method interfaces and removing any unwanted or unnecessary statements such as <code>nop</code>.
 	 */
 	private void fixupMethods() {
+		NopEliminator nopTranformation = NopEliminator.v();
+
 		for (Iterator i = slicedClazzManager.getClasses().iterator(); i.hasNext();) {
 			SootClass slicedClass = (SootClass) i.next();
 			SootClass unslicedClass = clazzManager.getSootClass(slicedClass.getName());
@@ -384,9 +459,7 @@ public class Slicer {
 					unslicedClass.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(),
 						slicedMethod.getReturnType());
 				Body unslicedBody = unslicedMethod.getActiveBody();
-				List unslicedStmtList = Arrays.asList(unslicedBody.getUnits().toArray());
 				Body slicedBody = slicedMethod.getActiveBody();
-				List slicedStmtList = Arrays.asList(slicedBody.getUnits().toArray());
 
 				//fixup traps
 				Chain slicedTraps = slicedBody.getTraps();
@@ -404,27 +477,78 @@ public class Slicer {
 				}
 
 				/*
-				 * fixing up the gotos.  We will just copy the control flow from the cloned method and use post slicing
+				 * fixing up the gotos.  We will just copy the control flow from the sliced method and use post slicing
 				 * transformation to prune the code.
 				 */
-				for (Iterator k = unslicedStmtList.iterator(); k.hasNext();) {
+				for (Iterator k = unslicedBody.getUnits().iterator(); k.hasNext();) {
 					Stmt unslicedStmt = (Stmt) k.next();
 
-					if (unslicedStmt instanceof GotoStmt) {
-						int index = unslicedStmtList.indexOf(unslicedStmt);
-						slicedStmtList.remove(index);
+					if (unslicedStmt.branches()) {
+						if (unslicedStmt instanceof GotoStmt) {
+							GotoStmt slicedStmt = (GotoStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+							slicedStmt.setTarget(getSlicedStmt((Stmt) slicedStmt.getTarget(), unslicedMethod));
+						} else if (unslicedStmt instanceof IfStmt) {
+							IfStmt slicedStmt = (IfStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+							slicedStmt.setTarget(getSlicedStmt(slicedStmt.getTarget(), unslicedMethod));
+						} else if (unslicedStmt instanceof LookupSwitchStmt) {
+							LookupSwitchStmt slicedStmt =
+								(LookupSwitchStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
 
-						Stmt slicedStmt = cloner.cloneASTFragment(unslicedStmt, slicedMethod);
-						slicedStmtList.add(index, slicedStmt);
-						slicemap.addMapping(slicedStmt, unslicedStmt, unslicedMethod);
+							for (int index = 0; index < slicedStmt.getTargetCount(); index++) {
+								Stmt target = (Stmt) slicedStmt.getTarget(index);
+								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
+							}
+
+							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
+							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
+						} else if (unslicedStmt instanceof TableSwitchStmt) {
+							TableSwitchStmt slicedStmt =
+								(TableSwitchStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+
+							for (int index = 0; index < slicedStmt.getHighIndex() - slicedStmt.getLowIndex(); index++) {
+								Stmt target = (Stmt) slicedStmt.getTarget(index);
+								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
+							}
+
+							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
+							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
+						}
 					}
 				}
 
 				//fixup exception list
 				pruneExceptionsAtMethodInterface(slicedMethod, slicedBody.getUnits());
 
-				//prune the code to remove unwanted statements.  This will include unnecessary goto and nop statements.
-				//Transformations.cleanupCode(cloneBody);
+				//This will remove unnecessary nop statements, hence, fixing the gotos.
+				nopTranformation.transform(slicedBody);
+			}
+		}
+	}
+
+	/**
+	 * This is a helper method used for generating slice criteria based on interprocedural dependence expressions.
+	 *
+	 * @param slices is a collection of statement and method pairs.
+	 *
+	 * @pre slices != null
+	 * @pre slices.oclIsKindOf(Collection(Pair(Stmt, SootMethod))
+	 */
+	private void interproceduralSliceHelper(final Collection slices) {
+		for (Iterator i = slices.iterator(); i.hasNext();) {
+			Pair pair = (Pair) i.next();
+			Stmt unslicedStmt = (Stmt) pair.getFirst();
+			SootMethod unslicedMethod = (SootMethod) pair.getSecond();
+
+			if (slicemap.getTransformedStmt(unslicedStmt, unslicedMethod) == null) {
+				Stmt slicedStmt = cloner.cloneASTFragment(unslicedStmt, unslicedMethod);
+				PatchingChain slicedSL = getSliceStmtListFor(unslicedMethod);
+				PatchingChain unslicedSL = unslicedMethod.getActiveBody().getUnits();
+				writeIntoAt(slicedStmt, slicedSL, unslicedStmt, unslicedSL);
+				slicemap.addMapping(slicedStmt, unslicedStmt, unslicedMethod);
+
+				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
+				workbag.addWorkNoDuplicates(sliceCriterion);
 			}
 		}
 	}
@@ -471,38 +595,67 @@ public class Slicer {
 	}
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * Generates new slice criteria based on dependence info pertaining to alias expression, both in sequential and
+	 * concurrent setting.  By nature of Jimple, only one alias expression(array/field access) can occur in a statement,
+	 * hence, the arguments.
 	 *
-	 * @param vBox DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param stmt in which expression which leads to aliased-data dependence occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre stmt != null and method != null
+	 * @pre stmt.containsArrayRef() == true or stmt.containsFieldRef()
 	 */
-	private void sliceArray(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		ArrayRef value = (ArrayRef) vBox.getValue();
-		sliceLocal(value.getBaseBox(), stmt, method);
+	private void sliceBasedOnAliasedDataDependence(final Stmt stmt, final SootMethod method) {
+		DependencyAnalysis[] da = new DependencyAnalysis[2];
+		da[0] = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
+		da[1] = (DependencyAnalysis) controller.getAnalysis(SimpleController.CLASS_DATA_DA);
 
-		if (value.getIndex() instanceof Local) {
-			sliceLocal(value.getIndexBox(), stmt, method);
-		}
-
-		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
 		Collection slices = new HashSet();
 
-		if (sliceType.equals(COMPLETE_SLICE)) {
-			slices.addAll(da.getDependents(stmt, method));
-			slices.addAll(da.getDependees(stmt, method));
-		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			slices.addAll(da.getDependees(stmt, method));
+		for (int i = da.length - 1; i >= 0; i--) {
+			if (sliceType.equals(COMPLETE_SLICE)) {
+				slices.addAll(da[i].getDependents(stmt, method));
+				slices.addAll(da[i].getDependees(stmt, method));
+			} else if (sliceType.equals(BACKWARD_SLICE)) {
+				slices.addAll(da[i].getDependees(stmt, method));
+			}
 		}
-		sliceHelper(slices, method);
+		interproceduralSliceHelper(slices);
+	}
+
+	/**
+	 * Generates new slice criteria based on ready dependence info pertaining given statement.
+	 *
+	 * @param stmt which may cause to ready dependence.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre stmt != null and method != null
+	 * @pre stmt.oclIsKindOf(ExitMonitorStmt) or stmt.oclIsKindOf(EnterMonitorStmt) or stmt.oclIsKindOf(InvokeStmt)
+	 */
+	private void sliceBasedOnReadyDependence(final Stmt stmt, final SootMethod method) {
+		if (dependencies.contains(SimpleController.READY_DA)) {
+			DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.READY_DA);
+
+			Collection slices = new HashSet();
+
+			if (sliceType.equals(COMPLETE_SLICE)) {
+				slices.addAll(da.getDependents(stmt, method));
+				slices.addAll(da.getDependees(stmt, method));
+			} else if (sliceType.equals(BACKWARD_SLICE)) {
+				slices.addAll(da.getDependees(stmt, method));
+			}
+
+			interproceduralSliceHelper(slices);
+		}
 	}
 
 	/**
 	 * Generates immediate slice for the given expression.
 	 *
 	 * @param sExpr is the expression-level slice criterion.
+	 *
+	 * @pre sExpr != null and sExpr.getOccurringStmt() != null and sExpr.getOccurringMethod() != null
+	 * @pre sExpr.getCriterion() != null and sExpr.getCriterion().oclIsKindOf(ValueBox)
 	 */
 	private void sliceExpr(final SliceExpr sExpr) {
 		Stmt stmt = sExpr.getOccurringStmt();
@@ -514,109 +667,97 @@ public class Slicer {
 		} else {
 			Value value = expr.getValue();
 
-			if (value instanceof FieldRef) {
-				sliceField(expr, stmt, method);
-			} else if (value instanceof ArrayRef) {
-				sliceArray(expr, stmt, method);
-			} else {
-				for (Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
-					ValueBox vBox = (ValueBox) i.next();
+			if (value instanceof FieldRef || value instanceof ArrayRef) {
+				sliceBasedOnAliasedDataDependence(stmt, method);
+			}
 
-					if (vBox.getValue() instanceof Local) {
-						sliceLocal(vBox, stmt, method);
-					}
+			for (Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
+				ValueBox vBox = (ValueBox) i.next();
+
+				if (vBox.getValue() instanceof Local) {
+					sliceLocal(vBox, stmt, method);
 				}
 			}
+
+			// include the statement to capture control dependency
+			sliceStmt(stmt, method, false);
 		}
 	}
 
 	/**
-	 * Generates immediate slice for the field occurring in the given statement and method.  By nature of Jimple, only one
-	 * field can be referred in a statement, hence, the arguments.
+	 * Generates new slice criteria based on on what affects the given occurrence of the invoke expression.  By nature of
+	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
 	 *
-	 * @param vBox DOCUMENT ME!
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
-	 */
-	private void sliceField(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		FieldRef value = (FieldRef) vBox.getValue();
-
-		if (value instanceof InstanceFieldRef) {
-			sliceLocal(((InstanceFieldRef) value).getBaseBox(), stmt, method);
-		}
-
-		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
-		Collection slices = new HashSet();
-
-		if (sliceType.equals(COMPLETE_SLICE)) {
-			slices.addAll(da.getDependents(stmt, method));
-			slices.addAll(da.getDependees(stmt, method));
-		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			slices.addAll(da.getDependees(stmt, method));
-		}
-		sliceHelper(slices, method);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 *
-	 * @param slices DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @pre stmt != null and method != null
+	 * @pre stmt.containsInvokeExpr() == true
 	 */
-	private void sliceHelper(final Collection slices, final SootMethod method) {
-		PatchingChain slicedSL = method.getActiveBody().getUnits();
-		PatchingChain sliceSL = getSliceStmtListFor(method);
+	private void sliceInvokeExpr(final Stmt stmt, final SootMethod method) {
+		InvokeExpr expr = stmt.getInvokeExpr();
 
-		for (Iterator i = slices.iterator(); i.hasNext();) {
-			Pair pair = (Pair) i.next();
-			Stmt sliced = (Stmt) pair.getFirst();
+		// add exit points of callees as the slice criteria
+		Context context = new Context();
+		context.setRootMethod(method);
+		context.setStmt(stmt);
 
-			if (slicemap.getTransformedStmt(sliced, method) == null) {
-				Stmt slice = cloner.cloneASTFragment(sliced, method);
+		Collection callees = cgi.getCallees(expr, context);
 
-				//sliceSL.add(slicedSL.indexOf(unsliced), slice);
-				writeIntoAt(slice, sliceSL, sliced, slicedSL);
-				slicemap.addMapping(slice, sliced, method);
-				workbag.addWorkNoDuplicates(new SliceStmt((SootMethod) pair.getSecond(), sliced, true));
+		for (Iterator i = callees.iterator(); i.hasNext();) {
+			CallTriple ctrp = (CallTriple) i.next();
+			SootMethod callee = ctrp.getMethod();
+			UnitGraph stmtGraph = controller.getStmtGraph(callee);
+			BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(stmtGraph);
+
+			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
+				BasicBlock bb = (BasicBlock) j.next();
+				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+				sliceCriterion.initialize(callee, bb.getTrailer(), true);
+				workbag.addWorkNoDuplicates(sliceCriterion);
 			}
 		}
+		sliceBasedOnReadyDependence(stmt, method);
 	}
 
 	/**
-	 * Generates immediate slice for the local occurrence in the given statement and method.
+	 * Generates new slice criteria based on what affects the given occurrence of the local.
 	 *
 	 * @param vBox is the occurrence of the local.
 	 * @param stmt is the statement in which <code>vBox</code> occurs.
 	 * @param method is the method in which <code>stmt</code> occurs.
+	 *
+	 * @pre vBox != null and stmt != null and method != null
 	 */
 	private void sliceLocal(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.METHOD_LOCAL_DATA_DA);
-		Collection slices = new HashSet();
 
 		// add the new local
-		SootMethod sliceMethod = cloner.getCloneOf(method);
-		Body body = sliceMethod.getActiveBody();
+		SootMethod transformedMethod = cloner.getCloneOf(method);
+		Body body = transformedMethod.getActiveBody();
 		Local local = (Local) vBox.getValue();
 		String lName = local.getName();
 
-		if (cloner.getLocal(lName, sliceMethod) == null) {
+		if (cloner.getLocal(lName, transformedMethod) == null) {
 			body.getLocals().add(jimple.newLocal(lName, local.getType()));
 		}
 
 		// slice
+		Collection newCriteria = new HashSet();
+
 		if (sliceType.equals(COMPLETE_SLICE)) {
-			slices.addAll(da.getDependents(stmt, method));
-			slices.addAll(da.getDependees(new Pair(stmt, vBox), method));
+			newCriteria.addAll(da.getDependents(stmt, method));
+			newCriteria.addAll(da.getDependees(new Pair(stmt, vBox), method));
 		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			slices.addAll(da.getDependees(new Pair(stmt, vBox), method));
+			newCriteria.addAll(da.getDependees(new Pair(stmt, vBox), method));
 		}
 
 		// update the workbag
-		for (Iterator i = slices.iterator(); i.hasNext();) {
+		for (Iterator i = newCriteria.iterator(); i.hasNext();) {
 			Stmt unsliced = (Stmt) i.next();
-			workbag.addWorkNoDuplicates(new SliceStmt(method, unsliced, true));
+			SliceStmt sliceStmt = SliceStmt.getSliceStmt();
+			sliceStmt.initialize(method, unsliced, true);
+			workbag.addWorkNoDuplicates(sliceStmt);
 		}
 	}
 
@@ -629,112 +770,103 @@ public class Slicer {
 	 * 		  <code>false</code>, otherwise.
 	 */
 	private void sliceStmt(final Stmt stmt, final SootMethod method, final boolean inclusive) {
-		PatchingChain slicedSL = method.getActiveBody().getUnits();
-		PatchingChain sliceSL = getSliceStmtListFor(method);
+		PatchingChain unslicedSL = method.getActiveBody().getUnits();
+		PatchingChain slicedSL = getSliceStmtListFor(method);
 
 		if (inclusive) {
-			InvokeExpr expr = null;
-
-			if (stmt instanceof InvokeStmt) {
-				expr = ((InvokeStmt) stmt).getInvokeExpr();
-			} else if (stmt instanceof AssignStmt && ((AssignStmt) stmt).getRightOp() instanceof InvokeExpr) {
-				expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
-			}
-
-			if (expr != null) {
-				// add exit points of callees as the slice criteria
-				Context context = new Context();
-				context.setRootMethod(method);
-				context.setStmt(stmt);
-
-				Collection callees = cgi.getCallees(expr, context);
-
-				for (Iterator i = callees.iterator(); i.hasNext();) {
-					CallTriple ctrp = (CallTriple) i.next();
-					SootMethod callee = ctrp.getMethod();
-					UnitGraph stmtGraph = controller.getStmtGraph(callee);
-					BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(stmtGraph);
-
-					for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
-						BasicBlock bb = (BasicBlock) j.next();
-						workbag.addWorkNoDuplicates(new SliceStmt(callee, bb.getTrailer(), true));
-					}
-				}
+			if (stmt.containsInvokeExpr()) {
+				sliceInvokeExpr(stmt, method);
+			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
+				sliceBasedOnAliasedDataDependence(stmt, method);
+			} else if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
+				sliceBasedOnReadyDependence(stmt, method);
 			}
 
 			for (Iterator i = stmt.getUseAndDefBoxes().iterator(); i.hasNext();) {
 				ValueBox vBox = (ValueBox) i.next();
 				Value value = vBox.getValue();
 
-				if (value instanceof FieldRef) {
-					sliceField(vBox, stmt, method);
-				} else if (value instanceof ArrayRef) {
-					sliceArray(vBox, stmt, method);
-				} else if (value instanceof Local) {
+				if (value instanceof Local) {
 					sliceLocal(vBox, stmt, method);
 				}
 			}
 
 			Stmt slice = cloner.cloneASTFragment(stmt, method);
-
-			//int index = slicedSL.indexOf(stmt);
-			//sliceSL.remove(index);
-			//sliceSL.add(index, slice);
-			writeIntoAt(slice, sliceSL, stmt, slicedSL);
+			writeIntoAt(slice, slicedSL, stmt, unslicedSL);
 			slicemap.addMapping(slice, stmt, method);
 		}
 
 		Collection slices = new HashSet();
 
-		DependencyAnalysis[] da = new DependencyAnalysis[3];
-		da[0] = (DependencyAnalysis) controller.getAnalysis(SimpleController.CONTROL_DA);
-		da[1] = (DependencyAnalysis) controller.getAnalysis(SimpleController.SYNCHRONIZATION_DA);
-		da[2] = (DependencyAnalysis) controller.getAnalysis(SimpleController.DIVERGENCE_DA);
-
-		//da[3] = controller.getDAnalysis(Controller.READY_DA);
+		// add criteria for an intra-procedural dependency.
 		if (sliceType.equals(COMPLETE_SLICE)) {
-			for (int i = da.length - 1; i >= 0; i--) {
-				slices.addAll(da[i].getDependents(stmt, method));
-				slices.addAll(da[i].getDependees(stmt, method));
+			for (Iterator i = intraProceduralDependencies.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				slices.addAll(da.getDependents(stmt, method));
+				slices.addAll(da.getDependees(stmt, method));
 			}
 		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			for (int i = da.length - 1; i >= 0; i--) {
-				slices.addAll(da[i].getDependees(stmt, method));
+			for (Iterator i = intraProceduralDependencies.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				slices.addAll(da.getDependees(stmt, method));
 			}
 		}
 
 		for (Iterator i = slices.iterator(); i.hasNext();) {
-			Stmt sliced = (Stmt) i.next();
+			Stmt unsliced = (Stmt) i.next();
 
-			if (slicemap.getTransformedStmt(sliced, method) == null) {
-				Stmt slice = cloner.cloneASTFragment(sliced, method);
+			if (slicemap.getTransformedStmt(unsliced, method) == null) {
+				Stmt sliced = cloner.cloneASTFragment(unsliced, method);
 
-				//sliceSL.add(slicedSL.indexOf(sliced), slice);
-				writeIntoAt(slice, sliceSL, sliced, slicedSL);
-				slicemap.addMapping(slice, sliced, method);
-				workbag.addWorkNoDuplicates(new SliceStmt(method, sliced, true));
+				writeIntoAt(sliced, slicedSL, unsliced, unslicedSL);
+				slicemap.addMapping(sliced, unsliced, method);
+
+				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
+				sliceStmt.initialize(method, unsliced, true);
+				workbag.addWorkNoDuplicates(sliceStmt);
 			}
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Inserts the given data into the given chain at the same position at which <code>posData</code> is found in
+	 * <code>posChain</code>. This is required as the statements of a methods are not maintained in a list into which we can
+	 * index directly.
 	 *
-	 * @param writeData DOCUMENT ME!
-	 * @param writeChain DOCUMENT ME!
-	 * @param posData DOCUMENT ME!
-	 * @param posChain DOCUMENT ME!
+	 * @param writeData is the data to be inserted into <code>writeChain</code>.
+	 * @param writeChain is the chain into which data should be inserted.
+	 * @param posData is the data that gives the position at which data should be inserted in <code>writeChain</code>.
+	 * @param posChain is the chain relative to which <code>posData</code> gives the insertion position.
+	 *
+	 * @pre writeData != null and writeChain != null and posData != null and posChain != null
+	 * @pre writeChain.size() == posChain.size()
+	 * @pre writeChain.contains(posData)
 	 */
-	private void writeIntoAt(final Object writeData, final PatchingChain writeChain, final Object posData,
+	private void writeIntoAt(final Stmt writeData, final PatchingChain writeChain, final Object posData,
 		final PatchingChain posChain) {
+		Object index = null;
+		Iterator j = writeChain.iterator();
+
+		for (Iterator i = posChain.iterator(); i.hasNext();) {
+			Object temp = i.next();
+			index = j.next();
+
+			if (temp.equals(posData)) {
+				break;
+			}
+		}
+		writeChain.insertAfter(index, writeData);
+		writeChain.remove(index);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+
+   Revision 1.8  2003/08/18 05:01:45  venku
+   Committing package name change in source after they were moved.
+
    Revision 1.7  2003/08/18 04:56:47  venku
    Spruced up Documentation and specification.
    But committing before moving slicer under transformation umbrella of Indus.

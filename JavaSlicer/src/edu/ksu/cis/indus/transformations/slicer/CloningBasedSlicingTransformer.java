@@ -135,24 +135,24 @@ public class SliceMapImpl
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	public void fixupMappings() {
-		for (Iterator i = transformedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = method2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
-			SootMethod sliceMethod = cloner.getCloneOf(method);
+			SootMethod transformedMethod = cloner.getCloneOf(method);
 
-			if (sliceMethod == null) {
-				method2stmtMap.put(method, null);
+			if (transformedMethod == null) {
+				transformedMethod2stmtMap.put(transformedMethod, null);
 			} else {
-				Map transformed = (Map) method2stmtMap.get(method);
-				Map slice = (Map) transformedMethod2stmtMap.get(sliceMethod);
-				PatchingChain transformedSl = ((JimpleBody) method.getActiveBody()).getUnits();
-				PatchingChain sliceSl = ((JimpleBody) sliceMethod.getActiveBody()).getUnits();
+				Map untransformedStmt2transformedStmt = (Map) method2stmtMap.get(method);
+				Map transformedStmt2untransformedStmt = (Map) transformedMethod2stmtMap.get(transformedMethod);
+				PatchingChain untransformedSL = ((JimpleBody) method.getActiveBody()).getUnits();
+				PatchingChain transformedSL = ((JimpleBody) transformedMethod.getActiveBody()).getUnits();
 
-				for (Iterator j = transformedSl.iterator(); j.hasNext();) {
+				for (Iterator j = untransformedSL.iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
 
-					if (!sliceSl.contains(transformed.get(stmt))) {
-						slice.remove(transformed.get(stmt));
-						transformed.remove(stmt);
+					if (!transformedSL.contains(untransformedStmt2transformedStmt.get(stmt))) {
+						transformedStmt2untransformedStmt.remove(untransformedStmt2transformedStmt.get(stmt));
+						untransformedStmt2transformedStmt.remove(stmt);
 					}
 				}
 			}
@@ -175,6 +175,9 @@ public class SliceMapImpl
    ChangeLog:
    
    $Log$
+   Revision 1.9  2003/08/18 05:01:45  venku
+   Committing package name change in source after they were moved.
+
    Revision 1.8  2003/08/18 04:49:47  venku
    Modified SlicerMap to be an specific implementation of ITransformMap specific to the Slicer.
 

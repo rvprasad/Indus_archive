@@ -39,43 +39,53 @@ import soot.SootMethod;
 
 import soot.jimple.Stmt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
+
 
 /**
- * This class represents a statement as a slice criterion.
+ * This class represents a statement as a slice criterion.  This class supports object pooling.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class SliceStmt
+class SliceStmt
   extends AbstractSliceCriterion {
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SliceStmt.class);
+
+	/**
+	 * A pool of <code>SliceStmt</code> criterion objects.
+	 *
+	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
+	 */
+	static final ObjectPool STMT_POOL =
+		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
+				/**
+				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
+				 */
+				public Object makeObject() {
+					SliceStmt result = new SliceStmt();
+					result.pool = STMT_POOL;
+					return result;
+				}
+			});
+
+	/**
 	 * The method in which <code>stmt</code> occurs.
-     * @invariant method != null
 	 */
 	protected SootMethod method;
 
 	/**
 	 * The statement associated with this criterion.
-     * @invariant stmt != null
 	 */
 	protected Stmt stmt;
-
-	/**
-	 * Creates a new SliceStmt object.
-	 *
-	 * @param occurringMethod in which the slice criterion occurs.
-	 * @param criterion is the slice criterion.
-	 * @param shouldInclude <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
-	 *
-	 * @pre method != null and stmt != null
-	 */
-	protected SliceStmt(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldInclude) {
-		super(shouldInclude);
-		this.method = occurringMethod;
-		this.stmt = criterion;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -131,7 +141,46 @@ public class SliceStmt
 		int result = 17;
 		result = 37 * result + stmt.hashCode();
 		result = 37 * result + method.hashCode();
-        result = 37 * result + super.hashCode();
+		result = 37 * result + super.hashCode();
+		return result;
+	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param occurringMethod in which the slice criterion occurs.
+	 * @param criterion is the slice criterion.
+	 * @param shouldInclude <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
+	 * 		  otherwise.
+	 *
+	 * @pre method != null and stmt != null
+	 */
+	protected void initialize(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldInclude) {
+		super.initialize(shouldInclude);
+		this.method = occurringMethod;
+		this.stmt = criterion;
+	}
+
+	/**
+	 * Retrieves a statement-level slicing criterion object.
+	 *
+	 * @return a statement-level slicing criterion object.
+	 *
+	 * @throws RuntimeException if an object could not be retrieved from the pool.
+	 *
+	 * @post result != null
+	 */
+	static SliceStmt getSliceStmt() {
+		SliceStmt result;
+
+		try {
+			result = (SliceStmt) STMT_POOL.borrowObject();
+		} catch (Exception e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("How can this happen?", e);
+			}
+			throw new RuntimeException(e);
+		}
 		return result;
 	}
 }
@@ -139,10 +188,14 @@ public class SliceStmt
 /*
    ChangeLog:
    $Log$
+   
+   Revision 1.5  2003/08/18 05:01:45  venku
+   Committing package name change in source after they were moved.
+   
    Revision 1.4  2003/08/17 11:56:18  venku
    Renamed SliceCriterion to AbstractSliceCriterion.
    Formatting, documentation, and specification.
-
+   
    Revision 1.3  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.
