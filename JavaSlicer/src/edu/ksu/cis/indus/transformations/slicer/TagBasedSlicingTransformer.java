@@ -23,7 +23,7 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-import soot.tagkit.StringTag;
+import soot.tagkit.Tag;
 
 import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
@@ -88,14 +88,14 @@ public class TagBasedSlicingTransformer
 	private Object sliceType;
 
 	/**
+	 * The tag to be used during transformation.
+	 */
+	private SlicingTag tag = new SlicingTag(SLICING_TAG);
+
+	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName = SLICING_TAG;
-
-	/**
-	 * The tag to be used during transformation.
-	 */
-	private StringTag tag = new StringTag(SLICING_TAG);
 
 	/**
 	 * <p>
@@ -105,6 +105,52 @@ public class TagBasedSlicingTransformer
 	private boolean executable;
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static class SlicingTag
+	  implements Tag {
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		private final String name;
+
+		/**
+		 * Creates a new SlicingTag object.
+		 *
+		 * @param theName DOCUMENT ME!
+		 */
+		public SlicingTag(final String theName) {
+			name = theName;
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @return DOCUMENT ME!
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * @see soot.tagkit.Tag#getValue()
+		 */
+		public byte[] getValue() {
+			return name.getBytes();
+		}
+	}
+
+	/**
 	 * Set the tag name to be used.
 	 *
 	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
@@ -112,7 +158,7 @@ public class TagBasedSlicingTransformer
 	 */
 	public void setTagName(final String theTagName) {
 		if (theTagName != null) {
-			tag = new StringTag(theTagName);
+			tag = new SlicingTag(theTagName);
 			tagName = theTagName;
 		}
 	}
@@ -308,6 +354,11 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/05 08:32:50  venku
+   - transformation are supported per entity basis.  This
+     means each expression in a statement and needs to
+     be tagged separately.  The containing statement
+     should also be tagged likewise.
    Revision 1.11  2003/11/03 08:02:31  venku
    - ripple effect of changes to ITransformer.
    - added logging.
