@@ -5,6 +5,11 @@
  */
 package edu.ksu.cis.indus.kaveri.scoping;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.CellEditor;
@@ -29,6 +34,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.jibx.runtime.JiBXException;
+
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan
@@ -46,11 +60,17 @@ public class ScopeDialog extends Dialog {
 	private CheckboxTableViewer tv;
 	
 	/**
+	 * The chosen scope specification.
+	 */
+	private String scopeSpecification;
+	
+	/**
 	 * Constructor.
 	 * @param parentShell
 	 */
 	public ScopeDialog(Shell parentShell) {
 		super(parentShell);		
+		scopeSpecification = "";
 	}
 	
 	
@@ -222,6 +242,40 @@ public class ScopeDialog extends Dialog {
 		_col4.setText("Element Name");
 				
 	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
+     */
+    protected void okPressed() {
+        final Object _elems[] = tv.getCheckedElements();
+        String _scopeSpecHeader = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + 
+        "xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
+        "indus:specName=\"scope_spec\">";
+        _scopeSpecHeader += "\n</indus:scopeSpec>";
+        try {
+            final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpecHeader);
+        for (int i = 0; i < _elems.length; i++) {
+            if (_elems[i] instanceof ClassSpecification) {
+                _sbsd.getClassSpecs().add(_elems[i]);
+            } else if(_elems[i] instanceof MethodSpecification) {
+                _sbsd.getMethodSpecs().add(_elems[i]);
+            } else if(_elems[i] instanceof FieldSpecification) {
+                _sbsd.getFieldSpecs().add(_elems[i]);
+            }
+        }
+        scopeSpecification = SpecificationBasedScopeDefinition.serialize(_sbsd);
+        } catch (JiBXException _jbe) {
+            SECommons.handleException(_jbe);
+            KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
+            scopeSpecification = "";
+        }
+        super.okPressed();
+    }
+    /**
+     * @return Returns the scopeSpecification.
+     */
+    public String getScopeSpecification() {
+        return scopeSpecification;
+    }
 }
 
 class ViewContentProvider implements IStructuredContentProvider {
@@ -230,13 +284,78 @@ class ViewContentProvider implements IStructuredContentProvider {
 	public void dispose() {
 	}
 	public Object[] getElements(Object parent) {
-		return new String[] { "One", "Two", "Three" };
+		final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
+		final String _scopeSpec = KaveriPlugin.getDefault().getPreferenceStore().getString(_scopeKey);
+		if (_scopeSpec.equals("")) return new Object[0];
+		try {
+		    SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+		    final List _lstSpecs = new LinkedList();
+		    final Collection _collClassSpecs = _sbsd.getClassSpecs();
+		    for (Iterator iter = _collClassSpecs.iterator(); iter.hasNext();) {
+                final ClassSpecification _cs = (ClassSpecification) iter.next();
+                _lstSpecs.add(_cs);
+                
+            }
+		    final Collection _collMethodSpecs = _sbsd.getMethodSpecs();
+		    for (Iterator iter = _collMethodSpecs.iterator(); iter.hasNext();) {
+                final MethodSpecification _ms = (MethodSpecification) iter.next();
+                _lstSpecs.add(_ms);
+                
+            }
+		    final Collection _collFieldSpecs = _sbsd.getFieldSpecs();
+		    for (Iterator iter = _collFieldSpecs.iterator(); iter.hasNext();) {
+                final FieldSpecification _fs = (FieldSpecification) iter.next();
+                _lstSpecs.add(_fs);                
+            }
+		    return _lstSpecs.toArray();
+		
+		} catch(JiBXException _jbe) {
+		    SECommons.handleException(_jbe);
+		    KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
+		    return new Object[0];
+		}
+		
 	}
 }
 class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 	public String getColumnText(Object obj, int index) {
 		if (index == 0) {
 			return "";
+		}
+		if (obj instanceof ClassSpecification) {
+		    final ClassSpecification _cs = (ClassSpecification) obj;
+		    switch(index) {
+		    	case 1:
+		    	    return "Class";		    	    
+		    	case 2:
+		    	    return _cs.getName();		    	    
+		    	case 3:
+		    	    return _cs.getTypeSpec().getNamePattern();
+		    }
+		} else if (obj instanceof MethodSpecification) {
+		    final MethodSpecification _ms = (MethodSpecification) obj;
+		    switch(index) {
+		    	case 1:
+		    	    return "Method";		    	    
+		    	case 2:
+		    	    return _ms.getName();		    	    
+		    	case 3:
+		    	    return _ms.getMethodNameSpec();
+		    }
+		    
+		} else if (obj instanceof FieldSpecification) {
+		    final FieldSpecification _fs = (FieldSpecification) obj;
+		    switch(index) {
+	    	case 1:
+	    	    return "Field";		    	    
+	    	case 2:
+	    	    return _fs.getName();		    	    
+	    	case 3:
+	    	    return _fs.getFieldNameSpec();
+		}
+		    
+		} else {
+		    return "";
 		}
 		return getText(obj);
 	}

@@ -76,7 +76,7 @@ public class PartialStmtData {
 	 */
 	public PartialStmtData() {
 		listeners = new ArrayList();
-		stmtList = new ArrayList();
+		stmtList = new ArrayList();		
 	}
 	
 	public boolean isListenersReady() {
@@ -192,4 +192,19 @@ public class PartialStmtData {
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
+
+    /**
+     * @param _pd
+     */
+    public void copyContents(PartialStmtData _pd) {
+        this.className = _pd.getClassName();
+        this.javaFile = _pd.getJavaFile();
+        this.lineNo = _pd.getLineNo();
+        this.methodName = _pd.getMethodName();
+        this.selectedStatement = _pd.getSelectedStatement();
+        this.setStmtList(_pd.getStmtList());
+        
+        
+    }
+    
 }

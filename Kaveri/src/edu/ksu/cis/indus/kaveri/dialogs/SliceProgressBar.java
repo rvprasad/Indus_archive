@@ -37,7 +37,7 @@ public class SliceProgressBar extends ProgressMonitorDialog {
 	private static int BAR_DLUS = 9;
 	private List progressList;
 	private Button pausecancelButton;
-	final int pausecancelButtonId = 1337;
+	private static int pausecancelButtonId = 1337;
 	
 	public SliceProgressBar(Shell shell) {
 		super(shell);
@@ -140,4 +140,11 @@ public class SliceProgressBar extends ProgressMonitorDialog {
 				);
 		}
 	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#cancelPressed()
+     */
+    protected void cancelPressed() {
+       KaveriPlugin.getDefault().getSlicerTool().abort();
+        super.cancelPressed();
+    }
 }

@@ -17,10 +17,11 @@ package edu.ksu.cis.indus.kaveri.views;
 
 
 import java.util.ArrayList;
-import java.util.Stack;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -33,20 +34,24 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
@@ -62,8 +67,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+
 
 
 /**REWRITE
@@ -79,8 +86,9 @@ public class DependenceHistoryView
 	 * </p>
 	 */
 	private TableTreeViewer viewer;
-	private Action action1;
-	private Action action2;
+	private Action actionGotoSource;
+	private Action actionFwd;
+	private Action actionBck;	
 	private Action doubleClickAction;
 	
 	
@@ -97,7 +105,9 @@ public class DependenceHistoryView
 		private IFile file;	
 		private int lineNumber;
 		private String dependencyTracked;
-		private RGB depColor;
+		private int index;
+		private DependenceStackData dStack;
+		
 		
 		public TreeObject(String stmt) {
 			this.statement = stmt;
@@ -115,6 +125,7 @@ public class DependenceHistoryView
 		public Object getAdapter(Class key) {
 			return null;
 		}
+		
 		/**
 		 * @return Returns the dependencyTracked.
 		 */
@@ -159,17 +170,29 @@ public class DependenceHistoryView
 		}		
 
 		/**
-		 * @return Returns the depColor.
+		 * @return Returns the Index of this node.
 		 */
-		public RGB getDepColor() {
-			return depColor;
+		public int getIndex() {
+			return index;
 		}
 		/**
-		 * @param depColor The depColor to set.
+		 * @param index The index to set.
 		 */
-		public void setDepColor(RGB depColor) {
-			this.depColor = depColor;
+		public void setIndex(int index) {
+			this.index = index;
 		}
+        /**
+         * @return Returns the dStack.
+         */
+        public DependenceStackData getDStack() {
+            return dStack;
+        }
+        /**
+         * @param stack The dStack to set.
+         */
+        public void setDStack(DependenceStackData stack) {
+            dStack = stack;
+        }
 	}
 	
 	class TreeParent extends TreeObject {
@@ -245,7 +268,16 @@ public class DependenceHistoryView
 		public void propertyChanged() {
 			if (viewer != null) {
 				initialize();
-				viewer.refresh(false);				
+				final DependenceHistoryData _dd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+				actionBck.setEnabled(_dd.isBackNavPossible());
+				actionFwd.setEnabled(_dd.isFwdNavPossible());
+				
+				viewer.refresh(false);
+				final Object _obj[] =invisibleRoot.getChildren(); 
+				if (_obj != null && _obj.length > 0) {
+				    viewer.setSelection(new StructuredSelection(_obj[0]), true);
+				}
+				
 				final TableColumn _cols[] = viewer.getTableTree().getTable().getColumns();
 				for (int _i = 0; _i < _cols.length; _i++) {
 					_cols[_i].pack();
@@ -296,16 +328,10 @@ public class DependenceHistoryView
 		
 		private void initialize() {
 			invisibleRoot.removeAllChildren();
-			final Stack _stk = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getHistory();
+			final List _lst = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getContents();
 			final Object[] _retObj;
-			if (! _stk.isEmpty()) {
-				_retObj =  _stk.toArray();
-				final int _limit = (int) Math.floor(_retObj.length / 2);				 
-				for (int _i = 0; _i < _limit; _i++) {
-					final Object temp = _retObj[_i];
-					_retObj[_i] = _retObj[_retObj.length - _i -1];
-					_retObj[_retObj.length - _i -1] = temp;
-				}
+			if (! _lst.isEmpty()) {
+				_retObj =  _lst.toArray();				
 				
 				for (int i = 0; i < _retObj.length; i++) {
 					final Pair _pair = (Pair) _retObj[i];
@@ -317,12 +343,13 @@ public class DependenceHistoryView
 					final String _depLink = _pair.getSecond().toString();
 					final TreeParent _tp = new TreeParent(_stmt);
 					
-					final TreeObject _to = new TreeObject(_stmt);
-					_to.setDependencyTracked(_depLink);
-					_to.setFile(_file);
-					_to.setLineNumber(lineNo);
-					//_to.setDepColor(_data.getDepColor());
-					_tp.addChild(_to);
+					
+					_tp.setDependencyTracked(_depLink);
+					_tp.setFile(_file);
+					_tp.setLineNumber(lineNo);
+					_tp.setIndex(_retObj.length - i - 1);
+					_tp.setDStack(_data);
+					//_to.setDepColor(_data.getDepColor());					
 					
 					
 					invisibleRoot.addChild(_tp);
@@ -348,7 +375,7 @@ public class DependenceHistoryView
 	 */
 	class DependenceHistoryViewLabelProvider
 	  extends LabelProvider
-	  implements ITableLabelProvider /*, IColorProvider*/ {
+	  implements ITableLabelProvider , IColorProvider {
 		
 		/**
 		 * Get the image label for the given column.
@@ -378,16 +405,19 @@ public class DependenceHistoryView
 					_retString = element.toString();
 					break;
 				case 1:
-					_retString = ((TreeParent) element).getChildren()[0].getFile().getName();
+					_retString = ((TreeParent) element).getFile().getName();
 					break;
 				case 2:
-					_retString = _retString =  ((TreeParent) element).getChildren()[0].getLineNumber() + "";
+					_retString =  ((TreeParent) element).getLineNumber() + "";
 					break;
+				case 3: 
+				    _retString = ((TreeParent) element).getDependencyTracked();
+				    break;
 				default:
 						_retString = "";
 				}										
 				
-			} else 
+			} /*else 
 			if (element instanceof TreeObject) {
 				switch (index) {				 
 				case 1:						
@@ -400,7 +430,7 @@ public class DependenceHistoryView
 				default:
 						_retString =  "";						
 			 }					
-			}
+			}*/
 												
 			return _retString;
 		}
@@ -414,23 +444,25 @@ public class DependenceHistoryView
 			return null;
 		}
 
-/*		public Color getForeground(Object element) {
-		
-			return null;
+		public Color getForeground(Object element) {
+		    Color _retColor = null;
+			if (element instanceof TreeParent) {
+			    final TreeParent _tp = (TreeParent) element;
+			    if (_tp.getDependencyTracked().equals("Starting Program Point")) {
+				final RGB _rgb = new RGB(255, 0, 0);
+				if (_rgb != null) {
+				_retColor = KaveriPlugin.getDefault().getIndusConfiguration().getRManager().getColor(_rgb);				
+				}
+			    }
+			}
+			return _retColor;
 		}
 
 	
 		public Color getBackground(Object element) {
-			Color _retColor = null;
-			if (element instanceof TreeObject) {
-				final RGB _rgb = ((TreeObject) element).getDepColor();
-				if (_rgb != null) {
-				_retColor = KaveriPlugin.getDefault().getIndusConfiguration().getRManager().getColor(_rgb);
-				}
-			}
-			return _retColor;
+			return null;
 		}
-*/
+
 	}
 
 	/**
@@ -510,21 +542,63 @@ public class DependenceHistoryView
 	 * @param manager
 	 */
 	private void fillToolBar(IToolBarManager manager) {
-		Action _actionPop = new Action() {
+		actionBck = new Action() {
 			public void run() {
-				if (KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getHistory().size() > 0) {
-					// TODO Remove annotations when reverting.
-					KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().pop();
-				}				
+				final DependenceHistoryData _dd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+				_dd.navigateBack();				
+				highlightCurrentItem();
 			}
-		};
-		//_actionPop.setText("Revert to previous");
-		_actionPop.setToolTipText("Revert to previous");
-		final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+		};		
+		actionBck.setToolTipText("Move Back");
+		final ImageDescriptor _descB = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
 		"data/icons/viewBack.gif");
-		_actionPop.setImageDescriptor(_desc);
-		manager.add(_actionPop);
 		
+		actionBck.setImageDescriptor(_descB);
+		manager.add(actionBck);
+		final DependenceHistoryData _dd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+		actionBck.setEnabled(_dd.isBackNavPossible());
+		
+		actionFwd = new Action() {
+			public void run() {
+			    final DependenceHistoryData _dd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+				_dd.navigateForward();
+				highlightCurrentItem();
+			}
+		};		
+		actionFwd.setToolTipText("Move Forward");
+		final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+		"data/icons/viewFront.gif");
+		
+		actionFwd.setImageDescriptor(_desc);
+		actionFwd.setEnabled(_dd.isFwdNavPossible());
+		manager.add(actionFwd);						
+	}
+	
+	
+	/**
+	 * Highlight the current entry on the top of the stack in the Java editor.
+	 * 
+	 */
+	private void highlightCurrentItem() {
+		final DependenceHistoryData _dd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+	    final DependenceStackData _ds = (DependenceStackData) _dd.getCurrentItem().getFirst();				
+		final IFile _file =_ds.getFile();
+		final int _nLineNo = _ds.getLineNo() - 1;
+		final ICompilationUnit _cunit = JavaCore.createCompilationUnitFrom(_file);
+		try {
+            final CompilationUnitEditor _cu = (CompilationUnitEditor) JavaUI.openInEditor(_cunit);
+            final IRegion _region = _cu.getDocumentProvider().getDocument(_cu.getEditorInput()).getLineInformation(_nLineNo);
+            _cu.selectAndReveal(_region.getOffset(), _region.getLength());
+        } catch (PartInitException e) {
+            SECommons.handleException(e);
+            KaveriErrorLog.logException("Error opening Java Editor", e);
+        } catch (JavaModelException e) {
+            SECommons.handleException(e);
+            KaveriErrorLog.logException("Java Model Exception", e);
+        } catch (BadLocationException e) {
+            SECommons.handleException(e);
+            KaveriErrorLog.logException("Bad Location Exception", e);
+        }
 	}
 
 	/**
@@ -543,12 +617,12 @@ public class DependenceHistoryView
 	 *
 	 */
 	private void makeActions() {
-		action1 = new Action() {
+		actionGotoSource = new Action() {
 			public void run()  {
 				highlightSource();
 			}
 		};
-		action1.setText("Goto Source");
+		actionGotoSource.setText("Goto Source");
 		doubleClickAction = new Action() {
 			public void run() {
 				highlightSource();
@@ -562,18 +636,24 @@ public class DependenceHistoryView
 			IStructuredSelection _ssel = (IStructuredSelection) _sel;
 			final Object _obj =_ssel.getFirstElement();
 			IJavaElement _elem = null;
+			int _navToIndex = -1;
 			int nlineno = -1;
+			DependenceStackData _dsd = null;
 			if (_obj != null && _obj instanceof TreeParent) {
-				final TreeParent _tp = (TreeParent) _obj;
-				final TreeObject _to = (TreeObject) _tp.getChildren()[0];
-				final IFile _file = _to.getFile(); 																			
+				final TreeParent _tp = (TreeParent) _obj;							
+				final IFile _file = _tp.getFile(); 																			
 				 _elem = JavaCore.create(_file);
-				 nlineno = _to.getLineNumber();
+				 nlineno = _tp.getLineNumber();
+				 _navToIndex = _tp.getIndex();
+				 _dsd = _tp.getDStack();
+				 
 			} else if (_obj != null && _obj instanceof TreeObject) {
 				final TreeObject _to = (TreeObject) _obj;
 				final IFile _file = _to.getFile();
 				_elem =	JavaCore.create(_file);
 				nlineno = _to.getLineNumber();
+				_navToIndex = _to.getIndex();
+				_dsd = _to.getDStack();
 			}
 			if (_elem != null) {
 				try {
@@ -582,12 +662,16 @@ public class DependenceHistoryView
 							_editor.getDocumentProvider().getDocument(_editor.getEditorInput()).
 							getLineInformation(nlineno - 1);
 						_editor.selectAndReveal(_region.getOffset(), _region.getLength());
+						KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().navigateTo(_navToIndex);						
 				} 
-				catch (PartInitException e) {							
+				catch (PartInitException e) {	
+				    KaveriErrorLog.logException("Par Init Exception", e);
 					SECommons.handleException(e);
 				} catch (JavaModelException e) {
+				    KaveriErrorLog.logException("Java Model Exception", e);
 					SECommons.handleException(e);
-				} catch (org.eclipse.jface.text.BadLocationException e) {							
+				} catch (org.eclipse.jface.text.BadLocationException e) {
+				    KaveriErrorLog.logException("Bad Location Exception", e);
 					SECommons.handleException(e);
 				} 
 			}
@@ -608,8 +692,8 @@ public class DependenceHistoryView
 	}
 	
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(action1);
-		//manager.add(action2);
+		manager.add(actionGotoSource);
+		//manager.add(actionFwd);
 		manager.add(new Separator());	
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));

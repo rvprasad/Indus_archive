@@ -37,6 +37,7 @@ import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
 import soot.util.Chain;
 import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.Messages;
@@ -63,7 +64,7 @@ public class TagToAnnotationMapper {
 				_sootclass = Scene.v().getSootClass(_className);		
 				} 
 				catch (RuntimeException _rme) {
-					
+				    KaveriErrorLog.logException("Error loading sootclass", _rme);
 				}
 				if (_sootclass != null) {
 					processClassForLines(_v, _sootclass);

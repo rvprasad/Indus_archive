@@ -15,22 +15,23 @@
  
 package edu.ksu.cis.indus.kaveri.callgraph;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
-import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
+//import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
+
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
+
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
+
 
 /**
  * @author ganeshan
@@ -41,13 +42,13 @@ import org.eclipse.ui.IViewPart;
 public class AddToContext implements IViewActionDelegate {
 
     private IStructuredSelection sSel;
-    private CallHierarchyViewPart callViewPart;
+  //  private CallHierarchyViewPart callViewPart;
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
      */
     public void init(IViewPart view) {        
-        this.callViewPart = (CallHierarchyViewPart) view;
+    //    this.callViewPart = (CallHierarchyViewPart) view;
     }
 
     /* (non-Javadoc)
@@ -60,10 +61,29 @@ public class AddToContext implements IViewActionDelegate {
                 final IJavaElement _method = (IJavaElement) _mw.getAdapter(IJavaElement.class);
                 if (_method != null && _method.getElementType() == IJavaElement.METHOD) {
                     final IMethod _jmethod = (IMethod) _method;
-                    final ASTParser _parser = ASTParser.newParser(AST.JLS2);
-                    _parser.setSource(_jmethod.getCompilationUnit());
-                    final CompilationUnit _cu = (CompilationUnit) _parser.createAST(null);
-                    _cu.accept(new MyAstVistor(_cu));
+                    Display.getCurrent().asyncExec(
+                            new Runnable() {
+                                public void run() {
+                                    try {
+                                        Document d = new Document(_jmethod.getCompilationUnit().getSource());
+                                        final IRegion _r =  d.getLineInformation(37);
+                                        System.out.println(d.get(_r.getOffset(), _r.getLength()));
+                                    } catch(JavaModelException jme) {
+                                        
+                                    } catch (BadLocationException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+                                    
+                                }
+                            }
+                            );
+                    
+                    //final ASTParser _parser = ASTParser.newParser(AST.JLS2);
+                    //_parser.setResolveBindings(true);
+                    //_parser.setSource(_jmethod.getCompilationUnit());
+                    //final CompilationUnit _cu = (CompilationUnit) _parser.createAST(null);
+//                    /_cu.accept(new MyAstVistor(_cu, _jmethod.getElementName()));
                 }
             }
         }

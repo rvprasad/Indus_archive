@@ -12,30 +12,23 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.dependence;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
+
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -53,132 +46,133 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IEditorPart;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import soot.SootMethod;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dependence.filters.ControlFilter;
-import edu.ksu.cis.indus.kaveri.dependence.filters.DataFilter;
-import edu.ksu.cis.indus.kaveri.dependence.filters.DivergenceFilter;
-import edu.ksu.cis.indus.kaveri.dependence.filters.InterferenceFilter;
-import edu.ksu.cis.indus.kaveri.dependence.filters.ReadyFilter;
-import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.dependence.filters.MainFilter;
+
+import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.DependenceStackData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
-
-
 /**
  * @author ganeshan
- *
+ * 
  * This view keeps track of the dependencies.
  */
 public class DependenceTrackingView extends ViewPart {
-    
+
     /**
      * Used to display the Java and underlying Jimple.
      */
     private TreeViewer tvLeft;
-    
+
     /**
      * Used to display the dependence information.
      */
     private TreeViewer tvRight;
-    
-    
+
     /**
      * Filter out Control dependence.
      */
-    private ViewerFilter controlFilter;
-    
+    private ViewerFilter controlFilterFwd, controlFilterBck;
+
     /**
      * Filter out Data dependence.
      */
-    private ViewerFilter dataFilter;
-    
+    private ViewerFilter dataFilterFwd, dataFilterBck;
+
     /**
      * Filter out Interference dependence.
      */
-    private ViewerFilter interferenceFilter;
-    
+    private ViewerFilter interferenceFilterFwd, interferenceFilterBck;
+
     /**
      * Filter out Ready dependence.
      */
-    private ViewerFilter readyFilter;
-    
+    private ViewerFilter readyFilterFwd, readyFilterBck;
+
     /**
      * Filter out Synchronization dependence.
      */
-    private ViewerFilter synchFilter;
-    
+    private ViewerFilter synchFilterFwd, synchFilterBck;
+
     /**
      * Filter out Divergence dependence.
      */
-    private ViewerFilter divergenceFilter;
-    
-    
-    private Action controlFilterAction;
-    private Action dataFilterAction;
-    private Action readyFilterAction;
-    private Action interferenceFilterAction;
-    private Action divergenceFilterAction;
-    private Action synchFilterAction;
+    private ViewerFilter divergenceFilterFwd, divergenceFilterBck;
+
+    private Action controlFilterActionFwd, controlFilterActionBck;
+
+    private Action dataFilterActionFwd, dataFilterActionBck;
+
+    private Action readyFilterActionFwd, readyFilterActionBck;
+
+    private Action interferenceFilterActionFwd, interferenceFilterActionBck;
+
+    private Action divergenceFilterActionFwd, divergenceFilterActionBck;
+
+    private Action synchFilterActionFwd, synchFilterActionBck;
+
+    private Action expandAll, contractAll;
+
     /**
      * Whether this view is active.
      */
     private boolean isActive = false;
+
     
-    
-    private Map classNameToFileMap;
-    
+
     /** The input to the right pane */
     private DependenceStmtData dsd;
-    
-    
-    
+
     class StandarLabelProvider extends LabelProvider {
-        
-        /* (non-Javadoc)
+
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
          */
-        public String getText(Object element) {            
-             return element.toString();            
+        public String getText(Object element) {
+            return element.toString();
         }
-}
-	
-	
-	        
-    
+    }
+
     /**
      * Constructor.
      */
     public DependenceTrackingView() {
-        dsd = new DependenceStmtData(); 
-        classNameToFileMap = new HashMap();
-    }
+        dsd = new DependenceStmtData();
     
-    /** Create the dialog areas.
+    }
+
+    /**
+     * Create the dialog areas.
+     * 
      * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
      */
     public void createPartControl(Composite parent) {
         final Composite _comp = new Composite(parent, SWT.NONE);
         _comp.setLayout(new GridLayout(1, true));
-        
+
         final SashForm _sForm = new SashForm(_comp, SWT.HORIZONTAL);
         GridData _gd = new GridData(GridData.FILL_BOTH);
         _gd.horizontalSpan = 1;
         _gd.grabExcessHorizontalSpace = true;
         _gd.grabExcessVerticalSpace = true;
         _sForm.setLayoutData(_gd);
-        
+
         final Composite _lComp = new Composite(_sForm, SWT.NONE);
         _lComp.setLayout(new GridLayout(1, true));
-        
+
         final Label _lblLeft = new Label(_lComp, SWT.LEFT);
         _lblLeft.setText("Statement");
         _gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -186,7 +180,7 @@ public class DependenceTrackingView extends ViewPart {
         _gd.grabExcessHorizontalSpace = true;
         _lblLeft.setLayoutData(_gd);
         _lblLeft.setFont(parent.getFont());
-        
+
         tvLeft = new TreeViewer(_lComp, SWT.SINGLE | SWT.BORDER);
         _gd = new GridData(GridData.FILL_BOTH);
         _gd.horizontalSpan = 1;
@@ -194,11 +188,10 @@ public class DependenceTrackingView extends ViewPart {
         _gd.grabExcessVerticalSpace = true;
         tvLeft.getTree().setLayoutData(_gd);
         tvLeft.getTree().setFont(parent.getFont());
-        
-        
+
         final Composite _rComp = new Composite(_sForm, SWT.NONE);
         _rComp.setLayout(new GridLayout(1, true));
-        
+
         final Label _lblRight = new Label(_rComp, SWT.LEFT);
         _lblRight.setText("Dependence");
         _gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -206,252 +199,395 @@ public class DependenceTrackingView extends ViewPart {
         _gd.grabExcessHorizontalSpace = true;
         _lblRight.setLayoutData(_gd);
         _lblRight.setFont(parent.getFont());
-        
-        tvRight = new TreeViewer(_rComp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+
+        tvRight = new TreeViewer(_rComp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL
+                | SWT.H_SCROLL);
         _gd = new GridData(GridData.FILL_BOTH);
         _gd.horizontalSpan = 1;
         _gd.grabExcessHorizontalSpace = true;
         _gd.grabExcessVerticalSpace = true;
         tvRight.getTree().setLayoutData(_gd);
         tvRight.getTree().setFont(parent.getFont());
-        
-        
-        _sForm.setWeights(new int[] {4, 6});
+
+        _sForm.setWeights(new int[] { 4, 6 });
         final IToolBarManager _manager = getViewSite().getActionBars()
-        	.getToolBarManager();
-        fillToolBar(_manager);                
-                
-        
+                .getToolBarManager();
+        fillToolBar(_manager);
+
         tvLeft.setContentProvider(new DepTrkStmtLstContentProvider());
         tvLeft.setLabelProvider(new StandarLabelProvider());
         tvLeft.setInput(KaveriPlugin.getDefault().getIndusConfiguration()
                 .getStmtList());
         tvLeft.setAutoExpandLevel(1);
-                
+
         tvRight.setContentProvider(new DepTrkDepLstContentProvider());
         tvRight.setLabelProvider(new StandarLabelProvider());
         tvRight.setInput(dsd);
         hookListeners();
         createFilters();
-        hookFilters();
+        hookFiltersFwd();
+        hookFiltersBck();
+        createActions();
         createMenus();
         hookDoubleClickListeners();
     }
-        
+
+    /**
+     * Create any actions.
+     */
+    private void createActions() {
+        expandAll = new Action() {
+            public void run() {
+                tvRight.expandAll();
+            }
+        };
+        expandAll.setText("Expand All");
+
+        contractAll = new Action() {
+            public void run() {
+                tvRight.collapseAll();
+            }
+        };
+        contractAll.setText("Collapse All");
+    }
+
+    /**
+     * Create the dependee actions.
+     */
+    private void hookFiltersBck() {
+        controlFilterActionBck = new Action("Control") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(controlFilterBck);
+                } else {
+                    tvRight.addFilter(controlFilterBck);
+                }
+            }
+        };
+        controlFilterActionBck.setChecked(true);
+
+        dataFilterActionBck = new Action("Data") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(dataFilterBck);
+                } else {
+                    tvRight.addFilter(dataFilterBck);
+                }
+            }
+        };
+        dataFilterActionBck.setChecked(true);
+
+        interferenceFilterActionBck = new Action("Interference") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(interferenceFilterBck);
+                } else {
+                    tvRight.addFilter(interferenceFilterBck);
+                }
+            }
+        };
+        interferenceFilterActionBck.setChecked(true);
+
+        readyFilterActionBck = new Action("Ready") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(readyFilterBck);
+                } else {
+                    tvRight.addFilter(readyFilterBck);
+                }
+            }
+        };
+        readyFilterActionBck.setChecked(true);
+
+        synchFilterActionBck = new Action("Synchronization") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(synchFilterBck);
+                } else {
+                    tvRight.addFilter(synchFilterBck);
+                }
+            }
+        };
+        synchFilterActionBck.setChecked(true);
+
+        divergenceFilterActionBck = new Action("Divergence") {
+            public void run() {
+                if (this.isChecked()) {
+                    tvRight.removeFilter(divergenceFilterBck);
+                } else {
+                    tvRight.addFilter(divergenceFilterBck);
+                }
+            }
+        };
+        divergenceFilterActionBck.setChecked(true);
+
+    }
 
     /**
      * Handle double click in the right pane.
      */
     private void hookDoubleClickListeners() {
-        tvRight.addDoubleClickListener(
-                new IDoubleClickListener() {
+        tvRight.addDoubleClickListener(new IDoubleClickListener() {
 
-                    public void doubleClick(DoubleClickEvent event) {
-                        if (!(event.getSelection().isEmpty() && event.getSelection() instanceof IStructuredSelection)) {
-                            final IStructuredSelection _ssl = (IStructuredSelection) event.getSelection();
-                            if (_ssl.getFirstElement() instanceof RightPaneTreeObject) {
-                                final RightPaneTreeObject _rto = (RightPaneTreeObject) _ssl.getFirstElement();
-                                final SootMethod _sm =  _rto.getSm();
-                                if (_sm == null) return;
-                                final String _className = _sm.getDeclaringClass().getName();
-                                final int nLineNo = _rto.getLineNumber();
-                                final IFile _file = getFileContainingClass(_sm, dsd.getJavaFile());
-                                if (_file != null && nLineNo != -1) {
-                                   final ICompilationUnit _unit =
-                                       JavaCore.createCompilationUnitFrom(_file);
-                                   if (_unit != null) {
-                                       try {
-                                        final IType _types[] = _unit.getAllTypes();
-                                        for (int i = 0; i < _types.length; i++) {
-                                            final IType _type = _types[i];
-                                            if (_type.getFullyQualifiedName().equals(_className)) {
-                                                final IMethod _methods[] =  _type.getMethods();
-                                                for (int j = 0; j < _methods.length; j++) {
-                                                    final IMethod _method = (IMethod) _methods[j];
-                                                    if(SECommons.getProperMethodName(_method).equals(
-                                                            SECommons.getSearchPattern(_sm))) {
-                                                        final List _lst = SootConvertor.getStmtForLine(_file, _type, _method, nLineNo);
-                                                        final IEditorPart _part =JavaUI.openInEditor(_method);
-                                                        if (_part instanceof CompilationUnitEditor) {
-                                                            final CompilationUnitEditor _editor = (CompilationUnitEditor) _part;
-                                                            final IRegion _region =
-                                        						_editor.getDocumentProvider().getDocument(_editor.getEditorInput()).getLineInformation(nLineNo - 1);
-                                        					final String _text =
-                                        						_editor.getDocumentProvider().getDocument(_editor.getEditorInput()).get(_region.getOffset(),
-                                        							_region.getLength());
-                                        					final String _trimmedString = _text.trim();
-                                                            final PartialStmtData _psd = KaveriPlugin.getDefault().getIndusConfiguration().getStmtList();
-                                                            if (KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getHistory().size() == 0) {
-                                                                final DependenceStackData _dParent = new DependenceStackData();                                                                
-                                                                _dParent.setFile(_psd.getJavaFile());
-                                                                _dParent.setStatement(_psd.getSelectedStatement());
-                                                                _dParent.setLineNo(_psd.getLineNo());
-                                                                KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(new Pair(_dParent, "Starting Point"));
-                                                            }
-                                                            
-                                                            _psd.setClassName(_type.getFullyQualifiedName());
-                                                            _psd.setJavaFile(_file);
-                                                            _psd.setLineNo(nLineNo);
-                                                            _psd.setMethodName(PrettySignature.getMethodSignature(_method));
-                                                            _psd.setSelectedStatement(_trimmedString);
-                                                            _psd.setStmtList(_lst);
-                                                            _editor.selectAndReveal(_region.getOffset(), _region.getLength());
-                                                            final DependenceStackData _depS = new DependenceStackData();
-                                                            _depS.setStatement(_trimmedString);
-                                                            _depS.setFile(_file);
-                                                            _depS.setLineNo(nLineNo);
-                                                            final Pair _pair = new Pair(_depS, _rto.getParent().toString() + " " +
-                                                                    _rto.getParent().getParent().toString());
-                                                            KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
-                                                            
-                                                             
-                                                        }                                                        
-                                                                                                                                                                        
-                                                        break;  	
-                                                    }
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    } catch (JavaModelException e) {
-                                        SECommons.handleException(e);                                        
-                                    } catch (PartInitException e) {
-                                        SECommons.handleException(e);
-                                    } catch (BadLocationException e) {
-                                        SECommons.handleException(e);                                        
+            public void doubleClick(DoubleClickEvent event) {
+                if (!(event.getSelection().isEmpty() && event.getSelection() instanceof IStructuredSelection)) {
+                    final IStructuredSelection _ssl = (IStructuredSelection) event
+                            .getSelection();
+                    if (_ssl.getFirstElement() instanceof RightPaneTreeObject) {
+                        final RightPaneTreeObject _rto = (RightPaneTreeObject) _ssl
+                                .getFirstElement();
+                        final SootMethod _sm = _rto.getSm();
+                        if (_sm == null)
+                            return;
+                        final String _className = _sm.getDeclaringClass()
+                                .getName();
+                        final int nLineNo = _rto.getLineNumber();
+                        final IFile _file = SECommons.getFileContainingClass(
+                                _sm, dsd.getJavaFile());
+                        if (_file != null && nLineNo != -1) {
+                            final ICompilationUnit _unit = JavaCore
+                                    .createCompilationUnitFrom(_file);
+                            if (_unit != null) {
+                                final CompilationUnitEditor _editor;
+                                try {
+                                    _editor = (CompilationUnitEditor) JavaUI
+                                            .openInEditor(_unit);                                
+                                if (_editor != null) {
+                                    final IRegion _region = _editor
+                                            .getDocumentProvider().getDocument(
+                                                    _editor.getEditorInput())
+                                            .getLineInformation(nLineNo - 1);
+                                    final String _text = _editor
+                                            .getDocumentProvider().getDocument(
+                                                    _editor.getEditorInput())
+                                            .get(_region.getOffset(),
+                                                    _region.getLength());
+                                    final String _trimmedString = _text.trim();
+                                    PartialStmtData _psd = KaveriPlugin
+                                            .getDefault()
+                                            .getIndusConfiguration()
+                                            .getStmtList();
+                                    final DependenceHistoryData _dhd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
+                                    
+                                    final DependenceStackData _depS = new DependenceStackData(
+                                            _psd);
+                                    Pair _pair = null;
+                                    _editor.selectAndReveal(
+                                            _region.getOffset(), _region
+                                                    .getLength());
+                                    
+                                    if (_dhd.getSize() == 0) {
+                                        _pair = new Pair(_depS, "Starting Program Point");
+                                        KaveriPlugin.getDefault()
+                                        .getIndusConfiguration()
+                                        .setDepHistory(_pair);
+                                        
+                                    } else {
+                                        final DependenceStackData _dOlS = (DependenceStackData) _dhd.getCurrentItem().getFirst();
+                                        if (!_dOlS.equals(_depS)) {
+                                            _pair = new Pair(_depS, "Starting Program Point");
+                                            KaveriPlugin.getDefault()
+                                            .getIndusConfiguration()
+                                            .setDepHistory(_pair);
+                                        }                                            
                                     }
-                                   }
+                                    _psd = KaveriPlugin
+                                    .getDefault()
+                                    .getIndusConfiguration()
+                                    .getStmtList();
+                                    RightPaneTreeParent _rtp = _rto.getParent();
+                                    if (_rtp.getSm() !=  null) {
+                                        _rtp = _rtp.getParent();
+                                    }
+                                    String _depLink = _rtp.toString() + " ";
+                                    if (_rtp.getParent().toString().equals("Dependents")) {
+                                        _depLink += "Dependent";
+                                    } else if (_rtp.getParent().toString().equals("Dependees")) {
+                                        _depLink += "Dependee";
+                                    }
+                                    final DependenceStackData _dCurr = new DependenceStackData(_psd);
+                                    _pair = new Pair(_dCurr, _depLink);
+                                    KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
+                                                                                                                                                                                                                       
                                 }
+                                
+                                } catch (PartInitException e) {
+                                    KaveriErrorLog.logException("Par Init Exception", e);
+                                  SECommons.handleException(e);
+                                } catch (JavaModelException e) {
+                                    KaveriErrorLog.logException("Java Model Exception", e);
+                                    SECommons.handleException(e);
+                                } catch (BadLocationException e) {
+                                    KaveriErrorLog.logException("Bad Location Exception", e);
+                                    SECommons.handleException(e);
+                                }
+
                             }
                         }
-                        
                     }
-                    
                 }
-                );
-        
+
+            }
+
+        });
+
     }
 
     /**
      * Create the filters.
      */
     private void createFilters() {
-        controlFilter = new ControlFilter();
-        dataFilter = new DataFilter();
-        interferenceFilter = new InterferenceFilter();
-        readyFilter = new ReadyFilter();
-        divergenceFilter = new DivergenceFilter();
+        controlFilterFwd = new MainFilter("Control", true);
+        controlFilterBck = new MainFilter("Control", false);
+
+        dataFilterFwd = new MainFilter("Data", true);
+        dataFilterBck = new MainFilter("Data", false);
+
+        interferenceFilterFwd = new MainFilter("Interference", true);
+        interferenceFilterBck = new MainFilter("Interference", false);
+
+        readyFilterFwd = new MainFilter("Ready", true);
+        readyFilterBck = new MainFilter("Ready", false);
+
+        divergenceFilterFwd = new MainFilter("Divergence", true);
+        divergenceFilterBck = new MainFilter("Divergence", false);
+
+        synchFilterFwd = new MainFilter("Synchronization", true);
+        synchFilterBck = new MainFilter("Synchronization", false);
     }
 
     /**
      * Add the filters,
      */
-    private void hookFilters() {
-        controlFilterAction = new Action("Control") {
+    private void hookFiltersFwd() {
+        controlFilterActionFwd = new Action("Control") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(controlFilter);
+                    tvRight.removeFilter(controlFilterFwd);
                 } else {
-                    tvRight.addFilter(controlFilter);
+                    tvRight.addFilter(controlFilterFwd);
                 }
             }
         };
-        controlFilterAction.setChecked(true);       
+        controlFilterActionFwd.setChecked(true);
 
-        dataFilterAction = new Action("Data") {
+        dataFilterActionFwd = new Action("Data") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(dataFilter);
+                    tvRight.removeFilter(dataFilterFwd);
                 } else {
-                    tvRight.addFilter(dataFilter);
+                    tvRight.addFilter(dataFilterFwd);
                 }
             }
         };
-        dataFilterAction.setChecked(true);
+        dataFilterActionFwd.setChecked(true);
 
-        
-        interferenceFilterAction = new Action("Interference") {
+        interferenceFilterActionFwd = new Action("Interference") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(interferenceFilter);
+                    tvRight.removeFilter(interferenceFilterFwd);
                 } else {
-                    tvRight.addFilter(interferenceFilter);
+                    tvRight.addFilter(interferenceFilterFwd);
                 }
             }
         };
-        interferenceFilterAction.setChecked(true);
+        interferenceFilterActionFwd.setChecked(true);
 
-        
-        readyFilterAction = new Action("Ready") {
+        readyFilterActionFwd = new Action("Ready") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(readyFilter);
+                    tvRight.removeFilter(readyFilterFwd);
                 } else {
-                    tvRight.addFilter(readyFilter);
+                    tvRight.addFilter(readyFilterFwd);
                 }
             }
         };
-        readyFilterAction.setChecked(true);
+        readyFilterActionFwd.setChecked(true);
 
-        
-        synchFilterAction = new Action("Synchronization") {
+        synchFilterActionFwd = new Action("Synchronization") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(synchFilter);
+                    tvRight.removeFilter(synchFilterFwd);
                 } else {
-                    tvRight.addFilter(synchFilter);
+                    tvRight.addFilter(synchFilterFwd);
                 }
             }
         };
-        synchFilterAction.setChecked(true);
-        
-        divergenceFilterAction = new Action("Divergence") {
+        synchFilterActionFwd.setChecked(true);
+
+        divergenceFilterActionFwd = new Action("Divergence") {
             public void run() {
                 if (this.isChecked()) {
-                    tvRight.removeFilter(divergenceFilter);
+                    tvRight.removeFilter(divergenceFilterFwd);
                 } else {
-                    tvRight.addFilter(divergenceFilter);
+                    tvRight.addFilter(divergenceFilterFwd);
                 }
             }
         };
-        divergenceFilterAction.setChecked(true);
+        divergenceFilterActionFwd.setChecked(true);
 
-
-        
     }
 
     /**
      * Create the filter menus.
-     *
+     *  
      */
-	private void createMenus() {
-		final IMenuManager _mainMnuManager = getViewSite().getActionBars().getMenuManager();
-		_mainMnuManager.setRemoveAllWhenShown(true);
-		_mainMnuManager.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager mgr) {
-				fillMenu(mgr);
-			}
-		});
-		fillMenu(_mainMnuManager);
-	}
+    private void createMenus() {
+        final IMenuManager _mainMnuManager = getViewSite().getActionBars()
+                .getMenuManager();
+        _mainMnuManager.setRemoveAllWhenShown(true);
+        _mainMnuManager.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager mgr) {
+                fillMainMenu(mgr);
+            }
+        });
+        fillMainMenu(_mainMnuManager);
 
+        final MenuManager _popMenuMangager = new MenuManager("#Popup");
+        _popMenuMangager.setRemoveAllWhenShown(true);
+        _popMenuMangager.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager) {
+                manager.add(expandAll);
+                manager.add(contractAll);
+                manager.add(new Separator(
+                        IWorkbenchActionConstants.MB_ADDITIONS));
+            }
 
-	/**
-	 * Fill the menu.
-	 * @param mnuMainMenu
-	 */
-	protected void fillMenu(IMenuManager mnuMainMenu) {
-		final IMenuManager _filterMenu = new MenuManager("Filters");
-		mnuMainMenu.add(_filterMenu);
-		_filterMenu.add(controlFilterAction);
-		_filterMenu.add(dataFilterAction);
-		_filterMenu.add(interferenceFilterAction);
-		_filterMenu.add(divergenceFilterAction);
-		_filterMenu.add(readyFilterAction);
-		_filterMenu.add(synchFilterAction);
-		
-	}
-	
+        });
+        final Menu _mnu = _popMenuMangager.createContextMenu(tvRight
+                .getControl());
+        tvRight.getControl().setMenu(_mnu);
+    }
+
+    /**
+     * Fill the menu.
+     * 
+     * @param mnuMainMenu
+     */
+    protected void fillMainMenu(IMenuManager mnuMainMenu) {
+        final IMenuManager _filterMenu = new MenuManager("Filters");
+        mnuMainMenu.add(_filterMenu);
+
+        final IMenuManager _dependeeMenu = new MenuManager("Dependees");
+        final IMenuManager _dependentsMenu = new MenuManager("Dependents");
+        _filterMenu.add(_dependeeMenu);
+        _filterMenu.add(_dependentsMenu);
+
+        _dependeeMenu.add(controlFilterActionBck);
+        _dependeeMenu.add(dataFilterActionBck);
+        _dependeeMenu.add(interferenceFilterActionBck);
+        _dependeeMenu.add(divergenceFilterActionBck);
+        _dependeeMenu.add(readyFilterActionBck);
+        _dependeeMenu.add(synchFilterActionBck);
+
+        _dependentsMenu.add(controlFilterActionFwd);
+        _dependentsMenu.add(dataFilterActionFwd);
+        _dependentsMenu.add(interferenceFilterActionFwd);
+        _dependentsMenu.add(divergenceFilterActionFwd);
+        _dependentsMenu.add(readyFilterActionFwd);
+        _dependentsMenu.add(synchFilterActionFwd);
+
+    }
 
     /**
      * Add listeners to user actions.
@@ -461,101 +597,77 @@ public class DependenceTrackingView extends ViewPart {
 
             public void selectionChanged(SelectionChangedEvent event) {
                 if (!(event.getSelection().isEmpty() && event.getSelection() instanceof IStructuredSelection)) {
-                    final IStructuredSelection _ss = (IStructuredSelection) event.getSelection();
+                    final IStructuredSelection _ss = (IStructuredSelection) event
+                            .getSelection();
                     if (_ss.getFirstElement() instanceof LeftPaneTreeParent) {
-                        final LeftPaneTreeParent _tp = (LeftPaneTreeParent) _ss.getFirstElement();
-                        dsd.setupData(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList(), -1);
+                        final LeftPaneTreeParent _tp = (LeftPaneTreeParent) _ss
+                                .getFirstElement();
+                        dsd.setupData(KaveriPlugin.getDefault()
+                                .getIndusConfiguration().getStmtList(), -1);
                     } else if (_ss.getFirstElement() instanceof LeftPaneTreeObject) {
-                        final LeftPaneTreeObject _to = (LeftPaneTreeObject) _ss.getFirstElement();
-                        dsd.setupData(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList(),  _to.getJimpleIndex());
+                        final LeftPaneTreeObject _to = (LeftPaneTreeObject) _ss
+                                .getFirstElement();
+                        dsd.setupData(KaveriPlugin.getDefault()
+                                .getIndusConfiguration().getStmtList(), _to
+                                .getJimpleIndex());
                     }
                 }
-                
+
             }
-            
+
         });
-        
+
     }
 
     /**
      * Fill the toolbar.
-     * @param manager The Toolbar manager.
+     * 
+     * @param manager
+     *            The Toolbar manager.
      */
     private void fillToolBar(IToolBarManager _manager) {
         final Action _changeView = new Action() {
-          public void run() {
-              if (isActive) {
-                  isActive = false;
-                  final ImageDescriptor _desc = AbstractUIPlugin
-                  .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                          "data/icons/trackView.gif");
-                  this.setImageDescriptor(_desc);
-                  ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider()).setActive(isActive);
-              } else {
-                  isActive = true;                  
-                  final ImageDescriptor _desc = AbstractUIPlugin
-                  .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                          "data/icons/trackViewAct.gif");
-                  this.setImageDescriptor(_desc);
-                  ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider()).setActive(isActive);
-                  tvLeft.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
-              }
-          }
+            public void run() {
+                if (isActive) {
+                    isActive = false;
+                    final ImageDescriptor _desc = AbstractUIPlugin
+                            .imageDescriptorFromPlugin(
+                                    "edu.ksu.cis.indus.kaveri",
+                                    "data/icons/trackView.gif");
+                    this.setImageDescriptor(_desc);
+                    this.setToolTipText("Track Java Statements (Inactive)");
+                    ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider())
+                            .setActive(isActive);
+                } else {
+                    isActive = true;
+                    final ImageDescriptor _desc = AbstractUIPlugin
+                            .imageDescriptorFromPlugin(
+                                    "edu.ksu.cis.indus.kaveri",
+                                    "data/icons/trackViewAct.gif");
+                    this.setImageDescriptor(_desc);
+                    this.setToolTipText("Track Java Statements (Active)");
+                    ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider())
+                            .setActive(isActive);
+                    tvLeft.setInput(KaveriPlugin.getDefault()
+                            .getIndusConfiguration().getStmtList());
+                }
+            }
         };
-        
-        _changeView.setToolTipText("Change the view");        
+
+        _changeView.setToolTipText("Track Java Statements (Inactive)");
         final ImageDescriptor _desc = AbstractUIPlugin
-        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                "data/icons/trackView.gif");
+                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                        "data/icons/trackView.gif");
         _changeView.setImageDescriptor(_desc);
         _manager.add(_changeView);
     }
-    
-    /**
-     * Returns the Java file containing the method whose soot equivalent 
-     * is sootMethod
-     * TODO Add fix for multiple projects.
-     * @param sootMethod
-     * @param sampleFile A Java file from the project. Used to obtain the project.
-     * @return IFile The file containing the given method, or null if no such file is present.
-     */
-    private IFile getFileContainingClass(SootMethod sootMethod, final IFile sampleFile) {
-       IFile _file = null;       
-       
-       final IProject _project = sampleFile.getProject();
-       final IJavaProject _jProject = JavaCore.create(_project);
-       final Object _mapVal = classNameToFileMap.get(sootMethod.getDeclaringClass().getName());
-       if (_mapVal != null) {
-           _file = (IFile) _mapVal;
-       } else {
-           final List _fileList = SECommons.processForFiles(_jProject);
-           for (Iterator iter = _fileList.iterator(); iter.hasNext();) {
-            final IFile _jfile = (IFile) iter.next();
-            final List _classNameList = SECommons.getClassesInFile(_jfile);
-            for (Iterator iterator = _classNameList.iterator(); iterator
-                    .hasNext();) {
-               final String _className = (String) iterator.next();
-               if (_className.equals(sootMethod.getDeclaringClass().getName())) {
-                   _file = _jfile;
-                   classNameToFileMap.put(sootMethod.getDeclaringClass().getName(), _file);
-               } else {
-                   classNameToFileMap.put(_className, _jfile);
-               }
-                
-            }
-           }           
-       }
-       
-       
-       return _file;
-    }
 
-    /** 
+    /**
      * 
      * @see org.eclipse.ui.IWorkbenchPart#setFocus()
      */
     public void setFocus() {
-       tvLeft.getControl().setFocus();
+        tvLeft.getControl().setFocus();
 
     }
 

@@ -59,6 +59,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import soot.jimple.Stmt;
 import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
@@ -175,7 +176,7 @@ public class PartialSliceView extends ViewPart  {
                         && _crt.getStrMethodName().equals(_methodName)
                         && _crt.getNLineNo() == _nLineno) {
                     // Found a criteria at the given point, hooray!
-                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()), new Boolean(_crt.isBConsiderValue()));
+                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()), Boolean.valueOf(_crt.isBConsiderValue()));
 
                 }
             }
@@ -203,6 +204,7 @@ public class PartialSliceView extends ViewPart  {
                     _data = (CriteriaData) _xstream.fromXML(_propVal);
                 }
             } catch (CoreException _ce) {
+                KaveriErrorLog.logException("Core Exception Exception", _ce);
                 return null;
             }
             return _data;
@@ -456,6 +458,7 @@ public class PartialSliceView extends ViewPart  {
                                     "edu.ksu.cis.indus.kaveri",
                                     "data/icons/trackView.gif");
                     this.setImageDescriptor(_desc);
+                    this.setToolTipText("Track Java Statements (Inactive)");
                 } else {
                     final ImageDescriptor _desc = AbstractUIPlugin
                             .imageDescriptorFromPlugin(
@@ -463,12 +466,13 @@ public class PartialSliceView extends ViewPart  {
                                     "data/icons/trackViewAct.gif");
                     this.setImageDescriptor(_desc);
                     isReady = true;
+                    this.setToolTipText("Track Java Statements (Active)");
                     viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
                 }
             }
         };
 
-        _actionLoad.setToolTipText("Load Java file");
+        _actionLoad.setToolTipText("Track Java Statements (Inactive)");
         final ImageDescriptor _desc = AbstractUIPlugin
                 .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
                         "data/icons/trackView.gif");
@@ -608,6 +612,7 @@ public class PartialSliceView extends ViewPart  {
             _resource.setPersistentProperty(_name, _xml);
         } catch (CoreException _e) {
             SECommons.handleException(_e);
+            KaveriErrorLog.logException("Core Exception", _e);
         }
        
         
@@ -649,6 +654,7 @@ public class PartialSliceView extends ViewPart  {
             final String _xml = _xstream.toXML(_data);
             _resource.setPersistentProperty(_name, _xml);
         } catch (CoreException _e) {
+            KaveriErrorLog.logException("Core Exception", _e);
             SECommons.handleException(_e);
         }
     }

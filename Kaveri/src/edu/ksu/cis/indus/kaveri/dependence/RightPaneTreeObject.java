@@ -15,7 +15,6 @@
  
 package edu.ksu.cis.indus.kaveri.dependence;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 
 import soot.SootMethod;
@@ -33,7 +32,7 @@ public class RightPaneTreeObject implements IAdaptable {
 
     private String statement;
 
-    private IFile file;
+    
 
     /*
      * The soot method this object represents.
@@ -62,20 +61,7 @@ public class RightPaneTreeObject implements IAdaptable {
         return null;
     }
 
-    /**
-     * @return Returns the file.
-     */
-    public IFile getFile() {
-        return file;
-    }
 
-    /**
-     * @param file
-     *            The file to set.
-     */
-    public void setFile(IFile file) {
-        this.file = file;
-    }
 
     /**
      * @return Returns the lineNumber.

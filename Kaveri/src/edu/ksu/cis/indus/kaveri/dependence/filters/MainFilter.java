@@ -23,21 +23,35 @@ import edu.ksu.cis.indus.kaveri.dependence.RightPaneTreeParent;
 /**
  * @author ganeshan
  *
- * Filter the control dependence.
+ * The abstract Filter class
  */
-public class SynchronizationFilter extends ViewerFilter {
-
+public class MainFilter extends ViewerFilter {
+    protected boolean bForwardDirection;
+    protected String dependencyToTrack;
+    
+    /**
+     * Constructor
+     * @param dependencyToTrack The type of dependency to track
+     * @fwdDirection The direction of the dependency to filter. 
+     * True for dependents,False for Dependees.
+     */
+    public MainFilter(String dependencyToTrack, final boolean fwdDirection) {
+        this.dependencyToTrack = dependencyToTrack;
+        this.bForwardDirection = fwdDirection;
+    }
+    
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.ViewerFilter#select(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
      */
     public boolean select(Viewer viewer, Object parentElement, Object element) {
         if (parentElement instanceof RightPaneTreeParent) {
             final RightPaneTreeParent _rtp = (RightPaneTreeParent) parentElement;
-            if (_rtp.getStatement().equals("Dependees") || _rtp.getStatement().equals("Dependents")) {
-                if (element instanceof RightPaneTreeParent && ((RightPaneTreeParent) element).getStatement().equals("Synchronization")) {
+            if ((bForwardDirection && _rtp.getStatement().equals("Dependents")) || 
+                    (!bForwardDirection && _rtp.getStatement().equals("Dependees"))) {
+                if (element instanceof RightPaneTreeParent && ((RightPaneTreeParent) element).getStatement().equals(dependencyToTrack)) {
                     return false;
-                }
-            }            
+                }  
+            } 
         }
         return true;
     }

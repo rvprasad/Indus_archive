@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.kaveri.editorcontextmenu;
 
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.presentation.TagToAnnotationMapper;
@@ -111,6 +112,7 @@ public class PartialSlice
 					
 				}
 			} catch (JavaModelException _e) {
+			    KaveriErrorLog.logException("Java Model Exception", _e);
 				SECommons.handleException(_e);
 			}
 		}
@@ -162,13 +164,14 @@ public class PartialSlice
 				final String _text = _tselection.getText();
 				KaveriPlugin.getDefault().getIndusConfiguration().
 					setSelectedStatement(_text + " line: " + (_tselection.getEndLine()+1));
-				final List _storeLst = new ArrayList();
+				
 				final int _noStmts = _stmtlist.size() - 2;				
 				if (_noStmts >= 1) {
 					setupStmts(_stmtlist);
 				}
 			}
 		} catch (NullPointerException _ie) {
+		    KaveriErrorLog.logException("Null Pointer Exception", _ie);
 			SECommons.handleException(_ie);
 		}
 	}

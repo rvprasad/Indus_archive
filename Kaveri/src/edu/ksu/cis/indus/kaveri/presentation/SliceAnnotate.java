@@ -20,6 +20,8 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
+
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
@@ -94,6 +96,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                     _file.deleteMarkers("edu.ksu.cis.indus.kaveri.cimarker",
                             false, IResource.DEPTH_INFINITE);
                 } catch (CoreException _ce) {
+                    KaveriErrorLog.logException("Error deleting markers", _ce);
                 }
                 final Map _map = KaveriPlugin.getDefault().getCacheMap();
 
@@ -150,6 +153,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                         }
                     }
                 } catch (JavaModelException _jme) {
+                    KaveriErrorLog.logException("Java Model Exception", _jme);
                     SECommons.handleException(_jme);
                 }
                 return _result;
@@ -226,6 +230,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                         editor.getEditorInput()).get(_region.getOffset(),
                         _region.getLength());
             } catch (BadLocationException _ble) {
+                KaveriErrorLog.logException("Bad Location Exception", _ble);
                 SECommons.handleException(_ble);
                 return;
             }
@@ -243,16 +248,18 @@ public class SliceAnnotate implements IEditorActionDelegate {
 
                     if (_stmtlist != null && _stmtlist.size() >= 3) {
                         final PartialStmtData _psd = KaveriPlugin.getDefault()
-                                .getIndusConfiguration().getStmtList();
+                                .getIndusConfiguration().getStmtList();                       
+                        
                         _psd.setJavaFile(_file);
                         _psd.setSelectedStatement(_text);
                         _psd.setClassName(PrettySignature.getSignature(_type));
                         _psd.setMethodName(PrettySignature.getSignature((IMethod) _element));
                         _psd.setLineNo(_nSelLine);
-                        _psd.setStmtList(_stmtlist);                        
+                        _psd.setStmtList(_stmtlist);                                
                     }
                 }
             } catch (JavaModelException e) {
+                KaveriErrorLog.logException("Java Model Exception", e);
                 SECommons.handleException(e);
             }
 

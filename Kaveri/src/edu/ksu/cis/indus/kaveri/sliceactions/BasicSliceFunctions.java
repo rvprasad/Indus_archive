@@ -21,7 +21,6 @@
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,6 +48,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IFileEditorInput;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog;
@@ -94,7 +94,8 @@ abstract public class BasicSliceFunctions {
 					if (_resource != null && _resource.getType() == IResource.FILE) {
 						_jproject = JavaCore.create(_resource.getProject());
 					}					
-				} catch (JavaModelException _e) {					
+				} catch (JavaModelException _e) {
+				    KaveriErrorLog.logException("Java Model Exception", _e);
 					SECommons.handleException(_e);
 					return null;
 				}
@@ -145,8 +146,7 @@ abstract public class BasicSliceFunctions {
 				final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
 				final List _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
 
-				if (_stmtlist != null && _stmtlist.size() >= 3) {
-					final List _storeLst = new ArrayList();
+				if (_stmtlist != null && _stmtlist.size() >= 3) {					
 
 					// Format: Classname: qualified signature, method: signature, line no
 					final int _noStmts = _stmtlist.size() - 2;
@@ -170,7 +170,8 @@ abstract public class BasicSliceFunctions {
 
 					final Display _display = Display.getCurrent();
 					final Shell _shell = new Shell();
-
+										
+					
 					final SliceProgressBar _dialog = new SliceProgressBar(_shell);
 					final IndusRunner _runner = new IndusRunner(_lst, _dialog);
 					_runner.setEditor(editor);
@@ -181,11 +182,16 @@ abstract public class BasicSliceFunctions {
 
 					try {						
 						_dialog.run(true, true, _runner);
+						
 					} catch (InvocationTargetException _ie) {
+					    KaveriErrorLog.logException("Invocation Target Exception", _ie);
 						SECommons.handleException(_ie);
 					} catch (InterruptedException _ie) {
+					    KaveriErrorLog.logException("Interrupted Exception", _ie);
 						SECommons.handleException(_ie);
 					}
+					
+					
 				}
 			}
 		} catch (JavaModelException _jme) {

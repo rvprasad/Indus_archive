@@ -20,6 +20,7 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 
@@ -28,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -287,6 +289,7 @@ public class AddIndusAnnotation {
 						_lst.add(_data);
 					}
 				} catch (BadLocationException _e) {
+				    KaveriErrorLog.logException("Bad Location Exception", _e);
 					SECommons.handleException(_e);
 					continue;
 				}
@@ -306,17 +309,18 @@ public class AddIndusAnnotation {
 	 */
 	private List filterLines(final Map lineMap) {
 		final List _lst = new LinkedList();
-		final Iterator _it = lineMap.keySet().iterator();
-		while (_it.hasNext()) {
-			final String _className = (String) _it.next();
-			final Map _methodMap = (Map) lineMap.get(_className);
-			final Map _mMap = (Map) lineMap.get(_className);
+		final Set _set = lineMap.entrySet();
+		for (Iterator iter = _set.iterator(); iter.hasNext();) {
+            final Map.Entry _entry = (Map.Entry) iter.next();
+            final String _className = (String) _entry.getKey();
+            final Map _methodMap = (Map) lineMap.get(_className);
+            final Map _mMap = (Map) lineMap.get(_className);
 			final Iterator _mIt = _mMap.values().iterator();
 			while (_mIt.hasNext()) {
 				final List _annonList = (List) _mIt.next();
 				_lst.addAll(_annonList);
 			}
-		}		
+        }
 		return _lst;
 	}
 
@@ -401,6 +405,7 @@ public class AddIndusAnnotation {
 					}
 				}
 			} catch (JavaModelException _e) {
+			    KaveriErrorLog.logException("Java Model Exception", _e);
 				SECommons.handleException(_e);
 			}
 		}

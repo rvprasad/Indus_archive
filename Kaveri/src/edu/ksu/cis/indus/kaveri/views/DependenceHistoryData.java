@@ -22,9 +22,9 @@ package edu.ksu.cis.indus.kaveri.views;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.datastructures.HistoryTracker;
 
 
 /**
@@ -38,7 +38,7 @@ public class DependenceHistoryData {
 	/**
 	 * The list of Jimple statements.
 	 */
-	private Stack dependenceHistory;
+	private HistoryTracker dependenceHistory;
 	
 	/**
 	 * The link between stack history elements.
@@ -57,21 +57,16 @@ public class DependenceHistoryData {
 	 */
 	public DependenceHistoryData() {
 		listeners = new ArrayList();
-		dependenceHistory =  new Stack();
+		dependenceHistory =  new HistoryTracker();
 		elemHistoryLink = "";
 	}
-	/**
-	 * @return Returns the stmtList.
-	 */
-	public Stack getHistory() {
-		return dependenceHistory;
-	}
+	
 	/**
 	 * @param history The current history.
 	 */
 	public void addHistory(final Pair history) {
-		dependenceHistory.add(history);		
-		if (! dependenceHistory.isEmpty()) {
+		dependenceHistory.addHistoryItem(history);		
+		if (! listeners.isEmpty()) {
 			for (int _i = 0; _i < listeners.size(); _i++) {
 				((IDeltaListener) listeners.get(_i)).propertyChanged();
 			}	
@@ -92,24 +87,12 @@ public class DependenceHistoryData {
 	 *
 	 */
 	public void reset() {
-	 dependenceHistory.clear();
+	 dependenceHistory.reset();
 	 for (int _i = 0; _i < listeners.size(); _i++) {
 		((IDeltaListener) listeners.get(_i)).propertyChanged();
 	 }	
 	}
-	
-	/** Pop a history item
-	 * 	 
-	 */
-	public void pop()
-	{
-		if (dependenceHistory.size() > 0) {
-			dependenceHistory.pop();
-			for (int _i = 0; _i < listeners.size(); _i++) {
-				((IDeltaListener) listeners.get(_i)).propertyChanged();
-			 }	
-		}		
-	}
+		
 	
 	/**
 	 * Removes the listener.
@@ -118,17 +101,93 @@ public class DependenceHistoryData {
 	 */
 	public void removeListener(final IDeltaListener listener) {
 		listeners.remove(listener);
-	}
+	}	
+	
 	/**
-	 * @return Returns the elemHistoryLink.
+	 * Get the current items.
+	 * @return List The list of history items.
 	 */
-	public String getElemHistoryLink() {
-		return elemHistoryLink;
+	public List getContents() {
+	   return dependenceHistory.getCurrentItemsStack();
 	}
+	
 	/**
-	 * @param elemHistoryLink The elemHistoryLink to set.
+	 * Get the current item.
+	 *
 	 */
-	public void setElemHistoryLink(String elemHistoryLink) {
-		this.elemHistoryLink = elemHistoryLink;
+	public  Pair getCurrentItem() {
+	    return (Pair) dependenceHistory.getCurrentItem();
 	}
+	
+	/**
+	 * Move forward.
+	 *
+	 */
+	public void navigateForward() {
+	    dependenceHistory.moveForward();
+	    if (! listeners.isEmpty()) {
+			for (int _i = 0; _i < listeners.size(); _i++) {
+				((IDeltaListener) listeners.get(_i)).propertyChanged();
+			}	
+		}
+	}
+	
+	/**
+	 * Indicates if backward navigation is possible.
+	 *
+	 */	
+	public boolean isBackNavPossible() {
+	    return dependenceHistory.isBackNavigationPossible();
+	}
+	
+	
+	/**
+	 * 
+	 * Indicates if forward navigation is possible.
+	 */
+	public boolean isFwdNavPossible() {
+	    return dependenceHistory.isForwardNavigationPossible();
+	}
+	
+	/**
+	 * Get the size of the history.
+	 * @return int The size
+	 */
+	public int getSize() {
+	    return dependenceHistory.getCurrentSize();
+	}
+	
+	/**
+	 * Move back.
+	 *
+	 */
+	public void navigateBack() {
+	    dependenceHistory.moveBack();
+	    if (! listeners.isEmpty()) {
+			for (int _i = 0; _i < listeners.size(); _i++) {
+				((IDeltaListener) listeners.get(_i)).propertyChanged();
+			}	
+		}
+	}
+
+    /**
+     * Navigate to this item.
+     * @param toIndex
+     */
+    public void navigateTo(int toIndex) {        
+        if (toIndex > -1 && toIndex <= dependenceHistory.getCurrentSize()) {
+            final int _moveCount = dependenceHistory.getCurrentSize() - toIndex -1;
+            if (_moveCount > 0) {
+                for (int _ctr = 0; _ctr < _moveCount; _ctr++) {
+                    dependenceHistory.moveBack();                    
+                }
+                if (! listeners.isEmpty()) {
+        			for (int _i = 0; _i < listeners.size(); _i++) {
+        				((IDeltaListener) listeners.get(_i)).propertyChanged();
+        			}	
+        		}       
+            }
+        }
+    }
+  
 }

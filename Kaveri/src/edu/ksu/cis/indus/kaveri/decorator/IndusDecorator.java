@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.kaveri.presentation.TagToAnnotationMapper;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -136,16 +137,17 @@ public class IndusDecorator
 				}
 			}
 			final Map _map = TagToAnnotationMapper.getAnnotationLinesForFile(_file);
-			if (_map.size() > 0) {
-				final Iterator _it = _map.keySet().iterator();
-				while (_it.hasNext()) {
-					final Object _key = _it.next();
-					final Map _value = (Map) _map.get(_key);
-					if (_value.size() > 0) {
-						decorateMap.put(_key, _value);
+			if (_map.size() > 0) {			    
+			    final Set _entrySet = _map.entrySet();
+			    for (Iterator iter = _entrySet.iterator(); iter.hasNext();) {
+                    final Map.Entry _entry = (Map.Entry) iter.next();
+                    final Map _value = (Map) _entry.getValue();
+                	if (_value.size() > 0) {
+						decorateMap.put(_entry.getKey(), _value);
 						_isFileOk = true;
-					}					
-				}				
+					}    
+                }																								
+								
 			}
 		}
 		return _isFileOk;

@@ -20,6 +20,7 @@
 package edu.ksu.cis.indus.kaveri.soot;
 
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.Messages;
 
@@ -161,6 +162,7 @@ public final class SootConvertor {
                 _sootclass = _scene.loadClassAndSupport(theclass
                         .getFullyQualifiedName());
             } catch (RuntimeException _rme) {
+                KaveriErrorLog.logException("Unable to load soot class", _rme);
                 SECommons.handleException(_rme);
             }
 
@@ -321,6 +323,7 @@ public final class SootConvertor {
             // Need to catch this to have a proper
             // method mapping. Would be better if soot
             // threw a user defined exception
+            
             if (_ame.getMessage().equals(Messages.getString("SootConvertor.7"))) {
                 _method = getCorrSootMethod(themethod, sootclass);
             }

@@ -21,6 +21,7 @@
  */
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
@@ -91,8 +92,10 @@ public class RunIndus
 			try {
 				_dialog.run(true, true, _runner);
 			} catch (InvocationTargetException _ie) {
+			    KaveriErrorLog.logException("Invocation Target Exception", _ie);
 				SECommons.handleException(_ie);
 			} catch (InterruptedException _ie) {
+			    KaveriErrorLog.logException("Interrupted Exception", _ie);
 				SECommons.handleException(_ie);
 			}
 		}

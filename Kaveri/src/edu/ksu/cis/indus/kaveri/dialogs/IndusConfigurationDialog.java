@@ -22,6 +22,8 @@ package edu.ksu.cis.indus.kaveri.dialogs;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -32,8 +34,6 @@ import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
-import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
-import edu.ksu.cis.indus.kaveri.preferencedata.ViewData;
 import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
 
 import edu.ksu.cis.indus.tools.IToolConfiguration;
@@ -51,11 +51,17 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -94,6 +100,11 @@ public class IndusConfigurationDialog extends Dialog {
      * View combo box.
      */
     private Combo viewCombo;
+    
+    /**
+     * Viewer for the criteria.
+     */
+    private CheckboxTableViewer viewer;
 
     /**
      * The Java project to which the file belongs.
@@ -105,6 +116,57 @@ public class IndusConfigurationDialog extends Dialog {
      */
     private Table criteriaTable;
 
+    
+    class ViewContentProvider implements IStructuredContentProvider {
+    	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+    	    
+    	}
+    	public void dispose() {
+    	}
+    	public Object[] getElements(Object parent) {
+    	    IResource _resource;
+    	    final List _retList = new LinkedList();
+            final XStream _xstream = new XStream(new DomDriver());
+            _xstream
+                    .alias(
+                            Messages.getString("IndusConfigurationDialog.17"), CriteriaData.class); //$NON-NLS-1$
+
+            try {
+                _resource = project.getCorrespondingResource();
+
+                final QualifiedName _name = new QualifiedName(Messages
+                        .getString("IndusConfigurationDialog.18"), Messages
+                        .getString("IndusConfigurationDialog.19"));
+
+                try {
+                    //				_resource.setPersistentProperty(_name, null); // Knocks out
+                    // the stuff
+                    final String _propVal = _resource.getPersistentProperty(_name);
+
+                    if (_propVal != null) {
+                        final CriteriaData _data = (CriteriaData) _xstream
+                                .fromXML(_propVal);
+                        final java.util.List _lst = _data.getCriterias();
+                        
+                        for (int _i = 0; _i < _lst.size(); _i++) {
+                            final Criteria _c = (Criteria) _lst.get(_i);                            
+                         _retList.add(_c);
+                        }                                              
+                    }
+                } catch (CannotResolveClassException _crce) {
+                    SECommons.handleException(_crce);
+                } catch (CoreException _e) {
+                    SECommons.handleException(_e);
+                }
+            } catch (JavaModelException _e1) {
+                SECommons.handleException(_e1);
+            }
+            return _retList.toArray();
+        }
+
+    	}    
+    
+    
     /**
      * The constructor.
      * 
@@ -169,6 +231,7 @@ public class IndusConfigurationDialog extends Dialog {
         confCombo.setLayoutData(_gdata);
         initializeConfigs(confCombo);
 
+        /*
         final Label _viewLabel = new Label(_composite, SWT.NONE);
         _viewLabel.setText(Messages.getString("IndusConfigurationDialog.2")); //$NON-NLS-1$
         _gdata = new GridData();
@@ -180,11 +243,11 @@ public class IndusConfigurationDialog extends Dialog {
         _gdata.grabExcessHorizontalSpace = true;
         viewCombo.setLayoutData(_gdata);
         initializeViews(viewCombo);
-
+        */
         additive = new Button(_composite, SWT.CHECK);
         additive.setText("Additive slice display");
         _gdata = new GridData();
-        _gdata.horizontalSpan = 1;
+        _gdata.horizontalSpan = 3;
         additive.setLayoutData(_gdata);
         initializeAdditive();
 
@@ -194,10 +257,11 @@ public class IndusConfigurationDialog extends Dialog {
         _gl.numColumns = 1;
         _group.setLayout(_gl);
 
+        viewer = CheckboxTableViewer.newCheckList(_group, SWT.BORDER | SWT.V_SCROLL | SWT.FULL_SELECTION);
         //		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
         //		_group.setLayout(_fl);
-        criteriaTable = new Table(_group, SWT.MULTI | SWT.BORDER
-                | SWT.FULL_SELECTION);
+        criteriaTable = viewer.getTable();
+        
         final GridData _gd = new GridData();
         _gd.horizontalSpan = 1;
         _gd.grabExcessHorizontalSpace = true;
@@ -205,18 +269,38 @@ public class IndusConfigurationDialog extends Dialog {
         //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
         _gd.horizontalAlignment = GridData.FILL;
         _gd.verticalAlignment = GridData.FILL;
+        _gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+        _gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
         criteriaTable.setLayoutData(_gd);
 
         criteriaTable.setLinesVisible(true);
         criteriaTable.setHeaderVisible(true);
+        
+        final String[] _colnames = {  "!", "Function", "Line number",
+                "Jimple index", "Consider Execution" };
 
+        for (int _i = 0; _i < _colnames.length; _i++) {            
+            final TableColumn _ti = new TableColumn(criteriaTable,
+                    SWT.NULL);
+            _ti.setText(_colnames[_i]);
+        }
+        for (int _i = 0; _i < criteriaTable.getColumnCount(); _i++) {
+            criteriaTable.getColumn(_i).pack();
+        }
+        
+        viewer.setContentProvider(new ViewContentProvider());
+        viewer.setLabelProvider(new ViewLabelProvider());
+        viewer.setInput("Input");
+        for (int _i = 0; _i < _colnames.length; _i++) {            
+          criteriaTable.getColumn(_i).pack();
+        }
         //criteriaList = new List(_group, SWT.BORDER | SWT.V_SCROLL |
         // SWT.MULTI);
-        final int _constant1 = 600;
-        final int _constant2 = 1200;
-        criteriaTable.setBounds(0, 0, _constant1, _constant2);
+        //final int _constant1 = 600;
+        //final int _constant2 = 1200;
+       // criteriaTable.setBounds(0, 0, _constant1, _constant2);
         //criteriaList.setBounds(0, 0, _constant1, _constant2);
-        initializeList(criteriaTable, project); // changed from criteriaList
+        //initializeList(criteriaTable, project); // changed from criteriaList
 
         final Composite _subcomposite2 = new Composite(_composite, SWT.NONE);
         final GridData _subdata2 = new GridData(GridData.FILL_HORIZONTAL);
@@ -279,48 +363,11 @@ public class IndusConfigurationDialog extends Dialog {
      * Sets up the criteria.
      */
     private void setUpCriteria() {
-        final int[] _currentsels = criteriaTable.getSelectionIndices();
-        //KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
-
-        if (_currentsels != null && _currentsels.length >= 1) {
-            IResource _resource = project.getResource();
-            final XStream _xstream = new XStream(new DomDriver());
-            _xstream
-                    .alias(
-                            Messages.getString("IndusConfigurationDialog.17"), CriteriaData.class); //$NON-NLS-1$
-
-            try {
-                _resource = project.getCorrespondingResource();
-
-                final QualifiedName _name = new QualifiedName(Messages
-                        .getString("IndusConfigurationDialog.18"), Messages
-                        .getString("IndusConfigurationDialog.19")); //$NON-NLS-1$ //$NON-NLS-2$
-
-                try {
-                    final String _propVal = _resource
-                            .getPersistentProperty(_name);
-
-                    if (_propVal != null) {
-                        final CriteriaData _data = (CriteriaData) _xstream
-                                .fromXML(_propVal);
-                        final java.util.List _lst = _data.getCriterias();
-                        KaveriPlugin.getDefault().getIndusConfiguration()
-                                .getCriteria().clear();
-
-                        for (int _i = 0; _i < _currentsels.length
-                                && _currentsels[_i] < _lst.size(); _i++) {
-                            final int _index = _currentsels[_i];
-                            final Criteria _c = (Criteria) _lst.get(_index);
-
-                            KaveriPlugin.getDefault().getIndusConfiguration()
-                                    .setCriteria(_c);
-                        }
-                    }
-                } catch (CoreException _e) {
-                    SECommons.handleException(_e);
-                }
-            } catch (JavaModelException _e1) {
-                SECommons.handleException(_e1);
+        final Object _objCriteria[] = viewer.getCheckedElements();
+        if (_objCriteria.length > 0) {
+            for (int i = 0; i < _objCriteria.length; i++) {
+                final Criteria _c = (Criteria) _objCriteria[i];
+                KaveriPlugin.getDefault().getIndusConfiguration().setCriteria(_c);
             }
         }
     }
@@ -339,8 +386,7 @@ public class IndusConfigurationDialog extends Dialog {
             public void widgetSelected(final SelectionEvent e) {
                 if (criteriaTable.getSelectionCount() == 1) {
                     removeSelection(theproject, criteriaTable
-                            .getSelectionIndex());
-                    criteriaTable.remove(criteriaTable.getSelectionIndex());
+                            .getSelectionIndex());                    
                 }
             }
 
@@ -369,10 +415,18 @@ public class IndusConfigurationDialog extends Dialog {
                             final CriteriaData _data = (CriteriaData) _xstream
                                     .fromXML(_propVal);
                             final java.util.List _lst = _data.getCriterias();
-                            _lst.remove(index);
+                            final Object _crtList[] = viewer.getCheckedElements();
+                            for (int i = 0; i < _crtList.length; i++) {
+                                final Criteria _c = (Criteria) _crtList[i];
+                                _lst.remove(_c);
+                            }
 
                             final String _xml = _xstream.toXML(_data);
                             _resource.setPersistentProperty(_name, _xml);
+                            viewer.setInput("Input"); // Refresh
+                            for (int _i = 0; _i < criteriaTable.getColumnCount(); _i++) {            
+                                criteriaTable.getColumn(_i).pack();
+                              }
                         }
                     } catch (CoreException _e) {
                         SECommons.handleException(_e);
@@ -396,7 +450,8 @@ public class IndusConfigurationDialog extends Dialog {
                 final ScopeDialog _sd = new ScopeDialog(Display.getCurrent()
                         .getActiveShell());
                 if (_sd.open() == IDialogConstants.OK_ID) {
-
+                    final String _scopeSpec = _sd.getScopeSpecification();
+                    KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification(_scopeSpec);
                 }
 
                 /*
@@ -493,15 +548,7 @@ public class IndusConfigurationDialog extends Dialog {
                     final CriteriaData _data = (CriteriaData) _xstream
                             .fromXML(_propVal);
                     final java.util.List _lst = _data.getCriterias();
-                    final String[] _colnames = { "Function", "Line number",
-                            "Jimple index", "Consider Execution" };
-
-                    for (int _i = 0; _i < _colnames.length; _i++) {
-                        final TableColumn _ti = new TableColumn(criteriasList,
-                                SWT.NULL);
-                        _ti.setText(_colnames[_i]);
-                    }
-
+                    
                     for (int _i = 0; _i < _lst.size(); _i++) {
                         final Criteria _c = (Criteria) _lst.get(_i);
                         final TableItem _item = new TableItem(criteriasList,
@@ -525,7 +572,7 @@ public class IndusConfigurationDialog extends Dialog {
                             _item.setText(new String[] { " ", " ", " ", " " });
                         }
                     }
-                    for (int _i = 0; _i < _colnames.length; _i++) {
+                    for (int _i = 0; _i < criteriasList.getColumnCount(); _i++) {
                         criteriasList.getColumn(_i).pack();
                     }
 
@@ -543,41 +590,40 @@ public class IndusConfigurationDialog extends Dialog {
         }
     }
 
-    /**
-     * Initializes the view combo box.
-     * 
-     * @param viewsCombo
-     *            The view combo
-     */
-    private void initializeViews(final Combo viewsCombo) {
-        viewsCombo.removeAll();
+}
 
-        final XStream _xstream = new XStream(new DomDriver());
-        _xstream
-                .alias(
-                        Messages.getString("IndusConfigurationDialog.13"), ViewConfiguration.class); //$NON-NLS-1$
 
-        final String _viewname = Messages
-                .getString("IndusConfigurationDialog.14"); //$NON-NLS-1$
-        final IPreferenceStore _ps = KaveriPlugin.getDefault()
-                .getPreferenceStore();
-        final String _prefval = _ps.getString(_viewname);
 
-        if (_prefval != null && !_prefval.equals("")) { //$NON-NLS-1$
 
-            final ViewConfiguration _vc = (ViewConfiguration) _xstream
-                    .fromXML(_prefval);
-            final java.util.List _lst = _vc.getList();
 
-            for (int _i = 0; _i < _lst.size(); _i++) {
-                final ViewData _vd = (ViewData) _lst.get(_i);
-                viewsCombo.add(Messages
-                        .getString("IndusConfigurationDialog.16") + _i); //$NON-NLS-1$
-            }
-        }
-
-        if (viewCombo.getItemCount() > 0) {
-            viewsCombo.select(0);
-        }
-    }
+class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+	public String getColumnText(Object obj, int index) {
+	    String _retString = "";
+	    if (obj instanceof Criteria) {
+	        final Criteria _c = (Criteria) obj;
+	        switch(index) {
+	        	case 0 : // Nothing , the checkbox.	        	   
+	        	    break;
+	        	case 1:
+	        	    _retString = _c.getStrMethodName();
+	        	    break;
+	        	case 2:
+	        	    _retString = _c.getNLineNo() + "";
+	        	    break;
+	        	case 3:
+	        	    _retString = _c.getNJimpleIndex() + "";
+	        	    break;
+	        	case 4:
+	        	    _retString = _c.isBConsiderValue() + "";
+	        	    break;
+	        }
+	    }
+	    return _retString;
+	}
+	public Image getColumnImage(Object obj, int index) {
+		return null;
+	}
+	public Image getImage(Object obj) {
+		return null;
+	}
 }

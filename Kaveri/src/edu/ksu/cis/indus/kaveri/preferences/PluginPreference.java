@@ -14,26 +14,34 @@
 
 package edu.ksu.cis.indus.kaveri.preferences;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.common.scoping.TypeSpecification;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.ViewDialog;
-import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
 import edu.ksu.cis.indus.kaveri.scoping.IScopeDialogMorphConstants;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeDataSet;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeDefinitionHelper;
 import edu.ksu.cis.indus.kaveri.scoping.ScopePropertiesSelectionDialog;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.swt.SWT;
 
@@ -41,17 +49,20 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Label;
+//import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -67,69 +78,16 @@ import org.jibx.runtime.JiBXException;
  */
 public class PluginPreference extends PreferencePage implements
         IWorkbenchPreferencePage {
-    /**
-     * <p>
-     * Height of the list.
-     * </p>
-     */
-    private static final int LIST_HEIGHT_IN_CHARS = 10;
+
 
     /**
      * <p>
-     * Number of dialog units per chanracter.
+     * The checkbox table viewer.
      * </p>
      */
-    private static final int VERTICAL_DIALOG_UNITS_PER_CHAR = 8;
+    private CheckboxTableViewer viewer;
+    
 
-    /**
-     * <p>
-     * Physical height of the list box.
-     * </p>
-     */
-    private static final int LIST_HEIGHT_IN_DLUS = LIST_HEIGHT_IN_CHARS
-            * VERTICAL_DIALOG_UNITS_PER_CHAR;
-
-    /**
-     * <p>
-     * The editor for the showMarker preference.
-     * </p>
-     */
-    private BooleanFieldEditor showMarker;
-
-    /**
-     * <p>
-     * The editor for controlDependence color.
-     * </p>
-     */
-    private ColorFieldEditor cf1;
-
-    /**
-     * <p>
-     * The editor for controlDependence color.
-     * </p>
-     */
-    private ColorFieldEditor cf2;
-
-    /**
-     * <p>
-     * The editor for readyDependence color.
-     * </p>
-     */
-    private ColorFieldEditor cf3;
-
-    /**
-     * <p>
-     * The editor for synchronizationDependence color.
-     * </p>
-     */
-    private ColorFieldEditor cf4;
-
-    /**
-     * <p>
-     * The editor for interferenceDependence color.
-     * </p>
-     */
-    private ColorFieldEditor cf5;
 
     /**
      * Creates a new PluginPreference object.
@@ -159,12 +117,6 @@ public class PluginPreference extends PreferencePage implements
      */
     public boolean performOk() {
         KaveriPlugin.getDefault().storeConfiguration();
-        cf1.store();
-        cf2.store();
-        cf3.store();
-        cf4.store();
-        cf5.store();
-        showMarker.store();
         KaveriPlugin.getDefault().savePluginPreferences();
         return super.performOk();
     }
@@ -196,7 +148,12 @@ public class PluginPreference extends PreferencePage implements
         final TabItem _itemScope = new TabItem(_folder, SWT.NONE);
         _itemScope.setText("Scope");
         _itemScope.setControl(createScope(_folder));
+        
+        final TabItem _itemButtonConfigs = new TabItem(_folder, SWT.NONE);
+        _itemButtonConfigs.setText("Slice Button Configurations");
+        _itemButtonConfigs.setControl(createSliceButtonConfig(_folder));
 
+        /*
         final TabItem _item2 = new TabItem(_folder, SWT.NONE);
         _item2.setText(Messages.getString("PluginPreference.1")); //$NON-NLS-1$
         _item2.setControl(createColor(_folder));
@@ -205,6 +162,8 @@ public class PluginPreference extends PreferencePage implements
         _item3.setText(Messages.getString("PluginPreference.2")); //$NON-NLS-1$
         _item3.setControl(createView(_folder));
         //item1.setControl(exemptTagsList);
+         */
+         
         return _top;
     }
 
@@ -231,13 +190,7 @@ public class PluginPreference extends PreferencePage implements
      * 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
-    protected void performApply() {
-        cf1.store();
-        cf2.store();
-        cf3.store();
-        cf4.store();
-        cf5.store();
-        showMarker.store();
+    protected void performApply() {       
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
         super.performApply();
@@ -254,56 +207,125 @@ public class PluginPreference extends PreferencePage implements
     }
 
     /**
-     * Creates the color tab.
+     * Creates the sliced button configurations.
      * 
      * @param folder
      *            The tab folder
      * 
      * @return Control The created control
      */
-    private Control createColor(final TabFolder folder) {
-        KaveriPlugin.getDefault().setupDefaultColors();
+    private Control createSliceButtonConfig(final TabFolder folder) {
+        //KaveriPlugin.getDefault().setupDefaultColors();
         final Composite _comp = new Composite(folder, SWT.NONE);
         final GridLayout _layout = new GridLayout();
         _layout.numColumns = 1;
         _comp.setLayout(_layout);
-
-        final Group _group = new Group(_comp, SWT.NONE);
-        _group.setText(Messages.getString("PluginPreference.3")); //$NON-NLS-1$
-        _group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        _group.setLayout(new RowLayout(SWT.VERTICAL));
-        cf1 = new ColorFieldEditor(Messages.getString("PluginPreference.4"),
-                Messages.getString("PluginPreference.5"), _group);
-        cf1.setPreferencePage(this);
-        cf1.setPreferenceStore(getPreferenceStore());
-        cf1.load();
-        cf2 = new ColorFieldEditor(Messages.getString("PluginPreference.6"),
-                Messages.getString("PluginPreference.7"), _group);
-        cf2.setPreferencePage(this);
-        cf2.setPreferenceStore(getPreferenceStore());
-        cf2.load();
-        cf3 = new ColorFieldEditor(Messages.getString("PluginPreference.8"),
-                Messages.getString("PluginPreference.9"), _group);
-        cf3.setPreferencePage(this);
-        cf3.setPreferenceStore(getPreferenceStore());
-        cf3.load();
-        cf4 = new ColorFieldEditor(Messages.getString("PluginPreference.10"),
-                Messages.getString("PluginPreference.11"), _group); //$NON-NLS-1$ //$NON-NLS-2$
-        cf4.setPreferencePage(this);
-        cf4.setPreferenceStore(getPreferenceStore());
-        cf4.load();
-        cf5 = new ColorFieldEditor(Messages.getString("PluginPreference.12"),
-                Messages.getString("PluginPreference.13"), _group); //$NON-NLS-1$ //$NON-NLS-2$
-        cf5.setPreferencePage(this);
-        cf5.setPreferenceStore(getPreferenceStore());
-        cf5.load();
-        showMarker = new BooleanFieldEditor(Messages
-                .getString("PluginPreference.14"), Messages
-                .getString("PluginPreference.15"), _comp);
-        showMarker.setPreferencePage(this);
-        showMarker.setPreferenceStore(getPreferenceStore());
-        showMarker.load();
+        try {
+          //  KaveriPlugin.getDefault().loadDefaultConfigurations();
+            final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();
+            
+            final Group _grp1 = new Group(_comp, SWT.BORDER);
+            _grp1.setText("Select the configurations used by the slice editor actions");
+            GridData _gd = new GridData(GridData.FILL_BOTH);
+            _gd.horizontalSpan = 1;
+            _gd.grabExcessHorizontalSpace = true;
+            _gd.grabExcessVerticalSpace = true;
+            _grp1.setLayoutData(_gd);
+            
+           _grp1.setLayout(new GridLayout(2, false));
+           final Label _lblBackwardSlice = new Label(_grp1, SWT.LEFT);
+           _lblBackwardSlice.setText("SB Slice Configuration");
+           _gd = new GridData();
+           _gd.horizontalSpan = 1;
+           _lblBackwardSlice.setLayoutData(_gd);
+           
+           final Combo _cmbBckCombo = new Combo(_grp1, SWT.DROP_DOWN | SWT.READ_ONLY);
+           _gd = new GridData(GridData.FILL_HORIZONTAL);
+           _gd.horizontalSpan = 1;
+           _gd.grabExcessHorizontalSpace  = true;
+           _cmbBckCombo.setLayoutData(_gd);
+           initializeConfigs(_cmbBckCombo, false);
+           
+           final Label _lblForwardSlice = new Label(_grp1, SWT.LEFT);
+           _lblForwardSlice.setText("SF Slice Configuration");
+           _gd = new GridData();
+           _gd.horizontalSpan = 1;
+           _lblForwardSlice.setLayoutData(_gd);
+           
+           final Combo _cmbFwdCombo = new Combo(_grp1, SWT.DROP_DOWN | SWT.READ_ONLY);
+           _gd = new GridData(GridData.FILL_HORIZONTAL);
+           _gd.horizontalSpan = 1;
+           _gd.grabExcessHorizontalSpace  = true;
+           _cmbFwdCombo.setLayoutData(_gd);
+           initializeConfigs(_cmbFwdCombo, true);
+           
+           final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+           final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
+           final String _sfConfigKey = "edu.ksu.cis.indus.kaveri.sfConfig";
+           
+           _cmbBckCombo.addSelectionListener(
+                   new SelectionAdapter() {
+                       public void widgetSelected(SelectionEvent e)  {
+                           final String _newConfig = _cmbBckCombo.getText();
+                           _ps.setValue(_sbConfigKey, _newConfig);
+                       }
+                   }
+                   );
+           
+           _cmbFwdCombo.addSelectionListener(
+                   new SelectionAdapter() {
+                       public void widgetSelected(SelectionEvent e)  {
+                           final String _newConfig = _cmbFwdCombo.getText();
+                           _ps.setValue(_sfConfigKey, _newConfig);
+                           
+                       }
+                   }
+                   );
+            
+        } catch (IllegalArgumentException _ile) {
+            KaveriErrorLog.logException("Illega Argument Exception", _ile);
+            SECommons.handleException(_ile);
+        }
+        
         return _comp;
+    }
+    
+    /**
+     * Initialized the configuration combo box.
+     * 
+     * @param confsCombo
+     *            The configuration combo
+     * @param fwdDirection The type of the configuration to display.
+     */
+    private void initializeConfigs(final Combo confsCombo, final boolean fwdDirection) {
+        //KaveriPlugin.getDefault().loadConfigurations();
+        final SlicerTool _slicetool = KaveriPlugin.getDefault().getSlicerTool();
+        final Collection _c = _slicetool.getConfigurations();
+        for (final Iterator _t = _c.iterator(); _t.hasNext();) {
+            confsCombo.add(((IToolConfiguration) _t.next()).getConfigName());
+        }
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        String _sbfPreferenceKey = "";
+        
+        if (fwdDirection) {
+            _sbfPreferenceKey = "edu.ksu.cis.indus.kaveri.sfConfig";
+        } else {
+            _sbfPreferenceKey = "edu.ksu.cis.indus.kaveri.sbConfig";
+        }
+        
+        String _sbConfigPreference = _ps.getString(_sbfPreferenceKey);
+        if (_sbConfigPreference.equals("")) {
+            if (fwdDirection) {
+                _sbConfigPreference = "forward-deadlock";
+            } else {
+                _sbConfigPreference = "backward-executable-deadlock";
+            }
+            _ps.setValue(_sbfPreferenceKey, _sbConfigPreference);
+        } 
+        
+        final int _activeIndex = confsCombo.indexOf(_sbConfigPreference);
+        confsCombo.select(_activeIndex);
+        
     }
 
     /**
@@ -316,7 +338,7 @@ public class PluginPreference extends PreferencePage implements
      */
     private Control createConfig(final TabFolder folder) {
         try {
-            KaveriPlugin.getDefault().loadDefaultConfigurations();
+            KaveriPlugin.getDefault().loadConfigurations();
             final Composite _comp = new Composite(folder, SWT.NONE);
             final GridLayout _layout = new GridLayout();
             _layout.numColumns = 1;
@@ -325,6 +347,7 @@ public class PluginPreference extends PreferencePage implements
             _stool.getConfigurator().initialize(_comp);
             return _comp;
         } catch (IllegalArgumentException _ile) {
+            KaveriErrorLog.logException("Illegal Configuration", _ile);
             SECommons.handleException(_ile);
         }
         return null;
@@ -346,10 +369,15 @@ public class PluginPreference extends PreferencePage implements
         _layout.numColumns = 1;
         _comp.setLayout(_layout);
 
-        final Table _table = new Table(_comp, SWT.SINGLE | SWT.V_SCROLL);
+        viewer = CheckboxTableViewer.newCheckList(_comp,SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        
+        final Table _table = viewer.getTable();
         _table.setHeaderVisible(true);
         _table.setLinesVisible(true);
 
+        final TableColumn _col0 = new TableColumn(_table, SWT.CENTER);
+        _col0.setText("!");
+        
         final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
         _col1.setText("Type");
 
@@ -359,6 +387,9 @@ public class PluginPreference extends PreferencePage implements
         final TableColumn _col3 = new TableColumn(_table, SWT.NONE);
         _col3.setText("Element Name");
 
+        viewer.setContentProvider(new ViewContentProvider());
+        viewer.setLabelProvider(new ViewLabelProvider());
+        
         folder.addControlListener(new ControlAdapter() {
             public void controlResized(ControlEvent e) {
                 final TableColumn _cols[] = _table.getColumns();
@@ -367,7 +398,7 @@ public class PluginPreference extends PreferencePage implements
                 }
             }
         });
-
+        
         GridData _gd = new GridData();
         _gd.grabExcessHorizontalSpace = true;
         _gd.grabExcessVerticalSpace = true;
@@ -375,8 +406,8 @@ public class PluginPreference extends PreferencePage implements
         _gd.horizontalAlignment = GridData.FILL;
         _gd.verticalAlignment = GridData.FILL;
         _table.setLayoutData(_gd);
-
-        setupScopeEntries(_table);
+        viewer.setInput("Input");
+        //setupScopeEntries(_table);
         // Buttons
         final Composite _rowComp = new Composite(_comp, SWT.BORDER);
         _gd = new GridData();
@@ -390,220 +421,109 @@ public class PluginPreference extends PreferencePage implements
         final Button _btAddClasses = new Button(_rowComp, SWT.PUSH);
         _btAddClasses.setText("Add Classes");
 
-        handleScopeAdd(_btAddClasses, _table);
+        handleScopeAdd(_btAddClasses);
 
         final Button _btDelete = new Button(_rowComp, SWT.PUSH);
         _btDelete.setText("Delete");
-
+        handleScopeDelete(_btDelete);
         return _comp;
+    }
+
+    /**
+     * Handle the delete operation.
+     * @param delete
+     */
+    private void handleScopeDelete(Button delete) {
+        delete.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+                final String _scopeSpecKey = "edu.ksu.cis.indus.kaveri.scope";
+                String _scopeSpec = _ps.getString(_scopeSpecKey);
+                _ps.setValue(_scopeSpecKey, "");
+                KaveriPlugin.getDefault().savePluginPreferences();
+                /*
+                final Object _chosenObj[] = viewer.getCheckedElements();                
+                if (!(_scopeSpec.equals("") && _chosenObj.length == 0)) {
+                    try {
+                    final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+                    for (int i = 0; i < _chosenObj.length; i++) {
+                        if (_chosenObj[i] instanceof ClassSpecification) {
+              
+                        } else if (_chosenObj[i] instanceof MethodSpecification) {
+                                                       
+                            _sbsd.getMethodSpecs().remove(_chosenObj[i]);
+                        } else if (_chosenObj[i] instanceof FieldSpecification) {
+                            _sbsd.getFieldSpecs().remove(_chosenObj[i]);
+                        }                        
+                    }
+                    _scopeSpec = SpecificationBasedScopeDefinition.serialize(_sbsd);
+                    _ps.setValue(_scopeSpecKey, _scopeSpec);
+                    KaveriPlugin.getDefault().savePluginPreferences();
+                    viewer.setInput("Input");                    
+                    } catch(JiBXException _jbe) {
+                        SECommons.handleException(_jbe);
+                        KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
+                    }
+                }*/
+                return;
+            }
+        });       
     }
 
     /**
      * Handle the class scope add action.
      * 
      * @param addClasses
-     * @param table
+     * 
      */
-    private void handleScopeAdd(Button addClasses, Table table) {
+    private void handleScopeAdd(Button addClasses) {
         addClasses.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 ScopePropertiesSelectionDialog _spsd = new ScopePropertiesSelectionDialog(
                         Display.getCurrent().getActiveShell(),
                         IScopeDialogMorphConstants.SCOPE_NAME_REGEX, "");
+                _spsd.setStrDefaultClassName("java.lang.*");
                 if (_spsd.open() == IDialogConstants.OK_ID) {
-                    final String _scopeClassSpec = ScopeDefinitionHelper
-                            .getScopeDefinition(_spsd.getStrClassRegex(), _spsd
-                                    .getStrScopeName(), "IDENTITY");
-
-                    String _scopeSpec = KaveriPlugin.getDefault()
-                            .getPreferenceStore().getString(
-                                    "edu.ksu.cis.indus.scope");
-
-                    final XStream _xstream = new XStream();
-                    _xstream.alias("ScopeDataSet", ScopeDataSet.class);
+                    final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+                    final String _scopeSpecKey = "edu.ksu.cis.indus.kaveri.scope";
+                    String _scopeSpec = _ps.getString(_scopeSpecKey);
                     if (_scopeSpec.equals("")) {
-                        final ScopeDataSet _sd = new ScopeDataSet();
-
-                        final String _scopeXML = _xstream.toXML(_sd);
-                        KaveriPlugin.getDefault().getPreferenceStore()
-                                .setValue("edu.ksu.cis.indus.scope", _scopeXML);
-                        _scopeSpec = _scopeXML;
+                        _scopeSpec = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + 
+                        "xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
+                        "indus:specName=\"scope_spec\">";
+                        _scopeSpec += "\n</indus:scopeSpec>";
                     }
-                    final ScopeDataSet _sd = (ScopeDataSet) _xstream.fromXML(_scopeSpec);
-                    _sd.addClassScope(_scopeClassSpec);
-                    KaveriPlugin.getDefault().getPreferenceStore().
-        			setValue("edu.ksu.cis.indus.scope", _xstream.toXML(_sd));
+                    try {
+                    final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+                    final ClassSpecification _cs = new ClassSpecification();
+                    _cs.setInclusion(true);
+                    _cs.setName(_spsd.getStrScopeName());
+                    
+                    final TypeSpecification _ts = new TypeSpecification();
+                    _ts.setScopeExtension(_spsd.getStrChoice());
+                    _ts.setNamePattern(_spsd.getStrClassRegex());
+                    _cs.setTypeSpec(_ts);
+                    final Collection _collClass = _sbsd.getClassSpecs();
+                    _collClass.add(_cs);
+                    _scopeSpec = SpecificationBasedScopeDefinition.serialize(_sbsd);
+                    _ps.setValue(_scopeSpecKey, _scopeSpec);
         			KaveriPlugin.getDefault().savePluginPreferences();
-
-                }
-
-            }
-        });
-
-    }
-
-    /**
-     * Fill the table with the scope entries.
-     * 
-     * @param table
-     */
-    private void setupScopeEntries(Table table) {
-        final String _scopeSpec = KaveriPlugin.getDefault()
-                .getPreferenceStore().getString(
-                        "edu.ksu.cis.indus.kaveri.scope");
-        if (!_scopeSpec.equals("")) {
-            try {
-                SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition
-                        .deserialize(_scopeSpec);
-               
-            } catch (JiBXException _jbe) {
-                SECommons.handleException(_jbe);
-            }
-        }
-
-    }
-
-    /**
-     * Creates the view tab.
-     * 
-     * @param folder
-     *            The tab folder for this control
-     * 
-     * @return Control The view control tab
-     */
-    private Control createView(final TabFolder folder) {
-        final Composite _comp = new Composite(folder, SWT.NONE);
-        _comp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        final GridLayout _layout = new GridLayout();
-        _layout.numColumns = 3;
-        _comp.setLayout(_layout);
-
-        final List _viewList = new List(_comp, SWT.BORDER);
-
-        // Create a data that takes up the extra space
-        // in the dialog and spans both columns.
-        final GridData _listData = new GridData(GridData.FILL_HORIZONTAL);
-        _listData.heightHint = convertVerticalDLUsToPixels(LIST_HEIGHT_IN_DLUS);
-        _listData.horizontalSpan = 3;
-        _viewList.setLayoutData(_listData);
-        initializeViewList(_viewList);
-
-        final Composite _rowComp = new Composite(_comp, SWT.NONE);
-        _rowComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        final RowLayout _rl = new RowLayout();
-        _rowComp.setLayout(_rl);
-
-        final Button _btnCreate = new Button(_rowComp, SWT.PUSH);
-        _btnCreate.setText(Messages.getString("PluginPreference.20")); //$NON-NLS-1$
-        _btnCreate.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(final SelectionEvent se) {
-                final ViewDialog _vd = new ViewDialog(Display.getCurrent()
-                        .getActiveShell(), -1);
-
-                if (_vd.open() == IDialogConstants.OK_ID) {
-                    initializeViewList(_viewList);
-                }
-            }
-        });
-
-        final Button _btnRemove = new Button(_rowComp, SWT.PUSH);
-        _btnRemove.setText(Messages.getString("PluginPreference.21")); //$NON-NLS-1$
-        _btnRemove.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(final SelectionEvent se) {
-                if (_viewList.getSelectionCount() == 1) {
-                    final int _index = _viewList.getSelectionIndex();
-                    final XStream _xstream = new XStream(new DomDriver());
-                    _xstream
-                            .alias(
-                                    Messages.getString("PluginPreference.22"), ViewConfiguration.class); //$NON-NLS-1$
-
-                    final String _viewname = Messages
-                            .getString("PluginPreference.23"); //$NON-NLS-1$
-                    final IPreferenceStore _ps = KaveriPlugin.getDefault()
-                            .getPreferenceStore();
-                    String _prefval = _ps.getString(_viewname);
-
-                    if (!_prefval.equals(Messages.getString(""))) { //$NON-NLS-1$
-
-                        final ViewConfiguration _vc = (ViewConfiguration) _xstream
-                                .fromXML(_prefval);
-                        final java.util.List _lst = _vc.getList();
-                        _lst.remove(_index);
-                        _prefval = _xstream.toXML(_vc);
-                        _ps.setValue(_viewname, _prefval);
-                        _viewList.removeAll();
-                        initializeViewList(_viewList);
+        			viewer.setInput("Input");
                     }
-                }
-            }
-        });
-
-        final Button _btnEdit = new Button(_rowComp, SWT.PUSH);
-        _btnEdit.setText(Messages.getString("PluginPreference.25")); //$NON-NLS-1$
-        handleEdit(_btnEdit, _viewList);
-        return _comp;
-    }
-
-    /**
-     * Handles the view edit action.
-     * 
-     * @param btnEdit
-     *            The edit button
-     * @param viewList
-     *            The view list.
-     */
-    private void handleEdit(final Button btnEdit, final List viewList) {
-        btnEdit.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(final SelectionEvent e) {
-                final int _index = viewList.getSelectionIndex();
-
-                if (_index != -1) {
-                    final ViewDialog _dialog = new ViewDialog(Display
-                            .getCurrent().getActiveShell(), _index);
-
-                    if (_dialog.open() == IDialogConstants.OK_ID) {
-                        initializeViewList(viewList);
+                    catch (JiBXException _jbe) {
+                        KaveriErrorLog.logException("Error deserializing scope specification", _jbe);
+                        SECommons.handleException(_jbe);
                     }
+
                 }
+
             }
         });
+
     }
 
-    /**
-     * Initialized the views.
-     * 
-     * @param viewList
-     *            The view list
-     */
-    private void initializeViewList(final List viewList) {
-        viewList.removeAll();
-
-        final XStream _xstream = new XStream(new DomDriver());
-        _xstream
-                .alias(
-                        Messages.getString("PluginPreference.45"), ViewConfiguration.class); //$NON-NLS-1$
-
-        final String _viewname = Messages.getString("PluginPreference.46"); //$NON-NLS-1$
-        final IPreferenceStore _ps = KaveriPlugin.getDefault()
-                .getPreferenceStore();
-
-        //_ps.setValue(_viewname, "");
-        final String _prefval = _ps.getString(_viewname);
-
-        if (_prefval != null && !_prefval.equals("")) { //$NON-NLS-1$
-
-            final ViewConfiguration _vc = (ViewConfiguration) _xstream
-                    .fromXML(_prefval);
-            final java.util.List _lst = _vc.getList();
-
-            for (int _i = 0; _i < _lst.size(); _i++) {
-                viewList.add(Messages.getString("PluginPreference.48") + _i); //$NON-NLS-1$
-            }
-        }
-    }
-
+    
+    
     /**
      * Cancels the effect on any new configuration creation.
      * 
@@ -613,4 +533,95 @@ public class PluginPreference extends PreferencePage implements
         KaveriPlugin.getDefault().loadConfigurations();
         return super.performCancel();
     }
+}
+
+
+class ViewContentProvider implements IStructuredContentProvider {
+	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+	}
+	public void dispose() {
+	}
+	public Object[] getElements(Object parent) {
+		final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
+		final String _scopeSpec = KaveriPlugin.getDefault().getPreferenceStore().getString(_scopeKey);
+		if (_scopeSpec.equals("")) return new Object[0];
+		try {
+		    SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+		    final List _lstSpecs = new LinkedList();
+		    final Collection _collClassSpecs = _sbsd.getClassSpecs();
+		    for (Iterator iter = _collClassSpecs.iterator(); iter.hasNext();) {
+                final ClassSpecification _cs = (ClassSpecification) iter.next();
+                _lstSpecs.add(_cs);
+                
+            }
+		    final Collection _collMethodSpecs = _sbsd.getMethodSpecs();
+		    for (Iterator iter = _collMethodSpecs.iterator(); iter.hasNext();) {
+                final MethodSpecification _ms = (MethodSpecification) iter.next();
+                _lstSpecs.add(_ms);
+                
+            }
+		    final Collection _collFieldSpecs = _sbsd.getFieldSpecs();
+		    for (Iterator iter = _collFieldSpecs.iterator(); iter.hasNext();) {
+                final FieldSpecification _fs = (FieldSpecification) iter.next();
+                _lstSpecs.add(_fs);                
+            }
+		    return _lstSpecs.toArray();
+		
+		} catch(JiBXException _jbe) {
+		    SECommons.handleException(_jbe);
+		    KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
+		    return new Object[0];
+		}
+		
+	}
+}
+
+class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+	public String getColumnText(Object obj, int index) {
+		if (index == 0) {
+			return "";
+		}
+		if (obj instanceof ClassSpecification) {
+		    final ClassSpecification _cs = (ClassSpecification) obj;
+		    switch(index) {
+		    	case 1:
+		    	    return "Class";		    	    
+		    	case 2:
+		    	    return _cs.getName();		    	    
+		    	case 3:
+		    	    return _cs.getTypeSpec().getNamePattern();
+		    }
+		} else if (obj instanceof MethodSpecification) {
+		    final MethodSpecification _ms = (MethodSpecification) obj;
+		    switch(index) {
+		    	case 1:
+		    	    return "Method";		    	    
+		    	case 2:
+		    	    return _ms.getName();		    	    
+		    	case 3:
+		    	    return _ms.getMethodNameSpec();
+		    }
+		    
+		} else if (obj instanceof FieldSpecification) {
+		    final FieldSpecification _fs = (FieldSpecification) obj;
+		    switch(index) {
+	    	case 1:
+	    	    return "Field";		    	    
+	    	case 2:
+	    	    return _fs.getName();		    	    
+	    	case 3:
+	    	    return _fs.getFieldNameSpec();
+		}
+		    
+		} else {
+		    return "";
+		}
+		return getText(obj);
+	}
+	public Image getColumnImage(Object obj, int index) {
+		return null;
+	}
+	public Image getImage(Object obj) {
+		return null;
+	}
 }

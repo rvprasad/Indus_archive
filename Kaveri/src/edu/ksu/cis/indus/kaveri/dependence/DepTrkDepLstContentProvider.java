@@ -17,12 +17,18 @@ package edu.ksu.cis.indus.kaveri.dependence;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -32,7 +38,9 @@ import soot.jimple.AssignStmt;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
 import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
@@ -154,7 +162,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         if (tvRight != null && isActive) {
             initialize();
             tvRight.refresh();
-            tvRight.expandToLevel(2);
+            tvRight.expandToLevel(3);
         }
     }
 
@@ -201,6 +209,8 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         addDependenceChildren(_tpControl, IDependencyAnalysis.CONTROL_DA, false);
         addDependenceChildren(_tpData,
                 IDependencyAnalysis.REFERENCE_BASED_DATA_DA, false);
+        addDependenceChildren(_tpData,
+                IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, false);
         addDependenceChildren(_tpReady, IDependencyAnalysis.READY_DA, false);
         addDependenceChildren(_tpInterference,
                 IDependencyAnalysis.INTERFERENCE_DA, false);
@@ -237,6 +247,8 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         addDependenceChildren(_tpControl, IDependencyAnalysis.CONTROL_DA, true);
         addDependenceChildren(_tpData,
                 IDependencyAnalysis.REFERENCE_BASED_DATA_DA, true);
+        addDependenceChildren(_tpData,
+                IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, true);
         addDependenceChildren(_tpReady, IDependencyAnalysis.READY_DA, true);
         addDependenceChildren(_tpInterference,
                 IDependencyAnalysis.INTERFERENCE_DA, true);
@@ -257,6 +269,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
     private void addDependenceChildren(RightPaneTreeParent control,
             Object daType, final boolean dependee) {
         if (!(daType.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA))) {
+            final Map methodNameLineno = new HashMap(); // Map the key methodname + lineno ==> Java source Tree Node
             final List _jimpleStmtList = dsd.getStmtList().subList(2,
                     dsd.getStmtList().size());
             final SootMethod _sm = (SootMethod) dsd.getStmtList().get(1);
@@ -288,24 +301,85 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     final Stmt _stmt = (Stmt) _obj;
                     final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                         _stmt.toString() + " [[" + _sm.getName() + "]]");
-                    _toStmt.setSm(_sm);
-                    _toStmt.setLineNumber(SootConvertor.getLineNumber(_stmt));
-                    control.addChild(_toStmt);                    
+                    _toStmt.setSm(_sm);                    
+                    final int _lineno = SootConvertor.getLineNumber(_stmt);
+                    _toStmt.setLineNumber(_lineno);
+                    if(_lineno == -1) {                                                
+                        control.addChild(_toStmt);
+                    } else {
+                        final String _key = _sm.getName() + _lineno;
+                        final Object _val = methodNameLineno.get(_key);
+                        if (_val == null) {
+                            final RightPaneTreeParent _javaSource = new RightPaneTreeParent(getJavaSourceFor(_sm, _lineno));
+                            _javaSource.setSm(_sm);
+                            _javaSource.setLineNumber(_lineno);
+                            _javaSource.addChild(_toStmt);
+                            methodNameLineno.put(_key, _javaSource);
+                            control.addChild(_javaSource);
+                        } else {
+                            final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
+                            _jsource.addChild(_toStmt);
+                        }
+                                                                                                            
+                    }
                 } else if (_obj instanceof Pair) {
-                    final Pair _pair = (Pair) _obj;
+                    final Pair _pair = (Pair) _obj;                    
                     final Stmt _stmt = (Stmt) _pair.getFirst();
+                    
                     final SootMethod _sootM = (SootMethod) _pair.getSecond();
                     final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                             _stmt.toString() + " [[" + _sootM.getName() + "]]");
                     _toStmt.setSm(_sootM);
-                    _toStmt.setLineNumber(SootConvertor.getLineNumber(_stmt));
+                    final int _lineno = SootConvertor.getLineNumber(_stmt);
+                    _toStmt.setLineNumber(_lineno);
+                    if(_lineno == -1) {                                                
                         control.addChild(_toStmt);
+                    } else {
+                        final String _key = _sm.getName() + _lineno;
+                        final Object _val = methodNameLineno.get(_key);
+                        if (_val == null) {
+                            final RightPaneTreeParent _javaSource = new RightPaneTreeParent(getJavaSourceFor(_sootM, _lineno));
+                            _javaSource.setSm(_sootM);
+                            _javaSource.setLineNumber(_lineno);
+                            _javaSource.addChild(_toStmt);
+                            methodNameLineno.put(_key, _javaSource);
+                            control.addChild(_javaSource);
+                        } else {
+                            final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
+                            _jsource.addChild(_toStmt);
+                        }
+                                                                                                            
+                    }
+                                        
                 }
             }
         } else{
             handleDataDependence(control, dependee);
         }
 
+    }
+
+    /**
+     * @param _sm
+     * @param _lineno
+     * @return
+     */
+    private String getJavaSourceFor(SootMethod _sm, int _lineno) {
+        String _javaSource = "<No Java Statement>";
+        final IFile  _file = SECommons.getFileContainingClass(_sm, dsd.getJavaFile());
+        if (_file != null) {
+            final Document _d = SECommons.getDocumentForJavaFile(_file);
+            if (_d != null) {
+                try {
+                    final IRegion _r = _d.getLineInformation(_lineno - 1);
+                    _javaSource = _d.get(_r.getOffset(), _r.getLength()).trim();
+                } catch (BadLocationException e) {
+                    KaveriErrorLog.logException("Bad Location Exception", e);
+                    SECommons.handleException(e);
+                }
+            }
+        }
+        return _javaSource;
     }
 
     /**
@@ -319,6 +393,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         final List _jimpleStmtList = dsd.getStmtList().subList(2,
                 dsd.getStmtList().size());
         final Object daType = IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
+        final Map methodNameLineno = new HashMap();
         final SootMethod _sm = (SootMethod) dsd.getStmtList().get(1);
         final Set _depSet = new HashSet();
         if (dsd.getJimpleIndex() == -1) {
@@ -351,18 +426,54 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                 final Stmt _stmt = (Stmt) _obj;
                 final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                     _stmt.toString() + " [[" + _sm.getName() + "]]");
-                _toStmt.setSm(_sm);
-                _toStmt.setLineNumber(SootConvertor.getLineNumber(_stmt));
-                control.addChild(_toStmt);
+                _toStmt.setSm(_sm);                    
+                final int _lineno = SootConvertor.getLineNumber(_stmt);
+                _toStmt.setLineNumber(_lineno);
+                if(_lineno == -1) {                                                
+                    control.addChild(_toStmt);
+                } else {
+                    final String _key = _sm.getName() + _lineno;
+                    final Object _val = methodNameLineno.get(_key);
+                    if (_val == null) {
+                        final RightPaneTreeParent _javaSource = new RightPaneTreeParent(getJavaSourceFor(_sm, _lineno));
+                        _javaSource.setSm(_sm);
+                        _javaSource.setLineNumber(_lineno);
+                        _javaSource.addChild(_toStmt);
+                        methodNameLineno.put(_key, _javaSource);
+                        control.addChild(_javaSource);
+                    } else {
+                        final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
+                        _jsource.addChild(_toStmt);
+                    }
+                }
+                
             } else if (_obj instanceof Pair) {
                 final Pair _pair = (Pair) _obj;
                 final Stmt _stmt = (Stmt) _pair.getFirst();             
-                final SootMethod _sootM = (SootMethod) _pair.getSecond();                
+                final SootMethod _sootM = (SootMethod) _pair.getSecond();
                 final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                         _stmt.toString() + " [[" + _sootM.getName() + "]]");
                 _toStmt.setSm(_sootM);
-                _toStmt.setLineNumber(SootConvertor.getLineNumber(_stmt));
-                control.addChild(_toStmt);
+                final int _lineno = SootConvertor.getLineNumber(_stmt);
+                _toStmt.setLineNumber(_lineno);
+                if(_lineno == -1) {                                                
+                    control.addChild(_toStmt);
+                } else {
+                    final String _key = _sm.getName() + _lineno;
+                    final Object _val = methodNameLineno.get(_key);
+                    if (_val == null) {
+                        final RightPaneTreeParent _javaSource = new RightPaneTreeParent(getJavaSourceFor(_sootM, _lineno));
+                        _javaSource.setSm(_sootM);
+                        _javaSource.setLineNumber(_lineno);
+                        _javaSource.addChild(_toStmt);
+                        methodNameLineno.put(_key, _javaSource);
+                        control.addChild(_javaSource);
+                    } else {
+                        final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
+                        _jsource.addChild(_toStmt);
+                    }
+                                                                                                        
+                }
             }            
         }                
     }

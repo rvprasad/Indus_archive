@@ -29,6 +29,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 
 
 /**
@@ -68,7 +70,13 @@ public class ForwardSlice
 	public void run(final IAction action) {
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					runSlice("forward-deadlock", editor, textSelection);
+				    final String _sfConfigKey = "edu.ksu.cis.indus.kaveri.sfConfig";
+				    String _configName = KaveriPlugin.getDefault()
+				    .getPreferenceStore().getString(_sfConfigKey);
+				    if (_configName.equals("")) {
+				        _configName = "forward-deadlock";
+				    }
+					runSlice(_configName, editor, textSelection);
 				}
 			});
 	}

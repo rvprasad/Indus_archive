@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
@@ -37,12 +38,9 @@ import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 
 import java.net.URL;
 
@@ -63,7 +61,6 @@ import org.jibx.runtime.JiBXException;
 
 
 import soot.Body;
-import soot.Printer;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -122,7 +119,7 @@ public class EclipseIndusDriver
 	 * The slice tag name.
 	 * </p>
 	 */
-	private  String nameOfSliceTag = Messages.getString("EclipseIndusDriver.1");  //$NON-NLS-1$
+	private  String nameOfSliceTag = ""; // Messages.getString("EclipseIndusDriver.1");  //$NON-NLS-1$
 	
 	/**
 	 * Creates a new EclipseIndusDriver object.
@@ -145,9 +142,10 @@ public class EclipseIndusDriver
 			if (_sootclass != null) {
 				_sootclass.setApplicationClass();
 			}
-			} catch (RuntimeException _rme) {
-				// No choice but to catch this.
-				// Soot doesn't throw any meaningful exceptions
+			
+			} catch (RuntimeException _rme) {			    
+				//KaveriErrorLog.logException("Soot Class not present", _rme);
+			    // No need to log this. Expected if the class was not loaded by soot.
 			}
 		}
 	}
@@ -402,58 +400,6 @@ public class EclipseIndusDriver
 	}
 
 	/**
-	 * Dumps the jimple representation of the application classes in the scene to the specified directory.   Precondition:
-	 * outputDirectory != null
-	 *
-	 * @param outputDirectory The output directory for the Jimple files.
-	 *
-	 * @throws NullPointerException Throws KaveriException if null is passed as parameter.
-	 * @throws IOException Throws IOException if unable to output the files.
-	 * 
-	 */
-	public void dumpJimple(final String outputDirectory)
-	  throws NullPointerException, IOException {
-		if (SECommons.checkForNull(outputDirectory)) {
-			throw new NullPointerException("dumpJimple excepts non-null output directory");
-		}
-
-		final Printer _printer = Printer.v();
-
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Dumping jimple for " + _sc);
-			}
-
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-
-				if (_sm.isConcrete()) {
-					_sm.retrieveActiveBody();
-				}
-			}
-
-			PrintWriter _writer = null;
-
-			try {
-				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
-				_writer = new PrintWriter(new FileWriter(_file));
-				// write .jimple file
-				_printer.printTo(_sc, _writer);
-			} catch (final IOException _e) {
-				LOGGER.error("Error while writing " + _sc, _e);
-				throw new IOException("IOError while dumping jimple");
-			} finally {
-				if (_writer != null) {
-					_writer.flush();
-					_writer.close();
-				}
-			}
-		}
-	}
-
-	/**
 	 * <p>
 	 * Executes the slicer.
 	 * </p>
@@ -470,6 +416,7 @@ public class EclipseIndusDriver
 		}
 		} catch(JiBXException _jbe) {
 			SECommons.handleException(_jbe);
+			KaveriErrorLog.logException("Error while deserializing scope specification", _jbe);
 		}
 		slicer.setCriteria(criteria);
 		slicer.run(Phase.STARTING_PHASE, true); // changed from true
@@ -495,6 +442,7 @@ public class EclipseIndusDriver
 		criteria.clear();
 		if (slicer != null) {
 			slicer.reset();
+			slicer.setSliceScopeDefinition(null);
 		}
 	}
 
@@ -515,10 +463,10 @@ public class EclipseIndusDriver
 
 			while (_configReader.ready()) {
 				_defaultConfiguration.append(_configReader.readLine());
-			}
-			_is.close();
+			}			
+			_configReader.close();
 		} catch (IOException _ioe) {
-			LOGGER.fatal(Messages.getString("EclipseIndusDriver.2"));
+			KaveriErrorLog.logException("Error rading the default configuration", _ioe);
 			throw new IOException("IO error, could not get defaultconfiguration");
 		}
 		return _defaultConfiguration.toString();
@@ -590,8 +538,10 @@ public class EclipseIndusDriver
 			while (_configReader.ready()) {
 				_userConfiguration.append(_configReader.readLine());
 			}
+			_configReader.close();
 		} catch (IOException _ioe) {
 			LOGGER.fatal(Messages.getString("EclipseIndusDriver.3"));  //$NON-NLS-1$
+			KaveriErrorLog.logException("Error reading configuration", _ioe);
 			throw new IOException("IO error, unable to parse configuration");
 		}
 		return _userConfiguration.toString();

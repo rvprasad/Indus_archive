@@ -1,4 +1,4 @@
-
+ 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -162,4 +162,18 @@ public class Criteria {
 	public void setCriteriaSpec(String criteriaSpec) {
 		this.criteriaSpec = criteriaSpec;
 	}
+	
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof Criteria) {
+         final Criteria _c = (Criteria) obj;
+         return (_c.getStrClassName().equals(strClassName) &&
+                 _c.getStrMethodName().equals(strMethodName) &&
+                 _c.getNLineNo() == nLineNo && _c.getNJimpleIndex() == nJimpleIndex);
+        } else {
+            return super.equals(obj);
+        }
+    }
 }

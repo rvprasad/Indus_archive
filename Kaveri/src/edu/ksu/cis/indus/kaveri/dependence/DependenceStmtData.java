@@ -40,6 +40,7 @@ public class DependenceStmtData extends PartialStmtData {
         this.setMethodName(psd.getMethodName());
         this.setStmtList(psd.getStmtList());
         this.setSelectedStatement(psd.getSelectedStatement());
+        
         this.jimpleIndex = jimpleIndex;
         
         for (Iterator iter = listeners.iterator(); iter.hasNext();) {

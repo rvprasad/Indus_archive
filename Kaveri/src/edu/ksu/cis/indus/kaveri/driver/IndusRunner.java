@@ -52,6 +52,7 @@ import org.eclipse.ui.PlatformUI;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
@@ -60,6 +61,7 @@ import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 import edu.ksu.cis.indus.kaveri.sliceactions.Messages;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 
@@ -146,6 +148,7 @@ public class IndusRunner
 		monitor.beginTask(Messages.getString("IndusRunner.1"), 100);  //$NON-NLS-1$
 		String _stag = "EclipseIndusTag";
 		_stag = _stag + System.currentTimeMillis();
+		final String _oldTag = driver.getNameOfSliceTag();
 		driver.setNameOfSliceTag(_stag);
 		driver.getSlicer().addToolProgressListener(
 				new IToolProgressListener() {
@@ -209,7 +212,11 @@ public class IndusRunner
 			highlightEditor();
 		}
 		returnCriteriaToPool();		
-		monitor.done();
+		monitor.done();		
+		if (!_oldTag.equals("")) {
+		    final SootIndusTagCleaner _job = new SootIndusTagCleaner("Clean Soot Indus tags", _oldTag);
+		    _job.schedule(10000);
+		}
 	}
 
 	/**
@@ -246,16 +253,16 @@ public class IndusRunner
 					for (Iterator iter = _set.iterator(); iter.hasNext();) {
 						_sootClassPath += (String) iter.next();						
 					}
-									
 				}
-
+									
 				driver.addToPath(_sootClassPath);
 
-				final List _classNamesList = new LinkedList();
+				final Set _classNamesList = new HashSet();
+				
 
 				for (int _i = 0; _i < fileList.size(); _i++) {
-					final IFile _file = (IFile) fileList.get(_i);
-					final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(_file);
+					final IFile _javaFile = (IFile) fileList.get(_i);
+					final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(_javaFile);
 
 					if (_icunit != null) {
 						IType[] _types = null;
@@ -279,6 +286,7 @@ public class IndusRunner
 			}
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
+			KaveriErrorLog.logException("Java Model Exception", _jme);
 			_indusRun = false;
 		}
 		return _indusRun;
@@ -341,6 +349,7 @@ public class IndusRunner
 				}
 			}
 		}  catch (JavaModelException _e) {
+		    KaveriErrorLog.logException("Java Model Exception", _e);
 			SECommons.handleException(_e);
 		}
 	}
@@ -471,6 +480,7 @@ public class IndusRunner
 							}
 						}
 					} catch (JavaModelException _e) {
+					    KaveriErrorLog.logException("Java Model Exception", _e);
 						SECommons.handleException(_e);
 					}
 				}

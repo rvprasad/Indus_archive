@@ -34,6 +34,6 @@ public interface IScopeDialogMorphConstants {
      * Scope name and class scope properties.
      * @author ganeshan
      */
-    int SCOPE_NAME_PROP = 3;
+   // int SCOPE_NAME_PROP = 3;
     
 }

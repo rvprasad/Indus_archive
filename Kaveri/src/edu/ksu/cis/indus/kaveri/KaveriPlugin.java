@@ -31,9 +31,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 
@@ -42,6 +41,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.osgi.framework.BundleContext;
+
 
 
 /**
@@ -62,7 +62,7 @@ public class KaveriPlugin
 	/**
 	 * The resource change listener.
 	 */
-	private IResourceChangeListener listener;
+	//private IResourceChangeListener listener;
 	
 	/**
 	 * This is the annotation cache map.
@@ -104,6 +104,7 @@ public class KaveriPlugin
 			}
 		} catch (MissingResourceException _e) {
 			_result = key;
+			KaveriErrorLog.logException("Missing Resource", _e);
 		}
 		return _result;
 	}
@@ -134,13 +135,13 @@ public class KaveriPlugin
 	public void start(final BundleContext context)
 	  throws Exception {
 		super.start(context);
-		plugin = this;
-		indusConfiguration = new IndusConfiguration();
-
+		plugin = this;		
+		indusConfiguration = new IndusConfiguration();		
 		try {
-			resourceBundle = ResourceBundle.getBundle("Kaveri.KaveriPluginResources");
+			resourceBundle = ResourceBundle.getBundle("edu.ksu.cis.indus.kaveri");
 		} catch (MissingResourceException _x) {
 			resourceBundle = null;
+		//	KaveriErrorLog.logInformation("Missing resource", _x);
 		}
 		slicerTool = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new ExceptionFlowSensitiveStmtGraphFactory());
 		cacheMap = new HashMap();
@@ -166,12 +167,14 @@ public class KaveriPlugin
 				while (_configReader.ready()) {
 					_userConfiguration.append(_configReader.readLine());
 				}
+				_configReader.close();
 			} catch (IOException _ioe) {
 				_ioe.printStackTrace();
+				KaveriErrorLog.logException("Error reading default configuration", _ioe);
 			}
 			final String _configuration = _userConfiguration.toString();			
 			final boolean _result = slicerTool.destringizeConfiguration(_configuration);
-			if (!_result) {
+			if (!_result) {			     			    
 				throw new IllegalArgumentException("Slicer Tool passed illegal configuration");
 			}
 		
@@ -261,11 +264,15 @@ public class KaveriPlugin
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {		
-		if (listener != null) {
+		/*if (listener != null) {
 			final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
 			_workspace.removeResourceChangeListener(listener);
-		}		
+		}*/		
 		getIndusConfiguration().getRManager().dispose();
+		final IJobManager _manager = Platform.getJobManager();
+		final String _myJobFamily = "edu.ksu.cis.indus.kaveri.soottagremover";		
+		_manager.cancel(_myJobFamily);
+		
 	}
 	/**
 	 * @return Returns the cacheMap.

@@ -44,6 +44,7 @@ import org.eclipse.ui.IFileEditorInput;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.StatementResolver;
@@ -102,6 +103,7 @@ public class AddToCriteria
 					processCriteriaForFile(_file, _type, _element, _nSelLine);
 				}
 			} catch (JavaModelException _e) {
+			    KaveriErrorLog.logException("Java Model Exception", _e);
 				SECommons.handleException(_e);
 			}
 		}
@@ -177,6 +179,7 @@ public class AddToCriteria
 			final String _xml = _xstream.toXML(_data);
 			_resource.setPersistentProperty(_name, _xml);
 		} catch (CoreException _e) {
+		    KaveriErrorLog.logException("Core Exception", _e);
 			SECommons.handleException(_e);
 		}
 	}
@@ -237,7 +240,7 @@ public class AddToCriteria
 
 			if (_stmtlist != null && _stmtlist.size() >= 3) {
 				final Criteria _c = new Criteria();
-				final List _storeLst = new ArrayList();
+				
 				final int _noStmts = _stmtlist.size() - 2;
 				_c.setStrClassName(PrettySignature.getSignature(type));
 				_c.setStrMethodName(PrettySignature.getSignature(element));
@@ -248,6 +251,7 @@ public class AddToCriteria
 				}
 			}
 		} catch (NullPointerException _ne) {
+		    KaveriErrorLog.logException("Null pointer exception", _ne);
 			SECommons.handleException(_ne);
 		}
 	}

@@ -133,10 +133,10 @@ public class IndusConfiguration {
 	private HashSet depLinkSet = new HashSet();
 	/** 
 	 * <p>
-	 * The output directory.
+	 * The number of times a slice has been run.
 	 * </p>	 
 	 */
-	private String outputDirectory = ".";
+	private int nNoOfSlicesRun;
 
 	/** 
 	 * Indicates if additive slicing is to be performed.
@@ -161,6 +161,7 @@ public class IndusConfiguration {
 		rManager = new ResourceManager();
 		scopeMap = new HashMap();
 		scopeSpecification = "";
+		nNoOfSlicesRun = 0;
 	}
 
 	/**
@@ -263,27 +264,18 @@ public class IndusConfiguration {
 
 	/**
 	 * <p>
-	 * Sets the output directory to  the given directory.
+	 * Increments the slice count. After a predefined number 
+	 * is reached perform a cleanup.
 	 * </p>	 
 	 *
 	 * @param outputdir The output directory
 	 */
-	public void setOutputDirectory(final String outputdir) {
-		outputDirectory = outputdir;
+	public int incrementSliceCount() {
+		nNoOfSlicesRun++;
+		return nNoOfSlicesRun;
 	}
 
-	/**
-	 * <p>
-	 * Returns the current output directory.
-	 * </p>	 
-	 *
-	 * @return Returns the output directory.
-	 */
-	public String getOutputDirectory() {
-		return outputDirectory;
-	}
-
-	
+		
 
 	/**
 	 * Returns the slice image decoration.
@@ -317,12 +309,10 @@ public class IndusConfiguration {
 	 * Reset the internal variables to their defaults.
 	 * </p>
 	 */
-	public void reset() {
-		//selectedClasses = null;
-		outputDirectory = ".";
+	public void reset() {		
 		lineNumbers = null;
 		selectedStatement = "         ";
-
+		
 		if (!additive) {
 		//	System.out.println("Resetting");
 			indusAnnotationManager.reset();
@@ -437,4 +427,12 @@ public class IndusConfiguration {
 	public void setScopeSpecification(String scopeSpecification) {
 		this.scopeSpecification = scopeSpecification;
 	}
+	
+    /**
+     * Reset the slice count.
+     * 
+     */
+   public void resetSliceCount() {
+        nNoOfSlicesRun = 0;
+    }
 }

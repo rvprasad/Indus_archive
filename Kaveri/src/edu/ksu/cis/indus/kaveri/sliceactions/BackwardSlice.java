@@ -32,6 +32,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 
 
 /**
@@ -70,7 +72,13 @@ public class BackwardSlice
 	public void run(final IAction action) {
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					runSlice("backward-executable-deadlock", editor, textSelection);
+				    final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
+				    String _configName = KaveriPlugin.getDefault()
+				    .getPreferenceStore().getString(_sbConfigKey);				  
+				    if (_configName.equals("")) {
+				        _configName = "backward-executable-deadlock";
+				    }
+					runSlice(_configName, editor, textSelection);
 				}
 			});
 	}
