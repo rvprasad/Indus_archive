@@ -923,6 +923,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Reset internal data structures.
+	 */
+	public void reset() {
+		globalASs.clear();
+		method2Triple.clear();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -972,6 +980,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/28 06:20:39  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
    Revision 1.11  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
