@@ -89,13 +89,6 @@ import soot.jimple.VirtualInvokeExpr;
 public class ReadyDAv1
   extends DependencyAnalysis {
 	/**
-	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
-	 *
-	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
-	 */
-	static Collection notifyMethods;
-
-	/**
 	 * This indicates rule 1 of ready dependency as described in the report.
 	 */
 	public static final int RULE_1 = 1;
@@ -116,6 +109,18 @@ public class ReadyDAv1
 	public static final int RULE_4 = 8;
 
 	/**
+	 * A token used to represent the nonexistent monitor entry/exit statements in synchronized methods.
+	 */
+	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
+
+	/**
+	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
+	 *
+	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
+	 */
+	static Collection notifyMethods;
+
+	/**
 	 * This is the <code>java.lang.Object.wait()</code> method.
 	 *
 	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
@@ -126,11 +131,6 @@ public class ReadyDAv1
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
-
-	/**
-	 * A token used to represent the nonexistent monitor entry/exit statements in synchronized methods.
-	 */
-	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
 
 	/**
 	 * This is the logical OR of the <code>RULE_XX</code> as provided by the user.  This indicates the rules which need to be
@@ -180,9 +180,7 @@ public class ReadyDAv1
 	final Map waits = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a collection of dependeXX in Pair form which result from application of rule 2 to synchronized methods.
 	 */
 	private final Collection specials = new HashSet();
 
@@ -255,55 +253,39 @@ public class ReadyDAv1
 		 * @pre stmt != null and context.getCurrentMethod() != null
 		 */
 		public void callback(final Stmt stmt, final Context context) {
-			SootMethod method = context.getCurrentMethod();
-			Map map = null;
+			final SootMethod _method = context.getCurrentMethod();
+			Map _map = null;
 
 			if (stmt instanceof EnterMonitorStmt) {
-				map = enterMonitors;
-				monitorMethods.add(method);
+				_map = enterMonitors;
+				monitorMethods.add(_method);
 			} else if (stmt instanceof ExitMonitorStmt) {
-				map = exitMonitors;
-				monitorMethods.add(method);
+				_map = exitMonitors;
+				monitorMethods.add(_method);
 			}
 
-			if (map != null) {
-				Collection temp;
-
-				if (map.containsKey(method)) {
-					temp = (Collection) map.get(method);
-				} else {
-					temp = new HashSet();
-					map.put(method, temp);
-				}
-				temp.add(stmt);
+			if (_map != null) {
+				CollectionsModifier.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
 			} else {
 				// InvokeStmt branch
-				InvokeExpr expr = null;
+				InvokeExpr _expr = null;
 
 				if (stmt instanceof InvokeStmt) {
-					expr = stmt.getInvokeExpr();
+					_expr = stmt.getInvokeExpr();
 				}
 
-				if (expr != null && expr instanceof VirtualInvokeExpr) {
-					VirtualInvokeExpr invokeExpr = (VirtualInvokeExpr) expr;
-					SootMethod callee = invokeExpr.getMethod();
+				if (_expr != null && _expr instanceof VirtualInvokeExpr) {
+					final VirtualInvokeExpr _invokeExpr = (VirtualInvokeExpr) _expr;
+					final SootMethod _callee = _invokeExpr.getMethod();
 
-					if (waitMethods.contains(callee)) {
-						map = waits;
-					} else if (notifyMethods.contains(callee)) {
-						map = notifies;
+					if (waitMethods.contains(_callee)) {
+						_map = waits;
+					} else if (notifyMethods.contains(_callee)) {
+						_map = notifies;
 					}
 
-					if (map != null) {
-						Collection temp;
-
-						if (map.containsKey(method)) {
-							temp = (Collection) map.get(method);
-						} else {
-							temp = new HashSet();
-							map.put(method, temp);
-						}
-						temp.add(stmt);
+					if (_map != null) {
+						CollectionsModifier.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
 					}
 				}
 			}
@@ -363,14 +345,14 @@ public class ReadyDAv1
 	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object context) {
-		Collection result = (Collection) dependeeMap.get(dependentStmt);
+		Collection _result = (Collection) dependeeMap.get(dependentStmt);
 
-		if (result != null) {
-			result = Collections.unmodifiableCollection(result);
+		if (_result != null) {
+			_result = Collections.unmodifiableCollection(_result);
 		} else {
-			result = Collections.EMPTY_SET;
+			_result = Collections.EMPTY_SET;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -388,14 +370,14 @@ public class ReadyDAv1
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object context) {
-		Collection result = (Collection) dependentMap.get(dependeeStmt);
+		Collection _result = (Collection) dependentMap.get(dependeeStmt);
 
-		if (result != null) {
-			result = Collections.unmodifiableCollection(result);
+		if (_result != null) {
+			_result = Collections.unmodifiableCollection(_result);
 		} else {
-			result = Collections.EMPTY_SET;
+			_result = Collections.EMPTY_SET;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -441,7 +423,7 @@ public class ReadyDAv1
 	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)
 	 * @post dependences.conatinsAll(result)
 	 */
-	public Collection getSynchronizedMethodEntryExitPoints(Collection dependences) {
+	public Collection getSynchronizedMethodEntryExitPoints(final Collection dependences) {
 		final Collection _result = new HashSet(dependences);
 		_result.retainAll(specials);
 		return _result;
@@ -506,32 +488,37 @@ public class ReadyDAv1
 	 * @post result != null
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for Ready dependence as calculated by " + getClass().getName() + "\n");
-		int edgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			Object dependent = entry.getKey();
+		for (final Iterator _i = dependeeMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Object _dependent = _entry.getKey();
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				Object dependee = j.next();
-				temp.append("\t\t" + dependent + " --> " + dependee + "\n");
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Object _dependee = _j.next();
+				_temp.append("\t\t" + _dependent + " --> " + _dependee + "\n");
 			}
 
-			int localEdgeCount = ((Collection) entry.getValue()).size();
-			final Object _key = entry.getKey();
-			result.append("\tFor " + _key + "[" + (_key != null ? _key.hashCode()
-																: 0) + "] there are " + localEdgeCount
-				+ " Ready dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			int _localEdgeCount = ((Collection) _entry.getValue()).size();
+			final Object _key = _entry.getKey();
+			_result.append("\tFor " + _key + "[");
+
+			if (_key != null) {
+				_result.append(_key.hashCode());
+			} else {
+				_result.append(0);
+			}
+			_result.append("] there are " + _localEdgeCount + " Ready dependence edges.\n");
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Ready dependence edges exist.");
-		return result.toString();
+		_result.append("A total of " + _edgeCount + " Ready dependence edges exist.");
+		return _result.toString();
 	}
 
 	/**
@@ -612,13 +599,13 @@ public class ReadyDAv1
 	 * @pre wPair.getFirst() != null and nPair.getFirst() != null
 	 */
 	protected boolean ifDependentOnByRule4(final Pair wPair, final Pair nPair) {
-		InvokeStmt notify = (InvokeStmt) nPair.getFirst();
-		SootClass notifyClass =
-			env.getClass(((RefType) ((InstanceInvokeExpr) notify.getInvokeExpr()).getBase().getType()).getClassName());
-		InvokeStmt wait = (InvokeStmt) wPair.getFirst();
-		SootClass waitClass =
-			env.getClass(((RefType) ((InstanceInvokeExpr) wait.getInvokeExpr()).getBase().getType()).getClassName());
-		return Util.isHierarchicallyRelated(notifyClass, waitClass);
+		final InvokeStmt _notify = (InvokeStmt) nPair.getFirst();
+		final SootClass _notifyClass =
+			env.getClass(((RefType) ((InstanceInvokeExpr) _notify.getInvokeExpr()).getBase().getType()).getClassName());
+		final InvokeStmt _wait = (InvokeStmt) wPair.getFirst();
+		final SootClass _waitClass =
+			env.getClass(((RefType) ((InstanceInvokeExpr) _wait.getInvokeExpr()).getBase().getType()).getClassName());
+		return Util.isHierarchicallyRelated(_notifyClass, _waitClass);
 	}
 
 	/**
@@ -641,19 +628,19 @@ public class ReadyDAv1
 		}
 
 		if (waitMethods == null) {
-			for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
-				SootClass sc = (SootClass) i.next();
+			for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
+				final SootClass _sc = (SootClass) _i.next();
 
-				if (sc.getName().equals("java.lang.Object")) {
+				if (_sc.getName().equals("java.lang.Object")) {
 					waitMethods = new ArrayList();
-					waitMethods.add(sc.getMethod("void wait()"));
-					waitMethods.add(sc.getMethod("void wait(long)"));
-					waitMethods.add(sc.getMethod("void wait(long,int)"));
+					waitMethods.add(_sc.getMethod("void wait()"));
+					waitMethods.add(_sc.getMethod("void wait(long)"));
+					waitMethods.add(_sc.getMethod("void wait(long,int)"));
 					waitMethods = Collections.unmodifiableCollection(waitMethods);
 
 					notifyMethods = new ArrayList();
-					notifyMethods.add(sc.getMethodByName("notify"));
-					notifyMethods.add(sc.getMethodByName("notifyAll"));
+					notifyMethods.add(_sc.getMethodByName("notify"));
+					notifyMethods.add(_sc.getMethodByName("notifyAll"));
 					notifyMethods = Collections.unmodifiableCollection(notifyMethods);
 				}
 			}
@@ -688,14 +675,14 @@ public class ReadyDAv1
 	 * @pre stmt != null and caller != null and stmt.containsInvokeExpr() == true
 	 */
 	private boolean callsReadyMethod(final Stmt stmt, final SootMethod caller) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (considerCallSites && stmt.containsInvokeExpr()) {
 			if (!CollectionUtils.intersection(readyMethods, callgraph.getMethodsReachableFrom(stmt, caller)).isEmpty()) {
-				result = true;
+				_result = true;
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -719,7 +706,7 @@ public class ReadyDAv1
 
 				final SootMethod _sm = (SootMethod) _pair.getSecond();
 				final BasicBlock _head = getBasicBlockGraph(_sm).getHead();
-				Object _headStmt = _head.getLeaderStmt();
+				final Object _headStmt = _head.getLeaderStmt();
 				final Pair _special = pairMgr.getOptimizedPair(_headStmt, _sm);
 				specials.add(_special);
 				_result.add(_special);
@@ -774,32 +761,31 @@ public class ReadyDAv1
 	 * site or synchronized block in a method, the dependency is calculated for all dominated statements in the same method.
 	 */
 	private void processRule1And3() {
-		Collection temp = new HashSet();
-		IWorkBag workbag = new LIFOWorkBag();
-		Collection processed = new HashSet();
-		Map map = new HashMap();
+		final IWorkBag _workbag = new LIFOWorkBag();
+		final Collection _processed = new HashSet();
+		final Map _map = new HashMap();
 
 		if ((rules & RULE_1) != 0) {
-			for (Iterator i = enterMonitors.keySet().iterator(); i.hasNext();) {
-				SootMethod method = (SootMethod) i.next();
-				final Collection _col = new HashSet((Collection) enterMonitors.get(method));
+			for (final Iterator _i = enterMonitors.keySet().iterator(); _i.hasNext();) {
+				final SootMethod _method = (SootMethod) _i.next();
+				final Collection _col = new HashSet((Collection) enterMonitors.get(_method));
 
-				if (method.isSynchronized()) {
+				if (_method.isSynchronized()) {
 					_col.remove(SYNC_METHOD_PROXY_STMT);
 				}
-				map.put(method, _col);
+				_map.put(_method, _col);
 			}
 		}
 
 		if ((rules & RULE_3) != 0) {
-			for (Iterator i = waits.keySet().iterator(); i.hasNext();) {
-				SootMethod method = (SootMethod) i.next();
+			for (final Iterator _i = waits.keySet().iterator(); _i.hasNext();) {
+				final SootMethod _method = (SootMethod) _i.next();
 
-				if (map.get(method) != null) {
-					((Collection) map.get(method)).addAll((Collection) waits.get(method));
+				if (_map.get(_method) != null) {
+					((Collection) _map.get(_method)).addAll((Collection) waits.get(_method));
 				} else {
-					Collection tmp = new HashSet((Collection) waits.get(method));
-					map.put(method, tmp);
+					final Collection _tmp = new HashSet((Collection) waits.get(_method));
+					_map.put(_method, _tmp);
 				}
 			}
 		}
@@ -809,90 +795,79 @@ public class ReadyDAv1
 				+ "wait()s that occur in different threads.");
 		}
 
-		for (Iterator i = map.keySet().iterator(); i.hasNext();) {
-			SootMethod method = (SootMethod) i.next();
-			List stmts = getStmtList(method);
-			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
-			Collection dependees = (Collection) map.get(method);
+		for (final Iterator _i = _map.keySet().iterator(); _i.hasNext();) {
+			final SootMethod _method = (SootMethod) _i.next();
+			final List _stmts = getStmtList(_method);
+			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
+			final Collection _dependees = (Collection) _map.get(_method);
 
-			for (Iterator j = dependees.iterator(); j.hasNext();) {
-				Stmt dependee = (Stmt) j.next();
-				BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
-				List sl = bb.getStmtFrom(stmts.indexOf(dependee));
-				sl.remove(0);  // remove the dependee from the list
-				temp = new HashSet();
+			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
+				final Stmt _dependee = (Stmt) _j.next();
+				BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
+				final List _sl = _bb.getStmtFrom(_stmts.indexOf(_dependee));
+				_sl.remove(0);  // remove the dependee from the list
 
-				boolean shouldContinue = true;
-				Pair pair = pairMgr.getOptimizedPair(dependee, method);
+				final Collection _temp = new HashSet();
+
+				boolean _shouldContinue = true;
+				final Pair _pair = pairMgr.getOptimizedPair(_dependee, _method);
 
 				// add dependee to dependent direction information.
-				for (Iterator k = sl.iterator(); k.hasNext();) {
-					Stmt stmt = (Stmt) k.next();
-					Collection t = (Collection) dependeeMap.get(stmt);
-
-					if (t == null) {
-						t = new HashSet();
-						dependeeMap.put(stmt, t);
-					}
-					t.add(pair);
+				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
+					final Stmt _stmt = (Stmt) _k.next();
+					CollectionsModifier.putIntoCollectionInMap(dependeeMap, _stmt, _pair, new HashSet());
 
 					// add dependent to dependee direction information
-					temp.add(pairMgr.getOptimizedPair(stmt, method));
+					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
 
 					/*
 					 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method call-site,
 					 * flag that the following successors should not be considered for this dependence and break.
 					 */
-					if (dependees.contains(stmt) || callsReadyMethod(stmt, method)) {
-						shouldContinue = false;
+					if (_dependees.contains(_stmt) || callsReadyMethod(_stmt, _method)) {
+						_shouldContinue = false;
 						break;
 					}
 				}
 
 				// Process the successive basic blocks if there was no ready dependence head statement. 
-				if (shouldContinue) {
-					workbag.clear();
-					processed.clear();
-					workbag.addAllWork(bb.getSuccsOf());
+				if (_shouldContinue) {
+					_workbag.clear();
+					_processed.clear();
+					_workbag.addAllWork(_bb.getSuccsOf());
 
-					while (workbag.hasWork()) {
-						bb = (BasicBlock) workbag.getWork();
-						shouldContinue = true;
+					while (_workbag.hasWork()) {
+						_bb = (BasicBlock) _workbag.getWork();
+						_shouldContinue = true;
 
 						// add dependee to dependent direction information.
-						for (Iterator k = bb.getStmtsOf().iterator(); k.hasNext();) {
-							Stmt stmt = (Stmt) k.next();
-							Collection t = (Collection) dependeeMap.get(stmt);
-
-							if (t == null) {
-								t = new HashSet();
-								dependeeMap.put(stmt, t);
-							}
-							t.add(pair);
+						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
+							final Stmt _stmt = (Stmt) _k.next();
+							CollectionsModifier.putIntoCollectionInMap(dependeeMap, _stmt, _pair, new HashSet());
 
 							// add dependent to dependee direction information
-							temp.add(pairMgr.getOptimizedPair(stmt, method));
+							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
 
 							/*
 							 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method
 							 * call-site , flag that the following successors should not be considered for this dependence
 							 * and break.
 							 */
-							if (dependees.contains(stmt) || callsReadyMethod(stmt, method)) {
-								shouldContinue = false;
+							if (_dependees.contains(_stmt) || callsReadyMethod(_stmt, _method)) {
+								_shouldContinue = false;
 								break;
 							}
 						}
 
-						if (!processed.contains(bb) && shouldContinue) {
-							workbag.addAllWork(bb.getSuccsOf());
+						if (!_processed.contains(_bb) && _shouldContinue) {
+							_workbag.addAllWork(_bb.getSuccsOf());
 						}
-						processed.add(bb);
+						_processed.add(_bb);
 					}
 				}
 
 				//add dependee to dependent direction information.
-				dependentMap.put(dependee, temp);
+				dependentMap.put(_dependee, _temp);
 			}
 		}
 	}
@@ -902,15 +877,15 @@ public class ReadyDAv1
 	 * in different threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule2()</code>.
 	 */
 	private void processRule2() {
-		Collection temp = new HashSet();
+		final Collection _temp = new HashSet();
 
-		for (Iterator i = exitMonitors.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			Object method = entry.getKey();
+		for (final Iterator _i = exitMonitors.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Object _method = _entry.getKey();
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				Object o = j.next();
-				temp.add(pairMgr.getOptimizedPair(o, method));
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Object _o = _j.next();
+				_temp.add(pairMgr.getOptimizedPair(_o, _method));
 			}
 		}
 
@@ -921,19 +896,19 @@ public class ReadyDAv1
 		/*
 		 * Iterate thru enter-monitor sites and record dependencies, in both direction, between each exit-monitor sites.
 		 */
-		for (Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
-			Map.Entry _entry = (Map.Entry) i.next();
-			SootMethod _enterMethod = (SootMethod) _entry.getKey();
+		for (final Iterator _i = enterMonitors.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final SootMethod _enterMethod = (SootMethod) _entry.getKey();
 
-			for (Iterator j = ((Collection) _entry.getValue()).iterator(); j.hasNext();) {
-				final Object _enter = j.next();
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Object _enter = _j.next();
 
 				final Pair _enterPair = pairMgr.getOptimizedPair(_enter, _enterMethod);
 				_nSet.clear();
 
 				// add dependee to dependent information 
-				for (Iterator k = temp.iterator(); k.hasNext();) {
-					final Pair _exitPair = (Pair) k.next();
+				for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+					final Pair _exitPair = (Pair) _k.next();
 					_xSet.clear();
 
 					final Object _exit = _exitPair.getFirst();
@@ -989,47 +964,40 @@ public class ReadyDAv1
 	 * threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule4()</code>.
 	 */
 	private void processRule4() {
-		Collection dependents = new HashSet();
+		final Collection _dependents = new HashSet();
 
 		/*
 		 * Iterate thru wait() call-sites and record dependencies, in both direction, between each notify() call-sites.
 		 */
-		for (Iterator iter = notifies.entrySet().iterator(); iter.hasNext();) {
-			final Map.Entry _nEntry = (Map.Entry) iter.next();
-			SootMethod nMethod = (SootMethod) _nEntry.getKey();
+		for (final Iterator _iter = notifies.entrySet().iterator(); _iter.hasNext();) {
+			final Map.Entry _nEntry = (Map.Entry) _iter.next();
+			final SootMethod _nMethod = (SootMethod) _nEntry.getKey();
 
-			for (Iterator j = ((Collection) _nEntry.getValue()).iterator(); j.hasNext();) {
-				InvokeStmt notify = (InvokeStmt) j.next();
-				Pair nPair = pairMgr.getOptimizedPair(notify, nMethod);
-				dependents.clear();
+			for (final Iterator _j = ((Collection) _nEntry.getValue()).iterator(); _j.hasNext();) {
+				final InvokeStmt _notify = (InvokeStmt) _j.next();
+				final Pair _nPair = pairMgr.getOptimizedPair(_notify, _nMethod);
+				_dependents.clear();
 
 				// add dependee to dependent information
-				for (Iterator k = waits.entrySet().iterator(); k.hasNext();) {
-					final Map.Entry _wEntry = (Map.Entry) k.next();
+				for (final Iterator _k = waits.entrySet().iterator(); _k.hasNext();) {
+					final Map.Entry _wEntry = (Map.Entry) _k.next();
+					final SootMethod _wMethod = (SootMethod) _wEntry.getKey();
 
-					SootMethod wMethod = (SootMethod) _wEntry.getKey();
+					for (final Iterator _l = ((Collection) _wEntry.getValue()).iterator(); _l.hasNext();) {
+						final InvokeStmt _wait = (InvokeStmt) _l.next();
 
-					for (Iterator l = ((Collection) _wEntry.getValue()).iterator(); l.hasNext();) {
-						InvokeStmt wait = (InvokeStmt) l.next();
+						final Pair _wPair = pairMgr.getOptimizedPair(_wait, _wMethod);
 
-						Pair wPair = pairMgr.getOptimizedPair(wait, wMethod);
-
-						if (ifDependentOnByRule4(wPair, nPair)) {
-							Collection temp = (Collection) dependeeMap.get(wait);
-
-							if (temp == null) {
-								temp = new ArrayList();
-								dependeeMap.put(wait, temp);
-							}
-							temp.add(nPair);
-							dependents.add(wPair);
+						if (ifDependentOnByRule4(_wPair, _nPair)) {
+							CollectionsModifier.putIntoCollectionInMap(dependeeMap, _wait, _nPair, new ArrayList());
+							_dependents.add(_wPair);
 						}
 					}
 				}
 
 				// add dependent to dependee information
-				if (!dependents.isEmpty()) {
-					dependentMap.put(notify, new ArrayList(dependents));
+				if (!_dependents.isEmpty()) {
+					dependentMap.put(_notify, new ArrayList(_dependents));
 				}
 			}
 		}
@@ -1039,6 +1007,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/01/25 03:21:43  venku
+   - maintains a list of special dependence points pertaining to
+     entry and exit points of synchronized methods.
    Revision 1.40  2004/01/22 12:31:53  venku
    - ready dependence information for synchronized methods was
      normalized into general dependence format.
