@@ -48,11 +48,6 @@ public abstract class AbstractXMLizer
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
 
 	/**
-	 * This indicates if jimple should be dumped in XML form.
-	 */
-	protected boolean dumpXMLizedJimple;
-
-	/**
 	 * This is the id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
@@ -111,6 +106,17 @@ public abstract class AbstractXMLizer
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param name DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public abstract String getFileName(final String name);
+
+	/**
 	 * Writes information in XML form.
 	 *
 	 * @param info is a map in which information required for xmlization will be provided.
@@ -120,43 +126,50 @@ public abstract class AbstractXMLizer
 	public abstract void writeXML(final Map info);
 
 	/**
-	 * Dumps the jimple into a file.  The name of the file is built from <code>rootname</code> and the parts of the jimple
-	 * that will be dumped is controlled by <code>xmlcgipc</code>.
+	 * Dumps the jimple into a file.
 	 *
-	 * @param rootname is the name of the root method which is used to create the file name of the file into which jimple
-	 * 		  should be dumped.
+	 * @param name is the name of the file into which jimple should be dumped.
 	 * @param xmlcgipc is the processing controller to be used to control the dumping operation.  The user can use this
 	 * 		  controller to control the methods and classes to be included in the dump.  This controller sholuld be able to
 	 * 		  have deterministic behavior over a given set of class files.
 	 *
-	 * @pre rootname != null and xmlcgipc != null
+	 * @pre name != null and xmlcgipc != null
 	 */
-	public final void dumpJimple(final String rootname, final ProcessingController xmlcgipc) {
-		if (dumpXMLizedJimple) {
-			final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
-			Writer _writer;
+	public final void dumpJimple(final String name, final ProcessingController xmlcgipc) {
+		final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
+		Writer _writer;
 
-			try {
-				_writer =
-					new FileWriter(new File(getXmlOutputDir() + File.separator
-							+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
-				_t.setWriter(_writer);
-				_t.hookup(xmlcgipc);
-				xmlcgipc.process();
-				_t.unhook(xmlcgipc);
-				_writer.flush();
-				_writer.close();
-			} catch (IOException _e) {
-				LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", _e);
-				System.exit(1);
-			}
+		try {
+			_writer = new FileWriter(new File(getXmlOutputDir() + File.separator + getFileName(name) + "_jimple.xml"));
+			_t.setWriter(_writer);
+			_t.hookup(xmlcgipc);
+			xmlcgipc.process();
+			_t.unhook(xmlcgipc);
+			_writer.flush();
+			_writer.close();
+		} catch (IOException _e) {
+			LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", _e);
+			System.exit(1);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param name
+	 *
+	 * @return
+	 */
+	public final String xmlizeString(final String name) {
+		return name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "");
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/09 06:49:05  venku
+   - deleted dependency xmlization and test classes.
    Revision 1.8  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.

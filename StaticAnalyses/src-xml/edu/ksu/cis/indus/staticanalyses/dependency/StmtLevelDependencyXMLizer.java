@@ -99,14 +99,15 @@ public final class StmtLevelDependencyXMLizer
 	 */
 	public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
-		final Collection _dependencies = analysis.getDependents(stmt, _method);
+		final Collection _dependents = analysis.getDependents(stmt, _method);
+		final Collection _dependees = analysis.getDependees(stmt, _method);
 
 		try {
-			if (!_dependencies.isEmpty()) {
+			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
 				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
-				totalDependences += _dependencies.size();
+				totalDependences += _dependents.size();
 
-				for (final Iterator _i = _dependencies.iterator(); _i.hasNext();) {
+				for (final Iterator _i = _dependents.iterator(); _i.hasNext();) {
 					final Object _o = _i.next();
 
 					if (_o instanceof Pair) {
@@ -115,6 +116,18 @@ public final class StmtLevelDependencyXMLizer
 							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
 					} else if (_o instanceof Stmt) {
 						writer.write("\t\t\t\t<dependent id=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
+					}
+				}
+
+				for (final Iterator _i = _dependees.iterator(); _i.hasNext();) {
+					final Object _o = _i.next();
+
+					if (_o instanceof Pair) {
+						final Pair _pair = (Pair) _o;
+						writer.write("\t\t\t\t<dependee id=\""
+							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
+					} else if (_o instanceof Stmt) {
+						writer.write("\t\t\t\t<dependee id=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
 					}
 				}
 				writer.write("\t\t\t</dependency_info>\n");
@@ -228,10 +241,11 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 06:49:02  venku
+   - deleted dependency xmlization and test classes.
    Revision 1.1  2004/02/08 03:05:46  venku
    - renamed xmlizer packages to be in par with the packages
      that contain the classes whose data is being xmlized.
-
    Revision 1.12  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

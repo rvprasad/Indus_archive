@@ -15,43 +15,22 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.IProcessingFilter;
-import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 
@@ -63,74 +42,8 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CallGraphXMLizer
+public final class CallGraphXMLizer
   extends AbstractXMLizer {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	protected static SootBasedDriver sootBasedDriver;
-
-	/**
-	 * The entry point to the program via command line.
-	 *
-	 * @param args is the command line arguments.
-	 */
-	public static void main(final String[] args) {
-		final Options _options = new Options();
-		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setArgs(Option.UNLIMITED_VALUES);
-		_option.setValueSeparator(' ');
-		_options.addOption(_option);
-		_option =
-			new Option("o", "output", true,
-				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
-		_option.setArgs(1);
-		_options.addOption(_option);
-		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
-		_options.addOption(_option);
-
-		final PosixParser _parser = new PosixParser();
-
-		try {
-			final CommandLine _cl = _parser.parse(_options, args);
-
-			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.xmlizer.CallGraphXMLizer ", _options);
-				System.exit(1);
-			}
-
-			final CallGraphXMLizer _xmlizer = new CallGraphXMLizer();
-			String _outputDir = _cl.getOptionValue('o');
-
-			if (_outputDir == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Defaulting to current directory for output.");
-				}
-				_outputDir = ".";
-			}
-
-			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
-
-			_xmlizer.setXmlOutputDir(_outputDir);
-			sootBasedDriver.setClassNames(_cl.getOptionValues('c'));
-			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-
-			sootBasedDriver = new SootBasedDriver();
-			sootBasedDriver.initialize();
-			execute(_xmlizer);
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerDriver", _options);
-		}
-	}
-
 	/**
 	 * Writes the call graph in XML.
 	 *
@@ -141,8 +54,7 @@ public class CallGraphXMLizer
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
 	public final void writeXML(final Map info) {
-		final File _f =
-			new File(getXmlOutputDir() + File.separator + getFileName((String)info.get(FILE_NAME_ID)));
+		final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
 		final FileWriter _writer;
 
 		try {
@@ -157,11 +69,11 @@ public class CallGraphXMLizer
 			final Collection _temp = new HashSet();
 
 			for (final Iterator _i = _filter.filterMethods(_cgi.getReachableMethods()).iterator(); _i.hasNext();) {
-				final SootMethod _caller = (SootMethod) _i.next();
-				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
+				final SootMethod _method = (SootMethod) _i.next();
+				_writer.write("\t<method id=\"" + getIdGenerator().getIdForMethod(_method) + "\">\n");
 				_temp.clear();
 
-				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
+				for (final Iterator _j = _cgi.getCallees(_method).iterator(); _j.hasNext();) {
 					final CallTriple _ctrp = (CallTriple) _j.next();
 					_temp.add(_ctrp.getMethod());
 				}
@@ -171,7 +83,19 @@ public class CallGraphXMLizer
 					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
 				}
 
-				_writer.write("\t</caller>\n");
+				_temp.clear();
+
+				for (final Iterator _j = _cgi.getCallers(_method).iterator(); _j.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _j.next();
+					_temp.add(_ctrp.getMethod());
+				}
+
+				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
+					SootMethod _caller = (SootMethod) _j.next();
+					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_caller) + "\"/>\n");
+				}
+
+				_writer.write("\t</method>\n");
 			}
 			_writer.write("</callgraph>\n");
 			_writer.flush();
@@ -190,73 +114,19 @@ public class CallGraphXMLizer
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public static String getFileName(final String name) {
-		return "callgraph_" + name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml";
-	}
-
-	/**
-	 * Xmlize the given system.
-	 *
-	 * @param xmlizer DOCUMENT ME!
-	 */
-	private static void execute(final AbstractXMLizer xmlizer) {
-		sootBasedDriver.setLogger(LOGGER);
-
-		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
-
-		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
-		final ICallGraphInfo _cgi = new CallGraph();
-		final Collection _rm = new ArrayList();
-		final ProcessingController _xmlcgipc = new ProcessingController();
-
-		_pc.setAnalyzer(_aa);
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_xmlcgipc.setEnvironment(_aa.getEnvironment());
-		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
-
-		final Map _info = new HashMap();
-		_info.put(ICallGraphInfo.ID, _cgi);
-
-		for (final Iterator _k = sootBasedDriver.getRootMethods().iterator(); _k.hasNext();) {
-			_rm.clear();
-
-			final SootMethod _root = (SootMethod) _k.next();
-			_rm.add(_root);
-
-			final String _rootname = _root.getSignature();
-			sootBasedDriver.writeInfo("RootMethod: " + _rootname);
-			sootBasedDriver.writeInfo("BEGIN: FA");
-
-			final long _start = System.currentTimeMillis();
-			_aa.reset();
-			sootBasedDriver.getBbm().reset();
-
-			_aa.analyze(sootBasedDriver.getScene(), _rm);
-
-			final long _stop = System.currentTimeMillis();
-			sootBasedDriver.addTimeLog("FA", _stop - _start);
-			sootBasedDriver.writeInfo("END: FA");
-			((CallGraph) _cgi).reset();
-			_processors.clear();
-			_processors.add(_cgi);
-			_pc.reset();
-			_pc.driveProcessors(_processors);
-			_processors.clear();
-			xmlizer.dumpJimple(_rootname, _xmlcgipc);
-			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
-			xmlizer.writeXML(_info);
-		}
+	public String getFileName(final String name) {
+		return "callgraph_" + xmlizeString(name);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 07:32:38  venku
+   - added support to differentiate test method name and test name.
+   - added logic to change name of AbstractXMLBasedTest tests as well.
    Revision 1.6  2004/02/09 06:49:02  venku
    - deleted dependency xmlization and test classes.
-
    Revision 1.5  2004/02/09 04:39:36  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
