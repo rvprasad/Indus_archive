@@ -75,14 +75,17 @@ public final class RDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
-		das.add(new ReadyDAv1(false));
-		das.add(new ReadyDAv2(false));
+		das.add(new ReadyDAv1());
+		das.add(new ReadyDAv2());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku

@@ -203,7 +203,7 @@ public class ReadyDAv1
 	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
 	 * affects how rule 1 and 3 are interpreted.
 	 */
-	private boolean interProcedural;
+	private boolean interProcedural = false;
 
 	/**
 	 * Creates a new ReadyDAv1 object.
@@ -909,6 +909,12 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/25 09:04:31  venku
+   It was not a good decision to decide interproceduralness of the
+   analyses at construction.  Hence, it now can be controlled via public
+   method setInterprocedural().
+   Ripple effect.
+
    Revision 1.6  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
