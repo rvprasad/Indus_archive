@@ -28,7 +28,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -251,7 +250,9 @@ public class PartialSliceView
 		final GridData _data = new GridData();		
 		_data.horizontalSpan = 2;
 		_data.grabExcessHorizontalSpace = true;
-		_data.horizontalAlignment = GridData.FILL_BOTH;
+		_data.horizontalAlignment = GridData.FILL;
+		_data.grabExcessVerticalSpace = true;
+		_data.verticalAlignment = GridData.FILL;
 		//_data.grabExcessVerticalSpace = true;
 		_table.setLayoutData(_data);
 		

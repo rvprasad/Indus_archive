@@ -198,7 +198,8 @@ public class IndusConfigurationDialog
 		_gd.horizontalSpan = 1;
 		_gd.grabExcessHorizontalSpace = true;
 		_gd.grabExcessVerticalSpace = true;
-		_gd.horizontalAlignment = GridData.FILL_BOTH;
+		_gd.horizontalAlignment = GridData.FILL;
+		_gd.verticalAlignment = GridData.FILL;
 		criteriaTable.setLayoutData(_gd);
 		
 		criteriaTable.setLinesVisible(true);
