@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.tools.slicer.processing;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -527,6 +526,13 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/02/05 18:20:58  venku
+   - moved getClassesInTopologicalSortedOrder() into Util.
+   - logging.
+   - getClassesInTopologicalSortedOrder() was collecting the
+     retain methods rather than the methods from which
+     to retain. FIXED.
+
    Revision 1.15  2004/02/04 04:33:15  venku
    - logging.
    Revision 1.14  2004/01/31 01:49:49  venku
