@@ -30,9 +30,14 @@ import org.eclipse.swt.widgets.Composite;
  */
 public abstract class AbstractToolConfigurator {
 	/**
+	 * This is the configuration to be handled by this object.
+	 */
+	protected AbstractToolConfiguration configuration;
+
+	/**
 	 * The parent composite on which the provided interface will be displayed.
 	 */
-	private Composite parent;
+	protected Composite parent;
 
 	/**
 	 * This indicates if the configurator has been disposed.
@@ -100,38 +105,70 @@ public abstract class AbstractToolConfigurator {
 	}
 
 	/**
+	 * Sets the configuration to be configured.
+	 *
+	 * @param toolConfiguration is the configuration to be edited.
+	 *
+	 * @pre toolConfiguration != null
+	 */
+	public final void setConfiguration(final AbstractToolConfiguration toolConfiguration) {
+		checkConfiguration(toolConfiguration);
+		configuration = toolConfiguration;
+	}
+
+	/**
 	 * Displays the editor widget.  The widget can be hidden by calling <code>hide()</code>.
 	 *
 	 * @param composite on which to display the configuration interface.
-	 * @param configuration to be configured.
 	 *
 	 * @throws RuntimeException when this method is invoked on a disposed instance.
 	 *
-	 * @pre composite != null and configuration != null
+	 * @pre composite != null
 	 */
-	public final void display(final Composite composite, final AbstractToolConfiguration configuration) {
+	public final void display(final Composite composite) {
 		if (composite != parent || !initialized) {
 			initialized = false;
 			parent = composite;
-			initialize(composite);
+			initialize();
 			initialized = true;
 		}
 
 		if (!disposed) {
-			displayTemplateMethod(configuration);
+			displayTemplateMethod();
 		} else {
 			throw new RuntimeException("Disposed configurators cannot be displayed.");
 		}
 	}
 
 	/**
-	 * Disposes the editor widget. If the widget is displayed, it will be hidden and the widget will not respond to any
-	 * subsequent method calls.
+	 * Disposes the configurator widget. If the configurator was displayed, it will be hidden. The configurator will not 
+     * respond to any subsequent method calls.
 	 */
 	public final void dispose() {
 		disposed = true;
+        if (!parent.isDisposed()) {
+            parent.dispose();
+            parent = null;
+        }
 		disposeTemplateMethod();
 	}
+
+	/**
+	 * Hides the configurator.  The configurator can be displayed again by calling <code>display()</code>.
+	 */
+	public void hide() {
+		parent.setVisible(false);
+	}
+
+	/**
+	 * Checks the given configuration.  This is an empty implementation.  Subclasses can check the configuration in this method.
+	 *
+	 * @param toolConfiguration to be checked.
+	 *
+	 * @pre toolConfiguration != null
+	 */
+	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {        
+    }
 
 	/**
 	 * Checks if this instance has been disposed.
@@ -152,14 +189,12 @@ public abstract class AbstractToolConfigurator {
 	}
 
 	/**
-	 * Called when <code>display()</code> is called on this instance.  The subclasses should appropriately display the given
-	 * configuration.
-	 *
-	 * @param configuration to be displayed.
-	 *
-	 * @pre configuration != null
+	 * Called when <code>display()</code> is called on this instance.  The default implement just displays the widget. The
+	 * subclasses can override this method to control the display.
 	 */
-	protected abstract void displayTemplateMethod(final AbstractToolConfiguration configuration);
+	protected void displayTemplateMethod() {
+		parent.setVisible(true);
+	}
 
 	/**
 	 * Called when <code>dispose()</code> is called on this instance.  The subclass should clean up GUI related resources
@@ -171,17 +206,17 @@ public abstract class AbstractToolConfigurator {
 	 * Initialize the configurator.  This will be called once on each configurator.  The intention is to create the GUI
 	 * resources here and later on use during display.  This will be called before <code>displayTemplateMethod()</code> is
 	 * called.
-	 *
-	 * @param composite on which the configuration interface should be displayed.
-	 *
-	 * @pre composite != null
 	 */
-	protected abstract void initialize(final Composite composite);
+	protected abstract void initialize();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/27 01:09:36  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.1  2003/09/26 23:46:59  venku
    - Renamed Tool to AbstractTool
    - Renamed ToolConfiguration to AbstractToolConfiguration
