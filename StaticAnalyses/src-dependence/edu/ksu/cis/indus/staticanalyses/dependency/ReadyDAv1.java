@@ -57,6 +57,7 @@ import org.apache.commons.logging.LogFactory;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Type;
 
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
@@ -629,8 +630,8 @@ public class ReadyDAv1
 	 * @pre exitPair.getFirst().oclIsKindOf(ExitMonitorStmt) or exitPair.getFirst().equals(SYNC_METHOD_PROXY_STMT)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		SootClass _enterClass;
-		SootClass _exitClass;
+		Type _enterMonitorOptype;
+		Type _exitMonitorOpType;
 		final SootMethod _sm1 = (SootMethod) enterPair.getSecond();
 
 		boolean _result = isLockUnsafe(enterPair.getFirst(), _sm1);
@@ -643,27 +644,27 @@ public class ReadyDAv1
 			final Object _o1 = enterPair.getFirst();
 
 			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
-				_enterClass = _sm1.getDeclaringClass();
+				_enterMonitorOptype = _sm1.getDeclaringClass().getType();
 				_syncedStaticMethod1 = _sm1.isStatic();
 			} else {
 				final EnterMonitorStmt _enter = (EnterMonitorStmt) _o1;
-				_enterClass = env.getClass(((RefType) _enter.getOp().getType()).getClassName());
+				_enterMonitorOptype = _enter.getOp().getType();
 			}
 
 			final Object _o2 = exitPair.getFirst();
 
 			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
-				_exitClass = _sm2.getDeclaringClass();
+				_exitMonitorOpType = _sm2.getDeclaringClass().getType();
 				_syncedStaticMethod2 = _sm2.isStatic();
 			} else {
 				final ExitMonitorStmt _exit = (ExitMonitorStmt) _o2;
-				_exitClass = env.getClass(((RefType) _exit.getOp().getType()).getClassName());
+				_exitMonitorOpType = _exit.getOp().getType();
 			}
 
 			if (_syncedStaticMethod1 && _syncedStaticMethod2) {
 				// if we are dealing with synchronized static methods, then they will lock the class object, hence,
 				// inheritance relation should not be considered.            
-				_result = _enterClass.equals(_exitClass);
+				_result = _enterMonitorOptype.equals(_exitMonitorOpType);
 			} else if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
 				/*
 				 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
@@ -672,7 +673,7 @@ public class ReadyDAv1
 				 */
 				_result = true;
 			} else {
-				_result = Util.isHierarchicallyRelated(_enterClass, _exitClass);
+				_result = Util.isSameOrSubType(_enterMonitorOptype, _exitMonitorOpType, env);
 
 				if (_result && useOFA) {
 					_result = ifDependentOnBasedOnOFAByRule2(enterPair, exitPair);
@@ -1311,6 +1312,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.67  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.66  2004/07/30 07:47:06  venku
    - changed the way optional features were handled (OFA/SLA).
    Revision 1.65  2004/07/28 02:46:55  venku
