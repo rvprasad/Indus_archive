@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.common;
@@ -39,9 +19,10 @@ import soot.Body;
 import soot.PatchingChain;
 import soot.SootMethod;
 
+
 /**
- * This is an abstract implementation of <code>ITransformer</code> interface that provides basic functionality
- * required by transformers. 
+ * This is an abstract implementation of <code>ITransformer</code> interface that provides basic functionality required by
+ * transformers.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -70,14 +51,16 @@ public abstract class AbstractTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/19 12:44:39  venku
+   Changed the signature of ITransformer.getLocal()
+   Introduced reset() in ITransformer.
+   Ripple effect of the above changes.
    Revision 1.3  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
-
    Revision 1.2  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.
    Ripple effect of the above.
-
    Revision 1.1  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
@@ -91,5 +74,4 @@ public abstract class AbstractTransformer
       and SliceMapImpl is the engine that does or captures the transformation.
    The immediate following change will be to rename ITransformMap to ITransformer,
     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
-
  */

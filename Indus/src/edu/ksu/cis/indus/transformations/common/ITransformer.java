@@ -1,42 +1,23 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.common;
 
 import soot.Local;
 import soot.PatchingChain;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -175,6 +156,20 @@ public interface ITransformer {
 	void completeTransformation();
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param scene DOCUMENT ME!
+	 */
+	void initialize(Scene scene);
+
+	/**
+	 * Reset any internal state.
+	 */
+	void reset();
+
+	/**
 	 * Transform the given statement.  This method will suffice for simple transformation which do not require any context
 	 * information except the method in which the statement occurs.  Both parameters refer to untransformed versions.
 	 *
@@ -184,41 +179,36 @@ public interface ITransformer {
 	 * @pre stmt != null and method != null
 	 */
 	void transform(Stmt stmt, SootMethod method);
-    
-    /**
-     * Transform the given program point.  This method will suffice for simple transformation which do not require any context
-     * information except the method in which the statement occurs.  All parameters refer to untransformed versions.
-     *
-     * @param vBox is the program point to be transformed.
-     * @param stmt in which <code>vBox</code> occurs.
-     * @param method in which <code>stmt</code> occurs.
-     *
-     * @pre stmt != null and method != null
-     */
-    void transform(ValueBox vBox, Stmt stmt, SootMethod method);
-    
-    /**
-     * Reset any internal state.
-     */
-    void reset();
+
+	/**
+	 * Transform the given program point.  This method will suffice for simple transformation which do not require any
+	 * context information except the method in which the statement occurs.  All parameters refer to untransformed versions.
+	 *
+	 * @param vBox is the program point to be transformed.
+	 * @param stmt in which <code>vBox</code> occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre stmt != null and method != null
+	 */
+	void transform(ValueBox vBox, Stmt stmt, SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/21 09:30:31  venku
+    - added a new transform() method which can transform at the level of ValueBox.
+    - CloningBasedSlicingTransformer does not do anything in this new method.
    Revision 1.6  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.
    Ripple effect of the above changes.
-
    Revision 1.5  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
-
    Revision 1.4  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.
    Ripple effect of the above.
-   
    Revision 1.3  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
@@ -232,11 +222,9 @@ public interface ITransformer {
       and SliceMapImpl is the engine that does or captures the transformation.
    The immediate following change will be to rename ITransformMap to ITransformer,
     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
-
    Revision 1.2  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location
    and independent of any specific transformation.
-
    Revision 1.1  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.

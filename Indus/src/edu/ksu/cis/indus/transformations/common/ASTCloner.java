@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.common;
@@ -93,8 +73,8 @@ import java.util.List;
 /**
  * This class "clones" a given Soot Jimple AST chunk (statement and expression).  Our interpretation of clone here is an
  * semantically identical copy of the given AST chunk.  This is used during construction of the new body after transforming.
- * The methods of this class walkover the given AST using <i>visitor pattern</i> to clone the given AST chunk.  Note that
- * we cannot use <code>clone()</code> on the all of the chunks as we have to get the references to the chunks created in the
+ * The methods of this class walkover the given AST using <i>visitor pattern</i> to clone the given AST chunk.  Note that we
+ * cannot use <code>clone()</code> on the all of the chunks as we have to get the references to the chunks created in the
  * clone rather than the clonee.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -805,24 +785,24 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/08/20 18:22:24  venku
+   Documentation error fixed.
    Revision 1.9  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.
    Ripple effect of the above changes.
-
    Revision 1.8  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
 
-   
    Revision 1.7  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location
    and independent of any specific transformation.
-   
+
    Revision 1.6  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.
     - Moved it under transformation common location under indus.
-    
+
    Revision 1.5  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.
