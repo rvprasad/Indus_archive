@@ -80,7 +80,7 @@ public class SlicerTestSetup
 		final String xmlControlDirectory, final String sootClasspath) {
 		super(suite);
 
-		driver = new SliceXMLizerCLI(idGenerator);
+		driver = new SliceXMLizerCLI();
 		driver.setOutputDirectory(xmlTestDirectory);
 
 		if (sootClasspath != null) {
@@ -99,6 +99,7 @@ public class SlicerTestSetup
 	protected void setUp()
 	  throws Exception {
 		// drive the slicer
+		driver.setIDGenerator(idGenerator);
 		driver.initialize();
 		driver.slicer.destringizeConfiguration(stringizeConfig());
 		driver.execute();
@@ -184,6 +185,12 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/25 21:18:41  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.6  2004/04/23 00:42:37  venku
    - trying to get canonical xmlized Jimple representation.
    Revision 1.5  2004/04/22 22:12:08  venku

@@ -128,15 +128,10 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param generator used to generate the id's during xmlization.
-	 *
-	 * @pre generator != null
 	 */
-	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
+	protected SliceXMLizerCLI() {
 		slicer = new SlicerTool(TokenUtil.getTokenManager());
 		cfgProvider = slicer.getStmtGraphFactory();
-		idGenerator = generator;
 	}
 
 	/**
@@ -148,7 +143,8 @@ public class SliceXMLizerCLI
 	 */
 	public static void main(final String[] args) {
 		try {
-			final SliceXMLizerCLI _driver = new SliceXMLizerCLI(new UniqueJimpleIDGenerator());
+			final SliceXMLizerCLI _driver = new SliceXMLizerCLI();
+			_driver.setIDGenerator(new UniqueJimpleIDGenerator());
 
 			// parse command line arguments
 			parseCommandLine(args, _driver);
@@ -181,6 +177,17 @@ public class SliceXMLizerCLI
 	 */
 	protected final void setConfiguration(final String configuration) {
 		slicer.destringizeConfiguration(configuration);
+	}
+
+	/**
+	 * Sets the id generator to use during xmlization.
+	 *
+	 * @param generator used to generate the id's during xmlization.
+	 *
+	 * @pre generator != null
+	 */
+	protected void setIDGenerator(final IJimpleIDGenerator generator) {
+		idGenerator = generator;
 	}
 
 	/**
@@ -221,23 +228,23 @@ public class SliceXMLizerCLI
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
-        final AbstractXMLizer _xmlizer = getXMLizer();
-        if (jimpleXMLDumpDir != null) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("BEGIN: Dumping Jimple");
-            }
+		final AbstractXMLizer _xmlizer = getXMLizer();
 
-            final ProcessingController _ctrl = new ProcessingController();
-            _ctrl.setStmtGraphFactory(getStmtGraphFactory());
-            _ctrl.setEnvironment(new Environment(scene));
-            _ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(slicer.getCallGraph()));
-            _xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
+		if (jimpleXMLDumpDir != null) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: Dumping Jimple");
+			}
 
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("END: Dumping Jimple");
-            }
-        }
+			final ProcessingController _ctrl = new ProcessingController();
+			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
+			_ctrl.setEnvironment(new Environment(scene));
+			_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(slicer.getCallGraph()));
+			_xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
 
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Dumping Jimple");
+			}
+		}
 
 		// serialize the output of the slicer
 		final Map _info = new HashMap();
@@ -532,19 +539,18 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/04/25 23:18:20  venku
+   - coding conventions.
    Revision 1.20  2004/04/25 21:18:41  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.19  2004/04/23 01:01:10  venku
    - coding conventions.
-
    Revision 1.18  2004/04/23 01:00:49  venku
    - trying to resolve issues with canonicalization of Jimple.
-
    Revision 1.17  2004/04/23 00:42:37  venku
    - trying to get canonical xmlized Jimple representation.
    Revision 1.16  2004/04/22 23:32:32  venku
