@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/polyglot-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/slicer.jar"/>
 	<classpathentry kind="lib" path="lib/staticanalyses.jar"/>
-	<classpathentry kind="lib" path="lib/swt.jar"/>
 	<classpathentry kind="lib" path="lib/xmlenc-0.42.jar"/>
 	<classpathentry kind="lib" path="lib/xmlunit1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3.jar"/>
