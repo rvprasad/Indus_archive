@@ -52,7 +52,7 @@ import junit.textui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class DependencyAnalysisRegresssionTestSuite
+public class DependencyAnalysisRegressionTestSuite
   extends TestCase {
 	/**
 	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
@@ -68,7 +68,7 @@ public class DependencyAnalysisRegresssionTestSuite
 	 * @param args are ignored.
 	 */
 	public static void main(String[] args) {
-		final String[] _suiteName = { DependencyAnalysisRegresssionTestSuite.class.getName() };
+		final String[] _suiteName = { DependencyAnalysisRegressionTestSuite.class.getName() };
 		TestRunner.main(_suiteName);
 	}
 
@@ -191,6 +191,9 @@ public class DependencyAnalysisRegresssionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/18 00:17:20  venku
+   - added support to dump jimple.xml while testing. (bug fix)
+
    Revision 1.8  2004/04/17 23:35:42  venku
    - failures due to unavailable resources were not flagged. FIXED
      - added a new class which always errs.
