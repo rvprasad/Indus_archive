@@ -14,16 +14,16 @@
 	<target name="localbuild" depends="init">
 		<mkdir dir="${build.dir}" />
 		<javac destdir="${build.dir}" debug="on" debuglevel="${debuglevel}" includes="**/*.java">
-			<src refid="${srcpath}" />
+			<src refid="${ant.project.name}.srcpath" />
 			<classpath refid="${classpath}" />
 		</javac>
 		<copy todir="${build.dir}">
-			<fileset dir="." includes="src*/**/*.properties" />
-			<mapper type="regexp" from="^(src[^/]*/)(.+)properties" to="\2properties" />
-		</copy>
-		<copy todir="${build.dir}">
-			<fileset dir="." includes="src*/**/*.xml" />
-			<mapper type="regexp" from="^(src[^/]*/)(.+)xml" to="\2xml" />
+			<fileset dir=".">
+				<include name="src*/**/*.properties" />
+				<include name="src*/**/*.xsd" />				
+				<include name="src*/**/*.xml" />		
+			</fileset>
+			<mapper type="regexp" from="^(src[^/]*/)(.+)(properties|xsd|xml)" to="\2\3" />
 		</copy>
 	</target>
 
@@ -142,7 +142,7 @@
 
 	<target name="clean" depends="init">
 		<delete includeEmptyDirs="true" quiet="true">
-			<fileset dir="${build.dir}" includes="**/*.class" />
+			<fileset dir="${build.dir}" includes="**/*" />
 		</delete>
 		<delete dir="${docs}/javadocs" quiet="true" />
 		<delete dir="${docs}/doxydocs" quiet="true" />
@@ -154,6 +154,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.33  2004/06/12 07:30:56  venku
+- factored out the base of docbook app directory.
+
 Revision 1.32  2004/05/19 23:24:22  venku
 - removed dtd declaration.
 
