@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -93,7 +93,7 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseAssignStmt(final AssignStmt stmt) {
-		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
+		boolean flag = Util.isReferenceType(stmt.getRightOp().getType());
 		IFGNode left = null;
 		Value leftOp = stmt.getLeftOp();
 
@@ -146,7 +146,7 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseIdentityStmt(final IdentityStmt stmt) {
-		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
+		boolean flag = Util.isReferenceType(stmt.getRightOp().getType());
 		IFGNode left = null;
 		Value leftOp = stmt.getLeftOp();
 
@@ -225,7 +225,7 @@ public class StmtSwitch
 			LOGGER.debug("BEGIN: processing " + stmt);
 		}
 
-		if (OFAnalyzer.isReferenceType(stmt.getOp().getType())) {
+		if (Util.isReferenceType(stmt.getOp().getType())) {
 			rexpr.process(stmt.getOpBox());
 
 			IFGNode retNode = (IFGNode) rexpr.getResult();
@@ -271,6 +271,11 @@ public class StmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/07 09:59:50  venku
+   - logging.
+   - rhs of assign/identity stmt is executed when it
+     is an invoke expression.
+
    Revision 1.6  2003/12/05 15:31:05  venku
    - identity and assignment statements skipped certain values.  FIXED.
 

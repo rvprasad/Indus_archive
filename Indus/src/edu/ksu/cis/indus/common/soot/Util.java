@@ -34,6 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.ArrayType;
 import soot.BooleanType;
 import soot.ByteType;
 import soot.CharType;
@@ -43,6 +44,7 @@ import soot.IntType;
 import soot.Local;
 import soot.LongType;
 import soot.Modifier;
+import soot.NullType;
 import soot.PatchingChain;
 import soot.RefLikeType;
 import soot.RefType;
@@ -527,11 +529,31 @@ public final class Util {
 		}
 		return _result;
 	}
+
+    /**
+     * Checks if the given type is a valid reference type.
+     *
+     * @param t is the type to checked.
+     *
+     * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
+     *
+     * @pre t != null
+     */
+    public static final boolean isReferenceType(final Type t) {
+    	return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/02/05 18:21:02  venku
+   - moved getClassesInTopologicalSortedOrder() into Util.
+   - logging.
+   - getClassesInTopologicalSortedOrder() was collecting the
+     retain methods rather than the methods from which
+     to retain. FIXED.
+
    Revision 1.14  2004/01/25 09:02:46  venku
    - coding convention.
    Revision 1.13  2004/01/24 01:42:50  venku

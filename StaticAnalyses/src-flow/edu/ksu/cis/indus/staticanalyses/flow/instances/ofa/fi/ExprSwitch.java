@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
@@ -27,7 +28,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,7 +134,7 @@ public class ExprSwitch
 	public void caseCastExpr(final CastExpr e) {
 		process(e.getOpBox());
 
-		if (OFAnalyzer.isReferenceType(e.getCastType())) {
+		if (Util.isReferenceType(e.getCastType())) {
 			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
 			// run-time.
 			IFGNode base = (IFGNode) getResult();
@@ -412,7 +412,7 @@ public class ExprSwitch
 			process(e.getArgBox(i));
 		}
 
-		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
+		if (Util.isReferenceType(e.getMethod().getReturnType())) {
 			setResult(method.getASTNode(e));
 		} else {
 			setResult(null);
@@ -453,7 +453,7 @@ public class ExprSwitch
 		}
 
 		for (int i = 0; i < e.getArgCount(); i++) {
-			if (OFAnalyzer.isReferenceType(e.getArg(i).getType())) {
+			if (Util.isReferenceType(e.getArg(i).getType())) {
 				process(e.getArgBox(i));
 
 				IFGNode argNode = (IFGNode) getResult();
@@ -461,7 +461,7 @@ public class ExprSwitch
 			}
 		}
 
-		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
+		if (Util.isReferenceType(e.getMethod().getReturnType())) {
 			IFGNode ast = method.getASTNode(e);
 			callee.queryReturnNode().addSucc(ast);
 			setResult(ast);
@@ -478,6 +478,14 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/16 00:19:25  venku
+   - specialinvoke was handled incorrectly.  FIXED
+     It behaves like virtual in cases when a non-instance
+     initialization method is invoked.  Otherwise, it acts
+     like static invocation. We deal with the first case
+     by treating it as virtual invocation and the second
+     case as static invoke expr but only with a primary.
+
    Revision 1.12  2003/12/07 08:40:29  venku
    - declared class was not being processed in case of
      virtual invoke.  FIXED.

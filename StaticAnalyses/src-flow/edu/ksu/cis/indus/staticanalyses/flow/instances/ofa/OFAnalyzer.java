@@ -31,12 +31,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import soot.ArrayType;
 import soot.Modifier;
-import soot.RefType;
 import soot.SootField;
-import soot.Type;
-
 
 /**
  * This  class serves as the interface to the external world for Object flow analysis information.
@@ -84,19 +80,6 @@ public final class OFAnalyzer
 		mf.setRHSExprVisitorPrototype(rexpr);
 		mf.setClassManagerPrototype(new ClassManager(null));
 		setModeFactory(mf);
-	}
-
-	/**
-	 * Checks if the given type is a valid reference type.
-	 *
-	 * @param t is the type to checked.
-	 *
-	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
-	 *
-	 * @pre t != null
-	 */
-	public static final boolean isReferenceType(final Type t) {
-		return t instanceof RefType || t instanceof ArrayType;
 	}
 
 	/**
@@ -215,6 +198,9 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/13 19:38:58  venku
+   - removed unnecessary imports.
+
    Revision 1.9  2003/12/05 00:53:09  venku
    - removed unused method and restricted access to certain methods.
 
