@@ -6,7 +6,7 @@
 
   <xsl:strip-space elements="*"/>
 
-  <xsl:param name="sliceFile" select="slicer.xml"/>
+  <xsl:param name="sliceFile" select="'file:slicer.xml'"/>
 
   <xsl:variable name="slice" select="document($sliceFile)"/>
 
@@ -115,11 +115,11 @@
         </span>
       </xsl:when>
       <xsl:otherwise>
-        <!--<span class="normal">-->
+        <span class="normal">
           <xsl:apply-templates select="$node">
             <xsl:with-param name="sliceFlag" select="0"/>
           </xsl:apply-templates>
-        <!--</span>-->
+        </span>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -591,7 +591,15 @@
   </xsl:template>
 
   <xsl:template match="invoke_expr">
-    <xsl:text/><xsl:value-of select="@name"/><xsl:text>invoke </xsl:text>
+   <xsl:param name="sliceFlag" select="1"/>
+    <xsl:choose>
+      <xsl:when test="$sliceFlag > 0">
+        <xsl:call-template name="sliceSpan">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+     <xsl:text/><xsl:value-of select="@name"/><xsl:text>invoke </xsl:text>
     <xsl:variable name="method" select="id(string(method_ref/@methodId))"/>
     <xsl:variable name="class" select="$method/ancestor::node()"/>
     <xsl:if test="@name != 'static'">
@@ -613,7 +621,9 @@
       <xsl:if test="position() != last()">, </xsl:if>
     </xsl:for-each>
     <xsl:text>)</xsl:text>
-  </xsl:template>  
+       </xsl:otherwise>
+    </xsl:choose>
+ </xsl:template>  
   
   <xsl:template match="array_ref">
     <xsl:param name="sliceFlag" select="1"/>
