@@ -198,7 +198,7 @@ public final class CompositeToolConfiguration
 				LOGGER.info("Selecting the first configuration as active configurationCollection.");
 			}
 
-			_result = ((IToolConfiguration) configurations.get(0));
+			_result = (IToolConfiguration) configurations.get(0);
 
 			if (_result != null) {
 				activeConfigID = _result.getConfigName();
