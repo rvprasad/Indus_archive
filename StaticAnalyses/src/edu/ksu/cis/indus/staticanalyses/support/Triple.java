@@ -374,9 +374,11 @@ public class Triple
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
