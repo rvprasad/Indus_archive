@@ -794,23 +794,17 @@ public class SliceXMLizerCLI
 				IOUtils.closeQuietly(_in);
 				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
 			} catch (final IOException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					final String _msg = "Error retrieved specification from " + sliceScopeSpecFileName;
-					LOGGER.error(_msg, _e);
-
-					final IllegalArgumentException _i = new IllegalArgumentException(_msg);
-					_i.initCause(_e);
-					throw _i;
-				}
+				final String _msg = "Error retrieved specification from " + sliceScopeSpecFileName;
+				LOGGER.error(_msg, _e);
+				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
+				_i.initCause(_e);
+				throw _i;
 			} catch (final JiBXException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					final String _msg = "JiBX failed during deserialization.";
-					LOGGER.error(_msg, _e);
-
-					final IllegalStateException _i = new IllegalStateException(_msg);
-					_i.initCause(_e);
-					throw _i;
-				}
+				final String _msg = "JiBX failed during deserialization.";
+				LOGGER.error(_msg, _e);
+				final IllegalStateException _i = new IllegalStateException(_msg);
+				_i.initCause(_e);
+				throw _i;
 			}
 		}
 		return _result;
