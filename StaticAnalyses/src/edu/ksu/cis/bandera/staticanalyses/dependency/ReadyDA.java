@@ -40,7 +40,6 @@ import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
 
-import ca.mcgill.sable.soot.jimple.AssignStmt;
 import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
 import ca.mcgill.sable.soot.jimple.ExitMonitorStmt;
 import ca.mcgill.sable.soot.jimple.InvokeExpr;
@@ -154,14 +153,14 @@ public class ReadyDA
 	private CallGraphInfo callgraph;
 
 	/**
-	 * This provides information
-	 */
-	private Environment environment;
-
-	/**
 	 * This stores the methods that are synchronized or have synchronized blocks in them.
 	 */
 	private Collection monitorMethods = new HashSet();
+
+	/**
+	 * This provides information
+	 */
+	private Environment environment;
 
 	/**
 	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
@@ -229,6 +228,7 @@ public class ReadyDA
 	 * <code>rules</code> field which is set via <code>setRules</code> method.
 	 *
 	 * @return <code>true</code> as this completes in a single run.
+	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
@@ -269,8 +269,10 @@ public class ReadyDA
 	protected void preprocess(SootMethod method) {
 		Map map = null;
 		StmtList sl = ((StmtGraph) method2stmtGraph.get(method)).getBody().getStmtList();
-		if ((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED)
+
+		if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
 			monitorMethods.add(method);
+		}
 
 		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
 			Stmt stmt = (Stmt) i.next();
@@ -298,9 +300,13 @@ public class ReadyDA
 
 				if(stmt instanceof InvokeStmt) {
 					expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
-				} else if(stmt instanceof AssignStmt && (((AssignStmt) stmt).getRightOp() instanceof InvokeExpr)) {
+				} 
+				/*
+				 * This cannot happen as only non-void invoke expressions can happen on RHS of an Assignment statement.
+				else if(stmt instanceof AssignStmt && (((AssignStmt) stmt).getRightOp() instanceof InvokeExpr)) {
 					expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
 				}
+				*/
 
 				if(expr != null && expr instanceof NonStaticInvokeExpr) {
 					NonStaticInvokeExpr invokeExpr = (NonStaticInvokeExpr) expr;
@@ -333,8 +339,8 @@ public class ReadyDA
 	 * <code>notifyXX</code> methods as represented in the AST system. It also extract call graph info, pair manaing
 	 * service, and environment from the <code>info</code> member.
 	 *
-	 * @throws InitializationException when call graph info, pair managing service, or environment is not 		   available
-	 * in <code>info</code> member.
+	 * @throws InitializationException when call graph info, pair managing service, or environment is not
+	 * 		   available in <code>info</code> member.
 	 */
 	protected void setup() {
 		if(waitMethods == null) {
@@ -562,7 +568,7 @@ public class ReadyDA
 
 				/*
 				 * This iteration adds dependency between enter-exit pair of a monitor block which may be false.
-				 * TODO:  Use threaded call graph to remove such redundant dependencies.
+				 * TODO: Use threaded call graph to remove such redundant dependencies.
 				 */
 				for(Iterator k = temp.iterator(); k.hasNext();) {
 					Pair exitPair = (Pair) k.next();

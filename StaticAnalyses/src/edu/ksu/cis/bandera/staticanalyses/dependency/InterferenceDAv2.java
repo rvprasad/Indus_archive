@@ -72,16 +72,19 @@ import java.util.Set;
  * This class provides interference dependency information.
  * 
  * <p>
- * The dependence inforamtoin is stored as follows:  For dependee information, a map from a field to a map that maps a pair
+ * The dependence inforamtion is stored as follows:  For dependee information, a map from a field to a map that maps a pair
  * comprising of a statement and a method to a collection of similar pair is maintained. For dependent information, a map
  * from a field to a map that maps a method to a map that maps a statement to collection of pairs comprising of a statement
  * and a method is maintained.  The reason the information maps are not identical in structures is due to the form in which
  * the dependent information is required during analysis.  In Jimple, only one field can occur in a statement. Hence, it is
- * sufficient to capture the dependency at statement level.</p>
+ * sufficient to capture the dependency at statement level.
+ * </p>
  * 
- * <p>The algorithm happens in 4 phases. In phase 1, intra-method field dependencies is calculated.  In phase 2, intra-method
- * field dependencies information is propogated from callee to callers.  The direction of propogation is reversed in phase 3.
- * In phase 4, effects of concurrency is considered.</p>
+ * <p>
+ * The algorithm happens in 4 phases. In phase 1, intra-method field dependencies is calculated.  In phase 2, intra-method
+ * field dependencies information is propogated from callee to callers.  The direction of propogation is reversed in phase
+ * 3. In phase 4, effects of concurrency is considered.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -123,7 +126,7 @@ public class InterferenceDA
 	 * This captures the definitions of a field that are may be alive immediately after a call-site.
 	 *
 	 * @invariant postInvokeStmtField2DefSiteMap.oclIsKindOf(Pair(Stmt, SootMethod), Map(SootField, Set(Pair(Stmt,
-	 * SootMethod)))))
+	 * 			  SootMethod)))))
 	 */
 	private final Map postInvokeStmtField2DefSiteMap = new HashMap();
 
@@ -131,7 +134,7 @@ public class InterferenceDA
 	 * This captures the definitions of a field that are may be alive just before a call-site.
 	 *
 	 * @invariant preInvokeStmtField2DefSiteMap.oclIsKindOf(Pair(Stmt, SootMethod), Map(SootField, Set(Pair(Stmt,
-	 * SootMethod)))))
+	 * 			  SootMethod)))))
 	 */
 	private final Map preInvokeStmtField2DefSiteMap = new HashMap();
 
@@ -362,7 +365,7 @@ public class InterferenceDA
 
 					if(use instanceof StaticFieldRef) {
 						SootField field = ((StaticFieldRef) use).getField();
-						Map dent = (Map)getDependentMapForField(field).get(method);
+						Map dent = (Map) getDependentMapForField(field).get(method);
 						Map dee = getDependeeMapForField(field);
 						Collection dentSet = new HashSet();
 						Collection deeSet = new HashSet();
@@ -551,15 +554,18 @@ public class InterferenceDA
 	/**
 	 * Helper method to fix on-call dependence information.  It does a fixed-point iteration.  For example in case of callee-
 	 * to-caller propogation, the fixed-point terminal condition is if the information at the end of the callee method is
-	 * contained in the information set after the callee's call-site in the caller.  In case of callee-to-caller propogation,
-	 * it is vice versa.
+	 * contained in the information set after the callee's call-site in the caller.  In case of callee-to-caller
+	 * propogation, it is vice versa.
 	 *
 	 * @param invokeExprSiteMap is map at (before or after) the invocation site.
 	 * @param methodEndPointsMap is map at the ends (entry or exit) of methods.
+	 *
 	 * @pre invokeExprSiteMap.oclIsKindOf(Map(Pair(Stmt, SootMethod),  Map(SootField, Set(Pair(Stmt, SootMethod)))))
 	 * @pre methodEndPointsMap.oclIsKindOf(Map(SootMethod, Map(SootField, Set(Pair(Stmt, SootMethod)))))
-	 * @post invokeExprSiteMap.equals(invokeExprSiteMap@pre)
-	 * @post methodEndPointsMap.equals(methodEndPointsMap@pre)
+	 * @post invokeExprSiteMap.equals(invokeExprSiteMap
+	 * @pre)
+	 * @post methodEndPointsMap.equals(methodEndPointsMap
+	 * @pre)
 	 */
 	private void fixupOnCallDependencies(Map invokeExprSiteMap, Map methodEndPointsMap) {
 		WorkBag methodList = new WorkBag(WorkBag.FIFO);
@@ -646,12 +652,12 @@ public class InterferenceDA
 
 			/*
 			 * This fails for instance fields.  Use symbolic method local analysis to kill information in the set.
-			                   if(fieldDefSiteSet == null) {
-			                       fieldDefSiteSet = new HashSet();
-			                       field2DefSite.put(field, fieldDefSiteSet);
-			                   } else {
-			                       fieldDefSiteSet.clear();
-			                   }
+			                       if(fieldDefSiteSet == null) {
+			                           fieldDefSiteSet = new HashSet();
+			                           field2DefSite.put(field, fieldDefSiteSet);
+			                       } else {
+			                           fieldDefSiteSet.clear();
+			                       }
 			 */
 			fieldDefSiteSet.add(pairMgr.getPair(stmt, method));
 		}
@@ -663,8 +669,11 @@ public class InterferenceDA
 	 * @param stmt containing the call-site.
 	 * @param method containing <code>stmt</code>.
 	 * @param field2DefSite is a map of fields and their def site at the given call-site.
+	 *
 	 * @pre field2DefSite.oclIsKindOf(Map(SootField, Set(Pair(Stmt, SootMethod))))
-	 * @post field2DefSite.equals(field2DefSite@pre) or not field2DefSite.equals(field2DefSite@pre) 
+	 * @post field2DefSite.equals(field2DefSite
+	 * @pre) or not field2DefSite.equals(field2DefSite
+	 * @pre)
 	 */
 	private void processInvokeExprStmt(Stmt stmt, SootMethod method, Map field2DefSite) {
 		InvokeExpr expr = null;
@@ -684,11 +693,13 @@ public class InterferenceDA
 
 		for(Iterator i = callees.iterator(); i.hasNext();) {
 			SootMethod callee = (SootMethod) i.next();
-			Map temp = (Map)onMethodExitField2DefSite.get(callee);
+			Map temp = (Map) onMethodExitField2DefSite.get(callee);
+
 			if(temp != null) {
 				for(Iterator k = temp.keySet().iterator(); k.hasNext();) {
 					Object key = k.next();
 					Set set = (Set) temp.get(key);
+
 					if(fieldMap.containsKey(key)) {
 						((Collection) fieldMap.get(key)).addAll(set);
 					} else {
@@ -711,7 +722,8 @@ public class InterferenceDA
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param field2DefSite is the reaching definition set for fields to be used at <code>stmt</code>.
 	 *
-	 * @post field2DefSite.equals(field2DefSite@pre)
+	 * @post field2DefSite.equals(field2DefSite
+	 * @pre)
 	 * @post field2DefSite.oclIsKindOf(Map(SootField, Collection(Pair(Stmt, Method))))
 	 */
 	private void processUseSites(Stmt stmt, SootMethod method, Map field2DefSite) {

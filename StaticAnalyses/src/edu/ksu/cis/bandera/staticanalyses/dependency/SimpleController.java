@@ -55,12 +55,16 @@ import java.util.Map;
 public class SimpleController
   extends Controller {
 	/**
-	 * <p>Creates a new SimpleController object.</p>
+	 * <p>
+	 * Creates a new SimpleController object.
+	 * </p>
+	 *
 	 * @param info is a map from name to objects which provide information that analyses may use, but is of no use to the
-	 * controller.
+	 * 		  controller.
 	 */
 	public SimpleController(Map info) {
 		super(info);
+
 		List temp = new ArrayList();
 		temp.add(METHOD_LOCAL_DATA_DA);
 		temp.add(CLASS_DATA_DA);
@@ -73,7 +77,9 @@ public class SimpleController
 	}
 
 	/**
-	 * <p>Executes the analysis in a particular order in no phases.</p>
+	 * <p>
+	 * Executes the analysis in a particular order in no phases.
+	 * </p>
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.Controller#execute()
 	 */
@@ -84,8 +90,8 @@ public class SimpleController
 			analyzing = false;
 
 			for(Iterator i = participatingAnalysesNames.iterator(); i.hasNext();) {
-				String daName = (String)i.next();
-				DependencyAnalysis temp = (DependencyAnalysis)participatingAnalyses.get(daName);
+				String daName = (String) i.next();
+				DependencyAnalysis temp = (DependencyAnalysis) participatingAnalyses.get(daName);
 
 				if(temp != null) {
 					analyzing |= temp.analyze();
