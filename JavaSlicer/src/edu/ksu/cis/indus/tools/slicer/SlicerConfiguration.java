@@ -411,7 +411,7 @@ public final class SlicerConfiguration
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
 				_c.clear();
 				_c.add(new ExitControlDA());
-				processBooleanProperty(EXECUTABLE_SLICE, Boolean.FALSE);
+				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
 				_c.add(new EntryControlDA());
@@ -517,13 +517,13 @@ public final class SlicerConfiguration
 	 * @pre value != null
 	 */
 	protected boolean processProperty(final Object propertyID, final Object value) {
-		boolean _result = false;
+		boolean _result = true;
 
 		if (value instanceof Boolean) {
-			_result = processBooleanProperty(propertyID, (Boolean) value);
+			processBooleanProperty(propertyID, (Boolean) value);
 		} else if (propertyID.equals(SLICE_TYPE)) {
-			if (SlicingEngine.SLICE_TYPES.contains(value)) {
-				_result = true;
+			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
+				_result = false;
 			}
 			setSliceType(value.toString());
 		} else if (propertyID.equals(NATURE_OF_INTERFERENCE_DA)) {
@@ -606,21 +606,15 @@ public final class SlicerConfiguration
 	 * @param propertyID is the id of the property to be set based on <code>booleanValue</code>.
 	 * @param booleanValue is the value  that decides the value of the property identified by <code>propertyID</code>.
 	 *
-	 * @return <code>true</code> if the property to value mapping should be recorded; <code>false</code>, otherwise.
-	 *
 	 * @pre propertyID != null and booleanValue != null
 	 */
-	private boolean processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
-		boolean _result = true;
-
+	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_READYDA)) {
 			processUseProperty(booleanValue, IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
 		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
 			processUseProperty(booleanValue, IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
 		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
 			processInterProceduralDivergenceDAProperty();
-		} else if (propertyID.equals(EXECUTABLE_SLICE)) {
-			_result = booleanValue.booleanValue() && !properties.get(SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE);
 		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
 			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
 				  _i.hasNext();) {
@@ -636,7 +630,6 @@ public final class SlicerConfiguration
 		} else {
 			processRDARuleProperties(propertyID);
 		}
-		return _result;
 	}
 
 	/**
@@ -775,7 +768,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useDivergenceDepAnalysis(final boolean use) {
+	public void useDivergenceDepAnalysis(final boolean use) {
 		processPropertyHelper(USE_DIVERGENCEDA, use);
 	}
 
@@ -784,7 +777,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useInterproceduralDivergenceDepAnalysis(final boolean use) {
+	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
 		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
 	}
 
@@ -793,7 +786,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useReadyDepAnalysis(final boolean use) {
+	public void useReadyDepAnalysis(final boolean use) {
 		processPropertyHelper(USE_READYDA, use);
 	}
 
@@ -802,7 +795,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useReadyRule1(final boolean use) {
+	public void useReadyRule1(final boolean use) {
 		processPropertyHelper(USE_RULE1_IN_READYDA, use);
 	}
 
@@ -811,7 +804,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useReadyRule2(final boolean use) {
+	public void useReadyRule2(final boolean use) {
 		processPropertyHelper(USE_RULE2_IN_READYDA, use);
 	}
 
@@ -820,7 +813,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useReadyRule3(final boolean use) {
+	public void useReadyRule3(final boolean use) {
 		processPropertyHelper(USE_RULE3_IN_READYDA, use);
 	}
 
@@ -829,7 +822,7 @@ public final class SlicerConfiguration
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	private void useReadyRule4(final boolean use) {
+	public void useReadyRule4(final boolean use) {
 		processPropertyHelper(USE_RULE4_IN_READYDA, use);
 	}
 }
@@ -837,6 +830,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/07/20 00:53:09  venku
+   - addressed bug #408.
+
    Revision 1.42  2004/07/20 00:31:04  venku
    - addressed bug #408.
    Revision 1.41  2004/07/02 05:28:53  venku
