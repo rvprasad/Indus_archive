@@ -96,19 +96,19 @@ public class SliceMap {
 	/**
 	 * Provides the sliced statement corresponding to the given statement in the unsliced version of the method.
 	 *
-	 * @param stmt in the unsliced version of <code>method</code>.
-	 * @param method in which <code>stmt</code> occurs.
+	 * @param unslicedStmt in which <code>stmt</code> occurs.
+	 * @param unslicedMethod in the unsliced version of <code>method</code>.
 	 *
 	 * @return the sliced counterpart of the given statement. If the statement was sliced away, it returns <code>null</code>.
 	 *
-	 * @pre stmt != null and method != null
+	 * @pre unslicedStmt != null and unslicedMethod != null
 	 */
-	public Stmt getSliceStmt(final Stmt stmt, final SootMethod method) {
+	public Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
 		Stmt result = null;
-		Map stmtMap = (Map) method2stmtMap.get(method);
+		Map stmtMap = (Map) method2stmtMap.get(unslicedMethod);
 
 		if (stmtMap != null) {
-			result = (Stmt) stmtMap.get(stmt);
+			result = (Stmt) stmtMap.get(unslicedStmt);
 		}
 		return result;
 	}
@@ -116,28 +116,51 @@ public class SliceMap {
 	/**
 	 * Provides the unsliced statement corresponding to the given statement in the sliced of the method.
 	 *
-	 * @param sliceStmt in the sliced version of <code>method</code>.
-	 * @param method in which <code>stmt</code> occurs.
+	 * @param slicedStmt in the sliced version of <code>method</code>.
+	 * @param slicedMethod in which <code>stmt</code> occurs.
 	 *
 	 * @return the unsliced counterpart of the given statement.
 	 *
-	 * @pre sliceStmt != null and method != null
+	 * @pre slicedStmt != null and slicedMethod != null
 	 */
-	public Stmt getStmt(final Stmt sliceStmt, final SootMethod method) {
+	public Stmt getUnslicedStmt(final Stmt slicedStmt, final SootMethod slicedMethod) {
 		Stmt result = null;
-		Map stmtMap = (Map) slicedMethod2stmtMap.get(method);
+		Map stmtMap = (Map) slicedMethod2stmtMap.get(slicedMethod);
 
 		if (stmtMap != null) {
-			result = (Stmt) stmtMap.get(sliceStmt);
+			result = (Stmt) stmtMap.get(slicedStmt);
 		}
 		return result;
+	}
+
+	/**
+	 * Registers the mapping between statements in the sliced and unsliced versions of a method.
+	 *
+	 * @param slicedStmt in the sliced version of the method.
+	 * @param unslicedStmt in the unsliced version of the method.
+	 * @param unslicedMethod in which <code>stmt</code> occurs.
+	 *
+	 * @pre unslicedStmt != null and sliceStmt != null
+	 * @post getStmt(sliceStmt, slicer.getCloneOf(
+	 */
+	public void addMapping(final Stmt slicedStmt, final Stmt unslicedStmt, final SootMethod unslicedMethod) {
+		Map stmtMap = (Map) method2stmtMap.get(unslicedMethod);
+
+		if (stmtMap != null) {
+			stmtMap.put(unslicedStmt, slicedStmt);
+		}
+		stmtMap = (Map) slicedMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
+
+		if (stmtMap != null) {
+			stmtMap.put(slicedStmt, unslicedStmt);
+		}
 	}
 
 	/**
 	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to  the
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
-	protected void cleanup() {
+	public void cleanup() {
 		for (Iterator i = slicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod sliceMethod = slicer.getCloneOf(method);
@@ -161,36 +184,17 @@ public class SliceMap {
 			}
 		}
 	}
-
-	/**
-	 * Registers the mapping between statements in the sliced and unsliced versions of a method.
-	 *
-	 * @param stmt in the unsliced version of the method.
-	 * @param sliceStmt in the sliced version of the method.
-	 * @param unslicedMethod in which <code>stmt</code> occurs.
-	 *
-	 * @pre stmt != null and sliceStmt != null
-	 * @post getStmt(sliceStmt, slicer.getCloneOf(
-	 */
-	protected void put(final Stmt stmt, final Stmt sliceStmt, final SootMethod unslicedMethod) {
-		Map stmtMap = (Map) method2stmtMap.get(unslicedMethod);
-
-		if (stmtMap != null) {
-			stmtMap.put(stmt, sliceStmt);
-		}
-		stmtMap = (Map) slicedMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
-
-		if (stmtMap != null) {
-			stmtMap.put(sliceStmt, stmt);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/17 11:56:18  venku
+   Renamed SliceCriterion to AbstractSliceCriterion.
+   Formatting, documentation, and specification.
+   
    Revision 1.5  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.
-   
+
  */
