@@ -337,7 +337,7 @@ public class DependencyXMLizerCLI
 		_processors.add(_cgi);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
-		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).dumpGraph());
+		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).toString());
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
@@ -387,6 +387,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/08/20 11:06:09  venku
+   - there were 2 copies of change log.  Deleted one.
+
    Revision 1.46  2004/08/15 08:37:27  venku
    - REFACTORING pertaining to feature request #426
      - refactored dependence retriever interface.
