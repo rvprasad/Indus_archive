@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.slicer;
@@ -66,10 +46,9 @@ import soot.toolkits.graph.UnitGraph;
 
 import soot.util.Chain;
 
+import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.controller.SimpleController;
-import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -78,7 +57,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
-import edu.ksu.cis.indus.transformations.common.ITransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -166,7 +144,7 @@ public class SlicingEngine {
 	/**
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
-	private AbstractController controller;
+	private AnalysesController controller;
 
 	/**
 	 * The work bag used during slicing.
@@ -201,7 +179,7 @@ public class SlicingEngine {
 	/**
 	 * This transforms the system based on the slicing decision of this object.
 	 */
-	private ITransformer transformer;
+	private ISlicingBasedTransformer transformer;
 
 	/**
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -223,12 +201,12 @@ public class SlicingEngine {
 	 *
 	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
 	 *
-	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and     sliceTransformer != null
+	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and sliceTransformer != null
 	 * 		and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
-	public void setSliceCriteria(final Collection sliceCriteria, final AbstractController dependenceInfoController,
-		final ICallGraphInfo callgraph, final ITransformer sliceTransformer, final Collection dependenciesToUse) {
+	public void setSliceCriteria(final Collection sliceCriteria, final AnalysesController dependenceInfoController,
+		final ICallGraphInfo callgraph, final ISlicingBasedTransformer sliceTransformer, final Collection dependenciesToUse) {
 		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
 			Object o = i.next();
 
@@ -248,9 +226,10 @@ public class SlicingEngine {
 		for (Iterator i = dependencies.iterator(); i.hasNext();) {
 			Object id = i.next();
 
-			if (id.equals(SimpleController.METHOD_LOCAL_DATA_DA)
-				  || id.equals(SimpleController.SYNCHRONIZATION_DA)
-				  || id.equals(SimpleController.CONTROL_DA)) {
+			if (id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
+				  || id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
+				  || id.equals(DependencyAnalysis.CONTROL_DA)
+                  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
 				intraProceduralDependencies.add(controller.getAnalysis(id));
 			}
 		}
@@ -558,8 +537,8 @@ public class SlicingEngine {
 	 */
 	private void sliceBasedOnAliasedDataDependence(final Stmt stmt, final SootMethod method) {
 		DependencyAnalysis[] da = new DependencyAnalysis[2];
-		da[0] = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
-		da[1] = (DependencyAnalysis) controller.getAnalysis(SimpleController.CLASS_DATA_DA);
+		da[0] = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.INTERFERENCE_DA);
+		da[1] = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 
 		Collection slices = new HashSet();
 
@@ -584,8 +563,8 @@ public class SlicingEngine {
 	 * @pre stmt.oclIsKindOf(ExitMonitorStmt) or stmt.oclIsKindOf(EnterMonitorStmt) or stmt.oclIsKindOf(InvokeStmt)
 	 */
 	private void sliceBasedOnReadyDependence(final Stmt stmt, final SootMethod method) {
-		if (dependencies.contains(SimpleController.READY_DA)) {
-			DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.READY_DA);
+		if (dependencies.contains(DependencyAnalysis.READY_DA)) {
+			DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.READY_DA);
 
 			Collection slices = new HashSet();
 
@@ -613,7 +592,7 @@ public class SlicingEngine {
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
 
-		if (sliceType.equals(COMPLETE_SLICE) || sExpr.isIncluded()) {
+		if (sliceType.equals(COMPLETE_SLICE) || sExpr.isIncluded() || !transformer.handlesPartialInclusions()) {
 			sliceStmt(stmt, method, true);
 		} else {
 			Value value = expr.getValue();
@@ -629,7 +608,7 @@ public class SlicingEngine {
 				if (temp instanceof Local) {
 					sliceLocal(vBox, stmt, method);
 				} else if (temp instanceof ParameterRef) {
-					sliceParam(vBox, stmt, method);
+					sliceParam(vBox, method);
 				}
 			}
 
@@ -637,16 +616,6 @@ public class SlicingEngine {
 			sliceStmt(stmt, method, false);
 		}
 	}
-
-    private void sliceParam1(final ValueBox pBox, final Stmt stmt, final SootMethod method) {
-        Collection temp = cgi.getCallers(method);
-        InvokeExpr ie = stmt.getInvokeExpr();
-        int index = ie.getArgs().indexOf(pBox.getValue());
-        for (Iterator i = temp.iterator(); i.hasNext();) {
-            CallTriple ctrp = (CallTriple) i.next();
-            
-        }
-    } 
 
 	/**
 	 * Generates new slice criteria based on on what affects the given occurrence of the invoke expression.  By nature of
@@ -660,15 +629,12 @@ public class SlicingEngine {
 	 */
 	private void sliceInvokeExpr(final Stmt stmt, final SootMethod method) {
 		InvokeExpr expr = stmt.getInvokeExpr();
-
-		// add exit points of callees as the slice criteria
 		Context context = new Context();
 		context.setRootMethod(method);
 		context.setStmt(stmt);
 
-		Collection callees = cgi.getCallees(expr, context);
-
-		for (Iterator i = callees.iterator(); i.hasNext();) {
+		// add exit points of callees as the slice criteria
+		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
 			CallTriple ctrp = (CallTriple) i.next();
 			SootMethod callee = ctrp.getMethod();
 			UnitGraph stmtGraph = controller.getStmtGraph(callee);
@@ -677,7 +643,7 @@ public class SlicingEngine {
 			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
 				BasicBlock bb = (BasicBlock) j.next();
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-				sliceCriterion.initialize(callee, bb.getTrailer(), true);
+				sliceCriterion.initialize(callee, bb.getTrailerStmt(), true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
 			}
 		}
@@ -694,7 +660,7 @@ public class SlicingEngine {
 	 * @pre vBox != null and stmt != null and method != null
 	 */
 	private void sliceLocal(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.METHOD_LOCAL_DATA_DA);
+		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 
 		// add the new local
 		SootMethod transformedMethod = transformer.getTransformed(method);
@@ -725,6 +691,37 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
+	 *
+	 * @param pBox is the parameter reference to be sliced on.
+	 * @param method in which <code>pBox</code> occurs.
+	 *
+	 * @pre pBox != null and method != null
+	 */
+	private void sliceParam(final ValueBox pBox, final SootMethod method) {
+		ParameterRef param = (ParameterRef) pBox.getValue();
+		int index = param.getIndex();
+		boolean include = !transformer.handlesPartialInclusions();
+
+		/*
+		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
+		 * intended.
+		 */
+		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
+			CallTriple ctrp = (CallTriple) i.next();
+			SliceStmt critStmt = SliceStmt.getSliceStmt();
+			critStmt.initialize(ctrp.getMethod(), ctrp.getStmt(), include);
+			workbag.addWorkNoDuplicates(critStmt);
+
+			if (!include) {
+				SliceExpr critExpr = SliceExpr.getSliceExpr();
+				critExpr.initialize(ctrp.getMethod(), ctrp.getStmt(), ctrp.getStmt().getInvokeExpr().getArgBox(index), true);
+				workbag.addWorkNoDuplicates(critExpr);
+			}
+		}
+	}
+
+	/**
 	 * Generates immediate slice for the given statement and method.
 	 *
 	 * @param stmt is the statement-level slice criterion.
@@ -749,7 +746,7 @@ public class SlicingEngine {
 				if (value instanceof Local) {
 					sliceLocal(vBox, stmt, method);
 				} else if (value instanceof ParameterRef) {
-					sliceParam(vBox, stmt, method);
+					sliceParam(vBox, method);
 				}
 			}
 			transformer.transform(stmt, method);
@@ -778,7 +775,7 @@ public class SlicingEngine {
 				transformer.transform(stmt, method);
 
 				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
-				sliceStmt.initialize(method, unsliced, true);
+				sliceStmt.initialize(method, unsliced, inclusive);
 				workbag.addWorkNoDuplicates(sliceStmt);
 			}
 		}
@@ -788,6 +785,11 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/08/21 10:25:08  venku
+   Now here is where things get interesting.  Inclusion has 2 meanings.
+   One is should the entity be included in the transformed system.
+   Two is shoudl the enclosed entities be considered for slicing.
+   In the process of setting this right.  Not fixed yet.  In fact fails to compile.
    Revision 1.12  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.
