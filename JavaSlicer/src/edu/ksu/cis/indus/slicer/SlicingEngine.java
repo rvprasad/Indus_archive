@@ -311,7 +311,7 @@ public final class SlicingEngine {
 			}
 		}
 		criteria.addAll(sliceCriteria);
-		Collections.sort(criteria, new ToStringBasedComparator());
+		Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
 
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
@@ -515,32 +515,57 @@ public final class SlicingEngine {
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
 	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
-        if (LOGGER.isDebugEnabled()) {
-            final StringBuffer _sb = new StringBuffer();
+		final Collection _newCriteria = new HashSet();
 
-            for (final Iterator _i = das.iterator(); _i.hasNext();) {
-                DependencyAnalysis _da = (DependencyAnalysis) _i.next();
-                _sb.append(_da.getClass() + "@" + _da.hashCode() + ",");
-            }
-            LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
-        }
-
-        final Collection _newCriteria = new HashSet();
 		if (sliceType.equals(COMPLETE_SLICE)) {
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 				_newCriteria.addAll(_da.getDependents(stmt, method));
 				_newCriteria.addAll(_da.getDependees(stmt, method));
+
+				if (LOGGER.isDebugEnabled()) {
+					final StringBuffer _sb = new StringBuffer();
+					_sb.append("Criteria from " + _da.getClass());
+
+					for (final Iterator _j = _da.getDependents(stmt, method).iterator(); _j.hasNext();) {
+						_sb.append("\n\t-> " + _j.next());
+					}
+
+					for (final Iterator _j = _da.getDependees(stmt, method).iterator(); _j.hasNext();) {
+						_sb.append("\n\t<- " + _j.next());
+					}
+					LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
+				}
 			}
 		} else if (sliceType.equals(BACKWARD_SLICE)) {
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 				_newCriteria.addAll(_da.getDependees(stmt, method));
+
+				if (LOGGER.isDebugEnabled()) {
+					final StringBuffer _sb = new StringBuffer();
+					_sb.append("Criteria from " + _da.getClass());
+
+					for (final Iterator _j = _da.getDependees(stmt, method).iterator(); _j.hasNext();) {
+						_sb.append("\n\t<- " + _j.next());
+					}
+					LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
+				}
 			}
 		} else if (sliceType.equals(FORWARD_SLICE)) {
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 				_newCriteria.addAll(_da.getDependents(stmt, method));
+
+				if (LOGGER.isDebugEnabled()) {
+					final StringBuffer _sb = new StringBuffer();
+					_sb.append("Criteria from " + _da.getClass());
+
+					for (final Iterator _j = _da.getDependents(stmt, method).iterator(); _j.hasNext();) {
+						_sb.append("\n\t->" + _j.next());
+					}
+					LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
+				}
 			}
 		}
 
@@ -1207,6 +1232,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.59  2004/01/20 17:32:28  venku
+   - logging.
    Revision 1.58  2004/01/20 17:16:45  venku
    - coding convention.
    - renamed includeClassHierarchyInSlice to includeClassInSlice.
