@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class HistoryAwareAbstractWorkBag
+public abstract class AbstractHistoryAwareWorkBag
   extends AbstractWorkBag {
 	/**
 	 * The container that remembers the items that were processed by this work bag.
@@ -38,7 +38,7 @@ public abstract class HistoryAwareAbstractWorkBag
 	 *
 	 * @param processed If it is non-null, this collection is used to remember the work pieces added to this work bag.
 	 */
-	protected HistoryAwareAbstractWorkBag(final Collection processed) {
+	protected AbstractHistoryAwareWorkBag(final Collection processed) {
 		processedWorkPieces = processed;
 	}
 
@@ -67,4 +67,13 @@ public abstract class HistoryAwareAbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
  */

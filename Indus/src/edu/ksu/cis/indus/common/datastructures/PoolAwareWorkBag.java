@@ -62,22 +62,25 @@ public final class PoolAwareWorkBag
 	}
 
 	/**
-	 * Adds the given collection of work to the bag. Duplicate work peices are returned to the pool.  Beware that if an
-	 * object occurs in <code>c</code> and the workbag then it will be returned to the pool when it shouldn't be.
+	 * Adds the given collection of work to the bag. Duplicate work peices are returned to the pool.
 	 *
 	 * @param c is the collection of poolable objects.
 	 *
 	 * @return empty collection
 	 *
-	 * @pre c != null and c->forall(o | o.oclIsKindOf(IPoolable))
+	 * @pre c != null
 	 * @post result != null and result.size() == 0
 	 */
 	public Collection addAllWorkNoDuplicates(final Collection c) {
 		final Collection _coll = container.addAllWorkNoDuplicates(c);
 
 		for (final Iterator _i = _coll.iterator(); _i.hasNext();) {
-			final IPoolable _poolable = (IPoolable) _i.next();
-			_poolable.returnToPool();
+			final Object _o = _i.next();
+
+			if (_o instanceof IPoolable) {
+				final IPoolable _poolable = (IPoolable) _o;
+				_poolable.returnToPool();
+			}
 		}
 		return Collections.EMPTY_LIST;
 	}
@@ -90,20 +93,19 @@ public final class PoolAwareWorkBag
 	}
 
 	/**
-	 * Adds the given work to the bag. If it is a duplicate work peice, it is returned to the pool. Beware that if
-	 * <code>o</code> occurs in the workbag then it will be returned to the pool when it shouldn't be.
+	 * Adds the given work to the bag. If it is a duplicate work peice, it is returned to the pool.
 	 *
 	 * @param o is the work peice.
 	 *
 	 * @return <code>true</code> if the work peice was added to the work bag; <code>false</code>, otherwise.  In the latter
 	 * 		   case the work peice is returned to he pool.
 	 *
-	 * @pre o != null and o.oclIsKindOf(IPoolable)
+	 * @pre o != null
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
 		final boolean _result = container.addWorkNoDuplicates(o);
 
-		if (!_result) {
+		if (!_result && o instanceof IPoolable) {
 			((IPoolable) o).returnToPool();
 		}
 		return _result;
@@ -127,6 +129,14 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.4  2004/01/27 21:07:34  venku
    - documentation.
    Revision 1.3  2004/01/25 08:57:51  venku

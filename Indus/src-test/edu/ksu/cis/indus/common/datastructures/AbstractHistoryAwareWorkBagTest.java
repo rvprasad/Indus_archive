@@ -19,13 +19,13 @@ import java.util.List;
 
 
 /**
- * This class tests <code>HistoryAwareAbstractWorkBag</code> class.
+ * This class tests <code>AbstractHistoryAwareWorkBag</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class HistoryAwareAbstractWorkBagTest
+public abstract class AbstractHistoryAwareWorkBagTest
   extends AbstractWorkBagTest {
 	/**
 	 * Tests <code>addAllWork</code>.
@@ -42,4 +42,13 @@ public class HistoryAwareAbstractWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/29 01:55:15  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
  */
