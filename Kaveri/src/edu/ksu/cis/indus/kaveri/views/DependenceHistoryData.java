@@ -86,6 +86,9 @@ public class DependenceHistoryData {
 	 */
 	public void reset() {
 	 dependenceHistory.clear();
+	 for (int _i = 0; _i < listeners.size(); _i++) {
+		((IDeltaListener) listeners.get(_i)).propertyChanged();
+	 }	
 	}
 	/**
 	 * Removes the listener.

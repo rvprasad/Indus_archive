@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,10 @@ public class IndusConfiguration {
 	 */
 	private String currentConfiguration;
 
+	/**
+	 * Holds the list of current dependencies tracked.
+	 */
+	private HashSet depLinkSet = new HashSet();
 	/** 
 	 * <p>
 	 * The output directory.
@@ -355,5 +360,17 @@ public class IndusConfiguration {
 	 */
 	public void setDepHistory(Pair history) {
 		this.depHistory.addHistory(history);
+	}
+	/**
+	 * @return Returns the depLinkSet.
+	 */
+	public HashSet getDepLinkSet() {
+		return depLinkSet;
+	}
+	/**
+	 * @param line The line number to add.
+	 */
+	public void addToDepLinkSet(Object line) {
+		depLinkSet.add(line);
 	}
 }

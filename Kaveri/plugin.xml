@@ -157,6 +157,27 @@
                   <groupMarker name="group1"/>
                </menu>      
                <menu
+                     label="Data"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="datamenu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Data Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DataSuccessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/datamenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DASAction"/>
+               <action
+                     enablesFor="+"
+                     label="Data Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DataPredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/datamenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DAPAction"/>
+               
+               <menu
                      label="Divergence"
                      path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
                      id="divmenu">

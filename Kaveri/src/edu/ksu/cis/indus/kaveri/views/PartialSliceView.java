@@ -229,29 +229,29 @@ public class PartialSliceView
 		_layout.horizontalSpacing = 10;
 		_layout.marginWidth = 10;
 		_comp.setLayout(_layout);
+										
 		
-		final Composite _comp1 = new Composite(_comp, SWT.NONE);
-		final GridData _dataL = new GridData();
-		_dataL.horizontalSpan = 2;
-		//_dataL.grabExcessHorizontalSpace = true;
-		_comp1.setLayoutData(_dataL);
-		final RowLayout _r = new RowLayout(SWT.HORIZONTAL);
-		_r.spacing = 10;
-		_comp1.setLayout(_r);
-		
-		final Label _lbl = new Label(_comp1, SWT.LEFT);
+		final Label _lbl = new Label(_comp, SWT.LEFT);
 		_lbl.setText("Statement: ");
-		;
-			
-		txt = new Text(_comp1, SWT.LEFT);		
+		GridData _dataL = new GridData();
+		_dataL.horizontalSpan = 1;
+		_lbl.setLayoutData(_dataL);
+		
+		txt = new Text(_comp, SWT.LEFT);		
+		_dataL  = new GridData();
+		_dataL.horizontalSpan = 1;
+		_dataL.horizontalAlignment = GridData.FILL;
+		_dataL.grabExcessHorizontalSpace = true;
+		txt.setLayoutData(_dataL);
 		
 		txt.setEditable(false);
-		txt.setText("[\t\t\t\t\t\tNo statement selected\t\t\t\t\t\t]");
+		//txt.setText(" ");
 		
 		final Table _table = createTable(_comp);
 		final GridData _data = new GridData();		
 		_data.horizontalSpan = 2;
 		_data.grabExcessHorizontalSpace = true;
+		_data.horizontalAlignment = GridData.FILL_BOTH;
 		//_data.grabExcessVerticalSpace = true;
 		_table.setLayoutData(_data);
 		

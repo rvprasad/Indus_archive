@@ -57,6 +57,8 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	
 	private String annotationKey = "indus.slice.DependencehighlightAnnotation";
 	
+	
+	
 	private ITextSelection tSelection;
 	
 	private Set annotSet = new HashSet();
@@ -259,7 +261,12 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 		final Stmt _stmt = (Stmt) _stmtlist.get(2 + _i);
                 		_set.addAll(handleDependence(_method, _stmt));
                 	}
-                	
+                	final Integer _nItg = new Integer(nLine);
+                	final HashSet _dset = KaveriPlugin.getDefault().getIndusConfiguration().getDepLinkSet();
+                	if (! _dset.contains(_nItg)) {
+                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().reset();                		
+                	}                	
+                	_dset.clear();
                 	Pair _pair = new Pair(selectedText, getDependenceInfo(), false, true);
                 	KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
                 	
@@ -272,11 +279,12 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                     	while(_stit.hasNext()) {
 							final Stmt _st = (Stmt) _stit.next();
 							int _nLine = SECommons.getLineNumberForStmt(_st);
-							if (_nLine != -1) {
+							if (_nLine != -1) {								
 								try {
 									final IRegion _region =
 										editor.getDocumentProvider().getDocument(editor.getEditorInput()).
 										getLineInformation(_nLine - 1);
+									_dset.add(new Integer(_nLine));
 									final Annotation _annot = new Annotation(annotationKey, false, null);
 									final Position _pos = new Position(_region.getOffset(), _region.getLength());
 									annotSet.add(_annot);

@@ -209,6 +209,7 @@ public class DependenceHistoryView
 		final Table _table = createTable(_comp);
 		final GridData _data = new GridData();		
 		_data.horizontalSpan = 2;
+		_data.horizontalAlignment = GridData.FILL_BOTH;
 		_data.grabExcessHorizontalSpace = true;
 		//_data.grabExcessVerticalSpace = true;
 		_table.setLayoutData(_data);
