@@ -126,6 +126,13 @@ public final class SlicingEngine {
 	private BasicBlockGraphMgr bbgMgr;
 
 	/** 
+	 * A collection of methods for which all call-sites have been collected.
+	 *
+	 * @invariant collectedAllInvocationSites.oclIsKindOf(Collection(SootMethod))
+	 */
+	private final Collection collectedAllInvocationSites = new HashSet();
+
+	/** 
 	 * The closure used to extract dependence information based on slice direction.  See <code>setSliceType()</code> for
 	 * details.
 	 */
@@ -397,6 +404,7 @@ public final class SlicingEngine {
 		collector.reset();
 		callStackCache = null;
 		criteria.clear();
+		collectedAllInvocationSites.clear();
 
 		// clear the work bag of slice criterion
 		while (workbag.hasWork()) {
@@ -498,20 +506,22 @@ public final class SlicingEngine {
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.hasBeenCollected(callee)) {
 			includeMethodAndDeclaringClassInSlice(callee);
+		}
 
-			if (callStackCache != null && !callStackCache.isEmpty()) {
-				final CallTriple _temp = (CallTriple) callStackCache.pop();
-				final SootMethod _caller = _temp.getMethod();
-				final Stmt _stmt = _temp.getStmt();
+		if (callStackCache != null && !callStackCache.isEmpty()) {
+			final CallTriple _temp = (CallTriple) callStackCache.pop();
+			final SootMethod _caller = _temp.getMethod();
+			final Stmt _stmt = _temp.getStmt();
+			directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
+			callStackCache.push(_temp);
+		} else if (!collectedAllInvocationSites.contains(callee)) {
+			collectedAllInvocationSites.add(callee);
+
+			for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
+				final SootMethod _caller = _ctrp.getMethod();
+				final Stmt _stmt = _ctrp.getStmt();
 				directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
-				callStackCache.push(_temp);
-			} else {
-				for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
-					final CallTriple _ctrp = (CallTriple) _i.next();
-					final SootMethod _caller = _ctrp.getMethod();
-					final Stmt _stmt = _ctrp.getStmt();
-					directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
-				}
 			}
 		}
 
@@ -576,8 +586,8 @@ public final class SlicingEngine {
 			}
 		} else {
 			if (sliceType.equals(COMPLETE_SLICE)
-				  || ((considerExecution && sliceType.equals(BACKWARD_SLICE))
-				  || (!considerExecution && sliceType.equals(FORWARD_SLICE)))) {
+				  || (considerExecution && sliceType.equals(BACKWARD_SLICE))
+				  || (!considerExecution && sliceType.equals(FORWARD_SLICE))) {
 				final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
 
 				// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
