@@ -61,7 +61,7 @@ public final class MembershipPredicate
 	 * 		   <code>false</code>; <code>false</code>, otherwise.
 	 */
 	public boolean evaluate(final Object object) {
-		return (membership && collection.contains(object)) || (!membership && !collection.contains(object));
+        return membership == collection.contains(object);
 	}
 }
 
