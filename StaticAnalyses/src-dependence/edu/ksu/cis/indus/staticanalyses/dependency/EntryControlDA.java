@@ -153,33 +153,7 @@ public class EntryControlDA
 		stable = true;
 	}
 
-    
-    
 	/**
-     * DOCUMENT ME!
-     * 
-     * 
-     */
-    protected void localAnalyze() {
-        for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
-            SootMethod currMethod = (SootMethod) i.next();
-            BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
-
-            if (bbGraph == null) {
-                LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
-                continue;
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processing method: " + currMethod.getSignature());
-            }            
-            
-            BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
-            fixupMaps(bbGraph, bbCDBitSets, currMethod);
-        }        
-    }
-
-    /**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
 	 * @return a stringized representation of this object.
@@ -222,25 +196,6 @@ public class EntryControlDA
 		}
 		result.append("A total of " + edgeCount + " control dependence edges exist.");
 		return result.toString();
-	}
-
-	/**
-	 * Sets up internal data structures.
-	 *
-	 * @throws InitializationException when call graph service is not provided.
-	 *
-	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
-	 */
-	protected void setup()
-	  throws InitializationException {
-		super.setup();
-		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
-		if (callgraph == null) {
-			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
-		}
 	}
 
 	/**
@@ -359,14 +314,10 @@ public class EntryControlDA
 						}
 					}
 				}
-			} else {
-				// add dependence to the reachable roots
-				for (Iterator i = roots.iterator(); i.hasNext();) {
-					currResult.set(NODES.indexOf(i.next()));
-				}
+
+				result[currIndex] = currResult;
+				currResult = new BitSet();
 			}
-			result[currIndex] = currResult;
-			currResult = new BitSet();
 
 			// Add the successors of the node 
 			wb.addAllWorkNoDuplicates(succs);
@@ -374,6 +325,47 @@ public class EntryControlDA
 		}
 
 		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	protected void localAnalyze() {
+		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
+			SootMethod currMethod = (SootMethod) i.next();
+			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
+
+			if (bbGraph == null) {
+				LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
+				continue;
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing method: " + currMethod.getSignature());
+			}
+
+			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
+			fixupMaps(bbGraph, bbCDBitSets, currMethod);
+		}
+	}
+
+	/**
+	 * Sets up internal data structures.
+	 *
+	 * @throws InitializationException when call graph service is not provided.
+	 *
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
+	 */
+	protected void setup()
+	  throws InitializationException {
+		super.setup();
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
+		}
 	}
 
 	/**
@@ -408,28 +400,30 @@ public class EntryControlDA
 			BitSet cd = bbCDBitSets[i];
 			flag |= cd != null;
 
-			Collection cdp = new ArrayList();
-			BasicBlock bb = (BasicBlock) nodes.get(i);
+			if (cd != null) {
+				Collection cdp = new ArrayList();
+				BasicBlock bb = (BasicBlock) nodes.get(i);
 
-			for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
-				mDependee.set(sl.indexOf(j.next()), cdp);
-			}
-
-			for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
-				BasicBlock cdbb = (BasicBlock) nodes.get(j);
-				Object cdStmt;
-
-				cdStmt = cdbb.getLeaderStmt();
-				cdp.add(cdStmt);
-
-				int deIndex = sl.indexOf(cdStmt);
-				Collection dees = (Collection) mDependent.get(deIndex);
-
-				if (dees == null) {
-					dees = new ArrayList();
-					mDependent.set(deIndex, dees);
+				for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
+					mDependee.set(sl.indexOf(j.next()), cdp);
 				}
-				dees.add(bb.getStmtsOf());
+
+				for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
+					BasicBlock cdbb = (BasicBlock) nodes.get(j);
+					Object cdStmt;
+
+					cdStmt = cdbb.getTrailerStmt();
+					cdp.add(cdStmt);
+
+					int deIndex = sl.indexOf(cdStmt);
+					Collection dees = (Collection) mDependent.get(deIndex);
+
+					if (dees == null) {
+						dees = new ArrayList();
+						mDependent.set(deIndex, dees);
+					}
+					dees.add(bb.getStmtsOf());
+				}
 			}
 		}
 
@@ -446,12 +440,15 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/25 17:51:23  venku
+   - split control dependence into 2 classes.
+     EntryControlDA handled control DA as required for backward slicing.
+     ExitControlDA handles control DA as required for forward slicing.
+   - ripple effect.
    Revision 1.26  2003/11/25 17:17:27  venku
    - logging.
-
    Revision 1.25  2003/11/25 17:08:50  venku
    - added logging statement.
-
    Revision 1.24  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
