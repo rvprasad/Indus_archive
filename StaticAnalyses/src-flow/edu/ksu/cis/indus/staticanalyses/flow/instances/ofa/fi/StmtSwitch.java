@@ -23,9 +23,13 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Value;
+
+import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
+import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.InvokeStmt;
@@ -92,13 +96,24 @@ public class StmtSwitch
 			LOGGER.debug("Processing statement: " + stmt);
 		}
 
-		rexpr.process(stmt.getRightOpBox());
+		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
+		IFGNode left = null;
+		Value leftOp = stmt.getLeftOp();
 
-		if (OFAnalyzer.isReferenceType(stmt.getRightOp().getType())) {
-			IFGNode right = (IFGNode) rexpr.getResult();
+		if (flag || leftOp instanceof ArrayRef || leftOp instanceof FieldRef) {
 			lexpr.process(stmt.getLeftOpBox());
+			left = (IFGNode) lexpr.getResult();
+		}
 
-			IFGNode left = (IFGNode) lexpr.getResult();
+		IFGNode right = null;
+		Value rightOp = stmt.getRightOp();
+
+		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef) {
+			rexpr.process(stmt.getRightOpBox());
+			right = (IFGNode) rexpr.getResult();
+		}
+
+		if (flag) {
 			right.addSucc(left);
 		}
 	}
@@ -146,13 +161,24 @@ public class StmtSwitch
 			LOGGER.debug("Processing statement: " + stmt);
 		}
 
-		if (OFAnalyzer.isReferenceType(stmt.getRightOp().getType())) {
-			rexpr.process(stmt.getRightOpBox());
+		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
+		IFGNode left = null;
+		Value leftOp = stmt.getLeftOp();
 
-			IFGNode right = (IFGNode) rexpr.getResult();
+		if (flag || leftOp instanceof ArrayRef || leftOp instanceof FieldRef) {
 			lexpr.process(stmt.getLeftOpBox());
+			left = (IFGNode) lexpr.getResult();
+		}
 
-			IFGNode left = (IFGNode) lexpr.getResult();
+		IFGNode right = null;
+		Value rightOp = stmt.getRightOp();
+
+		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef) {
+			rexpr.process(stmt.getRightOpBox());
+			right = (IFGNode) rexpr.getResult();
+		}
+
+		if (flag) {
 			right.addSucc(left);
 		}
 	}
@@ -280,6 +306,9 @@ public class StmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.4  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
