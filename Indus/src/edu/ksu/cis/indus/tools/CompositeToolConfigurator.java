@@ -16,9 +16,12 @@
 package edu.ksu.cis.indus.tools;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
@@ -29,6 +32,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 
 
 /**
@@ -45,33 +49,38 @@ public final class CompositeToolConfigurator
 	/**
 	 * This combo presents the available configurations.
 	 */
-	Combo configCombo;
+	private Combo configCombo;
 
 	/**
 	 * This is composite on which the child configurator will be displayed.
 	 */
-	Composite childComposite;
+	private Composite childComposite;
 
 	/**
 	 * This is the composite configuration being configured.
 	 *
 	 * @invariant compositeConfiguration != null
 	 */
-	CompositeToolConfiguration compositeConfiguration;
+	private CompositeToolConfiguration compositeConfiguration;
 
 	/**
 	 * The factory used to create a new configuration instance.
 	 *
 	 * @invariant toolConfigFactory != null
 	 */
-	IToolConfigurationFactory toolConfigFactory;
+	private IToolConfigurationFactory toolConfigFactory;
 
 	/**
 	 * This is the child configurator to be used to configure each instance of configuration.
 	 *
 	 * @invariant childConfigurator != null
 	 */
-	IToolConfigurator childConfigurator;
+	private IToolConfigurator childConfigurator;
+
+	/**
+	 * This is the index that is selected in the combo.
+	 */
+	private int selectedIndex;
 
 	/**
 	 * Creates a new CompositeToolConfigurator object.
@@ -109,11 +118,12 @@ public final class CompositeToolConfigurator
 		GridData _gridData = new GridData();
 		_gridData.horizontalSpan = 3;
 		_label.setLayoutData(_gridData);
-		configCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		configCombo = new Combo(parent, SWT.DROP_DOWN);
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		configCombo.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
+					recordSelection();
 					displayChild();
 					parent.pack();
 				}
@@ -122,6 +132,17 @@ public final class CompositeToolConfigurator
 					widgetSelected(evt);
 				}
 			});
+
+		configCombo.addFocusListener(new FocusAdapter() {
+				public void focusLost(final FocusEvent evt) {
+					updateConfigName();
+				}
+
+				public void focusGained(final FocusEvent evt) {
+					recordSelection();
+				}
+			});
+
 		configCombo.setVisible(true);
 
 		final Button _ok = new Button(parent, SWT.PUSH);
@@ -146,11 +167,7 @@ public final class CompositeToolConfigurator
 		_newConfig.setLayoutData(_gridData);
 		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					final IToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
-					_atc.setConfigName("too_configuration_" + compositeConfiguration.configurations.size());
-					compositeConfiguration.addToolConfiguration(_atc);
-					configCombo.add(_atc.getConfigName());
-					configCombo.select(compositeConfiguration.configurations.indexOf(_atc));
+					createNewConfiguration();
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -173,6 +190,17 @@ public final class CompositeToolConfigurator
 	}
 
 	/**
+	 * Creates a new configuration.
+	 */
+	void createNewConfiguration() {
+		final IToolConfiguration _temp = toolConfigFactory.createToolConfiguration();
+		_temp.setConfigName("tool_configuration_" + compositeConfiguration.configurations.size());
+		compositeConfiguration.addToolConfiguration(_temp);
+		configCombo.add(_temp.getConfigName());
+		configCombo.select(compositeConfiguration.configurations.indexOf(_temp));
+	}
+
+	/**
 	 * Displays the child configurator.
 	 */
 	void displayChild() {
@@ -192,19 +220,61 @@ public final class CompositeToolConfigurator
 		childConfigurator.setConfiguration(_tc);
 		childConfigurator.initialize(childComposite);
 	}
+
+	/**
+	 * Records the index of the current selection in the Combo.
+	 */
+	void recordSelection() {
+		selectedIndex = configCombo.getSelectionIndex();
+	}
+
+	/**
+	 * Updates the selected configuration's name if it was edited in the text box.
+	 */
+	void updateConfigName() {
+		final int _selIndex = configCombo.getSelectionIndex();
+
+		// if text was changed, selection index is -1 when the name is changed.
+		if (_selIndex < 0) {
+			// retrive the text at previously selected index and the corresponding configuration
+			final List _configurations = compositeConfiguration.configurations;
+			final IToolConfiguration _selConfig = (IToolConfiguration) _configurations.get(selectedIndex);
+
+			// retrieve the new Text in the text box.
+			final String _newText = configCombo.getText();
+			boolean _noDuplicate = true;
+
+			// check if the new name will lead to duplicate entries.
+			for (int _i = configCombo.getItemCount() - 1; _i >= 0 && _noDuplicate; _i--) {
+				if (((IToolConfiguration) _configurations.get(_i)).getConfigName().equals(_newText)) {
+					final MessageBox _msgBox = new MessageBox(parent.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+					_msgBox.setMessage("A configuration with the name of \"" + _newText
+						+ "\" exists.  \nNo changes will be made.");
+					_noDuplicate = false;
+				}
+			}
+
+			// if there will be no duplicate entries, then...
+			if (_noDuplicate) {
+				_selConfig.setConfigName(_newText);
+				configCombo.remove(selectedIndex);
+				configCombo.add(_newText, selectedIndex);
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/12 21:28:52  venku
+   - automatically generated configuration name was tied to the slicer.  FIXED.
    Revision 1.13  2003/12/28 03:08:19  venku
    - changed the name of the unused parameter in
      extension method to be of length one.
-
    Revision 1.12  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.11  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
