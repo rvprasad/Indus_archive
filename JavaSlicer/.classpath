@@ -20,6 +20,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/xmlenc-0.44.zip" kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
