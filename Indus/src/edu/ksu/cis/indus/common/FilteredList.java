@@ -76,7 +76,7 @@ public final class FilteredList
 	/**
 	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#add(java.lang.Object)
 	 */
-	public boolean add(Object o) {
+	public boolean add(final Object o) {
 		return filteredCollection.add(o);
 	}
 
@@ -92,7 +92,7 @@ public final class FilteredList
 	/**
 	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#addAll(java.util.Collection)
 	 */
-	public boolean addAll(Collection c) {
+	public boolean addAll(final Collection c) {
 		return filteredCollection.addAll(c);
 	}
 
@@ -203,21 +203,21 @@ public final class FilteredList
 	/**
 	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#remove(java.lang.Object)
 	 */
-	public boolean remove(Object o) {
+	public boolean remove(final Object o) {
 		return filteredCollection.remove(o);
 	}
 
 	/**
 	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#removeAll(java.util.Collection)
 	 */
-	public boolean removeAll(Collection c) {
+	public boolean removeAll(final Collection c) {
 		return filteredCollection.removeAll(c);
 	}
 
 	/**
 	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#retainAll(java.util.Collection)
 	 */
-	public boolean retainAll(Collection c) {
+	public boolean retainAll(final Collection c) {
 		return filteredCollection.retainAll(c);
 	}
 
@@ -272,6 +272,9 @@ public final class FilteredList
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/29 01:59:46  venku
+   - added more operations via delegation.
+
    Revision 1.2  2004/06/28 15:53:30  venku
    - documentation.
    Revision 1.1  2004/06/28 08:08:27  venku
