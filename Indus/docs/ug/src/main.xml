@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<article class="productsheet">
+  <title>Indus</title>
+  <articleinfo>
+    <title>Indus</title>
+    <pubdate/>
+    <author>
+      <firstname>Venkatesh Prasad</firstname>
+      <surname>Ranganath</surname>
+      <affiliation>
+        <orgname>Kansas State University</orgname>
+      </affiliation>
+      <email>rvprasad@cis.ksu.edu</email>
+    </author>
+  </articleinfo>
+  <sect1 id="indus-project">
+    <title>Indus - The project</title>
+    <para>
+      <emphasis>Indus</emphasis> is a project aimed at developing and implementing program analyses and transformations
+      that can be used to customize and adapt Java programs. It contains a bunch of implementations of various program
+      analyses and transformations as subprojects which were developed to cater to client projects in SAnToS group.
+      However, Indus and it's subprojects are structured to facilitate their use by other projects as well.</para>
+    <sect2>
+      <title>Background</title>
+      <para>Indus was not conceived as stated above but rather by snowballing. As each developer of the project executed
+        a subproject for a publication or as part of graduate work, each subproject was maintained and managed by the
+        developers separately. These subprojects were related from the perspective of their application and purpose but
+        could not be included into the client projects(Bandera) as they were generic and not tailored to Bandera. Hence,
+        these subprojects (and the subprojects conceived for future) with a similar flavour and common purposes were
+        bundled as <emphasis>Indus</emphasis>. </para>
+    </sect2>
+    <sect2>
+      <title>What about the name?</title>
+      <para>As for the name of the project, <emphasis>Indus</emphasis> is a river in the Indian subcontinent and it is
+        the cradle of Indus valley civilization, one of oldest civilization in the world. Just to give the project a
+        flavour of the country from where I come, I picked Indus as the name. Indus is not an acronym, it's just a name.</para>
+    </sect2>
+    <sect2>
+      <title>Motivation</title>
+      <para>As mentioned above, Indus provides a collection of library classes that can be used in applications. Each of
+        the libraries are provided by a subproject of Indus. For example, a bunch of static analyses are implemented in
+        a subproject called "Staticanalyses" while the Java program slicer is implemented in a subproject called
+        "JavaSlicer". Hence, each subproject deals with one cohesive theme and just that. If at any time the required
+        functionality seems to be generic and not tightly coupled to the silent subproject, then that functionality will
+        be provided by a new subproject.</para>
+      <para>Each subproject may require some piece of information from an analysis and there may be many flavours of the
+        analysis. To enable the user to easily experiment with various implementations of the analysis, we split the
+        analysis into it's interface and implementation. Hence, the user can adapt any implementation of an analysis to
+        confirm to the given interface, plug in the adaptation into the system of modules, and it should be ready to
+        use! As one may have observed the interfaces are not dependent on the implementation and they do not belong to
+        the subproject which provides the implementation. Hence, the interfaces need to be housed in a different subproject.</para>
+      <para>It has been our past experience that related projects usually use common code snippets. To ease
+        maintainability, it is best to avoid duplication and group these snippets into a subproject so that any new
+        subproject requiring similar functionality can use off-the-shelf code. Recently, we also realized this sort of
+        reusability could be exercised to cut down test setup time while testing with large-size systems.</para>
+      <para>To address the above issues we created a subproject of Indus by the same name, "Indus", which is discussed
+        in detail in the next section.</para>
+    </sect2>
+  </sect1>
+  <sect1 id="indus-core">
+    <title>Indus - The Core</title>
+    <para>From here on, we shall use Indus to refer to the subproject unless explicitly mentioned. The purpose of Indus
+      is given below.<itemizedlist>
+        <listitem>To define a set of interfaces that are general enough to extract the information pertaining to
+          analyses independent of their implementations.</listitem>
+        <listitem>To provide a set of interfaces and abstract implementations of tiny frameworks that are used in more
+          than one subproject of Indus (the project).</listitem>
+        <listitem>To provide a set of interfaces and abstract implementations to expose analyses and transformations as
+          tools via well defined interfaces to enable the analyses and transformations to be easily used in other
+          toolkits and IDEs.</listitem>
+      </itemizedlist>
+    </para>
+    <para>All implementations in Indus dealing with AST is based on Jimple, a IR for Java in the Soot toolkit available
+      from Sable group at McGill University.</para>
+    <sect2>
+      <title>Packages</title>
+      <para>The following is a list of packages in Indus subprojects along with their description. All the packages are
+        rooted in a package called <emphasis>edu.ksu.cis.indus</emphasis>.</para>
+      <variablelist>
+        <varlistentry>
+          <term>common</term>
+          <listitem>
+            <para>This package contains classes which provide functionality similar to helper functions. They are either
+              classes of a particular library which are tailored for use in any subproject in Indus or classes which
+              contain methods that are contain common operations of a sort used repetitively in the subprojects. This
+              package will be populated as the subprojects grow.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>common.datastructures</term>
+          <listitem>
+            <para>This package contains data structures commonly used in the subprojects such as
+              <emphasis>Pair</emphasis>, <emphasis>Triple</emphasis>, <emphasis>WorkBag.</emphasis>, etc. It may be the
+              case that the client projects may extend these. However, the basic functionality is provide the classes in
+              this package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>common.graph</term>
+          <listitem>
+            <para>This package contains classes which represent directed graphs with the most common graph operations
+              such as SCC discovery, topological sort, etc. Oddly it also includes the implementation of <emphasis>basic
+                block graph</emphasis> and a manager of basic blocks as basic blocks graphs are just graphs and they are
+              common to program analysis and transformations. For those curious about why another implementation of
+              graph instead of using the graph support in Soot, the answer is that the we found the graph support in
+              Soot lacking in areas.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>common.soot</term>
+          <listitem>
+            <para>This package contains classes that provide functionality that are specific to Soot such as discovering
+              the class that introduces the method into the class hierarchy branch and such.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>interfaces</term>
+          <listitem>
+            <para>This package contains the interfaces via which various implementation can provide the same
+              information, say for example the call graph info in Soot can used in the subprojects of Indus if they can
+              provide an adapter of the form of <emphasis>ICallGraphInfo</emphasis>. These interface will also provide
+              auxiliary classes or interface which are used in the parent interface as well. In case of
+              <emphasis>ICallGraphInfo</emphasis>, it contains a class which captures the call information.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>processing</term>
+          <listitem>
+            <para>This packages contains a small framework to visit AST nodes in a batched fashion. It is typical in
+              transformations to perform a bunch of analyses and these analyses will walk the AST. Since, many of these
+              analyses are independent of each other, their walk can be batched, hence, the framework. It is also the
+              case that during such walk one may want to avoid visiting certain parts and this is possible via using the
+              filters in this class or extending the filters.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>tools</term>
+          <listitem>
+            <para>This package contains a set of interfaces and abstract implementations via which various
+              implementations can be exposed as cohesive tools to be absorbed in other toolkits and IDEs. Please see the
+              <emphasis>JavaSlicer</emphasis> subproject for an instance of how to use the classes in this package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>transformations.common</term>
+          <listitem>
+            <para>This package contains classes which are common to transform programs. Cloning of ASTs is one such
+              operation that is provided by classes in this package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>edu.ksu.cis.indus.xmlizer</term>
+          <listitem>
+            <para>This package contains classes that functionality required to xmlize jimple in a canonical way such
+              that the generate data is comparable. This is used in our regression testing framework extensively and
+              also in most of our driver/example classes.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>The users/developers are encouraged to cast their solutions in a form which can provide the above interfaces
+        defined in the above package to improve reusability across Indus projects.</para>
+    </sect2>
+    <para>There are no concrete classes in this subproject, hence, there are no example based exposition to the classes
+      in this subproject. Please refer to the java docs or the doxygen docs for more information about how to used a
+      particular class or interface. </para>
+  </sect1>
+  <sect1 id="closing-note">
+    <title>Closing Note</title>
+    <para>The XMLizing classes used by this project and it's parent and sibling projects use the xmlzing framework to
+      drive the slicer. So, we urge you to peruse the source code of these classes before asking questions on the forum
+      or the mailing list. We will be glad to answers any question you may have regarding the usage, but it probably
+      would be faster if the user mocked an existing working piece of code while starting to use a new tool.</para>
+    <para>The reader is encouraged to use the modules as is or to extend them as required. In the due process, the users
+      are urged to submit bug reports of any bugs uncovered with suitable information about the triggering input and
+      configuration. </para>
+    <para>The interface of the modules are not fixed as the development team has not forseen all possible applications
+      and tweaks to the slicer. Hence, the users are encouraged to raise change requests to the development team along
+      with any feature requests they may have. However, please note that the development team may not be able to
+      implement all requested features in which case they will assist by providing any information or alterations to
+      enable the requested features.</para>
+    <para>Please refer to <ulink url="http://indus.projects.cis.ksu.edu">Indus</ulink> for more documentation,
+      distribution, mailing list, forums, and links to other subprojects.</para>
+    <para>We hope you have a pleasant experience using our product.</para>
+  </sect1>
+</article>

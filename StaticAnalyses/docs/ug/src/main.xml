@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<article class="productsheet">
+  <title>Indus - Static analyses</title>
+  <articleinfo>
+    <title>Indus - Static analyses</title>
+    <pubdate/>
+    <author>
+      <firstname>Venkatesh Prasad</firstname>
+      <surname>Ranganath</surname>
+      <affiliation>
+        <orgname>Kansas State University</orgname>
+      </affiliation>
+      <email>rvprasad@cis.ksu.edu</email>
+    </author>
+  </articleinfo>
+  <sect1 id="Introduction">
+    <title>Introduction</title>
+    <para>Each section of this document will provide an introduction to a concept and then provide sufficient exposition
+      to enable the reader to use the implementation along with the supplement material. The implementation is available
+      as <emphasis>StaticAnalyses </emphasis> modules from <emphasis>Indus</emphasis>.</para>
+  </sect1>
+  <sect1 id="dependences">
+    <title>Dependences</title>
+    <sect2 id="dependences-concept">
+      <title>Concept</title>
+      <para>The concept of a program point affecting/affected by another program point is captured as dependences.
+        <emphasis>Dependence</emphasis> can be thought of as a relation between two program points x and y that
+        indicates if x depends on y. In a dependence relation between x and y where x depends on y, we refer to x as the
+        <emphasis>dependent</emphasis> and y as the <emphasis>dependee</emphasis>
+        <footnote>
+          <para>We shall often refer to dependent program points as the dependent and dependee program point as the dependee.</para>
+        </footnote>. </para>
+      <para>There are many notions of dependences and <emphasis>data</emphasis> and <emphasis>control</emphasis>
+        dependence are the most common and simple notions of dependences that can occur even in simple non-procedural
+        sequential programs. In a simple setting <emphasis>data dependence</emphasis> indicates if the variable being
+        read at a program point is influenced by another program point at which the same variable is being written.
+        Similarly, <emphasis>control dependence</emphasis> indicates if the flow of control to a program point is
+        dependent on another program point. </para>
+      <para>An important restriction on the above stated dependence was that there should be a control flow path between
+        the program points being considered. Hence, these simple notions need to be extended to be applicable in an
+        inter-procedural setting and it is usually achieved by inlining the methods, constructing a program control flow
+        graph for the entire program <citation>HorwitzPLDI88</citation>. The notions can again be extended in a
+        conservative/pessimistic way when dealing with programs that use concepts such as dynamic memory allocation and
+        reference variables. However, these notions fail when dealing with concurrent programs that use concepts such as
+        dynamic memory allocation and reference variables which is a common case in programs written OO languages such
+        as C++ and Java as there is not control flow between program points in different threads. If one were to attempt
+        to patch a control flow graph (CFG) that captures all possible interleavings of the program then the size of
+        such a CFG can be exponential as the number of interleavings in a concurrent program can be exponential (in the
+        worst case.) This limitation was identified and addressed by many <citation>HatcliffSAS99</citation>
+        <citation>KrinkePASTE98</citation> by introducing new notions of dependences that were applicable to concurrent programs.</para>
+      <para>
+        <emphasis>Interference Dependence</emphasis> is one such dependence. It can be defined as "if a variable
+        <emphasis>x</emphasis> is written at a program point <emphasis>m</emphasis> and <emphasis>x</emphasis> is read
+        at a program point <emphasis>n</emphasis> and <emphasis>m</emphasis> and <emphasis>n</emphasis> occur in
+        different threads then <emphasis>n</emphasis> is said to be <emphasis>interference dependent</emphasis> on <emphasis>m</emphasis>
+        <footnote>
+          <para>Note that this definition is not precise.</para>
+        </footnote>. This dependence is an extension of data dependence in which the restriction of the existence of a
+        control flow path is relaxed to capture data dependence between program points in different threads. Refer to
+        [cite John, Krinke] for more detail about this notion of dependence. <citation>HatcliffSAS99</citation> and
+        <citation>KrinkePASTE98</citation> provide details about this dependence.</para>
+      <para>Monitor-related constructs such as
+        <emphasis>java.lang.wait()/java.lang.notify()/java.lang.notifyAll()</emphasis> in Java introduce a new notion of
+        dependence between program points in different threads as the completion of execution of a wait statement is
+        dependent on a notify statement (ignoring exceptional completion). Similar situation occurs between
+          <emphasis>enter monitor</emphasis> and <emphasis>exit monitor</emphasis> program points. This dependence is
+        similar to control dependence except that it does not impose the restriction of existence of a control flow path
+        and it is concerned with the control leaving the dependent program point rather than reaching it. This notion of
+        dependence is defined as <emphasis>Ready Dependence</emphasis>. </para>
+      <para>Another form of ready dependence that is more similar to control dependence (as it relies on a control flow
+        path) relates the statements reachable in a CFG from statement containing <code>enter_montior</code> or calls to
+        <code>java.lang.Object.wait()</code>. The dependence captures the requirement of the completion of the dependee
+        statement for the control to reach the dependent statement. This dependence captures divergence relation based
+        on synchronization constructs unlike the <emphasis>conditional-based divergence dependence</emphasis>. These
+        dependences are discussed in greater detail in <citation>HatcliffSAS99</citation>
+      </para>
+    </sect2>
+    <sect2 id="dependence-implementation">
+      <title>Implementation</title>
+    </sect2>
+  </sect1>
+  <bibliography>
+    <biblioentry xreflabel="HorwitzPLDI88">
+      <biblioset relation="article">
+        <author>
+          <firstname>Susan</firstname>
+          <surname>Horwitz</surname>
+        </author>
+        <author>
+          <firstname>Thomas</firstname>
+          <surname>Reps</surname>
+        </author>
+        <author>
+          <firstname>David</firstname>
+          <surname>Binkley</surname>
+        </author>
+        <citetitle>Interprocedural slicing using Dependence Graphs</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title role="book">Proceedings of the ACM SIGPLAN '88 Conference on Programming Language Design and
+          Implementation (PLDI'88)</title>
+        <artpagenums>35-46</artpagenums>
+        <pubdate>1988</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="HatcliffSAS99">
+      <biblioset relation="article">
+        <author>
+          <firstname>John</firstname>
+          <surname>Hatcliff</surname>
+        </author>
+        <author>
+          <firstname>James C.</firstname>
+          <surname>Corbett</surname>
+        </author>
+        <author>
+          <firstname>Matthew B.</firstname>
+          <surname>Dwyer</surname>
+        </author>
+        <author>
+          <firstname>Stefan</firstname>
+          <surname>Sokolowski</surname>
+        </author>
+        <author>
+          <firstname>Hongjun</firstname>
+          <surname>Zheng</surname>
+        </author>
+        <citetitle>A Formal Study of Slicing for Multi-threaded Programs with JVM Concurrency Primitives</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title role="book">Proceedings on the 1999 International Symposium on Static Analysis (SAS'99)</title>
+        <pubdate>Sep 2000</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="KrinkePASTE98">
+      <biblioset relation="article">
+        <author>
+          <firstname>Jens</firstname>
+          <surname>Krinke</surname>
+        </author>
+        <citetitle>Static Slicing of Threaded Programs</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title>Proceedings ACM SIGPLAN/SIGFSOFT Workshop on Program Analysis for Software Tools and Engineering (PASTE'98)</title>
+        <artpagenums>35-42</artpagenums>
+        <pubdate>June 1998</pubdate>
+      </biblioset>
+    </biblioentry>
+  </bibliography>
+</article>
