@@ -108,12 +108,14 @@ public class AnalysesController
 	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
 	public final Collection getAnalyses(final Object id) {
-		Collection result = null;
+		final Collection _result;
 
 		if (participatingAnalyses != null) {
-			result = (Collection) participatingAnalyses.get(id);
+			_result = (Collection) participatingAnalyses.get(id);
+		} else {
+			_result = null;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -146,7 +148,15 @@ public class AnalysesController
 					final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
 
 					if (_analysis != null && !_done.contains(_analysis)) {
-						_analysis.analyze();
+						if (LOGGER.isDebugEnabled()) {
+							final long _start = System.currentTimeMillis();
+							_analysis.analyze();
+
+							final long _stop = System.currentTimeMillis();
+							LOGGER.debug(_analysis.getClass().getName() + " took " + (_stop - _start) + "ms.");
+						} else {
+							_analysis.analyze();
+						}
 
 						final boolean _t = _analysis.isStable();
 
@@ -231,6 +241,8 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/07/11 14:34:37  venku
+   - coding conventions.
    Revision 1.35  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
