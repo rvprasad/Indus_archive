@@ -65,20 +65,20 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, Object)
+	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod)
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final Object context) {
+	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
 		final Collection _result = new HashSet();
 		final Object _direction = analysis.getDirection();
 
 		if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
-			_result.addAll(analysis.getDependees(entity, context));
+			_result.addAll(analysis.getDependees(entity, method));
 		} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
 			  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-			_result.addAll(analysis.getDependees(entity, context));
+			_result.addAll(analysis.getDependees(entity, method));
 		} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependees(entity, context));
-			_result.addAll(analysis.getDependents(entity, context));
+			_result.addAll(analysis.getDependees(entity, method));
+			_result.addAll(analysis.getDependents(entity, method));
 		}
 		return _result;
 	}

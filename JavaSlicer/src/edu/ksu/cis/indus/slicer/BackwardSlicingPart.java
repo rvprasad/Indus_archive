@@ -178,16 +178,16 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, Object)
+	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final Object context) {
+	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
 		final Collection _result = new HashSet();
 		final Object _direction = analysis.getDirection();
 
 		if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
 			  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)
 			  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependees(entity, context));
+			_result.addAll(analysis.getDependees(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- " 
                     + analysis.getClass() + " - " + _direction);
