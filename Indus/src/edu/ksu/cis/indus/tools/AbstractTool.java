@@ -165,11 +165,6 @@ public abstract class AbstractTool {
 	}
 
 	/**
-	 * Initialize the tool.  This is usually called once on the tool.
-	 */
-	public abstract void initialize();
-
-	/**
 	 * Reset the tool.  All state related information should be erased.
 	 */
 	public abstract void reset();
@@ -200,6 +195,10 @@ public abstract class AbstractTool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/09 05:18:16  venku
+   - changed destringizeConfiguraiton() method to inform
+     the caller if the given information was used to construct the
+     configuration or not.
    Revision 1.2  2003/10/19 20:29:03  venku
    - access specifier on pause.
    Revision 1.1  2003/09/26 23:46:58  venku
