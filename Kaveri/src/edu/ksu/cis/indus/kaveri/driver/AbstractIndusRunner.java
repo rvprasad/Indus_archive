@@ -347,7 +347,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Sets up the root methods.
      */
-    private void setupRootMethodCollection() {
+    protected void setupRootMethodCollection() {
         final KaveriRootMethodTrapper _rm = KaveriPlugin.getDefault().getRmTrapper();
         _rm.reset();
         if (fileList.size() > 0) {
@@ -383,7 +383,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * Sets all the classes in the file to application classes.
      *  
      */
-    private void setApplicationClasses() {
+    protected void setApplicationClasses() {
         if (fileList.size() > 0) {
             final IFile _file = (IFile) fileList.get(0);
             final IProject _project = _file.getProject();
@@ -518,7 +518,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Removes all current slice annotations on all open Java editors.
      */
-    private void removeAnnotations() {
+    protected void removeAnnotations() {
         final IWorkbenchWindow[] _windows = PlatformUI.getWorkbench()
                 .getWorkbenchWindows();
         final AddIndusAnnotation _manager = KaveriPlugin.getDefault()
@@ -583,7 +583,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Sets up the criteria.
      */
-    private void setupCriteria() {
+    protected void setupCriteria() {
         final List _crArray = fetchCriteria();
 
         if (_crArray != null) {
