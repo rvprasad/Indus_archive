@@ -71,9 +71,7 @@ public final class CompleteSliceGotoProcessor
 			}
 
 			if (_tagged) {
-				for (final Iterator _i = _gotos.iterator(); _i.hasNext();) {
-					sliceCollector.includeInSlice((Stmt) _i.next());
-				}
+				sliceCollector.includeInSlice(_gotos);
 			}
 		}
 	}
@@ -82,6 +80,9 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/13 23:34:54  venku
+   - fixed the processing of intra basicblock jumps and
+     inter basic block jumps.
    Revision 1.9  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.

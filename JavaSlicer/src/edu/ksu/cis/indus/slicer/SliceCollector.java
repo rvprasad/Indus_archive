@@ -20,6 +20,9 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+
+import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +54,13 @@ public final class SliceCollector {
 	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
 	/**
+	 * The predicate used to filter out tagged hosts and non-hosts from a collection of objects.
+	 *
+	 * @invariant filterOutTaggedHostPredicate != null
+	 */
+	final Predicate filterOutTaggedHostPredicate = new FilterOutTaggedHost();
+
+	/**
 	 * The collection of methods that were tagged.
 	 */
 	private Collection taggedMethods = new HashSet();
@@ -77,6 +87,29 @@ public final class SliceCollector {
 	 */
 	SliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
+	}
+
+	/**
+	 * This class implements <code>Predicate</code> interface to be used to filter out non-hosts and tagged hosts from a
+	 * collection of hosts.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private class FilterOutTaggedHost
+	  implements Predicate {
+		/**
+		 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
+		 */
+		public boolean evaluate(final Object input) {
+			boolean _result = input != null && input instanceof Host;
+
+			if (_result) {
+				_result = !hasBeenCollected(((Host) input));
+			}
+			return _result;
+		}
 	}
 
 	/**
@@ -166,6 +199,21 @@ public final class SliceCollector {
 	}
 
 	/**
+	 * Includes the given collection of objects into the slice.
+	 *
+	 * @param hosts to be included in the slice.
+	 *
+	 * @pre hosts != null and hosts.oclIsKindOf(Collection(Host))
+	 * @pre hosts->forall(o | o != null)
+	 */
+	public void includeInSlice(final Collection hosts) {
+		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
+			Host _host = (Host) _i.next();
+			includeInSlice(_host);
+		}
+	}
+
+	/**
 	 * Processes the goto statements in the system to ensure that appropriate gotos are included to ensure the control flow
 	 * is not broken.  This is possible when parts of 2 basic blocks are interspersed with gotos stringing these parts
 	 * together into a basic block.
@@ -221,9 +269,10 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 09:42:52  venku
+   - coding convention.
    Revision 1.2  2004/01/13 07:48:03  venku
    - exposed the methods that are included in the slice via getMethodsInSlice() method.
-
    Revision 1.1  2004/01/13 04:33:39  venku
    - Renamed TaggingBasedSliceCollector to SliceCollector.
    - Ripple effect in the engine.
