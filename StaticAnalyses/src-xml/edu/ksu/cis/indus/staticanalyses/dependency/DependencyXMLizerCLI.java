@@ -175,7 +175,7 @@ public class DependencyXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("aliasedusedefv", false, "Use version 1 of aliased use-def info.");
+		_option = new Option("aliasedusedefv1", false, "Use version 1 of aliased use-def info.");
 		_options.addOption(_option);
 		_option = new Option("safelockanalysis", false, "Use safe-lock-analysis for ready dependence.");
 		_options.addOption(_option);
@@ -218,8 +218,8 @@ public class DependencyXMLizerCLI
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 			_cli.dumpJimple = _cl.hasOption('j');
-			_cli.useAliasedUseDefv1 = _cl.hasOption("aliased-use-def-v1");
-			_cli.useSafeLockAnalysis = _cl.hasOption("use-safe-lock-analysis");
+			_cli.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
+			_cli.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
 
 			final List _classNames = _cl.getArgList();
 
@@ -243,11 +243,11 @@ public class DependencyXMLizerCLI
 					_flag = false;
 
 					if (_da instanceof InterferenceDAv1) {
-						((InterferenceDAv1) _da).setUseOFA(_cl.hasOption("use-ofa-for-interference"));
+						((InterferenceDAv1) _da).setUseOFA(_cl.hasOption("ofaforinterference"));
 					}
 
 					if (_da instanceof ReadyDAv1) {
-						((ReadyDAv1) _da).setUseOFA(_cl.hasOption("use-ofa-for-ready"));
+						((ReadyDAv1) _da).setUseOFA(_cl.hasOption("ofaforready"));
 						((ReadyDAv1) _da).setUseSafeLockAnalysis(_cli.useSafeLockAnalysis);
 					}
 				}
@@ -395,6 +395,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/07/27 11:31:32  venku
+   - tweaked command line options.
+
    Revision 1.35  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku
@@ -662,6 +665,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/07/27 11:31:32  venku
+   - tweaked command line options.
+
    Revision 1.35  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku
