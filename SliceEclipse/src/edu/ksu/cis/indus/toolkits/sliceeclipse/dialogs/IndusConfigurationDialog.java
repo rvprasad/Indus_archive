@@ -280,6 +280,7 @@ public class IndusConfigurationDialog
 			final QualifiedName _name = new QualifiedName(
 					Messages.getString("IndusConfigurationDialog.18"), 
 						Messages.getString("IndusConfigurationDialog.19"));
+			
 			try {
 				//					_resource.setPersistentProperty(_name, null); // Knocks out
 				// the stuff
@@ -292,8 +293,18 @@ public class IndusConfigurationDialog
 					for (int _i = 0; _i < _lst.size(); _i++) {
 						final Criteria _c = (Criteria) _lst.get(_i);
 						final ArrayList _list = _c.getCriteria();
-						final String _disp = _list.get(1).toString() + ":"
-								+ "line:" + _list.get(2).toString() + ":index:" + _list.get(3).toString();
+						// Indexes into the arraylist
+						
+						final int _methodname = 1;
+						final int _lineno = 2;
+						final int _index = 3;
+						final int _value = 4;
+						final String _disp = _list.get(_methodname).toString()
+								+ ":" + "java line:"
+								+ _list.get(_lineno).toString()
+								+ ":jimple index:"
+								+ _list.get(_index).toString()
+								+ ":Consider value: " + _list.get(_value);
 						criteriasList.add(_disp);
 					}
 				}
