@@ -157,17 +157,6 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * Retrieves the position of the leader statement of the basic block.
-		 *
-		 * @return the position of the leader
-		 *
-		 * @post result &lt; stmtList.size() and result >= 0
-		 */
-		public int getLeader() {
-			return this.leader;
-		}
-
-		/**
 		 * Retrieves the statement at the leader position.
 		 *
 		 * @return the leader statement.
@@ -239,17 +228,6 @@ public final class BasicBlockGraph
 		 */
 		public List getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
-		}
-
-		/**
-		 * Retrieves the position of the trailer statement of the basic block.
-		 *
-		 * @return the position of the trailer
-		 *
-		 * @post result &lt; stmtList.size() and result >= 0
-		 */
-		public int getTrailer() {
-			return this.trailer;
 		}
 
 		/**
@@ -336,15 +314,6 @@ public final class BasicBlockGraph
 	 */
 	public UnitGraph getStmtGraph() {
 		return stmtGraph;
-	}
-
-	/**
-	 * Returns the number of nodes in the graph.
-	 *
-	 * @return the number of nodes in the graph.
-	 */
-	public int size() {
-		return blocks.size();
 	}
 
 	/**
@@ -439,6 +408,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/28 01:02:38  venku
+   - removed field handlerBlocks as it was only used in one method.
+     The blocks are generated on the fly.
+
    Revision 1.3  2003/12/15 06:55:06  venku
    - formatting
    - error while building basic block graph.  FIXED.

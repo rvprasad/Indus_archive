@@ -160,18 +160,13 @@ public interface IDirectedGraph {
 	 * @post result != null and result.oclIsKindOf(Sequence(INode)) and getNodes().containsAll(result)
 	 */
 	List performTopologicalSort(final boolean topdown);
-
-	/**
-	 * Returns the size of this graph.
-	 *
-	 * @return the number of nodes in this graph.
-	 *
-	 * @post result == getNodes().size
-	 */
-	int size();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
  */

@@ -401,17 +401,6 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Returns the size of this graph.
-	 *
-	 * @return the number of nodes in this graph.
-	 *
-	 * @post result == getNodes().size
-	 */
-	public int size() {
-		return getNodes().size();
-	}
-
-	/**
 	 * Calculates the finish times for the nodes of this graph.  version should be coded.
 	 *
 	 * @param nodes in this graph.
@@ -656,6 +645,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/31 08:47:01  venku
+   - getCycles() was broken. FIXED.
+
    Revision 1.2  2003/12/30 09:11:28  venku
    - formatting
    - concretized size() based on getNodes().

@@ -83,13 +83,6 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
-	 * @see AbstractDirectedGraphTest#testSize
-	 */
-	public void testSize() {
-		assertEquals(name2node.values().size(), dg.size());
-	}
-
-	/**
 	 * We construct the graph given in the book "Introduction to Algorithms" on page 553.
 	 *
 	 * @see TestCase#setUp()
@@ -243,6 +236,11 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/30 10:04:24  venku
+   - sng in SimpleNodeGraphTest should track dg or the otherway
+     round to make the hierarchy of test work.  This has
+     been fixed by adding setSNG().
+
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest

@@ -255,16 +255,6 @@ public abstract class AbstractDirectedGraphTest
 		}
 	}
 
-	///CLOVER:OFF
-
-	/**
-	 * Tests <code>size()</code> method.
-	 */
-	public void testSize() {
-	}
-
-	///CLOVER:ON
-
 	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
 	 *
@@ -353,6 +343,9 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/31 09:12:19  venku
+   - clover directives.
+
    Revision 1.2  2003/12/31 08:45:23  venku
    - formatting.
    - minor refactorings.
