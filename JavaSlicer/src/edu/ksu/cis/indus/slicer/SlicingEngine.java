@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1193,6 +1192,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/01/19 23:53:44  venku
+   - moved the logic to order criteria to enforce pseudo-determinism
+     during slicing into SlicingEngine.
+
    Revision 1.53  2004/01/19 22:55:11  venku
    - formatting and coding convention.
    Revision 1.52  2004/01/19 22:52:49  venku
