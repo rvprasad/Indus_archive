@@ -207,9 +207,9 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodesInPathBetween(java.util.Collection)
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodesOnPathBetween(java.util.Collection)
 	 */
-	public Collection getNodesInPathBetween(final Collection nodes) {
+	public Collection getNodesOnPathBetween(final Collection nodes) {
 		final Collection _result = new HashSet();
 		final Iterator _i = nodes.iterator();
 		final int _iEnd = nodes.size();
@@ -223,12 +223,9 @@ public abstract class AbstractDirectedGraph
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final INode _node2 = (INode) _j.next();
-
-				if (_node2 != _node1) {
-					final Collection _ancestors = getReachablesFrom(_node2, false);
-					_result.addAll(CollectionUtils.intersection(_ancestors, _descendants));
-					_result.add(_node2);
-				}
+				final Collection _ancestors = getReachablesFrom(_node2, false);
+				_result.addAll(CollectionUtils.intersection(_ancestors, _descendants));
+				_result.add(_node2);
 			}
 
 			if (_jEnd > 0) {
@@ -522,11 +519,18 @@ public abstract class AbstractDirectedGraph
 	 * @post result->forall(o | nodes->containsAll(o))
 	 */
 	private static Collection findCyclesOccurringIn(final Collection scc) {
-		final IWorkBag _wb = new LIFOWorkBag();
+	    final IWorkBag _wb = new LIFOWorkBag();
 		final Stack _dfsPath = new Stack();
 		final Collection _result = new HashSet();
-
-		_wb.addWork(scc.iterator().next());
+		final Collection _consideredNodes = new HashSet();
+		
+		for (final Iterator _k = scc.iterator(); _k.hasNext();) {
+            final INode _ele = (INode) _k.next();
+            if (!scc.containsAll(_ele.getPredsOf())) {
+                _wb.addWork(_ele);
+                break;
+            }
+        }
 
 		while (_wb.hasWork()) {
 			final Object _o = _wb.getWork();
@@ -537,29 +541,39 @@ public abstract class AbstractDirectedGraph
 				while (!_temp.equals(_dfsPath.peek())) {
 					_dfsPath.pop();
 				}
-			} else if (_dfsPath.contains(_o)) {
-				final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
-
-				if (!_result.contains(_cycle)) {
-					_result.add(new ArrayList(_cycle));
-				}
 			} else {
 				final INode _node = (INode) _o;
-				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
+				final Collection _succsOf = CollectionUtils.intersection(_node.getSuccsOf(), scc);
+                final Collection _cycleCandidates = CollectionUtils.intersection(_succsOf, _dfsPath);
+				final Iterator _i = _cycleCandidates.iterator();
+				final int _iEnd = _cycleCandidates.size();
 
-				if (!_succs.isEmpty()) {
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final Object _ele = _i.next();
+					final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_ele), _dfsPath.size());
+
+					if (!_result.contains(_cycle)) {
+						_result.add(new ArrayList(_cycle));
+					}
+					_consideredNodes.addAll(_cycle);
+				}
+
+				final Collection _nonCycleCandidates = CollectionUtils.subtract(_succsOf, _consideredNodes);
+				
+				if (!_nonCycleCandidates.isEmpty()) {
 					_dfsPath.push(_node);
 
-					if (_succs.size() > 1) {
-						final Marker _marker = new Marker(_node);
+					final Marker _marker = new Marker(_node);
+					final Iterator _j = _nonCycleCandidates.iterator();
+					final int _jEnd = _nonCycleCandidates.size();
 
-						for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
-							final Object _ele = _j.next();
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Object _ele = _j.next();
+
+						if (_jEnd > 1) {
 							_wb.addWork(_marker);
-							_wb.addWork(_ele);
 						}
-					} else {
-						_wb.addWork(_succs.iterator().next());
+						_wb.addWork(_ele);
 					}
 				}
 			}

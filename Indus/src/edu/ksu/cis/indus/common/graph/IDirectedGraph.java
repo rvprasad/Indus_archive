@@ -106,7 +106,7 @@ public interface IDirectedGraph {
 	 *
 	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
 	 */
-	Collection getNodesInPathBetween(Collection nodes);
+	Collection getNodesOnPathBetween(Collection nodes);
 
 	/**
 	 * Retrieves the psuedo-tails of the given graph.  Psuedo tails are tail end of loops in which there is no path from the

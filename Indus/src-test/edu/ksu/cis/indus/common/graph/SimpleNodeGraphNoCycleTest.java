@@ -38,7 +38,7 @@ public class SimpleNodeGraphNoCycleTest
 		_t.add(sng.getNode("b"));
 		_t.add(sng.getNode("d"));
 
-		final Collection _nodes = dg.getNodesInPathBetween(_t);
+		final Collection _nodes = dg.getNodesOnPathBetween(_t);
 		assertTrue(_nodes.containsAll(_t));
 	}
 

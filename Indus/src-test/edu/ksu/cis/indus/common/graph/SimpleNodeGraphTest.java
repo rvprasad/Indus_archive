@@ -92,7 +92,7 @@ public class SimpleNodeGraphTest
 		_t.add(sng.getNode("b"));
 		_t.add(sng.getNode("e"));
 
-		final Collection _nodes = dg.getNodesInPathBetween(_t);
+		final Collection _nodes = dg.getNodesOnPathBetween(_t);
 		_t.add(sng.getNode("a"));
 		assertTrue(_nodes + " " + _t, _nodes.containsAll(_t) && _t.containsAll(_nodes));
 	}
