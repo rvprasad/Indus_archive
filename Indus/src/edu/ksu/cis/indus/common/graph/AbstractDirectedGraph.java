@@ -15,8 +15,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.structures.Marker;
-import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.datastructures.*;
+import edu.ksu.cis.indus.common.datastructures.Marker;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -645,6 +646,10 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 10:43:08  venku
+   - size() was unused in IDirectedGraph, hence, removed it.
+     Ripple effect.
+
    Revision 1.3  2003/12/31 08:47:01  venku
    - getCycles() was broken. FIXED.
 

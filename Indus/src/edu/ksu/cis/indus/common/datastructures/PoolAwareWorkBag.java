@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
@@ -121,6 +121,10 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

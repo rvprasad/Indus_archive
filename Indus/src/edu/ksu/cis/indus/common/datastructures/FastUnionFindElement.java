@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.structures;
+package edu.ksu.cis.indus.common.datastructures;
 
 import java.util.List;
 
@@ -180,6 +180,10 @@ public class FastUnionFindElement {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

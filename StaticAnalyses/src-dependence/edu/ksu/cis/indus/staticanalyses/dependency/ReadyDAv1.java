@@ -18,8 +18,10 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.common.structures.Pair;
-import edu.ksu.cis.indus.common.structures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
@@ -29,8 +31,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -860,6 +860,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.33  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

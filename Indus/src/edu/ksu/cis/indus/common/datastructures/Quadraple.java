@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.structures;
+package edu.ksu.cis.indus.common.datastructures;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -390,6 +390,9 @@ public final class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/28 03:07:04  venku
+   - renamed field triple/quadraple to tripleCache/quadrapleCache.
+
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

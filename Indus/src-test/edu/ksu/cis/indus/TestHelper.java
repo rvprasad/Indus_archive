@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus;
 
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -83,4 +83,7 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/31 08:46:07  venku
+   - provides helper functions to make setup flexible and pluggable.
+
  */

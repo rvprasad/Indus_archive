@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
-import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -230,6 +230,9 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/16 06:13:02  venku
+   - incorrect attribute emitted for class id. FIXED.
+
    Revision 1.10  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

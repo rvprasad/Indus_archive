@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.structures.FastUnionFindElement;
+import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -614,6 +614,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/03 21:20:06  venku
+   - deleted unused methods.
+
    Revision 1.13  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

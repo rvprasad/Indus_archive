@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.structures;
+package edu.ksu.cis.indus.common.datastructures;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -361,6 +361,9 @@ public final class Pair {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/31 09:12:52  venku
+   - clone() is not used, hence, deleted it.
+
    Revision 1.4  2003/12/30 09:14:38  venku
    - deleted clone().
    - deleted unnecessary else branch in equals().

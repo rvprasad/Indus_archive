@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
-import edu.ksu.cis.indus.common.structures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -672,6 +672,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/12/28 02:10:07  venku
+   - handling of command line arguments was changed.
+
    Revision 1.35  2003/12/27 20:07:40  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified

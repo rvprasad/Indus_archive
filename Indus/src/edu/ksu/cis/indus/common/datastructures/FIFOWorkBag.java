@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.datastructures;
 
 /**
  * This is a First-in-First-out implementation of the workbag.
@@ -25,7 +25,7 @@ package edu.ksu.cis.indus.common.graph;
 public final class FIFOWorkBag
   extends AbstractWorkBag {
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(o);
@@ -35,4 +35,8 @@ public final class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
  */

@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -673,6 +673,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2003/12/31 06:09:34  venku
+   - <clinit>s are ignored as heads when the did not
+     call any methods.  FIXED.
+
    Revision 1.43  2003/12/16 00:19:25  venku
    - specialinvoke was handled incorrectly.  FIXED
      It behaves like virtual in cases when a non-instance

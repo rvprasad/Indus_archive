@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 //import edu.ksu.cis.indus.common.soot.Driver;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-import edu.ksu.cis.indus.common.structures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -355,6 +355,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2003/12/16 07:28:54  venku
+   - moved preprocessing of analyses after initialization.
+
    Revision 1.37  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

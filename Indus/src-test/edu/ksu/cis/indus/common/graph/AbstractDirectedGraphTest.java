@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -343,6 +343,10 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 10:43:08  venku
+   - size() was unused in IDirectedGraph, hence, removed it.
+     Ripple effect.
+
    Revision 1.3  2003/12/31 09:12:19  venku
    - clover directives.
 

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.datastructures;
 
 /**
  * This is a Last-in-First-out implementation of the workbag.
@@ -25,7 +25,7 @@ package edu.ksu.cis.indus.common.graph;
 public final class LIFOWorkBag
   extends AbstractWorkBag {
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(0, o);
@@ -35,6 +35,10 @@ public final class LIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

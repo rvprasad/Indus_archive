@@ -17,11 +17,11 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
-import edu.ksu.cis.indus.common.structures.Pair;
-import edu.ksu.cis.indus.common.structures.Quadraple;
-import edu.ksu.cis.indus.common.structures.Triple;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Quadraple;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 
@@ -513,6 +513,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/30 09:17:47  venku
+   - method level synchronization Triple is explicitly optimized.
+
    Revision 1.25  2003/12/15 06:54:03  venku
    - formatting.
 

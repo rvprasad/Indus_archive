@@ -17,10 +17,10 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -442,6 +442,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/16 07:37:52  venku
+   - incorrect add method used on container.
+
    Revision 1.7  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

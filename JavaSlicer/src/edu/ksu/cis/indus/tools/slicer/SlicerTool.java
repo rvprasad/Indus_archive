@@ -18,8 +18,8 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
-import edu.ksu.cis.indus.common.structures.Pair;
-import edu.ksu.cis.indus.common.structures.Triple;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -666,6 +666,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.52  2004/01/03 19:02:34  venku
+   - formatting and coding conventions.
+
    Revision 1.51  2003/12/31 10:31:19  venku
    - slicer should just slice, not fix the system. FIXED.
 

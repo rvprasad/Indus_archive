@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.structures.Triple;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -169,6 +169,9 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/30 09:16:33  venku
+   - CallTriple/NewExprTriple are optimized after creation.
+
    Revision 1.3  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.

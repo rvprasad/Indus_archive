@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.structures;
+package edu.ksu.cis.indus.common.datastructures;
 
 /**
  * This class serves as a marker in sequences of data.  The stringized representation of this object is dependent on  the
@@ -52,6 +52,9 @@ public class Marker {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/30 09:13:37  venku
+   - removed unused constructor, equals(), and hashCode().
+
    Revision 1.3  2003/12/28 03:05:22  venku
    - finalized getContent().
 

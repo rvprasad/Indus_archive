@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -158,6 +158,10 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 19:46:33  venku
+   - documentation of TaggingBasedSliceCollector.
+   - renamed collect() to includeInSlice().
+
    Revision 1.8  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -18,9 +18,9 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.structures.Triple;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -1226,6 +1226,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2003/12/16 06:28:14  venku
+   - removed the valueprocessor.accessed field and defaulted
+     it to true always.
+
    Revision 1.37  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.structures;
+package edu.ksu.cis.indus.common.datastructures;
 
 /**
  * This class represents a triplet of objects.  The hashcode/stringized rep. of this object is derived from it's
@@ -225,6 +225,9 @@ public class Triple {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/31 10:01:48  venku
+   - removed unused code.
+
    Revision 1.5  2003/12/31 09:12:52  venku
    - clone() is not used, hence, deleted it.
 

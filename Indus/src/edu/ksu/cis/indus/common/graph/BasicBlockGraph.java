@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.datastructures.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -408,6 +410,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/31 10:43:08  venku
+   - size() was unused in IDirectedGraph, hence, removed it.
+     Ripple effect.
+
    Revision 1.4  2003/12/28 01:02:38  venku
    - removed field handlerBlocks as it was only used in one method.
      The blocks are generated on the fly.

@@ -18,10 +18,10 @@ package edu.ksu.cis.indus.slicer;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.PoolAwareWorkBag;
-import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -1268,6 +1268,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2003/12/16 12:46:03  venku
+   - changed the way return points of native method are
+     handled.
+   - changed the way class hierarchies are included into the slice.
+
    Revision 1.43  2003/12/16 00:48:14  venku
    - optimization.
    Revision 1.42  2003/12/16 00:46:23  venku

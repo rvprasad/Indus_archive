@@ -19,8 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,6 +203,10 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.18  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

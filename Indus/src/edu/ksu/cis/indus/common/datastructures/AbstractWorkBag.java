@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.datastructures;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,14 +38,14 @@ public abstract class AbstractWorkBag
 	protected List container = new ArrayList();
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#getWork()
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#getWork()
 	 */
 	public final Object getWork() {
 		return container.remove(0);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWork(java.util.Collection)
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addAllWork(java.util.Collection)
 	 */
 	public final void addAllWork(final Collection c) {
 		for (final Iterator _i = c.iterator(); _i.hasNext();) {
@@ -54,7 +54,7 @@ public abstract class AbstractWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public final Collection addAllWorkNoDuplicates(final Collection c) {
 		final Collection _result = CollectionUtils.intersection(c, container);
@@ -63,7 +63,7 @@ public abstract class AbstractWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWorkNoDuplicates(java.lang.Object)
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public final boolean addWorkNoDuplicates(final Object o) {
 		final boolean _result = !container.contains(o);
@@ -75,14 +75,14 @@ public abstract class AbstractWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#clear()
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#clear()
 	 */
 	public final void clear() {
 		container.clear();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#hasWork()
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#hasWork()
 	 */
 	public final boolean hasWork() {
 		return !container.isEmpty();
@@ -92,6 +92,10 @@ public abstract class AbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

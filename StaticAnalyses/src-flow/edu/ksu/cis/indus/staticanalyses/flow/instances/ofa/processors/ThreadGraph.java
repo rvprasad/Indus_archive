@@ -27,9 +27,9 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -679,6 +679,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/14 20:21:10  venku
+   - logging.
+
    Revision 1.21  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
