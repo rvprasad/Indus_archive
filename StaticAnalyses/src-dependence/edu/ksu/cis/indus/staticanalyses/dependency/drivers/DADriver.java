@@ -302,10 +302,6 @@ public abstract class DADriver
 			da.reset();
 			da.setBasicBlockGraphManager(bbm);
 
-			if (da.doesPreProcessing()) {
-				da.getPreProcessor().hookup(cgipc);
-			}
-
 			try {
 				da.initialize(info);
 			} catch (InitializationException e) {
@@ -314,6 +310,9 @@ public abstract class DADriver
 					failed.add(da);
 				}
 			}
+            if (!failed.contains(da) && da.doesPreProcessing()) {
+                da.getPreProcessor().hookup(cgipc);
+            }            
 		}
 		das.removeAll(failed);
 
@@ -356,6 +355,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.36  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
