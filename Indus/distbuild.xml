@@ -4,12 +4,13 @@
 <!-- $Revision$ -->
 
 <project name="indus" default="dist" basedir=".">
+    <tstamp/>
 
     <property name="drishti.jar" value="/usr/local/javaclasses/doxygen.jar"/>
     <property name="dist.dir" value="dist"/>
     <property name="dist.ug.dir" value="${dist.dir}/ug"/>
-    <property name="docs.zip.filename" value="${dist.dir}/docs.zip"/>
-    <property name="examples.src.zip.filename" value="${dist.dir}/examples.zip"/>
+    <property name="docs.zip.filename" value="${dist.dir}/docs-${DSTAMP}.zip"/>
+    <property name="examples.src.zip.filename" value="${dist.dir}/examples-${DSTAMP}.zip"/>
 
     <path id="subprojects.buildfiles">
         <pathelement path="../Indus"/>
@@ -27,7 +28,9 @@
 	
 	<target name="package">
         <mkdir dir="${dist.dir}"/>
-        <delete file="${docs.zip.filename}"/>
+        <delete>
+            <fileset dir="${dist.dir}" includes="*"/>
+        </delete>
         <copy todir="${dist.ug.dir}" flatten="true">
             <fileset dir="..">
                 <include name="*/docs/ug/build/*.pdf"/>
@@ -47,6 +50,13 @@
                 <exclude name="*/*src*.jar"/>
             </fileset>
         </copy>
+
+        <move todir="${dist.dir}">
+            <fileset dir="${dist.dir}">
+                <include name="*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*.jar" to="*-${DSTAMP}.jar"/>
+        </move>
 
         <zip destfile="${examples.src.zip.filename}">
             <fileset dir="..">
