@@ -37,6 +37,7 @@ import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
@@ -249,9 +250,9 @@ public class ForwardSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox)
+	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox) {
+	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
 		final Collection _valueBoxes = new HashSet();
 		_valueBoxes.add(valueBox);
 
@@ -266,6 +267,18 @@ public class ForwardSlicingPart
 				_valueBoxes.add(((InstanceInvokeExpr) _value).getBaseBox());
 			}
 		}
+
+		/*
+		 *  Note that l-position is the lhs of an assignment statement whereas an l-value is value that occurs the l-position
+		 * and is defined.  In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
+		 * r-position.
+		 */
+
+		// we include the unincluded l-values in case the given value box appears in the r-position. 
+		if (stmt instanceof DefinitionStmt && ((DefinitionStmt) stmt).getLeftOp().getUseBoxes().contains(valueBox)) {
+			_valueBoxes.addAll(engine.collector.getUncollected(stmt.getDefBoxes()));
+		}
+
 		return _valueBoxes;
 	}
 
@@ -311,13 +324,4 @@ public class ForwardSlicingPart
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/08/23 03:46:08  venku
-   - documentation.
-   Revision 1.2  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
-   Revision 1.1  2004/08/18 09:54:49  venku
-   - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
- */
+// End of File

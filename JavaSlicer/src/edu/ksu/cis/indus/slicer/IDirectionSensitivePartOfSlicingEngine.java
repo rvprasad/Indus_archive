@@ -59,15 +59,15 @@ interface IDirectionSensitivePartOfSlicingEngine
 	void generateCriteriaToIncludeCallees(Stmt callStmt, SootMethod caller, Collection callees);
 
 	/**
-	 * Process the local at program point <code>local</code> for inclusion in the slice.
+	 * Process the local in the given statement for inclusion in the slice.
 	 *
 	 * @param local obviosly.
-	 * @param stmt in which <code>local</code> occurs.
+	 * @param depStmt in which <code>local</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
-	 * @pre local != null and stmt != null and method != null
+	 * @pre local != null and depStmt != null and method != null
 	 */
-	void processLocalAt(Local local, Stmt stmt, SootMethod method);
+	void processLocalAt(Local local, Stmt depStmt, SootMethod method);
 
 	/**
 	 * Process the new expression that occurs in the given statement and method for inclusion in the slice.
@@ -92,17 +92,18 @@ interface IDirectionSensitivePartOfSlicingEngine
 	void processParameterRef(ValueBox paramRef, SootMethod method);
 
 	/**
-	 * Retrieves the value boxes reachable from the given program point (via containment relationship) that should be
-	 * considered while transforming the given program point.
+	 * Retrieves the value boxes at the given given program point that should be considered while transforming the given
+	 * program point.  Other value boxes occurring in the statement may also be  included in the result.
 	 *
 	 * @param valueBox is the program point being transformed.
+	 * @param stmt in which the program point occurs.
 	 *
 	 * @return a collection of value boxes.
 	 *
-	 * @pre valueBox != null
+	 * @pre valueBox != null and stmt != null
 	 * @post result != null and result.oclIsKindOf(Collection(ValueBox))
 	 */
-	Collection retrieveValueBoxesToTransformExpr(ValueBox valueBox);
+	Collection retrieveValueBoxesToTransformExpr(ValueBox valueBox, Stmt stmt);
 
 	/**
 	 * Retrieves the value boxes reachable from the given statement (via containment relationship) that should be considered
@@ -118,14 +119,4 @@ interface IDirectionSensitivePartOfSlicingEngine
 	Collection retrieveValueBoxesToTransformStmt(Stmt stmt);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/08/23 03:46:08  venku
-   - documentation.
-
-   Revision 1.2  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
-   Revision 1.1  2004/08/18 09:54:49  venku
-   - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
- */
+// End of File

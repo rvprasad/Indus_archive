@@ -839,7 +839,7 @@ public final class SlicingEngine {
 		if (sliceType.equals(COMPLETE_SLICE)
 			  || (_considerExecution && sliceType.equals(BACKWARD_SLICE))
 			  || (!_considerExecution && sliceType.equals(FORWARD_SLICE))) {
-			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox);
+			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox, _stmt);
 
 			// include any sub expressions and generate criteria from them
 			transformAndGenerateToConsiderExecution(_stmt, _method, _valueBoxes);

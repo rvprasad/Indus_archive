@@ -47,6 +47,7 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -344,9 +345,9 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox)
+	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox) {
+	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
 		final Collection _valueBoxes = new HashSet();
 		_valueBoxes.add(valueBox);
 
@@ -359,6 +360,18 @@ public class BackwardSlicingPart
 		} else if (_value instanceof InstanceInvokeExpr) {
 			_valueBoxes.add(((InstanceInvokeExpr) _value).getBaseBox());
 		}
+
+		/*
+		 * Note that l-position is the lhs of an assignment statement whereas an l-value is value that occurs the l-position
+		 * and is defined.  In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
+		 * r-position.
+		 */
+
+		// we include the unincluded r-values in case the given value box represents a l-value.
+		if (stmt instanceof DefinitionStmt && stmt.getDefBoxes().contains(valueBox)) {
+			_valueBoxes.addAll(engine.collector.getUncollected(stmt.getUseBoxes()));
+		}
+
 		return _valueBoxes;
 	}
 
@@ -534,7 +547,7 @@ public class BackwardSlicingPart
 				/*
 				 * if not, then check if any of the method parameters are marked as required.  If so, include them.
 				 * It is possible that the return statements are not affected by the parameters in which case _params will be
-				 * null.  On the other hand, may be the return statements have been included but not yet processed in which 
+				 * null.  On the other hand, may be the return statements have been included but not yet processed in which
 				 * case _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
 				 * criteria to consider suitable argument expressions.
 				 */

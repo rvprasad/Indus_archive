@@ -126,12 +126,12 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox)
+	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox) {
+	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
 		final Collection _result = new HashSet();
-		_result.addAll(backwardPart.retrieveValueBoxesToTransformExpr(valueBox));
-		_result.addAll(forwardPart.retrieveValueBoxesToTransformExpr(valueBox));
+		_result.addAll(backwardPart.retrieveValueBoxesToTransformExpr(valueBox, stmt));
+		_result.addAll(forwardPart.retrieveValueBoxesToTransformExpr(valueBox, stmt));
 		return _result;
 	}
 
@@ -149,6 +149,9 @@ public class CompleteSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/23 17:55:11  venku
+   - local processing compared incorrect value types.  FIXED.
+
    Revision 1.2  2004/08/23 03:46:08  venku
    - documentation.
 
