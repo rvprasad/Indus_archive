@@ -59,6 +59,7 @@ public final class RDADriver
 	 */
 	protected RDADriver(final String[] args) {
 		super(args);
+        ecbaRequired = true;
 	}
 
 	/**
@@ -85,6 +86,9 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/01 11:56:59  venku
+   - set the rules for some test, and the reminiscient code is lying.
+
    Revision 1.6  2003/08/25 11:47:37  venku
    Fixed minor glitches.
 

@@ -39,6 +39,7 @@ import soot.Scene;
 import soot.SootMethod;
 
 import soot.toolkits.graph.CompleteUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -111,6 +112,11 @@ public abstract class DADriver
 	 * This is the collection of classes to be analysed.
 	 */
 	protected Scene scm;
+
+	/** 
+	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
+	 */
+	protected boolean ecbaRequired;
 
 	/**
 	 * The command line arguments.
@@ -199,7 +205,7 @@ public abstract class DADriver
 
 			if (method.isConcrete()) {
 				try {
-					CompleteUnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
+					UnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
 					method2cmpltStmtGraph.put(method, sg);
 				} catch (RuntimeException e) {
 					if (LOGGER.isWarnEnabled()) {
@@ -310,10 +316,14 @@ public abstract class DADriver
 	protected void setupDependencyAnalyses() {
 		ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 		IThreadGraphInfo tgi = (IThreadGraphInfo) info.get(IThreadGraphInfo.ID);
-		EquivalenceClassBasedEscapeAnalysis ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi);
 		ProcessingController ppc = new CGBasedProcessingController(cgi);
 		Collection failed = new ArrayList();
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		EquivalenceClassBasedEscapeAnalysis ecba = null;
+
+		if (ecbaRequired) {
+			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi);
+			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		}
 
 		ppc.setAnalyzer(aa);
 
@@ -334,7 +344,10 @@ public abstract class DADriver
 			}
 		}
 		das.removeAll(failed);
-		ecba.hookup(ppc);
+
+		if (ecbaRequired) {
+			ecba.hookup(ppc);
+		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: preprocessing for dependency analyses");
@@ -349,8 +362,11 @@ public abstract class DADriver
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: preprocessing for dependency analyses");
 		}
-		ecba.unhook(ppc);
-		ecba.execute();
+
+		if (ecbaRequired) {
+			ecba.unhook(ppc);
+			ecba.execute();
+		}
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
@@ -365,6 +381,8 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/25 11:47:37  venku
+   Fixed minor glitches.
    Revision 1.6  2003/08/21 01:25:21  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
