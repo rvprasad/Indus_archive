@@ -500,6 +500,7 @@ public class ThreadGraph
 		StringBuffer result = new StringBuffer();
 		List l = new ArrayList();
 
+		result.append("Total number of threads: " + thread2methods.size() + "\n");
 		for (Iterator i = thread2methods.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			NewExprTriple net = (NewExprTriple) entry.getKey();
@@ -625,6 +626,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 07:33:36  venku
+   - simple optimization.
+
    Revision 1.8  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
