@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class FilteredMapTest
 	/**
 	 * Tests <code>entrySet()</code>.
 	 */
-	public final void testEntrySet() {
+	public final void testEntrySet1() {
 		final Map _o1 =
 			new FilteredMap(map,
 				new Predicate() {
@@ -58,36 +59,28 @@ public class FilteredMapTest
 	}
 
 	/**
-	 * Tests the constructor.
+	 * Tests <code>entrySet()</code>.
 	 */
-	public final void testFilteredMap() {
+	public final void testEntrySet2() {
 		final Map _o1 =
-			new FilteredMap(map,
-				new Predicate() {
-					public boolean evaluate(final Object o) {
-						return o instanceof Integer;
-					}
-				}, null);
-		assertNotNull(_o1);
-		assertTrue(_o1.size() == 1);
-
-		final Map.Entry _e1 = (Map.Entry) _o1.entrySet().iterator().next();
-		assertTrue(_e1.getKey() instanceof Integer && _e1.getValue() instanceof String);
-
-		final Map _o2 =
 			new FilteredMap(map, null,
 				new Predicate() {
 					public boolean evaluate(final Object o) {
 						return o instanceof Integer;
 					}
 				});
-		assertNotNull(_o2);
-		assertTrue(_o2.size() == 1);
+		final Set _entrySet = _o1.entrySet();
+		assertTrue(_entrySet.size() == 1);
 
-		final Map.Entry _e2 = (Map.Entry) _o2.entrySet().iterator().next();
-		assertTrue(_e2.getKey() instanceof String && _e2.getValue() instanceof Integer);
+		final Iterator _iterator = _entrySet.iterator();
+        final Map.Entry _entry = (Map.Entry) _iterator.next();
+		assertEquals(_entry.getKey(), new String("Hello"));
+		assertEquals(_entry.getValue(), new Integer(2));
+		
 	}
 
+	
+	
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -113,4 +106,10 @@ public class FilteredMapTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/21 22:11:48  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
  */

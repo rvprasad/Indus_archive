@@ -64,6 +64,10 @@ public final class CommonUnitTestSuite {
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(CollectionsUtilitiesTest.class);
 		_suite.addTestSuite(FilteredMapTest.class);
+		_suite.addTestSuite(FilteredCollectionTestCase.class);
+		_suite.addTestSuite(FilteredSetTestCase.class);
+		_suite.addTestSuite(FilteredListTestCase.class);
+		_suite.addTestSuite(FilteredListIteratorTestCase.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		_suite.setName(CommonUnitTestSuite.class.getName());
@@ -74,6 +78,12 @@ public final class CommonUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/05/21 22:11:48  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.7  2004/04/05 23:16:37  venku
    - textui.TestRunner cannot be run via start(). FIXED.
 
