@@ -52,7 +52,7 @@ public interface IEnvironment {
 	/**
 	 * The id of this interface.
 	 */
-	String ID = "IEnvironment";
+	String ID = "The Environment";
 
 	/**
 	 * Returns the Jimple representation of the given class.
@@ -87,6 +87,10 @@ public interface IEnvironment {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.2  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
