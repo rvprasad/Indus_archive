@@ -169,7 +169,7 @@ public final class LocalUseDefAnalysis {
 			int _killIndex = -1;
 
 			if (_stmt instanceof DefinitionStmt) {
-				_killIndex = listOfLocals.indexOf(((ValueBox)_stmt.getDefBoxes().iterator().next()).getValue());
+				_killIndex = listOfLocals.indexOf(((ValueBox) _stmt.getDefBoxes().iterator().next()).getValue());
 			}
 
 			for (final Iterator _i = unitGraph.getSuccsOf(_stmt).iterator(); _i.hasNext();) {
@@ -214,7 +214,7 @@ public final class LocalUseDefAnalysis {
 	private void extract(final BitSet[][] local2defs, final List localList) {
 		final Collection _cache = new ArrayList();
 
-		for (final Iterator _i = stmtList.iterator(); _i.hasNext();) {
+		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
 			final int _stmtIndex = stmtList.indexOf(_stmt);
 			final BitSet[] _stmtDefSet = local2defs[_stmtIndex];
@@ -258,7 +258,7 @@ public final class LocalUseDefAnalysis {
 		final Collection _result = new ArrayList();
 		final int _sizeOfStmtList = stmtList.size();
 
-		for (final Iterator _i = stmtList.iterator(); _i.hasNext();) {
+		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
 
 			if (_stmt instanceof DefinitionStmt) {
@@ -290,4 +290,7 @@ public final class LocalUseDefAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/15 08:54:48  venku
+   - implemented method local use-def info analysis.
+   - implemented identified based dependence analysis based on above analysis.
  */
