@@ -36,7 +36,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import soot.ArrayType;
-import soot.NullType;
 import soot.RefLikeType;
 import soot.RefType;
 import soot.SootClass;
@@ -227,6 +226,9 @@ public class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/24 12:58:11  venku
+   Formatting.
+
    Revision 1.5  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.4  2003/08/17 10:48:34  venku
