@@ -31,13 +31,6 @@ public class Marker {
 	private final Object content;
 
 	/**
-	 * Creates a new Marker object with <code>content</code> set to <code>null</code>.
-	 */
-	public Marker() {
-		content = null;
-	}
-
-	/**
 	 * Creates a new Marker object.
 	 *
 	 * @param o is any content to be stored in the marker.
@@ -54,52 +47,14 @@ public class Marker {
 	public final Object getContent() {
 		return this.content;
 	}
-
-	/**
-	 * Checks if the given object is equal to this object.
-	 *
-	 * @param o is the object to be checked for equality.
-	 *
-	 * @return <code>true</code> if <code>o</code> equals this object; <code>false</code>, otherwise.
-	 *
-	 * @post result == true implies o.oclTypeOf(Marker) and (o._content.equals(_content) or o._content == _content)
-	 * @post result == false implies (not o.oclTypeOf(Marker)) or not (o._content.equals(_content) or o._content == _content)
-	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o != null && o instanceof Marker) {
-			final Object _temp = ((Marker) o).content;
-
-			if (_temp == null && content == null) {
-				_result = this == o;
-			} else if (content != null && _temp != null) {
-				_result = content.equals(_temp);
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Returns the hash code of the object.  <code>content</code> field is used if it is non-null.
-	 *
-	 * @return the hash code of the object.
-	 */
-	public int hashCode() {
-		int _result;
-
-		if (content != null) {
-			_result = content.hashCode();
-		} else {
-			_result = super.hashCode();
-		}
-		return _result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/28 03:05:22  venku
+   - finalized getContent().
+
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
