@@ -833,7 +833,7 @@ public class ReadyDAv1
 					if (!xSet.isEmpty()) {
 						Collection exitSet = (Collection) dependeeMap.get(exit);
 
-						if (exitSet == null) {
+						if (exitSet.equals(Collections.EMPTY_LIST)) {
 							exitSet = new ArrayList();
 							dependeeMap.put(exit, exitSet);
 						}
@@ -908,6 +908,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/08/25 11:47:37  venku
+   Fixed minor glitches.
+
    Revision 1.9  2003/08/25 10:04:04  venku
    Renamed setInterProcedural() to setConsiderCallSites().
 
