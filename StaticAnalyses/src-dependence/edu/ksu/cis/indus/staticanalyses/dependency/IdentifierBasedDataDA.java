@@ -189,7 +189,9 @@ public class IdentifierBasedDataDA
 			UnitGraph unitGraph = getUnitGraph(currMethod);
 
 			if (unitGraph == null) {
-				LOGGER.error("Method " + currMethod.getSignature() + " does not have a unit graph.");
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Method " + currMethod.getSignature() + " does not have a unit graph.");
+				}
 				continue;
 			}
 
@@ -306,9 +308,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/28 22:11:35  venku
+   - logging.
    Revision 1.24  2003/11/28 21:45:44  venku
    - logging and error condition handling.
-
    Revision 1.23  2003/11/12 05:00:36  venku
    - documentation.
    Revision 1.22  2003/11/12 01:04:54  venku
