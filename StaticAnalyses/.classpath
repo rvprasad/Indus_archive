@@ -8,7 +8,7 @@
 	<classpathentry excluding="**/*html" kind="src" path="src-test"/>
 	<classpathentry excluding="**/*html" kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/common-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
