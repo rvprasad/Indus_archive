@@ -50,7 +50,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.Tester;
+import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +71,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class RufEATester
-  extends Tester {
+  extends Driver {
 	/**
 	 * <p>
 	 * The logger used by instances of this class to log messages.
@@ -218,7 +218,7 @@ public final class RufEATester
 				}
 			}
 		}
-		printTimingStats();
+		printTimingStats(System.out);
 	}
 }
 
@@ -226,6 +226,13 @@ public final class RufEATester
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:39:07  venku
+Major:
+ - Moved the package under indus umbrella.
+
+Minor:
+ - changes to accomodate ripple effect from support package.
+
 Revision 1.3  2003/07/30 08:30:31  venku
 Refactoring ripple.
 Also fixed a subtle bug in isShared() which caused wrong results.

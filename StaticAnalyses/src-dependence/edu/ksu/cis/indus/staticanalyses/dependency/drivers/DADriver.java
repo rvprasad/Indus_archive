@@ -54,8 +54,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.Driver;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.indus.staticanalyses.support.Tester;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,11 +75,9 @@ import java.util.Map;
  * @version $Revision$
  */
 public abstract class DADriver
-  extends Tester {
+  extends Driver {
 	/**
-	 * <p>
 	 * The logger used by instances of this class to log messages.
-	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DADriver.class);
 
@@ -254,7 +252,7 @@ public abstract class DADriver
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			System.out.println(i.next());
 		}
-		printTimingStats();
+		printTimingStats(System.out);
 	}
 
 	/**
@@ -358,16 +356,18 @@ public abstract class DADriver
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.1  2003/08/07 06:38:05  venku
-Major:
- - Moved the packages under indus umbrella.
- - Renamed MethodLocalDataDA to NonAliasedDataDA.
- - Added class for AliasedDataDA.
- - Documented and specified the classes.
+   $Log$
 
+   Revision 1.2  2003/08/09 23:29:52  venku
+   Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
 
-*****/
+   Revision 1.1  2003/08/07 06:38:05  venku
+   Major:
+    - Moved the packages under indus umbrella.
+    - Renamed MethodLocalDataDA to NonAliasedDataDA.
+    - Added class for AliasedDataDA.
+    - Documented and specified the classes.
+ */

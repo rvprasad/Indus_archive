@@ -49,7 +49,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.Tester;
+import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -67,7 +67,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class EADriver
-  extends Tester {
+  extends Driver {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -210,7 +210,7 @@ public final class EADriver
 				}
 			}
 		}
-		printTimingStats();
+		printTimingStats(System.out);
 	}
 }
 
@@ -218,6 +218,13 @@ public final class EADriver
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:39:07  venku
+Major:
+ - Moved the package under indus umbrella.
+
+Minor:
+ - changes to accomodate ripple effect from support package.
+
 Revision 1.1  2003/07/30 08:27:03  venku
 Renamed IATester to EADriver.
 Also, staged various analyses.
