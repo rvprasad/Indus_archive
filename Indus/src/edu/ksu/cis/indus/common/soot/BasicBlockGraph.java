@@ -162,11 +162,10 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>. Both indices are
-		 * relative to the statement list of the method and not the statement list of this block.
+		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>. 
 		 *
-		 * @param start is the starting index of the requested statement list.
-		 * @param end is the ending index of the requested statement list.
+		 * @param start is the starting statement of the requested statement list.
+		 * @param end is the ending statement of the requested statement list.
 		 *
 		 * @return a modifiable list of <code>Stmt</code>s.
 		 *
@@ -431,6 +430,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/16 05:37:17  venku
+   - changed index based queries to statement based queries.
+
    Revision 1.4  2004/07/07 06:25:08  venku
    - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
    - ripple effect.
