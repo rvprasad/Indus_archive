@@ -358,8 +358,8 @@ public class MethodVariant
 				}
 			}
 		} else {
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(_method + " is not a concrete method. Hence, it's body could not be retrieved.");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(_method + " is not a concrete method. Hence, it's body could not be retrieved.");
 			}
 		}
 
@@ -510,6 +510,10 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.17  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
