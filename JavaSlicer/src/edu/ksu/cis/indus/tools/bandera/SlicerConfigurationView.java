@@ -147,11 +147,18 @@ public class SlicerConfigurationView
 	 *
 	 * @param configuration DOCUMENT ME!
 	 */
-	void set(String configuration) {
+	void set(final String configuration) {
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/15 08:55:23  venku
+   - Well, the SlicerTool is still a mess in my opinion as it needs
+     to be implemented as required by Bandera.  It needs to be
+     much richer than it is to drive the slicer.
+   - SlicerConfigurationView is supposed to bridge the above gap.
+     I doubt it.
+
  */
