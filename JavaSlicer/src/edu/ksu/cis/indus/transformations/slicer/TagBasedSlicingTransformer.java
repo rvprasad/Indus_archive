@@ -259,8 +259,7 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.ValueBox, soot.jimple.Stmt,
-	 * 		soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(ValueBox, Stmt, SootMethod)
 	 */
 	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		if (vBox.getTag(tagName) == null) {
@@ -280,6 +279,8 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/26 15:08:35  venku
+   - ripple effect of changes in ITransformer.
    Revision 1.5  2003/09/15 07:52:08  venku
    - added a new transformer interface specifically targetted for slicing.
    - implemented the above interface.

@@ -191,8 +191,7 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(edu.ksu.cis.indus.tools.AbstractToolConfiguration.PropertyIdentifier,
-	 * 		java.lang.Object)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(Object, Object)
 	 */
 	protected boolean processProperty(final Object propertyID, final Object value) {
 		return getActiveToolConfiguration().processProperty(propertyID, value);
@@ -202,6 +201,10 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/27 01:09:36  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.5  2003/09/26 15:30:39  venku
    - removed PropertyIdentifier class.
    - ripple effect of the above change.

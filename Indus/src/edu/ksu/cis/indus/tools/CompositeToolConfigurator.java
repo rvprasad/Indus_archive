@@ -56,21 +56,20 @@ public final class CompositeToolConfigurator
 	Composite composite;
 
 	/**
-	 * This is the composite configuration being configured.
-	 */
-	CompositeToolConfiguration configurationCollection;
-
-	/**
 	 * The shell on which the provided interface will be displayed.
 	 */
 	Composite parent;
+
+	/**
+	 * This is the composite configuration being configured.
+	 */
+	CompositeToolConfiguration configurationCollection;
 
 	/**
 	 * Creates a new CompositeToolConfigurator object.
 	 *
 	 * @param configs is the composite configuration.
 	 * @param child is the configurator to be used for each configuration instance.
-	 * @param text is the title of the provided interface.
 	 *
 	 * @pre configs != null and child != null
 	 */
@@ -98,8 +97,6 @@ public final class CompositeToolConfigurator
 
 	/**
 	 * {@inheritDoc}<code>configuration</code> is <i>ignored</i>.
-	 *
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#display(AbstractToolConfiguration)
 	 */
 	protected void displayTemplateMethod(final AbstractToolConfiguration configuration) {
 		configCombo.removeAll();
@@ -119,8 +116,8 @@ public final class CompositeToolConfigurator
 		if (theComposite == null) {
 			parent = new Shell(SWT.SHELL_TRIM | SWT.APPLICATION_MODAL);
 		} else {
-      parent = theComposite;      
-        }
+			parent = theComposite;
+		}
 
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
@@ -161,6 +158,10 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/27 01:09:36  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.3  2003/09/26 23:03:13  venku
    - Added OK button.
    Revision 1.2  2003/09/26 15:00:01  venku

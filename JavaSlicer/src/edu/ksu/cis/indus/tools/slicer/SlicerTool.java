@@ -50,7 +50,6 @@ import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Composite;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -345,7 +344,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#run()
+	 * {@inheritDoc}
 	 */
 	public void execute(final Object phaseParam)
 	  throws InterruptedException {
@@ -475,6 +474,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/27 01:09:35  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
+
    Revision 1.4  2003/09/26 15:08:02  venku
    - completed support for exposing slicer as a tool
      and configuring it both in Bandera and outside it.

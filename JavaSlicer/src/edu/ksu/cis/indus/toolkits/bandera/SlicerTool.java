@@ -97,7 +97,7 @@ public class SlicerTool
 	 */
 	private final edu.ksu.cis.indus.tools.slicer.SlicerTool tool;
 
-	/** 
+	/**
 	 * The configuration interface provided by this object to configure the slicer tool.
 	 */
 	private SlicerConfigurationView configurationView;
@@ -141,7 +141,7 @@ public class SlicerTool
 	 * @pre inputArgs.get(TAG_NAME) != null and inputArgs.get(TAG_NAME).oclIsKindOf(String)
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 *
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#setInputMap(java.util.Map)
+	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
 	public void setInputMap(final Map inputArgs) {
 		Scene theScene = (Scene) inputArgs.get(SCENE);
@@ -239,10 +239,13 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/27 01:09:35  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.4  2003/09/26 15:07:51  venku
    - completed support for exposing slicer as a tool
      and configuring it both in Bandera and outside it.
-
    Revision 1.3  2003/09/26 05:55:51  venku
    - a checkpoint commit.
    Revision 1.2  2003/09/24 07:33:24  venku
