@@ -45,74 +45,65 @@ class SlicerConfiguration
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
 	 * intraprocedural divergent dependence.
 	 */
-	public static final PropertyIdentifier INTERPROCEDURAL_DIVERGENCEDA =
-		ToolConfiguration.createPropertyIdentifier("interprocedural divergence dependence");
+	public static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
 
 	/**
 	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
 	 * of naive type-based interference dependence.
 	 */
-	public static final PropertyIdentifier EQUIVALENCE_CLASS_BASED_INTERFERENCEDA =
-		ToolConfiguration.createPropertyIdentifier("equivalence class based interference dependennce");
+	public static final Object EQUIVALENCE_CLASS_BASED_INTERFERENCEDA = "equivalence class based interference dependennce";
 
 	/**
 	 * This identifies the property that indicates if ready dependence should be considered for slicing.
 	 */
-	public static final PropertyIdentifier USE_READYDA = ToolConfiguration.createPropertyIdentifier("use ready dependence");
+	public static final Object USE_READYDA = "use ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule1 of ready dependence be used.  Rule 1:  m is dependent on n if m
 	 * and n occur in the same thread and n is an enter monitor statement.
 	 */
-	public static final PropertyIdentifier USE_RULE1_IN_READYDA =
-		ToolConfiguration.createPropertyIdentifier("use rule1 in ready dependence");
+	public static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule2 of ready dependence be used.  Rule 2: m is dependent on n if m
 	 * and n occur in different threads and m and n are is exit monitor and enter monitor statements, respectively.
 	 */
-	public static final PropertyIdentifier USE_RULE2_IN_READYDA =
-		ToolConfiguration.createPropertyIdentifier("use rule2 in ready dependence");
+	public static final Object USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule3 of ready dependence be used.  Rule 3: m is dependent on n if m
 	 * and n occur in the same thread and m has a call to java.lang.Object.wait.
 	 */
-	public static final PropertyIdentifier USE_RULE3_IN_READYDA =
-		ToolConfiguration.createPropertyIdentifier("use rule3 in ready dependence");
+	public static final Object USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule4 of ready dependence be used.  Rule 4: m is dependent on n if m
 	 * and n occur in the different thread and m and n have calls to java.lang.Object.wait(XXX) and
 	 * java.lang.Object.notifyXXX(), respectively..
 	 */
-	public static final PropertyIdentifier USE_RULE4_IN_READYDA =
-		ToolConfiguration.createPropertyIdentifier("use rule4 in ready dependence");
+	public static final Object USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if equivalence class based ready dependence should be used instead of
 	 * naive type-based ready dependence.
 	 */
-	public static final PropertyIdentifier EQUIVALENCE_CLASS_BASED_READYDA =
-		ToolConfiguration.createPropertyIdentifier("equivalence class based ready dependennce");
+	public static final Object EQUIVALENCE_CLASS_BASED_READYDA = "equivalence class based ready dependennce";
 
 	/**
 	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
 	 */
-	public static final PropertyIdentifier USE_DIVERGENCEDA =
-		ToolConfiguration.createPropertyIdentifier("use divergence dependence");
+	public static final Object USE_DIVERGENCEDA = "use divergence dependence";
 
 	/**
 	 * This identifies the property that indicates if slice criteria should be automatically picked for slicing such that the
 	 * slice has the same deadlock behavior as the original program.
 	 */
-	public static final PropertyIdentifier SLICE_FOR_DEADLOCK =
-		ToolConfiguration.createPropertyIdentifier("slice for deadlock");
+	public static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
 	/**
 	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
 	 */
-	public static final PropertyIdentifier SLICE_TYPE = ToolConfiguration.createPropertyIdentifier("slice type");
+	public static final Object SLICE_TYPE = "slice type";
 
 	/**
 	 * This is used to track the initialization of PROPERTY_IDS upon the creation of the first instance and then avoid it on
@@ -278,7 +269,7 @@ class SlicerConfiguration
 	 *
 	 * @pre value != null
 	 */
-	protected boolean processProperty(final PropertyIdentifier propertyID, final Object value) {
+	protected boolean processProperty(final Object propertyID, final Object value) {
 		boolean result = true;
 
 		if (value instanceof Boolean) {
@@ -451,9 +442,11 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/26 07:33:18  venku
+   - checkpoint commit.
    Revision 1.4  2003/09/26 05:55:41  venku
  *** empty log message ***
-     Revision 1.1  2003/09/24 07:32:23  venku
-     - Created an implementation of indus tool api specific to Slicer.
-       The GUI needs to be setup and bandera adapter needs to be fixed.
+       Revision 1.1  2003/09/24 07:32:23  venku
+       - Created an implementation of indus tool api specific to Slicer.
+         The GUI needs to be setup and bandera adapter needs to be fixed.
  */

@@ -32,7 +32,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CompositeToolConfiguration
+public final class CompositeToolConfiguration
   extends ToolConfiguration {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -71,7 +71,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @param tc DOCUMENT ME!
 	 */
-	public final void setActiveToolConfiguration(final ToolConfiguration tc) {
+	public void setActiveToolConfiguration(final ToolConfiguration tc) {
 		if (configurations.contains(tc)) {
 			active = tc;
 		} else {
@@ -90,7 +90,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @throws RuntimeException DOCUMENT ME!
 	 */
-	public final ToolConfiguration getActiveToolConfiguration() {
+	public ToolConfiguration getActiveToolConfiguration() {
 		if (active == null) {
 			active = (ToolConfiguration) configurations.get(0);
 
@@ -112,7 +112,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @param id DOCUMENT ME!
 	 */
-	public final void setActiveToolConfigurationID(final String id) {
+	public void setActiveToolConfigurationID(final String id) {
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
 			ToolConfiguration config = (ToolConfiguration) i.next();
 
@@ -129,7 +129,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public final String getActiveToolConfigurationID() {
+	public String getActiveToolConfigurationID() {
 		return getActiveToolConfiguration().NAME;
 	}
 
@@ -140,7 +140,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @param tc DOCUMENT ME!
 	 */
-	public final void addToolConfiguration(final ToolConfiguration tc) {
+	public void addToolConfiguration(final ToolConfiguration tc) {
 		if (tc == null) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Null configurations are not supported.");
@@ -183,7 +183,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	protected final ToolConfiguration getToolConfiguration(final String name) {
+	protected ToolConfiguration getToolConfiguration(final String name) {
 		ToolConfiguration result = null;
 
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
@@ -201,7 +201,7 @@ public class CompositeToolConfiguration
 	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
 	 * 		java.lang.Object)
 	 */
-	protected final boolean processProperty(final PropertyIdentifier propertyID, final Object value) {
+	protected boolean processProperty(final Object propertyID, final Object value) {
 		return getActiveToolConfiguration().processProperty(propertyID, value);
 	}
 }
@@ -209,13 +209,13 @@ public class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/26 15:16:40  venku
+   - coding conventions.
    Revision 1.3  2003/09/26 15:05:01  venku
    - binding related errors fixed.
-
    Revision 1.2  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
-
    Revision 1.1  2003/09/26 13:58:43  venku
    - checkpoint commit.
    - Renamed ToolConfigurationCollection to CompositeToolConfiguration

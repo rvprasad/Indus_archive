@@ -61,29 +61,6 @@ public abstract class ToolConfiguration {
 	protected String NAME;
 
 	/**
-	 * This identifies a property.  It does not represent a property.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static class PropertyIdentifier {
-		/**
-		 * The id of the property.
-		 */
-		public final Object _id;
-
-		/**
-		 * Creates a new Property object.
-		 *
-		 * @param idParam is the name of the parameter.
-		 */
-		PropertyIdentifier(final Object idParam) {
-			_id = idParam;
-		}
-	}
-
-	/**
 	 * Sets a property of the configurationCollection. The given <code>propertyID</code> should be a valid property id
 	 * declared in this class.  If not, an exception will be raised.
 	 *
@@ -96,7 +73,7 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre property != null and value != null
 	 */
-	public boolean setProperty(final PropertyIdentifier propertyID, final Object value) {
+	public boolean setProperty(final Object propertyID, final Object value) {
 		if (!PROPERTY_IDS.contains(propertyID)) {
 			String message = "Invalid property identifier specified: " + propertyID;
 			LOGGER.error(message);
@@ -120,7 +97,7 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre key != null
 	 */
-	public Object getProperty(final PropertyIdentifier id) {
+	public Object getProperty(final Object id) {
 		return properties.get(id);
 	}
 
@@ -142,23 +119,15 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre propertyID != null
 	 */
-	protected abstract boolean processProperty(final PropertyIdentifier propertyID, final Object value);
-
-	/**
-	 * A factory method to create a property identifier.
-	 *
-	 * @param id of the property.
-	 *
-	 * @return a property identifier.
-	 */
-	protected static PropertyIdentifier createPropertyIdentifier(final Object id) {
-		return new PropertyIdentifier(id);
-	}
+	protected abstract boolean processProperty(final Object propertyID, final Object value);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/26 15:00:01  venku
+   - The configuration of tools in Indus has been placed in this package.
+   - Formatting.
    Revision 1.4  2003/09/26 13:58:43  venku
    - checkpoint commit.
    - Renamed ToolConfigurationCollection to CompositeToolConfiguration

@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.tools.ToolConfiguration;
-import edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier;
 import edu.ksu.cis.indus.tools.ToolConfigurator;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 
@@ -73,7 +72,7 @@ public class SlicerConfigurator
 		 * DOCUMENT ME!
 		 * </p>
 		 */
-		private final PropertyIdentifier id;
+		private final Object id;
 
 		/**
 		 * Creates a new BooleanSelectionListener object.
@@ -81,7 +80,7 @@ public class SlicerConfigurator
 		 * @param propID DOCUMENT ME!
 		 * @param sender DOCUMENT ME!
 		 */
-		PropertySelectionListener(final PropertyIdentifier propID, final Button sender) {
+		PropertySelectionListener(final Object propID, final Button sender) {
 			id = propID;
 			button = sender;
 		}
@@ -271,6 +270,9 @@ public class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/26 15:08:02  venku
+   - completed support for exposing slicer as a tool
+     and configuring it both in Bandera and outside it.
    Revision 1.3  2003/09/26 07:33:29  venku
    - checkpoint commit.
    Revision 1.2  2003/09/26 05:55:28  venku
