@@ -598,7 +598,7 @@ public class SlicerConfiguration
 	 *
 	 * @return the dependency analyses identified by <code>id</code>.
 	 *
-	 * @post result != null
+	 * @post result != null and result.oclIsKindOf(Collection(DependencyAnalysis))
 	 */
 	Collection getDependenceAnalysis(final Object id) {
 		Collection result = (Collection) id2dependencyAnalyses.get(id);
@@ -652,6 +652,10 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/16 18:24:08  venku
+   - added methods to retrive active dependencies.
+   - documentation and formatting.
+
    Revision 1.17  2003/11/09 08:12:49  venku
    - values of all boolean properties are discovered by getBooleanProperty().
      If the property does not exist, a default value will be returned.

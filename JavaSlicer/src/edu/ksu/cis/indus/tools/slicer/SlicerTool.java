@@ -288,7 +288,7 @@ public final class SlicerTool
 		SlicerConfiguration config = ((SlicerConfiguration) getActiveConfiguration());
 
 		for (Iterator i = config.getNamesOfDAsToUse().iterator(); i.hasNext();) {
-			result.add(config.getDependenceAnalysis(i.next()));
+			result.addAll(config.getDependenceAnalysis(i.next()));
 		}
 		return result;
 	}
@@ -611,6 +611,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/16 18:24:08  venku
+   - added methods to retrive active dependencies.
+   - documentation and formatting.
+
    Revision 1.23  2003/11/15 22:06:54  venku
    - added support to extract call graph and environment.
    Revision 1.22  2003/11/15 21:27:03  venku
