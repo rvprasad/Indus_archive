@@ -318,7 +318,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
 		 */
 		public void defaultCase(final Object v) {
-			Value _v = (Value) v;
+			final Value _v = (Value) v;
 
 			for (final Iterator _i = _v.getUseBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _i.next();
@@ -641,6 +641,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/17 23:25:20  venku
+   - value was being cast into a Host.  FIXED.
+
    Revision 1.10  2004/01/14 12:01:02  venku
    - documentation.
    - error was not flagged when incorrect slice is detected. FIXED.

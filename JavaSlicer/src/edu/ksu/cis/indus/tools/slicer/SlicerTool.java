@@ -57,7 +57,8 @@ import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.tools.slicer.processing.*;
+import edu.ksu.cis.indus.tools.slicer.processing.ExecutableSlicePostProcessor;
+import edu.ksu.cis.indus.tools.slicer.processing.ISlicePostProcessor;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -766,6 +767,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.67  2004/01/22 01:01:40  venku
+   - coding convention.
+
    Revision 1.66  2004/01/21 02:53:43  venku
    - logging
    - call to reset() methods controllers.
