@@ -17,6 +17,10 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.IndusTestCase;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import soot.G;
 import soot.Scene;
 import soot.SootClass;
@@ -36,6 +40,12 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class UnitGraphFactoryTest
   extends IndusTestCase {
+	/** 
+	 * A map from statement graph factory objects to the class of graphs returned from these factories.
+	 * @invariant factories.oclIsKindOf(Map(IStmtGraphFactory, Class))
+	 */
+	private Map factories;
+
 	/**
 	 * The scene.
 	 */
@@ -47,10 +57,18 @@ public class UnitGraphFactoryTest
 	public final void testGetUnitGraph() {
 		final SootClass _sc = scene.loadClassAndSupport("java.lang.Object");
 		final SootMethod _notify = _sc.getMethodByName("notify");
-		localTestGetUnitGraph(_notify);
+		final SootMethod _equals = _sc.getMethodByName("equals");
 
-		final SootMethod _wait = _sc.getMethodByName("equals");
-		localTestGetUnitGraph(_wait);
+		for (final Iterator _i = factories.keySet().iterator(); _i.hasNext();) {
+			final IStmtGraphFactory _factory = (IStmtGraphFactory) _i.next();
+			final UnitGraph _graph1 = _factory.getStmtGraph(_notify);
+			assertNotNull(_graph1);
+			assertTrue(((Class) factories.get(_factory)).isInstance(_graph1));
+
+			final UnitGraph _graph2 = _factory.getStmtGraph(_equals);
+			assertNotNull(_graph2);
+			assertTrue(((Class) factories.get(_factory)).isInstance(_graph2));
+		}
 	}
 
 	/**
@@ -60,60 +78,45 @@ public class UnitGraphFactoryTest
 		final SootClass _sc = scene.loadClassAndSupport("java.lang.Object");
 		final SootMethod _notify = _sc.getMethodByName("notify");
 
-		final IStmtGraphFactory _ugf1 = new CompleteStmtGraphFactory();
-		final UnitGraph _cmpltg1 = _ugf1.getStmtGraph(_notify);
-		_ugf1.reset();
+		for (final Iterator _i = factories.keySet().iterator(); _i.hasNext();) {
+			final IStmtGraphFactory _factory = (IStmtGraphFactory) _i.next();
+			final UnitGraph _graph1 = _factory.getStmtGraph(_notify);
+			_factory.reset();
 
-		final UnitGraph _cmpltg3 = _ugf1.getStmtGraph(_notify);
-		assertNotSame(_cmpltg1, _cmpltg3);
+			final UnitGraph _graph2 = _factory.getStmtGraph(_notify);
+			assertNotSame(_graph1, _graph2);
+		}
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void setUp()
-	  throws Exception {
+	protected void setUp() {
 		scene = Scene.v();
+		factories = new HashMap();
+		factories.put(new CompleteStmtGraphFactory(), CompleteUnitGraph.class);
+		factories.put(new TrapStmtGraphFactory(), TrapUnitGraph.class);
+		factories.put(new ExceptionFlowSensitiveStmtGraphFactory(
+				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+				true), ExceptionFlowSensitiveStmtGraph.class);
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown()
-	  throws Exception {
-        G.reset();
+	protected void tearDown() {
+	    factories.clear();
 		scene = null;
-	}
-
-	/**
-	 * Local helper method to test <code>getUnitGraph</code>.
-	 *
-	 * @param method to be tested with
-	 *
-	 * @pre method != null
-	 */
-	private void localTestGetUnitGraph(final SootMethod method) {
-		final IStmtGraphFactory _ugf1 = new CompleteStmtGraphFactory();
-		final UnitGraph _cmpltg1 = _ugf1.getStmtGraph(method);
-		assertNotNull(_cmpltg1);
-		assertTrue(_cmpltg1 instanceof CompleteUnitGraph);
-
-		final IStmtGraphFactory _ugf2 = new TrapStmtGraphFactory();
-		final UnitGraph _cmpltg2 = _ugf2.getStmtGraph(method);
-		assertNotNull(_cmpltg2);
-		assertTrue(_cmpltg2 instanceof TrapUnitGraph);
-
-		final IStmtGraphFactory _ugf3 =
-			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
-		final UnitGraph _cmpltg3 = _ugf3.getStmtGraph(method);
-		assertNotNull(_cmpltg3);
-		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveStmtGraph);
+		G.reset();
+		
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/21 02:24:04  venku
+   - test clean up code was added.
    Revision 1.6  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -122,7 +125,6 @@ public class UnitGraphFactoryTest
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.5  2004/03/26 00:24:07  venku
    - ripple effect of refactoring soot package in Indus.
    Revision 1.4  2004/02/17 05:59:15  venku

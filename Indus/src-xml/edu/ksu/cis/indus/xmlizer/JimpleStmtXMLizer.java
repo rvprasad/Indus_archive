@@ -67,9 +67,7 @@ final class JimpleStmtXMLizer
 	private final IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The body of the method currently being processed. 
 	 */
 	private Body currMethodBody;
 
@@ -398,6 +396,9 @@ final class JimpleStmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/25 22:04:54  venku
+   - changed the targets dumped for IfStmt.
+
    Revision 1.4  2004/05/09 09:28:18  venku
    - documentation.
    Revision 1.3  2004/05/09 08:24:08  venku

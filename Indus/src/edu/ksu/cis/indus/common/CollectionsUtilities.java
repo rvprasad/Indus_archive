@@ -17,7 +17,9 @@ package edu.ksu.cis.indus.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,6 +122,34 @@ public final class CollectionsUtilities {
 	 */
 	public static Set getSetFromMap(final Map map, final Object key) {
 		return (Set) getFromMap(map, key, new HashSet());
+	}
+
+	/**
+	 * Adds the contents of the iterator into the given collection.
+	 *
+	 * @param iterator that will iterate over the elements to be added.
+	 * @param collection into which the elements should be added.
+	 *
+	 * @pre iterator != null and collection != null
+	 */
+	public static void addAllFromTo(final Iterator iterator, final Collection collection) {
+		for (; iterator.hasNext();) {
+			collection.add(iterator.next());
+		}
+	}
+
+	/**
+	 * Adds the contents of the enumeration into the given collection.
+	 *
+	 * @param enumeration that will iterate over the elements to be added.
+	 * @param collection into which the elements should be added.
+	 *
+	 * @pre enumeration != null and collection != null
+	 */
+	public static void addAllFromTo(final Enumeration enumeration, final Collection collection) {
+		for (; enumeration.hasMoreElements();) {
+			collection.add(enumeration.nextElement());
+		}
 	}
 
 	/**
@@ -236,12 +266,13 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/31 20:50:20  venku
+   - documentation.
    Revision 1.1  2004/05/21 22:11:49  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.5  2004/03/04 11:56:07  venku
    - added a new method to do safe and destructive queries on map.
    Revision 1.4  2004/01/28 22:45:42  venku

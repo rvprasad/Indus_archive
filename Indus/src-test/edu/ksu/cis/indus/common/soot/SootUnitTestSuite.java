@@ -65,6 +65,7 @@ public final class SootUnitTestSuite {
 		_suite.addTestSuite(UtilTest.class);
 		_suite.addTestSuite(UnitGraphFactoryTest.class);
 		_suite.addTestSuite(NamedTagTest.class);
+		_suite.addTest(BasicBlockGraphTest.getTests());
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		_suite.setName(SootUnitTestSuite.class.getName());
@@ -75,6 +76,9 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/05 23:16:37  venku
+   - textui.TestRunner cannot be run via start(). FIXED.
+
    Revision 1.7  2004/04/05 22:26:30  venku
    - used textui.TestRunner instead of swingui.TestRunner.
 
