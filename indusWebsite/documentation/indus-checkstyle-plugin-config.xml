@@ -172,7 +172,7 @@
             <config-properties/>
         </rule-configuration>
         <rule-configuration
-            classname="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" severity="warning">
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" severity="info">
             <config-properties>
                 <config-property name="allowedDuplicates" value="1"/>
             </config-properties>
@@ -494,8 +494,9 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.usage.UnusedParameterCheck" severity="info">
             <config-properties>
-                <config-property name="ignoreCatch" value="true"/>
-                <config-property name="ignoreFormat" value="^(.|value|stmt|method|context|evt|clazz|field|vBox)$"/>
+                <config-property name="ignoreCatch" value="false"/>
+                <config-property name="ignoreFormat" value="^(evt)$"/>
+                <config-property name="ignoreNonLocal" value="false"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration

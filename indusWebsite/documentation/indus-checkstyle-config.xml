@@ -124,7 +124,7 @@
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck">
             <property name="allowedDuplicates" value="1"/>
-            <property name="severity" value="warning"/>
+            <property name="severity" value="info"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck">
             <property name="max" value="2"/>
@@ -348,8 +348,9 @@
             <property name="severity" value="warning"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.usage.UnusedParameterCheck">
-            <property name="ignoreCatch" value="true"/>
-            <property name="ignoreFormat" value="^(.|value|stmt|method|context|evt|clazz|field|vBox)$"/>
+            <property name="ignoreCatch" value="false"/>
+            <property name="ignoreFormat" value="^(evt)$"/>
+            <property name="ignoreNonLocal" value="false"/>
             <property name="severity" value="info"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.usage.UnusedPrivateFieldCheck">
