@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;

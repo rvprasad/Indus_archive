@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.processing.IProcessor;

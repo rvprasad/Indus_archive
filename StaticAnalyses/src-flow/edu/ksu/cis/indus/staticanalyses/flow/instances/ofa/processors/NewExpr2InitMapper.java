@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 
