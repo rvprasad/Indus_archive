@@ -45,12 +45,15 @@ public interface IMonitorInfo
 	/**
 	 * Retrieves the statements enclosed in the monitor respresented by the given monitor statement in the given method.
 	 *
-	 * @param monitorStmt obviously.
+	 * @param monitorStmt is the monitor statement.  To acquire the statements enclosed by
+	 * the monitor acquired when a synchronized method is entered, provide a <code>null</code> argument for this parameter.   
 	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 	 *
 	 * @return a collection of statements
-	 *
+	 * 
+	 * @pre monitorStmt = null implies method.isSynchronized()
+	 * @pre method != null
 	 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
@@ -65,7 +68,7 @@ public interface IMonitorInfo
 	 *
 	 * @return a collection of statements
 	 *
-	 * @pre stmt.oclIsKindOf(Stmt)
+	 * @pre stmt != null and method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 * @post result->forall(o | o.oclIsKindOf(EnterMonitorStmt) or o.oclIsKindOf(ExitMonitorStmt)
 	 */
@@ -124,6 +127,10 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/21 02:09:44  venku
+   - spruced up IMonitorInfo interface with method to extract more information.
+   - updated SynchronizationDA to provide the methods introduced in IMonitorInfo.
+
    Revision 1.4  2004/07/11 14:17:41  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
