@@ -15,19 +15,19 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
-
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.swingui.TestRunner;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -69,13 +69,6 @@ public class FATester
 	 * </p>
 	 */
 	private FA fa;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private IEnvironment env;
 
 	/**
 	 * DOCUMENT ME!
@@ -122,14 +115,17 @@ public class FATester
 	 * 
 	 * <p></p>
 	 */
-	public void testGetClasses() {
+	public void testContainment() {
 		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 			boolean flag = false;
 
 			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
 				final SootField _sf = (SootField) _j.next();
-				flag |= _sf.hasTag(TAG_NAME);
+
+				if (_sf.hasTag(TAG_NAME)) {
+					flag = true;
+				}
 			}
 
 			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
@@ -145,6 +141,53 @@ public class FATester
 
 			if (flag) {
 				assertTrue(_sc.hasTag(TAG_NAME));
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	public void testInheritance() {
+		IWorkBag wb = new FIFOWorkBag();
+
+		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (_sc.hasTag(TAG_NAME)) {
+				if (_sc.hasSuperclass()) {
+					wb.addWorkNoDuplicates(_sc.getSuperclass());
+				}
+				wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+			}
+		}
+
+		Collection processedClasses = fa.getClasses();
+
+		while (wb.hasWork()) {
+			SootClass _sc = (SootClass) wb.getWork();
+			assertTrue(_sc.hasTag(TAG_NAME));
+			assertTrue(processedClasses.contains(_sc));
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	public void testProcessing() {
+		Collection processedClasses = fa.getClasses();
+
+		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
+			SootClass _sc = (SootClass) _i.next();
+
+			if (_sc.hasTag(TAG_NAME)) {
+				assertTrue(processedClasses.contains(_sc));
+			} else {
+				assertFalse(processedClasses.contains(_sc));
 			}
 		}
 	}
@@ -185,7 +228,6 @@ public class FATester
 		}
 
 		ofa.analyze(scene, rootMethods);
-		env = ofa.getEnvironment();
 		fa = ofa.fa;
 	}
 }
@@ -193,6 +235,9 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/05 21:34:01  venku
+   - formatting.
+   - more tests.
    Revision 1.1  2003/12/05 15:28:12  venku
    - added test case for trivial tagging test in FA.
  */
