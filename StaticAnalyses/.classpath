@@ -8,15 +8,15 @@
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/commons-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-logging.jar" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/commons-logging.jar" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/commons-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/commons-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
