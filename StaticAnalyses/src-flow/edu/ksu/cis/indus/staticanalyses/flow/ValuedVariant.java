@@ -61,17 +61,6 @@ public class ValuedVariant
 	}
 
 	/**
-	 * Returns the set of values associated with this variant.
-	 *
-	 * @return the set of values associated with this variant.
-	 *
-	 * @post result != null
-	 */
-	public final Collection getValues() {
-		return node.getValues();
-	}
-
-	/**
 	 * Performs nothing.  This will be called after a variant is created and should be implemented by subclasses.
 	 */
 	public void process() {
