@@ -156,7 +156,7 @@ public class MethodVariant
 		_method = sm;
 		_fa = fa;
 		_context = (Context) fa._analyzer.context.clone();
-		_fa._analyzer.context.callNewMethod(sm);
+		fa._analyzer.context.callNewMethod(sm);
 
 		int pCount = sm.getParameterCount();
 
@@ -165,8 +165,8 @@ public class MethodVariant
 
 			for (int i = 0; i < pCount; i++) {
 				if (sm.getParameterType(i) instanceof RefLikeType) {
-					parameters[i] = _fa.getNewFGNode();
-					_fa.processType(sm.getParameterType(i));
+					parameters[i] = fa.getNewFGNode();
+					fa.processType(sm.getParameterType(i));
 				}
 			}
 		} else {
@@ -176,7 +176,7 @@ public class MethodVariant
 		if (sm.isStatic()) {
 			thisVar = null;
 		} else {
-			thisVar = _fa.getNewFGNode();
+			thisVar = fa.getNewFGNode();
 
 			/*
 			 * NOTE: This is required to filter out values which are descendents of a higher common type but which are
@@ -186,17 +186,17 @@ public class MethodVariant
 			 */
 			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
 		}
-		_fa.processClass(sm.getDeclaringClass());
+		fa.processClass(sm.getDeclaringClass());
 
 		if (sm.getReturnType() instanceof RefLikeType) {
-			returnVar = _fa.getNewFGNode();
-			_fa.processType(sm.getReturnType());
+			returnVar = fa.getNewFGNode();
+			fa.processType(sm.getReturnType());
 		} else {
 			returnVar = null;
 		}
 
 		astvm = astVariantManager;
-		_fa._analyzer.context.returnFromCurrentMethod();
+		fa._analyzer.context.returnFromCurrentMethod();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
@@ -476,6 +476,11 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/25 23:03:54  venku
+   - removed a variant of getASTvariant() as it was not being used.
+   - added call to _fa.processClass() in getASTVariant().
+   - logging and name change to used field variable.
+
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
