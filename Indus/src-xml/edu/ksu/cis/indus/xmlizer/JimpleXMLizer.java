@@ -190,7 +190,7 @@ public class JimpleXMLizer
 
 			for (final Iterator _i = method.getExceptions().iterator(); _i.hasNext();) {
 				writer.startTag("exception");
-				writer.attribute("typeId", idGenerator.getIdForType((Type) _i.next()));
+				writer.attribute("typeId", idGenerator.getIdForClass((SootClass) _i.next()));
 				writer.endTag();
 			}
 			writer.endTag();
@@ -365,7 +365,7 @@ public class JimpleXMLizer
 			final String _filename = dumpDirectory + File.separator + _classId + fileSuffix + ".xml";
 
 			try {
-				if (writer.getWriter() != null) {
+				if (writer != null && writer.getWriter() != null) {
 					writer.getWriter().close();
 				}
 
@@ -430,6 +430,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/05/09 09:28:18  venku
+   - documentation.
+
    Revision 1.36  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
    Revision 1.35  2004/05/06 09:31:01  venku
