@@ -144,10 +144,9 @@ public class DependencyXMLizerCLI
 
 		final Object[][] _dasOptions =
 			{
-				{ "a", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
+				{ "a", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
 				{ "d", "dncda", "Direct Entry control dependence", new DirectEntryControlDA() },
-				{ "r", "incda", "Indirect Entry control dependence", new EntryControlDA() },
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
@@ -157,6 +156,8 @@ public class DependencyXMLizerCLI
 				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
+				{ "r", "incda", "Indirect Entry control dependence", new EntryControlDA() },
+				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
@@ -371,6 +372,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/06/12 06:45:22  venku
+   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
+
    Revision 1.15  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
@@ -583,6 +587,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/06/12 06:45:22  venku
+   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
+
    Revision 1.15  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
