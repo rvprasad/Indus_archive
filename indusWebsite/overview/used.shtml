@@ -8,7 +8,7 @@
   <ul>
     <li><a href="http://jakarta.apache.org/commons/cli/">Jakarta Commons CLI</a></li>
     <li><a href="http://jakarta.apache.org/commons/collections/">Jakarta Commons Collection </a></li>
-     <li><a href="http://jakarta.apache.org/commons/io/">Jakarta Commons IO</a></li>
+    <li><a href="http://jakarta.apache.org/commons/io/">Jakarta Commons IO</a></li>
     <li><a href="http://jakarta.apache.org/commons/lang/">Jakarta Commons Lang</a></li>
     <li><a href="http://jakarta.apache.org/commons/logging/">Jakarta Commons Logging</a></li>
     <li><a href="http://jakarta.apache.org/commons/pool/">Jakarta Commons Pool</a></li>
@@ -21,7 +21,8 @@
     <li><a href="http://www.eclipse.org">SWT</a></li>
     <li><a href="http://xmlenc.sourceforge.net/">xmlenc</a></li>
     <li><a href="http://xmlunit.sourceforge.net/">XMLUnit</a></li>
-    <li><a href="http://xstream.codehause.org/">XStream</a></li>
+    <li><a href="http://xstream.codehaus.org/">XStream</a></li>
+    <li><a href="http://trove4j.sourceforge.net/">GNU Trove</a></li>
     <li><a href="http://junit.org">JUnit</a></li>
   </ul>
   </p>
