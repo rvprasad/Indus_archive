@@ -72,9 +72,9 @@ public class SootBasedDriver {
 
 	/**
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>TrapUnitGraphFactory</code>.
+	 * <code>TrapStmtGraphFactory</code>.
 	 */
-	protected IUnitGraphFactory cfgProvider;
+	protected IStmtGraphFactory cfgProvider;
 
 	/**
 	 * The list of classes that should be considered as the core of the system.
@@ -110,7 +110,7 @@ public class SootBasedDriver {
 	private String classpathToAdd;
 
 	/**
-	 * Creates a new Test object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code>
+	 * Creates a new Test object.  This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
 	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
 	 * graph provider.
 	 */
@@ -266,14 +266,14 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
-	 * provides an instance of <code>TrapUnitGraphFactory</code>
+	 * provides an instance of <code>TrapStmtGraphFactory</code>
 	 *
 	 * @return an unit graph factory
 	 *
 	 * @post return != null
 	 */
-	public final IUnitGraphFactory getUnitGraphFactory() {
-		return new TrapUnitGraphFactory();
+	public IStmtGraphFactory getUnitGraphFactory() {
+		return new TrapStmtGraphFactory();
 	}
 
 	/**
@@ -405,9 +405,11 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/03/07 00:42:49  venku
+   - added a new method to extract the options to be used by
+     soot to use Indus.
    Revision 1.13  2004/03/05 11:59:40  venku
    - documentation.
-
    Revision 1.12  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.

@@ -28,7 +28,7 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$
  */
-public interface IUnitGraphFactory {
+public interface IStmtGraphFactory {
 	/**
 	 * Retrieves the unit graph of the given method.
 	 *
@@ -50,10 +50,11 @@ public interface IUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/31 09:30:18  venku
+   - removed unused code.
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

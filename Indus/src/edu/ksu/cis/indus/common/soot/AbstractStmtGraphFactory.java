@@ -21,17 +21,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import soot.Body;
 import soot.SootMethod;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
+import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This class provides the an abstract implementation of <code>IUnitGraphFactory</code> via which unit graphs can be
+ * This class provides the an abstract implementation of <code>IStmtGraphFactory</code> via which unit graphs can be
  * retrieved.  The subclasses should provide suitable  unit graph implementation.  The control flow edges in the  provided
  * unit graphs are pruned by matching the thrown exceptions to the enclosing catch blocks.  Refer to
  * <code>Util.pruneExceptionBasedControlFlow()</code> for more information.
@@ -40,8 +40,8 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractUnitGraphFactory
-  implements IUnitGraphFactory {
+public abstract class AbstractStmtGraphFactory
+  implements IStmtGraphFactory {
 	/**
 	 * This maps methods to unit graphs.
 	 *
@@ -81,7 +81,7 @@ public abstract class AbstractUnitGraphFactory
 			if (_result == null) {
 				// stub in an empty graph.
 				final Jimple _jimple = Jimple.v();
-				final Body _body = _jimple.newBody();
+				final JimpleBody _body = _jimple.newBody();
 				_body.setMethod(method);
 
 				final Collection _units = _body.getUnits();
@@ -115,7 +115,7 @@ public abstract class AbstractUnitGraphFactory
 	 * @pre body != null
 	 * @post result != null
 	 */
-	protected abstract UnitGraph getUnitGraphForBody(final Body body);
+	protected abstract UnitGraph getUnitGraphForBody(final JimpleBody body);
 
 	/**
 	 * Get the unit graph associated with the method.
@@ -132,6 +132,9 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/03/21 02:53:06  venku
+   - unit graph cannot be modified outside it's constructor or subclasses.
+     Removed the option to prune exception based edges.
    Revision 1.8  2004/03/21 01:47:48  venku
    - documentation.
    Revision 1.7  2004/03/08 02:10:14  venku

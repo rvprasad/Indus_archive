@@ -50,9 +50,9 @@ public abstract class Driver {
 
 	/**
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>TrapUnitGraphFactory</code>.
+	 * <code>TrapStmtGraphFactory</code>.
 	 */
-	protected AbstractUnitGraphFactory cfgProvider;
+	protected AbstractStmtGraphFactory cfgProvider;
 
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
@@ -75,12 +75,12 @@ public abstract class Driver {
 	private final Map times = new LinkedHashMap();
 
 	/**
-	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code>
+	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
 	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
 	 * graph provider.
 	 */
 	protected Driver() {
-		cfgProvider = new TrapUnitGraphFactory();
+		cfgProvider = new TrapStmtGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setUnitGraphFactory(cfgProvider);
 	}
@@ -206,10 +206,13 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/16 21:18:57  venku
+   - renamed setUnitGraphProvider() to setUnitGraphFactory()
+     in BasicBlockGraphMgr.
+   - ripple effect.
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -241,17 +244,17 @@ public abstract class Driver {
    - basic block graph manager can be cached via bbm.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-                   Revision 1.2  2003/08/11 04:20:19  venku
-                   - Pair and Triple were changed to work in optimized and unoptimized mode.
-                   - Ripple effect of the previous change.
-                   - Documentation and specification of other classes.
-                   Revision 1.1  2003/08/10 03:43:26  venku
-                   Renamed Tester to Driver.
-                   Refactored logic to pick entry points.
-                   Provided for logging timing stats into any specified stream.
-                   Ripple effect in others.
-                   Revision 1.1  2003/08/07 06:42:16  venku
-                   Major:
-                    - Moved the package under indus umbrella.
-                    - Renamed isEmpty() to hasWork() in IWorkBag.
+                     Revision 1.2  2003/08/11 04:20:19  venku
+                     - Pair and Triple were changed to work in optimized and unoptimized mode.
+                     - Ripple effect of the previous change.
+                     - Documentation and specification of other classes.
+                     Revision 1.1  2003/08/10 03:43:26  venku
+                     Renamed Tester to Driver.
+                     Refactored logic to pick entry points.
+                     Provided for logging timing stats into any specified stream.
+                     Ripple effect in others.
+                     Revision 1.1  2003/08/07 06:42:16  venku
+                     Major:
+                      - Moved the package under indus umbrella.
+                      - Renamed isEmpty() to hasWork() in IWorkBag.
  */

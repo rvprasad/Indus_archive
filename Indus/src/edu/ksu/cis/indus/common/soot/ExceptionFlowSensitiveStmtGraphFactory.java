@@ -17,14 +17,14 @@ package edu.ksu.cis.indus.common.soot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.Body;
 import soot.SootMethod;
 
-import soot.toolkits.exceptions.ThrowAnalysis;
+import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -36,13 +36,19 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ExceptionFlowSensitiveUnitGraphFactory
-  extends AbstractUnitGraphFactory {
-	/**
+public class ExceptionFlowSensitiveStmtGraphFactory
+  extends AbstractStmtGraphFactory {
+    /**
+     * The collection of exception names that are relevant while dealing with synchronization constructs.
+     */
+    public static final Collection SYNC_RELATED_EXCEPTIONS = Collections.singleton("java.lang.Throwable");
+
+    /**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveUnitGraphFactory.class);
+	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveStmtGraphFactory.class);
 
+	
 	/**
 	 * The names of the exceptions via which the control flow should be ignored.
 	 *
@@ -51,45 +57,50 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 	private Collection exceptionsToIgnore = new ArrayList();
 
 	/**
-	 * The <code>ThrowAnalysis</code> to be used during CFG construction.  It is only used by the super class constructor.
-	 * Please refer to documentation of <code>soot.toolkits.graph.ExceptionalUnitGraph</code> for more info.
+	 * This flag indicates if the unit graph should be like complete unit graph or like trap unit graph in terms considering
+	 * control from the statement before the try block.
 	 */
-	private final ThrowAnalysis throwAnalysis;
+	private final boolean flag;
 
 	/**
-	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
+	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
 	 *
 	 * @param namesOfExceptionToIgnore are the names of the exceptions that determine the control edges to be ignored.
-	 * @param analysis is the throw analysis to use during CFG construction.  If this is <code>null</code> then the throw
-	 * 		  analysis as mandated by Soot is used.   Please refer to documentation of
-	 * 		  <code>soot.toolkits.graph.ExceptionalUnitGraph</code> for more info.
+	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
+	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
+	 * 		  <code>false</code>, otherwise.
 	 *
 	 * @pre namesOfExceptionToIgnore != null
 	 */
-	public ExceptionFlowSensitiveUnitGraphFactory(final Collection namesOfExceptionToIgnore, final ThrowAnalysis analysis) {
+	public ExceptionFlowSensitiveStmtGraphFactory(final Collection namesOfExceptionToIgnore,
+		final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
+		flag = dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock;
 		exceptionsToIgnore.addAll(namesOfExceptionToIgnore);
-		throwAnalysis = analysis;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForBody(soot.Body)
+	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
 	 */
-	protected UnitGraph getUnitGraphForBody(final Body body) {
-		return new ExceptionFlowSensitiveUnitGraph(body, exceptionsToIgnore);
+	public ExceptionFlowSensitiveStmtGraphFactory() {
+		flag = true;
+		exceptionsToIgnore.add("java.lang.Throwable");
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForMethod(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.jimple.JimpleBody)
+	 */
+	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
+		return new ExceptionFlowSensitiveStmtGraph(body, exceptionsToIgnore, flag);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForMethod(soot.SootMethod)
 	 */
 	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
 		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
-			if (throwAnalysis == null) {
-				_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore);
-			} else {
-				_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore, throwAnalysis);
-			}
+			_result = getUnitGraphForBody((JimpleBody) method.retrieveActiveBody());
 		} else if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Method " + method + " is not concrete.");
 		}

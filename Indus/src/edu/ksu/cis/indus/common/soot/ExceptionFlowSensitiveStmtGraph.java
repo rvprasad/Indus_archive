@@ -21,12 +21,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import soot.Body;
+import soot.RefType;
+import soot.SootClass;
 import soot.Trap;
+import soot.TrapManager;
 import soot.Unit;
 
-import soot.toolkits.exceptions.ThrowAnalysis;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceInvokeExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.JimpleBody;
+import soot.jimple.Stmt;
 
-import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 import soot.util.Chain;
 
@@ -40,40 +47,81 @@ import soot.util.Chain;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class ExceptionFlowSensitiveUnitGraph
-  extends ExceptionalUnitGraph {
+final class ExceptionFlowSensitiveStmtGraph
+  extends UnitGraph {
 	/**
-	 * Creates an instance of this class.
+	 * Creates an instance of this unit graph corresponding to the given body and options.
 	 *
 	 * @param unitBody is the body for which the graph should be constructed.
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of the exceptions.  Control flow based on these
 	 * 		  exceptions are not captured in the graph.
-	 * @param throwAnalysisToUse is passed to the super class constructor.   Refer to the documentation of
-	 * 		  <code>soot.toolkits.graph.ExceptionalUnitGraph(Body,ThrowAnalysis)</code>.
+	 * @param flag <code>true</code> indicates that the edges from the predecessors of excepting statements should be
+	 * 		  included; <code>false</code>, otherwise.
 	 *
 	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
 	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
 	 */
-	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection namesOfExceptionsToIgnore,
-		final ThrowAnalysis throwAnalysisToUse) {
-		super(unitBody, throwAnalysisToUse);
+	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection namesOfExceptionsToIgnore, boolean flag) {
+		super(unitBody, true, flag);
 		pruneExceptionalEdges(namesOfExceptionsToIgnore);
+		pruneExceptionBasedControlFlow();
 	}
 
 	/**
-	 * Creates an instance of this class with default <code>ThrowAnalysis</code>. Refer to the documentation of
-	 * <code>soot.toolkits.graph.ExceptionalUnitGraph(Body)</code>.
+	 * Removes exception based control flow based on <code>throws</code> clause and exception inference based on the
+	 * expressions in the statements.
 	 *
-	 * @param unitBody is the body for which the graph should be constructed.
-	 * @param namesOfExceptionsToIgnore is the fully qualified names of the exceptions.  Control flow based on these
-	 * 		  exceptions are not captured in the graph.
-	 *
-	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
-	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
+	 * @pre body != null
 	 */
-	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection namesOfExceptionsToIgnore) {
-		super(unitBody);
-		pruneExceptionalEdges(namesOfExceptionsToIgnore);
+	private void pruneExceptionBasedControlFlow() {
+		// process each trapped unit
+		for (final Iterator _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
+			final Stmt _unit = (Stmt) _i.next();
+			final List _traps = TrapManager.getTrapsAt(_unit, body);
+
+			// gather all the exception types that is assumed to be thrown by the current unit.
+			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
+				final Trap _trap = (Trap) _j.next();
+				final Unit _handler = _trap.getHandlerUnit();
+				final List _temp = TrapManager.getExceptionTypesOf(_handler, body);
+
+				boolean _retainflag = false;
+				final boolean _hasArrayRef = _unit.containsArrayRef();
+				final boolean _hasFieldRef = _unit.containsFieldRef();
+				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
+				final boolean _hasInvokeExpr = _unit.containsInvokeExpr();
+				final InvokeExpr _invokeExpr = _hasInvokeExpr ? _unit.getInvokeExpr()
+															  : null;
+				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
+
+				// for each declared caught exception type validate the declaration and tailor the graph as needed.
+				for (final Iterator _k = _temp.iterator(); _k.hasNext() && !_retainflag;) {
+					final SootClass _exception = ((RefType) _k.next()).getSootClass();
+					_retainflag =
+						(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
+						  && Util.isDescendentOf(_exception, "java.lang.NullPointerException");
+					_retainflag |= _hasArrayRef
+					  && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
+
+					if (_hasInvokeExpr) {
+						for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
+							final SootClass _thrown = (SootClass) _l.next();
+							_retainflag |= Util.isDescendentOf(_thrown, _exception);
+						}
+					}
+				}
+
+				if (!_retainflag) {
+					final List _preds = new ArrayList((List) unitToPreds.get(_handler));
+					_preds.remove(_unit);
+					unitToPreds.put(_handler, _preds);
+
+					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
+					_succs.remove(_handler);
+					unitToPreds.put(_unit, _succs);
+				}
+			}
+		}
 	}
 
 	/**
@@ -116,6 +164,8 @@ final class ExceptionFlowSensitiveUnitGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/17 11:47:27  venku
+   - changes to confirm to the new graph class hierarchy in Soot.
    Revision 1.4  2004/02/23 09:07:43  venku
    - the redundant handler was not deleted from the body. FIXED.
    Revision 1.3  2004/02/23 08:27:21  venku
