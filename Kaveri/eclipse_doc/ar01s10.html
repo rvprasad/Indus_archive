@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Appendix - How to pick criteria</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s09.html" title="Features"><link rel="next" href="ar01s11.html" title="Appendix - Creating Scope Specifications"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix - How to pick criteria</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Appendix-1"></a>Appendix - How to pick criteria</h2></div></div><div></div></div><p>As mentioned before, the criteria for slicing is a Jimple statement. When a Java statement is picked, the user is allowed to select one of the corresponding Jimple statements as the criteria. The following examples show how to choose the correct Jimple statement depending on the requirement.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e661"></a>Examples of picking Jimple criteria</h3></div></div><div></div></div><div class="example"><a name="d0e664"></a><p class="title"><b>Example&nbsp;3.&nbsp;Setting up criteria for an assignment statement</b></p><p>
+   <title>Appendix - How to pick criteria</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s09.html" title="Features"><link rel="next" href="ar01s11.html" title="Appendix - Creating Scope Specifications"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix - How to pick criteria</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Appendix-1"></a>Appendix - How to pick criteria</h2></div></div><div></div></div><p>As mentioned before, the criteria for slicing is a Jimple statement. When a Java statement is picked, the user is allowed to select one of the corresponding Jimple statements as the criteria. The following examples show how to choose the correct Jimple statement depending on the requirement.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e725"></a>Examples of picking Jimple criteria</h3></div></div><div></div></div><div class="example"><a name="d0e728"></a><p class="title"><b>Example&nbsp;3.&nbsp;Setting up criteria for an assignment statement</b></p><p>
 					Consider the simple statement : 
 					<tt class="code">nw++</tt>
 					, where nw is a integer. The equivalent Jimple for this statement consists of the following: 
@@ -18,7 +18,7 @@
 					as a criteria you would pick the last statement 
 					<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt>
 					as in that statement the final value of nw is assigned. 
-				</p></div><div class="example"><a name="d0e701"></a><p class="title"><b>Example&nbsp;4.&nbsp;Setting up criteria for a function call</b></p><p>
+				</p></div><div class="example"><a name="d0e765"></a><p class="title"><b>Example&nbsp;4.&nbsp;Setting up criteria for a function call</b></p><p>
 					Consider the expression 
 					<tt class="code">monitor.start_write()</tt>
 					. The Jimple for this consists of two statements: 
@@ -30,7 +30,7 @@
 					in the 
 					<tt class="code">Monitor</tt>
 					class. 
-				</p></div><div class="example"><a name="d0e726"></a><p class="title"><b>Example&nbsp;5.&nbsp;Setting up criteria for a conditional</b></p><p>
+				</p></div><div class="example"><a name="d0e790"></a><p class="title"><b>Example&nbsp;5.&nbsp;Setting up criteria for a conditional</b></p><p>
 					Consider the expression: 
 					<tt class="code">if (!empty(Clist))</tt>
 					. The equivalent Jimple for this statement is: 
