@@ -61,7 +61,7 @@ public final class BanderaToolsUnitTestSuite
 		final TestSuite _suite = new TestSuite();
 
 		//$JUnit-BEGIN$
-		_suite.addTestSuite(CallGraphToolTest.class);
+		_suite.addTestSuite(OFAToolTest.class);
 		_suite.setName(BanderaToolsUnitTestSuite.class.getName());
 		return _suite;
 	}
@@ -70,4 +70,7 @@ public final class BanderaToolsUnitTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/06 17:14:51  venku
+   - added a new tool to expose call graph.
+
  */
