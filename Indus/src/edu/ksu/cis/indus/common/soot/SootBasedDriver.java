@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -52,12 +53,67 @@ import soot.options.Options;
  * are searched only in the classes specified and not the classes which are required.  So, "edu.ksu.cis.indus.processing"
  * will find root methods occurring in classes defined in edu.ksu.cis.indus and having names starting with "processing".
  * </p>
+ * 
+ * <p>
+ * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
+ * povide one,  then an instance of the class named via <code>indus.SootBasedDriver.RootMethodTrapper.class</code> property
+ * will be used.  This named class should be a subclass of
+ * <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>. If this property is unspecified, the an
+ * instance of <code>SootBasedDriver.RootMethodMapper</code> is created via reflection and used.  Hence, the class specified
+ * by the property should have a no-argument constructor.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class SootBasedDriver {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER;
+
+	/**
+	 * The name of the property via which the name of the root method trapper can be specified.
+	 */
+	public static final String TRAPPER_CLASS_PROPERTY;
+
+	static {
+		LOGGER = LogFactory.getLog(SootBasedDriver.class);
+		TRAPPER_CLASS_PROPERTY = "indus.SootBasedDriver.RootMethodTrapper.class";
+
+		final String _className = System.getProperty(TRAPPER_CLASS_PROPERTY);
+		RootMethodTrapper _rmt = new RootMethodTrapper();
+
+		if (_className != null) {
+			try {
+				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_className).newInstance();
+
+				if (_o instanceof RootMethodTrapper) {
+					_rmt = (RootMethodTrapper) _o;
+				} else {
+					throw new IllegalArgumentException(_className
+						+ " is not a subclass of SootBasedDriver.RootMethodTrapper.");
+				}
+			} catch (final ClassNotFoundException _e) {
+				LOGGER.fatal("class " + _className + " could not be loaded/resolved. Bailing.", _e);
+				throw new RuntimeException(_e);
+			} catch (final InstantiationException _e) {
+				LOGGER.fatal("An instance of class " + _className + " could not be created. Bailing.", _e);
+				throw new RuntimeException(_e);
+			} catch (final IllegalAccessException _e) {
+				LOGGER.fatal("No-arg constructor of " + _className + " cannot be accessed.  Bailing.", _e);
+				throw new RuntimeException(_e);
+			}
+		}
+		defaultInstance = _rmt;
+	}
+
+	/**
+	 * The default object that can be used for trapping root methods.
+	 */
+	private static final RootMethodTrapper defaultInstance;
+
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
 	 */
@@ -82,11 +138,6 @@ public class SootBasedDriver {
 	protected List classNames;
 
 	/**
-	 * This traps the root methods.
-	 */
-	protected RootMethodTrapper rootMethodTrapper;
-
-	/**
 	 * The scene that contains the classes of the system.
 	 */
 	protected Scene scene;
@@ -103,6 +154,11 @@ public class SootBasedDriver {
 	 * @invariant times.oclIsTypeOf(Map(String, Long))
 	 */
 	private final Map times = new LinkedHashMap();
+
+	/**
+	 * This traps the root methods.
+	 */
+	private RootMethodTrapper rootMethodTrapper;
 
 	/**
 	 * The class path that should be added.
@@ -245,6 +301,15 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Sets the root method trapper.
+	 *
+	 * @param trapper to be used to trap root methods.
+	 */
+	public final void setRootMethodTrapper(final RootMethodTrapper trapper) {
+		rootMethodTrapper = trapper;
+	}
+
+	/**
 	 * Retrieves the root methods in the system.
 	 *
 	 * @return the collection of root methods.
@@ -360,8 +425,7 @@ public class SootBasedDriver {
 	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
 	 * system being analyzed.  All <code>public static void main()</code> methods defined in <code>public</code> classes
 	 * that are named via <code>args</code>are considered as entry points.  It uses the classpath set via
-	 * <code>addToSootClassPath</code>. It uses <code>use-original-names:false</code>, <code>jb.ls enabled:false</code>, and
-	 * <code>jb.ulp enabled:false unsplit-original-locals:false</code> options for Soot class loading.
+	 * <code>addToSootClassPath</code>.
 	 *
 	 * @param options to be used while setting up Soot infrastructure.
 	 *
@@ -392,7 +456,7 @@ public class SootBasedDriver {
 		RootMethodTrapper _rmt = rootMethodTrapper;
 
 		if (_rmt == null) {
-			_rmt = new RootMethodTrapper();
+			_rmt = defaultInstance;
 			_rmt.theClassNames = Collections.unmodifiableCollection(classNames);
 		}
 
@@ -419,6 +483,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/06 17:12:48  venku
+   - by default, returns exceptionflow sensitive stmt graph factories.
    Revision 1.19  2004/04/16 17:45:31  venku
    - added default implementation for initialize for sake of convenience.
    Revision 1.18  2004/04/16 17:42:04  venku
