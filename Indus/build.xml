@@ -17,6 +17,10 @@
         <src refid="${srcpath}"/>
         <classpath refid="${classpath}"/>
     </javac>
+    <copy todir="${build.dir}">
+        <fileset dir="." includes="src*/**/*.properties"/>
+        <mapper type="regexp" from="^(src[^/]*/)(.+)properties" to="\2properties"/>
+    </copy>
 </target>
 
 <target name="build" depends="init">
@@ -141,6 +145,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.27  2004/03/05 12:41:18  venku
+- added release notes files.
+- enabled debug information in the jar files.
+
 Revision 1.26  2004/03/05 09:05:39  venku
 - changed project name during build to indus.indus.
 
