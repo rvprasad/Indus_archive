@@ -192,7 +192,7 @@ public final class SliceCriterionSpec
 		final List _result = new ArrayList();
 
 		for (final Iterator _i = parameterTypes.iterator(); _i.hasNext();) {
-			_result.add(((Type) _i.next()).toString());
+			_result.add(((Type) _i.next()).toString().replace(']', ' ').trim());
 		}
 		return _result;
 	}
@@ -341,6 +341,9 @@ public final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/08/16 14:17:33  venku
+   - changed access specifiers as required for serialization.
+
    Revision 1.6  2004/08/16 01:05:04  venku
    - fixed bug report 434.  We assumed SootClass.getJavaStyleName() returned the FQN. But,
      as always with Soot, it does not provide what you think it provides.  There is some bizarre
