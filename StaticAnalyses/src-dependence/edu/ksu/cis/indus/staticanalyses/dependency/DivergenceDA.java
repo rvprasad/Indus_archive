@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 /**
  * This class provides divergence dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
@@ -90,11 +92,12 @@ public class DivergenceDA
 	 */
 	private boolean considerCallSites = false;
 
+    private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
 	/**
 	 * Sets if the analyses should consider the effects of method calls.
 	 *
-	 * @param consider <code>true</code> indicates call-sites that invoke methods containing pre-divergence points
-	 * 		  should be considered as pre-divergence points; <code>false</code>, otherwise.
+	 * @param consider <code>true</code> indicates call-sites that invoke methods containing pre-divergence points should be
+	 * 		  considered as pre-divergence points; <code>false</code>, otherwise.
 	 */
 	public void setConsiderCallSites(final boolean consider) {
 		considerCallSites = consider;
@@ -155,45 +158,50 @@ public class DivergenceDA
 			SootMethod method = (SootMethod) entry.getKey();
 			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
 			Collection sccs = bbGraph.getSCCs(false);
+			Collection preDivPoints = new ArrayList();
 
 			// calculate the pre-divergence points 
 			for (Iterator j = sccs.iterator(); j.hasNext();) {
 				Collection scc = (Collection) j.next();
 
-				if (scc.size() > 1) {
-					Collection preDivPoints = (Collection) preDivPointsMap.get(method);
+				for (Iterator k = scc.iterator(); k.hasNext();) {
+					BasicBlock bb = (BasicBlock) k.next();
+					Collection succs = bb.getSuccsOf();
 
-					if (preDivPoints == null) {
-						preDivPoints = new ArrayList();
-						preDivPointsMap.put(method, preDivPoints);
-					}
-
-					for (Iterator k = scc.iterator(); k.hasNext();) {
-						BasicBlock bb = (BasicBlock) k.next();
-
-						if (!scc.containsAll(bb.getSuccsOf())) {
-							preDivPoints.add(bb);
-						}
+					if (succs.size() > 1 && !scc.containsAll(succs)) {
+						preDivPoints.add(bb);
 					}
 				}
+			}
+
+			if (!preDivPoints.isEmpty()) {
+				preDivPointsMap.put(method, new ArrayList(preDivPoints));
+				preDivPoints.clear();
 			}
 		}
 
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
 		Collection collected = new ArrayList();
+		Collection temp = new HashSet();
 
-		for (Iterator i = preDivPointsMap.keySet().iterator(); i.hasNext();) {
-			SootMethod method = (SootMethod) i.next();
-			Collection preDivPoints = (Collection) preDivPointsMap.get(method);
+		for (Iterator i = preDivPointsMap.entrySet().iterator(); i.hasNext();) {
+			Map.Entry entry = (Map.Entry) i.next();
+			SootMethod method = (SootMethod) entry.getKey();
+			Collection preDivPoints = (Collection) entry.getValue();
 			List sl = getStmtList(method);
 
-			// if there are no pre-divergence points, there can be no divergence dependence.
+if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("Processing method " + method.getSignature() + " " + method.getDeclaringClass());
+}
+			// if there are no pre-divergence points, then chug along. 
 			if (preDivPoints == null) {
 				dependeeMap.put(method, Collections.EMPTY_LIST);
 				dependentMap.put(method, Collections.EMPTY_LIST);
 			} else {
-				Collections.fill(stmt2ddees, Collections.EMPTY_LIST);
-				Collections.fill(stmt2ddents, Collections.EMPTY_LIST);
+				for (int j = sl.size(); j > 0; j--) {
+					stmt2ddees.add(Collections.EMPTY_LIST);
+					stmt2ddents.add(Collections.EMPTY_LIST);
+				}
 
 				for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
 					stmt2ddents.set(((BasicBlock) j.next())._trailer, new HashSet());
@@ -205,62 +213,95 @@ public class DivergenceDA
 				 * information as obtained from it's predecessor.
 				 */
 				for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
-					BasicBlock bb = (BasicBlock) j.next();
-					wb.addAllWork(bb.getSuccsOf());
+					BasicBlock preDiv = (BasicBlock) j.next();
+					wb.addAllWork(preDiv.getSuccsOf());
 
+if (LOGGER.isDebugEnabled()) {
+    LOGGER.debug("Processing prediv point " + preDiv.getStmtsOf());
+}
 					while (wb.hasWork()) {
 						BasicBlock succBB = (BasicBlock) wb.getWork();
+                        
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Processing succs " + succBB.getStmtsOf());
+                        }
 						Collection set = (Collection) stmt2ddees.get(succBB._leader);
-						Collection stmts = succBB.getStmtsOf();
 
 						if (set.equals(Collections.EMPTY_LIST)) {
 							set = new HashSet();
 							stmt2ddees.set(succBB._leader, set);
 						}
 
-						for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
-							BasicBlock pred = (BasicBlock) k.next();
+						if (preDivPoints.contains(succBB)) {
+							temp.clear();
 
-							if (preDivPoints.contains(pred)) {
-								set.add(sl.get(pred._trailer));
-							} else {
-								set.addAll((Collection) stmt2ddees.get(pred._trailer));
+							for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
+								BasicBlock pred = (BasicBlock) k.next();
+
+								if (succBB == pred) {
+									continue;
+								}
+								temp.addAll((Collection) stmt2ddees.get(pred._trailer));
+							}
+							temp.remove(succBB.getTrailerStmt());
+							set.addAll(temp);
+						} else {
+							for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
+								BasicBlock pred = (BasicBlock) k.next();
+
+								if (preDivPoints.contains(pred)) {
+									set.add(sl.get(pred._trailer));
+								} else {
+									set.addAll((Collection) stmt2ddees.get(pred._trailer));
+								}
 							}
 						}
 
-						for (Iterator l = stmts.iterator(); l.hasNext();) {
+						for (Iterator l = succBB.getStmtsOf().iterator(); l.hasNext();) {
 							Stmt stmt = (Stmt) l.next();
 							collected.add(stmt);
 							stmt2ddees.set(sl.indexOf(stmt), set);
 
-							if (callsDivergentMethod(stmt, method, preDivPointsMap)) {
+							if (stmt.containsInvokeExpr() && callsDivergentMethod(stmt, method, preDivPointsMap)) {
 								for (Iterator k = set.iterator(); k.hasNext();) {
-									((Collection) stmt2ddents.get(sl.indexOf(k.next()))).addAll(collected);
+									int divPoint = sl.indexOf(k.next());
+									Collection ddents = (Collection) stmt2ddents.get(divPoint);
+
+									if (ddents.equals(Collections.EMPTY_LIST)) {
+										ddents = new ArrayList();
+										stmt2ddents.set(divPoint, ddents);
+									}
+									ddents.addAll(collected);
 								}
 								set = new HashSet();
 								set.add(stmt);
-								collected.clear();
 							}
 						}
 
 						for (Iterator k = set.iterator(); k.hasNext();) {
-							((Collection) stmt2ddents.get(sl.indexOf(k.next()))).addAll(collected);
+							int divPoint = sl.indexOf(k.next());
+							Collection ddents = (Collection) stmt2ddents.get(divPoint);
+
+							if (ddents.equals(Collections.EMPTY_LIST)) {
+								ddents = new ArrayList();
+								stmt2ddents.set(divPoint, ddents);
+							}
+							ddents.addAll(collected);
 						}
+						collected.clear();
 
-						for (Iterator k = succBB.getSuccsOf().iterator(); k.hasNext();) {
-							BasicBlock temp = (BasicBlock) k.next();
-
-							if (!preDivPoints.contains(temp)) {
-								wb.addWorkNoDuplicates(temp);
+						if (!preDivPoints.contains(succBB)) {
+							for (Iterator k = succBB.getSuccsOf().iterator(); k.hasNext();) {
+								wb.addWorkNoDuplicates(k.next());
 							}
 						}
 					}
 				}
 				dependentMap.put(method, new ArrayList(stmt2ddents));
 				dependeeMap.put(method, new ArrayList(stmt2ddees));
-				preDivPoints.clear();
 				stmt2ddents.clear();
 				stmt2ddees.clear();
+				preDivPoints.clear();
 			}
 		}
 		return true;
@@ -273,33 +314,31 @@ public class DivergenceDA
 	 */
 	public String toString() {
 		StringBuffer result =
-			new StringBuffer("Statistics for Divergence dependence as calculated by " + getClass().getName() + "\n");
+			new StringBuffer("Statistics for divergence dependence as calculated by " + getClass().getName() + "\n");
 		int localEdgeCount = 0;
 		int edgeCount = 0;
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
+			SootMethod method = (SootMethod) entry.getKey();
 			localEdgeCount = 0;
 
-			List stmts = getStmtList((SootMethod) entry.getKey());
+			List stmts = getStmtList(method);
+			List dependees = (List) entry.getValue();
 
-			for (Iterator j = ((List) entry.getValue()).iterator(); j.hasNext();) {
-				Collection c = (Collection) j.next();
-				int count = 0;
-
-				for (Iterator k = c.iterator(); k.hasNext();) {
-					temp.append("\t\t" + stmts.get(count++) + " --> " + k.next() + "\n");
-				}
+			for (int j = 0; j < stmts.size(); j++) {
+				Collection c = (Collection) dependees.get(j);
+				temp.append("\t\t" + stmts.get(j) + " --> " + c + "\n");
 				localEdgeCount += c.size();
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " Divergence dependence edges.\n");
+			result.append("\tFor " + method + " there are " + localEdgeCount + " divergence dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Divergence dependence edges exist.");
+		result.append("A total of " + edgeCount + " divergence dependence edges exist.");
 		return result.toString();
 	}
 
@@ -382,16 +421,15 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/25 10:04:04  venku
+   Renamed setInterProcedural() to setConsiderCallSites().
    Revision 1.7  2003/08/25 09:58:57  venku
    Initialization of interProcedural behavior happened during construction.
    This was too rigid and has now been relaxed via setInterProcedural() method.
-
    Revision 1.6  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
-
    Revision 1.5  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku
