@@ -92,11 +92,19 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
+	 */
+	public void returnToPool() {
+		callStack = null;
+		super.returnToPool();
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("considerExecution",
-			this.considerExecution).append("method", this.method).toString();
+			this.considerExecution).append("method", this.method).append("callStack", this.callStack).toString();
 	}
 
 	/**
@@ -175,18 +183,13 @@ abstract class AbstractSliceCriterion
 	final boolean isConsiderExecution() {
 		return considerExecution;
 	}
-
-	/**
-	 * Reset some of the member fields.
-	 */
-	void reset() {
-		callStack = null;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/08/18 09:45:01  venku
+   - NPE. FIXED.
    Revision 1.19  2004/08/18 09:10:34  venku
    - made slicing more interprocedural.
    Revision 1.18  2004/07/09 05:05:25  venku
