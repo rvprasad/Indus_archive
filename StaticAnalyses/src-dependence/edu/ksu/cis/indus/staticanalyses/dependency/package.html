@@ -3,12 +3,4 @@
 as program slicing.  Please refer to <a http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing 
 for Multi-threaded Program with JVM Concurrency Primitives"</a> for definition of the dependences.</p>
 <p>If unspecified, then all reference parameters can be null.</p>
-<h3>TODO:</h3>
-<ol>
-<li>ReferenceBasedDataDA is more like InterferenceDAv1.  However, in a sequential setting there is an ordering between 
-statments imposed by execution semantics.  This needs to be used to improve precision.</li>
-<li>In DivergenceDA, all statements reachable from a pre-divergence point will be declared as being divergent dependent on 
-the pre-divergence point.  However, this is untrue for the statements that occur in the cycle linked with the divergence point.</li>
-<li>Some dependences like Divergence dependence, is asymmetrical in the direction of the dependence and this is not captured.</li>
-</ol>
 </body>
