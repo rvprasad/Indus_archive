@@ -465,6 +465,19 @@ public final class SlicerConfiguration
 				sliceForDeadlock = _val.booleanValue();
 			} else if (propertyID.equals(EXECUTABLE_SLICE)) {
 				executableSlice = _val.booleanValue();
+			} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
+				for (final Iterator _i =
+						((Collection) id2dependencyAnalyses.get(DependencyAnalysis.INTERFERENCE_DA)).iterator();
+					  _i.hasNext();) {
+					final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
+					_ida.setUseOFA(_val.booleanValue());
+				}
+			} else if (propertyID.equals(USE_OFA_FOR_READY_DA)) {
+				for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(DependencyAnalysis.READY_DA)).iterator();
+					  _i.hasNext();) {
+					final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+					_rda.setUseOFA(_val.booleanValue());
+				}
 			} else {
 				processRDARuleProperties(propertyID);
 			}
@@ -752,6 +765,8 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/01/25 16:19:52  venku
+   - enabled configuration support for using object flow information.
    Revision 1.27  2004/01/20 02:18:42  venku
    - modified initialize() to consider ready dependence with all forms of
      ready dependences.
