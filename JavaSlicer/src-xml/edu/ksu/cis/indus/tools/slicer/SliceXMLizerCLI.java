@@ -512,13 +512,15 @@ public class SliceXMLizerCLI
 			try {
 				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
 
-				for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+                // DEL_START
+				/*for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
 
 					if (_sm.isConcrete()) {
-						_sm.retrieveActiveBody();
+						_sm.retrieveActiveBody().validateLocals();
 					}
-				}
+				}*/
+                // DEL_END
 				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
 				_printer.printTo(_sc, _writer);
@@ -578,6 +580,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/18 08:59:00  venku
+   - enabled test support for slicer.
+
    Revision 1.9  2004/04/16 20:10:41  venku
    - refactoring
     - enabled bit-encoding support in indus.
