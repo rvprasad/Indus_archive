@@ -359,10 +359,9 @@ public final class SlicingEngine {
 			final Object _direction = da.getDirection();
 
 			if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
-				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
+				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS) 
+				  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 				_result.addAll(da.getDependees(stmt, method));
-			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-				_result.addAll(da.getDependents(stmt, method));
 			} else if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction.");
 			}
@@ -1423,6 +1422,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.90  2004/08/16 16:51:57  venku
+   - documentation.
+
    Revision 1.89  2004/08/16 14:26:33  venku
    - contains changes pertaining to dependence refactoring and changes to
      create smaller forward slices and complete slices.
