@@ -172,7 +172,7 @@ public class DependencyAnalysisRegressionTestSuite
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 						final DependencyAnalysisTestSetup _test =
-							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath, _xmlTestDir);
+							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
 						_test.setStmtGraphFactory(_stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
@@ -191,28 +191,24 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/20 06:53:17  venku
+   - documentation.
    Revision 1.4  2004/04/20 05:27:14  venku
    - renamed checkExecutability() to checkXMLBasedTestExecutability().
-
    Revision 1.3  2004/04/20 00:40:34  venku
    - coding conventions.
-
    Revision 1.2  2004/04/18 00:23:38  venku
    - coding conventions.
-
    Revision 1.1  2004/04/18 00:22:37  venku
    - DependencyAnalysisRegresssionTestSuite was renamed to
      DependenceAnalysisRegressionTestSuite.  One missing "s".
-
    Revision 1.9  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
-
    Revision 1.8  2004/04/17 23:35:42  venku
    - failures due to unavailable resources were not flagged. FIXED
      - added a new class which always errs.
      - this new class is used to setup a test case for cases where an error should occur.
      - ripple effect.
-
    Revision 1.7  2004/04/17 22:07:34  venku
    - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
    - ripple effect in interfaces, classes, and property files.

@@ -48,15 +48,10 @@ public class ValueAnalysisTestSetup
 	protected CallGraph cgiImpl;
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @param jimpleDumpLocation is the directory where "jimple.xml" should be dumped.  If <code>null</code>, xmlized jimple
-	 * 		  is not dumped.
+	 * @see FATestSetup#FATestSetup()
 	 */
-	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
-		final String jimpleDumpLocation) {
+	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
-		setJimpleXMLDumpLocation(jimpleDumpLocation);
 	}
 
 	/**
@@ -100,12 +95,12 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/20 06:53:17  venku
+   - documentation.
    Revision 1.7  2004/04/18 02:05:18  venku
    - memory leak fixes.
-
    Revision 1.6  2004/04/18 00:42:56  venku
    - references to objects had leaked after test. FIXED.
-
    Revision 1.5  2004/04/18 00:02:19  venku
    - added support to dump jimple.xml while testing.
    Revision 1.4  2004/03/29 04:54:21  venku

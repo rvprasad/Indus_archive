@@ -92,11 +92,10 @@ public class DependencyAnalysisTestSetup
 	private ThreadGraph tgiImpl;
 
 	/**
-	 * @see ValueAnalysisSetup#ValueAnalysisSetup(TestSuite,String,String,String)
+	 * @see ValueAnalysisSetup#ValueAnalysisSetup(TestSuite,String,String)
 	 */
-	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
-		final String jimpleDumpLocation) {
-		super(test, theNameOfClasses, classpath, jimpleDumpLocation);
+	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+		super(test, theNameOfClasses, classpath);
 	}
 
 	/**
@@ -180,8 +179,8 @@ public class DependencyAnalysisTestSetup
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			((DependencyAnalysis) _i.next()).reset();
 		}
-        das.clear();
-        das = null;
+		das.clear();
+		das = null;
 		super.tearDown();
 	}
 
@@ -233,9 +232,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/21 02:24:01  venku
+   - test clean up code was added.
    Revision 1.10  2004/04/20 06:53:17  venku
    - documentation.
-
    Revision 1.9  2004/04/19 05:10:26  venku
    - NPE's in test setup caused by unchecked reseting.
    Revision 1.8  2004/04/18 02:05:18  venku

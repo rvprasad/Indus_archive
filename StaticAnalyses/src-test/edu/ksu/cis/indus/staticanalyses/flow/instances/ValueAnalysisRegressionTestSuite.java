@@ -110,33 +110,35 @@ public final class ValueAnalysisRegressionTestSuite
 			final IStmtGraphFactory stmtGraphFactory =
 				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 					true);
+
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
+				final String _jimpleDumpDir = _props.getProperty(_config + "");
 				final String _classpath = _props.getProperty(_config + ".classpath");
-                final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
+				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
 
 					if (_str.length() > 0) {
 						_temp.addTest(new ErringTestCase(_str));
-                        TestHelper.appendSuiteNameToTestsIn(_temp, true);
-                        suite.addTest(_temp);
+						TestHelper.appendSuiteNameToTestsIn(_temp, true);
+						suite.addTest(_temp);
 					} else {
 						_temp.addTestSuite(XMLBasedCallGraphTest.class);
 						_temp.addTestSuite(CallGraphTest.class);
 						_temp.addTestSuite(XMLBasedOFATest.class);
 						_temp.addTestSuite(FATest.class);
-                        TestHelper.appendSuiteNameToTestsIn(_temp, true);
+						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-                        final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath, _xmlTestDir);
-                        _test.setStmtGraphFactory(stmtGraphFactory);
-                        _test.setXMLTestDir(_xmlTestDir);
-                        _test.setXMLControlDir(_xmlControlDir);
-                        suite.addTest(_test);
+						final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
+						_test.setStmtGraphFactory(stmtGraphFactory);
+						_test.setXMLTestDir(_xmlTestDir);
+						_test.setXMLControlDir(_xmlControlDir);
+						suite.addTest(_test);
 					}
 				} catch (IllegalArgumentException _e) {
 					;
@@ -151,18 +153,17 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/20 06:53:17  venku
+   - documentation.
    Revision 1.11  2004/04/20 05:27:14  venku
    - renamed checkExecutability() to checkXMLBasedTestExecutability().
-
    Revision 1.10  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
-
    Revision 1.9  2004/04/17 23:35:42  venku
    - failures due to unavailable resources were not flagged. FIXED
      - added a new class which always errs.
      - this new class is used to setup a test case for cases where an error should occur.
      - ripple effect.
-
    Revision 1.8  2004/04/17 22:07:34  venku
    - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
    - ripple effect in interfaces, classes, and property files.

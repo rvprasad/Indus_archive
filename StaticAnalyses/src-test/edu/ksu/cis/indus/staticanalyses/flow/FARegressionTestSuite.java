@@ -101,6 +101,7 @@ public class FARegressionTestSuite
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
 				final String _classpath = _props.getProperty(_config + ".classpath");
+				final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDirectory");
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
@@ -108,6 +109,7 @@ public class FARegressionTestSuite
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
+					_test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
 					;
@@ -122,21 +124,19 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/20 06:53:17  venku
+   - documentation.
    Revision 1.8  2004/04/05 23:16:33  venku
    - textui.TestRunner cannot be run via start(). FIXED.
-
    Revision 1.7  2004/04/05 22:26:48  venku
    - used textui.TestRunner instead of swingui.TestRunner.
-
    Revision 1.6  2004/04/01 22:33:49  venku
    - test suite name was incorrect.
-
    Revision 1.5  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based
      testing.  (AbstractXMLBasedTest)
    - added a new xml-based call graph testing class.
-
    Revision 1.4  2004/02/09 00:32:16  venku
    - all test cases in indus extends IndusTestCase.
    - RegressionTestSuites alter the name of the test instances
