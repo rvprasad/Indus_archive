@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -135,6 +135,10 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
+
    Revision 1.11  2004/01/03 21:07:07  venku
    - changed the system property name.
    - documentation.

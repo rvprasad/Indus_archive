@@ -29,7 +29,7 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class FATestSuite
+public class FARegressionTestSuite
   extends TestCase {
 	///CLOVER:OFF
 
@@ -77,6 +77,10 @@ public class FATestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 01:14:33  venku
+   - added clover source directives.
+   - renamed DependencyTestSuite to DependencyArgTestSuite.
+
    Revision 1.2  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

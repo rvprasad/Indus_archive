@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.ArrayList;
@@ -366,6 +367,10 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 02:21:21  venku
+   - renamed package instances.ofa.processors to instances.ofa.
+   - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
+
    Revision 1.3  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

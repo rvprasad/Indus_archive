@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DependencyArgTestSuite
+public final class DependencyRegressionTestSuite
   extends TestCase {
     /**
      * This is the property via which the dependence test accepts input.  Refer to DependenceTest.properties for format.
@@ -54,7 +54,7 @@ public final class DependencyArgTestSuite
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyArgTestSuite.class);
+	private static final Log LOGGER = LogFactory.getLog(DependencyRegressionTestSuite.class);
 
 	//  /CLOVER:OFF
 
@@ -97,7 +97,7 @@ public final class DependencyArgTestSuite
 
 		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
-				+ "-Dindus.staticanalyses.dependency.DependencyTest.properties.file");
+				+ "-D" + DEPENDENCE_TEST_PROPERTIES_FILE);
 		}
 		setupTests(_propFileName, _suite);
 		return _suite;
@@ -170,6 +170,9 @@ public final class DependencyArgTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 02:34:27  venku
+   - wrong property was mentioned in the error message.
+
    Revision 1.2  2004/02/08 01:48:54  venku
    - documentation and coding convention.
 

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.AbstractXMLBasedTestSetup;
 import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -24,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
-import junit.extensions.TestSetup;
 
 import junit.framework.TestSuite;
 
@@ -48,7 +47,7 @@ import soot.VoidType;
  * @version $Revision$ $Date$
  */
 public class FATestSetup
-  extends TestSetup {
+  extends AbstractXMLBasedTestSetup {
 	/**
 	 * The name of the property via which the names of the classes to be used to drive the test is specified.
 	 */
@@ -93,7 +92,7 @@ public class FATestSetup
 	 *
 	 * @param test is the test to run in this setup.
 	 * @param theNameOfClasses is the list of classes.
-     * @param classpath to be used to find the classes.
+	 * @param classpath to be used to find the classes.
 	 *
 	 * @pre test != null and theNameOfClasses != null
 	 */
@@ -101,7 +100,7 @@ public class FATestSetup
 		super(test);
 		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
 		scene = Scene.v();
-        scene.setSootClassPath(classpath);
+		scene.setSootClassPath(classpath);
 		classNames = theNameOfClasses;
 	}
 
@@ -110,6 +109,7 @@ public class FATestSetup
 	 */
 	protected void setUp()
 	  throws Exception {
+        super.setUp();
 		final String _classes = System.getProperty(CLASSES_PROPERTY);
 
 		if (_classes == null || _classes.length() == 0) {
@@ -160,6 +160,8 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/08 02:38:19  venku
+   - added a new constructor for batch testing.
    Revision 1.3  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

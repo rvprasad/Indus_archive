@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import java.util.Collection;
@@ -38,7 +40,7 @@ import soot.G;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class OFAProcessorTestSetup
+public final class OFATestSetup
   extends FATestSetup {
 	/**
 	 * The call graph implementation to be tested.
@@ -46,11 +48,11 @@ public final class OFAProcessorTestSetup
 	protected CallGraph cgiImpl;
 
 	/**
-	 * Creates a new OFAProcessorTestSetup object.
+	 * Creates a new OFATestSetup object.
 	 *
 	 * @param test to be run in this set up.
 	 */
-	OFAProcessorTestSetup(final TestSuite test) {
+	OFATestSetup(final TestSuite test) {
 		super(test);
 		cgiImpl = new CallGraph();
 	}
@@ -87,11 +89,21 @@ public final class OFAProcessorTestSetup
 	  throws Exception {
 		G.reset();
 	}
+    /**
+     * @see FATestSetup#FATestSetup(TestSuite,String,String)
+     */
+    OFATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+        super(test, theNameOfClasses, classpath);
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 02:21:21  venku
+   - renamed package instances.ofa.processors to instances.ofa.
+   - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
+
    Revision 1.2  2004/02/08 02:08:25  venku
    - coding conventions.
 

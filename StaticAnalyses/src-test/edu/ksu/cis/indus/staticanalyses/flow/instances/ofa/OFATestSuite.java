@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.*;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -31,7 +32,7 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class OFAProcessorTestSuite {
+public class OFATestSuite {
 	///CLOVER:OFF
 
 	/**
@@ -66,19 +67,23 @@ public class OFAProcessorTestSuite {
 	 */
 	public static Test suite() {
 		final TestSuite _suite =
-			new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph");
+			new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.ofa");
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(CallGraphTest.class);
 		_suite.addTestSuite(FATest.class);
 		//$JUnit-END$
-		return new OFAProcessorTestSetup(_suite);
+		return new OFATestSetup(_suite);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 02:21:21  venku
+   - renamed package instances.ofa.processors to instances.ofa.
+   - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
+
    Revision 1.3  2004/02/08 02:08:51  venku
    - documentation
 

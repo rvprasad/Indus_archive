@@ -35,7 +35,7 @@ import soot.SootMethod;
  * This tests a flow analysis framework instance.  This test cannot be run by itself.  It needs to be run via a decorator.
  * This approach lets any future tests that use flow analysis framework can be extended easily to drive this test too. (More
  * test the  merrier.)   <code>FATestSetup</code> is the decorator provided for this purpose.  Refer to
- * <code>FATestSetup</code> for more details.  For running the tests, please use <code>FATestSuite</code>.
+ * <code>FATestSetup</code> for more details.  For running the tests, please use <code>FARegressionTestSuite</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -217,6 +217,10 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
+
    Revision 1.2  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
