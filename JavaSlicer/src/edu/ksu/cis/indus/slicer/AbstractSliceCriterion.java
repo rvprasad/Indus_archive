@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.interfaces.AbstractPoolable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import soot.SootMethod;
 
 
@@ -28,7 +30,8 @@ import soot.SootMethod;
  * @version $Revision$
  */
 public abstract class AbstractSliceCriterion
-  extends AbstractPoolable implements ISliceCriterion {
+  extends AbstractPoolable
+  implements ISliceCriterion {
 	/**
 	 * The method in which <code>stmt</code> occurs.
 	 */
@@ -82,12 +85,11 @@ public abstract class AbstractSliceCriterion
 	}
 
 	/**
-	 * Initializes this object.
-	 *
-	 * @param occurringMethod in which the slice criterion occurs.
+	 * @see java.lang.Object#toString()
 	 */
-	protected final void initialize(final SootMethod occurringMethod) {
-		method = occurringMethod;
+	public String toString() {
+		return new ToStringBuilder(this).append("considerExecution", this.considerExecution)
+										  .append("method", this.method).toString();
 	}
 
 	/**
@@ -99,6 +101,15 @@ public abstract class AbstractSliceCriterion
 	 */
 	protected final SootMethod getOccurringMethod() {
 		return method;
+	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param occurringMethod in which the slice criterion occurs.
+	 */
+	protected final void initialize(final SootMethod occurringMethod) {
+		method = occurringMethod;
 	}
 
 	/**
@@ -123,9 +134,11 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.8  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
-
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku

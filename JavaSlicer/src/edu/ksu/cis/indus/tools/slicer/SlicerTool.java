@@ -703,12 +703,22 @@ public final class SlicerTool
 				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst()));
 				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond()));
 			}
-
-			for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
-				final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
-				((AbstractSliceCriterion) _criterion).setConsiderExecution(true);
-			}
 			criteria.addAll(_temp);
+		}
+
+		for (final Iterator _k = criteria.iterator(); _k.hasNext();) {
+			final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
+			((AbstractSliceCriterion) _criterion).setConsiderExecution(true);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
+				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Criterion: " + _criterion);
+				}
+			}
 		}
 	}
 
@@ -742,10 +752,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.58  2004/01/16 21:18:53  venku
+   - renamed setUnitGraphProvider() to setUnitGraphFactory()
+     in BasicBlockGraphMgr.
+   - ripple effect.
    Revision 1.57  2004/01/13 10:11:04  venku
    - the check for valid combination of slice direction and executability
      of the slice is done in checkConfiguration().
-
    Revision 1.56  2004/01/13 08:37:55  venku
    - implemented  postProcessSlice().
    Revision 1.55  2004/01/13 04:36:22  venku

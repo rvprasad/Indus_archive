@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -91,6 +93,13 @@ class SliceStmt
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("stmt", this.stmt).toString();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @return the statement(<code>Stmt</code>) associated with this criterion.
@@ -143,9 +152,11 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.8  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
-
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -92,6 +94,13 @@ class SliceExpr
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("expr", this.expr).toString();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @return the expression(<code>ValueBox</code>) associated with criterion.
@@ -127,7 +136,7 @@ class SliceExpr
 	static SliceExpr getSliceExpr() {
 		try {
 			final SliceExpr _result = (SliceExpr) EXPR_POOL.borrowObject();
-            return _result;
+			return _result;
 		} catch (Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("How can this happen?", _e);
@@ -154,12 +163,13 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.8  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
-
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
-
    Revision 1.6  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
