@@ -95,15 +95,16 @@ class TagBasedSliceXMLizer
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
 		SootMethod method = context.getCurrentMethod();
+		Stmt stmt = context.getStmt();
 
 		try {
 			SlicingTag tag = (SlicingTag) vBox.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValueBox(vBox, context.getStmt(), method) + "\"/>\n");
+				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValueBox(vBox, stmt, method) + "\"/>\n");
 			}
 		} catch (IOException e) {
-			LOGGER.error("Exception while writing information about " + vBox + " occurring in " + context.getStmt() + " and "
+			LOGGER.error("Exception while writing information about " + vBox + " occurring in " + stmt + " and "
 				+ method.getSignature(), e);
 		}
 	}
@@ -241,6 +242,8 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/30 09:45:35  venku
+   - tag check on statement was used while tagging valueBox. FIXED.
    Revision 1.10  2003/11/25 16:23:08  venku
    - closing tag missing for statements. FIXED.
    Revision 1.9  2003/11/24 16:51:34  venku
