@@ -36,7 +36,7 @@ public class CGBasedXMLizingProcessingFilter
 	 *
 	 * @invariant xmlizingController != null
 	 */
-	private XMLizingProcessingFilter xmlizingController;
+	private XMLizingProcessingFilter xmlizingFilter;
 
 	/**
 	 * Creates an instance of this class.
@@ -48,7 +48,7 @@ public class CGBasedXMLizingProcessingFilter
 	 */
 	public CGBasedXMLizingProcessingFilter(final ICallGraphInfo cgiPrm) {
 		super(cgiPrm);
-		xmlizingController = new XMLizingProcessingFilter();
+		xmlizingFilter = new XMLizingProcessingFilter();
 	}
 
 	/**
@@ -56,30 +56,33 @@ public class CGBasedXMLizingProcessingFilter
 	 * filtered based on call graph.
 	 */
 	public Collection filterClasses(final Collection classes) {
-		return xmlizingController.filterClasses(super.filterClasses(classes));
+		return xmlizingFilter.filterClasses(super.filterClasses(classes));
 	}
 
 	/**
-	 * This implementation uses an XMLizingProcessingFilter to filter the methods after the methods  have been filtered based on
-	 * call graph.
+	 * This implementation uses an XMLizingProcessingFilter to filter the methods after the methods  have been filtered based
+	 * on call graph.
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
 	 */
 	public Collection filterMethods(final Collection methods) {
-		return xmlizingController.filterMethods(super.filterMethods(methods));
+		return xmlizingFilter.filterMethods(super.filterMethods(methods));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 01:17:15  venku
+   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
+   - renamed XMLizingController to XMLizingProcessingFilter.
+   - ripple effect.
    Revision 1.1  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.3  2003/11/17 16:58:15  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
