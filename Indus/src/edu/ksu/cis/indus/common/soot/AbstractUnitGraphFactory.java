@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.common.soot;
 
 import java.lang.ref.WeakReference;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,13 +44,6 @@ public abstract class AbstractUnitGraphFactory
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
 	 */
 	private final Map method2UnitGraph = new HashMap();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public final Collection getManagedMethods() {
-		return Collections.unmodifiableCollection(method2UnitGraph.keySet());
-	}
 
 	/**
 	 * Retrieves the unit graph of the given method.
@@ -115,6 +106,10 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.2  2003/12/09 04:42:42  venku
    - unit graph factories are responsible to construct empty
      bodies for methods not BasicBlockGraphMgr.  FIXED.

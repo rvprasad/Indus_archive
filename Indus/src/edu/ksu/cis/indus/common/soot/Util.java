@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import soot.ArrayType;
 import soot.Local;
 import soot.Modifier;
 import soot.PatchingChain;
@@ -189,29 +188,6 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.  For the typing relation to be true the
-	 * types should have the same dimension and the base types should have the subtyping relation in requested direction.
-	 *
-	 * @param t1 is the array type to be checked for equivalence or sub typing.
-	 * @param t2 is the array type against which the check is conducted.
-	 * @param env in which these types exists.
-	 *
-	 * @return <code>true</code> if <code>t1</code> is same as or sub type of <code>t2</code>; <code>false</code>, otherwise.
-	 *
-	 * @post result == t1.oclIsKindOf(t2)
-	 */
-	public static boolean isSameOrSubType(final ArrayType t1, final ArrayType t2, final IEnvironment env) {
-		boolean _result = false;
-
-		if (t1.equals(t2)) {
-			_result = true;
-		} else if (t1.numDimensions == t2.numDimensions) {
-			_result = isSameOrSubType(t1.baseType, t2.baseType, env);
-		}
-		return _result;
-	}
-
-	/**
 	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
 	 * target or self.  This is required to complete the call graph.  This leaves the body untouched if it is not native.
 	 *
@@ -301,6 +277,10 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

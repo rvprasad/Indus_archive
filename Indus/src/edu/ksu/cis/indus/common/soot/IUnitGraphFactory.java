@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import java.util.Collection;
-
 import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
@@ -31,15 +29,6 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public interface IUnitGraphFactory {
-	/**
-	 * Provides the set of methods for which this object has provided graphs.
-	 *
-	 * @return a collection of methods
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-	 */
-	Collection getManagedMethods();
-
 	/**
 	 * Retrieves the unit graph of the given method.
 	 *
@@ -61,6 +50,10 @@ public interface IUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
