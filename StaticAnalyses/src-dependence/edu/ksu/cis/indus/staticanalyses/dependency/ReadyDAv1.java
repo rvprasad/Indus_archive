@@ -497,7 +497,11 @@ public class ReadyDAv1
 				}
 			}
 		}
-
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Ready Dependence processing");
 		}
@@ -1245,6 +1249,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/06/01 06:29:57  venku
+   - added new methods to CollectionUtilities.
+   - ripple effect.
+
    Revision 1.53  2004/05/31 21:38:08  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.

@@ -359,6 +359,10 @@ public class InterferenceDAv1
 			}
 		}
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Interference Dependence processing");
 		}
@@ -644,6 +648,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/05/14 06:27:24  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.35  2004/03/03 10:11:40  venku
    - formatting.
 

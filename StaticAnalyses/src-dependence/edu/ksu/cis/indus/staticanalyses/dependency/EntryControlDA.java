@@ -192,7 +192,11 @@ public class EntryControlDA
 			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
-
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Control Dependence processing");
 		}
@@ -566,6 +570,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/06/13 22:32:38  venku
+   - deleted a logging message.
+
    Revision 1.21  2004/06/06 08:33:45  venku
    - completed documentation.
 

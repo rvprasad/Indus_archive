@@ -277,6 +277,10 @@ public final class SynchronizationDA
 		method2enterMonitors.clear();
 		stable = true;
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Synchronization Dependence processing");
 		}
@@ -641,6 +645,9 @@ public final class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/06/03 20:24:12  venku
+   - documentation.
+
    Revision 1.41  2004/06/03 20:23:23  venku
    - MAJOR CHANGE - Reworked the impl as it was missing some dependencies.
 

@@ -141,6 +141,10 @@ public class ReferenceBasedDataDA
 			LOGGER.info("BEGIN: Reference Based Data Dependence processing");
 		}
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Reference Based Data Dependence processing");
 		}
@@ -211,6 +215,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/05/14 06:27:24  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.20  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent
