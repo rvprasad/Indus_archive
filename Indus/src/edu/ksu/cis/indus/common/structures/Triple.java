@@ -70,29 +70,6 @@ public class Triple
 	private int hashCode;
 
 	/**
-	 * Creates a new Triple object.
-	 *
-	 * @param firstParam the first object of this triple.
-	 * @param secondParam the second object of this triple.
-	 * @param thirdParam the third object of this triple
-	 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object should
-	 * 		  be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these values shoudl
-	 * 		  be calculated on the fly upon request.
-	 *
-	 * @post optimized == false implies str == null
-	 * @post optimized == true implies str != null
-	 */
-	public Triple(final Object firstParam, final Object secondParam, final Object thirdParam, final boolean optimized) {
-		this.first = firstParam;
-		this.second = secondParam;
-		this.third = thirdParam;
-
-		if (optimized) {
-			optimize();
-		}
-	}
-
-	/**
 	 * Creates a new optimized Triple object.
 	 *
 	 * @param firstParam the first object of this triple.
@@ -105,97 +82,6 @@ public class Triple
 		this.first = firstParam;
 		this.second = secondParam;
 		this.third = thirdParam;
-		optimize();
-	}
-
-	/**
-	 * This class manages a collection of triples.  This realizes the <i>flyweight</i> pattern for triples.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	public static final class TripleManager {
-		/**
-		 * This is the id of this service.
-		 */
-		public static final String ID = "Triple management service";
-
-		/**
-		 * The collection of managed triples.
-		 */
-		private final List triples = new ArrayList();
-
-		/**
-		 * The scratch pad triple object to be used for does-it-manage check.
-		 */
-		private final Triple tripleCache = new Triple(null, null, null, false);
-
-		/**
-		 * Provides an optimized triple containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested triple.
-		 * @param secondParam second element of the requested triple.
-		 * @param thirdParam third element of the requested triple.
-		 *
-		 * @return the optimized triple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		public Triple getOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
-			return getTriple(firstParam, secondParam, thirdParam, true);
-		}
-
-		/**
-		 * Provides an unoptimized triple containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested triple.
-		 * @param secondParam second element of the requested triple.
-		 * @param thirdParam third element of the requested triple.
-		 *
-		 * @return the unoptimized triple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		public Triple getUnOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
-			return getTriple(firstParam, secondParam, thirdParam, true);
-		}
-
-		/**
-		 * Forgets about all managed triples.
-		 */
-		public void reset() {
-			triples.clear();
-		}
-
-		/**
-		 * Provides a pair containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested triple.
-		 * @param secondParam second element of the requested triple.
-		 * @param thirdParam thrid element of the  requested triple
-		 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object
-		 * 		  should be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these
-		 * 		  values should be calculated on the fly upon request.
-		 *
-		 * @return the triple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		private Triple getTriple(final Object firstParam, final Object secondParam, final Object thirdParam,
-			final boolean optimized) {
-			Triple _result;
-			tripleCache.first = firstParam;
-			tripleCache.second = secondParam;
-
-			if (triples.contains(tripleCache)) {
-				_result = (Triple) triples.get(triples.indexOf(tripleCache));
-			} else {
-				_result = new Triple(firstParam, secondParam, thirdParam, optimized);
-				triples.add(0, _result);
-			}
-			return _result;
-		}
 	}
 
 	/**
@@ -356,6 +242,9 @@ public class Triple
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/28 03:07:04  venku
+   - renamed field triple/quadraple to tripleCache/quadrapleCache.
+
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
