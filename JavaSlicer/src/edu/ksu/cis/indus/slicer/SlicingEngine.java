@@ -32,6 +32,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -550,26 +551,7 @@ public class SlicingEngine {
 			callees.addAll(cgi.getCallees(expr, context));
 		}
 
-		// add exit points of callees as the slice criteria
-		for (Iterator i = callees.iterator(); i.hasNext();) {
-			SootMethod callee = (SootMethod) i.next();
-			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
-
-			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
-				BasicBlock bb = (BasicBlock) j.next();
-				Stmt trailer = bb.getTrailerStmt();
-
-				if (transformer.getTransformed(stmt, method) == null) {
-					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-					sliceCriterion.initialize(callee, trailer, true);
-					workbag.addWorkNoDuplicates(sliceCriterion);
-
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Adding " + trailer + " in " + callee.getSignature() + " to workbag.");
-					}
-				}
-			}
-		}
+		generateNewCriteriaForReturnPointOfMethods(callees);
 
 		if (useReady) {
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
@@ -606,6 +588,43 @@ public class SlicingEngine {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Adding expr " + argBox.getValue() + " at " + stmt + " in " + caller.getSignature()
 						+ " to workbag.");
+				}
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param callees DOCUMENT ME!
+	 */
+	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees) {
+		// add exit points of callees as the slice criteria
+		for (Iterator i = callees.iterator(); i.hasNext();) {
+			SootMethod callee = (SootMethod) i.next();
+			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
+
+			if (bbg == null) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("No basic block graph available for " + callee.getSignature() + ". Moving on.");
+				}
+				continue;
+			}
+
+			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
+				BasicBlock bb = (BasicBlock) j.next();
+				Stmt trailer = bb.getTrailerStmt();
+
+				if (transformer.getTransformed(trailer, callee) == null) {
+					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+					sliceCriterion.initialize(callee, trailer, true);
+					workbag.addWorkNoDuplicates(sliceCriterion);
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Adding " + trailer + " in " + callee.getSignature() + " to workbag.");
+					}
 				}
 			}
 		}
@@ -734,6 +753,12 @@ public class SlicingEngine {
 				if (vBox.getValue() instanceof ParameterRef) {
 					generateNewCriteriaForParam(vBox, method);
 					generateNewCriteriaForTheCallToThisMethod(method);
+				} else if (vBox.getValue() instanceof StaticFieldRef) {
+					SootClass sc = ((StaticFieldRef) vBox.getValue()).getField().getDeclaringClass();
+
+					if (sc.declaresMethodByName("<clinit>")) {
+						generateNewCriteriaForReturnPointOfMethods(Collections.singleton(sc.getMethodByName("<clinit>")));
+					}
 				}
 			}
 		}
@@ -810,6 +835,11 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/25 00:00:45  venku
+   - added support to include gotos in the slice.
+   - added logic to include all tail points in the slice after slicing
+     and only in case of backward executable slice.
+   - added logic to include exceptions in a limited way.
    Revision 1.17  2003/11/24 18:20:25  venku
    - added partial support to handle exceptions during slicing.
    Revision 1.16  2003/11/24 16:46:15  venku
