@@ -66,7 +66,7 @@ public class OFAProcessorArgTestSuite {
 	 */
 	public static Test suite() {
 		final TestSuite _suite =
-			new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.valueAnalyzer.processors.CallGraph");
+			new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph");
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(CallGraphTest.class);
@@ -79,6 +79,10 @@ public class OFAProcessorArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 01:14:33  venku
+   - added clover source directives.
+   - renamed DependencyTestSuite to DependencyArgTestSuite.
+
    Revision 1.1  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.
