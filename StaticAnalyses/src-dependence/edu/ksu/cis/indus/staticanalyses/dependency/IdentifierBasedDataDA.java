@@ -109,9 +109,9 @@ public class IdentifierBasedDataDA
 				for (final Iterator _i = _stmt.getUseBoxes().iterator(); _i.hasNext();) {
 					final Value _o = ((ValueBox) _i.next()).getValue();
 					final Collection _c = (Collection) _local2defs.get(_o);
+
 					if (_c != null) {
 						_result.addAll(_c);
-
 					}
 				}
 			} else {
@@ -204,8 +204,10 @@ public class IdentifierBasedDataDA
 				}
 				continue;
 			}
-            if (LOGGER.isDebugEnabled()) 
-                LOGGER.debug("Processing " + _currMethod.getSignature());
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing " + _currMethod.getSignature());
+			}
 
 			final SimpleLocalDefs _defs = new SimpleLocalDefs(_unitGraph);
 			final SimpleLocalUses _uses = new SimpleLocalUses(_unitGraph, _defs);
@@ -251,6 +253,10 @@ public class IdentifierBasedDataDA
 			dependent2dependee.put(_currMethod, _dependees);
 		}
 		stable = true;
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END:  Identifier Based Data Dependence processing");
@@ -320,9 +326,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.34  2004/03/04 13:08:15  venku
    - coding convention.
-
    Revision 1.33  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.32  2004/03/03 10:07:24  venku
