@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.processing;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
@@ -120,9 +119,10 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 15:42:49  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.2  2003/11/10 07:53:56  venku
    - added support to indicate the beginning of processing to the processors.
-
    Revision 1.1  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
