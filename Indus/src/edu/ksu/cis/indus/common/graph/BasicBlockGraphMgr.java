@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import java.lang.ref.SoftReference;
 
@@ -45,7 +45,7 @@ public final class BasicBlockGraphMgr {
 	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	private IUnitGraphFactory unitGraphProvider;
+	private IStmtGraphFactory stmtGraphProvider;
 
 	/**
 	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
@@ -58,7 +58,7 @@ public final class BasicBlockGraphMgr {
 	 * @throws IllegalStateException when this method is called without calling <code>setStmtGraphProvider()</code>.
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
-		if (unitGraphProvider == null) {
+		if (stmtGraphProvider == null) {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
 				+ "calling this method.");
 		}
@@ -78,7 +78,7 @@ public final class BasicBlockGraphMgr {
 		}
 
 		if (_flag) {
-			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+			final UnitGraph _graph = stmtGraphProvider.getStmtGraph(sm);
 			_result = new BasicBlockGraph(_graph);
 			method2graph.put(sm, new SoftReference(_result));
 		}
@@ -97,7 +97,7 @@ public final class BasicBlockGraphMgr {
 	 * @post result != null
 	 */
 	public UnitGraph getUnitGraph(final SootMethod method) {
-		return unitGraphProvider.getUnitGraph(method);
+		return stmtGraphProvider.getStmtGraph(method);
 	}
 
 	/**
@@ -105,8 +105,8 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setUnitGraphFactory(final IUnitGraphFactory cfgProvider) {
-		unitGraphProvider = cfgProvider;
+	public void setUnitGraphFactory(final IStmtGraphFactory cfgProvider) {
+		stmtGraphProvider = cfgProvider;
 	}
 
 	/**
@@ -120,19 +120,18 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/22 00:53:32  venku
+   - formatting and coding convention.
    Revision 1.7  2004/01/17 00:38:00  venku
    - Weak references are claimed too quickly.  So, we now
      use SoftReferences.
-
    Revision 1.6  2004/01/16 21:18:57  venku
    - renamed setUnitGraphProvider() to setUnitGraphFactory()
      in BasicBlockGraphMgr.
    - ripple effect.
-
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.4  2003/12/09 04:42:42  venku
    - unit graph factories are responsible to construct empty
      bodies for methods not BasicBlockGraphMgr.  FIXED.

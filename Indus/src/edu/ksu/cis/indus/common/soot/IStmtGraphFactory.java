@@ -39,7 +39,7 @@ public interface IStmtGraphFactory {
 	 * @post result != null
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
 	 */
-	UnitGraph getUnitGraph(final SootMethod method);
+	UnitGraph getStmtGraph(final SootMethod method);
 
 	/**
 	 * Resets all internal datastructures.
@@ -50,6 +50,9 @@ public interface IStmtGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
    Revision 1.3  2003/12/31 09:30:18  venku
    - removed unused code.
    Revision 1.2  2003/12/13 02:28:53  venku

@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import soot.Body;
-import soot.RefType;
 import soot.SootClass;
 import soot.Trap;
 import soot.TrapManager;
@@ -55,14 +53,15 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * @param unitBody is the body for which the graph should be constructed.
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of the exceptions.  Control flow based on these
 	 * 		  exceptions are not captured in the graph.
-	 * @param flag <code>true</code> indicates that the edges from the predecessors of excepting statements should be
-	 * 		  included; <code>false</code>, otherwise.
+	 * @param exceptionEdges <code>true</code> indicates that the edges from the predecessors of excepting statements should
+	 * 		  be included; <code>false</code>, otherwise.
 	 *
 	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
 	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
 	 */
-	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection namesOfExceptionsToIgnore, boolean flag) {
-		super(unitBody, true, flag);
+	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection namesOfExceptionsToIgnore,
+		final boolean exceptionEdges) {
+		super(unitBody, true, exceptionEdges);
 		pruneExceptionalEdges(namesOfExceptionsToIgnore);
 		pruneExceptionBasedControlFlow();
 	}
@@ -83,9 +82,6 @@ final class ExceptionFlowSensitiveStmtGraph
 			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 				final Trap _trap = (Trap) _j.next();
 				final Unit _handler = _trap.getHandlerUnit();
-				final List _temp = TrapManager.getExceptionTypesOf(_handler, body);
-
-				boolean _retainflag = false;
 				final boolean _hasArrayRef = _unit.containsArrayRef();
 				final boolean _hasFieldRef = _unit.containsFieldRef();
 				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
@@ -94,20 +90,17 @@ final class ExceptionFlowSensitiveStmtGraph
 															  : null;
 				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
 
-				// for each declared caught exception type validate the declaration and tailor the graph as needed.
-				for (final Iterator _k = _temp.iterator(); _k.hasNext() && !_retainflag;) {
-					final SootClass _exception = ((RefType) _k.next()).getSootClass();
-					_retainflag =
-						(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
-						  && Util.isDescendentOf(_exception, "java.lang.NullPointerException");
-					_retainflag |= _hasArrayRef
-					  && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
+				// for the declared caught exception type validate the declaration and tailor the graph as needed.
+				final SootClass _exception = _trap.getException();
+				boolean _retainflag =
+					(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
+					  && Util.isDescendentOf(_exception, "java.lang.NullPointerException");
+				_retainflag |= _hasArrayRef && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
 
-					if (_hasInvokeExpr) {
-						for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
-							final SootClass _thrown = (SootClass) _l.next();
-							_retainflag |= Util.isDescendentOf(_thrown, _exception);
-						}
+				if (_hasInvokeExpr) {
+					for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
+						final SootClass _thrown = (SootClass) _l.next();
+						_retainflag |= Util.isDescendentOf(_thrown, _exception);
 					}
 				}
 
@@ -125,21 +118,20 @@ final class ExceptionFlowSensitiveStmtGraph
 	}
 
 	/**
-	 * Removes all edges pertaining to exceptions named in <code>namesOfExceptionsToIgnore</code>
+	 * Removes all edges pertaining to exceptions named in <code>namesOfExceptionsToIgnore</code>.
 	 *
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of exceptions.  Control flow based on these exceptions
 	 * 		  is deleted from the graph.
 	 */
 	private void pruneExceptionalEdges(final Collection namesOfExceptionsToIgnore) {
-		final Body unitBody = getBody();
-		final Chain _traps = unitBody.getTraps();
+		final Chain _traps = body.getTraps();
 		final Collection _preds = new ArrayList();
 
 		for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 			final Trap _trap = (Trap) _j.next();
 
 			if (namesOfExceptionsToIgnore.contains(_trap.getException().getName())) {
-				final Chain _units = unitBody.getUnits();
+				final Chain _units = body.getUnits();
 				final Unit _handler = _trap.getHandlerUnit();
 				final Unit _endUnit = (Unit) _units.getPredOf(_trap.getEndUnit());
 				_preds.clear();
@@ -164,6 +156,9 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
    Revision 1.5  2004/03/17 11:47:27  venku
    - changes to confirm to the new graph class hierarchy in Soot.
    Revision 1.4  2004/02/23 09:07:43  venku

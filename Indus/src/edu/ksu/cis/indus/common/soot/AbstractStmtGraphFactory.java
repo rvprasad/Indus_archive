@@ -60,7 +60,7 @@ public abstract class AbstractStmtGraphFactory
 	 * @post method.isConcrete() implies result.getBody() = method.getBody()
 	 * @post 1method.isConcrete() implies result.getBody() != method.getBody()
 	 */
-	public final UnitGraph getUnitGraph(final SootMethod method) {
+	public final UnitGraph getStmtGraph(final SootMethod method) {
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
 		UnitGraph _result = null;
 		boolean _flag = false;
@@ -132,6 +132,9 @@ public abstract class AbstractStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
    Revision 1.9  2004/03/21 02:53:06  venku
    - unit graph cannot be modified outside it's constructor or subclasses.
      Removed the option to prune exception based edges.
