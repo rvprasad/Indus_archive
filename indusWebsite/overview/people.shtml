@@ -4,15 +4,22 @@
 
 <!--#include virtual="/header.shtml" -->
 
-<p>Project Manager
+<p>PhD Students
 <ul>
-<li><a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Ranganath</a> (KSU) - Indus</li>
+<li><a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad, Ranganath</a> (KSU) - Indus</li>
 </ul>
 </p>
 
 <p>M.S. Students
 <ul>
 <li><a href="http://www.cis.ksu.edu/~ganeshan">Ganeshan Jayaraman</a> (KSU) - Kaveri</li>
+</ul>
+</p>
+
+<p>Faculty
+<ul>
+<li><a href="http://www.cis.ksu.edu/~hatcliff">John Hatcliff</a> (KSU) </li>
+<li>Mattew Dwyer (UNL) </li>
 </ul>
 </p>
 
