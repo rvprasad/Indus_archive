@@ -20,6 +20,7 @@ import soot.Local;
 import soot.Modifier;
 import soot.PatchingChain;
 import soot.RefType;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
@@ -32,6 +33,7 @@ import soot.jimple.VirtualInvokeExpr;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -215,7 +217,7 @@ public final class Util {
 	 *
 	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
 	 */
-	public static boolean setThreadStartBody(final SootMethod sm) {
+	private static boolean setThreadStartBody(final SootMethod sm) {
 		boolean result = false;
 		SootClass declClass = sm.getDeclaringClass();
 		declClass.setApplicationClass();
@@ -242,6 +244,31 @@ public final class Util {
 			result = true;
 		}
 		return result;
+	}
+
+	/**
+	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
+	 * target or self.  This is required to complete the call graph.  This leaves the body untouched if it is not native.
+	 *
+	 * @param scm is the scene in which the alteration occurs.
+	 */
+	public static void fixupThreadStartBody(final Scene scm) {
+		boolean flag = false;
+
+		for (Iterator i = scm.getClasses().iterator(); i.hasNext();) {
+			SootClass sc = (SootClass) i.next();
+
+			if (Util.implementsInterface(sc, "java.lang.Runnable")) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag) {
+			SootClass sc = scm.getSootClass("java.lang.Thread");
+			SootMethod sm = sc.getMethodByName("start");
+			Util.setThreadStartBody(sm);
+		}
 	}
 
 	/**
@@ -272,14 +299,17 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+       Revision 1.2  2003/08/11 04:20:19  venku
+       - Pair and Triple were changed to work in optimized and unoptimized mode.
+       - Ripple effect of the previous change.
+       - Documentation and specification of other classes.
+       Revision 1.1  2003/08/07 06:42:16  venku
+       Major:
+        - Moved the package under indus umbrella.
+        - Renamed isEmpty() to hasWork() in WorkBag.
  */

@@ -110,7 +110,6 @@ public abstract class Driver {
 	 */
 	protected final Scene loadupClassesAndCollectMains(final String[] args) {
 		Scene result = Scene.v();
-		boolean flag = false;
 		Collection classNames = Arrays.asList(args);
 
 		for (int i = 0; i < args.length; i++) {
@@ -123,10 +122,6 @@ public abstract class Driver {
 		for (Iterator i = mc.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 
-			if (Util.implementsInterface(sc, "java.lang.Runnable")) {
-				flag = true;
-			}
-
 			if (considerClassForEntryPoint(sc, classNames)) {
 				Collection methods = sc.getMethods();
 
@@ -136,12 +131,7 @@ public abstract class Driver {
 				}
 			}
 		}
-
-		if (flag) {
-			SootClass sc = result.getSootClass("java.lang.Thread");
-			SootMethod sm = sc.getMethodByName("start");
-			Util.setThreadStartBody(sm);
-		}
+		Util.fixupThreadStartBody(result);
 		return result;
 	}
 
@@ -201,6 +191,9 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 12:11:44  venku
+   - the unit graphs used by default are TrapUnitGraphs.
+
    Revision 1.7  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
    Revision 1.6  2003/09/28 06:20:38  venku
