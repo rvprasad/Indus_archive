@@ -204,7 +204,9 @@ public final class ExecutableSlicePostProcessor
 		// TODO: There may be methods without tails.  We should detect psuedo-tails and include them.
 		// pick all return/throw points in the methods.
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
-		final Collection _tails = _bbg.getTails();
+		final Collection _tails = new HashSet();
+        _tails.addAll(_bbg.getTails());
+        _tails.addAll(_bbg.getPseudoTails());
 
 		for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
@@ -405,6 +407,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/20 17:12:57  venku
+   - while we include handlers, we do not include types referred
+     to in the handlers.  FIXED.
+
    Revision 1.7  2004/01/19 22:52:49  venku
    - inclusion of method declaration with identical signature in the
      super classes/interfaces is a matter of executability.  Hence,
