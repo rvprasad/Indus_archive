@@ -36,6 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
@@ -198,6 +199,8 @@ public final class SlicerTool
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
+    private Init2NewExprMapper initMapper;
+
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -247,6 +250,9 @@ public final class SlicerTool
 
 		// create the slicing transformer.
 		transformer = new TagBasedSlicingTransformer();
+        
+        // create the <init> call to new expr mapper
+        initMapper = new Init2NewExprMapper();
 
 		criteriaFactory = new SliceCriteriaFactory();
 	}
@@ -451,11 +457,14 @@ public final class SlicerTool
 
 			movingToNextPhase();
 
-			// process flow information into a more meaningful thread graph
+			// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
+            // mapper.
 			threadGraph.reset();
+            initMapper.hookup(cgBasedPreProcessCtrl);
 			threadGraph.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			threadGraph.unhook(cgBasedPreProcessCtrl);
+            initMapper.unhook(cgBasedPreProcessCtrl);
 			phase.nextMinorPhase();
 
 			movingToNextPhase();
@@ -504,8 +513,14 @@ public final class SlicerTool
 
 			if (!criteria.isEmpty()) {
 				transformer.initialize(system);
-				engine.initialize(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice,
-					daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse(), bbgMgr);
+                engine.setCgi(callGraph);
+                engine.setExecutableSlice(slicerConfig.executableSlice);
+                engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+                engine.setInitMapper(initMapper);
+                engine.setSlicedBBGMgr(bbgMgr);
+                engine.setTransformer(transformer);
+                engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
+				engine.initialize();
 				engine.setSliceCriteria(criteria);
 				engine.slice();
 			} else {
@@ -631,6 +646,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/18 21:42:03  venku
+   - altered the phase locking logic along with new documentation.
+
    Revision 1.27  2003/11/17 17:56:21  venku
    - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
      way to intialize the tool independent of how it's dependent
