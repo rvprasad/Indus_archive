@@ -8,9 +8,6 @@
    class="edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin">
 
    <runtime>
-      <library name="SliceEclipse.jar">
-         <export name="*"/>
-      </library>
       <library name="lib/commons-cli-1.0.jar"/>
       <library name="lib/commons-collections-3.0.jar"/>
       <library name="lib/commons-lang-2.0.jar"/>
@@ -23,8 +20,6 @@
       <library name="lib/polyglot-1.1.0.jar"/>
       <library name="lib/slicer.jar"/>
       <library name="lib/staticanalyses.jar"/>
-      <library name="lib/swt.jar"/>
-      <library name="lib/swt.jar"/>
       <library name="lib/xmlenc-0.42.jar"/>
       <library name="lib/xmlunit1.0.jar"/>
       <library name="lib/xpp3.jar"/>
