@@ -15,10 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-
-import java.util.BitSet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,24 +27,23 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ExitControlDA {
+public class ExitControlDA extends EntryControlDA {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExitControlDA.class);
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(IDirectedGraph)
-	 */
-	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
-		// TODO: Implement this.
-		return null;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/06/05 09:52:24  venku
+   - INTERIM COMMIT
+     - Reimplemented EntryControlDA.  It provides indirect control dependence info.
+     - DirectEntryControlDA provides direct control dependence info.
+     - ExitControlDA will follow same suite as EntryControlDA with new implementation
+       and new class for direct dependence.
+
    Revision 1.9  2004/03/03 10:11:40  venku
    - formatting.
 
