@@ -842,7 +842,7 @@ public final class MonitorAnalysis
 			_temp.clear();
 			_temp.addAll((Collection) CollectionsUtilities.getFromMap(monitor2stmts, _monitor,
 					CollectionsUtilities.EMPTY_LIST_FACTORY));
-			_result.add(_temp);
+			_result.addAll(_temp);
 			CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
 
 			final Iterator _i = _temp.iterator();
@@ -1158,6 +1158,10 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.4  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
    Revision 1.3  2004/07/27 07:08:25  venku
