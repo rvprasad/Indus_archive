@@ -1,3 +1,8 @@
+2005-02-28  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/common/soot/RootMethodTrapper.java,
+	  src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java: Refactored logic pertaining to root method trapper.
+
 2005-02-27  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/common/soot/BasicBlockGraph.java: A missing corner case was causing errors. FIXED.

@@ -31,14 +31,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.ArrayType;
 import soot.Printer;
-import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -61,10 +57,10 @@ import soot.options.Options;
  * 
  * <p>
  * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
- * provide one,  then an instance of the class named via
- * <code>indus.common.soot.SootBasedDriver.RootMethodTrapper.class</code> property will be used.  This named class should be
- * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>.   As reflection is used on to
- * instantiate an object, the specified class by the property should have a no-argument constructor.
+ * provide one,  then an instance of the class named via <code>indus.common.soot.RootMethodTrapper.class</code> property
+ * will be used.  This named class should be a subclass of <code>edu.ksu.cis.indus.common.soot.RootMethodTrapper</code>.
+ * As reflection is used on to instantiate an object, the specified class by the property should have a no-argument
+ * constructor.
  * </p>
  * 
  * <p>
@@ -74,6 +70,8 @@ import soot.options.Options;
  * a subclass of <code>edu.ksu.cis.indus.common.soot.IStmtGraphFactory</code>. As reflection is used on  to instantiate an
  * object, the specified class by the property should have a no-argument constructor.
  * </p>
+ * 
+ * <p>Please refer to <code>edu.ksu.cis.indus.Constants</code> for a file-based approach to specifying these properties.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -201,114 +199,6 @@ public class SootBasedDriver {
 		cfgProvider = getStmtGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setStmtGraphFactory(cfgProvider);
-	}
-
-	/**
-	 * This class provides the service of trapping the root methods.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static class RootMethodTrapper {
-		/** 
-		 * The names of the classes which can contribute entry points.
-		 */
-		protected Collection theClassNames;
-
-		/** 
-		 * The regular expression that is used to match classes which may contain root methods.
-		 */
-		private Pattern rootClassNamePattern;
-
-		/** 
-		 * The regular expression that is used to match methods which should be root methods.
-		 */
-		private Pattern rootMethodNamePattern;
-
-		/**
-		 * Creates a new RootMethodTrapper object.
-		 */
-		protected RootMethodTrapper() {
-			final String _theRootClasses = System.getProperty("indus.common.soot.SootBasedDriver.rootClasses");
-
-			if (_theRootClasses != null) {
-				rootClassNamePattern = Pattern.compile(_theRootClasses);
-			} else {
-				rootClassNamePattern = null;
-			}
-
-			final String _theRootMethods = System.getProperty("indus.common.soot.SootBasedDriver.rootMethods");
-
-			if (_theRootMethods != null) {
-				rootMethodNamePattern = Pattern.compile(_theRootMethods);
-			} else {
-				rootMethodNamePattern = null;
-			}
-		}
-
-		/**
-		 * Set the names of the root classes.  Root classes are those that may contain root methods.
-		 *
-		 * @param names is names of application / root classes.
-		 *
-		 * @pre names != null and names(Collection(String))
-		 */
-		protected void setClassNames(final Collection names) {
-			theClassNames = names;
-		}
-
-		/**
-		 * Checks if the given class can contribute root methods.  This implementation considers the given class as root
-		 * class ff its name matches the pattern provided to identify the root class.  If the pattern is unspecified then
-		 * the class is considered as root if it had been specified to be loaded.
-		 *
-		 * @param sc is the class to check.
-		 *
-		 * @return <code>true</code> if <code>sc</code> should be examined for possible root method contribution;
-		 * 		   <code>false</code>, otherwise.
-		 *
-		 * @pre sc != null
-		 */
-		protected boolean considerClassForEntryPoint(final SootClass sc) {
-			boolean _result = false;
-
-			if (rootClassNamePattern != null) {
-				_result = rootClassNamePattern.matcher(sc.getName()).matches();
-			} else if (theClassNames != null) {
-				_result = theClassNames.contains(sc.getName());
-			}
-
-			return _result;
-		}
-
-		/**
-		 * Checks if the given method qualifies as a root/entry method in the given system. This implementation considers the
-		 * given method as root  method if its name matches the pattern provided to identify the root method.  If the
-		 * pattern is unspecified then the given method is considered if its signature is <code>public static void
-		 * main(String[])</code>.
-		 *
-		 * @param sm is the method that may be an entry point into the system.
-		 *
-		 * @return <code>true</code> if <code>_sm</code> should be considered as a root method; <code>false</code>,
-		 * 		   otherwise.
-		 *
-		 * @pre sm != null
-		 */
-		protected boolean trapRootMethods(final SootMethod sm) {
-			boolean _result = false;
-
-			if (rootMethodNamePattern != null) {
-				_result = rootMethodNamePattern.matcher(sm.getSignature()).matches();
-			} else if (sm.getName().equals("main")
-				  && sm.isStatic()
-				  && sm.getParameterCount() == 1
-				  && sm.getParameterType(0).equals(ArrayType.v(RefType.v("java.lang.String"), 1))) {
-				_result = true;
-			}
-
-			return _result;
-		}
 	}
 
 	/**
@@ -570,6 +460,7 @@ public class SootBasedDriver {
 		if (_rmt == null) {
 			_rmt = DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
 		}
+
 		_rmt.setClassNames(Collections.unmodifiableCollection(classNames));
 
 		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
@@ -581,7 +472,7 @@ public class SootBasedDriver {
 				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
 
-					if (_rmt.trapRootMethods(_sm)) {
+					if (_rmt.isThisARootMethod(_sm)) {
 						rootMethods.add(_sm);
 					}
 				}

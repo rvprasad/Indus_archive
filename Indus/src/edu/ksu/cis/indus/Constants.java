@@ -67,11 +67,11 @@ public final class Constants {
 
 	/** 
 	 * The name of the property via which the name of the root method trapper class can be specified. The name is
-	 * "indus.common.soot.SootBasedDriver.RootMethodTrapper.class". The specified class should be a subclass of
-	 * <code>SootBasedDriver.RootMethodTrapper</code>.
+	 * "indus.common.soot.RootMethodTrapper.class". The specified class should be a subclass of
+	 * <code>edu.ksu.cis.indus.soot.RootMethodTrapper</code>.
 	 */
 	public static final String ROOT_METHOD_TRAPPER_CLASS_PROPERTY =
-		"indus.common.soot.SootBasedDriver.RootMethodTrapper.class";
+		"indus.common.soot.RootMethodTrapper.class";
 
 	/** 
 	 * This is the default for the number of classes in the system.
@@ -158,7 +158,7 @@ public final class Constants {
 
 	/**
 	 * Retrieves the name of the root method trapper class.  If not specified, it defaults to
-	 * <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>.
+	 * <code>edu.ksu.cis.indus.common.soot.RootMethodTrapper$MainMethodTrapper</code>.
 	 *
 	 * @return the class name if specified.
 	 *
@@ -168,7 +168,7 @@ public final class Constants {
 		String _result = CONFIGURATIONS.getProperty(ROOT_METHOD_TRAPPER_CLASS_PROPERTY);
 
 		if (_result == null) {
-			_result = "edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper";
+			_result = "edu.ksu.cis.indus.common.soot.RootMethodTrapper$MainMethodTrapper";
 		}
 		return _result;
 	}
