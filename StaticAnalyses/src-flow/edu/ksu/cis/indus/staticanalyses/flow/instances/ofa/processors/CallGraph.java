@@ -15,10 +15,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -27,9 +30,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +46,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
@@ -430,7 +431,9 @@ public class CallGraph
 
 					SootClass accessClass = null;
 
-					if (t instanceof NewExpr) {
+					if (invokeExpr instanceof SpecialInvokeExpr && calleeMethod.getName().equals("<init>")) {
+						accessClass = calleeMethod.getDeclaringClass();
+					} else if (t instanceof NewExpr) {
 						NewExpr newExpr = (NewExpr) t;
 						accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
 					} else if (t instanceof StringConstant) {
@@ -670,17 +673,16 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2003/12/13 19:38:58  venku
+   - removed unnecessary imports.
    Revision 1.41  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.40  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.39  2003/12/08 13:29:48  venku
    - StringConstants were not considered at call-sites.  FIXED.
-
    Revision 1.38  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

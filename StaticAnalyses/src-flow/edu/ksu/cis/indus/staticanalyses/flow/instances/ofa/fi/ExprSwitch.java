@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import soot.ArrayType;
 import soot.Local;
 import soot.SootField;
+import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 
@@ -46,6 +47,7 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
 import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
@@ -295,7 +297,13 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
-		processInstanceInvokeExpr(e);
+		final SootMethod callee = e.getMethod();
+
+		if (callee.getName().equals("<init>")) {
+			processInvokedMethod(e);
+		} else {
+			processInstanceInvokeExpr(e);
+		}
 	}
 
 	/**
@@ -322,32 +330,7 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseStaticInvokeExpr(final StaticInvokeExpr e) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing " + e);
-		}
-
-		MethodVariant callee = fa.getMethodVariant(e.getMethod(), context);
-
-		for (int i = 0; i < e.getArgCount(); i++) {
-			if (OFAnalyzer.isReferenceType(e.getArg(i).getType())) {
-				process(e.getArgBox(i));
-
-				IFGNode argNode = (IFGNode) getResult();
-				argNode.addSucc(callee.queryParameterNode(i));
-			}
-		}
-
-		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
-			IFGNode ast = method.getASTNode(e);
-			callee.queryReturnNode().addSucc(ast);
-			setResult(ast);
-		} else {
-			setResult(null);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processed " + e);
-		}
+		processInvokedMethod(e);
 	}
 
 	/**
@@ -409,8 +392,8 @@ public class ExprSwitch
 	}
 
 	/**
-	 * Processes the invoke expressions by creating nodes to various data components present at the call-site and making them
-	 * available to be connected when new method implementations are plugged in.
+	 * Processes the invoke expressions that require resolution by creating nodes to various data components present at the
+	 * call-site and making them available to be connected when new method implementations are plugged in.
 	 *
 	 * @param e the invoke expression to be processed.
 	 *
@@ -420,7 +403,7 @@ public class ExprSwitch
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + e);
 		}
-        fa.processClass(e.getMethod().getDeclaringClass());
+		fa.processClass(e.getMethod().getDeclaringClass());
 		process(e.getBaseBox());
 
 		IFGNode temp = (IFGNode) getResult();
@@ -444,22 +427,69 @@ public class ExprSwitch
 			LOGGER.debug("END: processed " + e);
 		}
 	}
+
+	/**
+	 * Processes the invoke expressions that do not require resolution by creating nodes to various data components present
+	 * at the call-site and making them available to be connected when new method implementations are plugged in.
+	 *
+	 * @param e the invoke expression to be processed.
+	 *
+	 * @pre e != null
+	 */
+	private void processInvokedMethod(final InvokeExpr e) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + e);
+		}
+
+		MethodVariant callee = fa.getMethodVariant(e.getMethod(), context);
+
+		if (e instanceof SpecialInvokeExpr) {
+			SpecialInvokeExpr expr = (SpecialInvokeExpr) e;
+			IFGNode thisNode = callee.queryThisNode();
+			process(expr.getBaseBox());
+
+			IFGNode thisArgNode = (IFGNode) getResult();
+			thisArgNode.addSucc(thisNode);
+		}
+
+		for (int i = 0; i < e.getArgCount(); i++) {
+			if (OFAnalyzer.isReferenceType(e.getArg(i).getType())) {
+				process(e.getArgBox(i));
+
+				IFGNode argNode = (IFGNode) getResult();
+				argNode.addSucc(callee.queryParameterNode(i));
+			}
+		}
+
+		if (OFAnalyzer.isReferenceType(e.getMethod().getReturnType())) {
+			IFGNode ast = method.getASTNode(e);
+			callee.queryReturnNode().addSucc(ast);
+			setResult(ast);
+		} else {
+			setResult(null);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + e);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/07 08:40:29  venku
+   - declared class was not being processed in case of
+     virtual invoke.  FIXED.
    Revision 1.11  2003/12/07 03:23:21  venku
    - interfaces and classes involved in interface/special invokes
      are not being processed.  FIXED.
-
    Revision 1.10  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
        getCurrentStmt()
    - context holds current information and only it must be used
      to retrieve this information.  No auxiliary arguments. FIXED.
-
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
