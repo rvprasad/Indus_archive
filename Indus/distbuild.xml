@@ -6,8 +6,6 @@
 
 	<property file="distbuild.properties" />
 	
-	<dirname property="docbook.base" file="${basedir}"/>
-	
     <path id="subprojects.buildfiles">
         <pathelement path="${projects.dir}/Indus"/>
         <pathelement path="${projects.dir}/StaticAnalyses"/>
@@ -88,10 +86,9 @@
     </target>
 
     <target name="buildAllDoc" depends="init">
-        <subant target="docs">
+        <subant target="docs" inheritAll="false" inheritRefs="true">
            	<property file="localbuild.properties"/>            	
             <buildpath refid="subprojects.buildfiles"/>
-        	<property name="docbook.base" value="${docbook.base}"/>
         </subant>
     </target>
 
