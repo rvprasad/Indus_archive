@@ -30,10 +30,14 @@ public interface IIdentification {
 	 *
 	 * @post result != null
 	 */
-	public abstract Object getId();
+	Object getId();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/11 14:17:41  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
  */
