@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import java.io.File;
 
@@ -176,6 +175,9 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/11 21:58:51  venku
+   - xml is generated only for the specified classes.
+
    Revision 1.3  2004/05/11 21:49:29  venku
    - added class path specification feature to CLI.
    Revision 1.2  2004/05/10 11:28:24  venku
