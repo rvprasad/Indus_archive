@@ -333,7 +333,7 @@ public class CallGraph
 		if (topDownSCC == null) {
 			topDownSCC = new ArrayList();
 
-			final List _temp = graphCache.getSCCs(topDown);
+			final List _temp = graphCache.getSCCs(true);
 
 			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 				Collection _scc = (Collection) _i.next();
@@ -678,6 +678,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/01/21 01:34:56  venku
+   - logging.
+
    Revision 1.47  2004/01/20 21:23:36  venku
    - the return value of getSCCs needs to be ordered if
      it accepts a direction parameter.  FIXED.
