@@ -63,6 +63,10 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
+        }
+
 		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
 		final AliasSet _result;
 
@@ -78,6 +82,10 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected Object getTokenForProgramPoint(final Context context) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
+        }
+
 		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
 		final AliasSet _result;
 
@@ -93,6 +101,10 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getTokenForThis(soot.SootMethod)
 	 */
 	protected Object getTokenForThis(final SootMethod method) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getTokenForThis(method = " + method + ")");
+        }
+
 		return ecba.getAliasSetForThis(method).find();
 	}
 
