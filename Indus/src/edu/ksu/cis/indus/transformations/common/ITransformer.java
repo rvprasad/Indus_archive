@@ -157,7 +157,7 @@ public interface ITransformer {
 	void reset();
 
 	/**
-	 * Transform the given statement.  This method will suffice for simple transformation which do not require any context
+	 * Transforms the given statement.  This method will suffice for simple transformation which do not require any context
 	 * information except the method in which the statement occurs.  Both parameters refer to untransformed versions.
 	 *
 	 * @param stmt to be transformed.
@@ -168,7 +168,7 @@ public interface ITransformer {
 	void transform(Stmt stmt, SootMethod method);
 
 	/**
-	 * Transform the given program point.  This method will suffice for simple transformation which do not require any
+	 * Transforms the given program point.  This method will suffice for simple transformation which do not require any
 	 * context information except the method in which the statement occurs.  All parameters refer to untransformed versions.
 	 *
 	 * @param vBox is the program point to be transformed.
@@ -183,6 +183,11 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/03 07:58:37  venku
+   - deleted getSlicedStmtFor()
+   - renamed getTransformedLocal() to getTransformed()
+     that works on ValueBox.
+
    Revision 1.10  2003/09/27 23:21:42  venku
  *** empty log message ***
        Revision 1.9  2003/09/27 01:10:25  venku
