@@ -148,7 +148,7 @@ public class Pair
 		 * @post result != null
 		 */
 		public final Pair getUnOptimizedPair(final Object firstParam, final Object secondParam) {
-			return getPair(firstParam, secondParam, true);
+			return getPair(firstParam, secondParam, false);
 		}
 
 		/**
@@ -377,6 +377,10 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/09/14 22:53:54  venku
    - added method to mapify a collection of pairs.
    Revision 1.4  2003/08/11 08:12:26  venku
