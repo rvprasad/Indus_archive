@@ -82,8 +82,8 @@ public class ReferenceBasedDataDA
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
 	 *
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
-	 * @post result->forall(o | o.getFirst().getRightOf().oclIsKindOf(FieldRef) or
-	 * 		 o.getFirst().getRightOf().oclIsKindOf(ArrayRef))
+	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
+	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
@@ -137,6 +137,13 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.9  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
 
