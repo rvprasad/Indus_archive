@@ -50,7 +50,6 @@ import soot.jimple.Stmt;
  */
 final class StmtLevelDependencyXMLizer
   extends AbstractProcessor {
-    //  TODO: roll all xml emitting fragments to use xmlenc
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -256,6 +255,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/10 10:59:28  venku
+   - incorrect tag was being written. FIXED.
+
    Revision 1.10  2004/05/10 09:39:35  venku
    - another one of the early tag close errors. FIXED.
 
