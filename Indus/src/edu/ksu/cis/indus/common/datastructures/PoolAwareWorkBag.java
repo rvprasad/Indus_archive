@@ -60,7 +60,8 @@ public final class PoolAwareWorkBag
 	}
 
 	/**
-	 * Adds the given collection of work to the bag. Duplicate work peices are returned to the pool.
+	 * Adds the given collection of work to the bag. Duplicate work peices are returned to the pool.  Beware that if an
+	 * object occurs in <code>c</code> and the workbag then it will be returned to the pool when it shouldn't be.
 	 *
 	 * @param c is the collection of poolable objects.
 	 *
@@ -87,7 +88,8 @@ public final class PoolAwareWorkBag
 	}
 
 	/**
-	 * Adds the given work to the bag. If it is a duplicate work peice, it is returned to the pool.
+	 * Adds the given work to the bag. If it is a duplicate work peice, it is returned to the pool. Beware that if
+	 * <code>o</code> occurs in the workbag then it will be returned to the pool when it shouldn't be.
 	 *
 	 * @param o is the work peice.
 	 *
@@ -123,9 +125,10 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/25 08:57:51  venku
+   - coding convention.
    Revision 1.2  2004/01/22 11:45:43  venku
    - the status of addition into the workbag needs to communicated. FIXED.
-
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
