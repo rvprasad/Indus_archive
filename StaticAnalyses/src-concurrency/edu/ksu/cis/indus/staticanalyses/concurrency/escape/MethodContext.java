@@ -16,13 +16,17 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -161,16 +165,15 @@ final class MethodContext
 		} else {
 			_clone = (MethodContext) super.clone();
 
+			/*
+			 * map from the representative to it's clone. The clone is always the representative element, but this is not
+			 * true for the clonee.
+			 */
 			final Map _clonee2clone = new HashMap();
 			_clone.set = null;
 
-			/*
-			 * map from the representative to the clone. The clone is always the representative element, but this is not
-			 * true for the clonee.
-			 */
 			if (thisAS != null) {
-				_clone.thisAS = (AliasSet) thisAS.clone();
-				_clonee2clone.put(thisAS, _clone.thisAS);
+				_clone.thisAS = getCloneOf(_clonee2clone, thisAS);
 			}
 			_clone.argAliasSets = new ArrayList();
 
@@ -178,21 +181,17 @@ final class MethodContext
 				final AliasSet _tmp = (AliasSet) _i.next();
 
 				if (_tmp != null) {
-					final AliasSet _o = (AliasSet) _tmp.clone();
-					_clone.argAliasSets.add(_o);
-					_clonee2clone.put(_tmp, _o);
+					_clone.argAliasSets.add(getCloneOf(_clonee2clone, _tmp));
 				} else {
 					_clone.argAliasSets.add(null);
 				}
 			}
 
 			if (ret != null) {
-				_clone.ret = (AliasSet) ret.clone();
-				_clonee2clone.put(ret, _clone.ret);
+				_clone.ret = getCloneOf(_clonee2clone, ret);
 			}
-			_clone.thrown = (AliasSet) thrown.clone();
-			_clonee2clone.put(thrown, _clone.thrown);
-			AliasSet.fixUpFieldMapsOfClone(_clonee2clone);
+			_clone.thrown = getCloneOf(_clonee2clone, thrown);
+			MethodContext.fixUpFieldMapsOfClone(_clonee2clone);
 		}
 		return _clone;
 	}
@@ -419,6 +418,89 @@ final class MethodContext
 	}
 
 	/**
+	 * Retrieves the clone corresponding to the equivalence class of the given alias set.
+	 *
+	 * @param src2clone maps alias set to alias set.
+	 * @param as for which the clone is required.
+	 *
+	 * @return an alias set.
+	 *
+	 * @throws CloneNotSupportedException <i>this should not occur.</i>
+	 *
+	 * @pre as != null and src2clone != null
+	 * @pre src2clone.oclIsKindOf(Map(AliasSet, AliasSet))
+	 * @pre src2clone.keySet()->forall(o | o = o.find())
+	 * @post src2clone.keySet()->forall(o | o = o.find())
+	 * @post src2clone.get(as.find()) != result and result != null
+	 */
+	private static AliasSet getCloneOf(final Map src2clone, final AliasSet as)
+	  throws CloneNotSupportedException {
+		final AliasSet _repr = (AliasSet) as.find();
+		AliasSet _result = (AliasSet) src2clone.get(_repr);
+
+		if (_result == null) {
+			_result = (AliasSet) _repr.clone();
+			src2clone.put(_repr, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * Fixes up the field maps of the alias sets in the given map.  When alias sets are cloned, the field maps are cloned.
+	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
+	 *
+	 * @param src2clone maps an representative alias set to it's clone.  This is also an out parameter that will contain new
+	 * 		  mappings.
+	 *
+	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
+	 */
+	private static void fixUpFieldMapsOfClone(final Map src2clone)
+	  throws CloneNotSupportedException {
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+
+		_wb.addAllWork(src2clone.keySet());
+
+		while (_wb.hasWork()) {
+			final AliasSet _src = (AliasSet) _wb.getWork();
+			final AliasSet _clone = (AliasSet) src2clone.get(_src);
+			final Map _srcASFieldMap = _src.getFieldMap();
+			final Set _srcASFields = _srcASFieldMap.keySet();
+			final Iterator _i = _srcASFields.iterator();
+			final int _iEnd = _srcASFields.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final String _field = (String) _i.next();
+
+				/*
+				 * We use the representative alias set as it is possible that a field may have 2 alias sets in different
+				 * contexts but the same representative alias set in both contexts.  We don't do the same for clones as they
+				 * are the representatives until they are unified, which happens in the following block.
+				 */
+				final AliasSet _srcFieldAS = (AliasSet) _src.getASForField(_field).find();
+				final AliasSet _cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
+				_clone.putASForField(_field, _cloneFieldAS);
+				_wb.addWork(_srcFieldAS);
+			}
+		}
+
+		// Unify the clones to reflect the relation between their originators.
+		for (final Iterator _i = src2clone.keySet().iterator(); _i.hasNext();) {
+			final AliasSet _k1 = (AliasSet) _i.next();
+
+			for (final Iterator _j = src2clone.keySet().iterator(); _j.hasNext();) {
+				final AliasSet _k2 = (AliasSet) _j.next();
+
+				if (_k1.find() == _k2.find()) {
+					final AliasSet _v1 = (AliasSet) src2clone.get(_k1);
+					final AliasSet _v2 = (AliasSet) src2clone.get(_k2);
+					AliasSet.unifyAliasSetHelper(_v1, _v2, false);
+				}
+			}
+		}
+		return;
+	}
+
+	/**
 	 * Unifies the given alias sets.
 	 *
 	 * @param representative is one of the alias set to be unified.
@@ -469,9 +551,10 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/08/04 10:51:11  venku
+   - INTERIM commit to enable working acorss sites.
    Revision 1.20  2004/08/02 10:30:26  venku
    - resolved few more issues in escape analysis.
-
    Revision 1.19  2004/08/01 22:58:25  venku
    - ECBA was erroneous for 2 reasons.
      - top-down propagation was not complete. FIXED.

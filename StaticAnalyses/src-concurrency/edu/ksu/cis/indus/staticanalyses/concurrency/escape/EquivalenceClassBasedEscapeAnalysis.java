@@ -133,7 +133,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/** 
 	 * The collection of method contexts to be unified with themselves.
-	 * 	
+	 *
 	 * @invariant contextsToBeSelfUnified.oclIsKindOf(Collection(MethodContext))
 	 */
 	final Collection contextsToBeSelfUnified = new HashSet();
@@ -1205,11 +1205,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// discard alias sets that serve as a mere indirection level. 
 				discardReferentialAliasSets(_sm);
-
-				if (LOGGER.isDebugEnabled()) {
-					final String _prettyPrint = CollectionsUtilities.prettyPrint((Map) _triple.getSecond());
-					LOGGER.debug("LocalASsCache: " + _sm + "\n" + _prettyPrint);
-				}
 			}
 		}
 	}
@@ -1273,6 +1268,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.65  2004/08/04 10:51:11  venku
+   - INTERIM commit to enable working acorss sites.
    Revision 1.64  2004/08/02 10:30:26  venku
    - resolved few more issues in escape analysis.
    Revision 1.63  2004/08/01 22:58:25  venku

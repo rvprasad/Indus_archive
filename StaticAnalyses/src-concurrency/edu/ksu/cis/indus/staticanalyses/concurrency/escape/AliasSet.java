@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -238,65 +237,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Fixes up the field maps of the alias sets in the given map.  When alias sets are cloned, the field maps are cloned.
-	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
-	 *
-	 * @param clonee2clone maps an representative alias set to it's clone.  This is also an out parameter that will contain
-	 * 		  new mappings.
-	 *
-	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
-	 */
-	static void fixUpFieldMapsOfClone(final Map clonee2clone)
-	  throws CloneNotSupportedException {
-		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-
-		_wb.addAllWork(clonee2clone.keySet());
-
-		while (_wb.hasWork()) {
-			final AliasSet _clonee = (AliasSet) _wb.getWork();
-			final AliasSet _clone = (AliasSet) clonee2clone.get(_clonee);
-			final Map _cloneeFieldMap = ((AliasSet) _clonee.find()).fieldMap;
-			final Set _cloneeFields = _cloneeFieldMap.keySet();
-			final Iterator _i = _cloneeFields.iterator();
-			final int _iEnd = _cloneeFields.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Object _field = _i.next();
-
-				/*
-				 * We use the representative alias set as it is possible that a field may have 2 alias sets in different
-				 * contexts but the same representative alias set in both contexts.  We don't do the same for clones as they
-				 * are representation until they are unified, which happens in the following block.
-				 */
-				final Object _cloneeFieldAS = _cloneeFieldMap.get(_field); 
-				Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
-
-				if (_cloneFieldAS == null) {
-					_cloneFieldAS = ((AliasSet) _cloneeFieldAS).clone();
-					clonee2clone.put(_cloneeFieldAS, _cloneFieldAS);
-				}
-				_clone.fieldMap.put(_field, _cloneFieldAS);
-				_wb.addWork(_cloneeFieldAS);
-			}
-		}
-
-		// Unify the clones to reflect the relation between their originators.
-		for (final Iterator _i = clonee2clone.keySet().iterator(); _i.hasNext();) {
-			final AliasSet _k1 = (AliasSet) _i.next();
-
-			for (final Iterator _j = clonee2clone.keySet().iterator(); _j.hasNext();) {
-				final AliasSet _k2 = (AliasSet) _j.next();
-
-				if (_k1.find() == _k2.find()) {
-					final AliasSet _v1 = (AliasSet) clonee2clone.get(_k1);
-					final AliasSet _v2 = (AliasSet) clonee2clone.get(_k2);
-					unifyAliasSetHelper(_v1, _v2, false);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
 	 *
 	 * @param field is the signature of the field.
@@ -339,10 +279,6 @@ final class AliasSet
 	void setGlobal() {
 		final AliasSet _rep = (AliasSet) find();
 
-		if (_rep.global) {
-			return;
-		}
-
 		_rep.global = true;
 		_rep.shared = true;
 		_rep.multiThreadAccess = true;
@@ -350,7 +286,10 @@ final class AliasSet
 		if (_rep.fieldMap != null) {
 			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
 				final AliasSet _as = (AliasSet) _i.next();
-				_as.setGlobal();
+
+				if (!_as.isGlobal()) {
+					_as.setGlobal();
+				}
 			}
 		}
 	}
@@ -488,12 +427,12 @@ final class AliasSet
 
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
-			
-				for (final Iterator _i = _toRep.fieldMap.keySet().iterator(); _i.hasNext();) {
-					final Object _key = _i.next();
-					final AliasSet _to = (AliasSet) _toRep.fieldMap.get(_key);
-					final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
-	
+
+				for (final Iterator _i = _toRep.getFieldMap().keySet().iterator(); _i.hasNext();) {
+					final String _field = (String) _i.next();
+					final AliasSet _to = _toRep.getASForField(_field);
+					final AliasSet _from = _fromRep.getASForField(_field);
+
 					if ((_to != null) && (_from != null)) {
 						_wb.addWork(new Pair(_from, _to));
 					}
@@ -523,7 +462,7 @@ final class AliasSet
 	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
 	 *
 	 * @param as the alias set to be unified with itself.
-	 * 
+	 *
 	 * @pre as != null
 	 */
 	static void selfUnify(final AliasSet as) {
@@ -571,28 +510,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Returns a new ready entity object.
-	 *
-	 * @return a new ready entity object.
-	 *
-	 * @post result != null
-	 */
-	private static Object getNewReadyEntity() {
-		return new String("ReadyEntity:" + readyEntityCount++);
-	}
-
-	/**
-	 * Returns a new share entity object.
-	 *
-	 * @return a new share entity object.
-	 *
-	 * @post result != null
-	 */
-	private static Object getNewShareEntity() {
-		return new String("ShareEntity:" + shareEntityCount++);
-	}
-
-	/**
 	 * Unifies the given alias sets.
 	 *
 	 * @param as1 obviously.
@@ -602,7 +519,7 @@ final class AliasSet
 	 *
 	 * @pre as1 != null and as2 != null
 	 */
-	private static void unifyAliasSetHelper(final AliasSet as1, final AliasSet as2, final boolean unifyAll) {
+	static void unifyAliasSetHelper(final AliasSet as1, final AliasSet as2, final boolean unifyAll) {
 		final AliasSet _m = (AliasSet) as1.find();
 		final AliasSet _n = (AliasSet) as2.find();
 
@@ -625,6 +542,7 @@ final class AliasSet
 			_representative.written |= _represented.written;
 			_representative.multiThreadAccess |= _represented.multiThreadAccess;
 			_representative.shared |= _represented.shared;
+			_representative.global |= _represented.global;
 
 			if (_represented.readyEntities != null) {
 				if (_representative.readyEntities == null) {
@@ -648,10 +566,32 @@ final class AliasSet
 
 			_representative.unifyFields(_represented, unifyAll);
 
-			if (_representative.global || _represented.global) {
+			if (_representative.isGlobal()) {
 				_representative.setGlobal();
 			}
 		}
+	}
+
+	/**
+	 * Returns a new ready entity object.
+	 *
+	 * @return a new ready entity object.
+	 *
+	 * @post result != null
+	 */
+	private static Object getNewReadyEntity() {
+		return new String("ReadyEntity:" + readyEntityCount++);
+	}
+
+	/**
+	 * Returns a new share entity object.
+	 *
+	 * @return a new share entity object.
+	 *
+	 * @post result != null
+	 */
+	private static Object getNewShareEntity() {
+		return new String("ShareEntity:" + shareEntityCount++);
 	}
 
 	/**
@@ -690,13 +630,14 @@ final class AliasSet
 	private void unifyFields(final AliasSet aliasSet, final boolean unifyAll) {
 		for (final Iterator _i = aliasSet.fieldMap.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
-			final Object _key = _entry.getKey();
-			final Object _value = _entry.getValue();
-			
-			if (fieldMap.containsKey(_key)) {
-			    unifyAliasSetHelper((AliasSet) fieldMap.get(_key), (AliasSet) _value, unifyAll);
+			final String _field = (String) _entry.getKey();
+			final AliasSet _fieldAS = (AliasSet) _entry.getValue();
+			final AliasSet _repAS = getASForField(_field);
+
+			if (_repAS != null) {
+				unifyAliasSetHelper(_repAS, _fieldAS, unifyAll);
 			} else {
-				fieldMap.put(_key, _value);
+				putASForField(_field, _fieldAS);
 			}
 		}
 	}
@@ -705,6 +646,8 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/08/04 10:51:11  venku
+   - INTERIM commit to enable working acorss sites.
    Revision 1.23  2004/08/02 10:30:26  venku
    - resolved few more issues in escape analysis.
    Revision 1.22  2004/08/02 07:33:45  venku
