@@ -581,37 +581,12 @@ public class CallGraph
 
 		// Now prune the caller-callee relationship
 		Collection temp = new ArrayList();
-		Collection callers = new ArrayList(caller2callees.keySet());
-
-		for (Iterator i = callers.iterator(); i.hasNext();) {
-			SootMethod caller = (SootMethod) i.next();
-
-			if (!reachables.contains(caller)) {
-				for (Iterator j = ((Collection) caller2callees.get(caller)).iterator(); j.hasNext();) {
-					CallTriple ctrp = (CallTriple) j.next();
-					SootMethod callee = ctrp.getMethod();
-					Collection c = (Collection) callee2callers.get(callee);
-
-					if (c != null) {
-						for (Iterator k = c.iterator(); k.hasNext();) {
-							ctrp = (CallTriple) k.next();
-
-							if (ctrp.getMethod() == caller) {
-								temp.add(ctrp);
-							}
-						}
-						c.removeAll(temp);
-
-						if (c.isEmpty()) {
-							callee2callers.remove(callee);
-						}
-						temp.clear();
-					}
-				}
-				caller2callees.remove(caller);
-				callee2callers.remove(caller);
-			}
-		}
+		Collection unreachables = new HashSet(caller2callees.keySet());
+		unreachables.addAll(callee2callers.keySet());
+		unreachables.removeAll(reachables);
+		callee2callers.keySet().removeAll(unreachables);
+		caller2callees.keySet().removeAll(unreachables);
+		heads.removeAll(unreachables);
 
 		// populate the caller2callees with head information in cases where there are no calls in the system.
 		if (caller2callees.isEmpty()) {
@@ -627,20 +602,28 @@ public class CallGraph
 			LOGGER.debug("Starting construction of call graph...");
 		}
 
+		Collection c = new ArrayList();
+
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
 			temp = (Collection) caller2callees.get(sm);
 
 			if (temp != null) {
+				c.clear();
+
 				MutableNode callerNode = graphCache.getNode(sm);
 
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
-					MutableNode calleeNode = graphCache.getNode(method);
 
-					graphCache.addEdgeFromTo(callerNode, calleeNode);
+					if (unreachables.contains(method)) {
+						c.add(ctrp);
+					} else {
+						graphCache.addEdgeFromTo(callerNode, graphCache.getNode(method));
+					}
 				}
+				temp.removeAll(c);
 			}
 		}
 
@@ -840,6 +823,8 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/11/26 06:14:54  venku
+   - formatting and coding convention.
    Revision 1.28  2003/11/26 02:55:45  venku
    - now handles clinit in a more robust way.
    Revision 1.27  2003/11/25 23:48:23  venku
