@@ -57,7 +57,7 @@ public abstract class AbstractTool {
 	/**
 	 * This indicates if the tool should pause execution.
 	 */
-	boolean pause = true;
+	boolean pause = false;
 
 	/**
 	 * Populate this object with the information in given in string form.
@@ -196,6 +196,11 @@ public abstract class AbstractTool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/26 23:46:58  venku
+   - Renamed Tool to AbstractTool
+   - Renamed ToolConfiguration to AbstractToolConfiguration
+   - Renamed ToolConfigurator to AbstractToolConfigurator
+
    Revision 1.5  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
