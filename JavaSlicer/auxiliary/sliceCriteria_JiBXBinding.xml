@@ -21,7 +21,7 @@
 			<value style="attribute" name="index" field="stmtIndex" type="int"/>
 			<value style="attribute" name="considerEntireStmt" field="considerEntireStmt" type="boolean"/>
 		</structure>
-		<structure name="expr" usage="optional">
+		<structure name="expr" usage="optional" test-method="testExpr">
 			<value style="attribute" name="index" field="exprIndex" type="int" default="-1"/>
 		</structure>
 	</mapping>

@@ -52,7 +52,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class SliceCriterionSpec implements Cloneable {
+final class SliceCriterionSpec
+  implements Cloneable {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -98,7 +99,7 @@ final class SliceCriterionSpec implements Cloneable {
 	/**
 	 * The index of the use or def value box, in the statement, that is the slice criterion.
 	 */
-	private int exprIndex;
+	private int exprIndex = -1;  // Initialization is required due to a limitation of JiBX (known problem 3 on JiBX site)
 
 	/**
 	 * The index of the statement, in the method body, in which the slice criterion occurs.
@@ -185,6 +186,7 @@ final class SliceCriterionSpec implements Cloneable {
 	 * @param parameterTypes is the collection of types whose names should be extracted.
 	 *
 	 * @return the names of the type.
+	 *
 	 * @pre paramterTypes != null and parameterTypes.oclIsKindOf(Sequence(Type))
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
@@ -292,6 +294,15 @@ final class SliceCriterionSpec implements Cloneable {
 	}
 
 	/**
+	 * Tests if the expression index is valid in this spec. This is used to serialize/deserialize.
+	 *
+	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>, otherwise.
+	 */
+	private boolean testExpr() {
+		return exprIndex != -1;
+	}
+
+	/**
 	 * Trims the string data in the specification.
 	 */
 	private void trim() {
@@ -321,4 +332,8 @@ final class SliceCriterionSpec implements Cloneable {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/02 09:00:08  venku
+   - added support to serialize/deserialize slice criteria. (feature #397)
+   - used the above support in SliceXMLizerCLI.
+   - used Jakarta Commons IO library.
  */
