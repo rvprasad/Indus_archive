@@ -61,14 +61,14 @@ import java.util.Map;
 
 
 /**
- * This is the driver for Ruf's escape analysis.
+ * This is the driver for Ruf's escape analysis.  
+ * 
+ * @deprecated However, this is not documented as it is not used by our framework.
+ * This is rather a comparison implementation which will not be supported.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- *
- * @deprecated However, this is not documented as it is not used by our framework.  This is rather a comparison
- * 			   implementation which will not be supported.
  */
 public final class RufEATester
   extends Tester {

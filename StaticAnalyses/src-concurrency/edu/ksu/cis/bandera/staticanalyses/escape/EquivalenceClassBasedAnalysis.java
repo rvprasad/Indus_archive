@@ -229,16 +229,16 @@ public class EquivalenceClassBasedAnalysis
 	/**
 	 * Creates a new EquivalenceClassBasedAnalysis object.
 	 *
-	 * @param scmParam provides and manages the classes to be analysed.
-	 * @param cgiParam provides call-graph information.
-	 * @param tgiParam provides thread-graph information.
+	 * @param scmPrm provides and manages the classes to be analysed.
+	 * @param cgiPrm provides call-graph information.
+	 * @param tgiPrm provides thread-graph information.
 	 *
 	 * @pre scm != null and cgi != null and tgi != null
 	 */
-	public EquivalenceClassBasedAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam, final IThreadGraphInfo tgiParam) {
-		this.scm = scmParam;
-		this.cgi = cgiParam;
-		this.tgi = tgiParam;
+	public EquivalenceClassBasedAnalysis(final Scene scmPrm, final ICallGraphInfo cgiPrm, final IThreadGraphInfo tgiPrm) {
+		this.scm = scmPrm;
+		this.cgi = cgiPrm;
+		this.tgi = tgiPrm;
 
 		threadAllocSitesSingle = new HashSet();
 		threadAllocSitesMulti = new HashSet();
@@ -1066,6 +1066,9 @@ public class EquivalenceClassBasedAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/07/27 20:53:22  venku
+Deleted commented code that was not used.
+
 Revision 1.1  2003/07/27 20:52:39  venku
 First of the many refactoring while building towards slicer release.
 This is the escape analysis refactored and implemented as per to tech report.
