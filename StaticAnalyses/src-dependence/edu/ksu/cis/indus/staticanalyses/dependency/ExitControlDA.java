@@ -39,24 +39,6 @@ public class ExitControlDA
 	private static final Log LOGGER = LogFactory.getLog(ExitControlDA.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
-	 */
-	public void analyze() {
-		stable = false;
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Control Dependence processing");
-		}
-
-		localAnalyze();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Control Dependence processing");
-		}
-		stable = true;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(DirectedGraph)
 	 */
 	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
@@ -68,6 +50,10 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.5  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

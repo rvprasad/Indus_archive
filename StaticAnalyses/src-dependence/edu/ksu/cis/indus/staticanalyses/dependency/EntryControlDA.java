@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -82,7 +82,7 @@ public class EntryControlDA
 	 *
 	 * @pre dependentStmt.oclIsKindOf(Stmt)
 	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt)) and result.size() == 1
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
@@ -141,13 +141,40 @@ public class EntryControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public void analyze() {
+		analyze(callgraph.getReachableMethods());
+	}
+
+	/**
+	 * Calculates the control dependency information for the provided methods.  The use of this method does not require a
+	 * prior call to <code>setup</code>.
+	 *
+	 * @param methods to be analyzed.
+	 *
+	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
+	 */
+	public void analyze(final Collection methods) {
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Control Dependence processing");
 		}
 
-		localAnalyze();
+		for (Iterator i = methods.iterator(); i.hasNext();) {
+			SootMethod currMethod = (SootMethod) i.next();
+			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
+
+			if (bbGraph == null) {
+				LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
+				continue;
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing method: " + currMethod.getSignature());
+			}
+
+			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
+			fixupMaps(bbGraph, bbCDBitSets, currMethod);
+		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Control Dependence processing");
@@ -330,28 +357,6 @@ public class EntryControlDA
 	}
 
 	/**
-	 * Analyzes and collects the dependences.
-	 */
-	protected void localAnalyze() {
-		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
-			SootMethod currMethod = (SootMethod) i.next();
-			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
-
-			if (bbGraph == null) {
-				LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
-				continue;
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing method: " + currMethod.getSignature());
-			}
-
-			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
-			fixupMaps(bbGraph, bbCDBitSets, currMethod);
-		}
-	}
-
-	/**
 	 * Sets up internal data structures.
 	 *
 	 * @throws InitializationException when call graph service is not provided.
@@ -442,13 +447,15 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.8  2003/12/16 07:37:52  venku
    - incorrect add method used on container.
-
    Revision 1.7  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.6  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
