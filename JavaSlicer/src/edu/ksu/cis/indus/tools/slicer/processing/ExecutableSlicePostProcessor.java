@@ -25,20 +25,21 @@ import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
+import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 
@@ -51,9 +52,7 @@ import soot.jimple.ThisRef;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This process a vanilla backward and complete slice into an executable slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -67,55 +66,76 @@ public final class ExecutableSlicePostProcessor
 	private static final Log LOGGER = LogFactory.getLog(ExecutableSlicePostProcessor.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The basic block manager.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This tracks the methods processed in <code>process()</code>.
+	 *
+	 * @invariant processedMethodCache != null
+	 * @invariant processedMethodCache.oclIsKindOf(Set(SootMethod))
 	 */
-	private final Collection processed = new HashSet();
+	private final Collection processedMethodCache = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This tracks the methods processed in <code>processStmts()</code>.
+	 *
+	 * @invariant processedStmtCache != null
+	 * @invariant processedStmtCache.oclIsKindOf(Set(Stmt))
 	 */
-	private final IWorkBag workBag = new FIFOWorkBag();
+	private final Collection processedStmtCache = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the traps of a method that need to be retained.
+	 *
+	 * @invariant trapsToRetain != null
+	 * @invariant trapsToRetain.oclIsKindOf(Set(Trap))
+	 */
+	private final Collection trapsToRetain = new HashSet();
+
+	/**
+	 * This is the workbag of methods to process.
+	 *
+	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
+	 */
+	private final IWorkBag methodWorkBag = new FIFOWorkBag();
+
+	/**
+	 * This is the workbag of statements to process.
+	 *
+	 * @invariant stmtWorkBag != null and stmtWorkBag.getWork().oclIsKindOf(Stmt)
+	 */
+	private final IWorkBag stmtWorkBag = new FIFOWorkBag();
+
+	/**
+	 * The slice collector to be used to add on to the slice.
 	 */
 	private SliceCollector collector;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the given methods.
 	 *
-	 * @param taggedMethods DOCUMENT ME!
-	 * @param basicBlockMgr DOCUMENT ME!
-	 * @param theCollector DOCUMENT ME!
+	 * @param taggedMethods are the methods to process.
+	 * @param basicBlockMgr is the basic block manager to be used to retrieve basic blocks while processing methods.
+	 * @param theCollector is the slice collector to extend the slice.
+	 *
+	 * @pre taggedMethods != null and basicBlockMgr != null and theCollector != null
+	 * @pre taggedMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	public void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
 		collector = theCollector;
 		bbgMgr = basicBlockMgr;
-		workBag.addAllWorkNoDuplicates(taggedMethods);
+		methodWorkBag.addAllWorkNoDuplicates(taggedMethods);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
 		}
 
-		while (workBag.hasWork()) {
-			final SootMethod _method = (SootMethod) workBag.getWork();
-			processed.add(_method);
+		while (methodWorkBag.hasWork()) {
+			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
+			processedMethodCache.add(_method);
 
 			if (_method.isConcrete()) {
 				if (LOGGER.isDebugEnabled()) {
@@ -123,6 +143,7 @@ public final class ExecutableSlicePostProcessor
 				}
 				processStmts(_method);
 				pickReturnPoints(_method);
+				pruneHandlers(_method);
 				pruneLocals(_method);
 			} else {
 				if (LOGGER.isWarnEnabled()) {
@@ -137,37 +158,95 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Resets internal data structure.
 	 */
 	public void reset() {
-		workBag.clear();
-		processed.clear();
-		bbgMgr = null;
+		methodWorkBag.clear();
+		processedMethodCache.clear();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Adds the given method to <code>methodWorkBag</code> if it was not processed earlier.
 	 *
-	 * @param _sm DOCUMENT ME!
+	 * @param method to be added.
+	 *
+	 * @pre method != null
 	 */
-	private void addToWorkBag(SootMethod _sm) {
-		if (!processed.contains(_sm)) {
-			workBag.addWorkNoDuplicates(_sm);
+	private void addToMethodWorkBag(final SootMethod method) {
+		if (!processedMethodCache.contains(method)) {
+			methodWorkBag.addWorkNoDuplicates(method);
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Adds the given statement to <code>stmtWorkBag</code>.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param stmt to be added.
+	 *
+	 * @pre stmt != null
+	 */
+	private void addToStmtWorkBag(final Stmt stmt) {
+		if (!processedStmtCache.contains(stmt)) {
+			stmtWorkBag.addWorkNoDuplicates(stmt);
+		}
+	}
+
+	/**
+	 * Collects all the method with signature identical to <code>method</code> in the superclasses of <code>method</code>'s
+	 * declaring class.
+	 *
+	 * @param method that needs to be included in the heirarchy to make the slice executable.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @pre method != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	private Collection findMethodInSuperClasses(final SootMethod method) {
+		final IWorkBag _toProcess = new FIFOWorkBag();
+		final Collection _processed = new HashSet();
+		final Collection _result = new HashSet();
+		_toProcess.addWork(method.getDeclaringClass());
+
+		final List _parameterTypes = method.getParameterTypes();
+		final Type _retType = method.getReturnType();
+		final String _methodName = method.getName();
+
+		while (_toProcess.hasWork()) {
+			final SootClass _sc = (SootClass) _toProcess.getWork();
+			_processed.add(_sc);
+
+			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
+				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
+			}
+
+			if (_sc.hasSuperclass()) {
+				final SootClass _superClass = _sc.getSuperclass();
+
+				if (!_processed.contains(_superClass)) {
+					_toProcess.addWork(_superClass);
+				}
+			}
+		}
+
+		return _result.isEmpty() ? Collections.EMPTY_SET
+								 : _result;
+	}
+
+	/**
+	 * Picks the return points of the method required to make it's slice executable.
+	 *
+	 * @param method to be processed.
+	 *
+	 * @pre method != null
 	 */
 	private void pickReturnPoints(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Picking up return points in " + method);
+		}
+
+        // TODO: There may be methods without tails.  We should detect psuedo-tails and include them.
+
 		// pick all return/throw points in the methods.
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = _bbg.getTails();
@@ -188,96 +267,164 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Marks the traps to be included in the slice.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method in which the traps are to be marked.
+	 * @param stmt will trigger the traps to include.
+	 *
+	 * @pre method != null and stmt != null
 	 */
-	private void processStmts(final SootMethod method) {
-		final Body _body = method.retrieveActiveBody();
-		final List _sl = new ArrayList(_body.getUnits());
-		final Collection _trapsToKeep = new ArrayList();
-
-		for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
-			final Stmt _stmt = (Stmt) _j.next();
-
-			if (_stmt instanceof IdentityStmt) {
-				/*
-				 * Pick all identity statements in the program that retrieve parameters and this reference upon
-				 * entrance into the method. Note that it is required that all elements pushed to the stack should be
-				 * popped before returning with only the return value on the stack (if it exists).  This does not
-				 * mean that all parameters need to be popped off the stack upon entry.  Hence, we should scan the
-				 * entire body for Identity statements with ParameterRef or ThisRef on RHS.
-				 */
-				final IdentityStmt _id = (IdentityStmt) _stmt;
-				final Value _rhs = _id.getRightOp();
-
-				if (_rhs instanceof ThisRef || _rhs instanceof ParameterRef) {
-					collector.includeInSlice(_id.getLeftOpBox());
-					collector.includeInSlice(_id.getRightOpBox());
-					collector.includeInSlice(_id);
-
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Picked " + _stmt + " in " + method);
-					}
-				}
-			} else if (_stmt.containsInvokeExpr()) {
-				/*
-				 * If an invoke expression occurs, the slice will include only the invoked method and not any
-				 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
-				 * This can be fixed by sucking all the method definitions that need to make the system verifiable
-				 * and empty bodies will be substituted for such methods.
-				 */
-				final InvokeExpr _expr = _stmt.getInvokeExpr();
-
-				if (!(_expr instanceof StaticInvokeExpr)) {
-					final SootMethod _sm = _expr.getMethod();
-					collector.includeInSlice(_sm);
-
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
-					}
-					addToWorkBag(_sm);
-				}
-			}
-
-			// calculate the relevant traps
-			if (collector.hasBeenCollected(_stmt)) {
-				_trapsToKeep.addAll(TrapManager.getTrapsAt(_stmt, _body));
-			}
+	private void processHandlers(final SootMethod method, final Stmt stmt) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Pruning handlers in " + method);
 		}
 
-		// delete unwanted traps
-		final Collection _traps = _body.getTraps();
-		_traps.retainAll(_trapsToKeep);
+		final Body _body = method.retrieveActiveBody();
+		final Collection _temp = new ArrayList();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Deleting traps " + CollectionUtils.subtract(_traps, _trapsToKeep) + " from " + method);
+		// calculate the relevant traps
+		if (collector.hasBeenCollected(stmt)) {
+			_temp.addAll(TrapManager.getTrapsAt(stmt, _body));
 		}
 
 		/*
 		 * Include the first statement of the handler for all traps found to cover atleast one statement included in the
 		 * slice.
 		 */
-		for (final Iterator _i = _trapsToKeep.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
 			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
 			collector.includeInSlice(_handlerUnit);
 			collector.includeInSlice(_handlerUnit.getLeftOpBox());
 			collector.includeInSlice(_handlerUnit.getRightOpBox());
 			collector.includeInSlice(_trap.getException());
+			addToStmtWorkBag(_handlerUnit);
+		}
+		trapsToRetain.addAll(_temp);
+	}
+
+	/**
+	 * Includes statement and it's parts that access this variable and parameters (statements that pop them of the stack) in
+	 * the slice.
+	 *
+	 * @param method to process.
+	 * @param stmt to be processed.
+	 *
+	 * @pre method != null and stmt != null
+	 */
+	private void processIdentityStmt(final SootMethod method, final IdentityStmt stmt) {
+		/*
+		 * Pick all identity statements in the program that retrieve parameters and this reference upon
+		 * entrance into the method. Note that it is required that all elements pushed to the stack should be
+		 * popped before returning with only the return value on the stack (if it exists).  This does not
+		 * mean that all parameters need to be popped off the stack upon entry.  Hence, we should scan the
+		 * entire body for Identity statements with ParameterRef or ThisRef on RHS.
+		 */
+		final IdentityStmt _id = stmt;
+		final Value _rhs = _id.getRightOp();
+
+		if (_rhs instanceof ThisRef || _rhs instanceof ParameterRef) {
+			collector.includeInSlice(_id.getLeftOpBox());
+			collector.includeInSlice(_id.getRightOpBox());
+			collector.includeInSlice(_id);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Picked " + stmt + " in " + method);
+			}
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * For the method invoked at <code>stmt</code>, this method includes the declarations/definitions of methods with
+	 * identical signature in the super classes to make the executable.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param stmt containing the invoke expr.
+	 *
+	 * @pre method != null and stmt != null and stmt.containsInvokeExpr()
+	 */
+	private void processInvokeExpr(final SootMethod method, final Stmt stmt) {
+		/*
+		 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
+		 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
+		 * This can be fixed by sucking all the method definitions that need to make the system verifiable
+		 * and empty bodies will be substituted for such methods.
+		 */
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+
+		if (!(_expr instanceof StaticInvokeExpr)) {
+			final SootMethod _t = _expr.getMethod();
+
+			for (final Iterator _i = findMethodInSuperClasses(_t).iterator(); _i.hasNext();) {
+				final SootMethod _sm = (SootMethod) _i.next();
+				collector.includeInSlice(_sm);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Included method invoked at " + stmt + " in " + method);
+				}
+				addToMethodWorkBag(_sm);
+			}
+		}
+	}
+
+	/**
+	 * Process the statements in the slice body of the given method.
+	 *
+	 * @param method whose statements need to be processed.
+	 *
+	 * @pre method != null and method.isConcrete()
+	 */
+	private void processStmts(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Picking up identity statements and methods required in" + method);
+		}
+
+		final Body _body = method.retrieveActiveBody();
+		stmtWorkBag.clear();
+		stmtWorkBag.addAllWork(_body.getUnits());
+		processedStmtCache.clear();
+
+		while (stmtWorkBag.hasWork()) {
+			final Stmt _stmt = (Stmt) stmtWorkBag.getWork();
+			processedStmtCache.add(_stmt);
+
+			if (collector.hasBeenCollected(_stmt)) {
+				if (_stmt instanceof IdentityStmt) {
+					processIdentityStmt(method, (IdentityStmt) _stmt);
+				}
+
+				if (_stmt.containsInvokeExpr() && collector.hasBeenCollected(_stmt)) {
+					processInvokeExpr(method, _stmt);
+				}
+				processHandlers(method, _stmt);
+			}
+		}
+	}
+
+	/**
+	 * Prunes the exception handlers in the given method's slice body.
+	 *
+	 * @param method in which the exception handlers need to be pruned.
+	 *
+	 * @pre method != null and method.isConcrete() and method.hasActiveBody()
+	 */
+	private void pruneHandlers(final SootMethod method) {
+		final Body _body = method.getActiveBody();
+		_body.getTraps().retainAll(trapsToRetain);
+	}
+
+	/**
+	 * Prunes the locals in the given method's slice body.
+	 *
+	 * @param method in which to process the locals.
+	 *
+	 * @pre method != null and method.isConcrete() and method.hasActiveBody()
 	 */
 	private void pruneLocals(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Pruning locals in " + method);
+		}
+
 		final Body _body = method.getActiveBody();
 		final Collection _localsToKeep = new ArrayList();
 
@@ -295,6 +442,7 @@ public final class ExecutableSlicePostProcessor
 				}
 			}
 		}
+
 		_body.getLocals().retainAll(_localsToKeep);
 	}
 }
@@ -302,6 +450,11 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/15 23:20:37  venku
+   - When handler unit was included for a trap, it's exception
+     was not included.  FIXED.
+   - Locals and traps are now removed from the body if not
+     required.
    Revision 1.2  2004/01/14 11:55:45  venku
    - when pruning handlers, we need to include the rhs and lhs of
      the identity statement that occurs at the handler unit.
