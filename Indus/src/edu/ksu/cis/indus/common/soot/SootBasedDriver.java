@@ -16,6 +16,9 @@
 package edu.ksu.cis.indus.common.soot;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
+import soot.Printer;
 import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
@@ -485,6 +489,67 @@ public class SootBasedDriver {
 				logger.info(info.toString());
 			} else {
 				logger.info("null");
+			}
+		}
+	}
+
+	/**
+	 * Dumps jimple for the classes in the scene.
+	 *
+	 * @param outputDirectory is the directory in which jimple files will be dumped.
+	 * @param jimpleFile <code>true</code> indicates if .jimple file should be dumped; <code>false</code>, indicates
+	 * 		  otherwise.
+	 * @param classFile <code>true</code> indicates if .class file should be dumped; <code>false</code>, indicates otherwise.
+	 */
+	protected void dumpJimpleAndClassFiles(final String outputDirectory, final boolean jimpleFile, final boolean classFile) {
+		if (!jimpleFile && !classFile) {
+			return;
+		}
+
+		final Printer _printer = Printer.v();
+
+		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Dumping jimple for " + _sc);
+			}
+
+			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+
+				if (_sm.isConcrete()) {
+					try {
+						_sm.retrieveActiveBody();
+					} catch (final RuntimeException _e) {
+						LOGGER.error("Failed to retrieve body for method " + _sm, _e);
+					}
+				}
+			}
+
+			PrintWriter _writer = null;
+
+			try {
+				if (jimpleFile) {
+					// write .jimple file
+					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
+					_writer = new PrintWriter(new FileWriter(_file));
+					_printer.printTo(_sc, _writer);
+				}
+
+				if (classFile) {
+					// write .class file
+					_printer.write(_sc, outputDirectory);
+				}
+			} catch (final IOException _e) {
+				LOGGER.error("Error while writing " + _sc, _e);
+			} catch (final RuntimeException _e) {
+				LOGGER.error("Error while writing class file of " + _sc, _e);
+			} finally {
+				if (_writer != null) {
+					_writer.flush();
+					_writer.close();
+				}
 			}
 		}
 	}
