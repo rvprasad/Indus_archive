@@ -158,9 +158,12 @@ public class DirectedAndSimpleNodeGraphTest1
 			nodes.clear();
 			nodes.add(edge.getFirst());
 			nodes.add(edge.getSecond());
+			// ensure that all nodes in the edge do belong to the graph.
+			assertTrue(dg.getNodes().containsAll(nodes));
 
 			boolean flag = false;
 
+			// ensure that the edge belongs to atlease one cycle.
 			for (Iterator j = cycles.iterator(); j.hasNext();) {
 				Collection cycle = (Collection) j.next();
 				flag |= cycle.containsAll(nodes);
@@ -329,6 +332,13 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	public final void testIsAncestorOf() {
+		localtestIsAncestorOf();
+	}
+
+	/**
 	 * Tests <code>isReachable()</code> method.
 	 */
 	public final void testIsReachable() {
@@ -446,6 +456,14 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
+	 * Tests <code>isAncestorOf()</code> method.
+	 */
+	protected void localtestIsAncestorOf() {
+		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
+		assertTrue(dg.isAncestorOf((INode) name2node.get("h"), (INode) name2node.get("h")));
+	}
+
+	/**
 	 * Checks <code>isReachable()</code> on the local graph instance.
 	 */
 	protected void localtestIsReachable() {
@@ -461,6 +479,8 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/11 02:37:30  venku
+   - formatting.
    Revision 1.7  2003/09/11 02:37:12  venku
    - added a test case for javac compilation of Divergent04 test.
    - created test suite to test directed and simple node graph.

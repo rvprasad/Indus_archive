@@ -86,6 +86,15 @@ public class DirectedAndSimpleNodeGraphTest3
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsAncestorOf()
+	 */
+	protected void localtestIsAncestorOf() {
+		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
+		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("e")));
+		assertFalse(dg.isAncestorOf((INode) name2node.get("e"), (INode) name2node.get("b")));
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
@@ -99,4 +108,7 @@ public class DirectedAndSimpleNodeGraphTest3
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/11 02:37:12  venku
+   - added a test case for javac compilation of Divergent04 test.
+   - created test suite to test directed and simple node graph.
  */
