@@ -208,7 +208,7 @@ public class AnalysesController {
 
 	/**
 	 * Resets the internal data structures of the controller.  This resets the participating analyses.  This does not reset
-	 * the Object Flow AbstractAnalysis instance.
+	 * the Object Flow Analysis instance.
 	 */
 	public void reset() {
 		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
@@ -228,6 +228,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/01 23:51:27  venku
+   - each analysis id can be associated with multiple
+     implementations that can provide the same analysis.
+
    Revision 1.20  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
    Revision 1.19  2003/09/28 03:16:20  venku
