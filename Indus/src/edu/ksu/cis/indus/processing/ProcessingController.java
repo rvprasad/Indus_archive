@@ -117,8 +117,9 @@ import soot.toolkits.graph.UnitGraph;
  * visitor will notify the interested post processors with the given AST node and then visit it's children.
  * 
  * <p>
- * This class will control the processing of statements in methods based on their local reachability. For this purpose, the
- * clients should call <code>setStmtGraphFactory()</code> before using an instance of this class for processing.
+ * This class will control the processing of statements in methods.  If the clients want to process the statements based on
+ * their reachability local to the method, then the clients should call <code>setStmtGraphFactory()</code> before using an
+ * instance of this class for processing.
  * </p>
  * 
  * <p>
@@ -979,8 +980,22 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Controls the processing activity.  If the statements in the system will be processed then
-	 * <code>setStmtGraphFactory()</code> should be called providing a valid factory object before calling this method.
+	 * Controls the processing activity.
+	 * 
+	 * <p>
+	 * If statements in the system should be processed, then
+	 * 
+	 * <ul>
+	 * <li>
+	 * calling <code>setStmtGraphFactory()</code> before this method will cause the processing of the statements based on
+	 * reachability of the statements determined by the graph retrieved by the provided factory.
+	 * </li>
+	 * <li>
+	 * not calling <code>setStmtGraphFactory()</code> before this method will cause the processing of all statements of a
+	 * method if it's body is available
+	 * </li>
+	 * </ul>
+	 * </p>
 	 */
 	public final void process() {
 		if (LOGGER.isInfoEnabled()) {
@@ -1245,21 +1260,28 @@ public class ProcessingController {
 			final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
 
 			if (stmtGraphFactory == null) {
-				throw new IllegalStateException("Please call setStmtGraphFactory() with a valid graph factory before "
-					+ "using the controller.");
-			}
+				if (method.hasActiveBody()) {
+					for (final Iterator _i = method.getActiveBody().getUnits().iterator(); _i.hasNext();) {
+						final Stmt _stmt = (Stmt) _i.next();
+						context.setStmt(_stmt);
+						_stmt.apply(stmtSwitcher);
+					}
+				} else {
+					LOGGER.error("Active body was not available for " + method.getSignature());
+				}
+			} else {
+				final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
+				_wb.addAllWork(_stmtGraph.getHeads());
 
-			final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
-			_wb.addAllWork(_stmtGraph.getHeads());
-
-			while (_wb.hasWork()) {
-				final Stmt _stmt = (Stmt) _wb.getWork();
-				context.setStmt(_stmt);
-				_stmt.apply(stmtSwitcher);
-				_wb.addAllWorkNoDuplicates(_stmtGraph.getSuccsOf(_stmt));
+				while (_wb.hasWork()) {
+					final Stmt _stmt = (Stmt) _wb.getWork();
+					context.setStmt(_stmt);
+					_stmt.apply(stmtSwitcher);
+					_wb.addAllWorkNoDuplicates(_stmtGraph.getSuccsOf(_stmt));
+				}
 			}
 		} catch (RuntimeException _e) {
-			LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+			LOGGER.error("Well, exception while processing statements of a method may mean the processor does not"
 				+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
 				+ method.getSignature(), _e);
 		}
@@ -1269,6 +1291,14 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/03/29 01:55:15  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.31  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
