@@ -535,6 +535,7 @@ public final class SlicerConfiguration
 		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
+		setProperty((USE_SLA_FOR_READY_DA), Boolean.TRUE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
@@ -866,6 +867,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/07/27 11:07:21  venku
+   - updated project to use safe lock analysis.
+
    Revision 1.49  2004/07/21 11:36:27  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
