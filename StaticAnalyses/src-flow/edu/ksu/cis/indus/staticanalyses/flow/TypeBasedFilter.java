@@ -48,6 +48,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 /**
  * This class filters out values which are not of the same type or a sub type of <code>type</code>.
  *
@@ -71,6 +73,7 @@ public class TypeBasedFilter
 	 */
 	private final Type type;
 
+    private static final Log LOGGER = LogFactory.getLog(TypeBasedFilter.class);
 	/**
 	 * Creates a new TypeBasedFilter object.
 	 *
@@ -114,27 +117,31 @@ public class TypeBasedFilter
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value o = (Value) i.next();
 
-			if (filter(o)) {
+			if (!filter(o)) {
 				result.add(o);
 			}
 		}
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Filtered " + result + " from " + values + " when type was " + type);
+        }
 		return result;
 	}
 
 	/**
-	 * Checks if value should be let through the fitler.  It is let through if it is of the type being monitored by this
+	 * Checks if value should be filtered out.  It is filtered out if it is not of the type being monitored by this
 	 * object.
 	 *
-	 * @param value to be filtered.
+	 * @param value to be filtered out.
 	 *
-	 * @return <code>true</code> if <code>value</code> should be filtered; <code>false</code>, otherwise.
+	 * @return <code>true</code> if <code>value</code> should be filtered out; <code>false</code>, otherwise.
 	 *
 	 * @pre value != null and value.oclIsKindOf(Value)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IValueFilter#filter(java.lang.Object)
 	 */
 	public boolean filter(final Object value) {
-		return Util.isSameOrSubType(((Value) value).getType(), type, env);
+		return !Util.isSameOrSubType(((Value) value).getType(), type, env);
 	}
 }
 
@@ -142,6 +149,10 @@ public class TypeBasedFilter
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    Revision 1.3  2003/08/15 04:15:45  venku
    Got the documentation right.
 
