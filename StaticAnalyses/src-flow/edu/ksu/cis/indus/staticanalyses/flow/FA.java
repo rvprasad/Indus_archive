@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import soot.ArrayType;
 import soot.Modifier;
 import soot.RefType;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -58,81 +57,81 @@ import soot.tagkit.Tag;
 public class FA
   implements IEnvironment,
 	  IWorkBagProvider {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FA.class);
 
-	/**
+	/** 
 	 * This is the collection of methods that serve as entry points into the system being analyzed.
 	 *
 	 * @invariant rootMethods != null
 	 */
 	protected final Collection rootMethods = new HashSet();
 
-	/**
+	/** 
 	 * The analyzer associated with this instance of the framework.
 	 *
 	 * @invariant analyzer != null
 	 */
 	private final AbstractAnalyzer analyzer;
 
-	/**
+	/** 
 	 * The collection of workbags used in tandem during analysis.
 	 */
 	private final IWorkBag[] workBags;
 
-	/**
+	/** 
 	 * The manager of array variants.
 	 */
 	private ArrayVariantManager arrayVariantManager;
 
-	/**
+	/** 
 	 * The manager of class related primitive information and processing.
 	 */
 	private ClassManager classManager;
 
-	/**
+	/** 
 	 * The manager of instance field variants.
 	 */
 	private FieldVariantManager instanceFieldVariantManager;
 
-	/**
+	/** 
 	 * The manager of static field variants.
 	 */
 	private FieldVariantManager staticFieldVariantManager;
 
-	/**
+	/** 
 	 * The token manager that manages the tokens whose flow is instrumented by the flow analysis.
 	 *
 	 * @invariant tokenManager != null
 	 */
 	private final ITokenManager tokenManager;
 
-	/**
+	/** 
+	 * The environment which provides the set of class to be analyzed.
+	 */
+	private IEnvironment environment;
+
+	/** 
 	 * The current work bag among the collection of work bags being used.
 	 */
 	private IWorkBag currWorkBag;
 
-	/**
+	/** 
 	 * The manager of method variants.
 	 */
 	private MethodVariantManager methodVariantManager;
 
-	/**
+	/** 
 	 * The factory that provides the components during the analysis performed by this instance of the framework.
 	 */
 	private ModeFactory modeFactory;
 
-	/**
+	/** 
 	 * The tag used to identify the elements of the AST touched by this framework instance.
 	 */
 	private NamedTag tag;
-
-	/**
-	 * The <code>Scene</code> which provides the set of class to be analyzed.
-	 */
-	private Scene scm;
 
 	/**
 	 * Creates a new <code>FA</code> instance.
@@ -208,7 +207,7 @@ public class FA
 	 * @pre className != null
 	 */
 	public final SootClass getClass(final String className) {
-		return scm.getSootClass(className);
+		return environment.getClass(className);
 	}
 
 	/**
@@ -335,14 +334,14 @@ public class FA
 	}
 
 	/**
-	 * Returns the associated <code>Scene</code>.
+	 * Returns the associated environment.
 	 *
-	 * @return the associated <code>Scene</code>.
+	 * @return the associated environment.
 	 *
 	 * @post result != null
 	 */
-	public final Scene getScene() {
-		return scm;
+	public final IEnvironment getScene() {
+		return environment;
 	}
 
 	/**
@@ -388,6 +387,13 @@ public class FA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
+	 */
+	public void removeClass(final SootClass clazz) {
+		environment.removeClass(clazz);
+	}
+
+	/**
 	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
 	 */
 	public void reset() {
@@ -399,7 +405,7 @@ public class FA
 		workBags[1].clear();
 		rootMethods.clear();
 		classManager.reset();
-		scm = null;
+		environment = null;
 	}
 
 	/**
@@ -526,13 +532,13 @@ public class FA
 	/**
 	 * Analyzes the given classes starting with <code>root</code> method.
 	 *
-	 * @param scene <code>Scene</code> object which contains the classes to be analyzed.
+	 * @param env which contains the classes to be analyzed.
 	 * @param root the method to start the analysis from.
 	 *
-	 * @pre scene != null and root != null
+	 * @pre environment != null and root != null
 	 */
-	void analyze(final Scene scene, final SootMethod root) {
-		this.scm = scene;
+	void analyze(final IEnvironment env, final SootMethod root) {
+		environment = env;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Starting system processing...");
@@ -549,14 +555,15 @@ public class FA
 		_workLists[1] = new WorkList(workBags[1]);
 
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
-		    if (LOGGER.isDebugEnabled()) {
-			    LOGGER.debug("Processing work pieces in workbag 0.");
-    		}
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing work pieces in workbag 0.");
+			}
 			currWorkBag = workBags[1];
 			_workLists[0].process();
-		    if (LOGGER.isDebugEnabled()) {
-			    LOGGER.debug("Processing work pieces in workbag 1.");
-	    	}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing work pieces in workbag 1.");
+			}
 			currWorkBag = workBags[0];
 			_workLists[1].process();
 		}
@@ -578,77 +585,4 @@ public class FA
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.20  2004/05/21 22:30:53  venku
-   - documentation.
-
-   Revision 1.19  2004/05/20 07:30:15  venku
-   - added logging to track work bag switching.
-
-   Revision 1.18  2004/05/19 06:50:30  venku
-   - changes to use two-level worklist iteration.  That is, while processing
-     work peice in a worklist, any newly generated work is added to another
-     worklist which is processed next.  The worklist are switched till both are
-     empty.
-
-   Revision 1.17  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.16  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.15  2003/12/07 03:22:26  venku
-   - exposed processClass().
-   Revision 1.14  2003/12/05 15:29:44  venku
-   - class manager was not being reset.  FIXED.
-   Revision 1.13  2003/12/05 00:53:09  venku
-   - removed unused method and restricted access to certain methods.
-   Revision 1.12  2003/12/02 09:42:35  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.11  2003/11/30 01:39:34  venku
-   - changed access level of getTag.
-   Revision 1.10  2003/11/30 01:09:42  venku
-   - documentation.
-   Revision 1.9  2003/11/30 01:07:57  venku
-   - added name tagging support in FA to enable faster
-     post processing based on filtering.
-   - ripple effect.
-   Revision 1.8  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.7  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.6  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.4  2003/08/17 10:37:08  venku
-   Fixed holes in documentation.
-   Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
-   Revision 1.3  2003/08/16 21:50:51  venku
-   Removed ASTVariant as it did not contain any data that was used.
-   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
-   Ripple effect of the above change in some.
-   Spruced up documentation and specification.
-   Revision 1.2  2003/08/11 07:11:47  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Moved getRoots() into the environment.
-   Added support to inject new roots in FA.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

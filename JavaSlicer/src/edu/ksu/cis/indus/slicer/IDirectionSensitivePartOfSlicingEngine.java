@@ -117,6 +117,11 @@ interface IDirectionSensitivePartOfSlicingEngine
 	 * @post result != null and result.oclIsKindOf(Collection(ValueBox))
 	 */
 	Collection retrieveValueBoxesToTransformStmt(Stmt stmt);
+
+    /**
+     * Reset the part.
+     */
+    void reset();
 }
 
 // End of File

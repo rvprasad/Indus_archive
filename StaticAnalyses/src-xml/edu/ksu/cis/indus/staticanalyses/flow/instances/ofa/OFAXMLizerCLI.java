@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
+import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
@@ -233,7 +234,7 @@ public final class OFAXMLizerCLI
 			_aa.reset();
 			getBbm().reset();
 
-			_aa.analyze(getScene(), _rm);
+			_aa.analyze(new Environment(getScene()), _rm);
 
 			final long _stop = System.currentTimeMillis();
 			addTimeLog("FA", _stop - _start);
@@ -255,59 +256,4 @@ public final class OFAXMLizerCLI
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/06/22 14:34:55  venku
-   - added commandline option to enable cumulative or separate analyses when there is more than root method.
-   Revision 1.13  2004/06/12 06:45:22  venku
-   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
-   Revision 1.12  2004/06/03 03:50:34  venku
-   - changed the way help will be output on command line classes.
-   Revision 1.11  2004/05/10 11:28:25  venku
-   - Jimple is dumped only for the reachable parts of the system.
-   Revision 1.10  2004/04/25 21:18:37  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.9  2004/04/23 01:00:48  venku
-   - trying to resolve issues with canonicalization of Jimple.
-   Revision 1.8  2004/04/23 00:42:36  venku
-   - trying to get canonical xmlized Jimple representation.
-   Revision 1.7  2004/04/22 23:32:30  venku
-   - xml file name were setup incorrectly.  FIXED.
-   Revision 1.6  2004/04/22 20:09:06  venku
-   - NPE. FIXED.
-   Revision 1.5  2004/04/22 10:23:10  venku
-   - added getTokenManager() method to OFAXMLizerCLI to create
-     token manager based on a system property.
-   - ripple effect.
-   Revision 1.4  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.3  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.2  2004/03/05 11:59:45  venku
-   - documentation.
-   Revision 1.1  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.1  2004/02/09 17:40:53  venku
-   - dependence and call graph info serialization is done both ways.
-   - refactored the xmlization framework.
-     - Each information type has a xmlizer (XMLizer)
-     - Each information type has a xmlizer driver (XMLizerCLI)
-     - Tests use the XMLizer.
- */
+// End of File

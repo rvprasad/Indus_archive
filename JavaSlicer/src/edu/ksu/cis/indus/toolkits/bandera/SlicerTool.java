@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,6 +22,8 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
+import edu.ksu.cis.indus.processing.Environment;
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
@@ -58,32 +60,32 @@ import soot.Scene;
 public final class SlicerTool
   extends BaseObservable
   implements Tool {
-	/**
+	/** 
 	 * This identifies the scene in the input arguments.
 	 */
 	public static final Object SCENE = "scene";
 
-	/**
+	/** 
 	 * This identifies the root methods/entry point methods in the input arguments.
 	 */
 	public static final Object ROOT_METHODS = "entryPoints";
 
-	/**
+	/** 
 	 * This identifies the slicing criteria in the input arguments.
 	 */
 	public static final Object CRITERIA = "slicingCriteria";
 
-	/**
+	/** 
 	 * This identifies the slicing criteria specification in the input arguments.
 	 */
 	public static final Object CRITERIA_SPECIFICATION = "slicingCriteriaSpecification";
 
-	/**
+	/** 
 	 * The collection of input argument identifiers.
 	 */
 	private static final List IN_ARGUMENTS_IDS;
 
-	/**
+	/** 
 	 * The collection of output argument identifiers.
 	 */
 	private static final List OUT_ARGUMENTS_IDS;
@@ -98,22 +100,27 @@ public final class SlicerTool
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
-	/**
+	/** 
 	 * The default tag name to be used.
 	 */
 	private static final String TAG_NAME = "Slicer:Bandera";
 
-	/**
+	/** 
 	 * The slicer tool that is adapted by this object.
 	 */
 	private final edu.ksu.cis.indus.tools.slicer.SlicerTool tool;
 
-	/**
+	/** 
+	 * The scene being processed.
+	 */
+	private Scene scene;
+
+	/** 
 	 * The configuration interface provided by this object to configure the slicer tool.
 	 */
 	private SlicerConfigurationView configurationView;
@@ -157,13 +164,13 @@ public final class SlicerTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
 	public void setInputMap(final Map inputArgs) {
-		final Scene _theScene = (Scene) inputArgs.get(SCENE);
+		scene = (Scene) inputArgs.get(SCENE);
 
-		if (_theScene == null) {
+		if (scene == null) {
 			LOGGER.error("A scene must be provided for slicing.");
 			throw new IllegalArgumentException("A scene must be provided for slicing.");
 		}
-		tool.setSystem(_theScene);
+		tool.setSystem(new Environment(scene));
 
 		final Collection _criteria = (Collection) inputArgs.get(CRITERIA);
 
@@ -190,7 +197,7 @@ public final class SlicerTool
 			LOGGER.info("No criteria specification provided.");
 		} else {
 			try {
-				tool.setCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, _theScene));
+				tool.setCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
 			} catch (final JiBXException _e) {
 				final String _msg = "Error occurred while deserializing the provided criteria specification.";
 				LOGGER.error(_msg);
@@ -223,7 +230,7 @@ public final class SlicerTool
 	 */
 	public Map getOutputMap() {
 		final Map _outputMap = new HashMap();
-		_outputMap.put(SCENE, tool.getSystem());
+		_outputMap.put(SCENE, scene);
 		return _outputMap;
 	}
 
@@ -277,130 +284,4 @@ public final class SlicerTool
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.35  2004/07/09 09:38:45  venku
-   - moved sliceCriteria.xsd into the java source tree to enable distribution.
-   - added the option to specify criteria specification in slicer tool exported to Bandera.
-
-   Revision 1.34  2004/06/14 08:39:29  venku
-   - added a property to SootBasedDriver to control the type of statement graph
-     factory to be used.
-   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
-   - ripple effect.
-   Revision 1.33  2004/06/12 06:10:02  venku
-   - documentation.
-   Revision 1.32  2004/05/28 21:53:20  venku
-   - added a method to ExceptionFlowSensitiveGraphFactory to create
-     default factory objects.
-   Revision 1.31  2004/05/09 11:09:46  venku
-   - the client can now specify the statement graph factory to use during slicing.
-   Revision 1.30  2004/04/20 00:43:40  venku
-   - The processing during residualization was driven by a graph.  This
-     caused errors when the graph did not cover all of the statements.
-     Hence, during residualization we will visit all parts of a method.
-   Revision 1.29  2004/04/16 20:10:41  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.28  2004/03/29 01:55:08  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.27  2004/03/03 08:04:11  venku
-   - formatting.
-   Revision 1.26  2004/02/25 23:33:41  venku
-   - well package naming convention was inconsistent. FIXED.
-   Revision 1.25  2004/02/06 00:33:26  venku
-   - logging.
-   Revision 1.24  2004/02/06 00:22:09  venku
-   - logging.
-   Revision 1.23  2004/02/06 00:19:16  venku
-   - logging.
-   Revision 1.22  2003/12/14 16:40:30  venku
-   - added residualization logic.
-   - incorporate the residualizer in the tool.
-   Revision 1.21  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.20  2003/12/09 12:23:48  venku
-   - added support to control synchronicity of method runs.
-   - ripple effect.
-   Revision 1.19  2003/12/02 11:32:01  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.18  2003/12/02 09:42:18  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.17  2003/11/24 10:11:32  venku
-   - there are no residualizers now.  There is a very precise
-     slice collector which will collect the slice via tags.
-   - architectural change. The slicer is hard-wired wrt to
-     slice collection.  Residualization is outside the slicer.
-   Revision 1.16  2003/11/24 00:01:14  venku
-   - moved the residualizers/transformers into transformation
-     package.
-   - Also, renamed the transformers as residualizers.
-   - opened some methods and classes in slicer to be public
-     so that they can be used by the residualizers.  This is where
-     published interface annotation is required.
-   - ripple effect of the above refactoring.
-   Revision 1.15  2003/11/18 21:43:54  venku
-   - fixed code in bandera version of the tool to work with new assumptions.
-   - removed TAG_NAME input parameter to make the transition to clone-based transformer
-     transparent to bandera.
-   Revision 1.14  2003/11/14 21:09:37  venku
-   - formatting.
-   Revision 1.13  2003/11/14 21:08:17  venku
-   - verify the type of criteria if atleast one is specified.
-   Revision 1.12  2003/11/13 15:37:47  venku
-   - criteria can be null or an empty set to defaul to deadlock
-     based criteria.
-   Revision 1.11  2003/10/14 02:58:53  venku
-   - changed tag name.
-   Revision 1.10  2003/10/13 01:01:45  venku
-   - Split transformations.slicer into 2 packages
-      - transformations.slicer
-      - slicer
-   - Ripple effect of the above changes.
-   Revision 1.9  2003/10/12 19:45:05  venku
-    - Changed valus of input/output args Ids as per the suggestion
-      of Todd.
-   Revision 1.8  2003/09/28 23:16:18  venku
-   - documentation
-   Revision 1.7  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.6  2003/09/27 01:27:46  venku
-   - documentation.
-   Revision 1.5  2003/09/27 01:09:35  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.4  2003/09/26 15:07:51  venku
-   - completed support for exposing slicer as a tool
-     and configuring it both in Bandera and outside it.
-   Revision 1.3  2003/09/26 05:55:51  venku
-   - a checkpoint commit.
-   Revision 1.2  2003/09/24 07:33:24  venku
-   - Nightly commit.
-   - Need to wrap the indus tool api in ways specific to bandera
-     tool api.
-   Revision 1.1  2003/09/24 01:43:45  venku
-   - Renamed edu.ksu.cis.indus.tools to edu.ksu.cis.indus.toolkits.
-     This package is to house adaptation of each tools for each toolkits.
-   - Retained edu.ksu.cis.indus.tools to contain API/interface to expose
-     the implementation as a tool.
-   Revision 1.1  2003/09/15 08:55:23  venku
-   - Well, the SlicerTool is still a mess in my opinion as it needs
-     to be implemented as required by Bandera.  It needs to be
-     much richer than it is to drive the slicer.
-   - SlicerConfigurator is supposed to bridge the above gap.
-     I doubt it.
- */
+// End of File

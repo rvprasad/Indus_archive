@@ -322,6 +322,13 @@ public class ForwardSlicingPart
 			}
 		}
 	}
+
+    /** 
+     * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
+     */
+    public void reset() {
+        // DOES NOTHING.
+    }
 }
 
 // End of File

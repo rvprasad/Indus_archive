@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
-import soot.Scene;
 import soot.SootMethod;
 
 
@@ -36,12 +35,12 @@ import soot.SootMethod;
  */
 public interface IValueAnalyzer
   extends IStatus {
-	/**
+	/** 
 	 * The id of this interface.
 	 */
 	Object ID = "value flow analyzer";
 
-	/**
+	/** 
 	 * The id of the tag used by the underlying flow analysis.
 	 */
 	Object TAG_ID = "id of tag used by flow analysis";
@@ -83,24 +82,24 @@ public interface IValueAnalyzer
 	/**
 	 * Analyzes the system represented by the given classes and and scene.
 	 *
-	 * @param scm manages the classes that constitute the system being analyzed.
+	 * @param env is the environment of classes to be analyzed.
 	 * @param classes which were mentioned by the user as being part of the system.  This generally serves as the starting
 	 * 		  point to discover other constituents of the system.  These may serve as the classes in which to explore for
 	 * 		  the  entry point of the system.
 	 *
-	 * @pre scm != null and classes != null and classes.size() != 0
+	 * @pre env != null and classes != null and classes.size() != 0
 	 */
-	void analyze(Scene scm, Collection classes);
+	void analyze(IEnvironment env, Collection classes);
 
 	/**
 	 * Analyzes the system represented by the given classes starting at the given entry point.
 	 *
-	 * @param scm manages the classes that constitute the system being analyzed.
+	 * @param env is the environment of classes to be analyzed.
 	 * @param entry point into the system being analyzed.
 	 *
-	 * @pre scm != null and entry != null
+	 * @pre env != null and entry != null
 	 */
-	void analyze(Scene scm, SootMethod entry);
+	void analyze(IEnvironment env, SootMethod entry);
 
 	/**
 	 * Resets the analyzer.
@@ -108,46 +107,4 @@ public interface IValueAnalyzer
 	void reset();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.11  2004/02/08 19:07:59  venku
-   - documentation
-   Revision 1.10  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.9  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.8  2003/09/07 19:24:49  venku
-   - coding convention changes.
-   Revision 1.7  2003/09/07 08:59:31  venku
-   - Introduced ID to enable use of value flow analyzers in
-     higher level analyses.
-   Revision 1.6  2003/08/21 03:32:37  venku
-   Incorporated IStatus interface into any interface that provides analysis information.
-   Revision 1.5  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.4  2003/08/12 01:52:00  venku
-   Removed redundant final in parameter declaration in methods of interfaces.
-   Revision 1.3  2003/08/11 07:11:47  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Moved getRoots() into the environment.
-   Added support to inject new roots in FA.
-   Revision 1.2  2003/08/09 23:26:20  venku
-   - Added an interface to provide use-def information.
-   - Added an implementation to the above interface.
-   - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
-   - Modified IValueAnalyzer interface such that only generic queries are possible.
-     If required, this can be extended in the future.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

@@ -405,6 +405,9 @@ public final class SlicingEngine {
 		callStackCache = null;
 		criteria.clear();
 		collectedAllInvocationSites.clear();
+		if (directionSensitiveInfo != null) {
+		    directionSensitiveInfo.reset();
+		}
 
 		// clear the work bag of slice criterion
 		while (workbag.hasWork()) {

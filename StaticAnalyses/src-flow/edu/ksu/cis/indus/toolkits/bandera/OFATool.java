@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
+import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -316,7 +317,7 @@ public final class OFATool
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, callgraph);
 		_aa.reset();
-		_aa.analyze(scene, entryPoints);
+		_aa.analyze(new Environment(scene), entryPoints);
 		((CallGraph) callgraph).reset();
 		_processors.clear();
 		_processors.add(callgraph);
@@ -361,3 +362,5 @@ public final class OFATool
 		}
 	}
 }
+
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -201,6 +201,17 @@ public final class SlicerConfiguration
 		propertyIds.add(SLICE_FOR_DEADLOCK);
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
+	}
+
+	/**
+	 * Retrieves slicing criteria generator.
+	 *
+	 * @return a slice criteria generator.
+	 *
+	 * @post result != null
+	 */
+	public ISliceCriteriaGenerator getDeadlockCriteriaGenerator() {
+		return new DeadlockPreservingCriteriaGeneratorv2();
 	}
 
 	/**
@@ -540,7 +551,6 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.INTERFERENCE_DA);
 		dependencesToUse.add(IDependencyAnalysis.READY_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
-
 	}
 
 	/**
@@ -806,9 +816,9 @@ public final class SlicerConfiguration
 		boolean _result;
 		_result = true;
 
-		
 		if (property.equals(SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
 			final Collection _temp = new HashSet();
+
 			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 				_temp.add(ReadyDAv3.getForwardReadyDA());
 			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
@@ -820,6 +830,7 @@ public final class SlicerConfiguration
 			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} else if (property.equals(EQUIVALENCE_CLASS_BASED_INFO)) {
 			final Collection _temp = new HashSet();
+
 			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 				_temp.add(ReadyDAv2.getForwardReadyDA());
 			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
@@ -831,6 +842,7 @@ public final class SlicerConfiguration
 			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} else if (property.equals(TYPE_BASED_INFO)) {
 			final Collection _temp = new HashSet();
+
 			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 				_temp.add(ReadyDAv1.getForwardReadyDA());
 			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
@@ -910,172 +922,4 @@ public final class SlicerConfiguration
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.53  2004/08/15 08:37:25  venku
-   - REFACTORING pertaining to feature request #426
-     - refactored dependence retriever interface.
-     - refactored direction sensitive dependence information creation.
-
-   Revision 1.52  2004/07/28 17:20:40  venku
-   - trivial nip-tucks.
-   Revision 1.51  2004/07/28 02:47:44  venku
-   - SLA was not turned on by default.
-   Revision 1.50  2004/07/27 11:07:21  venku
-   - updated project to use safe lock analysis.
-   Revision 1.49  2004/07/21 11:36:27  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.48  2004/07/21 02:06:36  venku
-   - documentation.
-   Revision 1.47  2004/07/20 06:20:27  venku
-   - fixed a few more issues pertaining to serialized configuration and how the
-     configurator should treat illegal configurations.
-   Revision 1.46  2004/07/20 05:20:28  venku
-   - EntryControlDA needs to be added only for daController based execution
-     and not for slicer execution purposes during forward slicing.  FIXED.
-   Revision 1.45  2004/07/20 01:19:48  venku
-   - addressed bug #408.
-   Revision 1.44  2004/07/20 01:04:34  venku
-   - addressed bug #408.
-   Revision 1.43  2004/07/20 00:53:09  venku
-   - addressed bug #408.
-   Revision 1.42  2004/07/20 00:31:04  venku
-   - addressed bug #408.
-   Revision 1.41  2004/07/02 05:28:53  venku
-   - changed access specifiers on some fields.
-   Revision 1.40  2004/06/26 06:45:43  venku
-   - documentation.
-   Revision 1.39  2004/06/24 07:05:44  venku
-   - addressed feature request 391.
-     - made getIDOfDAToUse() and getDependencyAnalyses() public.
-   Revision 1.38  2004/06/24 06:53:53  venku
-   - refactored SliceConfiguration
-     - added processBooleanProperty()
-     - renamed getNamesOfDAToUse() to getIDOfDAToUse()
-   - ripple effect
-   - made AbstractSliceCriterion package private
-   - made ISliceCriterion public
-   Revision 1.37  2004/06/15 10:27:29  venku
-   - moved to IdentifierBasedDataDAv2.
-   Revision 1.36  2004/06/12 06:47:27  venku
-   - documentation.
-   - refactoring.
-   - coding conventions.
-   - catered feature request 384, 385, and 386.
-   Revision 1.35  2004/06/03 21:41:55  venku
-   - added equals() method to compare two configurations based on content.
-     This means the attributes of the configuration such as name are not considered
-     during comparison.
-   Revision 1.34  2004/05/31 20:28:18  venku
-   - renamed methods getUseOFA... to isOFAUsedFor....
-   Revision 1.33  2004/05/14 09:02:57  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-   Revision 1.32  2004/05/14 06:27:20  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.31  2004/05/10 07:24:45  venku
-   - Slicer cannot be programmatically configured via SliceConfiguration.  FIXED.
-   Revision 1.30  2004/03/21 20:25:49  venku
-   - naming of auto generated configurations were inconsistent. FIXED.
-   Revision 1.29  2004/02/13 08:40:04  venku
-   - use ofa for interference/ready was being ignored. FIXED.
-   Revision 1.28  2004/01/25 16:19:52  venku
-   - enabled configuration support for using object flow information.
-   Revision 1.27  2004/01/20 02:18:42  venku
-   - modified initialize() to consider ready dependence with all forms of
-     ready dependences.
-   Revision 1.26  2004/01/17 23:51:28  venku
-   - formatting.
-   Revision 1.25  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.24  2003/12/02 11:32:01  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.23  2003/12/02 09:42:18  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.22  2003/12/02 01:30:50  venku
-   - coding conventions and formatting.
-   Revision 1.21  2003/11/28 16:40:26  venku
-   - cosmetic.
-   Revision 1.20  2003/11/25 17:51:26  venku
-   - split control dependence into 2 classes.
-     EntryControlDA handled control DA as required for backward slicing.
-     ExitControlDA handles control DA as required for forward slicing.
-   - ripple effect.
-   Revision 1.19  2003/11/16 18:33:01  venku
-   - fixed an error while returning the DAs.
-   Revision 1.18  2003/11/16 18:24:08  venku
-   - added methods to retrive active dependencies.
-   - documentation and formatting.
-   Revision 1.17  2003/11/09 08:12:49  venku
-   - values of all boolean properties are discovered by getBooleanProperty().
-     If the property does not exist, a default value will be returned.
-   - initialization will populate default values for all properties.
-   - configurations are given default name on creation.
-   - factory method will initialize the configuration after creation.
-   Revision 1.16  2003/11/05 08:26:42  venku
-   - changed the xml schema for the slicer configuration.
-   - The configruator, driver, and the configuration handle
-     these changes.
-   Revision 1.15  2003/11/05 02:46:54  venku
-   - added control dependence into the list of dependences to use.
-   Revision 1.14  2003/11/03 08:05:34  venku
-   - lots of changes
-     - changes to get the configuration working with JiBX
-     - changes to make configuration amenable to CompositeConfigurator
-     - added EquivalenceClassBasedAnalysis
-     - added fix for Thread's start method
-   Revision 1.13  2003/10/21 06:07:01  venku
-   - added support for executable slice.
-   Revision 1.12  2003/10/21 06:00:19  venku
-   - Split slicing type into 2 sets:
-        b/w, f/w, and complete
-        executable and non-executable.
-   - Extended transformer classes to handle these
-     classification.
-   - Added a new class to house the logic for fixing
-     return statements in case of backward executable slice.
-   Revision 1.11  2003/10/20 13:55:25  venku
-   - Added a factory to create new configurations.
-   - Simplified AbstractToolConfigurator methods.
-   - The driver manages the shell.
-   - Got all the gui parts running EXCEPT for changing
-     the name of the configuration.
-   Revision 1.10  2003/10/19 20:04:05  venku
-   - class needs to be public for the purpose of
-     marshalling and unmarshalling.  FIXED.
-   Revision 1.9  2003/10/13 01:01:45  venku
-   - Split transformations.slicer into 2 packages
-      - transformations.slicer
-      - slicer
-   - Ripple effect of the above changes.
-   Revision 1.8  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.7  2003/09/27 01:09:35  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.6  2003/09/26 15:30:39  venku
-   - removed PropertyIdentifier class.
-   - ripple effect of the above change.
-   - formatting
-   Revision 1.5  2003/09/26 07:33:18  venku
-   - checkpoint commit.
-   Revision 1.4  2003/09/26 05:55:41  venku
-   - *** empty log message ***
-   Revision 1.1  2003/09/24 07:32:23  venku
-   - Created an implementation of indus tool api specific to Slicer.
-     The GUI needs to be setup and bandera adapter needs to be fixed.
- */
+// End of File

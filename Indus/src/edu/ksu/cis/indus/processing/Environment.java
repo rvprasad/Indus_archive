@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -40,7 +40,7 @@ import soot.VoidType;
  */
 public final class Environment
   implements IEnvironment {
-	/**
+	/** 
 	 * The scene/system being represented.
 	 */
 	private final Scene system;
@@ -86,19 +86,13 @@ public final class Environment
 		}
 		return null;
 	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
+	 */
+	public void removeClass(final SootClass clazz) {
+		system.removeClass(clazz);
+	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.3  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.2  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.1  2003/11/06 07:06:57  venku
-   - a wrapper to expose Scene as an IEnvironment.
- */
+// End of File

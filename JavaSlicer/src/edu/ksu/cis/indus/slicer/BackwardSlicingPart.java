@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -29,6 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +39,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,6 +95,14 @@ public class BackwardSlicingPart
 	 * This closure is used generate criteria to include return statements.
 	 */
 	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
+
+	/** 
+	 * this maps methods to their call sites.
+	 *
+	 * @invariant callee2callsites.oclIsKindOf(Map(SootMethod, Collection(Pair(Stmt, SootMethod))))
+	 * @invariant callee2callsites.values()->forAll(o | o->forall(p | p.getFirst().containsInvokeExpr()))
+	 */
+	private final Map callee2callsites = new HashMap();
 
 	/** 
 	 * This is a map from methods to transformed return statements.
@@ -208,6 +219,23 @@ public class BackwardSlicingPart
 	 */
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
 		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
+
+		final Stack _oldStack = engine.getCallStackCache();
+		Stack _stackClone = null;
+
+		if (_oldStack != null) {
+			_stackClone = (Stack) _oldStack.clone();
+		}
+
+		final Triple _triple = new Triple(stmt, caller, _stackClone);
+		final Collection _temp = Collections.nCopies(stmt.getInvokeExpr().getArgCount(), _triple);
+		final Iterator _i = callees.iterator();
+		final int _iEnd = callees.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Object _callee = _i.next();
+			CollectionsUtilities.putAllIntoListInMap(callee2callsites, _callee, _temp);
+		}
 	}
 
 	/**
@@ -298,9 +326,6 @@ public class BackwardSlicingPart
 			LOGGER.debug("BEGIN: Generating criteria for parameters");
 		}
 
-		/*
-		 * Note that this will cause us to include all caller sites as slicing criteria and this is not desired.
-		 */
 		final ParameterRef _param = (ParameterRef) pBox.getValue();
 		final int _index = _param.getIndex();
 
@@ -327,6 +352,7 @@ public class BackwardSlicingPart
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 			engine.generateSliceExprCriterion(_argBox, _stmt, _caller, true);
 			generateCriteriaForReceiver(_stmt, _caller, callee);
+			generateCriteriaForMissedParameters(callee, _index);
 			_callStackCache.push(_temp);
 		} else {
 			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
@@ -342,6 +368,13 @@ public class BackwardSlicingPart
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for parameters");
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
+	 */
+	public void reset() {
+		callee2callsites.clear();
 	}
 
 	/**
@@ -434,6 +467,34 @@ public class BackwardSlicingPart
 		}
 
 		return _result;
+	}
+
+	/**
+	 * Generates criteria for the argument positions at call-sites that could have been missed due to criteria processing 
+	 * order.
+	 *
+	 * @param callee of interest.
+	 * @param argIndex at the call site.
+	 * 
+	 * @pre callee != null
+	 */
+	private void generateCriteriaForMissedParameters(final SootMethod callee, final int argIndex) {
+		final Stack _oldCallStack = engine.getCallStackCache();
+		final Collection _temp = (Collection) MapUtils.getObject(callee2callsites, callee, Collections.EMPTY_SET);
+		final Iterator _i = _temp.iterator();
+		final int _iEnd = _temp.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Triple _triple = (Triple) _i.next();
+			final Stmt _stmt = (Stmt) _triple.getFirst();
+			final SootMethod _caller = (SootMethod) _triple.getSecond();
+			final Stack _stack = (Stack) _triple.getThird();
+			final InvokeExpr _expr = _stmt.getInvokeExpr();
+			engine.setCallStackCache(_stack);
+			engine.generateSliceExprCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true);
+			_i.remove();
+		}
+		engine.setCallStackCache(_oldCallStack);
 	}
 
 	/**

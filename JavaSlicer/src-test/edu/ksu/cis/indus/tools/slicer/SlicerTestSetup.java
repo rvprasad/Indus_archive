@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -57,12 +57,12 @@ import soot.G;
  */
 public class SlicerTestSetup
   extends AbstractXMLBasedTestSetup {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTestSetup.class);
 
-	/**
+	/** 
 	 * The slicer driver.
 	 */
 	SliceXMLizerCLI driver;
@@ -111,7 +111,7 @@ public class SlicerTestSetup
 		final TestSuite _suite = (TestSuite) getTest();
 		final DependencyXMLizer _xmlizer = new DependencyXMLizer();
 		final ICallGraphInfo _cgiImpl = driver.slicer.getCallGraph();
-		final IEnvironment _environment = new Environment(driver.slicer.getSystem());
+		final IEnvironment _environment = driver.slicer.getSystem();
 
 		for (final Iterator _i = driver.slicer.getDAs().iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
@@ -195,60 +195,4 @@ public class SlicerTestSetup
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.18  2004/06/12 06:47:28  venku
-   - documentation.
-   - refactoring.
-   - coding conventions.
-   - catered feature request 384, 385, and 386.
-   Revision 1.17  2004/05/14 11:27:21  venku
-   - coding convention.
-   Revision 1.16  2004/05/14 09:02:57  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-   Revision 1.15  2004/05/14 06:27:21  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.14  2004/05/14 04:44:17  venku
-   - enhanced tearDown() method.
-   Revision 1.13  2004/05/14 03:10:42  venku
-   - The destructively updated jimple can be dumped during tearDown() as
-     by then all tests would have completed, hence, not impacting the id
-     generation.
-   Revision 1.12  2004/05/11 22:17:16  venku
-   - privatized some methods.
-   - enabled dumping of pre-residulization and post-residualization jimple.
-   Revision 1.11  2004/05/11 11:52:48  venku
-   - We do not destructively updated Jimple as Jimple is xmlized based on tag.
-     Also, such update may invalidate previously calculated information.
-   Revision 1.10  2004/05/10 09:40:16  venku
-   - changed the way jimple is dumped.
-   Revision 1.9  2004/05/04 09:58:22  venku
-   - the test will also drive tagbased slice residualizer via the new
-     method added to SliceXMLizerCLI.
-   Revision 1.8  2004/05/04 07:55:44  venku
-   - id generator was not initialized correctly in slicer test setup. FIXED.
-   Revision 1.7  2004/04/25 21:18:41  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.6  2004/04/23 00:42:37  venku
-   - trying to get canonical xmlized Jimple representation.
-   Revision 1.5  2004/04/22 22:12:08  venku
-   - made changes to jimple xmlizer to dump each class into a separate file.
-   - ripple effect.
-   Revision 1.4  2004/04/22 08:00:20  venku
-   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-   Revision 1.3  2004/04/21 02:24:02  venku
-   - test clean up code was added.
-   Revision 1.2  2004/04/20 06:53:15  venku
-   - documentation.
-   Revision 1.1  2004/04/18 08:59:00  venku
-   - enabled test support for slicer.
- */
+// End of File

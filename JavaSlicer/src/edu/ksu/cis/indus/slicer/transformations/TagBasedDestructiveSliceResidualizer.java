@@ -22,11 +22,11 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -51,7 +51,6 @@ import org.apache.commons.logging.LogFactory;
 import soot.Body;
 import soot.Local;
 import soot.RefType;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -164,7 +163,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/** 
 	 * The system to be residualized.
 	 */
-	Scene theScene;
+	IEnvironment environment;
 
 	/** 
 	 * The method being processed.
@@ -734,7 +733,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		currMethod = null;
 		currClass = null;
 		classesToKill.clear();
-		classesToKill.addAll(theScene.getClasses());
+		classesToKill.addAll(environment.getClasses());
 		oldStmt2newStmt.clear();
 		stmtsToBeNOPed.clear();
 		methodsToKill.clear();
@@ -743,16 +742,16 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * Residualizes the given system.
 	 *
-	 * @param scene is the system to be residualized.
+	 * @param env is the system to be residualized.
 	 *
-	 * @pre scene != null
+	 * @pre env != null
 	 */
-	public void residualizeSystem(final Scene scene) {
-		theScene = scene;
+	public void residualizeSystem(final IEnvironment env) {
+		environment = env;
 
 		final ProcessingController _pc = new ProcessingController();
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(theNameOfTagToResidualize));
-		_pc.setEnvironment(new Environment(scene));
+		_pc.setEnvironment(env);
 		hookup(_pc);
 		_pc.process();
 		unhook(_pc);
@@ -763,7 +762,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		for (final Iterator _i = classesToKill.iterator(); _i.hasNext();) {
-			scene.removeClass((SootClass) _i.next());
+			env.removeClass((SootClass) _i.next());
 		}
 	}
 
@@ -1057,6 +1056,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/08/22 10:44:01  venku
+   - value returned from Jimple.v() should not be cached.  Evil Soot. FIXED.
+
    Revision 1.25  2004/08/16 21:08:40  venku
    - Traps were sucked in based on TrapManager which was transparent to the
      shape of the stmt graph.  This has been fixed.
