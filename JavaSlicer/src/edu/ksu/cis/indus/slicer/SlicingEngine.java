@@ -145,7 +145,7 @@ public class SlicingEngine {
 	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
 	 */
-	private BasicBlockGraphMgr slicedBBGMgr;
+	BasicBlockGraphMgr slicedBBGMgr;
 
 	/**
 	 * The ids of the dependencies to be considered for slicing.
@@ -179,12 +179,12 @@ public class SlicingEngine {
 	 *
 	 * @invariant sliceTypes.contains(sliceType)
 	 */
-	private Object sliceType = BACKWARD_SLICE;
+	Object sliceType = BACKWARD_SLICE;
 
 	/**
 	 * This indicates if executable slices should be generated.
 	 */
-	private boolean executableSlice;
+	boolean executableSlice;
 
 	/**
 	 * This indicates if ready dependence should be used.
@@ -195,7 +195,7 @@ public class SlicingEngine {
 	 * Creates a new SlicingEngine object.
 	 */
 	public SlicingEngine() {
-		transformer = new TaggingBasedSliceCollector();
+		transformer = new TaggingBasedSliceCollector(this);
 	}
 
 	/**
@@ -703,6 +703,12 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/24 10:11:32  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
+
    Revision 1.14  2003/11/24 09:46:49  venku
    - moved ISliceCollector and TaggingBasedSliceCollector
      into slicer package.
