@@ -70,7 +70,7 @@ public final class AliasedUseDefInfov2
 	 * @invariant method2EnclosingInvokingStmtsCache.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 * @invariant method2EnclosingInvokingStmtsCache.oclIsKindOf.values()->forall(o | o->forall(p | p.containsInvokeExpr()))
 	 */
-	private Map method2EnclosingInvokingStmtsCache;
+	private Map method2EnclosingInvokingStmtsCache = new HashMap();
 
 	/**
 	 * {@inheritDoc}
@@ -95,9 +95,9 @@ public final class AliasedUseDefInfov2
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	public void consolidate() {
-		method2EnclosingInvokingStmtsCache = new HashMap();
+		method2EnclosingInvokingStmtsCache.clear();
 		super.consolidate();
-		method2EnclosingInvokingStmtsCache = null;
+		method2EnclosingInvokingStmtsCache.clear();
 	}
 
 	/**
