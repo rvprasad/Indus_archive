@@ -107,7 +107,7 @@ public class StmtXMLizer
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
 			valueXMLizer.apply(v.getRightOpBox());
 			out.write("\t\t\t\t</rhs>\n");
-			out.write("\t\t\t</assignstmt>\n");
+			out.write("\t\t\t</assign_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -352,6 +352,9 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/24 01:20:27  venku
+   - enhanced output formatting.
+
    Revision 1.3  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
