@@ -41,6 +41,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.net.URL;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,18 +63,9 @@ public final class SlicerDriver {
 	private static final Log LOGGER = LogFactory.getLog(SlicerDriver.class);
 
 	/**
-	 * The default configuration.   TODO: This should be moved out to a file/resource.
+	 * The default configuration.
 	 */
-	private static String configuration =
-		"<slicerConfiguration " + "xmlns:slicer=\"http://indus.projects.cis.ksu.edu/slicer\""
-		+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-		+ "xsi:schemaLocation=\"http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd\" activeConfiguration=\"base\">"
-		+ "<configurationInfo executableSlice=\"true\" slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" "
-		+ "sliceForDeadlock=\"true\">" + "<divergence active=\"true\" interprocedural=\"true\"/>"
-		+ "<interference natureOfInterThreadAnalysis=\"SYMBOL_AND_EQUIVCLS_BASED_INFO\"/>"
-		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" "
-		+ "natureOfInterThreadAnalysis=\"SYMBOL_AND_EQUIVCLS_BASED_INFO\"/>" + "</configurationInfo>"
-		+ "</slicerConfiguration>";
+	private static String configuration;
 
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
@@ -204,28 +197,34 @@ public final class SlicerDriver {
 		// parse the arguments
 		try {
 			cl = (new BasicParser()).parse(options, args);
-			configFileName = cl.getOptionValue("c");
 
-			if (configFileName == null) {
+			String config = cl.getOptionValue("c");
+			configFileName = config;
+
+			if (config == null) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("Using default configuration as none was specified.");
 				}
-			} else {
-				try {
-					BufferedReader br = new BufferedReader(new FileReader(configFileName));
-					StringBuffer buffer = new StringBuffer();
 
-					while (br.ready()) {
-						buffer.append(br.readLine());
-					}
-					configuration = buffer.toString();
-				} catch (FileNotFoundException e1) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Non-existent configuration file specified. Using default configuration.");
-					}
-				} catch (IOException e2) {
-					LOGGER.fatal("IO rror while reading configuration file.");
+				URL defaultConfigFileName =
+					ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
+				config = defaultConfigFileName.getFile();
+			}
+
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(config));
+				StringBuffer buffer = new StringBuffer();
+
+				while (br.ready()) {
+					buffer.append(br.readLine());
 				}
+				configuration = buffer.toString();
+			} catch (FileNotFoundException e1) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Non-existent configuration file specified. Using default configuration.");
+				}
+			} catch (IOException e2) {
+				LOGGER.fatal("IO error while reading configuration file.");
 			}
 
 			String outputDir = cl.getOptionValue("o");
@@ -263,6 +262,10 @@ public final class SlicerDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/05 08:26:42  venku
+   - changed the xml schema for the slicer configuration.
+   - The configruator, driver, and the configuration handle
+     these changes.
    Revision 1.5  2003/11/03 08:05:34  venku
    - lots of changes
      - changes to get the configuration working with JiBX
