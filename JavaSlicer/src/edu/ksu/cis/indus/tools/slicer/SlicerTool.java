@@ -120,6 +120,12 @@ import soot.jimple.Stmt;
  * Due to the above view we only support non-executable slices of all types and only executable slices of backward and
  * complete type.
  * </p>
+ * 
+ * <p>
+ * If slice for deadlock option is true in the slicer configuration, then criteria to preserve deadlocking are generated.
+ * However, these are generated on behalf of the application/driver (as a convenience) and not for internal use.  Hence, the
+ * application/driver is responsible for the disposal of these criteria.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -874,6 +880,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.90  2004/06/26 06:52:49  venku
+   - logging.
+
    Revision 1.89  2004/06/24 06:53:53  venku
    - refactored SliceConfiguration
      - added processBooleanProperty()
