@@ -124,14 +124,14 @@ public interface ITransformer {
 	/**
 	 * Retrieve the transformed version of the given local in the transformed version of the given method.
 	 *
-	 * @param name of the local.
+	 * @param local of interest.
 	 * @param method in which the local occurs.
 	 *
 	 * @return the transformed local.
 	 *
 	 * @pre name != null and method != null
 	 */
-	Local getTransformedLocal(String name, SootMethod method);
+	Local getTransformedLocal(Local local, SootMethod method);
 
 	/**
 	 * Retrieves the transformed version of the named class.
@@ -183,11 +183,19 @@ public interface ITransformer {
 	 * @pre stmt != null and method != null
 	 */
 	void transform(Stmt stmt, SootMethod method);
+    
+    /**
+     * Reset any internal state.
+     */
+    void reset();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/19 11:58:53  venku
+   Remove any reference to slicing from the documentation.
+
    Revision 1.4  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.

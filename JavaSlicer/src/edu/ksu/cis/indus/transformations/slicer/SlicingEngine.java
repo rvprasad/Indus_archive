@@ -287,8 +287,7 @@ public class SlicingEngine {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
-		} else if (  /*clazzManager == null ||*/
-		  controller == null) {
+		} else if (controller == null) {
 			LOGGER.warn("Class Manager and/or Controller is unspecified.");
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
@@ -687,10 +686,9 @@ public class SlicingEngine {
 		SootMethod transformedMethod = transformer.getTransformed(method);
 		Body body = transformedMethod.getActiveBody();
 		Local local = (Local) vBox.getValue();
-		String lName = local.getName();
 
-		if (transformer.getTransformedLocal(lName, transformedMethod) == null) {
-			body.getLocals().add(jimple.newLocal(lName, local.getType()));
+		if (transformer.getTransformedLocal(local, transformedMethod) == null) {
+			body.getLocals().add(jimple.newLocal(local.getName(), local.getType()));
 		}
 
 		// slice
@@ -781,6 +779,11 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/08/19 11:52:25  venku
+   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+   and  Slicer to SliceEngine.
+   Ripple effect of the above.
+
    Revision 1.10  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides

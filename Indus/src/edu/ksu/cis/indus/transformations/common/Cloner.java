@@ -203,22 +203,23 @@ public class Cloner
 	/**
 	 * Retrieves the jimple entity associated with the given local in the given method.
 	 *
-	 * @param name of the local.
+	 * @param local of interest.
 	 * @param method in which the local occurs.
 	 *
 	 * @return the jimple entity corresponding to the requested local.
 	 *
 	 * @pre name != null and method != null
 	 */
-	public Local getLocal(final String name, final SootMethod method) {
+	public Local getLocal(final Local local, final SootMethod method) {
 		SootMethod tranformedMethod = getCloneOf(method);
 		Body body = tranformedMethod.getActiveBody();
 		Local result = null;
+        String localName = local.getName();
 
 		for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
-			Local local = (Local) i.next();
+			Local temp = (Local) i.next();
 
-			if (local.getName().equals(name)) {
+			if (temp.getName().equals(localName)) {
 				result = local;
 				break;
 			}
@@ -310,6 +311,9 @@ public class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/19 11:58:53  venku
+   Remove any reference to slicing from the documentation.
+
    
    Revision 1.2  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location

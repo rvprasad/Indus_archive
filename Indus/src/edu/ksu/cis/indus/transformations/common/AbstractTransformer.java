@@ -37,7 +37,6 @@ package edu.ksu.cis.indus.transformations.common;
 
 import soot.Body;
 import soot.PatchingChain;
-import soot.Scene;
 import soot.SootMethod;
 
 /**
@@ -50,16 +49,6 @@ import soot.SootMethod;
  */
 public abstract class AbstractTransformer
   implements ITransformer {
-	/**
-	 * The system resulting from the transformation.
-	 */
-	protected Scene transformedSystem;
-
-	/**
-	 * The system being transformed.
-	 */
-	protected Scene untransformedSystem;
-
 	/**
 	 * Retrieves the statement list for the transformed version of given untransformed method.
 	 *
@@ -81,6 +70,9 @@ public abstract class AbstractTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/19 11:58:53  venku
+   Remove any reference to slicing from the documentation.
+
    Revision 1.2  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.

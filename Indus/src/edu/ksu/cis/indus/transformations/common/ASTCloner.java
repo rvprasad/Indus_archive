@@ -192,14 +192,14 @@ public class ASTCloner
 		SootClass getCloneOf(String clazz);
 
 		/**
-		 * Returns the local corresponding to the given local identifier in the given method.
+		 * Returns the local corresponding to the given local in the given method.
 		 *
-		 * @param identifier of the requested local.
+		 * @param local of interest.
 		 * @param method in which the local occurs.
 		 *
 		 * @return the corresponding local.
 		 */
-		Local getLocal(String identifier, SootMethod method);
+		Local getLocal(Local local, SootMethod method);
 	}
 
 	/**
@@ -464,7 +464,7 @@ public class ASTCloner
 	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.jimple.Local)
 	 */
 	public void caseLocal(final Local l) {
-		cloneValue = helper.getLocal(l.getName(), method);
+		cloneValue = helper.getLocal(l, method);
 	}
 
 	/**
@@ -805,6 +805,9 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/19 11:58:53  venku
+   Remove any reference to slicing from the documentation.
+
    
    Revision 1.7  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location
