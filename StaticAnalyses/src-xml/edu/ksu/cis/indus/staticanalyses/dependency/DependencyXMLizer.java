@@ -300,17 +300,6 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * Retrieves the root methods of the system.
-	 *
-	 * @return a collection of methods.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-	 */
-	public final Collection getRootMethods() {
-		return Collections.unmodifiableCollection(rootMethods);
-	}
-
-	/**
 	 * Drives the analyses.
 	 */
 	public final void execute() {
@@ -648,6 +637,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 03:05:46  venku
+   - renamed xmlizer packages to be in par with the packages
+     that contain the classes whose data is being xmlized.
+
    Revision 1.41  2004/01/21 13:52:12  venku
    - documentation.
    Revision 1.40  2004/01/21 01:41:43  venku
