@@ -89,11 +89,6 @@ final class AliasSet
 	private boolean global;
 
 	/** 
-	 * This is used to indicate that <code>multiThreadAccess</code> field is being updated.
-	 */
-	private boolean markingMultiThreadAccess;
-
-	/** 
 	 * This is used to indicate that the alias set represents an object that is accessed in multiple threads.
 	 */
 	private boolean multiThreadAccess;
@@ -146,7 +141,6 @@ final class AliasSet
 		read = false;
 		written = false;
 		shareEntities = null;
-		markingMultiThreadAccess = false;
 		multiThreadAccess = false;
 	}
 
@@ -173,6 +167,14 @@ final class AliasSet
 			final AliasSet _clone = (AliasSet) super.clone();
 
 			_clone.fieldMap = (Map) ((HashMap) fieldMap).clone();
+
+			if (readyEntities != null) {
+				_clone.readyEntities = (HashSet) ((HashSet) readyEntities).clone();
+			}
+
+			if (shareEntities != null) {
+				_clone.shareEntities = (HashSet) ((HashSet) shareEntities).clone();
+			}
 			_clone.set = null;
 
 			_result = _clone;
@@ -323,6 +325,7 @@ final class AliasSet
 
 		_rep.global = true;
 		_rep.shared = true;
+		_rep.multiThreadAccess = true;
 
 		if (_rep.fieldMap != null) {
 			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
@@ -434,19 +437,16 @@ final class AliasSet
 	 * Marks all reachable alias sets as being crossing thread boundary, i.e, visible in multiple threads.
 	 */
 	void markAsCrossingThreadBoundary() {
-		if (find() != this) {
-			((AliasSet) find()).markAsCrossingThreadBoundary();
-		} else {
-			if (markingMultiThreadAccess) {
-				return;
-			}
-			markingMultiThreadAccess = true;
-			multiThreadAccess = true;
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+		_wb.addWork(find());
+
+		while (_wb.hasWork()) {
+			final AliasSet _as = (AliasSet) _wb.getWork();
+			_as.multiThreadAccess = true;
 
 			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
-				((AliasSet) _i.next()).markAsCrossingThreadBoundary();
+				_wb.addWork(((AliasSet) _i.next()).find());
 			}
-			markingMultiThreadAccess = false;
 		}
 	}
 
@@ -462,12 +462,12 @@ final class AliasSet
 	 */
 	static void propogateInfoFromTo(final AliasSet from, final AliasSet to) {
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-		_wb.addWork(new Pair(from, to));
+		_wb.addWork(new Pair(from.find(), to.find()));
 
 		while (_wb.hasWork()) {
 			final Pair _pair = (Pair) _wb.getWork();
-			final AliasSet _fromRep = (AliasSet) ((AliasSet) _pair.getFirst()).find();
-			final AliasSet _toRep = (AliasSet) ((AliasSet) _pair.getSecond()).find();
+			final AliasSet _fromRep = (AliasSet) _pair.getFirst();
+			final AliasSet _toRep = (AliasSet) _pair.getSecond();
 
 			if (_fromRep != _toRep) {
 				_toRep.shared |= _fromRep.shared;
@@ -500,7 +500,7 @@ final class AliasSet
 				final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
 
 				if ((_to != null) && (_from != null)) {
-					_wb.addWork(new Pair(_from, _to));
+					_wb.addWork(new Pair(_from.find(), _to.find()));
 				}
 			}
 		}
@@ -580,7 +580,7 @@ final class AliasSet
 	 *
 	 * @post result != null
 	 */
-	private Object getNewReadyEntity() {
+	private static Object getNewReadyEntity() {
 		return new String("Entity:" + readyEntityCount++);
 	}
 
@@ -591,7 +591,7 @@ final class AliasSet
 	 *
 	 * @post result != null
 	 */
-	private Object getNewShareEntity() {
+	private static Object getNewShareEntity() {
 		return new String("Entity:" + shareEntityCount++);
 	}
 
@@ -654,14 +654,14 @@ final class AliasSet
 			if (reprAliasSet.readyEntities == null) {
 				reprAliasSet.readyEntities = new HashSet();
 			}
-			reprAliasSet.readyEntities.add(aliasSet.getNewReadyEntity());
+			reprAliasSet.readyEntities.add(getNewReadyEntity());
 		}
 
 		if ((reprAliasSet.read && aliasSet.written) || (reprAliasSet.written && aliasSet.read)) {
 			if (reprAliasSet.shareEntities == null) {
 				reprAliasSet.shareEntities = new HashSet();
 			}
-			reprAliasSet.shareEntities.add(aliasSet.getNewShareEntity());
+			reprAliasSet.shareEntities.add(getNewShareEntity());
 		}
 	}
 
@@ -694,6 +694,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.21  2004/08/01 23:27:08  venku
    - changed output of toString().
    Revision 1.20  2004/08/01 22:58:25  venku

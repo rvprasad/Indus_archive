@@ -196,8 +196,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph,
-		final BasicBlockGraphMgr basicBlockGraphMgr) {
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
@@ -596,6 +595,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
 			final MethodContext siteContext) {
+			boolean _shouldSelfUnify = false;
+
 			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 				final SootMethod _callee = (SootMethod) _i.next();
 				final Triple _triple = (Triple) method2Triple.get(_callee);
@@ -631,13 +632,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					_mc.markAsCrossingThreadBoundary();
 				}
 				siteContext.unifyMethodContext(_mc);
-				
-				// It would suffice to unify the site context with it self in the case of loop enclosure
-				// as this is more semantically close to what happens during execution.
-				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-					siteContext.selfUnify();
-				}
+				_shouldSelfUnify |= Util.isStartMethod(_callee);
+			}
 
+			// It would suffice to unify the site context with it self in the case of loop enclosure
+			// as this is more semantically close to what happens during execution.
+			if (_shouldSelfUnify && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
+				siteContext.selfUnify();
 			}
 		}
 
@@ -721,9 +722,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final class PreProcessor
 	  extends AbstractProcessor {
 		/**
-		 * {@inheritDoc}
-		 * 
-		 * Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's algorithm.
+		 * {@inheritDoc}  Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's
+		 * algorithm.
 		 */
 		public void callback(final SootField sf) {
 			if (Modifier.isStatic(sf.getModifiers())) {
@@ -737,9 +737,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * {@inheritDoc}
-		 * 
-		 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
+		 * {@inheritDoc}  Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's
+		 * algorithm.
 		 */
 		public void callback(final SootMethod sm) {
 			method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
@@ -854,6 +853,19 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Checks if the given type can contribute to aliasing.  Only reference and array types can lead to aliasing.
+	 *
+	 * @param type to be checked for aliasing support.
+	 *
+	 * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
+	 *
+	 * @pre type != null
+	 */
+	public static boolean canHaveAliasSet(final Type type) {
+		return type instanceof RefType || type instanceof ArrayType;
+	}
+
+	/**
 	 * Checks if the object bound to the given value in the given method shared or escapes.
 	 *
 	 * @param v is the object value being checked for sharing.
@@ -871,17 +883,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			// allocation sites which are executed only once. 
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
 				/*
-				 *  Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
-				 * information. But this is untrue, as all the data that can be shared across threads have been exposed and 
-				 * marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
-				 * corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
+				 *  Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape
+				 * information. But this is untrue, as all the data that can be shared across threads have been exposed and
+				 * marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the
+				 * corresponding alias set at the caller side is unified atleast twice in case these threads are started at
 				 * different sites.  In case the threads are started at the same site, then the processing of call-site during
-				 * phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
-				 * structure and the language semantics along with the rules above ensure that the escape information is 
+				 * phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program
+				 * structure and the language semantics along with the rules above ensure that the escape information is
 				 * polluted (pessimistic) only when necessary.
 				 */
-			    _result = getAliasSetFor(v, sm).escapes();
-			
+				_result = getAliasSetFor(v, sm).escapes();
 			} else {
 				_result = false;
 			}
@@ -1099,6 +1110,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_mcRep.discardReferentialAliasSets();
 			}
 		}
+		methodCtxtCache.discardReferentialAliasSets();
 		method2Triple.put(method, new Triple(methodCtxtCache, localASsCache, scCache));
 	}
 
@@ -1161,7 +1173,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				discardReferentialAliasSets(_sm);
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("LocalASsCache: " + _sm + "\n" + CollectionsUtilities.prettyPrint((Map) _triple.getSecond()));
+					final String _prettyPrint = CollectionsUtilities.prettyPrint((Map) _triple.getSecond());
+					LOGGER.debug("LocalASsCache: " + _sm + "\n" + _prettyPrint);
 				}
 			}
 		}
@@ -1208,7 +1221,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				}
 
 				final MethodContext _mc = (MethodContext) (_calleeTriple.getFirst());
-				
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
 				final MethodContext _sc = (MethodContext) _ctrp2sc.get(_callerTrp);
 				MethodContext.propogateInfoFromTo(_sc, _mc);
@@ -1222,27 +1234,19 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
 		}
 	}
-
-    /**
-     * Checks if the given type can contribute to aliasing.  Only reference and array types can lead to aliasing.
-     *
-     * @param type to be checked for aliasing support.
-     *
-     * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
-     *
-     * @pre type != null
-     */
-    public static boolean canHaveAliasSet(final Type type) {
-    	return type instanceof RefType || type instanceof ArrayType;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.63  2004/08/01 22:58:25  venku
+   - ECBA was erroneous for 2 reasons.
+     - top-down propagation was not complete. FIXED.
+     - cloning of alias sets was not complete. FIXED.
+   - optimized certain other aspects of ECBA.
+   - removed RufsEscapeAnalysis.
    Revision 1.62  2004/07/30 07:47:35  venku
    - there was a bug in escape analysis cloning and union algorithm.  FIXED.
-
    Revision 1.61  2004/07/28 07:32:52  venku
    - logging and toString() implementation.
    Revision 1.60  2004/07/27 07:08:25  venku

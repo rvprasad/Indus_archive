@@ -168,7 +168,6 @@ final class MethodContext
 			 * map from the representative to the clone. The clone is always the representative element, but this is not
 			 * true for the clonee.
 			 */
-			
 			if (thisAS != null) {
 				_clone.thisAS = (AliasSet) thisAS.clone();
 				_clonee2clone.put(thisAS.find(), _clone.thisAS);
@@ -355,7 +354,12 @@ final class MethodContext
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-				((AliasSet) _methodContext.argAliasSets.get(_i)).selfUnify();
+				final AliasSet _aliasSet = ((AliasSet) _methodContext.argAliasSets.get(_i));
+
+				// it is possible that the argument at a site-context is null
+				if (_aliasSet != null) {
+					_aliasSet.selfUnify();
+				}
 			}
 		}
 
@@ -396,47 +400,58 @@ final class MethodContext
 		final MethodContext _n = (MethodContext) p.find();
 
 		if (_m != _n) {
-			unifyParameters(_m, _n);
-			unifyAliasSets(_m.ret, _n.ret);
-			unifyAliasSets(_m.thrown, _n.thrown);
-			unifyAliasSets(_m.thisAS, _n.thisAS);
 			_m.union(_n);
+
+			final MethodContext _representative = (MethodContext) _m.find();
+			final MethodContext _represented;
+
+			if (_representative == _m) {
+				_represented = _n;
+			} else {
+				_represented = _m;
+			}
+
+			unifyParameters(_representative, _represented);
+			unifyAliasSets(_representative.ret, _represented.ret);
+			unifyAliasSets(_representative.thrown, _represented.thrown);
+			unifyAliasSets(_representative.thisAS, _represented.thisAS);
 		}
 	}
 
 	/**
 	 * Unifies the given alias sets.
 	 *
-	 * @param aliasSet1 is one of the alias set to be unified.
-	 * @param aliasSet2 is the other alias set to be unified.
+	 * @param representative is one of the alias set to be unified.
+	 * @param represented is the other alias set to be unified.
 	 *
-	 * @pre aliasSet1 != null and aliasSet2 != null
+	 * @pre representative != null and represented != null
 	 */
-	private void unifyAliasSets(final AliasSet aliasSet1, final AliasSet aliasSet2) {
-		if ((aliasSet1 == null && aliasSet2 != null) || (aliasSet1 != null && aliasSet2 == null)) {
+	private void unifyAliasSets(final AliasSet representative, final AliasSet represented) {
+		if ((representative == null && represented != null) || (representative != null && represented == null)) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Incompatible method contexts being unified - return value - " + aliasSet1 + " " + aliasSet2);
+				LOGGER.warn("Incompatible method contexts being unified - return value - " + representative + " "
+					+ represented);
 			}
-		} else if (aliasSet1 != null) {
-			aliasSet1.unifyAliasSet(aliasSet2);
+		} else if (representative != null) {
+			representative.unifyAliasSet(represented);
 		}
 	}
 
 	/**
 	 * Unify the alias sets of the parameters in the given method contexts.
 	 *
-	 * @param methodContext1 is one of the method context that contains the parameter alias sets to be unified.
-	 * @param methodContext2 is the other method context that contains the parameter alias sets to be unified.
+	 * @param representative is one of the method context that contains the parameter alias sets to be unified.
+	 * @param represented is the other method context that contains the parameter alias sets to be unified.
 	 *
-	 * @pre methodContext1 != null and methodContext2 != null
+	 * @pre representative != null and represented != null
 	 */
-	private void unifyParameters(final MethodContext methodContext1, final MethodContext methodContext2) {
+	private void unifyParameters(final MethodContext representative, final MethodContext represented) {
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-				final AliasSet _mAS = (AliasSet) methodContext1.argAliasSets.get(_i);
-				final AliasSet _nAS = (AliasSet) methodContext2.argAliasSets.get(_i);
+				final AliasSet _mAS = (AliasSet) representative.argAliasSets.get(_i);
+				final AliasSet _nAS = (AliasSet) represented.argAliasSets.get(_i);
 
 				if (_mAS == null && _nAS != null || _mAS != null && _nAS == null) {
 					if (LOGGER.isWarnEnabled()) {
@@ -454,6 +469,12 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/08/01 22:58:25  venku
+   - ECBA was erroneous for 2 reasons.
+     - top-down propagation was not complete. FIXED.
+     - cloning of alias sets was not complete. FIXED.
+   - optimized certain other aspects of ECBA.
+   - removed RufsEscapeAnalysis.
    Revision 1.18  2004/07/30 07:47:35  venku
    - there was a bug in escape analysis cloning and union algorithm.  FIXED.
    Revision 1.17  2004/07/17 19:37:18  venku
