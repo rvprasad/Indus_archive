@@ -326,7 +326,7 @@ public class EclipseIndusDriver
 			throw new NullPointerException("setCriteria expects non-null parameters");
 		}
 
-		final Collection _coll = factory.getCriterion(sootMethod, stmt, true, considerVal);
+		final Collection _coll = factory.getCriteria(sootMethod, stmt, true, considerVal);
 
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
@@ -353,7 +353,7 @@ public class EclipseIndusDriver
 			throw new NullPointerException("setCriteria expects non-null parameters");
 		}
 
-		final Collection _coll = factory.getCriterion(sootMethod, stmt, box, true);
+		final Collection _coll = factory.getCriteria(sootMethod, stmt, box, true);
 
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
