@@ -298,12 +298,14 @@ public final class SlicingEngine {
 
 			if (SLICE_CLOSURE_LOGGER.isDebugEnabled()) {
 				final StringBuffer _sb = new StringBuffer();
+				_sb.append("Generating criteria based on :\n[");
 				_sb.append("Criteria from " + _da.getClass());
 
 				for (final Iterator _j = _criteria.iterator(); _j.hasNext();) {
 					_sb.append("\n\t->" + _j.next());
 				}
-				SLICE_CLOSURE_LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
+				_sb.append("\n]");
+				SLICE_CLOSURE_LOGGER.debug(_sb.toString());
 			}
 		}
 
@@ -1395,6 +1397,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.64  2004/01/27 01:46:50  venku
+   - coding convention.
    Revision 1.63  2004/01/25 08:53:37  venku
    - changed generateNewCritieria to be more modularized.
    - method only trigger the inclusion of the base
@@ -1402,7 +1406,6 @@ public final class SlicingEngine {
      parameter ref handling to suck in the arguments.
    - optimized criteria generation by not including values of
      exit points of in synchronized methods.
-
    Revision 1.62  2004/01/22 12:42:21  venku
    - logging.
    Revision 1.61  2004/01/22 01:01:40  venku
