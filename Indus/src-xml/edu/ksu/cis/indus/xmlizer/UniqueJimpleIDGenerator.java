@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.xmlizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -94,10 +95,10 @@ public final class UniqueJimpleIDGenerator
 
 		if (_fields == null) {
 			_fields = sort(_declClass.getFields());
-			class2fields.put(field.getDeclaringClass(), _fields);
+			class2fields.put(_declClass, _fields);
 		}
 
-		return getIdForClass(field.getDeclaringClass()) + "_f" + _fields.indexOf(field);
+		return getIdForClass(_declClass) + "_f" + _fields.indexOf(field);
 	}
 
 	/**
@@ -122,7 +123,7 @@ public final class UniqueJimpleIDGenerator
 
 		if (_methods == null) {
 			_methods = sort(_declClass.getMethods());
-			class2fields.put(method.getDeclaringClass(), _methods);
+			class2methods.put(method.getDeclaringClass(), _methods);
 		}
 
 		return getIdForClass(method.getDeclaringClass()) + "_m" + _methods.indexOf(method);
@@ -197,23 +198,12 @@ public final class UniqueJimpleIDGenerator
 	 * @post result != null and result.containsAll(collection) and collection.containsAll(result)
 	 */
 	private List sort(final Collection collection) {
-		List _temp = new ArrayList();
-		Map _map = new HashMap();
-
-		for (final Iterator _i = collection.iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
-			final String _str = _o.toString();
-			_map.put(_str, _o);
-			_temp.add(_str);
-		}
-		Collections.sort(_temp);
-
-		final List _result = new ArrayList();
-
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
-			_result.add(_map.get(_o));
-		}
+		final List _result = new ArrayList(collection);
+		Collections.sort(_result, new Comparator() {
+		   public int compare(final Object o1, final Object o2) {
+		       return o1.toString().compareTo(o2.toString());
+		   }
+		});
 		return _result;
 	}
 }
@@ -221,6 +211,13 @@ public final class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.12  2004/02/24 22:25:56  venku
    - documentation
    Revision 1.11  2003/12/28 01:05:46  venku
