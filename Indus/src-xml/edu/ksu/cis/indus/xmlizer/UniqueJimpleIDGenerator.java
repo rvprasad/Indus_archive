@@ -16,6 +16,8 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +57,13 @@ public final class UniqueJimpleIDGenerator
 	private final Map class2fields = new HashMap();
 
 	/**
+	 * This maps classes to a sequence of methods that occur in it.  This is used to generate unique id.
+	 *
+	 * @invariant class2methods.oclIsKindOf(Map(SootClass, Sequence(SootMethod)))
+	 */
+	private final Map class2methods = new HashMap();
+
+	/**
 	 * This maps methods to a sequence of locals that occur in it.  This is used to generate unique id.
 	 *
 	 * @invariant method2locals.oclIsKindOf(Map(SootMethod, Sequence(Local)))
@@ -80,19 +89,15 @@ public final class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForField(soot.SootField)
 	 */
 	public String getIdForField(final SootField field) {
-		List _fields = (List) class2fields.get(field.getDeclaringClass());
-		String _result;
+		final SootClass _declClass = field.getDeclaringClass();
+		List _fields = (List) class2fields.get(_declClass);
 
 		if (_fields == null) {
-			_fields = new ArrayList();
+			_fields = sort(_declClass.getFields());
 			class2fields.put(field.getDeclaringClass(), _fields);
 		}
 
-		if (!_fields.contains(field)) {
-			_fields.add(field);
-		}
-		_result = getIdForClass(field.getDeclaringClass()) + "_f" + _fields.indexOf(field);
-		return _result;
+		return getIdForClass(field.getDeclaringClass()) + "_f" + _fields.indexOf(field);
 	}
 
 	/**
@@ -100,26 +105,27 @@ public final class UniqueJimpleIDGenerator
 	 */
 	public String getIdForLocal(final Local v, final SootMethod method) {
 		List _locals = (List) method2locals.get(method);
-		String _result;
 
 		if (_locals == null) {
-			_locals = new ArrayList();
+			_locals = sort(method.getActiveBody().getLocals());
 			method2locals.put(method, _locals);
 		}
-
-		if (!_locals.contains(v)) {
-			_locals.add(v);
-		}
-		_result = getIdForMethod(method) + "_l" + _locals.indexOf(v);
-		return _result;
+		return getIdForMethod(method) + "_l" + _locals.indexOf(v);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForMethod(SootMethod)
 	 */
 	public String getIdForMethod(final SootMethod method) {
-		final SootClass _sc = method.getDeclaringClass();
-		return getIdForClass(_sc) + "_m" + _sc.getMethods().indexOf(method);
+		final SootClass _declClass = method.getDeclaringClass();
+		List _methods = (List) class2methods.get(_declClass);
+
+		if (_methods == null) {
+			_methods = sort(_declClass.getMethods());
+			class2fields.put(method.getDeclaringClass(), _methods);
+		}
+
+		return getIdForClass(method.getDeclaringClass()) + "_m" + _methods.indexOf(method);
 	}
 
 	/**
@@ -176,16 +182,49 @@ public final class UniqueJimpleIDGenerator
 	public void reset() {
 		method2locals.clear();
 		class2fields.clear();
+		class2methods.clear();
 		classes.clear();
+	}
+
+	/**
+	 * Sorts the given elements based on the return value of <code>toString()</code> call on them.
+	 *
+	 * @param collection to be sorted.
+	 *
+	 * @return the sorted collection.
+	 *
+	 * @pre collection != null
+	 * @post result != null and result.containsAll(collection) and collection.containsAll(result)
+	 */
+	private List sort(final Collection collection) {
+		List _temp = new ArrayList();
+		Map _map = new HashMap();
+
+		for (final Iterator _i = collection.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+			final String _str = _o.toString();
+			_map.put(_str, _o);
+			_temp.add(_str);
+		}
+		Collections.sort(_temp);
+
+		final List _result = new ArrayList();
+
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+			_result.add(_map.get(_o));
+		}
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/24 22:25:56  venku
+   - documentation
    Revision 1.11  2003/12/28 01:05:46  venku
    - removed unnecessary object creation.
-
    Revision 1.10  2003/12/28 00:44:15  venku
    - coding convention.
    Revision 1.9  2003/12/13 02:28:53  venku

@@ -128,73 +128,6 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * The entry point to execute this xmlizer from command prompt.
-	 *
-	 * @param s is the command-line arguments.
-	 *
-	 * @pre s != null
-	 */
-	public static void main(final String[] s) {
-		final Scene _scene = Scene.v();
-
-		final Options _options = new Options();
-		Option _o =
-			new Option("d", "dump directory", true,
-				"The directory in which to write the xml files.  "
-				+ "If unspecified, the xml output will be directed standard out.");
-		_o.setArgName("path");
-		_o.setArgs(1);
-		_o.setOptionalArg(false);
-		_options.addOption(_o);
-		_o = new Option("h", "help", false, "Display message.");
-		_o.setOptionalArg(false);
-		_options.addOption(_o);
-
-		final HelpFormatter _help = new HelpFormatter();
-
-		try {
-			final CommandLine _cl = (new BasicParser()).parse(_options, s);
-			final String[] _args = _cl.getArgs();
-
-			if (_cl.hasOption('h')) {
-				_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
-			} else {
-				for (int _i = 0; _i < _args.length; _i++) {
-					_scene.loadClassAndSupport(_args[_i]);
-				}
-				writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null);
-			}
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line");
-			_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
-		}
-	}
-
-	/**
-	 * Writes the jimple in the scene via the writer.
-	 *
-	 * @param scene in which the jimple to be dumped resides.
-	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad output.
-	 * @param suffix to be appended each file name.  If <code>null</code>, no suffix is appended.
-	 *
-	 * @pre scene != null
-	 */
-	public static void writeJimpleAsXML(final Scene scene, final String directory, final String suffix) {
-		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
-		final Environment _env = new Environment(scene);
-		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
-				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-				true));
-		_pc.setEnvironment(_env);
-		_pc.setProcessingFilter(new XMLizingProcessingFilter());
-		_xmlizer.setDumpOptions(directory, suffix);
-		_xmlizer.hookup(_pc);
-		_pc.process();
-		_xmlizer.unhook(_pc);
-	}
-
-	/**
 	 * Sets the options to xmlize jimple.
 	 *
 	 * @param directory into which xmlized jimple will be dumped.  If the given non-<code>null</code> directory does not
@@ -483,6 +416,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/04/22 23:32:31  venku
+   - xml file name were setup incorrectly.  FIXED.
    Revision 1.31  2004/04/22 22:12:09  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.

@@ -26,8 +26,8 @@ import soot.jimple.Stmt;
 
 
 /**
- * This interface is used to retrieve id's for various parts of a java system represented in Soot.  This is typically useful 
- * in serialization of Jimple for various purposes as testing and visualization of analysis data. 
+ * This interface is used to retrieve id's for various parts of a java system represented in Soot.  This is typically useful
+ * in serialization of Jimple for various purposes as testing and visualization of analysis data.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -121,11 +121,19 @@ public interface IJimpleIDGenerator {
 	 * @post result != null
 	 */
 	String getIdForValueBox(ValueBox programPoint, Stmt stmt, SootMethod method);
+
+	/**
+	 * Resets the generator.
+	 */
+	void reset();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.6  2003/12/02 09:42:24  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

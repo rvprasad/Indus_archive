@@ -26,9 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
-
-import java.io.File;
-import java.io.FileWriter;
+import edu.ksu.cis.indus.xmlizer.JimpleXMLizerCLI;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -70,11 +68,6 @@ public class FATestSetup
 	private final String sootClassPath;
 
 	/**
-	 * This is the location where the jimple xml should be dumpled.
-	 */
-	private String dumpLocation;
-
-	/**
 	 * Creates a new FATestSetup object.
 	 *
 	 * @param test is the test to run in this setup.
@@ -88,17 +81,6 @@ public class FATestSetup
 		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager(new SootValueTypeManager()));
 		sootClassPath = classpath;
 		classNames = theNameOfClasses;
-	}
-
-	/**
-	 * Sets the location where jimple xml should be dumped.
-	 *
-	 * @param location to dump jimple xml.
-	 *
-	 * @pre location != null
-	 */
-	public final void setJimpleXMLDumpLocation(final String location) {
-		dumpLocation = location;
 	}
 
 	/**
@@ -124,7 +106,7 @@ public class FATestSetup
 		}
 
 		if (dumpLocation != null) {
-			JimpleXMLizer.writeJimpleAsXML(_driver.getScene(), dumpLocation, null);
+			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getScene(), dumpLocation, null, idGenerator);
 		}
 	}
 
@@ -136,6 +118,7 @@ public class FATestSetup
 		G.reset();
 		valueAnalyzer.reset();
 		valueAnalyzer = null;
+		idGenerator.reset();
 		super.tearDown();
 	}
 }
@@ -143,6 +126,9 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/04/22 22:12:06  venku
+   - made changes to jimple xmlizer to dump each class into a separate file.
+   - ripple effect.
    Revision 1.18  2004/04/21 04:13:20  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.

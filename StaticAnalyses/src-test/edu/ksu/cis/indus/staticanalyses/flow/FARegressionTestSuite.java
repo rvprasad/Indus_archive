@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.TestHelper;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -109,6 +110,7 @@ public class FARegressionTestSuite
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
+                    _test.setIdGenerator(new UniqueJimpleIDGenerator());
 					_test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
@@ -124,6 +126,9 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/22 10:03:59  venku
+   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
+
    Revision 1.10  2004/04/21 04:13:20  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.

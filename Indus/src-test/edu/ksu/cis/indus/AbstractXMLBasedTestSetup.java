@@ -17,6 +17,8 @@ package edu.ksu.cis.indus;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
+import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -35,6 +37,16 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
+	/**
+	 * ID generator used while xmlizing documents which will often be the case (xmlize and test the xmlized data).
+	 */
+	protected IJimpleIDGenerator idGenerator;
+
+	/**
+	 * This is the location where the jimple xml should be dumpled.
+	 */
+	protected String dumpLocation;
+
 	/**
 	 * The statement graph (CFG) factory used during testing.
 	 */
@@ -55,6 +67,24 @@ public class AbstractXMLBasedTestSetup
 	 */
 	public AbstractXMLBasedTestSetup(final TestSuite test) {
 		super(test);
+	}
+
+	/**
+	 * Sets the location where jimple xml should be dumped.
+	 *
+	 * @param location to dump jimple xml.
+	 *
+	 * @pre location != null
+	 */
+	public final void setJimpleXMLDumpLocation(final String location) {
+		dumpLocation = location;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.IXMLBasedTest#setIdGenerator(edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator)
+	 */
+	public void setIdGenerator(final IJimpleIDGenerator generator) {
+		idGenerator = generator;
 	}
 
 	/**
@@ -119,6 +149,7 @@ public class AbstractXMLBasedTestSetup
 			_tester.setXMLTestDir(xmlSecondInputDir);
 			_tester.setXMLControlDir(xmlFirstInputDir);
 			_tester.setStmtGraphFactory(stmtGraphFactory);
+			_tester.setIdGenerator(idGenerator);
 		}
 	}
 
@@ -138,9 +169,10 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/20 06:53:18  venku
+   - documentation.
    Revision 1.11  2004/04/19 05:10:27  venku
    - NPE's in test setup caused by unchecked reseting.
-
    Revision 1.10  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
    Revision 1.9  2004/04/18 02:05:19  venku

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.IXMLBasedTest;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 
@@ -25,7 +27,8 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
  * @author $Author$
  * @version $Revision$
  */
-public interface IDependencyAnalysisTest {
+public interface IDependencyAnalysisTest
+  extends IXMLBasedTest {
 	/**
 	 * Retrieves the analysis instance being tested.
 	 *
@@ -44,6 +47,8 @@ public interface IDependencyAnalysisTest {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/29 09:44:41  venku
+   - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 19:10:40  venku
    - preliminary commit of test setup for dependency analyses.
  */

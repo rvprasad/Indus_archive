@@ -29,6 +29,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
@@ -287,6 +288,12 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.9  2004/04/01 22:37:53  venku
    - changed output format.
    Revision 1.8  2004/04/01 20:57:49  venku

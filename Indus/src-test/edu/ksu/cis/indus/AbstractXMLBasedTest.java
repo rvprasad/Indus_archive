@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileReader;
@@ -77,6 +76,11 @@ public abstract class AbstractXMLBasedTest
 	protected String xmlTestDir;
 
 	/**
+	 * ID generator used while xmlizing documents which will often be the case (xmlize and test the xmlized data).
+	 */
+	private IJimpleIDGenerator idGenerator;
+
+	/**
 	 * The statement graph (CFG) factory used during testing.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
@@ -90,6 +94,13 @@ public abstract class AbstractXMLBasedTest
 	 * The name of the test case instance.
 	 */
 	private String testName = "";
+
+	/**
+	 * @see IXMLBasedTest#setIdGenerator(IJimpleIDGenerator)
+	 */
+	public final void setIdGenerator(IJimpleIDGenerator generator) {
+		idGenerator = generator;
+	}
 
 	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
@@ -151,7 +162,7 @@ public abstract class AbstractXMLBasedTest
 			final Reader _previous = new FileReader(new File(xmlControlDir + File.separator + getFileName()));
 			final Diff _diff = new Diff(_previous, _current);
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-            assertTrue(_diff.toString(), _diff.similar());
+			assertTrue(_diff.toString(), _diff.similar());
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
@@ -175,23 +186,13 @@ public abstract class AbstractXMLBasedTest
 	}
 
 	/**
-	 * Retrieve the id generator to use during xmlizing. The default implementation returns a
-	 * <code>UniqueJimpleIDGenerator</code> instance.
-	 *
-	 * @return the id generator.
-	 */
-	protected IJimpleIDGenerator getIDGenerator() {
-		return new UniqueJimpleIDGenerator();
-	}
-
-	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected final void setUp()
 	  throws Exception {
 		xmlizer = getXMLizer();
 		xmlizer.setXmlOutputDir(xmlTestDir);
-		xmlizer.setGenerator(getIDGenerator());
+		xmlizer.setGenerator(idGenerator);
 		localSetup();
 		xmlizer.writeXML(info);
 	}
@@ -247,15 +248,14 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/22 08:23:43  venku
+   - DetailedDiff causes the test cases to fail.  FIXED.
    Revision 1.16  2004/04/21 09:08:16  venku
    - used detailed diff output.
-
    Revision 1.15  2004/04/21 08:25:05  venku
    - used a simple interface to check xml document similarity.
-
    Revision 1.14  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
-
    Revision 1.13  2004/04/18 02:05:19  venku
    - memory leak fixes.
    Revision 1.12  2004/04/17 22:07:37  venku

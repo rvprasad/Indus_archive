@@ -58,27 +58,6 @@ public abstract class AbstractXMLizer
 	private String xmlOutDir;
 
 	/**
-	 * This is a custom xml outputter class with preconfigured formatting infor.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	protected final class CustomXMLOutputter
-	  extends XMLOutputter {
-		/**
-		 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter(Writer,String)
-		 */
-		public CustomXMLOutputter(final Writer writer, final String encoding)
-		  throws IllegalStateException, IllegalArgumentException, UnsupportedEncodingException {
-			super(writer, encoding);
-			setEscaping(true);
-			setIndentation("  ");
-			setLineBreak(LineBreak.UNIX);
-		}
-	}
-
-	/**
 	 * Set the xml id generator to be used in xml data generation.
 	 *
 	 * @param generator generates the id used in xml data.
@@ -264,6 +243,9 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/04/22 23:32:31  venku
+   - xml file name were setup incorrectly.  FIXED.
+
    Revision 1.19  2004/04/22 23:02:49  venku
    - moved writeXML into IXMLizer.
 

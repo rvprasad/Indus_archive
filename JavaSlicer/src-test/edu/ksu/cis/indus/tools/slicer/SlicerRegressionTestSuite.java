@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -107,7 +109,7 @@ public final class SlicerRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-                final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
+				final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
 				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 				Test _test;
 
@@ -118,8 +120,10 @@ public final class SlicerRegressionTestSuite
 						final TestSuite _suite = new TestSuite(_config);
 						final SlicerTestSetup _sTestSetup =
 							new SlicerTestSetup(_suite, _temp, _xmlTestDir, _xmlControlDir, _classpath);
+						_sTestSetup.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
+						_sTestSetup.setIdGenerator(new UniqueJimpleIDGenerator());
+
 						final XMLBasedSlicerTest _xmlTest = new XMLBasedSlicerTest(_sTestSetup);
-                        _sTestSetup.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 						_suite.addTest(_xmlTest);
 						_test = _sTestSetup;
 					}
@@ -140,12 +144,12 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/22 10:04:00  venku
+   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
    Revision 1.5  2004/04/22 08:00:20  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-
    Revision 1.4  2004/04/20 06:53:15  venku
    - documentation.
-
    Revision 1.3  2004/04/20 05:27:13  venku
    - renamed checkExecutability() to checkXMLBasedTestExecutability().
    Revision 1.2  2004/04/18 09:08:18  venku

@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
@@ -39,6 +38,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,8 +114,8 @@ public class DependencyXMLizerCLI
 	 */
 	private ValueAnalyzerBasedProcessingController cgipc;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * This flag indicates if jimple should be dumped.
 	 */
 	private boolean dumpJimple;
 
@@ -237,7 +239,7 @@ public class DependencyXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, OFAXMLizerCLI.getTokenManager());
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -299,6 +301,7 @@ public class DependencyXMLizerCLI
 			addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
 		}
 		writeInfo("END: dependency analyses");
+		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		xmlizer.writeXML(info);
 
 		if (dumpJimple) {
@@ -365,9 +368,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/23 01:00:48  venku
+   - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku
    - trying to get canonical xmlized Jimple representation.
-
    Revision 1.8  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.
@@ -550,9 +554,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/23 01:00:48  venku
+   - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku
    - trying to get canonical xmlized Jimple representation.
-
    Revision 1.8  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.

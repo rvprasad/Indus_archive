@@ -159,7 +159,7 @@ final class StmtLevelDependencyXMLizer
 			} else {
 				processingClass = true;
 			}
-			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\"name=" + clazz.getName() + "\">\n");
 			processingMethod = false;
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -220,7 +220,8 @@ final class StmtLevelDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().getName().toString() + "\">\n");
+			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().getName().toString()
+				+ "\">\n");
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -247,12 +248,13 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 09:33:37  venku
+   - using a "id" attrirbute can mess things up during xml comparison.
+     Hence, use it only if it is approriate. FIXED.
    Revision 1.5  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
-
    Revision 1.4  2004/02/25 00:04:02  venku
    - documenation.
-
    Revision 1.3  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.

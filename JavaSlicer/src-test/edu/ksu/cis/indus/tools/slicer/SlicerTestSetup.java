@@ -25,9 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
 
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,8 +80,7 @@ public class SlicerTestSetup
 		final String xmlControlDirectory, final String sootClasspath) {
 		super(suite);
 
-		final IJimpleIDGenerator _idGenerator = new UniqueJimpleIDGenerator();
-		driver = new SliceXMLizerCLI(_idGenerator);
+		driver = new SliceXMLizerCLI(idGenerator);
 		driver.setOutputDirectory(xmlTestDirectory);
 
 		if (sootClasspath != null) {
@@ -93,16 +89,6 @@ public class SlicerTestSetup
 		driver.setClassNames(classNames);
 		setXMLControlDir(xmlControlDirectory);
 		setXMLTestDir(xmlTestDirectory);
-	}
-
-	/**
-	 * Sets the directory in which to dump xmlized jimple output.
-	 *
-	 * @param dumpDir is the location where xmlized jimple will be dumped.  If <code>null</code>, no xmlized jimple is
-	 * 		  dumped.
-	 */
-	public void setJimpleXMLDumpLocation(final String dumpDir) {
-		driver.jimpleXMLDumpDir = dumpDir;
 	}
 
 	/**
@@ -198,10 +184,11 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/23 00:42:37  venku
+   - trying to get canonical xmlized Jimple representation.
    Revision 1.5  2004/04/22 22:12:08  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.
-
    Revision 1.4  2004/04/22 08:00:20  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
    Revision 1.3  2004/04/21 02:24:02  venku

@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -174,6 +175,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 						final DependencyAnalysisTestSetup _test =
 							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
+                        _test.setIdGenerator(new UniqueJimpleIDGenerator());
                         _test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 						_test.setStmtGraphFactory(_stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
@@ -193,6 +195,9 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/22 10:03:59  venku
+   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
+
    Revision 1.7  2004/04/22 08:00:19  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
 

@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,7 +136,8 @@ public final class ValueAnalysisRegressionTestSuite
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 						final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
-                        _test.setJimpleXMLDumpLocation(_jimpleDumpDir);
+						_test.setIdGenerator(new UniqueJimpleIDGenerator());
+						_test.setJimpleXMLDumpLocation(_jimpleDumpDir);
 						_test.setStmtGraphFactory(stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
@@ -154,13 +156,13 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/22 10:03:58  venku
+   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
    Revision 1.14  2004/04/22 08:00:19  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-
    Revision 1.13  2004/04/21 04:13:19  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.
-
    Revision 1.12  2004/04/20 06:53:17  venku
    - documentation.
    Revision 1.11  2004/04/20 05:27:14  venku

@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.File;
@@ -134,6 +135,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/01 20:57:49  venku
+   - changed id attributed to xxxxID as it confused xmlunit.
+
    Revision 1.12  2004/03/07 12:26:17  venku
    - format of xml output was shabby. FIXED.
 

@@ -26,7 +26,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -93,13 +92,6 @@ public final class DependencyXMLizer
 	 * The name of the files into which dependence information was written into.
 	 */
 	final Collection filenames = new ArrayList();
-
-	/**
-	 * Creates a new DependencyXMLizer object.
-	 */
-	public DependencyXMLizer() {
-		setGenerator(new UniqueJimpleIDGenerator());
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
@@ -250,10 +242,11 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/18 08:58:58  venku
+   - enabled test support for slicer.
    Revision 1.13  2004/03/29 09:32:25  venku
    - documentation.
    - formatting.
-
    Revision 1.12  2004/03/29 09:31:01  venku
    - adds .xml to the retrieved filename.
    - always defaults to a non-empty DA based file name.

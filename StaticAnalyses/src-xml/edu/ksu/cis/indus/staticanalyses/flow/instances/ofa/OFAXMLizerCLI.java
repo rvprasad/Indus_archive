@@ -27,11 +27,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXML
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.IntegerTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -68,31 +64,6 @@ public final class OFAXMLizerCLI
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
-
-	/**
-	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerType".
-	 *
-	 * @return a token manager.
-	 *
-	 * @post result != null
-	 */
-	public static ITokenManager getTokenManager() {
-		ITokenManager _tokenMgr = null;
-		final String _tmType = System.getProperty("indus.staticanalyses.TokenManagerType");
-
-		if (_tmType != null) {
-			if (_tmType.equals("CollectionTokenManager")) {
-				_tokenMgr = new CollectionTokenManager(new SootValueTypeManager());
-			} else if (_tmType.equals("IntegerTokenManager")) {
-				_tokenMgr = new IntegerTokenManager(new SootValueTypeManager());
-			}
-		}
-
-		if (_tokenMgr == null) {
-			_tokenMgr = new BitSetTokenManager(new SootValueTypeManager());
-		}
-		return _tokenMgr;
-	}
 
 	/**
 	 * The entry point to the program via command line.
@@ -158,7 +129,7 @@ public final class OFAXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, getTokenManager());
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -216,6 +187,9 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/23 01:00:48  venku
+   - trying to resolve issues with canonicalization of Jimple.
+
    Revision 1.8  2004/04/23 00:42:36  venku
    - trying to get canonical xmlized Jimple representation.
 

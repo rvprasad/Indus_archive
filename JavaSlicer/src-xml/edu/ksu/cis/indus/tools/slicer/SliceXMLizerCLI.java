@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidual
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.tools.Phase;
 
@@ -134,7 +135,7 @@ public class SliceXMLizerCLI
 	 * @pre generator != null
 	 */
 	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
-		slicer = new SlicerTool(OFAXMLizerCLI.getTokenManager());
+		slicer = new SlicerTool(TokenUtil.getTokenManager());
 		cfgProvider = slicer.getStmtGraphFactory();
 		idGenerator = generator;
 	}
@@ -532,6 +533,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/04/23 01:01:10  venku
+   - coding conventions.
+
    Revision 1.18  2004/04/23 01:00:49  venku
    - trying to resolve issues with canonicalization of Jimple.
 

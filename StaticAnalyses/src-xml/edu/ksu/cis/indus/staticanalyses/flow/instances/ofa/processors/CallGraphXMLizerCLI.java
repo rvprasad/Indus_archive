@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -129,7 +130,7 @@ public final class CallGraphXMLizerCLI
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, OFAXMLizerCLI.getTokenManager());
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -187,6 +188,9 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/22 23:32:30  venku
+   - xml file name were setup incorrectly.  FIXED.
+
    Revision 1.7  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.
