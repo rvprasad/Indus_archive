@@ -3,7 +3,6 @@
 	<name>StaticAnalyses</name>
 	<comment></comment>
 	<projects>
-		<project>Bandera</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

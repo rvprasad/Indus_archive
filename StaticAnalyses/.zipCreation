@@ -5,6 +5,11 @@
       manifest="false" name="saps.jar">
       <source>
          <container path="/StaticAnalyses/src"/>
+         <container path="/StaticAnalyses/src-dependence"/>
+         <container path="/StaticAnalyses/src-flow"/>
+         <container path="/StaticAnalyses/src-interference"/>
+         <container path="/StaticAnalyses/temp"/>
+         <container path="/StaticAnalyses"/>
       </source>
    </target>
 </zip-info>
