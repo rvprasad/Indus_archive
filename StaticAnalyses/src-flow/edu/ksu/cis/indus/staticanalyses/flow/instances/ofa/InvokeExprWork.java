@@ -133,25 +133,20 @@ public class InvokeExprWork
 				continue;
 			}
 
-			//if (e instanceof SpecialInvokeExpr) {
-			//	sc = e.getMethod().getDeclaringClass();
-			//} else {
-            {
-				Type t = v.getType();
+			Type t = v.getType();
 
-				if (t instanceof RefType) {
-					sc = fa.getClass(((RefType) v.getType()).getClassName());
-				} else if (t instanceof ArrayType) {
-					sc = fa.getClass("java.lang.Object");
-				} else {
-					RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
+			if (t instanceof RefType) {
+				sc = fa.getClass(((RefType) v.getType()).getClassName());
+			} else if (t instanceof ArrayType) {
+				sc = fa.getClass("java.lang.Object");
+			} else {
+				RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
 
-					if (LOGGER.isErrorEnabled()) {
-						LOGGER.error(ee);
-					}
-					context.setProgramPoint(vb);
-					throw ee;
+				if (LOGGER.isErrorEnabled()) {
+					LOGGER.error(ee);
 				}
+				context.setProgramPoint(vb);
+				throw ee;
 			}
 
 			try {
@@ -208,13 +203,14 @@ public class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/05 21:13:56  venku
+   - special invokes are treated just like virtual invoke.
    Revision 1.11  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
        getCurrentStmt()
    - context holds current information and only it must be used
      to retrieve this information.  No auxiliary arguments. FIXED.
-
    Revision 1.10  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -139,8 +139,10 @@ public class MethodVariant
 	 */
 	protected SimpleLocalDefs defs;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected boolean unRetrievable = false;
 
@@ -205,29 +207,25 @@ public class MethodVariant
 		astvm = astVariantManager;
 		sm.addTag(_fa.getTag());
 
-        try {
-        // process the bodies required by the method body        
+		// process the types required by the method body        
 		fa.processClass(sm.getDeclaringClass());
 
 		for (final Iterator i = typesToProcess.iterator(); i.hasNext();) {
 			fa.processType((Type) i.next());
 		}
-        
-        if (_method.isConcrete()) {
-        JimpleBody jb = (JimpleBody) _method.retrieveActiveBody();
 
-        for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
-            Type localType = ((Local) i.next()).getType();
+		if (_method.isConcrete()) {
+			JimpleBody jb = (JimpleBody) _method.retrieveActiveBody();
 
-            if (localType instanceof RefLikeType) {
-                _fa.processType(localType);
-            }
-        }
-        }
-        } catch (Exception e) {
-            e.printStackTrace();
-            
-        }
+			for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
+				Type localType = ((Local) i.next()).getType();
+
+				if (localType instanceof RefLikeType) {
+					_fa.processType(localType);
+				}
+			}
+		}
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
 		}
@@ -301,6 +299,7 @@ public class MethodVariant
 		// We assume the user has closed the system.
 		if (_method.isConcrete()) {
 			jb = (JimpleBody) _method.retrieveActiveBody();
+
 			List stmtList = new ArrayList(jb.getUnits());
 			stmt = _fa.getStmt(this);
 
@@ -513,6 +512,10 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/05 21:22:15  venku
+   - delayed construction of local use-def info
+   - process all types known at the interface of the method
+     at a single location.
    Revision 1.12  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
