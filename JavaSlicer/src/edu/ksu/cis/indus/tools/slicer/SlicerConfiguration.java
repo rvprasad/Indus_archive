@@ -22,11 +22,11 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterProceduralDivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
@@ -44,6 +44,8 @@ import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCrit
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AssertionSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
+
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,11 +77,6 @@ public final class SlicerConfiguration
   extends AbstractToolConfiguration
   implements Cloneable,
 	  IToolConfigurationFactory {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(SlicerConfiguration.class);
-
 	/** 
 	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
 	 * of naive type-based interference dependence. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>
@@ -251,6 +248,11 @@ public final class SlicerConfiguration
 	 * This identifies the property that determines if call site sensitive ready dependence is used.
 	 */
 	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
+
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SlicerConfiguration.class);
 
 	/** 
 	 * This is the factory object to create configurations.
@@ -938,6 +940,58 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Retrieves the direction of divergence dependence that needs to be calculated.
+	 *
+	 * @return the direction.
+	 *
+	 * @throws IllegalStateException if the direction cannot be decided due to illegal slice type.
+	 */
+	private Object getDivergenceDirection()
+	  throws IllegalStateException {
+		final Object _result;
+
+		if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
+			_result = IDependencyAnalysis.FORWARD_DIRECTION;
+		} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
+			_result = IDependencyAnalysis.BACKWARD_DIRECTION;
+		} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
+			_result = null;
+		} else {
+			final String _msg = "Illegal slice type :" + "" + " : " + getSliceType();
+			LOGGER.error("setupDivergenceDependence" + "() -  : " + _msg);
+			throw new IllegalStateException(_msg);
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the class of ready dependence analysis to be used.
+	 *
+	 * @param nature of ready dependence.
+	 *
+	 * @return the ready dependence analysis class.
+	 *
+	 * @throws IllegalStateException when the given nature is not supported.
+	 */
+	private Class getReadyDAClass(final Object nature)
+	  throws IllegalStateException {
+		final Class _result;
+
+		if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(nature)) {
+			_result = ReadyDAv3.class;
+		} else if (EQUIVALENCE_CLASS_BASED_INFO.equals(nature)) {
+			_result = ReadyDAv2.class;
+		} else if (TYPE_BASED_INFO.equals(nature)) {
+			_result = ReadyDAv1.class;
+		} else {
+			final String _msg = "Ready dependence could not be configured due to illegal " + "dependence nature.";
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
+			throw new IllegalStateException(_msg);
+		}
+		return _result;
+	}
+
+	/**
 	 * Sets up assertion preserving part of the slicer.
 	 */
 	private void setupAssertionPreservation() {
@@ -963,17 +1017,17 @@ public final class SlicerConfiguration
 	 */
 	private void setupDeadlockPreservation() {
 		if (getSliceForDeadlock()) {
-			final String property = (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
+			final String _property = (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 			final DeadlockPreservingCriteriaGenerator _t = new DeadlockPreservingCriteriaGenerator();
 			id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, _t);
 
-			if (ALL_SYNC_CONSTRUCTS.equals(property)) {
+			if (ALL_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilter(ISliceCriteriaPredicate.DUMMY_FILTER);
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
-			} else if (ESCAPING_SYNC_CONSTRUCTS.equals(property)) {
+			} else if (ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
-			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(property)) {
+			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer());
 			} else {
@@ -981,10 +1035,7 @@ public final class SlicerConfiguration
 					"Deadlock preservation criteria generation could not be configured due to illegal "
 					+ "criteria selection strategy.";
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("setupDeadlockPreservation() -  : " + _msg);
-				}
-
+				LOGGER.error("setupDeadlockPreservation() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
 		}
@@ -993,20 +1044,12 @@ public final class SlicerConfiguration
 	/**
 	 * Sets up divergence dependence.
 	 *
-	 * @throws IllegalStateException when divergence dependence cannot be setup.
+	 * @throws IllegalStateException when divergence dependence cannot be setup due to invalid nature or illegal slice type.
 	 */
 	private void setupDivergenceDependence() {
 		if (isDivergenceDepAnalysisUsed()) {
 			final String _property = getNatureOfDivergenceDepAnalysis();
-			final Object _direction;
-
-			if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
-				_direction = IDependencyAnalysis.FORWARD_DIRECTION;
-			} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
-				_direction = IDependencyAnalysis.BACKWARD_DIRECTION;
-			} else {
-				_direction = null;
-			}
+			final Object _direction = getDivergenceDirection();
 
 			final boolean _interProcedural = INTRA_AND_INTER_PROCEDURAL.equals(_property);
 			final Collection _das = new ArrayList();
@@ -1042,11 +1085,7 @@ public final class SlicerConfiguration
 				final String _msg =
 					"Divergence dependence could not be configured due to illegal slice type or"
 					+ "divergence dependence nature.";
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("setupDivergenceDependence() -  : " + _msg);
-				}
-
+				LOGGER.error("setupDivergenceDependence() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
 		} else {
@@ -1066,22 +1105,18 @@ public final class SlicerConfiguration
 		if (isInterferenceDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
 
-			final Object property = getNatureOfInterferenceDepAnalysis();
+			final Object _property = getNatureOfInterferenceDepAnalysis();
 
-			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(property)) {
+			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(_property)) {
 				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv3()));
-			} else if (EQUIVALENCE_CLASS_BASED_INFO.equals(property)) {
+			} else if (EQUIVALENCE_CLASS_BASED_INFO.equals(_property)) {
 				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv2()));
-			} else if (TYPE_BASED_INFO.equals(property)) {
+			} else if (TYPE_BASED_INFO.equals(_property)) {
 				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv1()));
 			} else {
 				final String _msg =
 					"Interference dependence could not be configured due to illegal " + "interference dependence nature.";
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("setupInterferenceDependence() -  : " + _msg);
-				}
-
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
 
@@ -1100,54 +1135,63 @@ public final class SlicerConfiguration
 	 * Sets up the nature of ready dependence.
 	 *
 	 * @param nature of ready dependence.
-	 *
-	 * @throws IllegalStateException when the provided nature of ready dependence is illegal.
 	 */
 	private void setupNatureOfReadyDep(final Object nature) {
-		if (nature.equals(SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
+		final Class _clazz = getReadyDAClass(nature);
+
+		try {
 			final Collection _temp = new HashSet();
 
-			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-				_temp.add(ReadyDAv3.getForwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
-				_temp.add(ReadyDAv3.getBackwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
-				_temp.add(ReadyDAv3.getBackwardReadyDA());
-				_temp.add(ReadyDAv3.getForwardReadyDA());
+			if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
+				_temp.add(_clazz.getMethod("getForwardReadyDA", null).invoke(null, null));
+			} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
+				_temp.add(_clazz.getMethod("getBackwardReadyDA", null).invoke(null, null));
+			} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
+				_temp.add(_clazz.getMethod("getBackwardReadyDA", null).invoke(null, null));
+				_temp.add(_clazz.getMethod("getForwardReadyDA", null).invoke(null, null));
+			} else {
+				final String _msg = "Illegal slice type :" + _clazz.toString() + " : " + getSliceType();
+				LOGGER.error("setupNatureOfReadyDep" + "() -  : " + _msg);
+				throw new IllegalStateException(_msg);
 			}
 			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
-		} else if (nature.equals(EQUIVALENCE_CLASS_BASED_INFO)) {
-			final Collection _temp = new HashSet();
+		} catch (final NoSuchMethodException _e) {
+			final String _msg =
+				"Dependence analysis does not provide getForwardReadyDA() and/or getBackwardReadyDA() :" + _clazz;
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
-			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-				_temp.add(ReadyDAv2.getForwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
-				_temp.add(ReadyDAv2.getBackwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
-				_temp.add(ReadyDAv2.getBackwardReadyDA());
-				_temp.add(ReadyDAv2.getForwardReadyDA());
-			}
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
-		} else if (nature.equals(TYPE_BASED_INFO)) {
-			final Collection _temp = new HashSet();
+			final RuntimeException _runtimeException = new RuntimeException(_msg);
+			_runtimeException.initCause(_e);
+			throw _runtimeException;
+		} catch (final IllegalArgumentException _e) {
+			final String _msg =
+				"Dependence analysis does not provide static zero-parameter versions of "
+				+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
+			throw _e;
+		} catch (final SecurityException _e) {
+			final String _msg = "Insufficient permission to access specified ready dependence analysis class : " + _clazz;
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
-			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-				_temp.add(ReadyDAv1.getForwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
-				_temp.add(ReadyDAv1.getBackwardReadyDA());
-			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
-				_temp.add(ReadyDAv1.getBackwardReadyDA());
-				_temp.add(ReadyDAv1.getForwardReadyDA());
-			}
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
-		} else {
-			final String _msg = "Ready dependence could not be configured due to illegal " + "dependence nature.";
+			final RuntimeException _runtimeException = new RuntimeException(_msg);
+			_runtimeException.initCause(_e);
+			throw _runtimeException;
+		} catch (final IllegalAccessException _e) {
+			final String _msg =
+				"Dependence analysis does not provide publicly accessible versions of  "
+				+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("setupNatureOfReadyDep() -  : " + _msg);
-			}
+			final RuntimeException _runtimeException = new RuntimeException(_msg);
+			_runtimeException.initCause(_e);
+			throw _runtimeException;
+		} catch (final InvocationTargetException _e) {
+			final String _msg = "getForwardReadyDA() and/or getBackwardReadyDA() threw an exception : " + _clazz;
+			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
-			throw new IllegalStateException(_msg);
+			final RuntimeException _runtimeException = new RuntimeException(_msg);
+			_runtimeException.initCause(_e);
+			throw _runtimeException;
 		}
 	}
 
@@ -1228,8 +1272,8 @@ public final class SlicerConfiguration
 		final String _sliceType = getSliceType();
 
 		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
-            id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, 
-                    Collections.singleton(new IdentifierBasedDataDAv3()));
+			id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
+				Collections.singleton(new IdentifierBasedDataDAv3()));
 
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
 
@@ -1258,11 +1302,7 @@ public final class SlicerConfiguration
 			}
 		} else {
 			final String _msg = "slice type could not be configured due to illegal slice type.";
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("setupSliceTypeRelatedData() -  : " + _msg);
-			}
-
+			LOGGER.error("setupSliceTypeRelatedData() -  : " + _msg);
 			throw new IllegalStateException(_msg);
 		}
 	}
