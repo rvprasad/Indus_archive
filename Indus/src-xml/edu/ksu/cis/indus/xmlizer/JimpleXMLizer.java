@@ -175,36 +175,25 @@ public class JimpleXMLizer
 			} else {
 				processingMethod = true;
 			}
-
 			xmlizedSystem.write("\t\t<method name=\"" + method.getName().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;")
-				+ "\" id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
+				+ "\" id=\"" + idGenerator.getIdForMethod(method) + "\"\n");
 
 			// capture info about modifiers
-			if (method.isAbstract()) {
-				xmlizedSystem.write("\t\t\t<abstract/>\n");
-			}
+			xmlizedSystem.write("\t\t  abstract=\"" + method.isAbstract() + "\"\n");
+			xmlizedSystem.write("\t\t  static=\"" + method.isStatic() + "\"\n");
+			xmlizedSystem.write("\t\t  native=\"" + method.isNative() + "\"\n");
+			xmlizedSystem.write("\t\t  synchronized=\"" + method.isSynchronized() + "\"\n");
 
-			if (method.isNative()) {
-				xmlizedSystem.write("\t\t\t<native/>\n");
-			}
-
-			if (method.isStatic()) {
-				xmlizedSystem.write("\t\t\t<static/>\n");
-			}
-
-			if (method.isSynchronized()) {
-				xmlizedSystem.write("\t\t\t<synchronized/>\n");
-			}
+			String accessSpec = "";
 
 			if (method.isPublic()) {
-				xmlizedSystem.write("\t\t\t<public/>\n");
+				accessSpec = "public";
 			} else if (method.isPrivate()) {
-				xmlizedSystem.write("\t\t\t<private/>\n");
+				accessSpec = "private";
 			} else if (method.isProtected()) {
-				xmlizedSystem.write("\t\t\t<protected/>\n");
-			} else {
-				xmlizedSystem.write("\t\t\t<package_private/>\n");
+				accessSpec = "proctected";
 			}
+			xmlizedSystem.write("\t\t  accessSpec=\"" + accessSpec + "\">\n");
 
 			// capture info about signature
 			xmlizedSystem.write("\t\t\t<signature>\n");
@@ -216,6 +205,13 @@ public class JimpleXMLizer
 				for (Iterator i = method.getParameterTypes().iterator(); i.hasNext();) {
 					xmlizedSystem.write("\t\t\t\t<paramType typeId=\"" + idGenerator.getIdForType((Type) i.next())
 						+ "\" position=\"" + j++ + "\"/>\n");
+				}
+			}
+
+			if (method.getExceptions().size() > 0) {
+				for (Iterator i = method.getExceptions().iterator(); i.hasNext();) {
+					xmlizedSystem.write("\t\t\t\t<exception typeId=\"" + idGenerator.getIdForClass((SootClass) i.next())
+						+ "\"/>\n");
 				}
 			}
 			xmlizedSystem.write("\t\t\t</signature>\n");
@@ -275,22 +271,21 @@ public class JimpleXMLizer
 			} else {
 				currType = "class";
 			}
-			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getName() + "\" id=\""
-				+ idGenerator.getIdForClass(clazz) + "\" package=\"" + clazz.getJavaPackageName() +"\">\n");
-            
-			if (clazz.isAbstract()) {
-				xmlizedSystem.write("\t\t<abstract/>\n");
-			}
+			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getJavaStyleName() + "\" id=\""
+				+ idGenerator.getIdForClass(clazz) + "\" package=\"" + clazz.getJavaPackageName() + "\"\n");
+
+			xmlizedSystem.write("\t  abstract=\"" + clazz.isAbstract() + "\"\n");
+
+			String accessSpec = "";
 
 			if (clazz.isPublic()) {
-				xmlizedSystem.write("\t\t<public/>\n");
+				accessSpec = "public";
 			} else if (clazz.isPrivate()) {
-				xmlizedSystem.write("\t\t<private/>\n");
+				accessSpec = "private";
 			} else if (clazz.isProtected()) {
-				xmlizedSystem.write("\t\t<protected/>\n");
-			} else {
-				xmlizedSystem.write("\t\t<package_private/>\n");
+				accessSpec = "proctected";
 			}
+			xmlizedSystem.write("\t  accessSpec=\"" + accessSpec + "\">\n");
 
 			if (clazz.hasSuperclass()) {
 				xmlizedSystem.write("\t\t<superclass typeId=\"" + idGenerator.getIdForClass(clazz.getSuperclass()) + "\"/>\n");
@@ -301,7 +296,7 @@ public class JimpleXMLizer
 
 				for (Iterator i = clazz.getInterfaces().iterator(); i.hasNext();) {
 					SootClass inter = (SootClass) i.next();
-					xmlizedSystem.write("\t\t<interface typeId=\"" + idGenerator.getIdForClass(inter) + "\"/>\n");
+					xmlizedSystem.write("\t\t\t<superinterface typeId=\"" + idGenerator.getIdForClass(inter) + "\"/>\n");
 				}
 				xmlizedSystem.write("\t\t</interfaceList>\n");
 			}
@@ -320,7 +315,20 @@ public class JimpleXMLizer
 	public final void callback(SootField field) {
 		try {
 			xmlizedSystem.write("\t\t<field name=\"" + field.getName() + "\" id=\"" + idGenerator.getIdForField(field)
-				+ "\" typeId=\"" + idGenerator.getIdForType(field.getType()) + "\"/>\n");
+				+ "\" typeId=\"" + idGenerator.getIdForType(field.getType()) + "\"\n");
+			xmlizedSystem.write("\t\t  static=\"" + field.isStatic() + "\"\n");
+			xmlizedSystem.write("\t\t  final=\"" + field.isFinal() + "\"\n");
+
+			String accessSpec = "";
+
+			if (field.isPublic()) {
+				accessSpec = "public";
+			} else if (field.isPrivate()) {
+				accessSpec = "private";
+			} else if (field.isProtected()) {
+				accessSpec = "proctected";
+			}
+			xmlizedSystem.write("\t\t  accessSpec=\"" + accessSpec + "\"/>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -371,6 +379,7 @@ public class JimpleXMLizer
 	 */
 	public void processingBegins() {
 		try {
+			xmlizedSystem.write("<!DOCTYPE project PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
 			xmlizedSystem.write("<jimple>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -383,46 +392,49 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
-   Revision 1.17  2003/11/25 19:10:08  venku
-   - added type attribute to local variables.
-   Revision 1.16  2003/11/24 06:45:23  venku
-   - corrected xml encoding errors along with tag name emission errors.
-   Revision 1.15  2003/11/24 06:27:54  venku
-   - static invoke expr is also routed through writeInvokeExpr().
-   Revision 1.14  2003/11/24 01:20:27  venku
-   - enhanced output formatting.
-   Revision 1.13  2003/11/24 00:54:03  venku
-   - deleted  getstream() method as it was not used.
-   Revision 1.12  2003/11/17 15:57:03  venku
-   - removed support to retrieve new statement ids.
-   - added support to retrieve id for value boxes.
-   Revision 1.11  2003/11/16 18:37:42  venku
-   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
-   Revision 1.10  2003/11/12 04:47:12  venku
-   - < needed to be escaped. FIXED.
-   Revision 1.9  2003/11/12 04:40:06  venku
-   - emitted wrong tag for method and classes. FIXED.
-   Revision 1.8  2003/11/10 07:52:58  venku
-   - beginning tag for xmlized jimple element was missing. FIXED.
-   Revision 1.7  2003/11/10 07:49:22  venku
-   - documentation.
-   Revision 1.6  2003/11/10 03:29:51  venku
-   - logged exceptions.
-   Revision 1.5  2003/11/10 03:13:04  venku
-   - uses abstract implementation of IProcessor.
-   Revision 1.4  2003/11/10 03:04:17  venku
-   - method and class elements were closed incorrectly. FIXED.
-   Revision 1.3  2003/11/10 02:42:00  venku
-   - uses register/unregister for all statements.
-   Revision 1.2  2003/11/07 11:14:44  venku
-   - Added generator class for xmlizing purpose.
-   - XMLizing of Jimple works, but takes long.
-     Probably, reachable method dump should fix it.  Another rainy day problem.
-   Revision 1.1  2003/11/07 06:27:03  venku
-   - Made the XMLizer classes concrete by moving out the
-     id generation logic outside.
-   - Added an interface which provides the id required for
-     xmlizing Jimple.
-   Revision 1.1  2003/11/06 10:01:25  venku
-   - created support for xmlizing Jimple in a customizable manner.
+      Revision 1.18  2003/11/26 18:26:08  venku
+      - capture a whole lot more information for classes and methods.
+      - removed unnecessary info from the attributes.
+      Revision 1.17  2003/11/25 19:10:08  venku
+      - added type attribute to local variables.
+      Revision 1.16  2003/11/24 06:45:23  venku
+      - corrected xml encoding errors along with tag name emission errors.
+      Revision 1.15  2003/11/24 06:27:54  venku
+      - static invoke expr is also routed through writeInvokeExpr().
+      Revision 1.14  2003/11/24 01:20:27  venku
+      - enhanced output formatting.
+      Revision 1.13  2003/11/24 00:54:03  venku
+      - deleted  getstream() method as it was not used.
+      Revision 1.12  2003/11/17 15:57:03  venku
+      - removed support to retrieve new statement ids.
+      - added support to retrieve id for value boxes.
+      Revision 1.11  2003/11/16 18:37:42  venku
+      - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
+      Revision 1.10  2003/11/12 04:47:12  venku
+      - < needed to be escaped. FIXED.
+      Revision 1.9  2003/11/12 04:40:06  venku
+      - emitted wrong tag for method and classes. FIXED.
+      Revision 1.8  2003/11/10 07:52:58  venku
+      - beginning tag for xmlized jimple element was missing. FIXED.
+      Revision 1.7  2003/11/10 07:49:22  venku
+      - documentation.
+      Revision 1.6  2003/11/10 03:29:51  venku
+      - logged exceptions.
+      Revision 1.5  2003/11/10 03:13:04  venku
+      - uses abstract implementation of IProcessor.
+      Revision 1.4  2003/11/10 03:04:17  venku
+      - method and class elements were closed incorrectly. FIXED.
+      Revision 1.3  2003/11/10 02:42:00  venku
+      - uses register/unregister for all statements.
+      Revision 1.2  2003/11/07 11:14:44  venku
+      - Added generator class for xmlizing purpose.
+      - XMLizing of Jimple works, but takes long.
+        Probably, reachable method dump should fix it.  Another rainy day problem.
+      Revision 1.1  2003/11/07 06:27:03  venku
+      - Made the XMLizer classes concrete by moving out the
+        id generation logic outside.
+      - Added an interface which provides the id required for
+        xmlizing Jimple.
+      Revision 1.1  2003/11/06 10:01:25  venku
+      - created support for xmlizing Jimple in a customizable manner.
  */
