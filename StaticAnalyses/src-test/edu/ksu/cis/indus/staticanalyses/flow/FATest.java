@@ -21,11 +21,7 @@ import edu.ksu.cis.indus.common.graph.IWorkBag;
 import java.util.Collection;
 import java.util.Iterator;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,18 +35,18 @@ import soot.SootMethod;
  * This tests a flow analysis framework instance.  This test cannot be run by itself.  It needs to be run via a decorator.
  * This approach lets any future tests that use flow analysis framework can be extended easily to drive this test too. (More
  * test the  merrier.)   <code>FATestSetup</code> is the decorator provided for this purpose.  Refer to
- * <code>FATestSetup</code> for more details.
+ * <code>FATestSetup</code> for more details.  For running the tests, please use <code>FATestSuite</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class FATester
+public final class FATest
   extends TestCase {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(FATester.class);
+	private static final Log LOGGER = LogFactory.getLog(FATest.class);
 
 	/**
 	 * The flow analysis framework instance to test.
@@ -77,50 +73,10 @@ public final class FATester
 	}
 
 	/**
-	 * This is the entry point via command-line.
-	 *
-	 * @param args are a list of space separated names of classes to be analyzed.
-	 *
-	 * @pre args != null
-	 */
-	public static void main(final String[] args) {
-		final StringBuffer _sb = new StringBuffer();
-
-		for (int _i = args.length - 1; _i >= 0; _i--) {
-			_sb.append(args[_i] + " ");
-		}
-
-		System.setProperty(FATestSetup.CLASSES_PROPERTY, _sb.toString());
-
-		final TestRunner _runner = new TestRunner();
-		_runner.setLoading(false);
-		_runner.start(new String[0]);
-		_runner.startTest(suite());
-		_runner.runSuite();
-	}
-
-	/**
-	 * Retrieves the test suite of the tests in this class.
-	 *
-	 * @return a test suite.
-	 *
-	 * @post result != null
-	 */
-	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.FATester");
-
-		//$JUnit-BEGIN$
-		_suite.addTestSuite(FATester.class);
-		//$JUnit-END$
-		return new FATestSetup(_suite);
-	}
-
-	/**
 	 * Tests the tagging based on the containment of various entities in the system.
 	 */
 	public void testContainment() {
 		checkContainmentOnTaggedEntity();
-
 		checkContainmentOnUnTaggedEntity();
 	}
 
@@ -261,6 +217,12 @@ public final class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/31 08:48:59  venku
+   - Refactoring.
+   - Setup classes setup each tests by data created by a common setup.
+   - Tests and Setups are structured such that if test A requires
+     data that can be tested by test B then testSetup B can
+     be used to drive test A as well.
    Revision 1.10  2003/12/30 10:06:41  venku
     empty log message
    Revision 1.9  2003/12/13 02:29:08  venku
@@ -276,7 +238,7 @@ public final class FATester
    - ripple effect.
    - Enabled call graph xmlization.
    Revision 1.5  2003/12/07 14:04:43  venku
-   - made FATester command-line compatible.
+   - made FATest command-line compatible.
    - made use of AbstractDirectedGraphTest in
      CallGraphInfoTester to test the constructed call graphs.
    Revision 1.4  2003/12/07 08:39:23  venku

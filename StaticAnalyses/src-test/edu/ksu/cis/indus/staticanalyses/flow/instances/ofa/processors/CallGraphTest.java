@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-import edu.ksu.cis.indus.staticanalyses.flow.FATester;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -33,11 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -54,7 +48,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CallGraphInfoTest
+public final class CallGraphTest
   extends AbstractDirectedGraphTest {
 	/**
 	 * The call graph to be tested.
@@ -77,50 +71,11 @@ public final class CallGraphInfoTest
 	private SimpleNodeGraph cg;
 
 	/**
-	 * This is the entry point via the command-line.
-	 *
-	 * @param args is the command line arguments.
-	 *
-	 * @pre args != null
-	 */
-	public static void main(final String[] args) {
-		final StringBuffer _sb = new StringBuffer();
-
-		for (int _i = args.length - 1; _i >= 0; _i--) {
-			_sb.append(args[_i] + " ");
-		}
-		System.setProperty(FATestSetup.CLASSES_PROPERTY, _sb.toString());
-
-		final TestRunner _runner = new TestRunner();
-		_runner.setLoading(false);
-		_runner.start(new String[0]);
-		_runner.startTest(suite());
-		_runner.runSuite();
-	}
-
-	/**
-	 * Retrieves the test suite that encapsulates the tests defined in this class.
-	 *
-	 * @return a test suite.
-	 *
-	 * @post result != null
-	 */
-	public static Test suite() {
-		final TestSuite _suite =
-			new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.valueAnalyzer.processors.CallGraph");
-
-		//$JUnit-BEGIN$
-		_suite.addTestSuite(CallGraphInfoTest.class);
-		_suite.addTestSuite(FATester.class);
-		//$JUnit-END$
-		return new CallGraphTestSetup(_suite);
-	}
-
-	/**
 	 * Sets the call graph to be used during test.
 	 *
 	 * @param sng is the graph.
-     * @pre sng != null
+	 *
+	 * @pre sng != null
 	 */
 	public void setCallGraph(final SimpleNodeGraph sng) {
 		cg = sng;
@@ -129,9 +84,10 @@ public final class CallGraphInfoTest
 
 	/**
 	 * Sets the call graph information instance to be used during test.
-     *
-     * @param callGraphInfo provides call graph information.
-     * @pre callGraphInfo != null
+	 *
+	 * @param callGraphInfo provides call graph information.
+	 *
+	 * @pre callGraphInfo != null
 	 */
 	public void setCallGraphInfo(final ICallGraphInfo callGraphInfo) {
 		cgi = callGraphInfo;
@@ -152,7 +108,8 @@ public final class CallGraphInfoTest
 	 * Set the scene used during test.
 	 *
 	 * @param theScene used during test.
-     * @pre theScene != null
+	 *
+	 * @pre theScene != null
 	 */
 	public void setScene(final Scene theScene) {
 		scene = theScene;
@@ -411,6 +368,12 @@ public final class CallGraphInfoTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/31 08:48:59  venku
+   - Refactoring.
+   - Setup classes setup each tests by data created by a common setup.
+   - Tests and Setups are structured such that if test A requires
+     data that can be tested by test B then testSetup B can
+     be used to drive test A as well.
    Revision 1.19  2003/12/30 10:04:18  venku
    - sng in SimpleNodeGraphTest should track dg or the otherway
      round to make the hierarchy of test work.  This has
@@ -442,9 +405,9 @@ public final class CallGraphInfoTest
    - ripple effect.
    - Enabled call graph xmlization.
    Revision 1.11  2003/12/07 14:04:43  venku
-   - made FATester command-line compatible.
+   - made FATest command-line compatible.
    - made use of AbstractDirectedGraphTest in
-     CallGraphInfoTest to test the constructed call graphs.
+     CallGraphTest to test the constructed call graphs.
    Revision 1.10  2003/12/05 21:34:01  venku
    - formatting.
    - more tests.

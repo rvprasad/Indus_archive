@@ -71,10 +71,10 @@ public final class CallGraphTestSetup
 		_pc.process();
 		cgiImpl.unhook(_pc);
 
-        Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphInfoTest.class);
+        Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
 
         for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-            final CallGraphInfoTest _tester = (CallGraphInfoTest) _i.next();
+            final CallGraphTest _tester = (CallGraphTest) _i.next();
             _tester.setOFA(valueAnalyzer);
 			_tester.setScene(scene);
             _tester.setCallGraphInfo(cgiImpl);
@@ -94,4 +94,11 @@ public final class CallGraphTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/31 08:48:59  venku
+   - Refactoring.
+   - Setup classes setup each tests by data created by a common setup.
+   - Tests and Setups are structured such that if test A requires
+     data that can be tested by test B then testSetup B can
+     be used to drive test A as well.
+
  */

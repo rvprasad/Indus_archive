@@ -52,7 +52,7 @@ public class FATestSetup
 	/**
 	 * The name of the property via which the names of the classes to be used to drive the test is specified.
 	 */
-	public static final String CLASSES_PROPERTY = "edu.ksu.cis.indus.staticanalyses.flow.FATester.classes";
+	public static final String CLASSES_PROPERTY = "indus.staticanalyses.flow.FATest.classes";
 
 	/**
 	 * The tag used by the flow analysis instance.
@@ -114,10 +114,10 @@ public class FATestSetup
 
 		valueAnalyzer.analyze(scene, _rootMethods);
 
-		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), FATester.class);
+		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), FATest.class);
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final FATester _tester = (FATester) _i.next();
+			final FATest _tester = (FATest) _i.next();
 			_tester.setFA(((AbstractAnalyzer) valueAnalyzer).fa);
 			_tester.setFATagName(TAG_NAME);
 		}
@@ -137,4 +137,11 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/31 08:48:59  venku
+   - Refactoring.
+   - Setup classes setup each tests by data created by a common setup.
+   - Tests and Setups are structured such that if test A requires
+     data that can be tested by test B then testSetup B can
+     be used to drive test A as well.
+
  */
