@@ -206,7 +206,6 @@ public abstract class AbstractAnalyzer
 		}
 		active = true;
 		bfa.analyze(scm, root);
-		bfa.addRootMethod(root);
 		active = false;
 	}
 
@@ -233,7 +232,6 @@ public abstract class AbstractAnalyzer
 		for (Iterator i = roots.iterator(); i.hasNext();) {
 			SootMethod root = (SootMethod) i.next();
 			bfa.analyze(scm, root);
-			bfa.addRootMethod(root);
 		}
 		active = false;
 	}
@@ -355,6 +353,10 @@ public abstract class AbstractAnalyzer
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    
    Revision 1.2  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.

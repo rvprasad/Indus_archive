@@ -454,17 +454,6 @@ public class BFA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param root DOCUMENT ME!
-	 */
-	void addRootMethod(final SootMethod root) {
-		rootMethods.add(root);
-	}
-
-	/**
 	 * Analyzes the given classes starting with <code>root</code> method.
 	 *
 	 * @param scene <code>Scene</code> object which contains the classes to be analyzed.
@@ -479,7 +468,8 @@ public class BFA
 			LOGGER.info("Starting system processing...");
 		}
 		getMethodVariant(root);
-
+        rootMethods.add(root);
+        
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Starting worklist processing...");
 		}
@@ -517,6 +507,12 @@ public class BFA
    ChangeLog:
 
    $Log$
+   Revision 1.3  2003/08/16 21:50:51  venku
+   Removed ASTVariant as it did not contain any data that was used.
+   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
+   Ripple effect of the above change in some.
+   Spruced up documentation and specification.
+
 
    Revision 1.2  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.

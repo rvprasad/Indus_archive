@@ -129,7 +129,7 @@ public abstract class AbstractAnalysis {
 	 * @param infoParam contains the value for the member variable<code>info</code>. Refer to {@link #info info} and subclass
 	 * 		  documenation for more details.
 	 *
-	 * @throws InitializationException DOCUMENT ME!
+	 * @throws InitializationException if the initialization in the sub classes fails.
 	 *
 	 * @pre method2stmtGraph.oclIsKindOf(java.util.Map(soot.SootMethod, soot.jimple.CompleteUnitGraph))
 	 * @pre classes != null and method2stmtGraph != null and info != null
@@ -214,6 +214,10 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/16 02:41:37  venku
+   Renamed AController to AbstractController.
+   Renamed AAnalysis to AbstractAnalysis.
+
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
