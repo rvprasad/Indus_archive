@@ -139,6 +139,7 @@ public final class OFAXMLizerCLI
 		_option.setArgs(1);
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
+        _options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
