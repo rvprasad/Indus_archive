@@ -59,7 +59,6 @@
             <fileset dir="${projects.dir}">
                 <include name="*/*.jar"/>
                 <exclude name="*/*src*.jar"/>
-                <exclude name="Indus/dist/*.jar"/>
             </fileset>
         </copy>
 
@@ -67,7 +66,7 @@
             <fileset dir="${dist.dir}">
                 <include name="*.jar"/>
             </fileset>
-            <mapper type="glob" from="*.jar" to="*-${DSTAMP}.jar"/>
+            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${DSTAMP}.jar"/>
         </move>
 
         <zip destfile="${examples.src.zip.filename}">
