@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
@@ -108,6 +107,11 @@ public class SlicerDriver
 	 */
 	private IJimpleIDGenerator idGenerator;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private String tagName = "SlicingTag";
+
 	/**
 	 * DOCUMENT ME!
 	 *
@@ -195,7 +199,7 @@ public class SlicerDriver
 
 		try {
 			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceCollector.SLICING_TAG_NAME, idGenerator);
+			result = new TagBasedSliceXMLizer(out, tagName, idGenerator);
 		} catch (IOException e) {
 			LOGGER.error("Exception while opening file to write xml information.", e);
 			throw new RuntimeException(e);
@@ -210,6 +214,7 @@ public class SlicerDriver
 	 */
 	protected void execute() {
 		// execute the slicer
+		slicer.setTagName(tagName);
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
@@ -454,16 +459,16 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/30 09:02:01  venku
+   - incorrect processing filter used during xmlization. FIXED.
    Revision 1.15  2003/11/30 02:38:44  venku
    - changed the name of SLICING_TAG.
-
    Revision 1.14  2003/11/30 00:10:20  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.13  2003/11/28 22:12:53  venku
    - dumps call graph.
    - logging.

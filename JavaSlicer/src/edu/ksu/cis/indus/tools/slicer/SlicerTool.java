@@ -520,8 +520,8 @@ public final class SlicerTool
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
-				engine.initialize();
 				engine.setSliceCriteria(criteria);
+                engine.initialize();
 				engine.slice();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
@@ -643,6 +643,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2003/11/30 02:13:39  venku
+   - incorporated tag based filtering during CG construction.
+
    Revision 1.38  2003/11/30 01:07:54  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
