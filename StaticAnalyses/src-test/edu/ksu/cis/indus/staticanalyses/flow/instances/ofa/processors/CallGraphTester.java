@@ -15,11 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -35,6 +30,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import junit.extensions.TestSetup;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.swingui.TestRunner;
+
 import org.apache.commons.collections.CollectionUtils;
 
 import soot.ArrayType;
@@ -42,6 +45,7 @@ import soot.G;
 import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 import soot.VoidType;
 
@@ -62,35 +66,117 @@ public class CallGraphTester
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	ICallGraphInfo cgi;
+	static ICallGraphInfo cgi;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private OFAnalyzer ofa;
+	static OFAnalyzer ofa;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Scene scene;
+	static Scene scene;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private String classes;
+	static String classes;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private final String tagName = "CallGraphTester:FA";
+	static final String tagName = "CallGraphTester:FA";
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static final class CallGraphTestSetup
+	  extends TestSetup {
+		/**
+		 * Creates a new CallGraphTestSetup object.
+		 *
+		 * @param test DOCUMENT ME!
+		 */
+		CallGraphTestSetup(final Test test) {
+			super(test);
+		}
+
+		/**
+		 * @see TestCase#setUp()
+		 */
+		protected final void setUp()
+		  throws Exception {
+			ofa = OFAnalyzer.getFSOSAnalyzer(tagName);
+			scene = Scene.v();
+
+			if (classes == null) {
+				classes = System.getProperty("callgraphtester.classes");
+			}
+
+			if (classes == null || classes.length() == 0) {
+				throw new RuntimeException("callgraphtester.classes property was empty.  Aborting.");
+			}
+
+			StringBuffer sb = new StringBuffer(classes);
+			String[] j = sb.toString().split(" ");
+			Collection rootMethods = new ArrayList();
+
+			for (int i = j.length - 1; i >= 0; i--) {
+				SootClass sc = scene.loadClassAndSupport(j[i]);
+
+				if (sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
+						  VoidType.v())) {
+					SootMethod sm =
+						sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
+							VoidType.v());
+
+					if (sm.isPublic() && sm.isConcrete()) {
+						rootMethods.add(sm);
+					}
+				}
+			}
+
+			ofa.analyze(scene, rootMethods);
+
+			CallGraph cgiImpl = new CallGraph();
+
+			ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
+			pc.setAnalyzer(ofa);
+			pc.setEnvironment(ofa.getEnvironment());
+			pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+			cgiImpl.hookup(pc);
+			pc.process();
+			cgiImpl.unhook(pc);
+			cgi = cgiImpl;
+		}
+
+		/**
+		 * @see TestCase#tearDown()
+		 */
+		protected final void tearDown()
+		  throws Exception {
+			ofa.reset();
+			ofa = null;
+			cgi = null;
+			scene = null;
+			G.reset();
+		}
+	}
 
 	/**
 	 * DOCUMENT ME!
@@ -105,14 +191,12 @@ public class CallGraphTester
 		for (int i = args.length - 1; i >= 0; i--) {
 			sb.append(args[i] + " ");
 		}
-
-		CallGraphTester tester = new CallGraphTester();
-		tester.classes = sb.toString();
+		classes = sb.toString();
 
 		TestRunner runner = new TestRunner();
 		runner.setLoading(false);
 		runner.start(new String[0]);
-		runner.startTest(tester);
+		runner.startTest(suite());
 		runner.runSuite();
 	}
 
@@ -123,13 +207,13 @@ public class CallGraphTester
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public static TestSuite suite() {
+	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph");
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(CallGraphTester.class);
 		//$JUnit-END$
-		return suite;
+		return new CallGraphTestSetup(suite);
 	}
 
 	/**
@@ -272,13 +356,13 @@ public class CallGraphTester
 	 */
 	public final void testGetSCCs() {
 		Collection sccs = cgi.getSCCs();
-        Collection reachables = cgi.getReachableMethods();
+		Collection reachables = cgi.getReachableMethods();
 		assertTrue(sccs != null);
 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			Collection scc1 = (Collection) i.next();
 			assertTrue(scc1 != null);
-            assertTrue(reachables.containsAll(scc1));
+			assertTrue(reachables.containsAll(scc1));
 
 			for (Iterator j = sccs.iterator(); j.hasNext();) {
 				Collection scc2 = (Collection) j.next();
@@ -320,90 +404,54 @@ public class CallGraphTester
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
-	protected final void setUp()
-	  throws Exception {
-		ofa = OFAnalyzer.getFSOSAnalyzer(tagName);
-		scene = Scene.v();
+	public final void testTagsOnReachableMethods() {
+		Collection reachables = cgi.getReachableMethods();
+		assertTrue(reachables != null);
 
-		if (classes == null) {
-			classes = System.getProperty("callgraphtester.classes");
+		for (Iterator i = reachables.iterator(); i.hasNext();) {
+			SootMethod o = (SootMethod) i.next();
+			assertTrue(o.hasTag(tagName));
+			assertTrue(o.getDeclaringClass().hasTag(tagName));
 		}
 
-		if (classes == null || classes.length() == 0) {
-			throw new RuntimeException("callgraphtester.classes property was empty.  Aborting.");
-		}
+		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+			boolean shouldNotBeTagged = true;
 
-		StringBuffer sb = new StringBuffer(classes);
-		String[] j = sb.toString().split(" ");
-		Collection rootMethods = new ArrayList();
+			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
+				final SootField _sf = (SootField) _j.next();
+				shouldNotBeTagged &= !_sf.hasTag(tagName);
+			}
 
-		for (int i = j.length - 1; i >= 0; i--) {
-			SootClass sc = scene.loadClassAndSupport(j[i]);
+			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
 
-			if (sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-					  VoidType.v())) {
-				SootMethod sm =
-					sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-						VoidType.v());
-
-				if (sm.isPublic() && sm.isConcrete()) {
-					rootMethods.add(sm);
+				if (!reachables.contains(_sm)) {
+					assertFalse(_sm.hasTag(tagName));
+				} else {
+					shouldNotBeTagged = false;
 				}
 			}
+
+			if (shouldNotBeTagged) {
+				assertFalse(_sc.hasTag(tagName));
+			}
 		}
-
-		ofa.analyze(scene, rootMethods);
-		cgi = getCGImpl();
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected ICallGraphInfo getCGImpl() {
-		CallGraph cgiImpl = new CallGraph();
-
-		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
-		pc.setAnalyzer(ofa);
-		pc.setEnvironment(ofa.getEnvironment());
-		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
-		cgiImpl.hookup(pc);
-		pc.process();
-		cgiImpl.unhook(pc);
-		return cgiImpl;
-	}
-
-	/**
-	 * @see TestCase#tearDown()
-	 */
-	protected final void tearDown()
-	  throws Exception {
-		ofa.reset();
-		ofa = null;
-		resetCGImpl();
-		cgi = null;
-		scene = null;
-		G.reset();
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 */
-	protected void resetCGImpl() {
-		((CallGraph) cgi).reset();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/05 11:48:19  venku
+   - added one more check while testing SCC.
    Revision 1.7  2003/12/02 09:42:39  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.6  2003/11/30 01:38:52  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.5  2003/11/30 01:07:57  venku
