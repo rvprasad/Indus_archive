@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import org.apache.commons.cli.BasicParser;
@@ -90,6 +91,13 @@ public class SlicerDriver
 	 * </p>
 	 */
 	SlicerTool slicer;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private FileWriter jimpleWriter;
 
 	/**
 	 * <p>
@@ -240,10 +248,28 @@ public class SlicerDriver
 		dep.populateDAs();
 		sliceIP.hookup(ctrl);
 
+		JimpleXMLizer jimpler = null;
+
+		if (jimpleWriter != null) {
+			jimpler = new JimpleXMLizer(idGenerator);
+			jimpler.setWriter(jimpleWriter);
+			jimpler.hookup(ctrl);
+		}
+
 		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
 		ctrl.process();
-		dep.flushXMLizers(xmlizers, ctrl);
 		sliceIP.unhook(ctrl);
+
+		if (jimpler != null) {
+			jimpler.unhook(ctrl);
+
+			try {
+				jimpleWriter.flush();
+			} catch (IOException e) {
+				LOGGER.error("Failed to close the xml file based for jimple representation.", e);
+			}
+		}
+		dep.flushXMLizers(xmlizers, ctrl);
 		sliceIP.flush();
 	}
 
@@ -256,18 +282,35 @@ public class SlicerDriver
 	private static void parseCommandLine(final String[] args, final SlicerDriver xmlizer) {
 		// create options
 		Options options = new Options();
-		Option o = new Option("c", false, "The configuration file to use.  If unspecified, uses default configuration file.");
+		Option o =
+			new Option("c", "config-file", false,
+				"The configuration file to use.  If unspecified, uses default configuration file.");
 		o.setArgs(1);
-		options.addOption(o);
-		o = new Option("o", false,
-				"The output directory to dump the slice info into.  If unspecified, defaults to current directory.");
-		o.setArgs(1);
-		options.addOption(o);
-		o = new Option("g", false, "Display gui for configuration.");
+		o.setArgName("path");
 		o.setOptionalArg(false);
 		options.addOption(o);
-		o = new Option("p", false, "Prepend this to soot class path.");
+		o = new Option("o", "output-dir", false,
+				"The output directory to dump the slice info into.  If unspecified, defaults to current directory.");
 		o.setArgs(1);
+		o.setArgName("path");
+		o.setOptionalArg(false);
+		options.addOption(o);
+		o = new Option("g", "gui-config", false, "Display gui for configuration.");
+		o.setOptionalArg(false);
+		options.addOption(o);
+		o = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		o.setArgs(1);
+		o.setArgName("classpath");
+		o.setOptionalArg(false);
+		options.addOption(o);
+		o = new Option("h", "help", false, "Display message.");
+		o.setOptionalArg(false);
+		options.addOption(o);
+		o = new Option("j", "output-jimple", false,
+				"Output xml representation of the jimple.  If unspecified, not jimple output is emitted.");
+		o.setArgs(1);
+		o.setArgName("path");
+		o.setOptionalArg(false);
 		options.addOption(o);
 
 		CommandLine cl = null;
@@ -275,14 +318,23 @@ public class SlicerDriver
 		// parse the arguments
 		try {
 			cl = (new BasicParser()).parse(options, args);
+		} catch (ParseException e) {
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
+				options, true);
+			LOGGER.fatal("Incorrect command line.  Aborting.", e);
+			System.exit(1);
+		}
 
+		if (cl.hasOption("h")) {
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
+				options, true);
+			System.exit(0);
+		} else {
 			String config = cl.getOptionValue("c");
 			configFileName = config;
 
 			if (config == null) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("Using default configuration as none was specified.");
-				}
+				LOGGER.error("Using default configuration as none was specified.");
 
 				URL defaultConfigFileName =
 					ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
@@ -298,17 +350,16 @@ public class SlicerDriver
 				}
 				xmlizer.setConfiguration(buffer.toString());
 			} catch (FileNotFoundException e1) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Non-existent configuration file specified. Using default configuration.");
-				}
+				LOGGER.error("Non-existent configuration file specified. Using default configuration.");
 			} catch (IOException e2) {
-				LOGGER.fatal("IO error while reading configuration file.");
+				LOGGER.fatal("IO error while reading configuration file.  Aborting");
+				System.exit(2);
 			}
 
 			String outputDir = cl.getOptionValue("o");
 
 			if (outputDir == null) {
-				System.out.println("Warning: Using the currennt directory to dump slicing artifacts.");
+				LOGGER.error("Using the currennt directory to dump slicing artifacts.");
 				outputDir = ".";
 			}
 			xmlizer.setOutputDirectory(outputDir);
@@ -318,25 +369,31 @@ public class SlicerDriver
 			if (classpath != null) {
 				xmlizer.addToSootClassPath(classpath);
 			}
-		} catch (ParseException e) {
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
-				options, true);
-			LOGGER.fatal("Incorrect command line", e);
-			System.exit(1);
+
+			List result = cl.getArgList();
+
+			if (result.isEmpty()) {
+				LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+				System.exit(3);
+			}
+
+			String jimpleOutDir = cl.getOptionValue("j");
+
+			if (jimpleOutDir != null) {
+				try {
+					xmlizer.jimpleWriter = new FileWriter(jimpleOutDir + File.separator + "jimple.xml");
+				} catch (IOException e) {
+					LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
+					System.exit(4);
+				}
+			}
+
+			if (cl.hasOption('g')) {
+				xmlizer.showGUI();
+			}
+
+			xmlizer.setClassNames(cl.getArgList());
 		}
-
-		List result = cl.getArgList();
-
-		if (result.isEmpty()) {
-			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
-			System.exit(1);
-		}
-
-		if (cl.hasOption('g')) {
-			xmlizer.showGUI();
-		}
-
-		xmlizer.setClassNames(cl.getArgList());
 	}
 
 	/**
@@ -383,10 +440,17 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/24 00:11:42  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.7  2003/11/20 07:42:07  venku
    - added command line option "-p" to specify classpath for
      soot.
-
    Revision 1.6  2003/11/17 17:56:21  venku
    - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
      way to intialize the tool independent of how it's dependent
