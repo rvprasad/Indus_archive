@@ -219,7 +219,6 @@ public abstract class AbstractCallingContextRetriever
 			_wb.addAllWork(_method2map.keySet());
 
 			while (_wb.hasWork()) {
-				// we need this to handle concurrent modification to caller-side stacks due to recursion.
 				Map _map1 = null;
 
 				final SootMethod _callee = (SootMethod) _wb.getWork();
@@ -243,7 +242,7 @@ public abstract class AbstractCallingContextRetriever
 							final SootMethod _caller = _callSite.getMethod();
 							final Map _callerSideRef2callstacks;
 
-							// we need this to handle concurrent modification to caller-side stacks due to recursion.
+							// we need this to handle concurrent modification to caller-side stacks
 							if (_caller.equals(_callee)) {
 								_map1 = new HashMap();
 								_callerSideRef2callstacks = _map1;
@@ -264,7 +263,7 @@ public abstract class AbstractCallingContextRetriever
 							_stacks.clear();
 
 							for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-								final Stack _callStack = ((Stack) _k.next());
+								final Stack _callStack = (Stack) _k.next();
 
 								// HACK: This rejects recursive call chains.  Instead, they should be massaged suitably. 
 								if (!_callStack.contains(_callSite)) {
@@ -286,7 +285,7 @@ public abstract class AbstractCallingContextRetriever
 					// Collect the contexts when we have reached the top of the (inverted) call chain or the call chains 
 					// cannot be exetended based on the property.
 					if (_jEnd == 0 || (_zeroStacksWereExtended && shouldUnextendedStacksBeConsidered())) {
-						// if we are dealing with an entry method with no call chains then inject an empty context.  
+						// if we are dealing with an entry method  
 						if (_jEnd == 0 && _calleeSideCallStacks.isEmpty()) {
 							_result.addAll(NULL_CONTEXTS);
 						} else {
@@ -337,7 +336,7 @@ public abstract class AbstractCallingContextRetriever
 		if (!_ref2callstacks.containsKey(token)) {
 			final Collection _callstacks = new HashSet();
 			_ref2callstacks.put(token, _callstacks);
-			_callstacks.add(new Stack());
+            _callstacks.add(new Stack());
 		}
 	}
 }
