@@ -36,7 +36,6 @@
 package edu.ksu.cis.bandera.staticanalyses.escape;
 
 import ca.mcgill.sable.soot.ArrayType;
-import ca.mcgill.sable.soot.ClassFile;
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
@@ -62,6 +61,7 @@ import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
+import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.ParameterRef;
 import ca.mcgill.sable.soot.jimple.ReturnStmt;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
@@ -69,6 +69,7 @@ import ca.mcgill.sable.soot.jimple.StaticFieldRef;
 import ca.mcgill.sable.soot.jimple.StaticInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.StmtBody;
+import ca.mcgill.sable.soot.jimple.StringConstant;
 import ca.mcgill.sable.soot.jimple.ThisRef;
 import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.Value;
@@ -80,10 +81,10 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
@@ -107,7 +108,7 @@ import java.util.Map;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -116,7 +117,7 @@ import java.util.Map;
  */
 public class RufsTweakedEscapeAnalysis
   extends AbstractProcessor
-  implements EscapeAnalysis {
+  implements IEscapeAnalysis {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -157,7 +158,7 @@ public class RufsTweakedEscapeAnalysis
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	final CallGraphInfo cgi;
+	final ICallGraphInfo cgi;
 
 	/**
 	 * <p>
@@ -199,7 +200,7 @@ public class RufsTweakedEscapeAnalysis
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	final ThreadGraphInfo tgi;
+	final IThreadGraphInfo tgi;
 
 	/**
 	 * <p>
@@ -207,8 +208,6 @@ public class RufsTweakedEscapeAnalysis
 	 * </p>
 	 */
 	final ValueProcessor valueProcessor;
-	
-	private final Jimple jimple = Jimple.v();
 
 	// Cache variables do not capture state of the object.  Rather they are used cache values across method calls.
 
@@ -262,13 +261,20 @@ public class RufsTweakedEscapeAnalysis
 	private final Collection threadAllocSitesSingle;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final Jimple jimple = Jimple.v();
+
+	/**
 	 * Creates a new RufsTweakedEscapeAnalysis object.
 	 *
 	 * @param scm DOCUMENT ME!
 	 * @param cgi DOCUMENT ME!
 	 * @param tgi DOCUMENT ME!
 	 */
-	public RufsTweakedEscapeAnalysis(SootClassManager scm, CallGraphInfo cgi, ThreadGraphInfo tgi) {
+	public RufsTweakedEscapeAnalysis(SootClassManager scm, ICallGraphInfo cgi, IThreadGraphInfo tgi) {
 		this.scm = scm;
 		this.cgi = cgi;
 		this.tgi = tgi;
@@ -284,7 +290,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -361,7 +367,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -370,41 +376,40 @@ public class RufsTweakedEscapeAnalysis
 		 */
 		public Object clone()
 		  throws CloneNotSupportedException {
-			if(theClone != null) {
+			if (theClone != null) {
 				return theClone;
 			}
 
-			if(isGlobal()) {
+			if (isGlobal()) {
 				return find();
 			}
 
-			if(set != null) {
+			if (set != null) {
 				return (AliasSet) ((AliasSet) find()).clone();
 			}
 
 			AliasSet result = (AliasSet) super.clone();
 			result.fieldMap = new HashMap();
 
-			if(!isGlobal()) {
-				result.set = null;
-			}
+			result.set = null;
 
-			if(isSynced()) {
+			if (isSynced()) {
 				result.setSynced();
 			}
 
-			if(isEscaping()) {
+			if (isEscaping()) {
 				result.setEscaping();
 			}
 
 			AliasSet rep = (AliasSet) find();
 			theClone = result;
 
-			for(Iterator i = rep.fieldMap.entrySet().iterator(); i.hasNext();) {
+			for (Iterator i = rep.fieldMap.entrySet().iterator(); i.hasNext();) {
 				Map.Entry entry = (Map.Entry) i.next();
-				AliasSet temp = (AliasSet) ((AliasSet) entry.getValue()).clone();
+				AliasSet temp = (AliasSet) entry.getValue();
 
-				if(!isGlobal()) {
+				if (!isGlobal()) {
+					temp = (AliasSet) temp.clone();
 					temp.set = null;
 				}
 				result.fieldMap.put(entry.getKey(), temp);
@@ -416,7 +421,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param field DOCUMENT ME!
@@ -429,7 +434,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 */
 		void setEscaping() {
@@ -439,7 +444,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -450,11 +455,11 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 */
 		void setGlobal() {
-			if(isGlobal()) {
+			if (isGlobal()) {
 				return;
 			}
 
@@ -462,7 +467,7 @@ public class RufsTweakedEscapeAnalysis
 			rep.global = true;
 
 			//rep.escapes = true;
-			for(Iterator i = rep.fieldMap.values().iterator(); i.hasNext();) {
+			for (Iterator i = rep.fieldMap.values().iterator(); i.hasNext();) {
 				AliasSet as = (AliasSet) i.next();
 				as.setGlobal();
 			}
@@ -470,7 +475,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -481,7 +486,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 */
 		void setSynced() {
@@ -491,7 +496,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -502,7 +507,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param threads DOCUMENT ME!
@@ -513,7 +518,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param as DOCUMENT ME!
@@ -523,7 +528,7 @@ public class RufsTweakedEscapeAnalysis
 		boolean propogateSyncInfoFromToPrasad(AliasSet as) {
 			boolean result = false;
 
-			if(propogating) {
+			if (propogating) {
 				return result;
 			}
 
@@ -531,19 +536,19 @@ public class RufsTweakedEscapeAnalysis
 			AliasSet rep2 = (AliasSet) as.find();
 			propogating = true;
 
-			if(rep1.isEscaping()) {
+			if (rep1.isEscaping()) {
 				rep2.setEscaping();
 				result = true;
 			}
 
-			for(Iterator i = rep1.fieldMap.entrySet().iterator(); i.hasNext();) {
+			for (Iterator i = rep1.fieldMap.entrySet().iterator(); i.hasNext();) {
 				Map.Entry entry = (Map.Entry) i.next();
 				AliasSet from = (AliasSet) ((AliasSet) rep1.fieldMap.get(entry.getKey())).find();
 
-				if(from.isSynced()) {
+				if (from.isSynced()) {
 					AliasSet t = (AliasSet) rep2.getASForField((String) entry.getKey());
 
-					if(t == null) {
+					if (t == null) {
 						AliasSet to = new AliasSet();
 						rep2.putASForField((String) entry.getKey(), from);
 						from.unify(to);
@@ -561,7 +566,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param as DOCUMENT ME!
@@ -571,7 +576,7 @@ public class RufsTweakedEscapeAnalysis
 		boolean propogateSyncInfoFromToRuf(AliasSet as) {
 			boolean result = false;
 
-			if(propogating) {
+			if (propogating) {
 				return result;
 			}
 
@@ -579,7 +584,7 @@ public class RufsTweakedEscapeAnalysis
 			AliasSet rep2 = (AliasSet) as.find();
 			propogating = true;
 
-			if(!rep2.syncThreads.containsAll(rep1.syncThreads)) {  // || !rep1.syncThreads.containsAll(rep2.syncThreads)) {
+			if (!rep2.syncThreads.containsAll(rep1.syncThreads)) {  // || !rep1.syncThreads.containsAll(rep2.syncThreads)) {
 				rep2.addSyncThreads(rep1.syncThreads);
 				rep1.addSyncThreads(rep2.syncThreads);
 				rep2.setEscaping();
@@ -587,18 +592,18 @@ public class RufsTweakedEscapeAnalysis
 				result = true;
 			}
 
-			if(rep1.isEscaping()) {
+			if (rep1.isEscaping()) {
 				rep2.setEscaping();
 			}
 
-			for(Iterator i = rep2.fieldMap.entrySet().iterator(); i.hasNext();) {
+			for (Iterator i = rep2.fieldMap.entrySet().iterator(); i.hasNext();) {
 				Map.Entry entry = (Map.Entry) i.next();
 				AliasSet to = (AliasSet) ((AliasSet) rep2.fieldMap.get(entry.getKey())).find();
 
-				if(to.isSynced()) {
+				if (to.isSynced()) {
 					AliasSet t = (AliasSet) rep1.getASForField((String) entry.getKey());
 
-					if(t == null) {
+					if (t == null) {
 						AliasSet from = new AliasSet();
 						rep1.putASForField((String) entry.getKey(), from);
 						from.unify(to);
@@ -614,7 +619,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param field DOCUMENT ME!
@@ -623,14 +628,14 @@ public class RufsTweakedEscapeAnalysis
 		void putASForField(String field, AliasSet as) {
 			((AliasSet) find()).fieldMap.put(field, as);
 
-			if(isGlobal()) {
+			if (isGlobal()) {
 				as.setGlobal();
 			}
 		}
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param tabbing DOCUMENT ME!
@@ -639,7 +644,7 @@ public class RufsTweakedEscapeAnalysis
 		 * @return DOCUMENT ME!
 		 */
 		String toString(String tabbing, Map threadMap) {
-			if(stringifying) {
+			if (stringifying) {
 				return tabbing + "Cycle from here on.";
 			}
 			stringifying = true;
@@ -648,19 +653,19 @@ public class RufsTweakedEscapeAnalysis
 			StringBuffer threads = new StringBuffer();
 			AliasSet rep = (AliasSet) find();
 
-			if(rep.isEscaping()) {
+			if (rep.isEscaping()) {
 				result.append(tabbing + "ESCAPING: true");
 			} else {
 				result.append(tabbing + "ESCAPING: false");
 			}
 
-			if(rep.syncThreads.isEmpty()) {
+			if (rep.syncThreads.isEmpty()) {
 				threads.append("NONE");
 			} else {
-				for(Iterator i = rep.syncThreads.iterator(); i.hasNext();) {
+				for (Iterator i = rep.syncThreads.iterator(); i.hasNext();) {
 					Object o = i.next();
 
-					if(threadMap.get(o) == null) {
+					if (threadMap.get(o) == null) {
 						threads.append(o + ",");
 					} else {
 						threads.append(threadMap.get(o) + ",");
@@ -671,10 +676,10 @@ public class RufsTweakedEscapeAnalysis
 			StringBuffer fields = new StringBuffer();
 			String newTabbing = tabbing + "  ";
 
-			if(rep.fieldMap.isEmpty()) {
+			if (rep.fieldMap.isEmpty()) {
 				fields.append(newTabbing + "NONE");
 			} else {
-				for(Iterator i = rep.fieldMap.entrySet().iterator(); i.hasNext();) {
+				for (Iterator i = rep.fieldMap.entrySet().iterator(); i.hasNext();) {
 					Map.Entry entry = (Map.Entry) i.next();
 					fields.append(newTabbing + entry.getKey() + ":\n"
 						+ ((AliasSet) entry.getValue()).toString(newTabbing + "    ", threadMap) + "\n");
@@ -690,26 +695,26 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param a DOCUMENT ME!
 		 */
 		void unify(AliasSet a) {
-			if(a == null) {
+			if (a == null) {
 				LOGGER.warn("Unification with null requested.");
 			}
 
 			boolean flag = false;
 
-			if((isGlobal() && !a.isGlobal() && a.isSynced()) || (a.isGlobal() && !isGlobal() && isSynced())) {
+			if ((isGlobal() && !a.isGlobal() && a.isSynced()) || (a.isGlobal() && !isGlobal() && isSynced())) {
 				flag = true;
 			}
 
 			AliasSet m = (AliasSet) find();
 			AliasSet n = (AliasSet) a.find();
 
-			if(m == n) {
+			if (m == n) {
 				return;
 			}
 			m.union(n);
@@ -717,7 +722,7 @@ public class RufsTweakedEscapeAnalysis
 			AliasSet rep1 = (AliasSet) m.find();
 			AliasSet rep2;
 
-			if(rep1 == m) {
+			if (rep1 == m) {
 				rep2 = n;
 			} else {
 				rep2 = m;
@@ -729,29 +734,29 @@ public class RufsTweakedEscapeAnalysis
 			Collection toBeProcessed = new HashSet();
 			toBeProcessed.addAll(rep2.fieldMap.keySet());
 
-			for(Iterator i = rep1.fieldMap.keySet().iterator(); i.hasNext();) {
+			for (Iterator i = rep1.fieldMap.keySet().iterator(); i.hasNext();) {
 				String field = (String) i.next();
 				AliasSet repAS = (AliasSet) ((FastUnionFindElement) rep1.fieldMap.get(field)).find();
 				toBeProcessed.remove(field);
 
 				FastUnionFindElement temp = (FastUnionFindElement) rep2.fieldMap.get(field);
 
-				if(temp != null) {
+				if (temp != null) {
 					repAS.unify((AliasSet) temp.find());
 				}
 			}
 
-			for(Iterator i = toBeProcessed.iterator(); i.hasNext();) {
+			for (Iterator i = toBeProcessed.iterator(); i.hasNext();) {
 				String field = (String) i.next();
 				AliasSet rep2AS = (AliasSet) ((FastUnionFindElement) rep2.fieldMap.get(field)).find();
 				rep1.putASForField(field, rep2AS);
 			}
 
-			if(rep1.global || rep2.global) {
+			if (rep1.global || rep2.global) {
 				rep1.setGlobal();
 			}
 
-			if(flag) {
+			if (flag) {
 				rep1.addSyncThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
 			}
 		}
@@ -760,7 +765,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -820,29 +825,29 @@ public class RufsTweakedEscapeAnalysis
 			method = sm;
 			argAlSets = new ArrayList(sm.getParameterCount());
 
-			for(int i = 0; i < sm.getParameterCount(); i++) {
+			for (int i = 0; i < sm.getParameterCount(); i++) {
 				Type type = sm.getParameterType(i);
 				AliasSet t = null;
 
-				if(type instanceof RefType || type instanceof ArrayType) {
+				if (type instanceof RefType || type instanceof ArrayType) {
 					t = getASForType(type);
 				}
 				argAlSets.add(i, t);
 			}
 
-			if(sm.getReturnType() instanceof RefType || sm.getReturnType() instanceof ArrayType) {
+			if (sm.getReturnType() instanceof RefType || sm.getReturnType() instanceof ArrayType) {
 				ret = new AliasSet();
 			}
 			thrown = new AliasSet();
 
-			if(!sm.isStatic()) {
+			if (!sm.isStatic()) {
 				thisAS = getASForClass(sm.getDeclaringClass());
 			}
 		}
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -851,7 +856,7 @@ public class RufsTweakedEscapeAnalysis
 		 */
 		public Object clone()
 		  throws CloneNotSupportedException {
-			if(set != null) {
+			if (set != null) {
 				return (MethodContext) ((MethodContext) find()).clone();
 			}
 
@@ -859,16 +864,16 @@ public class RufsTweakedEscapeAnalysis
 			Map clonee2clone = new HashMap();
 			result.set = null;
 
-			if(thisAS != null) {
+			if (thisAS != null) {
 				result.thisAS = (AliasSet) thisAS.clone();
 				buildClonee2CloneMap(thisAS, result.thisAS, clonee2clone);
 			}
 			result.argAlSets = new ArrayList();
 
-			for(Iterator i = argAlSets.iterator(); i.hasNext();) {
+			for (Iterator i = argAlSets.iterator(); i.hasNext();) {
 				AliasSet tmp = (AliasSet) i.next();
 
-				if(tmp != null) {
+				if (tmp != null) {
 					Object o = tmp.clone();
 					result.argAlSets.add(o);
 					buildClonee2CloneMap(tmp, (AliasSet) o, clonee2clone);
@@ -877,7 +882,7 @@ public class RufsTweakedEscapeAnalysis
 				}
 			}
 
-			if(ret != null) {
+			if (ret != null) {
 				result.ret = (AliasSet) ret.clone();
 				buildClonee2CloneMap(ret, result.ret, clonee2clone);
 			}
@@ -889,7 +894,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param index DOCUMENT ME!
@@ -902,7 +907,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -913,7 +918,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -924,7 +929,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
@@ -935,7 +940,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param mc DOCUMENT ME!
@@ -948,19 +953,19 @@ public class RufsTweakedEscapeAnalysis
 			MethodContext rep1 = (MethodContext) find();
 			MethodContext rep2 = (MethodContext) mc.find();
 
-			for(int i = method.getParameterCount() - 1; i >= 0; i--) {
+			for (int i = method.getParameterCount() - 1; i >= 0; i--) {
 				AliasSet s = (AliasSet) rep1.argAlSets.get(i);
 
-				if(s != null) {
+				if (s != null) {
 					AliasSet t = (AliasSet) rep2.argAlSets.get(i);
 
-					if(t == null) {
+					if (t == null) {
 						t = new AliasSet();
 						rep2.argAlSets.remove(i);
 						rep2.argAlSets.add(i, t);
 					}
 
-					switch(option) {
+					switch (option) {
 						case RUF_PHASE :
 							result = result || s.propogateSyncInfoFromToRuf(t);
 							break;
@@ -972,8 +977,8 @@ public class RufsTweakedEscapeAnalysis
 				}
 			}
 
-			if(rep1.ret != null) {
-				switch(option) {
+			if (rep1.ret != null) {
+				switch (option) {
 					case RUF_PHASE :
 						result = result || rep1.ret.propogateSyncInfoFromToRuf(rep2.ret);
 						break;
@@ -985,8 +990,8 @@ public class RufsTweakedEscapeAnalysis
 			}
 			thrown.propogateSyncInfoFromToRuf(mc.thrown);
 
-			if(rep1.thisAS != null) {
-				switch(option) {
+			if (rep1.thisAS != null) {
+				switch (option) {
 					case RUF_PHASE :
 						result = result || rep1.thisAS.propogateSyncInfoFromToRuf(rep2.thisAS);
 						break;
@@ -1001,55 +1006,55 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param p DOCUMENT ME!
 		 *
 		 * @throws IllegalStateException DOCUMENT ME!
 		 */
-		void unify(MethodContext p) {
-			if(p == null) {
+		void unify(MethodContext p) throws IllegalStateException {
+			if (p == null) {
 				return;
 			}
 
 			MethodContext m = (MethodContext) find();
 			MethodContext n = (MethodContext) p.find();
 
-			if(m == n) {
+			if (m == n) {
 				return;
 			}
 			m.union(n);
 
-			for(int i = method.getParameterCount() - 1; i >= 0; i--) {
+			for (int i = method.getParameterCount() - 1; i >= 0; i--) {
 				AliasSet s = (AliasSet) m.argAlSets.get(i);
 
-				if(s != null) {
+				if (s != null) {
 					s.unify((AliasSet) n.argAlSets.get(i));
 				}
 			}
 
-			if((m.ret == null && n.ret != null) || (m.ret != null && n.ret == null)) {
+			if ((m.ret == null && n.ret != null) || (m.ret != null && n.ret == null)) {
 				throw new IllegalStateException("Incompatible method contexts being unified - return value.");
 			}
 
-			if(m.ret != null) {
+			if (m.ret != null) {
 				m.ret.unify(n.ret);
 			}
 			m.thrown.unify(n.thrown);
 
-			if((m.thisAS == null && n.thisAS != null) || (m.thisAS != null && n.thisAS == null)) {
+			if ((m.thisAS == null && n.thisAS != null) || (m.thisAS != null && n.thisAS == null)) {
 				throw new IllegalStateException("Incompatible method contexts being unified - staticness");
 			}
 
-			if(m.thisAS != null) {
+			if (m.thisAS != null) {
 				m.thisAS.unify(n.thisAS);
 			}
 		}
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param s DOCUMENT ME!
@@ -1059,14 +1064,15 @@ public class RufsTweakedEscapeAnalysis
 		private void buildClonee2CloneMap(AliasSet s, AliasSet d, Map clonee2clone) {
 			clonee2clone.put(s, d);
 
-			AliasSet rep = (AliasSet) s.find();
+			AliasSet rep1 = (AliasSet) s.find();
+			AliasSet rep2 = (AliasSet) d.find();
 
-			for(Iterator i = rep.fieldMap.keySet().iterator(); i.hasNext();) {
+			for (Iterator i = rep1.fieldMap.keySet().iterator(); i.hasNext();) {
 				Object o = i.next();
-				AliasSet a = (AliasSet) rep.fieldMap.get(o);
-				AliasSet b = (AliasSet) d.fieldMap.get(o);
+				AliasSet a = (AliasSet) rep1.fieldMap.get(o);
+				AliasSet b = (AliasSet) rep2.fieldMap.get(o);
 
-				if(!(clonee2clone.containsKey(a))) {
+				if (!(clonee2clone.containsKey(a))) {
 					buildClonee2CloneMap(a, b, clonee2clone);
 				}
 			}
@@ -1074,7 +1080,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param clonee2clone DOCUMENT ME!
@@ -1082,21 +1088,21 @@ public class RufsTweakedEscapeAnalysis
 		private void unionclones(Map clonee2clone) {
 			Collection processed = new HashSet();
 
-			for(Iterator i = clonee2clone.keySet().iterator(); i.hasNext();) {
+			for (Iterator i = clonee2clone.keySet().iterator(); i.hasNext();) {
 				FastUnionFindElement k1 = (FastUnionFindElement) i.next();
 
-				if(processed.contains(k1)) {
+				if (processed.contains(k1)) {
 					continue;
 				}
 
-				for(Iterator j = clonee2clone.keySet().iterator(); j.hasNext();) {
+				for (Iterator j = clonee2clone.keySet().iterator(); j.hasNext();) {
 					FastUnionFindElement k2 = (FastUnionFindElement) j.next();
 
-					if(k1 == k2 || processed.contains(k2)) {
+					if (k1 == k2 || processed.contains(k2)) {
 						continue;
 					}
 
-					if(k1.find() == k2.find()) {
+					if (k1.find() == k2.find()) {
 						FastUnionFindElement v1 = (FastUnionFindElement) clonee2clone.get(k1);
 						FastUnionFindElement v2 = (FastUnionFindElement) clonee2clone.get(k2);
 						v1.find().union(v2.find());
@@ -1110,7 +1116,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -1130,7 +1136,7 @@ public class RufsTweakedEscapeAnalysis
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
-			if(r != null && l != null) {
+			if (r != null && l != null) {
 				l.unify(r);
 			}
 		}
@@ -1167,7 +1173,7 @@ public class RufsTweakedEscapeAnalysis
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
-			if(r != null && l != null) {
+			if (r != null && l != null) {
 				l.unify(r);
 			}
 		}
@@ -1188,7 +1194,7 @@ public class RufsTweakedEscapeAnalysis
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
-			if(l != null) {
+			if (l != null) {
 				methodCtxtCache.getReturnAS().unify(l);
 			}
 		}
@@ -1205,7 +1211,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -1220,13 +1226,13 @@ public class RufsTweakedEscapeAnalysis
 		public void caseArrayRef(ArrayRef v) {
 			AliasSet elt = null;
 
-			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
+			if (v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
 				v.getBase().apply(this);
 
 				AliasSet base = (AliasSet) getResult();
 				elt = (AliasSet) base.getASForField(ARRAY_FIELD);
 
-				if(elt == null) {
+				if (elt == null) {
 					elt = new AliasSet();
 					base.putASForField(ARRAY_FIELD, elt);
 				}
@@ -1244,14 +1250,14 @@ public class RufsTweakedEscapeAnalysis
 			SootField sf = v.getField();
 			AliasSet field = null;
 
-			if(sf.getType() instanceof RefType || sf.getType() instanceof ArrayType) {
+			if (sf.getType() instanceof RefType || sf.getType() instanceof ArrayType) {
 				v.getBase().apply(this);
 
 				AliasSet base = (AliasSet) getResult();
 				String fieldSig = v.getField().getSignature();
 				field = (AliasSet) base.getASForField(fieldSig);
 
-				if(field == null) {
+				if (field == null) {
 					field = new AliasSet();
 					base.putASForField(fieldSig, field);
 				}
@@ -1264,7 +1270,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(
-		 * 		ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
+		 *         ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			processInvokeExpr(v);
@@ -1276,10 +1282,10 @@ public class RufsTweakedEscapeAnalysis
 		public void caseLocal(Local v) {
 			AliasSet s = null;
 
-			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
+			if (v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
 				s = (AliasSet) localASsCache.get(v);
 
-				if(s == null) {
+				if (s == null) {
 					s = new AliasSet();
 					localASsCache.put(v, s);
 				}
@@ -1293,7 +1299,7 @@ public class RufsTweakedEscapeAnalysis
 		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseParameterRef( ca.mcgill.sable.soot.jimple.ParameterRef)
 		 */
 		public void caseParameterRef(ParameterRef v) {
-			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
+			if (v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
 				setResult(methodCtxtCache.getParamAS(v.getIndex()));
 			} else {
 				setResult(null);
@@ -1311,7 +1317,7 @@ public class RufsTweakedEscapeAnalysis
 		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseStaticFieldRef( ca.mcgill.sable.soot.jimple.StaticFieldRef)
 		 */
 		public void caseStaticFieldRef(StaticFieldRef v) {
-			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
+			if (v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
 				AliasSet t = (AliasSet) globalASs.get(v.getField().getSignature());
 				t.setSynced();
 				t.addSyncThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
@@ -1344,7 +1350,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param o DOCUMENT ME!
@@ -1355,7 +1361,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param m DOCUMENT ME!
@@ -1368,16 +1374,16 @@ public class RufsTweakedEscapeAnalysis
 			Collection sccs = cgi.getSCCs();
 			Collection scc = null;
 
-			for(Iterator i = sccs.iterator(); i.hasNext();) {
+			for (Iterator i = sccs.iterator(); i.hasNext();) {
 				scc = (Collection) i.next();
 
-				if(scc.contains(m)) {
+				if (scc.contains(m)) {
 					break;
 				}
 				scc = null;
 			}
 
-			if(scc != null) {
+			if (scc != null) {
 				result = !scc.contains(p);
 			}
 			return result;
@@ -1385,7 +1391,7 @@ public class RufsTweakedEscapeAnalysis
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * <p></p>
 		 *
 		 * @param v DOCUMENT ME!
@@ -1397,10 +1403,11 @@ public class RufsTweakedEscapeAnalysis
 
 			// fix up "return" alias set.
 			Stmt stmt = context.getStmt();
-			AliasSet retAS = (sm.getReturnType() instanceof RefType) ? new AliasSet()
-																	 : null;
+			AliasSet retAS =
+				(sm.getReturnType() instanceof RefType || sm.getReturnType() instanceof ArrayType) ? new AliasSet()
+																								   : null;
 
-			if(stmt instanceof AssignStmt && ((AssignStmt) stmt).getLeftOp().getType() instanceof RefType) {
+			if (stmt instanceof AssignStmt && ((AssignStmt) stmt).getLeftOp().getType() instanceof RefType) {
 				((AssignStmt) stmt).getLeftOp().apply(valueProcessor);
 				retAS = (AliasSet) valueProcessor.getResult();
 			}
@@ -1408,7 +1415,7 @@ public class RufsTweakedEscapeAnalysis
 			// fix up "this" alias set.
 			AliasSet thisAS = null;
 
-			if(!sm.isStatic()) {
+			if (!sm.isStatic()) {
 				((NonStaticInvokeExpr) v).getBase().apply(valueProcessor);
 				thisAS = (AliasSet) valueProcessor.getResult();
 			}
@@ -1416,41 +1423,54 @@ public class RufsTweakedEscapeAnalysis
 			// fix up arg alias sets.
 			List argASs = new ArrayList();
 
-			for(int i = 0; i < sm.getParameterCount(); i++) {
-				v.getArg(i).apply(valueProcessor);
-				argASs.add(valueProcessor.getResult());
+			for (int i = 0; i < sm.getParameterCount(); i++) {
+				Value val = v.getArg(i);
+				Object temp;
+
+				/*
+				 * We process the constant arguments here instead of the valueProcessor as we do not want to create
+				 * AliasSets for each constant in the method.  Rather we just want to setup the method context depending on
+				 * the type of the constants when they occur at an invocation site.
+				 */
+				if (val instanceof StringConstant || val instanceof NullConstant) {
+					temp = new AliasSet();
+				} else {
+					v.getArg(i).apply(valueProcessor);
+					temp = valueProcessor.getResult();
+				}
+				argASs.add(temp);
 			}
 
 			MethodContext sc = getSiteContext(sm, thisAS, argASs, retAS, new AliasSet());
 			scCache.put(new CallTriple(caller, context.getStmt(), v), sc);
 
-			if(v instanceof StaticInvokeExpr || v instanceof SpecialInvokeExpr) {
+			if (v instanceof StaticInvokeExpr || v instanceof SpecialInvokeExpr) {
 				callees.add(sm);
-			} else if(v instanceof InterfaceInvokeExpr || v instanceof VirtualInvokeExpr) {
+			} else if (v instanceof InterfaceInvokeExpr || v instanceof VirtualInvokeExpr) {
 				context.setProgramPoint(((NonStaticInvokeExpr) v).getBaseBox());
 
 				Collection temp = cgi.getCallees(v, context);
 
-				for(Iterator i = temp.iterator(); i.hasNext();) {
+				for (Iterator i = temp.iterator(); i.hasNext();) {
 					callees.add((SootMethod) i.next());
 				}
 			}
 
-			for(Iterator i = callees.iterator(); i.hasNext();) {
+			for (Iterator i = callees.iterator(); i.hasNext();) {
 				SootMethod callee = (SootMethod) i.next();
 				Triple triple = (Triple) method2triple.get(callee);
 
 				// This is needed when the system is not closed.
-				if(triple == null) {
+				if (triple == null) {
 					continue;
 				}
 
 				MethodContext mc = (MethodContext) triple.getFirst();
 
-				if(notInSameSCC(caller, callee)) {
+				if (notInSameSCC(caller, callee)) {
 					try {
 						mc = (MethodContext) mc.clone();
-					} catch(CloneNotSupportedException e) {
+					} catch (CloneNotSupportedException e) {
 						LOGGER.error("Hell NO!  This should not happen.", e);
 					}
 				}
@@ -1466,30 +1486,30 @@ public class RufsTweakedEscapeAnalysis
 	 *
 	 * @pre analyzer.isOclKindOf(edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#setAnalyzer(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 		this.ofa = (OFAnalyzer) analyzer;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isMethodEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isMethodEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
 	 */
 	public boolean isMethodEscaping(NewExpr allocSite) {
 		return true;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isSingleThreadSynchronized(
-	 * 		ca.mcgill.sable.soot.jimple.Stmt)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isSingleThreadSynchronized(
+	 *         ca.mcgill.sable.soot.jimple.Stmt)
 	 */
 	public boolean isSingleThreadSynchronized(Stmt stmt) {
 		return false;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isThreadEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isThreadEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
 	 */
 	public boolean isThreadEscaping(NewExpr allocSite) {
 		return false;
@@ -1503,11 +1523,11 @@ public class RufsTweakedEscapeAnalysis
 	 *
 	 * @pre value.isOclKindOf(NewExpr)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback( ca.mcgill.sable.soot.jimple.Value,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback( ca.mcgill.sable.soot.jimple.Value,
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
-		if(value instanceof NewExpr) {
+		if (value instanceof NewExpr) {
 			processNewExpr((NewExpr) value, context);
 		}
 	}
@@ -1515,13 +1535,13 @@ public class RufsTweakedEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(SootField)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootField)
 	 */
 	public void callback(SootField sf) {
-		if(Modifier.isStatic(sf.getModifiers())) {
+		if (Modifier.isStatic(sf.getModifiers())) {
 			AliasSet t;
 
-			if(sf.getType() instanceof ArrayType) {
+			if (sf.getType() instanceof ArrayType) {
 				t = getASForType(sf.getType());
 			} else {
 				t = new AliasSet();
@@ -1534,7 +1554,7 @@ public class RufsTweakedEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootMethod)
 	 */
 	public void callback(SootMethod sm) {
 		method2triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
@@ -1544,16 +1564,16 @@ public class RufsTweakedEscapeAnalysis
 	 * Performs phase1 (condition 2 and 3) operation here.  This should be called after the call graph information has been
 	 * consolidated.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#consolidate()
 	 */
 	public void consolidate() {
 		Collection tassBak = new HashSet(threadAllocSitesSingle);
 
-		for(Iterator i = tassBak.iterator(); i.hasNext();) {
+		for (Iterator i = tassBak.iterator(); i.hasNext();) {
 			NewExprTriple trp = (NewExprTriple) i.next();
 			SootMethod encloser = (SootMethod) trp.getMethod();
 
-			if(executedMultipleTimes(encloser)) {
+			if (executedMultipleTimes(encloser)) {
 				threadAllocSitesSingle.remove(trp);
 				threadAllocSitesMulti.add(trp);
 			}
@@ -1565,7 +1585,7 @@ public class RufsTweakedEscapeAnalysis
 		// This is for third condition of phase 1 in Ruf's algorithm, i.e., "thread allocation sites reachable from run 
 		// methods associated with multiply executed thread allocation sites".
 		// We just collect 
-		for(Iterator i = threadAllocSitesMulti.iterator(); i.hasNext();) {
+		for (Iterator i = threadAllocSitesMulti.iterator(); i.hasNext();) {
 			NewExprTriple ntrp = (NewExprTriple) i.next();
 			ctxt.setRootMethod(ntrp.getMethod());
 			ctxt.setStmt(ntrp.getStmt());
@@ -1574,11 +1594,11 @@ public class RufsTweakedEscapeAnalysis
 		tassBak.clear();
 		tassBak.addAll(threadAllocSitesSingle);
 
-		for(Iterator i = tassBak.iterator(); i.hasNext();) {
+		for (Iterator i = tassBak.iterator(); i.hasNext();) {
 			NewExprTriple trp = (NewExprTriple) i.next();
 			SootMethod encloser = (SootMethod) trp.getMethod();
 
-			if(multiExecMethods.contains(encloser)) {
+			if (multiExecMethods.contains(encloser)) {
 				threadAllocSitesSingle.remove(trp);
 				threadAllocSitesMulti.add(trp);
 			}
@@ -1587,7 +1607,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 */
 	public void execute() {
@@ -1596,17 +1616,20 @@ public class RufsTweakedEscapeAnalysis
 		// phase 2 of Ruf's algorithm
 		Collection sccs = sng.getSCCs(false);
 
-		for(Iterator i = sccs.iterator(); i.hasNext();) {
+		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			List nodes = (List) i.next();
 
-			for(Iterator j = nodes.iterator(); j.hasNext();) {
+			for (Iterator j = nodes.iterator(); j.hasNext();) {
 				SimpleNode node = (SimpleNode) j.next();
 				SootMethod sm = (SootMethod) node._OBJECT;
-				LOGGER.info("Processing method " + sm);
+
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Processing method " + sm);
+				}
 
 				JimpleBody body = Util.getJimpleBody(sm);
 
-				if(body == null) {
+				if (body == null) {
 					LOGGER.warn("Punting ?????????????");
 					continue;
 				}
@@ -1617,11 +1640,11 @@ public class RufsTweakedEscapeAnalysis
 				scCache = (Map) triple.getThird();
 				context.setRootMethod(sm);
 
-				if(Modifier.isSynchronized(sm.getModifiers()) && !sm.isStatic()) {
+				if (Modifier.isSynchronized(sm.getModifiers()) && !sm.isStatic()) {
 					methodCtxtCache.getThisAS().setSynced();
 				}
 
-				for(ca.mcgill.sable.util.Iterator k = body.getStmtList().iterator(); k.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator k = body.getStmtList().iterator(); k.hasNext();) {
 					Stmt stmt = (Stmt) k.next();
 					context.setStmt(stmt);
 					stmt.apply(stmtProcessor);
@@ -1633,16 +1656,16 @@ public class RufsTweakedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
@@ -1650,7 +1673,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sc DOCUMENT ME!
@@ -1660,10 +1683,10 @@ public class RufsTweakedEscapeAnalysis
 	AliasSet getASForClass(SootClass sc) {
 		AliasSet result = new AliasSet();
 
-		for(ca.mcgill.sable.util.Iterator i = sc.getFields().iterator(); i.hasNext();) {
+		for (ca.mcgill.sable.util.Iterator i = sc.getFields().iterator(); i.hasNext();) {
 			SootField sf = (SootField) i.next();
 
-			if(Modifier.isStatic(sf.getModifiers())
+			if (Modifier.isStatic(sf.getModifiers())
 				  || (!(sf.getType() instanceof RefType) || sf.getType() instanceof ArrayType)) {
 				continue;
 			}
@@ -1674,7 +1697,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param type DOCUMENT ME!
@@ -1684,19 +1707,19 @@ public class RufsTweakedEscapeAnalysis
 	AliasSet getASForType(Type type) {
 		AliasSet result = null;
 
-		if(type instanceof ArrayType) {
+		if (type instanceof ArrayType) {
 			ArrayType at = (ArrayType) type;
 			AliasSet s = new AliasSet();
 			result = new AliasSet();
 
 			AliasSet st = result;
 
-			for(int i = at.numDimensions; i >= 1; i--) {
+			for (int i = at.numDimensions; i >= 1; i--) {
 				s = new AliasSet();
 				st.putASForField(ARRAY_FIELD, s);
 				st = s;
 			}
-		} else if(type instanceof RefType) {
+		} else if (type instanceof RefType) {
 			result = getASForClass(scm.getClass(((RefType) type).className));
 		}
 		return result;
@@ -1704,7 +1727,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
@@ -1727,7 +1750,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sf DOCUMENT ME!
@@ -1742,7 +1765,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
@@ -1755,14 +1778,14 @@ public class RufsTweakedEscapeAnalysis
 		Triple triple = (Triple) method2triple.get(sm);
 
 		// This is needed in cases when the system is not closed.
-		if(triple == null) {
+		if (triple == null) {
 			return "";
 		}
 
 		Map localASs = (Map) triple.getSecond();
 		FastUnionFindElement s = (FastUnionFindElement) localASs.get(l);
 
-		if(s != null) {
+		if (s != null) {
 			return ((AliasSet) s).toString("  ", threadMap);
 		} else {
 			return "";
@@ -1771,7 +1794,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
@@ -1783,23 +1806,23 @@ public class RufsTweakedEscapeAnalysis
 		StringBuffer result = new StringBuffer();
 		Triple triple = (Triple) method2triple.get(sm);
 
-		if(triple != null) {
+		if (triple != null) {
 			MethodContext mc = (MethodContext) triple.getFirst();
 
-			if(mc.getThisAS() != null) {
+			if (mc.getThisAS() != null) {
 				result.append("  Info for @this:\n" + mc.getThisAS().toString("    ", threadMap) + "\n");
 			}
 
-			for(int i = 0; i < sm.getParameterCount(); i++) {
+			for (int i = 0; i < sm.getParameterCount(); i++) {
 				AliasSet t = mc.getParamAS(i);
 
-				if(t == null) {
+				if (t == null) {
 					continue;
 				}
 				result.append("  Info for @parameter" + i + ":\n" + t.toString("    ", threadMap) + "\n");
 			}
 
-			if(sm.getReturnType() instanceof RefType || sm.getReturnType() instanceof ArrayType) {
+			if (sm.getReturnType() instanceof RefType || sm.getReturnType() instanceof ArrayType) {
 				result.append("  Info for @return:\n" + mc.getReturnAS().toString("    ", threadMap) + "\n");
 			}
 		} else {
@@ -1810,7 +1833,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param ctrp DOCUMENT ME!
@@ -1827,7 +1850,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param method DOCUMENT ME!
@@ -1839,24 +1862,24 @@ public class RufsTweakedEscapeAnalysis
 	String tpgetInfo(SootMethod method, MethodContext mc, Map threadMap) {
 		StringBuffer result = new StringBuffer();
 
-		if(mc == null) {
+		if (mc == null) {
 			return result.toString();
 		}
 
-		if(mc.getThisAS() != null) {
+		if (mc.getThisAS() != null) {
 			result.append("  Info for @this:\n" + mc.getThisAS().toString("    ", threadMap) + "\n");
 		}
 
-		for(int i = 0; i < mc.method.getParameterCount(); i++) {
+		for (int i = 0; i < mc.method.getParameterCount(); i++) {
 			AliasSet t = mc.getParamAS(i);
 
-			if(t == null) {
+			if (t == null) {
 				continue;
 			}
 			result.append("  Info for @parameter" + i + ":\n" + t.toString("    ", threadMap) + "\n");
 		}
 
-		if(method.getReturnType() instanceof RefType || method.getReturnType() instanceof ArrayType) {
+		if (method.getReturnType() instanceof RefType || method.getReturnType() instanceof ArrayType) {
 			result.append("  Info for @return:\n" + mc.getReturnAS().toString("    ", threadMap) + "\n");
 		}
 
@@ -1870,21 +1893,21 @@ public class RufsTweakedEscapeAnalysis
 	 * @param caller is the method which leads to a thread allocation site.
 	 *
 	 * @return <code>true</code> if the given method or any of the methods in it's transitive caller closure have multiple or
-	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
+	 *            multiply-executed call sites; <code>false</code>, otherwise.
 	 */
 	private boolean executedMultipleTimes(SootMethod caller) {
 		boolean result = false;
 		Collection callers = cgi.getCallers(caller);
 
-		if(callers.size() > 1) {
+		if (callers.size() > 1) {
 			result = true;
-		} else if(callers.size() == 1) {
+		} else if (callers.size() == 1) {
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg =
 				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) caller2.getBody(jimple)).getStmtList()));
 
-			if(bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
+			if (bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
 			} else {
 				result = executedMultipleTimes(caller2);
@@ -1895,7 +1918,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param topdown DOCUMENT ME!
@@ -1909,14 +1932,14 @@ public class RufsTweakedEscapeAnalysis
 
 		Collection result = new HashSet();
 
-		while(!wb.isEmpty()) {
+		while (!wb.isEmpty()) {
 			SootMethod caller = (SootMethod) wb.getWork();
 			Collection callees = cgi.getCallees(caller);
 			Triple triple = (Triple) method2triple.get(caller);
 			Map ctrp2sc = (Map) triple.getThird();
 			context.setRootMethod(caller);
 
-			for(Iterator i = callees.iterator(); i.hasNext();) {
+			for (Iterator i = callees.iterator(); i.hasNext();) {
 				CallTriple ctrp = (CallTriple) i.next();
 				SootMethod callee = ctrp.getMethod();
 				triple = (Triple) method2triple.get(callee);
@@ -1928,20 +1951,20 @@ public class RufsTweakedEscapeAnalysis
 
 				ValueBox vb = null;
 
-				for(ca.mcgill.sable.util.Iterator j = ctrp.getStmt().getUseAndDefBoxes().iterator(); j.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator j = ctrp.getStmt().getUseAndDefBoxes().iterator(); j.hasNext();) {
 					vb = (ValueBox) j.next();
 
-					if(vb.getValue().equals(ctrp.getExpr())) {
+					if (vb.getValue().equals(ctrp.getExpr())) {
 						break;
 					}
 				}
 				context.setProgramPoint(vb);
 
-				if(sc.propogateSyncInfoFromTo(mc, RUF_PHASE)) {
+				if (sc.propogateSyncInfoFromTo(mc, RUF_PHASE)) {
 					result.add(caller);
 				}
 
-				if(!processed.contains(callee)) {
+				if (!processed.contains(callee)) {
 					processed.add(callee);
 					wb.addWork(callee);
 				}
@@ -1952,7 +1975,7 @@ public class RufsTweakedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param bottomup DOCUMENT ME!
@@ -1961,26 +1984,28 @@ public class RufsTweakedEscapeAnalysis
 		WorkBag wb = new WorkBag(WorkBag.LIFO);
 		wb.addAllWork(bottomup);
 
-		while(!wb.isEmpty()) {
+		while (!wb.isEmpty()) {
 			SootMethod callee = (SootMethod) wb.getWork();
 			Collection callers = cgi.getCallers(callee);
 			Triple triple = (Triple) method2triple.get(callee);
 			MethodContext mc = (MethodContext) (triple.getFirst());
 
-			for(Iterator j = callers.iterator(); j.hasNext();) {
+			for (Iterator j = callers.iterator(); j.hasNext();) {
 				CallTriple ctrp = (CallTriple) j.next();
 				SootMethod caller = ctrp.getMethod();
 				triple = (Triple) method2triple.get(caller);
 
 				Map ctrp2sc = (Map) triple.getThird();
+				ctrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
+
 				MethodContext sc = (MethodContext) ctrp2sc.get(ctrp);
 
-				if(sc == null) {
-					LOGGER.warn("FIX ME: null site-context.");
+				if (sc == null) {
+					LOGGER.warn("FIX ME: null site-context " + ctrp.getStmt() + " in " + caller);
 					continue;
 				}
 
-				if(mc.propogateSyncInfoFromTo(sc, PRASAD_PHASE)) {
+				if (mc.propogateSyncInfoFromTo(sc, PRASAD_PHASE)) {
 					wb.addWork(caller);
 				}
 			}
@@ -1997,12 +2022,12 @@ public class RufsTweakedEscapeAnalysis
 		String classname = ne.getBaseType().className;
 		SootMethod sm = context.getCurrentMethod();
 
-		if(Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
+		if (Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
 			BasicBlockGraph bbg =
 				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) sm.getBody(jimple)).getStmtList()));
 			Stmt stmt = context.getStmt();
 
-			if(bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
+			if (bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
 				threadAllocSitesMulti.add(new NewExprTriple(sm, stmt, ne));
 			} else {
 				threadAllocSitesSingle.add(new NewExprTriple(sm, stmt, ne));

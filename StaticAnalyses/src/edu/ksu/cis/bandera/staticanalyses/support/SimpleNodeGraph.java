@@ -65,14 +65,14 @@ public class SimpleNodeGraph
 	private Map object2nodes = new HashMap();
 
 	/**
-	 * This is a simple concrete implementation of <code>Node</code> interface.
+	 * This is a simple concrete implementation of <code>INode</code> interface.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
 	public static class SimpleNode
-	  implements Node {
+	  implements INode {
 		/**
 		 * <p>
 		 * DOCUMENT ME!
@@ -104,9 +104,9 @@ public class SimpleNodeGraph
 		 *
 		 * @return the collection of predecessor nodes of this node.
 		 *
-		 * @post result->forall(o | o.oclIsKindOf(Node))
+		 * @post result->forall(o | o.oclIsKindOf(INode))
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.support.Node#getPredsOf()
+		 * @see edu.ksu.cis.bandera.staticanalyses.support.INode#getPredsOf()
 		 */
 		public final Collection getPredsOf() {
 			return Collections.unmodifiableCollection(predecessors);
@@ -117,14 +117,14 @@ public class SimpleNodeGraph
 		 * <code>forward</code>.
 		 *
 		 * @param forward <code>true</code> indicates following outgoing edges.  <code>false</code> indicates following
-		 * 		  incoming edges.
+		 *           incoming edges.
 		 *
 		 * @return the collection of successor nodes(<code>BasicBlock</code>) of this node.
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.support.Node#getSuccsNodesInDirection(boolean)
+		 * @see edu.ksu.cis.bandera.staticanalyses.support.INode#getSuccsNodesInDirection(boolean)
 		 */
 		public final Collection getSuccsNodesInDirection(boolean forward) {
-			if(forward) {
+			if (forward) {
 				return getSuccsOf();
 			} else {
 				return getPredsOf();
@@ -136,9 +136,9 @@ public class SimpleNodeGraph
 		 *
 		 * @return the collection of successor nodes of this node.
 		 *
-		 * @post result->forall(o | o.oclIsKindOf(Node))
+		 * @post result->forall(o | o.oclIsKindOf(INode))
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.support.Node#getSuccsOf()
+		 * @see edu.ksu.cis.bandera.staticanalyses.support.INode#getSuccsOf()
 		 */
 		public final Collection getSuccsOf() {
 			return Collections.unmodifiableCollection(successors);
@@ -149,7 +149,7 @@ public class SimpleNodeGraph
 		 *
 		 * @param node is the node to be added as the predecessor.
 		 */
-		public final void addPredecessors(Node node) {
+		public final void addPredecessors(INode node) {
 			predecessors.add(node);
 		}
 
@@ -158,7 +158,7 @@ public class SimpleNodeGraph
 		 *
 		 * @param node is the node to be added as the successor.
 		 */
-		public final void addSuccessors(Node node) {
+		public final void addSuccessors(INode node) {
 			successors.add(node);
 		}
 	}
@@ -170,12 +170,13 @@ public class SimpleNodeGraph
 	 *
 	 * @return the node representing <code>o</code>.
 	 *
-	 * @post object2nodes$pre.get(o) = null implies object2nodes.get(o) = result
+	 * @post object2nodes
+	 * @pre.get(o) = null implies object2nodes.get(o) = result
 	 */
-	public Node getNode(Object o) {
-		Node result = (Node) object2nodes.get(o);
+	public INode getNode(Object o) {
+		INode result = (INode) object2nodes.get(o);
 
-		if(result == null) {
+		if (result == null) {
 			result = new SimpleNode(o);
 			object2nodes.put(o, result);
 			nodes.add(result);
@@ -203,10 +204,10 @@ public class SimpleNodeGraph
 	 *
 	 * @return <code>true</code> if an edge was added; <code>false</code>, otherwise.
 	 */
-	public boolean addEdgeFromTo(Node src, Node dest) {
+	public boolean addEdgeFromTo(INode src, INode dest) {
 		boolean result = false;
 
-		if(nodes.contains(src) && nodes.contains(dest)) {
+		if (nodes.contains(src) && nodes.contains(dest)) {
 			((SimpleNode) src).addSuccessors(dest);
 			((SimpleNode) dest).addPredecessors(src);
 			tails.remove(src);

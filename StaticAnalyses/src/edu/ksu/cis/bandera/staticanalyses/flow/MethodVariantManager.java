@@ -42,14 +42,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-//MethodVariantManager.java
-
 /**
  * <p>
  * This class manages of  method variants.  This only provides the implementation to create new method variants.  The super
  * class is responsible of managing the variants.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 05:21:42 2002
  * </p>
@@ -81,9 +79,9 @@ public class MethodVariantManager
 	 *
 	 * @param bfa the instance of the framework in which this object is used.  This parameter cannot be <code>null</code>.
 	 * @param indexManager the manager to indices which are used to map methods to their variants.  This parameter cannot be
-	 * 		  <code>null</code>.
+	 *           <code>null</code>.
 	 * @param astIndexManager the prototype object used to create index managers related to AST nodes.  This parameter cannot
-	 * 		  be <code>null</code>.
+	 *           be <code>null</code>.
 	 */
 	MethodVariantManager(BFA bfa, AbstractIndexManager indexManager, AbstractIndexManager astIndexManager) {
 		super(bfa, indexManager);
@@ -96,19 +94,21 @@ public class MethodVariantManager
 	 * </p>
 	 *
 	 * @param sc the class from which to start the search in the class hierarchy.  This parameter cannot be
-	 * 		  <code>null</code>.
+	 *           <code>null</code>.
 	 * @param sm the method to search for in the class hierarchy.  This parameter cannot be <code>null</code>.
 	 *
 	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
 	 *
 	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
 	 */
-	public static SootMethod findDeclaringMethod(SootClass sc, SootMethod sm) {
-		LOGGER.debug(sc + "." + sm.getName());
+	public static SootMethod findDeclaringMethod(SootClass sc, SootMethod sm) throws IllegalStateException {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(sc + "." + sm.getName());
+		}
 
-		if(sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
+		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
 			return sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
-		} else if(sc.hasSuperClass()) {
+		} else if (sc.hasSuperClass()) {
 			sc = sc.getSuperClass();
 
 			return findDeclaringMethod(sc, sm);
@@ -123,11 +123,11 @@ public class MethodVariantManager
 	 * </p>
 	 *
 	 * @param o the method whose variant is to be returned.  The actual type of <code>o</code> needs to be
-	 * 		  <code>SootMethod</code>.
+	 *           <code>SootMethod</code>.
 	 *
 	 * @return the new <code>MethodVariant</code> corresponding to method <code>o</code>.
 	 */
-	protected Variant getNewVariant(Object o) {
+	protected IVariant getNewVariant(Object o) {
 		return new MethodVariant((SootMethod) o,
 			new ASTVariantManager(bfa, (AbstractIndexManager) astIndexManager.prototype()), bfa);
 	}

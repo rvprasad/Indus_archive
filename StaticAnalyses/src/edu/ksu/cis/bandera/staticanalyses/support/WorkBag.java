@@ -69,20 +69,20 @@ public class WorkBag {
 	 *
 	 * @invariant container.isOclKindOf(Bag(Object))
 	 */
-	private CollectionWrapper container;
+	private ICollectionWrapper container;
 
 	/**
 	 * Creates a new <code>WorkBag</code> instance.
 	 *
 	 * @param order is the requested ordering on the work pieces that will stored in this bag.  It has to be either
-	 * 		  <code>LIFO</code> or <code>FIFO</code>.
+	 *           <code>LIFO</code> or <code>FIFO</code>.
 	 *
 	 * @throws IllegalArgumentException when any order other than<code>LIFO</code> or <code>FIFO</code> is specified.
 	 */
-	public WorkBag(int order) {
-		if(order == LIFO) {
+	public WorkBag(int order) throws IllegalArgumentException {
+		if (order == LIFO) {
 			container = new CWStack();
-		} else if(order == FIFO) {
+		} else if (order == FIFO) {
 			container = new CWQueue();
 		} else {
 			throw new IllegalArgumentException("Invalid order specification.");
@@ -93,7 +93,7 @@ public class WorkBag {
 	 * A generic interface to be implemented by container classes.  This interface will be used by the bag to operate the
 	 * container objects.
 	 */
-	protected interface CollectionWrapper {
+	protected interface ICollectionWrapper {
 		/**
 		 * Returns the filled status of this collection.
 		 *
@@ -161,12 +161,12 @@ public class WorkBag {
 	}
 
 	/**
-	 * An Abstract implementation of the <code>CollectionWrapper</code> interface.  <code>add(Object)</code> needs to be
+	 * An Abstract implementation of the <code>ICollectionWrapper</code> interface.  <code>add(Object)</code> needs to be
 	 * implemented by the extending class.  Also, the container needs to be initialized in the constructor of the extending
 	 * class.
 	 */
 	protected abstract class AbstractCollectionWrapper
-	  implements CollectionWrapper {
+	  implements ICollectionWrapper {
 		/**
 		 * The container that will store the objects.
 		 *
@@ -191,7 +191,7 @@ public class WorkBag {
 		 *
 		 * @param c is the collection of the elements to be added.
 		 *
-		 * @invariant container.includesAll(container$pre)
+		 * @invariant container.includesAll(container@@pre)
 		 * @post container.containsAll(c)
 		 */
 		public void addAll(Collection c) {
@@ -205,15 +205,15 @@ public class WorkBag {
 		 * @param c is the collection of the elements to be added.
 		 *
 		 * @invariant c.isOclKindOf(Bag(Object))
-		 * @invariant container.includesAll(container$pre)
+		 * @invariant container.includesAll(container@@pre)
 		 * @post container.containsAll(c)
 		 * @post c->forall(o | container->count(o) = 1)
 		 */
 		public void addAllNoDuplicates(Collection c) {
-			for(Iterator i = c.iterator(); i.hasNext();) {
+			for (Iterator i = c.iterator(); i.hasNext();) {
 				Object element = (Object) i.next();
 
-				if(container.contains(element)) {
+				if (container.contains(element)) {
 					continue;
 				}
 				add(element);
@@ -270,7 +270,7 @@ public class WorkBag {
 		 *
 		 * @param o the object to be stored.
 		 *
-		 * @invariant queue.includesAll(queue$pre)
+		 * @invariant queue.includesAll(queue@@pre)
 		 * @post queue->includes(o) and queue->last = o
 		 */
 		public void add(Object o) {
@@ -316,8 +316,8 @@ public class WorkBag {
 		 *
 		 * @param o the object to be stored.
 		 *
-		 * @invariant stack.includesAll(stack$pre)
-		 * @invariant stack.includesAll(stack$pre)
+		 * @invariant stack.includesAll(stack@@pre)
+		 * @invariant stack.includesAll(stack@@pre)
 		 * @post stack->includes(o) and stack->first = o
 		 */
 		public void add(Object o) {
@@ -372,7 +372,7 @@ public class WorkBag {
 	 *
 	 * @param c the work pieces to be added.
 	 *
-	 * @invariant container->includesAll(container$pre)
+	 * @invariant container->includesAll(container@@pre)
 	 * @post container.containsAll(c)
 	 */
 	public void addAllWork(Collection c) {
@@ -393,7 +393,7 @@ public class WorkBag {
 	 *
 	 * @param c the work pieces to be added.
 	 *
-	 * @invariant container->includesAll(container$pre)
+	 * @invariant container->includesAll(container@@pre)
 	 * @post container.containsAll(c)
 	 * @post container->forall( o | container->count() = 1)
 	 */
@@ -406,7 +406,7 @@ public class WorkBag {
 	 *
 	 * @param o the work to be added.
 	 *
-	 * @invariant container->includesAll(container$pre)
+	 * @invariant container->includesAll(container@@pre)
 	 * @post container.contains(o)
 	 */
 	public void addWork(Object o) {
@@ -418,12 +418,12 @@ public class WorkBag {
 	 *
 	 * @param o the work to be added.
 	 *
-	 * @invariant container->includesAll(container$pre)
+	 * @invariant container->includesAll(container@@pre)
 	 * @post container.contains(o)
 	 * @post container->forall( o | container->count() = 1)
 	 */
 	public void addWorkNoDuplicates(Object o) {
-		if(!container.contains(o)) {
+		if (!container.contains(o)) {
 			container.add(o);
 		}
 	}

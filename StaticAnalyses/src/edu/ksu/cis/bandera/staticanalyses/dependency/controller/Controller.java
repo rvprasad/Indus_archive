@@ -42,7 +42,7 @@ import ca.mcgill.sable.soot.jimple.StmtGraph;
 
 import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import java.util.Collection;
@@ -143,9 +143,7 @@ public abstract class Controller {
 	protected final Map participatingAnalyses;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the preprocessing controlling agent.
 	 */
 	protected final ProcessingController preprocessController;
 
@@ -171,7 +169,7 @@ public abstract class Controller {
 	 * </p>
 	 *
 	 * @param info is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
-	 * 		  controller.
+	 *           controller.
 	 * @param pc is the preprocessing controller.
 	 *
 	 * @pre pc != null;
@@ -217,13 +215,14 @@ public abstract class Controller {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Provides the statement graph for the given method.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method for which the statement graph is requested.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the statement graph.  <code>null</code> is returned if the method was not processed.
+	 *
+	 * @pre method != null
+	 * @post method2cmpltStmtGraph.contains(method) == false implies result = null
 	 */
 	public StmtGraph getStmtGraph(SootMethod method) {
 		return (StmtGraph) method2cmpltStmtGraph.get(method);
@@ -242,13 +241,13 @@ public abstract class Controller {
 
 		preprocessController.process();
 
-		for(Iterator i = methods.iterator(); i.hasNext();) {
+		for (Iterator i = methods.iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			CompleteStmtGraph sg = new CompleteStmtGraph((Util.getJimpleBody(method)).getStmtList());
 			method2cmpltStmtGraph.put(method, sg);
 		}
 
-		for(Iterator k = participatingAnalyses.values().iterator(); k.hasNext();) {
+		for (Iterator k = participatingAnalyses.values().iterator(); k.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) k.next();
 			da.initialize(method2cmpltStmtGraph, info);
 		}
@@ -263,7 +262,7 @@ public abstract class Controller {
 	public void reset() {
 		preprocessors.clear();
 
-		for(Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
+		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
 			DependencyAnalysis element = (DependencyAnalysis) i.next();
 			element.reset();
 		}
@@ -281,14 +280,14 @@ public abstract class Controller {
 	 *
 	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
 	 */
-	protected final void setDAnalysis(String name, DependencyAnalysis analysis) {
-		if(!participatingAnalysesNames.contains(name)) {
+	protected final void setDAnalysis(String name, DependencyAnalysis analysis) throws IllegalArgumentException {
+		if (!participatingAnalysesNames.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
 		participatingAnalyses.put(name, analysis);
 
-		if(analysis.doesPreProcessing()) {
-			Processor p = analysis.getPreProcessor();
+		if (analysis.doesPreProcessing()) {
+			IProcessor p = analysis.getPreProcessor();
 			preprocessors.add(p);
 			p.hookup(preprocessController);
 		}

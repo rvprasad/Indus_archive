@@ -46,10 +46,10 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
@@ -64,9 +64,7 @@ import java.util.Map;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides basic tester(more of a driver) facilities for testing dependency analyses.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -118,13 +116,13 @@ public abstract class DATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!
 	 */
 	public void run(String args[]) {
-		if(args.length == 0) {
+		if (args.length == 0) {
 			System.out.println("Please specify a class to consider for the analysis.");
 			System.exit(-1);
 		}
@@ -134,7 +132,7 @@ public abstract class DATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -143,22 +141,30 @@ public abstract class DATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 */
 	protected void execute() {
-		LOGGER.info("Loading classes....");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Loading classes....");
+		}
 
 		scm = loadupClassesAndCollectMains(args);
 		aa = OFAnalyzer.getFSOSAnalyzer("DATester");
-		LOGGER.info("BEGIN: BFA");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: BFA");
+		}
 
 		long start = System.currentTimeMillis();
 		aa.analyze(scm, rootMethods);
 
 		long stop = System.currentTimeMillis();
 		addTimeLog("BFA", stop - start);
-		LOGGER.info("END: BFA");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: BFA");
+		}
 
 		ProcessingController pc = new ProcessingController();
 		pc.setAnalyzer(aa);
@@ -168,67 +174,81 @@ public abstract class DATester
 
 		ThreadGraph tg = new ThreadGraph(cg);
 		tg.hookup(pc);
-		LOGGER.info("BEGIN: BFA post processing");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: BFA post processing");
+		}
 		start = System.currentTimeMillis();
 		pc.process();
 		stop = System.currentTimeMillis();
 		addTimeLog("BFA post processing", stop - start);
-		LOGGER.info("END: BFA post processing");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: BFA post processing");
+		}
 		cg.unhook(pc);
 		tg.unhook(pc);
 
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
-		Map method2cmpltStmtGraph = new HashMap();
+		//Map method2cmpltStmtGraph = new HashMap();
 
-		for(Iterator i = cg.getReachableMethods().iterator(); i.hasNext();) {
+		for (Iterator i = cg.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 
 			try {
 				CompleteStmtGraph sg = new CompleteStmtGraph((Util.getJimpleBody(method)).getStmtList());
 				method2cmpltStmtGraph.put(method, sg);
-			} catch(RuntimeException e) {
-				LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
+			} catch (RuntimeException e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
+				}
 			}
 		}
 
 		info = new HashMap();
-		info.put(CallGraphInfo.ID, cg);
-		info.put(ThreadGraphInfo.ID, tg);
+		info.put(ICallGraphInfo.ID, cg);
+		info.put(IThreadGraphInfo.ID, tg);
 		info.put(PairManager.ID, new PairManager());
-		info.put(Environment.ID, aa.getEnvironment());
+		info.put(IEnvironment.ID, aa.getEnvironment());
 
 		Collection das = getDependencyAnalyses();
-		LOGGER.info("BEGIN: dependency analyses");
 
-		for(Iterator i = das.iterator(); i.hasNext();) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: dependency analyses");
+		}
+
+		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
 			start = System.currentTimeMillis();
 			da.analyze();
 			stop = System.currentTimeMillis();
 			addTimeLog(da.getClass().getName() + " analysis", stop - start);
 		}
-		LOGGER.info("END: dependency analyses");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: dependency analyses");
+		}
 
 		Map threadMap = new HashMap();
 		System.out.println("\nThread mapping:");
 
 		int count = 1;
 
-		for(java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+		for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
 			NewExprTriple element = (NewExprTriple) j.next();
 			String tid = "T" + count++;
 			threadMap.put(element, tid);
 
-			if(element.getMethod() == null) {
+			if (element.getMethod() == null) {
 				System.out.println(tid + " -> " + element.getExpr().getType());
 			} else {
 				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
 			}
 		}
 
-		for(Iterator i = das.iterator(); i.hasNext();) {
+		for (Iterator i = das.iterator(); i.hasNext();) {
 			System.out.println(((DependencyAnalysis) i.next()));
 		}
 		printTimingStats();

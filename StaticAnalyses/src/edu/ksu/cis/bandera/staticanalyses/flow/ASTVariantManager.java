@@ -75,10 +75,10 @@ public class ASTVariantManager
 	 * @post o.oclIsKindOf(InvokeExpr) implies result.oclType = InvocationVariant
 	 * @post (not o.oclIsKindOf(InvokeExpr)) implies result.oclType = ASTVariant
 	 */
-	protected Variant getNewVariant(Object o) {
-		Variant result;
+	protected IVariant getNewVariant(Object o) {
+		IVariant result;
 
-		if(o instanceof InvokeExpr) {
+		if (o instanceof InvokeExpr) {
 			InvokeExpr expr = (InvokeExpr) o;
 			SootMethod sm = expr.getMethod();
 			Map exception2node = new HashMap();
@@ -86,7 +86,7 @@ public class ASTVariantManager
 			// for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown 
 			// by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the 
 			// exception classes mentioned at the invoke expression.
-			for(Iterator i = sm.getExceptions().iterator(); i.hasNext();) {
+			for (Iterator i = sm.getExceptions().iterator(); i.hasNext();) {
 				SootClass exception = (SootClass) i.next();
 				exception2node.put(exception, bfa.getNewFGNode());
 			}

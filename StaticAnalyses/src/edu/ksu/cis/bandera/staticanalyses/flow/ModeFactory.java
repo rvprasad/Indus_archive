@@ -35,13 +35,14 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
+
 /**
  * <p>
  * An implementation of <i>Abstract Factory</i> pattern given in Gang of Four book.  It "creates" various compoments required
  * to setup and run the analysis.  Other components of the framework use this class to obtain components when assembling the
  * analysis and the flow graph.
  * </p>
- * 
+ *
  * <p>
  * Created: Sun Jan 27 16:31:18 2002
  * </p>
@@ -55,14 +56,14 @@ public class ModeFactory {
 	 * The prototype of index managers that manager indices related to arrays.
 	 * </p>
 	 */
-	private final Prototype arrayIndexManagerPrototype;
+	private final IPrototype arrayIndexManagerPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of index managers that manage indices related to AST nodes.
 	 * </p>
 	 */
-	private final Prototype astIndexManagerPrototype;
+	private final IPrototype astIndexManagerPrototype;
 
 	/**
 	 * <p>
@@ -70,56 +71,56 @@ public class ModeFactory {
 	 * &lt;clinit&gt; would be an example of such information.
 	 * </p>
 	 */
-	private final Prototype classManagerPrototype;
+	private final IPrototype classManagerPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of index managers that manage indices related to instance field variables.
 	 * </p>
 	 */
-	private final Prototype instanceFieldIndexManagerPrototype;
+	private final IPrototype instanceFieldIndexManagerPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of LHS expression visitor to be used in the analysis.
 	 * </p>
 	 */
-	private final Prototype lhsExprPrototype;
+	private final IPrototype lhsExprPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of index managers that manage indices related to methods.
 	 * </p>
 	 */
-	private final Prototype methodIndexManagerPrototype;
+	private final IPrototype methodIndexManagerPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of the flow graph node to be used in constructing the flow graph during the analysis.
 	 * </p>
 	 */
-	private final Prototype nodePrototype;
+	private final IPrototype nodePrototype;
 
 	/**
 	 * <p>
 	 * The prototype of RHS expression visitor to be used in the analysis.
 	 * </p>
 	 */
-	private final Prototype rhsExprPrototype;
+	private final IPrototype rhsExprPrototype;
 
 	/**
 	 * <p>
 	 * A prototype of index managers to manage indices related to static field variables.
 	 * </p>
 	 */
-	private final Prototype staticFieldIndexManagerPrototype;
+	private final IPrototype staticFieldIndexManagerPrototype;
 
 	/**
 	 * <p>
 	 * The prototype of statement visitor to be used in the analysis.
 	 * </p>
 	 */
-	private final Prototype stmtPrototype;
+	private final IPrototype stmtPrototype;
 
 	/**
 	 * <p>
@@ -136,11 +137,11 @@ public class ModeFactory {
 	 * @param lhsExprPrototype the prototype to generate LHS expression vistor to be used in constructing the flow graph.
 	 * @param rhsExprPrototype the prototype to generate RHS expression vistor to be used in constructing the flow graph.
 	 * @param classManagerPrototype the prototype to generate managers to manage class related primitive information and
-	 * 		  processing.
+	 *           processing.
 	 */
-	public ModeFactory(Prototype astIMPrototype, Prototype arrayIMPrototype, Prototype instanceFieldIMPrototype,
-		Prototype staticFieldIMPrototype, Prototype methodIMPrototype, Prototype nodePrototype, Prototype stmtPrototype,
-		Prototype lhsExprPrototype, Prototype rhsExprPrototype, Prototype classManagerPrototype) {
+	public ModeFactory(IPrototype astIMPrototype, IPrototype arrayIMPrototype, IPrototype instanceFieldIMPrototype,
+		IPrototype staticFieldIMPrototype, IPrototype methodIMPrototype, IPrototype nodePrototype, IPrototype stmtPrototype,
+		IPrototype lhsExprPrototype, IPrototype rhsExprPrototype, IPrototype classManagerPrototype) {
 		astIndexManagerPrototype = astIMPrototype;
 		arrayIndexManagerPrototype = arrayIMPrototype;
 		instanceFieldIndexManagerPrototype = instanceFieldIMPrototype;

@@ -49,7 +49,7 @@ import java.util.Map;
  * This class manages variants.  An variant manager classes should extend this class.  This class embodies the logic to
  * manage the variants.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 05:21:42 2002
  * </p>
@@ -109,8 +109,8 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @return the variant correponding to the entity in the given context, if one exists.  <code>null</code> if none exist.
 	 */
-	public final Variant query(Object o, Context context) {
-		return (Variant) index2variant.get(indexManager.getIndex(o, context));
+	public final IVariant query(Object o, Context context) {
+		return (IVariant) index2variant.get(indexManager.getIndex(o, context));
 	}
 
 	/**
@@ -124,20 +124,26 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @return the variant correponding to the entity in the given context.
 	 */
-	public final Variant select(Object o, Context context) {
-		Index index = indexManager.getIndex(o, context);
-		Variant temp = null;
-		LOGGER.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active + "\n"
-			+ index.hashCode());
+	public final IVariant select(Object o, Context context) {
+		IIndex index = indexManager.getIndex(o, context);
+		IVariant temp = null;
 
-		if(index2variant.containsKey(index)) {
-			temp = (Variant) index2variant.get(index);
-		} else if(bfa._ANALYZER.active) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active + "\n"
+				+ index.hashCode());
+		}
+
+		if (index2variant.containsKey(index)) {
+			temp = (IVariant) index2variant.get(index);
+		} else if (bfa._ANALYZER.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 			temp.process();
 		}
-		LOGGER.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active);
+		}
 
 		return temp;
 	}
@@ -151,7 +157,7 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @return the new variant corresponding to the given object.
 	 */
-	protected abstract Variant getNewVariant(Object o);
+	protected abstract IVariant getNewVariant(Object o);
 
 	/**
 	 * <p>
@@ -159,7 +165,9 @@ public abstract class AbstractVariantManager {
 	 * </p>
 	 */
 	void reset() {
-		LOGGER.debug("Variant manager being reset.");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("IVariant manager being reset.");
+		}
 		index2variant.clear();
 		indexManager.reset();
 	}

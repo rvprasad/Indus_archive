@@ -44,8 +44,8 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.util.Iterator;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -70,7 +70,7 @@ public class ExprSwitch
 	 * @param stmt the statement visitor which uses this instance of expression visitor.
 	 * @param connector the connector to be used to connect the ast and non-ast nodes.
 	 */
-	public ExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
+	public ExprSwitch(AbstractStmtSwitch stmt, IFGNodeConnector connector) {
 		super(stmt, connector);
 	}
 
@@ -106,14 +106,17 @@ public class ExprSwitch
 	public void postProcessBase(ValueBox e) {
 		Local l = (Local) e.getValue();
 		ValueBox backup = context.setProgramPoint(e);
-		FGNode localNode = method.getASTNode(l);
+		IFGNode localNode = method.getASTNode(l);
 
-		for(Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
+		for (Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt) i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
 
-			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
-			LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+			IFGNode defNode = method.getASTNode(defStmt.getLeftOp());
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+			}
 			defNode.addSucc(localNode);
 		}
 
@@ -136,7 +139,7 @@ public class ExprSwitch
 	 * Returns a new instance of this class.
 	 *
 	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
-	 * 		  <code>AbstractStmtSwitch</code>.
+	 *           <code>AbstractStmtSwitch</code>.
 	 *
 	 * @return the new visitor instance.
 	 */

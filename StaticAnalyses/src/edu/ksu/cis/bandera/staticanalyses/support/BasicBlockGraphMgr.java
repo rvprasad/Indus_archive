@@ -72,7 +72,7 @@ public class BasicBlockGraphMgr {
 		SootMethod method = ((JimpleBody) stmtGraph.getBody()).getMethod();
 		WeakReference ref = (WeakReference) method2graph.get(method);
 
-		if(ref == null || ref.get() == null) {
+		if (ref == null || ref.get() == null) {
 			ref = new WeakReference(new BasicBlockGraph(stmtGraph));
 			method2graph.put(method, ref);
 		}
@@ -85,7 +85,7 @@ public class BasicBlockGraphMgr {
 	 * @param sm is the method for which the graph is requested.
 	 *
 	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned
-	 * 		   otherwise.
+	 *            otherwise.
 	 *
 	 * @post result == null || result != null;
 	 */
@@ -93,7 +93,7 @@ public class BasicBlockGraphMgr {
 		WeakReference ref = (WeakReference) method2graph.get(sm);
 		BasicBlockGraph result = null;
 
-		if(ref != null) {
+		if (ref != null) {
 			result = (BasicBlockGraph) ref.get();
 		}
 		return result;

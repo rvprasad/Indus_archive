@@ -37,14 +37,12 @@ package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.flow;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.Index;
+import edu.ksu.cis.bandera.staticanalyses.flow.IIndex;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-
-// FlowSensitiveIndexManager.java
 
 /**
  * This class manages indices associated with entities in flow sensitive mode.  In reality, it provides the implementation to
@@ -78,8 +76,10 @@ public class FlowSensitiveIndexManager
 	 *
 	 * @return the index that uniquely identifies <code>o</code> at the program point captured in <code>c</code>.
 	 */
-	protected Index getIndex(Object o, Context c) {
-		LOGGER.debug("Getting index for " + o + " in " + c);
+	protected IIndex getIndex(Object o, Context c) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Getting index for " + o + " in " + c);
+		}
 
 		return new OneContextInfoIndex(o, c.getProgramPoint());
 	}

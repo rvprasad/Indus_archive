@@ -42,7 +42,7 @@ import ca.mcgill.sable.soot.SootField;
  * <p>
  * The variant that represents a field.
  * </p>
- * 
+ *
  * <p>
  * Created: Fri Jan 25 14:29:09 2002
  * </p>
@@ -67,7 +67,7 @@ public class FieldVariant
 	 * @param field the field to be represented by this variant.  This cannot be <code>null</code>.
 	 * @param node the node associated with this variant.  This cannot be <code>null</code>.
 	 */
-	public FieldVariant(SootField field, FGNode node) {
+	public FieldVariant(SootField field, IFGNode node) {
 		super(node);
 		this._FIELD = field;
 	}

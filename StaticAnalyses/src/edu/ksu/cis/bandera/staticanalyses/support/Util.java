@@ -53,7 +53,7 @@ import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.util.List;
 import ca.mcgill.sable.util.VectorList;
 
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,8 +79,10 @@ public class Util {
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Util.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private static Jimple jimple = Jimple.v();
 
@@ -105,11 +107,12 @@ public class Util {
 	 *
 	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
 	 */
-	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType) {
+	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType)
+	  throws NoSuchMethodException {
 		SootClass contains = sc;
 
-		while(!contains.declaresMethod(method, parameterTypes, returnType)) {
-			if(contains.hasSuperClass()) {
+		while (!contains.declaresMethod(method, parameterTypes, returnType)) {
+			if (contains.hasSuperClass()) {
 				contains = contains.getSuperClass();
 			} else {
 				throw new NoSuchMethodException(sc + " does not define " + method + ".");
@@ -129,7 +132,7 @@ public class Util {
 	 *
 	 * @return If there is such a class then a <code>SootClass</code> object is returned; <code>null</code> otherwise.
 	 *
-	 * @pre sc &lt;> null and method &lt;> null
+	 * @pre sc <> null and method <> null
 	 */
 	public static SootClass getDeclaringClassFromName(SootClass sc, String method) {
 		return getDeclaringClass(sc, method, EMPTY_PARAM_LIST, VoidType.v());
@@ -142,26 +145,27 @@ public class Util {
 	 * @param ancestor fully qualified name of the ancestor class.
 	 *
 	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of <code>child</code>
-	 * 		   class; false otherwise.
+	 *            class; false otherwise.
 	 *
-	 * @pre child &lt;> null and ancestor &lt;> null
+	 * @pre child <> null and ancestor <> null
 	 */
 	public static boolean isDescendentOf(SootClass child, String ancestor) {
 		boolean retval = false;
 		SootClass temp = child;
 
-		while(!retval) {
-			if(child.getName().equals(ancestor)) {
+		while (!retval) {
+			if (child.getName().equals(ancestor)) {
 				retval = true;
 			} else {
-				if (child.hasSuperClass())
+				if (child.hasSuperClass()) {
 					child = child.getSuperClass();
-				else
+				} else {
 					break;
+				}
 			}
 		}
 
-		if(!retval) {
+		if (!retval) {
 			retval = implementsInterface(temp, ancestor);
 		}
 
@@ -175,9 +179,9 @@ public class Util {
 	 * @param ancestor the ancestor class.
 	 *
 	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class; false
-	 * 		   otherwise.
+	 *            otherwise.
 	 *
-	 * @pre child &lt;> null and ancestor &lt;> null
+	 * @pre child <> null and ancestor <> null
 	 */
 	public static boolean isDescendentOf(SootClass child, SootClass ancestor) {
 		return isDescendentOf(child, ancestor.getName());
@@ -192,15 +196,15 @@ public class Util {
 	 *
 	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>, otherwise.
 	 *
-	 * @pre class1 &lt;> null and class2 &lt;> null
+	 * @pre class1 <> null and class2 <> null
 	 */
 	public static boolean isHierarchicallyRelated(SootClass class1, SootClass class2) {
 		return isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
 	}
 
 	/**
-	 * Retreives the <code>JimpleBody</code> of the given Method.  A new body based on the class file is created if one is 
-	 * not stored.  
+	 * Retreives the <code>JimpleBody</code> of the given Method.  A new body based on the class file is created if one is
+	 * not stored.
 	 *
 	 * @param sm is the method for which the body is requested.
 	 *
@@ -209,7 +213,7 @@ public class Util {
 	public static JimpleBody getJimpleBody(SootMethod sm) {
 		JimpleBody result;
 
-		if(sm.isBodyStored(jimple)) {
+		if (sm.isBodyStored(jimple)) {
 			result = (JimpleBody) sm.getBody(jimple);
 		} else {
 			result = new JimpleBody(sm, sm.getBody(ClassFile.v()), 0);
@@ -220,7 +224,7 @@ public class Util {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param t1 DOCUMENT ME!
@@ -229,12 +233,12 @@ public class Util {
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public static boolean isSameOrSubType(Type t1, Type t2, Environment env) {
+	public static boolean isSameOrSubType(Type t1, Type t2, IEnvironment env) {
 		boolean result = false;
 
-		if(t1.equals(t2)) {
+		if (t1.equals(t2)) {
 			result = true;
-		} else if(t1 instanceof RefType && t2 instanceof RefType) {
+		} else if (t1 instanceof RefType && t2 instanceof RefType) {
 			result = isDescendentOf(env.getClass(((RefType) t1).className), env.getClass(((RefType) t2).className));
 		}
 		return result;
@@ -242,7 +246,7 @@ public class Util {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param t1 DOCUMENT ME!
@@ -251,12 +255,12 @@ public class Util {
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public static boolean isSameOrSubType(ArrayType t1, ArrayType t2, Environment env) {
+	public static boolean isSameOrSubType(ArrayType t1, ArrayType t2, IEnvironment env) {
 		boolean result = false;
 
-		if(t1.equals(t2)) {
+		if (t1.equals(t2)) {
 			result = true;
-		} else if(t1.numDimensions == t2.numDimensions) {
+		} else if (t1.numDimensions == t2.numDimensions) {
 			result = isSameOrSubType(t1.baseType, t2.baseType, env);
 		}
 		return result;
@@ -273,11 +277,10 @@ public class Util {
 		boolean result = false;
 		SootClass declClass = sm.getDeclaringClass();
 
-		if(Modifier.isNative(sm.getModifiers())
+		if (Modifier.isNative(sm.getModifiers())
 			  && sm.getName().equals("start")
 			  && sm.getParameterCount() == 0
 			  && declClass.getName().equals("java.lang.Thread")) {
-			Jimple jimple = Jimple.v();
 			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
 
 			JimpleBody threadStartBody = (JimpleBody) jimple.newBody(sm);
@@ -302,9 +305,9 @@ public class Util {
 	 * <code>src</code> into it.
 	 *
 	 * @param targetType name of the class which implements <code>ca.mcgill.sable.util.Collection</code> interface and which
-	 * 		  will be the actual type of the returned object.
+	 *           will be the actual type of the returned object.
 	 * @param src an object which implements <code>java.util.Collection</code> interface and contains values that need to be
-	 * 		  copied.
+	 *           copied.
 	 *
 	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 *
@@ -318,18 +321,18 @@ public class Util {
 			Class collect = Class.forName(targetType);
 			retval = (ca.mcgill.sable.util.Collection) collect.newInstance();
 
-			if(src != null) {
+			if (src != null) {
 				Iterator i = src.iterator();
 
-				while(i.hasNext()) {
+				while (i.hasNext()) {
 					retval.add(i.next());
 				}
 			}
-		} catch(ClassCastException e) {
+		} catch (ClassCastException e) {
 			LOGGER.warn(targetType + " does not implement java.util.Collection.", e);
-		} catch(ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			LOGGER.warn("The class named " + targetType + " is not available in the class path.", e);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			LOGGER.warn("Error instantiating an object of class " + targetType + ".", e);
 		}
 		return retval;
@@ -340,9 +343,9 @@ public class Util {
 	 * <code>src</code> into it.
 	 *
 	 * @param targetType name of the class which implements <code>java.util.Collection</code> interface and which will be the
-	 * 		  actual type of the returned object.
+	 *           actual type of the returned object.
 	 * @param src an object which implements <code>ca.mcgill.sable.util.Collection</code> interface and contains values that
-	 * 		  need to be copied.
+	 *           need to be copied.
 	 *
 	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 *
@@ -356,18 +359,18 @@ public class Util {
 			Class collect = Class.forName(targetType);
 			retval = (Collection) collect.newInstance();
 
-			if(src != null) {
+			if (src != null) {
 				ca.mcgill.sable.util.Iterator i = src.iterator();
 
-				while(i.hasNext()) {
+				while (i.hasNext()) {
 					retval.add(i.next());
 				}
 			}
-		} catch(ClassCastException e) {
+		} catch (ClassCastException e) {
 			LOGGER.warn(targetType + " does not implement java.util.Collection.", e);
-		} catch(ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			LOGGER.warn("The class named " + targetType + " is not available in the class path.", e);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			LOGGER.warn("Error instantiating an object of class " + targetType + ".", e);
 		}
 		return retval;
@@ -375,7 +378,7 @@ public class Util {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param child DOCUMENT ME!
@@ -386,8 +389,8 @@ public class Util {
 	public static boolean implementsInterface(SootClass child, String ancestor) {
 		boolean result = false;
 
-		while(!result && (child.getInterfaceCount() > 0 || child.hasSuperClass())) {
-			if(child.implementsInterface(ancestor)) {
+		while (!result && (child.getInterfaceCount() > 0 || child.hasSuperClass())) {
+			if (child.implementsInterface(ancestor)) {
 				result = true;
 			} else {
 				child = child.getSuperClass();

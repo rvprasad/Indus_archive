@@ -57,7 +57,7 @@ import java.util.Iterator;
 
 /**
  * This  class serves as the interface to the external world for Object flow analysis information.
- * 
+ *
  * <p>
  * The values returned on querying this analysis are AST chunks corresponding to object allocation/creation sites.
  * </p>
@@ -167,20 +167,20 @@ public class OFAnalyzer
 	 * @param sites the collection of allocation sites that are of interest when extracting field information.
 	 *
 	 * @return a collection of values the field <code>f</code> may evaluate when associated with object created at allocation
-	 * 		   sites given by <code>sites</code>.
+	 *            sites given by <code>sites</code>.
 	 */
 	public Collection getValues(SootField f, Collection sites) {
 		Object temp = null;
 		Collection retValues;
 		AllocationContext ctxt = (AllocationContext) context;
 
-		if(Modifier.isStatic(f.getModifiers())) {
+		if (Modifier.isStatic(f.getModifiers())) {
 			retValues = getValues(f);
 		} else {
 			retValues = new HashSet();
 			temp = ctxt.getAllocationSite();
 
-			for(Iterator i = sites.iterator(); i.hasNext();) {
+			for (Iterator i = sites.iterator(); i.hasNext();) {
 				ctxt.setAllocationSite(i.next());
 				retValues.addAll(getValues(f));
 			}

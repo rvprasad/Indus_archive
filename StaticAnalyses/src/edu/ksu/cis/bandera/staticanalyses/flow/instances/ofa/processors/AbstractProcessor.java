@@ -44,7 +44,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor;
 
 
 /**
@@ -55,12 +55,12 @@ import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
  * @version $Revision$
  */
 public abstract class AbstractProcessor
-  implements Processor {
+  implements IProcessor {
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#setAnalyzer(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 	}
@@ -68,8 +68,8 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
 	}
@@ -77,8 +77,8 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Stmt stmt, Context context) {
 	}
@@ -86,7 +86,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public void callback(SootMethod method) {
 	}
@@ -94,7 +94,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.SootClass)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.SootClass)
 	 */
 	public void callback(SootClass clazz) {
 	}
@@ -102,7 +102,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(SootField)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootField)
 	 */
 	public void callback(SootField field) {
 	}
@@ -110,7 +110,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#consolidate()
 	 */
 	public void consolidate() {
 	}

@@ -44,7 +44,7 @@ import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.Value;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.ValueFilter;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import java.util.Iterator;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -68,16 +68,22 @@ public class TypeBasedFilter
 	 * DOCUMENT ME!
 	 * </p>
 	 */
+	private final IEnvironment ENV;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
 	private final Type type;
-	
-	private final Environment ENV;
 
 	/**
 	 * Creates a new TypeBasedFilter object.
 	 *
 	 * @param type DOCUMENT ME!
+	 * @param env DOCUMENT ME!
 	 */
-	public TypeBasedFilter(Type type, Environment env) {
+	public TypeBasedFilter(Type type, IEnvironment env) {
 		this.type = type;
 		ENV = env;
 	}
@@ -86,8 +92,9 @@ public class TypeBasedFilter
 	 * Creates a new TypeBasedFilter object.
 	 *
 	 * @param clazz DOCUMENT ME!
+	 * @param env DOCUMENT ME!
 	 */
-	public TypeBasedFilter(SootClass clazz, Environment env) {
+	public TypeBasedFilter(SootClass clazz, IEnvironment env) {
 		this.type = RefType.v(clazz.getName());
 		ENV = env;
 	}
@@ -100,9 +107,10 @@ public class TypeBasedFilter
 	public Collection filter(Collection values) {
 		Collection result = new ArrayList();
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value o = (Value) i.next();
-			if((type instanceof RefType && o instanceof NullConstant) || Util.isSameOrSubType(o.getType(), type, ENV)) {
+
+			if ((type instanceof RefType && o instanceof NullConstant) || Util.isSameOrSubType(o.getType(), type, ENV)) {
 				result.add(o);
 			}
 		}

@@ -36,7 +36,6 @@
 package edu.ksu.cis.bandera.staticanalyses.dependency;
 
 import ca.mcgill.sable.soot.Modifier;
-import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
 
@@ -52,14 +51,14 @@ import edu.ksu.cis.bandera.staticanalyses.InitializationException;
 import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.bandera.staticanalyses.interference.EquivalenceClassBasedAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.bandera.staticanalyses.support.Util;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ import java.util.Map;
  * of Slicing for Multi-threaded Program with JVM Concurrency Primitives"</i> by John Hatcliff, James Corbett, Matthew
  * Dwyer, Stefan Sokolowski, and Hongjun Zheng which is available from <a href="http://www.cis.ksu.edu/santos/">Santos
  * Laboratory</a>, Kansas State University.  We refer to this report when we say "report" in this documentation.
- * 
+ *
  * <p>
  * The dependence information is stored as follows:  For each
  * </p>
@@ -158,12 +157,19 @@ public class ReadyDAv2
 	/**
 	 * This provide call graph information about the analyzed system.  This is required by the analysis.
 	 */
-	private CallGraphInfo callgraph;
+	private ICallGraphInfo callgraph;
 
 	/**
 	 * This provides information
 	 */
-	private Environment environment;
+	private IEnvironment environment;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private EquivalenceClassBasedAnalysis ecba;
 
 	/**
 	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
@@ -185,7 +191,7 @@ public class ReadyDAv2
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -201,7 +207,7 @@ public class ReadyDAv2
 		 * @param method to be preprocessed.
 		 */
 		public void callback(SootMethod method) {
-			if(Modifier.isSynchronized(method.getModifiers())) {
+			if (Modifier.isSynchronized(method.getModifiers())) {
 				monitorMethods.add(method);
 			}
 		}
@@ -217,18 +223,18 @@ public class ReadyDAv2
 			SootMethod method = context.getCurrentMethod();
 			Map map = null;
 
-			if(stmt instanceof EnterMonitorStmt) {
+			if (stmt instanceof EnterMonitorStmt) {
 				map = enterMonitors;
 				monitorMethods.add(method);
-			} else if(stmt instanceof ExitMonitorStmt) {
+			} else if (stmt instanceof ExitMonitorStmt) {
 				map = exitMonitors;
 				monitorMethods.add(method);
 			}
 
-			if(map != null) {
+			if (map != null) {
 				Collection temp;
 
-				if(map.containsKey(method)) {
+				if (map.containsKey(method)) {
 					temp = (Collection) map.get(method);
 				} else {
 					temp = new HashSet();
@@ -238,24 +244,24 @@ public class ReadyDAv2
 			} else {
 				InvokeExpr expr = null;
 
-				if(stmt instanceof InvokeStmt) {
+				if (stmt instanceof InvokeStmt) {
 					expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
 				}
 
-				if(expr != null && expr instanceof NonStaticInvokeExpr) {
+				if (expr != null && expr instanceof NonStaticInvokeExpr) {
 					NonStaticInvokeExpr invokeExpr = (NonStaticInvokeExpr) expr;
 					SootMethod callee = invokeExpr.getMethod();
 
-					if(waitMethods.contains(callee)) {
+					if (waitMethods.contains(callee)) {
 						map = waits;
-					} else if(notifyMethods.contains(callee)) {
+					} else if (notifyMethods.contains(callee)) {
 						map = notifies;
 					}
 
-					if(map != null) {
+					if (map != null) {
 						Collection temp;
 
-						if(map.containsKey(method)) {
+						if (map.containsKey(method)) {
 							temp = (Collection) map.get(method);
 						} else {
 							temp = new HashSet();
@@ -268,18 +274,22 @@ public class ReadyDAv2
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
+			ppc.register(EnterMonitorStmt.class, this);
+			ppc.register(ExitMonitorStmt.class, this);
 			ppc.register(InvokeStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void unhook(ProcessingController ppc) {
+			ppc.unregister(EnterMonitorStmt.class, this);
+			ppc.unregister(ExitMonitorStmt.class, this);
 			ppc.unregister(InvokeStmt.class, this);
 		}
 	}
@@ -296,10 +306,10 @@ public class ReadyDAv2
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.
-	 * 		Object)
+	 *         Object)
 	 */
 	public Collection getDependees(Object dependentStmt, Object context) {
-		return Collections.singletonList((Collection) dependeeMap.get(dependentStmt));
+		return Collections.unmodifiableCollection((Collection) dependeeMap.get(dependentStmt));
 	}
 
 	/**
@@ -314,7 +324,7 @@ public class ReadyDAv2
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents( java.lang.Object,
-	 * 		java.lang.Object)
+	 *         java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object context) {
 		return Collections.unmodifiableCollection((Collection) dependentMap.get(dependeeStmt));
@@ -327,8 +337,8 @@ public class ReadyDAv2
 	 *
 	 * @throws IllegalArgumentException when rules is not a valid combination of <i>RULE_XX</i> constants.
 	 */
-	public void setRules(int rules) {
-		if((rules & ~(RULE_1 | RULE_2 | RULE_3 | RULE_4)) != 0) {
+	public void setRules(int rules) throws IllegalArgumentException {
+		if ((rules & ~(RULE_1 | RULE_2 | RULE_3 | RULE_4)) != 0) {
 			throw new IllegalArgumentException("rules has to be a combination of RULE_XX constants defined in this class.");
 		}
 		this.rules = rules;
@@ -343,15 +353,15 @@ public class ReadyDAv2
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
-		if((rules & (RULE_1 | RULE_3)) != 0) {
+		if ((rules & (RULE_1 | RULE_3)) != 0) {
 			processRule1And3();
 		}
 
-		if((rules & RULE_2) != 0) {
+		if ((rules & RULE_2) != 0) {
 			processRule2();
 		}
 
-		if((rules & RULE_4) != 0) {
+		if ((rules & RULE_4) != 0) {
 			processRule4();
 		}
 
@@ -373,7 +383,7 @@ public class ReadyDAv2
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -386,14 +396,14 @@ public class ReadyDAv2
 
 		StringBuffer temp = new StringBuffer();
 
-		for(Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			localEdgeCount = 0;
 
-			for(Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
+			for (Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
 				Map.Entry entry2 = (Map.Entry) j.next();
 
-				for(Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
+				for (Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
 					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
 				}
 				localEdgeCount += ((Collection) entry2.getValue()).size();
@@ -413,21 +423,21 @@ public class ReadyDAv2
 	 * service, and environment from the <code>info</code> member.
 	 *
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
-	 * 		   <code>info</code> member.
+	 *            <code>info</code> member.
 	 */
-	protected void setup() {
-		if(waitMethods == null) {
-			for(Iterator i = environment.getClasses().iterator(); i.hasNext();) {
+	protected void setup() throws InitializationException {
+		if (waitMethods == null) {
+			for (Iterator i = environment.getClasses().iterator(); i.hasNext();) {
 				SootClass sc = (SootClass) i.next();
 
-				if(sc.getName().equals("java.lang.Object")) {
+				if (sc.getName().equals("java.lang.Object")) {
 					ca.mcgill.sable.util.List temp = sc.getMethods();
 					waitMethods = new ArrayList();
 
-					for(ca.mcgill.sable.util.Iterator j = temp.iterator(); j.hasNext();) {
+					for (ca.mcgill.sable.util.Iterator j = temp.iterator(); j.hasNext();) {
 						SootMethod sm = (SootMethod) j.next();
 
-						if(sm.getName().equals("wait")) {
+						if (sm.getName().equals("wait")) {
 							waitMethods.add(sm);
 						}
 					}
@@ -441,19 +451,24 @@ public class ReadyDAv2
 			}
 		}
 
-		environment = (Environment) info.get(PairManager.ID);
+		environment = (IEnvironment) info.get(PairManager.ID);
 
-		if(environment == null) {
-			throw new InitializationException(Environment.ID + " was not provided in info.");
+		if (environment == null) {
+			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
 		}
-		callgraph = (CallGraphInfo) info.get(CallGraphInfo.ID);
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-		if(callgraph == null) {
-			throw new InitializationException(CallGraphInfo.ID + " was not provided in info.");
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided in info.");
 		}
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
-		if(pairMgr == null) {
+		if (pairMgr == null) {
+			throw new InitializationException(PairManager.ID + " was not provided in info.");
+		}
+		ecba = (EquivalenceClassBasedAnalysis) info.get(EquivalenceClassBasedAnalysis.ID);
+
+		if (ecba == null) {
 			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
 	}
@@ -465,19 +480,19 @@ public class ReadyDAv2
 	private void fixupInterMethodReadyDA() {
 		Collection methodsToProcess = new HashSet();
 
-		if((rules & (RULE_3 | RULE_4)) != 0) {
+		if ((rules & (RULE_3 | RULE_4)) != 0) {
 			methodsToProcess.addAll(waits.keySet());
 		}
 
-		if((rules & (RULE_1 | RULE_2)) != 0) {
-			for(Iterator i = monitorMethods.iterator(); i.hasNext();) {
+		if ((rules & (RULE_1 | RULE_2)) != 0) {
+			for (Iterator i = monitorMethods.iterator(); i.hasNext();) {
 				methodsToProcess.add((SootMethod) i.next());
 			}
 		}
 
 		WorkBag progPoints = new WorkBag(WorkBag.FIFO);
 
-		for(Iterator i = methodsToProcess.iterator(); i.hasNext();) {
+		for (Iterator i = methodsToProcess.iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			progPoints.addAllWork(callgraph.getCallers(method));
 		}
@@ -486,7 +501,7 @@ public class ReadyDAv2
 		Collection temp = new HashSet();
 		Collection processed = new HashSet();
 
-		while(!(progPoints.isEmpty())) {
+		while (!(progPoints.isEmpty())) {
 			CallTriple progPoint = (CallTriple) progPoints.getWork();
 			processed.add(progPoint);
 
@@ -497,37 +512,37 @@ public class ReadyDAv2
 			Collection col = new ArrayList(bb.getStmtFrom(getStmtList(caller).indexOf(dependee)));
 			col.remove(dependee);
 
-			for(Iterator i = col.iterator(); i.hasNext();) {
+			for (Iterator i = col.iterator(); i.hasNext();) {
 				dependeeMap.put(i.next(), dependee);
 			}
 			dependentMap.put(dependee, col);
 			workbag.addAllWork(bb.getSuccsOf());
 			temp.clear();
 
-			while(!(workbag.isEmpty())) {
+			while (!(workbag.isEmpty())) {
 				bb = (BasicBlock) workbag.getWork();
 
 				Collection stmts = bb.getStmtsOf();
 
-				for(Iterator i = stmts.iterator(); i.hasNext();) {
+				for (Iterator i = stmts.iterator(); i.hasNext();) {
 					dependeeMap.put(i.next(), dependee);
 				}
 				col.addAll(stmts);
 				temp.add(bb);
 
-				for(Iterator i = bb.getSuccsOf().iterator(); i.hasNext();) {
+				for (Iterator i = bb.getSuccsOf().iterator(); i.hasNext();) {
 					BasicBlock block = (BasicBlock) i.next();
 
-					if(!temp.contains(block)) {
+					if (!temp.contains(block)) {
 						workbag.addWork(block);
 					}
 				}
 			}
 
-			for(Iterator i = callgraph.getCallers(caller).iterator(); i.hasNext();) {
+			for (Iterator i = callgraph.getCallers(caller).iterator(); i.hasNext();) {
 				Object pp = i.next();
 
-				if(!processed.contains(pp)) {
+				if (!processed.contains(pp)) {
 					progPoints.addWork(pp);
 				}
 			}
@@ -544,18 +559,18 @@ public class ReadyDAv2
 		Collection processed = new HashSet();
 		Map map = new HashMap();
 
-		if((rules & RULE_1) != 0) {
-			for(Iterator i = enterMonitors.keySet().iterator(); i.hasNext();) {
+		if ((rules & RULE_1) != 0) {
+			for (Iterator i = enterMonitors.keySet().iterator(); i.hasNext();) {
 				SootMethod method = (SootMethod) i.next();
 				map.put(method, new ArrayList((Collection) enterMonitors.get(method)));
 			}
 		}
 
-		if((rules & RULE_3) != 0) {
-			for(Iterator i = waits.keySet().iterator(); i.hasNext();) {
+		if ((rules & RULE_3) != 0) {
+			for (Iterator i = waits.keySet().iterator(); i.hasNext();) {
 				SootMethod method = (SootMethod) i.next();
 
-				if(map.get(method) != null) {
+				if (map.get(method) != null) {
 					((Collection) map.get(method)).addAll((Collection) waits.get(method));
 				} else {
 					Collection tmp = new ArrayList((Collection) waits.get(method));
@@ -564,13 +579,13 @@ public class ReadyDAv2
 			}
 		}
 
-		for(Iterator i = map.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = map.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			StmtList stmts = getStmtList(method);
 			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
 			Collection dependees = (Collection) map.get(method);
 
-			for(Iterator j = dependees.iterator(); j.hasNext();) {
+			for (Iterator j = dependees.iterator(); j.hasNext();) {
 				Stmt dependee = (Stmt) j.next();
 				BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
 				List sl = bb.getStmtFrom(stmts.indexOf(dependee));
@@ -579,11 +594,11 @@ public class ReadyDAv2
 
 				Pair pair = pairMgr.getPair(dependee, method);
 
-				for(Iterator k = sl.iterator(); k.hasNext();) {
+				for (Iterator k = sl.iterator(); k.hasNext();) {
 					Object o = k.next();
 					dependeeMap.put(o, pair);
 
-					if(!dependees.contains(o)) {
+					if (!dependees.contains(o)) {
 						temp.add(pairMgr.getPair(o, method));
 					}
 				}
@@ -591,19 +606,19 @@ public class ReadyDAv2
 				processed.clear();
 				workbag.addAllWork(bb.getSuccsOf());
 
-				while(!workbag.isEmpty()) {
+				while (!workbag.isEmpty()) {
 					BasicBlock work = (BasicBlock) workbag.getWork();
 
-					for(Iterator k = work.getStmtsOf().iterator(); k.hasNext();) {
+					for (Iterator k = work.getStmtsOf().iterator(); k.hasNext();) {
 						Object o = k.next();
 						dependeeMap.put(o, pair);
 
-						if(!dependees.contains(o)) {
+						if (!dependees.contains(o)) {
 							temp.add(pairMgr.getPair(o, method));
 						}
 					}
 
-					if(!processed.contains(bb)) {
+					if (!processed.contains(bb)) {
 						workbag.addAllWork(bb.getSuccsOf());
 					}
 					processed.add(bb);
@@ -614,17 +629,17 @@ public class ReadyDAv2
 	}
 
 	/**
-	 * Processes the system as per to rule 2 in the report.  For each possible enter- and exit-monitor statement, a simple
-	 * class hierarchy based dependency is calculated.  <i>BFA can be used to improve the precision here.</i>
+	 * Processes the system as per to rule 2 in the report.  This uses escape analysis results from
+	 * <code>EquivalenceClassBasedAnalysis</code> to prune ready dependency edges.
 	 */
 	private void processRule2() {
 		Collection temp = new HashSet();
 
-		for(Iterator i = exitMonitors.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = exitMonitors.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			Object method = entry.getKey();
 
-			for(Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				Object o = j.next();
 				dependeeMap.put(o, Collections.EMPTY_LIST);
 				temp.add(pairMgr.getPair(method, o));
@@ -634,36 +649,30 @@ public class ReadyDAv2
 		Collection nSet = new ArrayList();
 		Collection xSet = new ArrayList();
 
-		for(Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod method = (SootMethod) entry.getKey();
+			SootMethod enterMethod = (SootMethod) entry.getKey();
 
-			for(Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				EnterMonitorStmt enter = (EnterMonitorStmt) j.next();
-				Pair enterPair = pairMgr.getPair(enter, method);
-				SootClass enterClass = environment.getClass(((RefType) enter.getOp().getType()).className);
+				Pair enterPair = pairMgr.getPair(enter, enterMethod);
 
-				/*
-				 * This iteration adds dependency between enter-exit pair of a monitor block which may be false.
-				 * TODO: Use threaded call graph to remove such redundant dependencies.
-				 */
-				for(Iterator k = temp.iterator(); k.hasNext();) {
+				// This iteration adds dependency between enter-exit pair of a monitor block which may be false.
+				for (Iterator k = temp.iterator(); k.hasNext();) {
 					Pair exitPair = (Pair) k.next();
+					SootMethod exitMethod = (SootMethod) exitPair.getSecond();
 					ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
 					xSet.clear();
 
-					//TODO: This is a mere class based dependency.  OFA based dependency will be more precise.
-					SootClass exitClass = environment.getClass(((RefType) exit.getOp().getType()).className);
-
-					if(Util.isHierarchicallyRelated(enterClass, exitClass)) {
+					if (ecba.isReadyDependent(exit, exitMethod, enter, enterMethod)) {
 						xSet.add(enterPair);
 						nSet.add(exitPair);
 					}
 
-					if(!xSet.isEmpty()) {
+					if (!xSet.isEmpty()) {
 						Collection exitSet = (Collection) dependeeMap.get(exit);
 
-						if(exitSet == null) {
+						if (exitSet == null) {
 							exitSet = new ArrayList();
 							dependeeMap.put(exit, exitSet);
 						}
@@ -671,7 +680,7 @@ public class ReadyDAv2
 					}
 				}
 
-				if(nSet.isEmpty()) {
+				if (nSet.isEmpty()) {
 					dependentMap.put(enter, Collections.EMPTY_LIST);
 				} else {
 					dependentMap.put(enter, nSet);
@@ -682,36 +691,31 @@ public class ReadyDAv2
 	}
 
 	/**
-	 * Processes the system as per to rule 4 in the report.  For each possible wait and notifyXX call-sites, a simple class
-	 * hierarchy based dependency is calculated.  <i>BFA can be used to improve the precision here.</i>
+	 * Processes the system as per to rule 4 in the report.  This uses results from
+	 * <code>EquivalenceClassBasedAnalysis</code> to calculate ready dependency.
 	 */
 	private void processRule4() {
 		Collection dependents = new HashSet();
 
-		for(Iterator i = waits.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = waits.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod wMethod = (SootMethod) entry.getKey();
 
-			for(Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				InvokeStmt wait = (InvokeStmt) j.next();
-				SootClass waitClass =
-					environment.getClass(((RefType) ((NonStaticInvokeExpr) wait.getInvokeExpr()).getBase().getType()).className);
 
-				for(Iterator k = notifies.entrySet().iterator(); k.hasNext();) {
+				for (Iterator k = notifies.keySet().iterator(); k.hasNext();) {
 					entry = (Map.Entry) k.next();
 
 					SootMethod nMethod = (SootMethod) entry.getKey();
 
-					for(Iterator l = ((Collection) entry.getValue()).iterator(); l.hasNext();) {
+					for (Iterator l = ((Collection) entry.getValue()).iterator(); l.hasNext();) {
 						InvokeStmt notify = (InvokeStmt) l.next();
-						SootClass notifyClass =
-							environment.getClass(((RefType) ((NonStaticInvokeExpr) notify.getInvokeExpr()).getBase().getType()).className);
 
-						// TODO: This is a mere class based dependency.  OFA based dependency will be more precise.
-						if(Util.isHierarchicallyRelated(waitClass, notifyClass)) {
+						if (ecba.isReadyDependent(wait, wMethod, notify, nMethod)) {
 							Collection temp = (Collection) dependeeMap.get(notify);
 
-							if(temp == null) {
+							if (temp == null) {
 								temp = new HashSet();
 								dependeeMap.put(notify, temp);
 							}
@@ -721,7 +725,7 @@ public class ReadyDAv2
 					}
 				}
 
-				if(dependents.size() == 0) {
+				if (dependents.size() == 0) {
 					dependentMap.put(wait, Collections.EMPTY_LIST);
 				} else {
 					dependentMap.put(wait, dependents);

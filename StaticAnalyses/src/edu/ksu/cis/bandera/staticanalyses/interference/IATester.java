@@ -51,7 +51,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
@@ -64,7 +64,7 @@ import java.util.Map;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -98,13 +98,13 @@ public class IATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!
 	 */
 	public static void main(String args[]) {
-		if(args.length == 0) {
+		if (args.length == 0) {
 			System.out.println("Please specify a class to consider for the analysis.");
 		}
 		(new IATester(args)).execute();
@@ -112,19 +112,25 @@ public class IATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 */
 	protected void execute() {
 		SootClassManager scm = loadupClassesAndCollectMains(args);
 		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("IATester");
-		LOGGER.info("BEGIN: BFA analysis");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: BFA analysis");
+		}
 
 		long start = System.currentTimeMillis();
 		aa.analyze(scm, rootMethods);
 
 		long stop = System.currentTimeMillis();
-		LOGGER.info("END: BFA analysis");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: BFA analysis");
+		}
 		addTimeLog("BFA analysis", stop - start);
 
 		ProcessingController ppc = new ProcessingController();
@@ -138,58 +144,69 @@ public class IATester
 
 		EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
 		analysis.hookup(ppc);
-		LOGGER.info("BEGIN: BFA postprocessing");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: BFA postprocessing");
+		}
 		start = System.currentTimeMillis();
 		ppc.process();
 		stop = System.currentTimeMillis();
-		LOGGER.info("END: BFA postprocessing");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: BFA postprocessing");
+		}
 		addTimeLog(", BFA postprocessing took ", stop - start);
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
-		LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+		}
 		start = System.currentTimeMillis();
 		analysis.execute();
 		stop = System.currentTimeMillis();
-		LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+		}
 		addTimeLog(analysis.getClass().getName(), stop - start);
 
 		int count = 1;
 		Map threadMap = new HashMap();
 		System.out.println("\nThread mapping:");
 
-		for(java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+		for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
 			NewExprTriple element = (NewExprTriple) j.next();
 			String tid = "T" + count++;
 			threadMap.put(element, tid);
 
-			if(element.getMethod() == null) {
+			if (element.getMethod() == null) {
 				System.out.println(tid + " -> " + element.getExpr().getType());
 			} else {
 				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
 			}
 		}
 
-		for(int i = 0; i < args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			SootClass sc = scm.getClass(args[i]);
 			System.out.println("Info for class " + sc.getName() + "\n");
 
-			for(Iterator j = sc.getFields().iterator(); j.hasNext();) {
+			for (Iterator j = sc.getFields().iterator(); j.hasNext();) {
 				SootField sf = (SootField) j.next();
 
-				if(Modifier.isStatic(sf.getModifiers())) {
+				if (Modifier.isStatic(sf.getModifiers())) {
 					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
 						+ analysis.toString(sf) + "\n");
 				}
 			}
 
-			for(Iterator j = sc.getMethods().iterator(); j.hasNext();) {
+			for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				System.out.println("Info for Method " + sm.getSignature() + "\n" + analysis.toString(sm));
 
 				JimpleBody body = Util.getJimpleBody(sm);
 
-				for(Iterator k = body.getLocals().iterator(); k.hasNext();) {
+				for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
 					Local local = (Local) k.next();
 					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
 						+ analysis.toString(sm, local) + "\n");

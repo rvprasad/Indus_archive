@@ -37,7 +37,7 @@ package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.WorkList;
 
 import java.util.Collection;
@@ -74,7 +74,7 @@ public class OFAFGNode
 		 * @param node the node into which the values need to be injected.
 		 * @param values a collection containing the values to be injected.
 		 */
-		SendValuesWork(FGNode node, Collection values) {
+		SendValuesWork(IFGNode node, Collection values) {
 			super(node, values);
 		}
 
@@ -84,7 +84,7 @@ public class OFAFGNode
 		 * @param node the node into which the values need to be injected.
 		 * @param value the value to be injected.
 		 */
-		SendValuesWork(FGNode node, Object value) {
+		SendValuesWork(IFGNode node, Object value) {
 			super(node, new HashSet());
 			addValue(value);
 		}
@@ -103,14 +103,14 @@ public class OFAFGNode
 	 *
 	 * @param succ the successor node that was added to this node.
 	 */
-	public void onNewSucc(FGNode succ) {
+	public void onNewSucc(IFGNode succ) {
 		Collection temp = diffValues(succ);
 
-		if(filter != null) {
+		if (filter != null) {
 			temp = filter.filter(temp);
 		}
 
-		if(!temp.isEmpty()) {
+		if (!temp.isEmpty()) {
 			worklist.addWork(new SendValuesWork(succ, temp));
 		}
 	}
@@ -121,10 +121,10 @@ public class OFAFGNode
 	 * @param value the value to be propogated to the successor node.
 	 */
 	public void onNewValue(Object value) {
-		for(Iterator i = succs.iterator(); i.hasNext();) {
-			FGNode succ = (FGNode) i.next();
+		for (Iterator i = succs.iterator(); i.hasNext();) {
+			IFGNode succ = (IFGNode) i.next();
 
-			if(!succ.getValues().contains(value) && !filter.filter(value)) {
+			if (!succ.getValues().contains(value) && !filter.filter(value)) {
 				worklist.addWork(new SendValuesWork(succ, value));
 			}
 		}
@@ -134,17 +134,17 @@ public class OFAFGNode
 	 * Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.
 	 *
 	 * @param values the values to be propogated to the successor node.  The collection contains object of type
-	 * 		  <code>Object</code>.
+	 *           <code>Object</code>.
 	 */
 	public void onNewValues(Collection values) {
-		if(filter != null) {
+		if (filter != null) {
 			values = filter.filter(values);
 		}
 
-		for(Iterator i = succs.iterator(); i.hasNext();) {
-			FGNode succ = (FGNode) i.next();
+		for (Iterator i = succs.iterator(); i.hasNext();) {
+			IFGNode succ = (IFGNode) i.next();
 
-			if(!diffValues(succ).isEmpty()) {
+			if (!diffValues(succ).isEmpty()) {
 				worklist.addWork(new SendValuesWork(succ, values));
 			}
 		}

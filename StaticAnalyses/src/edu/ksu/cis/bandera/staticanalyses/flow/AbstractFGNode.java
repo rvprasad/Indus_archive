@@ -49,14 +49,14 @@ import java.util.Set;
  * Flow graph node associated with value associated variants.  This class provides the basic behavior required by the nodes
  * in the flow graph.  It is required that the nodes be able to keep track of the successor nodes and the set of values.
  * However, an implementation may transform the existing values as new values arrive, or change successors as new successors
- * are added.  Hence, all imlementing classes are required to implement <code>FGNode.onNewSucc, FGNode.onNewSuccs,
- * FGNode.onNewValue,</code> and <code>FGNode.onNewValues</code> methods. Created: Tue Jan 22 02:57:07 2002
+ * are added.  Hence, all imlementing classes are required to implement <code>IFGNode.onNewSucc, IFGNode.onNewSuccs,
+ * IFGNode.onNewValue,</code> and <code>IFGNode.onNewValues</code> methods. Created: Tue Jan 22 02:57:07 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
 public abstract class AbstractFGNode
-  implements FGNode {
+  implements IFGNode {
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
@@ -64,7 +64,7 @@ public abstract class AbstractFGNode
 
 	/**
 	 * The set of immediate successor nodes, i.e., there is direct edge from this node to the successor nodes, of this node.
-	 * The elements in the set are of type <code>FGNode</code>.
+	 * The elements in the set are of type <code>IFGNode</code>.
 	 */
 	protected final Set succs = new HashSet();
 
@@ -87,20 +87,20 @@ public abstract class AbstractFGNode
 	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
 	 *
-	 * @param worklist The worklist associated with the enclosing instance of the framework.
+	 * @param worklistToUse The worklist associated with the enclosing instance of the framework.
 	 */
-	protected AbstractFGNode(WorkList worklist) {
-		this.worklist = worklist;
+	protected AbstractFGNode(WorkList worklistToUse) {
+		this.worklist = worklistToUse;
 		filter = null;
 	}
 
 	/**
 	 * Sets the filter on this node.
 	 *
-	 * @param filter to be used by this node.
+	 * @param filterToUse to be used by this node.
 	 */
-	public void setFilter(ValueFilter filter) {
-		this.filter = filter;
+	public void setFilter(ValueFilter filterToUse) {
+		this.filter = filterToUse;
 	}
 
 	/**
@@ -108,8 +108,10 @@ public abstract class AbstractFGNode
 	 *
 	 * @param node the node to be added as successor to this node.
 	 */
-	public void addSucc(FGNode node) {
-		LOGGER.debug("Adding " + node + " as the successor to " + this);
+	public void addSucc(IFGNode node) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Adding " + node + " as the successor to " + this);
+		}
 		succs.add(node);
 		onNewSucc(node);
 	}
@@ -117,10 +119,12 @@ public abstract class AbstractFGNode
 	/**
 	 * Adds a set of successors to this node.
 	 *
-	 * @param succs the collection of <code>FGNode</code>s to be added as successors to this node.
+	 * @param successors the collection of <code>IFGNode</code>s to be added as successors to this node.
 	 */
-	public void addSuccs(Collection succs) {
-		LOGGER.debug("Adding " + succs + " as the successors to " + this);
+	public void addSuccs(Collection successors) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Adding " + successors + " as the successors to " + this);
+		}
 		this.succs.addAll(succs);
 		onNewSuccs(succs);
 	}
@@ -131,7 +135,9 @@ public abstract class AbstractFGNode
 	 * @param value the value to be injected in to this node.
 	 */
 	public void addValue(Object value) {
-		LOGGER.debug("Injecting " + value + " into " + this);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Injecting " + value + " into " + this);
+		}
 		values.add(value);
 		onNewValue(value);
 	}
@@ -139,12 +145,14 @@ public abstract class AbstractFGNode
 	/**
 	 * Injects a set of values into the set of values associated with this node.
 	 *
-	 * @param values the collection of <code>Object</code>s to be added as successors to this node.
+	 * @param valuesToInject the collection of <code>Object</code>s to be added as successors to this node.
 	 */
-	public void addValues(Collection values) {
-		LOGGER.debug("Injecting " + values + " into " + this);
-		this.values.addAll(values);
-		onNewValues(values);
+	public void addValues(Collection valuesToInject) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Injecting " + valuesToInject + " into " + this);
+		}
+		this.values.addAll(valuesToInject);
+		onNewValues(valuesToInject);
 	}
 
 	/**
@@ -153,7 +161,7 @@ public abstract class AbstractFGNode
 	 * @param o the value to be checked for existence.
 	 *
 	 * @return <code>true</code> if <code>o</code> exists in the set of values associated with this node; <code>false</code>
-	 * 		   otherwise.
+	 *            otherwise.
 	 */
 	public boolean containsValue(Object o) {
 		return values.contains(o);
@@ -165,15 +173,15 @@ public abstract class AbstractFGNode
 	 * @param src the subtrahend in set difference operation.
 	 *
 	 * @return a <code>Collection</code> containing the values resulting from the set difference between the set of values
-	 * 		   associated with this node and <code>src</code>.
+	 *            associated with this node and <code>src</code>.
 	 */
-	public final Collection diffValues(edu.ksu.cis.bandera.staticanalyses.flow.FGNode src) {
+	public final Collection diffValues(edu.ksu.cis.bandera.staticanalyses.flow.IFGNode src) {
 		Set temp = new HashSet();
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			Object t = i.next();
 
-			if(!src.getValues().contains(t)) {
+			if (!src.getValues().contains(t)) {
 				temp.add(t);
 			}
 		}
@@ -194,11 +202,11 @@ public abstract class AbstractFGNode
 	 * Performs specific operation when new successor nodes are added to this node.  It internally calls
 	 * <code>onNewSucc</code> for each of the successor.
 	 *
-	 * @param succs the set of <code>FGNode</code>s being added as successors to this node.
+	 * @param successors the set of <code>IFGNode</code>s being added as successors to this node.
 	 */
-	public void onNewSuccs(Collection succs) {
-		for(Iterator i = succs.iterator(); i.hasNext();) {
-			onNewSucc((FGNode) i.next());
+	public void onNewSuccs(Collection successors) {
+		for (Iterator i = successors.iterator(); i.hasNext();) {
+			onNewSucc((IFGNode) i.next());
 		}
 	}
 
@@ -210,9 +218,9 @@ public abstract class AbstractFGNode
 	 * @return (This method raises an exception.)
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
+	 *            subclasses.
 	 */
-	public Object prototype(Object param1) {
+	public Object prototype(Object param1) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("prototype(param1) method is not supported.");
 	}
 
@@ -222,9 +230,9 @@ public abstract class AbstractFGNode
 	 * @return (This method raises an exception.)
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
+	 *            subclasses.
 	 */
-	public Object prototype() {
+	public Object prototype() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
 	}
 
@@ -234,7 +242,7 @@ public abstract class AbstractFGNode
 	 * @return the stringized representation of this object.
 	 */
 	public String toString() {
-		return "FGNode:" + hashCode();
+		return "IFGNode:" + hashCode();
 	}
 }
 

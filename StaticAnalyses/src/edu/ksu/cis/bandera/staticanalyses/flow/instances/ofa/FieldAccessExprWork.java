@@ -44,8 +44,8 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.BFA;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import org.apache.log4j.LogManager;
@@ -53,8 +53,6 @@ import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 
-
-// FieldAccessExprWork.java
 
 /**
  * <p>
@@ -80,14 +78,14 @@ public class FieldAccessExprWork
 	 * primary.
 	 * </p>
 	 */
-	protected final FGNode ast;
+	protected final IFGNode ast;
 
 	/**
 	 * <p>
 	 * The connector to be used to connect the ast and non-ast node.
 	 * </p>
 	 */
-	protected final FGNodeConnector connector;
+	protected final IFGNodeConnector connector;
 
 	/**
 	 * <p>
@@ -100,8 +98,8 @@ public class FieldAccessExprWork
 	 * @param ast the flow graph node associated with the access expression.
 	 * @param connector the connector to use to connect the ast node to the non-ast node.
 	 */
-	public FieldAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, FGNode ast,
-		FGNodeConnector connector) {
+	public FieldAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, IFGNode ast,
+		IFGNodeConnector connector) {
 		super(caller, accessExprBox, context);
 		this.ast = ast;
 		this.connector = connector;
@@ -115,17 +113,20 @@ public class FieldAccessExprWork
 	public synchronized void execute() {
 		SootField sf = ((FieldRef) accessExprBox.getValue()).getField();
 		BFA bfa = caller._BFA;
-		LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue());
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue());
+		}
+
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value v = (Value) i.next();
 
-			if(v instanceof NullConstant) {
+			if (v instanceof NullConstant) {
 				continue;
 			}
 			context.setAllocationSite(v);
 
-			FGNode nonast = bfa.getFieldVariant(sf, context).getFGNode();
+			IFGNode nonast = bfa.getFieldVariant(sf, context).getFGNode();
 			connector.connect(ast, nonast);
 		}
 	}

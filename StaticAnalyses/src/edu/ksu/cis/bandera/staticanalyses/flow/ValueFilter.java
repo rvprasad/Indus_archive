@@ -40,15 +40,18 @@ import java.util.Collection;
 
 /**
  * DOCUMENT ME!
+ *
  * <p></p>
  *
- * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public abstract class ValueFilter {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * <p></p>
 	 *
 	 * @param values DOCUMENT ME!
 	 *
@@ -57,7 +60,9 @@ public abstract class ValueFilter {
 	public abstract Collection filter(Collection values);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * <p></p>
 	 *
 	 * @param value DOCUMENT ME!
 	 *

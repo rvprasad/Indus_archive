@@ -38,7 +38,7 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 import java.util.Collection;
 
 
-//FGNode.java
+//IFGNode.java
 
 /**
  * <p>
@@ -48,14 +48,14 @@ import java.util.Collection;
  * this node, and an implementation can create a store the incoming value or derive another value and store the derived
  * value.
  * </p>
- * 
+ *
  * <p>
  * The main purpose of this class in BFA framework is to represent the summary set, and hence, it provides mostly basic set
  * operations.  However, it is possible to derive complex operations from these basic operations.  There is no support for
  * removing of nodes or values as it is designed to be used in an additive environment.  Moreover, removing of either nodes
  * or values will require other specific processing which is unknown at this level of abstraction.
  * </p>
- * 
+ *
  * <p>
  * Created: Sun Feb 24 08:36:51 2002
  * </p>
@@ -63,10 +63,12 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public interface FGNode
-  extends Prototype {
+public interface IFGNode
+  extends IPrototype {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * <p></p>
 	 *
 	 * @param filter DOCUMENT ME!
 	 */
@@ -88,7 +90,7 @@ public interface FGNode
 	 *
 	 * @param node the node to be added as a successor node.
 	 */
-	void addSucc(FGNode node);
+	void addSucc(IFGNode node);
 
 	/**
 	 * <p>
@@ -138,7 +140,7 @@ public interface FGNode
 	 *
 	 * @return a collection of values in that exist in this node and not in <code>src</code>.
 	 */
-	Collection diffValues(FGNode src);
+	Collection diffValues(IFGNode src);
 
 	/**
 	 * <p>
@@ -148,7 +150,7 @@ public interface FGNode
 	 *
 	 * @param succ the node being added as the successor to this node.
 	 */
-	void onNewSucc(FGNode succ);
+	void onNewSucc(IFGNode succ);
 
 	/**
 	 * <p>

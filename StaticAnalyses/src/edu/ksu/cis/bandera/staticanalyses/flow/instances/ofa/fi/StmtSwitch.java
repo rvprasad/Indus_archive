@@ -48,7 +48,7 @@ import ca.mcgill.sable.soot.jimple.TableSwitchStmt;
 import ca.mcgill.sable.soot.jimple.ThrowStmt;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import org.apache.commons.logging.Log;
@@ -94,17 +94,28 @@ public class StmtSwitch
 	 * @param stmt the assignment statement to be processed.
 	 */
 	public void caseAssignStmt(AssignStmt stmt) {
-		LOGGER.debug("BEGIN: processing " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + stmt);
+		}
 		rexpr.process(stmt.getRightOpBox());
-		LOGGER.debug("Processed RHS");
 
-		FGNode right = (FGNode) rexpr.getResult();
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed RHS");
+		}
+
+		IFGNode right = (IFGNode) rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
-		LOGGER.debug("Processed LHS");
 
-		FGNode left = (FGNode) lexpr.getResult();
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed LHS");
+		}
+
+		IFGNode left = (IFGNode) lexpr.getResult();
 		right.addSucc(left);
-		LOGGER.debug("END: processed " + stmt);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + stmt);
+		}
 	}
 
 	/**
@@ -115,7 +126,10 @@ public class StmtSwitch
 	 * @param stmt the enter monitor statement to be processed.
 	 */
 	public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -127,7 +141,10 @@ public class StmtSwitch
 	 * @param stmt the exit monitor statement to be processed.
 	 */
 	public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -140,13 +157,16 @@ public class StmtSwitch
 	 * @param stmt the identity statement to be processed.
 	 */
 	public void caseIdentityStmt(IdentityStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getRightOpBox());
 
-		FGNode right = (FGNode) rexpr.getResult();
+		IFGNode right = (IFGNode) rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
 
-		FGNode left = (FGNode) lexpr.getResult();
+		IFGNode left = (IFGNode) lexpr.getResult();
 		right.addSucc(left);
 	}
 
@@ -158,7 +178,10 @@ public class StmtSwitch
 	 * @param stmt the if statement to be processed.
 	 */
 	public void caseIfStmt(IfStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getConditionBox());
 	}
 
@@ -170,9 +193,15 @@ public class StmtSwitch
 	 * @param stmt the invoke statement to be processed.
 	 */
 	public void caseInvokeStmt(InvokeStmt stmt) {
-		LOGGER.debug("BEGIN: processing " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + stmt);
+		}
+
 		rexpr.process(stmt.getInvokeExprBox());
-		LOGGER.debug("END: processed " + stmt);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + stmt);
+		}
 	}
 
 	/**
@@ -183,7 +212,10 @@ public class StmtSwitch
 	 * @param stmt the lookup switch  statement to be processed.
 	 */
 	public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getKeyBox());
 	}
 
@@ -195,7 +227,10 @@ public class StmtSwitch
 	 * @param stmt the return statement to be processed.
 	 */
 	public void caseRetStmt(RetStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getStmtAddressBox());
 	}
 
@@ -208,12 +243,18 @@ public class StmtSwitch
 	 * @param stmt the return statement to be processed.
 	 */
 	public void caseReturnStmt(ReturnStmt stmt) {
-		LOGGER.debug("BEGIN: processing " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + stmt);
+		}
+
 		rexpr.process(stmt.getReturnValueBox());
 
-		FGNode retNode = (FGNode) rexpr.getResult();
+		IFGNode retNode = (IFGNode) rexpr.getResult();
 		retNode.addSucc(method.queryReturnNode());
-		LOGGER.debug("END: processed " + stmt);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + stmt);
+		}
 	}
 
 	/**
@@ -224,7 +265,10 @@ public class StmtSwitch
 	 * @param stmt the table switch  statement to be processed.
 	 */
 	public void caseTableSwitchStmt(TableSwitchStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getKeyBox());
 	}
 
@@ -236,7 +280,10 @@ public class StmtSwitch
 	 * @param stmt the throw statement to be processed.
 	 */
 	public void caseThrowStmt(ThrowStmt stmt) {
-		LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
 		rexpr.process(stmt.getOpBox());
 	}
 

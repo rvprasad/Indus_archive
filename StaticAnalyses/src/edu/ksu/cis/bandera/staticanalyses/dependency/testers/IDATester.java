@@ -40,8 +40,8 @@ import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.bandera.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.bandera.staticanalyses.dependency.controller.CGBasedProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interference.EquivalenceClassBasedAnalysis;
 
 import org.apache.commons.logging.Log;
@@ -55,7 +55,7 @@ import java.util.Iterator;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -76,7 +76,7 @@ public class IDATester
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Collection das;
+	protected Collection das;
 
 	/**
 	 * <p>
@@ -93,7 +93,7 @@ public class IDATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!
@@ -108,16 +108,16 @@ public class IDATester
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.testers.DATester#getDependencyAnalyses()
 	 */
 	protected Collection getDependencyAnalyses() {
-		CallGraphInfo cgi = (CallGraphInfo) info.get(CallGraphInfo.ID);
+		ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-		if(cgi == null) {
-			throw new IllegalArgumentException(CallGraphInfo.ID + " was not provided in info.");
+		if (cgi == null) {
+			throw new IllegalArgumentException(ICallGraphInfo.ID + " was not provided in info.");
 		}
 
-		ThreadGraphInfo tgi = (ThreadGraphInfo) info.get(ThreadGraphInfo.ID);
+		IThreadGraphInfo tgi = (IThreadGraphInfo) info.get(IThreadGraphInfo.ID);
 
-		if(tgi == null) {
-			throw new IllegalArgumentException(ThreadGraphInfo.ID + " was not provided in info.");
+		if (tgi == null) {
+			throw new IllegalArgumentException(IThreadGraphInfo.ID + " was not provided in info.");
 		}
 		ecba = new EquivalenceClassBasedAnalysis(scm, cgi, tgi);
 		info.put(EquivalenceClassBasedAnalysis.ID, ecba);
@@ -125,28 +125,36 @@ public class IDATester
 		ProcessingController ppc = new CGBasedProcessingController(cgi);
 		ppc.setAnalyzer(aa);
 
-		for(Iterator i = das.iterator(); i.hasNext();) {
+		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
 
-			if(da.getPreProcessor() != null) {
+			if (da.getPreProcessor() != null) {
 				da.getPreProcessor().hookup(ppc);
 			}
 			da.initialize(method2cmpltStmtGraph, info);
 		}
 		ecba.hookup(ppc);
-		LOGGER.info("BEGIN: preprocessing for dependency analyses");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: preprocessing for dependency analyses");
+		}
+
 		long start = System.currentTimeMillis();
 		ppc.process();
+
 		long stop = System.currentTimeMillis();
 		addTimeLog("Dependency preprocessing", stop - start);
-		LOGGER.info("END: preprocessing for dependency analyses");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: preprocessing for dependency analyses");
+		}
 		ecba.unhook(ppc);
 		ecba.execute();
 
-		for(Iterator i = das.iterator(); i.hasNext();) {
+		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
 
-			if(da.getPreProcessor() != null) {
+			if (da.getPreProcessor() != null) {
 				da.getPreProcessor().unhook(ppc);
 			}
 		}

@@ -58,8 +58,6 @@ import org.apache.log4j.Logger;
 import java.util.Stack;
 
 
-//AbstractExprSwitch.java
-
 /**
  * <p>
  * The expression visitor class.  This class provides the default method implementations for all the expressions that need to
@@ -75,7 +73,7 @@ import java.util.Stack;
 public abstract class AbstractExprSwitch
   extends AbstractJimpleValueSwitch
   implements BanderaExprSwitch,
-	  Prototype {
+	  IPrototype {
 	/**
 	 * <p>
 	 * An instance of <code>Logger</code> used for logging purpose.
@@ -110,7 +108,7 @@ public abstract class AbstractExprSwitch
 	 * to use the same implementation of the visitor with different connectors to process LHS and RHS entities.
 	 * </p>
 	 */
-	protected final FGNodeConnector connector;
+	protected final IFGNodeConnector connector;
 
 	/**
 	 * <p>
@@ -131,15 +129,15 @@ public abstract class AbstractExprSwitch
 	 * Creates a new <code>AbstractExprSwitch</code> instance.
 	 * </p>
 	 *
-	 * @param stmt the statement visitor which shall use this expression visitor.
-	 * @param connector the connector to be used by this expression visitor to connect flow graph nodes corresponding to AST
-	 * 		  and non-AST entities.
+	 * @param stmtHandler the statement visitor which shall use this expression visitor.
+	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding
+	 *           to AST and non-AST entities.
 	 */
-	protected AbstractExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
-		this.stmt = stmt;
-		this.connector = connector;
+	protected AbstractExprSwitch(AbstractStmtSwitch stmtHandler, IFGNodeConnector connectorToUse) {
+		this.stmt = stmtHandler;
+		this.connector = connectorToUse;
 
-		if(stmt != null) {
+		if (stmt != null) {
 			context = stmt.context;
 			method = stmt.method;
 			bfa = stmt.method._BFA;
@@ -148,8 +146,6 @@ public abstract class AbstractExprSwitch
 			method = null;
 			bfa = null;
 		}
-
-		// end of else
 	}
 
 	/**
@@ -284,7 +280,10 @@ public abstract class AbstractExprSwitch
 	 */
 	public void defaultCase(Object o) {
 		setResult(method.getASTNode((Value) o));
-		LOGGER.debug(o + " is not handled.");
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(o + " is not handled.");
+		}
 	}
 
 	/**
@@ -295,11 +294,16 @@ public abstract class AbstractExprSwitch
 	 * @param v the program point at which the to-be-processed expression occurs.
 	 */
 	public void process(ValueBox v) {
-		LOGGER.debug("Started to process expression: " + v.getValue());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Started to process expression: " + v.getValue());
+		}
 		programPoints.push(v);
 		v.getValue().apply(this);
 		programPoints.pop();
-		LOGGER.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
+		}
 	}
 
 	/**
@@ -311,7 +315,8 @@ public abstract class AbstractExprSwitch
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public final Object prototype() {
+	public final Object prototype()
+	  throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Parameterless prototype method is not supported.");
 	}
 }

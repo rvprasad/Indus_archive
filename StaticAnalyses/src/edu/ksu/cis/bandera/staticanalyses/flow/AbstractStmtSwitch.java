@@ -41,15 +41,13 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-//AbstractStmtSwitch.java
-
 /**
  * <p>
  * The statement visitor class.  This class provides the default implementation for all the statements that need to be dealt
  * at Jimple level in Bandera framework.  The class is tagged as <code>abstract</code> to force the users to extend the
  * class as required.  It extends <code>AbstractJimpleStmtSwitch</code>.
  * </p>
- * 
+ *
  * <p>
  * Created: Sun Jan 27 13:28:32 2002
  * </p>
@@ -59,7 +57,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractStmtSwitch
   extends ca.mcgill.sable.soot.jimple.AbstractStmtSwitch
-  implements Prototype {
+  implements IPrototype {
 	/**
 	 * <p>
 	 * An instance of <code>Logger</code> used for logging purpose.
@@ -113,9 +111,10 @@ public abstract class AbstractStmtSwitch
 	protected AbstractStmtSwitch(MethodVariant m) {
 		method = m;
 
-		if(m == null) {
+		if (m == null) {
 			context = null;
-			lexpr = rexpr = null;
+			lexpr = null;
+			rexpr = null;
 		} else {
 			context = m._CONTEXT;
 			lexpr = m._BFA.getLHSExpr(this);
@@ -145,7 +144,9 @@ public abstract class AbstractStmtSwitch
 	 * @param o the statement to be visited.
 	 */
 	public void defaultCase(Object o) {
-		LOGGER.debug(o + " is not handled.");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(o + " is not handled.");
+		}
 	}
 
 	/**
@@ -157,7 +158,7 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
-	public Object prototype() {
+	public Object prototype() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("prototype() is not supported.");
 	}
 
@@ -172,7 +173,7 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
-	public Object prototype(Object o) {
+	public Object prototype(Object o) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
@@ -181,10 +182,10 @@ public abstract class AbstractStmtSwitch
 	 * Process the given statement.  The usual implementation would be visit the expressions in the statement.
 	 * </p>
 	 *
-	 * @param stmt the statement being visited or to be processed.
+	 * @param stmtToProcess the statement being visited or to be processed.
 	 */
-	protected void process(Stmt stmt) {
-		this.stmt = stmt;
+	protected void process(Stmt stmtToProcess) {
+		this.stmt = stmtToProcess;
 		stmt.apply(this);
 	}
 }

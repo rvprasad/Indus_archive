@@ -57,7 +57,7 @@ public class ASTVariant
 	 * @param v the value represented by this variant.
 	 * @param node the flow graph node that summarizes the values for this variant.
 	 */
-	protected ASTVariant(Value v, FGNode node) {
+	protected ASTVariant(Value v, IFGNode node) {
 		super(node);
 		this._AST = v;
 	}

@@ -35,13 +35,11 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.Index;
+import edu.ksu.cis.bandera.staticanalyses.flow.IIndex;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-
-// OneContextInfoIndex.java
 
 /**
  * <p>
@@ -56,7 +54,7 @@ import org.apache.log4j.Logger;
  * @version $Revision$
  */
 public class OneContextInfoIndex
-  implements Index {
+  implements IIndex {
 	/**
 	 * <p>
 	 * An instance of <code>Logger</code> used for logging purpose.
@@ -69,7 +67,7 @@ public class OneContextInfoIndex
 	 * The context in which <code>value</code> needs to be differentiated.
 	 * </p>
 	 */
-	private Object contextInfo;
+	private final Object CONTEXTINFO;
 
 	/**
 	 * <p>
@@ -77,7 +75,17 @@ public class OneContextInfoIndex
 	 * to improve the performance of <code>hashCode()</code> and <code>equals(Object)</code>.
 	 * </p>
 	 */
-	private Object value;
+	private final Object VALUE;
+
+	/**
+	 * Cached stringified representation of this object.
+	 */
+	private final String STR;
+
+	/**
+	 * Cached hash code of this object.
+	 */
+	private final int HASHCODE;
 
 	/**
 	 * <p>
@@ -88,9 +96,14 @@ public class OneContextInfoIndex
 	 * @param c the context in which <code>value</code>'s variant is identified by this index.
 	 */
 	public OneContextInfoIndex(Object value, Object c) {
-		this.value = value;
-		this.contextInfo = c;
-		LOGGER.debug("Value: " + value + "  Context: " + contextInfo);
+		this.VALUE = value;
+		this.CONTEXTINFO = c;
+		STR = value + " " + c;
+		HASHCODE = STR.hashCode();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Value: " + value + "  Context: " + CONTEXTINFO);
+		}
 	}
 
 	/**
@@ -105,18 +118,15 @@ public class OneContextInfoIndex
 	 */
 	public boolean equals(Object index) {
 		boolean temp = false;
-		LOGGER.debug(index + "\n" + this);
 
-		if(index instanceof OneContextInfoIndex) {
+		if (index instanceof OneContextInfoIndex) {
 			OneContextInfoIndex d = (OneContextInfoIndex) index;
-			temp = d.value.equals(value);
+			temp = d.VALUE.equals(VALUE);
 
-			if(contextInfo != null) {
-				temp = temp && contextInfo.equals(d.contextInfo);
+			if (CONTEXTINFO != null) {
+				temp = temp && CONTEXTINFO.equals(d.CONTEXTINFO);
 			}
 		}
-
-		// end of if (o instanceof DummyIndex)
 		return temp;
 	}
 
@@ -128,7 +138,7 @@ public class OneContextInfoIndex
 	 * @return the hash code for this object.
 	 */
 	public int hashCode() {
-		return (value + " " + contextInfo).hashCode();
+		return HASHCODE;
 	}
 
 	/**
@@ -139,7 +149,7 @@ public class OneContextInfoIndex
 	 * @return returns the stringized form of this object.
 	 */
 	public String toString() {
-		return value + " " + contextInfo + " " + hashCode();
+		return STR;
 	}
 }
 

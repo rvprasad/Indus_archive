@@ -45,7 +45,7 @@ import ca.mcgill.sable.soot.jimple.Stmt;
 import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.MonitorInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
@@ -64,7 +64,7 @@ import java.util.Stack;
 
 /**
  * This class provides synchronization dependency information.
- * 
+ *
  * <p>
  * The dependence information is stored as follows: For each method, a map from a statement to a collection of statement
  * which are related to the key via dependence is maintained.
@@ -79,7 +79,7 @@ import java.util.Stack;
  */
 public class SynchronizationDA
   extends DependencyAnalysis
-  implements MonitorInfo {
+  implements IMonitorInfo {
 	/**
 	 * This is collection of monitor triples that occur in the analyzed system.  The elements of the triple are of type
 	 * <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and <code>SootMethod</code>, respectively.
@@ -104,7 +104,7 @@ public class SynchronizationDA
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -116,10 +116,10 @@ public class SynchronizationDA
 		/**
 		 * Preprocesses the given method.  This implementation records if the method is synchronized.
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.SootMethod)
 		 */
 		public void callback(SootMethod method) {
-			if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
+			if ((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
 				monitorTriples.add(new Triple(null, null, method));
 			}
 		}
@@ -132,24 +132,24 @@ public class SynchronizationDA
 		 *
 		 * @pre stmt.isOclKindOf(EnterMonitorStmt)
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.Context)
 		 */
 		public void callback(Stmt stmt, Context context) {
 			pointsOfInterest.add(new Pair(stmt, context.getCurrentMethod()));
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void unhook(ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -197,7 +197,7 @@ public class SynchronizationDA
 	 *
 	 * @return a collection of <code>Triples</code>.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.MonitorInfo#getMonitorTriples()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IMonitorInfo#getMonitorTriples()
 	 */
 	public Collection getMonitorTriples() {
 		return Collections.unmodifiableCollection(monitorTriples);
@@ -216,19 +216,19 @@ public class SynchronizationDA
 		WorkBag workbag = new WorkBag(WorkBag.FIFO);
 		Collection temp = new HashSet();
 
-		for(Iterator i = pointsOfInterest.iterator(); i.hasNext();) {
+		for (Iterator i = pointsOfInterest.iterator(); i.hasNext();) {
 			Pair pair = (Pair) i.next();
 			Stmt enter = (Stmt) pair.getFirst();
 			SootMethod method = (SootMethod) pair.getSecond();
 			Map stmt2ddents = (Map) dependentMap.get(method);
 			Map stmt2ddees = (Map) dependeeMap.get(method);
 
-			if(stmt2ddents == null) {
+			if (stmt2ddents == null) {
 				stmt2ddents = new HashMap();
 				stmt2ddees = new HashMap();
 				dependentMap.put(method, stmt2ddents);
 				dependeeMap.put(method, stmt2ddees);
-			} else if(stmt2ddents.get(enter) != null) {
+			} else if (stmt2ddents.get(enter) != null) {
 				continue;
 			}
 
@@ -239,21 +239,21 @@ public class SynchronizationDA
 			do {
 				BasicBlock bb = (BasicBlock) workbag.getWork();
 
-				for(Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
+				for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
 
-					if(stmt instanceof EnterMonitorStmt) {
+					if (stmt instanceof EnterMonitorStmt) {
 						currStmts.add(stmt);
 						currEnterStmt.push(new Pair(stmt, currStmts));
 						currStmts = new ArrayList();
-					} else if(stmt instanceof ExitMonitorStmt) {
+					} else if (stmt instanceof ExitMonitorStmt) {
 						pair = (Pair) currEnterStmt.pop();
 						enter = (Stmt) pair.getFirst();
 						temp.clear();
 						temp.add(enter);
 						temp.add(stmt);
 
-						for(Iterator k = currStmts.iterator(); k.hasNext();) {
+						for (Iterator k = currStmts.iterator(); k.hasNext();) {
 							Stmt curr = (Stmt) k.next();
 							stmt2ddees.put(curr, temp);
 						}
@@ -268,12 +268,12 @@ public class SynchronizationDA
 				}
 				pair = (Pair) currEnterStmt.pop();
 
-				for(Iterator j = bbGraph.getForwardSuccsOf(bb).iterator(); j.hasNext();) {
+				for (Iterator j = bbGraph.getForwardSuccsOf(bb).iterator(); j.hasNext();) {
 					BasicBlock succ = (BasicBlock) j.next();
 					currEnterStmt.push(pair);
 					workbag.addWork(succ);
 				}
-			} while(!workbag.isEmpty());
+			} while (!workbag.isEmpty());
 		}
 		return true;
 	}
@@ -295,10 +295,10 @@ public class SynchronizationDA
 		Collection result = Collections.EMPTY_LIST;
 		Map stmt2ddeXXs = (Map) map.get(method);
 
-		if(stmt2ddeXXs != null) {
+		if (stmt2ddeXXs != null) {
 			Collection temp = (Collection) stmt2ddeXXs.get(stmt);
 
-			if(temp != null) {
+			if (temp != null) {
 				result = Collections.unmodifiableCollection(temp);
 			}
 		}

@@ -40,12 +40,13 @@ import ca.mcgill.sable.soot.SootClass;
 import java.util.Collection;
 import java.util.HashSet;
 
+
 /**
  * <p>
  * This class manages class related primitive information and processing such as the processing of <code>&lt;
  * clinit&gt;</code> methods of classes being analyzed.
  * </p>
- * 
+ *
  * <p>
  * Created: Fri Mar  8 14:10:27 2002.
  * </p>
@@ -54,7 +55,7 @@ import java.util.HashSet;
  * @version $Revision$
  */
 public class ClassManager
-  implements Prototype {
+  implements IPrototype {
 	/**
 	 * <p>
 	 * The instance of the framework in which this object is used.
@@ -95,7 +96,7 @@ public class ClassManager
 	 * </p>
 	 *
 	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
-	 * 		  <code>o</code> needs to be <code>BFA</code>.  This cannot be <code>null</code>.
+	 *           <code>o</code> needs to be <code>BFA</code>.  This cannot be <code>null</code>.
 	 *
 	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
 	 */
@@ -112,7 +113,7 @@ public class ClassManager
 	 *
 	 * @throws UnsupportedOperationException this method is not supported by this class.
 	 */
-	public Object prototype() {
+	public Object prototype() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Parameterless prototype() method not supported.");
 	}
 
@@ -125,18 +126,18 @@ public class ClassManager
 	 * @param sc the class to be processed.  This cannot be <code>null</code>.
 	 */
 	protected void process(SootClass sc) {
-		if(!classes.contains(sc)) {
+		if (!classes.contains(sc)) {
 			classes.add(sc);
 
-			if(sc.declaresMethod("<clinit>")) {
+			if (sc.declaresMethod("<clinit>")) {
 				context.setRootMethod(sc.getMethod("<clinit>"));
 				bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			}
 
-			while(sc.hasSuperClass()) {
+			while (sc.hasSuperClass()) {
 				sc = sc.getSuperClass();
 
-				if(sc.declaresMethod("<clinit>")) {
+				if (sc.declaresMethod("<clinit>")) {
 					context.setRootMethod(sc.getMethod("<clinit>"));
 					bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 				}

@@ -44,8 +44,8 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.BFA;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import org.apache.log4j.LogManager;
@@ -53,8 +53,6 @@ import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 
-
-// ArrayAccessExprWork.java
 
 /**
  * This class is the counter part of <code>FieldAccessExprWork</code>.  It encapsulates the logic to instrument the flow
@@ -74,12 +72,12 @@ public class ArrayAccessExprWork
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
 	 */
-	protected final FGNode ast;
+	protected final IFGNode ast;
 
 	/**
 	 * The connector to be used to connect the ast and non-ast node.
 	 */
-	protected final FGNodeConnector connector;
+	protected final IFGNodeConnector connector;
 
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
@@ -87,15 +85,14 @@ public class ArrayAccessExprWork
 	 * @param caller the method in which the access occurs.
 	 * @param accessExprBox the array access expression program point.
 	 * @param context the context in which the access occurs.
-	 * @param ast the flow graph node associated with the access expression.
+	 * @param astArg the flow graph node associated with the access expression.
 	 * @param connector the connector to use to connect the ast node to the non-ast node.
 	 */
-	public ArrayAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, FGNode ast,
-		FGNodeConnector connector) {
+	public ArrayAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, IFGNode astArg,
+		IFGNodeConnector connector) {
 		super(caller, accessExprBox, context);
-		this.ast = ast;
+		this.ast = astArg;
 		this.connector = connector;
-		LOGGER.debug(String.valueOf(hashCode()));
 	}
 
 	/**
@@ -104,21 +101,27 @@ public class ArrayAccessExprWork
 	public synchronized void execute() {
 		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
 		BFA bfa = caller._BFA;
-		LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype + " in "
-			+ context);
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype
+				+ " in " + context);
+		}
+
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value v = (Value) i.next();
 
-			if(v instanceof NullConstant) {
+			if (v instanceof NullConstant) {
 				continue;
 			}
 
 			context.setAllocationSite(v);
 
-			FGNode nonast = bfa.getArrayVariant(atype, context).getFGNode();
+			IFGNode nonast = bfa.getArrayVariant(atype, context).getFGNode();
 			connector.connect(ast, nonast);
-			LOGGER.debug(nonast + " " + context);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(nonast + " " + context);
+			}
 		}
 	}
 }

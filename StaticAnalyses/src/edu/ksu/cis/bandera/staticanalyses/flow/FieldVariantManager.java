@@ -43,7 +43,7 @@ import ca.mcgill.sable.soot.SootField;
  * This class manages field variants.  This class only provides the implementation to create new field variants.  The super
  * class is responsible of managing the variants.
  * </p>
- * 
+ *
  * <p>
  * Created: Fri Jan 25 14:33:09 2002
  * </p>
@@ -60,7 +60,7 @@ public class FieldVariantManager
 	 *
 	 * @param bfa the instance of the framework in which this object is used. This parameter cannot be <code>null</code>.
 	 * @param indexManager the manager of indices which are used to map fields to their variants.  This parameter cannot be
-	 * 		  <code>null</code>.
+	 *           <code>null</code>.
 	 */
 	public FieldVariantManager(BFA bfa, AbstractIndexManager indexManager) {
 		super(bfa, indexManager);
@@ -72,11 +72,11 @@ public class FieldVariantManager
 	 * </p>
 	 *
 	 * @param o the field whose variant is to be returned.  The actual type of <code>o</code> needs to be
-	 * 		  <code>SootField</code>.
+	 *           <code>SootField</code>.
 	 *
 	 * @return the variant associated with the field represetned by <code>o</code>.
 	 */
-	protected Variant getNewVariant(Object o) {
+	protected IVariant getNewVariant(Object o) {
 		return new FieldVariant((SootField) o, bfa.getNewFGNode());
 	}
 }

@@ -65,7 +65,7 @@ public class InvocationVariant
 	 * @param returnNode is the node associated with the return value of <code>e</code>.
 	 * @param exception2node is the map from class of exceptions thrown by <code>e</code>to nodes.
 	 */
-	protected InvocationVariant(InvokeExpr e, FGNode returnNode, Map exception2node) {
+	protected InvocationVariant(InvokeExpr e, IFGNode returnNode, Map exception2node) {
 		super(e, returnNode);
 		this.exception2node = new HashMap(exception2node);
 	}
@@ -77,8 +77,8 @@ public class InvocationVariant
 	 *
 	 * @return the node associated the exception thrown by the expression associated with this variant.
 	 */
-	public FGNode queryThrowNode(SootClass exception) {
-		return (FGNode) exception2node.get(exception);
+	public IFGNode queryThrowNode(SootClass exception) {
+		return (IFGNode) exception2node.get(exception);
 	}
 }
 

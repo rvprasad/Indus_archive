@@ -35,86 +35,44 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import java.util.Collection;
 
+//IPrototype.java
 
 /**
- * A piece of work that can be processed by <code>WorkList</code>.
+ * <p>
+ * This interface helps realize the <i>IPrototype</i> design pattern as defined in the Gang of Four book. It provides the
+ * methods via which concrete object can be created from a prototype object.  The default implementation for these methods
+ * should raise <code>UnsupportedOperationException</code>.
+ * </p>
  *
  * <p>
- * Created: Tue Jan 22 02:54:57 2002
+ * Created: Sun Jan 27 18:04:58 2002
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractWork {
+public interface IPrototype {
 	/**
 	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	protected Collection values;
-
-	/**
-	 * <p>
-	 * The flow graph node associated with this work.
-	 * </p>
-	 */
-	protected IFGNode node;
-
-	/**
-	 * <p>
-	 * Creates a new <code>AbstractWork</code> instance.
+	 * Creates a concrete object from this prototype object.  Usually, it is a duplicate of this prototype object.
 	 * </p>
 	 *
-	 * @param node the flow graph node associated with this work.
-	 * @param values the walues associated with this work.
+	 * @return concrete object based on this prototype object.
 	 */
-	protected AbstractWork(IFGNode node, Collection values) {
-		this.node = node;
-		this.values = values;
-	}
+	Object prototype();
 
 	/**
 	 * <p>
-	 * The actual work that needs to be done when this work is executed should be in this method.
-	 * </p>
-	 */
-	public abstract void execute();
-
-	/**
-	 * <p>
-	 * Associates a flow graph node with this work.
+	 * Creates a concrete object from this prototype object.  The concrete object can be parameterized by the information in
+	 * <code>o</code>.
 	 * </p>
 	 *
-	 * @param node the flow graph node to be associated.
-	 */
-	public final void setFGNode(IFGNode node) {
-		this.node = node;
-	}
-
-	/**
-	 * <p>
-	 * Adds a value to the collection of values associated with this work.
-	 * </p>
+	 * @param o object containing the information to parameterize the concrete object.
 	 *
-	 * @param o the value to be added.
+	 * @return concrete object based on this prototype object.
 	 */
-	public final synchronized void addValue(Object o) {
-		values.add(o);
-	}
-
-	/**
-	 * <p>
-	 * Adds a collection of values to the collection of values associated with this work.
-	 * </p>
-	 *
-	 * @param values the collection of values to be added.
-	 */
-	public final synchronized void addValues(Collection values) {
-		this.values.addAll(values);
-	}
+	Object prototype(Object o);
 }
 
 /*****

@@ -59,6 +59,16 @@ public class Pair
 	protected Object second;
 
 	/**
+	 * Cached copy of the stringified of this object.
+	 */
+	private String str;
+
+	/**
+	 * Cached copy of the hash code of this object.
+	 */
+	private int hashCode;
+
+	/**
 	 * Creates a new Pair object.
 	 *
 	 * @param first the first object of this pair.
@@ -67,6 +77,7 @@ public class Pair
 	public Pair(Object first, Object second) {
 		this.first = first;
 		this.second = second;
+		fixup();
 	}
 
 	/**
@@ -106,8 +117,9 @@ public class Pair
 			Pair result;
 			pair.first = first;
 			pair.second = second;
+			pair.fixup();
 
-			if(pairs.contains(pair)) {
+			if (pairs.contains(pair)) {
 				result = (Pair) pairs.get(pairs.indexOf(pair));
 			} else {
 				result = new Pair(first, second);
@@ -164,16 +176,16 @@ public class Pair
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof Pair) {
+		if (o instanceof Pair) {
 			Pair temp = (Pair) o;
 
-			if(first != null) {
+			if (first != null) {
 				result = first.equals(temp.first);
 			} else {
 				result = first == temp.first;
 			}
 
-			if(second != null) {
+			if (second != null) {
 				result = result && second.equals(temp.second);
 			} else {
 				result = result && second == temp.second;
@@ -188,27 +200,26 @@ public class Pair
 	 * @return the hash code of this pair.  It is derived from the objects that constitute this pair.
 	 */
 	public int hashCode() {
-		String temp = "";
-
-		if(first != null) {
-			temp = temp + first;
-		}
-
-		if(second != null) {
-			temp = temp + second;
-		}
-		return temp.hashCode();
+		return hashCode;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
+	 * Returns a stringified version of this object.
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
 	public String toString() {
-		return "(" + first.toString() + ", " + second.toString() + ")";
+		return str;
+	}
+
+	/**
+	 * Fixes up the externally visible properties after any changes to the object.
+	 */
+	protected void fixup() {
+		str = "(" + first + ", " + second + ")";
+		hashCode = str.hashCode();
 	}
 }
 

@@ -70,7 +70,7 @@ import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
@@ -111,7 +111,7 @@ public class ProcessingController {
 	/**
 	 * The collection of post processors registered with this controller.  This maintains the insertion order.
 	 *
-	 * @invariant processors->forall(o | o.isOclKindOf(Processor))
+	 * @invariant processors->forall(o | o.isOclKindOf(IProcessor))
 	 */
 	protected final Collection processors = new ArrayList();
 
@@ -126,7 +126,7 @@ public class ProcessingController {
 	 *
 	 * @invariant class2processors.keySet()->forall( o | o.oclType = Class)
 	 * @invariant class2processors.valueSet()->forall( o | o.oclIsKindOf(java.util.Set))
-	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.isOclKindOf(Processor)))
+	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.isOclKindOf(IProcessor)))
 	 */
 	protected final Map class2processors = new HashMap();
 
@@ -146,7 +146,7 @@ public class ProcessingController {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -305,16 +305,16 @@ public class ProcessingController {
 		 * <code>ca. mcgill.sable.soot.Jimple.Stmt</code>.
 		 *
 		 * @param objClass the class of <code>o</code>.
-		 * @param o the AST Node to be processed.
+		 * @param o the AST INode to be processed.
 		 */
 		private void defaultCase(Class objClass, Object o) {
-			Collection processors = (Collection) class2processors.get(objClass);
+			Collection temp = (Collection) class2processors.get(objClass);
 
-			if(processors != null) {
+			if (temp != null) {
 				Stmt stmt = (Stmt) o;
 
-				for(Iterator i = processors.iterator(); i.hasNext();) {
-					Processor pp = (Processor) i.next();
+				for (Iterator i = temp.iterator(); i.hasNext();) {
+					IProcessor pp = (IProcessor) i.next();
 					pp.callback(stmt, context);
 				}
 			}
@@ -324,7 +324,7 @@ public class ProcessingController {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -335,7 +335,7 @@ public class ProcessingController {
 	  extends AbstractJimpleValueSwitch {
 		/**
 		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(
-		 * 		ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
+		 *         ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			defaultCase(InterfaceInvokeExpr.class, v);
@@ -391,13 +391,13 @@ public class ProcessingController {
 		 * @param o the AST node to be processed.
 		 */
 		private void defaultCase(Class objClass, Object o) {
-			Collection processors = (Collection) class2processors.get(objClass);
+			Collection temp = (Collection) class2processors.get(objClass);
 
-			if(processors != null) {
+			if (temp != null) {
 				Value value = (Value) o;
 
-				for(Iterator i = processors.iterator(); i.hasNext();) {
-					Processor pp = (Processor) i.next();
+				for (Iterator i = temp.iterator(); i.hasNext();) {
+					IProcessor pp = (IProcessor) i.next();
 					pp.callback(value, context);
 				}
 			}
@@ -417,20 +417,31 @@ public class ProcessingController {
 	 * Controls the post processing activity.
 	 */
 	public void process() {
-		for(Iterator i = processors.iterator(); i.hasNext();) {
-			Processor pp = (Processor) i.next();
+		for (Iterator i = processors.iterator(); i.hasNext();) {
+			IProcessor pp = (IProcessor) i.next();
 			pp.setAnalyzer(analyzer);
 		}
-		LOGGER.info("BEGIN: processing classes");
-		processClasses(analyzer.getClasses());
-		LOGGER.info("END: processing classes");
 
-		LOGGER.info("BEGIN: processor consolidation");
-
-		for(Iterator i = processors.iterator(); i.hasNext();) {
-			((Processor) i.next()).consolidate();
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processing classes");
 		}
-		LOGGER.info("END: processor consolidation");
+		processClasses(analyzer.getClasses());
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processing classes");
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processor consolidation");
+		}
+
+		for (Iterator i = processors.iterator(); i.hasNext();) {
+			((IProcessor) i.next()).consolidate();
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processor consolidation");
+		}
 	}
 
 	/**
@@ -443,8 +454,8 @@ public class ProcessingController {
 	 *
 	 * @pre interest.oclType = Class
 	 */
-	public void register(Object interest, Processor processor) {
-		if(!(interest instanceof Class)) {
+	public void register(Object interest, IProcessor processor) throws IllegalArgumentException {
+		if (!(interest instanceof Class)) {
 			throw new IllegalArgumentException(
 				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
 		}
@@ -452,20 +463,20 @@ public class ProcessingController {
 		Class valueClass = (Class) interest;
 		Set temp = (Set) class2processors.get(valueClass);
 
-		if(temp == null) {
+		if (temp == null) {
 			temp = new HashSet();
 			class2processors.put(valueClass, temp);
 		}
 		temp.add(processor);
 
-		if(!processors.contains(processor)) {
+		if (!processors.contains(processor)) {
 			processors.add(processor);
 		}
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param interest DOCUMENT ME!
@@ -473,8 +484,8 @@ public class ProcessingController {
 	 *
 	 * @throws IllegalArgumentException DOCUMENT ME!
 	 */
-	public void unregister(Object interest, Processor processor) {
-		if(!(interest instanceof Class)) {
+	public void unregister(Object interest, IProcessor processor) throws IllegalArgumentException {
+		if (!(interest instanceof Class)) {
 			throw new IllegalArgumentException(
 				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
 		}
@@ -482,7 +493,7 @@ public class ProcessingController {
 		Class valueClass = (Class) interest;
 		Set temp = (Set) class2processors.get(valueClass);
 
-		if(temp == null) {
+		if (temp == null) {
 			throw new IllegalArgumentException("There are no processors registered  for " + ((Class) interest).getName());
 		}
 		temp.remove(processor);
@@ -494,16 +505,22 @@ public class ProcessingController {
 	 * @param classes to be processed.
 	 */
 	protected void processClasses(Collection classes) {
-		LOGGER.debug("Classes to be processed:\n" + classes);
-		for(Iterator i = classes.iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
-			LOGGER.debug("Processing class " + sc);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Classes to be processed:\n" + classes);
+		}
 
-			for(Iterator k = processors.iterator(); k.hasNext();) {
-				Processor pp = (Processor) k.next();
+		for (Iterator i = classes.iterator(); i.hasNext();) {
+			SootClass sc = (SootClass) i.next();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing class " + sc);
+			}
+
+			for (Iterator k = processors.iterator(); k.hasNext();) {
+				IProcessor pp = (IProcessor) k.next();
 				pp.callback(sc);
 
-				for(ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
 					SootField field = (SootField) j.next();
 					pp.callback(field);
 				}
@@ -518,26 +535,32 @@ public class ProcessingController {
 	 * @param methods to be processed.
 	 */
 	protected void processMethods(Collection methods) {
-		LOGGER.debug("Methods to be processed:\n" + methods);
-		for(Iterator j = methods.iterator(); j.hasNext();) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Methods to be processed:\n" + methods);
+		}
+
+		for (Iterator j = methods.iterator(); j.hasNext();) {
 			SootMethod sm = (SootMethod) j.next();
 			context.setRootMethod(sm);
 
-			for(Iterator k = processors.iterator(); k.hasNext();) {
-				((Processor) k.next()).callback(sm);
+			for (Iterator k = processors.iterator(); k.hasNext();) {
+				((IProcessor) k.next()).callback(sm);
 			}
-			LOGGER.debug("Processing method " + sm);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing method " + sm);
+			}
 
 			try {
 				JimpleBody jb = Util.getJimpleBody(sm);
 				StmtList sl = jb.getStmtList();
 
-				for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
 					Stmt stmt = (Stmt) k.next();
 					context.setStmt(stmt);
 					stmt.apply(stmtSwitcher);
 				}
-			} catch(RuntimeException e) {
+			} catch (RuntimeException e) {
 				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
 					+ " recognize the given method or it's parts or method has not stored jimple representation. : "
 					+ sm.getSignature(), e);

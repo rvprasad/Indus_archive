@@ -39,8 +39,8 @@ import ca.mcgill.sable.soot.ArrayType;
 
 
 /**
- * Variant representing arrays.
- * 
+ * IVariant representing arrays.
+ *
  * <p>
  * Created: Fri Jan 25 16:05:27 2002
  * </p>
@@ -65,7 +65,7 @@ public class ArrayVariant
 	 * @param a the array type to which this variant corresonds to.
 	 * @param node the flow graph node corresponding to this variant.
 	 */
-	protected ArrayVariant(ArrayType a, FGNode node) {
+	protected ArrayVariant(ArrayType a, IFGNode node) {
 		super(node);
 		this._TYPE = a;
 	}

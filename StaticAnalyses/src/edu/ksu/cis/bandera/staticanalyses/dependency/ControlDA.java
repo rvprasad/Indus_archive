@@ -43,7 +43,7 @@ import ca.mcgill.sable.soot.jimple.StmtList;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.Node;
+import edu.ksu.cis.bandera.staticanalyses.support.INode;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ import java.util.Map;
 /**
  * This class provides control dependency information pertaining to intra-method control dependency.  Call graphs provide
  * inter- method control dependency.
- * 
+ *
  * <p>
  * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
  * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
@@ -94,10 +94,10 @@ public class ControlDA
 		Collection result = Collections.EMPTY_LIST;
 		List list = (List) dependeeMap.get(method);
 
-		if(list != null) {
+		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
 
-			if(list.get(index) != null) {
+			if (list.get(index) != null) {
 				result = Collections.singletonList(list.get(index));
 			}
 		}
@@ -117,16 +117,16 @@ public class ControlDA
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
-	 * 		java.lang.Object)
+	 *         java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object method) {
 		Collection result = Collections.EMPTY_LIST;
 		List list = (List) dependeeMap.get(method);
 
-		if(list != null) {
+		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
 
-			if(list.get(index) != null) {
+			if (list.get(index) != null) {
 				result = Collections.unmodifiableCollection((Collection) list.get(index));
 			}
 		}
@@ -141,7 +141,7 @@ public class ControlDA
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
-		for(Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod currMethod = (SootMethod) entry.getKey();
 			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
@@ -156,11 +156,11 @@ public class ControlDA
 	 * in the graph.  This later is translated to statement level information by {@link #fixupMaps fixupMaps}.
 	 *
 	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
-	 * 		  the indices should start from 0.
+	 *           the indices should start from 0.
 	 *
 	 * @return an array of <code>BitSet</code>s.  The length of the array and each of the BitSet objects in it is equal to
-	 * 		   the number of nodes in the graph.  The nth BitSet captures the dependence information via set bits in the
-	 * 		   BitSet.  The BitSets capture dependent->dependee information.
+	 *            the number of nodes in the graph.  The nth BitSet captures the dependence information via set bits in the
+	 *            BitSet.  The BitSets capture dependent->dependee information.
 	 */
 	protected BitSet [] computeControlDependency(DirectedGraph graph) {
 		BitSet preds[] = graph.getAllPredsAsBitSet();
@@ -168,7 +168,7 @@ public class ControlDA
 		int size = graph.size();
 		BitSet cds[] = new BitSet[size];
 
-		for(int i = cds.length - 1; i >= 0; i--) {
+		for (int i = cds.length - 1; i >= 0; i--) {
 			cds[i] = new BitSet();
 		}
 
@@ -178,25 +178,25 @@ public class ControlDA
 
 		BitSet testSet = new BitSet(size);
 
-		while(true) {
-			while(!workbag.isEmpty()) {
-				Node node = (Node) workbag.getWork();
+		while (true) {
+			while (!workbag.isEmpty()) {
+				INode node = (INode) workbag.getWork();
 				int currIndex = nodes.indexOf(node);
 				BitSet currSuccs = succs[currIndex];
 				int noOfSuccs = currSuccs.cardinality();
 
-				if(noOfSuccs > 1) {
-					for(int i = currSuccs.nextSetBit(0); i >= 0; i = currSuccs.nextSetBit(i + 1)) {
+				if (noOfSuccs > 1) {
+					for (int i = currSuccs.nextSetBit(0); i >= 0; i = currSuccs.nextSetBit(i + 1)) {
 						cds[i].set(currIndex);
 						workbag.addWork(nodes.get(i));
 					}
-				} else if(noOfSuccs == 1) {
+				} else if (noOfSuccs == 1) {
 					int succIndex = currSuccs.nextSetBit(0);
 					workbag.addWork(nodes.get(succIndex));
 
 					BitSet currPreds = preds[currIndex];
 
-					for(int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
+					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
 						succs[i].clear(currIndex);
 					}
 					cds[succIndex].or(cds[currIndex]);
@@ -206,15 +206,15 @@ public class ControlDA
 			}
 			testSet.clear();
 
-			for(int i = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) {
 				testSet.or(succs[i]);
 			}
 
-			if(testSet.nextSetBit(0) == -1) {
+			if (testSet.nextSetBit(0) == -1) {
 				break;
 			} else {
-				for(int i = 0; i < size; i++) {
-					if(preds[i].nextSetBit(0) >= 0) {
+				for (int i = 0; i < size; i++) {
+					if (preds[i].nextSetBit(0) >= 0) {
 						workbag.addWork(nodes.get(i));
 					}
 				}
@@ -229,14 +229,14 @@ public class ControlDA
 	 *
 	 * @param graph is the basic block graph corresponding to <code>method</code>.
 	 * @param bbCDBitSets is the array that contains the basic block level dependence information as calculated by {@link
-	 * 		  #computeControlDependency(DirectedGraph) computeControlDependency}.
+	 *           #computeControlDependency(DirectedGraph) computeControlDependency}.
 	 * @param method for which the maps are being populated.
 	 *
-	 * @pre graph != null and bbCDBitSets != null and method != null
-	 * @post dependentMap.get(method) != null
-	 * @post dependentMap.values()->forall(o | o->forall(p | p != null()))
-	 * @post dependeeMap.get(method) != null
-	 * @post dependeeMap.values()->forall(o | o->forall(p | p != null()))
+	 * @pre graph <> null and bbCDBitSets <> null and method <> null
+	 * @post dependentMap.get(method) <> null
+	 * @post dependentMap.values()->forall(o | o->forall(p | p <> null()))
+	 * @post dependeeMap.get(method) <> null
+	 * @post dependeeMap.values()->forall(o | o->forall(p | p <> null()))
 	 */
 	protected void fixupMaps(BasicBlockGraph graph, BitSet bbCDBitSets[], SootMethod method) {
 		List nodes = graph.getNodes();
@@ -245,12 +245,12 @@ public class ControlDA
 		List mDependee = new ArrayList(size);
 		List mDependent = new ArrayList(size);
 
-		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
+		for (ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
 			Stmt j = (Stmt) i.next();
 			BasicBlock bb = graph.getEnclosingBlock(j);
 			int l = bbCDBitSets[nodes.indexOf(bb)].nextSetBit(0);
 
-			if(l == -1) {
+			if (l == -1) {
 				mDependee.add(sl.indexOf(j), Collections.EMPTY_LIST);
 			} else {
 				BasicBlock bb2 = graph.getEnclosingBlock(l);
@@ -258,7 +258,7 @@ public class ControlDA
 
 				ArrayList dependents = (ArrayList) mDependent.get(bb2._TRAILER);
 
-				if(dependents == null) {
+				if (dependents == null) {
 					dependents = new ArrayList();
 					mDependent.add(bb2._TRAILER, dependents);
 				}
@@ -266,8 +266,8 @@ public class ControlDA
 			}
 		}
 
-		for(--size; size >= 0; size--) {
-			if(mDependent.get(size) == null) {
+		for (--size; size >= 0; size--) {
+			if (mDependent.get(size) == null) {
 				mDependent.add(size, Collections.EMPTY_LIST);
 			}
 		}

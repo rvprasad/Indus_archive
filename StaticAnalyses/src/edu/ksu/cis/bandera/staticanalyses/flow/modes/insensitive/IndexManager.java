@@ -37,7 +37,7 @@ package edu.ksu.cis.bandera.staticanalyses.flow.modes.insensitive;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.Index;
+import edu.ksu.cis.bandera.staticanalyses.flow.IIndex;
 
 
 /**
@@ -59,7 +59,7 @@ public class IndexManager
 	 * </p>
 	 */
 	class DummyIndex
-	  implements Index {
+	  implements IIndex {
 		/**
 		 * <p>
 		 * The entity that this index identifies.
@@ -136,7 +136,7 @@ public class IndexManager
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public Object prototype(Object o) {
+	public Object prototype(Object o) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
 	}
 
@@ -150,7 +150,7 @@ public class IndexManager
 	 *
 	 * @return the index that uniquely identifies <code>o</code>.
 	 */
-	protected Index getIndex(Object o, Context c) {
+	protected IIndex getIndex(Object o, Context c) {
 		return new DummyIndex(o);
 	}
 }

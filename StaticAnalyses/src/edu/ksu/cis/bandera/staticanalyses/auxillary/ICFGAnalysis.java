@@ -43,8 +43,8 @@ import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.Stmt;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
@@ -55,7 +55,7 @@ import java.util.Iterator;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -75,7 +75,7 @@ public class ICFGAnalysis {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private CallGraphInfo cgi;
+	private ICallGraphInfo cgi;
 
 	/**
 	 * <p>
@@ -90,7 +90,7 @@ public class ICFGAnalysis {
 	 * @param scm DOCUMENT ME!
 	 * @param cgi DOCUMENT ME!
 	 */
-	public ICFGAnalysis(SootClassManager scm, CallGraphInfo cgi) {
+	public ICFGAnalysis(SootClassManager scm, ICallGraphInfo cgi) {
 		this(scm, cgi, new BasicBlockGraphMgr());
 	}
 
@@ -101,7 +101,7 @@ public class ICFGAnalysis {
 	 * @param cgi DOCUMENT ME!
 	 * @param bbm DOCUMENT ME!
 	 */
-	public ICFGAnalysis(SootClassManager scm, CallGraphInfo cgi, BasicBlockGraphMgr bbm) {
+	public ICFGAnalysis(SootClassManager scm, ICallGraphInfo cgi, BasicBlockGraphMgr bbm) {
 		this.scm = scm;
 		this.cgi = cgi;
 		this.bbm = bbm;
@@ -120,11 +120,11 @@ public class ICFGAnalysis {
 		SootMethod sm = context.getCurrentMethod();
 		boolean result = false;
 
-		if(Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
+		if (Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteStmtGraph(Util.getJimpleBody(sm).getStmtList()));
 			Stmt stmt = context.getStmt();
 
-			if(bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
+			if (bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
 				result = true;
 			}
 		}
@@ -138,19 +138,19 @@ public class ICFGAnalysis {
 	 * @param caller is the method which leads to a thread allocation site.
 	 *
 	 * @return <code>true</code> if the given method or any of the methods in it's transitive caller closure have multiple or
-	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
+	 *            multiply-executed call sites; <code>false</code>, otherwise.
 	 */
 	public boolean executedMultipleTimes(SootMethod caller) {
 		boolean result = false;
 		Collection callers = cgi.getCallers(caller);
 main_control: 
-		if(callers.size() > 1) {
+		if (callers.size() > 1) {
 			result = true;
-		} else if(callers.size() == 1) {
-			for(Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
+		} else if (callers.size() == 1) {
+			for (Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
 				Collection scc = (Collection) i.next();
 
-				if(scc.contains(caller)) {
+				if (scc.contains(caller)) {
 					result = true;
 					break main_control;
 				}
@@ -160,7 +160,7 @@ main_control:
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteStmtGraph(Util.getJimpleBody(caller2).getStmtList()));
 
-			if(bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
+			if (bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
 			} else {
 				result = executedMultipleTimes(caller2);
@@ -171,7 +171,7 @@ main_control:
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param m DOCUMENT ME!
@@ -184,16 +184,16 @@ main_control:
 		Collection sccs = cgi.getSCCs();
 		Collection scc = null;
 
-		for(Iterator i = sccs.iterator(); i.hasNext();) {
+		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			scc = (Collection) i.next();
 
-			if(scc.contains(m)) {
+			if (scc.contains(m)) {
 				break;
 			}
 			scc = null;
 		}
 
-		if(scc != null) {
+		if (scc != null) {
 			result = !scc.contains(p);
 		}
 		return result;

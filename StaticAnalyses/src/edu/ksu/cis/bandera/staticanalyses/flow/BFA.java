@@ -44,7 +44,7 @@ import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.Type;
 
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,15 +55,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-//BFA.java
-
 /**
  * <p>
  * The instance of the framework which controls and manages the analysis on execution.  It acts the central repository for
  * information pertaining to various components of the framework when the analysis is in progress.  It also serves as the
  * central repository for various instances of the framework at a given time.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 00:45:10 2002
  * </p>
@@ -72,7 +70,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class BFA
-  implements Environment {
+  implements IEnvironment {
 	/**
 	 * <p>
 	 * The logger used by instances of this class to log messages.
@@ -183,7 +181,7 @@ public class BFA
 	public static final BFA getBFA(String name) {
 		BFA temp = null;
 
-		if(INSTANCES.containsKey(name)) {
+		if (INSTANCES.containsKey(name)) {
 			temp = (BFA) INSTANCES.get(name);
 		}
 
@@ -271,11 +269,11 @@ public class BFA
 	 * @return the variant associated with the given field in the given context.
 	 */
 	public final FieldVariant getFieldVariant(SootField sf, Context context) {
-		Variant temp = null;
+		IVariant temp = null;
 		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
 
-		if(Modifier.isStatic(sf.getModifiers())) {
+		if (Modifier.isStatic(sf.getModifiers())) {
 			temp = staticFieldManager.select(sf, context);
 		} else {
 			temp = instanceFieldManager.select(sf, context);
@@ -332,7 +330,7 @@ public class BFA
 	 *
 	 * @return a new flow graph node.
 	 */
-	public final FGNode getNewFGNode() {
+	public final IFGNode getNewFGNode() {
 		return modeFactory.getFGNode(worklist);
 	}
 
@@ -381,7 +379,7 @@ public class BFA
 	 * @param a the array type whose variant is to be returned.
 	 *
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
-	 * 		   <code>null</code> if none exist.
+	 *            <code>null</code> if none exist.
 	 */
 	public final ArrayVariant queryArrayVariant(ArrayType a) {
 		return queryArrayVariant(a, _ANALYZER.context);
@@ -409,7 +407,7 @@ public class BFA
 	 * @param sf the field whose variant is to be returned.
 	 *
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.<code>null</code>
-	 * 		   if none exists.
+	 *            if none exists.
 	 */
 	public final FieldVariant queryFieldVariant(SootField sf) {
 		return queryFieldVariant(sf, _ANALYZER.context);
@@ -426,9 +424,9 @@ public class BFA
 	 * @return the variant associated with the given field in the given context.  <code>null</code> if none exists.
 	 */
 	public final FieldVariant queryFieldVariant(SootField sf, Context context) {
-		Variant temp = null;
+		IVariant temp = null;
 
-		if(Modifier.isStatic(sf.getModifiers())) {
+		if (Modifier.isStatic(sf.getModifiers())) {
 			temp = staticFieldManager.query(sf, context);
 		} else {
 			temp = instanceFieldManager.query(sf, context);
@@ -489,9 +487,15 @@ public class BFA
 	 */
 	void analyze(SootClassManager scm, SootMethod root) {
 		this.scm = scm;
-		LOGGER.info("Starting system processing...");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Starting system processing...");
+		}
 		getMethodVariant(root);
-		LOGGER.info("Starting worklist processing...");
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Starting worklist processing...");
+		}
 		worklist.process();
 	}
 
@@ -510,9 +514,9 @@ public class BFA
 	 * @param type to be processed.
 	 */
 	void processType(Type type) {
-		if(type instanceof RefType) {
+		if (type instanceof RefType) {
 			classManager.process(getClass(((RefType) type).className));
-		} else if(type instanceof ArrayType && ((ArrayType) type).baseType instanceof RefType) {
+		} else if (type instanceof ArrayType && ((ArrayType) type).baseType instanceof RefType) {
 			classManager.process(getClass(((RefType) ((ArrayType) type).baseType).className));
 		}
 	}

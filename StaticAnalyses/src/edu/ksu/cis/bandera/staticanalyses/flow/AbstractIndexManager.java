@@ -44,7 +44,7 @@ import java.util.Set;
  * This class encapsulates the index creation logic.  It is abstract and it provides an interface through which new indices
  * can be obtained.  The sub classes should provide the logic for the actual creation of the indices.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 04:54:38 2002
  * </p>
@@ -53,7 +53,7 @@ import java.util.Set;
  * @version $Revision$
  */
 public abstract class AbstractIndexManager
-  implements Prototype {
+  implements IPrototype {
 	/**
 	 * <p>
 	 * The collection of indices managed by this object.
@@ -70,7 +70,7 @@ public abstract class AbstractIndexManager
 	 *
 	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
-	public Object prototype() {
+	public Object prototype() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("prototype() is not supported.");
 	}
 
@@ -85,7 +85,7 @@ public abstract class AbstractIndexManager
 	 *
 	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
-	public Object prototype(Object o) {
+	public Object prototype(Object o) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
@@ -100,7 +100,7 @@ public abstract class AbstractIndexManager
 	 *
 	 * @return the index corresponding to the entity in the given context.
 	 */
-	protected abstract Index getIndex(Object o, Context c);
+	protected abstract IIndex getIndex(Object o, Context c);
 
 	/**
 	 * <p>
@@ -113,10 +113,10 @@ public abstract class AbstractIndexManager
 	 *
 	 * @return the index corresponding to the entity in the given context, if one exists; <code>null</code> otherwise.
 	 */
-	final Index queryIndex(Object o, Context c) {
-		Index temp = getIndex(o, c);
+	final IIndex queryIndex(Object o, Context c) {
+		IIndex temp = getIndex(o, c);
 
-		if(!indices.contains(temp)) {
+		if (!indices.contains(temp)) {
 			indices.add(temp);
 		}
 

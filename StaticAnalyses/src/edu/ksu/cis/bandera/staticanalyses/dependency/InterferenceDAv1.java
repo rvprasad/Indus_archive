@@ -110,50 +110,58 @@ public class InterferenceDAv1
 		 *
 		 * @pre stmt.isOclKindOf(AssignStmt)
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.Context)
 		 */
 		public void callback(Stmt stmt, Context context) {
 			SootMethod method = context.getCurrentMethod();
 			AssignStmt as = (AssignStmt) stmt;
 			Map temp = null;
 
-			if(as.getLeftOp() instanceof FieldRef) {
+			if (as.getLeftOp() instanceof FieldRef) {
 				SootField sf = ((FieldRef) as.getLeftOp()).getField();
 				temp = getDependeXXMapHelper(dependentMap, sf);
-			} else if(as.getLeftOp() instanceof ArrayRef) {
+			} else if (as.getLeftOp() instanceof ArrayRef) {
 				ArrayType at = (ArrayType) ((ArrayRef) as.getLeftOp()).getBase().getType();
 				temp = getDependeXXMapHelper(dependentMap, at);
-			} else if(as.getRightOp() instanceof FieldRef) {
+			} else if (as.getRightOp() instanceof FieldRef) {
 				SootField sf = ((FieldRef) as.getRightOp()).getField();
 				temp = getDependeXXMapHelper(dependeeMap, sf);
-			} else if(as.getRightOp() instanceof ArrayRef) {
+			} else if (as.getRightOp() instanceof ArrayRef) {
 				ArrayType at = (ArrayType) ((ArrayRef) as.getRightOp()).getBase().getType();
 				temp = getDependeXXMapHelper(dependeeMap, at);
 			}
-			if(temp != null) {
+
+			if (temp != null) {
 				Pair p = pairMgr.getPair(as, method);
 
-				if(temp.get(p) == null) {
+				if (temp.get(p) == null) {
 					temp.put(p, Collections.EMPTY_LIST);
 				}
 			}
 		}
-		
-		public void callback(SootMethod sm) {			
+
+		/**
+		 * DOCUMENT ME!
+		 *
+		 * <p></p>
+		 *
+		 * @param sm DOCUMENT ME!
+		 */
+		public void callback(SootMethod sm) {
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
 			ppc.register(AssignStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
-		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
+		 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void unhook(ProcessingController ppc) {
 			ppc.unregister(AssignStmt.class, this);
@@ -170,7 +178,7 @@ public class InterferenceDAv1
 		private Map getDependeXXMapHelper(Map map, Object o) {
 			Map result = (Map) map.get(o);
 
-			if(result == null) {
+			if (result == null) {
 				result = new HashMap();
 				map.put(o, result);
 			}
@@ -191,16 +199,16 @@ public class InterferenceDAv1
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object,
-	 * 		java.lang.Object)
+	 *         java.lang.Object)
 	 */
 	public Collection getDependees(Object dependent, Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
 		Map pair2set = getDependeeMapFor(dependent);
 
-		if(pair2set != null) {
+		if (pair2set != null) {
 			Collection set = (Set) pair2set.get(stmtMethodPair);
 
-			if(set != null) {
+			if (set != null) {
 				result = Collections.unmodifiableCollection(set);
 			}
 		}
@@ -220,19 +228,19 @@ public class InterferenceDAv1
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object,
-	 * 		java.lang.Object)
+	 *         java.lang.Object)
 	 */
 	public Collection getDependents(Object dependee, Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
 		Map method2map = getDependentMapFor(dependee);
 
-		if(method2map != null) {
+		if (method2map != null) {
 			Map stmt2set = (Map) method2map.get(((Pair) stmtMethodPair).getSecond());
 
-			if(stmt2set != null) {
+			if (stmt2set != null) {
 				Collection set = (Collection) stmt2set.get(((Pair) stmtMethodPair).getFirst());
 
-				if(set != null) {
+				if (set != null) {
 					result = Collections.unmodifiableCollection(set);
 				}
 			}
@@ -244,11 +252,14 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
-		LOGGER.info(dependeeMap.keySet() + "\n" + dependentMap.keySet());
-		for(Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(dependeeMap.keySet() + "\n" + dependentMap.keySet());
+		}
+
+		for (Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
 			Object o = i.next();
 
-			if(dependentMap.get(o) == null) {
+			if (dependentMap.get(o) == null) {
 				continue;
 			}
 
@@ -256,7 +267,7 @@ public class InterferenceDAv1
 			Map dtMap = (Map) dependentMap.get(o);
 			temp.addAll(dtMap.keySet());
 
-			for(Iterator j = ((Map) dependeeMap.get(o)).entrySet().iterator(); j.hasNext();) {
+			for (Iterator j = ((Map) dependeeMap.get(o)).entrySet().iterator(); j.hasNext();) {
 				Map.Entry entry = (Map.Entry) j.next();
 				entry.setValue(temp);
 			}
@@ -265,7 +276,7 @@ public class InterferenceDAv1
 			Map deMap = (Map) dependeeMap.get(o);
 			temp.addAll(deMap.keySet());
 
-			for(Iterator k = ((Map) dependentMap.get(o)).entrySet().iterator(); k.hasNext();) {
+			for (Iterator k = ((Map) dependentMap.get(o)).entrySet().iterator(); k.hasNext();) {
 				Map.Entry entry = (Map.Entry) k.next();
 				entry.setValue(temp);
 			}
@@ -282,7 +293,7 @@ public class InterferenceDAv1
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -295,14 +306,14 @@ public class InterferenceDAv1
 
 		StringBuffer temp = new StringBuffer();
 
-		for(Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			localEdgeCount = 0;
 
-			for(Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
+			for (Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
 				Map.Entry entry2 = (Map.Entry) j.next();
 
-				for(Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
+				for (Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
 					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
 				}
 				localEdgeCount += ((Collection) entry2.getValue()).size();
@@ -326,7 +337,7 @@ public class InterferenceDAv1
 	protected Map getDependeeMapFor(Object o) {
 		Map result = (Map) dependeeMap.get(o);
 
-		if(result == null) {
+		if (result == null) {
 			result = Collections.EMPTY_MAP;
 		}
 		return result;
@@ -342,7 +353,7 @@ public class InterferenceDAv1
 	protected Map getDependentMapFor(Object o) {
 		Map result = (Map) dependentMap.get(o);
 
-		if(result == null) {
+		if (result == null) {
 			result = Collections.EMPTY_MAP;
 		}
 		return result;
@@ -353,10 +364,10 @@ public class InterferenceDAv1
 	 *
 	 * @throws InitializationException when an instance pair managing service are not provided.
 	 */
-	protected void setup() {
+	protected void setup() throws InitializationException {
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
-		if(pairMgr == null) {
+		if (pairMgr == null) {
 			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
 	}

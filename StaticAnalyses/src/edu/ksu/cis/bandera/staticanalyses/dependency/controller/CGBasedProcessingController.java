@@ -36,7 +36,7 @@
 package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
 
 import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -53,18 +53,16 @@ import java.util.Collection;
 public class CGBasedProcessingController
   extends ProcessingController {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * Provides the call graph information to drive the processing.
 	 */
-	private CallGraphInfo cgi;
+	private ICallGraphInfo cgi;
 
 	/**
 	 * Creates a new CGBasedProcessingController object.
 	 *
-	 * @param cgi DOCUMENT ME!
+	 * @param cgi provides the call graph information to drive the processing.
 	 */
-	public CGBasedProcessingController(CallGraphInfo cgi) {
+	public CGBasedProcessingController(ICallGraphInfo cgi) {
 		this.cgi = cgi;
 	}
 

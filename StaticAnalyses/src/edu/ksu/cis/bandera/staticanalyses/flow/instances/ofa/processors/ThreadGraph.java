@@ -49,12 +49,15 @@ import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,14 +69,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This class provides information regarding the threads that occur in the system.  It can provide information such as the
  * possible threads in the system and the methods invoked in these threads.
- * 
+ *
  * <p>
  * Main threads do not have allocation sites.  This is addressed by associating each main thread with a
  * <code>NewExprTriple</code> with <code>null</code> for statement and method, but  a <code>NewExpr</code> which creates a
@@ -88,18 +88,18 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ThreadGraph
   extends AbstractProcessor
-  implements ThreadGraphInfo {
-  	
-  	/**
-	 * <p>The logger used by instances of this class to log messages.</p>
-	 * 
+  implements IThreadGraphInfo {
+	/**
+	 * <p>
+	 * The logger used by instances of this class to log messages.
+	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
-  	
+
 	/**
 	 * This provides call graph information pertaining to the system.
 	 */
-	private final CallGraphInfo cgi;
+	private final ICallGraphInfo cgi;
 
 	/**
 	 * The collection of thread allocation sites.
@@ -139,32 +139,32 @@ public class ThreadGraph
 	 *
 	 * @param cgi provides call graph information.
 	 */
-	public ThreadGraph(CallGraphInfo cgi) {
+	public ThreadGraph(ICallGraphInfo cgi) {
 		this.cgi = cgi;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getAllocationSites()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo#getAllocationSites()
 	 */
 	public Collection getAllocationSites() {
 		return Collections.unmodifiableCollection(newThreadExprs);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#setAnalyzer(AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer ofa) {
 		this.ofa = (OFAnalyzer) ofa;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getExecutedMethods(
-	 * 		ca.mcgill.sable.soot.jimple.NewExpr,     edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo#getExecutedMethods(
+	 *         ca.mcgill.sable.soot.jimple.NewExpr,     edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public Collection getExecutedMethods(NewExpr ne, Context ctxt) {
 		Set result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
 
-		if(result == null) {
+		if (result == null) {
 			result = Collections.EMPTY_SET;
 		} else {
 			result = Collections.unmodifiableSet(result);
@@ -182,14 +182,14 @@ public class ThreadGraph
 	 * @return DOCUMENT ME!
 	 *
 	 * @post result->forall(o | o.getExpr().getType().className.indexOf("MainThread") == 0 implies (o.getStmt() = null and
-	 * 		 o.getSootMethod() = null))
+	 *          o.getSootMethod() = null))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getExecutionThreads(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo#getExecutionThreads(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public Collection getExecutionThreads(SootMethod sm) {
 		Set result = (Set) method2threads.get(sm);
 
-		if(result == null) {
+		if (result == null) {
 			result = Collections.EMPTY_SET;
 		} else {
 			result = Collections.unmodifiableSet(result);
@@ -198,7 +198,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getStartSites()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo#getStartSites()
 	 */
 	public Collection getStartSites() {
 		return Collections.unmodifiableCollection(startSites);
@@ -211,23 +211,23 @@ public class ThreadGraph
 	 * @param context in which the value was encountered.
 	 */
 	public void callback(Value value, Context context) {
-		Environment env = ofa.getEnvironment();
+		IEnvironment env = ofa.getEnvironment();
 
-		if(value instanceof NewExpr) {
+		if (value instanceof NewExpr) {
 			NewExpr ne = (NewExpr) value;
 			SootClass clazz = env.getClass(ne.getBaseType().className);
 
 			// collect the new expressions which create Thread objects.
-			if(Util.isDescendentOf(clazz, "java.lang.Thread")
+			if (Util.isDescendentOf(clazz, "java.lang.Thread")
 				  && Util.getDeclaringClass(clazz, "start", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
 				newThreadExprs.add(new NewExprTriple(context.getCurrentMethod(), context.getStmt(), ne));
 			}
-		} else if(value instanceof VirtualInvokeExpr) {
+		} else if (value instanceof VirtualInvokeExpr) {
 			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
 			SootClass clazz = env.getClass(((RefType) ve.getBase().getType()).className);
 			SootMethod method = ve.getMethod();
 
-			if(Util.isDescendentOf(clazz, "java.lang.Thread")
+			if (Util.isDescendentOf(clazz, "java.lang.Thread")
 				  && method.getName().equals("start")
 				  && method.getReturnType() instanceof VoidType
 				  && method.getParameterCount() == 0
@@ -241,10 +241,14 @@ public class ThreadGraph
 	 * Consolidates the thread graph information before it is available to the application.
 	 */
 	public void consolidate() {
-        LOGGER.info("BEGIN: thread graph consolidation");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: thread graph consolidation");
+		}
+
 		long start = System.currentTimeMillis();
+
 		// capture the run call-site in Thread.start method
-		Environment env = ofa.getEnvironment();
+		IEnvironment env = ofa.getEnvironment();
 		SootClass threadClass = env.getClass("java.lang.Thread");
 		threadClass.resolveIfNecessary();
 
@@ -255,13 +259,13 @@ public class ThreadGraph
 		Collection values = ofa.getValuesForThis(ctxt);
 		Map class2runCallees = new HashMap();
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			NewExpr value = (NewExpr) i.next();
 			SootClass sc = env.getClass(((RefType) value.getBaseType()).className);
 			Collection methods;
 
-			if(!class2runCallees.containsKey(sc)) {
-				if(Util.getDeclaringClass(sc, "run", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
+			if (!class2runCallees.containsKey(sc)) {
+				if (Util.getDeclaringClass(sc, "run", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
 					// Here we use the knowledge of only one target object is associated with a thread object.
 					Collection t = new ArrayList();
 					t.add(value);
@@ -269,7 +273,7 @@ public class ThreadGraph
 
 					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
 					// object 
-					for(Iterator j = ofa.getValues(threadClass.getField("target"), t).iterator(); j.hasNext();) {
+					for (Iterator j = ofa.getValues(threadClass.getField("target"), t).iterator(); j.hasNext();) {
 						NewExpr temp = (NewExpr) j.next();
 						SootClass scTemp = env.getClass(((RefType) temp.getBaseType()).className);
 						methods.addAll(transitiveThreadCallClosure(scTemp.getMethod("run", Util.EMPTY_PARAM_LIST, VoidType.v())));
@@ -284,11 +288,11 @@ public class ThreadGraph
 
 			NewExprTriple thread = extractNewExprTripleFor(value);
 
-			for(Iterator j = methods.iterator(); j.hasNext();) {
+			for (Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				Collection threads = (Collection) method2threads.get(sm);
 
-				if(threads == null) {
+				if (threads == null) {
 					threads = new HashSet();
 					method2threads.put(sm, threads);
 				}
@@ -304,7 +308,7 @@ public class ThreadGraph
 		Collection heads = cgi.getHeads();
 		int k = 1;
 
-		for(Iterator i = heads.iterator(); i.hasNext(); k++) {
+		for (Iterator i = heads.iterator(); i.hasNext(); k++) {
 			SootMethod head = (SootMethod) i.next();
 			NewExprTriple thread =
 				new NewExprTriple(null, null, Jimple.v().newNewExpr(RefType.v("MainThread:" + k + ":" + head.getSignature())));
@@ -313,21 +317,24 @@ public class ThreadGraph
 			Collection methods = transitiveThreadCallClosure(head);
 			thread2methods.put(thread, methods);
 
-			for(Iterator j = methods.iterator(); j.hasNext();) {
+			for (Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				Collection threads = (Collection) method2threads.get(sm);
 
-				if(threads == null) {
+				if (threads == null) {
 					threads = new HashSet();
 					method2threads.put(sm, threads);
 				}
 				threads.add(thread);
 			}
 		}
-		long stop = System.currentTimeMillis();
-        LOGGER.info("END: thread graph consolidation");
-		LOGGER.info("TIMING: thread graph consolidation took " + (stop - start) + "ms.");
 
+		long stop = System.currentTimeMillis();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: thread graph consolidation");
+			LOGGER.info("TIMING: thread graph consolidation took " + (stop - start) + "ms.");
+		}
 	}
 
 	/**
@@ -339,11 +346,11 @@ public class ThreadGraph
 		StringBuffer result = new StringBuffer();
 		List l = new ArrayList();
 
-		for(Iterator i = thread2methods.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = thread2methods.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			NewExprTriple net = (NewExprTriple) entry.getKey();
 
-			if(net.getMethod() == null) {
+			if (net.getMethod() == null) {
 				result.append("\n" + net.getExpr().getType() + "\n");
 			} else {
 				result.append("\n" + net.getStmt() + "@" + net.getMethod() + "->" + net.getExpr() + "\n");
@@ -351,13 +358,13 @@ public class ThreadGraph
 
 			l.clear();
 
-			for(Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				l.add(sm.getSignature());
 			}
 			Collections.sort(l);
 
-			for(Iterator j = l.iterator(); j.hasNext();) {
+			for (Iterator j = l.iterator(); j.hasNext();) {
 				result.append("\t" + j.next() + "\n");
 			}
 		}
@@ -365,8 +372,8 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
@@ -374,8 +381,8 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
+	 *         edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -391,10 +398,10 @@ public class ThreadGraph
 	private NewExprTriple extractNewExprTripleFor(NewExpr ne) {
 		NewExprTriple result = null;
 
-		for(Iterator i = newThreadExprs.iterator(); i.hasNext();) {
+		for (Iterator i = newThreadExprs.iterator(); i.hasNext();) {
 			NewExprTriple ntrp = (NewExprTriple) i.next();
 
-			if(ntrp.getExpr().equals(ne) && ntrp.getExpr() == ne) {
+			if (ntrp.getExpr().equals(ne) && ntrp.getExpr() == ne) {
 				result = ntrp;
 				break;
 			}
@@ -418,10 +425,10 @@ public class ThreadGraph
 		wb.addWork(starterMethod);
 		result.add(starterMethod);
 
-		while(!wb.isEmpty()) {
+		while (!wb.isEmpty()) {
 			SootMethod sm = (SootMethod) wb.getWork();
 
-			if(sm.getName().equals("start")
+			if (sm.getName().equals("start")
 				  && sm.getDeclaringClass().getName().equals("java.lang.Thread")
 				  && sm.getParameterCount() == 0
 				  && sm.getReturnType().equals(VoidType.v())) {
@@ -430,11 +437,11 @@ public class ThreadGraph
 
 			Collection callees = cgi.getCallees(sm);
 
-			for(Iterator i = callees.iterator(); i.hasNext();) {
+			for (Iterator i = callees.iterator(); i.hasNext();) {
 				CallTriple ctrp = (CallTriple) i.next();
 				SootMethod temp = ctrp.getMethod();
 
-				if(!result.contains(temp)) {
+				if (!result.contains(temp)) {
 					result.add(temp);
 					wb.addWorkNoDuplicates(temp);
 				}

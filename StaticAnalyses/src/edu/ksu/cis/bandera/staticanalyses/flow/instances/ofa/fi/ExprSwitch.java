@@ -74,8 +74,8 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.bandera.staticanalyses.flow.ArrayVariant;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.FGAccessNode;
@@ -106,7 +106,7 @@ public class ExprSwitch
 	 * @param stmt the statement visitor which uses this object.
 	 * @param connector the connector to be used to connect ast and non-ast flow graph node.
 	 */
-	public ExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
+	public ExprSwitch(AbstractStmtSwitch stmt, IFGNodeConnector connector) {
 		super(stmt, connector);
 	}
 
@@ -118,10 +118,13 @@ public class ExprSwitch
 	 */
 	public void caseArrayRef(ArrayRef e) {
 		process(e.getBaseBox());
-		LOGGER.debug(e.getBaseBox());
 
-		FGNode baseNode = (FGNode) getResult();
-		FGNode ast = method.getASTNode(e);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(e.getBaseBox());
+		}
+
+		IFGNode baseNode = (IFGNode) getResult();
+		IFGNode ast = method.getASTNode(e);
 		AbstractWork work = new ArrayAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
@@ -140,11 +143,11 @@ public class ExprSwitch
 
 		Type t = e.getCastType();
 
-		if(t instanceof RefType || t instanceof ArrayType) {
+		if (t instanceof RefType || t instanceof ArrayType) {
 			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
 			// run-time.
-			FGNode base = (FGNode) getResult();
-			FGNode cast = method.getASTNode(e);
+			IFGNode base = (IFGNode) getResult();
+			IFGNode cast = method.getASTNode(e);
 			cast.setFilter(new TypeBasedFilter(t, bfa));
 			base.addSucc(cast);
 			setResult(cast);
@@ -187,8 +190,8 @@ public class ExprSwitch
 	public void caseInstanceFieldRef(InstanceFieldRef e) {
 		process(e.getBaseBox());
 
-		FGNode baseNode = (FGNode) getResult();
-		FGNode ast = method.getASTNode(e);
+		IFGNode baseNode = (IFGNode) getResult();
+		IFGNode ast = method.getASTNode(e);
 		AbstractWork work = new FieldAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
@@ -220,7 +223,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseLocal(Local e) {
-		FGNode node = method.getASTNode(e);
+		IFGNode node = method.getASTNode(e);
 		setResult(node);
 	}
 
@@ -261,7 +264,7 @@ public class ExprSwitch
 	public void caseNewArrayExpr(NewArrayExpr e) {
 		process(e.getSizeBox());
 
-		FGNode ast = method.getASTNode(e);
+		IFGNode ast = method.getASTNode(e);
 		bfa.getArrayVariant((ArrayType) e.getType(), context);
 		ast.addValue(e);
 		setResult(ast);
@@ -273,7 +276,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseNewExpr(NewExpr e) {
-		FGNode ast = method.getASTNode(e);
+		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -289,17 +292,17 @@ public class ExprSwitch
 		BaseType baseType = arrayType.baseType;
 		int sizes = e.getSizeCount();
 
-		for(int i = arrayType.numDimensions; i > 0; i--, sizes--) {
+		for (int i = arrayType.numDimensions; i > 0; i--, sizes--) {
 			arrayType = ArrayType.v(baseType, i);
 
 			ArrayVariant array = bfa.getArrayVariant(arrayType, context);
 
-			if(sizes > 0) {
+			if (sizes > 0) {
 				array.getFGNode().addValue(e);
 			}
 		}
 
-		FGNode ast = method.getASTNode(e);
+		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -310,7 +313,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseNullConstant(NullConstant e) {
-		FGNode ast = method.getASTNode(e);
+		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -340,8 +343,8 @@ public class ExprSwitch
 	 */
 	public void caseStaticFieldRef(StaticFieldRef e) {
 		SootField field = e.getField();
-		FGNode ast = method.getASTNode(e);
-		FGNode nonast = bfa.getFieldVariant(field).getFGNode();
+		IFGNode ast = method.getASTNode(e);
+		IFGNode nonast = bfa.getFieldVariant(field).getFGNode();
 		connector.connect(ast, nonast);
 		setResult(ast);
 	}
@@ -352,25 +355,30 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseStaticInvokeExpr(StaticInvokeExpr e) {
-		LOGGER.debug("BEGIN: processing " + e);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + e);
+		}
 
 		MethodVariant callee = bfa.getMethodVariant(e.getMethod(), context);
 
-		for(int i = 0; i < e.getArgCount(); i++) {
+		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
 
-			FGNode argNode = (FGNode) getResult();
+			IFGNode argNode = (IFGNode) getResult();
 			argNode.addSucc(callee.queryParameterNode(i));
 		}
 
-		if(isNonVoid(e.getMethod())) {
-			FGNode ast = method.getASTNode(e);
+		if (isNonVoid(e.getMethod())) {
+			IFGNode ast = method.getASTNode(e);
 			callee.queryReturnNode().addSucc(ast);
 			setResult(ast);
 		} else {
 			setResult(null);
 		}
-		LOGGER.debug("END: processed " + e);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + e);
+		}
 	}
 
 	/**
@@ -379,7 +387,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseStringConstant(StringConstant e) {
-		FGNode ast = method.getASTNode(e);
+		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -411,11 +419,11 @@ public class ExprSwitch
 	public void defaultCase(Object o) {
 		Value v = (Value) o;
 
-		if(v instanceof BinopExpr) {
+		if (v instanceof BinopExpr) {
 			BinopExpr temp = (BinopExpr) v;
 			process(temp.getOp1Box());
 			process(temp.getOp2Box());
-		} else if(v instanceof UnopExpr) {
+		} else if (v instanceof UnopExpr) {
 			UnopExpr temp = (UnopExpr) v;
 			process(temp.getOpBox());
 		} else {
@@ -441,16 +449,18 @@ public class ExprSwitch
 	 * @param e the invoke expression to be processed.
 	 */
 	protected void processNonStaticInvokeExpr(NonStaticInvokeExpr e) {
-		LOGGER.debug("BEGIN: processing " + e);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + e);
+		}
 		process(e.getBaseBox());
 
-		FGNode temp = (FGNode) getResult();
+		IFGNode temp = (IFGNode) getResult();
 
-		for(int i = 0; i < e.getArgCount(); i++) {
+		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
 		}
 
-		if(isNonVoid(e.getMethod())) {
+		if (isNonVoid(e.getMethod())) {
 			setResult(method.getASTNode(e));
 		} else {
 			setResult(null);
@@ -460,7 +470,10 @@ public class ExprSwitch
 		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
 		work.setFGNode(baseNode);
 		temp.addSucc(baseNode);
-		LOGGER.debug("END: processed " + e);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + e);
+		}
 	}
 }
 

@@ -83,7 +83,7 @@ import java.util.HashSet;
  * @version $Revision$ $Name$
  */
 public class MethodVariant
-  implements Variant {
+  implements IVariant {
 	/**
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 */
@@ -125,19 +125,19 @@ public class MethodVariant
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
 	 * <code>null</code>, if the associated method's return type is <code>void</code>.
 	 */
-	protected final FGNode returnVar;
+	protected final IFGNode returnVar;
 
 	/**
 	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
 	 */
-	protected final FGNode thisVar;
+	protected final IFGNode thisVar;
 
 	/**
 	 * The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
 	 * <code>null</code>, if the associated method has not parameters..
 	 */
-	protected final FGNode parameters[];
+	protected final IFGNode parameters[];
 
 	/**
 	 * This provides the def sites for local variables in the associated method.  This is used in conjunction with
@@ -150,21 +150,26 @@ public class MethodVariant
 	 *
 	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
 	 * @param astvm the manager of flow graph nodes corresponding to the AST nodes of <code>sm</code>.  This parameter cannot
-	 * 		  be <code>null</code>.
+	 *           be <code>null</code>.
 	 * @param bfa the instance of <code>BFA</code> which was responsible for the creation of this variant.  This parameter
-	 * 		  cannot be <code>null</code>.
+	 *           cannot be <code>null</code>.
 	 */
 	protected MethodVariant(SootMethod sm, ASTVariantManager astvm, BFA bfa) {
 		_METHOD = sm;
 		_BFA = bfa;
 		_CONTEXT = (Context) bfa._ANALYZER.context.clone();
 		bfa._ANALYZER.context.callNewMethod(sm);
-		LOGGER.debug("BEGIN: preprocessing of " + sm);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: preprocessing of " + sm);
+		}
+
 		int pCount = sm.getParameterCount();
-		if(pCount > 0) {
+
+		if (pCount > 0) {
 			parameters = new AbstractFGNode[pCount];
 
-			for(int i = 0; i < pCount; i++) {
+			for (int i = 0; i < pCount; i++) {
 				parameters[i] = bfa.getNewFGNode();
 				bfa.processType(sm.getParameterType(i));
 			}
@@ -172,7 +177,7 @@ public class MethodVariant
 			parameters = new AbstractFGNode[0];
 		}
 
-		if(sm.isStatic()) {
+		if (sm.isStatic()) {
 			thisVar = null;
 		} else {
 			thisVar = bfa.getNewFGNode();
@@ -187,7 +192,7 @@ public class MethodVariant
 		}
 		bfa.processClass(sm.getDeclaringClass());
 
-		if(sm.getReturnType() instanceof VoidType) {
+		if (sm.getReturnType() instanceof VoidType) {
 			returnVar = null;
 		} else {
 			returnVar = bfa.getNewFGNode();
@@ -196,7 +201,10 @@ public class MethodVariant
 
 		this.astvm = astvm;
 		bfa._ANALYZER.context.returnFromCurrentMethod();
-		LOGGER.debug("END: preprocessed of " + sm);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: preprocessed of " + sm);
+		}
 	}
 
 	/**
@@ -206,7 +214,7 @@ public class MethodVariant
 	 *
 	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.
 	 */
-	public final FGNode getASTNode(Value v) {
+	public final IFGNode getASTNode(Value v) {
 		return getASTVariant(v, _CONTEXT).getFGNode();
 	}
 
@@ -219,7 +227,7 @@ public class MethodVariant
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.
 	 */
-	public final FGNode getASTNode(Value v, Context c) {
+	public final IFGNode getASTNode(Value v, Context c) {
 		return getASTVariant(v, c).getFGNode();
 	}
 
@@ -257,7 +265,7 @@ public class MethodVariant
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
 	 */
 	public List getDefsOfAt(Local l, Stmt s) {
-		if(defs == null) {
+		if (defs == null) {
 			return new ArrayList();
 		} else {
 			return defs.getDefsOfAt(l, s);
@@ -266,7 +274,7 @@ public class MethodVariant
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param v DOCUMENT ME!
@@ -275,15 +283,15 @@ public class MethodVariant
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public FGNode getFilterEnabledNode(Value v, Context c, ValueFilter filter) {
-		FGNode result = getASTNode(v, c);
+	public IFGNode getFilterEnabledNode(Value v, Context c, ValueFilter filter) {
+		IFGNode result = getASTNode(v, c);
 		result.setFilter(filter);
 		return result;
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param v DOCUMENT ME!
@@ -291,8 +299,8 @@ public class MethodVariant
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public FGNode getFilterEnabledNode(Value v, ValueFilter filter) {
-		FGNode result = getASTNode(v, _CONTEXT);
+	public IFGNode getFilterEnabledNode(Value v, ValueFilter filter) {
+		IFGNode result = getASTNode(v, _CONTEXT);
 		result.setFilter(filter);
 		return result;
 	}
@@ -301,7 +309,9 @@ public class MethodVariant
 	 * Processes the body of the method implementation associated with this variant.
 	 */
 	public void process() {
-		LOGGER.debug("BEGIN: processing of " + _METHOD);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing of " + _METHOD);
+		}
 
 		JimpleBody jb = null;
 
@@ -313,22 +323,22 @@ public class MethodVariant
 		 */
 		String className = _METHOD.getDeclaringClass().getName();
 
-		if(className.indexOf("java") == 0 && className.indexOf("java.lang.") == 0) {
+		if (className.indexOf("java") == 0 && (className.indexOf("java.lang.") == 0 || className.indexOf("java.util") == 0)) {
 			try {
 				jb = Util.getJimpleBody(_METHOD);
-			} catch(RuntimeException e) {
+			} catch (RuntimeException e) {
 				LOGGER.warn("Could not get body for " + _METHOD.getSignature(), e);
 			}
-		} else if(_METHOD.isBodyStored(JIMPLEBODYREP)) {
+		} else if (_METHOD.isBodyStored(JIMPLEBODYREP)) {
 			jb = Util.getJimpleBody(_METHOD);
 		}
 
-		if(jb != null) {
+		if (jb != null) {
 			StmtList list = ((StmtBody) _METHOD.getBody(JIMPLEBODYREP)).getStmtList();
 			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
 			stmt = _BFA.getStmt(this);
 
-			for(Iterator i = list.iterator(); i.hasNext();) {
+			for (Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt) i.next());
 			}
 
@@ -336,7 +346,7 @@ public class MethodVariant
 			boolean flag = false;
 			InvokeExpr expr = null;
 
-			for(Iterator i = jb.getTraps().iterator(); i.hasNext();) {
+			for (Iterator i = jb.getTraps().iterator(); i.hasNext();) {
 				Trap trap = (Trap) i.next();
 				Stmt begin = (Stmt) trap.getBeginUnit();
 				Stmt end = (Stmt) trap.getEndUnit();
@@ -346,37 +356,37 @@ public class MethodVariant
 				CaughtExceptionRef catchRef = (CaughtExceptionRef) ((IdentityStmt) trap.getHandlerUnit()).getRightOp();
 				SootClass exception = trap.getException();
 
-				for(int j = list.indexOf(begin), k = list.indexOf(end); j < k; j++) {
+				for (int j = list.indexOf(begin), k = list.indexOf(end); j < k; j++) {
 					Stmt tmp = (Stmt) list.get(j);
 
-					if(tmp instanceof ThrowStmt) {
+					if (tmp instanceof ThrowStmt) {
 						ThrowStmt ts = (ThrowStmt) tmp;
 
-						if(!caught.contains(ts)
+						if (!caught.contains(ts)
 							  && Util.isDescendentOf(_BFA.getClass(((RefType) ts.getOp().getType()).className), exception)) {
 							_CONTEXT.setStmt(ts);
 
-							FGNode throwNode = getASTNode(ts.getOp(), _CONTEXT);
+							IFGNode throwNode = getASTNode(ts.getOp(), _CONTEXT);
 							throwNode.addSucc(getASTNode(catchRef));
 							caught.add(ts);
 						}
-					} else if(tmp instanceof InvokeStmt) {
+					} else if (tmp instanceof InvokeStmt) {
 						expr = (InvokeExpr) ((InvokeStmt) tmp).getInvokeExpr();
 						flag = true;
-					} else if(tmp instanceof AssignStmt && ((AssignStmt) tmp).getRightOp() instanceof InvokeExpr) {
+					} else if (tmp instanceof AssignStmt && ((AssignStmt) tmp).getRightOp() instanceof InvokeExpr) {
 						expr = (InvokeExpr) ((AssignStmt) tmp).getRightOp();
 						flag = true;
 					}
 
-					if(flag) {
+					if (flag) {
 						flag = false;
 
-						if(!caught.contains(tmp)) {
+						if (!caught.contains(tmp)) {
 							_CONTEXT.setStmt(tmp);
 
-							FGNode tempNode = queryThrowNode(expr, exception);
+							IFGNode tempNode = queryThrowNode(expr, exception);
 
-							if(tempNode != null) {
+							if (tempNode != null) {
 								tempNode.addSucc(getASTNode(catchRef));
 							}
 						}
@@ -384,7 +394,10 @@ public class MethodVariant
 				}
 			}
 		}
-		LOGGER.debug("END: processing of " + _METHOD);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processing of " + _METHOD);
+		}
 	}
 
 	/**
@@ -393,9 +406,9 @@ public class MethodVariant
 	 * @param v the AST node whose associted variant is to be returned.
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
-	 * 		   <code>null</code> is returned.
+	 *            <code>null</code> is returned.
 	 */
-	public final FGNode queryASTNode(Value v) {
+	public final IFGNode queryASTNode(Value v) {
 		return queryASTNode(v, _CONTEXT);
 	}
 
@@ -406,13 +419,13 @@ public class MethodVariant
 	 * @param c the context in which the variant was associated with <code>v</code>.
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
-	 * 		   <code>null</code> is returned.
+	 *            <code>null</code> is returned.
 	 */
-	public final FGNode queryASTNode(Value v, Context c) {
+	public final IFGNode queryASTNode(Value v, Context c) {
 		ASTVariant var = queryASTVariant(v, c);
-		FGNode temp = null;
+		IFGNode temp = null;
 
-		if(var != null) {
+		if (var != null) {
 			temp = var.getFGNode();
 		}
 		return temp;
@@ -425,7 +438,7 @@ public class MethodVariant
 	 * @param c a <code>Context</code> value
 	 *
 	 * @return the variant associated with <code>v</code> in the context <code>c</code>.  If none exists, <code>null</code>
-	 * 		   is returned.
+	 *            is returned.
 	 */
 	public final ASTVariant queryASTVariant(Value v, Context c) {
 		return (ASTVariant) astvm.query(v, c);
@@ -437,12 +450,12 @@ public class MethodVariant
 	 * @param index the index of the parameter in the parameter list of the associated method.
 	 *
 	 * @return the flow graph node associated with the <code>index</code>th parameter in the parameter list of the associated
-	 * 		   method.  It returns <code>null</code> if the method has no parameters.
+	 *            method.  It returns <code>null</code> if the method has no parameters.
 	 */
-	public final FGNode queryParameterNode(int index) {
-		FGNode temp = null;
+	public final IFGNode queryParameterNode(int index) {
+		IFGNode temp = null;
 
-		if(index >= 0 && index <= _METHOD.getParameterCount()) {
+		if (index >= 0 && index <= _METHOD.getParameterCount()) {
 			temp = parameters[index];
 		}
 
@@ -453,9 +466,9 @@ public class MethodVariant
 	 * Returns the flow graph node that represents an abstract single return point of the associated method.
 	 *
 	 * @return the flow graph node that represents an abstract single return point of the associated method.
-	 * 		   <code>null</code> if the corresponding method does not return a value.
+	 *            <code>null</code> if the corresponding method does not return a value.
 	 */
-	public final FGNode queryReturnNode() {
+	public final IFGNode queryReturnNode() {
 		return returnVar;
 	}
 
@@ -463,9 +476,9 @@ public class MethodVariant
 	 * Returns the flow graph node associated with the <code>this</code> variable of the associated method.
 	 *
 	 * @return Returns the flow graph node associated with the <code>this</code> variable of the associated method.
-	 * 		   <code>null</code> if the corresponding method is <code>static</code>.
+	 *            <code>null</code> if the corresponding method is <code>static</code>.
 	 */
-	public final FGNode queryThisNode() {
+	public final IFGNode queryThisNode() {
 		return thisVar;
 	}
 
@@ -477,7 +490,7 @@ public class MethodVariant
 	 *
 	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
 	 */
-	public final FGNode queryThrowNode(InvokeExpr e, SootClass exception) {
+	public final IFGNode queryThrowNode(InvokeExpr e, SootClass exception) {
 		return queryThrowNode(e, exception, _CONTEXT);
 	}
 
@@ -490,11 +503,11 @@ public class MethodVariant
 	 *
 	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
 	 */
-	public final FGNode queryThrowNode(InvokeExpr e, SootClass exception, Context c) {
+	public final IFGNode queryThrowNode(InvokeExpr e, SootClass exception, Context c) {
 		InvocationVariant var = (InvocationVariant) queryASTVariant(e, c);
-		FGNode temp = null;
+		IFGNode temp = null;
 
-		if(var != null) {
+		if (var != null) {
 			temp = var.queryThrowNode(exception);
 		}
 		return temp;

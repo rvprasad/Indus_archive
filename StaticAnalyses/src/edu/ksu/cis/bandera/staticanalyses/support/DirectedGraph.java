@@ -49,7 +49,7 @@ import java.util.Stack;
 
 
 /**
- * This class represents a directed graph in which nodes are represented by <code>Node</code> objects.  It is abstract for
+ * This class represents a directed graph in which nodes are represented by <code>INode</code> objects.  It is abstract for
  * the reason of extensibility.  The subclasses are responsible for maintaining the collection of nodes that make up this
  * graph. The nodes in the graph are to be ordered.  the subclasses can determine the ordering, but it needs to be
  * unmodifiable over the lifetime of the graph.
@@ -62,14 +62,14 @@ public abstract class DirectedGraph {
 	/**
 	 * The set of nodes that constitute the head nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
-	 * @invariant heads.oclIsKindOf(Set(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @invariant heads.oclIsKindOf(Set(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 */
 	protected final Set heads = new HashSet();
 
 	/**
 	 * The set of nodes that constitute the tail nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
-	 * @invariant heads.oclIsKindOf(Set(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @invariant heads.oclIsKindOf(Set(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 */
 	protected final Set tails = new HashSet();
 
@@ -81,8 +81,8 @@ public abstract class DirectedGraph {
 	/**
 	 * This maps a node to it's spanning successor nodes.
 	 *
-	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Node))
-	 * @invariant spanningSuccs.values()->forall( o | o.oclIsKindOf(Set) and o->forall( p | p.oclIsKindOf(Node)))
+	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.INode))
+	 * @invariant spanningSuccs.values()->forall( o | o.oclIsKindOf(Set) and o->forall( p | p.oclIsKindOf(INode)))
 	 */
 	private Map spanningSuccs;
 
@@ -102,11 +102,11 @@ public abstract class DirectedGraph {
 		List nodes = getNodes();
 		BitSet result[] = new BitSet[nodes.size()];
 
-		for(int i = 0, len = nodes.size(); i < len; i++) {
-			Node temp = (Node) nodes.get(i);
+		for (int i = 0, len = nodes.size(); i < len; i++) {
+			INode temp = (INode) nodes.get(i);
 			BitSet preds = new BitSet(nodes.size());
 
-			for(Iterator j = temp.getPredsOf().iterator(); j.hasNext();) {
+			for (Iterator j = temp.getPredsOf().iterator(); j.hasNext();) {
 				preds.set(nodes.indexOf(j));
 			}
 			result[i] = preds;
@@ -121,13 +121,13 @@ public abstract class DirectedGraph {
 	 *
 	 * @param node of interest.
 	 *
-	 * @return the successor nodes(<code>Node</code>) of <code>node</code>.
+	 * @return the successor nodes(<code>INode</code>) of <code>node</code>.
 	 *
 	 * @post result.oclIsKindOf(Collection)
-	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 */
-	public Collection getForwardSuccsOf(Node node) {
-		if(!hasSpanningTree) {
+	public Collection getForwardSuccsOf(INode node) {
+		if (!hasSpanningTree) {
 			createSpanningForest();
 		}
 		return (Collection) spanningSuccs.get(node);
@@ -136,10 +136,10 @@ public abstract class DirectedGraph {
 	/**
 	 * Retrieves the head nodes of this graph.
 	 *
-	 * @return the head nodes(<code>Node</code>) of this graph.
+	 * @return the head nodes(<code>INode</code>) of this graph.
 	 *
 	 * @post result.oclIsKindOf(Collection)
-	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 * @post result->includesAll(heads)
 	 */
 	public Collection getHeads() {
@@ -151,10 +151,10 @@ public abstract class DirectedGraph {
 	 * are added or removed.  In case of addition and removal, the relative ordering between the old nodes should not change
 	 * across calls.
 	 *
-	 * @return the nodes(<code>Node</code>) in the graph.
+	 * @return the nodes(<code>INode</code>) in the graph.
 	 *
 	 * @post result.oclIsKindOf(Sequence)
-	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 */
 	public abstract List getNodes();
 
@@ -170,11 +170,11 @@ public abstract class DirectedGraph {
 		List nodes = getNodes();
 		BitSet result[] = new BitSet[nodes.size()];
 
-		for(int i = 0, len = nodes.size(); i < len; i++) {
-			Node temp = (Node) nodes.get(i);
+		for (int i = 0, len = nodes.size(); i < len; i++) {
+			INode temp = (INode) nodes.get(i);
 			BitSet succs = new BitSet(nodes.size());
 
-			for(Iterator j = temp.getSuccsOf().iterator(); j.hasNext();) {
+			for (Iterator j = temp.getSuccsOf().iterator(); j.hasNext();) {
 				succs.set(nodes.indexOf(j));
 			}
 			result[i] = succs;
@@ -191,23 +191,23 @@ public abstract class DirectedGraph {
 	 * @param forward <code>true</code> indicates by forward traversal; <code>false</code> indicates backward traversal.
 	 *
 	 * @return <code>true</code> if <code>dest</code> is reachable from <code>src</code> in the given direction;
-	 * 		   <code>false</code>, otherwise.
+	 *            <code>false</code>, otherwise.
 	 */
-	public boolean isReachable(Node src, Node dest, boolean forward) {
+	public boolean isReachable(INode src, INode dest, boolean forward) {
 		boolean result = false;
 		Collection processed = new HashSet();
 		WorkBag worklist = new WorkBag(WorkBag.LIFO);
 		worklist.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
 
-		while(!worklist.isEmpty()) {
-			Node node = (Node) worklist.getWork();
+		while (!worklist.isEmpty()) {
+			INode node = (INode) worklist.getWork();
 
-			if(node == dest) {
+			if (node == dest) {
 				result = true;
 				break;
 			}
 
-			if(!processed.contains(node)) {
+			if (!processed.contains(node)) {
 				processed.add(node);
 				worklist.addAllWorkNoDuplicates(node.getSuccsNodesInDirection(forward));
 			}
@@ -217,7 +217,7 @@ public abstract class DirectedGraph {
 
 	/**
 	 * Retrieves the succession information as it occues in this graph's spanning tree.  The returned map maps a
-	 * <code>Node</code> to a <code>Colleciton</code> of <code>Node</code> objects which succeed the value node upon
+	 * <code>INode</code> to a <code>Colleciton</code> of <code>INode</code> objects which succeed the value node upon
 	 * creating a spanning tree of this graph.
 	 *
 	 * @return an read-only copy of succession information as it occurs in this graph's spanning tree.
@@ -225,7 +225,7 @@ public abstract class DirectedGraph {
 	 * @post result.equals(spanningSuccs)
 	 */
 	public final Map getSpanningSuccs() {
-		if(!hasSpanningTree) {
+		if (!hasSpanningTree) {
 			createSpanningForest();
 			hasSpanningTree = true;
 		}
@@ -235,10 +235,10 @@ public abstract class DirectedGraph {
 	/**
 	 * Retrieves the tail nodes of this graph.
 	 *
-	 * @return the tail nodes(<code>Node</code>) of this graph.
+	 * @return the tail nodes(<code>INode</code>) of this graph.
 	 *
 	 * @post result.oclIsKindOf(java.util.Collection)
-	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Node))
+	 * @post result->forall( o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.INode))
 	 * @post result->includesAll(tails)
 	 */
 	public Collection getTails() {
@@ -256,39 +256,39 @@ public abstract class DirectedGraph {
 	 * Returns the cycles that occur in the graph.
 	 *
 	 * @return a collection of list of nodes which form cycles in this graph.  The head of the list is the initiator/head of
-	 * 		   the cycle.
+	 *            the cycle.
 	 *
-	 * @post result->forall(o | o.oclIsKindOf(List(Node)))
+	 * @post result->forall(o | o.oclIsKindOf(List(INode)))
 	 */
 	public final Collection getCycles() {
 		Collection result = new ArrayList();
 		WorkBag wb = new WorkBag(WorkBag.LIFO);
 		Stack dfsPath = new Stack();
 
-		for(Iterator i = getHeads().iterator(); i.hasNext();) {
-			Node head = (Node) i.next();
+		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+			INode head = (INode) i.next();
 			wb.clear();
 			wb.addWork(head);
 			dfsPath.clear();
 
-			while(!(wb.isEmpty())) {
+			while (!(wb.isEmpty())) {
 				Object o = wb.getWork();
 
-				if(o instanceof Marker) {
+				if (o instanceof Marker) {
 					Object temp = ((Marker) o)._CONTENT;
 
-					for(Object obj = dfsPath.pop(); !temp.equals(obj); obj = dfsPath.pop()) {
+					for (Object obj = dfsPath.pop(); !temp.equals(obj); obj = dfsPath.pop()) {
 						;
 					}
 				} else {
-					Node node = (Node) o;
+					INode node = (INode) o;
 
-					if(dfsPath.contains(node)) {
+					if (dfsPath.contains(node)) {
 						result.add(new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size())));
 					} else {
 						Collection succs = node.getSuccsOf();
 
-						if(!succs.isEmpty()) {
+						if (!succs.isEmpty()) {
 							dfsPath.push(node);
 							wb.addWork(new Marker(node));
 							wb.addAllWork(succs);
@@ -304,12 +304,12 @@ public abstract class DirectedGraph {
 	 * Returns a collection of strongly-connected components in this graph.
 	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
-	 * 		  indicates bottom-up.
+	 *           indicates bottom-up.
 	 *
-	 * @return a collection of <code>List</code> of <code>Node</code>s that form SCCs in this graph. NOTE: It is possible to
-	 * 		   reach nodes not in the SCC but in this graph by following edges in reverse direction.
+	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph. NOTE: It is possible to
+	 *            reach nodes not in the SCC but in this graph by following edges in reverse direction.
 	 *
-	 * @post result.isOclKindOf(Collection(List(Node)))
+	 * @post result.isOclKindOf(Collection(List(INode)))
 	 */
 	public final Collection getSCCs(boolean topDown) {
 		Collection result = new ArrayList();
@@ -318,10 +318,10 @@ public abstract class DirectedGraph {
 		Collection processed = new HashSet();
 		int time = 0;
 
-		for(Iterator i = getHeads().iterator(); i.hasNext();) {
-			Node node = (Node) i.next();
+		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
 
-			if(!processed.contains(node)) {
+			if (!processed.contains(node)) {
 				time = getFinishTimes(nodes, node, processed, finishTime2node, time, true);
 			}
 		}
@@ -333,7 +333,7 @@ public abstract class DirectedGraph {
 
 		Map node2finishTime = new HashMap();
 
-		for(Iterator i = c.iterator(); i.hasNext();) {
+		for (Iterator i = c.iterator(); i.hasNext();) {
 			Object element = (Object) i.next();
 			node2finishTime.put(finishTime2node.get(element), element);
 		}
@@ -342,27 +342,27 @@ public abstract class DirectedGraph {
 		Stack stack = new Stack();
 		Map fn2scc = new HashMap();
 
-		for(Iterator i = c.iterator(); i.hasNext() && !processed.containsAll(nodes);) {
+		for (Iterator i = c.iterator(); i.hasNext() && !processed.containsAll(nodes);) {
 			Integer fn = (Integer) i.next();
-			Node node = (Node) finishTime2node.get(fn);
+			INode node = (INode) finishTime2node.get(fn);
 
-			if(processed.contains(node)) {
+			if (processed.contains(node)) {
 				continue;
 			}
 			stack.push(node);
 
 			List scc = new ArrayList();
 
-			while(!stack.isEmpty()) {
-				node = (Node) stack.pop();
+			while (!stack.isEmpty()) {
+				node = (INode) stack.pop();
 
-				if(processed.contains(node)) {
+				if (processed.contains(node)) {
 					continue;
 				}
 
 				Integer temp = (Integer) node2finishTime.get(node);
 
-				if(temp.intValue() > fn.intValue()) {
+				if (temp.intValue() > fn.intValue()) {
 					fn = temp;
 				}
 				scc.add(node);
@@ -375,11 +375,11 @@ public abstract class DirectedGraph {
 		c.addAll(fn2scc.keySet());
 		Collections.sort(c);
 
-		if(topDown) {
+		if (topDown) {
 			Collections.reverse(c);
 		}
 
-		for(Iterator i = c.iterator(); i.hasNext();) {
+		for (Iterator i = c.iterator(); i.hasNext();) {
 			result.add(fn2scc.get(i.next()));
 		}
 		return result;
@@ -393,17 +393,17 @@ public abstract class DirectedGraph {
 	 *
 	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
 	 */
-	public final boolean occursInCycle(Node node) {
+	public final boolean occursInCycle(INode node) {
 		boolean result = false;
 		WorkBag wb = new WorkBag(WorkBag.LIFO);
 		wb.addWork(node);
 
 		Collection processed = new HashSet();
 
-		while(!wb.isEmpty()) {
-			Node temp = (Node) wb.getWork();
+		while (!wb.isEmpty()) {
+			INode temp = (INode) wb.getWork();
 
-			if(processed.contains(temp)) {
+			if (processed.contains(temp)) {
 				result = true;
 				break;
 			}
@@ -415,7 +415,7 @@ public abstract class DirectedGraph {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param nodes DOCUMENT ME!
@@ -429,10 +429,10 @@ public abstract class DirectedGraph {
 		Collection processed = new ArrayList();
 		int time = 0;
 
-		for(Iterator i = nodes.iterator(); i.hasNext();) {
-			Node node = (Node) i.next();
+		for (Iterator i = nodes.iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
 
-			if(processed.contains(node)) {
+			if (processed.contains(node)) {
 				continue;
 			}
 			time = getFinishTimes(nodes, node, processed, finishTime2node, time, topdown);
@@ -441,7 +441,7 @@ public abstract class DirectedGraph {
 		List temp = new ArrayList(finishTime2node.keySet());
 		Collections.sort(temp);
 
-		for(Iterator i = temp.iterator(); i.hasNext();) {
+		for (Iterator i = temp.iterator(); i.hasNext();) {
 			result.add(0, finishTime2node.get(i.next()));
 		}
 		return result;
@@ -459,17 +459,17 @@ public abstract class DirectedGraph {
 	 *
 	 * @return the finish time after the given dfs traversal.
 	 */
-	private static int getFinishTimes(List nodes, Node node, Collection processed, Map finishTime2node, int time,
+	private static int getFinishTimes(List nodes, INode node, Collection processed, Map finishTime2node, int time,
 		boolean forward) {
 		processed.add(node);
 		time++;
 
 		Iterator i = node.getSuccsNodesInDirection(forward).iterator();
 
-		for(; i.hasNext();) {
-			Node succ = (Node) i.next();
+		for (; i.hasNext();) {
+			INode succ = (INode) i.next();
 
-			if(processed.contains(succ) || !nodes.contains(succ)) {
+			if (processed.contains(succ) || !nodes.contains(succ)) {
 				continue;
 			}
 			time = getFinishTimes(nodes, succ, processed, finishTime2node, time, forward);
@@ -486,22 +486,22 @@ public abstract class DirectedGraph {
 	private final void createSpanningForest() {
 		Collection processed = new HashSet();
 
-		if(spanningSuccs == null) {
+		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap();
 		}
 		spanningSuccs.clear();
 
-		for(Iterator i = getHeads().iterator(); i.hasNext();) {
-			Node node = (Node) i.next();
+		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
 
-			if(!processed.contains(node)) {
+			if (!processed.contains(node)) {
 				Collection temp = new HashSet();
 				spanningSuccs.put(node, temp);
 
-				for(Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
-					Node succ = (Node) j.next();
+				for (Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
+					INode succ = (INode) j.next();
 
-					if(!processed.contains(succ)) {
+					if (!processed.contains(succ)) {
 						temp.add(succ);
 					}
 				}

@@ -33,55 +33,36 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import ca.mcgill.sable.soot.jimple.NewExpr;
-import ca.mcgill.sable.soot.jimple.Stmt;
 
+//IFGNodeConnector.java
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * <p>
+ * The super interface to be implemented by classes which connect AST nodes to Non-AST nodes.  An implementation of this
+ * interface separates the logic of connecting AST and Non-AST nodes depending on whether the AST node corresponds to  a
+ * r-value or l-value expression when constructing the flow graph.  This helps realize something similar to the
+ * <i>Strategy</i> pattern as given in Gang of Four book.
+ * </p>
+ *
+ * <p>
+ * Created: Wed Jan 30 15:18:24 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @author $Author$
  * @version $Revision$
  */
-public interface EscapeAnalysis {
+public interface IFGNodeConnector {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * <p>
+	 * Connects the given AST node to the Non-AST node.
+	 * </p>
 	 *
-	 * @param allocSite DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @param ast the AST node to be connected to the Non-AST node.
+	 * @param nonast the Non-AST node to be connected to the AST node.
 	 */
-	boolean isMethodEscaping(NewExpr allocSite);
-
-	/**
-	 * Checks if the given synchronization statement is executed by a single thread.
-	 *
-	 * @param stmt is the synchronization statement.
-	 *
-	 * @return <code>true</code> if <code>stmt</code> is executed by a single thread; <code>false</code>, otherwise.
-	 *
-	 * @pre stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt) or
-	 * 		stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt)
-	 */
-	boolean isSingleThreadSynchronized(Stmt stmt);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param allocSite DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	boolean isThreadEscaping(NewExpr allocSite);
+	void connect(IFGNode ast, IFGNode nonast);
 }
 
 /*****

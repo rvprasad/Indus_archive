@@ -64,7 +64,7 @@ import java.util.Map;
  * This class provides data dependency information pertaining to method local data.  Method local data constitutes local
  * variables of primitive types and reference types in a method.  It does not include array elements even though the array
  * is local.
- * 
+ *
  * <p>
  * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in the
  * methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
@@ -72,7 +72,7 @@ import java.util.Map;
  * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
  * statements.
  * </p>
- * 
+ *
  * <p>
  * The rational for the way the information is maintained is only one local can be defined in a statement.  Also, if the
  * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on the
@@ -95,7 +95,7 @@ public class MethodLocalDataDA
 	 * in which the o occurs.
 	 *
 	 * @param o is a <code>Pair</code> containing the <code>Stmt</code> and the <code>ValueBox</code>(in the given order) of
-	 * 		  interest.
+	 *           interest.
 	 * @param context is the <code>SootMethod</code> in which <code>o</code> occurs.
 	 *
 	 * @return a collection of <code>Stmt</code>s on which <code>o</code> depends.
@@ -122,7 +122,7 @@ public class MethodLocalDataDA
 	 * which the o occurs.
 	 *
 	 * @param o is a <code>Pair</code> containing the <code>Stmt</code> and the <code>ValueBox</code>(in the given order) of
-	 * 		  interest.
+	 *           interest.
 	 * @param context is the <code>SootMethod</code> in which <code>o</code> occurs.
 	 *
 	 * @return a collection of <code>Stmt</code>s which depend on <code>o</code>.
@@ -147,7 +147,7 @@ public class MethodLocalDataDA
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
-		for(Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod currMethod = (SootMethod) entry.getKey();
 			CompleteStmtGraph stmtGraph = (CompleteStmtGraph) entry.getValue();
@@ -156,17 +156,17 @@ public class MethodLocalDataDA
 			List dependees = new ArrayList();
 			List dependents = new ArrayList();
 
-			for(ca.mcgill.sable.util.Iterator j = stmtGraph.getBody().getStmtList().iterator(); j.hasNext();) {
+			for (ca.mcgill.sable.util.Iterator j = stmtGraph.getBody().getStmtList().iterator(); j.hasNext();) {
 				Stmt currStmt = (Stmt) j.next();
 				Collection currUses = Collections.EMPTY_LIST;
 
-				if(currStmt instanceof DefinitionStmt) {
+				if (currStmt instanceof DefinitionStmt) {
 					Collection temp = Util.convert("java.util.ArrayList", uses.getUsesOf((DefinitionStmt) currStmt));
 
-					if(temp.size() != 0) {
+					if (temp.size() != 0) {
 						currUses = new ArrayList();
 
-						for(Iterator k = currUses.iterator(); k.hasNext();) {
+						for (Iterator k = currUses.iterator(); k.hasNext();) {
 							StmtValueBoxPair element = (StmtValueBoxPair) k.next();
 							currUses.add(element.stmt);
 						}
@@ -176,14 +176,14 @@ public class MethodLocalDataDA
 
 				Map currDefs = Collections.EMPTY_MAP;
 
-				if(currStmt.getUseBoxes().size() > 0) {
+				if (currStmt.getUseBoxes().size() > 0) {
 					currDefs = new HashMap();
 
-					for(ca.mcgill.sable.util.Iterator k = currStmt.getUseBoxes().iterator(); k.hasNext();) {
+					for (ca.mcgill.sable.util.Iterator k = currStmt.getUseBoxes().iterator(); k.hasNext();) {
 						ValueBox currValueBox = (ValueBox) k.next();
 						Value value = currValueBox.getValue();
 
-						if(value instanceof Local) {
+						if (value instanceof Local) {
 							currDefs.put(currValueBox,
 								Util.convert("java.util.ArrayList", defs.getDefsOfAt((Local) value, currStmt)));
 						}

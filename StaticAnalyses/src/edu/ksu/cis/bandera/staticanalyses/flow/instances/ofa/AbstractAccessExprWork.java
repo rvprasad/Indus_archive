@@ -39,7 +39,7 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 
@@ -96,13 +96,13 @@ public abstract class AbstractAccessExprWork
 	 * Creates a new <code>AbstractAccessExprWork</code> instance.
 	 * </p>
 	 *
-	 * @param caller the method in which the access expression occurs.
-	 * @param accessExprBox the access expression program point.  This is usually <code>ValueBox</code> containing
-	 * 		  <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
-	 * @param context the context in which the access occurs.
+	 * @param callerMethod the method in which the access expression occurs.
+	 * @param accessExpr the access expression program point.  This is usually <code>ValueBox</code> containing
+	 *           <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
+	 * @param accessContext the context in which the access occurs.
 	 */
-	protected AbstractAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context) {
-		this(null, new ArrayList(), caller, accessExprBox, (Context) context.clone());
+	protected AbstractAccessExprWork(MethodVariant callerMethod, ValueBox accessExpr, Context accessContext) {
+		this(null, new ArrayList(), callerMethod, accessExpr, (Context) accessContext.clone());
 	}
 
 	/**
@@ -112,17 +112,17 @@ public abstract class AbstractAccessExprWork
 	 *
 	 * @param node the node associated with the access expression.
 	 * @param values the values arriving at <code>node</code>.
-	 * @param caller the method in which the access expression occurs.
-	 * @param accessExprBox the access expression program point.  This is usually <code>ValueBox</code> containing
-	 * 		  <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
-	 * @param context the context in which the access occurs.
+	 * @param callerMethod the method in which the access expression occurs.
+	 * @param accessExpr the access expression program point.  This is usually <code>ValueBox</code> containing
+	 *           <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
+	 * @param accessContext the context in which the access occurs.
 	 */
-	protected AbstractAccessExprWork(FGNode node, Collection values, MethodVariant caller, ValueBox accessExprBox,
-		Context context) {
+	protected AbstractAccessExprWork(IFGNode node, Collection values, MethodVariant callerMethod, ValueBox accessExpr,
+		Context accessContext) {
 		super(node, values);
-		this.accessExprBox = accessExprBox;
-		this.caller = caller;
-		this.context = (AllocationContext) context.clone();
+		this.accessExprBox = accessExpr;
+		this.caller = callerMethod;
+		this.context = (AllocationContext) accessContext.clone();
 	}
 }
 

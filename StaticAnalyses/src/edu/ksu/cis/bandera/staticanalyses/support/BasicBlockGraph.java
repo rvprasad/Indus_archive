@@ -94,7 +94,7 @@ public class BasicBlockGraph
 		StmtList stmtList = jimpleBody.getStmtList();
 		int numOfStmt = stmtList.size();
 
-		if(numOfStmt == 0) {
+		if (numOfStmt == 0) {
 			blocks = Collections.EMPTY_LIST;
 			stmt2BlockMap = ZERO_LENGTH_ARRAY;
 			return;
@@ -110,12 +110,12 @@ public class BasicBlockGraph
 		WorkBag wb = new WorkBag(WorkBag.LIFO);
 		wb.addWork(stmtList.get(0));
 
-		while(!wb.isEmpty()) {
+		while (!wb.isEmpty()) {
 			stmts.clear();
 
 			Stmt stmt = (Stmt) wb.getWork();
 
-			if(processed.contains(stmt)) {
+			if (processed.contains(stmt)) {
 				continue;
 			}
 			processed.add(stmt);
@@ -123,22 +123,22 @@ public class BasicBlockGraph
 
 			Stmt pred = stmt;
 
-			while(true) {
+			while (true) {
 				ca.mcgill.sable.util.Collection preds = stmtGraph.getPredsOf(stmt);
 				ca.mcgill.sable.util.Collection succs = stmtGraph.getSuccsOf(stmt);
 				int succsSize = succs.size();
 
-				if(preds.size() > 1 && pred != stmt) {
+				if (preds.size() > 1 && pred != stmt) {
 					trailer = stmtList.indexOf(pred);
 					wb.addWorkNoDuplicates(stmt);
 					break;
 				}
 				stmts.add(stmt);
 
-				if(succsSize > 1 || succsSize == 0) {
+				if (succsSize > 1 || succsSize == 0) {
 					trailer = stmtList.indexOf(stmt);
 
-					if(succsSize > 1) {
+					if (succsSize > 1) {
 						wb.addAllWorkNoDuplicates(Util.convert("java.util.ArrayList", succs));
 					}
 					break;
@@ -147,20 +147,20 @@ public class BasicBlockGraph
 				stmt = (Stmt) stmtGraph.getSuccsOf(pred).get(0);
 			}
 
-			BasicBlock bblock = new BasicBlock(leader, trailer, stmts, this);
+			BasicBlock bblock = new BasicBlock(leader, trailer, stmts);
 
-			for(Iterator i = stmts.iterator(); i.hasNext();) {
+			for (Iterator i = stmts.iterator(); i.hasNext();) {
 				stmt2BlockMap[stmtList.indexOf(i.next())] = bblock;
 			}
 			blocks.add(bblock);
 		}
 
 		// Connect the nodes of the graph.
-		for(Iterator i = blocks.iterator(); i.hasNext();) {
+		for (Iterator i = blocks.iterator(); i.hasNext();) {
 			BasicBlock block = (BasicBlock) i.next();
 			Stmt stmt = (Stmt) stmtList.get(block._TRAILER);
 
-			for(ca.mcgill.sable.util.Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
+			for (ca.mcgill.sable.util.Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
 				BasicBlock nBlock = getEnclosingBlock(nStmt);
 				block.addSuccessors(nBlock);
@@ -172,7 +172,7 @@ public class BasicBlockGraph
 		heads.add(getEnclosingBlock((Stmt) stmtGraph.getHeads().get(0)));
 
 		// Setup the tails of the graph.
-		for(ca.mcgill.sable.util.Iterator i = stmtGraph.getTails().iterator(); i.hasNext();) {
+		for (ca.mcgill.sable.util.Iterator i = stmtGraph.getTails().iterator(); i.hasNext();) {
 			tails.add(getEnclosingBlock((Stmt) i.next()));
 		}
 	}
@@ -197,11 +197,6 @@ public class BasicBlockGraph
 		public final int _TRAILER;
 
 		/**
-		 * The graph in which this node occurs.
-		 */
-		private final BasicBlockGraph fGRAPH;
-
-		/**
 		 * The list of statements represented by this block.
 		 */
 		private final List stmts;
@@ -212,15 +207,13 @@ public class BasicBlockGraph
 		 * @param leader is the index of the leader statement of this block in the statement list of the method.
 		 * @param trailer is the index of the trailer statement of this block in the statement list of the method.
 		 * @param stmts is the list of statements being represented by this block.
-		 * @param graph is the graph in which block occurs.
 		 *
-		 * @pre leader >= 0 && leader &lt; graph.numOfStmt && trailer >= leader && trailer &lt; graph.numOfStmt;
+		 * @pre leader >= 0 && leader < graph.numOfStmt && trailer >= leader && trailer < graph.numOfStmt;
 		 */
-		protected BasicBlock(int leader, int trailer, List stmts, BasicBlockGraph graph) {
+		protected BasicBlock(int leader, int trailer, List stmts) {
 			super(null);
 			this._LEADER = leader;
 			this._TRAILER = trailer;
-			this.fGRAPH = graph;
 			this.stmts = new ArrayList(stmts);
 		}
 
@@ -228,11 +221,11 @@ public class BasicBlockGraph
 		 * Retrieves the statements in this block starting from <code>start</code>.
 		 *
 		 * @param start is the index starting from which the statements are requested.  The index is relative to the
-		 * 		  statement list of the method and not the statement list of this block.
+		 *           statement list of the method and not the statement list of this block.
 		 *
 		 * @return a list of <code>Stmt</code>s.
 		 *
-		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
+		 * @post (start < leader or start >= trailer) implies (result.size() = 0)
 		 */
 		public final List getStmtFrom(int start) {
 			return getStmtFromTo(start, _TRAILER);
@@ -247,7 +240,7 @@ public class BasicBlockGraph
 		 *
 		 * @return a list of <code>Stmt</code>s.
 		 *
-		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
+		 * @post ((start < leader or end > trailer or start >= end)) implies (result.size() = 0)
 		 */
 		public final List getStmtFromTo(int start, int end) {
 			List result = Collections.EMPTY_LIST;
@@ -256,22 +249,22 @@ public class BasicBlockGraph
 			Stmt begStmt = (Stmt) sl.get(start);
 			Stmt endStmt = (Stmt) sl.get(end);
 
-			if(stmts.contains(begStmt) && stmts.contains(endStmt)) {
+			if (stmts.contains(begStmt) && stmts.contains(endStmt)) {
 				result = new ArrayList();
 
 				Iterator i = stmts.iterator();
 
-				for(; i.hasNext();) {
-					if(i.next().equals(begStmt)) {
+				for (; i.hasNext();) {
+					if (i.next().equals(begStmt)) {
 						break;
 					}
 				}
 				result.add(begStmt);
 
-				for(; i.hasNext();) {
+				for (; i.hasNext();) {
 					Object o = i.next();
 
-					if(o.equals(endStmt)) {
+					if (o.equals(endStmt)) {
 						break;
 					}
 					result.add(o);
@@ -303,7 +296,7 @@ public class BasicBlockGraph
 	public final BasicBlock getEnclosingBlock(int stmtIndex) {
 		BasicBlock result = null;
 
-		if(stmt2BlockMap.length != 0) {
+		if (stmt2BlockMap.length != 0) {
 			result = stmt2BlockMap[stmtIndex];
 		}
 		return result;

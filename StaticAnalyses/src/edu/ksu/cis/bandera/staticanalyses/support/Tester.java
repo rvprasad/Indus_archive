@@ -55,7 +55,7 @@ import java.util.Map;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -107,7 +107,7 @@ public abstract class Tester {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param key DOCUMENT ME!
@@ -119,7 +119,7 @@ public abstract class Tester {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!
@@ -130,35 +130,35 @@ public abstract class Tester {
 		SootClassManager result = new SootClassManager();
 		boolean flag = false;
 
-		for(int i = 0; i < args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			result.getClass(args[i]);
 		}
 
 		ca.mcgill.sable.util.Collection mc = new ca.mcgill.sable.util.HashSet();
 		mc.addAll(result.getClasses());
 
-		for(ca.mcgill.sable.util.Iterator i = mc.iterator(); i.hasNext();) {
+		for (ca.mcgill.sable.util.Iterator i = mc.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 
-			if(Util.implementsInterface(sc, "java.lang.Runnable")) {
+			if (Util.implementsInterface(sc, "java.lang.Runnable")) {
 				flag = true;
 			}
 
 			ca.mcgill.sable.util.Collection methods = sc.getMethods();
 
-			for(ca.mcgill.sable.util.Iterator j = methods.iterator(); j.hasNext();) {
+			for (ca.mcgill.sable.util.Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 
 				try {
 					Util.getJimpleBody(sm);
 					populateRootMethods(sm);
-				} catch(Exception e) {
+				} catch (Exception e) {
 					LOGGER.warn("Method " + sm + " doesnot have body.", e);
 				}
 			}
 		}
 
-		if(flag) {
+		if (flag) {
 			result.getClass("java.lang.Runnable");
 
 			SootClass sc = result.getClass("java.lang.Thread");
@@ -171,19 +171,21 @@ public abstract class Tester {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * <p></p>
 	 */
 	protected abstract void execute();
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
 	 */
 	protected void populateRootMethods(SootMethod sm) {
-		if(sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
+		if (sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
 			rootMethods.add(sm);
 		}
 		Util.setThreadStartBody(sm);
@@ -191,13 +193,13 @@ public abstract class Tester {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 */
 	protected void printTimingStats() {
 		System.out.println("Timing statistics:");
 
-		for(Iterator i = times.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = times.keySet().iterator(); i.hasNext();) {
 			Object e = (Object) i.next();
 			System.out.println(e + " => " + times.get(e) + "ms");
 		}

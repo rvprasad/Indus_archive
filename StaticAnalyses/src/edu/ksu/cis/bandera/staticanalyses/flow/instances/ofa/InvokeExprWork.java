@@ -59,7 +59,7 @@ import ca.mcgill.sable.util.VectorList;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.bandera.staticanalyses.flow.BFA;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariantManager;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
@@ -71,8 +71,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-
-// InvokeExprWork.java
 
 /**
  * <p>
@@ -146,12 +144,13 @@ public class InvokeExprWork
 	 * @param exprSwitch the expression visitor to be used for visiting expressions.
 	 *
 	 * @throws IllegalArgumentException when <code>accessExprBox</code> does not wrap an <code>NonStaticInvokeExpr</code>
-	 * 		   object.
+	 *            object.
 	 */
-	public InvokeExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, AbstractExprSwitch exprSwitch) {
+	public InvokeExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, AbstractExprSwitch exprSwitch)
+	  throws IllegalArgumentException {
 		super(caller, accessExprBox, context);
 
-		if(!(accessExprBox.getValue() instanceof NonStaticInvokeExpr)) {
+		if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has to contain a NonStaticInvokeExpr object as value.");
 		}
 		this.exprSwitch = exprSwitch;
@@ -269,7 +268,7 @@ public class InvokeExprWork
 		protected boolean isThisTheMethod(SootMethod sm) {
 			boolean temp = false;
 
-			if(sm.getName().equals(nativeMethodName)
+			if (sm.getName().equals(nativeMethodName)
 				  && sm.getReturnType().equals(nativeMethodRetType)
 				  && Util.isDescendentOf(sm.getDeclaringClass(), declClassName)
 				  && Modifier.isNative(sm.getModifiers())
@@ -294,24 +293,30 @@ public class InvokeExprWork
 		SootClass sc;
 		SootClassManager scm = bfa.getSootClassManager();
 		ValueBox vb = context.getProgramPoint();
-		LOGGER.debug(this + "\n\tMethod:" + sm + "\n\tExpr:" + e + "\n\tValues:" + values + "\n\tNode:" + node);
 
-		for(Iterator i = values.iterator(); i.hasNext();) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(this + "\n\tMethod:" + sm + "\n\tExpr:" + e + "\n\tValues:" + values + "\n\tNode:" + node);
+		}
+
+		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value v = (Value) i.next();
-			LOGGER.debug("Value: " + v);
 
-			if(v instanceof NullConstant) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Value: " + v);
+			}
+
+			if (v instanceof NullConstant) {
 				continue;
 			}
 
-			if(e instanceof SpecialInvokeExpr) {
+			if (e instanceof SpecialInvokeExpr) {
 				sc = e.getMethod().getDeclaringClass();
 			} else {
 				Type t = v.getType();
 
-				if(t instanceof RefType) {
+				if (t instanceof RefType) {
 					sc = bfa.getClass(((RefType) v.getType()).className);
-				} else if(t instanceof ArrayType) {
+				} else if (t instanceof ArrayType) {
 					sc = bfa.getClass("java.lang.Object");
 				} else {
 					RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
@@ -323,7 +328,7 @@ public class InvokeExprWork
 
 			try {
 				sm = MethodVariantManager.findDeclaringMethod(sc, e.getMethod());
-			} catch(RuntimeException ee) {
+			} catch (RuntimeException ee) {
 				LOGGER.error(sc + ":" + context.getCurrentMethod() + "@" + e, ee);
 				context.setProgramPoint(vb);
 				throw ee;
@@ -331,11 +336,12 @@ public class InvokeExprWork
 
 			MethodVariant mv = bfa.getMethodVariant(sm, context);
 
-			if(!installedVariants.contains(mv)) {
-				FGNode param;
-				FGNode arg;
-System.out.println(this.hashCode() + ": " + sm + " " + sm.getParameterCount() + " " + mv._METHOD);
-				for(int j = 0; j < sm.getParameterCount(); j++) {
+			if (!installedVariants.contains(mv)) {
+				IFGNode param;
+				IFGNode arg;
+
+				//System.out.println(this.hashCode() + ": " + sm + " " + sm.getParameterCount() + " " + mv._METHOD);
+				for (int j = 0; j < sm.getParameterCount(); j++) {
 					param = mv.queryParameterNode(j);
 					context.setProgramPoint(e.getArgBox(j));
 					arg = caller.queryASTNode(e.getArg(j), context);
@@ -346,7 +352,7 @@ System.out.println(this.hashCode() + ": " + sm + " " + sm.getParameterCount() + 
 				arg = caller.queryASTNode(e.getBase(), context);
 				arg.addSucc(param);
 
-				if(nonVoid) {
+				if (nonVoid) {
 					arg = mv.queryReturnNode();
 					context.setProgramPoint(accessExprBox);
 					param = caller.queryASTNode(e, context);
@@ -355,21 +361,27 @@ System.out.println(this.hashCode() + ": " + sm + " " + sm.getParameterCount() + 
 				installedVariants.add(mv);
 			}
 
-			for(Iterator j = KNOWN_CALL_CHAINS.iterator(); j.hasNext();) {
+			for (Iterator j = KNOWN_CALL_CHAINS.iterator(); j.hasNext();) {
 				NativeMethodCall temp = (NativeMethodCall) j.next();
-				LOGGER.debug("Need to check if " + temp.nativeMethodName + " is same as " + sm.getSignature()
-					+ " declared in " + sm.getDeclaringClass());
 
-				if(temp.isThisTheMethod(sm)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Need to check if " + temp.nativeMethodName + " is same as " + sm.getSignature()
+						+ " declared in " + sm.getDeclaringClass());
+				}
+
+				if (temp.isThisTheMethod(sm)) {
 					SootMethod methodToCall = temp.getMethod(scm.getClass(e.getBase().getType().toString()));
 					VirtualInvokeExpr v1 = JIMPLE.newVirtualInvokeExpr((Local) e.getBase(), methodToCall, new VectorList());
 					exprSwitch.process(JIMPLE.newInvokeExprBox(v1));
 					context.setProgramPoint(e.getBaseBox());
 
-					FGNode src = caller.queryASTNode(e.getBase(), context);
+					IFGNode src = caller.queryASTNode(e.getBase(), context);
 					context.setProgramPoint(v1.getBaseBox());
 					src.addSucc(caller.queryASTNode(v1.getBase(), context));
-					LOGGER.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
+					}
 				}
 			}
 		}

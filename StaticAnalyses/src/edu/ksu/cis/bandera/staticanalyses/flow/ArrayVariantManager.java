@@ -42,7 +42,7 @@ import ca.mcgill.sable.soot.ArrayType;
  * <p>
  * This class manages variants corresponding to arrays.
  * </p>
- * 
+ *
  * <p>
  * Created: Fri Jan 25 13:50:16 2002
  * </p>
@@ -73,7 +73,7 @@ public class ArrayVariantManager
 	 *
 	 * @return a new <code>ArrayVariant</code> corresponding to <code>o</code>.
 	 */
-	protected Variant getNewVariant(Object o) {
+	protected IVariant getNewVariant(Object o) {
 		return new ArrayVariant((ArrayType) o, bfa.getNewFGNode());
 	}
 }

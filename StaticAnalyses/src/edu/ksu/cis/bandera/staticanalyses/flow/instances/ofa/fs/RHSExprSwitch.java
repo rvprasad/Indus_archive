@@ -43,8 +43,8 @@ import ca.mcgill.sable.util.Iterator;
 import ca.mcgill.sable.util.List;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -70,7 +70,7 @@ public class RHSExprSwitch
 	 * @param stmt the statement visitor which uses this instance of expression visitor.
 	 * @param connector the connector to be used to connect the ast and non-ast nodes.
 	 */
-	public RHSExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
+	public RHSExprSwitch(AbstractStmtSwitch stmt, IFGNodeConnector connector) {
 		super(stmt, connector);
 	}
 
@@ -81,28 +81,30 @@ public class RHSExprSwitch
 	 * @param e the local to be visited.
 	 */
 	public void caseLocal(Local e) {
-		FGNode ast = method.getASTNode(e);
-		LOGGER.debug("Local:" + e + "\n" + ast);
+		IFGNode ast = method.getASTNode(e);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Local:" + e + "\n" + ast);
+		}
 
 		List l = method.getDefsOfAt(e, stmt.getStmt());
 
-		if(l != null) {
+		if (l != null) {
 			ValueBox temp = context.getProgramPoint();
 
-			for(Iterator i = l.iterator(); i.hasNext();) {
+			for (Iterator i = l.iterator(); i.hasNext();) {
 				DefinitionStmt defStmt = (DefinitionStmt) i.next();
 				context.setProgramPoint(defStmt.getLeftOpBox());
 
-				FGNode defNode = method.getASTNode(defStmt.getLeftOp());
-				LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+				IFGNode defNode = method.getASTNode(defStmt.getLeftOp());
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+				}
 				defNode.addSucc(ast);
 			}
-
-			// end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
 			context.setProgramPoint(temp);
 		}
-
-		// end of if (l != null)
 		setResult(ast);
 	}
 
@@ -110,7 +112,7 @@ public class RHSExprSwitch
 	 * Returns a new instance of this class.
 	 *
 	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
-	 * 		  <code>AbstractStmtSwitch</code>.
+	 *           <code>AbstractStmtSwitch</code>.
 	 *
 	 * @return the new visitor instance.
 	 */

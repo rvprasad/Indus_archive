@@ -35,9 +35,10 @@
 
 package edu.ksu.cis.bandera.staticanalyses.support;
 
+
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -54,7 +55,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -65,7 +66,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -76,7 +77,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
@@ -84,11 +85,11 @@ public abstract class FastUnionFindElement {
 	public final FastUnionFindElement find() {
 		FastUnionFindElement result = this;
 
-		while(result.set != null) {
+		while (result.set != null) {
 			result = result.set;
 		}
 
-		if(result != this) {
+		if (result != this) {
 			set = result;
 		}
 		return result;
@@ -96,7 +97,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param e DOCUMENT ME!
@@ -109,7 +110,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param e DOCUMENT ME!
@@ -122,7 +123,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param e DOCUMENT ME!
@@ -131,8 +132,8 @@ public abstract class FastUnionFindElement {
 		FastUnionFindElement a = find();
 		FastUnionFindElement b = e.find();
 
-		if(a != b) {
-			if(b.isBound()) {
+		if (a != b) {
+			if (b.isBound()) {
 				a.set = b;
 			} else {  // if a.isBound() or neither is bound
 				b.set = a;
@@ -142,7 +143,7 @@ public abstract class FastUnionFindElement {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param e DOCUMENT ME!
@@ -156,12 +157,12 @@ public abstract class FastUnionFindElement {
 		a = find();
 		b = e.find();
 
-		if(a == b || a.sameType(b)) {
+		if (a == b || a.sameType(b)) {
 			result = true;
-		} else if(!(a.isAtomic() || b.isAtomic())) {
+		} else if (!(a.isAtomic() || b.isAtomic())) {
 			a.union(b);
 			result = a.unifyComponents(b);
-		} else if(!(a.isBound() && b.isBound())) {
+		} else if (!(a.isBound() && b.isBound())) {
 			a.union(b);
 			result = true;
 		}

@@ -33,88 +33,55 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow;
+package edu.ksu.cis.bandera.staticanalyses.escape;
 
-import java.util.Collection;
+import ca.mcgill.sable.soot.jimple.NewExpr;
+import ca.mcgill.sable.soot.jimple.Stmt;
 
 
 /**
- * A piece of work that can be processed by <code>WorkList</code>.
+ * DOCUMENT ME!
  *
- * <p>
- * Created: Tue Jan 22 02:54:57 2002
- * </p>
+ * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractWork {
+public interface IEscapeAnalysis {
 	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	protected Collection values;
-
-	/**
-	 * <p>
-	 * The flow graph node associated with this work.
-	 * </p>
-	 */
-	protected IFGNode node;
-
-	/**
-	 * <p>
-	 * Creates a new <code>AbstractWork</code> instance.
-	 * </p>
+	 * DOCUMENT ME!
 	 *
-	 * @param node the flow graph node associated with this work.
-	 * @param values the walues associated with this work.
-	 */
-	protected AbstractWork(IFGNode node, Collection values) {
-		this.node = node;
-		this.values = values;
-	}
-
-	/**
-	 * <p>
-	 * The actual work that needs to be done when this work is executed should be in this method.
-	 * </p>
-	 */
-	public abstract void execute();
-
-	/**
-	 * <p>
-	 * Associates a flow graph node with this work.
-	 * </p>
+	 * <p></p>
 	 *
-	 * @param node the flow graph node to be associated.
+	 * @param allocSite DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
 	 */
-	public final void setFGNode(IFGNode node) {
-		this.node = node;
-	}
+	boolean isMethodEscaping(NewExpr allocSite);
 
 	/**
-	 * <p>
-	 * Adds a value to the collection of values associated with this work.
-	 * </p>
+	 * Checks if the given synchronization statement is executed by a single thread.
 	 *
-	 * @param o the value to be added.
+	 * @param stmt is the synchronization statement.
+	 *
+	 * @return <code>true</code> if <code>stmt</code> is executed by a single thread; <code>false</code>, otherwise.
+	 *
+	 * @pre stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt) or
+	 *         stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt)
 	 */
-	public final synchronized void addValue(Object o) {
-		values.add(o);
-	}
+	boolean isSingleThreadSynchronized(Stmt stmt);
 
 	/**
-	 * <p>
-	 * Adds a collection of values to the collection of values associated with this work.
-	 * </p>
+	 * DOCUMENT ME!
 	 *
-	 * @param values the collection of values to be added.
+	 * <p></p>
+	 *
+	 * @param allocSite DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
 	 */
-	public final synchronized void addValues(Collection values) {
-		this.values.addAll(values);
-	}
+	boolean isThreadEscaping(NewExpr allocSite);
 }
 
 /*****

@@ -103,10 +103,13 @@ public class Context
 	 */
 	public SootMethod getCurrentMethod() {
 		SootMethod result = null;
+
 		try {
-			result = (SootMethod) callString.peek(); 
+			result = (SootMethod) callString.peek();
 		} catch (EmptyStackException e) {
-			LOGGER.info("There are no methods in the call stack.", e);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There are no methods in the call stack.", e);
+			}
 		}
 		return result;
 	}
@@ -139,7 +142,7 @@ public class Context
 	 * stack and installs the given method as the current method.
 	 *
 	 * @param sm the method to be installed as the current method and the only method on the call stack in this context. This
-	 * 		  cannot be <code>null</code>.
+	 *           cannot be <code>null</code>.
 	 */
 	public void setRootMethod(SootMethod sm) {
 		callString.removeAllElements();
@@ -174,7 +177,10 @@ public class Context
 	 * @param sm the method being called in the current context.  This cannot be <code>null</code>.
 	 */
 	public void callNewMethod(SootMethod sm) {
-		LOGGER.debug("Adding method " + sm);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Adding method " + sm);
+		}
+
 		callString.push(sm);
 	}
 
@@ -189,7 +195,7 @@ public class Context
 		try {
 			temp = (Context) super.clone();
 			temp.callString = (Stack) callString.clone();
-		} catch(CloneNotSupportedException e) {
+		} catch (CloneNotSupportedException e) {
 			LOGGER.error("This should not happen.", e);
 		} finally {
 			return temp;
@@ -206,22 +212,31 @@ public class Context
 	public boolean equals(Context c) {
 		boolean ret = true;
 
-		if(progPoint == null && c.progPoint == null) {
+		if (progPoint == null && c.progPoint == null) {
 			ret &= true;
-		} else if(progPoint != null) {
+		} else if (progPoint != null) {
 			ret &= progPoint.equals(c.progPoint);
 		} else {
 			ret &= c.progPoint.equals(progPoint);
 		}
 
-		if(callString == null && c.callString == null) {
+		if (callString == null && c.callString == null) {
 			ret &= true;
-		} else if(callString != null) {
+		} else if (callString != null) {
 			ret &= callString.equals(c.callString);
 		} else {
 			ret &= c.callString.equals(callString);
 		}
 		return ret;
+	}
+
+	/**
+	 * Returns the hash code of this object.  It is derived from the call stack and the program point.
+	 *
+	 * @return the hash code of this object.
+	 */
+	public int hashCode() {
+		return progPoint.hashCode() + callString.hashCode();
 	}
 
 	/**

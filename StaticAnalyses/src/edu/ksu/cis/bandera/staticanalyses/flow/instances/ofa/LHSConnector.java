@@ -35,8 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.IFGNodeConnector;
 
 
 /**
@@ -50,7 +50,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
  * @version $Revision$
  */
 public class LHSConnector
-  implements FGNodeConnector {
+  implements IFGNodeConnector {
 	/**
 	 * <p>
 	 * Connects the given ast flow graph node to the non-ast flow graph node.
@@ -59,7 +59,7 @@ public class LHSConnector
 	 * @param ast the ast flow graph node to be connected.
 	 * @param nonast the non-ast flow graph node to be connnected.
 	 */
-	public void connect(FGNode ast, FGNode nonast) {
+	public void connect(IFGNode ast, IFGNode nonast) {
 		ast.addSucc(nonast);
 	}
 }

@@ -63,7 +63,7 @@ public class SimpleController
 	 * </p>
 	 *
 	 * @param info is a map from name to objects which provide information that analyses may use, but is of no use to the
-	 * 		  controller.
+	 *           controller.
 	 * @param pc is the preprocess controller.
 	 */
 	public SimpleController(Map info, ProcessingController pc) {
@@ -93,15 +93,15 @@ public class SimpleController
 		do {
 			analyzing = false;
 
-			for(Iterator i = participatingAnalysesNames.iterator(); i.hasNext();) {
+			for (Iterator i = participatingAnalysesNames.iterator(); i.hasNext();) {
 				String daName = (String) i.next();
 				DependencyAnalysis temp = (DependencyAnalysis) participatingAnalyses.get(daName);
 
-				if(temp != null) {
+				if (temp != null) {
 					analyzing |= temp.analyze();
 				}
 			}
-		} while(analyzing);
+		} while (analyzing);
 		stable = true;
 	}
 }

@@ -83,7 +83,7 @@ public class SymbolicFlowAnalyzer
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param scm DOCUMENT ME!

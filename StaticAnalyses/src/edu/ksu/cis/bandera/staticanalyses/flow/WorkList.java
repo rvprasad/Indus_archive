@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
  * <p>
  * A worklist implementation.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 02:43:16 2002
  * </p>
@@ -81,7 +81,9 @@ public class WorkList
 	 * @param w the work to be added into the worklist.
 	 */
 	public final void addWork(AbstractWork w) {
-		LOGGER.debug("Added new work:" + w);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Added new work:" + w);
+		}
 		addWorkNoDuplicates(w);
 	}
 
@@ -92,9 +94,12 @@ public class WorkList
 	 * </p>
 	 */
 	void process() {
-		while(!isEmpty()) {
+		while (!isEmpty()) {
 			AbstractWork w = (AbstractWork) getWork();
-			LOGGER.debug("Processing work:" + w);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing work:" + w);
+			}
 			w.execute();
 		}
 	}

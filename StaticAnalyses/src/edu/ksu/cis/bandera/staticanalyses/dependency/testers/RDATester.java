@@ -35,16 +35,15 @@
 
 package edu.ksu.cis.bandera.staticanalyses.dependency.testers;
 
-
 import edu.ksu.cis.bandera.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.bandera.staticanalyses.dependency.ReadyDAv2;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -54,13 +53,6 @@ import java.util.Collection;
 public class RDATester
   extends IDATester {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Collection das;
-
-	/**
 	 * Creates a new RDATester object.
 	 */
 	private RDATester() {
@@ -68,7 +60,7 @@ public class RDATester
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!

@@ -56,7 +56,7 @@ import java.util.Map;
 
 /**
  * This class provides divergence dependency information.
- * 
+ *
  * <p>
  * This dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
  * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location in
@@ -107,7 +107,7 @@ public class DivergenceDA
 	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
-	 * 		java.lang.Object)
+	 *         java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object method) {
 		return getDependeXXHelper(dependentMap, dependeeStmt, method);
@@ -125,7 +125,7 @@ public class DivergenceDA
 		List stmt2ddents = new ArrayList();
 		List stmt2ddees = new ArrayList();
 
-		for(Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod method = (SootMethod) entry.getKey();
 			StmtList sl = ((StmtGraph) entry.getValue()).getBody().getStmtList();
@@ -133,11 +133,11 @@ public class DivergenceDA
 
 			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
 
-			for(Iterator j = bbGraph.getNodes().iterator(); j.hasNext();) {
+			for (Iterator j = bbGraph.getNodes().iterator(); j.hasNext();) {
 				BasicBlock bb = (BasicBlock) j.next();
 
 				// This will not work.  Backedge is not detected.  Implement SCC at bb level and use it here.
-				if(bbGraph.isReachable(bb, bb, true) && bb.getSuccsOf().size() > 1) {
+				if (bbGraph.isReachable(bb, bb, true) && bb.getSuccsOf().size() > 1) {
 					preDivPoints.add(bb);
 					stmt2ddents.add(bb._TRAILER, new HashSet());
 				}
@@ -146,21 +146,21 @@ public class DivergenceDA
 			WorkBag wb = new WorkBag(WorkBag.FIFO);
 			wb.addAllWork(bbGraph.getHeads());
 
-			while(!wb.isEmpty()) {
+			while (!wb.isEmpty()) {
 				BasicBlock bb = (BasicBlock) wb.getWork();
 
-				for(Iterator k = bb.getPredsOf().iterator(); k.hasNext();) {
+				for (Iterator k = bb.getPredsOf().iterator(); k.hasNext();) {
 					BasicBlock pred = (BasicBlock) k.next();
 					Collection stmts = bb.getStmtsOf();
 
-					if(preDivPoints.contains(pred)) {
+					if (preDivPoints.contains(pred)) {
 						Collection set = (Collection) stmt2ddees.get(bb._LEADER);
 
-						if(set == null) {
+						if (set == null) {
 							set = new HashSet();
 						}
 
-						for(Iterator l = stmts.iterator(); l.hasNext();) {
+						for (Iterator l = stmts.iterator(); l.hasNext();) {
 							Stmt stmt = (Stmt) l.next();
 							stmt2ddees.add(sl.indexOf(stmt), set);
 						}
@@ -168,12 +168,12 @@ public class DivergenceDA
 					} else {
 						Collection set = (Collection) stmt2ddees.get(pred._LEADER);
 
-						for(Iterator l = stmts.iterator(); l.hasNext();) {
+						for (Iterator l = stmts.iterator(); l.hasNext();) {
 							Stmt stmt = (Stmt) l.next();
 							stmt2ddees.add(sl.indexOf(stmt), set);
 						}
 
-						for(Iterator l = set.iterator(); l.hasNext();) {
+						for (Iterator l = set.iterator(); l.hasNext();) {
 							((Collection) stmt2ddents.get(sl.indexOf((Stmt) l.next()))).addAll(stmts);
 						}
 					}
@@ -181,14 +181,14 @@ public class DivergenceDA
 				wb.addAllWork(bbGraph.getForwardSuccsOf(bb));
 			}
 
-			if(stmt2ddents.size() == 0) {
+			if (stmt2ddents.size() == 0) {
 				dependentMap.put(method, Collections.EMPTY_LIST);
 			} else {
 				dependentMap.put(method, stmt2ddents);
 				stmt2ddents = new ArrayList();
 			}
 
-			if(stmt2ddees.size() == 0) {
+			if (stmt2ddees.size() == 0) {
 				dependeeMap.put(method, Collections.EMPTY_LIST);
 			} else {
 				dependeeMap.put(method, stmt2ddees);
@@ -212,11 +212,11 @@ public class DivergenceDA
 		SootMethod method = (SootMethod) context;
 		List list = (List) map.get(method);
 
-		if(list != null) {
+		if (list != null) {
 			StmtList sl = ((StmtGraph) method2stmtGraph.get(method)).getBody().getStmtList();
 			int pos = sl.indexOf((Stmt) stmt);
 
-			if(pos != -1) {
+			if (pos != -1) {
 				result = Collections.unmodifiableCollection((Collection) list.get(pos));
 			}
 		}

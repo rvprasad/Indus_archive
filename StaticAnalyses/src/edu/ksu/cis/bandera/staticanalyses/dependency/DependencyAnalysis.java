@@ -41,7 +41,7 @@ import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.StmtGraph;
 import ca.mcgill.sable.soot.jimple.StmtList;
 
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 
@@ -52,7 +52,7 @@ import java.util.Map;
 
 /**
  * This class provides generic methods to calculate and provide dependency analysis (DA) information.
- * 
+ *
  * <p>
  * It is an abstract class as it does not implement the method that actually does the analysis. Also, it contains member data
  * that are necessary to store any sort dependency information. However, it is the responsibility of the subclasses to store
@@ -96,7 +96,7 @@ public abstract class DependencyAnalysis {
 	/**
 	 * The pre-processor for this analysis, if one exists.
 	 */
-	protected Processor preprocessor;
+	protected IProcessor preprocessor;
 
 	/**
 	 * This manages the basic block graphs of methods.
@@ -132,7 +132,7 @@ public abstract class DependencyAnalysis {
 	 * Analyzes the given methods and classes for dependency information.
 	 *
 	 * @return <code>true</code> if the analysis completed; <code>false</code>, otherwise.  This is useful if the analysis
-	 * 		   will proceed in stages/phases.
+	 *            will proceed in stages/phases.
 	 */
 	public abstract boolean analyze();
 
@@ -141,7 +141,7 @@ public abstract class DependencyAnalysis {
 	 *
 	 * @return the pre-processor.
 	 */
-	public Processor getPreProcessor() {
+	public IProcessor getPreProcessor() {
 		return preprocessor;
 	}
 
@@ -162,11 +162,11 @@ public abstract class DependencyAnalysis {
 	 *
 	 * @param method2stmtGraph maps methods that constitute that analyzed system to their control flow graphs.
 	 * @param info contains the value for the member variable <code>info</code>. Refer to {@link #info info} and subclass
-	 * 		  documenation for more details.
+	 *           documenation for more details.
 	 *
 	 * @pre method2stmtGraph.oclIsKindOf(java.util.Map(ca.mcgill.sable.soot.SootMethod,
-	 * 		ca.mcgill.sable.soot.jimple.CompleteStmtGraph))
-	 * @pre classes != null and method2stmtGraph != null and info != null
+	 *         ca.mcgill.sable.soot.jimple.CompleteStmtGraph))
+	 * @pre classes <> null and method2stmtGraph <> null and info <> null
 	 */
 	public final void initialize(Map method2stmtGraph, Map info) {
 		reset();
@@ -203,7 +203,7 @@ public abstract class DependencyAnalysis {
 	 *
 	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
 	 *
-	 * @pre stmtGraph != null
+	 * @pre stmtGraph <> null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(StmtGraph stmtGraph) {
 		return graphManager.getBasicBlockGraph(stmtGraph);
@@ -216,7 +216,7 @@ public abstract class DependencyAnalysis {
 	 *
 	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
 	 *
-	 * @pre method != null
+	 * @pre method <> null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(SootMethod method) {
 		return graphManager.getBasicBlockGraph((StmtGraph) method2stmtGraph.get(method));
@@ -229,13 +229,13 @@ public abstract class DependencyAnalysis {
 	 *
 	 * @return the list of statements.
 	 *
-	 * @pre method != null
+	 * @pre method <> null
 	 */
 	protected StmtList getStmtList(SootMethod method) {
 		StmtList result = null;
 		StmtGraph stmtGraph = (StmtGraph) method2stmtGraph.get(method);
 
-		if(stmtGraph != null) {
+		if (stmtGraph != null) {
 			result = ((JimpleBody) stmtGraph.getBody()).getStmtList();
 		}
 		return result;

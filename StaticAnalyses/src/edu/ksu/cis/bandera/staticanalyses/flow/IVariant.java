@@ -33,42 +33,29 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.support;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import java.util.Collection;
 
+//IVariant.java
 
 /**
- * The interface to be implemented by node objects occuring in <code>DirectedGraph</code>.
+ * <p>
+ * A marker interface to be implemented by all variants used in BFA framework.
+ * </p>
+ *
+ * <p>
+ * Created: Tue Jan 22 13:05:25 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @author $Author$
  * @version $Revision$
  */
-public interface Node {
+interface IVariant {
 	/**
-	 * Retrieves the set of predecessor nodes of this node.
-	 *
-	 * @return the collection of predecessor nodes(<code>Node</code>) of this node.
+	 * Performs any required post processing after the variant has been instantiated.  This method will be called by the
+	 * framework.
 	 */
-	Collection getPredsOf();
-
-	/**
-	 * Retrieves the set of successor nodes of this node.
-	 *
-	 * @param forward <code>true</code> implies forward direction(successors); <code>false</code> implies backward direction
-	 * 		  (predecessors).
-	 *
-	 * @return the collection of successor nodes(<code>Node</code>) of this node.
-	 */
-	Collection getSuccsNodesInDirection(boolean forward);
-
-	/**
-	 * Retrieves the set of successor nodes of this node.
-	 *
-	 * @return the collection of successor nodes(<code>Node</code>) of this node.
-	 */
-	Collection getSuccsOf();
+	void process();
 }
 
 /*****

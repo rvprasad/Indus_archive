@@ -37,7 +37,7 @@ package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.Index;
+import edu.ksu.cis.bandera.staticanalyses.flow.IIndex;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
 import org.apache.log4j.LogManager;
@@ -71,15 +71,17 @@ public class AllocationSiteSensitiveIndexManager
 	 * Returns an index corresponding to the given entity and context.
 	 *
 	 * @param o the entity for which the index in required.  Although it is not enforced, this should be of type
-	 * 		  <code>FielRef</code> or <code>ArrayRef</code>.
+	 *           <code>FielRef</code> or <code>ArrayRef</code>.
 	 * @param c the context in which information pertaining to <code>o</code> needs to be captured.
 	 *
 	 * @return the index that uniquely identifies <code>o</code> in context, <code>c</code>.
 	 *
 	 * @pre c.oclIsKindof(SymbolicContext)
 	 */
-	protected Index getIndex(Object o, Context c) {
-		LOGGER.debug("Getting index for " + o + " in " + c);
+	protected IIndex getIndex(Object o, Context c) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Getting index for " + o + " in " + c);
+		}
 
 		AllocationContext ctxt = (AllocationContext) c;
 

@@ -95,12 +95,12 @@ public class SymbolicContext
 	public boolean equals(Object o) {
 		boolean result = super.equals(o);
 
-		if(result && o instanceof SymbolicContext) {
+		if (result && o instanceof SymbolicContext) {
 			SymbolicContext c = (SymbolicContext) o;
 
-			if(allocationSite != null && c.allocationSite != null) {
+			if (allocationSite != null && c.allocationSite != null) {
 				result &= allocationSite.equals(c.allocationSite);
-			} else if(allocationSite != null) {
+			} else if (allocationSite != null) {
 				result &= allocationSite.equals(c.allocationSite);
 			} else {
 				result &= c.allocationSite.equals(allocationSite);

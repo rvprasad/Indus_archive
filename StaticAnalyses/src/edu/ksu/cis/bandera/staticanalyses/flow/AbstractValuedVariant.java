@@ -40,10 +40,10 @@ import java.util.Collection;
 
 /**
  * <p>
- * Variant of entities associated with data such as AST nodes and fields.  All such data related variants should extend this
+ * IVariant of entities associated with data such as AST nodes and fields.  All such data related variants should extend this
  * class.
  * </p>
- * 
+ *
  * <p>
  * Created: Tue Jan 22 15:44:48 2002
  * </p>
@@ -52,13 +52,13 @@ import java.util.Collection;
  * @version $Revision$
  */
 public abstract class AbstractValuedVariant
-  implements Variant {
+  implements IVariant {
 	/**
 	 * <p>
 	 * The flow graph node associated with this variant.
 	 * </p>
 	 */
-	protected FGNode node;
+	protected IFGNode node;
 
 	/**
 	 * <p>
@@ -67,7 +67,7 @@ public abstract class AbstractValuedVariant
 	 *
 	 * @param node the flow graph node associated with this variant.
 	 */
-	AbstractValuedVariant(FGNode node) {
+	AbstractValuedVariant(IFGNode node) {
 		this.node = node;
 	}
 
@@ -78,7 +78,7 @@ public abstract class AbstractValuedVariant
 	 *
 	 * @param node the node to be set as the flow graph node of this variant.
 	 */
-	public void setFGNode(FGNode node) {
+	public void setFGNode(IFGNode node) {
 		this.node = node;
 	}
 
@@ -89,7 +89,7 @@ public abstract class AbstractValuedVariant
 	 *
 	 * @return the flow graph node associated with this node.
 	 */
-	public FGNode getFGNode() {
+	public IFGNode getFGNode() {
 		return node;
 	}
 

@@ -35,6 +35,7 @@
 
 package edu.ksu.cis.bandera.staticanalyses.support;
 
+
 /**
  * This class represents a triplet of objects.
  *
@@ -60,6 +61,16 @@ public class Triple
 	private Object third;
 
 	/**
+	 * Cached copy of the stringified representation of this object.
+	 */
+	private String str;
+
+	/**
+	 * Cached copy of the hashcode of this object.
+	 */
+	private int hashCode;
+
+	/**
 	 * Creates a new Triple object.
 	 *
 	 * @param first the first object of this triple.
@@ -70,6 +81,7 @@ public class Triple
 		this.first = first;
 		this.second = second;
 		this.third = third;
+		fixup();
 	}
 
 	/**
@@ -121,22 +133,22 @@ public class Triple
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof Triple) {
+		if (o instanceof Triple) {
 			Triple temp = (Triple) o;
 
-			if(first != null) {
+			if (first != null) {
 				result = first.equals(temp.first);
 			} else {
 				result = first == temp.first;
 			}
 
-			if(second != null) {
+			if (second != null) {
 				result = result && second.equals(temp.second);
 			} else {
 				result = result && second == temp.second;
 			}
 
-			if(third != null) {
+			if (third != null) {
 				result = result && third.equals(temp.third);
 			} else {
 				result = result && third == temp.third;
@@ -151,20 +163,15 @@ public class Triple
 	 * @return the hash code of this triple.  It is derived from the objects that constitute this triple.
 	 */
 	public int hashCode() {
-		String temp = "";
+		return hashCode;
+	}
 
-		if(first != null) {
-			temp = temp + first;
-		}
-
-		if(second != null) {
-			temp = temp + second;
-		}
-
-		if(third != null) {
-			temp = temp + third;
-		}
-		return temp.hashCode();
+	/**
+	 * Fixes up externally visible properties depending on the constituents of this object.
+	 */
+	private void fixup() {
+		str = "(" + first + ", " + second + ", " + third + ")";
+		hashCode = str.hashCode();
 	}
 }
 

@@ -93,18 +93,27 @@ public class AllocationContext
 	public boolean equals(Object o) {
 		boolean result = this == o;
 
-		if(!result && o instanceof AllocationContext) {
+		if (!result && o instanceof AllocationContext) {
 			AllocationContext c = (AllocationContext) o;
 
-			if(allocationSite != null && c.allocationSite != null) {
+			if (allocationSite != null && c.allocationSite != null) {
 				result &= allocationSite.equals(c.allocationSite);
-			} else if(allocationSite != null) {
+			} else if (allocationSite != null) {
 				result &= allocationSite.equals(c.allocationSite);
 			} else {
 				result &= c.allocationSite.equals(allocationSite);
 			}
 		}
 		return result && super.equals(o);
+	}
+
+	/**
+	 * Returns the hash code of this object based on the allocation site and other context constituents.
+	 *
+	 * @return the hash code.
+	 */
+	public int hashCode() {
+		return allocationSite.hashCode() + super.hashCode();
 	}
 }
 

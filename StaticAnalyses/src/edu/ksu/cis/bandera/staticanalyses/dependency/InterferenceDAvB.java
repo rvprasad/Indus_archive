@@ -51,8 +51,8 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import edu.ksu.cis.bandera.staticanalyses.InitializationException;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
@@ -70,7 +70,7 @@ import java.util.Set;
 
 /**
  * This class provides interference dependency information.
- * 
+ *
  * <p>
  * The dependence inforamtion is stored as follows:  For dependee information, a map from a field to a map that maps a pair
  * comprising of a statement and a method to a collection of similar pair is maintained. For dependent information, a map
@@ -79,7 +79,7 @@ import java.util.Set;
  * the dependent information is required during analysis.  In Jimple, only one field can occur in a statement. Hence, it is
  * sufficient to capture the dependency at statement level.
  * </p>
- * 
+ *
  * <p>
  * The algorithm happens in 4 phases. In phase 1, intra-method field dependencies is calculated.  In phase 2, intra-method
  * field dependencies information is propogated from callee to callers.  The direction of propogation is reversed in phase
@@ -104,7 +104,7 @@ public class InterferenceDAvB
 	 * This captures the reaching definitions (may-information) of a fields after the trailer of a basic block.
 	 *
 	 * @invariant method2DefSiteMap.oclIsKindOf(Map(SootMethod, Map(BasicBlock, Map(SootField, Set(Pair(Stmt,
-	 * 			  SootMethod))))))
+	 *               SootMethod))))))
 	 */
 	private final Map method2bbDefSiteMap = new HashMap();
 
@@ -126,7 +126,7 @@ public class InterferenceDAvB
 	 * This captures the definitions of a field that are may be alive immediately after a call-site.
 	 *
 	 * @invariant postInvokeStmtField2DefSiteMap.oclIsKindOf(Pair(Stmt, SootMethod), Map(SootField, Set(Pair(Stmt,
-	 * 			  SootMethod)))))
+	 *               SootMethod)))))
 	 */
 	private final Map postInvokeStmtField2DefSiteMap = new HashMap();
 
@@ -134,14 +134,14 @@ public class InterferenceDAvB
 	 * This captures the definitions of a field that are may be alive just before a call-site.
 	 *
 	 * @invariant preInvokeStmtField2DefSiteMap.oclIsKindOf(Pair(Stmt, SootMethod), Map(SootField, Set(Pair(Stmt,
-	 * 			  SootMethod)))))
+	 *               SootMethod)))))
 	 */
 	private final Map preInvokeStmtField2DefSiteMap = new HashMap();
 
 	/**
 	 * This provide call graph information about the analyzed system.  This is required by the analysis.
 	 */
-	private CallGraphInfo callgraph;
+	private ICallGraphInfo callgraph;
 
 	/**
 	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
@@ -166,10 +166,10 @@ public class InterferenceDAvB
 		Collection result = Collections.EMPTY_LIST;
 		Map pair2set = getDependeeMapForField((SootField) dependentField);
 
-		if(pair2set != null) {
+		if (pair2set != null) {
 			Collection set = (Set) pair2set.get(stmtMethodPair);
 
-			if(set != null) {
+			if (set != null) {
 				result = Collections.unmodifiableCollection(set);
 			}
 		}
@@ -194,13 +194,13 @@ public class InterferenceDAvB
 		Collection result = Collections.EMPTY_LIST;
 		Map method2map = getDependentMapForField((SootField) dependeeField);
 
-		if(method2map != null) {
+		if (method2map != null) {
 			Map stmt2set = (Map) method2map.get(((Pair) stmtMethodPair).getSecond());
 
-			if(stmt2set != null) {
+			if (stmt2set != null) {
 				Collection set = (Collection) stmt2set.get(((Pair) stmtMethodPair).getFirst());
 
-				if(set != null) {
+				if (set != null) {
 					result = Collections.unmodifiableCollection(set);
 				}
 			}
@@ -218,7 +218,7 @@ public class InterferenceDAvB
 	public boolean analyze() {
 		Context context = new Context();
 
-		for(Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
+		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod caller = (SootMethod) i.next();
 			context.setRootMethod(caller);
 			fixupIntraMethodDependencies(caller, null, false);
@@ -268,15 +268,15 @@ public class InterferenceDAvB
 	 *
 	 * @throws InitializationException when instances of call graph or pair managing service are not provided.
 	 */
-	protected void setup() {
-		callgraph = (CallGraphInfo) info.get(CallGraphInfo.ID);
+	protected void setup() throws InitializationException {
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-		if(callgraph == null) {
-			throw new InitializationException(CallGraphInfo.ID + " was not provided in info.");
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided in info.");
 		}
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
-		if(pairMgr == null) {
+		if (pairMgr == null) {
 			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
 	}
@@ -292,7 +292,7 @@ public class InterferenceDAvB
 	private Map getDependeXXMapHelper(Map map, SootField sf) {
 		Map result = (Map) map.get(sf);
 
-		if(result == null) {
+		if (result == null) {
 			result = new HashMap();
 			map.put(sf, result);
 		}
@@ -307,24 +307,24 @@ public class InterferenceDAvB
 	 * @param dest is the map to be checked for containment.
 	 *
 	 * @return <code>true</code> if all mappings in <code>src</code> exist in <code>dest</code> and all values in each value
-	 * 		   in such mapping in <code>src</code> is contained in the value of the corresponding mapping in
-	 * 		   <code>dest</code>; <code>false</code>, otherwise.
+	 *            in such mapping in <code>src</code> is contained in the value of the corresponding mapping in
+	 *            <code>dest</code>; <code>false</code>, otherwise.
 	 *
 	 * @invariant src.oclIsKindOf(Map(SootField, Collection))
 	 * @invariant dest.oclIsKindOf(Map(SootField, Collection))
 	 * @post result = src.keySet()->forall(o | dest.keySet()->exists(p | p = o)) and src.keySet()->forall(o |
-	 * 		 dest.get(o).containsAll(src.get(o)))
+	 *          dest.get(o).containsAll(src.get(o)))
 	 */
 	private boolean containsAll(Map src, Map dest) {
 		boolean result = true;
 
-		for(Iterator i = dest.entrySet().iterator(); i.hasNext() && result;) {
+		for (Iterator i = dest.entrySet().iterator(); i.hasNext() && result;) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootField field = (SootField) entry.getKey();
 			Collection destDefSites = (Collection) entry.getValue();
 			Collection srcDefSites = (Collection) src.get(field);
 
-			if(srcDefSites == null) {
+			if (srcDefSites == null) {
 				result = false;
 			} else {
 				result = srcDefSites.containsAll(destDefSites);
@@ -352,40 +352,40 @@ public class InterferenceDAvB
 	 */
 	private void fixupInterThreadDependencies() {
 		//TODO: Precision can be improved here by using the info from thread graph, call graph, and escape analysis.
-		for(Iterator i = method2stmtGraph.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = method2stmtGraph.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			StmtList sl = getStmtList(method);
 
-			for(ca.mcgill.sable.util.Iterator j = sl.iterator(); j.hasNext();) {
+			for (ca.mcgill.sable.util.Iterator j = sl.iterator(); j.hasNext();) {
 				Stmt stmt = (Stmt) j.next();
 
-				for(ca.mcgill.sable.util.Iterator k = stmt.getUseBoxes().iterator(); k.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator k = stmt.getUseBoxes().iterator(); k.hasNext();) {
 					ValueBox useBox = (ValueBox) k.next();
 					Value use = useBox.getValue();
 
-					if(use instanceof StaticFieldRef) {
+					if (use instanceof StaticFieldRef) {
 						SootField field = ((StaticFieldRef) use).getField();
 						Map dent = (Map) getDependentMapForField(field).get(method);
 						Map dee = getDependeeMapForField(field);
 						Collection dentSet = new HashSet();
 						Collection deeSet = new HashSet();
 
-						for(Iterator l = dent.values().iterator(); l.hasNext();) {
+						for (Iterator l = dent.values().iterator(); l.hasNext();) {
 							dentSet.addAll((Collection) l.next());
 						}
 
-						for(Iterator l = dee.values().iterator(); l.hasNext();) {
+						for (Iterator l = dee.values().iterator(); l.hasNext();) {
 							deeSet.addAll((Collection) l.next());
 						}
 
-						for(Iterator l = dent.keySet().iterator(); l.hasNext();) {
+						for (Iterator l = dent.keySet().iterator(); l.hasNext();) {
 							dent.put(l.next(), dentSet);
 						}
 
-						for(Iterator l = dee.keySet().iterator(); l.hasNext();) {
+						for (Iterator l = dee.keySet().iterator(); l.hasNext();) {
 							dee.put(l.next(), deeSet);
 						}
-					} else if(use instanceof InstanceFieldRef) {
+					} else if (use instanceof InstanceFieldRef) {
 						// This needs to change to provide more precise information.
 						SootField field = ((InstanceFieldRef) use).getField();
 						Map dent = getDependentMapForField(field);
@@ -393,19 +393,19 @@ public class InterferenceDAvB
 						Collection dentSet = new HashSet();
 						Collection deeSet = new HashSet();
 
-						for(Iterator l = dent.values().iterator(); l.hasNext();) {
+						for (Iterator l = dent.values().iterator(); l.hasNext();) {
 							dentSet.addAll((Collection) l.next());
 						}
 
-						for(Iterator l = dee.values().iterator(); l.hasNext();) {
+						for (Iterator l = dee.values().iterator(); l.hasNext();) {
 							deeSet.addAll((Collection) l.next());
 						}
 
-						for(Iterator l = dent.keySet().iterator(); l.hasNext();) {
+						for (Iterator l = dent.keySet().iterator(); l.hasNext();) {
 							dent.put(l.next(), dentSet);
 						}
 
-						for(Iterator l = dee.keySet().iterator(); l.hasNext();) {
+						for (Iterator l = dee.keySet().iterator(); l.hasNext();) {
 							dee.put(l.next(), deeSet);
 						}
 					}
@@ -420,14 +420,14 @@ public class InterferenceDAvB
 	 * @param method to be processed for data dependency.
 	 * @param defSiteMap is the reaching definitons for fields that should be considered as available on entering the method.
 	 * @param mergePostInvocationInfo <code>true</code> indicates if the reaching definitions for fields resulting from a
-	 * 		  method invoke expression should be merged with that maintained while processing <code>method</code>;
-	 * 		  <code>false</code>, otherwise.
+	 *           method invoke expression should be merged with that maintained while processing <code>method</code>;
+	 *           <code>false</code>, otherwise.
 	 *
 	 * @pre method != null
-	 * @post method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap$pre.get(method))  or not
-	 * 		 method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap$pre.get(method))
-	 * @post onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite$pre.get(method))  or  not
-	 * 		 onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite$pre.get(method))
+	 * @post method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap@@pre.get(method))  or not
+	 *          method2bbDefSiteMap.get(method).equals(method2bbDefSiteMap@@pre.get(method))
+	 * @post onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite@@pre.get(method))  or  not
+	 *          onMethodEntryField2DefSite.get(method).equals(onMethodEntryField2DefSite@@pre.get(method))
 	 */
 	private void fixupIntraMethodDependencies(SootMethod method, Map defSiteMap, boolean mergePostInvocationInfo) {
 		processing.add(method);
@@ -441,20 +441,20 @@ public class InterferenceDAvB
 		Map field2DefSite = new HashMap();
 		Map bb2DefSite;
 
-		if(!method2bbDefSiteMap.containsKey(method)) {
+		if (!method2bbDefSiteMap.containsKey(method)) {
 			bb2DefSite = new HashMap();
 			method2bbDefSiteMap.put(method, bb2DefSite);
 		} else {
 			bb2DefSite = (Map) method2bbDefSiteMap.get(method);
 		}
 
-		if(defSiteMap != null) {
+		if (defSiteMap != null) {
 			field2DefSite.putAll(defSiteMap);
 		}
 
 		Map temp;
 
-		if(onMethodEntryField2DefSite.get(method) == null) {
+		if (onMethodEntryField2DefSite.get(method) == null) {
 			temp = new HashMap();
 			onMethodEntryField2DefSite.put(method, temp);
 		} else {
@@ -463,40 +463,40 @@ public class InterferenceDAvB
 		merge(field2DefSite, temp);
 		workbag.addAllWork(bbGraph.getHeads());
 
-		while(!workbag.isEmpty()) {
+		while (!workbag.isEmpty()) {
 			boolean process = false;
 			BasicBlock bb = (BasicBlock) workbag.getWork();
 
-			for(Iterator i = bb.getPredsOf().iterator(); i.hasNext();) {
+			for (Iterator i = bb.getPredsOf().iterator(); i.hasNext();) {
 				BasicBlock pred = (BasicBlock) i.next();
 				temp = (Map) bb2DefSite.get(pred);
 
-				if(temp != null) {
+				if (temp != null) {
 					merge(temp, field2DefSite);
 				}
 			}
 
 			Collection stmts = bb.getStmtsOf();
 
-			for(Iterator i = stmts.iterator(); i.hasNext();) {
+			for (Iterator i = stmts.iterator(); i.hasNext();) {
 				Stmt stmt = (Stmt) i.next();
 				processUseSites(stmt, method, field2DefSite);
 
-				if(stmt instanceof AssignStmt) {
+				if (stmt instanceof AssignStmt) {
 					AssignStmt aStmt = (AssignStmt) stmt;
 
-					if(aStmt.getLeftOp() instanceof FieldRef) {
+					if (aStmt.getLeftOp() instanceof FieldRef) {
 						processDefSites(aStmt, method, field2DefSite);
 						process |= true;
 					}
 				}
 
-				if(stmt instanceof InvokeStmt
+				if (stmt instanceof InvokeStmt
 					  || (stmt instanceof AssignStmt && ((AssignStmt) stmt).getRightOp() instanceof InvokeExpr)) {
 					Pair pair = pairMgr.getPair(stmt, method);
 					temp = (Map) preInvokeStmtField2DefSiteMap.get(pair);
 
-					if(temp == null) {
+					if (temp == null) {
 						temp = new HashMap();
 						preInvokeStmtField2DefSiteMap.put(pair, temp);
 					}
@@ -512,7 +512,7 @@ public class InterferenceDAvB
 					 * across method calls. This happens via the call from fixupOnCallDependencies.
 					 *
 					 */
-					if(mergePostInvocationInfo) {
+					if (mergePostInvocationInfo) {
 						field2DefSite.putAll((Map) postInvokeStmtField2DefSiteMap.get(pair));
 					}
 				}
@@ -520,20 +520,20 @@ public class InterferenceDAvB
 
 			temp = (Map) bb2DefSite.get(bb);
 
-			if(temp != null) {
+			if (temp != null) {
 				temp.putAll(field2DefSite);
 			} else {
 				temp = new HashMap(field2DefSite);
 				bb2DefSite.put(bb, temp);
 			}
 
-			if(process) {
+			if (process) {
 				workbag.addAllWork(bb.getSuccsOf());
 			}
 			field2DefSite.clear();
 		}
 
-		if(onMethodExitField2DefSite.get(method) == null) {
+		if (onMethodExitField2DefSite.get(method) == null) {
 			temp = new HashMap();
 			onMethodExitField2DefSite.put(method, temp);
 		} else {
@@ -541,7 +541,7 @@ public class InterferenceDAvB
 		}
 
 		// Merge the information after the trailer of  basic block
-		for(Iterator i = bbGraph.getTails().iterator(); i.hasNext();) {
+		for (Iterator i = bbGraph.getTails().iterator(); i.hasNext();) {
 			BasicBlock bb = (BasicBlock) i.next();
 			merge((Map) bb2DefSite.get(bb), temp);
 		}
@@ -560,24 +560,24 @@ public class InterferenceDAvB
 	 *
 	 * @pre invokeExprSiteMap.oclIsKindOf(Map(Pair(Stmt, SootMethod),  Map(SootField, Set(Pair(Stmt, SootMethod)))))
 	 * @pre methodEndPointsMap.oclIsKindOf(Map(SootMethod, Map(SootField, Set(Pair(Stmt, SootMethod)))))
-	 * @post invokeExprSiteMap.equals(invokeExprSiteMap$pre)
-	 * @post methodEndPointsMap.equals(methodEndPointsMap$pre)
+	 * @post invokeExprSiteMap.equals(invokeExprSiteMap@@pre)
+	 * @post methodEndPointsMap.equals(methodEndPointsMap@@pre)
 	 */
 	private void fixupOnCallDependencies(Map invokeExprSiteMap, Map methodEndPointsMap) {
 		WorkBag methodList = new WorkBag(WorkBag.FIFO);
 		methodList.addAllWork(callgraph.getHeads());
 
-		while(!methodList.isEmpty()) {
+		while (!methodList.isEmpty()) {
 			SootMethod method = (SootMethod) methodList.getWork();
 
 			Collection callsites = callgraph.getCallees(method);
 
-			for(Iterator i = callsites.iterator(); i.hasNext();) {
+			for (Iterator i = callsites.iterator(); i.hasNext();) {
 				CallTriple triple = (CallTriple) i.next();
 				SootMethod callee = triple.getMethod();
 				Map field2DefSite = (Map) invokeExprSiteMap.get(pairMgr.getPair(triple.getStmt(), callee));
 
-				if(!containsAll((Map) methodEndPointsMap.get(callee), field2DefSite)) {
+				if (!containsAll((Map) methodEndPointsMap.get(callee), field2DefSite)) {
 					fixupIntraMethodDependencies(method, field2DefSite, true);
 					methodList.addWork(callee);
 				}
@@ -595,16 +595,16 @@ public class InterferenceDAvB
 	 * @invariant src.oclIsKindOf(Map(SootField, Collection))
 	 * @invariant dest.oclIsKindOf(Map(SootField, Collection))
 	 * @post result = src.keySet()->forall(o | dest.keySet()->exists(p | p = o)) and src.keySet()->forall(o |
-	 * 		 dest.get(o).containsAll(src.get(o)))
+	 *          dest.get(o).containsAll(src.get(o)))
 	 */
 	private void merge(Map src, Map dest) {
-		for(Iterator i = src.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = src.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootField field = (SootField) entry.getKey();
 			Collection srcDefSites = (Collection) entry.getValue();
 			Collection destDefSites = (Collection) dest.get(field);
 
-			if(destDefSites == null) {
+			if (destDefSites == null) {
 				destDefSites = new HashSet(srcDefSites);
 				dest.put(field, destDefSites);
 			} else {
@@ -624,34 +624,34 @@ public class InterferenceDAvB
 	 *
 	 * @pre stmt.getLeftOp().oclIsKindOf(FieldRef)
 	 * @pre field2DefSite.oclIsKindOf(Map(SootField, Collection(Pair(Stmt, Method))))
-	 * @post field2DefSite.equals(fieldDefSite$pre) or not field2DefSite.equals(fieldDefSite$pre)
+	 * @post field2DefSite.equals(fieldDefSite@@pre) or not field2DefSite.equals(fieldDefSite@@pre)
 	 */
 	private void processDefSites(AssignStmt stmt, SootMethod method, Map field2DefSite) {
 		FieldRef value = (FieldRef) stmt.getLeftOp();
 		SootField field = value.getField();
 
-		if(value instanceof StaticFieldRef) {
+		if (value instanceof StaticFieldRef) {
 			Collection fieldDefSiteSet = (Collection) field2DefSite.get(field);
 
-			if(fieldDefSiteSet == null) {
+			if (fieldDefSiteSet == null) {
 				fieldDefSiteSet = new HashSet();
 				field2DefSite.put(field, fieldDefSiteSet);
 			} else {
 				fieldDefSiteSet.clear();
 			}
 			fieldDefSiteSet.add(pairMgr.getPair(stmt, method));
-		} else if(value instanceof InstanceFieldRef) {
+		} else if (value instanceof InstanceFieldRef) {
 			//TODO: Precision can be improved here by using info from thread graph, call graph, and OFA.
 			Collection fieldDefSiteSet = (Collection) field2DefSite.get(field);
 
 			/*
 			 * This fails for instance fields.  Use symbolic method local analysis to kill information in the set.
-			                                                       if(fieldDefSiteSet == null) {
-			                                                           fieldDefSiteSet = new HashSet();
-			                                                           field2DefSite.put(field, fieldDefSiteSet);
-			                                                       } else {
-			                                                           fieldDefSiteSet.clear();
-			                                                       }
+			                                                           if(fieldDefSiteSet == null) {
+			                                                               fieldDefSiteSet = new HashSet();
+			                                                               field2DefSite.put(field, fieldDefSiteSet);
+			                                                           } else {
+			                                                               fieldDefSiteSet.clear();
+			                                                           }
 			 */
 			fieldDefSiteSet.add(pairMgr.getPair(stmt, method));
 		}
@@ -665,14 +665,14 @@ public class InterferenceDAvB
 	 * @param field2DefSite is a map of fields and their def site at the given call-site.
 	 *
 	 * @pre field2DefSite.oclIsKindOf(Map(SootField, Set(Pair(Stmt, SootMethod))))
-	 * @post field2DefSite.equals(field2DefSite$pre) or not field2DefSite.equals(field2DefSite$pre)
+	 * @post field2DefSite.equals(field2DefSite@@pre) or not field2DefSite.equals(field2DefSite@@pre)
 	 */
 	private void processInvokeExprStmt(Stmt stmt, SootMethod method, Map field2DefSite) {
 		InvokeExpr expr = null;
 
-		if(stmt instanceof InvokeStmt) {
+		if (stmt instanceof InvokeStmt) {
 			expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
-		} else if(stmt instanceof AssignStmt) {
+		} else if (stmt instanceof AssignStmt) {
 			expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
 		}
 
@@ -683,16 +683,16 @@ public class InterferenceDAvB
 
 		Map fieldMap = new HashMap();
 
-		for(Iterator i = callees.iterator(); i.hasNext();) {
+		for (Iterator i = callees.iterator(); i.hasNext();) {
 			SootMethod callee = (SootMethod) i.next();
 			Map temp = (Map) onMethodExitField2DefSite.get(callee);
 
-			if(temp != null) {
-				for(Iterator k = temp.keySet().iterator(); k.hasNext();) {
+			if (temp != null) {
+				for (Iterator k = temp.keySet().iterator(); k.hasNext();) {
 					Object key = k.next();
 					Set set = (Set) temp.get(key);
 
-					if(fieldMap.containsKey(key)) {
+					if (fieldMap.containsKey(key)) {
 						((Collection) fieldMap.get(key)).addAll(set);
 					} else {
 						Set t = new HashSet();
@@ -714,23 +714,23 @@ public class InterferenceDAvB
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param field2DefSite is the reaching definition set for fields to be used at <code>stmt</code>.
 	 *
-	 * @post field2DefSite.equals(field2DefSite$pre)
+	 * @post field2DefSite.equals(field2DefSite@@pre)
 	 * @post field2DefSite.oclIsKindOf(Map(SootField, Collection(Pair(Stmt, Method))))
 	 */
 	private void processUseSites(Stmt stmt, SootMethod method, Map field2DefSite) {
 		ca.mcgill.sable.util.List useBoxes = stmt.getUseBoxes();
 
-		for(ca.mcgill.sable.util.Iterator iter = useBoxes.iterator(); iter.hasNext();) {
+		for (ca.mcgill.sable.util.Iterator iter = useBoxes.iterator(); iter.hasNext();) {
 			ValueBox vBox = (ValueBox) iter.next();
 			Value value = vBox.getValue();
 
-			if(value instanceof StaticFieldRef) {
+			if (value instanceof StaticFieldRef) {
 				//TODO: Precision can be improved here by using info from thread graph and call graph.
 				Collection defs;
 				SootField field = ((InstanceFieldRef) value).getField();
 				Map method2Map = getDependeeMapForField(field);
 
-				if(method2Map == null) {
+				if (method2Map == null) {
 					method2Map = new HashMap();
 					dependeeMap.put(field, method2Map);
 					defs = new HashSet();
@@ -738,7 +738,7 @@ public class InterferenceDAvB
 				} else {
 					defs = (Collection) method2Map.get(stmt);
 
-					if(defs == null) {
+					if (defs == null) {
 						defs = new HashSet();
 						method2Map.put(stmt, defs);
 					}
@@ -746,26 +746,26 @@ public class InterferenceDAvB
 
 				Collection fieldDefSites = (Collection) field2DefSite.get(field);
 
-				if(fieldDefSites != null) {
+				if (fieldDefSites != null) {
 					defs.addAll(fieldDefSites);
 
 					Map temp = getDependentMapForField(field);
 
-					for(Iterator i = fieldDefSites.iterator(); i.hasNext();) {
+					for (Iterator i = fieldDefSites.iterator(); i.hasNext();) {
 						Collection uses = (Collection) temp.get(i.next());
 
-						if(uses != null) {
+						if (uses != null) {
 							uses.add(pairMgr.getPair(stmt, method));
 						}
 					}
 				}
-			} else if(value instanceof InstanceFieldRef) {
+			} else if (value instanceof InstanceFieldRef) {
 				//TODO: Precision can be improved here by using info from thread graph, call graph, and OFA.
 				Collection defs;
 				SootField field = ((InstanceFieldRef) value).getField();
 				Map method2Map = getDependeeMapForField(field);
 
-				if(method2Map == null) {
+				if (method2Map == null) {
 					method2Map = new HashMap();
 					dependeeMap.put(field, method2Map);
 					defs = new HashSet();
@@ -773,7 +773,7 @@ public class InterferenceDAvB
 				} else {
 					defs = (Collection) method2Map.get(stmt);
 
-					if(defs == null) {
+					if (defs == null) {
 						defs = new HashSet();
 						method2Map.put(stmt, defs);
 					}
@@ -781,15 +781,15 @@ public class InterferenceDAvB
 
 				Collection fieldDefSites = (Collection) field2DefSite.get(field);
 
-				if(fieldDefSites != null) {
+				if (fieldDefSites != null) {
 					defs.addAll(fieldDefSites);
 
 					Map temp = getDependentMapForField(field);
 
-					for(Iterator i = fieldDefSites.iterator(); i.hasNext();) {
+					for (Iterator i = fieldDefSites.iterator(); i.hasNext();) {
 						Collection uses = (Collection) temp.get(i.next());
 
-						if(uses != null) {
+						if (uses != null) {
 							uses.add(pairMgr.getPair(stmt, method));
 						}
 					}

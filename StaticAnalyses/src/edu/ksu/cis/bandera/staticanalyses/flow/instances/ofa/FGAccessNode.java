@@ -93,7 +93,10 @@ public class FGAccessNode
 	 */
 	public void onNewValue(Object value) {
 		super.onNewValue(value);
-		LOGGER.debug("Value: " + value + "\nSuccessors: " + succs);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Value: " + value + "\nSuccessors: " + succs);
+		}
 		work.addValue(value);
 		worklist.addWork(work);
 	}
@@ -107,7 +110,10 @@ public class FGAccessNode
 	 */
 	public void onNewValues(Collection values) {
 		super.onNewValues(values);
-		LOGGER.debug("Values: " + values + "\nSuccessors: " + succs);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Values: " + values + "\nSuccessors: " + succs);
+		}
 		work.addValues(values);
 		worklist.addWork(work);
 	}

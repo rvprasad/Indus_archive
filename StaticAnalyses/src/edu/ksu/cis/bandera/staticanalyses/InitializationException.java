@@ -35,6 +35,7 @@
 
 package edu.ksu.cis.bandera.staticanalyses;
 
+
 /**
  * <p>
  * This exception can be thrown when initialization fails.

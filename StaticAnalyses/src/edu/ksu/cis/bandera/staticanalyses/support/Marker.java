@@ -35,6 +35,7 @@
 
 package edu.ksu.cis.bandera.staticanalyses.support;
 
+
 /**
  * This is a dummy class used to mark locations in call stack during recursion root calculation.
  *
@@ -78,12 +79,12 @@ public class Marker {
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof Marker) {
+		if (o instanceof Marker) {
 			Object temp = ((Marker) o)._CONTENT;
 
-			if(temp == null && _CONTENT == null) {
+			if (temp == null && _CONTENT == null) {
 				result = this == o;
-			} else if(_CONTENT != null && temp != null) {
+			} else if (_CONTENT != null && temp != null) {
 				result = _CONTENT.equals(temp);
 			}
 		}
@@ -98,7 +99,7 @@ public class Marker {
 	public int hashCode() {
 		int result = super.hashCode();
 
-		if(_CONTENT != null) {
+		if (_CONTENT != null) {
 			result = _CONTENT.hashCode();
 		}
 		return result;

@@ -45,7 +45,7 @@ import ca.mcgill.sable.soot.jimple.InvokeExpr;
 import ca.mcgill.sable.soot.jimple.ParameterRef;
 import ca.mcgill.sable.soot.jimple.Value;
 
-import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.IEnvironment;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -92,10 +92,10 @@ public abstract class AbstractAnalyzer {
 	 *
 	 * @param name the name of the analysis to used to identify the corresponding instance of the framework.
 	 * @param mf the factory to be used to create the components in the  framework during the analysis.
-	 * @param context the context to be used by this analysis instance.
+	 * @param theContext the context to be used by this analysis instance.
 	 */
-	protected AbstractAnalyzer(String name, ModeFactory mf, Context context) {
-		this.context = context;
+	protected AbstractAnalyzer(String name, ModeFactory mf, Context theContext) {
+		this.context = theContext;
 		bfa = new BFA(name, this, mf);
 		active = false;
 		rootMethods = new HashSet();
@@ -109,13 +109,13 @@ public abstract class AbstractAnalyzer {
 	 * @param name the name of the instance of the analysis.
 	 *
 	 * @return the instance of the analyzer object corresonding to the given name.  If none exists, <code>null</code> is
-	 * 		   returned.
+	 *            returned.
 	 */
 	public static final AbstractAnalyzer getAnalyzer(String name) {
 		BFA temp = BFA.getBFA(name);
 		AbstractAnalyzer ret = null;
 
-		if(temp != null) {
+		if (temp != null) {
 			ret = temp._ANALYZER;
 		}
 
@@ -139,8 +139,8 @@ public abstract class AbstractAnalyzer {
 	 *
 	 * @return the environment in which the analysis occurred.
 	 */
-	public Environment getEnvironment() {
-		return (Environment) bfa;
+	public IEnvironment getEnvironment() {
+		return (IEnvironment) bfa;
 	}
 
 	/**
@@ -164,10 +164,10 @@ public abstract class AbstractAnalyzer {
 		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
-		if(mv != null) {
+		if (mv != null) {
 			InvocationVariant iv = (InvocationVariant) mv.getASTVariant(e, context);
 
-			if(iv != null) {
+			if (iv != null) {
 				temp = iv.queryThrowNode(exception).getValues();
 			}
 		}
@@ -185,7 +185,7 @@ public abstract class AbstractAnalyzer {
 		ArrayVariant v = bfa.queryArrayVariant(a);
 		Collection temp = Collections.EMPTY_SET;
 
-		if(v != null) {
+		if (v != null) {
 			temp = v.getFGNode().getValues();
 		}
 		return temp;
@@ -203,7 +203,7 @@ public abstract class AbstractAnalyzer {
 		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
-		if(mv != null) {
+		if (mv != null) {
 			temp = mv.queryParameterNode(p.getIndex()).getValues();
 		}
 		return temp;
@@ -220,7 +220,7 @@ public abstract class AbstractAnalyzer {
 		FieldVariant fv = bfa.queryFieldVariant(sf);
 		Collection temp = Collections.EMPTY_SET;
 
-		if(fv != null) {
+		if (fv != null) {
 			temp = fv.getValues();
 		}
 		return temp;
@@ -237,10 +237,10 @@ public abstract class AbstractAnalyzer {
 		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
-		if(mv != null) {
+		if (mv != null) {
 			ASTVariant astv = mv.queryASTVariant(v, context);
 
-			if(astv != null) {
+			if (astv != null) {
 				temp = astv.getFGNode().getValues();
 			}
 		}
@@ -255,24 +255,24 @@ public abstract class AbstractAnalyzer {
 	 * @param ctxt in which the values were associated to <code>astChunk</code>.
 	 *
 	 * @return a collection of <code>Object</code>s.  The actual instance of the analysis framework decides the static type
-	 * 		   of the objects in this collection.
+	 *            of the objects in this collection.
 	 *
 	 * @throws IllegalArgumentException when <code>astChunk</code> is not of type <code>Value</code>, <code>SootField</code>,
-	 * 		   <code>ParameterRef</code>, or <code>ArrayType</code>.
+	 *            <code>ParameterRef</code>, or <code>ArrayType</code>.
 	 */
-	public final Collection getValues(Object astChunk, Context ctxt) {
+	public final Collection getValues(Object astChunk, Context ctxt) throws IllegalArgumentException {
 		Context tmpCtxt = context;
 		context = ctxt;
 
 		Collection result = Collections.EMPTY_LIST;
 
-		if(astChunk instanceof Value) {
+		if (astChunk instanceof Value) {
 			result = getValues((Value) astChunk);
-		} else if(astChunk instanceof SootField) {
+		} else if (astChunk instanceof SootField) {
 			result = getValues((SootField) astChunk);
-		} else if(astChunk instanceof ParameterRef) {
+		} else if (astChunk instanceof ParameterRef) {
 			result = getValues((ParameterRef) astChunk);
-		} else if(astChunk instanceof ArrayType) {
+		} else if (astChunk instanceof ArrayType) {
 			result = getValues((ArrayType) astChunk);
 		} else {
 			throw new IllegalArgumentException("v has to of type Value, SootField, ParameterRef, or ArrayType.");
@@ -285,7 +285,7 @@ public abstract class AbstractAnalyzer {
 	 * Returns the set of values associated with <code>this</code> variable in the context given by <code>context</code>.
 	 *
 	 * @param ctxt in which the values were associated to <code>this</code> variable.  The instance method associated with
-	 * 		  the interested <code>this</code> variable should be the current method in the call string of this context.
+	 *           the interested <code>this</code> variable should be the current method in the call string of this context.
 	 *
 	 * @return the collection of values associated with <code>this</code> in <code>context</code>.
 	 */
@@ -296,7 +296,7 @@ public abstract class AbstractAnalyzer {
 		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_LIST;
 
-		if(mv != null) {
+		if (mv != null) {
 			temp = mv.queryThisNode().getValues();
 		}
 		context = tmpCtxt;
@@ -313,8 +313,8 @@ public abstract class AbstractAnalyzer {
 	 *
 	 * @pre root != null
 	 */
-	public final void analyze(SootClassManager scm, SootMethod root) {
-		if(root == null) {
+	public final void analyze(SootClassManager scm, SootMethod root) throws IllegalStateException {
+		if (root == null) {
 			throw new IllegalStateException("Root method cannot be null.");
 		}
 		active = true;
@@ -330,20 +330,20 @@ public abstract class AbstractAnalyzer {
 	 *
 	 * @param scm a central repository of classes to be analysed.
 	 * @param roots a collection of <code>SootMethod</code>s representing the various possible starting points for the
-	 * 		  analysis.
+	 *           analysis.
 	 *
 	 * @throws IllegalStateException wen roots is <code>null</code> or roots is empty.
 	 *
 	 * @pre roots != null and not roots.isEmpty()
 	 */
-	public final void analyze(SootClassManager scm, Collection roots) {
-		if(roots == null || roots.isEmpty()) {
+	public final void analyze(SootClassManager scm, Collection roots) throws IllegalStateException {
+		if (roots == null || roots.isEmpty()) {
 			throw new IllegalStateException("There must be at least one root method to analyze.");
 		}
 
 		active = true;
 
-		for(Iterator i = roots.iterator(); i.hasNext();) {
+		for (Iterator i = roots.iterator(); i.hasNext();) {
 			SootMethod root = (SootMethod) i.next();
 			bfa.analyze(scm, root);
 			rootMethods.add(root);
