@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.slicer;
@@ -69,7 +49,8 @@ import java.util.Map;
  * @version $Revision$
  */
 public class CloningBasedSlicingTransformer
-  extends AbstractTransformer {
+  extends AbstractTransformer
+  implements ISlicingBasedTransformer {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -103,13 +84,6 @@ public class CloningBasedSlicingTransformer
 	 * @invariant unslicedMethod2stmtMap != null
 	 */
 	private Map unslicedMethod2stmtMap = new HashMap();
-
-    /**
-     * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
-     */
-    public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-        // does nothing
-    }
 
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
@@ -216,26 +190,14 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
+	 * Returns <code>false</code> as the semantics of Jimple would be violated by partial inclusions.
+	 *
+	 * @return false;
+	 *
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
 	 */
-	public void reset() {
-		unslicedMethod2stmtMap.clear();
-		slicedMethod2stmtMap.clear();
-		cloner = null;
-		transformedSystem = null;
-		untransformedSystem = null;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
-	 */
-	public void transform(final Stmt stmt, final SootMethod method) {
-		Stmt sliced = cloner.cloneASTFragment(stmt, method);
-		PatchingChain unslicedSL = method.getActiveBody().getUnits();
-		PatchingChain slicedSL = getSliceStmtListFor(method);
-
-		writeIntoAt(sliced, slicedSL, stmt, unslicedSL);
-		addMapping(sliced, stmt, method);
+	public boolean handlesPartialInclusions() {
+		return false;
 	}
 
 	/**
@@ -251,6 +213,36 @@ public class CloningBasedSlicingTransformer
 		cloner = theCloner;
 		untransformedSystem = theSystem;
 		transformedSystem = theTransformedSystem;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
+	 */
+	public void reset() {
+		unslicedMethod2stmtMap.clear();
+		slicedMethod2stmtMap.clear();
+		cloner = null;
+		transformedSystem = null;
+		untransformedSystem = null;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		// does nothing
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public void transform(final Stmt stmt, final SootMethod method) {
+		Stmt sliced = cloner.cloneASTFragment(stmt, method);
+		PatchingChain unslicedSL = method.getActiveBody().getUnits();
+		PatchingChain slicedSL = getSliceStmtListFor(method);
+
+		writeIntoAt(sliced, slicedSL, stmt, unslicedSL);
+		addMapping(sliced, stmt, method);
 	}
 
 	/**
@@ -312,33 +304,28 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/08/25 07:17:38  venku
+   Exposed initialize() as a public method.
+   Removed SlicingTag class and used StringTag instead.
    Revision 1.18  2003/08/21 09:30:31  venku
     - added a new transform() method which can transform at the level of ValueBox.
     - CloningBasedSlicingTransformer does not do anything in this new method.
-
    Revision 1.17  2003/08/21 07:34:41  venku
    Documentation.
-
    Revision 1.16  2003/08/20 18:31:22  venku
    Documentation errors fixed.
-
    Revision 1.15  2003/08/19 12:46:07  venku
    Documentation changes.
-
    Revision 1.14  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.
    Ripple effect of the above changes.
-
-
    Revision 1.13  2003/08/19 11:59:05  venku
    Patching commit.
-
    Revision 1.12  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.
    Ripple effect of the above.
-
    Revision 1.11  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
@@ -352,25 +339,22 @@ public class CloningBasedSlicingTransformer
       and SliceMapImpl is the engine that does or captures the transformation.
    The immediate following change will be to rename ITransformMap to ITransformer,
     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
-
    Revision 1.10  2003/08/18 12:14:13  venku
    Well, to start with the slicer implementation is complete.
    Although not necessarily bug free, hoping to stabilize it quickly.
-
    Revision 1.9  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
-
    Revision 1.8  2003/08/18 04:49:47  venku
    Modified SlicerMap to be an specific implementation of ITransformMap specific to the Slicer.
-   
+
    Revision 1.7  2003/08/18 02:40:23  venku
    It is better to elevate the mapping interface to a Type and implement in SliceMap.
    This is the last commit in that direction.  After this I will move SliceMap to SliceMapImpl.
-   
+
    Revision 1.6  2003/08/17 11:56:18  venku
    Renamed SliceCriterion to AbstractSliceCriterion.
    Formatting, documentation, and specification.
-   
+
    Revision 1.5  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.

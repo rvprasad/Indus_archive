@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.transformations.slicer;
@@ -71,13 +51,14 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class TagBasedSlicingTransformer
-  extends AbstractTransformer {
+  extends AbstractTransformer
+  implements ISlicingBasedTransformer {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
 	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-	/** 
+	/**
 	 * Default name of slicing tags.
 	 */
 	private static final String SLICING_TAG = "Slicing Tag";
@@ -93,14 +74,14 @@ public class TagBasedSlicingTransformer
 	private final Map method2locals = new HashMap();
 
 	/**
-	 * The tag to be used during transformation.
-	 */
-	private StringTag tag;
-
-	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName = SLICING_TAG;
+
+	/**
+	 * The tag to be used during transformation.
+	 */
+	private StringTag tag;
 
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
@@ -210,6 +191,37 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
+	 * Returns <code>true</code> as this transformer can handle partial inclusions.
+	 *
+	 * @return <code>true</code>
+	 *
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
+	 */
+	public boolean handlesPartialInclusions() {
+		return true;
+	}
+
+	/**
+	 * Initializes the transformer.
+	 *
+	 * @param theSystem that is to be sliced.
+	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
+	 * 		  used.
+	 *
+	 * @pre theSystem != null
+	 */
+	public void initialize(final Scene theSystem, final String theTagName) {
+		system = theSystem;
+
+		if (theTagName != null) {
+			tag = new StringTag(theTagName);
+			tagName = theTagName;
+		} else {
+			tag = new StringTag(tagName);
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
 	public void reset() {
@@ -257,35 +269,17 @@ public class TagBasedSlicingTransformer
 			method.addTag(tag);
 		}
 	}
-
-	/**
-	 * Initializes the transformer.
-	 *
-	 * @param theSystem that is to be sliced.
-	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
-	 * 		  used.
-	 *
-	 * @pre theSystem != null
-	 */
-	public void initialize(final Scene theSystem, final String theTagName) {
-		system = theSystem;
-
-		if (theTagName != null) {
-			tag = new StringTag(theTagName);
-			tagName = theTagName;
-		} else {
-			tag = new StringTag(tagName);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/25 07:17:38  venku
+   Exposed initialize() as a public method.
+   Removed SlicingTag class and used StringTag instead.
    Revision 1.3  2003/08/21 09:30:31  venku
     - added a new transform() method which can transform at the level of ValueBox.
     - CloningBasedSlicingTransformer does not do anything in this new method.
-
    Revision 1.2  2003/08/20 18:31:22  venku
    Documentation errors fixed.
    Revision 1.1  2003/08/19 12:55:50  venku
