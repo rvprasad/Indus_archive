@@ -110,7 +110,7 @@ public class ReferenceBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.SYNCHRONIZATION_DA;
+		return DependencyAnalysis.REFERENCE_BASED_DATA_DA;
 	}
 
 	/**
@@ -158,6 +158,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/12 03:56:32  venku
+   - requires DefinitionStmt as input for getDependents()
+
    Revision 1.13  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
