@@ -4,7 +4,6 @@
     
     <path id="javaslicer.srcpath">
     	<pathelement location="../JavaSlicer/src"/>
-	    <pathelement location="../JavaSlicer/src-xml"/>
     </path>
     
     <path id="srcpath" refid="javaslicer.srcpath"/>

@@ -8,6 +8,7 @@
     	<pathelement location="../StaticAnalyses/src-dependence"/>
 	    <pathelement location="../StaticAnalyses/src-concurrency"/>
     	<pathelement location="../StaticAnalyses/src-test"/>
+       	<pathelement location="../StaticAnalyses/src-xml"/>
     </path>
     
     <path id="srcpath" refid="staticanalyses.srcpath"/>
@@ -18,6 +19,7 @@
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+        <pathelement location="/usr/local/javaclasses/xmlunit.jar"/>
     </path>
     
     <path id="classpath">

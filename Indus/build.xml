@@ -20,6 +20,10 @@
     </javac>
 </target>
 
+<target name="jar" depends="build">
+	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+</target>
+
 <target name="docs" depends="init">
 	<antcall target="javadocs">
         <param name="access" value="protected"/>
@@ -101,6 +105,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.11  2003/11/10 07:28:32  venku
+- externalized ant properties into antbuild.properties.
+
 Revision 1.14  2003/11/10 01:13:18  venku
 - we now have a generalized build file which can be
   customized per subproject via localbuild.xml.
