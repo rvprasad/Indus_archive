@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+    <jar path="/home/ganeshan/Desktop/peq-jars/peq-indus.jar"/>
+    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="false"   useSourceFolders="false" buildIfNeeded="false"/>
+    <manifest manifestVersion="1.0" usesManifest="false" reuseManifest="false" saveManifest="false" generateManifest="true" manifestLocation="">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
+        <javaElement handleIdentifier="=PEQ-Indus/src"/>        
+    </selectedElements>
+</jardesc>

@@ -1,0 +1,20 @@
+<project>
+    <property file="antbuild.properties"/>        
+    <property name="package" value="edu.ksu.cis.indus.peq"/>
+    <property name="ant.project.name" value="peq-indus"/>
+   
+    <path id="peq-indus.srcpath">
+        <pathelement location="src"/>
+    </path>
+    
+    <property name="home" value="${basedir}"/>
+    
+      <path id="peq-indus.classpath">
+	    <pathelement location="$home/libraries/commons-lang-2.0.jar"/>	   
+		 <pathelement location="../StaticAnalyses/${build.dir}/"/>        	   
+	     <pathelement location="../Indus/${build.dir}/"/>        
+	      <pathelement location="../JavaSlicer/${build.dir}/"/>        
+	      <pathelement location="../PEQ/${build.dir}/"/>        
+	      <pathelement location="../PEQ-SpecCompiler/${build.dir}/"/>        
+	 </path>  
+</project>
