@@ -100,13 +100,24 @@ public class UnitGraphFactoryTest
 		final UnitGraph _cmpltg2 = _ugf2.getUnitGraph(method);
 		assertNotNull(_cmpltg2);
 		assertTrue(_cmpltg2 instanceof TrapUnitGraph);
+
+		final IUnitGraphFactory _ugf3 = new ExceptionFlowSensitiveStmtGraphFactory();
+		final UnitGraph _cmpltg3 = _ugf3.getUnitGraph(method);
+		assertNotNull(_cmpltg3);
+		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveStmtGraph);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
    Revision 1.1  2004/01/28 22:45:07  venku
    - added new test cases for testing classes in soot package.
-
  */
