@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -521,7 +522,7 @@ public final class SlicerTool
 				engine.setSlicedBBGMgr(bbgMgr);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
 				engine.setSliceCriteria(criteria);
-                engine.initialize();
+				engine.initialize();
 				engine.slice();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
@@ -614,10 +615,12 @@ public final class SlicerTool
 				+ "implement IMonitorInfo interface.");
 		}
 
+		Collection temp = new HashSet();
+
 		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
 			Triple mTriple = (Triple) i.next();
 			SootMethod method = (SootMethod) mTriple.getThird();
-
+            temp.clear();
 			if (mTriple.getFirst() == null) {
 				// add all return points (including throws) of the method as the criteria
 				UnitGraph graph = unitGraphProvider.getUnitGraph(method);
@@ -629,13 +632,20 @@ public final class SlicerTool
 				} else {
 					for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
 						Stmt stmt = (Stmt) j.next();
-						criteria.addAll(criteriaFactory.getCriterion(method, stmt, true));
+						temp.addAll(criteriaFactory.getCriterion(method, stmt));
 					}
 				}
 			} else {
-				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true));
-				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true));
+
+				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst()));
+				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond()));
 			}
+
+			for (Iterator k = temp.iterator(); k.hasNext();) {
+				AbstractSliceCriterion criterion = (AbstractSliceCriterion) k.next();
+				criterion.setConsiderExecution(true);
+			}
+			criteria.addAll(temp);
 		}
 	}
 }
@@ -643,9 +653,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2003/12/01 04:20:10  venku
+   - tag name should be provided for the engine before execution.
    Revision 1.39  2003/11/30 02:13:39  venku
    - incorporated tag based filtering during CG construction.
-
    Revision 1.38  2003/11/30 01:07:54  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
