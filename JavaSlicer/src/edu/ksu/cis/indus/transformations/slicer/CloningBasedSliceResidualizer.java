@@ -42,6 +42,7 @@ import soot.util.Chain;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
 
 import java.util.Collection;
@@ -65,8 +66,8 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class CloningBasedSliceResidualizer
-  extends AbstractSliceResidualizer {
+public class CloningBasedSliceResidualizer extends AbstractTransformer
+   {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -345,7 +346,7 @@ public class CloningBasedSliceResidualizer
 	 *
 	 * @return false;
 	 *
-	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return false;
@@ -359,7 +360,7 @@ public class CloningBasedSliceResidualizer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer#makeExecutable()
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceCollector#makeExecutable()
 	 */
 	public void makeExecutable() {
 		// TODO: Auto-generated method stub
@@ -524,11 +525,38 @@ public class CloningBasedSliceResidualizer
 		writeChain.insertAfter(index, writeData);
 		writeChain.remove(index);
 	}
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
+     */
+    public void processSeedCriteria(Collection seedcriteria) {
+    // TODO: Auto-generated method stub
+
+    }
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
+     */
+    public void transform(ValueBox vBox, Stmt stmt, SootMethod method) {
+    // TODO: Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.indus.slicer.ISliceCollector#setTagName(java.lang.String)
+     */
+    public void setTagName(String tag_name) {
+        // TODO: Auto-generated method stub
+        
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/24 07:30:11  venku
+   - as makeExecutable() will be called from SlicingEngine,
+     call to this method from completeTransformation() has been removed.
+   - added makeExecutable() method.
+
    Revision 1.1  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
@@ -550,7 +578,7 @@ public class CloningBasedSliceResidualizer
    Revision 1.28  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISliceResidualizer interface.
+     into ISliceCollector interface.
    - ripple effect.
    Revision 1.27  2003/11/03 08:02:03  venku
    - ripple effect of changes to ITransformer.
