@@ -15,7 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.interfaces.*;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
+
+import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -80,45 +82,45 @@ public class NewExpr2InitMapper
 	 * @see INewExpr2InitMapper#getInitCallStmtForNewExprStmt(Stmt,SootMethod)
 	 */
 	public Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method) {
-		Map ne2init = (Map) method2map.get(method);
-		Stmt result = null;
+		final Map _ne2init = (Map) method2map.get(method);
+		Stmt _result = null;
 
-		if (ne2init != null) {
-			result = (Stmt) ne2init.get(newExprStmt);
+		if (_ne2init != null) {
+			_result = (Stmt) _ne2init.get(newExprStmt);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-		Value value = vBox.getValue();
+		final Value _value = vBox.getValue();
 
-		if (value instanceof NewExpr) {
-			Stmt stmt = context.getStmt();
-			SootMethod method = context.getCurrentMethod();
+		if (_value instanceof NewExpr) {
+			final Stmt _stmt = context.getStmt();
+			final SootMethod _method = context.getCurrentMethod();
 
-			Map ne2init = getMapFor(method);
-			ne2init.put(value, stmt);
-		} else if (value instanceof SpecialInvokeExpr) {
-			Stmt stmt = context.getStmt();
-			SootMethod method = context.getCurrentMethod();
-			SpecialInvokeExpr expr = (SpecialInvokeExpr) value;
-			SootMethod sm = expr.getMethod();
+			final Map _ne2init = CollectionsUtilities.getMapFromMap(method2map, _method);
+			_ne2init.put(_value, _stmt);
+		} else if (_value instanceof SpecialInvokeExpr) {
+			final Stmt _stmt = context.getStmt();
+			final SootMethod _method = context.getCurrentMethod();
+			final SpecialInvokeExpr _expr = (SpecialInvokeExpr) _value;
+			final SootMethod _sm = _expr.getMethod();
 
-			if (sm.getName().equals("<init>")) {
-				Map ne2init = getMapFor(method);
-				contextCache.setRootMethod(method);
-				contextCache.setStmt(stmt);
-				contextCache.setProgramPoint(expr.getBaseBox());
+			if (_sm.getName().equals("<init>")) {
+				final Map _ne2init = CollectionsUtilities.getMapFromMap(method2map, _method);
+				contextCache.setRootMethod(_method);
+				contextCache.setStmt(_stmt);
+				contextCache.setProgramPoint(_expr.getBaseBox());
 
-				Collection values = ofa.getValues(expr.getBase(), contextCache);
+				final Collection _values = ofa.getValues(_expr.getBase(), contextCache);
 
-				for (Iterator i = values.iterator(); i.hasNext();) {
-					NewExpr e = (NewExpr) i.next();
-					Stmt newStmt = (Stmt) ne2init.remove(e);
-					ne2init.put(newStmt, stmt);
+				for (final Iterator _i = _values.iterator(); _i.hasNext();) {
+					final NewExpr _e = (NewExpr) _i.next();
+					final Stmt _newStmt = (Stmt) _ne2init.remove(_e);
+					_ne2init.put(_newStmt, _stmt);
 				}
 			}
 		}
@@ -156,33 +158,13 @@ public class NewExpr2InitMapper
 		ppc.unregister(NewExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
 	}
-
-	/**
-	 * Retrieves the new expression to init call map for the given method.
-	 *
-	 * @param method for which the map is requested.
-	 *
-	 * @return the map corresponding to the given method.
-	 *
-	 * @pre method != null
-	 * @post result != null
-	 * @post result->forall(o | result.get(o).containsInvokeExpr() &&
-	 * 		 result.get(o).getInvokeExpr().oclIsKindOf(SpecialInvokeExpr))))
-	 */
-	private Map getMapFor(final SootMethod method) {
-		Map result = (Map) method2map.get(method);
-
-		if (result == null) {
-			result = new HashMap();
-			method2map.put(method, result);
-		}
-		return result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/14 04:39:22  venku
+   - added reset method.
    Revision 1.3  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.2  2004/02/01 23:33:43  venku
