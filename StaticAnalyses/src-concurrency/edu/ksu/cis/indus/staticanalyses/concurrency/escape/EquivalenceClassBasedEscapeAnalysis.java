@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -242,11 +242,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	final class StmtProcessor
 	  extends AbstractStmtSwitch {
-        /**
-         * The logger used by instances of this class to log messages.
-         * 
-         */
-        private final Log stmtProcessorLogger = LogFactory.getLog(StmtProcessor.class);
+		/**
+		 * The logger used by instances of this class to log messages.
+		 */
+		private final Log stmtProcessorLogger = LogFactory.getLog(StmtProcessor.class);
+
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -330,11 +330,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
 			valueProcessor.process(stmt.getOp());
-            final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
-            if (_l != null) {
-                methodCtxtCache.getThrownAS().unify(_l, false);
-            }
+			final AliasSet _l = (AliasSet) valueProcessor.getResult();
+
+			if (_l != null) {
+				methodCtxtCache.getThrownAS().unify(_l, false);
+			}
 		}
 
 		/**
@@ -367,19 +368,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	final class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
-        
-        /**
-         * The logger used by instances of this class to log messages.
-         * 
-         */
-        private final Log valueProcessorLogger = LogFactory.getLog(ValueProcessor.class);
-        
 		/**
 		 * This indicates if the value should be marked as being read or written.  <code>true</code> indicates that the
 		 * values should be marked as being read from.  <code>false</code> indicates that the values should be marked as
 		 * being written into.
 		 */
 		boolean read = true;
+
+		/**
+		 * The logger used by instances of this class to log messages.
+		 */
+		private final Log valueProcessorLogger = LogFactory.getLog(ValueProcessor.class);
 
 		/**
 		 * Provides the alias set associated with the array element being referred.  All elements in a dimension of an array
@@ -792,45 +791,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(
 							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
-							+ "wait()s that occur in different threads - " + _wTemp + "@" + _wSM + " " + _nTemp + "@" +_nSM);
+							+ "wait()s that occur in different threads - " + _wTemp + "@" + _wSM + " " + _nTemp + "@" + _nSM);
 					}
 				}
 			}
 		}
 
 		return _result;
-	}
-
-	/**
-	 * Checks if the given exit monitor expression is dependent on the given enter monitor expression.
-	 *
-	 * @param exitStmt is the statement in which exit monitor expression occurs.
-	 * @param exitMethod in which <code>exitStmt</code> occurs.
-	 * @param enterStmt is the statemetn in which enter monitor expression occurs.
-	 * @param enterMethod in which <code>enterStmt</code> occurs.
-	 *
-	 * @return <code>true</code> if <code>exitStmt</code> is ready dependent on <code>enterStmt</code>; <code>false</code>,
-	 * 		   otherwise.
-	 *
-	 * @throws IllegalArgumentException if either of the given statements were not processed.
-	 *
-	 * @pre exitStmt != null and exitMethod != null and enterStmt != null and enterMethod != null
-	 */
-	public boolean isReadyDependent(final ExitMonitorStmt exitStmt, final SootMethod exitMethod,
-		final EnterMonitorStmt enterStmt, final SootMethod enterMethod) {
-		final Triple _trp1 = (Triple) method2Triple.get(exitMethod);
-
-		if (_trp1 == null) {
-			throw new IllegalArgumentException(exitMethod + " was not processed.");
-		}
-
-		final Triple _trp2 = (Triple) method2Triple.get(enterMethod);
-
-		if (_trp2 == null) {
-			throw new IllegalArgumentException(enterMethod + " was not processed.");
-		}
-
-		return escapes(exitStmt.getOp(), exitMethod) && escapes(enterStmt.getOp(), enterMethod);
 	}
 
 	/**
@@ -986,6 +953,34 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 
+		return _result;
+	}
+
+	/**
+	 * Checks if "this" variable of the given method escapes.  If the method is static then the result is pessimistic, hence,
+	 * <code>true</code> is returned.
+	 *
+	 * @param method in which "this" occurs.
+	 *
+	 * @return <code>true</code> if "this" escapes; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	public boolean thisEscapes(final SootMethod method) {
+		boolean _result = true;
+		final Triple _triple = (Triple) method2Triple.get(method);
+
+		if (_triple == null && LOGGER.isWarnEnabled()) {
+			LOGGER.warn("There is no information about " + method + ".  So, providing pessimistic info (true).");
+		} else {
+			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+
+			// if non-static query the alias set of "this" variable.  If static, just return true assuming that the 
+			// application to decide wisely :-)
+			if (_as1 != null) {
+				_result = _as1.escapes();
+			}
+		}
 		return _result;
 	}
 
@@ -1242,26 +1237,23 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/01/20 16:46:29  venku
+   - use hashset instead of arraylist for notifyMethods and waitMethods.
    Revision 1.41  2004/01/20 16:01:46  venku
    - logging.
-
    Revision 1.40  2004/01/09 01:00:15  venku
    - throwStmt() in StmtProcessor() did not check if the processing
      of the thrown expression could yeild null alias set. FIXED.
-
    Revision 1.39  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.38  2003/12/16 06:28:14  venku
    - removed the valueprocessor.accessed field and defaulted
      it to true always.
-
    Revision 1.37  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.36  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
