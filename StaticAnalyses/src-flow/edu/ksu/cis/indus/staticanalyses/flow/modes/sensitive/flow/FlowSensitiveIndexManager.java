@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.flow;
@@ -40,13 +40,17 @@ import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
  * This class manages indices associated with entities in flow sensitive mode.  In reality, it provides the implementation to
- * create new indices.  Created: Tue Mar  5 14:08:18 2002.
+ * create new indices.
+ * 
+ * <p>
+ * Created: Tue Mar  5 14:08:18 2002.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -54,14 +58,16 @@ import org.apache.log4j.Logger;
 public class FlowSensitiveIndexManager
   extends AbstractIndexManager {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(FlowSensitiveIndexManager.class);
+	private static final Log LOGGER = LogFactory.getLog(FlowSensitiveIndexManager.class);
 
 	/**
 	 * Returns a new instance of this class.
 	 *
 	 * @return a new instance of this class.
+	 *
+	 * @post result != null
 	 */
 	public Object getClone() {
 		return new FlowSensitiveIndexManager();
@@ -75,8 +81,10 @@ public class FlowSensitiveIndexManager
 	 * @param c the context which captures program point needed to generate the index.
 	 *
 	 * @return the index that uniquely identifies <code>o</code> at the program point captured in <code>c</code>.
+	 *
+	 * @pre o != null and c != null
 	 */
-	protected IIndex getIndex(Object o, Context c) {
+	protected IIndex getIndex(final Object o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
@@ -85,13 +93,16 @@ public class FlowSensitiveIndexManager
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.4  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 1.4  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
