@@ -51,7 +51,7 @@ import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -130,14 +130,11 @@ public class DependencyXMLizerCLI
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setArgs(Option.UNLIMITED_VALUES);
-		_option.setValueSeparator(' ');
-		_options.addOption(_option);
-		_option =
+		Option _option =
 			new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
+		_option.setArgName("output-directory");
 		_options.addOption(_option);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
@@ -199,17 +196,18 @@ public class DependencyXMLizerCLI
 
 			_cli.xmlizer.setXmlOutputDir(_outputDir);
 
-			final String[] _classNames = _cl.getOptionValues('c');
-
-			if (_classNames == null) {
-				throw new MissingOptionException("-c");
-			}
-			_cli.setClassNames(_classNames);
-
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
+			_cli.dumpJimple = _cl.hasOption('j');
+			
+			final List _classNames = _cl.getArgList();
 
+			if (_classNames.isEmpty()) {
+				throw new MissingArgumentException("Please specify atleast one class.");
+			}
+			_cli.setClassNames(_classNames);
+			
 			boolean _flag = true;
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
@@ -223,7 +221,6 @@ public class DependencyXMLizerCLI
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
 
-			_cli.dumpJimple = _cl.hasOption('j');
 			_cli.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
@@ -372,6 +369,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/06/23 04:41:28  venku
+   - corrected the class of the logger.
+
    Revision 1.17  2004/06/15 08:55:27  venku
    - added command line option for new id-based DA.
 
@@ -590,6 +590,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/06/23 04:41:28  venku
+   - corrected the class of the logger.
+
    Revision 1.17  2004/06/15 08:55:27  venku
    - added command line option for new id-based DA.
 
