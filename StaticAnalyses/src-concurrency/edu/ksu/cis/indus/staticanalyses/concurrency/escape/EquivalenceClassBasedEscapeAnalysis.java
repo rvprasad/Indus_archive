@@ -46,7 +46,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.IntType;
 import soot.Local;
+import soot.LongType;
 import soot.Modifier;
 import soot.SootClass;
 import soot.SootField;
@@ -720,15 +722,22 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				// unify all parts of alias sets if "start" is being invoked.
 				_delayUnification = true;
 			} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
-				  && callee.getReturnType() instanceof VoidType
-				  && callee.getParameterCount() == 0) {
+				  && callee.getReturnType() instanceof VoidType) {
 				final String _calleeName = callee.getName();
 
 				// set notifies/waits flags if this is wait/notify call. 
-				if (_calleeName.equals("notify") || _calleeName.equals("notifyAll")) {
+				if ((_calleeName.equals("notify") || _calleeName.equals("notifyAll")) && callee.getParameterCount() == 0) {
 					primaryAliasSet.setNotifies();
 				} else if (_calleeName.equals("wait")) {
-					primaryAliasSet.setWaits();
+					final int _pCount = callee.getParameterCount();
+					boolean _flag = _pCount > 0 && _pCount < 3 ? callee.getParameterType(0) instanceof LongType
+															   : true;
+					_flag = _flag && _pCount > 1 ? callee.getParameterType(1) instanceof IntType
+												 : _flag;
+
+					if (_flag) {
+						primaryAliasSet.setWaits();
+					}
 				}
 			}
 			return _delayUnification;
@@ -1237,12 +1246,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.43  2004/01/21 13:35:26  venku
    - removed isReadyDependent() variant used for enter and
      exit monitor based ready dependence.
    - added a new method, thisEscapes(), to check if the this
      variable of a method is marked as escaping.
-
    Revision 1.42  2004/01/20 16:46:29  venku
    - use hashset instead of arraylist for notifyMethods and waitMethods.
    Revision 1.41  2004/01/20 16:01:46  venku
