@@ -26,7 +26,8 @@ public final class TokenUtil {
 	/** 
 	 * The name of the property the user can use to configure the token manager class.
 	 */
-	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = "edu.ksu.cis.indus.staticanalyses.TokenManagerClass";
+	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = 
+        "edu.ksu.cis.indus.staticanalyses.tokens.TokenManagerClass";
 
 	///CLOVER:OFF
 
