@@ -616,7 +616,7 @@ public final class SlicerTool
 	 * phase.
 	 * </p>
 	 */
-	public void execute(final Object phaseParam)
+	public void execute(final Phase phaseParam)
 	  throws InterruptedException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Execution of the slicer tool");
@@ -624,8 +624,8 @@ public final class SlicerTool
 
 		Phase _ph = phase;
 
-		if (phaseParam != null && ((Phase) phaseParam).isEarlierThan(phase)) {
-			phase = (Phase) ((Phase) phaseParam).clone();
+		if (phaseParam != null && phaseParam.isEarlierThan(phase)) {
+			phase = (Phase) phaseParam.clone();
 			_ph = phase;
 		}
 

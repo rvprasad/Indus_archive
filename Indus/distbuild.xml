@@ -6,14 +6,8 @@
 <project name="indus" default="dist" basedir=".">
     <tstamp/>
 
-    <property name="drishti.jar" value="/usr/local/javaclasses/doxygen.jar"/>
-    <property name="dist.dir" value="dist"/>
-	<property name="projects.dir" value="${dist.dir}/projects"/>
-    <property name="dist.ug.dir" value="${dist.dir}/ug"/>
-    <property name="docs.zip.filename" value="${dist.dir}/docs-${DSTAMP}.zip"/>
-    <property name="examples.src.zip.filename" value="${dist.dir}/examples-${DSTAMP}.zip"/>
-    <property name="cvs.modules" value="Indus StaticAnalyses JavaSlicer"/>
-    <property name="cvs.root" value=":ext:venku@vulcan.isa-geek.net:/home/cvs"/>
+	<property file="distbuild.properties" />
+	
 	<dirname property="docbook.base" file="${basedir}"/>
 	
     <path id="subprojects.buildfiles">
@@ -21,7 +15,6 @@
         <pathelement path="${projects.dir}/StaticAnalyses"/>
         <pathelement path="${projects.dir}/JavaSlicer"/>
     </path>
-
 
     <target name="init">
         <tstamp/>

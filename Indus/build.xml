@@ -8,7 +8,6 @@
 
 	<target name="init">
 		<tstamp />
-		<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}" />
 	</target>
 
 	<target name="localbuild" depends="init">
@@ -99,7 +98,8 @@
 		<antcall target="docbook-doc" />
 	</target>
 
-	<target name="doxydocs">
+	<target name="doxydocs" if="${doxygen.jar}" >
+		<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}" />
 		<delete dir="${docs}/doxydocs" />
 		<mkdir dir="${docs}/doxydocs" />
 		<doxygen configfile="${configFile}" />
