@@ -28,7 +28,9 @@ import edu.ksu.cis.indus.transformations.common.ITransformer;
 public interface ISlicingBasedTransformer
   extends ITransformer {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param theSliceType DOCUMENT ME!
 	 * @param executableSlice DOCUMENT ME!
@@ -47,17 +49,30 @@ public interface ISlicingBasedTransformer
 	 * @return <code>true</code> if the transformer can handle partial inclusions; <code>false</code>, otherwise.
 	 */
 	boolean handlesPartialInclusions();
+
+	/**
+	 * Transforms the slice into an executable slice.
+	 */
+	void makeExecutable();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
    Revision 1.1  2003/10/13 00:58:04  venku
  *** empty log message ***
-   Revision 1.2  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.1  2003/09/15 07:52:08  venku
-   - added a new transformer interface specifically targetted for slicing.
-   - implemented the above interface.
+       Revision 1.2  2003/09/27 22:38:30  venku
+       - package documentation.
+       - formatting.
+       Revision 1.1  2003/09/15 07:52:08  venku
+       - added a new transformer interface specifically targetted for slicing.
+       - implemented the above interface.
  */

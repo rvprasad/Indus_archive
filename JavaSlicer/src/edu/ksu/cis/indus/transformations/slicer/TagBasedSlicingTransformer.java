@@ -21,7 +21,11 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.GotoStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.LookupSwitchStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
 
 import soot.tagkit.Tag;
 
@@ -36,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -103,6 +108,83 @@ public class TagBasedSlicingTransformer
 	 * </p>
 	 */
 	private boolean executable;
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 */
+	public class BranchingSlicingTag
+	  extends SlicingTag {
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		List targets;
+
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		private int count;
+
+		/**
+		 * Creates a new BranchingSlicingTag object.
+		 *
+		 * @param name DOCUMENT ME!
+		 * @param targetCount DOCUMENT ME!
+		 */
+		BranchingSlicingTag(final String name, final int targetCount) {
+			super(name);
+			targets = new ArrayList(targetCount);
+			count = targetCount;
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @return DOCUMENT ME!
+		 */
+		public int getTargetCount() {
+			return targets.size();
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @param index DOCUMENT ME!
+		 *
+		 * @return DOCUMENT ME!
+		 */
+		public Stmt getTargetStmt(final int index) {
+			return (Stmt) targets.get(index);
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @param index DOCUMENT ME!
+		 * @param stmt DOCUMENT ME!
+		 *
+		 * @throws IndexOutOfBoundsException DOCUMENT ME!
+		 */
+		void setTargetStmt(final int index, final Stmt stmt) {
+			if (index >= 0 || index < count) {
+				targets.add(index, stmt);
+			} else {
+				throw new IndexOutOfBoundsException(index + " is outside the range 0-" + (count - 1) + ".");
+			}
+		}
+	}
+
 
 	/**
 	 * DOCUMENT ME!
@@ -267,7 +349,7 @@ public class TagBasedSlicingTransformer
 	 */
 	public void completeTransformation() {
 		if (executable && sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			fixupReturnStmts();
+			makeExecutable();
 		}
 	}
 
@@ -316,7 +398,18 @@ public class TagBasedSlicingTransformer
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
 		if (stmt.getTag(tagName) == null) {
-			stmt.addTag(tag);
+			if (stmt instanceof IfStmt) {
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), 2));
+			} else if (stmt instanceof GotoStmt) {
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), 1));
+			} else if (stmt instanceof LookupSwitchStmt) {
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), ((LookupSwitchStmt) stmt).getTargetCount()));
+			} else if (stmt instanceof TableSwitchStmt) {
+				TableSwitchStmt t = (TableSwitchStmt) stmt;
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), (t.getHighIndex() - t.getLowIndex())));
+			} else {
+				stmt.addTag(tag);
+			}
 
 			if (method.getTag(tagName) == null) {
 				method.addTag(tag);
@@ -354,6 +447,9 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/05 09:05:28  venku
+   - For strange reasons the StringTag does not fulfill our needs.
+     So, we introduce a new class, SlicingTag.
    Revision 1.12  2003/11/05 08:32:50  venku
    - transformation are supported per entity basis.  This
      means each expression in a statement and needs to

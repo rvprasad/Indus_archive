@@ -215,7 +215,7 @@ public class CloningBasedSlicingTransformer
 	 */
 	public void completeTransformation() {
 		if (sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			fixupReturnStmts();
+			makeExecutable();
 		}
 		fixupMethods();
 
@@ -519,6 +519,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/03 08:02:03  venku
+   - ripple effect of changes to ITransformer.
+
    Revision 1.26  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete

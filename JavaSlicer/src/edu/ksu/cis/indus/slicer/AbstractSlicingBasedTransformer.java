@@ -33,7 +33,7 @@ public abstract class AbstractSlicingBasedTransformer
 	 * 
 	 * <p></p>
 	 */
-	protected void fixupReturnStmts() {
+	public void makeExecutable() {
         // TODO: implement me!
 	}
 }
@@ -41,4 +41,13 @@ public abstract class AbstractSlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
+
  */

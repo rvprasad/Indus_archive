@@ -36,8 +36,8 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -217,7 +217,7 @@ public class SlicingEngine {
 	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
 	 * 		  this class.
 	 * @param executable is <code>true</code> if executable slice is requested; <code>false</code>, otherwise.
-	 * @param dependenceInfoController provides dependency information required for slicing.
+	 * @param ctrl provides dependency information required for slicing.
 	 * @param callgraph provides call graph information about the system being sliced.
 	 * @param sliceTransformer transforms the system based on the slicing decisions of this object.  The provided
 	 * 		  implementation should provide sound and complete information as the engine will use this information to while
@@ -230,14 +230,14 @@ public class SlicingEngine {
 	 * 		   criteria, class manager, or controller is unspecified. It is also thrown when the given slice type cannot be
 	 * 		   handled by the configured transformer.
 	 *
-	 * @pre callgraph != null and dependenceInfoController != null and sliceTransformer != null     and dependenciesToUse !=
-	 * 		null and theSliceType != null
+	 * @pre callgraph != null and ctrl != null and sliceTransformer != null     and dependenciesToUse !=     null and
+	 * 		theSliceType != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 * @pre SLICE_TYPES.contains(theSliceType)
 	 */
-	public void initialize(final Object theSliceType, final boolean executable,
-		final AnalysesController dependenceInfoController, final ICallGraphInfo callgraph,
-		final ISlicingBasedTransformer sliceTransformer, final Collection dependenciesToUse, final BasicBlockGraphMgr bbgMgr) {
+	public void initialize(final Object theSliceType, final boolean executable, final AnalysesController ctrl,
+		final ICallGraphInfo callgraph, final ISlicingBasedTransformer sliceTransformer, final Collection dependenciesToUse,
+		final BasicBlockGraphMgr bbgMgr) {
 		if (!SLICE_TYPES.contains(theSliceType)) {
 			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
 		}
@@ -249,7 +249,7 @@ public class SlicingEngine {
 		}
 		executableSlice = executable;
 		sliceType = theSliceType;
-		controller = dependenceInfoController;
+		controller = ctrl;
 		cgi = callgraph;
 		slicedBBGMgr = bbgMgr;
 		transformer = sliceTransformer;
@@ -310,6 +310,10 @@ public class SlicingEngine {
 				transformAndGenerateNewCriteriaForStmt((Stmt) temp.getCriterion(), sm, temp.shouldConsiderExecution());
 			}
 			work.sliced();
+		}
+
+		if (executableSlice) {
+			transformer.makeExecutable();
 		}
 		transformer.completeTransformation();
 	}
@@ -524,10 +528,6 @@ public class SlicingEngine {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			}
 		}
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Sliced : " + stmt + " [" + sExpr.shouldConsiderExecution() + "] | " + method);
-		}
 	}
 
 	/**
@@ -569,15 +569,19 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/06 05:15:05  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.5  2003/11/05 09:33:39  venku
    - ripple effect of splitting Workbag.
-
    Revision 1.4  2003/11/05 08:34:40  venku
    - Slicing on single threaded and single procedure
      program works but does not terminate.  Now the
      slicing algorithm is just tracing dependence and
      creating new criteria along the way.
-
    Revision 1.3  2003/11/03 08:19:56  venku
    - Major changes
      value boxes are the atomic entities in a slice.
