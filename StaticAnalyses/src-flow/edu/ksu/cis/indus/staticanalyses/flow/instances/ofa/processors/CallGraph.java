@@ -185,7 +185,7 @@ public class CallGraph
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private class CallTripleMethodToStringBasedComparator
+	private static class CallTripleMethodToStringBasedComparator
 	  implements Comparator {
 		/**
 		 * @see Comparator#compare(Object,Object)
@@ -734,6 +734,10 @@ public class CallGraph
 
 /*
  * ChangeLog: $Log$
+ * ChangeLog: Revision 1.64  2004/08/08 11:34:23  venku
+ * ChangeLog: - moved object extracting tranformer into IObjectDirectedGraph.
+ * ChangeLog: - ripple effect.
+ * ChangeLog:
  * ChangeLog: Revision 1.63  2004/08/08 10:11:35  venku
  * ChangeLog: - added a new class to configure constants used when creating data structures.
  * ChangeLog: - ripple effect.

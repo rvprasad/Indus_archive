@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -40,7 +40,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedPro
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -220,6 +219,23 @@ public class ThreadGraph
 	}
 
 	/**
+	 * This predicate class can be used to detect <code>NewExpr</code> objects.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static final class NewExprPredicate
+	  implements Predicate {
+		/**
+		 * @see Predicate#evaluate(java.lang.Object)
+		 */
+		public boolean evaluate(final Object object) {
+			return object instanceof NewExpr;
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
 	 */
 	public Collection getAllocationSites() {
@@ -370,15 +386,7 @@ public class ThreadGraph
 
 		final List _temp1 = new ArrayList();
 		_temp1.addAll(thread2methods.keySet());
-		Collections.sort(_temp1,
-			new Comparator() {
-				public int compare(final Object o1, final Object o2) {
-					Triple _ne = (Triple) o1;
-					final String _s1 = _ne.getFirst() + "@" + _ne.getSecond() + "#" + _ne.getThird();
-					_ne = (Triple) o2;
-					return _s1.compareTo(_ne.getFirst() + "@" + _ne.getSecond() + "#" + _ne.getThird());
-				}
-			});
+		Collections.sort(_temp1, new Triple.TripleComparator());
 
 		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
 			final Triple _triple = (Triple) _i.next();
@@ -439,12 +447,7 @@ public class ThreadGraph
 			LOGGER.debug("New thread expressions are: " + _values);
 		}
 
-		final Predicate _pred =
-			new Predicate() {
-				public boolean evaluate(final Object object) {
-					return object instanceof NewExpr;
-				}
-			};
+		final Predicate _pred = new NewExprPredicate();
 
 		for (final Iterator _i = IteratorUtils.filteredIterator(_values.iterator(), _pred); _i.hasNext();) {
 			final NewExpr _value = (NewExpr) _i.next();
@@ -752,6 +755,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/08/17 16:03:46  venku
+   - checks on mustOccurInSameThread() was missing a condition.  FIXED.
+   - checks on mustOccurInDifferentThread() was strengthened.
    Revision 1.41  2004/08/16 14:35:13  venku
    - logging.
    Revision 1.40  2004/08/16 14:24:26  venku
