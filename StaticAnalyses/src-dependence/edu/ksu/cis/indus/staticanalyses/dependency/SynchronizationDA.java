@@ -34,6 +34,7 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,6 +45,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,6 +104,11 @@ public final class SynchronizationDA
 	final Collection monitorTriples = new HashSet();
 
 	/**
+	 * This is a temporary collection of sychronized methods.
+	 */
+	final Collection syncedMethods = new HashSet();
+
+	/**
 	 * This collects the enter-monitor statements in each method during preprocessing.
 	 *
 	 * @invariant method2enterMonitors.oclIsKindOf(Map(SootMethod, Collection(EnterMonitorStmt)))
@@ -111,6 +119,14 @@ public final class SynchronizationDA
 	 * This provides object flow information.
 	 */
 	private IValueAnalyzer ofa;
+
+	/**
+	 * This maps synchronized methods to the collection of statements in them that are synchronization dependent on the entry
+	 * and exit points of the method.
+	 *
+	 * @invariant syncedMethod2dependents.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+	 */
+	private final Map syncedMethod2dependents = new HashMap();
 
 	/**
 	 * Creates a new SynchronizationDA object.
@@ -138,6 +154,7 @@ public final class SynchronizationDA
 				final Triple _triple = new Triple(null, null, method);
 				_triple.optimize();
 				monitorTriples.add(_triple);
+				syncedMethods.add(method);
 			}
 		}
 
@@ -211,6 +228,24 @@ public final class SynchronizationDA
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		return getDepemdsHelper(dependee2dependent, dependeeStmt, method);
+	}
+
+	/**
+	 * Retrieves the statements in <code>method</code> that are synchronization dependent on the entry/exit points of
+	 * <code>method</code>.
+	 *
+	 * @param method for which the dependent are requested.
+	 *
+	 * @return a collection of dependent statements.
+	 *
+	 * @pre method != null
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	public Collection getDependentsOnSyncMethod(final SootMethod method) {
+		if (!syncedMethods.isEmpty()) {
+			processSyncedMethods();
+		}
+		return (Collection) MapUtils.getObject(syncedMethod2dependents, method, Collections.EMPTY_LIST);
 	}
 
 	/**
@@ -293,6 +328,8 @@ public final class SynchronizationDA
 	public void reset() {
 		super.reset();
 		monitorTriples.clear();
+		syncedMethods.clear();
+		syncedMethod2dependents.clear();
 	}
 
 	/**
@@ -540,13 +577,12 @@ public final class SynchronizationDA
 		final Map enter2exits) {
 		final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(new HashSet());
 		final List _stmtList = getStmtList(method);
-		final Collection _processedStmts = new HashSet();
 		final BasicBlockGraph _bbGraph = getBasicBlockGraph(method);
 		final Collection _enterMonitors = new HashSet();
 		_enterMonitors.add(enterMonitor);
 		_workbag.addWork(new Quadraple(_bbGraph.getEnclosingBlock(enterMonitor), enterMonitor, new Stack(), new HashSet()));
 
-outerloop:
+outerloop: 
 		do {
 			final Quadraple _work = (Quadraple) _workbag.getWork();
 			final BasicBlock _bb = (BasicBlock) _work.getFirst();
@@ -554,24 +590,20 @@ outerloop:
 			final Stack _enterStack = (Stack) _work.getThird();
 			Collection _currStmts = (HashSet) _work.getFourth();
 			boolean _skippingSuccs = false;
-			boolean _previouslyProcessed = false;
 
 			for (final Iterator _j = _bb.getStmtFrom(_stmtList.indexOf(_leadStmt)).iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
 
 				/*
-				 * As we use graph based representation of the bytecode, we should allow for processing of processed blocks
-				 * to accumulate information at the exit monitor sites due to back edges.  At the same time we need to prevent
-				 * the addition of further work based on processed blocks.  Hence, we set _processed to false to prevent the
-				 * generation of work in such situations.
+				 * We do not employ the usual "do-not-process-processed-statements" here as in the following case comm1 and
+				 * exitmonitor will be processed before the second entermonitor is processed.
+				 * bb1: if <cnd> goto bb2 else bb3 
+				 * bb2: entermonitor r1; goto bb4
+				 * bb3: entermontior r1; goto bb4
+				 * bb4: comm1; exitmonitor r1
+				 * Hence, we just process the statements and rely on the enterStack for validity. 
 				 */
-				_previouslyProcessed = _processedStmts.contains(_stmt);
-
-				if (_previouslyProcessed && !(_stmt instanceof ExitMonitorStmt || _stmt instanceof EnterMonitorStmt)) {
-					break;
-				}
-				_processedStmts.add(_stmt);
-
+				
 				if (_stmt instanceof EnterMonitorStmt) {
 					final Stmt _enter = (EnterMonitorStmt) _stmt;
 
@@ -589,7 +621,7 @@ outerloop:
 					}
 				} else if (_stmt instanceof ExitMonitorStmt) {
 					_currStmts = processExitMonitor(method, enter2exits, _enterStack, _currStmts, _stmt);
-					
+
 					/*
 					 * Although it seems that continuing processing the rest of the statements in the basic block seems like
 					 * a efficient idea, but it fails in the following case if we start processing the monitor in bb2
@@ -607,12 +639,56 @@ outerloop:
 				}
 			}
 
-			if (!(_skippingSuccs || _enterStack.isEmpty() || _previouslyProcessed)) {
+			if (!(_skippingSuccs || _enterStack.isEmpty())) {
 				// populate the workbag with work depending on the fanout number of the current basic block.
 				populateWorkBagToProcessSuccessors(_workbag, _bb, _enterStack, _currStmts);
 			}
 		} while (_workbag.hasWork());
 		return _enterMonitors;
+	}
+
+	/**
+	 * Process the synchronized methods to collect the statements that are synchronization dependent on the entry/exit point
+	 * of the method.
+	 */
+	private void processSyncedMethods() {
+		final Collection _dependees = new ArrayList();
+		final Collection _temp = new HashSet();
+		final Predicate _predicate =
+			new Predicate() {
+				public boolean evaluate(final Object obj) {
+					return obj instanceof EnterMonitorStmt;
+				}
+			};
+
+		for (final Iterator _i = syncedMethods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+
+			for (final Iterator _j = getUnitGraph(_sm).iterator(); _j.hasNext();) {
+				final Stmt _stmt = (Stmt) _j.next();
+				_dependees.clear();
+				_dependees.addAll(getDependees(_stmt, _sm));
+				CollectionUtils.filter(_dependees, _predicate);
+
+				final int _size;
+
+				if (_stmt instanceof EnterMonitorStmt || _stmt instanceof ExitMonitorStmt) {
+					_size = 1;
+				} else {
+					_size = 0;
+				}
+
+				if (_dependees.size() == _size) {
+					_temp.add(_stmt);
+				}
+			}
+
+			if (!_temp.isEmpty()) {
+				syncedMethod2dependents.put(_sm, new ArrayList(_temp));
+				_temp.clear();
+			}
+		}
+		syncedMethods.clear();
 	}
 
 	/**
@@ -660,6 +736,8 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/06/27 03:58:20  venku
+   - bug #395. FIXED.
    Revision 1.43  2004/06/16 14:30:12  venku
    - logging.
    Revision 1.42  2004/06/03 20:24:12  venku
