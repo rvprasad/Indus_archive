@@ -228,7 +228,7 @@ public final class SootConvertor {
 				_pattern.append(_tempPattern);
 
 				for (int _nCtr = 1; _nCtr < _paramTypes.length; _nCtr++) {
-					_pattern.append(",");  //$NON-NLS-1$
+					_pattern.append(", ");  //$NON-NLS-1$
 					_tempPattern = _paramTypes[_nCtr].toString();
 					_index = _tempPattern.lastIndexOf(".");  //$NON-NLS-1$
 

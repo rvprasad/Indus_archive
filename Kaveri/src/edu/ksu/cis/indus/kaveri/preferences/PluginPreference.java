@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.kaveri.preferences;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 
@@ -165,7 +166,7 @@ public class PluginPreference
 		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 		final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
 		final String _prefvals = _ps.getString(_name);
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);  //$NON-NLS-1$
 
 		SliceConfigurationHolder _sch = null;
@@ -435,7 +436,7 @@ public class PluginPreference
 				public void widgetSelected(final SelectionEvent se) {
 					if (_viewList.getSelectionCount() == 1) {
 						final int _index = _viewList.getSelectionIndex();
-						final XStream _xstream = new XStream();
+						final XStream _xstream = new XStream(new DomDriver());
 						_xstream.alias(Messages.getString("PluginPreference.22"), ViewConfiguration.class);  //$NON-NLS-1$
 
 						final String _viewname = Messages.getString("PluginPreference.23");  //$NON-NLS-1$
@@ -475,7 +476,8 @@ public class PluginPreference
 						getString(Messages.getString("PluginPreference.26"));  //$NON-NLS-1$
 					final SlicerTool _stool =
 						new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
-					_stool.destringizeConfiguration(_defaultConfig);
+					_stool.reset();
+					final boolean _result = _stool.destringizeConfiguration(_defaultConfig);
 
 					//String newconfig = driver.showGUI();
 					final String _newconfig = handleDisplay(_stool);
@@ -499,7 +501,7 @@ public class PluginPreference
 					final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 					final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
 					String _prefvals = _ps.getString(_name);
-					final XStream _xstream = new XStream();
+					final XStream _xstream = new XStream(new DomDriver());
 					_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);  //$NON-NLS-1$
 
 					SliceConfigurationHolder _sch = null;
@@ -538,7 +540,7 @@ public class PluginPreference
 							final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 							final String _name = Messages.getString("PluginPreference.31");  //$NON-NLS-1$
 							String _prefvals = _ps.getString(_name);
-							final XStream _xstream = new XStream();
+							final XStream _xstream = new XStream(new DomDriver());
 							_xstream.alias(Messages.getString("PluginPreference.32"), SliceConfigurationHolder.class);
 
 							SliceConfigurationHolder _sch = null;
@@ -598,7 +600,7 @@ public class PluginPreference
 					final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 					final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
 					String _prefvals = _ps.getString(_name);
-					final XStream _xstream = new XStream();
+					final XStream _xstream = new XStream(new DomDriver());
 					_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);
 					_prefvals = _xstream.toXML(sch);
 					_ps.setValue(_name, _prefvals);
@@ -654,7 +656,7 @@ public class PluginPreference
 								final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 								final String _name = Messages.getString("PluginPreference.35");  //$NON-NLS-1$
 								final String _prefvals = _ps.getString(_name);
-								final XStream _xstream = new XStream();
+								final XStream _xstream = new XStream(new DomDriver());
 								_xstream.alias(Messages.getString("PluginPreference.36"), SliceConfigurationHolder.class);
 
 								SliceConfigurationHolder _sch = null;
@@ -723,7 +725,7 @@ public class PluginPreference
 						final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 						final String _name = Messages.getString("PluginPreference.38");  //$NON-NLS-1$
 						String _prefvals = _ps.getString(_name);
-						final XStream _xstream = new XStream();
+						final XStream _xstream = new XStream(new DomDriver());
 						_xstream.alias(Messages.getString("PluginPreference.39"), 
 								SliceConfigurationHolder.class);  //$NON-NLS-1$
 
@@ -761,7 +763,7 @@ public class PluginPreference
 
 		if (!_prefvals.equals("")) {  //$NON-NLS-1$
 
-			final XStream _xstream = new XStream();
+			final XStream _xstream = new XStream(new DomDriver());
 			_xstream.alias(Messages.getString("PluginPreference.44"), SliceConfigurationHolder.class);  //$NON-NLS-1$
 
 			final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
@@ -786,7 +788,7 @@ public class PluginPreference
 	private void initializeViewList(final List viewList) {
 		viewList.removeAll();
 
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("PluginPreference.45"), ViewConfiguration.class);  //$NON-NLS-1$
 
 		final String _viewname = Messages.getString("PluginPreference.46");  //$NON-NLS-1$

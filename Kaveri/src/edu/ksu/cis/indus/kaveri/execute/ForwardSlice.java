@@ -146,7 +146,7 @@ public class ForwardSlice
 					final List _lst = SECommons.checkForRootMethods(_file);
 
 					final IndusRunner _runner = new IndusRunner(_lst);
-
+					_runner.setEditor(editor);
 					if (!_runner.doWork()) {
 						return;
 					}

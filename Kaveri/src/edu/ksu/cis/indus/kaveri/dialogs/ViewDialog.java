@@ -22,6 +22,7 @@
 package edu.ksu.cis.indus.kaveri.dialogs;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
@@ -148,7 +149,7 @@ public class ViewDialog
 
 			if (!_prefval.equals("")) {  //$NON-NLS-1$
 
-				final XStream _xstream = new XStream();
+				final XStream _xstream = new XStream(new DomDriver());
 				_xstream.alias(Messages.getString("ViewDialog.8"), ViewConfiguration.class);  //$NON-NLS-1$
 				_vc = (ViewConfiguration) _xstream.fromXML(_prefval);
 
@@ -175,7 +176,7 @@ public class ViewDialog
 		final String _prefval = _ps.getString(_viewname);
 		final ViewData _vd = new ViewData();
 		ViewConfiguration _vc = null;
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("ViewDialog.10"), ViewConfiguration.class);  //$NON-NLS-1$
 
 		if (_prefval.equals("")) {  //$NON-NLS-1$

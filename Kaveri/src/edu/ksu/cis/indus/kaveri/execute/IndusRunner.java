@@ -98,6 +98,10 @@ public class IndusRunner
 	 */
 	List fileList;
 	
+	/**
+	 * All the java files in the given project.
+	 */
+	List completeFileList;
 
 	/**
 	 * Creates a new IndusRunner object.
@@ -108,6 +112,7 @@ public class IndusRunner
 		this.fileList = filesList;
 		driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
 		editor = null;
+		completeFileList = null;
 	}
 
 	/**
@@ -144,8 +149,11 @@ public class IndusRunner
 			final IFile _file = (IFile) fileList.get(0);
 			final IProject _pr = _file.getProject();
 			final IJavaProject _jp = JavaCore.create(_pr);
-			final List _flist = SECommons.processForFiles(_jp);
+			final List _flist = completeFileList;
+			if (_flist != null) {
 			KaveriPlugin.getDefault().getIndusConfiguration().setSliceFileList(_flist);
+			}
+			completeFileList = _flist;
 		}
 		
 		if (_decorator != null) {
@@ -246,6 +254,7 @@ public class IndusRunner
 			final IJavaProject _jproject = JavaCore.create(_project);
 			final List _listoffiles = SECommons.processForFiles(_jproject);
 			if (_listoffiles != null && _listoffiles.size() > 0) {
+				completeFileList = _listoffiles;
 				final List _classlist = new LinkedList();
 				for (int _i = 0; _i < _listoffiles.size(); _i++) {
 					final IFile _jfile = (IFile) _listoffiles.get(_i);

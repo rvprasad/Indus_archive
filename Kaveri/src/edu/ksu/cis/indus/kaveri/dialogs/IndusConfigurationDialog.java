@@ -24,6 +24,7 @@ package edu.ksu.cis.indus.kaveri.dialogs;
 import com.thoughtworks.xstream.XStream;
 
 import com.thoughtworks.xstream.alias.CannotResolveClassException;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 
@@ -245,7 +246,7 @@ public class IndusConfigurationDialog
 					.getString(
 							Messages.getString("IndusConfigurationDialog.26")); //$NON-NLS-1$
 		} else {
-			final XStream _xstream = new XStream();
+			final XStream _xstream = new XStream(new DomDriver());
 			_xstream.alias(Messages.getString("IndusConfigurationDialog.27"),  //$NON-NLS-1$
 				SliceConfigurationHolder.class);
 
@@ -280,7 +281,7 @@ public class IndusConfigurationDialog
 
 		if (_currentsels != null && _currentsels.length >= 1) {
 			IResource _resource = project.getResource();
-			final XStream _xstream = new XStream();
+			final XStream _xstream = new XStream(new DomDriver());
 			_xstream.alias(Messages.getString("IndusConfigurationDialog.17"), CriteriaData.class);  //$NON-NLS-1$
 
 			try {
@@ -343,7 +344,7 @@ public class IndusConfigurationDialog
 							final String _propVal = _resource.getPersistentProperty(_name);
 
 							if (_propVal != null) {
-								final XStream _xstream = new XStream();
+								final XStream _xstream = new XStream(new DomDriver());
 								_xstream.alias(Messages.getString("IndusConfigurationDialog.8"), CriteriaData.class);
 
 								final CriteriaData _data = (CriteriaData) _xstream.fromXML(_propVal);
@@ -381,7 +382,7 @@ public class IndusConfigurationDialog
 	private void initializeConfigs(final Combo confsCombo) {
 		confsCombo.add(Messages.getString("IndusConfigurationDialog.20"));  //$NON-NLS-1$
 
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("IndusConfigurationDialog.21"),  //$NON-NLS-1$
 			SliceConfigurationHolder.class);
 
@@ -416,7 +417,7 @@ public class IndusConfigurationDialog
 		IResource _resource;
 		criteriasList.removeAll();
 
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("IndusConfigurationDialog.17"), CriteriaData.class);  //$NON-NLS-1$
 
 		try {
@@ -483,7 +484,7 @@ public class IndusConfigurationDialog
 	private void initializeViews(final Combo viewsCombo) {
 		viewsCombo.removeAll();
 
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias(Messages.getString("IndusConfigurationDialog.13"), ViewConfiguration.class);  //$NON-NLS-1$
 
 		final String _viewname = Messages.getString("IndusConfigurationDialog.14");  //$NON-NLS-1$

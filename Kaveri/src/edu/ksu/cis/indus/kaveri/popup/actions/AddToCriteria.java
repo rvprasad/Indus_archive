@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.kaveri.popup.actions;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
@@ -163,7 +164,7 @@ public class AddToCriteria
 		final IResource _resource = _project;
 		final QualifiedName _name = new QualifiedName("edu.ksu.cis.indus.kaveri", "criterias");
 		CriteriaData _data = null;
-		final XStream _xstream = new XStream();
+		final XStream _xstream = new XStream(new DomDriver());
 		_xstream.alias("CriteriaData", CriteriaData.class);
 
 		try {
