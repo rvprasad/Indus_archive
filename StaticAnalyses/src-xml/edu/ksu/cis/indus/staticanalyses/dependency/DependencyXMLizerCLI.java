@@ -322,15 +322,8 @@ public class DependencyXMLizerCLI
 			_sla = null;
 		}
 
-		writeInfo("BEGIN: FA");
-
-		final long _start = System.currentTimeMillis();
 		initialize();
 		aa.analyze(getScene(), getRootMethods());
-
-		final long _stop = System.currentTimeMillis();
-		addTimeLog("FA", _stop - _start);
-		writeInfo("END: FA");
 
 		((CallGraph) _cgi).reset();
 		_processors.clear();
@@ -365,13 +358,8 @@ public class DependencyXMLizerCLI
 			_ac.addAnalyses(_da1.getId(), Collections.singleton(_da1));
 		}
 
-		final long _start1 = System.currentTimeMillis();
 		_ac.initialize();
 		_ac.execute();
-
-		final long _stop1 = System.currentTimeMillis();
-		addTimeLog("Dependency preprocessing", _stop1 - _start1);
-		writeInfo("END: dependency analyses");
 
 		// write xml
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
@@ -392,6 +380,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.41  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku
@@ -676,6 +668,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.41  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku
