@@ -13,9 +13,18 @@
 			<xs:element maxOccurs="unbounded" minOccurs="0" name="caller" type="callerType"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="reachableMethodType">
+		<xs:attribute name="methodId" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="reachableType">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="method" type="reachableMethodType"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="callgraphType">
 		<xs:sequence>
 			<xs:element maxOccurs="unbounded" name="method" type="methodType"/>
+			<xs:element name="reachables" type="reachableType"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="callgraph" type="callgraphType"/>
