@@ -222,6 +222,8 @@ public class DependencyXMLizer
 			String outputDir = cl.getOptionValue('o');
 
 			if (outputDir == null) {
+                if (LOGGER.isWarnEnabled())
+                    LOGGER.warn("Defaulting to current directory for output.");
 				outputDir = ".";
 			}
 			xmlizer.setXMLOutputDir(outputDir);
@@ -575,6 +577,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 10:45:36  venku
+   - soot class path can be set in SootBasedDriver.
+   - dependency tests are xmlunit based.
+
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.3  2003/11/12 05:08:10  venku
