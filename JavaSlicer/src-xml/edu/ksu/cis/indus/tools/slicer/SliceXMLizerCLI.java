@@ -626,7 +626,11 @@ public class SliceXMLizerCLI
 				final SootMethod _sm = (SootMethod) _j.next();
 
 				if (_sm.isConcrete()) {
-					_sm.retrieveActiveBody();
+					try {
+						_sm.retrieveActiveBody();
+					} catch (final RuntimeException _e) {
+						LOGGER.warn("Failed to retrieve body for method " + _sm, _e);
+					}
 				}
 			}
 
@@ -645,7 +649,9 @@ public class SliceXMLizerCLI
 					_printer.write(_sc, outputDirectory);
 				}
 			} catch (final IOException _e) {
-				LOGGER.error("Error while writing " + _sc, _e);
+				LOGGER.warn("Error while writing " + _sc, _e);
+			} catch (final RuntimeException _e) {
+				LOGGER.warn("Error while writing class file of " + _sc, _e);
 			} finally {
 				if (_writer != null) {
 					_writer.flush();
@@ -755,6 +761,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/08/12 03:35:52  venku
+   - exercised the event listening interface and implementation.
    Revision 1.50  2004/08/04 02:11:26  venku
    - documentation.
    Revision 1.49  2004/07/25 01:35:37  venku
