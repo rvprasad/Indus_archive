@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
+import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
@@ -39,6 +40,7 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -399,6 +401,22 @@ public final class SlicerTool
 		if (configurationInfo instanceof CompositeToolConfiguration) {
 			((CompositeToolConfiguration) configurationInfo).setActiveToolConfigurationID(configID);
 		}
+	}
+
+	/**
+	 * Retrieves an atomicity analysis instance.
+	 *
+	 * @return an analysis instance.
+	 *
+	 * @post result != null
+	 */
+	public IAtomicityInfo getAtomicityInfo() {
+		final AtomicStmtDetector _atomic = new AtomicStmtDetector();
+		_atomic.setEscapeAnalysis(getECBA());
+		_atomic.hookup(cgBasedPreProcessCtrl);
+		cgBasedPreProcessCtrl.process();
+		_atomic.unhook(cgBasedPreProcessCtrl);
+		return _atomic;
 	}
 
 	/**
