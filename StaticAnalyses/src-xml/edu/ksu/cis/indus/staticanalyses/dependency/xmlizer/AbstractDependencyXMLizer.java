@@ -163,7 +163,7 @@ public abstract class AbstractDependencyXMLizer
 	 */
 	public final void processingBegins() {
 		try {
-			writer.write("<dependency id =\"" + analysis.getId() + "\">\n");
+			writer.write("<dependency id=\"" + analysis.getId() + " class=\"" + analysis.getClass().toString() + "\">\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -182,6 +182,9 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/08 10:57:59  venku
+   - outputs count and id of dependences.
+
    Revision 1.8  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
