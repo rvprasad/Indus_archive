@@ -160,7 +160,7 @@ public class ReferenceBasedDataDA
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependentMap.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_localEdgeCount = 0;
 
@@ -211,6 +211,11 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
+
    Revision 1.18  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

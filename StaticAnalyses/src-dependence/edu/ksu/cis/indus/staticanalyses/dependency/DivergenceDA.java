@@ -51,10 +51,10 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Stmt))))
- * @invariant dependentMap.values()->forall(o | o.getValue().size = o.getKey().getActiveBody().getUnits().size())
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Collection(Stmt))))
- * @invariant dependeeMap.values()->forall(o | o.getValue().size = o.getKey().getActiveBody().getUnits().size())
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Stmt))))
+ * @invariant dependee2dependent.values()->forall(o | o.getValue().size = o.getKey().getActiveBody().getUnits().size())
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Sequence(Collection(Stmt))))
+ * @invariant dependent2dependee.values()->forall(o | o.getValue().size = o.getKey().getActiveBody().getUnits().size())
  */
 public class DivergenceDA
   extends DependencyAnalysis {
@@ -109,7 +109,7 @@ public class DivergenceDA
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependeeMap.get(method);
+		List list = (List) dependent2dependee.get(method);
 
 		if (list != null) {
 			List sl = getStmtList((SootMethod) method);
@@ -143,7 +143,7 @@ public class DivergenceDA
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		Map stmt2List = (Map) dependentMap.get(method);
+		Map stmt2List = (Map) dependee2dependent.get(method);
 
 		if (stmt2List != null) {
 			Collection t = (Collection) stmt2List.get(dependeeStmt);
@@ -193,11 +193,11 @@ public class DivergenceDA
 
 			List sl = getStmtList(METHOD);
 
-			List de = (List) dependeeMap.get(METHOD);
+			List de = (List) dependent2dependee.get(METHOD);
 
 			if (de == null) {
 				de = new ArrayList();
-				dependeeMap.put(METHOD, de);
+				dependent2dependee.put(METHOD, de);
 
 				for (int j = sl.size(); j > 0; j--) {
 					de.add(null);
@@ -333,7 +333,7 @@ public class DivergenceDA
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependent2dependee.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod method = (SootMethod) entry.getKey();
 			localEdgeCount = 0;
@@ -491,12 +491,12 @@ public class DivergenceDA
 		dependents.remove(dependee);
 
 		if (!dependents.isEmpty()) {
-			Map stmt2List = (Map) dependentMap.get(method);
+			Map stmt2List = (Map) dependee2dependent.get(method);
 			Collection dtList;
 
 			if (stmt2List == null) {
 				stmt2List = new HashMap();
-				dependentMap.put(method, stmt2List);
+				dependee2dependent.put(method, stmt2List);
 				dtList = new HashSet();
 				stmt2List.put(dependee, dtList);
 			} else {
@@ -511,12 +511,12 @@ public class DivergenceDA
 			dtList.addAll(dependents);
 
 			// record dependee information.
-			List stmt2dt = (List) dependeeMap.get(method);
+			List stmt2dt = (List) dependent2dependee.get(method);
 			List sl = getStmtList(method);
 
 			if (stmt2dt == null) {
 				stmt2dt = new ArrayList();
-				dependeeMap.put(method, stmt2dt);
+				dependent2dependee.put(method, stmt2dt);
 
 				for (int i = sl.size(); i > 0; i--) {
 					stmt2dt.add(null);
@@ -553,14 +553,14 @@ public class DivergenceDA
 	private void recordDependenceInfoInBB(final Collection dependees, final SootMethod method, final Collection dependents,
 		final List stmtList) {
 		Collection c = new HashSet(dependees);
-		List de = (List) dependeeMap.get(method);
+		List de = (List) dependent2dependee.get(method);
 
 		for (Iterator i = dependents.iterator(); i.hasNext();) {
 			Stmt dependent = (Stmt) i.next();
 			de.set(stmtList.indexOf(dependent), c);
 		}
 
-		Map stmt2List = (Map) dependentMap.get(method);
+		Map stmt2List = (Map) dependee2dependent.get(method);
 
 		for (Iterator i = dependees.iterator(); i.hasNext();) {
 			Stmt dependee = (Stmt) i.next();
@@ -573,6 +573,11 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.27  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

@@ -104,8 +104,8 @@ import soot.jimple.VirtualInvokeExpr;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependeeMap.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
- * @invariant dependentMap.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
+ * @invariant dependent2dependee.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
+ * @invariant dependee2dependent.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
  */
 public class ReadyDAv1
   extends DependencyAnalysis {
@@ -377,7 +377,7 @@ public class ReadyDAv1
 	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object context) {
-		Collection _result = (Collection) dependeeMap.get(dependentStmt);
+		Collection _result = (Collection) dependent2dependee.get(dependentStmt);
 
 		if (_result != null) {
 			_result = Collections.unmodifiableCollection(_result);
@@ -403,7 +403,7 @@ public class ReadyDAv1
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object context) {
-		Collection _result = (Collection) dependentMap.get(dependeeStmt);
+		Collection _result = (Collection) dependee2dependent.get(dependeeStmt);
 
 		if (_result != null) {
 			_result = Collections.unmodifiableCollection(_result);
@@ -536,7 +536,7 @@ public class ReadyDAv1
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependeeMap.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final Object _dependent = _entry.getKey();
 
@@ -1030,7 +1030,7 @@ public class ReadyDAv1
 				// add dependent to dependee direction information.
 				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
 					final Stmt _stmt = (Stmt) _k.next();
-					CollectionsModifier.putIntoCollectionInMap(dependeeMap, _stmt, _pair, new HashSet());
+					CollectionsModifier.putIntoCollectionInMap(dependent2dependee, _stmt, _pair, new HashSet());
 
 					// record dependee to dependent direction information
 					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1058,7 +1058,7 @@ public class ReadyDAv1
 						// add dependent to dependee direction information.
 						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
 							final Stmt _stmt = (Stmt) _k.next();
-							CollectionsModifier.putIntoCollectionInMap(dependeeMap, _stmt, _pair, new HashSet());
+							CollectionsModifier.putIntoCollectionInMap(dependent2dependee, _stmt, _pair, new HashSet());
 
 							// record dependee to dependent direction information
 							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1082,7 +1082,7 @@ public class ReadyDAv1
 				}
 
 				//add dependee to dependent direction information.
-				dependentMap.put(_dependee, _temp);
+				dependee2dependent.put(_dependee, _temp);
 			}
 		}
 	}
@@ -1104,8 +1104,11 @@ public class ReadyDAv1
 			}
 		}
 
-		final Collection _nSet = new HashSet();
-		final Collection _xSet = new HashSet();
+		// the set of dependees
+		final Collection _deSet = new HashSet();
+
+		// the set of dependents
+		final Collection _dtSet = new HashSet();
 		final Collection _tails = new HashSet();
 
 		/*
@@ -1119,22 +1122,20 @@ public class ReadyDAv1
 				final Object _enter = _j.next();
 
 				final Pair _enterPair = pairMgr.getOptimizedPair(_enter, _enterMethod);
-				_nSet.clear();
+				_deSet.clear();
 
 				// add dependee to dependent information 
 				for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
 					final Pair _exitPair = (Pair) _k.next();
-					_xSet.clear();
+					_dtSet.clear();
 
 					final Object _exit = _exitPair.getFirst();
 
 					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
-						_xSet.add(_enterPair);
-						_nSet.add(_exitPair);
-					}
+						_dtSet.add(_enterPair);
+						_deSet.add(_exitPair);
 
-					if (!_xSet.isEmpty()) {
-						normalizeEntryInformation(_xSet);
+						normalizeEntryInformation(_dtSet);
 
 						if (_exit.equals(SYNC_METHOD_PROXY_STMT)) {
 							_tails.clear();
@@ -1145,18 +1146,18 @@ public class ReadyDAv1
 
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
-								CollectionsModifier.putAllIntoCollectionInMap(dependentMap, _bb.getTrailerStmt(), _xSet,
-									new HashSet());
+								CollectionsModifier.putAllIntoCollectionInMap(dependee2dependent, _bb.getTrailerStmt(),
+									_dtSet, new HashSet());
 							}
 						} else {
-							CollectionsModifier.putAllIntoCollectionInMap(dependentMap, _exit, _xSet, new HashSet());
+							CollectionsModifier.putAllIntoCollectionInMap(dependee2dependent, _exit, _dtSet, new HashSet());
 						}
 					}
 				}
 
 				// add dependent to dependee information
-				if (!_nSet.isEmpty()) {
-					normalizeExitInformation(_nSet);
+				if (!_deSet.isEmpty()) {
+					normalizeExitInformation(_deSet);
 
 					if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
 						final BasicBlock _headBB = getBasicBlockGraph(_enterMethod).getHead();
@@ -1165,9 +1166,9 @@ public class ReadyDAv1
 						if (_headBB != null) {
 							_head = _headBB.getLeaderStmt();
 						}
-						CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _head, _nSet, new HashSet());
+						CollectionsModifier.putAllIntoCollectionInMap(dependent2dependee, _head, _deSet, new HashSet());
 					} else {
-						CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _enter, _nSet, new HashSet());
+						CollectionsModifier.putAllIntoCollectionInMap(dependent2dependee, _enter, _deSet, new HashSet());
 					}
 				}
 			}
@@ -1179,7 +1180,7 @@ public class ReadyDAv1
 	 * threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule4()</code>.
 	 */
 	private void processRule4() {
-		final Collection _dependents = new HashSet();
+		final Collection _dependees = new HashSet();
 
 		/*
 		 * Iterate thru wait() call-sites and record dependencies, in both direction, between each notify() call-sites.
@@ -1191,7 +1192,7 @@ public class ReadyDAv1
 			for (final Iterator _j = ((Collection) _nEntry.getValue()).iterator(); _j.hasNext();) {
 				final InvokeStmt _notify = (InvokeStmt) _j.next();
 				final Pair _nPair = pairMgr.getOptimizedPair(_notify, _nMethod);
-				_dependents.clear();
+				_dependees.clear();
 
 				// add dependee to dependent information
 				for (final Iterator _k = waits.entrySet().iterator(); _k.hasNext();) {
@@ -1204,15 +1205,15 @@ public class ReadyDAv1
 						final Pair _wPair = pairMgr.getOptimizedPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
-							CollectionsModifier.putIntoCollectionInMap(dependeeMap, _wait, _nPair, new ArrayList());
-							_dependents.add(_wPair);
+							CollectionsModifier.putIntoCollectionInMap(dependee2dependent, _wait, _nPair, new ArrayList());
+							_dependees.add(_wPair);
 						}
 					}
 				}
 
 				// add dependent to dependee information
-				if (!_dependents.isEmpty()) {
-					dependentMap.put(_notify, new ArrayList(_dependents));
+				if (!_dependees.isEmpty()) {
+					dependent2dependee.put(_notify, new ArrayList(_dependees));
 				}
 			}
 		}
@@ -1222,10 +1223,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/02/08 21:30:21  venku
+   - documentation
    Revision 1.44  2004/02/05 23:42:35  venku
    - copy/paste error in normalizeExit. FIXED.
    - incorrect maps were being updated in process2/4. FIXED.
-
    Revision 1.43  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
    Revision 1.42  2004/01/25 08:48:36  venku

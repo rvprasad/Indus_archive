@@ -49,10 +49,10 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Stmt)))
- * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
- * @invariant dependentMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Sequence(Stmt)))
+ * @invariant dependent2dependee.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
+ * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
 public class EntryControlDA
   extends DependencyAnalysis {
@@ -88,7 +88,7 @@ public class EntryControlDA
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependeeMap.get(method);
+		List list = (List) dependent2dependee.get(method);
 
 		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
@@ -116,7 +116,7 @@ public class EntryControlDA
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependentMap.get(method);
+		List list = (List) dependee2dependent.get(method);
 
 		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
@@ -195,7 +195,7 @@ public class EntryControlDA
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependent2dependee.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod method = (SootMethod) entry.getKey();
 			localEdgeCount = 0;
@@ -386,10 +386,10 @@ public class EntryControlDA
 	 * @param method for which the maps are being populated.
 	 *
 	 * @pre graph != null and bbCDBitSets != null and method != null
-	 * @post dependentMap.get(method) != null
-	 * @post dependentMap.values()->forall(o | o->forall(p | p != null()))
-	 * @post dependeeMap.get(method) != null
-	 * @post dependeeMap.values()->forall(o | o->forall(p | p != null()))
+	 * @post dependee2dependent.get(method) != null
+	 * @post dependee2dependent.values()->forall(o | o->forall(p | p != null()))
+	 * @post dependent2dependee.get(method) != null
+	 * @post dependent2dependee.values()->forall(o | o->forall(p | p != null()))
 	 */
 	private void fixupMaps(final BasicBlockGraph graph, final BitSet[] bbCDBitSets, final SootMethod method) {
 		List nodes = graph.getNodes();
@@ -436,11 +436,11 @@ public class EntryControlDA
 		}
 
 		if (flag) {
-			dependentMap.put(method, new ArrayList(mDependent));
-			dependeeMap.put(method, new ArrayList(mDependee));
+			dependee2dependent.put(method, new ArrayList(mDependent));
+			dependent2dependee.put(method, new ArrayList(mDependee));
 		} else {
-			dependentMap.put(method, null);
-			dependeeMap.put(method, null);
+			dependee2dependent.put(method, null);
+			dependent2dependee.put(method, null);
 		}
 	}
 }
@@ -448,6 +448,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/02/25 00:04:02  venku
+   - documenation.
+
    Revision 1.12  2004/02/23 08:25:58  venku
    - logging.
    Revision 1.11  2004/02/06 00:19:12  venku

@@ -74,8 +74,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Map(ExitMonitorStmt, Collection(EnterMonitorStmt))))
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Map(EnterMonitortmt, Collection(ExitMonitorStmt))))
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Map(ExitMonitorStmt, Collection(EnterMonitorStmt))))
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Map(EnterMonitortmt, Collection(ExitMonitorStmt))))
  */
 public final class SynchronizationDA
   extends DependencyAnalysis
@@ -185,7 +185,7 @@ public final class SynchronizationDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
-		return getHelper(dependeeMap, dependentStmt, method);
+		return getHelper(dependent2dependee, dependentStmt, method);
 	}
 
 	/**
@@ -203,7 +203,7 @@ public final class SynchronizationDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
-		return getHelper(dependentMap, dependeeStmt, method);
+		return getHelper(dependee2dependent, dependeeStmt, method);
 	}
 
 	/**
@@ -261,19 +261,19 @@ public final class SynchronizationDA
 			Pair _pair = (Pair) _i.next();
 			final Stmt _enterMonitor = (Stmt) _pair.getFirst();
 			final SootMethod _method = (SootMethod) _pair.getSecond();
-			Map _stmt2ddents = (Map) dependentMap.get(_method);
+			Map _stmt2ddents = (Map) dependee2dependent.get(_method);
 			Map _stmt2ddees;
 			final Context _context = new Context();
 
 			if (_stmt2ddents == null) {
 				_stmt2ddents = new HashMap();
 				_stmt2ddees = new HashMap();
-				dependentMap.put(_method, _stmt2ddents);
-				dependeeMap.put(_method, _stmt2ddees);
+				dependee2dependent.put(_method, _stmt2ddents);
+				dependent2dependee.put(_method, _stmt2ddees);
 			} else if (_stmt2ddents.get(_enterMonitor) != null) {
 				continue;
 			} else {
-				_stmt2ddees = (Map) dependeeMap.get(_method);
+				_stmt2ddees = (Map) dependent2dependee.get(_method);
 			}
 
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
@@ -422,7 +422,7 @@ nextBasicBlock:
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependentMap.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_localEdgeCount = 0;
 
@@ -512,6 +512,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/02/25 00:04:02  venku
+   - documenation.
+
    Revision 1.31  2004/01/21 13:56:26  venku
    - tracking sync DA in synchronized methods is unnecessary.
 

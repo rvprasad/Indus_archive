@@ -56,10 +56,10 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod,Sequence(Set(Stmt)))
- * @invariant dependentMap.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Map(Local, Set(Stmt)))))
- * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod,Sequence(Set(Stmt)))
+ * @invariant dependee2dependent.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Sequence(Map(Local, Set(Stmt)))))
+ * @invariant dependent2dependee.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
@@ -97,7 +97,7 @@ public class IdentifierBasedDataDA
 
 			Stmt stmt = (Stmt) programPoint;
 			SootMethod m = (SootMethod) method;
-			List dependees = (List) dependeeMap.get(method);
+			List dependees = (List) dependent2dependee.get(method);
 
 			if (dependees != null) {
 				Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
@@ -123,7 +123,7 @@ public class IdentifierBasedDataDA
 			Stmt stmt = (Stmt) pair.getFirst();
 			Local local = (Local) pair.getSecond();
 			SootMethod m = (SootMethod) method;
-			List dependees = (List) dependeeMap.get(method);
+			List dependees = (List) dependent2dependee.get(method);
 			Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
 			Collection c = (Collection) local2defs.get(local);
 
@@ -149,7 +149,7 @@ public class IdentifierBasedDataDA
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		SootMethod sm = (SootMethod) method;
-		List dependents = (List) dependentMap.get(sm);
+		List dependents = (List) dependee2dependent.get(sm);
 		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(sm).indexOf(stmt)));
 	}
 
@@ -235,8 +235,8 @@ public class IdentifierBasedDataDA
 				}
 				dependees.add(currDefs);
 			}
-			dependentMap.put(currMethod, dependents);
-			dependeeMap.put(currMethod, dependees);
+			dependee2dependent.put(currMethod, dependents);
+			dependent2dependee.put(currMethod, dependees);
 		}
 		stable = true;
 
@@ -259,7 +259,7 @@ public class IdentifierBasedDataDA
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependee2dependent.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			localEdgeCount = 0;
 
@@ -308,6 +308,11 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.30  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

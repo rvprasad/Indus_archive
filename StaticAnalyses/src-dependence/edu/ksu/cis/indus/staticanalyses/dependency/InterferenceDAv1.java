@@ -74,8 +74,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependeeMap.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
- * @invariant dependentMap.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
+ * @invariant dependent2dependee.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
+ * @invariant dependee2dependent.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
  */
 public class InterferenceDAv1
   extends DependencyAnalysis {
@@ -140,18 +140,18 @@ public class InterferenceDAv1
 			if (_as.containsFieldRef()) {
 				if (_as.getLeftOp() instanceof FieldRef) {
 					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
-					_temp = getDependeXXMapHelper(dependentMap, _sf);
+					_temp = getDependeXXMapHelper(dependee2dependent, _sf);
 				} else {
 					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
-					_temp = getDependeXXMapHelper(dependeeMap, _sf);
+					_temp = getDependeXXMapHelper(dependent2dependee, _sf);
 				}
 			} else if (_as.containsArrayRef()) {
 				if (_as.getLeftOp() instanceof ArrayRef) {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getLeftOp()).getBase().getType();
-					_temp = getDependeXXMapHelper(dependentMap, _at);
+					_temp = getDependeXXMapHelper(dependee2dependent, _at);
 				} else {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getRightOp()).getBase().getType();
-					_temp = getDependeXXMapHelper(dependeeMap, _at);
+					_temp = getDependeXXMapHelper(dependent2dependee, _at);
 				}
 			}
 
@@ -237,7 +237,7 @@ public class InterferenceDAv1
 		}
 
 		if (_dependent != null) {
-			_pair2set = (Map) MapUtils.getObject(dependeeMap, _dependent, Collections.EMPTY_MAP);
+			_pair2set = (Map) MapUtils.getObject(dependent2dependee, _dependent, Collections.EMPTY_MAP);
 
 			if (_pair2set != null) {
 				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
@@ -276,7 +276,7 @@ public class InterferenceDAv1
 		}
 
 		if (_dependee != null) {
-			_pair2set = (Map) MapUtils.getObject(dependentMap, _dependee, Collections.EMPTY_MAP);
+			_pair2set = (Map) MapUtils.getObject(dependee2dependent, _dependee, Collections.EMPTY_MAP);
 
 			if (_pair2set != null) {
 				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
@@ -321,15 +321,15 @@ public class InterferenceDAv1
 			return;
 		}
 
-		for (final Iterator _i = dependeeMap.keySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependent2dependee.keySet().iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
 
-			if (dependentMap.get(_o) == null) {
+			if (dependee2dependent.get(_o) == null) {
 				continue;
 			}
 
-			final Map _deMap = (Map) dependeeMap.get(_o);
-			final Map _dtMap = (Map) dependentMap.get(_o);
+			final Map _deMap = (Map) dependent2dependee.get(_o);
+			final Map _dtMap = (Map) dependee2dependent.get(_o);
 
 			for (final Iterator _j = _deMap.keySet().iterator(); _j.hasNext();) {
 				final Pair _dt = (Pair) _j.next();
@@ -386,7 +386,7 @@ public class InterferenceDAv1
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependeeMap.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_lEdgeCount = 0;
 
@@ -642,6 +642,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/02/12 21:32:21  venku
+   - refactored the code to test the escaping/sharing status of the
+     base rather than the field/array location (bummer).
+
    Revision 1.32  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
    Revision 1.31  2004/01/18 00:02:01  venku
