@@ -45,6 +45,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -146,7 +147,7 @@ public abstract class DADriver
 		}
 
 		String tagName = "DADriver:FA";
-		setClassNames(args);
+		setClassNames(Arrays.asList(args));
 		initialize();
 		aa = OFAnalyzer.getFSOSAnalyzer(tagName, new CollectionTokenManager(new SootValueTypeManager()));
 
@@ -356,12 +357,13 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/05/14 06:27:26  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.42  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.41  2004/03/03 05:59:33  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.40  2004/03/03 02:17:46  venku

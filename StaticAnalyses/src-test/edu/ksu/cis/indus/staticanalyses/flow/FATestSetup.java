@@ -29,6 +29,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizerCLI;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -85,7 +86,7 @@ public class FATestSetup
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.extensions.TestSetup#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -93,7 +94,7 @@ public class FATestSetup
 
 		final SootBasedDriver _driver = new SootBasedDriver();
 		_driver.addToSootClassPath(sootClassPath);
-		_driver.setClassNames(classNames.toString().split(" "));
+		_driver.setClassNames(Arrays.asList(classNames.toString().split(" ")));
 		_driver.initialize();
 		valueAnalyzer.analyze(_driver.getScene(), _driver.getRootMethods());
 
@@ -113,7 +114,7 @@ public class FATestSetup
 	}
 
 	/**
-	 * @see TestCase#teardown()
+	 * @see junit.extensions.TestSetup#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -128,6 +129,8 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/10 11:28:25  venku
+   - Jimple is dumped only for the reachable parts of the system.
    Revision 1.22  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.

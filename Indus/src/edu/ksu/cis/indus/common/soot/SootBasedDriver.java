@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.common.soot;
 import java.io.File;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -345,17 +344,6 @@ public class SootBasedDriver {
 	 *
 	 * @param s contains the class names.
 	 *
-	 * @pre s != null
-	 */
-	public final void setClassNames(final String[] s) {
-		setClassNames(Arrays.asList(s));
-	}
-
-	/**
-	 * Set the names of the classes to be loaded.
-	 *
-	 * @param s contains the class names.
-	 *
 	 * @pre s != null and s.oclIsKindOf(Collection(String))
 	 */
 	public final void setClassNames(final Collection s) {
@@ -554,9 +542,10 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/06/22 14:38:41  venku
+   - coding conventions.
    Revision 1.29  2004/06/22 00:42:30  venku
    - spruced up the way root methods and root classes are identified.
-
    Revision 1.28  2004/06/15 10:06:22  venku
    - coding conventions.
    Revision 1.27  2004/06/14 08:39:29  venku

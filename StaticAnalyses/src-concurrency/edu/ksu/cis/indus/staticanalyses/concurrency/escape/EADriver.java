@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -112,7 +113,7 @@ public final class EADriver
 	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
 	 */
 	protected void execute() {
-		setClassNames(args);
+		setClassNames(Arrays.asList(args));
 		initialize();
 
 		final String _tagName = "EADriver:FA";
@@ -256,6 +257,11 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.28  2004/02/09 04:21:50  venku
    - refactoring error. FIXED.
    Revision 1.27  2003/12/13 02:29:08  venku
@@ -273,90 +279,90 @@ public final class EADriver
    - Enabled call graph xmlization.
    Revision 1.23  2003/12/08 09:46:28  venku
  *** empty log message ***
-         Revision 1.22  2003/12/02 09:42:38  venku
-         - well well well. coding convention and formatting changed
-           as a result of embracing checkstyle 3.2
-         Revision 1.21  2003/11/30 01:38:52  venku
-         - incorporated tag based filtering during CG construction.
-         Revision 1.20  2003/11/30 01:07:58  venku
-         - added name tagging support in FA to enable faster
-           post processing based on filtering.
-         - ripple effect.
-         Revision 1.19  2003/11/30 00:10:24  venku
-         - Major refactoring:
-           ProcessingController is more based on the sort it controls.
-           The filtering of class is another concern with it's own
-           branch in the inheritance tree.  So, the user can tune the
-           controller with a filter independent of the sort of processors.
-         Revision 1.18  2003/11/17 01:17:12  venku
-         - formatting.
-         Revision 1.17  2003/11/16 19:09:42  venku
-         - documentation.
-         Revision 1.16  2003/11/12 10:50:55  venku
-         - this is now based on SootBasedDriver.
-         Revision 1.15  2003/11/06 05:15:07  venku
-         - Refactoring, Refactoring, Refactoring.
-         - Generalized the processing controller to be available
-           in Indus as it may be useful outside static anlaysis. This
-           meant moving IProcessor, Context, and ProcessingController.
-         - ripple effect of the above changes was large.
-         Revision 1.14  2003/11/02 22:09:57  venku
-         - changed the signature of the constructor of
-           EquivalenceClassBasedEscapeAnalysis.
-         Revision 1.13  2003/10/31 01:02:04  venku
-         - added code for extracting data for CC04 paper.
-         Revision 1.12  2003/10/09 00:17:39  venku
-         - changes to instrumetn statistics numbers.
-         Revision 1.11  2003/10/05 06:31:35  venku
-         - Things work.  The bug was the order in which the
-           parameter alias sets were being accessed.  FIXED.
-         Revision 1.10  2003/09/29 14:55:03  venku
-         - don't use "use-orignal-names" option with Jimple.
-           The variables referring to objects need to be unique if the
-           results of the analyses should be meaningful.
-         Revision 1.9  2003/09/29 09:04:30  venku
-         - dump formatting.
-         Revision 1.8  2003/09/29 07:30:51  venku
-         - added support to spit out local variables names as they occur
-           in the source rather than jimplified names.
-         Revision 1.7  2003/09/29 06:37:31  venku
-         - Each driver now handles each root method separately.
-         Revision 1.6  2003/09/29 04:20:57  venku
-         - coding convention.
-         Revision 1.5  2003/09/28 07:32:30  venku
-         - many basic block graphs were being constructed. Now, there
-           is only one that will be used.
-         Revision 1.4  2003/09/28 06:20:39  venku
-         - made the core independent of hard code used to create unit graphs.
-           The core depends on the environment to provide a factory that creates
-           these unit graphs.
-         Revision 1.3  2003/09/28 03:17:13  venku
-         - I don't know.  cvs indicates that there are no differences,
-           but yet says it is out of sync.
-         Revision 1.2  2003/09/08 02:23:13  venku
-         - Ripple effect of bbm support in Driver and change of constructor
-           in ThreadGraph.
-         Revision 1.1  2003/08/21 01:24:25  venku
-          - Renamed src-escape to src-concurrency to as to group all concurrency
-            issue related analyses into a package.
-          - Renamed escape package to concurrency.escape.
-          - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-         Revision 1.4  2003/08/17 10:48:34  venku
-         Renamed BFA to FA.  Also renamed bfa variables to fa.
-         Ripple effect was huge.
-         Revision 1.3  2003/08/11 06:29:07  venku
-         Changed format of change log accumulation at the end of the file
-         Revision 1.2  2003/08/10 03:43:26  venku
-         Renamed Tester to Driver.
-         Refactored logic to pick entry points.
-         Provided for logging timing stats into any specified stream.
-         Ripple effect in others.
-         Revision 1.1  2003/08/07 06:39:07  venku
-         Major:
-          - Moved the package under indus umbrella.
-         Minor:
-          - changes to accomodate ripple effect from support package.
-         Revision 1.1  2003/07/30 08:27:03  venku
-         Renamed IATester to EADriver.
-         Also, staged various analyses.
+           Revision 1.22  2003/12/02 09:42:38  venku
+           - well well well. coding convention and formatting changed
+             as a result of embracing checkstyle 3.2
+           Revision 1.21  2003/11/30 01:38:52  venku
+           - incorporated tag based filtering during CG construction.
+           Revision 1.20  2003/11/30 01:07:58  venku
+           - added name tagging support in FA to enable faster
+             post processing based on filtering.
+           - ripple effect.
+           Revision 1.19  2003/11/30 00:10:24  venku
+           - Major refactoring:
+             ProcessingController is more based on the sort it controls.
+             The filtering of class is another concern with it's own
+             branch in the inheritance tree.  So, the user can tune the
+             controller with a filter independent of the sort of processors.
+           Revision 1.18  2003/11/17 01:17:12  venku
+           - formatting.
+           Revision 1.17  2003/11/16 19:09:42  venku
+           - documentation.
+           Revision 1.16  2003/11/12 10:50:55  venku
+           - this is now based on SootBasedDriver.
+           Revision 1.15  2003/11/06 05:15:07  venku
+           - Refactoring, Refactoring, Refactoring.
+           - Generalized the processing controller to be available
+             in Indus as it may be useful outside static anlaysis. This
+             meant moving IProcessor, Context, and ProcessingController.
+           - ripple effect of the above changes was large.
+           Revision 1.14  2003/11/02 22:09:57  venku
+           - changed the signature of the constructor of
+             EquivalenceClassBasedEscapeAnalysis.
+           Revision 1.13  2003/10/31 01:02:04  venku
+           - added code for extracting data for CC04 paper.
+           Revision 1.12  2003/10/09 00:17:39  venku
+           - changes to instrumetn statistics numbers.
+           Revision 1.11  2003/10/05 06:31:35  venku
+           - Things work.  The bug was the order in which the
+             parameter alias sets were being accessed.  FIXED.
+           Revision 1.10  2003/09/29 14:55:03  venku
+           - don't use "use-orignal-names" option with Jimple.
+             The variables referring to objects need to be unique if the
+             results of the analyses should be meaningful.
+           Revision 1.9  2003/09/29 09:04:30  venku
+           - dump formatting.
+           Revision 1.8  2003/09/29 07:30:51  venku
+           - added support to spit out local variables names as they occur
+             in the source rather than jimplified names.
+           Revision 1.7  2003/09/29 06:37:31  venku
+           - Each driver now handles each root method separately.
+           Revision 1.6  2003/09/29 04:20:57  venku
+           - coding convention.
+           Revision 1.5  2003/09/28 07:32:30  venku
+           - many basic block graphs were being constructed. Now, there
+             is only one that will be used.
+           Revision 1.4  2003/09/28 06:20:39  venku
+           - made the core independent of hard code used to create unit graphs.
+             The core depends on the environment to provide a factory that creates
+             these unit graphs.
+           Revision 1.3  2003/09/28 03:17:13  venku
+           - I don't know.  cvs indicates that there are no differences,
+             but yet says it is out of sync.
+           Revision 1.2  2003/09/08 02:23:13  venku
+           - Ripple effect of bbm support in Driver and change of constructor
+             in ThreadGraph.
+           Revision 1.1  2003/08/21 01:24:25  venku
+            - Renamed src-escape to src-concurrency to as to group all concurrency
+              issue related analyses into a package.
+            - Renamed escape package to concurrency.escape.
+            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+           Revision 1.4  2003/08/17 10:48:34  venku
+           Renamed BFA to FA.  Also renamed bfa variables to fa.
+           Ripple effect was huge.
+           Revision 1.3  2003/08/11 06:29:07  venku
+           Changed format of change log accumulation at the end of the file
+           Revision 1.2  2003/08/10 03:43:26  venku
+           Renamed Tester to Driver.
+           Refactored logic to pick entry points.
+           Provided for logging timing stats into any specified stream.
+           Ripple effect in others.
+           Revision 1.1  2003/08/07 06:39:07  venku
+           Major:
+            - Moved the package under indus umbrella.
+           Minor:
+            - changes to accomodate ripple effect from support package.
+           Revision 1.1  2003/07/30 08:27:03  venku
+           Renamed IATester to EADriver.
+           Also, staged various analyses.
  */

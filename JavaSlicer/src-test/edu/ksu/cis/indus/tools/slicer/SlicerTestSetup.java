@@ -35,6 +35,7 @@ import java.io.Reader;
 
 import java.net.URL;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import junit.framework.TestSuite;
@@ -88,7 +89,7 @@ public class SlicerTestSetup
 		if (sootClasspath != null) {
 			driver.addToSootClassPath(sootClasspath);
 		}
-		driver.setClassNames(classNames);
+		driver.setClassNames(Arrays.asList(classNames));
 		setXMLControlDir(xmlControlDirectory);
 		setXMLTestDir(xmlTestDirectory);
 	}
@@ -197,6 +198,11 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/06/12 06:47:28  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
    Revision 1.17  2004/05/14 11:27:21  venku
    - coding convention.
    Revision 1.16  2004/05/14 09:02:57  venku
