@@ -466,6 +466,8 @@ public class SliceXMLizerCLI
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
+		destructivelyUpdateJimple();
+	    
 		final Printer _printer = Printer.v();
 
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
@@ -490,6 +492,8 @@ public class SliceXMLizerCLI
 				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
 				_printer.printTo(_sc, _writer);
+				// write .class file
+				_printer.write(_sc, outputDirectory);
 			} catch (final IOException _e) {
 				LOGGER.error("Error while writing " + _sc, _e);
 			} finally {
@@ -498,19 +502,6 @@ public class SliceXMLizerCLI
 					_writer.close();
 				}
 			}
-		}
-
-		destructivelyUpdateJimple();
-
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Dumping class file for " + _sc);
-			}
-
-			// write .class file
-			_printer.write(_sc, outputDirectory);
 		}
 	}
 
@@ -557,6 +548,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/05/10 09:40:16  venku
+   - changed the way jimple is dumped.
+
    Revision 1.28  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.
