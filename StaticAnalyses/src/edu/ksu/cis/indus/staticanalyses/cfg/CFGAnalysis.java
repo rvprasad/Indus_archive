@@ -129,7 +129,7 @@ main_control:
 		if (callers.size() > 1) {
 			result = true;
 		} else if (callers.size() == 1) {
-			for (Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
+			for (Iterator i = cgi.getSCCs(true).iterator(); i.hasNext();) {
 				Collection scc = (Collection) i.next();
 
 				if (scc.contains(caller) && scc.size() > 1) {
@@ -163,7 +163,7 @@ main_control:
 	 */
 	public boolean notInSameSCC(final SootMethod m, final SootMethod p) {
 		boolean result = true;
-		Collection sccs = cgi.getSCCs();
+		Collection sccs = cgi.getSCCs(true);
 		Collection scc = null;
 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
@@ -193,6 +193,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

@@ -1237,7 +1237,7 @@ public class RufsEscapeAnalysis
 		 */
 		private boolean notInSameSCC(SootMethod m, SootMethod p) {
 			boolean result = true;
-			Collection sccs = cgi.getSCCs();
+			Collection sccs = cgi.getSCCs(true);
 			Collection scc = null;
 
 			for (Iterator i = sccs.iterator(); i.hasNext();) {
@@ -1527,17 +1527,15 @@ public class RufsEscapeAnalysis
 	 * <p></p>
 	 */
 	public void execute() {
-		SimpleNodeGraph sng = cgi.getCallGraph();
 
 		// phase 2 of Ruf's algorithm
-		Collection sccs = sng.getSCCs(false);
+		Collection sccs = cgi.getSCCs(false);
 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			List nodes = (List) i.next();
 
 			for (Iterator j = nodes.iterator(); j.hasNext();) {
-				SimpleNode node = (SimpleNode) j.next();
-				SootMethod sm = (SootMethod) node._object;
+				SootMethod sm = (SootMethod) j.next();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Processing method " + sm);
@@ -1835,7 +1833,7 @@ main_control:
 		if (callers.size() > 1) {
 			result = true;
 		} else if (callers.size() == 1) {
-			for (Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
+			for (Iterator i = cgi.getSCCs(true).iterator(); i.hasNext();) {
 				Collection scc = (Collection) i.next();
 
 				if (scc.contains(caller)) {
@@ -1883,6 +1881,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.10  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.9  2003/11/10 03:17:19  venku

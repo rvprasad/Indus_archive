@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
+import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
@@ -100,11 +101,19 @@ public class CallGraph
 	private Collection reachables = new HashSet();
 
 	/**
-	 * The collection of SCCs in this call graphCache.
+	 * The collection of SCCs in this call graph in top-down direction.
 	 *
-	 * @invariant sccs.oclIsKindOf(Set(Collection(SootMethod)))
+	 * @invariant topDownSCC.oclIsKindOf(Set(Collection(SootMethod)))
 	 */
-	private Collection sccs = new HashSet();
+	private Collection topDownSCC;
+    
+    /**
+     * The collection of SCCs in this call graph in top-down direction.
+     *
+     * @invariant bottomUpSCC.oclIsKindOf(Set(Collection(SootMethod)))
+     */
+    private Collection bottomUpSCC;
+    
 
 	/**
 	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
@@ -156,10 +165,7 @@ public class CallGraph
 		graphCache = null;
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallGraph()
-	 */
-	public SimpleNodeGraph getCallGraph() {
+	final DirectedGraph getCallGraph() {
 		return graphCache;
 	}
 
@@ -311,13 +317,50 @@ public class CallGraph
 		return Collections.unmodifiableCollection(reachables);
 	}
 
+    
+    
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getSCCs()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getSCCs(boolean)
 	 */
-	public Collection getSCCs() {
+	public Collection getSCCs(final boolean topDown) {
 		Collection result = new HashSet();
+		Collection temp;
+        if (topDown) {
+            if (topDownSCC == null) {
+                topDownSCC = new HashSet();
+                temp = graphCache.getSCCs(true);
 
-		for (Iterator i = sccs.iterator(); i.hasNext();) {
+                for (Iterator i = temp.iterator(); i.hasNext();) {
+                    Collection scc = (Collection) i.next();
+                    java.util.List l = new ArrayList();
+
+                    for (Iterator j = scc.iterator(); j.hasNext();) {
+                        l.add(((SimpleNode) j.next())._object);
+                    }
+                    topDownSCC.add(l);
+                }
+                
+            }
+            temp = topDownSCC;
+        } else {
+            if (bottomUpSCC == null) {
+                bottomUpSCC = new HashSet();
+                temp = graphCache.getSCCs(false);
+
+                for (Iterator i = temp.iterator(); i.hasNext();) {
+                    Collection scc = (Collection) i.next();
+                    java.util.List l = new ArrayList();
+
+                    for (Iterator j = scc.iterator(); j.hasNext();) {
+                        l.add(((SimpleNode) j.next())._object);
+                    }
+                    bottomUpSCC.add(l);
+                }
+                
+            }
+            temp = bottomUpSCC;
+        }
+		for (Iterator i = temp.iterator(); i.hasNext();) {
 			java.util.List scc = (java.util.List) i.next();
 			result.add(Collections.unmodifiableList(scc));
 		}
@@ -552,18 +595,6 @@ public class CallGraph
 			LOGGER.debug("Starting strongly connected component calculation...");
 		}
 
-		temp = graphCache.getSCCs(true);
-
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			Collection scc = (Collection) i.next();
-			java.util.List l = new ArrayList();
-
-			for (Iterator j = scc.iterator(); j.hasNext();) {
-				l.add(((SimpleNode) j.next())._object);
-			}
-			sccs.add(l);
-		}
-
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -586,7 +617,7 @@ public class CallGraph
 			result.append("\t" + ((SootMethod) i.next()).getSignature());
 		}
 		result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
-		result.append("Strongly Connected components in the system: " + getSCCs().size() + "\n");
+		result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		result.append("top-down\n");
 
 		for (Iterator i = caller2callees.entrySet().iterator(); i.hasNext();) {
@@ -641,7 +672,8 @@ public class CallGraph
 		callee2callers.clear();
 		analyzer = null;
 		graphCache = null;
-		sccs.clear();
+		topDownSCC = null;
+        bottomUpSCC = null;
 		reachables.clear();
 		heads.clear();
 		caller2clinitClasses.clear();
@@ -733,6 +765,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/12/05 21:02:25  venku
+   - special invokes are treated just like virtual invoke.
+
    Revision 1.33  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

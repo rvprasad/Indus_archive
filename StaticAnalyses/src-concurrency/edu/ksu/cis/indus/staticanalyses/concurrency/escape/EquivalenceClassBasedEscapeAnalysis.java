@@ -824,8 +824,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * call-graph.
 	 */
 	public void execute() {
-		SimpleNodeGraph sng = cgi.getCallGraph();
-		Collection sccs = sng.getSCCs(false);
+		Collection sccs = cgi.getSCCs(false);
 		IWorkBag wb = new FIFOWorkBag();
 		Collection processed = new HashSet();
 
@@ -838,8 +837,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			List nodes = (List) i.next();
 
 			for (Iterator j = nodes.iterator(); j.hasNext();) {
-				SimpleNode node = (SimpleNode) j.next();
-				SootMethod sm = (SootMethod) node._object;
+				SootMethod sm = (SootMethod) j.next();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Processing " + sm);
@@ -1130,6 +1128,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.30  2003/11/26 06:57:59  venku
    - subtle error in shared.  If the values are static field references
      they will escape but their sharedEntities set will be empty.

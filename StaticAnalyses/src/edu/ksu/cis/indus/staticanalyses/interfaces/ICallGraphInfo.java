@@ -15,17 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
+
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.support.Triple;
+
+import java.util.Collection;
+
 import soot.SootMethod;
 
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.interfaces.IStatus;
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
-
-import java.util.Collection;
 
 
 /**
@@ -113,16 +114,6 @@ public interface ICallGraphInfo
 	}
 
 	/**
-	 * Returns a call graph as an instance of a traversable graph.
-	 *
-	 * @return SimpleNodeGraph
-	 *
-	 * @post result != null
-	 * @post result->getNodes()->forall(o.oclType = SimpleNodeGraph.SimpleNode and o.object.oclIsTypeOf(SootMethod))
-	 */
-	SimpleNodeGraph getCallGraph();
-
-	/**
 	 * Returns the set of methods called in <code>caller</code>.
 	 *
 	 * @param caller of interest.
@@ -205,54 +196,51 @@ public interface ICallGraphInfo
 	/**
 	 * Returns a collection of strongly connected components in the given call graph.
 	 *
+	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
+	 * 		  indicates bottom-up.
+	 *
 	 * @return a collection of collection of methods.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(Collection(soot.SootMethod)))
 	 */
-	Collection getSCCs();
+	Collection getSCCs(boolean topDown);
 }
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.10  2003/11/29 09:34:59  venku
+   - removed getCycles() method as it was not being used.
    Revision 1.9  2003/11/29 09:30:37  venku
    - removed getRecursionRoots() method as it was not being used.
    - modified pruning algorithmm.
    - modified getCallees(InvokeExpr,Context) method.
-
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.7  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.6  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.5  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
-
    Revision 1.4  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
-
    Revision 1.3  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
    - Documentation and specification of other classes.
-
    Revision 1.2  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.
    - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
    - Modified IValueAnalyzer interface such that only generic queries are possible.
      If required, this can be extended in the future.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
