@@ -15,14 +15,14 @@
 
 package edu.ksu.cis.indus;
 
-
 /**
  * DOCUMENT ME!
- * <p></p>
  * 
- * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * <p></p>
+ *
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IXMLBasedTest {
 	/**
@@ -43,4 +43,11 @@ public interface IXMLBasedTest {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 04:53:14  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
  */

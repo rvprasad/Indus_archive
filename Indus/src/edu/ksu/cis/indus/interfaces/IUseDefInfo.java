@@ -26,7 +26,7 @@ import soot.jimple.Stmt;
 /**
  * This interface will be used to retrieve use-def information of a system.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
@@ -65,6 +65,9 @@ public interface IUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.1  2003/12/08 12:20:40  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

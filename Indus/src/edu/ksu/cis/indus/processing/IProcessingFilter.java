@@ -21,7 +21,7 @@ import java.util.Collection;
 /**
  * This is the interface via which class and method filtering will occur in <code>ProcessingController</code>.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
@@ -69,6 +69,9 @@ public interface IProcessingFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/14 16:43:45  venku
+   - extended ProcessingController to filter fields as well.
+   - ripple effect.
    Revision 1.4  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

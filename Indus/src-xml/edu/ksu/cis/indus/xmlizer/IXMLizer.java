@@ -16,11 +16,11 @@
 package edu.ksu.cis.indus.xmlizer;
 
 /**
- * This is the interface for xmlizing jimple-based systems. 
- * 
- * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * This is the interface for xmlizing jimple-based systems.
+ *
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IXMLizer {
 	/**
@@ -61,8 +61,9 @@ public interface IXMLizer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/16 00:29:12  venku
+   - documentation.
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
  */

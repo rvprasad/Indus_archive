@@ -15,21 +15,22 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.Scene;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IStatus;
+
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
+
+import soot.Scene;
+import soot.SootMethod;
 
 
 /**
  * This is the interface to be provided by an analysis that operates on values (which may be symbolic).  The analysis that
  * implement this interface are behavioral analysis rather than structural analysis.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
@@ -105,10 +106,15 @@ public interface IValueAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.9  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.8  2003/09/07 19:24:49  venku
    - coding convention changes.
    Revision 1.7  2003/09/07 08:59:31  venku
