@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
@@ -99,7 +100,9 @@ abstract class AbstractMemberDataAccessExprWork
 				continue;
 			}
 
-			context.setAllocationSite(_v);
+			if (context instanceof AllocationContext) {
+			    ((AllocationContext) context).setAllocationSite(_v);
+			}
 
 			final IFGNode _nonast = getFGNodeForMemberData();
 			connector.connect(ast, _nonast);
@@ -119,6 +122,9 @@ abstract class AbstractMemberDataAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/20 15:44:25  venku
+   - logging.
+
    Revision 1.2  2004/04/16 20:10:38  venku
    - refactoring
     - enabled bit-encoding support in indus.
