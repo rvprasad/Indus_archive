@@ -118,8 +118,8 @@ public abstract class AbstractStmtSwitch
 	 * @pre o != null
 	 */
 	public void defaultCase(final Object o) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(o + " is not handled.");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(o + " is not handled.");
 		}
 	}
 
@@ -148,6 +148,9 @@ public abstract class AbstractStmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/07 09:58:30  venku
+   - logging.
+
    Revision 1.9  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
