@@ -408,14 +408,14 @@ public final class SlicerConfiguration
 			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
 				_c.clear();
 				_c.add(new EntryControlDA());
-			} else if (type.equals(SlicingEngine.FORWARD_SLICE) || type.equals(SlicingEngine.COMPLETE_SLICE)) {
+			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
+			    _c.clear();
+			    _c.add(new ExitControlDA());
+				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
+			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
 				_c.add(new EntryControlDA());
 				_c.add(new ExitControlDA());
-
-				if (type.equals(SlicingEngine.FORWARD_SLICE)) {
-					setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
-				}
 			}
 		}
 	}
@@ -830,6 +830,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/07/20 01:19:48  venku
+   - addressed bug #408.
+
    Revision 1.44  2004/07/20 01:04:34  venku
    - addressed bug #408.
    Revision 1.43  2004/07/20 00:53:09  venku

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -41,6 +42,7 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -640,9 +642,16 @@ public final class SlicerTool
 		// perform dependency analyses
 		daController.reset();
 
+		/*
+		 * Exit control dependence required for complete/forward slices depends on entry control dependence.
+		 * Setup entry control dependence in the info map and for execution via daController.
+		 */
+		final Collection _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
+
 		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			info.put(IDependencyAnalysis.CONTROL_DA, slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA));
+			_controlDAs.add(new EntryControlDA());
 		}
+		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
 
 		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
@@ -651,6 +660,21 @@ public final class SlicerTool
 		}
 		daController.initialize();
 		daController.execute();
+
+		/*
+		 * We fixed the dependences in the slicer and daController for execution purposes.  Here we unfix it.
+		 */
+		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			for (final Iterator _i = daController.getAnalyses(IDependencyAnalysis.CONTROL_DA).iterator(); _i.hasNext();) {
+				final IDependencyAnalysis _cd = (IDependencyAnalysis) _i.next();
+
+				if (_cd.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+					_controlDAs.remove(_cd);
+					_i.remove();
+				}
+			}
+		}
+
 		phase.nextMajorPhase();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -891,6 +915,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.98  2004/07/20 01:19:48  venku
+   - addressed bug #408.
    Revision 1.97  2004/07/20 00:53:09  venku
    - addressed bug #408.
    Revision 1.96  2004/07/20 00:31:04  venku
