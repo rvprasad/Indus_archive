@@ -141,6 +141,7 @@ public class SimpleNodeGraph
 			nodes.add(result);
 			heads.add(result);
 			tails.add(result);
+            hasSpanningForest = false;
 		}
 		return result;
 	}
@@ -170,6 +171,14 @@ public class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/24 08:13:11  venku
+   Major refactoring.
+    - The methods to modify the graphs were exposed.
+    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - Each Mutable graph extends this graph and exposes itself via
+      suitable interface to restrict access.
+    - Ripple effect of the above changes.
+
    Revision 1.3  2003/08/11 06:40:54  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
