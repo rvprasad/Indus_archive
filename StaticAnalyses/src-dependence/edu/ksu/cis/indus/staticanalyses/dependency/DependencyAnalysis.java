@@ -62,6 +62,41 @@ import java.util.Map;
 public abstract class DependencyAnalysis
   extends AbstractAnalysis {
 	/**
+	 * This identifies class-level data dependency analysis.
+	 */
+	public static final Object CLASS_DATA_DA = "CLASS_DATA_DA";
+
+	/**
+	 * This identifies control dependency analysis.
+	 */
+	public static final Object CONTROL_DA = "CONTROL_DA";
+
+	/**
+	 * This identifies divergence dependency analysis.
+	 */
+	public static final Object DIVERGENCE_DA = "DIVERGENCE_DA";
+
+	/**
+	 * This identifies inteference dependency analysis.
+	 */
+	public static final Object INTERFERENCE_DA = "INTERFERENCE_DA";
+
+	/**
+	 * This identifies method local data dependency analysis.
+	 */
+	public static final Object METHOD_LOCAL_DATA_DA = "METHOD_LOCAL_DATA_DA";
+
+	/**
+	 * This identifies ready dependency analysis.
+	 */
+	public static final Object READY_DA = "READY_DA";
+
+	/**
+	 * This identifies synchronization dependency analysis.
+	 */
+	public static final Object SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
+
+	/**
 	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
 	 * subclass use this store dependence information.
 	 *
@@ -118,9 +153,11 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/16 02:41:37  venku
+   Renamed AController to AbstractController.
+   Renamed AAnalysis to AbstractAnalysis.
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku
