@@ -2,7 +2,7 @@
 <!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
 [<!ENTITY include SYSTEM "message.xml">]>
 <!-- $Revision$ -->
-<project name="indus.javaslicer" default="build" basedir=".">
+<project name="indus" default="build" basedir=".">
 
 <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen"/>
 
@@ -24,8 +24,6 @@
 </path>
 
 <path id="classpath">
-	<pathelement location="../Indus/build/"/>
-	<pathelement location="../StaticAnalyses/build/"/>
 </path>
 
 <target name="init">
