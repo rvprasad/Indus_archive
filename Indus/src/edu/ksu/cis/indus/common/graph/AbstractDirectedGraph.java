@@ -68,6 +68,11 @@ public abstract class AbstractDirectedGraph
 	private Collection backedges = new ArrayList();
 
 	/**
+	 * The collection of pseudo tails in the given graph.  Refer to <code>getPseudoTails()</code> for details.
+	 */
+	private final Collection pseudoTails = new HashSet();
+
+	/**
 	 * This maps a node to it's spanning successor nodes.
 	 *
 	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(INode))
@@ -94,13 +99,12 @@ public abstract class AbstractDirectedGraph
 	private int[] prenums;
 
 	/**
-	 * Retrieves the back edges in this graph.
-	 *
-	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
-	 * 		   and the secondelement of the pair, respectively.
-	 *
-	 * @post result != null and hasSpanningForest = true and result.oclIsKindOf(Pair(INode, INode))
-	 * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst())
+	 * This indicates if pseudo tails have been calculated for this graph.
+	 */
+	private boolean pseudoTailsCalculated;
+
+	/**
+	 * @see IDirectedGraph#getBackEdges()
 	 */
 	public final Collection getBackEdges() {
 		if (!hasSpanningForest) {
@@ -132,13 +136,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Returns the cycles that occur in the graph.
-	 *
-	 * @return a collection of list of nodes which form cycles in this graph.  The head of the list is the initiator/head of
-	 * 		   the cycle.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
-	 * @post result->forall(o | getNodes().containsAll(o))
+	 * @see IDirectedGraph#getCycles()
 	 */
 	public final Collection getCycles() {
 		Collection _result = new ArrayList();
@@ -160,15 +158,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Retrieves the directed acyclic graph from the given graph.  It removes all the backedges from the given graph.
-	 *
-	 * @return a map from nodes in <code>graph</code> to a collection of pairs in <code>graph</code>.
-	 *
-	 * @pre graph != null
-	 * @post result.oclIsKindOf(Map(INode, Pair(Collection(INode), Collection(INode)))
-	 * @post result->entrySet()->forall(o | graph.getNodes()->includes(o.getKey()) and
-	 * 		 graph.getNodes()->includes(o.getValue().getFirst()) and graph.getNodes()->includes(o.getValue().getSecond()))
-	 * @post graph.getNodes()->forall(o | result.keySet()->includes(o))
+	 * @see IDirectedGraph#getDAG()
 	 */
 	public final Map getDAG() {
 		final Map _result = new HashMap();
@@ -217,49 +207,49 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Retrieves the head nodes of this graph.
-	 *
-	 * @return the head nodes(<code>INode</code>) of this graph.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getPredsOf().size == 0) and getNodes().containsAll(result)
+	 * @see IDirectedGraph#getHeads()
 	 */
 	public final Collection getHeads() {
 		return Collections.unmodifiableCollection(heads);
 	}
 
 	/**
-	 * Retrieves the tails and psuedo-tails of the given graph.  Psuedo tails are tails of end loops in which the loop head
-     * does not h 
-	 *
-	 * @return DOCUMENT ME!
+	 * @see IDirectedGraph#getPseudoTails()
 	 */
-	public final Collection getTailsAndPseudoTails() {
-		return null;
+	public final Collection getPseudoTails() {
+		if (!pseudoTailsCalculated) {
+			// get the tails of the DAG into dtails
+			final Map _dag = getDAG();
+			final Collection _dtails = new HashSet();
+
+			for (final Iterator _i = _dag.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final Pair _pair = (Pair) _entry.getValue();
+
+				if (((Collection) _pair.getSecond()).isEmpty()) {
+					_dtails.add(_entry.getKey());
+				}
+			}
+
+			// get the tails of the graph into _tails
+			final Collection _tails = getTails();
+
+			// for each dtail that is not a tail, check if tail is reachable from it.  If so, dtail is not a pseudo tail.  If not,
+			// it is a pseudo tail.
+			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true);
+			pseudoTails.addAll(getDestUnreachableSources(_temp, _temp, true));
+			pseudoTailsCalculated = true;
+		}
+		return Collections.unmodifiableCollection(pseudoTails);
 	}
 
 	/**
-	 * Retrieves the nodes in the graph.  The order of the nodes should be the same across calls to this method, if no nodes
-	 * are added or removed.  In case of addition and removal, the relative ordering between the old nodes should not change
-	 * across calls.
-	 *
-	 * @return the nodes(<code>INode</code>) in the graph.
-	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(INode))
+	 * @see IDirectedGraph#getNodes()
 	 */
 	public abstract List getNodes();
 
 	/**
-	 * Checks if the given nodes have ancestral relationship.  A node is considered as the ancestor of itself.
-	 *
-	 * @param ancestor in the relationship.
-	 * @param descendent in the relationship.
-	 *
-	 * @return <code>true</code> if <code>ancestor</code> is the ancestor of <code>descendent</code>; <code>false</code>,
-	 * 		   otherwise.
-	 *
-	 * @pre ancestor != null and descendent != null and getNodes().contains(ancestor) and getNodes().contains(descendent)
-	 * @post hasSpanningForest = true
+	 * @see IDirectedGraph#isAncestorOf(INode,INode)
 	 */
 	public final boolean isAncestorOf(final INode ancestor, final INode descendent) {
 		if (!hasSpanningForest) {
@@ -272,17 +262,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Checks if the given destination node is reachable from the given source node in the given direction via outgoing
-	 * edges.
-	 *
-	 * @param src is the source node in the graph.
-	 * @param dest is the destination node in the graph.
-	 * @param forward <code>true</code> indicates by forward traversal; <code>false</code> indicates backward traversal.
-	 *
-	 * @return <code>true</code> if <code>dest</code> is reachable from <code>src</code> in the given direction;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @pre src != null and dest != null and getNodes().contains(src) and getNodes().contains(dest)
+	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		boolean _result = false;
@@ -342,13 +322,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Retrieves the succession information as it occurs in this graph's spanning tree.  The returned map maps a node to a
-	 * collection of nodes which immediately succeed the key node in the  spanning tree of this graph.
-	 *
-	 * @return an read-only copy of immediate succession information as it occurs in this graph's spanning tree.
-	 *
-	 * @post result.oclIsKindOf(Map(INode, Collection(INode)))
-	 * @post result != null
+	 * @see IDirectedGraph#getSpanningSuccs()
 	 */
 	public final Map getSpanningSuccs() {
 		if (!hasSpanningForest) {
@@ -358,26 +332,14 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Retrieves the tail nodes of this graph.
-	 *
-	 * @return the tail nodes(<code>INode</code>) of this graph.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
+	 * @see IDirectedGraph#getTails()
 	 */
 	public final Collection getTails() {
 		return Collections.unmodifiableCollection(tails);
 	}
 
 	/**
-	 * Performs (pseudo-)topological sort of the given nodes in the given direction.
-	 *
-	 * @param topdown <code>true</code> indicates follow the forward edges while sorting; <code>false</code> indicates follow
-	 * 		  the backward edges.
-	 *
-	 * @return a list containing the nodes but in the sorted order.
-	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(INode)) and getNodes().containsAll(result)
+	 * @see IDirectedGraph#performmTopologicalSort(boolean)
 	 */
 	public final List performTopologicalSort(final boolean topdown) {
 		List _result;
@@ -400,6 +362,58 @@ public abstract class AbstractDirectedGraph
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			_result.add(0, _finishTime2node.get(_i.next()));
+		}
+		return _result;
+	}
+
+	/**
+	 * Changes the state of the graph as it's shape changed.
+	 */
+	protected void shapeChanged() {
+		hasSpanningForest = false;
+		pseudoTailsCalculated = false;
+	}
+
+	/**
+	 * Retrieves the source nodes which cannot reach any of the given destinations.  If there are not destination nodes then
+	 * all source nodes are returned.
+	 *
+	 * @param sources is the collection of source nodes.
+	 * @param destinations is the collection of destination nodes.
+	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following incoming
+	 * 		  edges.
+	 *
+	 * @return a collection of source nodes.
+	 *
+	 * @pre sources != null and destinations != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post sources->includesAll(result)
+	 */
+	private Collection getDestUnreachableSources(final Collection sources, final Collection destinations,
+		final boolean forward) {
+		final Collection _result = new HashSet();
+
+		if (destinations.isEmpty()) {
+			_result.addAll(sources);
+		} else {
+			for (final Iterator _i = sources.iterator(); _i.hasNext();) {
+				final INode _src = (INode) _i.next();
+				boolean flag = true;
+				int count = 0;
+
+				for (final Iterator _k = destinations.iterator(); _k.hasNext() && flag;) {
+					final INode _dest = (INode) _k.next();
+
+					if (_src != _dest) {
+						flag &= !isReachable(_src, _dest, forward);
+						count++;
+					}
+				}
+
+				if (flag && count > 0) {
+					_result.add(_src);
+				}
+			}
 		}
 		return _result;
 	}
@@ -649,6 +663,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/22 00:53:32  venku
+   - formatting and coding convention.
    Revision 1.7  2004/01/20 21:23:18  venku
    - the return value of getSCCs needs to be ordered if
      it accepts a direction parameter.  FIXED.

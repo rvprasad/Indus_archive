@@ -40,7 +40,6 @@ public interface IDirectedGraph {
 	 * 		   otherwise.
 	 *
 	 * @pre ancestor != null and descendent != null and getNodes().contains(ancestor) and getNodes().contains(descendent)
-	 * @post hasSpanningForest = true
 	 */
 	boolean isAncestorOf(final INode ancestor, final INode descendent);
 
@@ -50,7 +49,7 @@ public interface IDirectedGraph {
 	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
 	 * 		   and the secondelement of the pair, respectively.
 	 *
-	 * @post result != null and hasSpanningForest = true and result.oclIsKindOf(Pair(INode, INode))
+	 * @post result != null and result.oclIsKindOf(Pair(INode, INode))
 	 * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst())
 	 */
 	Collection getBackEdges();
@@ -69,12 +68,14 @@ public interface IDirectedGraph {
 	/**
 	 * Retrieves the directed acyclic graph from the given graph.  It removes all the backedges from the given graph.
 	 *
-	 * @return a map from nodes in <code>graph</code> to a collection of pairs in <code>graph</code>.
+	 * @return a map from nodes in <code>graph</code> to a pairs of collections.  The first element in the pair is the
+	 * 		   collection of predecessors and the second element in the pair is the collection of successors.
 	 *
 	 * @pre graph != null
 	 * @post result.oclIsKindOf(Map(INode, Pair(Collection(INode), Collection(INode)))
 	 * @post result->entrySet()->forall(o | graph.getNodes()->includes(o.getKey()) and
-	 * 		 graph.getNodes()->includes(o.getValue().getFirst()) and graph.getNodes()->includes(o.getValue().getSecond()))
+	 * 		 graph.getNodes()->includesAll(o.getValue().getFirst()) and
+	 * 		 graph.getNodes()->includesAll(o.getValue().getSecond()))
 	 * @post graph.getNodes()->forall(o | result.keySet()->includes(o))
 	 */
 	Map getDAG();
@@ -99,6 +100,17 @@ public interface IDirectedGraph {
 	 * @post result != null and result.oclIsKindOf(Sequence(INode))
 	 */
 	List getNodes();
+
+	/**
+	 * Retrieves the psuedo-tails of the given graph.  Psuedo tails are tail end of loops in which there is no path from the
+	 * head to a proper tail.
+	 *
+	 * @return a collection of nodes which comprise the psuedo tails in the graph.
+	 *
+	 * @post result != null
+	 * @post result->forall(o | getNodes().contains(o))
+	 */
+	Collection getPseudoTails();
 
 	/**
 	 * Checks if the given destination node is reachable from the given source node in the given direction via outgoing
@@ -165,6 +177,9 @@ public interface IDirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/20 21:23:18  venku
+   - the return value of getSCCs needs to be ordered if
+     it accepts a direction parameter.  FIXED.
    Revision 1.2  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.

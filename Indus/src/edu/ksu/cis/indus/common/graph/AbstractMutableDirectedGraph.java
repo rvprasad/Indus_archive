@@ -151,6 +151,7 @@ public abstract class AbstractMutableDirectedGraph
 			((AbstractMutableNode) dest).addPredecessors(src);
 			tails.remove(src);
 			heads.remove(dest);
+            shapeChanged();
 			_result = true;
 		}
 
@@ -172,6 +173,10 @@ public abstract class AbstractMutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
