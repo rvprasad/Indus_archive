@@ -160,7 +160,12 @@ public class SliceProgressBar extends ProgressMonitorDialog {
      * @see org.eclipse.jface.dialogs.Dialog#cancelPressed()
      */
     protected void cancelPressed() {
-        KaveriPlugin.getDefault().getSlicerTool().abort();
+        Display.getCurrent().asyncExec(new Runnable() {
+            public void run() {
+                KaveriPlugin.getDefault().getSlicerTool().abort();
+            }
+        });        
+        
         super.cancelPressed();
     }
 }

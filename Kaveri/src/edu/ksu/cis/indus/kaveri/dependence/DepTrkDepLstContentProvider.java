@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +60,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
 
     private TreeViewer tvRight;
 
-    private boolean isActive = true;
+    private boolean isActive = false;
 
     private DependenceStmtData dsd;
 
@@ -109,6 +108,9 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
     public Object[] getElements(Object inputElement) {
+        if (!isActive) {
+            return new Object[0];
+        }
         if (inputElement instanceof PartialStmtData) {
             if (invisibleRoot == null) {
                 invisibleRoot = new RightPaneTreeParent("");
@@ -171,10 +173,12 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
      * Initialize the tree model.
      */
     private void initialize() {
-        if (invisibleRoot != null && dsd.getSelectedStatement() != null
-                && dsd.getStmtList() != null && dsd.getStmtList().size() > 0) {
+        if (invisibleRoot != null) {
             invisibleRoot.removeAllChildren();
-
+        }
+        
+        if (invisibleRoot != null && dsd.getSelectedStatement() != null 
+                && dsd.getStmtList() != null && dsd.getStmtList().size() > 2) {            
             handleDependees();
             handleDependents();
 
@@ -273,8 +277,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
      *            True if dependees are required, false for dependents.
      */
     private void addDependenceChildren(RightPaneTreeParent control,
-            Object daType, final boolean dependee) {
-        if (!(daType.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA))) {
+            Object daType, final boolean dependee) {        
             final Map methodNameLineno = new HashMap(); // Map the key
                                                         // methodname + lineno
                                                         // ==> Java source Tree
@@ -289,6 +292,11 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     if (dependee) {
                         _depSet.addAll(handleDependees(_sm, _stmt, daType));
                     } else {
+                        // Precondition check for reference based DA
+                        if (daType.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) && !(_stmt instanceof AssignStmt))
+                        {
+                            continue;
+                        }
                         _depSet.addAll(handleDependents(_sm, _stmt, daType));
                     }
                 }
@@ -301,6 +309,10 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                 if (dependee) {
                     _depSet.addAll(handleDependees(_sm, _stmt, daType));
                 } else {
+                    if (daType.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) && !(_stmt instanceof AssignStmt))
+                    {
+                        return;
+                    }
                     _depSet.addAll(handleDependents(_sm, _stmt, daType));
                 }
             }
@@ -335,9 +347,11 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     }
                 } else if (_obj instanceof Pair) {
                     final Pair _pair = (Pair) _obj;
-                    final Stmt _stmt = (Stmt) _pair.getFirst();
-
-                    final SootMethod _sootM = (SootMethod) _pair.getSecond();
+                    final Stmt _stmt = (Stmt) _pair.getFirst();                    
+                    if (_stmt == null) {
+                        continue;
+                    }
+                    final SootMethod _sootM = (SootMethod) _pair.getSecond();                    
                     final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                             _stmt.toString() + " [[" + _sootM.getName() + "]]");
                     _toStmt.setSm(_sootM);
@@ -364,10 +378,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     }
 
                 }
-            }
-        } else {
-            handleDataDependence(control, dependee);
-        }
+            }        
 
     }
 
@@ -395,131 +406,6 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         return _javaSource;
     }
 
-    /**
-     * 
-     * Take care of data dependence. The dependence is split because of the
-     * complexity involved.
-     * 
-     * @param control
-     * @param dependee
-     */
-    private void handleDataDependence(RightPaneTreeParent control,
-            boolean dependee) {
-        final List _jimpleStmtList = dsd.getStmtList().subList(2,
-                dsd.getStmtList().size());
-        final Object daType = IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
-        final Map methodNameLineno = new HashMap();
-        final SootMethod _sm = (SootMethod) dsd.getStmtList().get(1);
-        final Set _depSet = new HashSet();
-        if (dsd.getJimpleIndex() == -1) {
-            for (int _i = 0; _i < _jimpleStmtList.size(); _i++) {
-                final Stmt _stmt = (Stmt) _jimpleStmtList.get(_i);
-                if (dependee) {
-                    _depSet.addAll(handleDependees(_sm, _stmt, daType));
-                } else {
-                    if (_stmt instanceof AssignStmt) {
-                        _depSet.addAll(handleDependees(_sm, _stmt, daType));
-                    }
-                }
-            }
-        } else {
-            if (dsd.getJimpleIndex() >= dsd.getStmtList().size() - 2) {
-                return;
-            }
-            final Stmt _stmt = (Stmt) _jimpleStmtList.get(dsd.getJimpleIndex());
-            if (dependee) {
-                _depSet.addAll(handleDependees(_sm, _stmt, daType));
-            } else {
-                if (_stmt instanceof AssignStmt) {
-                    _depSet.addAll(handleDependees(_sm, _stmt, daType));
-                }
-            }
-        }
-        for (Iterator iter = _depSet.iterator(); iter.hasNext();) {
-            final Object _obj = iter.next();
-            if (_obj instanceof Stmt) {
-                final Stmt _stmt = (Stmt) _obj;
-                final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
-                        _stmt.toString() + " [[" + _sm.getName() + "]]");
-                _toStmt.setSm(_sm);
-                final int _lineno = SootConvertor.getLineNumber(_stmt);
-                _toStmt.setLineNumber(_lineno);
-                if (_lineno == -1) {
-                    control.addChild(_toStmt);
-                } else {
-                    final String _key = _sm.getName() + _lineno;
-                    final Object _val = methodNameLineno.get(_key);
-                    if (_val == null) {
-                        final RightPaneTreeParent _javaSource = new RightPaneTreeParent(
-                                getJavaSourceFor(_sm, _lineno));
-                        _javaSource.setSm(_sm);
-                        _javaSource.setLineNumber(_lineno);
-                        _javaSource.addChild(_toStmt);
-                        methodNameLineno.put(_key, _javaSource);
-                        control.addChild(_javaSource);
-                    } else {
-                        final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
-                        _jsource.addChild(_toStmt);
-                    }
-                }
-
-            } else if (_obj instanceof Pair) {
-                final Pair _pair = (Pair) _obj;
-                final Stmt _stmt = (Stmt) _pair.getFirst();
-                final SootMethod _sootM = (SootMethod) _pair.getSecond();
-                final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
-                        _stmt.toString() + " [[" + _sootM.getName() + "]]");
-                _toStmt.setSm(_sootM);
-                final int _lineno = SootConvertor.getLineNumber(_stmt);
-                _toStmt.setLineNumber(_lineno);
-                if (_lineno == -1) {
-                    control.addChild(_toStmt);
-                } else {
-                    final String _key = _sm.getName() + _lineno;
-                    final Object _val = methodNameLineno.get(_key);
-                    if (_val == null) {
-                        final RightPaneTreeParent _javaSource = new RightPaneTreeParent(
-                                getJavaSourceFor(_sootM, _lineno));
-                        _javaSource.setSm(_sootM);
-                        _javaSource.setLineNumber(_lineno);
-                        _javaSource.addChild(_toStmt);
-                        methodNameLineno.put(_key, _javaSource);
-                        control.addChild(_javaSource);
-                    } else {
-                        final RightPaneTreeParent _jsource = (RightPaneTreeParent) _val;
-                        _jsource.addChild(_toStmt);
-                    }
-
-                }
-            }
-        }
-    }
-
-    /**
-     * Filter the dependence to extract the Stmt list in case of ready ,
-     * interference and data dependence. temporary: Will be replaced with jdt
-     * accessors.
-     * 
-     * @param list
-     * @param daType
-     * @return
-     */
-    private Collection filterDependence(List list, Object daType) {
-        List _filteredList = null;
-        if (daType.equals(IDependencyAnalysis.READY_DA)
-                || daType.equals(IDependencyAnalysis.INTERFERENCE_DA)
-                || daType.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA)) {
-            _filteredList = new ArrayList();
-            for (Iterator iter = list.iterator(); iter.hasNext();) {
-                final Pair _pair = (Pair) iter.next();
-                _filteredList.add(_pair.getFirst());
-            }
-
-        } else {
-            _filteredList = list;
-        }
-        return _filteredList;
-    }
 
     /**
      * Returns the list of statements linked by the dependence.
@@ -535,7 +421,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         final EclipseIndusDriver _driver = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getEclipseIndusDriver();
         final SlicerTool _stool = _driver.getSlicer();
-        if (_stool == null) {
+        if (_stool == null || _method == null || _stmt == null) {
             return new LinkedList();
         }
         final SlicerConfiguration _config = (SlicerConfiguration) _stool
@@ -546,7 +432,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             Iterator it = _coll.iterator();
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
-                        .next();
+                        .next();                
                 Collection ct = _crt.getDependents(_stmt, _method);
                 Iterator stit = ct.iterator();
                 while (stit.hasNext()) {
@@ -582,7 +468,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             Iterator it = _coll.iterator();
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
-                        .next();
+                        .next();                
                 Collection ct = _crt.getDependees(_stmt, _method);
                 Iterator stit = ct.iterator();
                 while (stit.hasNext()) {

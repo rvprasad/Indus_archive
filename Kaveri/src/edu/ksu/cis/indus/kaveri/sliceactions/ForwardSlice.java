@@ -21,6 +21,7 @@ package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
@@ -70,7 +71,8 @@ public class ForwardSlice extends BasicSliceFunctions implements
                 String _configName = KaveriPlugin.getDefault()
                         .getPreferenceStore().getString(_sfConfigKey);
                 if (_configName.equals("")) {
-                    _configName = "forward-deadlock";
+                    MessageDialog.openError(null, "Error", "Please set a configuration for this action from the Indus plugin preference");
+                    return;
                 }
                 runSlice(_configName, editor, textSelection);
             }

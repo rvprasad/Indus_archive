@@ -96,6 +96,9 @@ public class RunIndus extends BasicSliceFunctions implements
             } catch (InterruptedException _ie) {
                 KaveriErrorLog.logException("Interrupted Exception", _ie);
                 SECommons.handleException(_ie);
+                G.reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
             }
         }
     }

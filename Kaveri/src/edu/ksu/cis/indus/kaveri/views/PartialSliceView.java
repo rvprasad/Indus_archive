@@ -129,9 +129,9 @@ public class PartialSliceView extends ViewPart {
          * @return Object[] The list of statements if any present.
          */
         public Object[] getElements(final Object parent) {
-            Object[] _retObj = new String[] { "" };
+            Object[] _retObj = new Object[0];
             // _lst := Classname, method name, stmt.
-            if (parent instanceof PartialStmtData) {
+            if (parent instanceof PartialStmtData && isReady) {
                 final PartialStmtData _psd = (PartialStmtData) parent;
                 partialData = _psd;
                 final List _lst = _psd.getStmtList();
@@ -145,8 +145,7 @@ public class PartialSliceView extends ViewPart {
                     // Eliminate the first two elements.
                     _retObj = _sub.toArray();
                 } else {
-                    _retObj = new String[] { " ", " ", " ", " ", " ", " ", " ",
-                            " ", " " };
+                    _retObj = new Object[0];
                 }
             }
             return _retObj;
@@ -265,6 +264,7 @@ public class PartialSliceView extends ViewPart {
         }
     }
 
+    
     /**
      * <p>
      * This class provides the labels for the elements shown in the view.

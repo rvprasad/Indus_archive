@@ -47,7 +47,7 @@ public class CallStringDisplayDialog extends Dialog {
     /**
      * @param parentShell
      */
-    protected CallStringDisplayDialog(Shell parentShell, final MethodCallContext context) {
+    public CallStringDisplayDialog(Shell parentShell, final MethodCallContext context) {
         super(parentShell);        
        ctx = context;
     }

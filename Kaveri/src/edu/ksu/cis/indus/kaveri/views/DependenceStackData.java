@@ -16,37 +16,35 @@ import org.eclipse.core.resources.IFile;
  */
 public class DependenceStackData {
 
-    private PartialStmtData psd;
+    private String className;
+    private String methodName;
+    private int lineNo;
+    private String selectedStatement;
+    private IFile javaFile;                
 
     private String nextElemDepType;
 
-    /**
-     * The unique signature of the next element in the list.
-     */
-    private String nextElementSignature;
 
-    public DependenceStackData(final PartialStmtData pd) {
-        psd = new PartialStmtData();
-        psd.setClassName(pd.getClassName());
-        psd.setMethodName(pd.getMethodName());
-        psd.setJavaFile(pd.getJavaFile());
-        psd.setLineNo(pd.getLineNo());
-        psd.setSelectedStatement(pd.getSelectedStatement());
-        psd.setStmtList(pd.getStmtList());
+    public DependenceStackData(final String className, final String methodName, final int nLineno, final String selectedStmt,
+            final IFile javaFile) {        
+        this.className = className;
+        this.methodName = methodName;
+        this.javaFile = javaFile;
+        this.lineNo = nLineno;
+        this.selectedStatement = selectedStmt;        
     }
 
     public boolean equals(Object obj) {
         if (obj instanceof DependenceStackData) {
-            final DependenceStackData _cObj = (DependenceStackData) obj;
-            final PartialStmtData _pd = _cObj.getPsd();
+            final DependenceStackData _cObj = (DependenceStackData) obj;            
 
             boolean _result = false;
-            if (_pd.getClassName().equals(psd.getClassName())
-                    && _pd.getJavaFile().equals(psd.getJavaFile())
-                    && _pd.getMethodName().equals(psd.getMethodName())
-                    && _pd.getSelectedStatement().equals(
-                            psd.getSelectedStatement())
-                    && _pd.getLineNo() == psd.getLineNo()) {
+            if (_cObj.getClassName().equals(className)
+                    && _cObj.getFile().equals(javaFile)
+                    && _cObj.getMethodName().equals(methodName)
+                    && _cObj.getStatement().equals(
+                            selectedStatement)
+                    && _cObj.getLineNo() == lineNo) {
                 _result = true;
             }
             return _result;
@@ -60,43 +58,21 @@ public class DependenceStackData {
      * @return Returns the file.
      */
     public IFile getFile() {
-        return psd.getJavaFile();
+        return javaFile;
     }
 
     /**
      * @return Returns the lineNo.
      */
     public int getLineNo() {
-        return psd.getLineNo();
+        return lineNo;
     }
 
     /**
      * @return Returns the statement.
      */
     public String getStatement() {
-        return psd.getSelectedStatement();
-    }
-
-    /**
-     * @return Returns the psd.
-     */
-    public PartialStmtData getPsd() {
-        return psd;
-    }
-
-    /**
-     * @return Returns the nextElementSignature.
-     */
-    public String getNextElementSignature() {
-        return nextElementSignature;
-    }
-
-    /**
-     * @param nextElementSignature
-     *            The nextElementSignature to set.
-     */
-    public void setNextElementSignature(String nextElementSignature) {
-        this.nextElementSignature = nextElementSignature;
+        return selectedStatement;
     }
 
     /**
@@ -111,5 +87,11 @@ public class DependenceStackData {
      */
     public String getNextElemDepType() {
         return nextElemDepType;
+    }
+    public String getClassName() {
+        return className;
+    }
+    public String getMethodName() {
+        return methodName;
     }
 }

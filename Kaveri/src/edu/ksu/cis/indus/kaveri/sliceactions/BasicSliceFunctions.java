@@ -53,7 +53,7 @@ import soot.G;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog;
+import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog2;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
@@ -116,7 +116,7 @@ abstract public class BasicSliceFunctions {
                 if(_prj == null || !hasJavaNature(_prj)) {
                     return null;
                 }
-                final IndusConfigurationDialog _indusDialog = new IndusConfigurationDialog(
+                final IndusConfigurationDialog2 _indusDialog = new IndusConfigurationDialog2(
                         new Shell(), _jproject);
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
                         .clear();
@@ -240,6 +240,9 @@ abstract public class BasicSliceFunctions {
                         KaveriErrorLog.logException("Interrupted Exception",
                                 _ie);
                         SECommons.handleException(_ie);
+                        G.reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
                     }
 
                 }

@@ -172,8 +172,8 @@ public class ScopeDialog extends Dialog {
         _gd.horizontalAlignment = GridData.FILL;
         _gd.verticalAlignment = GridData.FILL;
         _table.setLayoutData(_gd);
-        tv.setContentProvider(new ViewContentProvider());
-        tv.setLabelProvider(new ViewLabelProvider());
+        tv.setContentProvider(new ScopeViewContentProvider());
+        tv.setLabelProvider(new ScopeViewLabelProvider());
         tv.setInput("Input");
 
         _comp.addControlListener(new ControlAdapter() {
@@ -267,100 +267,5 @@ public class ScopeDialog extends Dialog {
     }
 }
 
-class ViewContentProvider implements IStructuredContentProvider {
-    public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-    }
 
-    public void dispose() {
-    }
 
-    public Object[] getElements(Object parent) {
-        final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
-        final String _scopeSpec = KaveriPlugin.getDefault()
-                .getPreferenceStore().getString(_scopeKey);
-        if (_scopeSpec.equals(""))
-            return new Object[0];
-        try {
-            SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition
-                    .deserialize(_scopeSpec);
-            final List _lstSpecs = new LinkedList();
-            final Collection _collClassSpecs = _sbsd.getClassSpecs();
-            for (Iterator iter = _collClassSpecs.iterator(); iter.hasNext();) {
-                final ClassSpecification _cs = (ClassSpecification) iter.next();
-                _lstSpecs.add(_cs);
-
-            }
-            final Collection _collMethodSpecs = _sbsd.getMethodSpecs();
-            for (Iterator iter = _collMethodSpecs.iterator(); iter.hasNext();) {
-                final MethodSpecification _ms = (MethodSpecification) iter
-                        .next();
-                _lstSpecs.add(_ms);
-
-            }
-            final Collection _collFieldSpecs = _sbsd.getFieldSpecs();
-            for (Iterator iter = _collFieldSpecs.iterator(); iter.hasNext();) {
-                final FieldSpecification _fs = (FieldSpecification) iter.next();
-                _lstSpecs.add(_fs);
-            }
-            return _lstSpecs.toArray();
-
-        } catch (JiBXException _jbe) {
-            SECommons.handleException(_jbe);
-            KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
-            return new Object[0];
-        }
-
-    }
-}
-
-class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-    public String getColumnText(Object obj, int index) {
-        if (index == 0) {
-            return "";
-        }
-        if (obj instanceof ClassSpecification) {
-            final ClassSpecification _cs = (ClassSpecification) obj;
-            switch (index) {
-            case 1:
-                return "Class";
-            case 2:
-                return _cs.getName();
-            case 3:
-                return _cs.getTypeSpec().getNamePattern();
-            }
-        } else if (obj instanceof MethodSpecification) {
-            final MethodSpecification _ms = (MethodSpecification) obj;
-            switch (index) {
-            case 1:
-                return "Method";
-            case 2:
-                return _ms.getName();
-            case 3:
-                return _ms.getMethodNameSpec();
-            }
-
-        } else if (obj instanceof FieldSpecification) {
-            final FieldSpecification _fs = (FieldSpecification) obj;
-            switch (index) {
-            case 1:
-                return "Field";
-            case 2:
-                return _fs.getName();
-            case 3:
-                return _fs.getFieldNameSpec();
-            }
-
-        } else {
-            return "";
-        }
-        return getText(obj);
-    }
-
-    public Image getColumnImage(Object obj, int index) {
-        return null;
-    }
-
-    public Image getImage(Object obj) {
-        return null;
-    }
-}

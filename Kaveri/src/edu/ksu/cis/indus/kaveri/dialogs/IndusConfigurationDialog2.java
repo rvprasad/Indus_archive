@@ -20,6 +20,7 @@
  */
 package edu.ksu.cis.indus.kaveri.dialogs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,17 +31,30 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.alias.CannotResolveClassException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextContentProvider;
 import edu.ksu.cis.indus.kaveri.callgraph.ContextDialog;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextLabelProvider;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
-import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodDialog;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodContentProvider;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodLabelProvider;
 import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeViewContentProvider;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeViewLabelProvider;
 
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 
 import org.eclipse.core.runtime.CoreException;
@@ -61,10 +75,13 @@ import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -77,9 +94,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.jibx.runtime.JiBXException;
 
 /**
  * The slice configuration dialog box. Allows you to pick the configuration and
@@ -87,7 +107,7 @@ import org.eclipse.swt.widgets.TableItem;
  * 
  * @author Ganeshan
  */
-public class IndusConfigurationDialog extends Dialog {
+public class IndusConfigurationDialog2 extends Dialog {
     /**
      * Checkbox for additive or normal slicing.
      */
@@ -106,17 +126,34 @@ public class IndusConfigurationDialog extends Dialog {
     /**
      * Viewer for the criteria.
      */
-    private CheckboxTableViewer viewer;
+    private CheckboxTableViewer crtViewer;
+    
+    /**
+     * Viewer for the context.
+     */
+    private CheckboxTableViewer ctxViewer;
 
+    /** Viewer for the scope */
+    private CheckboxTableViewer scpViewer;
+    
+    /** Viewer for the root methods */
+    private CheckboxTableViewer rootViewer;
+    
     /**
      * The Java project to which the file belongs.
      */
     private IJavaProject project;
 
+    
+    
     /**
      * The swt table showing the criteria.
      */
     private Table criteriaTable;
+
+    protected Collection deleteCollection;
+
+    protected RootMethodCollection rmColl;
 
     class ViewContentProvider implements IStructuredContentProvider {
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -179,10 +216,12 @@ public class IndusConfigurationDialog extends Dialog {
      * @param javaProject
      *            The current Java project.
      */
-    public IndusConfigurationDialog(final Shell parent,
+    public IndusConfigurationDialog2(final Shell parent,
             final IJavaProject javaProject) {
         super(parent);
+        setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
         this.project = javaProject;
+        deleteCollection = new ArrayList();
     }
 
     /**
@@ -220,7 +259,14 @@ public class IndusConfigurationDialog extends Dialog {
         final GridLayout _layout = new GridLayout();
         _layout.numColumns = 3;
         _composite.setLayout(_layout);
-
+        GridData _gComp = new GridData(GridData.FILL_BOTH);
+        _gComp.grabExcessHorizontalSpace = true;
+        _gComp.grabExcessVerticalSpace = true;
+        _gComp.grabExcessVerticalSpace = true;
+        _gComp.horizontalSpan = 1;
+        _composite.setLayoutData(_gComp);
+        
+        
         final Label _confLabel = new Label(_composite, SWT.NONE);
         _confLabel.setText(Messages.getString("IndusConfigurationDialog.1")); //$NON-NLS-1$
 
@@ -233,11 +279,7 @@ public class IndusConfigurationDialog extends Dialog {
         _gdata.horizontalSpan = 2;
         _gdata.grabExcessHorizontalSpace = true;
         confCombo.setLayoutData(_gdata);
-        initializeConfigs(confCombo);
-
-        
-
-
+        initializeConfigs(confCombo);      
 
         
         additive = new Button(_composite, SWT.CHECK);
@@ -247,18 +289,342 @@ public class IndusConfigurationDialog extends Dialog {
         
         additive.setText("Additive slice display");
                 initializeAdditive();
-                        
-        final Group _group = new Group(_composite, SWT.NONE);
+
+         final TabFolder _folder = new TabFolder(_composite, SWT.NONE);
+         _gdata = new GridData(GridData.FILL_BOTH);
+         _gdata.grabExcessHorizontalSpace = true;
+         _gdata.grabExcessVerticalSpace = true;
+         _gdata.horizontalSpan = 3;
+         _gdata.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+         _gdata.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4; 
+         _folder.setLayoutData(_gdata);
+         
+         _folder.setLayout(new GridLayout(1, true));
+         
+         final TabItem  _itemCriteria = new TabItem(_folder, SWT.NONE);
+         _itemCriteria.setText("Criteria");
+         _itemCriteria.setControl(createCriteriaTab(_folder));
+         
+         final TabItem _itemScope =  new TabItem(_folder, SWT.NONE);
+         _itemScope.setText("Scope");
+         _itemScope.setControl(createScopeControl(_folder));
+         
+         final TabItem _itemContexts = new TabItem(_folder, SWT.NONE);
+         _itemContexts.setText("Contexts");
+         _itemContexts.setControl(createContextControl(_folder));
+         
+         final TabItem _itemRootMethods = new TabItem(_folder, SWT.NONE);
+         _itemRootMethods.setText("Root Methods");
+         _itemRootMethods.setControl(createRootMethodControl(_folder));
+
+         
+        // Add griddata
+        GridData _data = new GridData();
+        _data.horizontalSpan = 1;
+        _confLabel.setLayoutData(_data);
+        _data = new GridData(GridData.FILL_HORIZONTAL);
+        _data.horizontalSpan = 2;
+        confCombo.setLayoutData(_data);
+
+        // Reset the scope string
+        KaveriPlugin.getDefault().getIndusConfiguration()
+                .setScopeSpecification("");
+        /*
+         * KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
+         */
+        return _composite;
+    }
+
+    /**
+     * Create the root method tab.
+     * @param folder
+     * @return
+     */
+    private Control createRootMethodControl(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE);
+        _comp.setLayout(new GridLayout(1, false));
+        GridData _gd = new GridData(GridData.FILL_BOTH);        
+        _gd.horizontalSpan = 1;
+        _comp.setLayoutData(_gd);
+        
+        final Group _grp = new Group(_comp, SWT.BORDER);
+        _grp.setText("Additional root methods");
+        
+        _gd = new GridData(GridData.FILL_BOTH);
+        _gd.grabExcessHorizontalSpace = true;        
+        _gd.grabExcessVerticalSpace = true;
+        _gd.horizontalSpan  = 1;
+        //_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+        //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
+        _grp.setLayoutData(_gd);        
+        _grp.setLayout(new GridLayout(1, true));
+        
+        
+        rootViewer = CheckboxTableViewer.newCheckList(_grp, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER | SWT.V_SCROLL
+                | SWT.H_SCROLL);
+        final Table _table = rootViewer.getTable();
+        setupRootTabTable(_table);      
+        initRootMethods();
+        rootViewer.setContentProvider(new RootMethodContentProvider());
+        rootViewer.setLabelProvider(new RootMethodLabelProvider());
+        rootViewer.setInput(rmColl);
+        for (int i = 0; i < _table.getColumnCount(); i++) {
+            _table.getColumn(i).pack();
+        }
+        _gd = new GridData(GridData.FILL_BOTH);
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.horizontalSpan  = 1;
+        _table.setLayoutData(_gd);
+        
+        final Composite _rComp = new Composite(_comp, SWT.BORDER);
+        
+        final RowLayout _rl = new RowLayout();
+        _rl.pack = false;
+        _rComp.setLayout(_rl);
+        
+        _gd = new GridData(GridData.FILL_HORIZONTAL);
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan =  1;
+        _rComp.setLayoutData(_gd);
+
+        final Button _btnDelete =  new Button(_rComp, SWT.PUSH);
+        _btnDelete.setText("Delete");
+     
+        _btnDelete.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {                        
+
+                            final Object[] _chsObjs = rootViewer.getCheckedElements();
+
+                            for (int i = 0; _chsObjs != null && i < _chsObjs.length; i++) {
+                                deleteCollection.add(_chsObjs[i]);
+                                rmColl.getRootMethodCollection().remove(_chsObjs[i]);                                
+                             }
+                            
+                            rootViewer.setInput(rmColl);
+                            for (int i = 0; i < _table.getColumnCount(); i++) {
+                                _table.getColumn(i).pack();
+                            }
+                            
+                        } 
+                                            
+                }
+                );
+        
+        return _comp;
+
+    }
+
+    /**
+     * Initialize the root method collection.
+     */
+    private void initRootMethods() {
+        if (project != null) {
+            final IResource _resource;
+            try {
+                _resource = project.getCorrespondingResource();
+            
+            final QualifiedName _name = new QualifiedName("edu.ksu.cis.indus.kaveri", "rootMethodCollection");
+            final String _propVal =   _resource.getPersistentProperty(_name);
+            final XStream _xstream = new XStream(new DomDriver());
+            _xstream.alias("RootMethodCollection", RootMethodCollection.class);            
+            if (_propVal != null) {
+               rmColl = (RootMethodCollection) _xstream.fromXML(_propVal);
+            } else {
+                rmColl = new RootMethodCollection();
+            }
+            final String _val = _xstream.toXML(rmColl);
+           
+                _resource.setPersistentProperty(_name, _val);
+            } catch (JavaModelException _e) {
+                SECommons.handleException(_e);
+                KaveriErrorLog.logException("Java Model Exception", _e);
+            } 
+            catch (CoreException _e) {
+                SECommons.handleException(_e);
+                KaveriErrorLog.logException("Core Exception", _e);            
+            } 
+        }
+    }
+
+    /**
+     * Setups the root method display table.
+     * @param table
+     */
+    private void setupRootTabTable(Table table) {
+        final TableColumn _col0 = new TableColumn(table, SWT.CENTER);
+        _col0.setText("!");
+        
+        final TableColumn _col1 = new TableColumn(table, SWT.NONE);
+        _col1.setText("Class");
+        
+        final TableColumn _col2 = new TableColumn(table, SWT.NONE);
+        _col2.setText("Method Signature");
+        table.setLinesVisible(true);
+        table.setHeaderVisible(true);
+        
+        GridData _gd = new GridData(GridData.FILL_BOTH);
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;        
+        table.setLayoutData(_gd);
+        
+    }
+
+    /**
+     * Create the scope tab.
+     * @param folder
+     * @return
+     */
+    private Control createScopeControl(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE);
+        final GridData _gd1 = new GridData(GridData.FILL_BOTH);
+		_gd1.horizontalSpan = 1;
+		_gd1.grabExcessHorizontalSpace = true;
+		_gd1.grabExcessVerticalSpace = true;
+		_comp.setLayoutData(_gd1);
+        
+        _comp.setLayout(new GridLayout(1, true));
+
+        final Group _grp = new Group(_comp, SWT.BORDER);
+        _grp.setText("Pick the elements to be included in the scope");
+        _grp.setLayout(new GridLayout(1, true));
+
+        GridData _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.verticalAlignment = GridData.FILL;
+        //_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+       // _gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
+        _grp.setLayoutData(_gd);
+
+        scpViewer = CheckboxTableViewer.newCheckList(_grp, SWT.SINGLE | SWT.FULL_SELECTION
+                | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        final Table _table = scpViewer.getTable();
+        _table.setLinesVisible(true);
+        _table.setHeaderVisible(true);
+        
+        final TableColumn _col1 = new TableColumn(_table, SWT.CENTER);
+        _col1.setText("!");
+
+        final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
+        _col2.setText("Type");
+
+        final TableColumn _col3 = new TableColumn(_table, SWT.NONE);
+        _col3.setText("Scope Name");
+
+        final TableColumn _col4 = new TableColumn(_table, SWT.NONE);
+        _col4.setText("Element Name");
+        
+        _gd = new GridData();
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.horizontalAlignment = GridData.FILL;
+        _gd.verticalAlignment = GridData.FILL;
+        _table.setLayoutData(_gd);
+        scpViewer.setContentProvider(new ScopeViewContentProvider());
+        scpViewer.setLabelProvider(new ScopeViewLabelProvider());
+        scpViewer.setInput("Input");
+
+        _comp.addControlListener(new ControlAdapter() {
+            public void controlResized(ControlEvent e) {
+                final TableColumn _cols[] = _table.getColumns();
+                for (int i = 0; i < _cols.length; i++) {
+                    _cols[i].pack();
+                }
+            }
+        });
+
+        return _comp;
+
+    }
+
+    /**
+     * Create the context selection tab.
+     * @param folder
+     * @return
+     */
+    private Control createContextControl(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE);        
+        GridLayout _layout = new GridLayout(1, true);		
+		_comp.setLayout(_layout);
+		
+		final GridData _gd1 = new GridData(GridData.FILL_BOTH);
+		_gd1.horizontalSpan = 1;
+		_gd1.grabExcessHorizontalSpace = true;
+		_gd1.grabExcessVerticalSpace = true;
+		_comp.setLayoutData(_gd1);
+		
+        final Group _grp = new Group(_comp, SWT.NONE);
+        _grp.setText("Select the call string contexts for the slice");
+        final GridData _gd = new GridData(GridData.FILL_BOTH);
+        //_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+        //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.horizontalSpan = 1;
+        _grp.setLayoutData(_gd);
+        _grp.setLayout(new FillLayout());
+
+        ctxViewer = CheckboxTableViewer.newCheckList(_grp, SWT.SINGLE | SWT.FULL_SELECTION
+                | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        final Table _table = ctxViewer.getTable();
+        _table.setHeaderVisible(true);
+        _table.setLinesVisible(true);
+
+        final String[] _colNames = { "!", "Call String Source", "Call String End"};
+        for (int _i = 0; _i < _colNames.length; _i++) {
+            final TableColumn _col = new TableColumn(_table, SWT.NONE);
+            _col.setText(_colNames[_i]);
+        }
+        ctxViewer.setContentProvider(new ContextContentProvider(project));
+        ctxViewer.setLabelProvider(new ContextLabelProvider());
+        ctxViewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration()
+                .getCtxRepository());
+        for (int _i = 0; _i < _colNames.length; _i++) {
+            _table.getColumn(_i).pack();
+        }
+                               
+        return _comp;
+
+    }
+    
+
+
+    /**
+     * Create the criteria tab
+     * @param folder
+     * @return
+     */
+    private Control createCriteriaTab(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE);
+        _comp.setLayout(new GridLayout(1, true));
+        GridData _gd1 = new GridData(GridData.FILL_BOTH);
+        _gd1.grabExcessHorizontalSpace = true;
+        _gd1.grabExcessVerticalSpace = true;
+        _gd1.horizontalSpan = 1;
+        _comp.setLayoutData(_gd1);
+        
+        final Group _group = new Group(_comp, SWT.NONE);
         _group.setText(Messages.getString("IndusConfigurationDialog.3")); //$NON-NLS-1$
         final GridLayout _gl = new GridLayout();
-        _gl.numColumns = 1;
+        _gl.numColumns = 1;        
         _group.setLayout(_gl);
-
-        viewer = CheckboxTableViewer.newCheckList(_group, SWT.BORDER
+        
+        final GridData _grpData = new GridData(GridData.FILL_BOTH);
+        _grpData.horizontalSpan = 1;
+        _grpData.grabExcessHorizontalSpace = true;
+        _grpData.grabExcessVerticalSpace = true;
+        _group.setLayoutData(_grpData);
+        
+        crtViewer = CheckboxTableViewer.newCheckList(_group, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL
                 | SWT.V_SCROLL | SWT.FULL_SELECTION);
         //		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
         //		_group.setLayout(_fl);
-        criteriaTable = viewer.getTable();
+        criteriaTable = crtViewer.getTable();
 
         final GridData _gd = new GridData();
         _gd.horizontalSpan = 1;
@@ -267,8 +633,8 @@ public class IndusConfigurationDialog extends Dialog {
         //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
         _gd.horizontalAlignment = GridData.FILL;
         _gd.verticalAlignment = GridData.FILL;
-        _gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
-        _gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
+        //_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+        //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
         criteriaTable.setLayoutData(_gd);
 
         criteriaTable.setLinesVisible(true);
@@ -285,72 +651,26 @@ public class IndusConfigurationDialog extends Dialog {
             criteriaTable.getColumn(_i).pack();
         }
 
-        viewer.setContentProvider(new ViewContentProvider());
-        viewer.setLabelProvider(new CriteriaViewLabelProvider());
-        viewer.setInput("Input");
+        crtViewer.setContentProvider(new ViewContentProvider());
+        crtViewer.setLabelProvider(new CriteriaViewLabelProvider());
+        crtViewer.setInput("Input");
         for (int _i = 0; _i < _colnames.length; _i++) {
             criteriaTable.getColumn(_i).pack();
         }
-        //criteriaList = new List(_group, SWT.BORDER | SWT.V_SCROLL |
-        // SWT.MULTI);
-        //final int _constant1 = 600;
-        //final int _constant2 = 1200;
-        // criteriaTable.setBounds(0, 0, _constant1, _constant2);
-        //criteriaList.setBounds(0, 0, _constant1, _constant2);
-        //initializeList(criteriaTable, project); // changed from criteriaList
-
-        final Composite _subcomposite2 = new Composite(_composite, SWT.NONE);
+        final Composite _subcomposite2 = new Composite(_comp, SWT.NONE);
         final GridData _subdata2 = new GridData(GridData.FILL_HORIZONTAL);
-        _subdata2.horizontalSpan = 3;
+        _subdata2.horizontalSpan = 1;
         _subcomposite2.setLayoutData(_subdata2);
 
         final RowLayout _f2 = new RowLayout(SWT.HORIZONTAL);        
         _f2.pack = false;
         _subcomposite2.setLayout(_f2);
-
+        
         final Button _btnDelete = new Button(_subcomposite2, SWT.PUSH);
         _btnDelete.setText(Messages.getString("IndusConfigurationDialog.5")); //$NON-NLS-1$
         handleDelete(_btnDelete, project);
-
-        final Button _btnScope = new Button(_subcomposite2, SWT.PUSH);
-        _btnScope.setText("Setup Scope");
-        handleScope(_btnScope);
         
-        
-          final Button _btnCallStack = new Button(_subcomposite2, SWT.PUSH);
-          _btnCallStack.setText("Setup Context"); handleContext(_btnCallStack);
-          
-          final Button _btnRootMethod = new Button(_subcomposite2, SWT.PUSH);
-          _btnRootMethod.setText("Root Methods");
-          _btnRootMethod.addSelectionListener(
-                  new SelectionAdapter() {
-                      public void widgetSelected(SelectionEvent e) {
-                          final Shell _shell = new Shell();
-                          RootMethodDialog _rmd = new RootMethodDialog(_shell, project);
-                          _rmd.open();                        
-                      }
-                  }
-                  );
-
-          
-        // Add griddata
-        GridData _data = new GridData();
-        _data.horizontalSpan = 1;
-        _confLabel.setLayoutData(_data);
-        _data = new GridData(GridData.FILL_HORIZONTAL);
-        _data.horizontalSpan = 2;
-        confCombo.setLayoutData(_data);
-
-        final GridData _grpData = new GridData(GridData.FILL_HORIZONTAL);
-        _grpData.horizontalSpan = 3;
-        _group.setLayoutData(_grpData);
-        // Reset the scope string
-        KaveriPlugin.getDefault().getIndusConfiguration()
-                .setScopeSpecification("");
-        /*
-         * KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
-         */
-        return _composite;
+        return _comp;
     }
 
     /**
@@ -394,14 +714,135 @@ public class IndusConfigurationDialog extends Dialog {
         final String _additivename = "additiveSliceProperty";
         _ps.setValue(_additivename, additive.getSelection());
         KaveriPlugin.getDefault().savePluginPreferences();
+        processContext();
+        processScope();
+        processRootMethods();
         super.okPressed();
+    }
+
+    /**
+     * Process the results of operations in the root method tab.
+     */
+    private void processRootMethods() {
+        if (rmColl != null) {
+            final XStream _xstream = new XStream(new DomDriver());
+            _xstream.alias("RootMethodCollection", RootMethodCollection.class);        
+            final QualifiedName _name = new QualifiedName("edu.ksu.cis.indus.kaveri", "rootMethodCollection");
+            final String _val = _xstream.toXML(rmColl);
+            try {
+                final IResource _rs = project.getCorrespondingResource();
+                _rs.setPersistentProperty(_name, _val);
+            }  
+            catch (JavaModelException _e) {
+                SECommons.handleException(_e);
+                KaveriErrorLog.logException("Java Model Exception", _e);
+            } 
+            catch (CoreException _e) {
+                SECommons.handleException(_e);
+                KaveriErrorLog.logException("Core Exception", _e);            
+            } 
+            
+        }
+        deleteMarkers();
+        
+    }
+
+    /**
+     * Delete any markers containing root methods.
+     */
+    private void deleteMarkers() {
+        final String _markerId = KaveriPlugin.getDefault().getBundle().getSymbolicName() + "." +
+    	"rootMethodMarker";                        
+        try {
+            final IMarker[] _markers = project.getProject().findMarkers(_markerId, true, IResource.DEPTH_INFINITE);
+            final String _classNameKey = "className";
+            final String _methodSigKey = "methodSignature";
+            final Collection _markersToDelete = new ArrayList();
+            for (Iterator iter = deleteCollection.iterator(); iter.hasNext();) {
+                final Pair _pair = (Pair) iter.next();
+                for (int j = 0; j < _markers.length; j++) {
+                    final IMarker _marker = _markers[j];
+                    final String _classname = (String) _marker.getAttribute(_classNameKey);
+                    final String _methodNameSig = (String) _marker.getAttribute(_methodSigKey);
+                    if (_classname != null && _methodSigKey  != null &&
+                            _classname.equals(_pair.getFirst().toString()) &&
+                                    _methodNameSig.equals(_pair.getSecond().toString())) {
+                        _markersToDelete.add(_marker);
+                    }    
+            }
+            
+                for (Iterator iterator = _markersToDelete.iterator(); iterator
+                .hasNext();) {
+                    final IMarker _marker = (IMarker) iterator.next();
+                    _marker.delete();                                
+                }
+
+            }
+        } catch (CoreException e) {
+            //SECommons.handleException(e);
+            KaveriErrorLog.logException("Unable to find markers", e);
+        }
+        
+        
+    }
+
+    /**
+     * Process the results of operations in the scope tab.
+     */
+    private void processScope() {
+        final Object _elems[] = scpViewer.getCheckedElements();
+        String _scopeSpecHeader = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+                + "xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\""
+                + "indus:specName=\"scope_spec\">";
+        _scopeSpecHeader += "\n</indus:scopeSpec>";
+        String _scopeSpecification = "";
+        if (_elems != null && _elems.length > 0) {
+        try {
+            final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition
+                    .deserialize(_scopeSpecHeader);
+            for (int i = 0; i < _elems.length; i++) {
+                if (_elems[i] instanceof ClassSpecification) {
+                    _sbsd.getClassSpecs().add(_elems[i]);
+                } else if (_elems[i] instanceof MethodSpecification) {
+                    _sbsd.getMethodSpecs().add(_elems[i]);
+                } else if (_elems[i] instanceof FieldSpecification) {
+                    _sbsd.getFieldSpecs().add(_elems[i]);
+                }
+            }
+            _scopeSpecification = SpecificationBasedScopeDefinition
+                    .serialize(_sbsd);
+        } catch (JiBXException _jbe) {
+            SECommons.handleException(_jbe);
+            KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
+            _scopeSpecification = "";
+        }
+        }
+        KaveriPlugin.getDefault().getIndusConfiguration()
+        .setScopeSpecification(_scopeSpecification);
+    }
+
+    /**
+     * Process the results of operations in the context tab.
+     */
+    private void processContext() {
+        final Object[] _elems = ctxViewer.getCheckedElements();
+        final Collection _callStrings = new ArrayList();
+        if (_elems != null && _elems.length > 0) {
+            for (int _i = 0; _i < _elems.length; _i++) {
+                _callStrings.add(_elems[_i]);
+            }
+        }
+        
+        if(_callStrings.size() > 0) {
+            KaveriPlugin.getDefault().getIndusConfiguration().addToChosenContext(_callStrings);
+        }
     }
 
     /**
      * Sets up the criteria.
      */
     private void setUpCriteria() {
-        final Object _objCriteria[] = viewer.getCheckedElements();
+        final Object _objCriteria[] = crtViewer.getCheckedElements();
         if (_objCriteria.length > 0) {
             for (int i = 0; i < _objCriteria.length; i++) {
                 final Criteria _c = (Criteria) _objCriteria[i];
@@ -454,7 +895,7 @@ public class IndusConfigurationDialog extends Dialog {
                             final CriteriaData _data = (CriteriaData) _xstream
                                     .fromXML(_propVal);
                             final java.util.List _lst = _data.getCriterias();
-                            final Object _crtList[] = viewer
+                            final Object _crtList[] = crtViewer
                                     .getCheckedElements();
                             for (int i = 0; i < _crtList.length; i++) {
                                 final Criteria _c = (Criteria) _crtList[i];
@@ -463,7 +904,7 @@ public class IndusConfigurationDialog extends Dialog {
 
                             final String _xml = _xstream.toXML(_data);
                             _resource.setPersistentProperty(_name, _xml);
-                            viewer.setInput("Input"); // Refresh
+                            crtViewer.setInput("Input"); // Refresh
                             for (int _i = 0; _i < criteriaTable
                                     .getColumnCount(); _i++) {
                                 criteriaTable.getColumn(_i).pack();
@@ -634,7 +1075,7 @@ public class IndusConfigurationDialog extends Dialog {
 
 }
 
-class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+class CriteriaViewLabelProvider extends LabelProvider implements ITableLabelProvider {
     public String getColumnText(Object obj, int index) {
         String _retString = "";
         if (obj instanceof Criteria) {

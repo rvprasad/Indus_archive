@@ -85,6 +85,10 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
     public Object[] getElements(Object inputElement) {
+        if (!isActive) {
+            return new Object[0];
+        }
+        
         if (inputElement instanceof PartialStmtData) {
             if (invisibleRoot == null) {
                 invisibleRoot = new LeftPaneTreeParent("");
@@ -132,6 +136,9 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#propertyChanged()
      */
     public void propertyChanged() {
+        if (invisibleRoot != null) {
+            invisibleRoot.removeAllChildren();
+        }
         if (tvLeft != null && isActive) {
             initialize();
             tvLeft.refresh();
@@ -145,9 +152,8 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      * Initialize the tree model.
      */
     private void initialize() {
-        if (invisibleRoot != null && psd.getSelectedStatement() != null
-                && psd.getStmtList() != null) {
-            invisibleRoot.removeAllChildren();
+        if (invisibleRoot != null && psd.getSelectedStatement() != null && psd.getJavaFile() != null
+                && psd.getStmtList() != null && psd.getStmtList().size() > 2) {            
             final String _mainHeading = psd.getSelectedStatement() + " ("
                     + psd.getJavaFile().getName() + ")";
             final LeftPaneTreeParent _tParent = new LeftPaneTreeParent(
@@ -189,5 +195,14 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      */
     public void setActive(boolean isActive) {
         this.isActive = isActive;
+    }
+
+    /**
+     * Select the top item if present.
+     */
+    public void selectTopItem() {
+        if (invisibleRoot != null && invisibleRoot.getChildren() != null && invisibleRoot.getChildren().length > 0)
+        tvLeft.setSelection(new StructuredSelection(invisibleRoot
+                .getChildren()[0]), true);
     }
 }

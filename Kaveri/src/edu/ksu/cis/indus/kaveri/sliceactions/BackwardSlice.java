@@ -21,6 +21,7 @@ package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.jface.viewers.ISelection;
 
@@ -71,7 +72,8 @@ public class BackwardSlice extends BasicSliceFunctions implements
                 String _configName = KaveriPlugin.getDefault()
                         .getPreferenceStore().getString(_sbConfigKey);
                 if (_configName.equals("")) {
-                    _configName = "backward-executable-deadlock";
+                    MessageDialog.openError(null, "Error", "Please set a configuration for this action from the Indus plugin preference");
+                    return;
                 }
                 runSlice(_configName, editor, textSelection);
             }

@@ -17,9 +17,12 @@ package edu.ksu.cis.indus.kaveri.dependence;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
@@ -37,6 +40,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
@@ -46,6 +50,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
@@ -383,7 +388,9 @@ public class DependenceTrackingView extends ViewPart {
                                                 .getDepHistory();
 
                                         final DependenceStackData _depS = new DependenceStackData(
-                                                _psd);
+                                                _psd.getClassName(), _psd.getMethodName(), _psd.getLineNo(),
+                                                _psd.getSelectedStatement(), _psd.getJavaFile());
+                                        
                                         Pair _pair = null;
                                         _editor.selectAndReveal(_region
                                                 .getOffset(), _region
@@ -408,10 +415,8 @@ public class DependenceTrackingView extends ViewPart {
                                                         .getIndusConfiguration()
                                                         .setDepHistory(_pair);
                                             }
-                                        }
-                                        _psd = KaveriPlugin.getDefault()
-                                                .getIndusConfiguration()
-                                                .getStmtList();
+                                        }                                        
+                                        
                                         RightPaneTreeParent _rtp = _rto
                                                 .getParent();
                                         if (_rtp.getSm() != null) {
@@ -425,8 +430,11 @@ public class DependenceTrackingView extends ViewPart {
                                                 .equals("Dependees")) {
                                             _depLink += "Dependee";
                                         }
-                                        final DependenceStackData _dCurr = new DependenceStackData(
-                                                _psd);
+                                        
+                                        final IJavaElement _elem = SelectionConverter.getElementAtOffset(_editor);                                        
+                                        final String _methodName =  PrettySignature.getSignature(_elem);                                       
+                                        final DependenceStackData _dCurr = new DependenceStackData(_className,
+                                                _methodName, nLineNo, _trimmedString, _file);
                                         _pair = new Pair(_dCurr, _depLink);
                                         KaveriPlugin.getDefault()
                                                 .getIndusConfiguration()
@@ -665,6 +673,7 @@ public class DependenceTrackingView extends ViewPart {
                     this.setToolTipText("Track Java Statements (Inactive)");
                     ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider())
                             .setActive(isActive);
+                    ((DepTrkDepLstContentProvider) tvRight.getContentProvider()).setActive(isActive);
                 } else {
                     isActive = true;
                     final ImageDescriptor _desc = AbstractUIPlugin
@@ -675,8 +684,17 @@ public class DependenceTrackingView extends ViewPart {
                     this.setToolTipText("Track Java Statements (Active)");
                     ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider())
                             .setActive(isActive);
+                    ((DepTrkDepLstContentProvider) tvRight.getContentProvider())
+                    		.setActive(isActive);
                     tvLeft.setInput(KaveriPlugin.getDefault()
                             .getIndusConfiguration().getStmtList());
+                    tvLeft.expandAll();
+                    ((DepTrkStmtLstContentProvider) tvLeft.getContentProvider()).selectTopItem();
+                    final TreeItem _item = tvLeft.getTree().getTopItem();
+                    if (_item != null) {
+                    tvLeft.setSelection(new StructuredSelection(
+                            _item.getData()), true);
+                    }
                 }
             }
         };

@@ -20,18 +20,13 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
-import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
-
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -41,19 +36,28 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
-
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
-
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.IDecoratorManager;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+
+import soot.Scene;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 /**
  * This class implements the slice toggle action.
@@ -75,7 +79,11 @@ public class SliceAnnotate implements IEditorActionDelegate {
      * The previous line number chosen, used to avoid redundant calls.
      */
     private int nLineno = -1;
-
+    
+    private ISelectionChangedListener listener;
+    
+    
+    
     /**
      * Indicates the current java editor.
      * 
@@ -83,9 +91,41 @@ public class SliceAnnotate implements IEditorActionDelegate {
      *      org.eclipse.ui.IEditorPart)
      */
     public void setActiveEditor(final IAction action,
-            final IEditorPart targetEditor) {        
+            final IEditorPart targetEditor) {
+        if (listener == null) {
+            listener = new ISelectionChangedListener() {
+
+                public void selectionChanged(SelectionChangedEvent event) {
+                   if(editor != null) {
+                       if (event.getSelection() instanceof ITextSelection) {
+                           final ITextSelection _selection = (ITextSelection) event.getSelection();
+                           processSelection(_selection);
+                       }
+                   }
+                    
+                }
+                
+            };
+            
+        }
+        
+        if (editor != null) {
+            if (editor.getSelectionProvider() instanceof IPostSelectionProvider) {
+                final IPostSelectionProvider _ipp = (IPostSelectionProvider) editor.getSelectionProvider();
+                _ipp.addPostSelectionChangedListener(listener);
+            }
+        }
+        
+        if (targetEditor != null) {            
+            if (((CompilationUnitEditor) targetEditor).getSelectionProvider() instanceof IPostSelectionProvider) {
+                final IPostSelectionProvider _ipp = (IPostSelectionProvider) ((CompilationUnitEditor) targetEditor).getSelectionProvider();
+                _ipp.addPostSelectionChangedListener(listener);
+            }
+        }
+        
         this.editor = (CompilationUnitEditor) targetEditor;
-        Display.getDefault().asyncExec(new Runnable() {
+        
+        Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
                 final IFile _file = ((IFileEditorInput) editor.getEditorInput())
                         .getFile();                
@@ -161,6 +201,93 @@ public class SliceAnnotate implements IEditorActionDelegate {
     }
 
     /**
+     * Process the selection.
+     * @param _selection
+     */
+    protected void processSelection(final ITextSelection _selection) {
+        if (KaveriPlugin.getDefault().getIndusConfiguration()
+                        .getStmtList().isListenersPresent()) {
+            if (KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
+                    .isListenersReady()
+                    && editor != null) {
+                final IFile _file = ((IFileEditorInput) editor.getEditorInput())
+                .getFile();
+                if (_file == null) {
+                    return;
+                }
+                if (!hasJavaNature(_file)) {
+                    return;
+                }
+                if (prevFile != null
+                        && ((IFileEditorInput) editor.getEditorInput())
+                                .getFile().equals(prevFile)) {
+                    
+                    if (nLineno == _selection.getStartLine()) {
+                        return;
+                    } else {
+                        nLineno = _selection.getStartLine();
+                    }
+
+                } else {
+                    prevFile = ((IFileEditorInput) editor.getEditorInput())
+                            .getFile();
+                    nLineno = _selection.getStartLine();
+                }
+                if (isSootClassAlreadyPresent(_file)) {
+                    handleSelectionForSliceView(_selection);    
+                } else {
+                   
+                    
+                    final ProgressMonitorDialog _pmd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());
+                    final IRunnableWithProgress _progress = new IRunnableWithProgress() {
+
+                        public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                            monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);
+                            handleSelectionForSliceView(_selection);
+                        }
+                        
+                    };
+                    try {
+                    _pmd.run(false, false, _progress );
+                    } catch (InterruptedException _ie) {
+                        SECommons.handleException(_ie);
+                        KaveriErrorLog.logException("Interrupted Exception", _ie);
+                    } catch (InvocationTargetException _ie) {
+                        SECommons.handleException(_ie);
+                        KaveriErrorLog.logException("Interrupted Exception", _ie);
+                    }
+                }                                
+            }
+        }
+        
+    }
+
+    /**
+     * Determines if the file has already been loaded into soot.
+     * @param file
+     * @return
+     */
+    private boolean isSootClassAlreadyPresent(IFile _file) {
+        final ICompilationUnit _unit = JavaCore.createCompilationUnitFrom(_file);
+        boolean _result = false;
+        try {
+            final IType[] _types  =_unit.getAllTypes();
+            for (int i = 0; i < _types.length; i++) {
+                final IType _type = _types[i];
+                if (Scene.v().containsClass(_type.getFullyQualifiedName())) {
+                    _result = true;
+                    break;
+                }
+            }
+        } catch (JavaModelException e) {
+            SECommons.handleException(e);
+            KaveriErrorLog.logException("Java Model Exception", e);
+        }
+        
+        return _result;
+    }
+
+    /**
      * Toggles the higlighting in the editor.
      * 
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
@@ -171,6 +298,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
 
         if (editor == null) {
             return;
+            
         }
         final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
         if (_file != null && hasJavaNature(_file)) {
@@ -209,7 +337,8 @@ public class SliceAnnotate implements IEditorActionDelegate {
      */
     public void selectionChanged(final IAction action,
             final ISelection selection) {
-        if (selection != null
+        
+        /*if (selection != null
                 && !selection.isEmpty()
                 && KaveriPlugin.getDefault().getIndusConfiguration()
                         .getStmtList().isListenersPresent()) {
@@ -242,7 +371,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                 }
                 handleSelectionForSliceView(selection);
             }
-        }
+        } */
     }
 
     /**
@@ -252,8 +381,8 @@ public class SliceAnnotate implements IEditorActionDelegate {
      */
     private void handleSelectionForSliceView(ISelection selection) {
         final ITextSelection _tSelect = (ITextSelection) selection;
-        if (_tSelect.getText().length() > 0 && editor != null) {
-            String _text = _tSelect.getText();
+        if (editor != null) {
+            String _text = "";
             final int _nSelLine = _tSelect.getEndLine() + 1;
             try {
                 final IRegion _region = editor.getDocumentProvider()
@@ -287,7 +416,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
 
                         _psd.setJavaFile(_file);
                         _psd.setSelectedStatement(_text);
-                        _psd.setClassName(PrettySignature.getSignature(_type));
+                        _psd.setClassName(PrettySignature.getSignature(_type));                        
                         _psd.setMethodName(PrettySignature
                                 .getSignature((IMethod) _element));
                         _psd.setLineNo(_nSelLine);

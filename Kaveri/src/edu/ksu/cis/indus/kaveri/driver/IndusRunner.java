@@ -174,13 +174,14 @@ public class IndusRunner implements IRunnableWithProgress {
         _stag = _stag + System.currentTimeMillis();
         final String _oldTag = driver.getNameOfSliceTag();
         driver.setNameOfSliceTag(_stag);
+        
         driver.getSlicer().addToolProgressListener(new IToolProgressListener() {
             int _ctr = 1;
 
             long _currTime;
 
             String _newMsg = null;
-
+           
             public void toolProgess(final ToolProgressEvent arg0) {
                 _ctr++;
                 if (!monitor.isCanceled()) {
@@ -201,17 +202,18 @@ public class IndusRunner implements IRunnableWithProgress {
                         _newMsg = arg0.getMsg();
                     }
                     //System.out.println(arg0.getMsg());
-                } else {
-                    opCancelled = true;
-                    driver.getSlicer().abort();
+                } else {                    
+                    opCancelled = true;                                       
                 }
             }
 
         });
 
+        
         driver.execute();
-        if (opCancelled) {
-            throw new InterruptedException("Slice was stopped");
+        if (opCancelled) {   
+            return;
+            //throw new InterruptedException("Slice was stopped");
         }
 
         //KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());

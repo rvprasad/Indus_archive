@@ -134,8 +134,8 @@ public class RootMethodDialog extends Dialog {
         final Table _table = viewer.getTable();
         setupTable(_table);      
         initRootMethods();
-        viewer.setContentProvider(new ViewContentProvider());
-        viewer.setLabelProvider(new ViewLabelProvider());
+        viewer.setContentProvider(new RootMethodContentProvider());
+        viewer.setLabelProvider(new RootMethodLabelProvider());
         viewer.setInput(rmColl);
         for (int i = 0; i < _table.getColumnCount(); i++) {
             _table.getColumn(i).pack();
@@ -310,47 +310,5 @@ public class RootMethodDialog extends Dialog {
 }
 
 
-class ViewContentProvider implements IStructuredContentProvider {
-    public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-    }
 
-    public void dispose() {
-    }
 
-    public Object[] getElements(Object parent) {
-        if (parent != null && parent instanceof RootMethodCollection) {
-            return  ((RootMethodCollection) parent).getRootMethodCollection().toArray();
-        } else {
-            return new Object[0];
-        }
-    }
-}
-
-class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-    public String getColumnText(Object obj, int index) {
-        String _retString = "";
-        if (obj instanceof Pair) {
-            switch (index) {
-            	case 0:
-            	    break;
-            	case 1:
-            	    _retString = ((Pair) obj).getFirst().toString();
-            	    break;
-            	case 2:
-            	    _retString = ((Pair) obj).getSecond().toString();
-            	    break;
-            	default:
-            	    break;
-            }
-        } 
-        return _retString;
-    }
-
-    public Image getColumnImage(Object obj, int index) {
-        return null;
-    }
-
-    public Image getImage(Object obj) {
-        return null;
-    }
-}
