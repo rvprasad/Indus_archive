@@ -42,6 +42,7 @@ import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
@@ -56,6 +57,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
@@ -146,6 +148,7 @@ public abstract class DADriver
 			System.exit(-1);
 		}
 		this.args = argsParam;
+        this.bbm = new BasicBlockGraphMgr();
 	}
 
 	/**
@@ -195,7 +198,7 @@ public abstract class DADriver
 		pc = new CGBasedProcessingController(cgi);
 		pc.setAnalyzer(aa);
 
-		IThreadGraphInfo tgi = new ThreadGraph(cgi);
+		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		processors.clear();
 		processors.add(tgi);
 		process(pc, processors);
@@ -383,6 +386,12 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/07 09:02:13  venku
+   - Synchronization dependence now handles exception based
+     sync dep edges.  This requires a Value Flow analysis which can
+     provides value binding information for a local at a program point.
+   - Ripple effect of the above change.
+
    Revision 1.8  2003/09/02 11:30:56  venku
    - Enabled toggling ECBA instance.
 
