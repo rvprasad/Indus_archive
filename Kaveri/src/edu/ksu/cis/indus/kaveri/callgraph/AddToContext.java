@@ -66,8 +66,8 @@ public class AddToContext implements IViewActionDelegate {
                 System.out.println();
                 MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());
                 final boolean _result = validateForCalleeView(_mw, _mw.getParent());
-                if (!_result) {
-                    MessageDialog.openError(null, "Please Switch", "Switch to callee view before using this function");
+                if (_result) {
+                    MessageDialog.openError(null, "Please Switch", "Switch to caller view before using this function");
                 } else {
                     final Collection _coll = new ArrayList();
                     MethodCallContext _context = null;

@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -40,6 +41,8 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.corext.callhierarchy.CallLocation;
+import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -50,10 +53,15 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import soot.Body;
 import soot.SootMethod;
+import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
+import soot.util.Chain;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
@@ -65,6 +73,8 @@ import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 
+
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 /**
  * This does the bulk of the call to the eclipse indus driver.
@@ -146,6 +156,10 @@ public class IndusRunner
 	public void run(final IProgressMonitor monitor)
 	  throws InvocationTargetException, InterruptedException {		
 		monitor.beginTask(Messages.getString("IndusRunner.1"), 100);  //$NON-NLS-1$
+		final Collection _ctx = KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext();
+		if (_ctx.size() > 0) {
+		    processContexts(_ctx);
+		}
 		String _stag = "EclipseIndusTag";
 		_stag = _stag + System.currentTimeMillis();
 		final String _oldTag = driver.getNameOfSliceTag();
@@ -220,6 +234,78 @@ public class IndusRunner
 	}
 
 	/**
+	 * Process the contexts.
+     * @param ctx The collection of contexts. 
+     * @pre ctx.oclIsKindOf(Collection(MethodCallContext))
+     */
+    private void processContexts(Collection ctx) throws InterruptedException {
+        final EclipseIndusDriver _driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
+        for (Iterator iter = ctx.iterator(); iter.hasNext();) {
+            final MethodCallContext _mcc = (MethodCallContext) iter.next();
+            final Collection _stkColl = _mcc.getContextStacks();
+            for (Iterator iterator = _stkColl.iterator(); iterator.hasNext();) {                
+                final Stack _stk = (Stack) iterator.next();
+                final Stack _ctxStack = new Stack();
+                for (Iterator _iter = _stk.iterator(); _iter.hasNext();) {
+                    final Triple _triple = (Triple) _iter.next();
+                    final MethodWrapper _m1 = (MethodWrapper) _triple.getFirst();
+                    final MethodWrapper _m2 = (MethodWrapper) _triple.getSecond();
+                    final CallLocation _cl = (CallLocation) _triple.getThird();
+                    final SootMethod _sm1 = SootConvertor.getSootMethod((IMethod) _m1.getMember());
+                    final SootMethod _sm2 = SootConvertor.getSootMethod((IMethod) _m2.getMember());
+                    if (_sm1 == null || _sm2 == null) {
+                        throw new InterruptedException("Unable to find a binding for the context");
+                    }
+                    final CallTriple _ctriple = fetchInvokeExpr(_sm1, _sm2, _cl.getLineNumber());
+                    if (_ctriple != null) {
+                        
+                    } else {
+                        throw new InterruptedException("Call chain invalid");
+                    }
+                    _ctxStack.push(_ctriple);
+                }
+                _driver.addToContext(_ctxStack);
+                
+            }
+            
+        }
+        
+    }
+
+    /**
+     * Fetch the invoke expression between 
+     * @param sm1
+     * @param sm2
+     * @return
+     */
+    private CallTriple fetchInvokeExpr(final SootMethod sm1, final SootMethod sm2, final int nLineno) {
+       CallTriple _triple = null;
+       Body _body = null;
+       if (sm1.hasActiveBody()) {
+           _body = sm1.getActiveBody();
+       } else {
+           _body = sm1.retrieveActiveBody();
+       }
+       final List _lst = SootConvertor.getStmts(_body, nLineno);
+       if (_lst != null && _lst.size() > 0) {
+           final Chain _chain = _body.getUnits();
+           for (Iterator iter = _chain.snapshotIterator(); iter.hasNext();) {
+            final Stmt _stmt = (Stmt) iter.next();
+            if (_stmt.containsInvokeExpr()) {
+                final InvokeExpr _expr1 = _stmt.getInvokeExpr();
+                if (_expr1.getMethod().equals(sm2)) {
+                    _triple = new CallTriple(sm1, _stmt, _expr1);
+                   break;
+                }
+            }
+        }
+       }
+       
+       return _triple;
+        
+    }
+
+    /**
 	 * Sets up the driver with the correct values.
 	 *
 	 * @return boolean True if the slicer is setup correctly.

@@ -159,6 +159,7 @@ abstract public class BasicSliceFunctions {
 
 					KaveriPlugin.getDefault().getIndusConfiguration().setAdditive(false);
 					KaveriPlugin.getDefault().getIndusConfiguration().reset();
+					KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
 					KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
 					KaveriPlugin.getDefault().loadConfigurations();
 					KaveriPlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(sliceType);

@@ -295,9 +295,9 @@ public final class SootConvertor {
      * @param theline
      *            The selected Java line.
      * 
-     * @return List The list of SootClass, SootMethod, list of Jimple Stmts
+     * @return List The list of Jimple Stmts
      */
-    private static List getStmts(final Body body, final int theline) {
+    public static List getStmts(final Body body, final int theline) {
         final List _stmt = new ArrayList();
         final Chain _unitchain = body.getUnits();
         final Iterator _iterator = _unitchain.snapshotIterator();

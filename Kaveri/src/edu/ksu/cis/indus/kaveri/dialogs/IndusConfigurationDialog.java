@@ -339,6 +339,7 @@ public class IndusConfigurationDialog extends Dialog {
         // Reset the scope string
         KaveriPlugin.getDefault().getIndusConfiguration()
                 .setScopeSpecification("");
+        KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
         return _composite;
     }
 
@@ -352,7 +353,10 @@ public class IndusConfigurationDialog extends Dialog {
                     public void widgetSelected(SelectionEvent e) {
                         ContextDialog _cd = new ContextDialog(new Shell());
                         if (_cd.open() == IDialogConstants.OK_ID) {
-                            // TODO - Fill me.
+                           final Collection _ctx =_cd.getCallStrings();
+                           if (_ctx.size() > 0) {
+                               KaveriPlugin.getDefault().getIndusConfiguration().addToChosenContext(_ctx);
+                           }
                         }
                     }
                 }

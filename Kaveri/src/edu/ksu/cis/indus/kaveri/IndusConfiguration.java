@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -80,6 +81,11 @@ public class IndusConfiguration {
 	 */
 	private String selectedStatement;
 	
+	
+	/**
+	 * The collection of chosen contexts.
+	 */
+	private Collection chosenContext;
 	/**
 	 * The project which has been recently sliced.
 	 */
@@ -169,6 +175,7 @@ public class IndusConfiguration {
 		scopeMap = new HashMap();
 		scopeSpecification = "";
 		ctxRepository = new ContextRepository();
+		chosenContext = new ArrayList();
 		nNoOfSlicesRun = 0;
 	}
 
@@ -331,7 +338,16 @@ public class IndusConfiguration {
 		criteria.clear();	
 		KaveriPlugin.getDefault().reset();
 		depHistory.reset();		
-		ctxRepository.reset();
+		//ctxRepository.reset();
+		//chosenContext.clear();
+	}
+	
+	/**
+	 * Reset the chosen contexts.
+	 *
+	 */
+	public void resetChosenContext() {
+	    chosenContext.clear();
 	}
 	/**
 	 * Returns the set of statements.
@@ -459,5 +475,16 @@ public class IndusConfiguration {
      */
     public ContextRepository getCtxRepository() {
         return ctxRepository;
+    }
+    public Collection getChosenContext() {
+        return chosenContext;
+    }
+    
+    /**
+     * Adds the given contexts to the chosen list.
+     * @pre mychosenContext.oclIsKindOf(Collection(MethodContext))
+     */
+    public void addToChosenContext(Collection myChosenContext) {
+        chosenContext.addAll(myChosenContext);
     }
 }

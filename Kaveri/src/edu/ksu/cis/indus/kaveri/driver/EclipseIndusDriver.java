@@ -36,6 +36,7 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.StaticSliceCriteriaContextualizer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +97,11 @@ public class EclipseIndusDriver
 	 */
 	private Collection criteria = Collections.EMPTY_LIST;
 
+	
+	/**
+	 * The set of contexts.
+	 */
+	private Collection  contextCollection = Collections.EMPTY_LIST;
 	/** 
 	 * The slicecriteria factory instance.
 	 */
@@ -418,6 +425,12 @@ public class EclipseIndusDriver
 			SECommons.handleException(_jbe);
 			KaveriErrorLog.logException("Error while deserializing scope specification", _jbe);
 		}
+		
+		if (contextCollection.size() > 0) {
+		    StaticSliceCriteriaContextualizer _sscc = new StaticSliceCriteriaContextualizer(contextCollection);
+		    _sscc.processCriteriaBasedOnProgramPoint(null, criteria);
+		}
+						
 		slicer.setCriteria(criteria);
 		slicer.run(Phase.STARTING_PHASE, true); // changed from true
 	}
@@ -440,6 +453,7 @@ public class EclipseIndusDriver
 	public void reset() {
 		//G.reset();
 		criteria.clear();
+		contextCollection.clear();
 		if (slicer != null) {
 			slicer.reset();
 			slicer.setSliceScopeDefinition(null);
@@ -636,4 +650,11 @@ public class EclipseIndusDriver
 	public void setNameOfSliceTag(String nameOfSliceTag) {
 		this.nameOfSliceTag = nameOfSliceTag;
 	}
+	/**
+	 * Adds the stack to the context.
+	 *
+	 */
+    public void addToContext(final Stack stkContext) {
+        contextCollection.add(stkContext);
+    }
 }
