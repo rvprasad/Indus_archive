@@ -2,8 +2,8 @@
 <classpath>
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
-    <classpathentry kind="var" path="DRISHTI_UTILS"/>
-    <classpathentry kind="var" path="JAVACLASSES/log4j.jar"/>
-    <classpathentry kind="src" path="/bandera-core"/>
+    <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
+    <classpathentry kind="src" path="/Bandera"/>
+    <classpathentry kind="var" path="DRISHTI_UTILS/drishti.jar"/>
     <classpathentry kind="output" path="build"/>
 </classpath>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zip-info>
+   <target compress="true" in-workspace="true"
+      include-java-output="true" location="/StaticAnalyses"
+      manifest="false" name="saps.jar">
+      <source>
+         <container path="/StaticAnalyses/src"/>
+      </source>
+   </target>
+</zip-info>
