@@ -195,11 +195,6 @@ public class SootBasedDriver {
 		Pattern rootClasses;
 
 		/**
-		 * This is the type of <code>String[]</code> in Soot type system.
-		 */
-		private final ArrayType strArrayType = ArrayType.v(RefType.v("java.lang.String"), 1);
-
-		/**
 		 * Creates a new RootMethodTrapper object.
 		 */
 		protected RootMethodTrapper() {
@@ -251,7 +246,7 @@ public class SootBasedDriver {
 			if (sm.getName().equals("main")
 				  && sm.isStatic()
 				  && sm.getParameterCount() == 1
-				  && sm.getParameterType(0).equals(strArrayType)) {
+				  && sm.getParameterType(0).equals(ArrayType.v(RefType.v("java.lang.String"), 1))) {
 				_result = true;
 			}
 			return _result;
@@ -483,6 +478,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/05/09 09:35:00  venku
+   - changes to enable configuration of root method trapper via a system property.
    Revision 1.20  2004/05/06 17:12:48  venku
    - by default, returns exceptionflow sensitive stmt graph factories.
    Revision 1.19  2004/04/16 17:45:31  venku
