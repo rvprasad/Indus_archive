@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
-import java.util.HashSet;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
+
+import java.util.ArrayList;
 
 
 /**
@@ -52,12 +52,21 @@ public final class RDADriver
 		DADriver da = new RDADriver(args);
 
 		ReadyDAv1 rd = new ReadyDAv1();
-        da.das = new HashSet();
+		da.das = new ArrayList();
 		da.das.add(rd);
 		rd = new ReadyDAv2();
 		da.das.add(rd);
 		rd = new ReadyDAv3();
 		da.das.add(rd);
+		rd = new ReadyDAv1();
+		rd.setUseOFA(true);
+		da.das.add(rd);
+		rd = new ReadyDAv2();
+		rd.setUseOFA(true);
+		da.das.add(rd);
+		rd = new ReadyDAv3();
+		da.das.add(rd);
+		rd.setUseOFA(true);
 		da.execute();
 	}
 }
@@ -65,13 +74,13 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/18 15:27:30  venku
+   - das was uninitialized.  FIXED.
    Revision 1.13  2003/12/13 19:38:58  venku
    - removed unnecessary imports.
-
    Revision 1.12  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.11  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

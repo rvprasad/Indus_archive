@@ -32,6 +32,9 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.ArrayList;
@@ -57,6 +60,7 @@ import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.NullConstant;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
@@ -76,7 +80,8 @@ import soot.jimple.VirtualInvokeExpr;
  * </p>
  * 
  * <p>
- * By default, all rules are considered for the analysis.  This can be changed via <code>setRules()</code>.
+ * By default, all rules are considered for the analysis.  This can be changed via <code>setRules()</code>. This class will
+ * also use OFA information if it is configured to do so.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -200,6 +205,11 @@ public class ReadyDAv1
 	private IThreadGraphInfo threadgraph;
 
 	/**
+	 * The object flow analysis to be used.
+	 */
+	private IValueAnalyzer ofa;
+
+	/**
 	 * This manages pairs.
 	 */
 	private PairManager pairMgr;
@@ -210,6 +220,11 @@ public class ReadyDAv1
 	 * affects how rule 1 and 3 are interpreted.
 	 */
 	private boolean considerCallSites;
+
+	/**
+	 * This indicates if object flow analysis should be used.
+	 */
+	private boolean useOFA;
 
 	/**
 	 * Creates a new ReadyDAv1 object.
@@ -430,6 +445,15 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Sets if object flow analysis should be used or not.
+	 *
+	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
+	 */
+	public final void setUseOFA(final boolean flag) {
+		useOFA = flag;
+	}
+
+	/**
 	 * Calculates ready dependency for the methods provided at initialization.  It considers only the rules specified by via
 	 * <code>setRules</code> method. By default, all rules are considered for the analysis.
 	 *
@@ -522,6 +546,62 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected final boolean getUseOFA() {
+		return useOFA;
+	}
+
+	/**
+	 * Checks if the given wait invocation is dependent on the notify invocation according to rule 4 based of OFA information.
+	 *
+	 * @param waitPair is the wait invocation statement and containg method pair.
+	 * @param notifyPair is the notify invocation statement and containg method pair.
+	 *
+	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
+	 *
+	 * @pre waitPair.getFirst() != null and waitPair.getSecond() != null
+	 * @pre notifyPair.getFirst() != null and notifyPair.getSecond() != null
+	 */
+	protected final boolean ifDependentOnBasedOnOFAByRule4(final Pair waitPair, final Pair notifyPair) {
+		boolean _result;
+
+		final SootMethod _waitMethod = (SootMethod) waitPair.getSecond();
+		final SootMethod _notifyMethod = (SootMethod) notifyPair.getSecond();
+		final Object _waitStmt = waitPair.getFirst();
+		final Object _notifyStmt = notifyPair.getFirst();
+		final Context _context = new AllocationContext();
+
+		final Stmt _wStmt = (Stmt) _waitStmt;
+		final InstanceInvokeExpr _wExpr = ((InstanceInvokeExpr) _wStmt.getInvokeExpr());
+		_context.setProgramPoint(_wExpr.getBaseBox());
+		_context.setStmt(_wStmt);
+		_context.setRootMethod(_waitMethod);
+
+		final Collection _col1 = ofa.getValues(_wExpr.getBase(), _context);
+
+		final Stmt _nStmt = (Stmt) _notifyStmt;
+		final InstanceInvokeExpr _nExpr = ((InstanceInvokeExpr) _nStmt.getInvokeExpr());
+		_context.setProgramPoint(_nExpr.getBaseBox());
+		_context.setStmt(_nStmt);
+		_context.setRootMethod(_notifyMethod);
+
+		final Collection _col2 = ofa.getValues(_nExpr.getBase(), _context);
+
+		final NullConstant _n = NullConstant.v();
+		final Collection _temp = CollectionUtils.intersection(_col1, _col2);
+
+		while (_temp.remove(_n)) {
+			;
+		}
+		_result = !_temp.isEmpty();
+
+		return _result;
+	}
+
+	/**
 	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
 	 * statement/synchronized method according to rule 2.  The dependence is determined based on the relation between the
 	 * classes of the objects on which synchronization is being performed.
@@ -582,6 +662,10 @@ public class ReadyDAv1
 			_result = true;
 		} else {
 			_result = Util.isHierarchicallyRelated(_enterClass, _exitClass);
+
+			if (_result && useOFA) {
+				_result = ifDependentOnBasedOnOFAByRule2(enterPair, exitPair);
+			}
 		}
 		return _result;
 	}
@@ -615,7 +699,8 @@ public class ReadyDAv1
 	 * 		   <code>info</code> member.
 	 *
 	 * @pre info.get(IEnvironment.ID) != null and info.get(ICallGraphInfo.ID) != null and info.get(IThreadGraphInfo.ID) !=
-	 * 		null and info.get(PairManager.ID) != null
+	 * 		null and info.get(PairManager.ID) != null and info.get(IValueAnalyzer.ID) != null and
+	 * 		info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -660,6 +745,12 @@ public class ReadyDAv1
 		if (pairMgr == null) {
 			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
+
+		ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
+
+		if (ofa == null) {
+			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
+		}
 	}
 
 	/**
@@ -686,6 +777,88 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
+	 * statement/synchronized method according to rule 2 based on OFA.
+	 *
+	 * @param enterPair is the enter monitor statement and containg method pair.
+	 * @param exitPair is the exit monitor statement and containg method pair.
+	 *
+	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
+	 *
+	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
+	 *
+	 * @see ReadyDAv2#ifDependentOnByRule2(Pair, Pair)
+	 */
+	private boolean ifDependentOnBasedOnOFAByRule2(final Pair enterPair, final Pair exitPair) {
+		boolean _result;
+
+		final SootMethod _enterMethod = (SootMethod) enterPair.getSecond();
+		final SootMethod _exitMethod = (SootMethod) exitPair.getSecond();
+		final Object _enterStmt = enterPair.getFirst();
+		final Object _exitStmt = exitPair.getFirst();
+		Collection _col1;
+		Collection _col2;
+		boolean _syncedStaticMethod1 = false;
+		boolean _syncedStaticMethod2 = false;
+		final Context _context = new Context();
+
+		if (_enterStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+			_syncedStaticMethod1 = _enterMethod.isStatic();
+
+			if (!_syncedStaticMethod1) {
+				_context.setRootMethod(_enterMethod);
+				_col1 = ofa.getValuesForThis(_context);
+			} else {
+				_col1 = Collections.EMPTY_LIST;
+			}
+		} else {
+			final EnterMonitorStmt _o1 = (EnterMonitorStmt) _enterStmt;
+			_context.setProgramPoint(_o1.getOpBox());
+			_context.setStmt(_o1);
+			_context.setRootMethod(_enterMethod);
+			_col1 = ofa.getValues(_o1.getOp(), _context);
+		}
+
+		if (_exitStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+			_syncedStaticMethod2 = _exitMethod.isStatic();
+
+			if (!_syncedStaticMethod2) {
+				_context.setProgramPoint(null);
+				_context.setStmt(null);
+				_context.setRootMethod(_exitMethod);
+				_col2 = ofa.getValuesForThis(_context);
+			} else {
+				_col2 = Collections.EMPTY_LIST;
+			}
+		} else {
+			final ExitMonitorStmt _o2 = (ExitMonitorStmt) _exitStmt;
+			_context.setProgramPoint(_o2.getOpBox());
+			_context.setStmt(_o2);
+			_context.setRootMethod(_exitMethod);
+			_col2 = ofa.getValues(_o2.getOp(), _context);
+		}
+
+		if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
+			/*
+			 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
+			 * the monitor in the non-static method may actually be on the class object of the class in  which the static
+			 * method is defined.  There are many combinations which can be pruned.  No time now. THINK
+			 */
+			_result = true;
+		} else {
+			final NullConstant _n = NullConstant.v();
+			final Collection _temp = CollectionUtils.intersection(_col1, _col2);
+
+			while (_temp.remove(_n)) {
+				;
+			}
+			_result = !_temp.isEmpty();
+		}
+
+		return _result;
+	}
+
+	/**
 	 * Normalizes enter monitor information provided in the given set.  This basically converts information pertaining entry
 	 * points into sychronized methods into a form amenable to that catered by the analysis interface.
 	 *
@@ -706,7 +879,9 @@ public class ReadyDAv1
 
 				final SootMethod _sm = (SootMethod) _pair.getSecond();
 				final BasicBlock _head = getBasicBlockGraph(_sm).getHead();
-				final Object _headStmt = _head.getLeaderStmt();
+                Object _headStmt = null;
+                if (_head != null)
+                    _headStmt = _head.getLeaderStmt();
 				final Pair _special = pairMgr.getOptimizedPair(_headStmt, _sm);
 				specials.add(_special);
 				_result.add(_special);
@@ -745,7 +920,9 @@ public class ReadyDAv1
 
 				for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 					final BasicBlock _tail = (BasicBlock) _j.next();
-					final Object _tailStmt = _tail.getTrailerStmt();
+                    Object _tailStmt = null;
+                    if (_tail != null)
+                        _tailStmt = _tail.getLeaderStmt();
 					final Pair _special = pairMgr.getOptimizedPair(_tailStmt, _sm);
 					specials.add(_special);
 					_result.add(_special);
@@ -1007,6 +1184,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/01/25 08:48:36  venku
+   - coding convention and formatting.
+   - used CollectionsModifiers methods.
+   - added a new method to track entry/exit points of
+     synchronized methods.
    Revision 1.41  2004/01/25 03:21:43  venku
    - maintains a list of special dependence points pertaining to
      entry and exit points of synchronized methods.

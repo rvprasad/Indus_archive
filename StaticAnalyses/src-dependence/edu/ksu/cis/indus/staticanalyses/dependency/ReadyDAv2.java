@@ -34,7 +34,8 @@ import soot.jimple.VirtualInvokeExpr;
 
 /**
  * This class uses escape-analysis as calculated by <code>EquivalenceClassBasedEscapeAnalysis</code> to prune the ready
- * dependency information calculated by it's parent class.
+ * dependency information calculated by it's parent class. This class will also use OFA information if it is configured to
+ * do so.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -83,15 +84,15 @@ public class ReadyDAv2
 			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
 				_flag1 = ecba.thisEscapes(_enterMethod);
 			} else {
-				Value enter = ((EnterMonitorStmt) _o1).getOp();
-				_flag1 = ecba.escapes(enter, _enterMethod);
+				final Value _enter = ((EnterMonitorStmt) _o1).getOp();
+				_flag1 = ecba.escapes(_enter, _enterMethod);
 			}
 
 			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
 				_flag2 = ecba.thisEscapes(_exitMethod);
 			} else {
-				Value exit = ((ExitMonitorStmt) _o2).getOp();
-				_flag2 = ecba.escapes(exit, _exitMethod);
+				final Value _exit = ((ExitMonitorStmt) _o2).getOp();
+				_flag2 = ecba.escapes(_exit, _exitMethod);
 			}
 			_result = _flag1 && _flag2;
 		}
@@ -113,16 +114,16 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule4(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule4(final Pair wPair, final Pair nPair) {
-		boolean result = super.ifDependentOnByRule4(wPair, nPair);
+		boolean _result = super.ifDependentOnByRule4(wPair, nPair);
 
-		if (result) {
-			Value notify = ((VirtualInvokeExpr) ((InvokeStmt) nPair.getFirst()).getInvokeExpr()).getBase();
-			Value wait = ((VirtualInvokeExpr) ((InvokeStmt) wPair.getFirst()).getInvokeExpr()).getBase();
-			SootMethod wMethod = (SootMethod) wPair.getSecond();
-			SootMethod nMethod = (SootMethod) nPair.getSecond();
-			result = ecba.escapes(notify, nMethod) && ecba.escapes(wait, wMethod);
+		if (_result) {
+			final Value _notify = ((VirtualInvokeExpr) ((InvokeStmt) nPair.getFirst()).getInvokeExpr()).getBase();
+			final Value _wait = ((VirtualInvokeExpr) ((InvokeStmt) wPair.getFirst()).getInvokeExpr()).getBase();
+			final SootMethod _wMethod = (SootMethod) wPair.getSecond();
+			final SootMethod _nMethod = (SootMethod) nPair.getSecond();
+			_result = ecba.escapes(_notify, _nMethod) && ecba.escapes(_wait, _wMethod);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -151,6 +152,13 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/01/21 13:44:09  venku
+   - made ready dependence to consider synchronized methods as well.
+   - ReadyDAv2 uses escape information for both sorts of inter-thread
+     ready DA.
+   - ReadyDAv3 uses escape and object flow information for
+     monitor based inter-thread ready DA while using symbol-based
+     escape information for wait/notify based inter-thread ready DA.
    Revision 1.17  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

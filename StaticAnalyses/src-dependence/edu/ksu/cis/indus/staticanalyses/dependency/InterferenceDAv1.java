@@ -15,14 +15,19 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.Collection;
@@ -31,6 +36,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +54,7 @@ import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.NullConstant;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 
@@ -82,6 +91,16 @@ public class InterferenceDAv1
 	protected PairManager pairMgr;
 
 	/**
+	 * The object flow analysis to be used.
+	 */
+	private IValueAnalyzer ofa;
+
+	/**
+	 * This indicates if object flow analysis should be used.
+	 */
+	private boolean useOFA;
+
+	/**
 	 * Creates a new InterferenceDAv1 object.
 	 */
 	public InterferenceDAv1() {
@@ -110,33 +129,33 @@ public class InterferenceDAv1
 		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
-			SootMethod method = context.getCurrentMethod();
-			AssignStmt as = (AssignStmt) stmt;
-			Map temp = null;
+			final SootMethod _method = context.getCurrentMethod();
+			final AssignStmt _as = (AssignStmt) stmt;
+			Map _temp = null;
 
-			if (as.containsFieldRef()) {
-			    if (as.getLeftOp() instanceof FieldRef) {
-					SootField sf = ((FieldRef) as.getLeftOp()).getField();
-					temp = getDependeXXMapHelper(dependentMap, sf);
+			if (_as.containsFieldRef()) {
+				if (_as.getLeftOp() instanceof FieldRef) {
+					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
+					_temp = getDependeXXMapHelper(dependentMap, _sf);
 				} else {
-					SootField sf = ((FieldRef) as.getRightOp()).getField();
-					temp = getDependeXXMapHelper(dependeeMap, sf);
+					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
+					_temp = getDependeXXMapHelper(dependeeMap, _sf);
 				}
-			} else if (as.containsArrayRef()) {
-				if (as.getLeftOp() instanceof ArrayRef) {
-					ArrayType at = (ArrayType) ((ArrayRef) as.getLeftOp()).getBase().getType();
-					temp = getDependeXXMapHelper(dependentMap, at);
+			} else if (_as.containsArrayRef()) {
+				if (_as.getLeftOp() instanceof ArrayRef) {
+					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getLeftOp()).getBase().getType();
+					_temp = getDependeXXMapHelper(dependentMap, _at);
 				} else {
-					ArrayType at = (ArrayType) ((ArrayRef) as.getRightOp()).getBase().getType();
-					temp = getDependeXXMapHelper(dependeeMap, at);
+					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getRightOp()).getBase().getType();
+					_temp = getDependeXXMapHelper(dependeeMap, _at);
 				}
 			}
 
-			if (temp != null) {
-				Pair p = pairMgr.getOptimizedPair(as, method);
+			if (_temp != null) {
+				final Pair _p = pairMgr.getOptimizedPair(_as, _method);
 
-				if (temp.get(p) == null) {
-					temp.put(p, Collections.EMPTY_LIST);
+				if (_temp.get(_p) == null) {
+					_temp.put(_p, Collections.EMPTY_LIST);
 				}
 			}
 		}
@@ -145,20 +164,20 @@ public class InterferenceDAv1
 		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
-            // we do not hookup if there are no threads in the system.
-            if (tgi != null && tgi.getStartSites().size() != 0) {
-                ppc.register(AssignStmt.class, this);
-            }
+			// we do not hookup if there are no threads in the system.
+			if (tgi != null && tgi.getStartSites().size() != 0) {
+				ppc.register(AssignStmt.class, this);
+			}
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
-		    // we do not unhook if there are no threads in the system.
-            if (tgi.getStartSites().size() != 0) {
-                ppc.unregister(AssignStmt.class, this);
-            }
+			// we do not unhook if there are no threads in the system.
+			if (tgi.getStartSites().size() != 0) {
+				ppc.unregister(AssignStmt.class, this);
+			}
 		}
 
 		/**
@@ -170,13 +189,13 @@ public class InterferenceDAv1
 		 * @return the map corresponding to the <code>o</code>.
 		 */
 		private Map getDependeXXMapHelper(final Map map, final Object o) {
-			Map result = (Map) map.get(o);
+			Map _result = (Map) map.get(o);
 
-			if (result == null) {
-				result = new HashMap();
-				map.put(o, result);
+			if (_result == null) {
+				_result = new HashMap();
+				map.put(o, _result);
 			}
-			return result;
+			return _result;
 		}
 	}
 
@@ -194,29 +213,29 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
-		Stmt temp = (Stmt) stmt;
-		Map pair2set = null;
-		Object dependent = null;
+		Collection _result = Collections.EMPTY_LIST;
+		final Stmt _temp = (Stmt) stmt;
+		Map _pair2set = null;
+		Object _dependent = null;
 
-		if (temp.containsArrayRef()) {
-			dependent = temp.getArrayRef().getBase().getType();
-		} else if (temp.containsFieldRef()) {
-			dependent = temp.getFieldRef().getField();
+		if (_temp.containsArrayRef()) {
+			_dependent = _temp.getArrayRef().getBase().getType();
+		} else if (_temp.containsFieldRef()) {
+			_dependent = _temp.getFieldRef().getField();
 		}
 
-		if (dependent != null) {
-			pair2set = getDependeeMapFor(dependent);
+		if (_dependent != null) {
+			_pair2set = getDependeeMapFor(_dependent);
 
-			if (pair2set != null) {
-				Collection set = (Collection) pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
+			if (_pair2set != null) {
+				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
 
-				if (set != null) {
-					result = Collections.unmodifiableCollection(set);
+				if (_set != null) {
+					_result = Collections.unmodifiableCollection(_set);
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -233,29 +252,29 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
-		Stmt temp = (Stmt) stmt;
-		Map pair2set = null;
-		Object dependee = null;
+		Collection _result = Collections.EMPTY_LIST;
+		final Stmt _temp = (Stmt) stmt;
+		Map _pair2set = null;
+		Object _dependee = null;
 
-		if (temp.containsArrayRef()) {
-			dependee = temp.getArrayRef().getBase().getType();
-		} else if (temp.containsFieldRef()) {
-			dependee = temp.getFieldRef().getField();
+		if (_temp.containsArrayRef()) {
+			_dependee = _temp.getArrayRef().getBase().getType();
+		} else if (_temp.containsFieldRef()) {
+			_dependee = _temp.getFieldRef().getField();
 		}
 
-		if (dependee != null) {
-			pair2set = getDependentMapFor(dependee);
+		if (_dependee != null) {
+			_pair2set = getDependentMapFor(_dependee);
 
-			if (pair2set != null) {
-				Collection set = (Collection) pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
+			if (_pair2set != null) {
+				final Collection _set = (Collection) _pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
 
-				if (set != null) {
-					result = Collections.unmodifiableCollection(set);
+				if (_set != null) {
+					_result = Collections.unmodifiableCollection(_set);
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -263,6 +282,15 @@ public class InterferenceDAv1
 	 */
 	public Object getId() {
 		return DependencyAnalysis.INTERFERENCE_DA;
+	}
+
+	/**
+	 * Sets if object flow analysis should be used or not.
+	 *
+	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
+	 */
+	public final void setUseOFA(final boolean flag) {
+		useOFA = flag;
 	}
 
 	/**
@@ -278,40 +306,40 @@ public class InterferenceDAv1
 		// we return immediately if there are no start sites in the system.
 		if (tgi.getStartSites().size() == 0) {
 			stable = true;
-            return;
+			return;
 		}
 
-		for (Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
-			Object o = i.next();
+		for (final Iterator _i = dependeeMap.keySet().iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
 
-			if (dependentMap.get(o) == null) {
+			if (dependentMap.get(_o) == null) {
 				continue;
 			}
 
-			Map deMap = (Map) dependeeMap.get(o);
-			Map dtMap = (Map) dependentMap.get(o);
+			final Map _deMap = (Map) dependeeMap.get(_o);
+			final Map _dtMap = (Map) dependentMap.get(_o);
 
-			for (Iterator j = deMap.keySet().iterator(); j.hasNext();) {
-				Pair dt = (Pair) j.next();
+			for (final Iterator _j = _deMap.keySet().iterator(); _j.hasNext();) {
+				final Pair _dt = (Pair) _j.next();
 
-				for (Iterator k = dtMap.keySet().iterator(); k.hasNext();) {
-					Pair de = (Pair) k.next();
+				for (final Iterator _k = _dtMap.keySet().iterator(); _k.hasNext();) {
+					final Pair _de = (Pair) _k.next();
 
-					if (considerClassInitializers(dt, de) && isDependentOn(dt, de)) {
-						Collection t = (Collection) deMap.get(dt);
+					if (considerClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
+						Collection _t = (Collection) _deMap.get(_dt);
 
-						if (t.equals(Collections.EMPTY_LIST)) {
-							t = new HashSet();
-							deMap.put(dt, t);
+						if (_t.equals(Collections.EMPTY_LIST)) {
+							_t = new HashSet();
+							_deMap.put(_dt, _t);
 						}
-						t.add(de);
-						t = (Collection) dtMap.get(de);
+						_t.add(_de);
+						_t = (Collection) _dtMap.get(_de);
 
-						if (t.equals(Collections.EMPTY_LIST)) {
-							t = new HashSet();
-							dtMap.put(de, t);
+						if (_t.equals(Collections.EMPTY_LIST)) {
+							_t = new HashSet();
+							_dtMap.put(_de, _t);
 						}
-						t.add(dt);
+						_t.add(_dt);
 					}
 				}
 			}
@@ -339,32 +367,70 @@ public class InterferenceDAv1
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for Interference dependence as calculated by " + getClass().getName() + "\n");
-		int localEdgeCount = 0;
-		int edgeCount = 0;
+		int _lEdgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			localEdgeCount = 0;
+		for (final Iterator _i = dependeeMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_lEdgeCount = 0;
 
-			for (Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
-				Map.Entry entry2 = (Map.Entry) j.next();
+			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
+				final Map.Entry _entry2 = (Map.Entry) _j.next();
 
-				for (Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
-					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
+				for (final Iterator _k = ((Collection) _entry2.getValue()).iterator(); _k.hasNext();) {
+					_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
 				}
-				localEdgeCount += ((Collection) entry2.getValue()).size();
+				_lEdgeCount += ((Collection) _entry2.getValue()).size();
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " Interference dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			_result.append("\tFor " + _entry.getKey() + " there are " + _lEdgeCount + " Interference dependence edges.\n");
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _lEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Interference dependence edges exist.");
-		return result.toString();
+		_result.append("A total of " + _edgeCount + " Interference dependence edges exist.");
+		return _result.toString();
+	}
+
+	/**
+	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
+	 * base of the expression array access expression.
+	 *
+	 * @param dependent is the array read access site.
+	 * @param dependee is the array write access site.
+	 *
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 *
+	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsArrayRef()
+	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsArrayRef()
+	 */
+	protected final boolean isArrayDependentOnByOFA(final Pair dependent, final Pair dependee) {
+		boolean _result;
+		final ArrayRef _ifr1 = ((ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp());
+		final ArrayRef _ifr2 = ((ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp());
+
+		final Context _context = new AllocationContext();
+		_context.setProgramPoint(_ifr1.getBaseBox());
+		_context.setStmt((Stmt) dependee.getFirst());
+		_context.setRootMethod((SootMethod) dependee.getSecond());
+
+		final Collection _c1 = ofa.getValues(_ifr1.getBase(), _context);
+		_context.setProgramPoint(_ifr2.getBaseBox());
+		_context.setStmt((Stmt) dependent.getFirst());
+		_context.setRootMethod((SootMethod) dependent.getSecond());
+
+		final Collection _c2 = ofa.getValues(_ifr2.getBase(), _context);
+		final Collection _temp = CollectionUtils.intersection(_c1, _c2);
+
+		while (_temp.remove(NullConstant.v())) {
+			;
+		}
+		_result = !_temp.isEmpty();
+		return _result;
 	}
 
 	/**
@@ -375,12 +441,7 @@ public class InterferenceDAv1
 	 * @return the map for containing dependee information pertaining to <code>o</code>.
 	 */
 	protected Map getDependeeMapFor(final Object dependent) {
-		Map result = (Map) dependeeMap.get(dependent);
-
-		if (result == null) {
-			result = Collections.EMPTY_MAP;
-		}
-		return result;
+		return (Map) MapUtils.getObject(dependeeMap, dependent, Collections.EMPTY_MAP);
 	}
 
 	/**
@@ -391,12 +452,7 @@ public class InterferenceDAv1
 	 * @return the map for containing dependent information pertaining to <code>o</code>.
 	 */
 	protected Map getDependentMapFor(final Object dependee) {
-		Map result = (Map) dependentMap.get(dependee);
-
-		if (result == null) {
-			result = Collections.EMPTY_MAP;
-		}
-		return result;
+		return (Map) MapUtils.getObject(dependentMap, dependee, Collections.EMPTY_MAP);
 	}
 
 	/**
@@ -408,23 +464,70 @@ public class InterferenceDAv1
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
 	 *
 	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		boolean result = true;
-		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+		boolean _result = true;
+		final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+		final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
 
-		if (de instanceof ArrayRef && dt instanceof ArrayRef) {
-			Type t1 = ((ArrayRef) de).getBase().getType();
-			Type t2 = ((ArrayRef) dt).getBase().getType();
-			result = t1.equals(t2);
-		} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
-			SootField f1 = ((InstanceFieldRef) de).getField();
-			SootField f2 = ((InstanceFieldRef) dt).getField();
-			result = f1.equals(f2);
+		if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
+			final Type _t1 = ((ArrayRef) _de).getBase().getType();
+			final Type _t2 = ((ArrayRef) _dt).getBase().getType();
+			_result = _t1.equals(_t2);
+
+			if (_result && useOFA) {
+				_result = isArrayDependentOnByOFA(dependent, dependee);
+			}
+		} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
+			final SootField _ifr1 = ((InstanceFieldRef) _de).getField();
+			final SootField _ifr2 = ((InstanceFieldRef) _dt).getField();
+			_result = _ifr1.equals(_ifr2);
+
+			if (_result && useOFA) {
+				_result = isFieldDependentOnByOFA(dependent, dependee);
+			}
 		}
 
-		return result;
+		return _result;
+	}
+
+	/**
+	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
+	 * base of the expression field access expression.
+	 *
+	 * @param dependent is the field read access site.
+	 * @param dependee is the field write access site.
+	 *
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 *
+	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsFieldRef()
+	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsFieldRef()
+	 */
+	protected final boolean isFieldDependentOnByOFA(final Pair dependent, final Pair dependee) {
+		boolean _result;
+		final InstanceFieldRef _ifr1 = ((InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp());
+		final InstanceFieldRef _ifr2 = ((InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp());
+
+		final Context _context = new AllocationContext();
+		_context.setProgramPoint(_ifr1.getBaseBox());
+		_context.setStmt((Stmt) dependee.getFirst());
+		_context.setRootMethod((SootMethod) dependee.getSecond());
+
+		final Collection _c1 = ofa.getValues(_ifr1.getBase(), _context);
+		_context.setProgramPoint(_ifr2.getBaseBox());
+		_context.setStmt((Stmt) dependent.getFirst());
+		_context.setRootMethod((SootMethod) dependent.getSecond());
+
+		final Collection _c2 = ofa.getValues(_ifr2.getBase(), _context);
+		final Collection _temp = CollectionUtils.intersection(_c1, _c2);
+
+		while (_temp.remove(NullConstant.v())) {
+			;
+		}
+		_result = !_temp.isEmpty();
+		return _result;
 	}
 
 	/**
@@ -434,10 +537,18 @@ public class InterferenceDAv1
 	 * 		   <code>info</code> member.
 	 *
 	 * @pre info.get(PairManager.ID) != null and info.get(IThreadGraphInfo.ID) != null
+	 * @pre useOFA implies info.get(IValueAnalyzer.ID) != null  and info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
 	 */
 	protected void setup()
 	  throws InitializationException {
 		super.setup();
+
+		ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
+
+		if (ofa == null) {
+			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
+		}
+
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
 		if (pairMgr == null) {
@@ -463,68 +574,64 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null
 	 */
 	private boolean considerClassInitializers(final Pair dependent, final Pair dependee) {
-		SootMethod deMethod = (SootMethod) dependee.getSecond();
-		SootMethod dtMethod = (SootMethod) dependent.getSecond();
-		boolean result = true;
+		final SootMethod _deMethod = (SootMethod) dependee.getSecond();
+		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
+		boolean _result = true;
 
 		// If any one of the method is a class initialization method then we can optimize.
-		boolean deci = deMethod.getName().equals("<clinit>");
-		boolean dtci = dtMethod.getName().equals("<clinit>");
+		final boolean _deci = _deMethod.getName().equals("<clinit>");
+		final boolean _dtci = _dtMethod.getName().equals("<clinit>");
 
-		if (deci || dtci) {
-			SootClass deClass = deMethod.getDeclaringClass();
-			SootClass dtClass = dtMethod.getDeclaringClass();
+		if (_deci || _dtci) {
+			final SootClass _deClass = _deMethod.getDeclaringClass();
+			final SootClass _dtClass = _dtMethod.getDeclaringClass();
 
-			// if the classes of both the methods are relatec 
-			if (Util.isHierarchicallyRelated(deClass, dtClass)) {
-				result = false;
+			// if the classes of both the methods are related
+			if (Util.isHierarchicallyRelated(_deClass, _dtClass)) {
+				_result = false;
 			} else {
-				Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-				Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+				final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+				final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
 
-				if (dt instanceof StaticFieldRef && de instanceof StaticFieldRef) {
-					SootField f1 = ((StaticFieldRef) de).getField();
-					SootField f2 = ((StaticFieldRef) dt).getField();
+				if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
+					final SootField _f1 = ((StaticFieldRef) _de).getField();
+					final SootField _f2 = ((StaticFieldRef) _dt).getField();
 
-					if (f1.equals(f2)
-						  && ((deci && f1.getDeclaringClass().equals(deClass))
-						  || (dtci && f1.getDeclaringClass().equals(dtClass)))) {
-						result = false;
+					if (_f1.equals(_f2)
+						  && ((_deci && _f1.getDeclaringClass().equals(_deClass))
+						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass)))) {
+						_result = false;
 					}
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/01/18 00:02:01  venku
+   - more logging info.
    Revision 1.30  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.29  2003/12/16 06:52:47  venku
    - optimization when there are no threads.
-
    Revision 1.28  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.27  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.26  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.25  2003/12/08 09:37:23  venku
    - use class initialization optimization by default.
-
    Revision 1.24  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

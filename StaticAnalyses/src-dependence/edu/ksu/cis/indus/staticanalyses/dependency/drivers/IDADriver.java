@@ -51,9 +51,22 @@ public class IDADriver
 	public static void main(final String[] args) {
 		DADriver da = new IDADriver(args);
 		da.das = new ArrayList();
-		da.das.add(new InterferenceDAv1());
-		da.das.add(new InterferenceDAv2());
-		da.das.add(new InterferenceDAv3());
+
+		InterferenceDAv1 id = new InterferenceDAv1();
+		da.das.add(id);
+		id = new InterferenceDAv2();
+		da.das.add(id);
+		id = new InterferenceDAv3();
+		da.das.add(id);
+		id = new InterferenceDAv1();
+		id.setUseOFA(true);
+		da.das.add(id);
+		id = new InterferenceDAv2();
+		id.setUseOFA(true);
+		da.das.add(id);
+		id = new InterferenceDAv3();
+		id.setUseOFA(true);
+		da.das.add(id);
 		da.execute();
 	}
 }
@@ -61,6 +74,9 @@ public class IDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.8  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
