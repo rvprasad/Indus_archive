@@ -91,6 +91,11 @@ import java.util.Set;
  * processors. The post processors then collect information from the analysis in form which is more accessible to the other
  * applications. This visitor will notify the interested post processors with the given AST node and then visit it's
  * children.
+ * 
+ * <p>
+ * Please note that the processor should be registered/unregistered separately for interface-level (class/method)  processing
+ * and functional (method-body) processing.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -103,11 +108,12 @@ public class ProcessingController {
 	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	/**
-	 * The collection of post processors registered with this controller.  This maintains the insertion order.
+	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
+	 * the insertion order.
 	 *
-	 * @invariant processors->forall(o | o.isOclKindOf(IProcessor))
+	 * @invariant interfaceProcessors->forall(o | o.isOclKindOf(IProcessor))
 	 */
-	protected final Collection processors = new ArrayList();
+	protected final Collection interfaceProcessors = new ArrayList();
 
 	/**
 	 * The context in which the AST chunk is visited during post processing.
@@ -417,6 +423,13 @@ public class ProcessingController {
 	 * Controls the processing activity.
 	 */
 	public void process() {
+		Collection processors = new HashSet();
+		processors.addAll(interfaceProcessors);
+
+		for (Iterator i = class2processors.values().iterator(); i.hasNext();) {
+			processors.addAll((Collection) i.next());
+		}
+
 		for (Iterator i = processors.iterator(); i.hasNext();) {
 			IProcessor pp = (IProcessor) i.next();
 			pp.setAnalyzer(analyzer);
@@ -456,9 +469,16 @@ public class ProcessingController {
 			class2processors.put(interest, temp);
 		}
 		temp.add(processor);
+	}
 
-		if (!processors.contains(processor)) {
-			processors.add(processor);
+	/**
+	 * Registers the processor for class and method interface processing only.
+	 *
+	 * @param processor the instance of post processor.
+	 */
+	public void register(final IProcessor processor) {
+		if (!interfaceProcessors.contains(processor)) {
+			interfaceProcessors.add(processor);
 		}
 	}
 
@@ -478,7 +498,15 @@ public class ProcessingController {
 			throw new IllegalArgumentException("There are no processors registered  for " + interest.getName());
 		}
 		temp.remove(processor);
-		processors.remove(processor);
+	}
+
+	/**
+	 * Unregisters the processor for class and method interface processing only.
+	 *
+	 * @param processor the instance of post processor.
+	 */
+	public void unregister(final IProcessor processor) {
+		interfaceProcessors.remove(processor);
 	}
 
 	/**
@@ -500,7 +528,7 @@ public class ProcessingController {
 				LOGGER.debug("Processing class " + sc);
 			}
 
-			for (Iterator k = processors.iterator(); k.hasNext();) {
+			for (Iterator k = interfaceProcessors.iterator(); k.hasNext();) {
 				IProcessor pp = (IProcessor) k.next();
 				pp.callback(sc);
 
@@ -531,7 +559,7 @@ public class ProcessingController {
 			SootMethod sm = (SootMethod) j.next();
 			context.setRootMethod(sm);
 
-			for (Iterator k = processors.iterator(); k.hasNext();) {
+			for (Iterator k = interfaceProcessors.iterator(); k.hasNext();) {
 				((IProcessor) k.next()).callback(sm);
 			}
 
@@ -566,10 +594,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/25 08:36:27  venku
+   Coding convention.
    Revision 1.4  2003/08/25 08:07:26  venku
    Extracts the classes for processing from the environment.
    It now has support to be driven by the environment alone.
-
    Revision 1.3  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
