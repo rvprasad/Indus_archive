@@ -267,9 +267,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the slice collector being used by this instance of the slice engine.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the slice collector
+	 *
+	 * @post result != null
 	 */
 	public SliceCollector getCollector() {
 		return collector;
@@ -1234,6 +1236,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/01/13 10:03:31  venku
+   - documentation.
    Revision 1.47  2004/01/13 04:33:39  venku
    - Renamed TaggingBasedSliceCollector to SliceCollector.
    - Ripple effect in the engine.
@@ -1241,7 +1245,6 @@ public final class SlicingEngine {
      as they do not affect the generated slice.  The slice can be
      transformed independent of the slice via postprocessing to
      adhere to such properties.
-
    Revision 1.46  2004/01/11 03:42:22  venku
    - synchronization, control, and divergence are now considered as
      control based DAs and are used instead of just control.

@@ -22,8 +22,7 @@ import junit.swingui.TestRunner;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * The test suite to tests classes in datastructures package.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -73,4 +72,7 @@ public final class DataStructuresTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 15:06:23  venku
+   - started to add test case for data structures.
+
  */
