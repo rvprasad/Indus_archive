@@ -468,9 +468,9 @@ public final class TagBasedDestructiveSliceResidualizer
 		_pc.process();
 		unhook(_pc);
 		_pc.reset();
-		_pc.setProcessingFilter(new AntiTagBasedProcessingFilter(tagName));
 
-		final IProcessor _erasure = new ErasingProcessor();
+        final IProcessor _erasure = new ErasingProcessor();
+        _pc.setProcessingFilter(new AntiTagBasedProcessingFilter(tagName));
 		_erasure.hookup(_pc);
 		_pc.process();
 		_erasure.unhook(_pc);
@@ -533,42 +533,46 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @pre method != null
 	 */
 	private void eraseMethodBody(final SootMethod method) {
-		final Jimple _jimple = Jimple.v();
-		final JimpleBody _jimpleBody = _jimple.newBody();
-		_jimpleBody.setMethod(method);
+		if (method.isConcrete()) {
+			final Jimple _jimple = Jimple.v();
+			final JimpleBody _jimpleBody = _jimple.newBody();
+			_jimpleBody.setMethod(method);
 
-		final Type _returnType = method.getReturnType();
+			final Type _returnType = method.getReturnType();
 
-		if (!(_returnType instanceof VoidType)) {
-			_jimpleBody.getUnits().add(_jimple.newReturnStmt(getDefaultValueFor(_returnType)));
-		} else {
-			_jimpleBody.getUnits().add(_jimple.newReturnVoidStmt());
+			if (!(_returnType instanceof VoidType)) {
+				_jimpleBody.getUnits().add(_jimple.newReturnStmt(getDefaultValueFor(_returnType)));
+			} else {
+				_jimpleBody.getUnits().add(_jimple.newReturnVoidStmt());
+			}
+			method.setActiveBody(_jimpleBody);
 		}
-		method.setActiveBody(_jimpleBody);
 	}
 
 	/**
 	 * Finish processing the current class by erasing the body of untagged methods and deleting fields.
 	 */
 	private void finishUpProcessingClass() {
-		for (final Iterator _i = currClass.getMethods().iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		if (currClass != null) {
+			for (final Iterator _i = currClass.getMethods().iterator(); _i.hasNext();) {
+				final SootMethod _sm = (SootMethod) _i.next();
 
-			if (!_sm.hasTag(tagName)) {
-				eraseMethodBody(_sm);
+				if (!_sm.hasTag(tagName)) {
+					eraseMethodBody(_sm);
+				}
 			}
-		}
 
-		final Collection _fields = new HashSet();
+			final Collection _fields = new HashSet();
 
-		for (final Iterator _j = currClass.getFields().iterator(); _j.hasNext();) {
-			final SootField _sf = (SootField) _j.next();
+			for (final Iterator _j = currClass.getFields().iterator(); _j.hasNext();) {
+				final SootField _sf = (SootField) _j.next();
 
-			if (!_sf.hasTag(tagName)) {
-				_fields.add(_sf);
+				if (!_sf.hasTag(tagName)) {
+					_fields.add(_sf);
+				}
 			}
+			currClass.getFields().removeAll(_fields);
 		}
-		currClass.getFields().removeAll(_fields);
 	}
 
 	/**
@@ -611,6 +615,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/14 17:00:51  venku
+   - enabled nop elimination
+   - fixed return statement in methods.
    Revision 1.2  2003/12/14 16:40:30  venku
    - added residualization logic.
    - incorporate the residualizer in the tool.
