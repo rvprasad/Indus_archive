@@ -11,14 +11,15 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
+import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 import ca.mcgill.sable.util.VectorList;
 import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.BFA;
 import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.MethodVariant;
 import edu.ksu.cis.bandera.bfa.MethodVariantManager;
 import edu.ksu.cis.bandera.bfa.Util;
@@ -42,7 +43,8 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 
 	private static final Logger logger = LogManager.getLogger(InvokeExprWork.class.getName());
 
-	protected Collection knownCallChains;
+	protected static final Collection knownCallChains = new ArrayList(1);
+
 
 	protected AbstractExprSwitch exprSwitch;
 
@@ -52,7 +54,6 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 						   AbstractExprSwitch exprSwitch) {
 		super(caller, accessExpr, context);
 		this.exprSwitch = exprSwitch;
-		knownCallChains = new ArrayList(1);
 		knownCallChains.add(new NativeMethodCall("java.lang.Thread", "start", "run"));
 	}
 
@@ -67,6 +68,11 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
+
+			 if (v instanceof NullConstant) {
+				 continue;
+			 } // end of if (v instanceof NullConstant)
+
 
 			 if (e instanceof SpecialInvokeExpr) {
 				 sc = e.getMethod().getDeclaringClass();
@@ -115,7 +121,7 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 		} // end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
 	}
 
-	protected class NativeMethodCall {
+	protected static class NativeMethodCall {
 
 		String declClassName;
 

@@ -16,6 +16,7 @@ import edu.ksu.cis.bandera.bfa.AbstractAnalyzer;
 import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
 import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
 import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.bfa.ClassManager;
 import edu.ksu.cis.bandera.bfa.Context;
 import edu.ksu.cis.bandera.bfa.ModeFactory;
 import edu.ksu.cis.bandera.bfa.modes.insensitive.IndexManager;
@@ -49,7 +50,8 @@ public class Analyzer extends AbstractAnalyzer {
 									new IndexManager(),
 									new IndexManager(),
 									new OFAFGNode(null),
-									stmt, lexpr, rexpr));
+									stmt, lexpr, rexpr,
+									new ClassManager(null)));
 	}
 
 
@@ -88,35 +90,14 @@ public class Analyzer extends AbstractAnalyzer {
 
 	public static Analyzer getFSOSAnalyzer(String name) {
 		Analyzer temp = new Analyzer(name,
-							new FlowSensitiveASTIndexManager(),
-							new AllocationSiteSensitiveIndexManager(),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.ExprSwitch(null, new LHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+									 new FlowSensitiveASTIndexManager(),
+									 new AllocationSiteSensitiveIndexManager(),
+									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.ExprSwitch(null, new LHSConnector()),
+									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
+									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
 		temp.context.setAllocationSite(new HashSet());
 		return temp;
 	}
-	/*
-	public Set getValues(InvokeExpr e, Context c) {
-		return new HashSet();
-	}
-
-	public Set getValues(NewExpr e, Context c) {
-		return new HashSet();
-	}
-
-	public Set getValues(NewArrayExpr e, Context c) {
-		return new HashSet();
-	}
-
-	public Set getValues(NewMultiArrayExpr e, Context c) {
-		return new HashSet();
-	}
-
-	public Set getValues(Local l, Context c) {
-		return new HashSet();
-	}
-	*/
 
 	public Collection getValues(SootField f, Collection sites) {
 		Object temp = null;

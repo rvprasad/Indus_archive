@@ -3,10 +3,11 @@ package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
 import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.jimple.FieldRef;
+import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.Value;
-import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.BFA;
 import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.FGNodeConnector;
 import edu.ksu.cis.bandera.bfa.MethodVariant;
 import java.util.Iterator;
@@ -44,6 +45,11 @@ public class FieldAccessExprWork extends  AbstractAccessExprWork {
 		logger.debug(values + " values arrived at base node of " + accessExpr);
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
+
+			 if (v instanceof NullConstant) {
+				 continue;
+			 } // end of if (v instanceof NullConstant)
+
 			 context.setAllocationSite(v);
 			 FGNode nonast = bfa.getFieldVariant(sf, context).getFGNode();
 			 connector.connect(ast, nonast);
