@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -180,11 +179,6 @@ public final class SlicerTool
 	 * This controls the processing of callgraph.
 	 */
 	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
-
-	/**
-	 * This is the slice transformer.
-	 */
-	private TaggingBasedSliceCollector transformer;
 
 	/**
 	 * The system to be sliced.
@@ -359,7 +353,11 @@ public final class SlicerTool
 		return this.system;
 	}
 
-	
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param tagName DOCUMENT ME!
+	 */
 	public void setTagName(final String tagName) {
 		engine.setTagName(tagName);
 	}
@@ -493,7 +491,6 @@ public final class SlicerTool
 
 		if (ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
 			// perform slicing
-			transformer.reset();
 			engine.reset();
 
 			if (slicerConfig.sliceForDeadlock) {
@@ -633,6 +630,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2003/11/24 10:11:32  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
    Revision 1.31  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
