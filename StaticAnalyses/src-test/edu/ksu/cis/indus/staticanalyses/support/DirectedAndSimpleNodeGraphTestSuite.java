@@ -45,7 +45,7 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.support");
 
 		//$JUnit-BEGIN$
-		suite.addTestSuite(DirectedAndSimpleNodeGraphTest1.class);
+		suite.addTestSuite(DirectedAndSimpleNodeGraphTest.class);
 		suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
 		suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
@@ -56,6 +56,9 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/10 03:39:53  venku
+   - renamed test2 and test3 to JikesBased and JavacBased tests.
+
    Revision 1.2  2003/09/28 23:19:36  venku
    *** empty log message ***
 

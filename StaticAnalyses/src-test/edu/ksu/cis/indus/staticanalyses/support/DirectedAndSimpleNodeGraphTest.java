@@ -43,7 +43,7 @@ import java.util.Set;
  * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph
  * @see edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph
  */
-public class DirectedAndSimpleNodeGraphTest1
+public class DirectedAndSimpleNodeGraphTest
   extends TestCase {
 	/**
 	 * This maps node names to nodes.
@@ -453,6 +453,9 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/28 23:19:36  venku
+   *** empty log message ***
+
    Revision 1.11  2003/09/14 23:20:48  venku
    - added support to retrieve a DAG from a graph.
    - removed support to extract preds/succs as a bitst from the graph.

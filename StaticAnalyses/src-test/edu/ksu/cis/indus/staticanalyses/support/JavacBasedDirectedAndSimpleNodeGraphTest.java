@@ -66,7 +66,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsAncestorOf()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
 	 */
 	protected void localtestIsAncestorOf() {
 		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
@@ -75,7 +75,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsReachable()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
 		assertTrue(dg.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
@@ -88,6 +88,9 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 03:39:53  venku
+   - renamed test2 and test3 to JikesBased and JavacBased tests.
+
    Revision 1.3  2003/09/28 23:19:36  venku
    *** empty log message ***
 

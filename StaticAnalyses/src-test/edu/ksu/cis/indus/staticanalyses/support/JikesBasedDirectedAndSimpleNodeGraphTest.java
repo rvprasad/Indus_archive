@@ -43,9 +43,9 @@ import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
  * @version $Revision$ $Date$
  */
 public class JikesBasedDirectedAndSimpleNodeGraphTest
-  extends DirectedAndSimpleNodeGraphTest1 {
+  extends DirectedAndSimpleNodeGraphTest {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#testAddEdgeFromTo()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#testAddEdgeFromTo()
 	 */
 	public void localtestAddEdgeFromTo() {
 		// we do nothing here as we do not want to change the graph.
@@ -76,21 +76,21 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestGetHeads()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestGetHeads()
 	 */
 	protected void localtestGetHeads() {
 		assertFalse(dg.getHeads().isEmpty());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestGraphGetTails()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestGraphGetTails()
 	 */
 	protected void localtestGraphGetTails() {
 		assertFalse(dg.getTails().isEmpty());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsAncestorOf()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
 	 */
 	protected void localtestIsAncestorOf() {
 		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
@@ -99,7 +99,7 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest1#localtestIsReachable()
+	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
 		assertTrue(dg.isReachable((INode) name2node.get("b"), (INode) name2node.get("d"), false));
@@ -112,6 +112,9 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 03:39:53  venku
+   - renamed test2 and test3 to JikesBased and JavacBased tests.
+
    Revision 1.4  2003/09/28 23:19:36  venku
    *** empty log message ***
 
