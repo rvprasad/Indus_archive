@@ -64,7 +64,7 @@ public interface IMonitorInfo
 	Collection getEnclosedStmts(final Triple monitorTriple, final boolean transitive);
 
 	/**
-	 * Retrieves the monitor statements enclosing in the given statement in the given method. Only the monitors occurring in
+	 * Retrieves the monitor statements enclosing the given statement in the given method. Only the monitors occurring in
 	 * the method in which the statement occurs are returned.
 	 *
 	 * @param stmt obviously.
@@ -98,7 +98,7 @@ public interface IMonitorInfo
 	Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive);
 
 	/**
-	 * Retrieves the statements enclosed by the given monitor triple.
+	 * Retrieves the statements enclosed by the given monitor triple, both intra and interprocedurally.
 	 *
 	 * @param monitorTriple describes the monitor of interest.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
@@ -118,8 +118,7 @@ public interface IMonitorInfo
 		final ICallGraphInfo callgraphInfo);
 
 	/**
-	 * Retrieves the monitor statements enclosing in the given statement in the given method. Only the monitors occurring in
-	 * the method in which the statement occurs are returned.
+	 * Retrieves the monitor statements enclosing the given statement in the given method, both intra and interprocedurally.
 	 *
 	 * @param stmt obviously.
 	 * @param method in which the monitor occurs.
@@ -138,8 +137,8 @@ public interface IMonitorInfo
 		final ICallGraphInfo callgraph);
 
 	/**
-	 * Retrieves the monitor triples for monitors enclosing in the given statement in the given method. Only the monitors
-	 * occurring in the method in which the statement occurs are returned.
+	 * Retrieves the monitor triples for monitors enclosing the given statement in the given method, both intra and 
+	 * interprocedurally.
 	 *
 	 * @param stmt obviously.
 	 * @param method in which the monitor occurs.
@@ -251,6 +250,9 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/08/08 10:21:37  venku
+   - documentation.
+
    Revision 1.12  2004/07/27 07:21:11  venku
    - coding conventions and documentation.
 
