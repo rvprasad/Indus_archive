@@ -15,10 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -32,6 +30,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +42,7 @@ import soot.SootMethod;
 
 
 /**
- * This class provides intraprocedural control dependency information. This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
- * with JVM Concurrency Primitives"</a>.
+ * This class provides indirect entry-based intraprocedural control dependence information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -68,6 +65,20 @@ public class EntryControlDA
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(EntryControlDA.class);
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected final Collection nodesWithChildrenCache = new HashSet();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected List nodesCache;
 
 	/**
 	 * This provides the call graph information.
@@ -176,7 +187,7 @@ public class EntryControlDA
 				LOGGER.debug("Processing method: " + _currMethod.getSignature());
 			}
 
-			final BitSet[] _bbCDBitSets = computeControlDependency2(_bbGraph);
+			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
 
@@ -195,8 +206,10 @@ public class EntryControlDA
 	public final String toString() {
 		final StringBuffer _result =
 			new StringBuffer("Statistics for control dependence as calculated by " + getClass().getName() + "\n");
-		int _localEdgeCount = 0;
+		int _localEdgeCount;
+		int _localEntryPointDep;
 		int _edgeCount = 0;
+		int _entryPointDep = 0;
 
 		final StringBuffer _temp = new StringBuffer();
 
@@ -204,6 +217,7 @@ public class EntryControlDA
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final SootMethod _method = (SootMethod) _entry.getKey();
 			_localEdgeCount = 0;
+			_localEntryPointDep = 0;
 
 			final List _stmts = getStmtList(_method);
 			final List _cd = (List) _entry.getValue();
@@ -219,142 +233,20 @@ public class EntryControlDA
 					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
 					_localEdgeCount += _dees.size();
 				} else {
-					_temp.append("\t\t" + _stmts.get(_j) + " --> METHOD_ENTRY\n");
+					_localEntryPointDep++;
 				}
 			}
 
-			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges.\n");
+			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges with "
+				+ _localEntryPointDep + " entry point dependences.\n");
 			_result.append(_temp);
 			_temp.delete(0, _temp.length());
 			_edgeCount += _localEdgeCount;
+			_entryPointDep += _localEntryPointDep;
 		}
-		_result.append("A total of " + _edgeCount + " control dependence edges exist.");
+		_result.append("A total of " + _edgeCount + " control dependence edges exists with " + _entryPointDep
+			+ " entry point dependences.");
 		return _result.toString();
-	}
-
-	/**
-	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
-	 * in the graph.  This is later translated to statement level information by {@link
-	 * EntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
-	 *
-	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
-	 * 		  the indices should start from 0.
-	 *
-	 * @return an array of bitsets.  The length of the array and each of the bitset in it is equal to the number of nodes in
-	 * 		   the graph.  The nth bitset captures the dependence information via set bits.  The BitSets capture
-	 * 		   dependent->dependee information.
-	 *
-	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
-	 * @post result->forall(o | o.size() == graph.getNodes().size())
-	 */
-	private BitSet[] computeControlDependency(final IDirectedGraph graph) {
-		final Map _dag = graph.getDAG();
-		final List _nodes = graph.getNodes();
-		final int _noOfNodes = _nodes.size();
-		final int[] _succsSize = new int[_noOfNodes];
-		final BitSet[][] _cd = new BitSet[_noOfNodes][_noOfNodes];
-		final BitSet[] _result = new BitSet[_noOfNodes];
-		final Collection _processed = new ArrayList();
-		BitSet _currResult = new BitSet();
-		final BitSet _temp1 = new BitSet();
-		final IWorkBag _wb = new FIFOWorkBag();
-		final Collection _roots = graph.getHeads();
-
-		_wb.addAllWorkNoDuplicates(_roots);
-
-		while (_wb.hasWork()) {
-			final BasicBlock _bb = (BasicBlock) _wb.getWork();
-			final Pair _dagBlock = (Pair) _dag.get(_bb);
-			final Collection _preds = (Collection) _dagBlock.getFirst();
-
-			if (!_processed.containsAll(_preds)) {
-				_wb.addWorkNoDuplicates(_bb);
-				continue;
-			}
-
-			// propogate data to the successors   
-			final int _currIndex = _nodes.indexOf(_bb);
-			final Collection _succs = (Collection) _dagBlock.getSecond();
-
-			final BitSet[] _currCD = _cd[_currIndex];
-			_succsSize[_currIndex] = _succs.size();
-
-			for (final Iterator _j = _processed.iterator(); _j.hasNext();) {
-				final int _pIndex = _nodes.indexOf(_j.next());
-				final BitSet _pCD = _currCD[_pIndex];
-
-				if (_pCD != null) {
-					final boolean _assignFlag = _pCD.cardinality() == _succsSize[_pIndex];
-
-					if (!_assignFlag) {
-						_currResult.set(_pIndex);
-					}
-
-					for (final Iterator _i = _succs.iterator(); _i.hasNext();) {
-						final int _succIndex = _nodes.indexOf(_i.next());
-						final BitSet[] _succCDs = _cd[_succIndex];
-
-						if (_assignFlag) {
-							_succCDs[_pIndex] = _pCD;
-						} else {
-							BitSet _succCD = _succCDs[_pIndex];
-
-							if (_succCD == null) {
-								_succCD = new BitSet();
-								_succCDs[_pIndex] = _succCD;
-							}
-							_succCD.or(_pCD);
-						}
-					}
-				}
-			}
-
-			if (_succsSize[_currIndex] > 1) {
-				int _count = 0;
-
-				for (final Iterator _i = _succs.iterator(); _i.hasNext();) {
-					final int _succIndex = _nodes.indexOf(_i.next());
-					BitSet _succCD = _cd[_succIndex][_currIndex];
-
-					if (_succCD == null) {
-						_succCD = new BitSet();
-						_cd[_succIndex][_currIndex] = _succCD;
-					}
-
-					_succCD.set(_count++);
-				}
-			}
-
-			if (!_currResult.isEmpty()) {
-				if (_currResult.length() > 1) {
-					// prune the dom set to a mere control-dom set.
-					_temp1.clear();
-
-					for (final Iterator _i = _preds.iterator(); _i.hasNext();) {
-						final BitSet _t = _result[_nodes.indexOf(_i.next())];
-
-						if (_t != null) {
-							_temp1.and(_t);
-						}
-					}
-
-					for (int _j = _currResult.nextSetBit(0); _j >= 0; _j = _currResult.nextSetBit(_j + 1)) {
-						if (!_preds.contains(_nodes.get(_j)) && (_preds.size() == 1 || !_temp1.get(_j))) {
-							_currResult.clear(_j);
-						}
-					}
-				}
-
-				_result[_currIndex] = _currResult;
-				_currResult = new BitSet();
-			}
-
-			// Add the successors of the node 
-			_wb.addAllWorkNoDuplicates(_succs);
-			_processed.add(_bb);
-		}
-
-		return _result;
 	}
 
 	/**
@@ -362,69 +254,46 @@ public class EntryControlDA
 	 * 
 	 * <p></p>
 	 *
-	 * @param graph DOCUMENT ME!
+	 * @param bitsets DOCUMENT ME!
+	 * @param location DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	private BitSet[] computeControlDependency2(final IDirectedGraph graph) {
-		final List _nodes = graph.getNodes();
-		final BitSet[][] _tokenSets = new BitSet[_nodes.size()][_nodes.size()];
-		final BitSet[] _result = new BitSet[_nodes.size()];
-		final Collection _nodesWithChildren = getNodesWithChildren(_nodes);
-		final IWorkBag _wb = injectTokensAndGenerateWorkForTokenPropagation(_nodes, _tokenSets, _nodesWithChildren);
+	protected final BitSet getBitSetAtLocation(final BitSet[] bitsets, final int location) {
+		BitSet _temp = bitsets[location];
 
-		while (_wb.hasWork()) {
-			final INode _parent = (INode) _wb.getWork();
-			final int _parentIndex = _nodes.indexOf(_parent);
+		if (_temp == null) {
+			_temp = new BitSet(1);
+			bitsets[location] = _temp;
+		}
+		return _temp;
+	}
 
-			for (int _j = 0; _j < _parentIndex; _j++) {
-				final BitSet _parentNodeTokenSet = _tokenSets[_parentIndex][_j];
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param node DOCUMENT ME!
+	 * @param tokenSets DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected Collection processNode(final INode node, final BitSet[][] tokenSets) {
+		final Collection _result = new HashSet();
+		final int _parentIndex = nodesCache.indexOf(node);
+		final Iterator _i = nodesWithChildrenCache.iterator();
+		final int _iEnd = nodesWithChildrenCache.size();
 
-				if (_parentNodeTokenSet != null) {
-					_wb.addAllWorkNoDuplicates(propagateInfoToSuccs(_parentNodeTokenSet, _parent.getSuccsOf(), _j,
-							_tokenSets, _nodes));
-				}
-			}
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final INode _ancestor = (INode) _i.next();
+			final int _ancIndex = nodesCache.indexOf(_ancestor);
+			final BitSet _parentAndAncestorTokenSet = tokenSets[_parentIndex][_ancIndex];
 
-			final int _iterEnd = _nodes.size();
-
-			for (int _j = _parentIndex + 1; _j < _iterEnd; _j++) {
-				final BitSet _parentNodeTokenSet = _tokenSets[_parentIndex][_j];
-
-				if (_parentNodeTokenSet != null) {
-					_wb.addAllWorkNoDuplicates(propagateInfoToSuccs(_parentNodeTokenSet, _parent.getSuccsOf(), _j,
-							_tokenSets, _nodes));
-				}
+			if (_parentAndAncestorTokenSet != null) {
+				_result.addAll(propagateTokensIntoNodes(_parentAndAncestorTokenSet, node.getSuccsOf(), _ancIndex, tokenSets));
 			}
 		}
-		
-		// calculate control dependence based on token information
-		final Iterator _i = _nodesWithChildren.iterator();
-
-		for (int _j = _nodesWithChildren.size(); _j > 0; _j--) {
-			final INode _controlPoint = (INode) _i.next();
-			final int _cpIndex = _nodes.indexOf(_controlPoint);
-			final int _succsSize = _controlPoint.getSuccsOf().size();
-
-			for (int _k = _nodes.size() - 1; _k >= 0; _k--) {
-				final BitSet _tokens = _tokenSets[_k][_cpIndex];
-
-				if (_tokens != null) {
-					final int _cardinality = _tokens.cardinality();
-
-					if (_cardinality > 0 && _cardinality != _succsSize) {
-						BitSet _temp = _result[_k];
-
-						if (_temp == null) {
-							_temp = new BitSet(1);
-							_result[_k] = _temp;
-						}
-						_temp.set(_cpIndex);
-					}
-				}
-			}
-		}
-
 		return _result;
 	}
 
@@ -449,22 +318,77 @@ public class EntryControlDA
 
 	/**
 	 * DOCUMENT ME!
-	 *
-	 * @param nodes DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
 	 */
-	private final Collection getNodesWithChildren(final List nodes) {
-		final Collection _result = new ArrayList();
+	private void getNodesWithChildren() {
+		nodesWithChildrenCache.clear();
 
-		for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
+		for (final Iterator _i = nodesCache.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 
 			if (_node.getSuccsOf().size() > 1) {
-				_result.add(_node);
+				nodesWithChildrenCache.add(_node);
 			}
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param tokenSets DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private BitSet[] calculateCDFromTokenInfo(final BitSet[][] tokenSets) {
+		// calculate control dependence based on token information
+		final BitSet[] _result = new BitSet[nodesCache.size()];
+		final Iterator _i = nodesWithChildrenCache.iterator();
+
+		for (int _j = nodesWithChildrenCache.size(); _j > 0; _j--) {
+			final INode _controlPoint = (INode) _i.next();
+			final int _cpIndex = nodesCache.indexOf(_controlPoint);
+			final int _succsSize = _controlPoint.getSuccsOf().size();
+
+			for (int _k = nodesCache.size() - 1; _k >= 0; _k--) {
+				final BitSet _tokens = tokenSets[_k][_cpIndex];
+
+				if (_tokens != null) {
+					final int _cardinality = _tokens.cardinality();
+
+					if (_cardinality > 0 && _cardinality != _succsSize) {
+						final BitSet _temp = getBitSetAtLocation(_result, _k);
+						_temp.set(_cpIndex);
+					}
+				}
+			}
+		}
+
 		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param graph DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private BitSet[] computeControlDependency(final IDirectedGraph graph) {
+		nodesCache = graph.getNodes();
+		getNodesWithChildren();
+
+		final BitSet[][] _tokenSets = new BitSet[nodesCache.size()][nodesCache.size()];
+
+		final IWorkBag _wb = injectTokensAndGenerateWorkForTokenPropagation(_tokenSets);
+
+		while (_wb.hasWork()) {
+			final INode _node = (INode) _wb.getWork();
+
+			_wb.addAllWorkNoDuplicates(processNode(_node, _tokenSets));
+		}
+
+		return calculateCDFromTokenInfo(_tokenSets);
 	}
 
 	/**
@@ -538,34 +462,26 @@ public class EntryControlDA
 	 * 
 	 * <p></p>
 	 *
-	 * @param nodes DOCUMENT ME!
 	 * @param tokenSets DOCUMENT ME!
-	 * @param nodesWithChildren DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	private IWorkBag injectTokensAndGenerateWorkForTokenPropagation(final List nodes, final BitSet[][] tokenSets,
-		final Collection nodesWithChildren) {
+	private IWorkBag injectTokensAndGenerateWorkForTokenPropagation(final BitSet[][] tokenSets) {
 		final IWorkBag _wb = new LIFOWorkBag();
 
-		for (final Iterator _i = nodesWithChildren.iterator(); _i.hasNext();) {
+		for (final Iterator _i = nodesWithChildrenCache.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			final int _nodeIndex = nodes.indexOf(_node);
+			final int _nodeIndex = nodesCache.indexOf(_node);
 			final Collection _succs = _node.getSuccsOf();
 			final Iterator _k = _succs.iterator();
 
 			for (int _j = _succs.size(), _count = 0; _j > 0; _j--) {
 				final INode _succ = (INode) _k.next();
-				final int _succIndex = nodes.indexOf(_succ);
+				final int _succIndex = nodesCache.indexOf(_succ);
 				final BitSet[] _succBitSets = tokenSets[_succIndex];
-				BitSet _temp = _succBitSets[_nodeIndex];
-
-				if (_temp == null) {
-					_temp = new BitSet(1);
-					_succBitSets[_nodeIndex] = _temp;
-				}
+				final BitSet _temp = getBitSetAtLocation(_succBitSets, _nodeIndex);
 				_temp.set(_count++);
-				_wb.addWork(_succ);
+				_wb.addWorkNoDuplicates(_succ);
 			}
 		}
 		return _wb;
@@ -578,19 +494,18 @@ public class EntryControlDA
 	 * @param succsOf DOCUMENT ME!
 	 * @param nodeIndex DOCUMENT ME!
 	 * @param tokenSets DOCUMENT ME!
-	 * @param nodes DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	protected Collection propagateInfoToSuccs(final BitSet parentNodeTokenSet, final Collection succsOf, final int nodeIndex,
-		final BitSet[][] tokenSets, final List nodes) {
-		final Collection _result = new ArrayList();
+	private Collection propagateTokensIntoNodes(final BitSet parentNodeTokenSet, final Collection succsOf,
+		final int nodeIndex, final BitSet[][] tokenSets) {
+		final Collection _result = new HashSet();
 		final Iterator _j = succsOf.iterator();
 		final BitSet _t = new BitSet(1);
 
 		for (int _k = succsOf.size(); _k > 0; _k--) {
 			final INode _succ = (INode) _j.next();
-			final int _succIndex = nodes.indexOf(_succ);
+			final int _succIndex = nodesCache.indexOf(_succ);
 			final BitSet[] _succBitSets = tokenSets[_succIndex];
 			BitSet _temp = _succBitSets[nodeIndex];
 			boolean _flag = false;
@@ -603,7 +518,7 @@ public class EntryControlDA
 				_t.clear();
 				_t.or(parentNodeTokenSet);
 				_t.andNot(_temp);
-				_flag = _t.cardinality() > 1;
+				_flag = _t.cardinality() > 0;
 			}
 
 			if (_flag) {
@@ -618,6 +533,12 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/06/05 09:52:24  venku
+   - INTERIM COMMIT
+     - Reimplemented EntryControlDA.  It provides indirect control dependence info.
+     - DirectEntryControlDA provides direct control dependence info.
+     - ExitControlDA will follow same suite as EntryControlDA with new implementation
+       and new class for direct dependence.
    Revision 1.18  2004/06/01 06:29:57  venku
    - added new methods to CollectionUtilities.
    - ripple effect.
