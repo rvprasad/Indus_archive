@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1263,7 +1265,9 @@ public class ProcessingController {
 						_stmt.apply(stmtSwitcher);
 					}
 				} else {
-					LOGGER.error("Active body was not available for " + method.getSignature());
+				    final StringWriter _sw = new StringWriter();
+				    (new Throwable()).printStackTrace(new PrintWriter(_sw));
+					LOGGER.error("Active body was not available for " + method.getSignature() + _sw.toString());
 				}
 			} else {
 				final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
