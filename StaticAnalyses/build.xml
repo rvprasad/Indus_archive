@@ -95,7 +95,7 @@
 		<antcall target="docbook-doc" />
 	</target>
 
-	<target name="doxydocs" if="${doxygen.jar}" >
+	<target name="doxydocs" if="doxygen.jar" >
 		<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}" />
 		<delete dir="${docs}/doxydocs" />
 		<mkdir dir="${docs}/doxydocs" />
@@ -128,9 +128,9 @@
 		</javadoc>
 	</target>
 
-	<target name="docbook-doc">
-		<ant dir="docs/ug/" antfile="${docbook.base}/DocbookAnt/build.xml" target="pdf" />
-		<ant dir="docs/ug/" antfile="${docbook.base}/DocbookAnt/build.xml" target="html-single" />
+	<target name="docbook-doc" if="docbook.base">
+		<ant dir="docs/ug/" antfile="${docbook.base}/build.xml" target="pdf" />
+		<ant dir="docs/ug/" antfile="${docbook.base}/build.xml" target="html-single" />
 	</target>
 
 	<target name="dist" depends="build, docs">
