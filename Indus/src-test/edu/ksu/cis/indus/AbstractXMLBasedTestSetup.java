@@ -127,8 +127,10 @@ public class AbstractXMLBasedTestSetup
 	 */
 	protected void tearDown()
 	  throws Exception {
-		stmtGraphFactory.reset();
-		stmtGraphFactory = null;
+		if (stmtGraphFactory != null) {
+			stmtGraphFactory.reset();
+			stmtGraphFactory = null;
+		}
 		System.gc();
 	}
 }
@@ -136,6 +138,8 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/18 08:59:02  venku
+   - enabled test support for slicer.
    Revision 1.9  2004/04/18 02:05:19  venku
    - memory leak fixes.
    Revision 1.8  2004/04/18 00:42:55  venku

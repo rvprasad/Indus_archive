@@ -146,9 +146,10 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/18 02:05:18  venku
+   - memory leak fixes.
    Revision 1.14  2004/04/18 00:42:56  venku
    - references to objects had leaked after test. FIXED.
-
    Revision 1.13  2004/04/18 00:02:19  venku
    - added support to dump jimple.xml while testing.
    Revision 1.12  2004/04/16 20:10:39  venku

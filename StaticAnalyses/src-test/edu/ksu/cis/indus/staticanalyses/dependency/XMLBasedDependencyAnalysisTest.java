@@ -127,6 +127,8 @@ public class XMLBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/18 02:05:18  venku
+   - memory leak fixes.
    Revision 1.2  2004/03/29 09:44:41  venku
    - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 19:10:40  venku

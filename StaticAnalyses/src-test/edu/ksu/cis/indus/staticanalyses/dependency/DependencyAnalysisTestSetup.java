@@ -72,6 +72,13 @@ public class DependencyAnalysisTestSetup
 	private BasicBlockGraphMgr bbgMgr;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection das;
+
+	/**
 	 * The instance of equivalence class based escape analysis to use.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
@@ -128,14 +135,14 @@ public class DependencyAnalysisTestSetup
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// retrieve dependence analysis
-		final Collection _das = new ArrayList();
+		das = new ArrayList();
 
 		for (final Iterator _i =
 				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
 			  _i.hasNext();) {
 			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
 			_test.setEnvironment(valueAnalyzer.getEnvironment());
-			_das.add(_test.getDA());
+			das.add(_test.getDA());
 		}
 
 		for (final Iterator _i =
@@ -147,9 +154,9 @@ public class DependencyAnalysisTestSetup
 
 		// drive the analysis.
 		_pc.setProcessingFilter(new CGBasedProcessingFilter(cgiImpl));
-		setupDependencyAnalyses(_pc, _das);
+		setupDependencyAnalyses(_pc);
 
-		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
+		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 			_da.analyze();
 			CollectionsModifier.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
@@ -172,11 +179,8 @@ public class DependencyAnalysisTestSetup
 		info = null;
 
 		// teardown the dependency analysis
-		for (final Iterator _i =
-				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
-			  _i.hasNext();) {
-			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
-			_test.getDA().reset();
+		for (final Iterator _i = das.iterator(); _i.hasNext();) {
+			((DependencyAnalysis) _i.next()).reset();
 		}
 		super.tearDown();
 	}
@@ -185,11 +189,10 @@ public class DependencyAnalysisTestSetup
 	 * Sets up the dependence analyses to be driven.
 	 *
 	 * @param cgipc is the controller to be used to setup analyses.
-	 * @param das is the collection of analyses.
 	 *
 	 * @pre cgipc != null and das != null
 	 */
-	private void setupDependencyAnalyses(final ProcessingController cgipc, final Collection das) {
+	private void setupDependencyAnalyses(final ProcessingController cgipc) {
 		final Collection _failed = new ArrayList();
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
@@ -230,9 +233,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/18 02:05:18  venku
+   - memory leak fixes.
    Revision 1.7  2004/04/18 00:42:56  venku
    - references to objects had leaked after test. FIXED.
-
    Revision 1.6  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
    Revision 1.5  2004/04/01 19:18:29  venku
