@@ -15,10 +15,16 @@
 
 package edu.ksu.cis.indus;
 
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,6 +50,16 @@ public abstract class AbstractXMLBasedTest
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLBasedTest.class);
+
+	/**
+	 * The xmlizer used to xmlize analysis info before testing.
+	 */
+	protected AbstractXMLizer xmlizer;
+
+	/**
+	 * The map of interface id to interface implementation instances.
+	 */
+	protected final Map info = new HashMap();
 
 	/**
 	 * The directory in which one of the xml-based testing input is read from.
@@ -151,6 +167,40 @@ public abstract class AbstractXMLBasedTest
 	protected abstract String getFileName();
 
 	/**
+	 * Retrieve the id generator to use during xmlizing.
+	 *
+	 * @return the id generator.
+	 */
+	protected abstract IJimpleIDGenerator getIDGenerator();
+
+	/**
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected final void setUp()
+	  throws Exception {
+		xmlizer = getXMLizer();
+		xmlizer.setXmlOutputDir(xmlSecondInputDir);
+		xmlizer.setGenerator(getIDGenerator());
+		localSetup();
+		xmlizer.writeXML(info);
+	}
+
+	/**
+	 * Retrieve the xmlizer to be used to generate the xml data for testing purpose.
+	 *
+	 * @return the xmlizer.
+	 *
+	 * @post result != null
+	 */
+	protected abstract AbstractXMLizer getXMLizer();
+
+	/**
+	 * Local test setup to be provided by subclasses.
+	 */
+	protected abstract void localSetup()
+	  throws Exception;
+
+	/**
 	 * @see junit.framework.TestCase#runTest()
 	 */
 	protected void runTest()
@@ -164,6 +214,8 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/05 11:59:40  venku
+   - documentation.
    Revision 1.6  2004/02/14 23:16:49  venku
    - coding convention.
    Revision 1.5  2004/02/09 07:32:41  venku
