@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -25,7 +24,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest;
-import edu.ksu.cis.indus.support.DirectedGraph;
 import edu.ksu.cis.indus.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
@@ -50,7 +48,6 @@ import soot.G;
 import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
 import soot.VoidType;
 
@@ -487,8 +484,6 @@ public class CallGraphTester
 		Collection heads = cgi.getHeads();
 		SimpleNodeGraph cg = (SimpleNodeGraph) cgi.getCallGraph();
 
-		System.out.println(reachables);
-
 		for (Iterator i = scene.getClasses().iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 
@@ -549,6 +544,8 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/08 13:31:49  venku
+   - used JUnit defined assert functions.
    Revision 1.13  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
