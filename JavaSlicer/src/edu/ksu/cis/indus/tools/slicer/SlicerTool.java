@@ -774,7 +774,7 @@ public final class SlicerTool
 		phase.nextMinorPhase();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
+			LOGGER.debug("Call Graph:\n" + callGraph);
 		}
 
 		movingToNextPhase();
@@ -793,7 +793,7 @@ public final class SlicerTool
 		phase.nextMinorPhase();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Thread Graph:\n" + threadGraph.toString());
+			LOGGER.debug("Thread Graph:\n" + threadGraph);
 		}
 
 		movingToNextPhase();
@@ -941,6 +941,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.118  2004/08/22 11:39:58  venku
+   - documentation.
+
    Revision 1.117  2004/08/22 08:25:42  venku
    - reorganized the way reset was called on components of slicer.
 

@@ -532,7 +532,7 @@ public class CallGraph
 	 *
 	 * @return stringized representation of the this call graphCache.
 	 */
-	public String dumpGraph() {
+	public String toString() {
 		final StringBuffer _result = new StringBuffer();
 
 		_result.append("Root of the system: ");
@@ -734,6 +734,9 @@ public class CallGraph
 
 /*
  * ChangeLog: $Log$
+ * ChangeLog: Revision 1.65  2004/08/22 06:42:06  venku
+ * ChangeLog: - coding conventions.
+ * ChangeLog:
  * ChangeLog: Revision 1.64  2004/08/08 11:34:23  venku
  * ChangeLog: - moved object extracting tranformer into IObjectDirectedGraph.
  * ChangeLog: - ripple effect.
