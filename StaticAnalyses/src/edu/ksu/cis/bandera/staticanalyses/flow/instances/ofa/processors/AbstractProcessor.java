@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootField;
@@ -44,7 +44,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
+import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
 
 
 /**
@@ -54,12 +54,12 @@ import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractPostProcessor
-  implements PostProcessor {
+public abstract class AbstractProcessor
+  implements Processor {
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 	}
@@ -67,7 +67,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -76,7 +76,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Stmt stmt, Context context) {
@@ -85,7 +85,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public void callback(SootMethod method) {
 	}
@@ -93,7 +93,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.SootClass)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.SootClass)
 	 */
 	public void callback(SootClass clazz) {
 	}
@@ -101,7 +101,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(SootField)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(SootField)
 	 */
 	public void callback(SootField field) {
 	}
@@ -109,7 +109,7 @@ public abstract class AbstractPostProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#consolidate()
 	 */
 	public void consolidate() {
 	}
@@ -119,5 +119,9 @@ public abstract class AbstractPostProcessor
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

@@ -65,7 +65,8 @@ import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
+import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,11 +92,11 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class PostProcessingController {
+public class ProcessingController {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(PostProcessingController.class);
+	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	/**
 	 * The analyzer instance that provides the low-level analysis information to be be further processed.
@@ -105,7 +106,7 @@ public class PostProcessingController {
 	/**
 	 * The collection of post processors registered with this controller.  This maintains the insertion order.
 	 *
-	 * @invariant processors->forall(o | o.oclType = PostProcessor)
+	 * @invariant processors->forall(o | o.oclType = Processor)
 	 */
 	protected final Collection processors = new ArrayList();
 
@@ -120,7 +121,7 @@ public class PostProcessingController {
 	 *
 	 * @invariant class2processors.keySet()->forall( o | o.oclType = Class)
 	 * @invariant class2processors.valueSet()->forall( o | o.oclIsKindOf(java.util.Set))
-	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.oclType = PostProcessor))
+	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.oclType = Processor))
 	 */
 	protected final Map class2processors = new HashMap();
 
@@ -280,7 +281,7 @@ public class PostProcessingController {
 				Stmt stmt = (Stmt) o;
 
 				for(Iterator i = processors.iterator(); i.hasNext();) {
-					PostProcessor pp = (PostProcessor) i.next();
+					Processor pp = (Processor) i.next();
 					pp.callback(stmt, context);
 				}
 			}
@@ -361,7 +362,7 @@ public class PostProcessingController {
 				Value value = (Value) o;
 
 				for(Iterator i = processors.iterator(); i.hasNext();) {
-					PostProcessor pp = (PostProcessor) i.next();
+					Processor pp = (Processor) i.next();
 					pp.callback(value, context);
 				}
 			}
@@ -382,21 +383,28 @@ public class PostProcessingController {
 	 */
 	public void process() {
 		for(Iterator i = processors.iterator(); i.hasNext();) {
-			PostProcessor pp = (PostProcessor) i.next();
+			Processor pp = (Processor) i.next();
 			pp.setAnalyzer(analyzer);
 		}
+		processClasses(analyzer.getClasses());
 
-		Collection classes = new HashSet();
-		classes.addAll(analyzer.getClasses());
+		for(Iterator i = processors.iterator(); i.hasNext();) {
+			((Processor) i.next()).consolidate();
+		}
+	}
 
-		Jimple jimple = Jimple.v();
-
+	/**
+	 * Controls the processing of class level entities.
+	 *
+	 * @param classes to be processed.
+	 */
+	public void processClasses(Collection classes) {
 		for(Iterator i = classes.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 			LOGGER.info("Processing class " + sc);
 
 			for(Iterator k = processors.iterator(); k.hasNext();) {
-				PostProcessor pp = (PostProcessor) k.next();
+				Processor pp = (Processor) k.next();
 				pp.callback(sc);
 
 				for(ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
@@ -404,34 +412,40 @@ public class PostProcessingController {
 					pp.callback(field);
 				}
 			}
-
-			for(ca.mcgill.sable.util.Iterator j = sc.getMethods().iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				context.setRootMethod(sm);
-
-				for(Iterator k = processors.iterator(); k.hasNext();) {
-					((PostProcessor) k.next()).callback(sm);
-				}
-				LOGGER.info("Processing Method " + sm);
-
-				try {
-					StmtList sl = ((JimpleBody) sm.getBody(jimple)).getStmtList();
-
-					for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
-						Stmt stmt = (Stmt) k.next();
-						context.setStmt(stmt);
-						stmt.apply(stmtSwitcher);
-					}
-				} catch(Exception e) {
-					LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
-						+ " recognize the given method or it's parts or method has not stored jimple representation. : "
-						+ sm.getSignature(), e);
-				}
-			}
+			processMethods(Util.convert("java.util.List", sc.getMethods()));
 		}
+	}
 
-		for(Iterator i = processors.iterator(); i.hasNext();) {
-			((PostProcessor) i.next()).consolidate();
+	/**
+	 * Controls the processing of method level entities.
+	 *
+	 * @param methods to be processed.
+	 */
+	public void processMethods(Collection methods) {
+		Jimple jimple = Jimple.v();
+
+		for(Iterator j = methods.iterator(); j.hasNext();) {
+			SootMethod sm = (SootMethod) j.next();
+			context.setRootMethod(sm);
+
+			for(Iterator k = processors.iterator(); k.hasNext();) {
+				((Processor) k.next()).callback(sm);
+			}
+			LOGGER.info("Processing Method " + sm);
+
+			try {
+				StmtList sl = ((JimpleBody) sm.getBody(jimple)).getStmtList();
+
+				for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
+					Stmt stmt = (Stmt) k.next();
+					context.setStmt(stmt);
+					stmt.apply(stmtSwitcher);
+				}
+			} catch(Exception e) {
+				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+					+ " recognize the given method or it's parts or method has not stored jimple representation. : "
+					+ sm.getSignature(), e);
+			}
 		}
 	}
 
@@ -445,10 +459,10 @@ public class PostProcessingController {
 	 *
 	 * @pre interest.oclType = Class
 	 */
-	public void register(Object interest, PostProcessor processor) {
+	public void register(Object interest, Processor processor) {
 		if(!(interest instanceof Class)) {
 			throw new IllegalArgumentException(
-				"In this PostProcessingController implementation, interest has to be of type java.lang.Class");
+				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
 		}
 
 		Class valueClass = (Class) interest;

@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors;
 
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
@@ -46,7 +46,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
@@ -83,7 +83,7 @@ import java.util.Set;
  * @version $Revision$
  */
 public class ThreadGraph
-  extends AbstractPostProcessor
+  extends AbstractProcessor
   implements ThreadGraphInfo {
 	/**
 	 * This provides call graph information pertaining to the system.
@@ -133,7 +133,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#setAnalyzer(AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer ofa) {
 		this.ofa = (OFAnalyzer) ofa;
@@ -321,9 +321,9 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
-	public void hookup(PostProcessingController ppc) {
+	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
@@ -394,5 +394,9 @@ public class ThreadGraph
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

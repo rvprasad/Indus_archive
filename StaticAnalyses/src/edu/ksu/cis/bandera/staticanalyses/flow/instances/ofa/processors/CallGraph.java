@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
@@ -54,10 +54,10 @@ import ca.mcgill.sable.util.List;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
+import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
 import edu.ksu.cis.bandera.staticanalyses.support.Marker;
 import edu.ksu.cis.bandera.staticanalyses.support.Node;
 import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph;
@@ -87,9 +87,9 @@ import java.util.Stack;
  * @version $Revision$
  */
 public class CallGraph
-  extends AbstractPostProcessor
+  extends AbstractProcessor
   implements CallGraphInfo,
-	  PostProcessor {
+	  Processor {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -166,7 +166,7 @@ public class CallGraph
 	 *
 	 * @throws IllegalArgumentException when the analyzer is not an instance of <code>OFAnalyzer</code>.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 		if(analyzer instanceof OFAnalyzer) {
@@ -394,7 +394,7 @@ public class CallGraph
 	 * @param value is the AST node to be processed.
 	 * @param context in which value should be processed.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -473,7 +473,7 @@ public class CallGraph
 	/**
 	 * This calculates information such as heads, tails, recursion roots, and such.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#consolidate()
 	 */
 	public void consolidate() {
 		heads.addAll(analyzer.getRoots());
@@ -591,9 +591,9 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
-	public void hookup(PostProcessingController ppc) {
+	public void hookup(ProcessingController ppc) {
 		ppc.register(VirtualInvokeExpr.class, this);
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
@@ -646,5 +646,9 @@ public class CallGraph
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

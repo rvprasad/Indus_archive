@@ -44,7 +44,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 
 
 /**
@@ -56,7 +56,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
  * @author $Author$
  * @version $Revision$
  */
-public interface PostProcessor {
+public interface Processor {
 	/**
 	 * Sets the analyzer that provides the low-level information to be processed..
 	 *
@@ -124,12 +124,16 @@ public interface PostProcessor {
 	 *
 	 * @param ppc is the post processing controller.
 	 */
-	public void hookup(PostProcessingController ppc);
+	public void hookup(ProcessingController ppc);
 }
 
 /*****
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/
