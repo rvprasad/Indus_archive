@@ -17,23 +17,32 @@ package edu.ksu.cis.indus.tools.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
@@ -122,14 +131,15 @@ public final class ExecutableSlicePostProcessor
 	 */
 	public void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
-		collector = theCollector;
-		bbgMgr = basicBlockMgr;
-		methodWorkBag.addAllWorkNoDuplicates(taggedMethods);
-
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
 		}
 
+		collector = theCollector;
+		bbgMgr = basicBlockMgr;
+		methodWorkBag.addAllWorkNoDuplicates(taggedMethods);
+
+		// process the methods and gather the collected classes
 		while (methodWorkBag.hasWork()) {
 			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
 			processedMethodCache.add(_method);
@@ -150,6 +160,8 @@ public final class ExecutableSlicePostProcessor
 			}
 		}
 
+		fixupClassHierarchy();
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Post Processing.");
 		}
@@ -161,6 +173,59 @@ public final class ExecutableSlicePostProcessor
 	public void reset() {
 		methodWorkBag.clear();
 		processedMethodCache.clear();
+	}
+
+	/**
+	 * Retreives the class in the topologically sorted top-down order.
+	 *
+	 * @param classes to be ordered.
+	 *
+	 * @return a sequence of classes ordered in topological order based on hierarcy relation.
+	 *
+	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
+	 * @post result != null
+	 * @post result->forall(o | result->subSequence(1, result.indexOf(o))->includes(o.getSuperClass()) and
+	 * 		 result->subSequence(1, result.indexOf(o))->includesAll(o.getInterfaces())
+	 * @post result->forall(o | result->subSequence(result.indexOf(o), result->size())->excludes(o.getSuperClass()) and
+	 * 		 result->subSequence(result.indexOf(o) result->size())->excludesAll(o.getInterfaces())
+	 */
+	private List getClassesInTopologicallySortedTopDownOrder(final Collection classes) {
+		final SimpleNodeGraph _sng = new SimpleNodeGraph();
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Collection _processed = new HashSet();
+		_wb.addAllWork(classes);
+
+		while (_wb.hasWork()) {
+			final SootClass _sc = (SootClass) _wb.getWork();
+
+			if (!_processed.contains(_sc)) {
+				_processed.add(_sc);
+
+				final INode _sn = _sng.getNode(_sc);
+
+				for (final Iterator _i = CollectionUtils.subtract(_sc.getInterfaces(), classes).iterator(); _i.hasNext();) {
+					final SootClass _interface = (SootClass) _i.next();
+					_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
+
+					if (!_processed.contains(_interface)) {
+						_wb.addWorkNoDuplicates(_interface);
+					}
+				}
+
+				if (_sc.hasSuperclass()) {
+					final SootClass _superClass = _sc.getSuperclass();
+					_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
+
+					if (!_processed.contains(_superClass)) {
+						_wb.addWorkNoDuplicates(_superClass);
+					}
+				}
+			}
+		}
+
+		final List _tsch = _sng.performTopologicalSort(true);
+		CollectionUtils.transform(_tsch, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		return _tsch;
 	}
 
 	/**
@@ -190,6 +255,59 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
+	 * Fix up class hierarchy such that all abstract methods have an implemented counterpart in the slice.
+	 */
+	private void fixupClassHierarchy() {
+		final Map _class2abstractMethods = new HashMap();
+		final Collection _methods = new HashSet();
+		final Collection _temp = new HashSet();
+		final Collection _topologicallyOrderedClasses =
+			getClassesInTopologicallySortedTopDownOrder(collector.getClassesInSlice());
+
+		// fixup methods in to respect the class hierarchy  
+		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
+			SootClass _sc = (SootClass) _i.next();
+			_methods.clear();
+
+			// gather collected abstract methods from super interfaces and classes.
+			for (final Iterator _j = _sc.getInterfaces().iterator(); _j.hasNext();) {
+				final SootClass _interface = (SootClass) _j.next();
+				_methods.addAll(((Collection) _class2abstractMethods.get(_interface)));
+			}
+
+			if (_sc.hasSuperclass()) {
+				final Collection _col = ((Collection) _class2abstractMethods.get(_sc.getSuperclass()));
+				_methods.addAll(_col);
+			}
+
+			// remove all abstract methods which are overridden by collected methods of this class.
+			Util.removeMethodsWithSameSignature(_methods, collector.getCollected(_sc.getMethods()));
+			// gather uncollected methods of this class which have the same signature as any gathered "super" abstract 
+			// methods and include them in the slice.
+			_temp.clear();
+			_temp.addAll(_sc.getMethods());
+			Util.retainMethodsWithSameSignature(_temp, _methods);
+			collector.includeInSlice(_temp);
+			// remove abstract counterparts of all methods that were included in the slice in the previous step.
+			Util.removeMethodsWithSameSignature(_methods, _temp);
+
+			// gather collected abstract methods in this class/interface
+			if (_sc.isAbstract() || _sc.isInterface()) {
+				for (final Iterator _j = collector.getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
+					final SootMethod _sm = (SootMethod) _j.next();
+
+					if (_sm.isAbstract()) {
+						_methods.add(_sm);
+					}
+				}
+			}
+
+			// record the abstract methods
+			_class2abstractMethods.put(_sc, new ArrayList(_methods));
+		}
+	}
+
+	/**
 	 * Picks the return points of the method required to make it's slice executable.
 	 *
 	 * @param method to be processed.
@@ -205,8 +323,8 @@ public final class ExecutableSlicePostProcessor
 		// pick all return/throw points in the methods.
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = new HashSet();
-        _tails.addAll(_bbg.getTails());
-        _tails.addAll(_bbg.getPseudoTails());
+		_tails.addAll(_bbg.getTails());
+		_tails.addAll(_bbg.getPseudoTails());
 
 		for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
@@ -334,9 +452,7 @@ public final class ExecutableSlicePostProcessor
 			if (collector.hasBeenCollected(_stmt)) {
 				if (_stmt instanceof IdentityStmt) {
 					processIdentityStmt(method, (IdentityStmt) _stmt);
-				}
-
-				if (_stmt.containsInvokeExpr() && collector.hasBeenCollected(_stmt)) {
+				} else if (_stmt.containsInvokeExpr() && collector.hasBeenCollected(_stmt)) {
 					/*
 					 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
 					 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
@@ -407,10 +523,11 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/22 12:30:58  venku
+   - Considers pseudo tails during processing.
    Revision 1.8  2004/01/20 17:12:57  venku
    - while we include handlers, we do not include types referred
      to in the handlers.  FIXED.
-
    Revision 1.7  2004/01/19 22:52:49  venku
    - inclusion of method declaration with identical signature in the
      super classes/interfaces is a matter of executability.  Hence,
