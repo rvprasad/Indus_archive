@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
-import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 
 /**
@@ -48,7 +48,7 @@ public class XMLBasedOFATest
 	 *
 	 * @post result != null
 	 */
-	protected AbstractXMLizer getXMLizer() {
+	protected IXMLizer getXMLizer() {
 		return new OFAXMLizer();
 	}
 }
@@ -56,4 +56,8 @@ public class XMLBasedOFATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/07 20:27:54  venku
+   - refactoring! refactoring!
+   - generalized OFA Test base to be applicable to any value flow
+     analysis built on top of FA.
  */

@@ -42,6 +42,11 @@ public abstract class AbstractXMLizer
 	public static final Object FILE_NAME_ID = "FILE_NAME_ID";
 
 	/**
+	 * The mask used to extract the lower nibble of a byte.
+	 */
+	private static final int LOWER_NIBBLE_MASK = 0x0f;
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
@@ -49,7 +54,13 @@ public abstract class AbstractXMLizer
 	/**
 	 * The hexadecimal digits!
 	 */
-	private static char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	private static final char[] HEX_DIGITS =
+		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+	/**
+	 * The number of places to shift to get the higher nibble into the lower nibble position in a byte.
+	 */
+	private static final int NO_SHIFTS_FROM_HIGHER_TO_LOWER_NIBBLE = 4;
 
 	/**
 	 * This is the id generator used during xmlization.
@@ -232,7 +243,11 @@ public abstract class AbstractXMLizer
 
 		for (int _i = 0; _i < _bytes.length; _i++) {
 			final byte _b = _bytes[_i];
-			char[] _chars = { HEX_DIGITS[(_b >> 4) & 0x0f], HEX_DIGITS[_b & 0x0f] };
+			final char[] _chars =
+				{
+					HEX_DIGITS[(_b >> NO_SHIFTS_FROM_HIGHER_TO_LOWER_NIBBLE) & LOWER_NIBBLE_MASK],
+					HEX_DIGITS[_b & LOWER_NIBBLE_MASK]
+				};
 			_sb.append(new String(_chars));
 		}
 
@@ -273,6 +288,11 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
    Revision 1.22  2004/04/25 23:18:21  venku
    - coding conventions.
    Revision 1.21  2004/04/25 21:18:39  venku

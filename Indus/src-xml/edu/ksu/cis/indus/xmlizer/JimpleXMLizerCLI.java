@@ -115,10 +115,10 @@ public final class JimpleXMLizerCLI {
 					}
 					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(),
 						new AbstractProcessingFilter() {
-							public Collection localFilterClasses(final Collection _classes) {
+							public Collection localFilterClasses(final Collection classes) {
 								final Collection _result = new HashSet();
 
-								for (final Iterator _i = _classes.iterator(); _i.hasNext();) {
+								for (final Iterator _i = classes.iterator(); _i.hasNext();) {
 									final SootClass _element = (SootClass) _i.next();
 
 									if (_element.hasTag(_tag.getName())) {
@@ -175,9 +175,10 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/12 18:09:59  venku
+   - coding convention.
    Revision 1.4  2004/05/11 21:58:51  venku
    - xml is generated only for the specified classes.
-
    Revision 1.3  2004/05/11 21:49:29  venku
    - added class path specification feature to CLI.
    Revision 1.2  2004/05/10 11:28:24  venku

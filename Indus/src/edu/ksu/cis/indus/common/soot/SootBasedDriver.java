@@ -69,14 +69,14 @@ import soot.options.Options;
  */
 public class SootBasedDriver {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER;
-
-	/**
 	 * The name of the property via which the name of the root method trapper can be specified.
 	 */
 	public static final String TRAPPER_CLASS_PROPERTY;
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER;
 
 	static {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
@@ -106,13 +106,13 @@ public class SootBasedDriver {
 				throw new RuntimeException(_e);
 			}
 		}
-		defaultInstance = _rmt;
+		DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = _rmt;
 	}
 
 	/**
 	 * The default object that can be used for trapping root methods.
 	 */
-	private static final RootMethodTrapper defaultInstance;
+	private static final RootMethodTrapper DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
 
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
@@ -334,7 +334,9 @@ public class SootBasedDriver {
 	 * @post return != null
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
-		return new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
+		final IStmtGraphFactory _result =
+			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
+		return _result;
 	}
 
 	/**
@@ -451,7 +453,7 @@ public class SootBasedDriver {
 		RootMethodTrapper _rmt = rootMethodTrapper;
 
 		if (_rmt == null) {
-			_rmt = defaultInstance;
+			_rmt = DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
 			_rmt.theClassNames = Collections.unmodifiableCollection(classNames);
 		}
 
@@ -478,6 +480,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/05/12 13:38:43  venku
+   - Comparing Soot type objects acquired across reset()s will result in
+     inequality.  This causes RootMethodTrapper to fail.  FIXED.
    Revision 1.21  2004/05/09 09:35:00  venku
    - changes to enable configuration of root method trapper via a system property.
    Revision 1.20  2004/05/06 17:12:48  venku

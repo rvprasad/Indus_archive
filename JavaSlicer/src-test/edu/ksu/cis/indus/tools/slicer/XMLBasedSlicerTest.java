@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 
 /**
@@ -51,7 +51,7 @@ public final class XMLBasedSlicerTest
 	/**
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getXMLizer()
 	 */
-	protected AbstractXMLizer getXMLizer() {
+	protected IXMLizer getXMLizer() {
 		return setup.driver.getXMLizer();
 	}
 
@@ -68,9 +68,10 @@ public final class XMLBasedSlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/05/04 09:57:38  venku
+   - coding convention.
    Revision 1.2  2004/04/20 06:53:15  venku
    - documentation.
-
    Revision 1.1  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
    Revision 1.8  2004/03/21 20:13:17  venku
@@ -78,7 +79,7 @@ public final class XMLBasedSlicerTest
    Revision 1.7  2004/03/03 08:06:18  venku
    - renamed SliceXMLizer to SliceXMLizerCLI.
    Revision 1.6  2004/02/09 06:49:27  venku
-   empty log message 
+   empty log message
    Revision 1.5  2004/01/09 07:02:12  venku
    - Made -o mandatory in SliceDriver.
    - all information is dumped into directory specified via -o.

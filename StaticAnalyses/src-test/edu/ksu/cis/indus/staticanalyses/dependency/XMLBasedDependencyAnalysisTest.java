@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.AbstractXMLBasedTest;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 import java.util.Collections;
 
@@ -96,7 +96,7 @@ public class XMLBasedDependencyAnalysisTest
 	/**
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getXMLizer()
 	 */
-	protected AbstractXMLizer getXMLizer() {
+	protected IXMLizer getXMLizer() {
 		return xmlizer;
 	}
 
@@ -127,6 +127,8 @@ public class XMLBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/19 05:10:26  venku
+   - NPE's in test setup caused by unchecked reseting.
    Revision 1.3  2004/04/18 02:05:18  venku
    - memory leak fixes.
    Revision 1.2  2004/03/29 09:44:41  venku

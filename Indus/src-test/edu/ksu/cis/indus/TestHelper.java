@@ -130,7 +130,8 @@ public final class TestHelper {
 	 * @pre xmlTestDir != null and xmlControlDir != null
 	 * @post result != null
 	 */
-	public static String checkXMLBasedTestExecutability(final String configuration, final String xmlTestDir, final String xmlControlDir) {
+	public static String checkXMLBasedTestExecutability(final String configuration, final String xmlTestDir,
+		final String xmlControlDir) {
 		final StringBuffer _sb = new StringBuffer();
 		File _f = new File(xmlControlDir);
 
@@ -149,6 +150,8 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/20 05:27:16  venku
+   - renamed checkExecutability() to checkXMLBasedTestExecutability().
    Revision 1.12  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
    Revision 1.11  2004/04/17 23:35:43  venku

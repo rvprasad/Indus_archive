@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.util.Map;
 
+
 /**
  * This is the interface for xmlizing jimple-based systems.
  *
@@ -25,6 +26,18 @@ import java.util.Map;
  * @version $Revision$
  */
 public interface IXMLizer {
+	/**
+	 * Retrieves the name of the file that contains the test data.  The default implementation constructs a name from the
+	 * xmlizer.
+	 *
+	 * @param basename is the name upon which the file nam will be based upon.
+	 *
+	 * @return the name of the file.
+	 *
+	 * @post result != null
+	 */
+	String getFileName(final String basename);
+
 	/**
 	 * Set the xml id generator to be used in xml data generation.
 	 *
@@ -58,27 +71,27 @@ public interface IXMLizer {
 	 * @return the directory into which xml data will be dumped.
 	 */
 	String getXmlOutputDir();
-    
-    /**
-     * Writes information in XML form.
-     *
-     * @param info is a map in which information required for xmlization will be provided.
-     *
-     * @pre info != null
-     */
-    void writeXML(final Map info);
+
+	/**
+	 * Writes information in XML form.
+	 *
+	 * @param info is a map in which information required for xmlization will be provided.
+	 *
+	 * @pre info != null
+	 */
+	void writeXML(final Map info);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/22 23:02:49  venku
+   - moved writeXML into IXMLizer.
    Revision 1.4  2004/02/09 02:00:11  venku
    - changed AbstractXMLizer.
    - ripple effect.
-
    Revision 1.3  2004/02/08 19:08:03  venku
    - documentation
-
    Revision 1.2  2003/12/16 00:29:12  venku
    - documentation.
    Revision 1.1  2003/12/13 02:28:53  venku

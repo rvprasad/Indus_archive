@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -58,7 +59,7 @@ public abstract class AbstractXMLBasedTest
 	/**
 	 * The xmlizer used to xmlize analysis info before testing.
 	 */
-	protected AbstractXMLizer xmlizer;
+	protected IXMLizer xmlizer;
 
 	/**
 	 * The map of interface id to interface implementation instances.
@@ -98,7 +99,7 @@ public abstract class AbstractXMLBasedTest
 	/**
 	 * @see IXMLBasedTest#setIdGenerator(IJimpleIDGenerator)
 	 */
-	public final void setIdGenerator(IJimpleIDGenerator generator) {
+	public final void setIdGenerator(final IJimpleIDGenerator generator) {
 		idGenerator = generator;
 	}
 
@@ -204,7 +205,7 @@ public abstract class AbstractXMLBasedTest
 	 *
 	 * @post result != null
 	 */
-	protected abstract AbstractXMLizer getXMLizer();
+	protected abstract IXMLizer getXMLizer();
 
 	/**
 	 * Local test setup to be provided by subclasses.  Default implementation will add the name obtained via
@@ -248,6 +249,12 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.17  2004/04/22 08:23:43  venku
    - DetailedDiff causes the test cases to fail.  FIXED.
    Revision 1.16  2004/04/21 09:08:16  venku

@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
-import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 
 /**
@@ -68,7 +68,7 @@ public final class XMLBasedCallGraphTest
 	/**
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getXMLizer()
 	 */
-	protected AbstractXMLizer getXMLizer() {
+	protected IXMLizer getXMLizer() {
 		return new CallGraphXMLizer();
 	}
 }
@@ -76,6 +76,9 @@ public final class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/03/09 18:40:03  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
    Revision 1.11  2004/03/07 20:27:54  venku
    - refactoring! refactoring!
    - generalized OFA Test base to be applicable to any value flow

@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
 
-import java.nio.charset.Charset;
-
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.ArrayType;
@@ -794,6 +792,11 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
    Revision 1.6  2004/05/13 01:14:21  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.
