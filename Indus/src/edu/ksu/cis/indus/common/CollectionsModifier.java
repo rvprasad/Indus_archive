@@ -38,6 +38,30 @@ public final class CollectionsModifier {
 	///CLOVER:ON
 
 	/**
+	 * Retrieves the value for a key from the map.  If the key has no mapping, a new mapping from the key to the given
+	 * default value is inserted into the map.
+	 *
+	 * @param map to be read.
+	 * @param key for which the value should be retrieved.
+	 * @param defaultValue is the default value.
+	 *
+	 * @return the value mapped to <code>key</code>.
+	 *
+	 * @pre map != null and key != null and value != null
+	 * @post map.get(key) != null
+	 * @post result != null
+	 */
+	public static Object getFromMap(final Map map, final Object key, final Object defaultValue) {
+		Object _return = map.get(key);
+
+		if (_return == null) {
+			_return = defaultValue;
+			map.put(key, defaultValue);
+		}
+		return _return;
+	}
+
+	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
 	 * against the  given key, the given collection is installed as the value for the given key and the values are loaded
 	 * into it.
@@ -87,6 +111,8 @@ public final class CollectionsModifier {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/28 22:45:42  venku
+   - added clover source code directives.
    Revision 1.3  2004/01/25 08:57:24  venku
    - coding convention.
    Revision 1.2  2004/01/22 00:53:32  venku
