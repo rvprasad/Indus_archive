@@ -142,7 +142,7 @@ public abstract class AController {
 	 *
 	 * @return the implementation registered for the given purpose.  <code>null</code>, if there is no registered analysis.
 	 */
-	public final AAnalysis getDAnalysis(final String name) {
+	public final AAnalysis getAnalysis(final String name) {
 		return (AAnalysis) participatingAnalyses.get(name);
 	}
 
@@ -278,6 +278,10 @@ public abstract class AController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
+
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
