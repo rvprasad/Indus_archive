@@ -123,9 +123,7 @@ public class ProcessingController {
 	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * A collection of all possible Jimple statement types for which a processor can register interest.
 	 */
 	public static final Collection STMT_CLASSES;
 
@@ -199,9 +197,7 @@ public class ProcessingController {
 	}
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * A collection of all possible Jimple value types for which a processor can register interest.
 	 */
 	public static final Collection VALUE_CLASSES;
 
@@ -232,16 +228,12 @@ public class ProcessingController {
 	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(new ValueSwitcher());
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if statements are being processed.
 	 */
 	boolean processStmts;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if values are being processed.
 	 */
 	boolean processValues;
 
@@ -1005,11 +997,11 @@ public class ProcessingController {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initializes the processors before processing the system.
 	 *
-	 * @param processors DOCUMENT ME!
+	 * @param processors to be initialized.
+	 *
+	 * @pre processors != null
 	 */
 	protected void initializeProcessors(final Collection processors) {
 	}
@@ -1105,6 +1097,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/15 21:19:36  venku
+   - added methods to register/unregister for all value types.
    Revision 1.9  2003/11/10 08:09:02  venku
    - documentation.
    Revision 1.8  2003/11/10 07:56:20  venku

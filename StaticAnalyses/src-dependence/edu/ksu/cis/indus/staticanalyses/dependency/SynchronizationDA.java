@@ -69,9 +69,7 @@ public class SynchronizationDA
   extends DependencyAnalysis
   implements IMonitorInfo {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SynchronizationDA.class);
 
@@ -509,6 +507,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
    Revision 1.18  2003/11/10 03:17:18  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
