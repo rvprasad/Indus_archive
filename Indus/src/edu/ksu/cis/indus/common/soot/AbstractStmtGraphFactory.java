@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,6 +22,9 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 import soot.VoidType;
@@ -44,7 +47,12 @@ import soot.toolkits.graph.UnitGraph;
  */
 public abstract class AbstractStmtGraphFactory
   implements IStmtGraphFactory {
-	/**
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractStmtGraphFactory.class);
+
+	/** 
 	 * This maps methods to unit graphs.
 	 *
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
@@ -63,6 +71,10 @@ public abstract class AbstractStmtGraphFactory
 	 * @post 1method.isConcrete() implies result.getBody() != method.getBody()
 	 */
 	public final UnitGraph getStmtGraph(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getStmtGraph(method = " + method + ")");
+		}
+
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
 		UnitGraph _result = null;
 		boolean _flag = false;
@@ -134,14 +146,15 @@ public abstract class AbstractStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/08 10:11:39  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
    Revision 1.3  2004/06/12 20:42:21  venku
    - renaming of methods.
-
    Revision 1.2  2004/03/26 00:22:31  venku
    - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
    - ripple effect.
    - changed logic in ExceptionFlowSensitiveStmtGraph.
-
    Revision 1.1  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.

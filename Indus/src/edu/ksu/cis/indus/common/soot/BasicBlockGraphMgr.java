@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.ksu.cis.indus.common.Constants;
 
 import java.lang.ref.SoftReference;
@@ -38,6 +41,12 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
+
+    /**
+     * The logger used by instances of this class to log messages.
+     */
+    private static final Log LOGGER = LogFactory.getLog(BasicBlockGraphMgr.class);
+
 	/** 
 	 * This maps methods to basic block graphs.
 	 *
@@ -66,6 +75,10 @@ public final class BasicBlockGraphMgr {
 	 * @throws IllegalStateException when this method is called without calling <code>setStmtGraphProvider()</code>.
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getBasicBlockGraph(method = " + sm + ")");
+		}
+	    
 		if (stmtGraphProvider == null) {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
 				+ "calling this method.");
@@ -104,6 +117,10 @@ public final class BasicBlockGraphMgr {
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
 	public List getStmtList(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getStmtList(method = " + method + ")");
+		}
+
 		List _result = (List) method2stmtlist.get(method);
 
 		if (_result == null) {
@@ -155,6 +172,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/16 16:48:56  venku
+   - changed the names of the methods that set and get UnitGraph or related classes to
+     contain StmtGraph instead of UnitGraph.
+
    Revision 1.3  2004/08/16 14:13:47  venku
    - added a new method to retrieve statement lists of methods.  This may not
      be the best place to store this information (may be statement graph factory is)
