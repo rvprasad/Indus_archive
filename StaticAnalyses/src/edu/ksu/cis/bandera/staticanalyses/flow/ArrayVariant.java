@@ -1,26 +1,42 @@
 package edu.ksu.cis.bandera.bfa;
 
 
-import org.apache.log4j.Category;
 import ca.mcgill.sable.soot.ArrayType;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+//ArrayVariant.java
 /**
- * ArrayVariant.java
+ * Variant representing arrays.
  *
- *
- * Created: Fri Jan 25 16:05:27 2002
+ * <p>Created: Fri Jan 25 16:05:27 2002</p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ $Name$
+ * @version $Revision$
  */
 
 public class ArrayVariant extends AbstractValuedVariant {
 
-	private static final Category cat = Category.getInstance(ArrayVariant.class.getName());
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
+	 *
+	 */
+	private static final Logger logger = LogManager.getLogger(ArrayVariant.class);
 
+	/**
+	 * <p>The array type being represented by this variant.</p>
+	 *
+	 */
 	public final ArrayType type;
 
-	protected ArrayVariant (ArrayType a, AbstractFGNode node){
+	/**
+	 * <p>Creates a new <code>ArrayVariant</code> instance.</p>
+	 *
+	 * @param a the array type to which this variant corresonds to.
+	 * @param node the flow graph node corresponding to this variant.
+	 */
+	protected ArrayVariant (ArrayType a, FGNode node){
 		super(node);
 		this.type = a;
 	}

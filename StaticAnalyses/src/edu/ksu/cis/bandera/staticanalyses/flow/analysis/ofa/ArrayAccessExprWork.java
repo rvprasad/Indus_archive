@@ -1,38 +1,63 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
 
-import ca.mcgill.sable.soot.ArrayType;
-import ca.mcgill.sable.soot.jimple.ArrayRef;
-import ca.mcgill.sable.soot.jimple.NullConstant;
-import ca.mcgill.sable.soot.jimple.Value;
 import edu.ksu.cis.bandera.bfa.BFA;
 import edu.ksu.cis.bandera.bfa.Context;
 import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.FGNodeConnector;
 import edu.ksu.cis.bandera.bfa.MethodVariant;
+
+import ca.mcgill.sable.soot.ArrayType;
+import ca.mcgill.sable.soot.jimple.ArrayRef;
+import ca.mcgill.sable.soot.jimple.NullConstant;
+import ca.mcgill.sable.soot.jimple.Value;
+
 import java.util.Iterator;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+// ArrayAccessExprWork.java
 /**
- * ArrayAccessExprWork.java
  *
  *
  * Created: Wed Mar  6 12:31:07 2002.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ $Name$
+ * @version $Revision$
  */
 
 public class ArrayAccessExprWork extends AbstractAccessExprWork {
 
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
+	 *
+	 */
 	private static final Logger logger = LogManager.getLogger(ArrayAccessExprWork.class);
 
+	/**
+	 * <p>The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
+	 * primary.</p>
+	 *
+	 */
 	protected final FGNode ast;
 
+	/**
+	 * <p>The connector to be used to connect the ast and non-ast node.</p>
+	 *
+	 */
 	protected final FGNodeConnector connector;
 
-	public ArrayAccessExprWork (MethodVariant caller, Value accessExpr, Context context, FGNode ast,
+	/**
+	 * <p>Creates a new <code>ArrayAccessExprWork</code> instance.</p>
+	 *
+	 * @param caller the method in which the access occurs.
+	 * @param accessExpr the array access expression.
+	 * @param context the context in which the access occurs.
+	 * @param ast the flow graph node associated with the access expression.
+	 * @param connector the connector to use to connect the ast node to the non-ast node.
+	 */
+	public ArrayAccessExprWork (MethodVariant caller, ArrayRef accessExpr, Context context, FGNode ast,
 								FGNodeConnector connector){
 		super(caller, accessExpr, context);
 		this.ast = ast;
@@ -40,7 +65,11 @@ public class ArrayAccessExprWork extends AbstractAccessExprWork {
 		logger.debug(String.valueOf(hashCode()));
 	}
 
-	public void execute() {
+	/**
+	 * <p>Connects non-ast nodes to ast nodes when new values arrive at the primary of the array access expression.</p>
+	 *
+	 */
+	public synchronized void execute() {
 		ArrayType atype = (ArrayType)((ArrayRef)accessExpr).getBase().getType();
 		BFA bfa = caller.bfa;
 

@@ -1,7 +1,5 @@
 package edu.ksu.cis.bandera.bfa;
 
-
-
 import ca.mcgill.sable.soot.BodyRepresentation;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
@@ -13,14 +11,17 @@ import ca.mcgill.sable.soot.jimple.StmtBody;
 import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.util.Iterator;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+//MethodVariant.java
 /**
- * MethodVariant.java
+ * <p>The variant that represents a method implementation.  It maintains variant specific information about local variables
+ * and the AST nodes in associated method. It also maintains information about the parameters, this variable, and return
+ * values, if any are present. </p>
  *
- *
- * Created: Tue Jan 22 05:27:59 2002
+ * <p>Created: Tue Jan 22 05:27:59 2002</p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
@@ -28,28 +29,87 @@ import org.apache.log4j.Logger;
 
 public class MethodVariant implements Variant {
 
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purposes.</p>
+	 *
+	 */
 	private static final Logger logger = LogManager.getLogger(MethodVariant.class.getName());
 
+	/**
+	 * <p>The statement visitor used to process in the statement in the correpsonding method.</p>
+	 *
+	 */
 	protected final AbstractStmtSwitch stmt;
 
-	protected final AbstractFGNode[] parameters;
+	/**
+	 * <p>The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
+	 * <code>null</code>, if the associated method has not parameters..</p>
+	 *
+	 */
+	protected final FGNode[] parameters;
 
-	protected final AbstractFGNode thisVar;
+	/**
+	 * <p>The flow graph nodes associated with the this variable of the corresponding method.  This will be
+	 * <code>null</code>, if the associated method is <code>static</code>.</p>
+	 *
+	 */
+	protected final FGNode thisVar;
 
-	protected final AbstractFGNode returnVar;
+	/**
+	 * <p>The flow graph node associated with an abstract single return point of the corresponding method.  This will be
+	 * <code>null</code>, if the associated method's return type is <code>void</code>.</p>
+	 *
+	 */
+	protected final FGNode returnVar;
 
+	/**
+	 * <p>The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
+	 * locations in the AST as it serves the purpose of AST representation.</p>
+	 *
+	 */
 	protected final ASTVariantManager astvm;
 
+	/**
+	 * <p>This object is used to create <code>Jimple</code> representation of the associated method.  This is required to
+	 * extract the list of statement corresponding to the method body and walk over it.</p>
+	 *
+	 */
 	public static final BodyRepresentation bodyrep = Jimple.v();
 
+	/**
+	 * <p>The instance of <code>BFA</code> which was responsible for the creation of this variant.
+	 *
+	 */
 	public final BFA bfa;
 
+	/**
+	 * <p>The context which resulted in the creation of this variant.</p>
+	 *
+	 */
 	public final Context context;
 
+	/**
+	 * <p>The method represented by this variant.</p>
+	 *
+	 */
 	public final SootMethod sm;
 
+	/**
+	 * <p>This provides the def sites for local variables in the associated method.  This is used in conjunction with
+	 * flow-sensitive information calculation.</p>
+	 *
+	 */
 	public final SimpleLocalDefs defs;
 
+	/**
+	 * <p>Creates a new <code>MethodVariant</code> instance.</p>
+	 *
+	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
+	 * @param astvm the manager of flow graph nodes corresponding to the AST nodes of <code>sm</code>.  This parameter cannot
+	 * be <code>null</code>.
+	 * @param bfa the instance of <code>BFA</code> which was responsible for the creation of this variant.  This parameter
+	 * cannot be <code>null</code>.
+	 */
 	protected MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa) {
 		this.sm = sm;
 		this.bfa = bfa;
@@ -102,30 +162,82 @@ public class MethodVariant implements Variant {
 
 	}
 
+	/**
+	 * <p>Returns the flow graph node associated with the given AST node in the context defined by
+	 * <code>this.context</code>.</p>
+	 *
+	 * @param v the AST node whose associted flow graph node is to be returned.
+	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
 	public final FGNode getASTNode(Value v) {
 		return getASTVariant(v).getFGNode();
 	}
 
+	/**
+	 * <p>Returns the flow graph node associated with the given AST node in the given context.</p>
+	 *
+	 * @param v the AST node whose associted flow graph node is to be returned.
+	 * @param c the context in which the flow graph node was associated with <code>v</code>.
+	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
 	public final FGNode getASTNode(Value v, Context c) {
 		return getASTVariant(v, c).getFGNode();
 	}
 
+	/**
+	 * <p>Returns the variant associated with the given AST node in the context defined by <code>this.context</code>.</p>
+	 *
+	 * @param v the AST node whose associted variant is to be returned.
+	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
 	public final ASTVariant getASTVariant(Value v) {
 		return (ASTVariant)astvm.select(v, context);
 	}
 
+	/**
+	 * <p>Returns the variant associated with the given AST node in the given context.</p>
+	 *
+	 * @param v the AST node whose associated variant is to be returned.
+	 * @param context the context in which the variant was associated with <code>v</code>.
+	 * @return the variant associated with <code>v</code> in the context <code>c</code>.  If none exists, <code>null</code> is
+	 * returned.
+	 */
 	public final ASTVariant getASTVariant(Value v, Context context) {
+		logger.debug(context.getCurrentMethod() + "\n" + context + ((ASTVariant)astvm.select(v, context)).hashCode());
 		return (ASTVariant)astvm.select(v, context);
 	}
 
+	/**
+	 * <p>Returns the flow graph node associated with the given parameter.</p>
+	 *
+	 * @param index the index of the parameter in the parameter list of the associated method.
+	 * @return the flow graph node associated with the <code>index</code>th parameter in the parameter list of the associated
+	 * method.  It returns <code>null</code> if the method has no parameters.
+	 */
 	public final FGNode getParameterNode(int index) {
-		return parameters[index];
+		FGNode temp = null;
+		if (index >= 0 && index <= sm.getParameterCount())
+			temp = parameters[index];
+		return temp;
 	}
 
+	/**
+	 * <p>Returns the flow graph node that represents an abstract single return point of the associated method.</p>
+	 *
+	 * @return the flow graph node that represents an abstract single return point of the associated method.
+	 */
 	public final FGNode getReturnNode() {
 		return returnVar;
 	}
 
+	/**
+	 * <p>Returns the flow graph node associated with the <code>this</code> variable of the associated method.</p>
+	 *
+	 * @return Returns the flow graph node associated with the <code>this</code> variable of the associated method.
+	 */
 	public final FGNode getThisNode() {
 		return thisVar;
 	}

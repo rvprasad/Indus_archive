@@ -1,38 +1,68 @@
 package edu.ksu.cis.bandera.bfa;
 
-import org.apache.log4j.Category;
 import java.util.Collection;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+//AbstractValuedVariant.java
 /**
- * AbstractValuedVariant.java
  *
- * This is required to represent entities associated with nodes unlike control associated variants
- * like method variants.
+ * <p>Variant of entities associated with data such as AST nodes and fields.  All such data related variants should extend
+ * this class.</p>
  *
- * Created: Tue Jan 22 15:44:48 2002
+ * <p>Created: Tue Jan 22 15:44:48 2002</p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ $Name$
+ * @version $Revision$
  */
 
 public abstract class AbstractValuedVariant implements Variant {
 
-	protected AbstractFGNode node;
+	/**
+	 * <p>The flow graph node associated with this variant.</p>
+	 *
+	 */
+	protected FGNode node;
 
-	private static final Category cat = Category.getInstance(AbstractValuedVariant.class.getName());
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
+	 *
+	 */
+	private static final Logger logger = LogManager.getLogger(AbstractValuedVariant.class);
 
-	AbstractValuedVariant (AbstractFGNode node){
-		setFGNode(node);
-	}
-
-	public void setFGNode(AbstractFGNode node) {
+	/**
+	 * <p>Creates a new <code>AbstractValuedVariant</code> instance.</p>
+	 *
+	 * @param node the flow graph node associated with this variant.
+	 */
+	AbstractValuedVariant (FGNode node){
 		this.node = node;
 	}
 
-	public AbstractFGNode getFGNode() {
+	/**
+	 * <p>Sets the given node as the flow graph node of this variant.</p>
+	 *
+	 * @param node the node to be set as the flow graph node of this variant.
+	 */
+	public void setFGNode(FGNode node) {
+		this.node = node;
+	}
+
+	/**
+	 * <p>Returns the flow graph node associated with this node.</p>
+	 *
+	 * @return the flow graph node associated with this node.
+	 */
+	public FGNode getFGNode() {
 		return node;
 	}
 
+	/**
+	 * <p>Returns the set of values associated with this variant.</p>
+	 *
+	 * @return the set of values associated with this variant.
+	 */
 	public final Collection getValues() {
 		return node.getValues();
 	}

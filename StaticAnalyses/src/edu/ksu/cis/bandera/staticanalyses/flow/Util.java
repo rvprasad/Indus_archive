@@ -1,38 +1,5 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Bandera, a Java(TM) analysis and transformation toolkit           *
- * Copyright (C) 1999, 2000, 2001                                    *
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)                 *
- * All rights reserved.                                              *
- *                                                                   *
- * This work was done as a project in the SAnToS Laboratory,         *
- * Department of Computing and Information Sciences, Kansas State    *
- * University, USA (http://www.cis.ksu.edu/santos).                  *
- * It is understood that any modification not identified as such is  *
- * not covered by the preceding statement.                           *
- *                                                                   *
- * This work is free software; you can redistribute it and/or        *
- * modify it under the terms of the GNU Library General Public       *
- * License as published by the Free Software Foundation; either      *
- * version 2 of the License, or (at your option) any later version.  *
- *                                                                   *
- * This work is distributed in the hope that it will be useful,      *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of    *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU *
- * Library General Public License for more details.                  *
- *                                                                   *
- * You should have received a copy of the GNU Library General Public *
- * License along with this toolkit; if not, write to the             *
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,      *
- * Boston, MA  02111-1307, USA.                                      *
- *                                                                   *
- * Java is a trademark of Sun Microsystems, Inc.                     *
- *                                                                   *
- * To submit a bug report, send a comment, or get the latest news on *
- * this project and other SAnToS projects, please visit the web-site *
- *                http://www.cis.ksu.edu/santos                      *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 package edu.ksu.cis.bandera.bfa;
+
 
 import ca.mcgill.sable.soot.NoSuchMethodException;
 import ca.mcgill.sable.soot.SootClass;
@@ -44,141 +11,128 @@ import ca.mcgill.sable.util.VectorList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-/*
- * Util.java
- * $Id$
- */
+//Util.java
 
 /**
- * This class provides utility methods which can be used through out the package.
+ * <p>General utility class providing common chore methods.</p>
  *
  * @author <a href="mailto:rvprasad@cis.ksu.edu">Venkatesh Prasad Ranganath</a>
- * @version $Name$($Revision$)
+ * @version $Revision$
  */
 
 public class Util {
 
 	/**
-	 * An empty list to be used for queries on no parameter method.
+	 * <p>An empty list to be used for queries on no parameter method.  The contents of this list should not be altered.</p>
 	 *
 	 */
-	final private static VectorList emptyParamList = new VectorList();
+	final private static List emptyParamList = new VectorList();
 
 	/**
-	 * Provides logging through log4j.
+	 * <p>An instance of <code>Logger</code> used for logging facility.</p>
 	 *
 	 */
-	private static Category cat = Category.getInstance(Util.class.getName());
+	private static final Logger logger = LogManager.getLogger(Util.class);
 
 	/**
-	 * A private constructor to prevent the instantiation of an object of this class.
+	 * <p>A private constructor to prevent the instantiation of this class.</p>
 	 */
 	private Util() {
 	}
 
 	/**
-	 * Provides a empty parameter list.
+	 * <p>Creates a new object which is of type <code>ca.mcgill.sable.util.Collection</code> and copies the contents of
+	 * <code>src</code> into it.</p>
 	 *
-	 * @return returns a empty parameter list.
+	 * @param targetType name of the class which implements <code>ca.mcgill.sable.util.Collection</code> interface and which
+	 * will be the actual type of the returned object.
+	 * @param src an object which implements <code>java.util.Collection</code> interface and contains values that need to be
+	 * copied.
+	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 */
-	public static VectorList getEmptyParamList()
-	{
-		return emptyParamList;
-	}
-
-	/**
-	 * Creates a new object which implements ca.mcgill.sable.util.Collection and copy the contents of the given
-	 * java.util.collection into it.
-	 *
-	 * @param name <code>String</code> is the name of the class which implements ca.mcgill.sable.util.collection interface and
-	 * which will be the actual type of the returned object.
-	 * @param c <code>Collection</code> is an object which implements java.util.Collection interface and contains values that
-	 * need to be copied into another container object and returned.
-	 * @return <code>ca.mcgill.sable.util.Collection</code> implementing object of type <code>String</code> containing all the
-	 * values that were in <code>Collection</code>.
-	 */
-	public static ca.mcgill.sable.util.Collection convert(String name, Collection c) {
+	public static ca.mcgill.sable.util.Collection convert(String targetType, Collection src) {
 		ca.mcgill.sable.util.Collection retval = null;
 		try {
-			Class collect = Class.forName(name);
+			Class collect = Class.forName(targetType);
 			retval = (ca.mcgill.sable.util.Collection)collect.newInstance();
-			if (c != null) {
-				Iterator i = c.iterator();
+			if (src != null) {
+				Iterator i = src.iterator();
 				while (i.hasNext()) {
 					retval.add(i.next());
 				} // end of while (i.hasNext())
 			} // end of if (c != null)
-
+		} catch (ClassCastException e) {
+			logger.warn(targetType + " does not implement java.util.Collection.", e);
 		} catch (ClassNotFoundException e) {
-			cat.info("The class named " + name + " is not available in the " + "class path.");
-			e.printStackTrace();
+			logger.warn("The class named " + targetType + " is not available in the class path.", e);
 		} catch (Exception e) {
-			cat.info("Error instantiating an object of class " + name + ".");
-			e.printStackTrace();
-			retval = null;
+			logger.warn("Error instantiating an object of class " + targetType + ".", e);
 		} // end of catch
 
 		return retval;
 	}
 
 	/**
-	 * Creates a new object which implements java.util.Collection and copy the contents of the given
-	 * ca.mcgill.sable.util.collection into it.
+	 * <p>Creates a new object which is of type <code>java.util.Collection</code> and copies the contents of the
+	 * <code>src</code> into it.</p>
 	 *
-	 * @param name <code>String</code> is the name of the class which implements java.util.collection interface and which will
-	 * be the actual type of the returned object.
-	 * @param c <code>Collection</code> is an object which implements ca.mcgill.sable.util.Collection interface and contains
-	 * values that need to be copied into another container object and returned.
-	 * @return <code>java.util.Collection</code> implementing object of type <code>String</code> containing all the values
-	 * that were in <code>Collection</code>.
+	 * @param targetType name of the class which implements <code>java.util.Collection</code> interface and which will be the
+	 * actual type of the returned object.
+	 * @param src an object which implements <code>ca.mcgill.sable.util.Collection</code> interface and contains values that
+	 * need to be copied.
+	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 */
-	public static Collection convert(String name, ca.mcgill.sable.util.Collection c) {
+	public static Collection convert(String targetType, ca.mcgill.sable.util.Collection src) {
 		Collection retval = null;
 		try {
-			Class collect = Class.forName(name);
+			Class collect = Class.forName(targetType);
 			retval = (Collection)collect.newInstance();
-			if (c != null) {
-				ca.mcgill.sable.util.Iterator i = c.iterator();
+			if (src != null) {
+				ca.mcgill.sable.util.Iterator i = src.iterator();
 				while (i.hasNext()) {
 					retval.add(i.next());
 				} // end of while (i.hasNext())
 
 			} // end of if (c != null)
+		} catch (ClassCastException e) {
+			logger.warn(targetType + " does not implement java.util.Collection.", e);
 		} catch (ClassNotFoundException e) {
-			cat.info("The class named " + name + " is not available in the class path.");
-			e.printStackTrace();
+			logger.warn("The class named " + targetType + " is not available in the class path.", e);
 		} catch (Exception e) {
-			cat.info("Error instantiating an object of class " + name + ".");
-			e.printStackTrace();
-			retval = null;
+			logger.warn("Error instantiating an object of class " + targetType + ".", e);
 		} // end of catch
 
 		return retval;
 	}
 
 	/**
-	 * Shorthand version of Util.getDefiningClass() where the parameter list is empty and the returnType is void.
+	 * <p>Provides the <code>SootClass</code> which injects the given method into the specific branch of the inheritence
+	 * hierarchy which contains <code>sc<code>.  This is a shorthand version of Util.getDeclaringClass() where the
+	 * <code>parameterTypes</code> is empty and the returnType is <code>VoidType</code>.</p>
 	 *
 	 * @param sc class in or above which the method may be defined.
 	 * @param method name of the method (not the fully classified name).
-	 * @return If there is such a class then a SootClass object is returned else null is returned.
+	 * @return If there is such a class then a <code>SootClass</code> object is returned; <code>null</code> otherwise.
+	 * @throws <code>ca.mcgill.sable.soot.NoSuchMethodException</code> is thrown when no such method is declared in the given
+	 * hierarchy.
 	 */
-	public static SootClass getDeclaringClass(SootClass sc, String method) {
+	public static SootClass getDeclaringClassFromName(SootClass sc, String method) {
 		return getDeclaringClass(sc, method, emptyParamList, VoidType.v());
 	}
 
 	/**
-	 * Provides the SootClass which injects the given method into the specific branch of the inheritence hierarchy to which sc
-	 * belongs to.
+	 * <p>Provides the <code>SootClass</code> which injects the given method into the specific branch of the inheritence
+	 * hierarchy which contains <code>sc</code>.</p>
 	 *
 	 * @param sc class that defines the branch in which the injecting class exists.
 	 * @param method name of the method (not the fully classified name).
 	 * @param parameterTypes list of type of the parameters of the method.
 	 * @param returnType return type of the method.
-	 * @return If there is such a class then a SootClass object is returned.
-	 * @throw <code>ca.mcgill.sable.soot.NoSuchMethodException</code> is thrown when no such method is declared in the given
+	 * @return If there is such a class then a <code>SootClass</code> object is returned; <code>null</code> otherwise.
+	 * @throws <code>ca.mcgill.sable.soot.NoSuchMethodException</code> is thrown when no such method is declared in the given
 	 * hierarchy.
 	 */
 	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType) {
@@ -187,19 +141,19 @@ public class Util {
 			if (contains.hasSuperClass()) {
 				contains = contains.getSuperClass();
 			} else {
-				throw new NoSuchMethodException(sc + "." + method);
+				throw new NoSuchMethodException(sc + " does not define " + method + ".");
 			} // end of else
 		}
 		return contains;
 	}
 
 	/**
-	 * <code>isAncestorOf</code> checks if a class is an ancestor of another.  It is assumed that a class cannot be it's own
-	 * ancestor.
+	 * <p>Checks if one class is an ancestor of another.  It is assumed that a class cannot be it's own ancestor.</p>
 	 *
-	 * @param child <code>SootClass</code> representing the class whose ancestor is of interest.
-	 * @param ancestor <code>String</code> representing the name of the ancestor.
-	 * @return <code>boolean</code> true if ancestor is indeed is one of the ancestor, false otherwise.
+	 * @param child  class whose ancestor is of interest.
+	 * @param ancestor  fully qualified name of the ancestor class.
+	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of <code>child</code>;
+	 * false otherwise.
 	 */
 	public static boolean isAncestorOf(SootClass child, String ancestor) {
 		boolean retval = false;

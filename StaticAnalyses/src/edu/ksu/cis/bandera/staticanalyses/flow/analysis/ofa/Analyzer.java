@@ -1,6 +1,17 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
 
+import edu.ksu.cis.bandera.bfa.AbstractAnalyzer;
+import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
+import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
+import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.bfa.ClassManager;
+import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.ModeFactory;
+import edu.ksu.cis.bandera.bfa.modes.insensitive.IndexManager;
+import edu.ksu.cis.bandera.bfa.modes.sensitive.AllocationSiteSensitiveIndexManager;
+import edu.ksu.cis.bandera.bfa.modes.sensitive.FlowSensitiveASTIndexManager;
+
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootField;
@@ -12,36 +23,43 @@ import ca.mcgill.sable.soot.jimple.NewArrayExpr;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.NewMultiArrayExpr;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
-import edu.ksu.cis.bandera.bfa.AbstractAnalyzer;
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.ClassManager;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.ModeFactory;
-import edu.ksu.cis.bandera.bfa.modes.insensitive.IndexManager;
-import edu.ksu.cis.bandera.bfa.modes.sensitive.AllocationSiteSensitiveIndexManager;
-import edu.ksu.cis.bandera.bfa.modes.sensitive.FlowSensitiveASTIndexManager;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+// Analyzer.java
 /**
- * Analyzer.java
- *
+ * <p>This class serves as the interface to the external world for Object flow analysis information.</p>
  *
  * Created: Wed Jan 30 18:49:43 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ $Name$
+ * @version $Revision$ 
  */
 
 public class Analyzer extends AbstractAnalyzer {
 
-	private static final Logger cat = Logger.getLogger(Analyzer.class.getName());
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
+	 *
+	 */
+	private static final Logger logger = LogManager.getLogger(Analyzer.class);
 
+	/**
+	 * <p>Creates a new <code>Analyzer</code> instance.</p>
+	 *
+	 * @param name the name of the analysis instance.
+	 * @param astim the prototype of the index manager to be used in conjunction with AST nodes.
+	 * @param allocationim the prototype of the index manager to be used in conjunction with fields and arrays.
+	 * @param lexpr the LHS expression visitor prototype.
+	 * @param rexpr the RHS expression visitor prototype.
+	 * @param stmt the statement visitor prototype.
+	 */
 	private Analyzer (String name, AbstractIndexManager astim, AbstractIndexManager allocationim,
 					  AbstractExprSwitch lexpr, AbstractExprSwitch rexpr, AbstractStmtSwitch stmt) {
 		super(name, new ModeFactory(astim,
@@ -56,6 +74,12 @@ public class Analyzer extends AbstractAnalyzer {
 
 
 
+	/**
+	 * <p>Returns the analyzer that operates in flow insensitive and allocation-site insensitive modes.</p>
+	 *
+	 * @param name the name of the analysis instance.
+	 * @return the instance of analyzer correponding to the given name.
+	 */
 	public static Analyzer getFIOIAnalyzer(String name) {
 		AbstractIndexManager temp = new IndexManager();
 		return new Analyzer(name,
@@ -67,6 +91,12 @@ public class Analyzer extends AbstractAnalyzer {
 	}
 
 
+	/**
+	 * <p>Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes.</p>
+	 *
+	 * @param name the name of the analysis instance.
+	 * @return the instance of analyzer correponding to the given name.
+	 */
 	public static Analyzer getFSOIAnalyzer(String name) {
 		return new Analyzer(name,
 							new FlowSensitiveASTIndexManager(),
@@ -76,6 +106,12 @@ public class Analyzer extends AbstractAnalyzer {
 							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
 	}
 
+	/**
+	 * <p>Returns the analyzer that operates in flow insensitive and allocation-site sensitive modes.</p>
+	 *
+	 * @param name the name of the analysis instance.
+	 * @return the instance of analyzer correponding to the given name.
+	 */
 	public static Analyzer getFIOSAnalyzer(String name) {
 		Analyzer temp = new Analyzer(name,
 									 new IndexManager(),
@@ -88,6 +124,12 @@ public class Analyzer extends AbstractAnalyzer {
 	}
 
 
+	/**
+	 * <p>Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes.</p>
+	 *
+	 * @param name the name of the analysis instance.
+	 * @return the instance of analyzer correponding to the given name.
+	 */
 	public static Analyzer getFSOSAnalyzer(String name) {
 		Analyzer temp = new Analyzer(name,
 									 new FlowSensitiveASTIndexManager(),
@@ -99,6 +141,14 @@ public class Analyzer extends AbstractAnalyzer {
 		return temp;
 	}
 
+	/**
+	 * <p>Returns values associated with the given field associated with the given allocation sites.</p>
+	 *
+	 * @param f the field reqarding which information is requested.
+	 * @param sites the collection of allocation sites that are of interest when extracting field information.
+	 * @return a collection of values the field <code>f</code> may evaluate when associated with object created at allocation
+	 * sites given by <code>sites</code>.
+	 */
 	public Collection getValues(SootField f, Collection sites) {
 		Object temp = null;
 		Collection retValues;
@@ -118,6 +168,14 @@ public class Analyzer extends AbstractAnalyzer {
 		return retValues;
 	}
 
+	/**
+	 * <p>Returns the set of method implementations that shall be invoked at the given callsite expression in the given
+	 * method.</p>
+	 *
+	 * @param e the virtual method call site.
+	 * @param enclosingMethod the method in which the expression occurs.
+	 * @return the set of method implementations that result at the given call site.
+	 */
 	public Collection invokeExprResolution (NonStaticInvokeExpr e, SootMethod enclosingMethod) {
 		Collection newExprs = bfa.getMethodVariant(enclosingMethod, context).getASTVariant(e.getBase(), context).getValues();
 		Set ret = new HashSet();
