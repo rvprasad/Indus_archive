@@ -19,14 +19,20 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
+
+import soot.tagkit.Tag;
 
 
 /**
@@ -115,8 +121,9 @@ public class ClassManager
 	 */
 	protected void process(final SootClass sc) {
 		if (!classes.contains(sc)) {
+			Tag theTag = fa.getTag();
 			classes.add(sc);
-			sc.addTag(fa.getTag());
+			sc.addTag(theTag);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("considered " + sc.getName());
@@ -132,29 +139,44 @@ public class ClassManager
 				fa.getMethodVariant(method, context);
 			}
 
-			SootClass temp = sc;
+			IWorkBag wb = new FIFOWorkBag();
+			wb.addWork(sc);
 
-			while (temp.hasSuperclass()) {
-				temp = temp.getSuperclass();
-
-				if (classes.contains(temp)) {
-					break;
-				}
-				classes.add(temp);
-				temp.addTag(fa.getTag());
+			while (wb.hasWork()) {
+				SootClass work = (SootClass) wb.getWork();
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("considered " + temp.getName());
+					LOGGER.debug("considered " + work.getName());
 				}
 
-				if (temp.declaresMethodByName("<clinit>")) {
-					SootMethod method = temp.getMethodByName("<clinit>");
+				if (work.declaresMethodByName("<clinit>")) {
+					SootMethod method = work.getMethodByName("<clinit>");
 
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("considered " + method);
 					}
 
 					fa.getMethodVariant(method, context);
+				}
+
+				if (work.hasSuperclass()) {
+					SootClass superClass = work.getSuperclass();
+
+					if (!classes.contains(superClass)) {
+						classes.add(superClass);
+						superClass.addTag(theTag);
+						wb.addWorkNoDuplicates(superClass);
+					}
+				}
+
+				for (final Iterator i = work.getInterfaces().iterator(); i.hasNext();) {
+					SootClass ic = (SootClass) i.next();
+
+					if (!classes.contains(ic)) {
+						classes.add(ic);
+						ic.addTag(theTag);
+						wb.addWorkNoDuplicates(ic);
+					}
 				}
 			}
 
@@ -175,6 +197,9 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.14  2003/11/30 01:07:58  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
