@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
@@ -15,5 +14,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
