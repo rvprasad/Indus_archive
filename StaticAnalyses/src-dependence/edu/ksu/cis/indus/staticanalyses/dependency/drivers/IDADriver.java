@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
 
 import java.util.ArrayList;
 
@@ -56,12 +57,17 @@ public class IDADriver
 		das = new ArrayList();
 		das.add(new InterferenceDAv1());
 		das.add(new InterferenceDAv2());
+        das.add(new InterferenceDAv3());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/09/02 11:30:56  venku
    - Enabled toggling ECBA instance.
    Revision 1.4  2003/08/11 06:34:52  venku

@@ -335,9 +335,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		boolean accessed;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * This indicates if the value should be marked as being read or written.  <code>true</code> indicates that the
+		 * values should be marked as being read from.  <code>false</code> indicates that the values should be marked as
+		 * being written into.
 		 */
 		boolean read = true;
 
@@ -499,11 +499,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Helper method to mark the alias set as read or written.
 		 *
-		 * @param as DOCUMENT ME!
+		 * @param as is the alias set to be marked.
 		 */
 		private void setReadOrWritten(final AliasSet as) {
 			if (as != null) {
@@ -520,7 +518,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 *
 		 * @param v invocation expresison to be processed.
 		 *
-		 * @throws RuntimeException DOCUMENT ME!
+		 * @throws RuntimeException when a cloning fails.  However, this should not happen.
 		 */
 		private void processInvokeExpr(final InvokeExpr v) {
 			Collection callees = new ArrayList();
@@ -633,8 +631,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 				if (multiExecution) {
 					// It would suffice to unify the site context with it self in the case of loop enclosure
 					// as this is more semantically close to what happens during execution.
-					sc.unify(sc, unifyAll);
-					System.out.println("*****************************");
+					sc.selfUnify(unifyAll);
 				}
 			}
 
@@ -963,16 +960,17 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
+	 * escaping as well as represent a common entity.
 	 *
-	 * @param v1 DOCUMENT ME!
-	 * @param sm1 DOCUMENT ME!
-	 * @param v2 DOCUMENT ME!
-	 * @param sm2 DOCUMENT ME!
+	 * @param v1 is one of the value in the check.
+	 * @param sm1 is the method in which <code>v1</code> occurs.
+	 * @param v2 is the other value in the check.
+	 * @param sm2 is the method in which <code>v2</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the given values are indeed shared across threads; <code>false</code>, otherwise.
+	 *
+	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean result = escapes(v1, sm1) && escapes(v2, sm2);
@@ -1051,6 +1049,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/10/05 06:31:35  venku
+   - Things work.  The bug was the order in which the
+     parameter alias sets were being accessed.  FIXED.
    Revision 1.15  2003/10/04 22:53:45  venku
    - backup commit.
    Revision 1.14  2003/09/29 14:54:46  venku

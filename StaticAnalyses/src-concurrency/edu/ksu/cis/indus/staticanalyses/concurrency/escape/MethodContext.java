@@ -322,6 +322,35 @@ class MethodContext
 	}
 
 	/**
+	 * Unifies this object with itself.  This is required while dealing with call-sites which may be executed multiple times.
+	 *
+	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
+	 */
+	void selfUnify(final boolean unifyAll) {
+		MethodContext m = (MethodContext) find();
+		int paramCount = method.getParameterCount();
+
+		for (int i = 0; i < paramCount; i++) {
+			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
+				((AliasSet) m.argAliasSets.get(i)).selfUnify(unifyAll);
+			}
+		}
+
+		AliasSet mRet = m.ret;
+
+		if (mRet != null) {
+			mRet.selfUnify(unifyAll);
+		}
+		m.thrown.selfUnify(unifyAll);
+
+		AliasSet mThis = m.thisAS;
+
+		if (mThis != null) {
+			mThis.selfUnify(unifyAll);
+		}
+	}
+
+	/**
 	 * Unifies this context with the given context.
 	 * 
 	 * <p>
@@ -474,6 +503,9 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/10/05 06:31:35  venku
+   - Things work.  The bug was the order in which the
+     parameter alias sets were being accessed.  FIXED.
    Revision 1.5  2003/09/29 13:32:27  venku
    - @#@%
    Revision 1.4  2003/09/29 11:29:08  venku

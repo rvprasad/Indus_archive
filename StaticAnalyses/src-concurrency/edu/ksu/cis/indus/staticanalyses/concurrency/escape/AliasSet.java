@@ -52,7 +52,7 @@ final class AliasSet
 	private static final Log LOGGER = LogFactory.getLog(AliasSet.class);
 
 	/**
-	 * This serves as a counter for each ready Entity elements created in each run.
+	 * This is used to generate unique ready entities.
 	 */
 	static long readyEntityCount = 0;
 
@@ -62,9 +62,7 @@ final class AliasSet
 	static final String ARRAY_FIELD = "$ELT";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is used to generate unique share entities.
 	 */
 	private static int shareEntityCount = 0;
 
@@ -79,14 +77,12 @@ final class AliasSet
 	private AliasSet theClone;
 
 	/**
-	 * This represents the unique ready Entity associated with this alias set.
+	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection readyEntities;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection shareEntities;
 
@@ -114,11 +110,14 @@ final class AliasSet
 	private boolean propogating;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the associated variable was read from.
 	 */
 	private boolean read;
+
+	/**
+	 * This indicates if this object is being unified with itself.
+	 */
+	private boolean selfUnifying = false;
 
 	/**
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
@@ -131,9 +130,7 @@ final class AliasSet
 	private boolean waits;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the assocaited variable was written into.
 	 */
 	private boolean written;
 
@@ -321,11 +318,9 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the shared entities of this object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of objects.
 	 */
 	Collection getShareEntities() {
 		return ((AliasSet) find()).shareEntities;
@@ -350,9 +345,7 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Marks this object such that it capture the action that the associated variable was written into.
 	 */
 	void setWritten() {
 		((AliasSet) find()).written = true;
@@ -415,9 +408,7 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Marks this object such that it capture the action that the associated variable was read from.
 	 */
 	void setRead() {
 		((AliasSet) find()).read = true;
@@ -515,11 +506,55 @@ final class AliasSet
 	}
 
 	/**
+	 * Unifies this object with itself.  This is required when the alias set is occurs in the context of a site which is
+	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
+	 *
+	 * @param unifyAll indicates if all elements of the alias set should be unified. <code>true</code>, indicates all
+	 * 		  elements. <code>false</code> indicates all elements except shared and entities.
+	 */
+	void selfUnify(final boolean unifyAll) {
+		if (selfUnifying) {
+			return;
+		}
+		selfUnifying = true;
+
+		AliasSet m = (AliasSet) find();
+
+		if (unifyAll) {
+			m.shared |= m.accessed;
+
+			if (m.waits && m.notifies) {
+				if (m.readyEntities == null) {
+					m.readyEntities = new HashSet();
+				}
+				m.readyEntities.add(getNewReadyEntity());
+			}
+
+			if (m.read && m.written) {
+				if (m.shareEntities == null) {
+					m.shareEntities = new HashSet();
+				}
+				m.shareEntities.add(getNewShareEntity());
+			}
+		}
+
+		for (Iterator i = m.fieldMap.keySet().iterator(); i.hasNext();) {
+			String fieldName = (String) i.next();
+			FastUnionFindElement field = (FastUnionFindElement) m.fieldMap.get(fieldName);
+
+			if (field != null) {
+				((AliasSet) field).selfUnify(unifyAll);
+			}
+		}
+		selfUnifying = false;
+	}
+
+	/**
 	 * Unifies the given alias set with this alias set.
 	 *
 	 * @param a is the alias set to be unified with this alias set.
 	 * @param unifyAll indicates if all elements of the alias set should be unified. <code>true</code>, indicates all
-	 * 		  elements. <code>false</code> indicates all elements except shared and entity.
+	 * 		  elements. <code>false</code> indicates all elements except shared and entities.
 	 */
 	void unify(final AliasSet a, final boolean unifyAll) {
 		if (a == null) {
@@ -613,11 +648,11 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Returns a new share entity object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a new share entity object.
+	 *
+	 * @post result != null
 	 */
 	private Object getNewShareEntity() {
 		return new String("Entity:" + shareEntityCount++);
@@ -627,6 +662,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/10/05 06:31:35  venku
+   - Things work.  The bug was the order in which the
+     parameter alias sets were being accessed.  FIXED.
    Revision 1.7  2003/10/04 22:53:45  venku
    - backup commit.
    Revision 1.6  2003/09/29 13:34:31  venku
