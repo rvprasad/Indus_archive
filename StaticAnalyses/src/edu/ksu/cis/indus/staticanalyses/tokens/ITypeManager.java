@@ -43,19 +43,6 @@ public interface ITypeManager {
 	Collection getAllTypes(Object value);
 
 	/**
-	 * Retrieves the specific type of the value.  It may be that the value is of type T1, T2, .. Tn of which Tn is it's
-	 * declared type and the rest are types by some sort of subtyping relation.  This method should return Tn.
-	 *
-	 * @param value whose type is requested.
-	 *
-	 * @return the type of the value.
-	 *
-	 * @pre value != null
-	 * @post result != null
-	 */
-	IType getExactType(Object value);
-
-	/**
 	 * Retrieves a type for the given IR type.  The user may use a type system orthogonal to the type system provided by the
 	 * intermediate representation used to represent the system.  In such cases, this decouples the IR type system from the
 	 * user's type system.
