@@ -164,12 +164,6 @@ public final class SlicerConfiguration
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
 
 	/** 
-	 * This indicates if the tool should criteria that ensure the deadlock behavior of the slice is same as that of the
-	 * original program.  This is in place partially due to serialization reasons.
-	 */
-	boolean sliceForDeadlock;
-
-	/** 
 	 * The collection of ids of the dependences to be considered for slicing.
 	 *
 	 * @invariant dependencesToUse.oclIsKindOf(String)
@@ -182,11 +176,6 @@ public final class SlicerConfiguration
 	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(AbstractDependencyAnalysis)))
 	 */
 	private final Map id2dependencyAnalyses = new HashMap();
-
-	/** 
-	 * This indicates if executable slice should be generated.   This is in place partially due to serialization reasons.
-	 */
-	private boolean executableSlice = true;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
@@ -236,14 +225,21 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Provides the id of the dependences to use for slicing.
+	 * Sets the executability of the generated slice.
 	 *
-	 * @return a collection of id of the dependence analyses.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Object))
+	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
 	 */
-	public Collection getIDsOfDAsToUse() {
-		return Collections.unmodifiableCollection(dependencesToUse);
+	public void setExecutableSlice(final boolean value) {
+		setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Retrieves the executability of the generated slice.
+	 *
+	 * @return <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
+	 */
+	public boolean getExecutableSlice() {
+		return ((Boolean) getProperty(EXECUTABLE_SLICE)).booleanValue();
 	}
 
 	/**
@@ -377,6 +373,24 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Toggles the preservation of deadlocking in the slice.
+	 *
+	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
+	 */
+	public void setSliceForDeadlock(final boolean value) {
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Checks if the slice was done to preserve deadlocking properties.
+	 *
+	 * @return <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
+	 */
+	public boolean getSliceForDeadlock() {
+		return ((Boolean) getProperty(SLICE_FOR_DEADLOCK)).booleanValue();
+	}
+
+	/**
 	 * Sets the type of slice to be generated.
 	 *
 	 * @param type specifies the type of slice.  It has to be one of values defined by
@@ -404,17 +418,6 @@ public final class SlicerConfiguration
 				_c.add(new ExitControlDA());
 			}
 		}
-	}
-
-	/**
-	 * Retrieves the type of slice that will be generated.
-	 *
-	 * @return the type of slice.
-	 *
-	 * @post result != null
-	 */
-	public String getSliceType() {
-		return properties.get(SLICE_TYPE).toString();
 	}
 
 	/**
@@ -452,7 +455,6 @@ public final class SlicerConfiguration
 			final SlicerConfiguration _config = (SlicerConfiguration) object;
 			_result =
 				new EqualsBuilder().appendSuper(super.equals(object)).append(this.propertyIds, _config.propertyIds)
-									 .append(this.sliceForDeadlock, _config.sliceForDeadlock)
 									 .append(this.id2dependencyAnalyses, _config.id2dependencyAnalyses)
 									 .append(this.dependencesToUse, _config.dependencesToUse)
 									 .append(this.properties, _config.properties).isEquals();
@@ -464,9 +466,8 @@ public final class SlicerConfiguration
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(propertyIds).append(sliceForDeadlock)
-											.append(id2dependencyAnalyses).append(executableSlice).append(dependencesToUse)
-											.append(properties).toHashCode();
+		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(propertyIds).append(id2dependencyAnalyses)
+											.append(dependencesToUse).append(properties).toHashCode();
 	}
 
 	/**
@@ -511,69 +512,6 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Configures if divergence dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * Configures if ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule1(final boolean use) {
-		processPropertyHelper(USE_RULE1_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule2(final boolean use) {
-		processPropertyHelper(USE_RULE2_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule3(final boolean use) {
-		processPropertyHelper(USE_RULE3_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule4(final boolean use) {
-		processPropertyHelper(USE_RULE4_IN_READYDA, use);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 *
 	 * @pre value != null
@@ -605,6 +543,28 @@ public final class SlicerConfiguration
 	 */
 	static IToolConfigurationFactory getFactory() {
 		return factorySingleton;
+	}
+
+	/**
+	 * Provides the id of the dependences to use for slicing.
+	 *
+	 * @return a collection of id of the dependence analyses.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(Object))
+	 */
+	Collection getIDsOfDAsToUse() {
+		return Collections.unmodifiableCollection(dependencesToUse);
+	}
+
+	/**
+	 * Retrieves the type of slice that will be generated.
+	 *
+	 * @return the type of slice.
+	 *
+	 * @post result != null
+	 */
+	String getSliceType() {
+		return properties.get(SLICE_TYPE).toString();
 	}
 
 	/**
@@ -659,11 +619,8 @@ public final class SlicerConfiguration
 			processUseProperty(booleanValue, IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
 		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
 			processInterProceduralDivergenceDAProperty();
-		} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
-			sliceForDeadlock = booleanValue.booleanValue();
 		} else if (propertyID.equals(EXECUTABLE_SLICE)) {
-			executableSlice = booleanValue.booleanValue() && (properties.get(SLICE_TYPE) != SlicingEngine.FORWARD_SLICE);
-			_result = executableSlice;
+			_result = booleanValue.booleanValue() && !properties.get(SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE);
 		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
 			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
 				  _i.hasNext();) {
@@ -812,11 +769,76 @@ public final class SlicerConfiguration
 			id2dependencyAnalyses.remove(daID);
 		}
 	}
+
+	/**
+	 * Configures if divergence dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_DIVERGENCEDA, use);
+	}
+
+	/**
+	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useInterproceduralDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
+	}
+
+	/**
+	 * Configures if ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useReadyDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useReadyRule1(final boolean use) {
+		processPropertyHelper(USE_RULE1_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useReadyRule2(final boolean use) {
+		processPropertyHelper(USE_RULE2_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useReadyRule3(final boolean use) {
+		processPropertyHelper(USE_RULE3_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	private void useReadyRule4(final boolean use) {
+		processPropertyHelper(USE_RULE4_IN_READYDA, use);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/07/20 00:31:04  venku
+   - addressed bug #408.
    Revision 1.41  2004/07/02 05:28:53  venku
    - changed access specifiers on some fields.
    Revision 1.40  2004/06/26 06:45:43  venku

@@ -850,7 +850,7 @@ public final class SlicerTool
 		// perform slicing
 		engine.reset();
 
-		if (slicerConfig.sliceForDeadlock) {
+		if (slicerConfig.getSliceForDeadlock()) {
 			populateDeadlockCriteria();
 		}
 
@@ -883,6 +883,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.96  2004/07/20 00:31:04  venku
+   - addressed bug #408.
+
    Revision 1.95  2004/07/16 06:38:48  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
