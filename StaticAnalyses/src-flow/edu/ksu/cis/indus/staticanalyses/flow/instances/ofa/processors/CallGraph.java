@@ -350,15 +350,11 @@ public class CallGraph
 		CallTriple triple;
 		Value value = vBox.getValue();
 
-		// We treat SpecialInvokeExpr as StaticInvokeExpr as the method implementation to be invoked is known.
-		if (value instanceof StaticInvokeExpr || value instanceof SpecialInvokeExpr) {
+		if (value instanceof StaticInvokeExpr) {
 			InvokeExpr invokeExpr = (InvokeExpr) value;
 			callee = invokeExpr.getMethod();
-
-			if (callee.getName().equals("<init>") || invokeExpr instanceof StaticInvokeExpr) {
-				processForClassInitializer(callee.getDeclaringClass(), caller);
-			}
-
+			processForClassInitializer(callee.getDeclaringClass(), caller);
+            
 			if (caller2callees.containsKey(caller)) {
 				callees = (Set) caller2callees.get(caller);
 			} else {
@@ -376,7 +372,7 @@ public class CallGraph
 			}
 			triple = new CallTriple(caller, stmt, invokeExpr);
 			callers.add(triple);
-		} else if (value instanceof InterfaceInvokeExpr || value instanceof VirtualInvokeExpr) {
+		} else if (value instanceof InterfaceInvokeExpr || value instanceof VirtualInvokeExpr || value instanceof SpecialInvokeExpr) {
 			InstanceInvokeExpr invokeExpr = (InstanceInvokeExpr) value;
 			SootMethod calleeMethod = invokeExpr.getMethod();
 			context.setProgramPoint(invokeExpr.getBaseBox());
@@ -737,6 +733,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.32  2003/11/29 09:34:59  venku
    - removed getCycles() method as it was not being used.
    Revision 1.31  2003/11/29 09:30:37  venku
