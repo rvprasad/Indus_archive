@@ -7,7 +7,6 @@
 	<classpathentry excluding="**/*html" kind="src" path="src-test"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
-	<classpathentry kind="var" path="BANDERA/lib/bandera/banderaTools.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/swt/swtsrc.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
@@ -19,5 +18,7 @@
 	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
+	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
