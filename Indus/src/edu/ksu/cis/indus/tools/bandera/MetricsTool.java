@@ -111,9 +111,9 @@ public class MetricsTool
 
 	/**
 	 * {@inheritDoc}  The map will contain statistics for classes belonging to various categories. Currently, application and
-	 * library classes are supported.  The statistics for each category is itself provided as a map. Please refer to
-	 * {@link edu.ksu.cis.indus.common.soot.MetricsProcessor#getStatistics() MetricsProcessor.getStatistics()} for details
-	 * of the category statistics.
+	 * library classes are supported.  The statistics for each category is itself provided as a map. Please refer to {@link
+	 * edu.ksu.cis.indus.common.soot.MetricsProcessor#getStatistics() MetricsProcessor.getStatistics()} for details of the
+	 * category statistics.
 	 */
 	public Map getOutputMap() {
 		return outputMap;
