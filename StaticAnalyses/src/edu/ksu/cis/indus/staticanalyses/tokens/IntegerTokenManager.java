@@ -255,34 +255,37 @@ public class IntegerTokenManager
 	 */
 	public ITokens getTokens(final Collection values) {
 		final IntegerTokens _result = new IntegerTokens(this);
-		final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
-			_result.integer |= 1 << valueList.indexOf(_i.next());
-		}
+		if (!values.isEmpty()) {
+			final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		final Collection _diff = CollectionUtils.subtract(values, _commons);
-		int _index = 1 << valueList.size();
-
-		for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
-			if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
-				throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
-					+ NO_OF_BITS_IN_AN_INTEGER + " values.");
+			for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
+				_result.integer |= 1 << valueList.indexOf(_i.next());
 			}
 
-			final Object _value = _i.next();
-			valueList.add(_value);
-			_result.integer |= _index;
+			final Collection _diff = CollectionUtils.subtract(values, _commons);
+			int _index = 1 << valueList.size();
 
-			final Collection _types = typeMgr.getAllTypes(_value);
+			for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
+				if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
+					throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
+						+ NO_OF_BITS_IN_AN_INTEGER + " values.");
+				}
 
-			for (final Iterator _j = _types.iterator(); _j.hasNext();) {
-				final Object _type = _j.next();
-				final MutableInteger _integer =
-					(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
-				_integer.setValue(_integer.intValue() | _index);
+				final Object _value = _i.next();
+				valueList.add(_value);
+				_result.integer |= _index;
+
+				final Collection _types = typeMgr.getAllTypes(_value);
+
+				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
+					final Object _type = _j.next();
+					final MutableInteger _integer =
+						(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
+					_integer.setValue(_integer.intValue() | _index);
+				}
+				_index <<= 1;
 			}
-			_index <<= 1;
 		}
 
 		return _result;
@@ -308,6 +311,9 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/06 22:27:29  venku
+   - optimized getTokens() by avoiding redundant calls when adding the values
+     to the end of the list.
    Revision 1.3  2004/04/17 20:28:38  venku
    - coding conventions.
    Revision 1.2  2004/04/17 09:17:44  venku

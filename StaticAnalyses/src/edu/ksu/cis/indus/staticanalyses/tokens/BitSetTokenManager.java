@@ -204,28 +204,31 @@ public final class BitSetTokenManager
 	 */
 	public ITokens getTokens(final Collection values) {
 		final BitSetTokens _result = new BitSetTokens(this);
-		final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
-			_result.bitset.set(valueList.indexOf(_i.next()));
-		}
+		if (!values.isEmpty()) {
+			final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		final Collection _diff = CollectionUtils.subtract(values, _commons);
-		int _index = valueList.size();
-
-		for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
-			final Object _value = _i.next();
-			valueList.add(_value);
-			_result.bitset.set(_index);
-
-			final Collection _types = typeMgr.getAllTypes(_value);
-
-			for (final Iterator _j = _types.iterator(); _j.hasNext();) {
-				final Object _type = _j.next();
-				final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet());
-				_tokens.set(_index);
+			for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
+				_result.bitset.set(valueList.indexOf(_i.next()));
 			}
-			_index++;
+
+			final Collection _diff = CollectionUtils.subtract(values, _commons);
+			int _index = valueList.size();
+
+			for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
+				final Object _value = _i.next();
+				valueList.add(_value);
+				_result.bitset.set(_index);
+
+				final Collection _types = typeMgr.getAllTypes(_value);
+
+				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
+					final Object _type = _j.next();
+					final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet());
+					_tokens.set(_index);
+				}
+				_index++;
+			}
 		}
 		return _result;
 	}
@@ -257,6 +260,9 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/06 22:27:29  venku
+   - optimized getTokens() by avoiding redundant calls when adding the values
+     to the end of the list.
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
