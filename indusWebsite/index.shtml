@@ -78,7 +78,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 
 <p>The implementation of most of the analyses was driven by the requirements of Java program slicer required by Bandera.
     However, as the program slicer could be used outside Bandera and the analyses could be used to enable other
-    transformations such as program specialization via partial evaluation the previous, we moved the analyses and
+    transformations such as program specialization via partial evaluation, we moved the analyses and
     transformations into a new project called <i>Indus</i>.</p>
 
 <!--#include virtual="/footer.shtml" -->
