@@ -25,28 +25,31 @@ import org.apache.commons.collections.set.AbstractSetDecorator;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides a filtered updatable view of a set.  Like <code>FilteredCollection</code>, all operations are
+ * filtered.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ *
+ * @see FilteredCollection
  */
 public class FilteredSet
   extends AbstractSetDecorator {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The delegate collection instance that does the filtering.
+	 *
+	 * @invariant filteredCollection != null
 	 */
 	private final FilteredCollection filteredCollection;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param set DOCUMENT ME!
-	 * @param thePredicate DOCUMENT ME!
+	 * @param set to be filtered/decorated.
+	 * @param thePredicate that defines the filtering criterion.
+	 *
+	 * @pre set != null and thePredicate != null
 	 */
 	public FilteredSet(final Set set, final Predicate thePredicate) {
 		super(set);
@@ -127,4 +130,6 @@ public class FilteredSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/28 08:08:27  venku
+   - new collections classes for filtered access and update.
  */

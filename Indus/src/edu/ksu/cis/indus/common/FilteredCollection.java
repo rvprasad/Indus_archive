@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.common;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections.Predicate;
 
@@ -28,9 +26,11 @@ import org.apache.commons.collections.iterators.FilterIterator;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides a filtered updatable view of a collection.  Only elements that satisfy the predicate are accessible 
+ * to the user via this class.  Likewise, only elements that satisfy the predicate are added/removed from the collection.
+ * Another way of looking at this class is all elements of the wrapped/decorated class are filtered through the predicate and
+ * the requested operation is executed on the result of the filtering operation.  Similarly, all updates are filtered through
+ * the predicate and then applied to the decorated class.  
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -39,17 +39,17 @@ import org.apache.commons.collections.iterators.FilterIterator;
 class FilteredCollection
   extends AbstractCollectionDecorator {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The predicate that defines the filtering criterion.
+	 * @invariant predicate != null
 	 */
 	protected final Predicate predicate;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param col DOCUMENT ME!
-	 * @param thePredicate DOCUMENT ME!
+	 * @param col is the collection to be wrapped.
+	 * @param thePredicate that defines the filtering criterion.
+	 * @pre col != null and predicate != null
 	 */
 	public FilteredCollection(final Collection col, final Predicate thePredicate) {
 		super(col);
@@ -91,7 +91,7 @@ class FilteredCollection
 	 * @see java.util.Collection#clear()
 	 */
 	public void clear() {
-		for (final Iterator _i = getCollection().iterator(); _i.hasNext();) {
+		for (final Iterator _i = super.iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
 
 			if (predicate.evaluate(_o)) {
@@ -262,6 +262,9 @@ class FilteredCollection
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/28 08:08:27  venku
+   - new collections classes for filtered access and update.
+
    Revision 1.1  2004/06/27 23:23:11  venku
    - initial commit.
    - This version has update methods as well.
