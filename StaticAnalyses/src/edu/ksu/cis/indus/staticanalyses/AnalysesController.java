@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
@@ -107,31 +106,37 @@ public class AnalysesController {
 	 * Sets the implementation to be used for an analysis.
 	 *
 	 * @param id of the analysis.
-	 * @param analysis is the implementation of the named analysis.
+	 * @param analyses are the implementations of the named analysis.
 	 *
-	 * @pre id != null and analysis != null
+	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
-	public final void setAnalysis(final Object id, final AbstractAnalysis analysis) {
-		participatingAnalyses.put(id, analysis);
+	public final void setAnalyses(final Object id, final Collection analyses) {
+		participatingAnalyses.put(id, analyses);
 
-		if (analysis.doesPreProcessing()) {
-			IProcessor p = analysis.getPreProcessor();
-			p.hookup(preprocessController);
+		for (Iterator i = analyses.iterator(); i.hasNext();) {
+			AbstractAnalysis analysis = (AbstractAnalysis) i.next();
+
+			if (analysis.doesPreProcessing()) {
+				IProcessor p = analysis.getPreProcessor();
+				p.hookup(preprocessController);
+			}
 		}
 	}
 
 	/**
 	 * Provides the implementation registered for the given analysis purpose.
 	 *
-	 * @param id of the requested analysis.  This has to be one of the names(XXX_DA) defined in this class.
+	 * @param id of the requested analyses.  This has to be one of the names(XXX_DA) defined in this class.
 	 *
-	 * @return the implementation registered for the given purpose.  <code>null</code>, if there is no registered analysis.
+	 * @return the implementation registered for the given purpose.
+	 *
+	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
-	public final AbstractAnalysis getAnalysis(final Object id) {
-		AbstractAnalysis result = null;
+	public final Collection getAnalysis(final Object id) {
+		Collection result = null;
 
 		if (participatingAnalyses != null) {
-			result = (AbstractAnalysis) participatingAnalyses.get(id);
+			result = (Collection) participatingAnalyses.get(id);
 		}
 		return result;
 	}
@@ -148,17 +153,21 @@ public class AnalysesController {
 
 			for (Iterator i = participatingAnalyses.keySet().iterator(); i.hasNext();) {
 				String daName = (String) i.next();
-				AbstractAnalysis temp = (AbstractAnalysis) participatingAnalyses.get(daName);
+				Collection c = (Collection) participatingAnalyses.get(daName);
 
-				if (temp != null && !done.contains(temp)) {
-					temp.analyze();
+				for (Iterator j = c.iterator(); j.hasNext();) {
+					AbstractAnalysis analysis = (AbstractAnalysis) j.next();
 
-					boolean t = temp.isStable();
+					if (analysis != null && !done.contains(analysis)) {
+						analysis.analyze();
 
-					if (t) {
-						done.add(temp);
+						boolean t = analysis.isStable();
+
+						if (t) {
+							done.add(analysis);
+						}
+						analyzing |= t;
 					}
-					analyzing |= t;
 				}
 			}
 		} while (analyzing);
@@ -170,28 +179,30 @@ public class AnalysesController {
 	 * initialization of the analyses.
 	 */
 	public void initialize() {
-		stable = false;
-
 		Collection failed = new ArrayList();
-
+		stable = false;
 		preprocessController.process();
 
 		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
 			Object key = k.next();
-			AbstractAnalysis da = (AbstractAnalysis) participatingAnalyses.get(key);
+			Collection c = (Collection) participatingAnalyses.get(key);
 
-			try {
-				da.initialize(info);
-			} catch (InitializationException e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn(da.getClass() + " failed to initialize, hence, it will not executed.", e);
+			for (Iterator j = c.iterator(); j.hasNext();) {
+				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
+
+				try {
+					analysis.initialize(info);
+				} catch (InitializationException e) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn(analysis.getClass() + " failed to initialize, hence, it will not executed.", e);
+					}
+					failed.add(key);
 				}
-				failed.add(key);
 			}
-		}
 
-		for (Iterator i = failed.iterator(); i.hasNext();) {
-			participatingAnalyses.remove(i.next());
+			for (Iterator i = failed.iterator(); i.hasNext();) {
+				c.remove(i.next());
+			}
 		}
 	}
 
@@ -201,8 +212,12 @@ public class AnalysesController {
 	 */
 	public void reset() {
 		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
-			AbstractAnalysis element = (DependencyAnalysis) i.next();
-			element.reset();
+			Collection c = (Collection) i.next();
+
+			for (Iterator j = c.iterator(); j.hasNext();) {
+				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
+				analysis.reset();
+			}
 		}
 		participatingAnalyses.clear();
 		//		method2cmpltStmtGraph.clear();
@@ -213,6 +228,8 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
    Revision 1.19  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
