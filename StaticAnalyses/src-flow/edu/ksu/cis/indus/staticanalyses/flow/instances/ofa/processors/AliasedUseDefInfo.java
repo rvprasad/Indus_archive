@@ -78,14 +78,14 @@ public class AliasedUseDefInfo
 	 *
 	 * @invariant defsMap != null
 	 */
-	private final Map defsMap;
+	private final Map use2defsMap;
 
 	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
 	 *
 	 * @invariant usesMap != null
 	 */
-	private final Map usesMap;
+	private final Map def2usesMap;
 
 	/**
 	 * This manages <code>Pair</code> objects.
@@ -105,8 +105,8 @@ public class AliasedUseDefInfo
 	 * @pre analyzer != null
 	 */
 	public AliasedUseDefInfo(final IValueAnalyzer iva) {
-		defsMap = new HashMap();
-		usesMap = new HashMap();
+		use2defsMap = new HashMap();
+		def2usesMap = new HashMap();
 		analyzer = iva;
 	}
 
@@ -117,7 +117,7 @@ public class AliasedUseDefInfo
 		Collection result = null;
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
-			Map stmt2defs = (Map) defsMap.get(context.getCurrentMethod());
+			Map stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
 
 			if (stmt2defs != null) {
 				result = (Collection) stmt2defs.get(useStmt);
@@ -142,7 +142,7 @@ public class AliasedUseDefInfo
 		Collection result = null;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
-			Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
+			Map stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
 
 			if (stmt2uses != null) {
 				result = (Collection) stmt2uses.get(defStmt);
@@ -164,21 +164,21 @@ public class AliasedUseDefInfo
 			Value ref = as.getRightOp();
 
 			if (ref instanceof ArrayRef || ref instanceof FieldRef) {
-				Map stmt2ddees = (Map) defsMap.get(method);
+				Map stmt2ddees = (Map) use2defsMap.get(method);
 
 				if (stmt2ddees == null) {
 					stmt2ddees = new HashMap();
-					defsMap.put(method, stmt2ddees);
+					use2defsMap.put(method, stmt2ddees);
 				}
 				stmt2ddees.put(stmt, Collections.EMPTY_SET);
 			} else {
 				ref = as.getLeftOp();
 
-				Map stmt2ddents = (Map) usesMap.get(method);
+				Map stmt2ddents = (Map) def2usesMap.get(method);
 
 				if (stmt2ddents == null) {
 					stmt2ddents = new HashMap();
-					usesMap.put(method, stmt2ddents);
+					def2usesMap.put(method, stmt2ddents);
 				}
 				stmt2ddents.put(stmt, Collections.EMPTY_SET);
 			}
@@ -197,26 +197,26 @@ public class AliasedUseDefInfo
 		}
 
 		Collection uses = new HashSet();
-		Context context1 = new Context();
-		Context context2 = new Context();
+		Context contextDef = new Context();
+		Context contextUse = new Context();
 
-		for (Iterator i = usesMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = def2usesMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry method2info1 = (Map.Entry) i.next();
 			SootMethod defMethod = (SootMethod) method2info1.getKey();
-			context1.setRootMethod(defMethod);
+			contextDef.setRootMethod(defMethod);
 
 			for (Iterator j = ((Map) method2info1.getValue()).entrySet().iterator(); j.hasNext();) {
-				Map.Entry stmt2uses = (Map.Entry) j.next();
-				Stmt defStmt = (Stmt) stmt2uses.getKey();
+				Map.Entry defStmt2useStmts = (Map.Entry) j.next();
+				Stmt defStmt = (Stmt) defStmt2useStmts.getKey();
 
-				for (Iterator k = defsMap.entrySet().iterator(); k.hasNext();) {
+				for (Iterator k = use2defsMap.entrySet().iterator(); k.hasNext();) {
 					Map.Entry method2info2 = (Map.Entry) k.next();
 					SootMethod useMethod = (SootMethod) method2info2.getKey();
-					context2.setRootMethod(useMethod);
+					contextUse.setRootMethod(useMethod);
 
 					for (Iterator l = ((Map) method2info2.getValue()).entrySet().iterator(); l.hasNext();) {
-						Map.Entry stmt2defs = (Map.Entry) l.next();
-						Stmt useStmt = (Stmt) stmt2defs.getKey();
+						Map.Entry useStmt2defStmts = (Map.Entry) l.next();
+						Stmt useStmt = (Stmt) useStmt2defStmts.getKey();
 
 						// initially host no dependence
 						boolean useDef = false;
@@ -225,16 +225,16 @@ public class AliasedUseDefInfo
 							  && useStmt.containsArrayRef()
 							  && defStmt.getArrayRef().getType().equals(useStmt.getArrayRef().getType())) {
 							ValueBox vBox = useStmt.getArrayRef().getBaseBox();
-							context1.setStmt(useStmt);
-							context1.setProgramPoint(vBox);
+							contextUse.setStmt(useStmt);
+							contextUse.setProgramPoint(vBox);
 
-							Collection c1 = analyzer.getValues(vBox.getValue(), context1);
+							Collection c1 = analyzer.getValues(vBox.getValue(), contextUse);
 
 							vBox = defStmt.getArrayRef().getBaseBox();
-							context2.setStmt(defStmt);
-							context2.setProgramPoint(vBox);
+							contextDef.setStmt(defStmt);
+							contextDef.setProgramPoint(vBox);
 
-							Collection c2 = analyzer.getValues(vBox.getValue(), context2);
+							Collection c2 = analyzer.getValues(vBox.getValue(), contextDef);
 
 							// if the primaries of the access expression alias atleast one object
 							if (!CollectionUtils.intersection(c1, c2).isEmpty()) {
@@ -250,16 +250,16 @@ public class AliasedUseDefInfo
 
 							if (fr instanceof InstanceFieldRef) {
 								ValueBox vBox = ((InstanceFieldRef) useStmt.getFieldRef()).getBaseBox();
-								context1.setStmt(useStmt);
-								context1.setProgramPoint(vBox);
+								contextUse.setStmt(useStmt);
+								contextUse.setProgramPoint(vBox);
 
-								Collection c1 = analyzer.getValues(vBox.getValue(), context1);
+								Collection c1 = analyzer.getValues(vBox.getValue(), contextUse);
 
 								vBox = ((InstanceFieldRef) defStmt.getFieldRef()).getBaseBox();
-								context2.setStmt(defStmt);
-								context2.setProgramPoint(vBox);
+								contextDef.setStmt(defStmt);
+								contextDef.setProgramPoint(vBox);
 
-								Collection c2 = analyzer.getValues(vBox.getValue(), context2);
+								Collection c2 = analyzer.getValues(vBox.getValue(), contextDef);
 
 								// if the primaries of the access expression do not alias even one object.
 								if (CollectionUtils.intersection(c1, c2).isEmpty()) {
@@ -269,11 +269,11 @@ public class AliasedUseDefInfo
 						}
 
 						if (useDef) {
-							Collection defs = (Collection) stmt2defs.getValue();
+							Collection defs = (Collection) useStmt2defStmts.getValue();
 
 							if (defs.equals(Collections.EMPTY_SET)) {
 								defs = new HashSet();
-								stmt2defs.setValue(defs);
+								useStmt2defStmts.setValue(defs);
 							}
 							defs.add(pairMgr.getOptimizedPair(defStmt, defMethod));
 							uses.add(pairMgr.getOptimizedPair(useStmt, useMethod));
@@ -282,7 +282,7 @@ public class AliasedUseDefInfo
 				}
 
 				if (uses.size() != 0) {
-					stmt2uses.setValue(new HashSet(uses));
+					defStmt2useStmts.setValue(new HashSet(uses));
 					uses.clear();
 				}
 			}
@@ -313,6 +313,10 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/04 08:57:45  venku
+   - added logic to attempt to provide information only if
+     the query contains an array ref or field ref.
+
    Revision 1.15  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
