@@ -201,7 +201,7 @@ public abstract class AbstractFGNode
 	/**
 	 * @see IFGNode#injectTokensLazily(ITokens)
 	 */
-	public void injectTokensLazily(final ITokens tokensToBeInjected) {
+	public void absorbTokensLazily(final ITokens tokensToBeInjected) {
 		final IWorkBag _workBag = workbagProvider.getWorkBag();
 		final ITokens _diff = tokensToBeInjected.diffTokens(tokens);
 
@@ -239,12 +239,12 @@ public abstract class AbstractFGNode
 	 * @pre succ != null
 	 */
 	protected void onNewSucc(final IFGNode succ) {
-		succ.injectTokensLazily(getTokens());
+		succ.absorbTokensLazily(getTokens());
 	}
 
 	/**
 	 * Processing to be done on receiving new acceptable tokens. This implementation adds a new work to the worklist to
-	 * propogate the new values (that satisfy the associated out filter) to it's successor nodes. 
+	 * propogate the new values (that satisfy the associated out filter) to it's successor nodes.
 	 *
 	 * @param newTokens the values to be propogated to the successor node.  The collection contains object of
 	 * 		  type<code>Object</code>.
@@ -253,10 +253,11 @@ public abstract class AbstractFGNode
 	 */
 	protected void onNewTokens(final ITokens newTokens) {
 		if (!succs.isEmpty()) {
-            final ITokens _temp = filterTokens(outFilter, newTokens);
+			final ITokens _temp = filterTokens(outFilter, newTokens);
+
 			for (final Iterator _i = succs.iterator(); _i.hasNext();) {
 				final IFGNode _succ = (IFGNode) _i.next();
-				_succ.injectTokensLazily(_temp);
+				_succ.absorbTokensLazily(_temp);
 			}
 		}
 	}
