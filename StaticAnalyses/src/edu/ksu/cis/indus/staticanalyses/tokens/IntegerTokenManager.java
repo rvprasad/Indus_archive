@@ -66,6 +66,7 @@ public class IntegerTokenManager
 	 */
 	public IntegerTokenManager(final ITypeManager typeManager) {
 		super(typeManager);
+		typeManager.addObserver(this);
 	}
 
 	/**
@@ -256,10 +257,24 @@ public class IntegerTokenManager
 	}
 
 	/**
-	 * @see AbstractTokenManager#recordNewTokenTypeRelation(Object, Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
 	 */
-	protected void recordNewTokenTypeRelation(final Object value, final Object type) {
-		type2tokens.put(type, type2tokens.get(type) | valueList.indexOf(value));
+	protected Collection getValues() {
+		return valueList;
+	}
+
+	/**
+	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
+	 */
+	protected void recordNewTokenTypeRelations(final Collection values, final IType type) {
+		int _t = type2tokens.get(type);
+		final Iterator _i = values.iterator();
+		final int _iEnd = values.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			_t |= valueList.indexOf(_i.next());
+		}
+		type2tokens.put(type, _t);
 	}
 }
 

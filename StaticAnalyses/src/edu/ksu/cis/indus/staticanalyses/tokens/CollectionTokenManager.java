@@ -69,7 +69,7 @@ public final class CollectionTokenManager
 		private final IType filterType;
 
 		/**
-		 * Creates an instance of this class.
+		 * Creates an instance of this class. 
 		 *
 		 * @param type is the type used to filter.
 		 *

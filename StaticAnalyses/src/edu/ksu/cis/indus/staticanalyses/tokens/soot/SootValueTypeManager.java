@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.tokens.soot;
 
 import edu.ksu.cis.indus.common.Constants;
-import edu.ksu.cis.indus.common.MembershipPredicate;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationEvaluator;
@@ -26,8 +25,10 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Observable;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -49,6 +50,7 @@ import soot.Value;
  * @version $Revision$ $Date$
  */
 public class SootValueTypeManager
+  extends Observable
   implements ITypeManager {
 	/** 
 	 * This caches the soot/java types that have been "captured" as valid types fro <code>null</code>.
@@ -68,7 +70,7 @@ public class SootValueTypeManager
 	private final Map sootType2Type;
 
 	/** 
-	 * This predicate is used to detect types that can hold null constant and that have not been recorded so.
+	 * This predicate is used to detect types that can hold null constant.
 	 */
 	private final Predicate typesForNullConstPredicate;
 
@@ -77,16 +79,27 @@ public class SootValueTypeManager
 	 */
 	public SootValueTypeManager() {
 		super();
-		typesForNullConstant = new ArrayList();
-		typesForNullConstPredicate =
-			PredicateUtils.andPredicate(new MembershipPredicate(false, typesForNullConstant),
-				PredicateUtils.instanceofPredicate(RefLikeType.class));
+		typesForNullConstant = new HashSet();
+		typesForNullConstPredicate = PredicateUtils.instanceofPredicate(RefLikeType.class);
 		evaluator = new SootDynamicTokenTypeEvaluator();
 		sootType2Type = new HashMap(Constants.getNumOfClassesInApplication());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getAllTypes(java.lang.Object)
+	 * This is a dummy implementation of <code>IType</code>.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static class DummyType
+	  implements IType {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @pre value.oclIsKindOf(soot.Value)
 	 */
 	public Collection getAllTypes(final Object value) {
 		final Value _theValue = (Value) value;
@@ -115,17 +128,19 @@ public class SootValueTypeManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getExactType(java.lang.Object)
-	 */
-	public IType getExactType(final Object value) {
-		return getTokenTypeForRepType(((Value) value).getType());
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getDynamicTokenTypeRelationEvaluator()
 	 */
 	public IDynamicTokenTypeRelationEvaluator getDynamicTokenTypeRelationEvaluator() {
 		return evaluator;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @pre value.oclIsKindOf(soot.Value)
+	 */
+	public IType getExactType(final Object value) {
+		return getTokenTypeForRepType(((Value) value).getType());
 	}
 
 	/**
@@ -135,10 +150,10 @@ public class SootValueTypeManager
 		IType _result = (IType) sootType2Type.get(sootType);
 
 		if (_result == null) {
-			_result = new IType() {
-						;
-					};
+			_result = new DummyType();
 			sootType2Type.put(sootType, _result);
+			setChanged();
+			notifyObservers(new NewTypeCreated(_result));
 		}
 		return _result;
 	}

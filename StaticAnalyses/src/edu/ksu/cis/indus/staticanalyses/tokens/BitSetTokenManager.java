@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -73,6 +72,7 @@ public final class BitSetTokenManager
 	 */
 	public BitSetTokenManager(final ITypeManager typeManager) {
 		super(typeManager);
+        typeManager.addObserver(this);
 	}
 
 	/**
@@ -111,7 +111,6 @@ public final class BitSetTokenManager
 			return _result;
 		}
 	}
-
 
 	/**
 	 * This class represents a collection of tokens represented as bits in a bitset.
@@ -221,7 +220,6 @@ public final class BitSetTokenManager
 				_result.bitset.set(valueList.indexOf(_o));
 			}
 
-			final Collection _typeCol = new HashSet();
 			final Collection _diff = CollectionUtils.subtract(values, _commons);
 			int _index = valueList.size();
 
@@ -239,10 +237,7 @@ public final class BitSetTokenManager
 					_tokens.set(_index);
 				}
 				_index++;
-				_typeCol.addAll(_types);
 			}
-
-			fixupTokenTypeRelation(valueList, _typeCol);
 		}
 		return _result;
 	}
@@ -267,11 +262,23 @@ public final class BitSetTokenManager
 	}
 
 	/**
-	 * @see AbstractTokenManager#recordNewTokenTypeRelation(Object, Object)
+	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
 	 */
-	protected void recordNewTokenTypeRelation(final Object value, final Object type) {
-		((BitSet) type2tokens.get(type)).set(valueList.indexOf(value));
+	protected void recordNewTokenTypeRelations(final Collection values, final IType type) {
+        final BitSet _b = (BitSet) CollectionsUtilities.getFromMap(type2tokens, type, CollectionsUtilities.BIT_SET_FACTORY);
+        final Iterator _i = values.iterator();
+        final int _iEnd = values.size();
+        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+            _b.set(valueList.indexOf(_i.next()));            
+        }
 	}
+
+    /** 
+     * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
+     */
+    protected Collection getValues() {
+        return valueList;
+    }
 }
 
 // End of File

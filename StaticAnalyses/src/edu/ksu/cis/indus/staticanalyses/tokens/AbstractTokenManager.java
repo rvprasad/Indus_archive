@@ -15,10 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager.NewTypeCreated;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 
 /**
@@ -30,14 +34,15 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractTokenManager
-  implements ITokenManager {
+  implements ITokenManager, Observer {
 	/** 
 	 * This provides the logic to update token to type relation.  A simple situation is that in Java <code>null</code> is a
 	 * valid value/token of all reference types in the system. Hence, token to type relation will change as more types are
 	 * loaded into the system after <code>null</code> has been considered.
 	 */
-	protected final IDynamicTokenTypeRelationEvaluator onlineTokenTypeEvalutator;
+	protected final IDynamicTokenTypeRelationEvaluator onlineTokenTypeRelationEvalutator;
 
+    
 	/** 
 	 * The type manager that manages the types of the tokens managed by this object.
 	 *
@@ -62,7 +67,7 @@ public abstract class AbstractTokenManager
 	 */
 	public AbstractTokenManager(final ITypeManager typeManager) {
 		typeMgr = typeManager;
-		onlineTokenTypeEvalutator = typeManager.getDynamicTokenTypeRelationEvaluator();
+		onlineTokenTypeRelationEvalutator = typeManager.getDynamicTokenTypeRelationEvaluator();
 	}
 
 	/**
@@ -94,37 +99,29 @@ public abstract class AbstractTokenManager
 		type2filter.clear();
 	}
 
-	/**
-	 * Evaluates if the types of any of values seen till now have changed (incrementally) and records these new relation.
-	 *
-	 * @param seenValues are the values seen up until now.
-	 * @param newTypes that need to be considered for new token-type relation ships.
-	 *
-	 * @pre seenValues != null and newTypes != null
-	 */
-	protected final void fixupTokenTypeRelation(final Collection seenValues, final Collection newTypes) {
-		if (onlineTokenTypeEvalutator != null) {
-			final Collection _value2TypesToUpdate =
-				onlineTokenTypeEvalutator.getValue2TypesToUpdate(seenValues, newTypes).entrySet();
-			final Iterator _i = _value2TypesToUpdate.iterator();
-			final int _iEnd = _value2TypesToUpdate.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final Object _value = _entry.getKey();
-				final Collection _typesToUpdate = (Collection) _entry.getValue();
-				final Iterator _j = _typesToUpdate.iterator();
-				final int _jEnd = _typesToUpdate.size();
-
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final Object _type = _j.next();
-					recordNewTokenTypeRelation(_value, _type);
-				}
-			}
+	/** 
+     * {@inheritDoc}
+     */
+    public void update(final Observable observer, final Object value) {
+		if (value instanceof NewTypeCreated && onlineTokenTypeRelationEvalutator != null) {
+            final IType _type = ((NewTypeCreated) value).getCreatedType();
+			final Collection _values = onlineTokenTypeRelationEvalutator.getValuesConformingTo(getValues(), _type);
+            if (!_values.isEmpty()) {
+                recordNewTokenTypeRelations(_values, _type);
+            }
 		}
 	}
 
 	/**
+     * DOCUMENT ME!
+     * 
+     * @return DOCUMENT ME!
+     */
+    protected Collection getValues() {
+        return Collections.EMPTY_SET;
+    }
+
+    /**
 	 * Retrieves a new token filter for the given type.
 	 *
 	 * @param type for which the filter is requested.
@@ -136,16 +133,18 @@ public abstract class AbstractTokenManager
 	protected abstract ITokenFilter getNewFilterForType(final IType type);
 
 	/**
-	 * Records the new token-type relation.  This implementation does nothing.
+	 * Records the new token-type relations.  This implementation does nothing. This method will be called only be called if 
+     * there are new token type relations
 	 *
-	 * @param value whose type has been incrementally changed. This is guaranteed to be one of the objects in the collection
+	 * @param values whose type has been incrementally changed. This is guaranteed to be the objects in the collection
 	 * 		  <code>values</code> provided to <code>fixupTokenTypeRelation</code> method.
-	 * @param type is the new additional type of <code>value</code>. This is guaranteed to be one of the objects in the
+	 * @param type is the new additional type of <code>values</code>. This is guaranteed to be one of the objects in the
 	 * 		  collection  <code>types</code> provided to <code>fixupTokenTypeRelation</code> method.
 	 *
-	 * @pre value != null and type != null
+	 * @pre values != null and type != null
+     * @pre not values.isEmpty()
 	 */
-	protected void recordNewTokenTypeRelation(final Object value, final Object type) {
+	protected void recordNewTokenTypeRelations(final Collection values, final IType type) {
 	}
 }
 

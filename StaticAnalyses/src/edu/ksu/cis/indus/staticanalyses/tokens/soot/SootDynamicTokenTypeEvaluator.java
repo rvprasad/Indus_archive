@@ -16,11 +16,11 @@
 package edu.ksu.cis.indus.staticanalyses.tokens.soot;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationEvaluator;
+import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -61,19 +61,17 @@ final class SootDynamicTokenTypeEvaluator
 	private boolean nullConstSeen;
 
 	/**
-	 * @see IDynamicTokenTypeRelationEvaluator#getValue2TypesToUpdate(Collection, Collection)
+	 * @see IDynamicTokenTypeRelationEvaluator#getValuesConformingTo(Collection, IType)
 	 */
-	public Map getValue2TypesToUpdate(final Collection values, final Collection types) {
-		Map _result = Collections.EMPTY_MAP;
+	public Collection getValuesConformingTo(final Collection values, final IType type) {
+		Collection _result;
 		nullConstSeen = nullConstSeen || CollectionUtils.exists(values, NULL_PREDICATE);
 
-		if (nullConstSeen) {
-			final Collection _t = CollectionUtils.subtract(types, typesForNullConst);
-
-			if (!_t.isEmpty()) {
-				typesForNullConst.addAll(_t);
-				_result = Collections.singletonMap(CollectionUtils.find(values, NULL_PREDICATE), _t);
-			}
+		if (nullConstSeen && !typesForNullConst.contains(type)) {
+			typesForNullConst.add(type);
+			_result = Collections.singleton(CollectionUtils.find(values, NULL_PREDICATE));
+		} else {
+			_result = Collections.EMPTY_SET;
 		}
 		return _result;
 	}

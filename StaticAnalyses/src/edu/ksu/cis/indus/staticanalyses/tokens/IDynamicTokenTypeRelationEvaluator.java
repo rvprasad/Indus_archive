@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 import java.util.Collection;
-import java.util.Map;
 
 
 /**
@@ -28,19 +27,18 @@ import java.util.Map;
  */
 public interface IDynamicTokenTypeRelationEvaluator {
 	/**
-	 * Retrieves new value to type relations for the given values and types.
+	 * Retrieves values conforming to the given type.
 	 *
 	 * @param values for which new relations need to be discovered.
-	 * @param types based on which new relations need to be discovered.
+	 * @param type based on which new relations need to be discovered.
 	 *
-	 * @return a map from values to types that form the new relations.
+	 * @return a collection of values that conform to the given type.
 	 *
-	 * @pre values != null and types != null
-	 * @post result != null and result.oclIsKindOf(Map(Object, Collection(Object)))
-	 * @post values.containsAll(result.keySet())
-	 * @post result.values->forall(o | types.containsAll(o))
+	 * @pre values != null and type != null
+	 * @post result != null and result.oclIsKindOfCollection(Object))
+	 * @post values.containsAll(result)
 	 */
-	Map getValue2TypesToUpdate(Collection values, Collection types);
+	Collection getValuesConformingTo(Collection values, IType type);
 
 	/**
 	 * Reset the token manager.

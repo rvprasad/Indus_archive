@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 import java.util.Collection;
+import java.util.Observer;
 
 
 /**
@@ -26,6 +27,41 @@ import java.util.Collection;
  * @version $Revision$ $Date$
  */
 public interface ITypeManager {
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	public static final class NewTypeCreated {
+		/** 
+		 * <p>DOCUMENT ME! </p>
+		 */
+		private final IType type;
+
+		/**
+		 * DOCUMENT ME!
+		 *
+		 * @param theType DOCUMENT ME!
+		 */
+		public NewTypeCreated(final IType theType) {
+			type = theType;
+		}
+        
+        /**
+         * Retrieves the created type.
+         * 
+         * @return the new type that was created.
+         * 
+         */
+        public IType getCreatedType() {
+            return type;
+        }
+	}
+
 	/**
 	 * Retrieves all the types of the given value.  Depending on the type system, <code>value</code> may be of many types
 	 * (for example, due to subtyping).  Hence, we retrieve a collection of types rather than a type.
@@ -74,6 +110,20 @@ public interface ITypeManager {
 	 * @post result != null
 	 */
 	IType getTokenTypeForRepType(Object type);
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param observer DOCUMENT ME!
+	 */
+	void addObserver(Observer observer);
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param observer DOCUMENT ME!
+	 */
+	void deleteObserver(Observer observer);
 
 	/**
 	 * Resets the type manager.
