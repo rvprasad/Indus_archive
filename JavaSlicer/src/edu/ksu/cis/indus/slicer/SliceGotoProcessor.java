@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -61,7 +64,6 @@ public final class SliceGotoProcessor {
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceGotoProcessor.class);
-
 
 	/** 
 	 * The slice collector.
@@ -122,34 +124,40 @@ public final class SliceGotoProcessor {
 		method = theMethod;
 
 		// process basic blocks to include all gotos in basic blocks with slice statements.
-		final Collection _bbInSlice = processForIntraBasicBlockGotos(bbg);
+		final Collection _bbInSliceInOrig = processForIntraBasicBlockGotos(bbg);
 		final IObjectDirectedGraph _dag = bbg.getDAG();
-		final Collection _temp = new ArrayList();
-		final Iterator _i = _bbInSlice.iterator();
-		final int _iEnd = _bbInSlice.size();
+		final Collection _bbInSliceInDAG = new ArrayList();
+		final Iterator _i = _bbInSliceInOrig.iterator();
+		final int _iEnd = _bbInSliceInOrig.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
-			_temp.add(_dag.queryNode(_bb));
+			_bbInSliceInDAG.add(_dag.queryNode(_bb));
 		}
 
 		// find basic blocks between slice basic blocks to include the gotos in them into the slice.
-		final Collection _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_temp);
-		CollectionUtils.transform(_bbToBeIncludedInSlice, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+		final Collection _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
 		// find basic blocks that are part of cycles (partially or completely) in the slice.
-		final Collection _cycles = bbg.getCycles();
-		final Iterator _k = _cycles.iterator();
-		final int _kEnd = _cycles.size();
+		final Collection _backedges = bbg.getBackEdges();
+		final Iterator _k = _backedges.iterator();
+		final int _kEnd = _backedges.size();
 
 		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Collection _cycle = (Collection) _k.next();
+			final Pair _edge = (Pair) _k.next();
+			_bbInSliceInDAG.clear();
+			_bbInSliceInDAG.add(_dag.queryNode(_edge.getFirst()));
+			_bbInSliceInDAG.add(_dag.queryNode(_edge.getSecond()));
 
-			if (CollectionUtils.containsAny(_cycle, _bbInSlice)) {
-				_bbToBeIncludedInSlice.addAll(_cycle);
+			final Collection _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
+
+			if (CollectionUtils.containsAny(_nodes, _bbInSliceInDAG)) {
+				_bbToBeIncludedInSlice.addAll(_nodes);
 			}
 		}
-		
+
+		CollectionUtils.transform(_bbToBeIncludedInSlice, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+
 		// include the gotos in the found basic blocks in the slice.
 		final Iterator _j = _bbToBeIncludedInSlice.iterator();
 		final int _jEnd = _bbToBeIncludedInSlice.size();
