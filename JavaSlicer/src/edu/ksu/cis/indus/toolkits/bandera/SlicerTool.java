@@ -25,6 +25,8 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import edu.ksu.cis.indus.tools.Phase;
 
+import edu.ksu.cis.indus.transformations.slicer.TagBasedDestructiveSliceResidualizer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -225,12 +227,19 @@ public final class SlicerTool
 	public void run()
 	  throws Exception {
 		tool.run(Phase.STARTING_PHASE, true);
+
+		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		_residualizer.setTagToResidualize(TAG_NAME);
+		_residualizer.residualizeSystem(tool.getSystem());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.20  2003/12/09 12:23:48  venku
    - added support to control synchronicity of method runs.
    - ripple effect.
