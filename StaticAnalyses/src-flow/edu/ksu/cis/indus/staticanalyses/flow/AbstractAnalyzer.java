@@ -58,7 +58,9 @@ import java.util.Iterator;
  * This class represents the central access point for the information calculated in an analysis.  The subclass should extend
  * this class with methods to access various information about the implmented analysis.  This class by itself provides the
  * interface to query generic, low-level analysis information.  These interfaces should be used by implemented components of
- * the framework to extract information during the analysis.  Created: Fri Jan 25 14:49:45 2002
+ * the framework to extract information during the analysis.  
+ * 
+ * <p>Created: Fri Jan 25 14:49:45 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -78,7 +80,9 @@ public abstract class AbstractAnalyzer
 	protected FA fa;
 
 	/**
-	 * This field indicates if the analysis has stablized.
+	 * This field indicates if the analysis has stablized.  In this implementation we have equated, stability to be 
+     * non-active.  This is consistent with the fact that when non-active, the information returned on different identical
+     * queries are identical although the information may be wrong.  
 	 */
 	private boolean stable;
 
@@ -360,6 +364,9 @@ public abstract class AbstractAnalyzer
    ChangeLog:
 
    $Log$
+   Revision 1.6  2003/08/21 03:44:08  venku
+   Ripple effect of adding IStatus.
+
    Revision 1.5  2003/08/17 10:48:33  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.

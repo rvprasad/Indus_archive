@@ -126,20 +126,20 @@ public abstract class AbstractVariantManager {
 		IVariant temp = null;
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.active + "\n"
+			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.isStable() + "\n"
 				+ index.hashCode());
 		}
 
 		if (index2variant.containsKey(index)) {
 			temp = (IVariant) index2variant.get(index);
-		} else if (fa._analyzer.active) {
+		} else if (!fa._analyzer.isStable()) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 			temp.process();
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.active);
+			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.isStable());
 		}
 
 		return temp;
@@ -174,6 +174,10 @@ public abstract class AbstractVariantManager {
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.2  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
