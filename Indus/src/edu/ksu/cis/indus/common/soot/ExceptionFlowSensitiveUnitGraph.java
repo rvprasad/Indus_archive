@@ -24,7 +24,9 @@ import soot.Body;
 import soot.Trap;
 import soot.Unit;
 
-import soot.toolkits.graph.UnitGraph;
+import soot.toolkits.exceptions.ThrowAnalysis;
+
+import soot.toolkits.graph.ExceptionalUnitGraph;
 
 import soot.util.Chain;
 
@@ -39,31 +41,56 @@ import soot.util.Chain;
  * @version $Revision$ $Date$
  */
 final class ExceptionFlowSensitiveUnitGraph
-  extends UnitGraph {
+  extends ExceptionalUnitGraph {
 	/**
 	 * Creates an instance of this class.
 	 *
 	 * @param unitBody is the body for which the graph should be constructed.
-	 * @param exceptionNamesToIgnore is the fully qualified names of the exceptions.  Control flow based on these exceptions
-	 * 		  are not captured in the graph.
-	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
-	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
-	 * 		  <code>false</code>, otherwise.
+	 * @param namesOfExceptionsToIgnore is the fully qualified names of the exceptions.  Control flow based on these
+	 * 		  exceptions are not captured in the graph.
+	 * @param throwAnalysisToUse is passed to the super class constructor.   Refer to the documentation of
+	 * 		  <code>soot.toolkits.graph.ExceptionalUnitGraph(Body,ThrowAnalysis)</code>.
 	 *
-	 * @pre unitBody != null and exceptionNamesToIgnore != null
-	 * @pre exceptionNamesToIgnore.oclIsKindOf(Collection(String))
+	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
+	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
 	 */
-	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection exceptionNamesToIgnore,
-		final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
-		super(unitBody, true, dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock);
+	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection namesOfExceptionsToIgnore,
+		final ThrowAnalysis throwAnalysisToUse) {
+		super(unitBody, throwAnalysisToUse);
+		pruneExceptionalEdges(namesOfExceptionsToIgnore);
+	}
 
+	/**
+	 * Creates an instance of this class with default <code>ThrowAnalysis</code>. Refer to the documentation of
+	 * <code>soot.toolkits.graph.ExceptionalUnitGraph(Body)</code>.
+	 *
+	 * @param unitBody is the body for which the graph should be constructed.
+	 * @param namesOfExceptionsToIgnore is the fully qualified names of the exceptions.  Control flow based on these
+	 * 		  exceptions are not captured in the graph.
+	 *
+	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
+	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
+	 */
+	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection namesOfExceptionsToIgnore) {
+		super(unitBody);
+		pruneExceptionalEdges(namesOfExceptionsToIgnore);
+	}
+
+	/**
+	 * Removes all edges pertaining to exceptions named in <code>namesOfExceptionsToIgnore</code>
+	 *
+	 * @param namesOfExceptionsToIgnore is the fully qualified names of exceptions.  Control flow based on these exceptions
+	 * 		  is deleted from the graph.
+	 */
+	private void pruneExceptionalEdges(final Collection namesOfExceptionsToIgnore) {
+		final Body unitBody = getBody();
 		final Chain _traps = unitBody.getTraps();
 		final Collection _preds = new ArrayList();
 
 		for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 			final Trap _trap = (Trap) _j.next();
 
-			if (exceptionNamesToIgnore.contains(_trap.getException().getName())) {
+			if (namesOfExceptionsToIgnore.contains(_trap.getException().getName())) {
 				final Chain _units = unitBody.getUnits();
 				final Unit _handler = _trap.getHandlerUnit();
 				final Unit _endUnit = (Unit) _units.getPredOf(_trap.getEndUnit());
@@ -80,7 +107,7 @@ final class ExceptionFlowSensitiveUnitGraph
 				final List _list = new ArrayList((List) unitToPreds.get(_handler));
 				_list.removeAll(_preds);
 				unitToPreds.put(_handler, _list);
-                _j.remove();
+				_j.remove();
 			}
 		}
 	}
@@ -89,9 +116,10 @@ final class ExceptionFlowSensitiveUnitGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/23 09:07:43  venku
+   - the redundant handler was not deleted from the body. FIXED.
    Revision 1.3  2004/02/23 08:27:21  venku
    - the graphs were created as complete unit graphs. FIXED.
-
    Revision 1.2  2004/02/23 06:37:16  venku
    - succs/preds in the parent  class were unmodifiable.  FIXED.
    Revision 1.1  2004/02/17 05:59:15  venku

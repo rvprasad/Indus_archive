@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import soot.Body;
 import soot.SootMethod;
 
+import soot.toolkits.exceptions.ThrowAnalysis;
+
 import soot.toolkits.graph.UnitGraph;
 
 
@@ -49,40 +51,31 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 	private Collection exceptionsToIgnore = new ArrayList();
 
 	/**
-	 * This flag indicates if the unit graph should be like complete unit graph or like trap unit graph in terms considering
-	 * control from the statement before the try block.
+	 * The <code>ThrowAnalysis</code> to be used during CFG construction.  It is only used by the super class constructor.
+	 * Please refer to documentation of <code>soot.toolkits.graph.ExceptionalUnitGraph</code> for more info.
 	 */
-	private final boolean flag;
+	private final ThrowAnalysis throwAnalysis;
 
 	/**
 	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
 	 *
-	 * @param namesOfExceptionToIgnore are the names of the exceptions that determine the control edges to be ignored. 
-	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
-	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
-	 * 		  <code>false</code>, otherwise.
+	 * @param namesOfExceptionToIgnore are the names of the exceptions that determine the control edges to be ignored.
+	 * @param analysis is the throw analysis to use during CFG construction.  If this is <code>null</code> then the throw
+	 * 		  analysis as mandated by Soot is used.   Please refer to documentation of
+	 * 		  <code>soot.toolkits.graph.ExceptionalUnitGraph</code> for more info.
 	 *
 	 * @pre namesOfExceptionToIgnore != null
 	 */
-	public ExceptionFlowSensitiveUnitGraphFactory(final Collection namesOfExceptionToIgnore,
-		final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
-		flag = dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock;
+	public ExceptionFlowSensitiveUnitGraphFactory(final Collection namesOfExceptionToIgnore, final ThrowAnalysis analysis) {
 		exceptionsToIgnore.addAll(namesOfExceptionToIgnore);
-	}
-
-	/**
-	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
-	 */
-	public ExceptionFlowSensitiveUnitGraphFactory() {
-		flag = true;
-		exceptionsToIgnore.add("java.lang.Throwable");
+		throwAnalysis = analysis;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForBody(soot.Body)
 	 */
 	protected UnitGraph getUnitGraphForBody(final Body body) {
-		return new ExceptionFlowSensitiveUnitGraph(body, exceptionsToIgnore, flag);
+		return new ExceptionFlowSensitiveUnitGraph(body, exceptionsToIgnore);
 	}
 
 	/**
@@ -92,7 +85,11 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
-			_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore, flag);
+			if (throwAnalysis == null) {
+				_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore);
+			} else {
+				_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore, throwAnalysis);
+			}
 		} else if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Method " + method + " is not concrete.");
 		}
@@ -103,9 +100,10 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/07 20:30:23  venku
+   - documentation.
    Revision 1.4  2004/03/05 11:59:40  venku
    - documentation.
-
    Revision 1.3  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.
