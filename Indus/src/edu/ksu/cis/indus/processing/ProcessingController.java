@@ -1193,13 +1193,8 @@ public class ProcessingController {
 			LOGGER.debug("Processing method " + method);
 		}
 
-		final List _sl = new ArrayList();
-
 		try {
-			_sl.clear();
-			_sl.addAll(method.retrieveActiveBody().getUnits());
-
-			for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
+			for (final Iterator _k = method.retrieveActiveBody().getUnits().iterator(); _k.hasNext();) {
 				final Stmt _stmt = (Stmt) _k.next();
 				context.setStmt(_stmt);
 				_stmt.apply(stmtSwitcher);
@@ -1215,6 +1210,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/15 02:16:47  venku
+   - logging.
+
    Revision 1.27  2003/12/14 16:43:44  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
