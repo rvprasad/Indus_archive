@@ -50,37 +50,37 @@ import soot.tagkit.Host;
  * @version $Revision$ $Date$
  */
 public final class SliceCollector {
-	/**
+	/** 
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
 	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
-	/**
+	/** 
 	 * The collection of classes that were tagged.
 	 */
 	private final Collection taggedClasses = new HashSet();
 
-	/**
+	/** 
 	 * The collection of methods that were tagged.
 	 */
 	private final Collection taggedMethods = new HashSet();
 
-	/**
+	/** 
 	 * The tag to be used during transformation.
 	 */
 	private NamedTag tag;
 
-	/**
+	/** 
 	 * This is the slicing engine to be used for slicing.
 	 */
 	private SlicingEngine engine;
 
-	/**
+	/** 
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName;
@@ -241,16 +241,7 @@ public final class SliceCollector {
 			LOGGER.debug("Processing Gotos");
 		}
 
-		ISliceGotoProcessor _gotoProcessor = null;
-
-		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			_gotoProcessor = new BackwardSliceGotoProcessor(this);
-		} else if (engine.sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			_gotoProcessor = new ForwardSliceGotoProcessor(this);
-		} else if (engine.sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			_gotoProcessor = new CompleteSliceGotoProcessor(this);
-		}
-
+		final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(this);
 		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
 		_gotoProcessor.process(taggedMethods, _bbgMgr);
 	}
@@ -327,6 +318,11 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
    Revision 1.12  2004/05/31 21:38:10  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.

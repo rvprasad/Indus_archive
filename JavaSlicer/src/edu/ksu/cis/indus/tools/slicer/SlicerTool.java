@@ -31,12 +31,9 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor;
-import edu.ksu.cis.indus.slicer.CompleteSliceGotoProcessor;
-import edu.ksu.cis.indus.slicer.ForwardSliceGotoProcessor;
-import edu.ksu.cis.indus.slicer.ISliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.slicer.SliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -326,7 +323,7 @@ public final class SlicerTool
 		safelockAnalysis = new SafeLockAnalysis();
 		// create alias use def analysis
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr);
-		
+
 		// set up data required for dependency analyses.
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
@@ -654,9 +651,9 @@ public final class SlicerTool
 			throw new IllegalStateException("Forward Executable slice is unsupported.");
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("checkConfiguration() - " + _slicerConf.getConfigName());
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("checkConfiguration() - " + _slicerConf.getConfigName());
+		}
 	}
 
 	/**
@@ -850,18 +847,9 @@ public final class SlicerTool
 
 		if (((Boolean) _slicerConfig.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
 			final ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
-			final Object _sliceType = _slicerConfig.getSliceType();
 			final SliceCollector _collector = engine.getCollector();
 			final Collection _methods = _collector.getMethodsInSlice();
-			ISliceGotoProcessor _gotoProcessor = null;
-
-			if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-				_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
-			} else if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-				_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
-			} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-				_gotoProcessor = new CompleteSliceGotoProcessor(_collector);
-			}
+			final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(_collector);
 			_postProcessor.process(_methods, bbgMgr, _collector);
 			_gotoProcessor.process(_methods, bbgMgr);
 		}
@@ -915,26 +903,23 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.109  2004/08/01 23:55:43  venku
+   - logging.
    Revision 1.108  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
-
    Revision 1.107  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.
-
    Revision 1.106  2004/07/28 16:52:06  venku
    - documentation.
-
    Revision 1.105  2004/07/28 09:09:35  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
    - ripple effect.
    - deleted entry control dependence and renamed direct entry control da as
      entry control da.
-
    Revision 1.104  2004/07/27 11:07:21  venku
    - updated project to use safe lock analysis.
-
    Revision 1.103  2004/07/25 01:34:36  venku
    - if a throw was marked and not the exception value, then the code to create
      a value is injected independent of the fact that the thrown value is in the slice.

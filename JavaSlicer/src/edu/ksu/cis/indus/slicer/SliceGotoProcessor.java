@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Predicate;
 
@@ -40,17 +41,16 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This class provides most of the logic required to process the given slice in order to include goto statements such that it
+ * This class provides the logic required to process the given slice in order to include goto statements such that it
  * realizes the control as in the original program but as required in the slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSliceGotoProcessor
-  implements ISliceGotoProcessor {
+public final class SliceGotoProcessor {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This filter out statements that are not of type <code>GotoStmt</code>.
 	 */
 	public static final Predicate GOTO_STMT_PREDICATE =
 		new Predicate() {
@@ -81,14 +81,20 @@ public abstract class AbstractSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	protected AbstractSliceGotoProcessor(final SliceCollector collector) {
+	public SliceGotoProcessor(final SliceCollector collector) {
 		sliceCollector = collector;
 	}
 
 	/**
-	 * @see ISliceGotoProcessor#process(Collection, BasicBlockGraphMgr)
+	 * Process the given methods.
+	 *
+	 * @param methods to be processed.
+	 * @param bbgMgr provides the basic block required to process the methods.
+	 *
+	 * @pre methods != null and bbgMgr != null
+	 * @pre methods.oclIsKindOf(Collection(SootMethod))
 	 */
-	public final void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
+	public void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
 		// include all gotos required to recreate the control flow of the system.
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -99,15 +105,6 @@ public abstract class AbstractSliceGotoProcessor
 			}
 		}
 	}
-
-	/**
-	 * Process the basic block to consider intra basic block gotos to reconstruct the control flow.
-	 *
-	 * @param bb is the basic block to be processed.
-	 *
-	 * @pre bb != null
-	 */
-	protected abstract void processForIntraBasicBlockGotos(final BasicBlock bb);
 
 	/**
 	 * Process the current method's body for goto-based control flow retention.
@@ -161,6 +158,28 @@ public abstract class AbstractSliceGotoProcessor
 					  || (_succsOfPred.contains(_leader) && _predStmtOfLeader instanceof GotoStmt)) {
 					sliceCollector.includeInSlice(_predStmtOfLeader);
 				}
+			}
+		}
+	}
+
+	/**
+	 * Process the basic block to consider intra basic block gotos to reconstruct the control flow.
+	 *
+	 * @param bb is the basic block to be processed.
+	 *
+	 * @pre bb != null
+	 */
+	private void processForIntraBasicBlockGotos(final BasicBlock bb) {
+		for (final Iterator _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
+
+			if (sliceCollector.hasBeenCollected(_stmt)) {
+				workBag.addWorkNoDuplicates(bb);
+
+				final List _stmtsOf = new ArrayList(bb.getStmtsOf());
+				CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
+				sliceCollector.includeInSlice(_stmtsOf);
+				break;
 			}
 		}
 	}
