@@ -258,7 +258,6 @@ public class SliceXMLizer
 		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
 		final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
 		_dep.setXmlOutputDir(outputDirectory);
-		_dep.setClassNames(rootMethods);
 		_dep.setGenerator(idGenerator);
 		_dep.populateDAs();
 
@@ -563,6 +562,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/09 02:21:51  venku
+   - ripple effect of refactoring xmlizing framework.
+
    Revision 1.7  2004/02/08 03:06:16  venku
    - refactoring of xmlizers in staticanalyses.
 
