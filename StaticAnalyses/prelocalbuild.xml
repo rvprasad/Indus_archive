@@ -19,6 +19,8 @@
     <path id="indus.staticanalyses.classpath">
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/junit.jar"/>
+        <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaCommons/banderaCommons.jar"/>        
+        <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaToolFramework/banderaToolFramework.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
