@@ -15,8 +15,10 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import soot.ArrayType;
 import soot.Local;
 import soot.PatchingChain;
+import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -147,7 +149,19 @@ public class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForType(soot.Type)
 	 */
 	public String getIdForType(Type type) {
-		return type.toString();
+		String result;
+
+		if (type instanceof RefType) {
+			result = getIdForClass(((RefType) type).getSootClass());
+		} else if (type instanceof ArrayType) {
+			ArrayType arrayType = (ArrayType) type;
+			StringBuffer t = new StringBuffer(getIdForType(arrayType.getElementType()));
+			t.append(".." + arrayType.numDimensions);
+			result = t.toString();
+		} else {
+			result = type.toString().replaceAll("[\\[\\]]", "_.").replaceAll("\\p{Blank}", "");
+		}
+		return result;
 	}
 
 	/**
@@ -181,6 +195,9 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/17 15:57:03  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
    Revision 1.1  2003/11/16 18:37:42  venku
    - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
    Revision 1.1  2003/11/07 11:14:44  venku
