@@ -280,14 +280,13 @@ public final class BasicBlockGraph
 
 	/**
 	 * Return the head node of this graph.  Basic Block graphs for procedures in languages without unconditional gotos can
-	 * have only one entry point, hence, this method.
+	 * have only one entry point, hence, this method.  If the method is native, <code>null</code> is returned.
 	 *
 	 * @return the head node
-	 *
-	 * @post result != null
 	 */
 	public BasicBlock getHead() {
-		return (BasicBlock) getHeads().iterator().next();
+        final Collection _heads = getHeads();
+		return _heads.isEmpty() ? null : (BasicBlock) _heads.iterator().next();
 	}
 
 	/**
@@ -406,6 +405,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/19 13:30:06  venku
+   - simplified the logic in getStmtsFromTo().
+
    Revision 1.9  2004/01/19 13:06:12  venku
    - in getStmtsFrom() it retrieved the next statement if start == end. FIXED.
    Revision 1.8  2004/01/17 00:38:13  venku
