@@ -88,12 +88,12 @@ import soot.jimple.Stmt;
 public final class SynchronizationDA
   extends AbstractDependencyAnalysis
   implements IMonitorInfo {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(SynchronizationDA.class);
 
-	/**
+	/** 
 	 * This is collection of monitor triples that occur in the analyzed system.  The elements of the triple are of type
 	 * <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and <code>SootMethod</code>, respectively.
 	 *
@@ -103,24 +103,24 @@ public final class SynchronizationDA
 	 */
 	final Collection monitorTriples = new HashSet();
 
-	/**
+	/** 
 	 * This is a temporary collection of sychronized methods.
 	 */
 	final Collection syncedMethods = new HashSet();
 
-	/**
+	/** 
 	 * This collects the enter-monitor statements in each method during preprocessing.
 	 *
 	 * @invariant method2enterMonitors.oclIsKindOf(Map(SootMethod, Collection(EnterMonitorStmt)))
 	 */
 	final Map method2enterMonitors = new HashMap();
 
-	/**
+	/** 
 	 * This provides object flow information.
 	 */
 	private IValueAnalyzer ofa;
 
-	/**
+	/** 
 	 * This maps synchronized methods to the collection of statements in them that are synchronization dependent on the entry
 	 * and exit points of the method.
 	 *
@@ -249,6 +249,60 @@ public final class SynchronizationDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(soot.jimple.Stmt, SootMethod, boolean)
+	 */
+	public Collection getEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive) {
+		final Collection _result = new HashSet();
+
+		if (transitive) {
+			_result.addAll(DependencyAnalysisUtil.getDependentTransitiveClosureOf(monitorStmt, method, this,
+					DependencyAnalysisUtil.STMT_RESULT_DEPENDENCE_RETRIEVER));
+		} else {
+			_result.addAll(getDependents(monitorStmt, method));
+		}
+
+		// remove the monitor from the set.
+		final Collection _monitorTriples = getMonitorTriplesFor(monitorStmt, method);
+		final Iterator _i = _monitorTriples.iterator();
+		final int _iEnd = _monitorTriples.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Triple _triple = (Triple) _i.next();
+			_result.remove(_triple.getFirst());
+			_result.remove(_triple.getSecond());
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitors(soot.jimple.Stmt, SootMethod, boolean)
+	 */
+	public Collection getEnclosingMonitors(final Stmt stmt, final SootMethod method, final boolean transitive) {
+		final Collection _result = new HashSet();
+
+		if (transitive) {
+			_result.addAll(DependencyAnalysisUtil.getDependeeTransitiveClosureOf(stmt, method, this,
+					DependencyAnalysisUtil.STMT_RESULT_DEPENDENCE_RETRIEVER));
+		} else {
+			_result.addAll(getDependents(stmt, method));
+		}
+
+		if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
+			// remove the monitor from the set.
+			final Collection _monitorTriples = getMonitorTriplesFor(stmt, method);
+			final Iterator _i = _monitorTriples.iterator();
+			final int _iEnd = _monitorTriples.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Triple _triple = (Triple) _i.next();
+				_result.remove(_triple.getFirst());
+				_result.remove(_triple.getSecond());
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
@@ -267,13 +321,51 @@ public final class SynchronizationDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesFor(soot.jimple.Stmt, SootMethod)
+	 */
+	public Collection getMonitorTriplesFor(final Stmt monitorStmt, final SootMethod method) {
+		final Collection _result = new HashSet();
+		final Collection _monitorTriplesInMethod = getMonitorTriplesIn(method);
+		final Iterator _i = _monitorTriplesInMethod.iterator();
+		final int _iEnd = _monitorTriplesInMethod.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Triple _triple = (Triple) _i.next();
+
+			if (_triple.getThird().equals(method)
+				  && (_triple.getFirst().equals(monitorStmt) || _triple.getSecond().equals(monitorStmt))) {
+				_result.add(_triple);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesIn(SootMethod)
+	 */
+	public Collection getMonitorTriplesIn(final SootMethod method) {
+		final Collection _result = new HashSet();
+		final Iterator _i = monitorTriples.iterator();
+		final int _iEnd = monitorTriples.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Triple _triple = (Triple) _i.next();
+
+			if (_triple.getThird().equals(method)) {
+				_result.add(_triple);
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-	    unstable();
-	    
+		unstable();
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
@@ -731,9 +823,12 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.49  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.48  2004/07/07 06:29:20  venku
    - coding convention and documentation.
    Revision 1.47  2004/07/07 06:25:07  venku

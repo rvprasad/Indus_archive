@@ -17,6 +17,10 @@ package edu.ksu.cis.indus.interfaces;
 
 import java.util.Collection;
 
+import soot.SootMethod;
+
+import soot.jimple.Stmt;
+
 
 /**
  * This interface provides the information pertaining to Java monitors in the analyzed system.
@@ -33,15 +37,44 @@ import java.util.Collection;
 public interface IMonitorInfo
   extends IStatus,
 	  IIdentification {
-	/**
+	/** 
 	 * The id of this interface.
 	 */
 	String ID = "Synchronization monitor Information";
 
 	/**
+	 * Retrieves the statements enclosed in the monitor respresented by the given monitor statement in the given method.
+	 *
+	 * @param monitorStmt obviously.
+	 * @param method in which the monitor occurs.
+	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
+	 *
+	 * @return a collection of statements
+	 *
+	 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	Collection getEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive);
+
+	/**
+	 * Retrieves the monitor statements enclosing in the given monitor statement in the given method.
+	 *
+	 * @param stmt obviously.
+	 * @param method in which the monitor occurs.
+	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
+	 *
+	 * @return a collection of statements
+	 *
+	 * @pre stmt.oclIsKindOf(Stmt)
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 * @post result->forall(o | o.oclIsKindOf(EnterMonitorStmt) or o.oclIsKindOf(ExitMonitorStmt)
+	 */
+	Collection getEnclosingMonitors(final Stmt stmt, final SootMethod method, final boolean transitive);
+
+	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
-	 * <code>SootMethod</code>. The third element is the method in which the monitor occurs.  In case the first and the
-	 * second element of the triple are <code>null</code> then this means the method is a synchronized.
+	 * <code>SootMethod</code> in the system. The third element is the method in which the monitor occurs.  In case the
+	 * first  and the second element of the triple are <code>null</code> then this means the method is a synchronized.
 	 *
 	 * @return collection of monitors in the analyzed system.
 	 *
@@ -50,11 +83,50 @@ public interface IMonitorInfo
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
 	Collection getMonitorTriples();
+
+	/**
+	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
+	 * <code>SootMethod</code> corresponding to monitor represented by <code>monitorStmt</code> in <code>method</code>.
+	 *
+	 * @param monitorStmt obviously.
+	 * @param method in which monitorStmt occurs.
+	 *
+	 * @return collection of monitors in the analyzed system.
+	 *
+	 * @pre method != null
+	 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
+	 * @post result->forall(o | o.getThird().equals(method))
+	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.common.graph.Triple(soot.jimple.EnterMonitorStmt,
+	 * 		 soot.jimple.ExitMonitorStmt, soot.SootMethod)))
+	 * @post result->forall(o | o.getThird() ! = null)
+	 */
+	Collection getMonitorTriplesFor(final Stmt monitorStmt, final SootMethod method);
+
+	/**
+	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
+	 * <code>SootMethod</code> corresponding to the monitors in <code>method</code>. The third element is the method in
+	 * which the monitor occurs.  In case the first and the second element of the triple are <code>null</code> then this
+	 * means the method is a synchronized.
+	 *
+	 * @param method in which the monitors occur.
+	 *
+	 * @return collection of monitors in the analyzed system.
+	 *
+	 * @pre method != null
+	 * @post result->forall(o | o.getThird().equals(method))
+	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.common.graph.Triple(soot.jimple.EnterMonitorStmt,
+	 * 		 soot.jimple.ExitMonitorStmt, soot.SootMethod)))
+	 * @post result->forall(o | o.getThird() ! = null)
+	 */
+	Collection getMonitorTriplesIn(final SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/11 14:17:41  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.3  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
