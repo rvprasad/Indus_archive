@@ -88,15 +88,15 @@ public class DivergenceDA
 	 * This indicates if call-sites that invoke methods containing pre-divergence points should be considered as
 	 * pre-divergence points.
 	 */
-	private final boolean interProcedural;
+	private boolean interProcedural;
 
 	/**
-	 * Creates a new DivergenceDA object.
+	 * Sets if the analyses should consider the effects of method calls.
 	 *
 	 * @param acrossMethodCalls <code>true</code> indicates call-sites that invoke methods containing pre-divergence points
 	 * 		  should be considered as pre-divergence points; <code>false</code>, otherwise.
 	 */
-	public DivergenceDA(final boolean acrossMethodCalls) {
+	public void setInterProcedural(final boolean acrossMethodCalls) {
 		interProcedural = acrossMethodCalls;
 	}
 
@@ -382,6 +382,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/20 18:14:38  venku
+   Log4j was used instead of logging.  That is fixed.
+
    Revision 1.5  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
 
