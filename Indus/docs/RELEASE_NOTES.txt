@@ -11,7 +11,7 @@ Required software:
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
-    Soot: a Java Optimization Framework (2.1.0 or higher)
+    Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
@@ -25,8 +25,17 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Version 0.1
+-----------
+This is (hopefully) a stable release of version 0.1a.  One notable change is that we have decided to use Soot 2.1.0 for
+Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at the time
+of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use Soot 2.1.0 only.
+
+We have introduced a new module, tokens, to manage values/tokens in the flow analyses.
+
+
 Version 0.1a
 --------------
-This is the first release of Indus subproject of Indus.  This modules captures the interfaces and implementation common to other 
-modules in Indus.  Please refer to the user guide and the javadocs for more information.  Users at this point should not be deal
-with this module but rather should require it to use the slicer and the staticanalyses modules.
+This is the first release of Indus subproject of Indus.  This modules captures the interfaces and implementation common to
+other modules in Indus.  Please refer to the user guide and the javadocs for more information.  Users at this point should not
+be deal with this module but rather should require it to use the slicer and the staticanalyses modules.
