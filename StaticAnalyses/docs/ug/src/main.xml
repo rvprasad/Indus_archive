@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"-->
-<!DOCTYPE article SYSTEM "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<!--DOCTYPE article SYSTEM "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd"-->
 <article class="productsheet">
   <title>Indus - StaticAnalyses</title>
   <articleinfo>
