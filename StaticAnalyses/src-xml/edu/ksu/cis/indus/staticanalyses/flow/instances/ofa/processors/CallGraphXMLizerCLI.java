@@ -39,6 +39,7 @@ import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -73,16 +74,19 @@ public final class CallGraphXMLizerCLI
 		final Options _options = new Options();
 		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
 		_option.setArgs(Option.UNLIMITED_VALUES);
+		_option.setArgName("classes");
 		_option.setValueSeparator(' ');
-		_option.setRequired(true);
 		_options.addOption(_option);
 		_option =
 			new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
+		_option.setArgName("output-dir");
 		_options.addOption(_option);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
+		_option.setArgName("dump-jimple");
 		_options.addOption(_option);
+		
 
 		final PosixParser _parser = new PosixParser();
 
@@ -107,12 +111,16 @@ public final class CallGraphXMLizerCLI
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
 			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
+
+			if (!_cl.hasOption('c')) {
+				throw new MissingOptionException("-c");
+			}
 			_cli.setClassNames(_cl.getOptionValues('c'));
 			_cli.initialize();
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options);
+			(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options, true);
 		}
 	}
 
@@ -128,8 +136,7 @@ public final class CallGraphXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -187,27 +194,25 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/25 23:18:18  venku
+   - coding conventions.
    Revision 1.9  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.8  2004/04/22 23:32:30  venku
    - xml file name were setup incorrectly.  FIXED.
-
    Revision 1.7  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.
    - ripple effect.
-
    Revision 1.6  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.5  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
