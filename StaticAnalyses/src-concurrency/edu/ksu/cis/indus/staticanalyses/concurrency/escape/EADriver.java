@@ -199,8 +199,8 @@ public final class EADriver
 
 						for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
 							Local local = (Local) k.next();
-							System.out.println(" Local " + local + ":" + local.getType() + " -> shared:"
-								+ analysis.isShared(local, sm));
+							System.out.println(" Local " + local + ":" + local.getType() + " escapes -> "
+								+ analysis.escapes(local, sm));
 						}
 					} else {
 						if (LOGGER.isInfoEnabled()) {
@@ -218,6 +218,9 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/29 07:30:51  venku
+   - added support to spit out local variables names as they occur
+     in the source rather than jimplified names.
    Revision 1.7  2003/09/29 06:37:31  venku
    - Each driver now handles each root method separately.
    Revision 1.6  2003/09/29 04:20:57  venku
