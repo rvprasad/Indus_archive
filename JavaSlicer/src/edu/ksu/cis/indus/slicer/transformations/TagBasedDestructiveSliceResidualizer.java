@@ -164,7 +164,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * The collection of classes to be removed from the system after residualization.
 	 */
-	private final Collection classesToKill = new HashSet();
+	final Collection classesToKill = new HashSet();
 
 	/**
 	 * This tracks the fields of the current class that should be deleted.
@@ -287,15 +287,22 @@ public final class TagBasedDestructiveSliceResidualizer
 				_astmt.getLeftOpBox().addTag(_tag);
 				_astmt.getRightOpBox().addTag(_tag);
 
-				// find an <init> method on the type and prepare the argument list
 				final SootClass _clazz = _type.getSootClass();
+
+				// retain the class
+				if (!_clazz.hasTag(theNameOfTagToResidualize)) {
+				    classesToKill.remove(_clazz);
+				    _clazz.addTag(tagToResidualize);
+				    
+				}
+				// find an <init> method on the type and prepare the argument list
 				final SootMethod _init = prepareInitIn(_clazz);
 				final List _args = new ArrayList(_init.getParameterCount());
 
 				for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
 					_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
 				}
-
+				
 				// invoke <init> on the local
 				final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_local, _init, _args);
 				final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
@@ -887,6 +894,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/07/09 09:15:35  venku
+   - refactoring.
+
    Revision 1.13  2004/07/08 22:15:18  venku
    - moved the method body validation code to the end so that it
      considers any newly introduced code as well.

@@ -32,8 +32,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 
 import org.apache.commons.logging.Log;
@@ -207,42 +209,34 @@ public final class ExecutableSlicePostProcessor
 			LOGGER.debug("Topological Sort: " + _topologicallyOrderedClasses);
 		}
 
-		final Collection _concreteUncollectedMethods = new HashSet();
-
 		// fixup methods with respect the class hierarchy  
 		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
 			final SootClass _currClass = (SootClass) _i.next();
 			final Collection _abstractMethodsAtCurrClass =
 				gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _currClass);
+			final List _methods = _currClass.getMethods();
+			final List _collectedMethods = collector.getCollected(_methods);
+			final Collection _unCollectedMethods = CollectionUtils.subtract(_methods, _collectedMethods);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Fixing up " + _currClass);
+			}
 
 			// remove all abstract methods which are overridden by collected methods of this class.
-			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, collector.getCollected(_currClass.getMethods()));
+			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, _collectedMethods);
 			// gather uncollected methods of this class which have the same signature as any gathered "super" abstract 
 			// methods.
-			_concreteUncollectedMethods.clear();
-			_concreteUncollectedMethods.addAll(_currClass.getMethods());
-			Util.retainMethodsWithSameSignature(_concreteUncollectedMethods, _abstractMethodsAtCurrClass);
-
+			Util.retainMethodsWithSameSignature(_unCollectedMethods, _abstractMethodsAtCurrClass);
 			// remove abstract counterparts of all methods that were included in the slice in the previous step.
-			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, _concreteUncollectedMethods);
+			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, _unCollectedMethods);
 			// include the uncollected concrete methods into the slice and process them
-			collector.includeInSlice(_concreteUncollectedMethods);
-
-			for (final Iterator _j = _concreteUncollectedMethods.iterator(); _j.hasNext();) {
-				final SootMethod _method = (SootMethod) _j.next();
-				stmtCollected = false;
-				processStmts(_method);
-
-				if (stmtCollected) {
-					pickReturnPoints(_method);
-				}
-			}
+			collector.includeInSlice(_unCollectedMethods);
 
 			// gather collected abstract methods in this class/interface
 			if (_currClass.isInterface()) {
-				_abstractMethodsAtCurrClass.addAll(collector.getCollected(_currClass.getMethods()));
+				_abstractMethodsAtCurrClass.addAll(_collectedMethods);
 			} else if (_currClass.isAbstract()) {
-				for (final Iterator _j = collector.getCollected(_currClass.getMethods()).iterator(); _j.hasNext();) {
+				for (final Iterator _j = _collectedMethods.iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
 
 					if (_sm.isAbstract()) {
@@ -333,7 +327,7 @@ public final class ExecutableSlicePostProcessor
 				_exitStmt = _stmt;
 			}
 		}
-		collector.includeInSlice(_exitStmt);
+		processAndIncludeExitStmt(_exitStmt);
 	}
 
 	/**
@@ -359,7 +353,7 @@ public final class ExecutableSlicePostProcessor
 		if (_tails.size() == 1) {
 			// If there is only one tail then include the statement
 			final BasicBlock _bb = (BasicBlock) _tails.iterator().next();
-			collector.includeInSlice(_bb.getTrailerStmt());
+			processAndIncludeExitStmt(_bb.getTrailerStmt());
 		} else {
 			boolean _tailWasNotPicked = true;
 
@@ -371,7 +365,7 @@ public final class ExecutableSlicePostProcessor
 				final boolean _flag = _dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty();
 
 				if (!_stmt.hasTag(_tagName) && _flag) {
-					collector.includeInSlice(_stmt);
+					processAndIncludeExitStmt(_stmt);
 					_tailWasNotPicked = false;
 
 					if (LOGGER.isDebugEnabled()) {
@@ -393,6 +387,21 @@ public final class ExecutableSlicePostProcessor
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Picking return points in " + method);
 		}
+	}
+
+	/**
+	 * Processes the given exit statement and also includes it into the slice.   It handles <code>throw</code> statements
+	 * approriately.  Refer to <code>processThrowStmt</code> for details.
+	 *
+	 * @param exitStmt to be included.
+	 *
+	 * @pre exitStmt != null
+	 */
+	private void processAndIncludeExitStmt(final Stmt exitStmt) {
+		if (exitStmt instanceof ThrowStmt) {
+			processThrowStmt((ThrowStmt) exitStmt);
+		}
+		collector.includeInSlice(exitStmt);
 	}
 
 	/**
@@ -521,20 +530,29 @@ public final class ExecutableSlicePostProcessor
 						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
 					}
 				} else if (_stmt instanceof ThrowStmt) {
-					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
-
-					if (!collector.hasBeenCollected(_throwStmt.getOpBox())) {
-						final SootClass _exceptionClass = ((RefType) _throwStmt.getOp().getType()).getSootClass();
-						collector.includeInSlice(_exceptionClass);
-
-						// the ancestors will be added when we fix up the class hierarchy.
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("Included classes of exception thrown at " + _stmt + " in " + method);
-						}
-					}
+					processThrowStmt((ThrowStmt) _stmt);
 				}
 				processHandlers(method, _stmt);
 				stmtCollected = true;
+			}
+		}
+	}
+
+	/**
+	 * Processes the throw statement to include any required classes, if necessary.
+	 *
+	 * @param throwStmt to be processed.
+	 *
+	 * @pre throwStmt != null
+	 */
+	private void processThrowStmt(final ThrowStmt throwStmt) {
+		if (!collector.hasBeenCollected(throwStmt.getOpBox())) {
+			final SootClass _exceptionClass = ((RefType) throwStmt.getOp().getType()).getSootClass();
+			collector.includeInSlice(_exceptionClass);
+
+			// the ancestors will be added when we fix up the class hierarchy.
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Included classes of exception thrown at " + throwStmt);
 			}
 		}
 	}
@@ -543,6 +561,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/09 09:15:02  venku
+   - corner case while picking return points was addressed.
+   - refactoring.
+   - the methods sucked in when class hierarchy is fixed were not processed. FIXED.
    Revision 1.25  2004/06/16 06:24:31  venku
    - coding conventions.
    - identity statements were included only if they were in the slice.
