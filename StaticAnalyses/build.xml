@@ -113,7 +113,7 @@
 
 <target name="clean" depends="init">
     <delete includeEmptyDirs="true" quiet="true">
-	    <fileset dir="${build}" includes="**/*.class"/>
+	    <fileset dir="${build.dir}" includes="**/*.class"/>
     </delete>
     <delete dir="${docs}" quiet="true"/>
 </target>
@@ -124,6 +124,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.24  2004/01/06 21:23:17  venku
+*** empty log message ***
+
 Revision 1.23  2004/01/06 14:53:34  venku
 *** empty log message ***
 
