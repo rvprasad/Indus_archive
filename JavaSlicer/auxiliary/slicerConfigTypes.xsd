@@ -16,12 +16,12 @@
       </xsd:documentation>
     </xsd:annotation>
       <xsd:sequence>
-        <xsd:element name="interference" type="slicer:interference" block=""/>
-        <xsd:element name="divergence" type="slicer:divergence" block=""/>
-        <xsd:element name="ready" type="slicer:ready" block=""/>
+        <xsd:element name="interference" type="slicer:interference"/>
+        <xsd:element name="divergence" type="slicer:divergence"/>
+        <xsd:element name="ready" type="slicer:ready"/>
       </xsd:sequence>
-      <xsd:attribute name="executableSlice" type="boolean" default="true"/>
-      <xsd:attribute name="slicetype" type="slicer:slicingType" default="BACKWARD_SLICE"/>
+      <xsd:attribute name="executableSlice" type="boolean" use="required"/>
+      <xsd:attribute name="slicetype" type="slicer:slicingType" use="required" default="BACKWARD_SLICE"/>
       <xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
       <xsd:attribute name="name" type="xsd:ID" use="required"/>
     </xsd:complexType>
