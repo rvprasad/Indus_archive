@@ -37,9 +37,7 @@ import java.io.IOException;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the command-line driver class for the slicer tool.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -52,9 +50,8 @@ public class SlicerDriver {
 	private static final Log LOGGER = LogFactory.getLog(SlicerDriver.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The default configuration.  
+     * TODO: This should be moved out to a file/resource.
 	 */
 	private static String configuration =
 		"<slicerConfiguration " + "xmlns:slicer=\"http://indus.projects.cis.ksu.edu/slicer\""
@@ -66,25 +63,19 @@ public class SlicerDriver {
 		+ "</configurationInfo>" + "</slicerConfiguration>";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
 	 */
 	private static File outputDirectory;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the name of the configuration file to use.
 	 */
 	private static String configFileName;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * The entry point to the driver.
 	 *
-	 * @param args DOCUMENT ME!
+	 * @param args contains the command line arguments.
 	 */
 	public static void main(String[] args) {
 		// parse command line arguments
@@ -115,9 +106,9 @@ public class SlicerDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Parses the command line argument.
 	 *
-	 * @param args
+	 * @param args contains the command line arguments.
 	 */
 	private static void parseCommandLine(String[] args) {
 		// create options
@@ -179,4 +170,8 @@ public class SlicerDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/14 05:33:26  venku
+   - First cut at slicer driver.  This will be used to drive the testing
+     of the slicer.
+
  */
