@@ -483,6 +483,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/04/22 22:12:09  venku
+   - made changes to jimple xmlizer to dump each class into a separate file.
+   - ripple effect.
    Revision 1.30  2004/04/20 06:53:18  venku
    - documentation.
    Revision 1.29  2004/04/18 00:02:18  venku

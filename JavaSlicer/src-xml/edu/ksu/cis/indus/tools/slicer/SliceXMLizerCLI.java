@@ -17,22 +17,19 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.BufferedReader;
@@ -239,28 +236,12 @@ public class SliceXMLizerCLI
 	 */
 	private void dumpJimple() {
 		if (jimpleXMLDumpDir != null) {
-			final ICallGraphInfo _cgi = slicer.getCallGraph();
-			final ProcessingController _ctrl = new ProcessingController();
-			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
-			_ctrl.setEnvironment(slicer.getEnvironment());
-			_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
-
-			JimpleXMLizer _jimpler = null;
-
-			_jimpler = new JimpleXMLizer(idGenerator);
-			_jimpler.setDumpOptions(jimpleXMLDumpDir, SUFFIX_FOR_XMLIZATION_PURPOSES);
-			//_jimpler.setWriter(dumpJimple);
-			_jimpler.hookup(_ctrl);
-			_ctrl.process();
-
-			_jimpler.unhook(_ctrl);
-
-			/*try {
-			   dumpJimple.flush();
-			   dumpJimple.close();
-			   } catch (IOException _e) {
-			       LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
-			   }*/
+            final ProcessingController _ctrl = new ProcessingController();
+            _ctrl.setStmtGraphFactory(getStmtGraphFactory());
+            _ctrl.setEnvironment(slicer.getEnvironment());
+            _ctrl.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+            final AbstractXMLizer _xmlizer = getXMLizer();
+            _xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
 		}
 	}
 
@@ -549,6 +530,10 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/22 22:12:08  venku
+   - made changes to jimple xmlizer to dump each class into a separate file.
+   - ripple effect.
+
    Revision 1.14  2004/04/22 10:23:11  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.

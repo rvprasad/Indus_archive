@@ -141,17 +141,18 @@ public abstract class AbstractXMLizer
 	/**
 	 * Dumps the jimple into a file.
 	 *
-	 * @param name is the basis of the name of the file into which jimple should be dumped.
+	 * @param name is the basis of the name of the files into which jimple should be dumped.
+     * @param dumpDir is the directory into which the files should be dumped.
 	 * @param xmlcgipc is the processing controller to be used to control the dumping operation.  The user can use this
 	 * 		  controller to control the methods and classes to be included in the dump.  This controller sholuld be able to
 	 * 		  have deterministic behavior over a given set of class files.
 	 *
 	 * @pre name != null and xmlcgipc != null
 	 */
-	public final void dumpJimple(final String name, final ProcessingController xmlcgipc) {
+	public final void dumpJimple(final String name, final String dumpDir, final ProcessingController xmlcgipc) {
 		final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
 
-		_t.setDumpOptions(getXmlOutputDir(), getFileName(name));
+		_t.setDumpOptions(dumpDir, getFileName(name).replaceAll("\\.xml$", ""));
 		_t.hookup(xmlcgipc);
 		xmlcgipc.process();
 		_t.unhook(xmlcgipc);
@@ -263,6 +264,9 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/04/22 23:02:49  venku
+   - moved writeXML into IXMLizer.
+
    Revision 1.18  2004/04/22 22:12:09  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.

@@ -173,13 +173,12 @@ public final class CallGraphXMLizerCLI
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
-			xmlizer.dumpJimple(_rootname, _xmlcgipc);
 			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
 			if (dumpJimple) {
-				xmlizer.dumpJimple(_rootname, _xmlcgipc);
+				xmlizer.dumpJimple(_rootname, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}
 	}
@@ -188,6 +187,11 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/22 10:23:10  venku
+   - added getTokenManager() method to OFAXMLizerCLI to create
+     token manager based on a system property.
+   - ripple effect.
+
    Revision 1.6  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.

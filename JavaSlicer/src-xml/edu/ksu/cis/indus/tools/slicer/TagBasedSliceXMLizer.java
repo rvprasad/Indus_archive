@@ -84,6 +84,7 @@ final class TagBasedSliceXMLizer
 	 * @pre out != null and theTagName != null and generator != null
 	 */
 	public TagBasedSliceXMLizer(final String theTagName, final IJimpleIDGenerator generator) {
+		setGenerator(generator);
 		processor = new TagBasedSliceProcessor(generator);
 		tagName = theTagName;
 	}
@@ -318,6 +319,20 @@ final class TagBasedSliceXMLizer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
+	 */
+	public String getFileName(final String name) {
+		String _result = xmlizeString(name);
+
+		if (_result.length() == 0) {
+			_result = "slice.xml";
+		} else {
+			_result = "slice_" + _result + ".xml";
+		}
+		return _result;
+	}
+
+	/**
 	 * Writes the slice as XML document.
 	 *
 	 * @param info maps various ids to their implementations as required by this xmlizer.
@@ -343,21 +358,15 @@ final class TagBasedSliceXMLizer
 			LOGGER.error("Error while xmlizing OFA information ", _e);
 		}
 	}
-
-	/**
-	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
-	 */
-	public String getFileName(final String name) {
-		return "slice_" + xmlizeString(name) + ".xml";
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/22 22:59:58  venku
+   - coding conventions.
    Revision 1.16  2004/04/20 06:53:15  venku
    - documentation.
-
    Revision 1.15  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
    Revision 1.14  2003/12/13 02:29:16  venku
