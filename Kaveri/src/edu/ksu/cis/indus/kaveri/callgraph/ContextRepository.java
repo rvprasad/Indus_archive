@@ -17,6 +17,10 @@ package edu.ksu.cis.indus.kaveri.callgraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * @author ganeshan
@@ -30,14 +34,14 @@ public class ContextRepository {
      * 
      * @inv contextCollections.oclIsKindOf(Collection(MethodCallContext))
      */
-    private Collection contextCollections;
+    private Map contextCollections;
 
     /**
      * Constructor.
      *  
      */
     public ContextRepository() {
-        contextCollections = new ArrayList();
+        contextCollections = new HashMap();
     }
 
     /**
@@ -47,10 +51,18 @@ public class ContextRepository {
      *            The call stack
      *  
      */
-    public void addCallStack(final MethodCallContext context) {
-        if (!contextCollections.contains(context)) {
-            contextCollections.add(context);
+    public void addCallStack(final IJavaProject project, final MethodCallContext context) {
+        if (contextCollections.containsKey(project)) {
+            final Collection _coll = (Collection) contextCollections.get(project);
+            if (!_coll.contains(context)) {
+                _coll.add(context);            
+            }
+        } else {
+            final Collection _coll = new ArrayList();
+            _coll.add(context);
+            contextCollections.put(project, _coll);
         }
+        
     }
 
     /**
@@ -58,8 +70,8 @@ public class ContextRepository {
      * 
      * @return Returns the contextCollections.
      */
-    public Collection getContexts() {
-        return contextCollections;
+    public Collection getContext(final IJavaProject project) {
+        return (Collection) contextCollections.get(project);
     }
 
     /**

@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
+import soot.G;
+
 /**
  * Runs the slicer on the chosen file or project. Popup action.
  * 
@@ -88,6 +90,9 @@ public class RunIndus extends BasicSliceFunctions implements
             } catch (InvocationTargetException _ie) {
                 KaveriErrorLog.logException("Invocation Target Exception", _ie);
                 SECommons.handleException(_ie);
+                G.reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
             } catch (InterruptedException _ie) {
                 KaveriErrorLog.logException("Interrupted Exception", _ie);
                 SECommons.handleException(_ie);

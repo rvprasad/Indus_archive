@@ -33,7 +33,11 @@ import edu.ksu.cis.indus.kaveri.scoping.ScopePropertiesSelectionDialog;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -152,10 +156,8 @@ public class PluginPreference extends PreferencePage implements
             _xstream.alias("ExceptionListStore", ExceptionListStore.class);
             final String _val = _xstream.toXML(exceptionStore);
             KaveriPlugin.getDefault().getPreferenceStore().setValue(
-                    _exceptionKey, _val);
-            if (exceptionStore.getExceptionCollection().size() > 0) {
-                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());
-            }
+                    _exceptionKey, _val);            
+                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());            
         }
         
         
@@ -264,15 +266,28 @@ public class PluginPreference extends PreferencePage implements
         _btnAdd.addSelectionListener(
                 new SelectionAdapter() {
                     public void widgetSelected(SelectionEvent e) {
-                        final Shell _shell = Display.getCurrent().getActiveShell();                        
+                        final Shell _shell = Display.getCurrent().getActiveShell();
+                        
+                        IInputValidator _val = new IInputValidator() {
+
+                            public String isValid(String newText) {
+                                final Status _status = (Status) JavaConventions.validateJavaTypeName(newText);
+                                if (_status.getSeverity() == IStatus.ERROR || _status.getSeverity() == IStatus.WARNING) {
+                                    return _status.getMessage();
+                                }
+                                return null;
+                            }
+                            
+                        };
                        final InputDialog _id = new InputDialog(_shell, "Exception Name", 
                                "Enter the fully qualified name of the exception", 
-                               "java.lang.IllegalArgumentException", null);
-                       if (_id.open() == IDialogConstants.OK_ID) {
-                           final TableItem _item = new TableItem(exceptionTable, SWT.NONE);
-                           _item.setText(0, _id.getValue());
-                           _item.setData(_id.getValue());                
-                           exceptionStore.addException(_id.getValue());
+                               "java.lang.IllegalArgumentException", _val);
+                       if (_id.open() == IDialogConstants.OK_ID) {                                           
+                           if (exceptionStore.addException(_id.getValue())) {
+                               final TableItem _item = new TableItem(exceptionTable, SWT.NONE);
+                               _item.setText(0, _id.getValue());
+                               _item.setData(_id.getValue());    
+                           }
                        }
                     }
                 }
@@ -286,6 +301,7 @@ public class PluginPreference extends PreferencePage implements
                             	final TableItem _item = exceptionTable.getSelection()[0];
                             	final String _exceptionName = (String)  _item.getData();
                             	exceptionStore.removeException(_exceptionName);
+                            	exceptionTable.remove(exceptionTable.getSelectionIndex());
                         }
                     }
                 }
@@ -363,10 +379,8 @@ public class PluginPreference extends PreferencePage implements
             _xstream.alias("ExceptionListStore", ExceptionListStore.class);
             final String _val = _xstream.toXML(exceptionStore);
             KaveriPlugin.getDefault().getPreferenceStore().setValue(
-                    _exceptionKey, _val);
-            if (exceptionStore.getExceptionCollection().size() > 0) {
-                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());
-            }
+                    _exceptionKey, _val);            
+                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());            
         }
         super.performApply();
     }
@@ -598,7 +612,10 @@ public class PluginPreference extends PreferencePage implements
         _gd.grabExcessHorizontalSpace = true;
         _rowComp.setLayoutData(_gd);
 
-        _rowComp.setLayout(new RowLayout());
+        
+        final RowLayout _rl = new RowLayout();
+        _rl.pack = false;    
+        _rowComp.setLayout(_rl);
 
         final Button _btAddClasses = new Button(_rowComp, SWT.PUSH);
         _btAddClasses.setText("Add Classes");

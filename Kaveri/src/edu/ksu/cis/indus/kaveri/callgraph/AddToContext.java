@@ -21,7 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.callhierarchy.CallLocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
@@ -38,6 +44,7 @@ import soot.jimple.Stmt;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan
@@ -105,13 +112,45 @@ public class AddToContext implements IViewActionDelegate {
                         _context.addContext(_stk);
                     }
                     if (_context != null) {
-                        KaveriPlugin.getDefault().getIndusConfiguration()
-                                .addContext(_context);
+                        final IMethod _mStart = _context.getCallRoot();
+                        final ICompilationUnit _unit = _mStart.getCompilationUnit();
+                        if (_unit != null) {
+                            final IResource _res;
+                            try {
+                                _res = _unit.getCorrespondingResource();
+                            } catch (JavaModelException e) {
+                               SECommons.handleException(e);
+                               return;
+                            }
+                            if (_res != null) {
+                                final IProject _prj = _res.getProject();
+                                if (_prj != null && hasJavaNature(_prj)) {
+                                    KaveriPlugin.getDefault().getIndusConfiguration()
+                                    .addContext(JavaCore.create(_prj), _context);            
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
         }
 
+    }
+
+    /**
+     * Check the java nature.
+     * @param _prj
+     * @return
+     */
+    private boolean hasJavaNature(IProject prj) {
+        boolean _hasNature = false;
+        try {
+            _hasNature = prj.hasNature("org.eclipse.jdt.core.javanature");
+        } catch (CoreException e) {
+            _hasNature = false;
+        }
+        return _hasNature;
     }
 
     /**

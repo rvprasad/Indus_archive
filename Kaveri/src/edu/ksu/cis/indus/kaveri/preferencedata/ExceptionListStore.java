@@ -48,7 +48,13 @@ public class ExceptionListStore {
      * Adds the given exception to the list.
      * @param fqnExceptionName The fully qualified exception name.
      */
-    public void addException(final String fqnExceptionName) {
+    public boolean addException(final String fqnExceptionName) {
+        if (!exceptionCollection.contains(fqnExceptionName)) {
+            exceptionCollection.add(fqnExceptionName);
+            return true;
+        } else {
+            return false;
+        }
         
     }
 

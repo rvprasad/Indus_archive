@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.kaveri.callgraph;
 
+import java.util.Collection;
+
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -25,12 +28,13 @@ import org.eclipse.jface.viewers.Viewer;
  */
 public class ContextContentProvider implements IStructuredContentProvider {
 
+    private IJavaProject jProject;
     /**
      * Constructor.
      *
      */
-    public ContextContentProvider() {
-        
+    public ContextContentProvider(final IJavaProject project) {
+       this.jProject = project; 
     }
     
     /**
@@ -39,12 +43,13 @@ public class ContextContentProvider implements IStructuredContentProvider {
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
     public Object[] getElements(final Object inputElement) {
-        Object[] _retObj = null; 
+        Object[] _retObj = new Object[0]; 
         if (inputElement instanceof ContextRepository) {
-            _retObj = ((ContextRepository) inputElement).getContexts().toArray();
-        } else {
-            _retObj = new Object[0];
-        }
+            final Collection _c = ((ContextRepository) inputElement).getContext(jProject);
+            if (_c != null) {
+                _retObj = _c.toArray();    
+            }            
+        } 
         return _retObj;
     }
 

@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -46,6 +47,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IFileEditorInput;
+
+import soot.G;
 
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
@@ -109,6 +112,10 @@ abstract public class BasicSliceFunctions {
                 }
             }
             if (_jproject != null) {
+                final IProject _prj = _jproject.getProject();
+                if(_prj == null || !hasJavaNature(_prj)) {
+                    return null;
+                }
                 final IndusConfigurationDialog _indusDialog = new IndusConfigurationDialog(
                         new Shell(), _jproject);
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
@@ -120,13 +127,28 @@ abstract public class BasicSliceFunctions {
                         _filelst = SECommons.processForFiles(_jproject);
                     } else if (_structuredSelection.getFirstElement() instanceof CompilationUnit
                             || _structuredSelection.getFirstElement() instanceof IFile) {
-                        _filelst.add(_resource);
+                        _filelst.addAll(SECommons.checkForRootMethods((IFile) _resource));
                     }
                 }
             }
         }
 
         return _filelst;
+    }
+
+    /**
+     * Check the nature.
+     * @param _prj
+     * @return
+     */
+    private boolean hasJavaNature(IProject prj) {
+        boolean _hasNature = false;
+        try {
+            _hasNature = prj.hasNature("org.eclipse.jdt.core.javanature");
+        } catch (CoreException e) {
+            _hasNature = false;
+        }
+        return _hasNature;
     }
 
     /**
@@ -155,6 +177,9 @@ abstract public class BasicSliceFunctions {
             if (_element != null && _element instanceof IMethod) {
                 final IFile _file = ((IFileEditorInput) editor.getEditorInput())
                         .getFile();
+                if (!hasJavaNature(_file)) {
+                    return;
+                }
                 final List _stmtlist = SootConvertor.getStmtForLine(_file,
                         _type, (IMethod) _element, _nSelLine);
 
@@ -206,7 +231,11 @@ abstract public class BasicSliceFunctions {
                     } catch (InvocationTargetException _ie) {
                         KaveriErrorLog.logException(
                                 "Invocation Target Exception", _ie);
+                        // Reset.
                         SECommons.handleException(_ie);
+                        G.reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
                     } catch (InterruptedException _ie) {
                         KaveriErrorLog.logException("Interrupted Exception",
                                 _ie);
@@ -218,5 +247,20 @@ abstract public class BasicSliceFunctions {
         } catch (JavaModelException _jme) {
             SECommons.handleException(_jme);
         }
+    }
+
+    /**
+     * Checks for java nature.
+     * @param _file
+     * @return
+     */
+    private boolean hasJavaNature(IFile file) {
+        boolean _hasNature = false;
+        try {
+            _hasNature = file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+        } catch (CoreException e) {
+            _hasNature = false;
+        }
+        return _hasNature;
     }
 }

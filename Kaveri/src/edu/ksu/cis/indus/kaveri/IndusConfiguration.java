@@ -40,6 +40,7 @@ import java.util.Set;
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jface.resource.ImageDescriptor;
 
@@ -481,8 +482,8 @@ public class IndusConfiguration {
      * @param context
      *            The context
      */
-    public void addContext(final MethodCallContext context) {
-        ctxRepository.addCallStack(context);
+    public void addContext(final IJavaProject project,  final MethodCallContext context) {
+        ctxRepository.addCallStack(project, context);
     }
 
     /**

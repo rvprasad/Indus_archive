@@ -90,6 +90,7 @@
             adaptable="false"
             objectClass="org.eclipse.jdt.core.IJavaProject"
             id="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject">
+            
          <menu
                label="Indus"
                path="additions"
@@ -110,6 +111,10 @@
                   adaptable="false"
                   objectClass="org.eclipse.core.resources.IProject"
                   id="edu.ksu.cis.indus.kaveri.popup.mainResourceProjectPopupObject">
+                  <filter
+         name="projectNature"
+         value="org.eclipse.jdt.core.javanature">
+      	</filter>        
          <menu
                label="Indus"
                path="additions"
@@ -136,8 +141,15 @@
                      id="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu">
                   <separator name="group1"/>
                </menu>
+                 <action
+                     enablesFor="1"
+                     label="Mark as root method"
+                     class="edu.ksu.cis.indus.kaveri.rootmethodtrapper.AddRootMethodAction"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.rootMethodPopupObjectAction"/>
                <action
-                     enablesFor="+"
+                     enablesFor="1"
                      label="Add to Scope"
                      class="edu.ksu.cis.indus.kaveri.scoping.ScopePopupAction"
                      style="push"
@@ -221,7 +233,7 @@
          point="org.eclipse.ui.editorActions">
       <editorContribution
             targetID="org.eclipse.jdt.ui.CompilationUnitEditor"
-            id="edu.ksu.cis.indus.kaveri.editorContribution">
+            id="edu.ksu.cis.indus.kaveri.editorContribution">            
          <action
                enablesFor="+"
                toolbarPath="Normal/additions"
@@ -313,16 +325,18 @@
    <extension
          point="org.eclipse.ui.ide.markerImageProviders">
       <imageprovider
-            markertype="edu.ksu.cis.indus.kaveri.cimarker"
-            icon="data/icons/cimarker.gif"
-            id="ciImageProvider"/>
+            markertype="edu.ksu.cis.indus.kaveri.rootMethodMarker"
+            icon="data/icons/rmmarker.gif"
+            id="rmImageProvider"/>
    </extension>
    <extension
-         id="cimarker"
-         name="ControlInterferenceMarker"
+         id="rootMethodMarker"
+         name="RootMethodMarker"
          point="org.eclipse.core.resources.markers">      
-      <super type="org.eclipse.core.resources.textmarker"/>
-      <persistent value="false"/>
+      <super type="org.eclipse.core.resources.bookmark"/>
+      <persistent value="true"/>
+      <attribute name="className"/>
+      <attribute name="methodSignature"/>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.annotationModelCreation">

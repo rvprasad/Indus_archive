@@ -30,6 +30,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -75,6 +76,7 @@ public class IndusDecorator extends LabelProvider implements
     public void decorate(final Object element, final IDecoration decoration) {
         //  System.out.println(element);
         //final IResource _resource = getResource(element);
+        
         IResource _resource = null;
 
         if (element instanceof IFile) {
@@ -84,10 +86,10 @@ public class IndusDecorator extends LabelProvider implements
         final List _filelst = KaveriPlugin.getDefault().getIndusConfiguration()
                 .getSliceFileList();
 
-        if (_filelst.size() > 0) {
+        if (_filelst != null &&_filelst.size() > 0) {
 
             if (_resource != null && _resource.getType() == IResource.FILE
-                    && _resource.getFileExtension().equalsIgnoreCase("java")) {
+                    && _resource.getFileExtension() != null && _resource.getFileExtension().equalsIgnoreCase("java")) {
                 if (_filelst.contains(_resource)
                         && isFileOkToDecorate(_resource)) {
                     decoration.addOverlay(KaveriPlugin.getDefault()
@@ -95,6 +97,7 @@ public class IndusDecorator extends LabelProvider implements
                 }
             }
         }
+        
     }
 
     /**
@@ -126,6 +129,9 @@ public class IndusDecorator extends LabelProvider implements
                 .getIndusConfiguration().getSliceProject();
         final IProject _sliceProject = _file.getProject();
         if (_project != null && _project == _sliceProject) {
+            if (!hasJavaNature(_file)) {
+                return false;
+            }
             final Map decorateMap = KaveriPlugin.getDefault().getCacheMap();
             final List _lst = SECommons.getClassesInFile(_file);
             for (int _i = 0; _i < _lst.size(); _i++) {
@@ -152,6 +158,21 @@ public class IndusDecorator extends LabelProvider implements
             }
         }
         return _isFileOk;
+    }
+
+    /**
+     * Checks the java nature.
+     * @param file
+     * @return
+     */
+    private boolean hasJavaNature(IFile file) {
+        boolean _hasNature = false;
+        try {
+            _hasNature = file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+        } catch (CoreException e) {
+            _hasNature = false;
+        }
+        return _hasNature;
     }
 
     /**

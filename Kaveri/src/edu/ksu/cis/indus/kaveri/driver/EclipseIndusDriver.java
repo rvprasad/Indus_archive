@@ -479,7 +479,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         slicer.run(Phase.STARTING_PHASE, true); // changed from true
         if (_sscg != null) {
             slicer.removeCriteriaGenerator(_sscg);
-        }
+        }       
     }
 
     /**
@@ -501,6 +501,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         //G.reset();
         criteria.clear();
         contextCollection.clear();
+        super.reset();        
         if (slicer != null) {
             slicer.reset();
             slicer.setSliceScopeDefinition(null);

@@ -14,7 +14,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true" 	slicer:useSafeLockAnalysis="true"/>
@@ -32,7 +32,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true" 	slicer:useSafeLockAnalysis="true"/>
@@ -50,7 +50,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
@@ -68,7 +68,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
@@ -85,7 +85,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
@@ -102,7 +102,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
@@ -119,7 +119,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
@@ -136,7 +136,7 @@
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
-		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>

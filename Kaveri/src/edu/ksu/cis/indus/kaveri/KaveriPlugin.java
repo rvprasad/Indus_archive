@@ -15,6 +15,10 @@
 package edu.ksu.cis.indus.kaveri;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
+
+import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
+import edu.ksu.cis.indus.kaveri.preferencedata.ExceptionListStore;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -25,7 +29,9 @@ import java.io.InputStreamReader;
 
 import java.net.URL;
 
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -35,13 +41,13 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-
-import org.eclipse.swt.graphics.RGB;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.osgi.framework.BundleContext;
+
+import com.thoughtworks.xstream.XStream;
+
 
 /**
  * The main plugin class.
@@ -77,6 +83,11 @@ public class KaveriPlugin extends AbstractUIPlugin {
      */
     private ResourceBundle resourceBundle;
 
+    /**
+     * The root method trapper instance.
+     */
+    private KaveriRootMethodTrapper rmTrapper;
+    
     /**
      * Constructor.
      */
@@ -152,16 +163,43 @@ public class KaveriPlugin extends AbstractUIPlugin {
             resourceBundle = null;
             //	KaveriErrorLog.logInformation("Missing resource", _x);
         }
-        slicerTool = new SlicerTool(TokenUtil
+        final Collection _exceptionCollection = fetchExceptionNames();
+        ExceptionFlowSensitiveStmtGraphFactory _factory = null;
+        if (_exceptionCollection.isEmpty()) {
+            _factory = new ExceptionFlowSensitiveStmtGraphFactory();
+        } else {
+            _factory = new ExceptionFlowSensitiveStmtGraphFactory(_exceptionCollection, true);
+        }
+            slicerTool = new SlicerTool(TokenUtil
                 .getTokenManager(new SootValueTypeManager()),
-                new ExceptionFlowSensitiveStmtGraphFactory());
+                _factory);
         cacheMap = new HashMap();
+        rmTrapper = new KaveriRootMethodTrapper();
         /*
          * final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
          * listener = new JavaClassChangeListener();
          * _workspace.addResourceChangeListener(listener);
          */
 
+    }
+
+    /**
+     * Fetch the collection of exception names.
+     * @return Collection The collection of fqn exception names.
+     */
+    private Collection fetchExceptionNames() {
+        final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
+        Collection _coll = Collections.EMPTY_LIST;
+        final IPreferenceStore _store = getPreferenceStore();
+        final String _val = _store.getString(_exceptionKey);
+        final XStream _xstream = new XStream();
+        _xstream.alias("ExceptionListStore", ExceptionListStore.class);
+        if (!_val.equals("")) {
+            final ExceptionListStore _els = (ExceptionListStore) _xstream.fromXML(_val);
+            _coll = _els.getExceptionCollection();
+        }
+        
+        return _coll;
     }
 
     /**
@@ -238,36 +276,7 @@ public class KaveriPlugin extends AbstractUIPlugin {
         cacheMap.clear();
     }
 
-    /**
-     * Sets up default colors if none present.
-     */
-    public void setupDefaultColors() {
-        final IPreferenceStore _store = getPreferenceStore();
-        if (PreferenceConverter.getDefaultColor(_store, "controlColor") == PreferenceConverter.COLOR_DEFAULT_DEFAULT) {
-            final int _constMaxColor = 255;
-            final int _const1 = 10;
-            final int _const2 = 5;
-            final int _const3 = 16;
-            final int _const4 = 242;
-            final int _const5 = 230;
-            final RGB _redColor = new RGB(_constMaxColor, 0, 0);
-            final RGB _blueColor = new RGB(0, 0, _constMaxColor);
-            final RGB _greenColor = new RGB(_const1, _constMaxColor, _const1);
-            final RGB _yellowColor = new RGB(_constMaxColor, _constMaxColor,
-                    _const2);
-            //final RGB _purpleColor = new RGB(252, 58, 239);
-            final RGB _paleBlue = new RGB(_const3, _const4, _const5);
-            //final RGB lightRed = new RGB(214, 164, 180);
 
-            PreferenceConverter.setDefault(_store, "controlColor", _redColor);
-            PreferenceConverter.setDefault(_store, "dataColor", _greenColor);
-            PreferenceConverter.setDefault(_store, "readyColor", _blueColor);
-            PreferenceConverter.setDefault(_store, "syncColor", _yellowColor);
-            PreferenceConverter.setDefault(_store, "interferenceColor",
-                    _paleBlue);
-
-        }
-    }
 
     /**
      * Returns the slicer tool instance.
@@ -291,9 +300,16 @@ public class KaveriPlugin extends AbstractUIPlugin {
      *  @param ignoreExceptionList The list of exceptions to ignore.
      */
     public void createNewSlicer(final Collection ignoreExceptionList) {
-        slicerTool = new SlicerTool(TokenUtil
+        ExceptionFlowSensitiveStmtGraphFactory _factory = null;
+        if (ignoreExceptionList.isEmpty()) {
+            _factory = new ExceptionFlowSensitiveStmtGraphFactory();
+        } else {
+            _factory = new ExceptionFlowSensitiveStmtGraphFactory(ignoreExceptionList,true);
+        }
+        
+        slicerTool = new SlicerTool(TokenUtil            
                 .getTokenManager(new SootValueTypeManager()),
-                new ExceptionFlowSensitiveStmtGraphFactory(ignoreExceptionList ,true));
+                _factory);
         loadConfigurations();
     }
 
@@ -332,5 +348,14 @@ public class KaveriPlugin extends AbstractUIPlugin {
      */
     public void addToCacheMap(final Object key, final Object value) {
         cacheMap.put(key, value);
+    }
+    
+    /**
+     * 
+     * Get the instance of the rootmethod trapper.
+     * @return RootMethodTrapper The root method trapper instance.
+     */
+    public KaveriRootMethodTrapper getRmTrapper() {
+        return rmTrapper;
     }
 }

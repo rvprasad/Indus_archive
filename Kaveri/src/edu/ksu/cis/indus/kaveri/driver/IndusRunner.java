@@ -32,8 +32,11 @@ import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -52,6 +55,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
 import soot.Body;
 import soot.SootMethod;
 import soot.jimple.InvokeExpr;
@@ -66,6 +72,7 @@ import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
 import edu.ksu.cis.indus.kaveri.sliceactions.Messages;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
 import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
@@ -277,7 +284,8 @@ public class IndusRunner implements IRunnableWithProgress {
                     if (_ctriple != null) {
 
                     } else {
-                        throw new InterruptedException("Call chain invalid");
+                        throw new InterruptedException("Unable to convert call chain between " +
+                                _m1.getName() + " and " + _m2.getName());
                     }
                     _ctxStack.push(_ctriple);
                 }
@@ -308,7 +316,7 @@ public class IndusRunner implements IRunnableWithProgress {
         final List _lst = SootConvertor.getStmts(_body, nLineno);
         if (_lst != null && _lst.size() > 0) {
             final Chain _chain = _body.getUnits();
-            for (Iterator iter = _chain.snapshotIterator(); iter.hasNext();) {
+            for (Iterator iter = _lst.iterator(); iter.hasNext();) {
                 final Stmt _stmt = (Stmt) iter.next();
                 if (_stmt.containsInvokeExpr()) {
                     final InvokeExpr _expr1 = _stmt.getInvokeExpr();
@@ -334,6 +342,8 @@ public class IndusRunner implements IRunnableWithProgress {
                 .getIndusConfiguration().getCurrentConfiguration();
         driver.setSlicer(KaveriPlugin.getDefault().getSlicerTool());
         driver.reset();
+        
+        setupRootMethodCollection();                
 
         driver.getSlicer().setActiveConfiguration(_currConfig);
         removeAnnotations();
@@ -405,6 +415,41 @@ public class IndusRunner implements IRunnableWithProgress {
             _indusRun = false;
         }
         return _indusRun;
+    }
+
+    /**
+     * Sets up the root methods.
+     */
+    private void setupRootMethodCollection() {
+        final KaveriRootMethodTrapper _rm = KaveriPlugin.getDefault().getRmTrapper();
+        _rm.reset();
+        if (fileList.size() > 0) {
+            final IFile _file = (IFile) fileList.get(0);
+            final IProject _project = _file.getProject();
+            final IJavaProject _jp = JavaCore.create(_project);
+            if (_jp != null) {
+                try {
+                    final IResource _resource = _jp.getCorrespondingResource();
+                    final QualifiedName _name = new QualifiedName("edu.ksu.cis.indus.kaveri", "rootMethodCollection");
+                    final String _propVal =  _resource.getPersistentProperty(_name);
+                    final XStream _xstream = new XStream(new DomDriver());
+                    _xstream.alias("RootMethodCollection", RootMethodCollection.class);
+                    RootMethodCollection _rmc = null;
+                    if (_propVal != null) {
+                        _rmc = (RootMethodCollection) _xstream.fromXML(_propVal);
+                        _rm.addRootMethodSignatures(_rmc.getRootMethodCollection());
+                    }
+                } catch (JavaModelException _e) {
+                    SECommons.handleException(_e);
+                    KaveriErrorLog.logException("Java Model Exception", _e);
+                } catch (CoreException _e) {
+                    SECommons.handleException(_e);
+                    KaveriErrorLog.logException("Java Model Exception", _e);
+                }
+                
+            }
+        }
+        driver.setRootMethodTrapper(_rm);
     }
 
     /**
@@ -513,7 +558,7 @@ public class IndusRunner implements IRunnableWithProgress {
                 .getLineNumbers();
         final AddIndusAnnotation _manager = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getIndusAnnotationManager();
-        _manager.setEditor(editor, _map);
+        _manager.setEditor(editor, _map);        
     }
 
     /**

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -84,18 +83,12 @@ public class SliceAnnotate implements IEditorActionDelegate {
      *      org.eclipse.ui.IEditorPart)
      */
     public void setActiveEditor(final IAction action,
-            final IEditorPart targetEditor) {
+            final IEditorPart targetEditor) {        
         this.editor = (CompilationUnitEditor) targetEditor;
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {
                 final IFile _file = ((IFileEditorInput) editor.getEditorInput())
-                        .getFile();
-                try {
-                    _file.deleteMarkers("edu.ksu.cis.indus.kaveri.cimarker",
-                            false, IResource.DEPTH_INFINITE);
-                } catch (CoreException _ce) {
-                    KaveriErrorLog.logException("Error deleting markers", _ce);
-                }
+                        .getFile();                
                 final Map _map = KaveriPlugin.getDefault().getCacheMap();
 
                 if (editor != null && _map != null && _map.size() > 0) {
@@ -106,6 +99,13 @@ public class SliceAnnotate implements IEditorActionDelegate {
                             .getEnabled("edu.ksu.cis.indus.kaveri.decorator")) {
                         final IFile _fl = ((IFileEditorInput) editor
                                 .getEditorInput()).getFile();
+                        boolean _hasNature = false;
+                        try {
+                            _hasNature = _fl.getProject().hasNature("org.eclipse.jdt.core.javanature");
+                        } catch (CoreException e) {
+                            return;
+                        }
+                        if (_hasNature) {
                         final AddIndusAnnotation _indusA = KaveriPlugin
                                 .getDefault().getIndusConfiguration()
                                 .getIndusAnnotationManager();
@@ -113,6 +113,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                         if (!_indusA.isAreAnnotationsPresent(editor)
                                 && classesPresent(_fl, _map)) {
                             _indusA.setEditor(editor, _map);
+                        }
                         }
                     }
                 }
@@ -168,7 +169,12 @@ public class SliceAnnotate implements IEditorActionDelegate {
         final AddIndusAnnotation _indusA = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getIndusAnnotationManager();
 
-        if (_indusA.isAreAnnotationsPresent(editor)) {
+        if (editor == null) {
+            return;
+        }
+        final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+        if (_file != null && hasJavaNature(_file)) {
+        if (editor != null && _indusA.isAreAnnotationsPresent(editor)) {
             _indusA.setEditor(editor, false);
         } else {
             final IFile _fl = ((IFileEditorInput) editor.getEditorInput())
@@ -177,6 +183,22 @@ public class SliceAnnotate implements IEditorActionDelegate {
                     .getLineNumbers();
             _indusA.setEditor(editor, _map);
         }
+        }
+    }
+
+    /**
+     * Checks for the java nature of the file.
+     * @param file
+     * @return
+     */
+    private boolean hasJavaNature(IFile file) {
+        boolean _hasNature = false;
+        try {
+            _hasNature = file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+        } catch (CoreException e) {
+            _hasNature = false;
+        }
+        return _hasNature;
     }
 
     /**
@@ -194,6 +216,14 @@ public class SliceAnnotate implements IEditorActionDelegate {
             if (KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
                     .isListenersReady()
                     && editor != null) {
+                final IFile _file = ((IFileEditorInput) editor.getEditorInput())
+                .getFile();
+                if (_file == null) {
+                    return;
+                }
+                if (!hasJavaNature(_file)) {
+                    return;
+                }
                 if (prevFile != null
                         && ((IFileEditorInput) editor.getEditorInput())
                                 .getFile().equals(prevFile)) {
@@ -247,6 +277,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                 if (_element != null && _element instanceof IMethod) {
                     final IFile _file = ((IFileEditorInput) editor
                             .getEditorInput()).getFile();
+                    
                     final List _stmtlist = SootConvertor.getStmtForLine(_file,
                             _type, (IMethod) _element, _nSelLine);
 

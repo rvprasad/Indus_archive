@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.kaveri.callgraph.ContextDialog;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodDialog;
 import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
 
 import edu.ksu.cis.indus.tools.IToolConfiguration;
@@ -190,7 +191,7 @@ public class IndusConfigurationDialog extends Dialog {
      * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
      */
     protected void configureShell(final Shell newShell) {
-        super.configureShell(newShell);
+        super.configureShell(newShell);        
         newShell.setText(Messages.getString("IndusConfigurationDialog.0")); //$NON-NLS-1$
     }
 
@@ -234,22 +235,19 @@ public class IndusConfigurationDialog extends Dialog {
         confCombo.setLayoutData(_gdata);
         initializeConfigs(confCombo);
 
-        /*
-         * final Label _viewLabel = new Label(_composite, SWT.NONE);
-         * _viewLabel.setText(Messages.getString("IndusConfigurationDialog.2"));
-         * //$NON-NLS-1$ _gdata = new GridData(); _gdata.horizontalSpan = 1;
-         * _viewLabel.setLayoutData(_gdata); viewCombo = new Combo(_composite,
-         * SWT.DROP_DOWN | SWT.READ_ONLY); _gdata = new GridData();
-         * _gdata.horizontalSpan = 1; _gdata.grabExcessHorizontalSpace = true;
-         * viewCombo.setLayoutData(_gdata); initializeViews(viewCombo);
-         */
+        
+
+
+
+        
         additive = new Button(_composite, SWT.CHECK);
-        additive.setText("Additive slice display");
         _gdata = new GridData();
         _gdata.horizontalSpan = 3;
         additive.setLayoutData(_gdata);
-        initializeAdditive();
-
+        
+        additive.setText("Additive slice display");
+                initializeAdditive();
+                        
         final Group _group = new Group(_composite, SWT.NONE);
         _group.setText(Messages.getString("IndusConfigurationDialog.3")); //$NON-NLS-1$
         final GridLayout _gl = new GridLayout();
@@ -306,9 +304,8 @@ public class IndusConfigurationDialog extends Dialog {
         _subdata2.horizontalSpan = 3;
         _subcomposite2.setLayoutData(_subdata2);
 
-        final RowLayout _f2 = new RowLayout(SWT.HORIZONTAL);
-        final int _constant3 = 30;
-        _f2.spacing = _constant3;
+        final RowLayout _f2 = new RowLayout(SWT.HORIZONTAL);        
+        _f2.pack = false;
         _subcomposite2.setLayout(_f2);
 
         final Button _btnDelete = new Button(_subcomposite2, SWT.PUSH);
@@ -318,11 +315,24 @@ public class IndusConfigurationDialog extends Dialog {
         final Button _btnScope = new Button(_subcomposite2, SWT.PUSH);
         _btnScope.setText("Setup Scope");
         handleScope(_btnScope);
-
+        
         
           final Button _btnCallStack = new Button(_subcomposite2, SWT.PUSH);
           _btnCallStack.setText("Setup Context"); handleContext(_btnCallStack);
-         
+          
+          final Button _btnRootMethod = new Button(_subcomposite2, SWT.PUSH);
+          _btnRootMethod.setText("Root Methods");
+          _btnRootMethod.addSelectionListener(
+                  new SelectionAdapter() {
+                      public void widgetSelected(SelectionEvent e) {
+                          final Shell _shell = new Shell();
+                          RootMethodDialog _rmd = new RootMethodDialog(_shell, project);
+                          _rmd.open();                        
+                      }
+                  }
+                  );
+
+          
         // Add griddata
         GridData _data = new GridData();
         _data.horizontalSpan = 1;
@@ -351,9 +361,10 @@ public class IndusConfigurationDialog extends Dialog {
     private void handleContext(Button callStack) {
         callStack.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                ContextDialog _cd = new ContextDialog(new Shell());
+                ContextDialog _cd = new ContextDialog(new Shell(), project);
                 if (_cd.open() == IDialogConstants.OK_ID) {
                     final Collection _ctx = _cd.getCallStrings();
+                    
                     if (_ctx.size() > 0) {
                         KaveriPlugin.getDefault().getIndusConfiguration()
                                 .addToChosenContext(_ctx);

@@ -19,11 +19,13 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
 
@@ -48,6 +50,8 @@ import edu.ksu.cis.indus.kaveri.driver.Messages;
  * @author ganeshan
  */
 public class TagToAnnotationMapper {
+    
+    private static Object objLock = new Object();
     /**
      * Returns the annotation map for the given class name.
      * 
@@ -56,8 +60,11 @@ public class TagToAnnotationMapper {
      * @return Map The map of class names to line numbers.
      */
     public static Map getAnnotationLinesForFile(IFile file) {
+       Map _v = null;
+    
+        synchronized (objLock) {
         final List _lst = SECommons.getClassesInFile(file);
-        final Map _v = new HashMap();
+        _v = new HashMap();
         if (_lst != null && _lst.size() > 0) {
             for (int _i = 0; _i < _lst.size(); _i++) {
                 final String _className = (String) _lst.get(_i);
@@ -74,7 +81,7 @@ public class TagToAnnotationMapper {
                 }
             }
         }
-
+        }
         return _v;
     }
 
@@ -107,15 +114,18 @@ public class TagToAnnotationMapper {
                 // retrieving
                 // destroys the tags
                 _body = _method.getActiveBody();
-            } else {
+            }  else {
                 _body = _method.retrieveActiveBody();
             }
+            
+            
 
             final List _lst = new LinkedList();
             final String _classname = sootclass.getName();
             final String _methodname = SECommons.getSearchPattern(_method);
             final Chain _unitchain = _body.getUnits();
-            processUnit(_unitchain, _lst, _classname, _methodname);
+           // processUnit(_unitchain, _lst, _classname, _methodname);
+            processUnit2(_unitchain, _lst, _classname, _methodname);
 
             if (_lst.size() > 0) {
                 _mMap.put(_methodname, _lst);
@@ -131,6 +141,95 @@ public class TagToAnnotationMapper {
 
     }
 
+    
+    /**
+     * Processes the list of jimple units in a soot method to get the
+     * corresponding java line numbers to annotate.
+     *  (Alternative version - bugs in the previous version).
+     * @param unitchain
+     *            The set of Jimple statements.
+     * @param lst
+     *            The list to add the line numbers
+     * @param classname
+     *            The name of the class in which the units exist.
+     * @param methodname
+     *            The name of the method in which the units exist.
+     */
+    
+    private static void processUnit2(final Chain unitchain, final List lst,
+            final String classname, final String methodname) {
+        final Iterator _iterator = unitchain.snapshotIterator();
+        Collection _c = new Vector();
+        int _nLine = -1;
+        int _currLine = -1;
+        
+        while (_iterator.hasNext()) {
+            final Stmt _stmt = (Stmt) _iterator.next();
+            _nLine = getLineNumberFromUnit(_stmt);
+            if (_nLine == -1) {
+                continue;
+            } else if (_currLine == -1) {
+                _currLine = _nLine;
+                _c.add(_stmt);
+                continue;
+            }
+            if (_currLine == _nLine) {
+                _c.add(_stmt);                
+            } else {
+                if (_c.size() > 0) {
+                    boolean _complete = true;
+                    boolean _isSlicePresent = false;
+                    for (Iterator iter = _c.iterator(); iter.hasNext();) {
+                      final Stmt _setstmt = (Stmt) iter.next();
+                      boolean _tagPresent = isSliceTagPresent(_setstmt);
+                      _complete = _complete & _tagPresent;
+                      _isSlicePresent = _isSlicePresent | _tagPresent;                        
+                    }
+                    if (_isSlicePresent) {
+                        final AnnotationData _data = new AnnotationData();
+                        _data.setClassName(classname);
+                        _data.setMethodName(methodname);
+                        _data.setNLineNumber(_currLine);
+                        _data.setComplete(_complete);
+                        if (!lst.contains(_data)) {
+                            lst.add(_data);
+                        } else {
+                            final AnnotationData _tdata = (AnnotationData) lst.get(lst.indexOf(_data));
+                            _tdata.setComplete(_tdata.isComplete() & _data.isComplete());                            
+                        }
+                    }                    
+                }
+                _currLine = _nLine;
+                _c.clear();
+                _c.add(_stmt);
+            }
+        }
+        if (_currLine != -1 && _c.size() > 0) {
+            boolean _complete = true;
+            boolean _isSlicePresent = false;
+            for (Iterator iter = _c.iterator(); iter.hasNext();) {
+              final Stmt _setstmt = (Stmt) iter.next();
+              boolean _tagPresent = isSliceTagPresent(_setstmt);
+              _complete = _complete & _tagPresent;
+              _isSlicePresent = _isSlicePresent | _tagPresent;                        
+            }
+            if (_isSlicePresent) {
+                final AnnotationData _data = new AnnotationData();
+                _data.setClassName(classname);
+                _data.setMethodName(methodname);
+                _data.setNLineNumber(_currLine);
+                _data.setComplete(_complete);
+                if (!lst.contains(_data)) {
+                    lst.add(_data);
+                } else {
+                    final AnnotationData _tdata = (AnnotationData) lst.get(lst.indexOf(_data));
+                    _tdata.setComplete(_tdata.isComplete() & _data.isComplete());                            
+                }
+            }
+        }
+        
+    }
+    
     /**
      * Processes the list of jimple units in a soot method to get the
      * corresponding java line numbers to annotate.
@@ -170,8 +269,8 @@ public class TagToAnnotationMapper {
                 if (!isSliceTagPresent(_stmt)) {
                     _wasComplete = false;
                     continue;
-                }
-                _atleastSlicePresent = true;
+                } 
+                    _atleastSlicePresent = true;                
             } else {
                 if (_atleastSlicePresent) {
                     final AnnotationData _data = new AnnotationData();
@@ -190,7 +289,7 @@ public class TagToAnnotationMapper {
                     }
                 }
                 _currLine = _nLine;
-                _wasComplete = true;
+                _wasComplete = isSliceTagPresent(_stmt); /* Changed */
                 _atleastSlicePresent = isSliceTagPresent(_stmt);
             }
         }
