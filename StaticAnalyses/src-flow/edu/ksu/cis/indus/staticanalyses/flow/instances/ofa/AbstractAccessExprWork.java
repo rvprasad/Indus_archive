@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.ValueBox;
@@ -42,7 +41,7 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @invariant context != null
 	 */
-	protected final AllocationContext context;
+	protected final Context context;
 
 	/**
 	 * The method in which the access occurs.
@@ -71,13 +70,19 @@ abstract class AbstractAccessExprWork
 		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
 		caller = callerMethod;
-		context = (AllocationContext) accessContext.clone();
+		context = (Context) accessContext.clone();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.8  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
