@@ -207,12 +207,41 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Provides the dependency analysis corresponding to the given id.
+	 *
+	 * @param id of the requested dependence analyses.
+	 *
+	 * @return the dependency analyses identified by <code>id</code>.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 */
+	public Collection getDependenceAnalysis(final Object id) {
+		Collection _result = (Collection) id2dependencyAnalyses.get(id);
+
+		if (_result == null) {
+			_result = Collections.EMPTY_LIST;
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if divergence dependence analysis is enabled in this configuration.
 	 *
 	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isDivergenceDepAnalysisUsed() {
 		return ((Boolean) properties.get(USE_DIVERGENCEDA)).booleanValue();
+	}
+
+	/**
+	 * Provides the id of the dependences to use for slicing.
+	 *
+	 * @return a collection of id of the dependence analyses.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 */
+	public Collection getIDsOfDAsToUse() {
+		return Collections.unmodifiableCollection(dependencesToUse);
 	}
 
 	/**
@@ -611,35 +640,6 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Provides the dependency analysis corresponding to the given id.
-	 *
-	 * @param id of the requested dependence analyses.
-	 *
-	 * @return the dependency analyses identified by <code>id</code>.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(AbstractDependencyAnalysis))
-	 */
-	Collection getDependenceAnalysis(final Object id) {
-		Collection _result = (Collection) id2dependencyAnalyses.get(id);
-
-		if (_result == null) {
-			_result = Collections.EMPTY_LIST;
-		}
-		return _result;
-	}
-
-	/**
-	 * Provides the id of the dependences to use for slicing.
-	 *
-	 * @return a collection of id of the dependence analyses.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(String))
-	 */
-	Collection getIDsOfDAsToUse() {
-		return Collections.unmodifiableCollection(dependencesToUse);
-	}
-
-	/**
 	 * Retrieves the boolean value of the given property.
 	 *
 	 * @param propertyId identifies the property for which the value is required.
@@ -828,6 +828,13 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/06/24 06:53:53  venku
+   - refactored SliceConfiguration
+     - added processBooleanProperty()
+     - renamed getNamesOfDAToUse() to getIDOfDAToUse()
+   - ripple effect
+   - made AbstractSliceCriterion package private
+   - made ISliceCriterion public
    Revision 1.37  2004/06/15 10:27:29  venku
    - moved to IdentifierBasedDataDAv2.
    Revision 1.36  2004/06/12 06:47:27  venku
