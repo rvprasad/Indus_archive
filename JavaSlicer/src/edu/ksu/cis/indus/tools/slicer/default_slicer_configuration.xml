@@ -6,7 +6,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="first" slicer:sliceForDeadlock="true"> 
 	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
+	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
 	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/> 
 	</indus:configurationInfo>
