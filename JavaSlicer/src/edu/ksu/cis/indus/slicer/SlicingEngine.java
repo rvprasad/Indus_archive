@@ -295,7 +295,8 @@ public class SlicingEngine {
 	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
 	 */
 	public void slice() {
-		workbag.addAllWorkNoDuplicates(criteria);
+        transformer.processSeedCriteria(criteria);
+        workbag.addAllWorkNoDuplicates(criteria);
 
 		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
 		// reappearing.  
@@ -569,6 +570,12 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/13 14:08:08  venku
+   - added a new tag class for the purpose of recording branching information.
+   - renamed fixReturnStmts() to makeExecutable() and raised it
+     into ISlicingBasedTransformer interface.
+   - ripple effect.
+
    Revision 1.6  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
