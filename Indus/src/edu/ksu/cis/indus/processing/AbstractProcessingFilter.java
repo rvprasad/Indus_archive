@@ -47,7 +47,7 @@ public abstract class AbstractProcessingFilter
 		Collection _result = localFilterClasses(classes);
 
 		if (successor != null) {
-			_result = successor.filterClasses(classes);
+			_result = successor.filterClasses(_result);
 		}
 		return _result;
 	}
@@ -59,7 +59,7 @@ public abstract class AbstractProcessingFilter
 		Collection _result = localFilterFields(fields);
 
 		if (successor != null) {
-			_result = successor.filterFields(fields);
+			_result = successor.filterFields(_result);
 		}
 		return _result;
 	}
@@ -71,7 +71,7 @@ public abstract class AbstractProcessingFilter
 		Collection _result = localFilterMethods(methods);
 
 		if (successor != null) {
-			_result = successor.filterMethods(methods);
+			_result = successor.filterMethods(_result);
 		}
 		return _result;
 	}
@@ -125,6 +125,9 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/14 23:16:49  venku
+   - coding convention.
+
    Revision 1.8  2004/02/11 09:37:21  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
