@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -28,21 +27,15 @@ import soot.jimple.LookupSwitchStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 
-import soot.tagkit.Tag;
-
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.transformations.common.ITransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -59,8 +52,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class TaggingBasedSliceCollector
-  implements ITransformer  {
+public class TaggingBasedSliceCollector {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -76,10 +68,22 @@ public class TaggingBasedSliceCollector
 	 */
 	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceCollector.class);
 
-	/**
-	 * The system to be transformed.
+	/** 
+	 * <p>DOCUMENT ME! </p>
 	 */
-	protected Scene system;
+	Collection taggedMethods = new HashSet();
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private BasicBlockGraphMgr bbgMgr;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private SlicingEngine engine;
 
 	/**
 	 * <p>
@@ -98,154 +102,13 @@ public class TaggingBasedSliceCollector
 	 */
 	private String tagName = SLICING_TAG;
 
-    private Object sliceType;
-
-    private Collection taggedMethods = new HashSet();
-    
-    private BasicBlockGraphMgr bbgMgr;
-
 	/**
-	 * DOCUMENT ME!
+	 * Creates a new TaggingBasedSliceCollector object.
 	 *
-	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 * @param theEngine DOCUMENT ME!
 	 */
-	public class BranchingSlicingTag
-	  extends SlicingTag {
-		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
-		List targets;
-
-		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
-		private int count;
-
-		/**
-		 * Creates a new BranchingSlicingTag object.
-		 *
-		 * @param name DOCUMENT ME!
-		 * @param targetCount DOCUMENT ME!
-		 * @param isSeed DOCUMENT ME!
-		 */
-		BranchingSlicingTag(final String name, final int targetCount, final boolean isSeed) {
-			super(name, isSeed);
-			targets = new ArrayList(targetCount);
-			count = targetCount;
-		}
-
-		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @return DOCUMENT ME!
-		 */
-		public int getTargetCount() {
-			return targets.size();
-		}
-
-		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @param index DOCUMENT ME!
-		 *
-		 * @return DOCUMENT ME!
-		 */
-		public Stmt getTargetStmt(final int index) {
-			return (Stmt) targets.get(index);
-		}
-
-		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @param index DOCUMENT ME!
-		 * @param stmt DOCUMENT ME!
-		 *
-		 * @throws IndexOutOfBoundsException DOCUMENT ME!
-		 */
-		void setTargetStmt(final int index, final Stmt stmt) {
-			if (index >= 0 || index < count) {
-				targets.add(index, stmt);
-			} else {
-				throw new IndexOutOfBoundsException(index + " is outside the range 0-" + (count - 1) + ".");
-			}
-		}
-	}
-
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static class SlicingTag
-	  implements Tag {
-		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
-		private final String name;
-
-		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
-		private final boolean seed;
-
-		/**
-		 * Creates a new SlicingTag object.
-		 *
-		 * @param theName DOCUMENT ME!
-		 * @param isSeed DOCUMENT ME!
-		 */
-		public SlicingTag(final String theName, final boolean isSeed) {
-			name = theName;
-			seed = isSeed;
-		}
-
-		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @return DOCUMENT ME!
-		 */
-		public String getName() {
-			return name;
-		}
-
-		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @return DOCUMENT ME!
-		 */
-		public boolean isSeed() {
-			return seed;
-		}
-
-		/**
-		 * @see soot.tagkit.Tag#getValue()
-		 */
-		public byte[] getValue() {
-			return name.getBytes();
-		}
+	TaggingBasedSliceCollector(final SlicingEngine theEngine) {
+		engine = theEngine;
 	}
 
 	/**
@@ -312,35 +175,6 @@ public class TaggingBasedSliceCollector
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedClasses()
-	 */
-	public Collection getTransformedClasses() {
-		Collection result = new ArrayList();
-
-		for (Iterator i = system.getClasses().iterator(); i.hasNext();) {
-			SootClass clazz = (SootClass) i.next();
-
-			if (clazz.getTag(tagName) != null) {
-				result.add(clazz);
-			}
-		}
-		return result.isEmpty() ? Collections.EMPTY_LIST
-								: result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedSootClass(java.lang.String)
-	 */
-	public SootClass getTransformedSootClass(final String name) {
-		SootClass result = system.getSootClass(name);
-
-		if (result != null && result.getTag(tagName) == null) {
-			result = null;
-		}
-		return result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getUntransformed(soot.SootClass)
 	 */
 	public SootClass getUntransformed(final SootClass clazz) {
@@ -372,10 +206,9 @@ public class TaggingBasedSliceCollector
 	 * or non-executable except executable forward slices.
 	 */
 	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
-        sliceType = theSliceType;
-        boolean result = SlicingEngine.SLICE_TYPES.contains(theSliceType);
-        result &= !(theSliceType.equals(SlicingEngine.FORWARD_SLICE) && executableSlice);
-        return result;
+		boolean result = SlicingEngine.SLICE_TYPES.contains(theSliceType);
+		result &= !(theSliceType.equals(SlicingEngine.FORWARD_SLICE) && executableSlice);
+		return result;
 	}
 
 	/**
@@ -390,39 +223,42 @@ public class TaggingBasedSliceCollector
 	}
 
 	/**
-	 * Initializes the transformer.
-	 *
-	 * @param theSystem that is to be sliced.
-	 *
-	 * @pre theSystem != null
-	 */
-	public void initialize(final Scene theSystem) {
-		system = theSystem;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceCollector#makeExecutable()
 	 */
 	public void makeExecutable() {
-        if (sliceType.equals(SlicingEngine.BACKWARD_SLICE))
-            makeBackwardSliceExecutable();
+		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			makeBackwardSliceExecutable();
+		}
 	}
 
-    private void makeBackwardSliceExecutable() {
-        for (Iterator i = taggedMethods.iterator(); i.hasNext(); ) {
-            SootMethod sm = (SootMethod) i.next();
-            BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
-            
-            
-        }
-    }
+	/**
+	 * Marks the given criteria as included in the slice.  {@inheritDoc}
+	 *
+	 * @param seedcriteria DOCUMENT ME!
+	 *
+	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
+	 */
+	public void processSeedCriteria(final Collection seedcriteria) {
+		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
+			AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
 
-    /**
+			if (crit instanceof SliceExpr) {
+				SliceExpr expr = (SliceExpr) crit;
+				transformSeed((ValueBox) expr.getCriterion(), expr.getOccurringStmt(), expr.getOccurringMethod());
+			} else if (crit instanceof SliceStmt) {
+				SliceStmt stmt = (SliceStmt) crit;
+				transformSeed((Stmt) stmt.getCriterion(), stmt.getOccurringMethod());
+			}
+			crit.sliced();
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
 	public void reset() {
 		tagName = SLICING_TAG;
-        taggedMethods.clear();
+		taggedMethods.clear();
 	}
 
 	/**
@@ -458,6 +294,19 @@ public class TaggingBasedSliceCollector
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 */
+	private void makeBackwardSliceExecutable() {
+		// TODO:
+		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
+			SootMethod sm = (SootMethod) i.next();
+			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param method DOCUMENT ME!
 	 * @param theTag DOCUMENT ME!
@@ -465,14 +314,14 @@ public class TaggingBasedSliceCollector
 	private void tagMethod(final SootMethod method, final SlicingTag theTag) {
 		if (method.getTag(tagName) == null) {
 			method.addTag(theTag);
-            taggedMethods.add(method);
+			taggedMethods.add(method);
 		}
 
 		SootClass sc = method.getDeclaringClass();
 
 		if (sc.getTag(tagName) == null) {
 			sc.addTag(theTag);
-            System.out.println("Tagged: "  + sc.getName());
+			System.out.println("Tagged: " + sc.getName());
 		}
 
 		if (sc.hasSuperclass()) {
@@ -483,29 +332,6 @@ public class TaggingBasedSliceCollector
 			}
 		}
 	}
-    
-    /**
-     * Marks the given criteria as included in the slice.  {@inheritDoc}
-     *
-     * @param seedcriteria DOCUMENT ME!
-     *
-     * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
-     */
-    public void processSeedCriteria(final Collection seedcriteria) {
-        for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
-            AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
-
-            if (crit instanceof SliceExpr) {
-                SliceExpr expr = (SliceExpr) crit;
-                transformSeed((ValueBox) expr.getCriterion(), expr.getOccurringStmt(), expr.getOccurringMethod());
-            } else if (crit instanceof SliceStmt) {
-                SliceStmt stmt = (SliceStmt) crit;
-                transformSeed((Stmt) stmt.getCriterion(), stmt.getOccurringMethod());
-            }
-            crit.sliced();
-        }
-    }
-    
 
 	/**
 	 * DOCUMENT ME!
@@ -581,16 +407,19 @@ public class TaggingBasedSliceCollector
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 10:11:32  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
    Revision 1.1  2003/11/24 09:46:49  venku
    - moved ISliceCollector and TaggingBasedSliceCollector
      into slicer package.
    - The idea is to collect the slice based on annotation which
      can be as precise as we require and then layer on
      top of that the slicer residualization logic, either constructive or destructive.
-
    Revision 1.2  2003/11/24 07:31:03  venku
    - deleted method2locals, executable, and sliceType as they were not used.
-
    Revision 1.1  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
