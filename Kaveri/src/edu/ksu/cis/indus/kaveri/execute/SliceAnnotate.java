@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
@@ -127,7 +128,17 @@ public class SliceAnnotate
 	 */
 	public void run(final IAction action) {
 		final AddIndusAnnotation _indusA = KaveriPlugin.getDefault().getIndusConfiguration().getIndusAnnotationManager();
-
+		IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (! _properNature) {
+			return;
+		}
 		if (_indusA.isAreAnnotationsPresent(editor)) {
 			_indusA.setEditor(editor, false);
 		} else {

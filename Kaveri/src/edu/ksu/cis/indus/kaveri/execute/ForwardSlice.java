@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -121,6 +122,10 @@ public class ForwardSlice
 
 			if (_element != null && _element instanceof IMethod) {
 				final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+				final boolean _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+				if (! _properNature) {
+					throw new IllegalArgumentException("File does not have java nature");
+				}
 				final List _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
 
 				if (_stmtlist != null && _stmtlist.size() >= 3) {
@@ -167,5 +172,11 @@ public class ForwardSlice
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
 		} 
+		catch (IllegalArgumentException _ile) {
+			SECommons.handleException(_ile);
+		}
+		catch (CoreException _ce) {
+				SECommons.handleException(_ce);
+			}
 	}
 }
