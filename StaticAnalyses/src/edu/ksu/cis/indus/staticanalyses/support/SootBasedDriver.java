@@ -175,7 +175,7 @@ public abstract class SootBasedDriver {
 	 *
 	 * @throws RuntimeException DOCUMENT ME!
 	 */
-	protected void initialize() {
+	public void initialize() {
 		if (classNames == null) {
 			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
 		}
@@ -297,6 +297,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/12 10:45:36  venku
+   - soot class path can be set in SootBasedDriver.
+   - dependency tests are xmlunit based.
+
    Revision 1.4  2003/11/12 09:24:15  venku
    - soot class path was being injected at a wrong location. FIXED.
    Revision 1.3  2003/11/12 09:19:41  venku
