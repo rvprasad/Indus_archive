@@ -21,8 +21,13 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Version 0.2a
+-------------
+	- Memory/Performance optimizations in EquivalenceClassBasedEscapeAnalysis.
+
+
 Version 0.1
------------
+------------
 This is (hopefully) a stable release of version 0.1a.  One notable change is that we have decided to use Soot 2.1.0 for
 Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at the time
 of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use Soot 2.1.0 only.
