@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.Predicate;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,6 +54,11 @@ public final class SliceCollector {
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
+	/** 
+	 * The collection of classes that were tagged.
+	 */
+	private final Collection taggedClasses = new HashSet();
+
 	/**
 	 * The collection of methods that were tagged.
 	 */
@@ -76,8 +79,6 @@ public final class SliceCollector {
 	 */
 	private String tagName;
 
-    private final Collection taggedClasses = new HashSet();
-
 	/**
 	 * Creates a new SliceCollector object.
 	 *
@@ -85,6 +86,17 @@ public final class SliceCollector {
 	 */
 	SliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
+	}
+
+	/**
+	 * Retrieves the classes included in the slice.
+	 *
+	 * @return a collection of classes included in the slice.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 */
+	public Collection getClassesInSlice() {
+		return Collections.unmodifiableCollection(taggedClasses);
 	}
 
 	/**
@@ -120,17 +132,6 @@ public final class SliceCollector {
 	public Collection getMethodsInSlice() {
 		return Collections.unmodifiableCollection(taggedMethods);
 	}
-    
-    /**
-     * Retrieves the classes included in the slice.
-     *
-     * @return a collection of classes included in the slice.
-     *
-     * @post result != null and result.oclIsKindOf(Collection(SootClass))
-     */
-    public Collection getClassesInSlice() {
-        return Collections.unmodifiableCollection(taggedClasses);
-    }
 
 	/**
 	 * Retrieves the tag name used by this collector.
@@ -172,8 +173,8 @@ public final class SliceCollector {
 			if (host instanceof SootMethod) {
 				taggedMethods.add(host);
 			} else if (host instanceof SootClass) {
-			    taggedClasses.add(host);
-            }
+				taggedClasses.add(host);
+			}
 
 			if (LOGGER.isDebugEnabled()) {
 				Object _o = host;
@@ -280,6 +281,10 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/24 01:48:58  venku
+   - added logic to track tagged class
+   - added method to retrieve tagged classes
+   - removed commons-collection filter as it was not being used.
    Revision 1.5  2004/01/22 01:01:40  venku
    - coding convention.
    Revision 1.4  2004/01/19 11:39:11  venku
