@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
 	<classpathentry kind="src" path="/StaticAnalyses"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-xml"/>
-	<classpathentry kind="src" path="src-test"/>
+	<classpathentry excluding="**/*html" kind="src" path="src"/>
+	<classpathentry excluding="**/*html" kind="src" path="src-xml"/>
+	<classpathentry excluding="**/*html" kind="src" path="src-test"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
