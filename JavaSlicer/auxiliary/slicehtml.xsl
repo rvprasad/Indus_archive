@@ -16,6 +16,7 @@
         <style type="text/css">
           span.slice {color: blue}
           span.normal {color: black}
+          span.green {color: green}
         </style>
       </head>
       <body bgcolor="#FFFFFF">
@@ -25,37 +26,37 @@
       </body>
     </html>
   </xsl:template>
-
+  
   <xsl:template match="jimple">
     <xsl:apply-templates/>
   </xsl:template>
-
+  
   <xsl:template name="modifiers">
-      <xsl:if test="string-length(@accessSpec) > 0"> 
-        <xsl:value-of select="@accessSpec"/>
-        <xsl:text> </xsl:text>
-      </xsl:if>
-      <xsl:if test="@abstract='true'">
-        <xsl:text>abstract </xsl:text>
-      </xsl:if>
-      <xsl:if test="@static='true'">
-        <xsl:text>static </xsl:text>
-      </xsl:if>
-      <xsl:if test="@final='true'">
-        <xsl:text>final </xsl:text>
-      </xsl:if>
-      <xsl:if test="@native='true'">
-        <xsl:text>native </xsl:text>
-      </xsl:if>
-      <xsl:if test="@synchronized='true'">
-        <xsl:text>synchronized </xsl:text>
-      </xsl:if>
+    <xsl:if test="string-length(@accessSpec) > 0"> 
+      <xsl:value-of select="@accessSpec"/>
+      <xsl:text> </xsl:text>
+    </xsl:if>
+    <xsl:if test="@abstract='true'">
+      <xsl:text>abstract </xsl:text>
+    </xsl:if>
+    <xsl:if test="@static='true'">
+      <xsl:text>static </xsl:text>
+    </xsl:if>
+    <xsl:if test="@final='true'">
+      <xsl:text>final </xsl:text>
+    </xsl:if>
+    <xsl:if test="@native='true'">
+      <xsl:text>native </xsl:text>
+    </xsl:if>
+    <xsl:if test="@synchronized='true'">
+      <xsl:text>synchronized </xsl:text>
+    </xsl:if>
   </xsl:template>
-
+  
   <xsl:template name="l1modifiers">
     <xsl:text>&#x9;</xsl:text><xsl:call-template name="modifiers"/>
   </xsl:template>
-
+  
   <xsl:template name="l2">
     <xsl:text>&#xA;&#x9;&#x9;</xsl:text>
   </xsl:template>
@@ -124,37 +125,69 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="class|interface">
-    <div>
-      <xsl:text>&#xA;&#xA;&#xA;&#xD;</xsl:text>
 
-      <xsl:if test="string-length(@package)!=0">
-        <xsl:text>package </xsl:text>
-        <xsl:value-of select="@package"/>;
-      </xsl:if>
-      <xsl:text>&#xA;&#xD;</xsl:text>
-
-      <xsl:call-template name="modifiers"/>
-      <xsl:value-of select="local-name()"/>
-      <xsl:text> </xsl:text>      
-      <xsl:value-of select="@name"/> 
-      <xsl:text>&#xD;</xsl:text>
-
-      <xsl:apply-templates select="superclass"/>
-      <xsl:apply-templates select="interfaceList"/>
-      <xsl:text>&#xA;</xsl:text>
-        <xsl:text>{&#xA;&#xD;</xsl:text>
+  <xsl:template name="sliceSpanDiv">
+    <xsl:param name="node"/>
+    <xsl:choose>
+      <xsl:when test="count($slice//*[string(@id)=string($node/@id)]) > 0">
         <div>
-          <xsl:apply-templates select="field"/>
+          <span class="slice">
+            <xsl:apply-templates select="$node">
+              <xsl:with-param name="sliceFlag" select="0"/>
+            </xsl:apply-templates>
+          </span>
         </div>
+      </xsl:when>
+      <xsl:otherwise>
+        <div>
+          <span class="normal">
+            <xsl:apply-templates select="$node">
+              <xsl:with-param name="sliceFlag" select="0"/>
+            </xsl:apply-templates>
+          </span>
+        </div>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <xsl:template match="class|interface">
+    <xsl:param name="sliceFlag" select="1"/>
+    <xsl:choose>
+      <xsl:when test="$sliceFlag > 0">
+        <xsl:call-template name="sliceSpanDiv">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>&#xA;&#xA;&#xA;&#xD;</xsl:text>
+        
+        <xsl:if test="string-length(@package)!=0">
+          <xsl:text>package </xsl:text>
+          <xsl:value-of select="@package"/>;
+        </xsl:if>
+        <xsl:text>&#xA;&#xD;</xsl:text>
+        
+        <xsl:call-template name="modifiers"/>
+        <xsl:value-of select="local-name()"/>
+        <xsl:text> </xsl:text>      
+        <xsl:value-of select="@name"/> 
+        <xsl:text>&#xD;</xsl:text>
+        
+        <xsl:apply-templates select="superclass"/>
+        <xsl:apply-templates select="interfaceList"/>
+        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>{&#xA;&#xD;</xsl:text>
+        <xsl:apply-templates select="field"/>
         <xsl:if test="count(method) > 0">
           <br />
         </xsl:if>
         <xsl:apply-templates select="method"/>
         <xsl:text>}</xsl:text>
-    </div>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
-
+    
   <xsl:template match="superclass">
     extends<xsl:text> </xsl:text>
     <xsl:call-template name="getTypeName">
@@ -173,37 +206,55 @@
   </xsl:template>
 
   <xsl:template match="field">
-    <xsl:call-template name="l1modifiers"/>
-    <xsl:call-template name="getTypeName">
-      <xsl:with-param name="typeid" select="@typeId"/>
-    </xsl:call-template>
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="@name"/><xsl:text>;&#xA;</xsl:text>
+    <xsl:param name="sliceFlag" select="1"/>
+    <xsl:choose>
+      <xsl:when test="$sliceFlag > 0">
+        <xsl:call-template name="sliceSpan">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="l1modifiers"/>
+        <xsl:call-template name="getTypeName">
+          <xsl:with-param name="typeid" select="@typeId"/>
+        </xsl:call-template>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="@name"/><xsl:text>;&#xA;</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="method">
-    <div>
-      <xsl:call-template name="l1modifiers"/>
-      <xsl:apply-templates select="signature"/>
-      <xsl:text>&#xA;&#xD;&#x9;{</xsl:text>
-      <xsl:apply-templates select="local"/>
-      <xsl:if test="count(local) > 0">
-        <br />
-      </xsl:if>
-      <xsl:apply-templates select="child::*[not(self::signature|self::local|self::traplist)]"/>
-      <xsl:if test="count(traplist/trap) > 0">
-        <br />
-      </xsl:if>
-      <xsl:apply-templates select="traplist/trap"/>
-      <xsl:text>&#xA;&#xD;&#x9;}</xsl:text>
-    </div>
+    <xsl:param name="sliceFlag" select="1"/>
+    <xsl:choose>
+      <xsl:when test="$sliceFlag > 0">
+        <xsl:call-template name="sliceSpanDiv">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="l1modifiers"/>
+        <xsl:apply-templates select="signature"/>
+        <xsl:text>&#xA;&#xD;&#x9;{</xsl:text>
+        <xsl:apply-templates select="local"/>
+        <xsl:if test="count(local) > 0">
+          <br />
+        </xsl:if>
+        <xsl:apply-templates select="child::*[not(self::signature|self::local|self::traplist)]"/>
+        <xsl:if test="count(traplist/trap) > 0">
+          <br />
+        </xsl:if>
+        <xsl:apply-templates select="traplist/trap"/>
+        <xsl:text>&#xA;&#xD;&#x9;}</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
     <br />
   </xsl:template>
   
   <xsl:template match="signature">
     <xsl:value-of select="returnType/@typeId"/><xsl:text> </xsl:text>
     <xsl:value-of select="ancestor::method/@name"/>
-     <xsl:text>(</xsl:text>
+    <xsl:text>(</xsl:text>
     <xsl:for-each select="paramType">
       <xsl:call-template name="getTypeName">
         <xsl:with-param name="typeid" select="@typeId"/>
@@ -234,17 +285,19 @@
   </xsl:template>
 
   <xsl:template match="trap">
-    <xsl:call-template name="l2"/>
-    <xsl:text>catch </xsl:text>
-    <xsl:call-template name="getTypeName">
-      <xsl:with-param name="typeid" select="@typeId"/>
-    </xsl:call-template>
-    <xsl:text> from </xsl:text>
-    <xsl:value-of select="@beginId"/>
-    <xsl:text>&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;to </xsl:text>
-    <xsl:value-of select="@endId"/>
-    <xsl:text>&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;with </xsl:text>
-    <xsl:value-of select="@handlerId"/>
+    <span class="green">
+      <xsl:call-template name="l2"/>
+      <xsl:text>catch </xsl:text>
+      <xsl:call-template name="getTypeName">
+        <xsl:with-param name="typeid" select="@typeId"/>
+      </xsl:call-template>
+      <xsl:text> from </xsl:text>
+      <xsl:value-of select="@beginId"/>
+      <xsl:text>&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;to </xsl:text>
+      <xsl:value-of select="@endId"/>
+      <xsl:text>&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;with </xsl:text>
+      <xsl:value-of select="@handlerId"/>
+    </span>
   </xsl:template>
 
   <xsl:template match="assign_stmt">
@@ -547,7 +600,7 @@
         <xsl:choose>
           <xsl:when test="$op = 'add'"><xsl:text> + </xsl:text></xsl:when>
           <xsl:when test="$op = 'binary and'"><xsl:text> &amp; </xsl:text></xsl:when>
-          <xsl:when test="$op = 'compare'"><xsl:text> TBD </xsl:text></xsl:when>
+          <xsl:when test="$op = 'compare'"><xsl:text> cmp </xsl:text></xsl:when>
           <xsl:when test="$op = 'compare greater'"><xsl:text> &gt; </xsl:text></xsl:when>
           <xsl:when test="$op = 'compare lesser'"><xsl:text> &lt; </xsl:text></xsl:when>
           <xsl:when test="$op = 'divide'"><xsl:text> / </xsl:text></xsl:when>
@@ -599,29 +652,29 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-     <xsl:text/><xsl:value-of select="@name"/><xsl:text>invoke </xsl:text>
-    <xsl:variable name="method" select="id(string(method_ref/@methodId))"/>
-    <xsl:variable name="class" select="$method/ancestor::node()"/>
-    <xsl:if test="@name != 'static'">
-      <xsl:apply-templates select="base"/><xsl:text>.</xsl:text>
-    </xsl:if>
-    <xsl:text>&lt;</xsl:text>
-    <xsl:call-template name="getTypeName">
-      <xsl:with-param name="typeid" select="$class/@id"/>
-    </xsl:call-template>
-    <xsl:text>: </xsl:text>
-    <xsl:call-template name="getTypeName">
-      <xsl:with-param name="typeid" select="$method/signature/returnType/@typeId"/>
-    </xsl:call-template>
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="$method/@name"/>
-    <xsl:text>()&gt;(</xsl:text>
-    <xsl:for-each select="arguments/*">
-      <xsl:apply-templates select="self::node()"/>
-      <xsl:if test="position() != last()">, </xsl:if>
-    </xsl:for-each>
-    <xsl:text>)</xsl:text>
-       </xsl:otherwise>
+        <xsl:text/><xsl:value-of select="@name"/><xsl:text>invoke </xsl:text>
+        <xsl:variable name="method" select="id(string(method_ref/@methodId))"/>
+        <xsl:variable name="class" select="$method/ancestor::node()"/>
+        <xsl:if test="@name != 'static'">
+          <xsl:apply-templates select="base/local_ref"/><xsl:text>.</xsl:text>
+        </xsl:if>
+        <xsl:text>&lt;</xsl:text>
+        <xsl:call-template name="getTypeName">
+          <xsl:with-param name="typeid" select="$class/@id"/>
+        </xsl:call-template>
+        <xsl:text>: </xsl:text>
+        <xsl:call-template name="getTypeName">
+          <xsl:with-param name="typeid" select="$method/signature/returnType/@typeId"/>
+        </xsl:call-template>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="$method/@name"/>
+        <xsl:text>()&gt;(</xsl:text>
+        <xsl:for-each select="arguments/*">
+          <xsl:apply-templates select="self::node()"/>
+          <xsl:if test="position() != last()">, </xsl:if>
+        </xsl:for-each>
+        <xsl:text>)</xsl:text>
+      </xsl:otherwise>
     </xsl:choose>
  </xsl:template>  
   
@@ -792,7 +845,7 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>$p</xsl:text><xsl:value-of select="position"/>
+        <xsl:text>$p</xsl:text><xsl:value-of select="@position"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
