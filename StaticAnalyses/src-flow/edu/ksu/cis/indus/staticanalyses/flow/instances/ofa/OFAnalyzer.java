@@ -96,8 +96,8 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFIOIAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new IndexManager(), new IndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new FlowInsensitiveExprSwitch(null, new LHSConnector()),
+			new FlowInsensitiveExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
@@ -114,8 +114,8 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFIOSAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new FlowInsensitiveExprSwitch(null, new LHSConnector()),
+			new FlowInsensitiveExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
@@ -132,8 +132,8 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFSOIAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new FlowSensitiveExprSwitch(null, new LHSConnector()),
+			new FlowSensitiveExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
@@ -150,8 +150,8 @@ public final class OFAnalyzer
 	 */
 	public static OFAnalyzer getFSOSAnalyzer(final String tagName) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new LHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new FlowSensitiveExprSwitch(null, new LHSConnector()),
+			new FlowSensitiveExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
 	}
 
@@ -192,6 +192,12 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
+
    Revision 1.12  2004/04/01 19:18:29  venku
    - stmtGraphFactory was not set.
 
