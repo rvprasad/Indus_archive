@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -341,7 +341,8 @@ public final class CollectionsUtilities {
 	 */
 	public static String prettyPrint(final Collection collection) {
 		final StringBuffer _sb = new StringBuffer();
-		_sb.append("-----------------------Collection: " + collection.getClass().getName() + " / " + collection.hashCode());
+		_sb.append("-----------------------Collection: " + collection.getClass().getName() + " / " + collection.hashCode()
+			+ " [" + collection.size() + "]");
 
 		final Iterator _i = collection.iterator();
 		final int _iEnd = collection.size();
@@ -367,7 +368,8 @@ public final class CollectionsUtilities {
 	 */
 	public static String prettyPrint(final Map map) {
 		final StringBuffer _sb = new StringBuffer();
-		_sb.append("-----------------------Collection: " + map.getClass().getName() + " / " + map.hashCode());
+		_sb.append("-----------------------Collection: " + map.getClass().getName() + " / " + map.hashCode() + " ["
+			+ map.size() + "]");
 
 		final Iterator _i = map.entrySet().iterator();
 		final int _iEnd = map.entrySet().size();
@@ -492,52 +494,4 @@ public final class CollectionsUtilities {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.10  2004/07/21 11:36:27  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.9  2004/07/17 23:32:19  venku
-   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
-   - ripple effect.
-   Revision 1.8  2004/07/11 11:05:04  venku
-   - added new specialized method to CollectionsUtilities.
-   - used the above method in DivergenceDA.
-   Revision 1.7  2004/07/09 05:42:30  venku
-   - deleted CollectionsUtilities.addAllFromTo().
-   - used CollectionUtils.addAll() instead of CollectionsUtilities.addAllFromTo().
-   Revision 1.6  2004/07/04 11:17:32  venku
-   - added a new method "ensureSize()" to expand a list.
-   Revision 1.5  2004/06/27 09:10:58  venku
-   - added a new method to retrieve values from a list.
-   Revision 1.4  2004/06/01 06:29:58  venku
-   - added new methods to CollectionUtilities.
-   - ripple effect.
-   Revision 1.3  2004/06/01 01:12:16  venku
-   - added a new testcase to test BasicBlockGraph.
-   - documentation.
-   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
-     return only statement captured in the graph.
-   Revision 1.2  2004/05/31 20:50:20  venku
-   - documentation.
-   Revision 1.1  2004/05/21 22:11:49  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-   Revision 1.5  2004/03/04 11:56:07  venku
-   - added a new method to do safe and destructive queries on map.
-   Revision 1.4  2004/01/28 22:45:42  venku
-   - added clover source code directives.
-   Revision 1.3  2004/01/25 08:57:24  venku
-   - coding convention.
-   Revision 1.2  2004/01/22 00:53:32  venku
-   - formatting and coding convention.
-   Revision 1.1  2004/01/21 13:41:49  venku
-    - a new class to provide methods with common collection operations.
- */
+// End of File
