@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -28,6 +29,7 @@ import edu.ksu.cis.indus.slicer.SlicingTag;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -344,11 +346,12 @@ final class TagBasedSliceXMLizer
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
-		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(tagName));
-
-		final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
+        final IProcessingFilter _filter = new TagBasedProcessingFilter(tagName);  
+        _filter.chain(new XMLizingProcessingFilter());
+        _ctrl.setProcessingFilter(_filter);
 
 		try {
+            final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
 			processor.writer = new FileWriter(_f);
 			processor.hookup(_ctrl);
 			_ctrl.process();
@@ -363,6 +366,9 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/22 23:32:32  venku
+   - xml file name were setup incorrectly.  FIXED.
+
    Revision 1.17  2004/04/22 22:59:58  venku
    - coding conventions.
    Revision 1.16  2004/04/20 06:53:15  venku

@@ -40,6 +40,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -111,6 +113,11 @@ public class DependencyXMLizerCLI
 	 * This provides call-graph based processing controller.
 	 */
 	private ValueAnalyzerBasedProcessingController cgipc;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean dumpJimple;
 
 	/**
 	 * This is the entry point via command-line.
@@ -212,6 +219,8 @@ public class DependencyXMLizerCLI
 			if (_flag) {
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
+
+			_cli.dumpJimple = _cl.hasOption('j');
 			_cli.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
@@ -293,6 +302,11 @@ public class DependencyXMLizerCLI
 		}
 		writeInfo("END: dependency analyses");
 		xmlizer.writeXML(info);
+
+		if (dumpJimple) {
+			_pc.setProcessingFilter(new XMLizingProcessingFilter());
+			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _pc);
+		}
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
 		printTimingStats();
 	}
@@ -354,12 +368,15 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/22 10:23:10  venku
+   - added getTokenManager() method to OFAXMLizerCLI to create
+     token manager based on a system property.
+   - ripple effect.
    Revision 1.7  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.6  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -533,12 +550,15 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/22 10:23:10  venku
+   - added getTokenManager() method to OFAXMLizerCLI to create
+     token manager based on a system property.
+   - ripple effect.
    Revision 1.7  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.6  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
@@ -31,6 +30,7 @@ import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -239,7 +239,7 @@ public class SliceXMLizerCLI
             final ProcessingController _ctrl = new ProcessingController();
             _ctrl.setStmtGraphFactory(getStmtGraphFactory());
             _ctrl.setEnvironment(slicer.getEnvironment());
-            _ctrl.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+            _ctrl.setProcessingFilter(new XMLizingProcessingFilter());
             final AbstractXMLizer _xmlizer = getXMLizer();
             _xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
 		}
@@ -530,6 +530,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/22 23:32:32  venku
+   - xml file name were setup incorrectly.  FIXED.
+
    Revision 1.15  2004/04/22 22:12:08  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.

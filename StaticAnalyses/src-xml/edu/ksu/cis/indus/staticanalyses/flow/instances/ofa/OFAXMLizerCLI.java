@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -207,7 +208,8 @@ public final class OFAXMLizerCLI
 			xmlizer.writeXML(_info);
 
 			if (dumpJimple) {
-				xmlizer.dumpJimple(_rootname, xmlizer.getXmlOutputDir(), _xmlcgipc);
+                _pc.setProcessingFilter(new XMLizingProcessingFilter());
+				xmlizer.dumpJimple(_rootname, xmlizer.getXmlOutputDir(), _pc);
 			}
 		}
 	}
@@ -216,6 +218,9 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/22 23:32:30  venku
+   - xml file name were setup incorrectly.  FIXED.
+
    Revision 1.6  2004/04/22 20:09:06  venku
    - NPE. FIXED.
 

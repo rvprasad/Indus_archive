@@ -135,7 +135,7 @@ public class SlicerTestSetup
 
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
-		// write Jimple XML
+		// write XMLized data
 		driver.writeXML();
 	}
 
@@ -198,6 +198,10 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/22 22:12:08  venku
+   - made changes to jimple xmlizer to dump each class into a separate file.
+   - ripple effect.
+
    Revision 1.4  2004/04/22 08:00:20  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
    Revision 1.3  2004/04/21 02:24:02  venku
