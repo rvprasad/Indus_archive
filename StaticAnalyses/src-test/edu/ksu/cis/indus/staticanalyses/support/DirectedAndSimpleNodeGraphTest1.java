@@ -332,7 +332,7 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>isAncestorOf()</code> method.
 	 */
 	public final void testIsAncestorOf() {
 		localtestIsAncestorOf();
@@ -479,6 +479,10 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/11 12:31:00  venku
+   - made ancestral relationship antisymmetric
+   - added testcases to test the relationship.
+
    Revision 1.8  2003/09/11 02:37:30  venku
    - formatting.
    Revision 1.7  2003/09/11 02:37:12  venku

@@ -85,9 +85,7 @@ public class BasicBlockGraph
 	private final Map stmt2BlockMap;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The set of basic blocks at which exception handlers begin.
 	 */
 	private Collection handlerBlocks;
 
@@ -405,6 +403,11 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/11 12:18:35  venku
+   - added support to retrieve basic blocks in which
+     exception handlers begin.
+   - added support to detect ancestral relationship between nodes.
+
    Revision 1.8  2003/09/10 10:51:07  venku
    - documentation.
    - removed unnecessary typecast.
