@@ -7,7 +7,7 @@
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/swt/swtsrc.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>

@@ -11,7 +11,6 @@
 	<classpathentry sourcepath="JAVACLASSES/src/commons-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/commons-logging.jar" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
