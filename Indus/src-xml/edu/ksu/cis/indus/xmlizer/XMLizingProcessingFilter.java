@@ -44,7 +44,7 @@ public class XMLizingProcessingFilter
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	public static final class LexographicalClassComparator
+	private final class LexographicalClassComparator
 	  implements Comparator {
 		/**
 		 * DOCUMENT ME!
@@ -70,7 +70,7 @@ public class XMLizingProcessingFilter
      * @author $Author$
      * @version $Revision$ $Date$
      */
-    public static final class LexographicalMethodComparator
+    private final class LexographicalMethodComparator
     implements Comparator {
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -112,6 +112,11 @@ public class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 01:17:11  venku
+   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
+   - renamed XMLizingController to XMLizingProcessingFilter.
+   - ripple effect.
+
    Revision 1.6  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
