@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.BodyTransformer;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -59,16 +58,9 @@ import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
-
-import soot.jimple.toolkits.scalar.ConditionalBranchFolder;
-import soot.jimple.toolkits.scalar.DeadAssignmentEliminator;
 import soot.jimple.toolkits.scalar.NopEliminator;
-import soot.jimple.toolkits.scalar.UnconditionalBranchFolder;
-import soot.jimple.toolkits.scalar.UnreachableCodeEliminator;
 
 import soot.tagkit.Host;
-
-import soot.toolkits.scalar.UnusedLocalEliminator;
 
 import soot.util.Chain;
 
@@ -86,20 +78,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(TagBasedDestructiveSliceResidualizer.class);
-
-	/**
-	 * The collection of body transformers to be used to transform the residualized body.
-	 */
-	private static Collection transformers = new ArrayList();
-
-	static {
-		transformers.add(NopEliminator.v());
-		transformers.add(DeadAssignmentEliminator.v());
-		transformers.add(ConditionalBranchFolder.v());
-		transformers.add(UnconditionalBranchFolder.v());
-		transformers.add(UnreachableCodeEliminator.v());
-		transformers.add(UnusedLocalEliminator.v());
-	}
 
 	/**
 	 * This maps statements in the system to new statements that should be included in the slice.
@@ -498,20 +476,19 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 
 			oldStmt2newStmt.clear();
-			_body.validateLocals();
+            _body.validateLocals();
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
-
-			for (final Iterator _i = transformers.iterator(); _i.hasNext();) {
-				//((BodyTransformer) _i.next()).transform(_body);
-			}
-
+            NopEliminator.v().transform(_body);
+        
 			/*
 			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
-			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
+			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
 			 */
 			if (_body.getUnits().isEmpty()) {
+                // remove all traps 
+                _body.getTraps().clear();
 				final Chain _temp = _body.getUnits();
 				final Type _retType = currMethod.getReturnType();
 
@@ -627,6 +604,11 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/01/30 23:57:11  venku
+   - uses various body transformers to optimize the body.
+   - uses entry control DA to pick only the required exit
+     points while making the slice executable.
+
    Revision 1.15  2004/01/25 07:50:20  venku
    - changes to accomodate class hierarchy fixup and handling of
      statements which are marked as true but in which none of the
