@@ -15,10 +15,13 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import soot.Type;
+
+
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents the specification of types in the realm of scope definition.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -26,39 +29,48 @@ package edu.ksu.cis.indus.common.scoping;
  */
 final class TypeSpecification {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * One of EXCLUSIVE_ANCESTORS, EXCLUSIVE_DESCENDANTS, INCLUSIVE_ANCESTORS, INCLUSIVE_DESCENDANTS, and IDENTITY.
 	 */
 	private String hierarchySpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specification for the name of the type. It should be a regular expression.
 	 */
 	private String namePattern;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the specification should be interpreted as inclusive or exclusive.
 	 */
 	private boolean inclusion;
 
 	/**
-	 * Creates a new TypeSpecification object.
+	 * Creates a new TypeSpecification object. This is used by xml-java binding.
 	 */
 	TypeSpecification() {
 	}
 
 	/**
-	 * Creates a new TypeSpecification object.
+	 * Creates a new TypeSpecification object.  This is used by xml-java binding.
 	 *
-	 * @param nameSpec DOCUMENT ME!
+	 * @param nameSpec is the name specification.
 	 */
 	TypeSpecification(final String nameSpec) {
 		namePattern = nameSpec;
+	}
+
+	/**
+	 * Checks if the given type confirms to this specification in the given system.
+	 *
+	 * @param type to be checked.
+	 * @param system in which to check.
+	 *
+	 * @return <code>true</code> if the type confirms; <code>false</code>, otherwise.
+	 *
+	 * @pre type != null and system !=null
+	 */
+	public boolean conformant(final Type type, final IEnvironment system) {
+		// TODO:        
+		return false;
 	}
 
 	/**

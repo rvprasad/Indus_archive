@@ -15,10 +15,13 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import soot.SootClass;
+
+
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents class-level scope specification.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -26,25 +29,36 @@ package edu.ksu.cis.indus.common.scoping;
  */
 final class ClassSpecification {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the access control specification.
 	 */
 	private AccessSpecification accessSpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the type specification.
 	 */
 	private TypeSpecification typeSpec;
+
+	/**
+	 * Checks if the given class is in the scope of this specification in the given environment.
+	 *
+	 * @param clazz to be checked for scope constraints.
+	 * @param system in which the check the constraints.
+	 *
+	 * @return <code>true</code> if the given class lies within the scope defined by this specification; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre clazz != null and system != null
+	 */
+	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
+		return accessSpec.conformant(new AccessSpecifierWrapper(clazz)) && typeSpec.conformant(clazz.getType(), system);
+	}
 
 	/**
 	 * Sets the value of <code>typeSpec</code>.
 	 *
 	 * @param typeSpec the new value of <code>typeSpec</code>.
 	 */
-	void setTypeSpec(TypeSpecification typeSpec) {
+	void setTypeSpec(final TypeSpecification typeSpec) {
 		this.typeSpec = typeSpec;
 	}
 

@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import soot.SootClass;
 import soot.SootField;
@@ -26,7 +27,8 @@ import soot.SootMethod;
 
 
 /**
- * This class can be used to match classes, methods, and fields based on names and hierarchical relation.
+ * This class represents scope definition. It can be used to filter classes, methods, and fields based on names  and
+ * hierarchical relation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -34,80 +36,99 @@ import soot.SootMethod;
  */
 public final class SpecificationBasedScopeDefinition {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of class-level specification.
+	 *
+	 * @invariant classSpecs.oclIsKindOf(Collection(ClassSpecification))
 	 */
 	private Collection classSpecs;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of field-level specification.
+	 *
+	 * @invariant classSpecs.oclIsKindOf(Collection(FieldSpecification))
 	 */
 	private Collection fieldSpecs;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of method-level specification.
+	 *
+	 * @invariant classSpecs.oclIsKindOf(Collection(MethodSpecification))
 	 */
 	private Collection methodSpecs;
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given class is in the scope in the given system.
 	 *
-	 * @param clazz
-	 * @param system
+	 * @param clazz to be checked.
+	 * @param system in which to check.
 	 *
-	 * @return
+	 * @return <code>true</code> if the given class is in the scope in the given system; <code>false</code>, otherwise.
+	 *
+	 * @pre clazz != null and system != null
 	 */
 	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
-		// TODO: Auto-generated method stub
-		return false;
+		final Iterator _i = classSpecs.iterator();
+		final int _iEnd = classSpecs.size();
+		boolean _result = false;
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final ClassSpecification _cs = (ClassSpecification) _i.next();
+			_result |= _cs.isInScope(clazz, system);
+		}
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given method is in the scope in the given system.
 	 *
-	 * @param method
-	 * @param system
+	 * @param method to be checked.
+	 * @param system in which to check.
 	 *
-	 * @return
+	 * @return <code>true</code> if the given method is in the scope in the given system; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null and system != null
 	 */
 	public boolean isInScope(final SootMethod method, final IEnvironment system) {
-		// TODO: Auto-generated method stub
-		return false;
+		final Iterator _i = methodSpecs.iterator();
+		final int _iEnd = methodSpecs.size();
+		boolean _result = false;
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final MethodSpecification _ms = (MethodSpecification) _i.next();
+			_result |= _ms.isInScope(method, system);
+		}
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given field is in the scope in the given system.
 	 *
-	 * @param field
-	 * @param system
+	 * @param field to be checked.
+	 * @param system in which to check.
 	 *
-	 * @return
+	 * @return <code>true</code> if the given field is in the scope in the given system; <code>false</code>, otherwise.
+	 *
+	 * @pre field != null and system != null
 	 */
 	public boolean isInScope(final SootField field, final IEnvironment system) {
-		// TODO: Auto-generated method stub
-		return false;
-	}
+		final Iterator _i = fieldSpecs.iterator();
+		final int _iEnd = fieldSpecs.size();
+		boolean _result = false;
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void reset() {
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final FieldSpecification _fs = (FieldSpecification) _i.next();
+			_result |= _fs.isInScope(field, system);
+		}
+		return _result;
 	}
 
 	/**
 	 * Sets the value of <code>classSpecs</code>.
 	 *
-	 * @param classSpecs the new value of <code>classSpecs</code>.
+	 * @param theClassSpecs the new value of <code>classSpecs</code>.
 	 */
-	void setClassSpecs(Collection classSpecs) {
-		this.classSpecs = classSpecs;
+	void setClassSpecs(final Collection theClassSpecs) {
+		this.classSpecs = theClassSpecs;
 	}
 
 	/**
@@ -122,10 +143,10 @@ public final class SpecificationBasedScopeDefinition {
 	/**
 	 * Sets the value of <code>fieldSpecs</code>.
 	 *
-	 * @param fieldSpecs the new value of <code>fieldSpecs</code>.
+	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
 	 */
-	void setFieldSpecs(Collection fieldSpecs) {
-		this.fieldSpecs = fieldSpecs;
+	void setFieldSpecs(final Collection theFieldSpecs) {
+		this.fieldSpecs = theFieldSpecs;
 	}
 
 	/**
@@ -140,10 +161,10 @@ public final class SpecificationBasedScopeDefinition {
 	/**
 	 * Sets the value of <code>methodSpecs</code>.
 	 *
-	 * @param methodSpecs the new value of <code>methodSpecs</code>.
+	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
 	 */
-	void setMethodSpecs(Collection methodSpecs) {
-		this.methodSpecs = methodSpecs;
+	void setMethodSpecs(final Collection theMethodSpecs) {
+		this.methodSpecs = theMethodSpecs;
 	}
 
 	/**
@@ -156,36 +177,23 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Creates the container for specifications. This is used by java-xml binding.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a container.
+	 *
+	 * @post result != null
 	 */
-	static Collection createClassSpecContainer() {
+	static Collection createSpecContainer() {
 		return new ArrayList();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * Resets internal data structures.
 	 */
-	static Collection createFieldSpecContainer() {
-		return new ArrayList();
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	static Collection createMethodSpecContainer() {
-		return new ArrayList();
+	void reset() {
+		classSpecs.clear();
+		methodSpecs.clear();
+		fieldSpecs.clear();
 	}
 }
 

@@ -15,13 +15,15 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
 import java.util.regex.Pattern;
+
+import soot.SootField;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents field-level scope specification.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -29,93 +31,98 @@ import java.util.regex.Pattern;
  */
 final class FieldSpecification {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the access control specification.
 	 */
 	private AccessSpecification accessSpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The pattern of the field's name.
 	 */
 	private Pattern namePattern;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specification of the type of the class that declares the field.
 	 */
 	private TypeSpecification declaringClassSpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specification of the type of the field.
 	 */
 	private TypeSpecification fieldTypeSpec;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given field is in the scope of this specification in the given environment.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param field to be checked for scope constraints.
+	 * @param system in which the check the constraints.
+	 *
+	 * @return <code>true</code> if the given field lies within the scope defined by this specification; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre field != null and system != null
+	 */
+	public boolean isInScope(final SootField field, final IEnvironment system) {
+		boolean _result = accessSpec.conformant(new AccessSpecifierWrapper(field));
+		_result &= fieldTypeSpec.conformant(field.getType(), system);
+		_result &= declaringClassSpec.conformant(field.getDeclaringClass().getType(), system);
+		_result &= namePattern.matcher(field.getName()).matches();
+		return _result;
+	}
+
+	/**
+	 * Sets the specification of the class that declares the field.
+	 *
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
 	 */
 	void setDeclaringClassSpec(final TypeSpecification spec) {
 		declaringClassSpec = spec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the class that declares the field.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	TypeSpecification getDeclaringClassSpec() {
 		return declaringClassSpec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the specification of the field's name.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param spec is a regular expression.
+	 *
+	 * @pre spec != null
 	 */
 	void setFieldNameSpec(final String spec) {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the field's name.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	String getFieldNameSpec() {
 		return namePattern.pattern();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the specification of the type of the field.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
 	 */
 	void setFieldTypeSpec(final TypeSpecification spec) {
 		fieldTypeSpec = spec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the type of the field.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	TypeSpecification getFieldTypeSpec() {
 		return fieldTypeSpec;

@@ -20,7 +20,7 @@
         <xsd:enumeration value="EXCLUSIVE_DESCENDANTS"/>
         <xsd:enumeration value="INCLUSIVE_ANCESTORS"/>
         <xsd:enumeration value="INCLUSIVE_DESCENDANTS"/>
-        <xsd:enumeration value="ONLY_MATCH"/>
+        <xsd:enumeration value="IDENTITY"/>
       </xsd:restriction>
     </xsd:simpleType>
 

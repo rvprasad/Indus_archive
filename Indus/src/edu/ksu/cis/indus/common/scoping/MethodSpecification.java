@@ -15,16 +15,21 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import java.util.regex.Pattern;
 
+import soot.SootMethod;
+import soot.Type;
+
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents method-level scope specification.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -32,133 +37,151 @@ import java.util.regex.Pattern;
  */
 final class MethodSpecification {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the access control specification.
 	 */
-	AccessSpecification accessSpec;
+	private AccessSpecification accessSpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specifications of the types of the parameters.
+	 *
+	 * @invariant parameterTypeSpecs.oclIsKindOf(List(TypeSpecification))
 	 */
-	private Collection parameterTypeSpecs;
+	private List parameterTypeSpecs;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The pattern of the method's name.
 	 */
 	private Pattern namePattern;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specification of the type of the class that declares the method.
 	 */
 	private TypeSpecification declaringClassSpec;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the specification of the return type of the method.
 	 */
 	private TypeSpecification returnTypeSpec;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given method is in the scope of this specification in the given environment.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param method to be checked for scope constraints.
+	 * @param system in which the check the constraints.
+	 *
+	 * @return <code>true</code> if the given method lies within the scope defined by this specification; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre method != null and system != null
+	 */
+	public boolean isInScope(final SootMethod method, final IEnvironment system) {
+		boolean _result = namePattern.matcher(method.getName()).matches();
+		_result |= !_result && declaringClassSpec.conformant(method.getDeclaringClass().getType(), system);
+		_result |= !_result && returnTypeSpec.conformant(method.getReturnType(), system);
+		_result |= !_result && accessSpec.conformant(new AccessSpecifierWrapper(method));
+
+		final List _parameterTypes = method.getParameterTypes();
+		final Iterator _i = _parameterTypes.iterator();
+		final int _iEnd = _parameterTypes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final Type _type = (Type) _i.next();
+			final TypeSpecification _pTypeSpec = (TypeSpecification) parameterTypeSpecs.get(_iIndex);
+
+			if (_pTypeSpec != null) {
+				_result |= (_pTypeSpec).conformant(_type, system);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Sets the specification of the class that declares the method.
+	 *
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
 	 */
 	void setDeclaringClassSpec(final TypeSpecification spec) {
 		declaringClassSpec = spec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the class that declares the method.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	TypeSpecification getDeclaringClassSpec() {
 		return declaringClassSpec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the specification of the method's name.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param spec is a regular expression.
+	 *
+	 * @pre spec != null
 	 */
 	void setMethodNameSpec(final String spec) {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the method's name.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	String getMethodNameSpec() {
 		return namePattern.pattern();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the specification of the type of the parameters of the method.
 	 *
-	 * @param specs DOCUMENT ME!
+	 * @param specs the specifications.
+	 *
+	 * @pre spec != null and specs.oclIsKindOf(Sequence(TypeSpecification))
 	 */
-	void setParameterTypeSpecs(final Collection specs) {
+	void setParameterTypeSpecs(final List specs) {
 		parameterTypeSpecs.addAll(specs);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the type of the parameters of the method.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a list of specifications.
+	 *
+	 * @post result.oclIsKindOf(Sequence(TypeSpecification))
 	 */
-	Collection getParameterTypeSpecs() {
+	List getParameterTypeSpecs() {
 		return parameterTypeSpecs;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the specification of the return type of the method.
 	 *
-	 * @param spec DOCUMENT ME!
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
 	 */
 	void setReturnTypeSpec(final TypeSpecification spec) {
 		returnTypeSpec = spec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the specification of the return type of the method.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the specification.
 	 */
 	TypeSpecification getReturnTypeSpec() {
 		return returnTypeSpec;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Creates the container for parameter type specifications. This is used by java-xml binding.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a container.
+	 *
+	 * @post result != null
 	 */
 	static Collection createParameterTypeSpecContainer() {
 		return new ArrayList();

@@ -16,9 +16,8 @@
 package edu.ksu.cis.indus.common.scoping;
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents access control specification for the purpose of serialization and deserialization in the realm of
+ * scope definition.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -26,142 +25,111 @@ package edu.ksu.cis.indus.common.scoping;
  */
 final class AccessSpecification {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final byte PUBLIC_ACCESS = 1;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final byte PROTECTED_ACCESS = 2;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final byte DEFAULT_ACCESS = 4;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final byte PRIVATE_ACCESS = 8;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This contains the access specification encoded in terms of XXX_ACCESS constants defined in
+	 * <code>IAccessSpecifiers</code>.
 	 */
 	private byte access;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given access control specifier confirms to this specification.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param specifier to be checked for conformance.
+	 *
+	 * @return <code>true</code> if <code>specifier</code> confirms to this spec; <code>false</code>, otherwise.
+	 *
+	 * @pre specifier != null
+	 */
+	public boolean conformant(final IAccessSpecifiers specifier) {
+		return isDefaultAccess() == specifier.isDefaultAccess() || isProtectedAccess() == specifier.isProtectedAccess()
+		  || isPublicAccess() == specifier.isPublicAccess() || isPrivateAccess() == specifier.isPrivateAccess();
+	}
+
+	/**
+	 * Sets the default access control (package-private) level.
+	 *
+	 * @param value to be set.
 	 */
 	void setDefaultAccess(final boolean value) {
 		if (value) {
-			access |= DEFAULT_ACCESS;
+			access |= IAccessSpecifiers.DEFAULT_ACCESS;
 		} else {
-			access &= ~DEFAULT_ACCESS;
+			access &= ~IAccessSpecifiers.DEFAULT_ACCESS;
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves default access control level.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	boolean isDefaultAccess() {
-		return (access & DEFAULT_ACCESS) != 0;
+		return (access & IAccessSpecifiers.DEFAULT_ACCESS) != 0;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the private access control level.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param value to be set.
 	 */
 	void setPrivateAccess(final boolean value) {
 		if (value) {
-			access |= PRIVATE_ACCESS;
+			access |= IAccessSpecifiers.PRIVATE_ACCESS;
 		} else {
-			access &= ~PRIVATE_ACCESS;
+			access &= ~IAccessSpecifiers.PRIVATE_ACCESS;
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves private access control level.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	boolean isPrivateAccess() {
-		return (access & PRIVATE_ACCESS) != 0;
+		return (access & IAccessSpecifiers.PRIVATE_ACCESS) != 0;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the protected access control level.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param value to be set.
 	 */
 	void setProtectedAccess(final boolean value) {
 		if (value) {
-			access |= PROTECTED_ACCESS;
+			access |= IAccessSpecifiers.PROTECTED_ACCESS;
 		} else {
-			access &= ~PROTECTED_ACCESS;
+			access &= ~IAccessSpecifiers.PROTECTED_ACCESS;
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves protected access control level.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	boolean isProtectedAccess() {
-		return (access & PROTECTED_ACCESS) != 0;
+		return (access & IAccessSpecifiers.PROTECTED_ACCESS) != 0;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the public access control level.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param value to be set.
 	 */
 	void setPublicAccess(final boolean value) {
 		if (value) {
-			access |= PUBLIC_ACCESS;
+			access |= IAccessSpecifiers.PUBLIC_ACCESS;
 		} else {
-			access &= ~PUBLIC_ACCESS;
+			access &= ~IAccessSpecifiers.PUBLIC_ACCESS;
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves public access control level.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	boolean isPublicAccess() {
-		return (access & PUBLIC_ACCESS) != 0;
+		return (access & IAccessSpecifiers.PUBLIC_ACCESS) != 0;
 	}
 }
 
