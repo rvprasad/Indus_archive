@@ -32,6 +32,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
@@ -273,7 +274,7 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
-		aliasUD = new AliasedUseDefInfo(aa, _cgi, bbm);
+		aliasUD = new AliasedUseDefInfov2(aa, _cgi, bbm);
 		info.put(ICallGraphInfo.ID, _cgi);
 		info.put(IThreadGraphInfo.ID, _tgi);
 		info.put(PairManager.ID, new PairManager());
@@ -344,6 +345,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/07/11 14:50:30  venku
+   - fixes to run exit control DA.
+
    Revision 1.22  2004/07/11 14:17:40  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
@@ -566,6 +570,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/07/11 14:50:30  venku
+   - fixes to run exit control DA.
+
    Revision 1.22  2004/07/11 14:17:40  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

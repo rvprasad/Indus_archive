@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -158,7 +159,7 @@ public abstract class DADriver
 		Collection rm = new ArrayList();
 		cgipc = new ValueAnalyzerBasedProcessingController();
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
-		aliasUD = new AliasedUseDefInfo(aa, cgi, bbm);
+		aliasUD = new AliasedUseDefInfov2(aa, cgi, bbm);
 
 		pc.setAnalyzer(aa);
 		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
@@ -357,6 +358,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
    Revision 1.44  2004/06/23 06:16:42  venku
    - deleted  SootBasedDriver.setClassNames(String[])
    - ripple effect.

@@ -21,7 +21,6 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IIdentification;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
@@ -59,59 +58,51 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides intra-thread aliased use-def information which is based on types, points-to information, and call
- * graph. If the use is reachable from the def via the control flow graph or via the CFG and the call graph of a thread,
- * then def and use site are related by use-def relation.  The only exception for this case is when the def occurs in the
- * class initializer.   In this case, the defs can reach almost all methods even if they are executed in a different thread
- * from the use site.
+ * This class provides intra-thread aliased use-def information which is based on types and points-to information. If the use
+ * is reachable from the def via the control flow graph or via the CFG, then def and use site are related by use-def
+ * relation.  The only exception for this case is when the def occurs in the class initializer.   In this case, the defs can
+ * reach almost all methods even if they are executed in a different thread from the use site.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public final class AliasedUseDefInfo
+public class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo,
 	  IIdentification {
-	// TODO: The info needs to be INTRA-THREAD and INTER-PROCEDURAL.  This is not the case at this time.
-
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
 
-	/**
+	/** 
 	 * The basic block graph manager to use during analysis.
 	 */
-	private final BasicBlockGraphMgr bbgMgr;
+	protected final BasicBlockGraphMgr bbgMgr;
 
-	/**
-	 * This provides the call graph of the system.
-	 */
-	private final ICallGraphInfo cgi;
-
-	/**
+	/** 
 	 * The object flow analyzer to be used to calculate the UD info.
 	 *
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
 	private final IValueAnalyzer analyzer;
 
-	/**
+	/** 
 	 * This is a map from def-sites to their corresponding to use-sites.
 	 *
 	 * @invariant usesMap != null
 	 */
 	private final Map def2usesMap;
 
-	/**
+	/** 
 	 * This is a map from use-sites to their corresponding to def-sites.
 	 *
 	 * @invariant defsMap != null
 	 */
 	private final Map use2defsMap;
 
-	/**
+	/** 
 	 * This manages <code>Pair</code> objects.
 	 */
 	private final PairManager pairMgr = new PairManager();
@@ -120,16 +111,14 @@ public final class AliasedUseDefInfo
 	 * Creates a new AliasedUseDefInfo object.
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
-	 * @param cg is the call graph of the system.
 	 * @param bbgManager is the basic block graph manager to use.
 	 *
 	 * @pre analyzer != null and cg != null and bbgMgr != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final ICallGraphInfo cg, final BasicBlockGraphMgr bbgManager) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager) {
 		use2defsMap = new HashMap();
 		def2usesMap = new HashMap();
 		analyzer = iva;
-		cgi = cg;
 		bbgMgr = bbgManager;
 	}
 
@@ -211,19 +200,8 @@ public final class AliasedUseDefInfo
 			final Map.Entry _method2defuses = (Map.Entry) _i.next();
 			final SootMethod _defMethod = (SootMethod) _method2defuses.getKey();
 
-			//final Collection _reachables = cgi.getMethodsReachableFrom(_defMethod);
-			//_reachables.add(_defMethod);
 			_contextDef.setRootMethod(_defMethod);
 
-			// extract a map that contains information only for use sites in reachable methods.
-
-			/*            final Map _temp =
-			   CollectionsUtilities.getFilteredMap(use2defsMap,
-			       new Predicate() {
-			           public boolean evaluate(final Object o) {
-			               return _reachables.contains(o);
-			           }
-			       }, null);*/
 			for (final Iterator _j = ((Map) _method2defuses.getValue()).entrySet().iterator(); _j.hasNext();) {
 				final Map.Entry _defStmt2useStmts = (Map.Entry) _j.next();
 				final Stmt _defStmt = (Stmt) _defStmt2useStmts.getKey();
@@ -351,6 +329,21 @@ public final class AliasedUseDefInfo
 	}
 
 	/**
+	 * Checks if the definition can reach the use site inter-procedurally.  This implementation assumes that the definition 
+	 * always reaches use site. 
+	 *
+	 * @param defMethod is the context of definition. <i>ignored</i>
+	 * @param useMethod is the context of use. <i>ignored</i>.
+	 * @param defStmt is the definition statement. <i>ignored</i>.
+	 * @param useStmt is the use statement. <i>ignored</i>.
+	 *
+	 * @return <code>true</code>
+	 */
+	protected boolean isReachableViaInterProceduralFlow(SootMethod defMethod, Stmt defStmt, SootMethod useMethod, Stmt useStmt) {
+		return true;
+	}
+
+	/**
 	 * Checks if the given definition and use are related.
 	 *
 	 * @param defContext is the context of definition.
@@ -422,7 +415,8 @@ public final class AliasedUseDefInfo
 	}
 
 	/**
-	 * Checks if the def reaches the use site.
+	 * Checks if the def reaches the use site.  If either of the methods are class initializers, <code>true</code> is 
+	 * returned.
 	 *
 	 * @param defMethod in which the def occurs.
 	 * @param defStmt in which the def occurs.
@@ -437,6 +431,10 @@ public final class AliasedUseDefInfo
 		final Stmt useStmt) {
 		boolean _result;
 
+		if (defMethod.getName().equals("<clinit>") || useMethod.getName().equals("<clinit>")) {
+			_result = true;
+		}
+
 		if (useMethod.equals(defMethod)) {
 			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(useMethod);
 			final BasicBlock _bbUse = _bbg.getEnclosingBlock(useStmt);
@@ -449,10 +447,7 @@ public final class AliasedUseDefInfo
 				_result = _bbg.isReachable(_bbDef, _bbUse, true);
 			}
 		} else {
-			// TODO: determine if the use method is reachable via a call-site in the 
-			// def method that is reachable from the def site in the def method.  
-			// If so, set _flag to true
-			_result = true;
+			_result = isReachableViaInterProceduralFlow(defMethod, defStmt, useMethod, useStmt);
 		}
 		return _result;
 	}
@@ -461,6 +456,9 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.36  2004/07/11 09:42:14  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

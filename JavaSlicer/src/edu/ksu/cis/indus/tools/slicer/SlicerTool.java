@@ -44,6 +44,7 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
@@ -304,7 +305,7 @@ public final class SlicerTool
 
 		// set up data required for dependency analyses.
 		final Map _info = new HashMap();
-		aliasUD = new AliasedUseDefInfo(ofa, callGraph, bbgMgr);
+		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, bbgMgr);
 		_info.put(ICallGraphInfo.ID, callGraph);
 		_info.put(IThreadGraphInfo.ID, threadGraph);
 		_info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -882,6 +883,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.94  2004/07/11 14:17:40  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
    Revision 1.93  2004/07/09 05:05:25  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.

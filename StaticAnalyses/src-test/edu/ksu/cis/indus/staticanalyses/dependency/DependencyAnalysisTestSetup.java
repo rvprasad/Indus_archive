@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisTestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -101,14 +102,14 @@ public class DependencyAnalysisTestSetup
 	private ThreadGraph tgiImpl;
 
 	/**
-	 * @see ValueAnalysisSetup#ValueAnalysisSetup(TestSuite,String,String)
+	 * @see ValueAnalysisTestSetup#ValueAnalysisTestSetup(TestSuite,String,String)
 	 */
 	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.extensions.TestSetup#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -126,7 +127,7 @@ public class DependencyAnalysisTestSetup
 		tgiImpl.hookup(_pc);
 		_pc.process();
 		tgiImpl.unhook(_pc);
-		aliasUD = new AliasedUseDefInfo(valueAnalyzer, cgiImpl, bbgMgr);
+		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, bbgMgr);
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, tgiImpl, bbgMgr);
 		ecba.setAnalyzer(valueAnalyzer);
 
@@ -163,14 +164,14 @@ public class DependencyAnalysisTestSetup
 		setupDependencyAnalyses(_pc);
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-			_da.analyze();
+			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
+			((AbstractDependencyAnalysis) _da).analyze();
 			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
 		}
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.extensions.TestSetup#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -243,6 +244,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
    Revision 1.16  2004/05/31 21:38:07  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
