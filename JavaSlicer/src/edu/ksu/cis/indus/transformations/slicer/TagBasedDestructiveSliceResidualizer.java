@@ -463,17 +463,10 @@ public final class TagBasedDestructiveSliceResidualizer
 			// replace statements with new statements as recorded earlier.
 			for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
 				final Entry _entry = (Entry) _i.next();
-				final Stmt _oldStmt = (Stmt) _entry.getKey();
-				final Object _pred = _ch.getPredOf(_oldStmt);
-				_ch.remove(_oldStmt);
-
+				final Object _oldStmt = _entry.getKey();
 				final Object _newStmt = _entry.getValue();
-
-				if (_pred == null) {
-					_ch.addFirst(_newStmt);
-				} else {
-					_ch.insertAfter(_newStmt, _pred);
-				}
+				_ch.insertAfter(_newStmt, _oldStmt);
+				_ch.remove(_oldStmt);
 			}
 
 			oldStmt2newStmt.clear();
@@ -608,6 +601,8 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/02/04 04:33:41  venku
+   - locals in empty methods need to be removed as well. FIXED.
    Revision 1.17  2004/01/31 01:48:18  venku
    - for odd reasons, various transformers provided in SOOT fail,
      hence, they are not used anymore.
