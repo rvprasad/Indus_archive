@@ -27,7 +27,7 @@ import edu.ksu.cis.indus.processing.Context;
  */
 public class AllocationContext
   extends Context {
-	/**
+	/** 
 	 * The allocation-site component of the context.  This is relevant in the allocation-site sensitive mode of analysis.  In
 	 * particular, when dealing with instance fields and arrays.
 	 */
@@ -48,10 +48,10 @@ public class AllocationContext
 	 * @return the allocation site previously represented by this context.
 	 */
 	public Object setAllocationSite(final Object site) {
-		Object temp = allocationSite;
+		final Object _temp = allocationSite;
 		allocationSite = site;
 
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -71,18 +71,18 @@ public class AllocationContext
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null && o instanceof AllocationContext) {
-			AllocationContext c = (AllocationContext) o;
+			final AllocationContext _c = (AllocationContext) o;
 
 			if (allocationSite != null) {
-				result = allocationSite.equals(c.allocationSite);
+				_result = allocationSite.equals(_c.allocationSite);
 			} else {
-				result = c.allocationSite == allocationSite;
+				_result = _c.allocationSite == allocationSite;
 			}
 		}
-		return result && super.equals(o);
+		return _result && super.equals(o);
 	}
 
 	/**
@@ -91,19 +91,29 @@ public class AllocationContext
 	 * @return the hash code.
 	 */
 	public int hashCode() {
-		int result = 17;
+		int _result = 17;
 
 		if (allocationSite != null) {
-			result = 37 * result + allocationSite.hashCode();
+			_result = 37 * _result + allocationSite.hashCode();
 		}
-		result = 37 * result + super.hashCode();
-		return result;
+		_result = 37 * _result + super.hashCode();
+		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString() + "\tAllocation Site: " + allocationSite;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.6  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
