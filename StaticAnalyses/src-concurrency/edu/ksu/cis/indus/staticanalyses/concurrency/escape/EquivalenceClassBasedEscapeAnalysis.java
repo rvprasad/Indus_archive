@@ -186,6 +186,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 	MethodContext methodCtxtCache;
 
 	/**
+	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
+	 * start call-sites for delayed processing.
+	 */
+	private Map delayedSet = new HashMap();
+
+	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param scene provides and manages the classes to be analysed.
@@ -572,8 +578,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			for (Iterator i = callees.iterator(); i.hasNext();) {
-				boolean unifyAll = false;
-				boolean multiExecution = false;
 				SootMethod callee = (SootMethod) i.next();
 				Triple triple = (Triple) method2Triple.get(callee);
 
@@ -582,20 +586,25 @@ public class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + callee.getSignature());
 					}
-
 					continue;
 				}
+
+				/*
+				 * If the start sites are processed first then the alias sets are marked as accesssed.
+				 * However, as the sharing information is only changed at "start" call-sites, the marking of the alias sets
+				 * as accessed will not affect sharability, which is incorrect.
+				 *
+				 * As a solution, we collect all method contexts, both site- and method-contexts, for all start call-sites in
+				 * the caller to be unified after all other statements in the caller have been processed.
+				 */
+				boolean delayUnification = false;
 
 				if (callee.getName().equals("start")
 					  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
 					  && callee.getReturnType() instanceof VoidType
 					  && callee.getParameterCount() == 0) {
 					// unify all parts of alias sets if "start" is being invoked.
-					unifyAll = true;
-
-					if (cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-						multiExecution = true;
-					}
+					delayUnification = true;
 				} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
 					  && callee.getReturnType() instanceof VoidType
 					  && callee.getParameterCount() == 0) {
@@ -626,12 +635,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 					}
 				}
 
-				sc.unify(mc, unifyAll);
-
-				if (multiExecution) {
-					// It would suffice to unify the site context with it self in the case of loop enclosure
-					// as this is more semantically close to what happens during execution.
-					sc.selfUnify(unifyAll);
+				if (delayUnification) {
+					addToDelayedUnificationSet(sc, mc);
+				} else {
+					sc.unify(mc, false);
 				}
 			}
 
@@ -889,9 +896,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 					}
 				}
 
-				if (valueProcessor.accessed) {
-					continue;
-				}
+				// unify the contexts at start call-sites.
+				performDelayedUnification();
 			}
 		}
 
@@ -934,6 +940,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 				MethodContext mc = (MethodContext) (triple.getFirst());
 				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
+
+				// It would suffice to unify the site context with it self in the case of loop enclosure
+				// as this is more semantically close to what happens during execution.
+				if (callee.getName().equals("start")
+					  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
+					  && callee.getReturnType() instanceof VoidType
+					  && callee.getParameterCount() == 0
+					  && cfgAnalysis.executedMultipleTimes(ctrp.getStmt(), caller)) {
+					sc.selfUnify(true);
+				}
 				sc.propogateInfoFromTo(mc);
 
 				if (!processed.contains(callee)) {
@@ -1044,17 +1060,45 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 		return result;
 	}
+
+	/**
+	 * Adds the given contexts to the set of contexts to be processed later on.  This is called by the tree walker.
+	 *
+	 * @param siteContext is the context associated with the site.
+	 * @param methodContext is the context associated with the method.
+	 *
+	 * @pre siteContext != null and methodContext != null
+	 * @post delayedSet.get(siteContext) == methodContext
+	 */
+	void addToDelayedUnificationSet(final MethodContext siteContext, final MethodContext methodContext) {
+		delayedSet.put(siteContext, methodContext);
+	}
+
+	/**
+	 * Performs the unification of contexts occurring at start call-sites as collected via
+	 * <code>addToDelayedUnificationSet</code>.
+	 *
+	 * @post delayedSet.isEmpty()
+	 */
+	private void performDelayedUnification() {
+		for (Iterator i = delayedSet.entrySet().iterator(); i.hasNext();) {
+			Map.Entry element = (Map.Entry) i.next();
+			((MethodContext) element.getKey()).unify((MethodContext) element.getValue(), true);
+		}
+		delayedSet.clear();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/10/09 00:17:40  venku
+   - changes to instrumetn statistics numbers.
    Revision 1.17  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider
      loop information in a more sound manner.
    - ripple effect of the above.
-
    Revision 1.16  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.
