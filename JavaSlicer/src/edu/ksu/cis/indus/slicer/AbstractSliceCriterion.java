@@ -47,6 +47,13 @@ abstract class AbstractSliceCriterion
 	private boolean considerExecution;
 
 	/**
+	 * @see ISliceCriterion#setConsiderExecution(boolean)
+	 */
+	public final void setConsiderExecution(final boolean shouldConsiderExecution) {
+		considerExecution = shouldConsiderExecution;
+	}
+
+	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -111,19 +118,6 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
-	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
-	 *
-	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
-	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
-	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
-	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
-	 * 		  expression are considered as slice criteria.
-	 */
-	final void setConsiderExecution(final boolean shouldConsiderExecution) {
-		considerExecution = shouldConsiderExecution;
-	}
-
-	/**
 	 * Returns the stored criterion object.
 	 *
 	 * @return Object representing the criterion.
@@ -145,6 +139,8 @@ abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/06/26 10:16:35  venku
+   - bug #389. FIXED.
    Revision 1.15  2004/06/24 06:53:53  venku
    - refactored SliceConfiguration
      - added processBooleanProperty()
