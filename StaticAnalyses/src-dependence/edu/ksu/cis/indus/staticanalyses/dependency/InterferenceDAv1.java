@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.ArrayType;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
@@ -25,6 +26,7 @@ import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -34,6 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -395,21 +398,26 @@ public class InterferenceDAv1
 	 * @param dependent is the array/field read access site.
 	 * @param dependee is the array/field write access site.
 	 *
-	 * @return <code>true</code>.
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 *
+	 * @pre dependent != null and dependee != null
 	 */
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-		boolean result = false;
+		boolean result = considerClassInitializers(dependent, dependee);
 
-		if (de instanceof ArrayRef && dt instanceof ArrayRef) {
-			Type t1 = ((ArrayRef) de).getBase().getType();
-			Type t2 = ((ArrayRef) dt).getBase().getType();
-			result = t1.equals(t2);
-		} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
-			SootField f1 = ((InstanceFieldRef) de).getField();
-			SootField f2 = ((InstanceFieldRef) dt).getField();
-			result = f1.equals(f2);
+		if (result) {
+			Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+			Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+
+			if (de instanceof ArrayRef && dt instanceof ArrayRef) {
+				Type t1 = ((ArrayRef) de).getBase().getType();
+				Type t2 = ((ArrayRef) dt).getBase().getType();
+				result = t1.equals(t2);
+			} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
+				SootField f1 = ((InstanceFieldRef) de).getField();
+				SootField f2 = ((InstanceFieldRef) dt).getField();
+				result = f1.equals(f2);
+			}
 		}
 		return result;
 	}
@@ -437,11 +445,60 @@ public class InterferenceDAv1
 			throw new InitializationException(IThreadGraphInfo.ID + " was not provided in info.");
 		}
 	}
+
+	/**
+	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the  dependence based on
+	 * this information.
+	 *
+	 * @param dependent is the array/field read access site.
+	 * @param dependee is the array/field write access site.
+	 *
+	 * @return <code>true</code> if the dependence should be considered; <code>false</code>, otherwise.
+	 *
+	 * @pre dependent != null and dependee != null
+	 */
+	private boolean considerClassInitializers(final Pair dependent, final Pair dependee) {
+		SootMethod deMethod = (SootMethod) dependee.getSecond();
+		SootMethod dtMethod = (SootMethod) dependent.getSecond();
+		boolean result = true;
+
+		// If any one of the method is a class initialization method then we can optimize.
+		boolean deci = deMethod.getName().equals("<clinit>");
+		boolean dtci = dtMethod.getName().equals("<clinit>");
+
+		if (deci || dtci) {
+			SootClass deClass = deMethod.getDeclaringClass();
+			SootClass dtClass = dtMethod.getDeclaringClass();
+
+			// if the classes of both the methods are relatec 
+			if (Util.isHierarchicallyRelated(deClass, dtClass)) {
+				result = false;
+			} else {
+				Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+				Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+
+				if (dt instanceof StaticFieldRef && de instanceof StaticFieldRef) {
+					SootField f1 = ((StaticFieldRef) de).getField();
+					SootField f2 = ((StaticFieldRef) dt).getField();
+
+					if (f1.equals(f2)
+						  && ((deci && f1.getDeclaringClass().equals(deClass))
+						  || (dtci && f1.getDeclaringClass().equals(dtClass)))) {
+						result = false;
+					}
+				}
+			}
+		}
+		return result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
    Revision 1.20  2003/11/10 20:03:55  venku
    - In Jimple, only one ArrayRef or FieldRef can occur in
      a statement.  We now use this information to make
