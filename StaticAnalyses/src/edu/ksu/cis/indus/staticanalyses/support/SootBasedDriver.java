@@ -95,8 +95,10 @@ public abstract class SootBasedDriver {
 	 */
 	private final Map times = new LinkedHashMap();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private String classpathToAdd;
 
@@ -154,7 +156,9 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param classpath DOCUMENT ME!
 	 */
@@ -173,7 +177,6 @@ public abstract class SootBasedDriver {
 		}
 		writeInfo("Loading classes....");
 		scene = loadupClassesAndCollectMains();
-		scene.setSootClassPath(scene.getSootClassPath() + ":" + classpathToAdd);
 	}
 
 	/**
@@ -187,6 +190,7 @@ public abstract class SootBasedDriver {
 	 */
 	protected final Scene loadupClassesAndCollectMains() {
 		Scene result = Scene.v();
+		scene.setSootClassPath(scene.getSootClassPath() + ":" + classpathToAdd);
 
 		for (int i = 0; i < classNames.size(); i++) {
 			result.loadClassAndSupport((String) classNames.get(i));
@@ -282,6 +286,8 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/12 09:19:41  venku
+   - added support to change soot-related class path.
    Revision 1.2  2003/11/12 09:12:25  venku
    - logged more info.
    Revision 1.1  2003/11/12 05:22:26  venku
