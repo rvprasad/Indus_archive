@@ -1,0 +1,10 @@
+build
+*.externalToolBuilders
+.checkstyle
+.template
+.checkclipse
+slicebuild.xml
+.settings
+.clover
+*.class
+bin

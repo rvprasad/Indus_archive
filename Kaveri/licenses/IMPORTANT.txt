@@ -1,0 +1,4 @@
+Kaveri is distributed under the SAnToS academic license. 
+Kaveri uses the following software during execution.:
+
+- Xstream-1.0.jar (Xstream license)

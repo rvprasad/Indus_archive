@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="edu.ksu.cis.indus.kaveri"
+   name="Kaveri Java Slicer Plug-in"
+   version="0.1.0"
+   provider-name="SAnToS laboratory, Kansas State University"
+   class="edu.ksu.cis.indus.kaveri.KaveriPlugin">
+
+   <runtime>
+      <library name="Kaveri.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/xstream.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.jdt"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.jdt.source"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.search"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.jdt.launching"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="edu.ksu.cis.indus" version="0.2.0"/>
+   </requires>
+
+
+<!--  This defines the popup menus for the slicer -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.ICompilationUnit"
+            nameFilter="*.java"
+            id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Java File"
+               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndus"
+               menubarPath="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceNavigatorAction">
+         </action>
+      </objectContribution>
+      <objectContribution            
+            objectClass="org.eclipse.core.resources.IFile"
+            nameFilter="*.java"
+            id="edu.ksu.cis.indus.kaveri.popup.mainResourcePopupObject">
+		 <filter
+         name="projectNature"
+         value="org.eclipse.jdt.core.javanature">
+      	</filter>           
+      	<menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Java File"
+               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndus"
+               menubarPath="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceNavigatorAction">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="false"
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            id="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Project"
+               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndusProject"
+               menubarPath="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
+         </action>
+      </objectContribution>
+            <objectContribution
+                  adaptable="false"
+                  objectClass="org.eclipse.core.resources.IProject"
+                  id="edu.ksu.cis.indus.kaveri.popup.mainResourceProjectPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Project"
+               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndusProject"
+               menubarPath="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
+         </action>
+      </objectContribution>
+            <viewerContribution
+                  targetID="#CompilationUnitEditorContext"
+                  id="edu.ksu.cis.indus.kaveri.popup.editorPopup">
+               <menu
+                     label="Indus"
+                     path="additons"
+                     id="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="View  slice"
+                     class="edu.ksu.cis.indus.kaveri.popup.actions.PartialSlice"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.PartialSliceViewAction"/>
+               <action
+                     enablesFor="+"
+                     label="Add to Criteria"
+                     class="edu.ksu.cis.indus.kaveri.popup.actions.AddToCriteria"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CriteriaSelectionAction"/>
+                     
+               
+            </viewerContribution>      
+   </extension>
+<!-- This extension shows additional information about the slice part chosen -->
+<!-- This extension enables highlighting of the slice elements -->
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
+            annotationType="indus.slice.highlightAnnotation"
+            textPreferenceKey="occurrenceIndication"
+            colorPreferenceKey="occurrenceIndicationColor"
+            highlightPreferenceKey="occurrenceHighlighting"
+            isGoToPreviousNavigationTarget="false"
+            includeOnPreferencePage="true"
+            textPreferenceValue="false"
+            isGoToNextNavigationTarget="false"
+            textStylePreferenceValue="IBEAM"
+            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
+            showInNextPrevDropdownToolbarAction="true"
+            presentationLayer="3"
+            highlightPreferenceValue="true"
+            label="IndusSliceAnnotation"
+            colorPreferenceValue="0,255,0"
+            verticalRulerPreferenceValue="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
+            overviewRulerPreferenceValue="true"
+            textStylePreferenceKey="indus.slice.highlight.style"
+            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget">
+      </specification>    
+      <specification            
+            verticalRulerPreferenceKey="occurrencePartialIndicationInVerticalRuler"
+            annotationType="indus.slice.partialhighlightAnnotation"
+            textPreferenceKey="occurrencePartialIndication"
+            colorPreferenceKey="occurrencePartialIndicationColor"
+            highlightPreferenceKey="occurrencePartialHighlighting"
+            isGoToPreviousNavigationTarget="false"
+            includeOnPreferencePage="true"
+            textPreferenceValue="false"
+            isGoToNextNavigationTarget="false"
+            textStylePreferenceValue="IBEAM"
+            overviewRulerPreferenceKey="occurrencePartialIndicationInOverviewRuler"
+            showInNextPrevDropdownToolbarAction="true"
+            presentationLayer="4"
+            highlightPreferenceValue="true"
+            label="IndusPartialSliceAnnotation"
+            colorPreferenceValue="255,255,0"
+            verticalRulerPreferenceValue="false"
+            isGoToPreviousNavigationTargetKey="isOccurrencePartialGoToPreviousNavigationTarget"
+            showInNextPrevDropdownToolbarActionKey="showOccurrencePartialInNextPrevDropdownToolbarAction"
+            overviewRulerPreferenceValue="true"
+            textStylePreferenceKey="indus.slice.partialhighlight.style"
+            isGoToNextNavigationTargetKey="isOccurrencePartialGoToNextNavigationTarget" />
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.eclipse.jdt.ui.CompilationUnitEditor"
+            id="edu.ksu.cis.indus.kaveri.editorContribution">
+         <action
+               enablesFor="+"
+               toolbarPath="Normal/additions"
+               label="Forward Slice"
+               class="edu.ksu.cis.indus.kaveri.execute.ForwardSlice"
+               tooltip="Runs a forward slice on the chosen element"
+               icon="data/icons/sf.gif"
+               id="edu.ksu.cis.indus.kaveri.ForwardSlice">
+         </action>
+         <action
+               enablesFor="+"
+               toolbarPath="Normal/additions"
+               label="Backward Slice"
+               class="edu.ksu.cis.indus.kaveri.execute.BackwardSlice"
+               tooltip="Runs a backward slice on the chosen element"
+               icon="data/icons/sb.gif"
+               id="edu.ksu.cis.indus.kaveri.BackwardSlice">
+         </action>
+         <action
+               label="Slice Annotation"
+               icon="data/icons/sa.gif"
+               tooltip="Enables or disables the slice annotations"
+               class="edu.ksu.cis.indus.kaveri.execute.SliceAnnotate"
+               toolbarPath="Normal/additions"
+               id="edu.ksu.cis.indus.kaveri.SliceAnnotate">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Indus Preferences"
+            class="edu.ksu.cis.indus.kaveri.preferences.PluginPreference"
+            id="edu.ksu.cis.indus.kaveri.pluginpreference">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            lightweight="true"
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IResource"
+            label="Kaveri.Decorator"
+            class="edu.ksu.cis.indus.kaveri.decorator.IndusDecorator"
+            icon="data/icons/indus-decorator.gif"
+            location="TOP_LEFT"
+            id="edu.ksu.cis.indus.kaveri.decorator">
+         <description/> The indus slice decorator.
+      </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Kaveri"
+            id="edu.ksu.cis.indus.kaveri"/>
+      <view
+            class="edu.ksu.cis.indus.kaveri.views.PartialSliceView"
+            icon="data/icons/sample.gif"
+            category="edu.ksu.cis.indus.kaveri"
+            name="Slice View"
+            id="edu.ksu.cis.indus.kaveri.views.PartialSliceView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList"
+               id="edu.ksu.cis.indus.kaveri.views.PartialSliceView"/>
+      </perspectiveExtension>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            name="Indus"
+            class="edu.ksu.cis.indus.kaveri.preferences.ProjectPreference"
+            id="edu.ksu.cis.indus.kaveri.projectpreference">
+      </page>
+      <page
+            objectClass="org.eclipse.core.resources.IProject"
+            name="Indus"
+            class="edu.ksu.cis.indus.kaveri.preferences.ProjectPreference"
+            id="edu.ksu.cis.indus.kaveri.projectpreference">
+      </page>
+   </extension>
+   -->
+</plugin>
