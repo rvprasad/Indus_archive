@@ -139,6 +139,9 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
+		final DivergenceDA _ipdda = new DivergenceDA();
+		_ipdda.setConsiderCallSites(true);
+
 		final Object[][] _dasOptions =
 			{
 				{ "a", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
@@ -155,6 +158,7 @@ public class DependencyXMLizerCLI
 				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
 				{ "r", "incda", "Indirect Entry control dependence", new EntryControlDA() },
 				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "t", "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
@@ -179,8 +183,8 @@ public class DependencyXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-			    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+				final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
+				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 				System.exit(1);
 			}
 
@@ -200,14 +204,14 @@ public class DependencyXMLizerCLI
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 			_cli.dumpJimple = _cl.hasOption('j');
-			
+
 			final List _classNames = _cl.getArgList();
 
 			if (_classNames.isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 			_cli.setClassNames(_classNames);
-			
+
 			boolean _flag = true;
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
@@ -224,8 +228,9 @@ public class DependencyXMLizerCLI
 			_cli.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-		    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+
+			final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
+			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 			System.exit(1);
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
@@ -369,41 +374,35 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/06/23 06:17:25  venku
+   - removed -c option.
    Revision 1.18  2004/06/23 04:41:28  venku
    - corrected the class of the logger.
-
    Revision 1.17  2004/06/15 08:55:27  venku
    - added command line option for new id-based DA.
-
    Revision 1.16  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
-
    Revision 1.15  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
      - DirectEntryControlDA provides direct control dependence info.
      - ExitControlDA will follow same suite as EntryControlDA with new implementation
        and new class for direct dependence.
-
    Revision 1.14  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
-
    Revision 1.13  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.12  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.10  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku
@@ -590,41 +589,35 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/06/23 06:17:25  venku
+   - removed -c option.
    Revision 1.18  2004/06/23 04:41:28  venku
    - corrected the class of the logger.
-
    Revision 1.17  2004/06/15 08:55:27  venku
    - added command line option for new id-based DA.
-
    Revision 1.16  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
-
    Revision 1.15  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
      - DirectEntryControlDA provides direct control dependence info.
      - ExitControlDA will follow same suite as EntryControlDA with new implementation
        and new class for direct dependence.
-
    Revision 1.14  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
-
    Revision 1.13  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.12  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.10  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku
