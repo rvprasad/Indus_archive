@@ -16,14 +16,50 @@
 package edu.ksu.cis.indus.tools;
 
 /**
- * This is the interface to be implemented by a configuration instance of a tool.  It provides methods to programmatically
- * configure the tool.  It also provides a method to stringize the configuration if required by the toolkits/IDEs.
+ * This class should be extended by a configuration instance of a tool.  It provides methods to programmatically configure
+ * the tool.  It also provides a method to stringize the configuration if required by the toolkits/IDEs.  Some toolkits/IDE
+ * may support persistence of only string-based configurations.  For sake of usability, we recommend the implementors of
+ * this interface to support a non-null returning <code>java.lang.toString()</code> method always.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface ToolConfiguration {
+public abstract class ToolConfiguration {
+	/**
+	 * This identifies a property.  It does not represent a property.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static class PropertyIdentifier {
+		/**
+		 * The id of the property.
+		 */
+		public final Object _id;
+
+		/**
+		 * Creates a new Property object.
+		 *
+		 * @param idParam is the name of the parameter.
+		 */
+		PropertyIdentifier(final Object idParam) {
+			_id = idParam;
+		}
+	}
+
+	/**
+	 * A factory method to create a property identifier. 
+	 *
+	 * @param id of the property.
+	 *
+	 * @return a property identifier.
+	 */
+	protected static PropertyIdentifier createPropertyIdentifier(final Object id) {
+		return new PropertyIdentifier(id);
+	}
+
 	/**
 	 * Sets a property of the configuration.
 	 *
@@ -32,30 +68,24 @@ public interface ToolConfiguration {
 	 *
 	 * @pre property != null and value != null
 	 */
-	void setProperty(Object property, Object value);
+	public abstract void setProperty(final PropertyIdentifier property, final Object value);
 
 	/**
 	 * Retrieves the value of the given property, if it exists.
 	 *
-	 * @param property for which the value is requested.
+	 * @param id of the property for which the value is requested.
 	 *
 	 * @return the value of the property if it exists; <code>null</code>, otherwise.
 	 *
 	 * @pre key != null
 	 */
-	Object getProperty(Object key);
-
-	/**
-	 * Returns a stringized representation of the configuration.  This may be required in toolkits/IDEs.
-	 *
-	 * @return the stringized representation of the configuration.
-	 *
-	 * @post result != null
-	 */
-	String stringize();
+	public abstract Object getProperty(final PropertyIdentifier id);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 02:38:55  venku
+   - Added Interfaces to expose the components of Indus as a
+     tool and configure it.
  */

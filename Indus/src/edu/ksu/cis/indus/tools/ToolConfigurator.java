@@ -22,7 +22,7 @@ package edu.ksu.cis.indus.tools;
  * @author $Author$
  * @version $Revision$
  */
-public interface ToolConfigurationEditor {
+public interface ToolConfigurator {
 	/**
 	 * Displays the editor widget.
 	 */
@@ -37,4 +37,8 @@ public interface ToolConfigurationEditor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 02:38:55  venku
+   - Added Interfaces to expose the components of Indus as a
+     tool and configure it.
+
  */

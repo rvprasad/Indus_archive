@@ -40,10 +40,14 @@ public interface Tool {
 	 *
 	 * @return a configuration editor.
 	 */
-	public ToolConfigurationEditor getConfigurationEditor();
+	public ToolConfigurator getConfigurationEditor();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 02:38:55  venku
+   - Added Interfaces to expose the components of Indus as a
+     tool and configure it.
+
  */
