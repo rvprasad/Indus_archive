@@ -443,7 +443,7 @@ public class BackwardSlicingPart
 		boolean _result = false;
 
 		if (!exitTransformedMethods.containsKey(callee)) {
-			exitTransformedMethods.put(callee, null);
+			exitTransformedMethods.put(callee, Collections.EMPTY_SET);
 			_result = true;
 		} else if (expr) {
 			final Collection _temp = CollectionsUtilities.getSetFromMap(exitTransformedMethods, callee);
