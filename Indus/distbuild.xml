@@ -8,32 +8,36 @@
 
     <property name="drishti.jar" value="/usr/local/javaclasses/doxygen.jar"/>
     <property name="dist.dir" value="dist"/>
+	<property name="projects.dir" value="${dist.dir}/projects"/>
     <property name="dist.ug.dir" value="${dist.dir}/ug"/>
     <property name="docs.zip.filename" value="${dist.dir}/docs-${DSTAMP}.zip"/>
     <property name="examples.src.zip.filename" value="${dist.dir}/examples-${DSTAMP}.zip"/>
-
-    <path id="subprojects.buildfiles">
-        <pathelement path="../Indus"/>
-        <pathelement path="../StaticAnalyses"/>
-        <pathelement path="../JavaSlicer"/>
-    </path>
-
-    <property name="cvs.modules" value="Indus StaticAnalyses"/>
+    <property name="cvs.modules" value="Indus StaticAnalyses JavaSlicer"/>
     <property name="cvs.root" value=":ext:venku@vulcan.isa-geek.net:/home/cvs"/>
+	<dirname property="docbook.base" file="${basedir}"/>
+	
+    <path id="subprojects.buildfiles">
+        <pathelement path="${projects.dir}/Indus"/>
+        <pathelement path="${projects.dir}/StaticAnalyses"/>
+        <pathelement path="${projects.dir}/JavaSlicer"/>
+    </path>
 
 
     <target name="init">
         <tstamp/>
+    	<delete dir="${projects.dir}"/>
+    	<mkdir dir="${projects.dir}"/>
         <cvs cvsroot="${cvs.root}"
             compression="true" compressionlevel="3"
             package="${cvs.modules}"
             cvsRsh="ssh"
-            dest=".." failonerror="true"
-            command="update -dP"/>
+            dest="${projects.dir}" failonerror="true"
+            command="co"/>
     </target>
 
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
+    	<delete dir="${projects.dir}"/>
 	</target>
 	
 	<target name="package">
@@ -42,20 +46,20 @@
             <fileset dir="${dist.dir}" includes="*"/>
         </delete>
         <copy todir="${dist.ug.dir}" flatten="true">
-            <fileset dir="..">
+            <fileset dir="${projects.dir}">
                 <include name="*/docs/ug/build/*.pdf"/>
             </fileset>
         </copy>
         <zip destfile="${docs.zip.filename}">
-            <zipfileset dir="../Indus/docs/javadocs/" prefix="Indus/Indus/docs/javadocs"/>
-            <zipfileset dir="../StaticAnalyses/docs/javadocs/" prefix="Indus/StaticAnalyses/docs/javadocs"/>
-            <zipfileset dir="../JavaSlicer/docs/javadocs/" prefix="Indus/JavaSlicer/docs/javadocs"/>
+            <zipfileset dir="${projects.dir}/Indus/docs/javadocs/" prefix="Indus/Indus/docs/javadocs"/>
+            <zipfileset dir="${projects.dir}/StaticAnalyses/docs/javadocs/" prefix="Indus/StaticAnalyses/docs/javadocs"/>
+            <zipfileset dir="${proejcts.dir}/JavaSlicer/docs/javadocs/" prefix="Indus/JavaSlicer/docs/javadocs"/>
             <zipfileset dir="${dist.ug.dir}" prefix="Indus/ug"/>
         </zip>
         <delete dir="${dist.ug.dir}"/>
 
         <copy todir="${dist.dir}" flatten="true">
-            <fileset dir="..">
+            <fileset dir="${projects.dir}">
                 <include name="*/*.jar"/>
                 <exclude name="*/*src*.jar"/>
             </fileset>
@@ -69,7 +73,7 @@
         </move>
 
         <zip destfile="${examples.src.zip.filename}">
-            <fileset dir="..">
+            <fileset dir="${projects.dir}">
                 <include name="*/src-xml/**/*CLI.java"/>
             	<include name="Indus/src/**/SootBasedDriver.java"/>
             </fileset>
@@ -94,6 +98,7 @@
     <target name="buildAllDoc" depends="init">
         <subant target="docs">
             <buildpath refid="subprojects.buildfiles"/>
+        	<property name="docbook.base" value="${docbook.base}"/>
         </subant>
     </target>
 
