@@ -15,9 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
+import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -53,14 +52,14 @@ class FGAccessNode
 	 * Creates a new <code>FGAccessNode</code> instance.
 	 *
 	 * @param workPeice the work peice associated with this node.
-	 * @param worklistToUse the worklist in which <code>work</code> will be placed.
+	 * @param provider provides the workbag into which <code>work</code> will be added.
 	 * @param tokenManager that manages the tokens used in the enclosing flow analysis.
 	 *
-	 * @pre workPeice != null and worklistToUse != null and tokenManager != null
+	 * @pre workPeice != null and provider != null and tokenManager != null
 	 */
-	public FGAccessNode(final AbstractTokenProcessingWork workPeice, final IWorkBag worklistToUse,
+	public FGAccessNode(final AbstractTokenProcessingWork workPeice, final IWorkBagProvider provider,
 		final ITokenManager tokenManager) {
-		super(worklistToUse, tokenManager);
+		super(provider, tokenManager);
 		this.work = workPeice;
 	}
 
@@ -78,13 +77,15 @@ class FGAccessNode
 			LOGGER.debug("Values: " + newTokens + "\nSuccessors: " + succs);
 		}
 		work.addTokens(newTokens);
-		worklist.addWork(work);
+		workbagProvider.getWorkBag().addWork(work);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/05/19 05:12:35  venku
+   - onNewTokens() is unnecessary accessible to public.  FIXED.
    Revision 1.8  2004/04/16 20:10:38  venku
    - refactoring
     - enabled bit-encoding support in indus.

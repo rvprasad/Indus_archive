@@ -67,12 +67,12 @@ public abstract class AbstractFGNode
 	protected final ITokens tokens;
 
 	/**
-	 * The worklist associated with the enclosing instance of the framework.  This is required if subclasses will want to
-	 * generate new work depending on the new values or new successors that may occur.
+	 * The work bag provided associated with the enclosing instance of the framework.  This is required if subclasses will
+	 * want to generate new work depending on the new values or new successors that may occur.
 	 *
-	 * @invariant worklist != null
+	 * @invariant workbagProvider != null
 	 */
-	protected final IWorkBag worklist;
+	protected final IWorkBagProvider workbagProvider;
 
 	/**
 	 * This refers to the work piece which will inject tokens in to this node.  The protocol is that if this field is
@@ -86,13 +86,13 @@ public abstract class AbstractFGNode
 	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
 	 *
-	 * @param worklistToUse The worklist associated with the enclosing instance of the framework.
+	 * @param provider provides the work bag instance associated with the enclosing instance of the framework.
 	 * @param tokenSet to be used to store the tokens at this node.
 	 *
 	 * @pre worklistToUse != null and tokenSet != null
 	 */
-	protected AbstractFGNode(final IWorkBag worklistToUse, final ITokens tokenSet) {
-		this.worklist = worklistToUse;
+	protected AbstractFGNode(final IWorkBagProvider provider, final ITokens tokenSet) {
+		workbagProvider = provider;
 		tokens = tokenSet;
 	}
 
@@ -265,18 +265,20 @@ public abstract class AbstractFGNode
 	 * @pre tokensToBeSent != null and target != null
 	 */
 	private void generateWorkToInjectWorkInto(final ITokens tokensToBeSent, final IFGNode target) {
+		final IWorkBag _workBag = workbagProvider.getWorkBag();
+
 		if (target instanceof AbstractFGNode) {
 			SendTokensWork _work = ((AbstractFGNode) target).sendTokensWork;
 
 			if (_work == null) {
 				_work = SendTokensWork.getWork(target, tokensToBeSent);
 				((AbstractFGNode) target).sendTokensWork = _work;
-				worklist.addWork(_work);
+				_workBag.addWork(_work);
 			} else {
 				_work.addTokens(tokensToBeSent);
 			}
 		} else {
-			worklist.addWork(SendTokensWork.getWork(target, tokensToBeSent));
+			_workBag.addWork(SendTokensWork.getWork(target, tokensToBeSent));
 		}
 	}
 }
@@ -284,6 +286,9 @@ public abstract class AbstractFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/05/19 05:15:11  venku
+   - changed the interface of FGNode to enable piggy-backing more work
+     on the current unprocessed work piece.
    Revision 1.7  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.

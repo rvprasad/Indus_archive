@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -58,7 +56,7 @@ public abstract class AbstractExprSwitch
 	protected final Context context;
 
 	/**
-	 * The instance of the framework in which this visitor exists.
+	 * The instance of the underlying flow analysis framework.
 	 */
 	protected final FA fa;
 
@@ -114,17 +112,6 @@ public abstract class AbstractExprSwitch
 	}
 
 	/**
-	 * Returns the <code>WorkList</code> associated with this visitor.
-	 *
-	 * @return the <code>WorkList</code> associated with this visitor.
-	 *
-	 * @post result != null
-	 */
-	public final IWorkBag getWorkList() {
-		return fa.worklist;
-	}
-
-	/**
 	 * Provides the default implementation when any expression is not handled by the visitor.  It sets the flow node
 	 * associated with the AST as the result.
 	 *
@@ -163,6 +150,11 @@ public abstract class AbstractExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.11  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.

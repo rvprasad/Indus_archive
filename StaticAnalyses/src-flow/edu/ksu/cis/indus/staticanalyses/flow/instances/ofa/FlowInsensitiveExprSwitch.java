@@ -118,7 +118,7 @@ class FlowInsensitiveExprSwitch
 		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final AbstractTokenProcessingWork _work =
 			new ArrayAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
-		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList(), _tokenMgr);
+		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
 		process(e.getIndexBox());
 		setResult(_ast);
@@ -175,7 +175,7 @@ class FlowInsensitiveExprSwitch
 		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final AbstractTokenProcessingWork _work =
 			new FieldAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
-		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList(), _tokenMgr);
+		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
 		setResult(_ast);
 	}
@@ -434,7 +434,7 @@ class FlowInsensitiveExprSwitch
 		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final AbstractTokenProcessingWork _work =
 			new InvokeExprWork(method, context, _tokenMgr.getTokens(Collections.EMPTY_LIST));
-		final FGAccessNode _baseNode = new FGAccessNode(_work, getWorkList(), _tokenMgr);
+		final FGAccessNode _baseNode = new FGAccessNode(_work, fa, _tokenMgr);
 		_temp.addSucc(_baseNode);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -492,12 +492,13 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/19 05:11:48  venku
+   - coding convention.
    Revision 1.3  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.2  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.

@@ -50,16 +50,14 @@ import soot.tagkit.Tag;
  * The instance of the framework which controls and manages the analysis on execution.  It acts the central repository for
  * information pertaining to various components of the framework when the analysis is in progress.  It also serves as the
  * central repository for various instances of the framework at a given time.
- * 
- * <p>
- * Created: Tue Jan 22 00:45:10 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
 public class FA
-  implements IEnvironment {
+  implements IEnvironment,
+	  IWorkBagProvider {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -73,18 +71,18 @@ public class FA
 	protected final Collection rootMethods = new HashSet();
 
 	/**
-	 * The worklist associated with this instance of the framework.
-	 *
-	 * @invariant worklist != null
-	 */
-	final IWorkBag worklist;
-
-	/**
 	 * The analyzer associated with this instance of the framework.
 	 *
 	 * @invariant analyzer != null
 	 */
 	private final AbstractAnalyzer analyzer;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final IWorkBag[] workBags;
 
 	/**
 	 * The manager of array variants.
@@ -112,6 +110,13 @@ public class FA
 	 * @invariant tokenManager != null
 	 */
 	private final ITokenManager tokenManager;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private IWorkBag currWorkBag;
 
 	/**
 	 * The manager of method variants.
@@ -145,10 +150,13 @@ public class FA
 	 * @pre analyzer != null and tagName != null and tokenMgr != null
 	 */
 	FA(final AbstractAnalyzer theAnalyzer, final String tagName, final ITokenManager tokenMgr) {
-		worklist = new PoolAwareWorkBag(new LIFOWorkBag());
-		this.analyzer = theAnalyzer;
-		this.tag = new NamedTag(tagName);
-		this.tokenManager = tokenMgr;
+		workBags = new IWorkBag[2];
+		workBags[0] = new PoolAwareWorkBag(new LIFOWorkBag());
+		workBags[1] = new PoolAwareWorkBag(new LIFOWorkBag());
+		currWorkBag = workBags[0];
+		analyzer = theAnalyzer;
+		tag = new NamedTag(tagName);
+		tokenManager = tokenMgr;
 	}
 
 	/**
@@ -307,7 +315,7 @@ public class FA
 	 * @return a new flow graph node.
 	 */
 	public final IFGNode getNewFGNode() {
-		return modeFactory.getFGNode(worklist);
+		return modeFactory.getFGNode(this);
 	}
 
 	/**
@@ -366,6 +374,13 @@ public class FA
 	}
 
 	/**
+	 * @see IWorkBagProvider#getWorkBag()
+	 */
+	public final IWorkBag getWorkBag() {
+		return currWorkBag;
+	}
+
+	/**
 	 * Performs type-based processing of the given class.
 	 *
 	 * @param clazz is the class to be processed.
@@ -384,7 +399,8 @@ public class FA
 		instanceFieldVariantManager.reset();
 		methodVariantManager.reset();
 		staticFieldVariantManager.reset();
-		worklist.clear();
+		workBags[0].clear();
+		workBags[1].clear();
 		rootMethods.clear();
 		classManager.reset();
 		scm = null;
@@ -532,7 +548,16 @@ public class FA
 			LOGGER.info("Starting worklist processing...");
 		}
 
-		(new WorkList(worklist)).process();
+		final WorkList[] _workLists = new WorkList[2];
+		_workLists[0] = new WorkList(workBags[0]);
+		_workLists[1] = new WorkList(workBags[1]);
+
+		while (workBags[0].hasWork() || workBags[1].hasWork()) {
+			currWorkBag = workBags[1];
+			_workLists[0].process();
+			currWorkBag = workBags[0];
+			_workLists[1].process();
+		}
 	}
 
 	/**
@@ -554,6 +579,11 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.16  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

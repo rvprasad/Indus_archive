@@ -15,13 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
-import java.util.Collection;
 import java.util.Collections;
 
 
@@ -34,6 +32,7 @@ import java.util.Collections;
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
 class OFAFGNode
@@ -48,28 +47,28 @@ class OFAFGNode
 	/**
 	 * Creates a new <code>OFAFGNode</code> instance.
 	 *
-	 * @param wl the worklist associated with the instance of the framework within which this node exists.
+	 * @param provider provides the work bag instance associated with the framework within which this node exists.
 	 * @param tokenManager that manages the tokens whose flow is being instrumented.
 	 *
-	 * @pre wl != null and tokenManager != null
+	 * @pre provider != null and tokenManager != null
 	 */
-	public OFAFGNode(final IWorkBag wl, final ITokenManager tokenManager) {
-		super(wl, tokenManager.getTokens(Collections.EMPTY_LIST));
+	public OFAFGNode(final IWorkBagProvider provider, final ITokenManager tokenManager) {
+		super(provider, tokenManager.getTokens(Collections.EMPTY_LIST));
 		tokenMgr = tokenManager;
 	}
 
 	/**
 	 * Returns a new instance of this class.
 	 *
-	 * @param o the <code>WorkList</code> to be passed to the constructor of this class.
+	 * @param o is the work bag provider to be passed to the constructor of this class.
 	 *
 	 * @return a new instance of this class parameterized by <code>o</code>.
 	 *
-	 * @pre o != null and o.oclIsKindOf(WorkList)
+	 * @pre o != null and o.oclIsKindOf(IWorkBagProvider)
 	 * @post result != null and result.oclIsKindOf(OFAFGNode)
 	 */
 	public Object getClone(final Object o) {
-		return new OFAFGNode((IWorkBag) o, tokenMgr);
+		return new OFAFGNode((IWorkBagProvider) o, tokenMgr);
 	}
 
 	/**
@@ -84,6 +83,9 @@ class OFAFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/19 05:15:11  venku
+   - changed the interface of FGNode to enable piggy-backing more work
+     on the current unprocessed work piece.
    Revision 1.12  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
