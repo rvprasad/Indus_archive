@@ -109,13 +109,15 @@ public final class LocalUseDefAnalysisv2
 	}
 
 	/// CLOVER:OFF
+
 	/**
 	 * Creates a new LocalUseDefAnalysisv2 object.
 	 */
 	private LocalUseDefAnalysisv2() {
 	}
+
 	/// CLOVER:ON
-	
+
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
 	 *
@@ -241,6 +243,20 @@ public final class LocalUseDefAnalysisv2
 			}
 		}
 
+		calculateIntraBBUseDefInfo(_defStmt2local, _bb2reachingDefStmts);
+	}
+
+	/**
+	 * Calculates Intra basic-block use-def info while recording the use-def info.
+	 *
+	 * @param defStmt2local maps definition statement to the local being defined.
+	 * @param bb2reachingDefStmts maps basic blocks to the definition statements that reaches the basic block.
+	 *
+	 * @pre defStmt2local != null and bb2reachingDefStmts != null
+	 * @pre defStmt2local.oclIsKindOf(Map(DefinitionStmt, Local))
+	 * @pre bb2reachingDefStmts.oclIsKindOf(Map(BasicBlock, Collection(DefinitionStmts)))
+	 */
+	private void calculateIntraBBUseDefInfo(final Map defStmt2local, final Map bb2reachingDefStmts) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("calculating information at intra bb level and record the use-def information.");
 		}
@@ -248,16 +264,16 @@ public final class LocalUseDefAnalysisv2
 		// calculate information at intra bb level and record the use-def information.
 		final Collection _defStmts = new HashSet();
 		final PairManager _pairMgr = new PairManager();
-		final Map _local2defStmts = CollectionsUtilities.invertMap(_defStmt2local);
+		final Map _local2defStmts = CollectionsUtilities.invertMap(defStmt2local);
 
 		// process each basic block.
-		final Collection _keySet = _bb2reachingDefStmts.keySet();
+		final Collection _keySet = bb2reachingDefStmts.keySet();
 		final Iterator _i = _keySet.iterator();
 		final int _iEnd = _keySet.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
-			final Collection _rDefs = (Collection) _bb2reachingDefStmts.get(_bb);
+			final Collection _rDefs = (Collection) bb2reachingDefStmts.get(_bb);
 			final List _stmtsOf = _bb.getStmtsOf();
 			final Iterator _j = _stmtsOf.iterator();
 			final int _jEnd = _stmtsOf.size();
@@ -291,7 +307,7 @@ public final class LocalUseDefAnalysisv2
 				}
 
 				// prune reaching def for further intra basic block processing
-				final Local _local = (Local) _defStmt2local.get(_stmt);
+				final Local _local = (Local) defStmt2local.get(_stmt);
 
 				if (_local != null) {
 					_rDefs.removeAll((Collection) _local2defStmts.get(_local));
@@ -367,6 +383,8 @@ public final class LocalUseDefAnalysisv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/25 01:37:32  venku
+   - added a private constructor to prevent illegal instantiations.
    Revision 1.2  2004/07/22 09:42:40  venku
    - altered IUseDefInfo to use tighter types.
    - ripple effect.
