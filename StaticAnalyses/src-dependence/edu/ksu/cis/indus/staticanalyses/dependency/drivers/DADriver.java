@@ -20,6 +20,7 @@ import soot.Scene;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -103,8 +104,10 @@ public abstract class DADriver
 	 */
 	ValueAnalyzerBasedProcessingController cgipc;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private AliasedUseDefInfo aliasUD;
 
@@ -144,8 +147,9 @@ public abstract class DADriver
 			LOGGER.info("Loading classes....");
 		}
 
+		String tagName = "DADriver:FA";
 		scm = loadupClassesAndCollectMains(args);
-		aa = OFAnalyzer.getFSOSAnalyzer("DADriver");
+		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
@@ -153,10 +157,11 @@ public abstract class DADriver
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		Collection rm = new ArrayList();
 		cgipc = new ValueAnalyzerBasedProcessingController();
-        cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
+		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
 		aliasUD = new AliasedUseDefInfo(aa);
 
 		pc.setAnalyzer(aa);
+		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 		cgipc.setAnalyzer(aa);
 
 		info.put(ICallGraphInfo.ID, cgi);
@@ -351,16 +356,18 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/11/30 01:07:57  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.30  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.29  2003/11/25 19:01:20  venku
    - uses environment available from OFA rather than the primitive scene.
-
    Revision 1.28  2003/11/11 10:10:29  venku
    - moved run() and initialize() into Driver.
    Revision 1.27  2003/11/06 05:31:07  venku

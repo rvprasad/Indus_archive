@@ -28,6 +28,7 @@ import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
 
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -99,7 +100,8 @@ public final class EADriver
 		setClassNames(args);
 		initialize();
 
-		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("EADriver");
+		String tagName = "EADriver:FA";
+		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer(tagName);
 		Collection rm = new ArrayList();
 
 		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
@@ -123,6 +125,7 @@ public final class EADriver
 
 			ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
 			ppc.setAnalyzer(aa);
+			ppc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 
 			// Create call graph
 			CallGraph cg = new CallGraph();
@@ -262,13 +265,16 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/30 01:07:58  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.19  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.18  2003/11/17 01:17:12  venku
    - formatting.
    Revision 1.17  2003/11/16 19:09:42  venku

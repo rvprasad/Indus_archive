@@ -29,6 +29,7 @@ import soot.SootMethod;
 import soot.VoidType;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
@@ -82,6 +83,13 @@ public class CallGraphTester
 	 * </p>
 	 */
 	private String classes;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final String tagName = "CallGraphTester:FA";
 
 	/**
 	 * DOCUMENT ME!
@@ -313,7 +321,7 @@ public class CallGraphTester
 	 */
 	protected final void setUp()
 	  throws Exception {
-		ofa = OFAnalyzer.getFSOSAnalyzer("CallGraphTester");
+		ofa = OFAnalyzer.getFSOSAnalyzer(tagName);
 		scene = Scene.v();
 
 		if (classes == null) {
@@ -358,6 +366,7 @@ public class CallGraphTester
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		pc.setAnalyzer(ofa);
 		pc.setEnvironment(ofa.getEnvironment());
+		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 		cgiImpl.hookup(pc);
 		pc.process();
 		cgiImpl.unhook(pc);
@@ -388,9 +397,12 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/30 01:07:57  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.4  2003/11/30 00:21:48  venku
    - coding convention.
-
    Revision 1.3  2003/11/29 09:48:14  venku
    - 2 SCC should be disjoint.  intersection should be used
      instead of subtract.  FIXED.

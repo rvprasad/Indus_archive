@@ -20,6 +20,7 @@ import soot.SootMethod;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -307,7 +308,8 @@ public class DependencyXMLizer
 	 * Drives the analyses.
 	 */
 	public void execute() {
-		aa = OFAnalyzer.getFSOSAnalyzer("DependencyXMLizer");
+		String tagName = "DependencyXMLizer:FA";
+		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
@@ -317,6 +319,7 @@ public class DependencyXMLizer
 		cgipc = new ValueAnalyzerBasedProcessingController();
 
 		pc.setAnalyzer(aa);
+		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 		cgipc.setAnalyzer(aa);
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
 		aliasUD = new AliasedUseDefInfo(aa);
@@ -657,18 +660,20 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/30 01:17:15  venku
+   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
+   - renamed XMLizingController to XMLizingProcessingFilter.
+   - ripple effect.
    Revision 1.12  2003/11/30 01:07:58  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
    - ripple effect.
-
    Revision 1.11  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.10  2003/11/25 19:04:29  venku
    - aliased use def analysis was never executed. FIXED.
    Revision 1.9  2003/11/25 17:51:23  venku
