@@ -13,7 +13,7 @@
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/common-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
