@@ -155,8 +155,8 @@ public class EntryControlDA
 	public void analyze(final Collection methods) {
 		stable = false;
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Control Dependence processing");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Control Dependence processing");
 		}
 
 		for (Iterator i = methods.iterator(); i.hasNext();) {
@@ -176,8 +176,8 @@ public class EntryControlDA
 			fixupMaps(bbGraph, bbCDBitSets, currMethod);
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Control Dependence processing");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Control Dependence processing");
 		}
 		stable = true;
 	}
@@ -447,6 +447,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/06 00:19:12  venku
+   - logging.
+
    Revision 1.10  2004/01/30 23:55:18  venku
    - added a new analyze method to analyze only the given
      collection of methods.
