@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.j2b.J2BEclipsePlugin;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -178,7 +179,9 @@ public class J2BIndusRunner
 					_bundle.start();
 
 					final Class _j2bClass = _bundle.loadClass("edu.ksu.cis.j2b.J2BEclipsePlugin");
-					final J2BEclipsePlugin _j = (J2BEclipsePlugin) _j2bClass.getMethod("getDefault", null).invoke(null, null);
+					final Method _method = _j2bClass.getMethod("getDefault", null);
+                    final Object _o = _method.invoke(null, null);
+                    final J2BEclipsePlugin _j = (J2BEclipsePlugin) _o;
 					_j.generateAndWriteBIRSystem(driver.getScene(), ((IFile) fileList.get(0)).getProject(),
 						driver.getSlicer().getAtomicityInfo());
 				} catch (final BundleException _e) {
