@@ -27,7 +27,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import junit.swingui.TestRunner;
+import junit.textui.TestRunner;
 
 
 /**
@@ -124,6 +124,9 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/01 22:33:49  venku
+   - test suite name was incorrect.
+
    Revision 1.5  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

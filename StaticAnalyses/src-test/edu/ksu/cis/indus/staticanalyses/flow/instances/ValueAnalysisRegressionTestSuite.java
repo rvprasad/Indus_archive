@@ -35,7 +35,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import junit.swingui.TestRunner;
+import junit.textui.TestRunner;
 
 
 /**
@@ -156,6 +156,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/01 22:33:49  venku
+   - test suite name was incorrect.
+
    Revision 1.4  2004/04/01 22:28:19  venku
    - test suite name was incorrect.
 

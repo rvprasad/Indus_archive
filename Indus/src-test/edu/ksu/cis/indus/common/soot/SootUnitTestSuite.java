@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import junit.swingui.TestRunner;
+import junit.textui.TestRunner;
 
 
 /**
@@ -77,6 +77,9 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/01 22:33:45  venku
+   - test suite name was incorrect.
+
    Revision 1.5  2004/02/09 01:39:50  venku
    - changed test naming for report purposes.
 

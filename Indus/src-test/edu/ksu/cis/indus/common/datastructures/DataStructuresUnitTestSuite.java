@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import junit.swingui.TestRunner;
+import junit.textui.TestRunner;
 
 
 /**
@@ -83,6 +83,9 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/01 22:33:45  venku
+   - test suite name was incorrect.
+
    Revision 1.6  2004/03/29 01:55:15  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import junit.swingui.TestRunner;
+import junit.textui.TestRunner;
 
 
 /**
@@ -192,6 +192,9 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/01 22:33:49  venku
+   - test suite name was incorrect.
+
    Revision 1.3  2004/04/01 19:18:29  venku
    - stmtGraphFactory was not set.
    Revision 1.2  2004/03/29 09:44:41  venku
