@@ -40,7 +40,6 @@ import soot.ValueBox;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.Jimple;
 import soot.jimple.NullConstant;
-import soot.jimple.SpecialInvokeExpr;
 
 
 /**
@@ -134,9 +133,10 @@ public class InvokeExprWork
 				continue;
 			}
 
-			if (e instanceof SpecialInvokeExpr) {
-				sc = e.getMethod().getDeclaringClass();
-			} else {
+			//if (e instanceof SpecialInvokeExpr) {
+			//	sc = e.getMethod().getDeclaringClass();
+			//} else {
+            {
 				Type t = v.getType();
 
 				if (t instanceof RefType) {
@@ -208,6 +208,13 @@ public class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
+
    Revision 1.10  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
