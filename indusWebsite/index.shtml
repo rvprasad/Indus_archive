@@ -58,7 +58,9 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
       Each application's requirement of the slice can be satisfied by coding up implementations of post-processing interfaces
       and hooking in these implementations to form a customized slicer.</p>
       <p>This module relies heavily on the information provided by dependence analyses and also the call-graph provided by
-      OFA via well-defined interfaces that enables external implementations to be used for slicing.</p></li>
+      OFA via well-defined interfaces that enables external implementations to be used for slicing.</p>
+      <p>This implementation of slicer is delivered to Eclipse with an intuitive UI via 
+      <a href="/projects/kaveri.shtml">Kaveri</a> plugin.</li>
 </ul>
 </p>
 
