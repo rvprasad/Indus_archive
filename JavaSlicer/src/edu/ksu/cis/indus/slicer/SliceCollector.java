@@ -160,7 +160,7 @@ public final class SliceCollector {
 	 * @pre valueBoxes != null and valueBoxes.oclIsKindOf(Collection(ValueBox))
 	 * @post result != null and result.oclIsKindOf(Collection(ValueBox)) and valueBoxes.containsAll(result)
 	 */
-	public Collection getUncollected(List valueBoxes) {
+	public Collection getUncollected(final List valueBoxes) {
 		final Collection _result = new HashSet();
 		final Iterator _i = valueBoxes.iterator();
 		final int _iEnd = valueBoxes.size();

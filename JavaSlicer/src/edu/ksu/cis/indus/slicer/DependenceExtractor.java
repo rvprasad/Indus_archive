@@ -27,10 +27,6 @@ import java.util.Map;
 
 import org.apache.commons.collections.Closure;
 
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
 
 /**
  * This class encapsulates the logic to extract dependencies from a dependence analysis based on slice direction.
@@ -175,4 +171,7 @@ class DependenceExtractor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
+
  */
