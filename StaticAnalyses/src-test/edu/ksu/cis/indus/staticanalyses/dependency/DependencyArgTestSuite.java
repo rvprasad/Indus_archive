@@ -97,7 +97,7 @@ public final class DependencyArgTestSuite
 
 		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
-				+ "-Dindus.dependencytest.properties.file");
+				+ "-Dindus.staticanalyses.dependency.DependencyTest.properties.file");
 		}
 		setupTests(_propFileName, _suite);
 		return _suite;
@@ -170,6 +170,9 @@ public final class DependencyArgTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 01:48:54  venku
+   - documentation and coding convention.
+
    Revision 1.1  2004/02/08 01:14:33  venku
    - added clover source directives.
    - renamed DependencyTestSuite to DependencyArgTestSuite.
