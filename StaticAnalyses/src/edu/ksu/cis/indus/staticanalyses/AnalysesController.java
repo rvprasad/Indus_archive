@@ -50,7 +50,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,7 +77,7 @@ public abstract class AbstractAnalysesController
 	 *
 	 * @invariant participatingAnalysesIDs != null
 	 */
-	protected Collection participatingAnalysesIDs;
+//	protected Collection participatingAnalysesIDs;
 
 	/**
 	 * The collection of analysis which want to preprocess the system.
@@ -139,6 +138,26 @@ public abstract class AbstractAnalysesController
 	}
 
 	/**
+	 * Sets the implementation to be used for an analysis.
+	 *
+	 * @param id of the analysis.
+	 * @param analysis is the implementation of the named analysis.
+	 *
+	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
+	 *
+	 * @pre id != null and analysis != null
+	 */
+	public final void setAnalysis(final Object id, final AbstractAnalysis analysis) {
+		participatingAnalyses.put(id, analysis);
+
+		if (analysis.doesPreProcessing()) {
+			IProcessor p = analysis.getPreProcessor();
+			preprocessors.add(p);
+			p.hookup(preprocessController);
+		}
+	}
+
+	/**
 	 * Provides the implementation registered for the given analysis purpose.
 	 *
 	 * @param id of the requested analysis.  This has to be one of the names(XXX_DA) defined in this class.
@@ -146,21 +165,10 @@ public abstract class AbstractAnalysesController
 	 * @return the implementation registered for the given purpose.  <code>null</code>, if there is no registered analysis.
 	 */
 	public final AbstractAnalysis getAnalysis(final Object id) {
-		return (AbstractAnalysis) participatingAnalyses.get(id);
-	}
+		AbstractAnalysis result = null;
 
-	/**
-	 * Returns the ids of the participating analyses.
-	 *
-	 * @return a collection of ids.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection)
-	 */
-	public Collection getIDsOfParticipatingAnalyses() {
-		Collection result = Collections.EMPTY_LIST;
-
-		if (participatingAnalysesIDs == null || participatingAnalysesIDs.isEmpty()) {
-			result = Collections.unmodifiableCollection(participatingAnalysesIDs);
+		if (participatingAnalyses != null) {
+			result = (AbstractAnalysis) participatingAnalyses.get(id);
 		}
 		return result;
 	}
@@ -189,7 +197,7 @@ public abstract class AbstractAnalysesController
 		do {
 			analyzing = false;
 
-			for (Iterator i = participatingAnalysesIDs.iterator(); i.hasNext();) {
+			for (Iterator i = participatingAnalyses.keySet().iterator(); i.hasNext();) {
 				String daName = (String) i.next();
 				AbstractAnalysis temp = (AbstractAnalysis) participatingAnalyses.get(daName);
 
@@ -260,34 +268,14 @@ public abstract class AbstractAnalysesController
 		participatingAnalyses.clear();
 		method2cmpltStmtGraph.clear();
 	}
-
-	/**
-	 * Sets the implementation to be used for an analysis.
-	 *
-	 * @param name of the analysis.
-	 * @param analysis is the implementation of the named analysis.
-	 *
-	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
-	 *
-	 * @pre name != null and analysis != null
-	 */
-	protected final void setAnalysis(final String name, final AbstractAnalysis analysis) {
-		if (!participatingAnalysesIDs.contains(name)) {
-			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
-		}
-		participatingAnalyses.put(name, analysis);
-
-		if (analysis.doesPreProcessing()) {
-			IProcessor p = analysis.getPreProcessor();
-			preprocessors.add(p);
-			p.hookup(preprocessController);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/08/25 08:06:39  venku
+   Renamed participatingAnalysesNames to participatingAnalysesIDs.
+   AbstractAnalysesController now has a method to extract the above field.
    Revision 1.11  2003/08/25 07:28:01  venku
    Ripple effect of renaming AbstractController to AbstractAnalysesController.
    Revision 1.10  2003/08/18 04:44:35  venku

@@ -101,22 +101,16 @@ public class SimpleController
 	 */
 	public SimpleController(final Map info, final ProcessingController pc) {
 		super(info, pc);
-
-		List temp = new ArrayList();
-		temp.add(METHOD_LOCAL_DATA_DA);
-		temp.add(CLASS_DATA_DA);
-		temp.add(CONTROL_DA);
-		temp.add(SYNCHRONIZATION_DA);
-		temp.add(INTERFERENCE_DA);
-		temp.add(DIVERGENCE_DA);
-		temp.add(READY_DA);
-		participatingAnalysesIDs = Collections.unmodifiableList(temp);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/25 08:06:39  venku
+   Renamed participatingAnalysesNames to participatingAnalysesIDs.
+   AbstractAnalysesController now has a method to extract the above field.
+
    Revision 1.8  2003/08/25 07:28:01  venku
    Ripple effect of renaming AbstractController to AbstractAnalysesController.
 
