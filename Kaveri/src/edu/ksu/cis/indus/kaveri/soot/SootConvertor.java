@@ -113,7 +113,7 @@ public final class SootConvertor {
 			final IProject _project = thefile.getProject();			
 			final IJavaProject _jproject = JavaCore.create(_project);
 			
-			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet());
+			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false);
 			for (Iterator iter = _set.iterator(); iter.hasNext();) {
 				_sootClassPath += (String) iter.next();				
 			}

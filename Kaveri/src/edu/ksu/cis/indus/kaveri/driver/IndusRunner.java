@@ -23,10 +23,12 @@ package edu.ksu.cis.indus.kaveri.driver;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -215,19 +217,11 @@ public class IndusRunner
 				if (fileList.size() > 0) {
 					final IFile _file = (IFile) fileList.get(0);
 					final IJavaProject _jproject = JavaCore.create(_file.getProject());
-					final IPath _path = _file.getProject().getLocation();
-					_sootClassPath += _path.toOSString();
-					_sootClassPath += _fileseparator + _pathseparator;
-					final IClasspathEntry entries[] = _jproject.getRawClasspath();
-					for (int _i = 0; _i < entries.length; _i++) {
-						final IClasspathEntry _entry = entries[_i];
-					
-						if (_entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {							
-							final IPath _path1 = _entry.getPath();
-							_sootClassPath += _path1.toOSString();
-							_sootClassPath += _fileseparator + _pathseparator;
-						}
-					}					
+					final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false);
+					for (Iterator iter = _set.iterator(); iter.hasNext();) {
+						_sootClassPath += (String) iter.next();						
+					}
+									
 				}
 
 				driver.addToPath(_sootClassPath);

@@ -127,7 +127,7 @@ public final class SECommons {
 	 * @return
 	 */
 	public static Set getClassPathForProject(final IJavaProject jproject,
-				Set visitedProjects) {
+				Set visitedProjects, boolean exported) {
 		final Set _retSet = new HashSet();
 		final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3"));  //$NON-NLS-1$		
 		if (jproject == null || visitedProjects.contains(jproject)) return _retSet;
@@ -135,10 +135,10 @@ public final class SECommons {
 		try {
 			IClasspathEntry[] entries = jproject.getResolvedClasspath(true);
 			for (int i = 0; i < entries.length; i++) {
-				if (!(entries[i].isExported() || entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE
-						|| entries[i].getEntryKind() == IClasspathEntry.CPE_PROJECT)) {
-					continue;
-				}
+				 if (!exported
+		                || entries[i].isExported()
+		                || entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE)
+		            {
 				switch(entries[i].getEntryKind()) {
 					case IClasspathEntry.CPE_SOURCE:
 						IPath _opLoc = entries[i].getOutputLocation();
@@ -179,10 +179,11 @@ public final class SECommons {
 							final IProject _dProject = ResourcesPlugin.getWorkspace().getRoot().
 								getProject(entries[i].getPath().segment(0));
 							final IJavaProject _jdproject = JavaCore.create(_dProject);
-							_retSet.addAll(getClassPathForProject(_jdproject, visitedProjects));
+							_retSet.addAll(getClassPathForProject(_jdproject, visitedProjects, true));
 						break;
 						
 				}
+		            }
 			} 
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
@@ -416,7 +417,7 @@ public final class SECommons {
 			
 			final IProject _project = jfile.getProject();
 			final IJavaProject _jproject = JavaCore.create(_project);
-			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet());
+			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false);
 			for (Iterator iter = _set.iterator(); iter.hasNext();) {
 				_sootClassPath += (String) iter.next();				
 			}
