@@ -84,6 +84,21 @@ public class TagBasedSlicingTransformer
 	private StringTag tag;
 
 	/**
+	 * Set the tag name to be used.
+	 *
+	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
+	 * 		  used.
+	 */
+	public void setTagName(final String theTagName) {
+		if (theTagName != null) {
+			tag = new StringTag(theTagName);
+			tagName = theTagName;
+		} else {
+			tag = new StringTag(tagName);
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
 	 */
 	public SootClass getTransformed(final SootClass clazz) {
@@ -205,20 +220,11 @@ public class TagBasedSlicingTransformer
 	 * Initializes the transformer.
 	 *
 	 * @param theSystem that is to be sliced.
-	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
-	 * 		  used.
 	 *
 	 * @pre theSystem != null
 	 */
-	public void initialize(final Scene theSystem, final String theTagName) {
+	public void initialize(final Scene theSystem) {
 		system = theSystem;
-
-		if (theTagName != null) {
-			tag = new StringTag(theTagName);
-			tagName = theTagName;
-		} else {
-			tag = new StringTag(tagName);
-		}
 	}
 
 	/**
@@ -274,6 +280,9 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/15 07:52:08  venku
+   - added a new transformer interface specifically targetted for slicing.
+   - implemented the above interface.
    Revision 1.4  2003/08/25 07:17:38  venku
    Exposed initialize() as a public method.
    Removed SlicingTag class and used StringTag instead.

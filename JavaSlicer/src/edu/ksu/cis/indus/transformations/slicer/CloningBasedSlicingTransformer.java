@@ -86,6 +86,17 @@ public class CloningBasedSlicingTransformer
 	private Map unslicedMethod2stmtMap = new HashMap();
 
 	/**
+	 * Set up the transformer
+	 *
+	 * @param theCloner manages the clone to clonee mappings.
+	 *
+	 * @pre theCloner != null
+	 */
+	public void setCloner(final Cloner theCloner) {
+		cloner = theCloner;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
 	 */
 	public SootClass getTransformed(final SootClass clazz) {
@@ -161,6 +172,17 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
+	 * Sets the scene to be populated by the slice of the system.
+	 *
+	 * @param theTransformedSystem will contain the transformed system after transformation.
+	 *
+	 * @pre theTransformedSystem != null
+	 */
+	public void setUntransformedSystem(final Scene theTransformedSystem) {
+		transformedSystem = theTransformedSystem;
+	}
+
+	/**
 	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to  the
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
@@ -201,18 +223,16 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * Initializes the transformer.
+	 * DOCUMENT ME!
 	 *
-	 * @param theCloner manages the clone to clonee mappings.
 	 * @param theSystem that is to be sliced.
-	 * @param theTransformedSystem is an out parameter that will contain the transformed system after transformation.
 	 *
-	 * @pre theCloner != null and theSystem != null and theTransformedSystem != null
+	 * @pre theSystem != null
+	 *
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#initialize(soot.Scene)
 	 */
-	public void initialize(final Cloner theCloner, final Scene theSystem, final Scene theTransformedSystem) {
-		cloner = theCloner;
+	public void initialize(final Scene theSystem) {
 		untransformedSystem = theSystem;
-		transformedSystem = theTransformedSystem;
 	}
 
 	/**
@@ -304,6 +324,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/09/15 07:52:08  venku
+   - added a new transformer interface specifically targetted for slicing.
+   - implemented the above interface.
    Revision 1.19  2003/08/25 07:17:38  venku
    Exposed initialize() as a public method.
    Removed SlicingTag class and used StringTag instead.
@@ -346,15 +369,12 @@ public class CloningBasedSlicingTransformer
    Committing package name change in source after they were moved.
    Revision 1.8  2003/08/18 04:49:47  venku
    Modified SlicerMap to be an specific implementation of ITransformMap specific to the Slicer.
-
    Revision 1.7  2003/08/18 02:40:23  venku
    It is better to elevate the mapping interface to a Type and implement in SliceMap.
    This is the last commit in that direction.  After this I will move SliceMap to SliceMapImpl.
-
    Revision 1.6  2003/08/17 11:56:18  venku
    Renamed SliceCriterion to AbstractSliceCriterion.
    Formatting, documentation, and specification.
-
    Revision 1.5  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.
