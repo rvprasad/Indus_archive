@@ -409,7 +409,7 @@ public class ProcessingController {
 	 *
 	 * @pre environment != null
 	 */
-	public void setEnnvironment(IEnvironment environment) {
+	public void setEnnvironment(final IEnvironment environment) {
 		env = environment;
 	}
 
@@ -566,6 +566,10 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/25 08:07:26  venku
+   Extracts the classes for processing from the environment.
+   It now has support to be driven by the environment alone.
+
    Revision 1.3  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.

@@ -38,9 +38,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency.controller;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 
@@ -107,6 +104,11 @@ public class SimpleController
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/08/25 08:39:58  venku
+   Well, it does not make sense to specify a set of IDs and expect only
+   analyses of these IDs to be controlled.  This is more like application
+   logic than framework logic.
+
    Revision 1.9  2003/08/25 08:06:39  venku
    Renamed participatingAnalysesNames to participatingAnalysesIDs.
    AbstractAnalysesController now has a method to extract the above field.
