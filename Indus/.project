@@ -20,13 +20,22 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>Ant_Indus.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/Ant_Indus.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
 			<name>de.tobject.findbugs.findbugsBuilder</name>
 			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/JiBX-Indus [Builder].launch</value>
+				</dictionary>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
