@@ -137,7 +137,8 @@ public class ForwardSlice
 					_storeLst.add(PrettySignature.getSignature(_element));
 					_storeLst.add(new Integer(_nSelLine));
 					_storeLst.add(new Integer(_noStmts - 1));
-
+					_storeLst.add(new Boolean(true));
+					
 					final String _configuration =
 						SliceEclipsePlugin.getDefault().getPreferenceStore().getString("forwardConfiguration");
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().reset();
