@@ -15,8 +15,12 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.common.ReflectionBasedSupertypePredicate;
+
 import java.util.Collection;
 import java.util.HashSet;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +37,7 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class StmtTypeBasedSliceCriteriaGenerator
-  extends StmtBasedSliceCriteriaGenerator {
+  extends AbstractStmtBasedSliceCriteriaGenerator {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -45,6 +49,11 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	 * @invariant stmtTypes.oclIsKindOf(Collection(String))
 	 */
 	private final Collection stmtTypes = new HashSet();
+
+	/** 
+	 * This is used to check type conformance.
+	 */
+	private final ReflectionBasedSupertypePredicate subClassPredicate = new ReflectionBasedSupertypePredicate();
 
 	/**
 	 * Sets the types of the statements to be considered as slice criteria.
@@ -59,10 +68,12 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	}
 
 	/**
-	 * @see StmtBasedSliceCriteriaGenerator#shouldConsiderStmt(Stmt)
+	 * @see AbstractStmtBasedSliceCriteriaGenerator#shouldConsiderStmt(Stmt)
 	 */
 	protected boolean shouldConsiderStmt(final Stmt stmt) {
-		final boolean _result = stmtTypes.contains(stmt.getClass());
+		subClassPredicate.setsubType(stmt.getClass());
+
+		final boolean _result = CollectionUtils.exists(stmtTypes, subClassPredicate);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("shouldConsiderStmt(Stmt stmt = " + stmt + ":" + stmt.getClass() + ") = " + _result);

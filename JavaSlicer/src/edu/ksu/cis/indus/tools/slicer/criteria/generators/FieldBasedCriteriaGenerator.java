@@ -30,16 +30,16 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class FieldBasedCriteriaGenerator
-  extends StmtBasedSliceCriteriaGenerator {
+  extends AbstractStmtBasedSliceCriteriaGenerator {
 	/**
-	 * @see StmtBasedSliceCriteriaGenerator#getEntityForCriteriaFiltering(soot.jimple.Stmt, soot.SootMethod)
+	 * @see AbstractStmtBasedSliceCriteriaGenerator#getEntityForCriteriaFiltering(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	protected final Object getEntityForCriteriaFiltering(final Stmt stmt, final SootMethod sm) {
 		return stmt.getFieldRef().getField();
 	}
 
 	/**
-	 * @see StmtBasedSliceCriteriaGenerator#shouldConsiderStmt(soot.jimple.Stmt)
+	 * @see AbstractStmtBasedSliceCriteriaGenerator#shouldConsiderStmt(soot.jimple.Stmt)
 	 */
 	protected final boolean shouldConsiderStmt(final Stmt stmt) {
 		return stmt.containsFieldRef();

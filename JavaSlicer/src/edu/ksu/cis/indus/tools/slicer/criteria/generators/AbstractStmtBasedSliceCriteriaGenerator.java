@@ -42,18 +42,18 @@ import soot.jimple.Stmt;
 
 /**
  * This class contains the logic to generate slice criteria based on properties of statements.  The subclasses provide the
- * logic pertaining to the property-based selection.
+ * logic pertaining to property-based criteria selection. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class StmtBasedSliceCriteriaGenerator
+public abstract class AbstractStmtBasedSliceCriteriaGenerator
   extends AbstractSliceCriteriaGenerator {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(StmtBasedSliceCriteriaGenerator.class);
+	private static final Log LOGGER = LogFactory.getLog(AbstractStmtBasedSliceCriteriaGenerator.class);
 
 	/**
 	 * Retrieves the criteria based on the information set on this generator.
