@@ -27,11 +27,15 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public final class CollectionsModifier {
+	///CLOVER:OFF
+
 	/**
 	 * Creates a new CollectionsModifier object.
 	 */
 	private CollectionsModifier() {
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
@@ -83,6 +87,8 @@ public final class CollectionsModifier {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/25 08:57:24  venku
+   - coding convention.
    Revision 1.2  2004/01/22 00:53:32  venku
    - formatting and coding convention.
    Revision 1.1  2004/01/21 13:41:49  venku
