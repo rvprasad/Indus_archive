@@ -41,6 +41,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.ValueBox;
 
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
@@ -102,6 +103,13 @@ public class CloningBasedSlicingTransformer
 	 * @invariant unslicedMethod2stmtMap != null
 	 */
 	private Map unslicedMethod2stmtMap = new HashMap();
+
+    /**
+     * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
+     */
+    public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+        // does nothing
+    }
 
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
@@ -304,6 +312,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/08/21 07:34:41  venku
+   Documentation.
+
    Revision 1.16  2003/08/20 18:31:22  venku
    Documentation errors fixed.
 

@@ -40,6 +40,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -76,20 +77,30 @@ public class TagBasedSlicingTransformer
 	 */
 	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+	/** 
+	 * Default name of slicing tags.
+	 */
+	private static final String SLICING_TAG = SlicingTag.class.toString();
+
 	/**
 	 * The system to be transformed.
 	 */
 	protected Scene system;
 
 	/**
-	 * The name to be used for the tags.
-	 */
-	String tagName;
-
-	/**
 	 * This maps transformed methods to their transformed locals.
 	 */
 	private final Map method2locals = new HashMap();
+
+	/**
+	 * The tag to be used during transformation.
+	 */
+	private SlicingTag tag;
+
+	/**
+	 * The name of the tag instance active in this instance of the transformer.
+	 */
+	private String tagName = SLICING_TAG;
 
 	/**
 	 * The tag used to annotate the system with slicing information.
@@ -100,6 +111,20 @@ public class TagBasedSlicingTransformer
 	 */
 	public class SlicingTag
 	  implements Tag {
+		/**
+		 * The name of the tag.
+		 */
+		private final String tagName;
+
+		/**
+		 * Creates a new SlicingTag object.
+		 *
+		 * @param name to be used to identify this tag instance.
+		 */
+		SlicingTag(final String name) {
+			tagName = name;
+		}
+
 		/**
 		 * @see soot.tagkit.Tag#getName()
 		 */
@@ -227,13 +252,48 @@ public class TagBasedSlicingTransformer
 	 */
 	public void reset() {
 		method2locals.clear();
-		tagName = null;
+		tagName = SLICING_TAG;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
+		Collection temp = stmt.getUseAndDefBoxes();
+
+		for (Iterator i = temp.iterator(); i.hasNext();) {
+			ValueBox vb = (ValueBox) i.next();
+
+			if (vb.getTag(tagName) == null) {
+				vb.addTag(tag);
+			}
+		}
+
+		if (stmt.getTag(tagName) == null) {
+			stmt.addTag(tag);
+		}
+
+		if (method.getTag(tagName) == null) {
+			method.addTag(tag);
+		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.ValueBox, soot.jimple.Stmt,
+	 * 		soot.SootMethod)
+	 */
+	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		if (vBox.getTag(tagName) == null) {
+			vBox.addTag(tag);
+		}
+
+		if (stmt.getTag(tagName) == null) {
+			stmt.addTag(tag);
+		}
+
+		if (method.getTag(tagName) == null) {
+			method.addTag(tag);
+		}
 	}
 
 	/**
@@ -249,9 +309,10 @@ public class TagBasedSlicingTransformer
 		system = theSystem;
 
 		if (theTagName != null) {
+			tag = new SlicingTag(theTagName);
 			tagName = theTagName;
 		} else {
-			tagName = "SLICING_TAG";
+			tag = new SlicingTag(tagName);
 		}
 	}
 }
@@ -259,7 +320,8 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/20 18:31:22  venku
+   Documentation errors fixed.
    Revision 1.1  2003/08/19 12:55:50  venku
    This is a tag-based non-destructive slicing transformation implementation.
-
  */

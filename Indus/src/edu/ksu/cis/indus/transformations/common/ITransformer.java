@@ -40,6 +40,7 @@ import soot.PatchingChain;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -185,6 +186,18 @@ public interface ITransformer {
 	void transform(Stmt stmt, SootMethod method);
     
     /**
+     * Transform the given program point.  This method will suffice for simple transformation which do not require any context
+     * information except the method in which the statement occurs.  All parameters refer to untransformed versions.
+     *
+     * @param vBox is the program point to be transformed.
+     * @param stmt in which <code>vBox</code> occurs.
+     * @param method in which <code>stmt</code> occurs.
+     *
+     * @pre stmt != null and method != null
+     */
+    void transform(ValueBox vBox, Stmt stmt, SootMethod method);
+    
+    /**
      * Reset any internal state.
      */
     void reset();
@@ -193,6 +206,11 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/19 12:44:39  venku
+   Changed the signature of ITransformer.getLocal()
+   Introduced reset() in ITransformer.
+   Ripple effect of the above changes.
+
    Revision 1.5  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
 
