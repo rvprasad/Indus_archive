@@ -17,10 +17,14 @@ package edu.ksu.cis.indus.common;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.collections.collection.AbstractCollectionDecorator;
+
+import org.apache.commons.collections.iterators.FilterIterator;
 
 
 /**
@@ -42,13 +46,6 @@ class FilteredCollection
 	protected final Predicate predicate;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private int size;
-
-	/**
 	 * DOCUMENT ME!
 	 *
 	 * @param col DOCUMENT ME!
@@ -57,21 +54,13 @@ class FilteredCollection
 	public FilteredCollection(final Collection col, final Predicate thePredicate) {
 		super(col);
 		predicate = thePredicate;
-
-		for (final Iterator _i = col.iterator(); _i.hasNext();) {
-			final Object _obj = _i.next();
-
-			if (predicate.evaluate(_obj)) {
-				size++;
-			}
-		}
 	}
 
 	/**
 	 * @see java.util.Collection#isEmpty()
 	 */
 	public boolean isEmpty() {
-		return collection.isEmpty() || size() == 0;
+		return super.isEmpty() || size() == 0;
 	}
 
 	/**
@@ -82,10 +71,6 @@ class FilteredCollection
 
 		if (_result) {
 			_result = super.add(object);
-
-			if (_result) {
-				size++;
-			}
 		}
 		return _result;
 	}
@@ -138,23 +123,32 @@ class FilteredCollection
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(final Object object) {
-		// TODO: Auto-generated method stub
-		return super.equals(object);
+		boolean _result = false;
+
+		if (object instanceof Collection) {
+			final Collection _candidate = (Collection) object;
+			_result = _candidate.size() == size() && _candidate.containsAll(this);
+		}
+		return _result;
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		// TODO: Auto-generated method stub
-		return super.hashCode();
+		int _hashCode = 17;
+
+		for (final Iterator _i = iterator(); _i.hasNext();) {
+			_hashCode += 37 * _hashCode + _i.next().hashCode();
+		}
+		return _hashCode;
 	}
 
 	/**
 	 * @see java.util.Collection#iterator()
 	 */
 	public Iterator iterator() {
-		return new FilteredCollectionIterator(super.iterator(), predicate);
+		return new FilterIterator(super.iterator(), predicate);
 	}
 
 	/**
@@ -165,10 +159,6 @@ class FilteredCollection
 
 		if (predicate.evaluate(object)) {
 			_result = super.remove(object);
-
-			if (_result) {
-				size++;
-			}
 		}
 		return _result;
 	}
@@ -206,14 +196,20 @@ class FilteredCollection
 	 * @see java.util.Collection#size()
 	 */
 	public int size() {
-		return size;
+		int _size = 0;
+
+		for (final Iterator _i = iterator(); _i.hasNext(); _i.next()) {
+			_size++;
+		}
+
+		return _size;
 	}
 
 	/**
 	 * @see java.util.Collection#toArray()
 	 */
 	public Object[] toArray() {
-		final Object[] _result = new Object[size];
+		final Object[] _result = new Object[size()];
 		int _j = 0;
 
 		for (final Iterator _i = iterator(); _i.hasNext();) {
@@ -251,12 +247,22 @@ class FilteredCollection
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		// TODO: Auto-generated method stub
-		return super.toString();
+		final StringBuffer _result = new StringBuffer();
+		_result.append("[");
+
+		for (final Iterator _i = iterator(); _i.hasNext();) {
+			_result.append(_i.next());
+			_result.append(", ");
+		}
+		_result.append("]");
+		return _result.toString();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/27 23:23:11  venku
+   - initial commit.
+   - This version has update methods as well.
  */

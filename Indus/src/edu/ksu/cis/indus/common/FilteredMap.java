@@ -15,14 +15,15 @@
 
 package edu.ksu.cis.indus.common;
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+
 import java.util.Set;
 
 import org.apache.commons.collections.Predicate;
+
+import org.apache.commons.collections.map.AbstractMapDecorator;
 
 
 /**
@@ -32,13 +33,8 @@ import org.apache.commons.collections.Predicate;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class FilteredMap
-  extends AbstractMap {
-	/**
-	 * The backed map.
-	 */
-	private final Map origMap;
-
+final class FilteredMap
+  extends AbstractMapDecorator {
 	/**
 	 * The predicate to filter keys.
 	 */
@@ -52,46 +48,312 @@ class FilteredMap
 	/**
 	 * Creates a new FilteredMap object.
 	 *
-	 * @param map to be filtered.
-	 * @param keyPredicate to filter the keys in <code>map</code>.
-	 * @param valuePredicate to filter the values in <code>map</code>.
+	 * @param decoratedMap to be filtered.
+	 * @param keyPredicate to filter the keys in <code>backedMap</code>. <code>null</code> means no check.
+	 * @param valuePredicate to filter the values in <code>backedMap</code>. <code>null</code> means no check.
 	 *
-	 * @pre map != null
+	 * @pre decoratedMap != null
+	 *
+	 * @see AbstractMapDecorator#AbstractMapDecorator(Map)
 	 */
-	FilteredMap(final Map map, final Predicate keyPredicate, final Predicate valuePredicate) {
-		origMap = map;
+	FilteredMap(final Map decoratedMap, final Predicate keyPredicate, final Predicate valuePredicate) {
+		super(decoratedMap);
 		keyPred = keyPredicate;
 		valuePred = valuePredicate;
 	}
 
 	/**
+	 * @see java.util.Map#isEmpty()
+	 */
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
+	/**
+	 * @see java.util.Map#clear()
+	 */
+	public void clear() {
+		for (final Iterator _i = keySet().iterator(); _i.hasNext();) {
+			final Object _key = _i.next();
+			final Object _value = super.get(_key);
+
+			if (validateValue(_value)) {
+				super.remove(_key);
+			}
+		}
+	}
+
+	/**
+	 * @see java.util.Map#containsKey(java.lang.Object)
+	 */
+	public boolean containsKey(final Object key) {
+		return (validateKey(key)) && super.containsKey(key);
+	}
+
+	/**
+	 * @see java.util.Map#containsValue(java.lang.Object)
+	 */
+	public boolean containsValue(final Object value) {
+		boolean _result = validateValue(value);
+
+		if (_result) {
+			_result = false;
+
+			for (final Iterator _i = keySet().iterator(); _i.hasNext() && !_result;) {
+				final Object _key = _i.next();
+				_result |= super.get(_key).equals(value);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns a filtered entry set.  All keys in the backed map for which the key predicate evaluates to <code>true</code>
+	 * will occur in a returned entry set.  The value in a returned entry set will be <code>null</code> if the value
+	 * predicate evaluates  to <code>false</code> for that value.  If not, the value in the entry set will be the original
+	 * value corresponding to the key in the backed map.  In cases where the key predicate and/or value predicate is
+	 * unspecified, the keys and/or values from the decorated map is returned asis.
+	 *
+	 * @return the filtered entry set.
+	 *
+	 * @post result != null
+	 * @post result.oclIsKindOf(Set(MapEntry))
+	 * @post result->forall(o | map.keySet().contains(o.getKey()))
+	 * @post result->forall(o | map.get(o.getKey()) = o.getValue() or o.getValue() = null)
+	 * @post keyPredicate != null implies result->forall(o | keyPredicate.evaluate(o.getKey()))
+	 * @post keyPredicate == null implies result->forall(o | map.entrySet()->exists(p | o.getKey() = p.getKey()))
+	 * @post valuePrediate != null implies result->forall(o | valuePredicate.evaluate(o.getValue()) implies o.getValue() =
+	 * 		 map.get(o.getKey()))
+	 * @post valuePrediate != null implies result->forall(o | not valuePredicate.evaluate(o.getValue()) implies o.getValue()
+	 * 		 = null)
+	 * @post valuePredicate == null implies result->forall(o | map.entrySet()->forall(p | o.getKey() = p.getKey()) implies
+	 * 		 o.getValue() = p.getValue())
+	 *
 	 * @see java.util.Map#entrySet()
 	 */
 	public Set entrySet() {
-		Set _result = new HashSet();
+		final Set _result;
 
-		for (final Iterator _i = origMap.keySet().iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
+		if (valuePred == null && keyPred == null) {
+			_result = super.entrySet();
+		} else {
+			_result =
+				new FilteredSet(super.entrySet(),
+					new Predicate() {
+						public boolean evaluate(final Object object) {
+							boolean _r = false;
 
-			if ((keyPred != null && keyPred.evaluate(_o)) || keyPred == null) {
-				final Object _val = origMap.get(_o);
+							if (object instanceof Map.Entry) {
+								final Entry _entry = ((Map.Entry) object);
 
-				if ((valuePred != null && valuePred.evaluate(_val)) || valuePred == null) {
-					_result.add(new MapEntry(_o, _val));
-				}
-			}
-		}
-
-		if (_result.isEmpty()) {
-			_result = Collections.EMPTY_SET;
+								if (validateKey(_entry.getKey()) && validateValue(_entry.getValue())) {
+									_r = true;
+								}
+							}
+							return _r;
+						}
+					});
 		}
 		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(final Object object) {
+		boolean _result = object instanceof Map;
+		final Set _otherEntrySet = ((Map) object).entrySet();
+		final Set _localEntrySet = entrySet();
+		_result = _localEntrySet.size() == _otherEntrySet.size() && _otherEntrySet.containsAll(_localEntrySet);
+		return _result;
+	}
+
+	/**
+	 * @see java.util.Map#get(java.lang.Object)
+	 */
+	public Object get(final Object key) {
+		Object _result = null;
+
+		if (validateKey(key)) {
+			final Object _value = super.get(key);
+
+			if (validateValue(_value)) {
+				_result = _value;
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		int _hashCode = 17;
+
+		for (final Iterator _i = entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_hashCode += 37 * _hashCode + _entry.hashCode();
+		}
+		return _hashCode;
+	}
+
+	/**
+	 * Retreives the filtered key set of the decorated map.
+	 *
+	 * @return the filtered key set.
+	 *
+	 * @post result != null
+	 * @post result.oclIsKindOf(Set(Object))
+	 * @post map.keySet().containsAll(result)
+	 * @post keyPredicate != null implies result->forall(o | keyPredicate.evaluate(o))
+	 * @post keyPredicate == null implies result->forall(o | map.keySet()->exists(p | o = p))
+	 *
+	 * @see java.util.Map#keySet()
+	 */
+	public Set keySet() {
+		final Map _map = getMap();
+		return new FilteredSet(super.keySet(),
+			new Predicate() {
+				public boolean evaluate(final Object object) {
+					boolean _r = false;
+
+					if (validateKey(object) && validateValue(_map.get(object))) {
+						_r = true;
+					}
+					return _r;
+				}
+			});
+	}
+
+	/**
+	 * @see java.util.Map#put(java.lang.Object, java.lang.Object)
+	 */
+	public Object put(final Object key, final Object value) {
+		Object _result = null;
+
+		if (validateKey(key) && validateValue(value)) {
+			_result = super.put(key, value);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see java.util.Map#putAll(java.util.Map)
+	 */
+	public void putAll(final Map mapToCopy) {
+		for (final Iterator _i = mapToCopy.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			put(_entry.getKey(), _entry.getValue());
+		}
+	}
+
+	/**
+	 * @see java.util.Map#remove(java.lang.Object)
+	 */
+	public Object remove(final Object key) {
+		Object _result = null;
+
+		if (validateKey(key)) {
+			final Object _value = super.get(key);
+
+			if (validateValue(_value)) {
+				_result = super.remove(key);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see java.util.Map#size()
+	 */
+	public int size() {
+		return keySet().size();
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final Set _entrySet = entrySet();
+		final StringBuffer _result = new StringBuffer();
+		_result.append("[\n");
+
+		for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_result.append(_entry.getKey());
+			_result.append(" -> ");
+			_result.append(_entry.getValue());
+			_result.append("\n");
+		}
+		_result.append("]");
+		return _result.toString();
+	}
+
+	/**
+	 * Retreives the filtered value set of the decorated map.
+	 *
+	 * @return the filtered value set.
+	 *
+	 * @post result != null
+	 * @post result.oclIsKindOf(Set(Object))
+	 * @post map.values().containsAll(result)
+	 * @post valuePredicate != null implies result->forall(o | valuePredicate.evaluate(o))
+	 * @post valuePredicate == null implies result->forall(o | map.values()->exists(p | o = p))
+	 *
+	 * @see java.util.Map#values()
+	 */
+	public Collection values() {
+		final Map _map = getMap();
+		
+		return new FilteredCollection(super.values(),
+			new Predicate() {
+				public boolean evaluate(final Object object) {
+					boolean _r = false;
+
+					for (final Iterator _i = keySet().iterator(); _i.hasNext() && !_r;) {
+						final Object _key = _i.next();
+
+						if (validateKey(_key) && validateValue(object) && _map.get(_key) == object) {
+							_r = true;
+						}
+					}
+					return _r;
+				}
+			});
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param key DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	boolean validateKey(final Object key) {
+		return (keyPred != null && keyPred.evaluate(key)) || keyPred == null;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param value DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	boolean validateValue(final Object value) {
+		return ((valuePred != null && valuePred.evaluate(value)) || valuePred == null);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/27 05:02:30  venku
+   - documentation.
    Revision 1.1  2004/05/21 22:11:49  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
