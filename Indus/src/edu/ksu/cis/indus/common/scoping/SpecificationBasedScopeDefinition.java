@@ -17,9 +17,21 @@ package edu.ksu.cis.indus.common.scoping;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 import soot.SootClass;
 import soot.SootField;
@@ -35,6 +47,16 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public final class SpecificationBasedScopeDefinition {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SpecificationBasedScopeDefinition.class);
+
+	/** 
+	 * Indentation space during serialization.
+	 */
+	private static final int INDENT = 4;
+
 	/** 
 	 * The collection of class-level specification.
 	 *
@@ -118,6 +140,78 @@ public final class SpecificationBasedScopeDefinition {
 		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 			final FieldSpecification _fs = (FieldSpecification) _i.next();
 			_result |= _fs.isInScope(field, system);
+		}
+		return _result;
+	}
+
+	/**
+	 * Deserializes the given content into a scope definition.
+	 *
+	 * @param contents to be deserialized.
+	 *
+	 * @return a scope definition.
+	 *
+	 * @throws JiBXException when the content cannot be deserialized due to IO exceptions or malformed contents.
+	 *
+	 * @pre contents != null
+	 */
+	public static SpecificationBasedScopeDefinition deserialize(final String contents)
+	  throws JiBXException {
+		final SpecificationBasedScopeDefinition _result;
+		IUnmarshallingContext _unmarshallingContext;
+
+		try {
+			final IBindingFactory _bindingFactory = BindingDirectory.getFactory(SpecificationBasedScopeDefinition.class);
+			_unmarshallingContext = _bindingFactory.createUnmarshallingContext();
+		} catch (final JiBXException _e) {
+			LOGGER.fatal("Error while setting up JiBX.  Aborting.", _e);
+			throw _e;
+		}
+
+		try {
+			final StringReader _reader = new StringReader(contents);
+			_result = (SpecificationBasedScopeDefinition) _unmarshallingContext.unmarshalDocument(_reader, null);
+		} catch (final JiBXException _e) {
+			LOGGER.error("Error while deserializing scope specification.", _e);
+			throw _e;
+		}
+
+		return _result;
+	}
+
+	/**
+	 * Serializes the given scope definition.
+	 *
+	 * @param scopeDef to be serialized.
+	 *
+	 * @return the serialized form the scope definition.
+	 *
+	 * @throws JiBXException when the content cannot be serialized.
+	 *
+	 * @pre scopeDef != null
+	 */
+	public static String serialize(final SpecificationBasedScopeDefinition scopeDef)
+	  throws JiBXException {
+		final String _result;
+		IMarshallingContext _marshallingContext;
+
+		try {
+			final IBindingFactory _bindingFactory = BindingDirectory.getFactory(SpecificationBasedScopeDefinition.class);
+			_marshallingContext = _bindingFactory.createMarshallingContext();
+			_marshallingContext.setIndent(INDENT);
+		} catch (final JiBXException _e) {
+			LOGGER.fatal("Error while setting up JiBX.", _e);
+			throw _e;
+		}
+
+		try {
+			final StringWriter _writer = new StringWriter();
+			_marshallingContext.marshalDocument(scopeDef, "UTF-8", Boolean.TRUE, _writer);
+			_writer.flush();
+			_result = _writer.toString();
+		} catch (final JiBXException _e) {
+			LOGGER.error("Error while marshalling scope specification.", _e);
+			throw _e;
 		}
 		return _result;
 	}

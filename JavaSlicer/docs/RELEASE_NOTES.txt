@@ -28,6 +28,13 @@ Required software:
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
 
+
+Version 0.5
+-----------
+	- Feature request 232.
+	- The user can now specify scope of slicing via a scope specification file.
+	- A whole lot of bug fixes.
+
 Version 0.4
 ------------
 	- Feature requests 397, 411, 427.

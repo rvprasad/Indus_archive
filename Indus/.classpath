@@ -16,5 +16,6 @@
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
@@ -274,12 +275,17 @@ public final class SlicerTool
 	/** 
 	 * The system to be sliced.
 	 */
-	private IEnvironment environment;
+	private IEnvironment system;
 
 	/** 
 	 * This provides safe lock information.
 	 */
 	private SafeLockAnalysis safelockAnalysis;
+
+	/** 
+	 * This defines the scope of slicing.  If this undefined, then the entire reachbable system is the scope.
+	 */
+	private SpecificationBasedScopeDefinition sliceScopeDefinition;
 
 	/**
 	 * Creates a new SlicerTool object.  The client should relinquish control/ownership of the arguments as they are provided
@@ -462,6 +468,15 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Sets the scope of the slicing.
+	 *
+	 * @param scope to be used.
+	 */
+	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
+		sliceScopeDefinition = scope;
+	}
+
+	/**
 	 * Retrieves the statement graph (CFG) provider/factory used by the tool.
 	 *
 	 * @return the factory object.
@@ -478,7 +493,7 @@ public final class SlicerTool
 	 * @pre theEnvironment != null
 	 */
 	public void setSystem(final IEnvironment theEnvironment) {
-		environment = theEnvironment;
+		system = theEnvironment;
 	}
 
 	/**
@@ -489,7 +504,7 @@ public final class SlicerTool
 	 * @post result != null
 	 */
 	public IEnvironment getSystem() {
-		return environment;
+		return system;
 	}
 
 	/**
@@ -793,7 +808,7 @@ public final class SlicerTool
 		ofa.reset();
 		bbgMgr.reset();
 		stmtGraphFactory.reset();
-		ofa.analyze(environment, rootMethods);
+		ofa.analyze(system, rootMethods);
 		phase.nextMinorPhase();
 
 		movingToNextPhase();
@@ -906,6 +921,8 @@ public final class SlicerTool
 			engine.setBasicBlockGraphManager(bbgMgr);
 			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getIDsOfDAsToUse());
 			engine.setSliceCriteria(criteria);
+			engine.setSliceScopeDefinition(sliceScopeDefinition);
+			engine.setSystem(system);
 			engine.initialize();
 			engine.slice();
 			phase.nextMinorPhase();

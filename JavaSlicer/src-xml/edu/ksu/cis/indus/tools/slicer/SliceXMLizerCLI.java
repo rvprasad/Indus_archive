@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -141,6 +142,11 @@ public class SliceXMLizerCLI
 	private String criteriaSpecFileName;
 
 	/** 
+	 * The name of the slice scope specification file.
+	 */
+	private String sliceScopeSpecFileName;
+
+	/** 
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
 	 */
 	private boolean postResJimpleDump;
@@ -265,41 +271,8 @@ public class SliceXMLizerCLI
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
 
-		final Collection _criteria = new HashSet();
-
-		if (criteriaSpecFileName != null) {
-			try {
-				final InputStream _in = new FileInputStream(criteriaSpecFileName);
-				final String _result = IOUtils.toString(_in);
-				IOUtils.closeQuietly(_in);
-
-				final String _criteriaSpec = _result;
-				_criteria.addAll(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
-
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("Criteria specification before slicing: \n" + _result);
-					LOGGER.info("Criteria before slicing: \n" + _criteria);
-				}
-			} catch (final IOException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					final String _msg = "Error retrieved slicing criteria from " + criteriaSpecFileName;
-					LOGGER.error(_msg, _e);
-
-					final IllegalArgumentException _i = new IllegalArgumentException(_msg);
-					_i.initCause(_e);
-					throw _i;
-				}
-			} catch (final JiBXException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					final String _msg = "JiBX failed during deserialization.";
-					LOGGER.error(_msg, _e);
-
-					final IllegalStateException _i = new IllegalStateException(_msg);
-					_i.initCause(_e);
-					throw _i;
-				}
-			}
-		}
+		final Collection _criteria = processCriteriaSpecFile();
+		slicer.setSliceScopeDefinition(processSliceScopeSpecFile());
 		slicer.setCriteria(_criteria);
 		slicer.addToolProgressListener(this);
 		slicer.run(Phase.STARTING_PHASE, true);
@@ -378,7 +351,7 @@ public class SliceXMLizerCLI
 			new Option("c", "config-file", true,
 				"The configuration file to use.  If unspecified, uses default configuration file.");
 		_o.setArgs(1);
-		_o.setArgName("path");
+		_o.setArgName("config-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("a", "active-config", true,
@@ -425,6 +398,11 @@ public class SliceXMLizerCLI
 		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
+		_o = new Option("S", "slice-scope-spec-file", true, "Use the scope specified in this file.");
+		_o.setArgs(1);
+		_o.setArgName("slice-scope-spec-file");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 		_o = new Option("r", "residualize", false,
 				"Residualize after slicing. This will also dump the class files for the residualized classes.");
 		_o.setOptionalArg(false);
@@ -459,13 +437,6 @@ public class SliceXMLizerCLI
 			xmlizer.addToSootClassPath(_cl.getOptionValue('p'));
 		}
 
-		final List _result = _cl.getArgList();
-
-		if (_result.isEmpty()) {
-			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
-			System.exit(1);
-		}
-
 		if (_cl.hasOption('a')) {
 			xmlizer.setConfigName(_cl.getOptionValue('a'));
 		}
@@ -480,6 +451,17 @@ public class SliceXMLizerCLI
 
 		if (_cl.hasOption('r')) {
 			xmlizer.setResidulization(true);
+		}
+
+		if (_cl.hasOption('S')) {
+			xmlizer.setSliceScopeSpecFile(_cl.getOptionValue('S'));
+		}
+
+		final List _result = _cl.getArgList();
+
+		if (_result.isEmpty()) {
+			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+			System.exit(1);
 		}
 
 		xmlizer.setClassNames(_cl.getArgList());
@@ -503,6 +485,17 @@ public class SliceXMLizerCLI
 	 */
 	private void setSliceCriteriaSpecFile(final String fileName) {
 		criteriaSpecFileName = fileName;
+	}
+
+	/**
+	 * Sets the name of the file containing the slice scope specification.
+	 *
+	 * @param fileName of the slice scope spec.
+	 *
+	 * @pre fileName != null
+	 */
+	private void setSliceScopeSpecFile(final String fileName) {
+		sliceScopeSpecFileName = fileName;
 	}
 
 	/**
@@ -561,6 +554,93 @@ public class SliceXMLizerCLI
 			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
 			IOUtils.closeQuietly(_inStream);
 			System.exit(1);
+		}
+		return _result;
+	}
+
+	/**
+	 * Process the criteria specification file.
+	 *
+	 * @return a collection of criteria
+	 *
+	 * @throws IllegalArgumentException when the errors occur while accessing the specified file.
+	 * @throws IllegalStateException when the parsing of the specified file fails.
+	 *
+	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
+	 */
+	private Collection processCriteriaSpecFile()
+	  throws IllegalArgumentException, IllegalStateException {
+		final Collection _criteria = new HashSet();
+
+		if (criteriaSpecFileName != null) {
+			try {
+				final InputStream _in = new FileInputStream(criteriaSpecFileName);
+				final String _result = IOUtils.toString(_in);
+				IOUtils.closeQuietly(_in);
+
+				final String _criteriaSpec = _result;
+				_criteria.addAll(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
+
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Criteria specification before slicing: \n" + _result);
+					LOGGER.info("Criteria before slicing: \n" + _criteria);
+				}
+			} catch (final IOException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					final String _msg = "Error retrieved slicing criteria from " + criteriaSpecFileName;
+					LOGGER.error(_msg, _e);
+
+					final IllegalArgumentException _i = new IllegalArgumentException(_msg);
+					_i.initCause(_e);
+					throw _i;
+				}
+			} catch (final JiBXException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					final String _msg = "JiBX failed during deserialization.";
+					LOGGER.error(_msg, _e);
+
+					final IllegalStateException _i = new IllegalStateException(_msg);
+					_i.initCause(_e);
+					throw _i;
+				}
+			}
+		}
+		return _criteria;
+	}
+
+	/**
+	 * Process the scope specification file.
+	 *
+	 * @return the scope definition.
+	 */
+	private SpecificationBasedScopeDefinition processSliceScopeSpecFile() {
+		SpecificationBasedScopeDefinition _result = null;
+
+		if (sliceScopeSpecFileName != null) {
+			try {
+				final InputStream _in = new FileInputStream(sliceScopeSpecFileName);
+				final String _contents = IOUtils.toString(_in);
+				IOUtils.closeQuietly(_in);
+				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
+			} catch (final IOException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					final String _msg = "Error retrieved specification from " + sliceScopeSpecFileName;
+					LOGGER.error(_msg, _e);
+
+					final IllegalArgumentException _i = new IllegalArgumentException(_msg);
+					_i.initCause(_e);
+					throw _i;
+				}
+			} catch (final JiBXException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					final String _msg = "JiBX failed during deserialization.";
+					LOGGER.error(_msg, _e);
+
+					final IllegalStateException _i = new IllegalStateException(_msg);
+					_i.initCause(_e);
+					throw _i;
+				}
+			}
 		}
 		return _result;
 	}

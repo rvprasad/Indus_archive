@@ -105,7 +105,7 @@ final class TypeSpecification {
 	 *
 	 * @return <code>true</code> if the type confirms; <code>false</code>, otherwise.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when the hierarchy specification is incorrect.
 	 *
 	 * @pre type != null and system !=null
 	 */
