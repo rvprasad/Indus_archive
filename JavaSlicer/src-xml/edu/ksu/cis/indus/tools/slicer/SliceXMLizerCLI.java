@@ -311,6 +311,7 @@ public class SliceXMLizerCLI
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(nameOfSliceTag);
+		_residualizer.setBasicBlockGraphMgr(slicer.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(scene);
 	}
 
@@ -746,6 +747,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/07/20 05:36:05  venku
+   - slicer criteria specifying options was missing.  How? FIXED.
+
    Revision 1.47  2004/07/10 00:49:40  venku
    - In pre-residualizaion jimple/xml dump, only the classes who are in the slice are dumped.
 
