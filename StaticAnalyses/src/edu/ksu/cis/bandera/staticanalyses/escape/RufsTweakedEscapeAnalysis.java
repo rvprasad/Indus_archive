@@ -516,19 +516,7 @@ public class RufsTweakedEscapeAnalysis
 				rep2.setEscaping();
 				rep1.setEscaping();
 				result = true;
-			} /*else if (context.getProgramPoint() != null){
-			   Collection creationThreads = new HashSet();
-			   Value v = context.getProgramPoint().getValue();
-			   for (Iterator i = ofa.getValues(v, context).iterator(); i.hasNext();) {
-			       Object element = i.next();
-			       if (element instanceof NewExpr)
-			           creationThreads.addAll(((ThreadGraph)tgi).getAllocationThreads((NewExpr)element));
-			   }
-			   if (!rep2.syncThreads.containsAll(creationThreads)) {
-			       rep2.setEscaping();
-			       rep1.setEscaping();
-			   }
-			   }*/
+			} 
 			if(rep1.isEscaping()) {
 				rep2.setEscaping();
 			}
@@ -1881,6 +1869,9 @@ public class RufsTweakedEscapeAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.4  2003/02/21 07:22:22  venku
+Changed \@pre to $pre in the ocl constraints specified in Javadoc.
+
 Revision 1.3  2003/02/20 19:19:09  venku
 Affected by the refactoring processing and controlling logic.
 
