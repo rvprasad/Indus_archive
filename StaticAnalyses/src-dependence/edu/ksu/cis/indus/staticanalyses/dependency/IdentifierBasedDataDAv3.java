@@ -42,7 +42,6 @@ public final class IdentifierBasedDataDAv3
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv2#getLocalUseDefAnalysis(soot.SootMethod)
 	 */
 	protected IUseDefInfo getLocalUseDefAnalysis(final SootMethod method) {
-		// TODO: Auto-generated method stub
 		return new LocalUseDefAnalysisv2(getBasicBlockGraph(method));
 	}
 }
@@ -50,6 +49,9 @@ public final class IdentifierBasedDataDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/21 11:40:22  venku
+   - documentation.
+
    Revision 1.1  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
