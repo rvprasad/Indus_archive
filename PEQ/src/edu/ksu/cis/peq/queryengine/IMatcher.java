@@ -37,7 +37,7 @@ public interface IMatcher {
         /**
          * Merges the maps in the token if there is no conflict.
          * @pre sourceToken != null and childToken != null
-         * @post Result.isEmpty() => Substitutionmap not mergeable
+         * @post Result.isEmpty() => Substitutionmap not mergeable, !Result.isEmpty() => Result.getParent() = sourceToken.
          */
         IFSMToken merge(final IFSMToken sourceToken, final IFSMToken childToken);
 }
