@@ -92,6 +92,99 @@ public abstract class AbstractDirectedGraph
 	private int[] prenums;
 
 	/**
+	 * Retrieves the back edges in this graph.
+	 *
+	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
+	 * 		   and the secondelement of the pair, respectively.
+	 *
+	 * @post result != null and hasSpanningForest = true and result.oclIsKindOf(Pair(INode, INode))
+	 * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst())
+	 */
+	public final Collection getBackEdges() {
+		if (!hasSpanningForest) {
+			createSpanningForest();
+		}
+
+		final List _nodes = getNodes();
+		final Collection _temp = new ArrayList();
+
+		for (final Iterator _i = backedges.iterator(); _i.hasNext();) {
+			final Pair _edge = (Pair) _i.next();
+			final int _descendent = _nodes.indexOf(_edge.getFirst());
+			final int _ancestor = _nodes.indexOf(_edge.getSecond());
+
+			if (prenums[_ancestor] > prenums[_descendent] || postnums[_ancestor] < postnums[_descendent]) {
+				_temp.add(_edge);
+			}
+		}
+		backedges.removeAll(_temp);
+
+		final Collection _result;
+
+		if (backedges.isEmpty()) {
+			_result = Collections.EMPTY_LIST;
+		} else {
+			_result = Collections.unmodifiableCollection(backedges);
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns the cycles that occur in the graph.
+	 *
+	 * @return a collection of list of nodes which form cycles in this graph.  The head of the list is the initiator/head of
+	 * 		   the cycle.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+	 * @post result->forall(o | getNodes().containsAll(o))
+	 */
+	public final Collection getCycles() {
+		Collection _result = new ArrayList();
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Stack _dfsPath = new Stack();
+
+		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
+			final INode _head = (INode) _i.next();
+			_wb.clear();
+			_wb.addWork(_head);
+			_dfsPath.clear();
+
+			while (_wb.hasWork()) {
+				final Object _o = _wb.getWork();
+
+				if (_o instanceof Marker) {
+					final Object _temp = ((Marker) _o).getContent();
+					Object _obj = _dfsPath.pop();
+
+					while (!_temp.equals(_obj)) {
+						_obj = _dfsPath.pop();
+					}
+				} else if (_dfsPath.contains(_o)) {
+					findCycle(_result, _dfsPath, (INode) _o);
+				} else {
+					final INode _node = (INode) _o;
+					final Collection _succs = _node.getSuccsOf();
+
+					if (!_succs.isEmpty()) {
+						_dfsPath.push(_node);
+
+						if (_succs.size() > 1) {
+							_wb.addWork(new Marker(_node));
+						}
+						_wb.addAllWork(_succs);
+					}
+				}
+			}
+		}
+
+		if (_result.isEmpty()) {
+			_result = Collections.EMPTY_LIST;
+		}
+
+		return _result;
+	}
+
+	/**
 	 * Retrieves the directed acyclic graph from the given graph.  It removes all the backedges from the given graph.
 	 *
 	 * @return a map from nodes in <code>graph</code> to a collection of pairs in <code>graph</code>.
@@ -229,133 +322,6 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Retrieves the succession information as it occurs in this graph's spanning tree.  The returned map maps a node to a
-	 * collection of nodes which immediately succeed the key node in the  spanning tree of this graph.
-	 *
-	 * @return an read-only copy of immediate succession information as it occurs in this graph's spanning tree.
-	 *
-	 * @post result.oclIsKindOf(Map(INode, Collection(INode)))
-	 * @post result != null
-	 */
-	public final Map getSpanningSuccs() {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
-		return Collections.unmodifiableMap(spanningSuccs);
-	}
-
-	/**
-	 * Retrieves the tail nodes of this graph.
-	 *
-	 * @return the tail nodes(<code>INode</code>) of this graph.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
-	 */
-	public final Collection getTails() {
-		return Collections.unmodifiableCollection(tails);
-	}
-
-	/**
-	 * Returns the size of this graph.
-	 *
-	 * @return the number of nodes in this graph.
-	 *
-	 * @post result == getNodes().size
-	 */
-	public abstract int size();
-
-	/**
-	 * Retrieves the back edges in this graph.
-	 *
-	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
-	 * 		   and the secondelement of the pair, respectively.
-	 *
-	 * @post result != null and hasSpanningForest = true and result.oclIsKindOf(Pair(INode, INode))
-	 * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst())
-	 */
-	public final Collection getBackEdges() {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
-
-		final List _nodes = getNodes();
-		final Collection _temp = new ArrayList();
-
-		for (final Iterator _i = backedges.iterator(); _i.hasNext();) {
-			final Pair _edge = (Pair) _i.next();
-			final int _descendent = _nodes.indexOf(_edge.getFirst());
-			final int _ancestor = _nodes.indexOf(_edge.getSecond());
-
-			if (prenums[_ancestor] > prenums[_descendent] || postnums[_ancestor] < postnums[_descendent]) {
-				_temp.add(_edge);
-			}
-		}
-		backedges.removeAll(_temp);
-
-		final Collection _result;
-
-		if (backedges.isEmpty()) {
-			_result = Collections.EMPTY_LIST;
-		} else {
-			_result = Collections.unmodifiableCollection(backedges);
-		}
-		return _result;
-	}
-
-	/**
-	 * Returns the cycles that occur in the graph.
-	 *
-	 * @return a collection of list of nodes which form cycles in this graph.  The head of the list is the initiator/head of
-	 * 		   the cycle.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
-	 * @post result->forall(o | getNodes().containsAll(o))
-	 */
-	public final Collection getCycles() {
-		Collection _result = new ArrayList();
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Stack _dfsPath = new Stack();
-
-		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
-			final INode _head = (INode) _i.next();
-			_wb.clear();
-			_wb.addWork(_head);
-			_dfsPath.clear();
-
-			while (_wb.hasWork()) {
-				final Object _o = _wb.getWork();
-
-				if (_o instanceof Marker) {
-					final Object _temp = ((Marker) _o).getContent();
-					Object _obj = _dfsPath.pop();
-
-					while (!_temp.equals(_obj)) {
-						_obj = _dfsPath.pop();
-					}
-				} else if (_dfsPath.contains(_o)) {
-					findCycle(_result, _dfsPath, (INode) _o);
-				} else {
-					final INode _node = (INode) _o;
-					final Collection _succs = _node.getSuccsOf();
-
-					if (!_succs.isEmpty()) {
-						_dfsPath.push(_node);
-						_wb.addWork(new Marker(_node));
-						_wb.addAllWork(_succs);
-					}
-				}
-			}
-		}
-
-		if (_result.isEmpty()) {
-			_result = Collections.EMPTY_LIST;
-		}
-
-		return _result;
-	}
-
-	/**
 	 * Returns a collection of strongly-connected components in this graph.
 	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
@@ -399,6 +365,34 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * Retrieves the succession information as it occurs in this graph's spanning tree.  The returned map maps a node to a
+	 * collection of nodes which immediately succeed the key node in the  spanning tree of this graph.
+	 *
+	 * @return an read-only copy of immediate succession information as it occurs in this graph's spanning tree.
+	 *
+	 * @post result.oclIsKindOf(Map(INode, Collection(INode)))
+	 * @post result != null
+	 */
+	public final Map getSpanningSuccs() {
+		if (!hasSpanningForest) {
+			createSpanningForest();
+		}
+		return Collections.unmodifiableMap(spanningSuccs);
+	}
+
+	/**
+	 * Retrieves the tail nodes of this graph.
+	 *
+	 * @return the tail nodes(<code>INode</code>) of this graph.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
+	 */
+	public final Collection getTails() {
+		return Collections.unmodifiableCollection(tails);
+	}
+
+	/**
 	 * Performs (pseudo-)topological sort of the given nodes in the given direction.
 	 *
 	 * @param topdown <code>true</code> indicates follow the forward edges while sorting; <code>false</code> indicates follow
@@ -431,6 +425,17 @@ public abstract class AbstractDirectedGraph
 			_result.add(0, _finishTime2node.get(_i.next()));
 		}
 		return _result;
+	}
+
+	/**
+	 * Returns the size of this graph.
+	 *
+	 * @return the number of nodes in this graph.
+	 *
+	 * @post result == getNodes().size
+	 */
+	public int size() {
+		return getNodes().size();
 	}
 
 	/**
@@ -495,7 +500,7 @@ public abstract class AbstractDirectedGraph
 		}
 
 		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext() && !_processed.containsAll(_nodesInGraph);) {
-			Integer _fn = (Integer) _i.next();
+			final Integer _fn = (Integer) _i.next();
 			INode _node = (INode) finishTime2Node.get(_fn);
 
 			if (_processed.contains(_node)) {
@@ -510,12 +515,6 @@ public abstract class AbstractDirectedGraph
 
 				if (_processed.contains(_node)) {
 					continue;
-				}
-
-				final Integer _temp = (Integer) _node2finishTime.get(_node);
-
-				if (_temp.intValue() > _fn.intValue()) {
-					_fn = _temp;
 				}
 				_scc.add(_node);
 				_processed.add(_node);
@@ -619,8 +618,8 @@ public abstract class AbstractDirectedGraph
 	 * @pre reachedNodes != null and workBag != null and processedNodes != null and currPostNumber != null and nodeToProcess
 	 * 		!= null
 	 * @post processedNodes.containsAll(processedNodes$pre)
-     * @post reachedNodes.containsAll(reachedNodes$pre)
-     * @post processedNodes.containsAll(processedNodes$pre)
+	 * @post reachedNodes.containsAll(reachedNodes$pre)
+	 * @post processedNodes.containsAll(processedNodes$pre)
 	 */
 	private int processNodeForSpanningTree(final Collection reachedNodes, final IWorkBag workBag,
 		final Collection processedNodes, final int currPostNumber, final INode nodeToProcess) {
@@ -656,6 +655,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
