@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryC
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
@@ -251,18 +252,17 @@ public final class SlicerConfiguration
 	 */
 	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
 
-    /** 
-     * This identifies the property that governs which assertions will be selected. 
-     */
-    static final Object ASSERTIONS_IN_APPLICATION_CLASSES_ONLY = "consider assertions in application classes only";
+	/** 
+	 * This identifies the property that governs which assertions will be selected.
+	 */
+	static final Object ASSERTIONS_IN_APPLICATION_CLASSES_ONLY = "consider assertions in application classes only";
 
-    /** 
-     * This identifies the property that governs which synchronization constructs will be selected to preserve deadlocking 
-     * property. 
-     */
-    static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY =
-        "consider synchronization constructs in application classes only";
-    
+	/** 
+	 * This identifies the property that governs which synchronization constructs will be selected to preserve deadlocking
+	 * property.
+	 */
+	static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -1388,6 +1388,8 @@ public final class SlicerConfiguration
 		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
 			id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
 				Collections.singleton(new IdentifierBasedDataDAv3()));
+			id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
+				Collections.singleton(new ReferenceBasedDataDA()));
 
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
 
