@@ -33,7 +33,10 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.dependency;
+package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
+
+import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,9 +64,10 @@ public class SimpleController
 	 *
 	 * @param info is a map from name to objects which provide information that analyses may use, but is of no use to the
 	 * 		  controller.
+	 * @param pc is the preprocess controller.
 	 */
-	public SimpleController(Map info) {
-		super(info);
+	public SimpleController(Map info, ProcessingController pc) {
+		super(info, pc);
 
 		List temp = new ArrayList();
 		temp.add(METHOD_LOCAL_DATA_DA);
@@ -78,7 +82,7 @@ public class SimpleController
 
 	/**
 	 * <p>
-	 * Executes the analysis in a particular order in no phases.
+	 * Executes the analysis in the order they were registered.
 	 * </p>
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.Controller#execute()

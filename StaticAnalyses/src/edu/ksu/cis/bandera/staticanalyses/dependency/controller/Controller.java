@@ -33,13 +33,17 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.dependency;
+package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
 
 import ca.mcgill.sable.soot.SootMethod;
 
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.JimpleBody;
+
+import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -122,6 +126,8 @@ public abstract class Controller {
 	 * </p>
 	 */
 	protected final Collection preprocessors;
+	
+	protected final ProcessingController preprocessController;
 
 	/**
 	 * <p>
@@ -161,12 +167,15 @@ public abstract class Controller {
 	 *
 	 * @param info is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
 	 * 		  controller.
+	 * @param pc is the preprocessing controller.
+	 * @pre pc != null;
 	 */
-	public Controller(Map info) {
+	public Controller(Map info, ProcessingController pc) {
 		participatingAnalyses = new HashMap();
 		method2cmpltStmtGraph = new HashMap();
 		preprocessors = new HashSet();
 		this.info = info;
+		this.preprocessController = pc;
 	}
 
 	/**
@@ -192,7 +201,7 @@ public abstract class Controller {
 
 	/**
 	 * <p>
-	 * Provides the execution status of this object.
+	 * Provides the execution status of this controllers and it's controllees.
 	 * </p>
 	 *
 	 * @return <code>true</code> if all the participating analyses have completed; <code>false</code>, otherwise.
@@ -206,21 +215,17 @@ public abstract class Controller {
 	 * Initializes the controller.  The data structures dependent on <code>methods</code> are initialized, the interested
 	 * analyses are asked to preprocess the data, and then the analyses are initialized.
 	 * </p>
-	 *
 	 * @param methods that form the system to be analyzed.
 	 */
 	public void initialize(Collection methods) {
 		stable = false;
 
+		preprocessController.process();
+		
 		for(Iterator i = methods.iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			CompleteStmtGraph sg = new CompleteStmtGraph(((JimpleBody) method.getBody(Jimple.v())).getStmtList());
 			method2cmpltStmtGraph.put(method, sg);
-
-			for(Iterator k = preprocessors.iterator(); k.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) k.next();
-				da.preprocess(method);
-			}
 		}
 
 		for(Iterator k = participatingAnalyses.values().iterator(); k.hasNext();) {
@@ -253,19 +258,19 @@ public abstract class Controller {
 	 *
 	 * @param name of the analysis.
 	 * @param analysis is the implementation of the named analysis.
-	 * @param preprocess <code>true</code> indicates that the analysis is interested in preprocessing the system;
-	 * 		  <code>false</code>, otherwise.
 	 *
 	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
 	 */
-	protected final void setDAnalysis(String name, DependencyAnalysis analysis, boolean preprocess) {
+	protected final void setDAnalysis(String name, DependencyAnalysis analysis) {
 		if(!participatingAnalysesNames.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
 		participatingAnalyses.put(name, analysis);
 
-		if(preprocess) {
-			preprocessors.add(analysis);
+		if(analysis.doesPreProcessing()) {
+			Processor p = analysis.getPreProcessor();
+			preprocessors.add(p);
+			p.hookup(preprocessController);
 		}
 	}
 }
