@@ -282,16 +282,23 @@ public final class SlicerTool
 	 * This provides safe lock information.
 	 */
 	private SafeLockAnalysis safelockAnalysis;
+	
+	/**
+	 * This manages the tokens used in flow analysis.
+	 */
+	private final ITokenManager theTokenMgr;
 
 	/**
-	 * Creates a new SlicerTool object.
+	 * Creates a new SlicerTool object.  The client should relinquish control/ownership of the arguments as they are provided 
+	 * to configure the tool.
 	 *
 	 * @param tokenMgr is the token manager to be used with this instance of slicer tool.
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
 	 *
-	 * @pre tokenMgr != null and stamtGraphFactoryToUse != null
+	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
 	 */
 	public SlicerTool(final ITokenManager tokenMgr, final IStmtGraphFactory stmtGraphFactoryToUse) {
+	    theTokenMgr = tokenMgr;
 		phase = Phase.createPhase();
 
 		rootMethods = new HashSet();
@@ -624,6 +631,7 @@ public final class SlicerTool
 		ecba.reset();
 		monitorInfo.reset();
 		ofa.reset();
+		theTokenMgr.reset();
 		engine.reset();
 		stmtGraphFactory.reset();
 		threadGraph.reset();
@@ -931,6 +939,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.115  2004/08/16 16:48:55  venku
+   - changed the names of the methods that set and get UnitGraph or related classes to
+     contain StmtGraph instead of UnitGraph.
+
    Revision 1.114  2004/08/12 02:48:57  venku
    - catered feature request #411.
 
