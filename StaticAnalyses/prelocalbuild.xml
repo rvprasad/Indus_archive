@@ -22,7 +22,7 @@
         <pathelement location="${jars.dir}/junit.jar"/>
         <pathelement location="${banderaCommons.jars.dir}/banderaCommons.jar"/>        
         <pathelement location="${banderaToolFramework.jars.dir}/banderaToolFramework.jar"/>
-        <pathelement location="${jars.dir}/commons-logging-api.jar"/>
+        <pathelement location="${jars.dir}/commons-logging.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
         <pathelement location="${jars.dir}/commons-cli.jar"/>
         <pathelement location="${jars.dir}/commons-collections.jar"/>

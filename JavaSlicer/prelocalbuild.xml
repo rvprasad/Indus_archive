@@ -24,7 +24,7 @@
         <pathelement location="${jars.dir}/jibx-run.jar"/>
         <pathelement location="${jars.dir}/xpp3.jar"/>  
         <pathelement location="${jars.dir}/commons-cli.jar"/>
-        <pathelement location="${jars.dir}/commons-logging-api.jar"/>
+        <pathelement location="${jars.dir}/commons-logging.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
         <pathelement location="${jars.dir}/commons-lang.jar"/>
         <pathelement location="${jars.dir}/commons-collections.jar"/>
