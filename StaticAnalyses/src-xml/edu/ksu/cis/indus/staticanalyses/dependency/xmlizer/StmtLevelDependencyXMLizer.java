@@ -74,7 +74,7 @@ public class StmtLevelDependencyXMLizer
 					Object o = i.next();
 
 					if (o instanceof Pair) {
-						Pair pair = (Pair) i.next();
+						Pair pair = (Pair) o;
 						writer.write("\t\t\t\t<dependent id=\""
 							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>\n");
 					} else if (o instanceof Stmt) {
@@ -110,6 +110,9 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
+
    Revision 1.3  2003/11/17 01:35:54  venku
    - renamed out to writer in AbstractDependencyXMLizer
    - added methods to spit out root element tags.
