@@ -23,18 +23,24 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
+import soot.Local;
 import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.IdentityStmt;
 import soot.jimple.InvokeExpr;
@@ -42,8 +48,6 @@ import soot.jimple.ParameterRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
-
-import soot.util.Chain;
 
 
 /**
@@ -111,12 +115,15 @@ public final class ExecutableSlicePostProcessor
 
 		while (workBag.hasWork()) {
 			final SootMethod _method = (SootMethod) workBag.getWork();
-            processed.add(_method);
+			processed.add(_method);
 
 			if (_method.isConcrete()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Post Processing method " + _method);
+				}
 				processStmts(_method);
 				pickReturnPoints(_method);
-				pruneHandlers(_method);
+				pruneLocals(_method);
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Could not get body for method " + _method.getSignature());
@@ -130,7 +137,9 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public void reset() {
 		workBag.clear();
@@ -170,6 +179,10 @@ public final class ExecutableSlicePostProcessor
 			if (_stmt.getTag(collector.getTagName()) == null) {
 				collector.includeInSlice(_stmt);
 				collector.includeInSlice(method);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Picked " + _stmt + " in " + method);
+				}
 			}
 		}
 	}
@@ -183,7 +196,8 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private void processStmts(final SootMethod method) {
 		final Body _body = method.retrieveActiveBody();
-		final Chain _sl = _body.getUnits();
+		final List _sl = new ArrayList(_body.getUnits());
+		final Collection _trapsToKeep = new ArrayList();
 
 		for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
 			final Stmt _stmt = (Stmt) _j.next();
@@ -203,6 +217,10 @@ public final class ExecutableSlicePostProcessor
 					collector.includeInSlice(_id.getLeftOpBox());
 					collector.includeInSlice(_id.getRightOpBox());
 					collector.includeInSlice(_id);
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Picked " + _stmt + " in " + method);
+					}
 				}
 			} else if (_stmt.containsInvokeExpr()) {
 				/*
@@ -216,9 +234,39 @@ public final class ExecutableSlicePostProcessor
 				if (!(_expr instanceof StaticInvokeExpr)) {
 					final SootMethod _sm = _expr.getMethod();
 					collector.includeInSlice(_sm);
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
+					}
 					addToWorkBag(_sm);
 				}
 			}
+
+			// calculate the relevant traps
+			if (collector.hasBeenCollected(_stmt)) {
+				_trapsToKeep.addAll(TrapManager.getTrapsAt(_stmt, _body));
+			}
+		}
+
+		// delete unwanted traps
+		final Collection _traps = _body.getTraps();
+		_traps.retainAll(_trapsToKeep);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Deleting traps " + CollectionUtils.subtract(_traps, _trapsToKeep) + " from " + method);
+		}
+
+		/*
+		 * Include the first statement of the handler for all traps found to cover atleast one statement included in the
+		 * slice.
+		 */
+		for (final Iterator _i = _trapsToKeep.iterator(); _i.hasNext();) {
+			final Trap _trap = (Trap) _i.next();
+			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
+			collector.includeInSlice(_handlerUnit);
+			collector.includeInSlice(_handlerUnit.getLeftOpBox());
+			collector.includeInSlice(_handlerUnit.getRightOpBox());
+			collector.includeInSlice(_trap.getException());
 		}
 	}
 
@@ -229,38 +277,34 @@ public final class ExecutableSlicePostProcessor
 	 *
 	 * @param method DOCUMENT ME!
 	 */
-	private void pruneHandlers(final SootMethod method) {
-		/*
-		 * Include the first statement of the handler for all traps which cover atleast one statement included in the
-		 * slice
-		 */
-		if (method.isConcrete()) {
-			final Body _body = method.getActiveBody();
-			final Chain _sl = _body.getUnits();
+	private void pruneLocals(final SootMethod method) {
+		final Body _body = method.getActiveBody();
+		final Collection _localsToKeep = new ArrayList();
 
-			for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
-				final Stmt _stmt = (Stmt) _j.next();
+		for (final Iterator _j = _body.getUnits().iterator(); _j.hasNext();) {
+			final Stmt _stmt = (Stmt) _j.next();
 
-				if (collector.hasBeenCollected(_stmt)) {
-					for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
-						final Stmt _handlerUnit = (Stmt)((Trap) _k.next()).getHandlerUnit();
-                        collector.includeInSlice(_handlerUnit);
-                        collector.includeInSlice(((IdentityStmt)_handlerUnit).getLeftOpBox());
-                        collector.includeInSlice(((IdentityStmt)_handlerUnit).getRightOpBox());
+			if (collector.hasBeenCollected(_stmt)) {
+				for (final Iterator _k = _stmt.getUseAndDefBoxes().iterator(); _k.hasNext();) {
+					final ValueBox _vBox = (ValueBox) _k.next();
+					final Value _value = _vBox.getValue();
+
+					if (collector.hasBeenCollected(_vBox) && _value instanceof Local) {
+						_localsToKeep.add(_value);
 					}
 				}
 			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Could not get body for method " + method.getSignature());
-			}
 		}
+		_body.getLocals().retainAll(_localsToKeep);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/14 11:55:45  venku
+   - when pruning handlers, we need to include the rhs and lhs of
+     the identity statement that occurs at the handler unit.
    Revision 1.1  2004/01/13 10:15:24  venku
    - In terms of post processing we need to do so only when we
      require executable slice and the processing is the same
@@ -268,7 +312,6 @@ public final class ExecutableSlicePostProcessor
      one processor instead of 3.  Now we can have specializing
      post processor if we wanted to but I need more application
      information before I decide on this.
-
    Revision 1.1  2004/01/13 07:53:51  venku
    - as post processing beyond retention of semantics of slice is
      particular to the application or the tool.  Hence, moved the
