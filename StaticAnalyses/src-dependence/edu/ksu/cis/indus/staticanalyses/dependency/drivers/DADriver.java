@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import soot.Scene;
 
-import edu.ksu.cis.indus.commons.CompleteUnitGraphProvider;
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -342,6 +340,11 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.16  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

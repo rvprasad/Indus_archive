@@ -22,8 +22,8 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
-import edu.ksu.cis.indus.commons.CompleteUnitGraphProvider;
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
+import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
@@ -181,7 +181,7 @@ public final class SlicerTool
 	/** 
 	 * This provides <code>UnitGraph</code>s for the analyses. 
 	 */
-	private AbstractUnitGraphProvider unitGraphProvider;
+	private AbstractUnitGraphFactory unitGraphProvider;
 
 	/**
 	 * This is the slice criterion factory that will be used.
@@ -221,7 +221,7 @@ public final class SlicerTool
 		info.put(IEnvironment.ID, ofa.getEnvironment());
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
-		unitGraphProvider = new CompleteUnitGraphProvider();
+		unitGraphProvider = new CompleteUnitGraphFactory();
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, unitGraphProvider);
@@ -483,6 +483,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.7  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.

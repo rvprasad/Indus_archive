@@ -39,8 +39,6 @@ import soot.SootMethod;
 
 import soot.jimple.Stmt;
 
-import soot.toolkits.graph.CompleteUnitGraph;
-
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -96,7 +94,7 @@ public class CFGAnalysis {
 	public boolean checkForLoopEnclosedNewExpr(final Stmt newStmt, final SootMethod method) {
 		boolean result = false;
 
-		BasicBlockGraph bbg = getBasicBlockGraph(method);
+		BasicBlockGraph bbg = bbm.getBasicBlockGraph(method);
 
 		if (occursInCycle(bbg, bbg.getEnclosingBlock(newStmt))) {
 			result = true;
@@ -129,7 +127,7 @@ public class CFGAnalysis {
 	 * @pre stmt != null and caller != null
 	 */
 	public boolean executedMultipleTimes(final Stmt stmt, final SootMethod caller) {
-		BasicBlockGraph bbg = getBasicBlockGraph(caller);
+		BasicBlockGraph bbg = bbm.getBasicBlockGraph(caller);
 		return occursInCycle(bbg, bbg.getEnclosingBlock(stmt)) || executedMultipleTimes(caller);
 	}
 
@@ -162,7 +160,7 @@ main_control:
 
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
-			BasicBlockGraph bbg = getBasicBlockGraph(caller2);
+			BasicBlockGraph bbg = bbm.getBasicBlockGraph(caller2);
 
 			if (occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
@@ -211,7 +209,7 @@ main_control:
 	 * @return the basic block graph.
 	 *
 	 * @post result != null
-	 */
+	 *
 	private BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
 		BasicBlockGraph result = bbm.getBasicBlockGraph(method);
 
@@ -220,11 +218,17 @@ main_control:
 		}
 		return result;
 	}
+    */
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/08 02:20:12  venku
+   - it now only requires call graph info and basic block graph manager
+   - checkForLoopEnclosedNewExpr() is now applicable to any allocation sites
+   - added a new method to extract basic block graph
+
    Revision 1.6  2003/09/07 21:59:31  venku
    - missing documentation.  FIXED.
    Revision 1.5  2003/09/01 11:56:20  venku

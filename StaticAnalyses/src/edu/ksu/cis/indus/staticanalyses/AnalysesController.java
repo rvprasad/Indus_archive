@@ -15,12 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
-import soot.SootMethod;
-
-import soot.toolkits.graph.CompleteUnitGraph;
-import soot.toolkits.graph.UnitGraph;
-
-import edu.ksu.cis.indus.interfaces.ISystemInfo;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
@@ -45,8 +40,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class AnalysesController
-  implements ISystemInfo {
+public class AnalysesController {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -57,7 +51,8 @@ public class AnalysesController
 	 *
 	 * @invariant method2cmpltstmtGraph != null
 	 */
-	protected final Map method2cmpltStmtGraph;
+
+	//protected final Map method2cmpltStmtGraph;
 
 	/**
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
@@ -81,6 +76,11 @@ public class AnalysesController
 	protected boolean stable = false;
 
 	/**
+	 * This provides <code>UnitGraph</code>s for the analyses.
+	 */
+	private final AbstractUnitGraphFactory stmtGraphProvider;
+
+	/**
 	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
 	 * controller.
 	 */
@@ -92,14 +92,15 @@ public class AnalysesController
 	 * @param infoPrm is a map of name to objects which provide information that maybe used by analyses, but is of no use to
 	 * 		  the controller.
 	 * @param pc is the preprocessing controller.
+	 * @param cfgProvider provides <code>UnitGraph</code>s required by the analyses.
 	 *
-	 * @pre pc != null;
+	 * @pre pc != null and cfgProvider != null
 	 */
-	public AnalysesController(final Map infoPrm, final ProcessingController pc) {
+	public AnalysesController(final Map infoPrm, final ProcessingController pc, final AbstractUnitGraphFactory cfgProvider) {
 		participatingAnalyses = new HashMap();
-		method2cmpltStmtGraph = new HashMap();
-		this.info = infoPrm;
-		this.preprocessController = pc;
+		info = infoPrm;
+		preprocessController = pc;
+		stmtGraphProvider = cfgProvider;
 	}
 
 	/**
@@ -136,20 +137,6 @@ public class AnalysesController
 	}
 
 	/**
-	 * Provides the statement graph for the given method.
-	 *
-	 * @param method for which the statement graph is requested.
-	 *
-	 * @return the statement graph.  <code>null</code> is returned if the method was not processed.
-	 *
-	 * @pre method != null
-	 * @post method2cmpltStmtGraph.contains(method) == false implies result = null
-	 */
-	public UnitGraph getStmtGraph(final SootMethod method) {
-		return (UnitGraph) method2cmpltStmtGraph.get(method);
-	}
-
-	/**
 	 * Executes the analyses in the registered order.
 	 */
 	public void execute() {
@@ -179,32 +166,22 @@ public class AnalysesController
 	}
 
 	/**
-	 * Initializes the controller.  The data structures dependent on <code>methods</code> are initialized, the interested
-	 * analyses are asked to preprocess the data, and then the analyses are initialized.
-	 *
-	 * @param methods that form the system to be analyzed.
-	 *
-	 * @pre methods != null
+	 * Initializes the controller.  Interested analyses are driven to preprocess the system.  This is followed by the
+	 * initialization of the analyses.
 	 */
-	public void initialize(final Collection methods) {
+	public void initialize() {
 		stable = false;
 
 		Collection failed = new ArrayList();
 
 		preprocessController.process();
 
-		for (Iterator i = methods.iterator(); i.hasNext();) {
-			SootMethod method = (SootMethod) i.next();
-			CompleteUnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
-			method2cmpltStmtGraph.put(method, sg);
-		}
-
 		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
 			Object key = k.next();
 			AbstractAnalysis da = (AbstractAnalysis) participatingAnalyses.get(key);
 
 			try {
-				da.initialize(method2cmpltStmtGraph, info);
+				da.initialize(info);
 			} catch (InitializationException e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn(da.getClass() + " failed to initialize, hence, it will not executed.", e);
@@ -228,13 +205,17 @@ public class AnalysesController
 			element.reset();
 		}
 		participatingAnalyses.clear();
-		method2cmpltStmtGraph.clear();
+		//		method2cmpltStmtGraph.clear();
+		stmtGraphProvider.reset();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.18  2003/09/12 22:33:08  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.

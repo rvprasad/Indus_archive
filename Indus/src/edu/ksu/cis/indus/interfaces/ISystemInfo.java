@@ -15,10 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import java.util.Collection;
+
 import soot.SootMethod;
-
-import soot.toolkits.graph.UnitGraph;
-
 
 /**
  * This will be generic interface that provides information about the system.  The difference between this class and
@@ -34,20 +33,23 @@ import soot.toolkits.graph.UnitGraph;
  */
 public interface ISystemInfo {
 	/**
-	 * Retrieves the statement graph of the given method.
+	 * Retrieves the statements of the given method.
 	 *
-	 * @param method for which the statement graph is requested.
+	 * @param method for which the statements are requested.
 	 *
-	 * @return the requested statement graph.
+	 * @return the statements of the method.
 	 *
 	 * @pre method != null
 	 */
-	UnitGraph getStmtGraph(final SootMethod method);
+	Collection getUnits(final SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/27 23:21:42  venku
+   *** empty log message ***
+
    Revision 1.1  2003/08/18 04:44:35  venku
    Established an interface which will provide the information about the underlying system as required by transformations.
    It is called ISystemInfo.

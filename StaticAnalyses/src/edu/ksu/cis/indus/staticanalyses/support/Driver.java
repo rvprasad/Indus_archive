@@ -21,8 +21,8 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 
-import edu.ksu.cis.indus.commons.CompleteUnitGraphProvider;
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
+import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.io.PrintStream;
 
@@ -49,9 +49,9 @@ public abstract class Driver {
 
 	/**
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>CompleteUnitGraphProvider</code>.
+	 * <code>CompleteUnitGraphFactory</code>.
 	 */
-	protected AbstractUnitGraphProvider cfgProvider;
+	protected AbstractUnitGraphFactory cfgProvider;
 
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
@@ -74,11 +74,11 @@ public abstract class Driver {
 	private final Map times = new LinkedHashMap();
 
 	/**
-	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphProvider</code> and
+	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code> and
      * <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit graph provider.
 	 */
 	protected Driver() {
-		cfgProvider = new CompleteUnitGraphProvider();
+		cfgProvider = new CompleteUnitGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setUnitGraphProvider(cfgProvider);
 	}
@@ -200,6 +200,11 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.5  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

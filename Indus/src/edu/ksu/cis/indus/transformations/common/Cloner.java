@@ -151,7 +151,7 @@ public class Cloner
 			Chain sl = jb.getUnits();
 			Stmt nop = jimple.newNopStmt();
 
-			for (int i = sysInfo.getStmtGraph(cloneeMethod).getBody().getUnits().size() - 1; i >= 0; i--) {
+			for (int i = sysInfo.getUnits(cloneeMethod).size() - 1; i >= 0; i--) {
 				sl.addLast(nop);
 			}
 			result.setActiveBody(jb);
@@ -291,6 +291,9 @@ public class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/27 23:21:42  venku
+   *** empty log message ***
+
    Revision 1.5  2003/09/26 15:06:05  venku
    - Formatting.
    - ITransformer has a new method initialize() via which the system

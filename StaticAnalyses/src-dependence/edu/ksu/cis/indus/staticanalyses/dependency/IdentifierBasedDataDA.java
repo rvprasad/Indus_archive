@@ -145,7 +145,7 @@ public class IdentifierBasedDataDA
 				continue;
 			} else if (!(graph instanceof CompleteUnitGraph)) {
 				LOGGER.error("Could not retrieve a CompleteUnitGraph for " + currMethod.getSignature() + ".  Please"
-					+ "initialize the analyses with a CompleteUnitGraphProvider.");
+					+ "initialize the analyses with a CompleteUnitGraphFactory.");
 				continue;
 			}
 
@@ -260,6 +260,11 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.11  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

@@ -19,7 +19,7 @@ import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
 
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -45,7 +45,7 @@ public class BasicBlockGraphMgr {
 	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	private AbstractUnitGraphProvider unitGraphProvider;
+	private AbstractUnitGraphFactory unitGraphProvider;
 
 	/**
 	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
@@ -104,7 +104,7 @@ public class BasicBlockGraphMgr {
 	 *
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setUnitGraphProvider(final AbstractUnitGraphProvider cfgProvider) {
+	public void setUnitGraphProvider(final AbstractUnitGraphFactory cfgProvider) {
 		unitGraphProvider = cfgProvider;
 	}
 
@@ -119,6 +119,11 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.6  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
