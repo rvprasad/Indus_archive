@@ -542,145 +542,6 @@ public final class SlicerTool
 	}
 
 	/**
-     * Executes dependency analyses.
-     * 
-     * @param slicerConfig provides the configuration.
-     * @pre slicerConfig != null
-     */
-    private void dependencyAnalysisPhase(final SlicerConfiguration slicerConfig) {
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("BEGIN: dependence analyses phase");
-        }
-
-        // perform dependency analyses
-        daController.reset();
-
-        for (final Iterator _i = slicerConfig.getNamesOfDAsToUse().iterator(); _i.hasNext();) {
-        	final Object _id = _i.next();
-        	final Collection _c = slicerConfig.getDependenceAnalysis(_id);
-        	daController.setAnalyses(_id, _c);
-        }
-        daController.initialize();
-        daController.execute();
-        phase.nextMajorPhase();
-
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("END: dependence analyses phase");
-        }
-    }
-
-    /**
-     * Executes the slicer.
-     * 
-     * @param slicerConfig provides the configuration.
-     * @pre slicerConfig != null
-     */
-    private void slicingPhase(final SlicerConfiguration slicerConfig) {
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("BEGIN: slicing phase");
-        }
-
-        // perform slicing
-        engine.reset();
-
-        if (slicerConfig.sliceForDeadlock) {
-        	populateDeadlockCriteria();
-        }
-
-        if (!criteria.isEmpty()) {
-        	// setup the slicing engine and slice
-        	engine.setCgi(callGraph);
-        	engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
-        	engine.setInitMapper(initMapper);
-        	engine.setBasicBlockGraphManager(bbgMgr);
-        	engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
-        	engine.setSliceCriteria(criteria);
-        	engine.initialize();
-        	engine.slice();
-
-        	// post process the slice as required
-        	postProcessSlice();
-        } else {
-        	if (LOGGER.isWarnEnabled()) {
-        		LOGGER.warn(
-        			"No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
-        			+ "selected then the system did not have any synchronized methods are blocks.");
-        	}
-        }
-
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("END: slicing phase");
-        }
-    }
-
-    /**
-     * Executes low level analyses.
-     * 
-     * @throws InterruptedException
-     */
-    private void lowLevelAnalysisPhase() throws InterruptedException {
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("BEGIN: low level static analyses phase");
-        }
-
-        phase.reset();
-        // do the flow analyses
-        ofa.reset();
-        bbgMgr.reset();
-        stmtGraphFactory.reset();
-        ofa.analyze(system, rootMethods);
-        phase.nextMinorPhase();
-
-        movingToNextPhase();
-
-        // process flow information into a more meaningful call graph
-        callGraph.reset();
-        cgPreProcessCtrl.reset();
-        callGraph.hookup(cgPreProcessCtrl);
-        cgPreProcessCtrl.process();
-        callGraph.unhook(cgPreProcessCtrl);
-        phase.nextMinorPhase();
-
-        if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
-        }
-
-        movingToNextPhase();
-
-        // process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
-        // mapper.
-        threadGraph.reset();
-        cgBasedPreProcessCtrl.reset();
-        initMapper.hookup(cgBasedPreProcessCtrl);
-        threadGraph.hookup(cgBasedPreProcessCtrl);
-        cgBasedPreProcessCtrl.process();
-        threadGraph.unhook(cgBasedPreProcessCtrl);
-        initMapper.unhook(cgBasedPreProcessCtrl);
-        phase.nextMinorPhase();
-
-        if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Thread Graph:\n" + threadGraph.dumpGraph());
-        }
-
-        movingToNextPhase();
-
-        // process escape analyses.
-        cgBasedPreProcessCtrl.reset();
-        ecba.hookup(cgBasedPreProcessCtrl);
-        aliasUD.reset();
-        aliasUD.hookup(cgBasedPreProcessCtrl);
-        cgBasedPreProcessCtrl.process();
-        aliasUD.unhook(cgBasedPreProcessCtrl);
-        ecba.unhook(cgBasedPreProcessCtrl);
-        ecba.execute();
-        phase.nextMajorPhase();
-
-        if (LOGGER.isInfoEnabled()) {
-        	LOGGER.info("END: low level static analyses phase");
-        }
-    }
-
-    /**
 	 * @see edu.ksu.cis.indus.tools.AbstractTool#initialize()
 	 */
 	public void initialize() {
@@ -696,6 +557,20 @@ public final class SlicerTool
 	 */
 	public void reset() {
 		phase.reset();
+		daController.reset();
+		aliasUD.reset();
+		bbgMgr.reset();
+		callGraph.reset();
+		cgBasedPreProcessCtrl.reset();
+		cgPreProcessCtrl.reset();
+		initMapper.reset();
+		ecba.reset();
+		ofa.reset();
+		engine.reset();
+		stmtGraphFactory.reset();
+		threadGraph.reset();
+		criteria.clear();
+		rootMethods.clear();
 	}
 
 	/**
@@ -765,6 +640,35 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Executes dependency analyses.
+	 *
+	 * @param slicerConfig provides the configuration.
+	 *
+	 * @pre slicerConfig != null
+	 */
+	private void dependencyAnalysisPhase(final SlicerConfiguration slicerConfig) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: dependence analyses phase");
+		}
+
+		// perform dependency analyses
+		daController.reset();
+
+		for (final Iterator _i = slicerConfig.getNamesOfDAsToUse().iterator(); _i.hasNext();) {
+			final Object _id = _i.next();
+			final Collection _c = slicerConfig.getDependenceAnalysis(_id);
+			daController.setAnalyses(_id, _c);
+		}
+		daController.initialize();
+		daController.execute();
+		phase.nextMajorPhase();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: dependence analyses phase");
+		}
+	}
+
+	/**
 	 * Generates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 *
 	 * @param monitorInfo provides the monitor info in the system.
@@ -815,6 +719,74 @@ public final class SlicerTool
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
+		}
+	}
+
+	/**
+	 * Executes low level analyses.
+	 *
+	 * @throws InterruptedException
+	 */
+	private void lowLevelAnalysisPhase()
+	  throws InterruptedException {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: low level static analyses phase");
+		}
+
+		phase.reset();
+		// do the flow analyses
+		ofa.reset();
+		bbgMgr.reset();
+		stmtGraphFactory.reset();
+		ofa.analyze(system, rootMethods);
+		phase.nextMinorPhase();
+
+		movingToNextPhase();
+
+		// process flow information into a more meaningful call graph
+		callGraph.reset();
+		cgPreProcessCtrl.reset();
+		callGraph.hookup(cgPreProcessCtrl);
+		cgPreProcessCtrl.process();
+		callGraph.unhook(cgPreProcessCtrl);
+		phase.nextMinorPhase();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
+		}
+
+		movingToNextPhase();
+
+		// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
+		// mapper.
+		threadGraph.reset();
+		cgBasedPreProcessCtrl.reset();
+		initMapper.hookup(cgBasedPreProcessCtrl);
+		threadGraph.hookup(cgBasedPreProcessCtrl);
+		cgBasedPreProcessCtrl.process();
+		threadGraph.unhook(cgBasedPreProcessCtrl);
+		initMapper.unhook(cgBasedPreProcessCtrl);
+		phase.nextMinorPhase();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Thread Graph:\n" + threadGraph.dumpGraph());
+		}
+
+		movingToNextPhase();
+
+		// process escape analyses.
+		cgBasedPreProcessCtrl.reset();
+		ecba.hookup(cgBasedPreProcessCtrl);
+		aliasUD.reset();
+		aliasUD.hookup(cgBasedPreProcessCtrl);
+		cgBasedPreProcessCtrl.process();
+		aliasUD.unhook(cgBasedPreProcessCtrl);
+		ecba.unhook(cgBasedPreProcessCtrl);
+		ecba.execute();
+		phase.nextMajorPhase();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: low level static analyses phase");
 		}
 	}
 
@@ -876,14 +848,63 @@ public final class SlicerTool
 			_gotoProcessor.process(_methods, bbgMgr);
 		}
 	}
+
+	/**
+	 * Executes the slicer.
+	 *
+	 * @param slicerConfig provides the configuration.
+	 *
+	 * @pre slicerConfig != null
+	 */
+	private void slicingPhase(final SlicerConfiguration slicerConfig) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: slicing phase");
+		}
+
+		// perform slicing
+		engine.reset();
+
+		if (slicerConfig.sliceForDeadlock) {
+			populateDeadlockCriteria();
+		}
+
+		if (!criteria.isEmpty()) {
+			// setup the slicing engine and slice
+			engine.setCgi(callGraph);
+			engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+			engine.setInitMapper(initMapper);
+			engine.setBasicBlockGraphManager(bbgMgr);
+			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
+			engine.setSliceCriteria(criteria);
+			engine.initialize();
+			engine.slice();
+
+			// post process the slice as required
+			postProcessSlice();
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
+					+ "selected then the system did not have any synchronized methods are blocks.");
+			}
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: slicing phase");
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.83  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
    Revision 1.82  2004/05/09 11:09:46  venku
    - the client can now specify the statement graph factory to use during slicing.
-
    Revision 1.81  2004/04/16 20:10:41  venku
    - refactoring
     - enabled bit-encoding support in indus.
