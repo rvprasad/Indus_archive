@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,12 +48,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public class AnalysesController
   extends AbstractStatus {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AnalysesController.class);
 
-	/**
+	/** 
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
 	 *
 	 * @invariant participatingAnalyses != null
@@ -61,19 +61,19 @@ public class AnalysesController
 	 */
 	protected final Map participatingAnalyses;
 
-	/**
+	/** 
 	 * This is the preprocessing controlling agent.
 	 *
 	 * @invariant preprocessController != null;
 	 */
 	protected final ProcessingController preprocessController;
 
-	/**
+	/** 
 	 * This provides basic block graphs for the analyses.
 	 */
 	private BasicBlockGraphMgr basicBlockGraphMgr;
 
-	/**
+	/** 
 	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
 	 * controller.
 	 */
@@ -184,13 +184,13 @@ public class AnalysesController
 			final Collection _c = (Collection) participatingAnalyses.get(_key);
 
 			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-				final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
+				final IAnalysis _analysis = (IAnalysis) _j.next();
 
 				try {
 					_analysis.initialize(info);
 
 					if (_analysis.doesPreProcessing()) {
-						final IValueAnalyzerBasedProcessor _p = _analysis.getPreProcessor();
+						final IProcessor _p = _analysis.getPreProcessor();
 						_p.hookup(preprocessController);
 						_preprocessors.add(_p);
 					}
@@ -230,7 +230,7 @@ public class AnalysesController
 			final Collection _c = (Collection) _i.next();
 
 			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-				final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
+				final IAnalysis _analysis = (IAnalysis) _j.next();
 				_analysis.reset();
 			}
 		}
@@ -241,10 +241,11 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/20 04:59:06  venku
+   - documentation.
    Revision 1.37  2004/07/11 14:46:18  venku
    - coding conventions.
    - timing information via logging.
-
    Revision 1.36  2004/07/11 14:34:37  venku
    - coding conventions.
    Revision 1.35  2004/07/11 14:17:39  venku

@@ -20,6 +20,8 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
+import edu.ksu.cis.indus.processing.IProcessor;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
@@ -34,20 +36,21 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This class is the skeletal implementation of analyses which are structural or structural-like in nature.
+ * This class is the skeletal implementation of the interface of analyses used to execute them.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public abstract class AbstractAnalysis
-  extends  AbstractStatus {
-	/**
+  extends AbstractStatus
+  implements IAnalysis {
+	/** 
 	 * The pre-processor for this analysis, if one exists.
 	 */
-	protected IValueAnalyzerBasedProcessor preprocessor;
+	protected IProcessor preprocessor;
 
-	/**
+	/** 
 	 * This contains auxiliary information required by the subclasses. It is recommended that this represent
 	 * <code>java.util.Properties</code> but map a <code>String</code> to an <code>Object</code>.
 	 *
@@ -55,24 +58,20 @@ public abstract class AbstractAnalysis
 	 */
 	protected final Map info = new HashMap();
 
-	/**
+	/** 
 	 * This manages the basic block graphs of methods.
 	 */
 	private BasicBlockGraphMgr graphManager;
 
 	/**
-	 * Analyzes the given methods and classes for "some" information.
+	 * @see IAnalysis#analyze()
 	 */
 	public abstract void analyze();
 
 	/**
-	 * Returns the pre-processor.
-	 *
-	 * @return the pre-processor.
-	 *
-	 * @post doesPreProcessing() == true implies result != null
+	 * @see IAnalysis#getPreProcessor()
 	 */
-	public IValueAnalyzerBasedProcessor getPreProcessor() {
+	public IProcessor getPreProcessor() {
 		return preprocessor;
 	}
 
@@ -86,25 +85,23 @@ public abstract class AbstractAnalysis
 	}
 
 	/**
-	 * Checks if this analysis does any preprocessing.  Subclasses need not override this method.  Rather they can set
-	 * <code>preprocessor</code> field to a preprocessor and this method will use that to provide the correct information to
-	 * the caller.
-	 *
-	 * @return <code>true</code> if the analysis will preprocess; <code>false</code>, otherwise.
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * Subclasses need not override this method.  Rather they can set <code>preprocessor</code> field to a preprocessor and
+	 * this method will use that to provide the correct information to the caller.
+	 * </p>
 	 */
 	public boolean doesPreProcessing() {
 		return preprocessor != null;
 	}
 
 	/**
-	 * Initializes the analyzer with the information from the system to perform the analysis.
-	 *
-	 * @param infoParam contains the value for the member variable<code>info</code>. Refer to {@link #info info} and subclass
-	 * 		  documenation for more details.
-	 *
-	 * @throws InitializationException if the initialization in the sub classes fails.
-	 *
-	 * @pre classes != null
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * Refer to {@link #info info} and subclass documenation for more details.
+	 * </p>
 	 */
 	public final void initialize(final Map infoParam)
 	  throws InitializationException {
@@ -113,23 +110,19 @@ public abstract class AbstractAnalysis
 	}
 
 	/**
-	 * Sets the basic block graph manager to use.
-	 *
-	 * @param bbm is the basic block graph manager.
-	 *
-	 * @pre bbm != null
+	 * @see IAnalysis#setBasicBlockGraphManager(BasicBlockGraphMgr)
 	 */
 	public void setBasicBlockGraphManager(final BasicBlockGraphMgr bbm) {
 		graphManager = bbm;
 	}
 
 	/**
-	 * Resets all internal data structures.  This will <i>not</i> reset data structures provided by the application.
+	 * {@inheritDoc}
 	 *
 	 * @post info.size() == 0
 	 */
 	public void reset() {
-	    unstable();
+		unstable();
 		info.clear();
 	}
 
@@ -194,10 +187,13 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/11 09:42:14  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.20  2004/05/31 21:38:09  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.19  2003/12/09 04:37:26  venku
    - returns an empty list for a method without body.
    Revision 1.18  2003/12/09 04:22:10  venku
