@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
+import java.util.Stack;
+
 
 /**
  * This is a marker interface via which slice criterion is exposed to the external world.
@@ -49,6 +51,23 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
  */
 public interface ISliceCriterion
   extends IPoolable {
+	/**
+	 * Sets the call stack of call triples leading upto the method containing the criteria.
+	 *
+	 * @param theCallStack obviously.
+	 *
+	 * @pre theCallStack != null
+	 */
+	void setCallStack(final Stack theCallStack);
+
+	/**
+	 * Retrieves the call stack.
+	 *
+	 * @return the call stack.
+	 *
+	 * @post result != null
+	 */
+	Stack getCallStack();
 }
 
 // End of File

@@ -56,6 +56,20 @@ abstract class AbstractSliceCriterion
 	private boolean considerExecution;
 
 	/**
+	 * @see ISliceCriterion#setCallStack(Stack)
+	 */
+	public final void setCallStack(final Stack theCallStack) {
+		callStack = theCallStack;
+	}
+
+	/**
+	 * @see ISliceCriterion#getCallStack()
+	 */
+	public final Stack getCallStack() {
+		return callStack;
+	}
+
+	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -137,24 +151,6 @@ abstract class AbstractSliceCriterion
 	 */
 	protected final void initialize(final SootMethod occurringMethod) {
 		method = occurringMethod;
-	}
-
-	/**
-	 * Sets the value of <code>callStack</code>.
-	 *
-	 * @param theCallStack value of <code>callStack</code>.
-	 */
-	final void setCallStack(final Stack theCallStack) {
-		callStack = theCallStack;
-	}
-
-	/**
-	 * Retrieves the value in <code>callStack</code>.
-	 *
-	 * @return the value in <code>callStack</code>.
-	 */
-	final Stack getCallStack() {
-		return callStack;
 	}
 
 	/**
