@@ -10,3 +10,4 @@ build
 test.jpage
 slice.jar
 slicer.jar
+*emacsbuild.xml

@@ -346,12 +346,13 @@ public class DirectedAndSimpleNodeGraphTest1
 
 	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
-	 * 
+	 *
 	 * @param graph from which to extract information.
 	 * @param preds will contain a node to predecessor mapping on return.
 	 * @param succs will contain a node to successor mapping on return.
-     * @pre graph != null and preds != null and succs != null
-     * @post preds.oclIsKindOf(INode, Collection(INode)) and succs.oclIsKindOf(INode, Collection(INode))
+	 *
+	 * @pre graph != null and preds != null and succs != null
+	 * @post preds.oclIsKindOf(INode, Collection(INode)) and succs.oclIsKindOf(INode, Collection(INode))
 	 */
 	protected void extractPredSuccCopy(final DirectedGraph graph, final Map preds, final Map succs) {
 		for (Iterator i = graph.getNodes().iterator(); i.hasNext();) {
@@ -452,6 +453,10 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/14 23:20:48  venku
+   - added support to retrieve a DAG from a graph.
+   - removed support to extract preds/succs as a bitst from the graph.
+   - added/removed tests for the above changes.
    Revision 1.10  2003/09/12 08:07:26  venku
    - documentation.
    Revision 1.9  2003/09/11 12:31:00  venku
