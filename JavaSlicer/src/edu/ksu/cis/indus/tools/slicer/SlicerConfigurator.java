@@ -143,22 +143,27 @@ public final class SlicerConfigurator
 		final Group _assertionGroup = new Group(composite, SWT.NONE);
 		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		_gridData1.horizontalSpan = 3;
+        _gridData1.grabExcessHorizontalSpace = true;
 		_assertionGroup.setLayoutData(_gridData1);
 
-		final RowLayout _rowLayout1 = new RowLayout();
-		_rowLayout1.type = SWT.VERTICAL;
-		_rowLayout1.fill = true;
-		_assertionGroup.setLayout(_rowLayout1);
+		final GridLayout _gl1 = new GridLayout(3, false);
+		_assertionGroup.setLayout(_gl1);
 		_assertionGroup.setText("Preservation of assertions in the system");
 
 		final Button _assertionPreservingSliceButton = new Button(_assertionGroup, SWT.CHECK);
 		_assertionPreservingSliceButton.setText("Preserve assertions");
 		_assertionPreservingSliceButton.setEnabled(true);
+        final GridData _gd2 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+        _gd2.horizontalSpan = 1;
+        _assertionPreservingSliceButton.setLayoutData(_gd2);
 
 		final Button _applclasses = new Button(_assertionGroup, SWT.CHECK);
 		_applclasses.setText("Preserve assertions in application classes only");
-		_applclasses.setSelection(((Boolean) cfg.getProperty(SlicerConfiguration.ASSERTIONS_IN_APPLICATION_CLASSES_ONLY))
-			  .booleanValue());
+		_applclasses.setSelection(cfg.areAssertionsOnlyInAppClassesConsidered());
+        final GridData _gd3 = new GridData(SWT.END, SWT.BEGINNING, false, false);
+        _gd3.horizontalSpan = 2;
+        _gd3.grabExcessHorizontalSpace = true;
+        _applclasses.setLayoutData(_gd3);
 
 		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
