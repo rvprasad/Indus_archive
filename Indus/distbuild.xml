@@ -22,6 +22,10 @@
     </target>
 
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
+		<anttask target="package"/>
+	</target>
+	
+	<target name="package">
         <mkdir dir="${dist.dir}"/>
         <delete file="${docs.zip.filename}"/>
         <copy todir="${dist.ug.dir}" flatten="true">
