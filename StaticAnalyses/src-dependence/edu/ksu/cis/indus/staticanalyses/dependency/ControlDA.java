@@ -179,7 +179,7 @@ public class ControlDA
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Control Dependence processing");
+			LOGGER.info("BEGIN: Control Dependence processing - forward:" + forward);
 		}
 
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
@@ -493,6 +493,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/25 17:08:50  venku
+   - added logging statement.
+
    Revision 1.24  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
