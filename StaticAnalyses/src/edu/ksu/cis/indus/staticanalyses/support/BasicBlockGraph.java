@@ -395,6 +395,9 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/04 08:34:52  venku
+   - as methods in language such as Java have one entry point,
+     it makes sense to have a getHead() method in basic block graph.
    Revision 1.14  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
