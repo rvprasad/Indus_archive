@@ -50,8 +50,6 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.omg.CORBA.INTERNAL;
-
 import soot.ArrayType;
 import soot.Local;
 import soot.RefType;
@@ -799,7 +797,7 @@ public final class SlicingEngine {
 			final int _iEnd = theCriteria.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final ISliceCriterion _criterion = ((ISliceCriterion) _i.next());
+				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
 
 				((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
 			}
