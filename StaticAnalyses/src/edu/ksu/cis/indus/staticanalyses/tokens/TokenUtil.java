@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -29,7 +28,7 @@ public final class TokenUtil {
 	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = "indus.staticanalyses.TokenManagerType";
 
 	///CLOVER:OFF
-    
+
     /**
      * <i>Prevents creation instances of this class.</i>
      */
@@ -39,11 +38,20 @@ public final class TokenUtil {
 	///CLOVER:ON
 
 	/**
-	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerType".
+	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerType".  The user
+	 * can specify the name of the class of the manager to instanstiate via this property.  It has to be one of the following.
+	 * <ul>
+	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</li>
+	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager</li>
+	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.IntegerTokenManager</li>
+	 * </ul>
+	 * <p>By default, an instance of <code>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</code> is returned.</p>
 	 *
 	 * @return a token manager.
 	 *
 	 * @post result != null
+	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
+	 *       result.oclIsKindOf(IntegerTokenManager)
 	 */
 	public static ITokenManager getTokenManager() {
 		ITokenManager _tokenMgr = null;
@@ -67,4 +75,7 @@ public final class TokenUtil {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/24 08:23:35  venku
+   - moved OFAXMLizerCLI.getTokenManager() into this utility class.
+
  */
