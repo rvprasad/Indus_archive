@@ -338,6 +338,24 @@
         be queried.</para>
     </sect2>
   </sect1>
+  <sect1>
+    <title>Closing Note</title>
+    <para>The XMLizing classes used by this project and it's parent and sibling projects use the xmlzing framework to
+      drive the slicer. So, we urge you to peruse the source code of these classes before asking questions on the forum
+      or the mailing list. We will be glad to answers any question you may have regarding the usage, but it probably
+      would be faster if the user mocked an existing working piece of code while starting to use a new tool.</para>
+    <para>The reader is encouraged to use the modules as is or to extend them as required. In the due process, the users
+      are urged to submit bug reports of any bugs uncovered with suitable information about the triggering input and
+      configuration. </para>
+    <para>The interface of the modules are not fixed as the development team has not forseen all possible applications
+      and tweaks to the slicer. Hence, the users are encouraged to raise change requests to the development team along
+      with any feature requests they may have. However, please note that the development team may not be able to
+      implement all requested features in which case they will assist by providing any information or alterations to
+      enable the requested features.</para>
+    <para>Please refer to <ulink url="http://indus.projects.cis.ksu.edu">Indus</ulink> for more documentation,
+      distribution, mailing list, forums, and links to other subprojects.</para>
+    <para>We hope you have a pleasant experience using our product.</para>
+  </sect1>
   <bibliography>
     <biblioentry xreflabel="HorwitzPLDI88">
       <biblioset relation="article">

@@ -25,8 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * This class extends the flow graph node by associating a work peice with it.  This optimizes the worklist by adding new
- * values to the work peice already on the work list and not generating a new work peice.
+ * This class extends the flow graph node by associating a work peice with it.
  * 
  * <p>
  * Created: Tue Jan 22 04:30:32 2002
@@ -100,6 +99,10 @@ public class FGAccessNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.4  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
