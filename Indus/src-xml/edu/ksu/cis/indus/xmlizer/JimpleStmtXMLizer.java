@@ -16,7 +16,8 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
-import java.io.Writer;
+
+import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootMethod;
 
@@ -68,9 +69,9 @@ final class JimpleStmtXMLizer
 	private SootMethod currMethod;
 
 	/**
-	 * The writer used to write the xmlized data.
+	 * The instance used to write xml data.
 	 */
-	private Writer out;
+	private XMLOutputter xmlWriter;
 
 	/**
 	 * Creates a new JimpleStmtXMLizer object.
@@ -91,14 +92,16 @@ final class JimpleStmtXMLizer
 	public void caseAssignStmt(final AssignStmt v) {
 		try {
 			final boolean _notEmpty = !v.getBoxesPointingToThis().isEmpty();
-			out.write("\t\t\t<assign_stmt  id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\"" + (_notEmpty)
-				+ "\">\n");
-			out.write("\t\t\t\t<lhs>\n");
+			xmlWriter.startTag("assign_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(_notEmpty));
+			xmlWriter.startTag("lhs");
 			valueXMLizer.apply(v.getLeftOpBox());
-			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
+			xmlWriter.endTag();
+			xmlWriter.startTag("rhs");
 			valueXMLizer.apply(v.getRightOpBox());
-			out.write("\t\t\t\t</rhs>\n");
-			out.write("\t\t\t</assign_stmt>\n");
+			xmlWriter.endTag();
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -109,9 +112,11 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseBreakpointStmt(final BreakpointStmt v) {
 		try {
-			out.write("\t\t\t<breakpoint_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("breakpoint_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -121,11 +126,12 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseEnterMonitorStmt(final EnterMonitorStmt v) {
 		try {
-			out.write("\t\t\t<entermonitor_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("entermonitor_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getOpBox());
-			out.write("\t\t\t</entermonitor_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -135,10 +141,11 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseExitMonitorStmt(final ExitMonitorStmt v) {
 		try {
-			out.write("\t\t\t<exitmonitor_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("exitmonitor_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getOpBox());
-			out.write("\t\t\t</exitmonitor_stmt>\n");
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -149,10 +156,12 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseGotoStmt(final GotoStmt v) {
 		try {
-			out.write("\t\t\t<goto_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" target=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("goto_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("target", idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -162,15 +171,17 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseIdentityStmt(final IdentityStmt v) {
 		try {
-			out.write("\t\t\t<identity_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
-			out.write("\t\t\t\t<lhs>\n");
+			xmlWriter.startTag("identity_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.startTag("lhs");
 			valueXMLizer.apply(v.getLeftOpBox());
-			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
+			xmlWriter.endTag();
+			xmlWriter.startTag("rhs");
 			valueXMLizer.apply(v.getRightOpBox());
-			out.write("\t\t\t\t</rhs>\n");
-			out.write("\t\t\t</identity_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -180,14 +191,15 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseIfStmt(final IfStmt v) {
 		try {
-			out.write("\t\t\t<if_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" trueTargetId=\""
-				+ idGenerator.getIdForStmt(v.getTarget(), currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
-			out.write("\t\t\t\t<condition>\n");
+			xmlWriter.startTag("if_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.attribute("truTargetId", idGenerator.getIdForStmt(v.getTarget(), currMethod));
+			xmlWriter.startTag("condition");
 			valueXMLizer.apply(v.getConditionBox());
-			out.write("\t\t\t\t</condition>\n");
-			out.write("\t\t\t</if_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -197,11 +209,12 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseInvokeStmt(final InvokeStmt v) {
 		try {
-			out.write("\t\t\t<invoke_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("invoke_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getInvokeExprBox());
-			out.write("\t\t\t</invoke_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -211,19 +224,22 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseLookupSwitchStmt(final LookupSwitchStmt v) {
 		try {
-			out.write("\t\t\t<lookupswitch_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
-			out.write("\t\t\t\t<key>\n");
+			xmlWriter.startTag("lookupswitch_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.attribute("defaultTargetId", idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod));
+			xmlWriter.startTag("key");
 			valueXMLizer.apply(v.getKeyBox());
-			out.write("\t\t\t\t</key>\n");
+			xmlWriter.endTag();
 
 			for (int _i = 0; _i < v.getTargetCount(); _i++) {
-				out.write("\t\t\t\t<case value=\"" + v.getLookupValue(_i) + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod) + "\"/>\n");
+				xmlWriter.startTag("case");
+				xmlWriter.attribute("value", String.valueOf(v.getLookupValue(_i)));
+				xmlWriter.attribute("targetId", idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod));
+				xmlWriter.endTag();
 			}
-			out.write("\t\t\t</lookupswitch_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -233,9 +249,11 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseNopStmt(final NopStmt v) {
 		try {
-			out.write("\t\t\t<nop_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("nop_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -245,11 +263,12 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseRetStmt(final RetStmt v) {
 		try {
-			out.write("\t\t\t<ret_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("ret_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getStmtAddressBox());
-			out.write("\t\t\t</ret_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -259,11 +278,12 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseReturnStmt(final ReturnStmt v) {
 		try {
-			out.write("\t\t\t<return_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("return_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getOpBox());
-			out.write("\t\t\t</return_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -273,9 +293,11 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseReturnVoidStmt(final ReturnVoidStmt v) {
 		try {
-			out.write("\t\t\t<returnvoid_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("returnvoid_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -285,19 +307,22 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseTableSwitchStmt(final TableSwitchStmt v) {
 		try {
-			out.write("\t\t\t<tableswitch_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
-			out.write("\t\t\t\t<key>\n");
+			xmlWriter.startTag("tableswitch_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
+			xmlWriter.attribute("defaultTargetId", idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod));
+			xmlWriter.startTag("key");
 			valueXMLizer.apply(v.getKeyBox());
-			out.write("\t\t\t\t</key>\n");
+			xmlWriter.endTag();
 
 			for (int _i = 0; _i < v.getHighIndex() - v.getLowIndex(); _i++) {
-				out.write("\t\t\t\t<case value=\"" + _i + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod) + "\"/>\n");
+				xmlWriter.startTag("case");
+				xmlWriter.attribute("value", String.valueOf(_i));
+				xmlWriter.attribute("targetId", idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod));
+				xmlWriter.endTag();
 			}
-			out.write("\t\t\t</tableswitch_stmt>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -307,10 +332,11 @@ final class JimpleStmtXMLizer
 	 */
 	public void caseThrowStmt(final ThrowStmt v) {
 		try {
-			out.write("\t\t\t<throw_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
-				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			xmlWriter.startTag("throw_stmt");
+			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
+			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			valueXMLizer.apply(v.getOpBox());
-			out.write("\t\t\t</throw_stmt>\n");
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -329,15 +355,15 @@ final class JimpleStmtXMLizer
 	}
 
 	/**
-	 * Sets the stream into which xml data will be written into.
+	 * Sets the outputter into which xml data will be written into.
 	 *
-	 * @param stream into which xml data will be written into.
+	 * @param outputter via which xml data will be written into.
 	 *
 	 * @pre stream != null
 	 */
-	void setWriter(final Writer stream) {
-		out = stream;
-		valueXMLizer.setWriter(stream);
+	void setWriter(final XMLOutputter outputter) {
+		xmlWriter = outputter;
+		valueXMLizer.setWriter(outputter);
 	}
 
 	/**
@@ -354,6 +380,9 @@ final class JimpleStmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.10  2003/12/02 11:36:16  venku
    - coding convention.
    Revision 1.9  2003/12/02 09:42:24  venku

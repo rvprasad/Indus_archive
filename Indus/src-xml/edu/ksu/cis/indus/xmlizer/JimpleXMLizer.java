@@ -31,6 +31,8 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.znerd.xmlenc.XMLOutputter;
+
 import soot.Body;
 import soot.Local;
 import soot.Modifier;
@@ -93,6 +95,11 @@ public class JimpleXMLizer
 	 * The stream into which the xmlized data is written into.
 	 */
 	private Writer xmlizedSystem;
+
+	/** 
+	 * The outputter to be used to write xml data.
+	 */
+	private XMLOutputter xmlOutputter;
 
 	/**
 	 * This indicates if the processing of a class has begun.  This is  set in the callback for a class.
@@ -384,14 +391,16 @@ public class JimpleXMLizer
 
 		if (dumpDirectory == null && xmlizedSystem == null) {
 			xmlizedSystem = new BufferedWriter(new OutputStreamWriter(System.out));
-			stmtXmlizer.setWriter(xmlizedSystem);
+			xmlOutputter = new CustomXMLOutputter(xmlizedSystem, "UTF-8");
+			stmtXmlizer.setWriter(xmlOutputter);
 		} else if (dumpDirectory != null) {
 			final String _filename = dumpDirectory + File.separator + _classId + fileSuffix + ".xml";
 
 			try {
 				final File _file = new File(_filename);
 				xmlizedSystem = new BufferedWriter(new FileWriter(_file));
-				stmtXmlizer.setWriter(xmlizedSystem);
+				xmlOutputter = new CustomXMLOutputter(xmlizedSystem, "UTF-8");
+				stmtXmlizer.setWriter(xmlOutputter);
 				xmlizedSystem.write("<!DOCTYPE class PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
 			} catch (final IOException _e) {
 				LOGGER.error("Exception while trying to open " + _filename, _e);
@@ -405,13 +414,14 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/04/25 23:18:21  venku
+   - coding conventions.
    Revision 1.33  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.32  2004/04/22 23:32:31  venku
    - xml file name were setup incorrectly.  FIXED.
    Revision 1.31  2004/04/22 22:12:09  venku

@@ -16,7 +16,8 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
-import java.io.Writer;
+
+import org.znerd.xmlenc.XMLOutputter;
 
 import soot.ArrayType;
 import soot.Local;
@@ -114,9 +115,9 @@ public class JimpleValueXMLizer
 	private Stmt currStmt;
 
 	/**
-	 * This is the stream into which xml data will be written into.
+	 * This is the outputter to be used to write xml data.
 	 */
-	private Writer out;
+	private XMLOutputter xmlWriter;
 
 	/**
 	 * Creates a new JimpleValueXMLizer object.
@@ -148,15 +149,14 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseArrayRef(final ArrayRef v) {
 		try {
-			out.write(tabs + "<array_ref id=\"" + newId + "\">\n");
+			xmlWriter.startTag("array_ref");
+			xmlWriter.attribute("id", newId.toString());
 			writeBase(v.getBaseBox());
-			incrementTabs();
-			out.write(tabs + "<index>\n");
+			xmlWriter.startTag("index");
 			apply(v.getIndexBox());
-			out.write(tabs + "</index>\n");
-			decrementTabs();
-			out.write(tabs + "</array_ref>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -166,10 +166,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseCastExpr(final CastExpr v) {
 		try {
-			out.write(tabs + "<cast id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCastType()) + "\">\n");
+			xmlWriter.startTag("cast");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("typeId", idGenerator.getIdForType(v.getCastType()));
 			apply(v.getOpBox());
-			out.write(tabs + "</cast >\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -179,9 +181,11 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseCaughtExceptionRef(final CaughtExceptionRef v) {
 		try {
-			out.write(tabs + "<caught_exception_ref id=\"" + newId + "\" exceptionTypeId=\""
-				+ idGenerator.getIdForType(v.getType()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("caught_exception_ref");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("exceptionTypeId", idGenerator.getIdForType(v.getType()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -219,7 +223,10 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseDoubleConstant(final DoubleConstant v) {
 		try {
-			out.write(tabs + "<double id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
+			xmlWriter.startTag("double");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -237,7 +244,10 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseFloatConstant(final FloatConstant v) {
 		try {
-			out.write(tabs + "<float id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
+			xmlWriter.startTag("float");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -262,11 +272,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseInstanceFieldRef(final InstanceFieldRef v) {
 		try {
-			out.write(tabs + "<instance_field_ref id=\"" + newId + "\">\n");
+			xmlWriter.startTag("instance_field_ref");
+			xmlWriter.attribute("id", newId.toString());
 			writeBase(v.getBaseBox());
 			writeField(v.getField());
-			out.write(tabs + "</instance_field_ref>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -276,11 +287,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseInstanceOfExpr(final InstanceOfExpr v) {
 		try {
-			out.write(tabs + "<instanceof id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCheckType())
-				+ "\">\n");
+			xmlWriter.startTag("instanceof");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("typeId", idGenerator.getIdForType(v.getCheckType()));
 			apply(v.getOpBox());
-			out.write(tabs + "</instanceof>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -290,7 +302,10 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseIntConstant(final IntConstant v) {
 		try {
-			out.write(tabs + "<integer id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
+			xmlWriter.startTag("integer");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -322,9 +337,11 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseLocal(final Local v) {
 		try {
-			out.write(tabs + "<local_ref id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod)
-				+ "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("local_ref");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("localId", idGenerator.getIdForLocal(v, currMethod));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -334,7 +351,10 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseLongConstant(final LongConstant v) {
 		try {
-			out.write(tabs + "<long id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
+			xmlWriter.startTag("long");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -373,11 +393,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseNewArrayExpr(final NewArrayExpr v) {
 		try {
-			out.write(tabs + "<new_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getBaseType())
-				+ "\">\n");
+			xmlWriter.startTag("new_array");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("typeId", idGenerator.getIdForType(v.getBaseType()));
 			writeDimensionSize(1, v.getSizeBox());
-			out.write(tabs + "</new_array>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -387,8 +408,11 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseNewExpr(final NewExpr v) {
 		try {
-			out.write(tabs + "<new id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getType()) + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("new");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("typeId", idGenerator.getIdForType(v.getType()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -400,14 +424,16 @@ public class JimpleValueXMLizer
 		final ArrayType _type = v.getBaseType();
 
 		try {
-			out.write(tabs + "<new_multi_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(_type.baseType)
-				+ "\" dimension=\"" + _type.numDimensions + "\">\n");
+			xmlWriter.startTag("new_multi_array");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("typeId", idGenerator.getIdForType(_type.baseType));
+			xmlWriter.attribute("dimension", String.valueOf(_type.numDimensions));
 
 			for (int _i = 0; _i < v.getSizeCount(); _i++) {
 				writeDimensionSize(_i + 1, v.getSizeBox(_i));
 			}
-			out.write(tabs + "</new_multi_array>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -417,7 +443,8 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseNullConstant(final NullConstant v) {
 		try {
-			out.write(tabs + "<null/>\n");
+			xmlWriter.startTag("null");
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -435,8 +462,11 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseParameterRef(final ParameterRef v) {
 		try {
-			out.write(tabs + "<parameter_ref id=\"" + newId + "\" position=\"" + v.getIndex() + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("parameter_ref");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("position", String.valueOf(v.getIndex()));
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -474,10 +504,11 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseStaticFieldRef(final StaticFieldRef v) {
 		try {
-			out.write(tabs + "<static_field_ref id=\"" + newId + "\">\n");
+			xmlWriter.startTag("static_field_ref");
+			xmlWriter.attribute("id", newId.toString());
 			writeField(v.getField());
-			out.write(tabs + "</static_field_ref>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -494,9 +525,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseStringConstant(final StringConstant v) {
 		try {
-			String _temp = v.value.replaceAll("[^\\p{Print}]", "");
-			_temp = _temp.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\\\"", "&quot;");
-			out.write(tabs + "<string id=\"" + newId + "\" value=\"" + _temp + "\"/>\n");
+			//String _temp = v.value.replaceAll("[^\\p{Print}]", "");
+			//_temp = _temp.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\\\"", "&quot;");
+			xmlWriter.startTag("string");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -514,8 +548,10 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseThisRef(final ThisRef v) {
 		try {
-			out.write(tabs + "<this id=\"" + newId + "\"/>\n");
-		} catch (IOException _e) {
+			xmlWriter.startTag("this");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -564,14 +600,14 @@ public class JimpleValueXMLizer
 	}
 
 	/**
-	 * Sets the stream into which xml data will be written into.
+	 * Sets the outputter into which xml data will be written into.
 	 *
-	 * @param stream into which xml data will be written into.
+	 * @param outputter via which xml data will be written into.
 	 *
-	 * @pre stream != null
+	 * @pre outputter != null
 	 */
-	final void setWriter(final Writer stream) {
-		out = stream;
+	final void setWriter(final XMLOutputter outputter) {
+		xmlWriter = outputter;
 	}
 
 	/**
@@ -613,12 +649,10 @@ public class JimpleValueXMLizer
 	 */
 	private void writeBase(final ValueBox base) {
 		try {
-			incrementTabs();
-			out.write(tabs + "<base>\n");
+			xmlWriter.startTag("base");
 			apply(base);
-			out.write(tabs + "</base>\n");
-			decrementTabs();
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -633,17 +667,17 @@ public class JimpleValueXMLizer
 	 */
 	private void writeBinaryExpr(final String operatorName, final BinopExpr v) {
 		try {
-			out.write(tabs + "<binary_expr id=\"" + newId + "\" op=\"" + operatorName + "\">\n");
-			incrementTabs();
-			out.write(tabs + "<left_op>\n");
+			xmlWriter.startTag("binary_expr");
+			xmlWriter.attribute("id", newId.toString());
+			xmlWriter.attribute("op", operatorName);
+			xmlWriter.startTag("left_op");
 			apply(v.getOp1Box());
-			out.write(tabs + "</left_op>\n");
-			out.write(tabs + "<right_op>\n");
+			xmlWriter.endTag();
+			xmlWriter.startTag("right_op");
 			apply(v.getOp2Box());
-			out.write(tabs + "</right_op>\n");
-			decrementTabs();
-			out.write(tabs + "</binary_expr>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -656,12 +690,11 @@ public class JimpleValueXMLizer
 	 */
 	private void writeDimensionSize(final int i, final ValueBox v) {
 		try {
-			incrementTabs();
-			out.write(tabs + "<size dimension=\"" + i + "\">\n");
+			xmlWriter.startTag("size");
+			xmlWriter.attribute("dimension", String.valueOf(i));
 			apply(v);
-			out.write(tabs + "</size>\n");
-			decrementTabs();
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -675,9 +708,9 @@ public class JimpleValueXMLizer
 	 */
 	private void writeField(final SootField field) {
 		try {
-			incrementTabs();
-			out.write(tabs + "<field_ref fieldId=\"" + idGenerator.getIdForField(field) + "\"/>\n");
-			decrementTabs();
+			xmlWriter.startTag("field_ref");
+			xmlWriter.attribute("fieldId", idGenerator.getIdForField(field));
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -710,27 +743,29 @@ public class JimpleValueXMLizer
 		}
 
 		try {
-			out.write(tabs + "<invoke_expr name=\"" + _name + "\" id=\"" + newId + "\">\n");
+			xmlWriter.startTag("invoke_expr");
+			xmlWriter.attribute("name", _name);
+			xmlWriter.attribute("id", newId.toString());
 
 			final SootMethod _method = v.getMethod();
-			incrementTabs();
-			out.write(tabs + "<method_ref methodId=\"" + idGenerator.getIdForMethod(_method) + "\"/>\n");
-			decrementTabs();
+			xmlWriter.startTag("method_ref");
+			xmlWriter.attribute("methodId", idGenerator.getIdForMethod(_method));
+			xmlWriter.endTag();
 
 			if (v instanceof InstanceInvokeExpr) {
 				writeBase(((InstanceInvokeExpr) v).getBaseBox());
 			}
 
 			if (v.getArgCount() > 0) {
-				out.write(tabs + "\t<arguments>\n");
+				xmlWriter.startTag("arguments");
 
 				for (int _i = 0; _i < v.getArgCount(); _i++) {
 					apply(v.getArgBox(_i));
 				}
-				out.write(tabs + "\t</arguments>\n");
+				xmlWriter.endTag();
 			}
-			out.write(tabs + "</invoke_expr>\n");
-		} catch (IOException _e) {
+			xmlWriter.endTag();
+		} catch (final IOException _e) {
 			_e.printStackTrace();
 		}
 	}
@@ -745,11 +780,11 @@ public class JimpleValueXMLizer
 	 */
 	private void writeUnaryExpr(final String operatorName, final UnopExpr value) {
 		try {
-			incrementTabs();
-			out.write(tabs + "<unary_expr op=\"" + operatorName + "\" id=\"" + newId + "\">\n");
+			xmlWriter.startTag("unary_expr");
+			xmlWriter.attribute("op", operatorName);
+			xmlWriter.attribute("id", newId.toString());
 			apply(value.getOpBox());
-			out.write(tabs + "</unary_expr>\n");
-			decrementTabs();
+			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -759,6 +794,9 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.14  2003/12/09 09:50:46  venku
    - amended output of string output to be XML compliant.
      This means some characters that are unrepresentable in
