@@ -175,13 +175,11 @@ public class AnalysesController {
 	}
 
 	/**
-	 * Initializes the controller.  Interested analyses are driven to preprocess the system.  This is followed by the
-	 * initialization of the analyses.
+	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system.  
 	 */
 	public void initialize() {
 		Collection failed = new ArrayList();
 		stable = false;
-		preprocessController.process();
 
 		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
 			Object key = k.next();
@@ -204,6 +202,7 @@ public class AnalysesController {
 				c.remove(i.next());
 			}
 		}
+        preprocessController.process();
 	}
 
 	/**
@@ -228,6 +227,9 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/02 20:18:25  venku
+   - documentation.
+
    Revision 1.21  2003/11/01 23:51:27  venku
    - each analysis id can be associated with multiple
      implementations that can provide the same analysis.
