@@ -37,16 +37,16 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public class CFGAnalysis {
+public final class CFGAnalysis {
 	/**
 	 * This manages the basic block graphs of the methods being analyzed.
 	 */
-	private BasicBlockGraphMgr bbm;
+	private final BasicBlockGraphMgr bbm;
 
 	/**
 	 * This provides call-graph information.
 	 */
-	private ICallGraphInfo cgi;
+	private final ICallGraphInfo cgi;
 
 	/**
 	 * Creates a new CFGAnalysis object.
@@ -91,7 +91,7 @@ public class CFGAnalysis {
 	 *
 	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
 	 */
-	public final boolean occursInCycle(final IDirectedGraph graph, final BasicBlock node) {
+	public boolean occursInCycle(final IDirectedGraph graph, final BasicBlock node) {
 		return graph.isReachable(node, node, true);
 	}
 
@@ -185,6 +185,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.14  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
