@@ -76,19 +76,25 @@ final class ExceptionFlowSensitiveStmtGraph
 	}
 
 	/**
+	 * Returns an iterator over the statements represented in this graph.  The
+	 *  order of the statements will reflect the order of the statements in the sequence of statements obtained from the method.
+	 * 
 	 * @see soot.toolkits.graph.DirectedGraph#iterator()
 	 */
 	public Iterator iterator() {
 		if (nodes == null) {
-			nodes = new ArrayList();
+			final List _temp = new ArrayList();
 
-			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(nodes);
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
 			_wb.addAllWork(getHeads());
 
 			while (_wb.hasWork()) {
 				final Stmt _unit = (Stmt) _wb.getWork();
 				_wb.addAllWork(getSuccsOf(_unit));
 			}
+			
+			nodes = new ArrayList(getBody().getUnits());
+			nodes.retainAll(_temp);			
 		}
 		return Collections.unmodifiableCollection(nodes).iterator();
 	}
@@ -194,6 +200,12 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/06/01 01:12:16  venku
+   - added a new testcase to test BasicBlockGraph.
+   - documentation.
+   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
+     return only statement captured in the graph.
+
    Revision 1.6  2004/03/27 08:39:40  venku
    - predecessor mapping was updated instread of successor mapping. FIXED.
    Revision 1.5  2004/03/26 00:22:31  venku

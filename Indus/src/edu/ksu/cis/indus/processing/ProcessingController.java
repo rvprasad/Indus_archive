@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.processing;
 
-import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -1257,8 +1255,6 @@ public class ProcessingController {
 		}
 
 		try {
-			final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-
 			if (stmtGraphFactory == null) {
 				if (method.hasActiveBody()) {
 					for (final Iterator _i = method.getActiveBody().getUnits().iterator(); _i.hasNext();) {
@@ -1271,13 +1267,11 @@ public class ProcessingController {
 				}
 			} else {
 				final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
-				_wb.addAllWork(_stmtGraph.getHeads());
 
-				while (_wb.hasWork()) {
-					final Stmt _stmt = (Stmt) _wb.getWork();
+				for (final Iterator _i = _stmtGraph.iterator(); _i.hasNext();) {
+					final Stmt _stmt = (Stmt) _i.next();
 					context.setStmt(_stmt);
 					_stmt.apply(stmtSwitcher);
-					_wb.addAllWorkNoDuplicates(_stmtGraph.getSuccsOf(_stmt));
 				}
 			}
 		} catch (RuntimeException _e) {
@@ -1291,14 +1285,14 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/05/03 22:54:04  venku
+   Syntax error.
    Revision 1.34  2004/05/03 22:39:00  venku
    Changed info level logging to debug level logging.
-
    Revision 1.33  2004/04/20 00:42:23  venku
    - Processing required a stmtGraphFactory to detect locally reachable statements
      However, this will fail in certain case.  Instead, one should be able to use this
      feature or just process all statements.  FIXED.
-
    Revision 1.32  2004/03/29 01:55:15  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
