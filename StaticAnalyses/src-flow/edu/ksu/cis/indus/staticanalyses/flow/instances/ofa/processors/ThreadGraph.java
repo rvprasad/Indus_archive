@@ -37,6 +37,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -593,7 +594,7 @@ public class ThreadGraph
 	 */
 	private Collection transitiveThreadCallClosure(final SootMethod starterMethod) {
 		Collection result = new HashSet();
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		WorkBag wb = new FIFOWorkBag();
 		wb.addWork(starterMethod);
 		result.add(starterMethod);
 
@@ -626,6 +627,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/29 05:52:44  venku
+   - added more info to the dump.
+
    Revision 1.9  2003/09/28 07:33:36  venku
    - simple optimization.
 

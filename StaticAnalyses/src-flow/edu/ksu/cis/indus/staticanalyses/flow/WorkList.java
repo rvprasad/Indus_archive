@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.logging.Log;
@@ -46,7 +47,7 @@ public class WorkList {
 	 * Creates a new <code>WorkList</code> instance.
 	 */
 	WorkList() {
-		workbag = new WorkBag(WorkBag.LIFO);
+		workbag = new LIFOWorkBag();
 	}
 
 	/**
@@ -91,6 +92,10 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.6  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.5  2003/08/18 11:08:10  venku

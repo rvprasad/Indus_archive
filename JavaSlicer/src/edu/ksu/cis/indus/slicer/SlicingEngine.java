@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -133,7 +134,7 @@ public class SlicingEngine {
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
 	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
-	private final WorkBag workbag = new WorkBag(WorkBag.FIFO);
+	private final WorkBag workbag = new FIFOWorkBag();
 
 	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
@@ -568,6 +569,12 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/05 08:34:40  venku
+   - Slicing on single threaded and single procedure
+     program works but does not terminate.  Now the
+     slicing algorithm is just tracing dependence and
+     creating new criteria along the way.
+
    Revision 1.3  2003/11/03 08:19:56  venku
    - Major changes
      value boxes are the atomic entities in a slice.

@@ -42,6 +42,8 @@ import edu.ksu.cis.indus.staticanalyses.support.Marker;
 import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -298,7 +300,7 @@ public class CallGraph
 		context.setRootMethod(root);
 		result.add(getCallees(ie, context));
 
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		WorkBag wb = new FIFOWorkBag();
 		wb.addAllWorkNoDuplicates(result);
 
 		while (wb.hasWork()) {
@@ -356,7 +358,7 @@ public class CallGraph
 
 			Context context = new Context();
 			Stack callStack = new Stack();
-			WorkBag workbag = new WorkBag(WorkBag.FIFO);
+			WorkBag workbag = new FIFOWorkBag();
 
 			for (Iterator i = heads.iterator(); i.hasNext();) {
 				SootMethod sm = (SootMethod) i.next();
@@ -517,7 +519,7 @@ public class CallGraph
 		}
 
 		// calculate reachables.
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		WorkBag wb = new FIFOWorkBag();
 		wb.addAllWork(heads);
 		reachables.addAll(heads);
 
@@ -771,6 +773,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/09/29 06:54:57  venku
+   - dump formatting.
+
    Revision 1.20  2003/09/29 06:19:34  venku
    - added more info to the dump.
 
