@@ -13,8 +13,14 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>com.cortexeb.tools.clover.eclipse.cloverjavabuilder</name>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
 			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;launchConfiguration local=&quot;false&quot; path=&quot;/JavaSlicer/.externalToolBuilders/JiBX-JavaSlicer [Builder].launch&quot;/&gt;
+</value>
+				</dictionary>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
@@ -23,7 +29,7 @@
 				<dictionary>
 					<key>LaunchConfigHandle</key>
 					<value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;launchConfiguration local=&quot;false&quot; path=&quot;/JavaSlicer/.externalToolBuilders/JiBX-JavaSlicer [Builder].launch&quot;/&gt;
+&lt;launchConfiguration local=&quot;false&quot; path=&quot;/JavaSlicer/.externalToolBuilders/JiBX-JavaSlicer [Builder] (1).launch&quot;/&gt;
 </value>
 				</dictionary>
 			</arguments>
