@@ -121,6 +121,14 @@ final class CallGraphXMLizer
 
 				_xmlWriter.endTag();
 			}
+			_xmlWriter.startTag("reachables");
+
+			for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
+				final SootMethod _sm = (SootMethod) _i.next();
+				_xmlWriter.startTag("method");
+				_xmlWriter.attribute("methodId", getIdGenerator().getIdForMethod(_sm));
+				_xmlWriter.endTag();
+			}
 			_xmlWriter.endDocument();
 			_writer.flush();
 			_writer.close();
@@ -133,6 +141,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/05/13 07:34:25  venku
+   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
+
    Revision 1.20  2004/05/13 06:50:59  venku
    - renamed .xsd's to XML.xsd's.
    - ripple effect.

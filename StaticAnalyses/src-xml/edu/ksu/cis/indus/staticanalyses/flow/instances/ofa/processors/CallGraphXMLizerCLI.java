@@ -86,7 +86,11 @@ public final class CallGraphXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_option.setArgName("dump-jimple");
 		_options.addOption(_option);
-		
+		_option = new Option("p", "soot-classpath", true, "Prepend this to soot class path.");
+		_option.setArgs(1);
+		_option.setArgName("classpath");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -116,6 +120,7 @@ public final class CallGraphXMLizerCLI
 				throw new MissingOptionException("-c");
 			}
 			_cli.setClassNames(_cl.getOptionValues('c'));
+			_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			_cli.initialize();
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
@@ -194,6 +199,8 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/11 22:30:21  venku
+   - fixed command line errors.
    Revision 1.10  2004/04/25 23:18:18  venku
    - coding conventions.
    Revision 1.9  2004/04/25 21:18:37  venku
