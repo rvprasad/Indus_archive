@@ -32,7 +32,7 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck" severity="warning">
             <config-properties>
-                <config-property name="excludedClasses" value="^.*[Driver|Test|Tester|XMLizer|CLI]$"/>
+                <config-property name="excludedClasses" value="^.*[Driver|Test|TestSuite|XMLizer|CLI]$"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
@@ -148,7 +148,7 @@
             <config-properties/>
         </rule-configuration>
         <rule-configuration
-            classname="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" severity="warning">
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" severity="info">
             <config-properties>
                 <config-property name="max" value="2"/>
             </config-properties>

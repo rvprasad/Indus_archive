@@ -22,7 +22,7 @@
             <property name="severity" value="info"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck">
-            <property name="excludedClasses" value="^.*[Driver|Test|Tester|XMLizer]$"/>
+            <property name="excludedClasses" value="^.*[Driver|Test|TestSuite|XMLizer|CLI]$"/>
             <property name="severity" value="warning"/>
         </module>
         <module name="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck">
