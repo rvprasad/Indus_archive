@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="_generation_" name="XDoclet Generator">
+<path id="xdoclet.classpath"><pathelement location="/home/venku/workspace/eclipse/Indus/build"/>
+<pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
+<pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
+<pathelement location="/home/venku/projects/Indus/eclipse/plugins/com.bonevich.eclipse.logging_1.0.1/logginglibs/commons-logging.jar"/>
+<pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
+<pathelement location="/home/venku/workspace/eclipse/StaticAnalyses/build"/>
+<pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+<pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+<pathelement location="/usr/local/javaclasses/junit.jar"/>
+<pathelement location="/home/venku/workspace/eclipse/JavaSlicer/build"/>
+<pathelement location="/usr/local/jdk1.4.2/jre/lib/rt.jar"/>
+<pathelement location="/home/venku/projects/Misc/banderaNG/lib/bandera/banderaTools.jar"/>
+<pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
+<pathelement location="/usr/local/javaclasses/jibx-run.jar"/>
+
+<fileset dir="/home/venku/projects/Indus/eclipse/plugins/org.jboss.ide.eclipse.xdoclet.core_1.2.130/">
+<include name="*.jar"/>
+</fileset>
+</path>
+<target name="_generation_" depends=""/>
+</project>
