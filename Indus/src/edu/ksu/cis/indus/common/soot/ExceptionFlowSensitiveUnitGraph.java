@@ -80,6 +80,7 @@ final class ExceptionFlowSensitiveUnitGraph
 				final List _list = new ArrayList((List) unitToPreds.get(_handler));
 				_list.removeAll(_preds);
 				unitToPreds.put(_handler, _list);
+                _j.remove();
 			}
 		}
 	}
@@ -88,6 +89,9 @@ final class ExceptionFlowSensitiveUnitGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/23 08:27:21  venku
+   - the graphs were created as complete unit graphs. FIXED.
+
    Revision 1.2  2004/02/23 06:37:16  venku
    - succs/preds in the parent  class were unmodifiable.  FIXED.
    Revision 1.1  2004/02/17 05:59:15  venku
