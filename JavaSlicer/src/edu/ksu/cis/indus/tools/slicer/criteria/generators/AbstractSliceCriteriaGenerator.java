@@ -48,7 +48,7 @@ public abstract class AbstractSliceCriteriaGenerator
 	private ISliceCriteriaPredicate criteriaPredicate;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The predicate to select sites in which the criteria may occur. 
 	 */
 	private Predicate siteSelectionPredicate;
 
@@ -129,17 +129,17 @@ public abstract class AbstractSliceCriteriaGenerator
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Checks if the given site should be considered for criteria generation.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param site to be checked.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if site should be considered; <code>false</code>, otherwise.
 	 */
-	protected final boolean shouldConsiderSite(final SootMethod method) {
+	protected final boolean shouldConsiderSite(final Object site) {
 		final boolean _result;
 
 		if (siteSelectionPredicate != null) {
-			_result = siteSelectionPredicate.evaluate(method);
+			_result = siteSelectionPredicate.evaluate(site);
 		} else {
 			_result = true;
 		}
