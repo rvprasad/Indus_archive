@@ -20,8 +20,10 @@
  */
 package edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import soot.SootMethod;
@@ -33,20 +35,26 @@ import soot.jimple.Stmt;
  *
  * @author Ganeshan 
  */
-public class ControlSuccessor extends DependenceBaseClass  
+public class InterferenceSuccessor extends DependenceBaseClass  
 	{
 	
 	/** Filter the dependence for each action.
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#handleDependence(soot.SootMethod, soot.jimple.Stmt)
 	 */
 	protected List handleDependence(SootMethod method, Stmt stmt) {
-		return handleDependents(method, stmt, IDependencyAnalysis.CONTROL_DA);
+		final List _lst = new LinkedList();
+		final List _tList = handleDependents(method, stmt, IDependencyAnalysis.INTERFERENCE_DA);		
+		for (int _i = 0; _i < _tList.size(); _i++) {
+			final Pair _obj = (Pair) _tList.get(_i);			
+			_lst.add(_obj.getFirst());			
+		}
+		return _lst;		
 	}
 
-	/** (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Control Dependents";
+		return "Interference Dependents";
 	}
 }

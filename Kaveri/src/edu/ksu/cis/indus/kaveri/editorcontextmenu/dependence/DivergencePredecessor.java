@@ -22,6 +22,8 @@ package edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence;
 
 import java.util.List;
 
+import org.eclipse.ui.IEditorActionDelegate;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import soot.SootMethod;
@@ -29,24 +31,24 @@ import soot.jimple.Stmt;
 
 
 /**
- * Track Forward Control Dependencies.
+ * Tracks Backward control Dependence.
  *
  * @author Ganeshan 
  */
-public class ControlSuccessor extends DependenceBaseClass  
+public class DivergencePredecessor extends DependenceBaseClass
+  implements IEditorActionDelegate
 	{
-	
-	/** Filter the dependence for each action.
+	/** (non-Javadoc)
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#handleDependence(soot.SootMethod, soot.jimple.Stmt)
 	 */
 	protected List handleDependence(SootMethod method, Stmt stmt) {
-		return handleDependents(method, stmt, IDependencyAnalysis.CONTROL_DA);
+		return handleDependees(method, stmt, IDependencyAnalysis.DIVERGENCE_DA);
 	}
 
 	/** (non-Javadoc)
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Control Dependents";
+		return "Divergence Dependee";
 	}
 }

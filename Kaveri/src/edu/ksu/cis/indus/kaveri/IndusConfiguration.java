@@ -20,9 +20,11 @@
  */
 package edu.ksu.cis.indus.kaveri;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 import java.util.ArrayList;
@@ -85,6 +87,10 @@ public class IndusConfiguration {
 	 */	
 	private PartialStmtData stmtList;
 
+	/**
+	 * The dependence history.
+	 */
+	private DependenceHistoryData depHistory;
 	/** 
 	 * The list of files requested for slicing.
 	 */
@@ -125,6 +131,7 @@ public class IndusConfiguration {
 		sliceFileList = new LinkedList();
 		criteria = new ArrayList();
 		stmtList = new PartialStmtData();
+		depHistory = new DependenceHistoryData();
 		selectedStatement = "            ";
 	}
 
@@ -297,6 +304,7 @@ public class IndusConfiguration {
 		stmtList.setStmtList(null);
 		criteria.clear();	
 		KaveriPlugin.getDefault().reset();
+		depHistory.reset();
 	}
 	/**
 	 * Returns the set of statements.
@@ -335,5 +343,17 @@ public class IndusConfiguration {
 	 */
 	public void setSelectedStatement(String selectedStatement) {
 		this.selectedStatement = selectedStatement;
+	}
+	/**
+	 * @return Returns the depHistory.
+	 */
+	public DependenceHistoryData getDepHistory() {
+		return depHistory;
+	}
+	/**
+	 * @param history The depHistory to set.
+	 */
+	public void setDepHistory(Pair history) {
+		this.depHistory.addHistory(history);
 	}
 }

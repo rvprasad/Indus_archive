@@ -33,20 +33,20 @@ import soot.jimple.Stmt;
  *
  * @author Ganeshan 
  */
-public class ControlSuccessor extends DependenceBaseClass  
+public class DivergenceSuccessor extends DependenceBaseClass  
 	{
 	
 	/** Filter the dependence for each action.
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#handleDependence(soot.SootMethod, soot.jimple.Stmt)
 	 */
 	protected List handleDependence(SootMethod method, Stmt stmt) {
-		return handleDependents(method, stmt, IDependencyAnalysis.CONTROL_DA);
+		return handleDependents(method, stmt, IDependencyAnalysis.DIVERGENCE_DA);
 	}
 
-	/** (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Control Dependents";
+		return "Divergence Dependents";
 	}
 }

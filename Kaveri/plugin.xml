@@ -155,22 +155,108 @@
                      path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
                      id="dependenceMenu">
                   <groupMarker name="group1"/>
+               </menu>      
+               <menu
+                     label="Divergence"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="divmenu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Divergence Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DivergenceSuccessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/divmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DSAction"/>
+               <action
+                     enablesFor="+"
+                     label="Divergence Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DivergencePredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/divmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DPAction"/>
+               <menu
+                     label="Interference"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="infmenu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Interference Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.InterferenceSuccessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/infmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.ISAction"/>
+               <action
+                     enablesFor="+"
+                     label="Interference Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.InterferencePredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/infmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.IPAction"/>
+                <menu
+                     label="Synchronization"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="syncmenu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Synchronization Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.SynchronizationSuccessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/syncmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SSAction"/>
+               <action
+                     enablesFor="+"
+                     label="Synchronization Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.SynchronizationPredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/syncmenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SPAction"/>
+               <menu
+                     label="Ready"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="readymenu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Ready Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ReadySuccessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/readymenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.RSAction"/>
+               <action
+                     enablesFor="+"
+                     label="Ready Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ReadyPredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/readymenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.RPAction"/>
+                     
+               <menu
+                     label="Control"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="controlmenu">
+                  <separator name="group1"/>
                </menu>            
                <action
                      enablesFor="+"
                      label="Control Successor"
                      class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ControlSuccessor"
                      style="push"
-                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/controlmenu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CSAction"/>
                <action
                      enablesFor="+"
                      label="Control Predecessor"
                      class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ControlPredecessor"
                      style="push"
-                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/controlmenu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CPAction"/>
-               
             </viewerContribution>      
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
@@ -316,7 +402,14 @@
             category="edu.ksu.cis.indus.kaveri"
             name="Slice View"
             id="edu.ksu.cis.indus.kaveri.views.PartialSliceView"/>
+	  <view
+            class="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"
+            icon="data/icons/sample.gif"
+            category="edu.ksu.cis.indus.kaveri"
+            name="Dependence History View"
+            id="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"/>
    </extension>
+   
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">

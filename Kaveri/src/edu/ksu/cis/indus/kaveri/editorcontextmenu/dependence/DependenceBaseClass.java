@@ -7,7 +7,6 @@
 package edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -37,6 +36,7 @@ import org.eclipse.ui.IFileEditorInput;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
@@ -109,7 +109,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
     				}				
     			}
     			if(decorateMap != null && decorateMap.size() > 0) {
-                	processDependency(_nSelLine);
+                	processDependency(_nSelLine, _text + " Line: " + _nSelLine);
                 }
     		}
                         
@@ -168,6 +168,13 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	 */
 	protected abstract List handleDependence(SootMethod method, Stmt stmt);
 	
+	/**
+	 * Returns the type of the dependence.
+	 * 
+	 * @return String The dependence type.
+	 */
+	protected abstract String getDependenceInfo();
+	
 	/** 
 	 * Returns the list of statements linked by the dependence.
 	 * @param _method
@@ -206,20 +213,31 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 		}
 		
 		final IAnnotationModel _model = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
+		final Iterator _it =_model.getAnnotationIterator();
+		while (_it.hasNext()) {
+			final Annotation _an = (Annotation) _it.next();
+			if (_an.getType().equals(annotationKey)) {
+				_model.removeAnnotation(_an);
+			}
+		}
+		/*
+		final IAnnotationModel _model = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
 		if (annotSet.size() > 0) {
 			final Iterator _it = annotSet.iterator();
 			while (_it.hasNext()) {
 				_model.removeAnnotation((Annotation) _it.next());
 			}
-		}
+		}*/
+		
 }
 	
 	/**
 	 * Processes the dependency.
 	 *
 	 * @param nLine The selected line number.
+	 * @param selectedText The selected text.
 	 */
-	protected void processDependency(int nLine) {
+	protected void processDependency(int nLine, String selectedText) {
         try {
             final IType _type = SelectionConverter.getTypeAtOffset(editor);
             final IJavaElement _element = SelectionConverter
@@ -235,18 +253,24 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 if (_stmtlist != null && _stmtlist.size() >= 3) {
                 	final SootMethod _method = (SootMethod) _stmtlist.get(1);
                 	final int _noStmts = _stmtlist.size() - 2;
-                	                	
-                	final Stmt _stmt = (Stmt) _stmtlist.get(1 + _noStmts);
-                    	
-                    	final List _lst = handleDependence(_method, _stmt);
-                    	final IAnnotationModel _model =
+                	final HashSet _set = new HashSet();
+                	
+                	for (int _i = 0; _i < _noStmts; _i++) {
+                		final Stmt _stmt = (Stmt) _stmtlist.get(2 + _i);
+                		_set.addAll(handleDependence(_method, _stmt));
+                	}
+                	
+                	Pair _pair = new Pair(selectedText, getDependenceInfo(), false, true);
+                	KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
+                	
+                	final IAnnotationModel _model =
 							editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
-                    	if (_lst.size() > 0) {
+                    	if (_set.size() > 0) {
                     		annotSet.clear();
                     	}
-                    	
-                    	for (int _i = 0; _i < _lst.size(); _i++) {
-							final Stmt _st = (Stmt) _lst.get(_i);
+                    	final Iterator _stit = _set.iterator();
+                    	while(_stit.hasNext()) {
+							final Stmt _st = (Stmt) _stit.next();
 							int _nLine = SECommons.getLineNumberForStmt(_st);
 							if (_nLine != -1) {
 								try {

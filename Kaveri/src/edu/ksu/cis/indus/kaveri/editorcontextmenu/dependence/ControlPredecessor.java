@@ -44,4 +44,11 @@ public class ControlPredecessor extends DependenceBaseClass
 	protected List handleDependence(SootMethod method, Stmt stmt) {
 		return handleDependees(method, stmt, IDependencyAnalysis.CONTROL_DA);
 	}
+
+	/** (non-Javadoc)
+	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
+	 */
+	protected String getDependenceInfo() {
+		return "Control Dependee";
+	}
 }
