@@ -218,7 +218,7 @@ public final class CollectionsUtilities {
 	 *
 	 * @return the value mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and value != null
+	 * @pre map != null and key != null
 	 * @post map.get(key) != null
 	 * @post result != null
 	 */
@@ -234,7 +234,7 @@ public final class CollectionsUtilities {
 	 *
 	 * @return the value mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and value != null
+	 * @pre map != null and key != null
 	 * @post map.get(key) != null
 	 * @post result != null
 	 */
@@ -270,7 +270,7 @@ public final class CollectionsUtilities {
 	 *
 	 * @return the value mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and value != null
+	 * @pre map != null and key != null
 	 * @post map.get(key) != null
 	 * @post result != null
 	 */
