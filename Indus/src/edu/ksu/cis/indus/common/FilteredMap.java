@@ -293,13 +293,12 @@ final class FilteredMap
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Validates the given key by the predicate.
 	 *
-	 * @param key DOCUMENT ME!
+	 * @param key to be validated.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the key is valid by predicate rule; <code>false</code>, otherwise.
+	 * @pre key != null
 	 */
 	boolean validateKey(final Object key) {
 		return (keyPred != null && keyPred.evaluate(key)) || keyPred == null;
@@ -322,6 +321,9 @@ final class FilteredMap
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/06/28 16:33:28  venku
+   - coding convention.
+
    Revision 1.4  2004/06/28 15:53:30  venku
    - documentation.
 
