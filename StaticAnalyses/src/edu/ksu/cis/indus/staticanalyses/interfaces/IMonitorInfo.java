@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
@@ -58,20 +58,20 @@ public interface IMonitorInfo {
 	 *
 	 * @return collection of monitors in the analyzed system.
 	 *
-	 * @post result->forall(o | o.oclIsKindOf(edu.ksu.cis.indus.staticanalyses.support.Triple))
-	 * @post result->forall(o | o.getFirst().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt))
-	 * @post result->forall(o | o.getSecond().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt))
-	 * @post result->forall(o | o.getThird().oclIsOclKindOf(ca.mcgill.sable.soot.SootMethod) && o.getThird() != null)
+	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.staticanalyses.support.Triple(soot.jimple.EnterMonitorStmt,
+	 * 		 soot.jimple.ExitMonitorStmt, soot.SootMethod)))
+	 * @post result->forall(o | o.getThird() ! = null)
 	 */
 	Collection getMonitorTriples();
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/05/22 22:16:45  venku
-All the interfaces were renamed to start with an "I".
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+   Revision 1.1  2003/05/22 22:16:45  venku
+   All the interfaces were renamed to start with an "I".
+ */

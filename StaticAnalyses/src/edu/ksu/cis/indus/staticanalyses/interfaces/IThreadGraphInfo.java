@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
@@ -71,13 +71,16 @@ public interface IThreadGraphInfo {
 	public final class NewExprTriple
 	  extends Triple {
 		/**
-		 * Creates a new NewExprTriple object.
+		 * Creates a new NewExprTriple object.  Allocation sites that do not occur in the source code of the system can be
+		 * represented via a non-null <code>expr</code> coupled with a null method and statement.
 		 *
 		 * @param method in which the object is created.
 		 * @param stmt in which the allocation occurs.
 		 * @param expr is the allocation site.
+		 *
+		 * @pre expr != null
 		 */
-		public NewExprTriple(SootMethod method, Stmt stmt, NewExpr expr) {
+		public NewExprTriple(final SootMethod method, final Stmt stmt, final NewExpr expr) {
 			super(expr, stmt, method);
 		}
 
@@ -114,7 +117,7 @@ public interface IThreadGraphInfo {
 	 *
 	 * @return a collection of <code>NewExprTriple</code>s.
 	 *
-	 * @post result->forall(o | o.isOclKindOf(NewExprTriple))
+	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
 	 */
 	Collection getAllocationSites();
 
@@ -125,33 +128,43 @@ public interface IThreadGraphInfo {
 	 * @param ne is the expression in which the thread is created.
 	 * @param ctxt is the context in which <code>ne</code> occurs.
 	 *
-	 * @return a collection of <code>SootMethod</code>s executed in this thread.
+	 * @return a collection of methods executed in this thread.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	Collection getExecutedMethods(NewExpr ne, Context ctxt);
+	Collection getExecutedMethods(final NewExpr ne, final Context ctxt);
 
 	/**
 	 * Returns the threads in which the given method is executed.
 	 *
 	 * @param sm is the method which is executed.
 	 *
-	 * @return a collection of <code>NewExprTriple</code>s which capture the creation of the executing thread.
+	 * @return a collection of allocation sites which capture the creation of the executing thread.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
 	 */
-	Collection getExecutionThreads(SootMethod sm);
+	Collection getExecutionThreads(final SootMethod sm);
 
 	/**
-	 * Returns the sites which start new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.   
+	 * Returns the sites which start new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
 	 *
-	 * @return a collection of <code>CallTriple</code>s which captures the start sites for threads.
+	 * @return a collection of call-sites which captures the start sites for threads.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
 	 */
 	Collection getStartSites();
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/05/22 22:16:45  venku
-All the interfaces were renamed to start with an "I".
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+    
+   Revision 1.1  2003/05/22 22:16:45  venku
+   All the interfaces were renamed to start with an "I".
+ */

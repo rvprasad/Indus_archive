@@ -35,6 +35,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
+import soot.SootMethod;
+
+import soot.toolkits.graph.UnitGraph;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -44,172 +48,174 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import soot.SootMethod;
-import soot.toolkits.graph.UnitGraph;
 
 /**
- * DOCUMENT ME!
- * <p></p>
- * 
- * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * This class is the skeletal implementation of analyses which are structural or structural-like in nature.
+ *
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public abstract class AAnalysis {
-    
-    /**
-         * This maps the methods being analyzed to their control graphs.
-         *
-         * @invariant method2stmtGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
-         */
-        protected final Map method2stmtGraph = new HashMap();
+	/**
+	 * This maps the methods being analyzed to their control graphs.
+	 *
+	 * @invariant method2stmtGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
+	 */
+	protected final Map method2stmtGraph = new HashMap();
 
-        /**
-         * The pre-processor for this analysis, if one exists.
-         */
-        protected IProcessor preprocessor;
+	/**
+	 * The pre-processor for this analysis, if one exists.
+	 */
+	protected IProcessor preprocessor;
 
-        /**
-         * This contains auxiliary information required by the subclasses. It is recommended that this represent
-         * <code>java.util.Properties</code> but map a <code>String</code> to an <code>Object</code>.
-         *
-         * @invariant info.oclIsKindOf(Map(String, Object))
-         */
-        protected Map info = new HashMap();
+	/**
+	 * This contains auxiliary information required by the subclasses. It is recommended that this represent
+	 * <code>java.util.Properties</code> but map a <code>String</code> to an <code>Object</code>.
+	 *
+	 * @invariant info.oclIsKindOf(Map(String, Object))
+	 */
+	protected Map info = new HashMap();
 
-        /**
-         * This manages the basic block graphs of methods.
-         */
-        private final BasicBlockGraphMgr graphManager = new BasicBlockGraphMgr();
+	/**
+	 * This manages the basic block graphs of methods.
+	 */
+	private final BasicBlockGraphMgr graphManager = new BasicBlockGraphMgr();
 
-    
-        /**
-         * Analyzes the given methods and classes for dependency information.
-         *
-         * @return <code>true</code> if the analysis completed; <code>false</code>, otherwise.  This is useful if the analysis
-         *            will proceed in stages/phases.
-         */
-        public abstract boolean analyze();
+	/**
+	 * Analyzes the given methods and classes for dependency information.
+	 *
+	 * @return <code>true</code> if the analysis completed; <code>false</code>, otherwise.  This is useful if the analysis
+	 * 		   will proceed in stages/phases.
+	 */
+	public abstract boolean analyze();
 
-        /**
-         * Returns the pre-processor.
-         *
-         * @return the pre-processor.
-         */
-        public IProcessor getPreProcessor() {
-            return preprocessor;
-        }
+	/**
+	 * Returns the pre-processor.
+	 *
+	 * @return the pre-processor.
+	 *
+	 * @post doesPreProcessing() == true implies result != null
+	 */
+	public IProcessor getPreProcessor() {
+		return preprocessor;
+	}
 
-        /**
-         * Checks if this analysis does any preprocessing.  Subclasses need not override this method.  Rather they can set
-         * <code>preprocessor</code> field to a preprocessor and this method will use that to provide the correct information to
-         * the caller.
-         *
-         * @return <code>true</code> if the analysis will preprocess; <code>false</code>, otherwise.
-         */
-        public boolean doesPreProcessing() {
-            return preprocessor != null;
-        }
-        
+	/**
+	 * Returns the statistics about dependency analysis in the form of a <code>String</code>.
+	 *
+	 * @return the statistics about dependency analysis.
+	 */
+	public String getStatistics() {
+		return getClass() + " does not implement this method.";
+	}
 
-    /**
-     * Initializes the dependency analyzer with the information from the system to perform the analysis.  This will also
-     * reset the analysis.
-     *
-     * @param method2stmtGraph maps methods that constitute that analyzed system to their control flow graphs.
-     * @param info contains the value for the member variable <code>info</code>. Refer to {@link #info info} and subclass
-     *           documenation for more details.
-     *
-     * @pre method2stmtGraph.oclIsKindOf(java.util.Map(soot.SootMethod,
-     *         soot.jimple.CompleteUnitGraph))
-     * @pre classes <> null and method2stmtGraph <> null and info <> null
-     */
-    public final void initialize(Map method2stmtGraph, Map info) throws InitializationException {
-        reset();
-        this.info.putAll(info);
-        this.method2stmtGraph.putAll(method2stmtGraph);
-        setup();
-    }
-    
-    /**
-         * Returns the basic block graph constructed from the given control flow graph.
-         *
-         * @param stmtGraph is a control flow graph.
-         *
-         * @return the basic block graph corresponding to <code>stmtGraph</code>.
-         *
-         * @pre stmtGraph <> null
-         */
-        protected BasicBlockGraph getBasicBlockGraph(UnitGraph stmtGraph) {
-            return graphManager.getBasicBlockGraph(stmtGraph);
-        }
+	/**
+	 * Checks if this analysis does any preprocessing.  Subclasses need not override this method.  Rather they can set
+	 * <code>preprocessor</code> field to a preprocessor and this method will use that to provide the correct information to
+	 * the caller.
+	 *
+	 * @return <code>true</code> if the analysis will preprocess; <code>false</code>, otherwise.
+	 */
+	public boolean doesPreProcessing() {
+		return preprocessor != null;
+	}
 
-        /**
-         * Returns the basic block graph constructed from the given control flow graph.
-         *
-         * @param method for which the basic block graph is requested.
-         *
-         * @return the basic block graph corresponding to <code>stmtGraph</code>.
-         *
-         * @pre method <> null
-         */
-        protected BasicBlockGraph getBasicBlockGraph(SootMethod method) {
-            return graphManager.getBasicBlockGraph((UnitGraph) method2stmtGraph.get(method));
-        }
+	/**
+	 * Initializes the dependency analyzer with the information from the system to perform the analysis.  This will also
+	 * reset the analysis.
+	 *
+	 * @param method2stmtGraphParam maps methods that constitute that analyzed system to their control flow graphs.
+	 * @param infoParam contains the value for the member variable<code>info</code>. Refer to {@link #info info} and subclass
+	 * 		  documenation for more details.
+	 *
+	 * @throws InitializationException DOCUMENT ME!
+	 *
+	 * @pre method2stmtGraph.oclIsKindOf(java.util.Map(soot.SootMethod, soot.jimple.CompleteUnitGraph))
+	 * @pre classes != null and method2stmtGraph != null and info != null
+	 */
+	public final void initialize(final Map method2stmtGraphParam, final Map infoParam)
+	  throws InitializationException {
+		reset();
+		this.info.putAll(infoParam);
+		this.method2stmtGraph.putAll(method2stmtGraphParam);
+		setup();
+	}
 
-        /**
-         * Returns the list of statements in the given method.  Each call returns a new list.
-         *
-         * @param method of interest.
-         *
-         * @return the list of statements.
-         *
-         * @pre method <> null and result->forall(o | o.isOclKindOf(Stmt))
-         */
-        protected List getStmtList(SootMethod method) {
-            List result = null;
-            UnitGraph stmtGraph = (UnitGraph) method2stmtGraph.get(method);
+	/**
+	 * Resets all internal data structures.
+	 *
+	 * @post info.size() == 0 and method2stmtGraph.size() == 0
+	 */
+	public void reset() {
+		method2stmtGraph.clear();
+		info.clear();
+	}
 
-            if (stmtGraph != null) {
-                result = new ArrayList(stmtGraph.getBody().getUnits());
-            }
-            return result;
-        }
+	/**
+	 * Returns the basic block graph constructed from the given control flow graph.
+	 *
+	 * @param stmtGraph is a control flow graph.
+	 *
+	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
+	 *
+	 * @pre stmtGraph != null
+	 * @post result != null
+	 */
+	protected BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
+		return graphManager.getBasicBlockGraph(stmtGraph);
+	}
 
-        /**
-         * Setup data structures after initialization.  This is a convenience method for subclasses to do processing after the
-         * calls to <code>initialize</code> and before the call to <code>preprocess</code>.
-         */
-        protected void setup() throws InitializationException {
-        }
-        
+	/**
+	 * Returns the basic block graph constructed from the given control flow graph.
+	 *
+	 * @param method for which the basic block graph is requested.
+	 *
+	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
+	 *
+	 * @pre method != null
+	 * @post result != null
+	 */
+	protected BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
+		return graphManager.getBasicBlockGraph((UnitGraph) method2stmtGraph.get(method));
+	}
 
+	/**
+	 * Returns the list of statements in the given method.  Each call returns a new list.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return the list of statements.
+	 *
+	 * @pre method != null
+	 * @post result.oclIsKindOf(Collection(Stmt))
+	 */
+	protected List getStmtList(final SootMethod method) {
+		List result = null;
+		UnitGraph stmtGraph = (UnitGraph) method2stmtGraph.get(method);
 
+		if (stmtGraph != null) {
+			result = new ArrayList(stmtGraph.getBody().getUnits());
+		}
+		return result;
+	}
 
-    /**
-     * Returns the statistics about dependency analysis in the form of a <code>String</code>.
-     *
-     * @return the statistics about dependency analysis.
-     */
-    public String getStatistics() {
-        return getClass() + " does not implement this method.";
-    }
-    
-    /**
- Resets all internal data structures.
-   *
-    * @post info.size() == 0 and method2stmtGraph.size() == 0
-   */
-        public void reset() {
-            method2stmtGraph.clear();
-                    info.clear();
-        }
-
+	/**
+	 * Setup data structures after initialization.  This is a convenience method for subclasses to do processing after the
+	 * calls to <code>initialize</code> and before the call to <code>preprocess</code>.
+	 *
+	 * @throws InitializationException is never thrown by this implementation.
+	 */
+	protected void setup()
+	  throws InitializationException {
+	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

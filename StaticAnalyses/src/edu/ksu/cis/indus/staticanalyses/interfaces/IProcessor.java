@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
@@ -133,18 +133,20 @@ public interface IProcessor {
 
 	/**
 	 * This method will be called by the application.  The post processor should unregister it's interest with the controller
-     * via this method after it has participated in post-processing.
-     *
-     * @param ppc is the post processing controller.
-     *
-     * @pre ppc != null
+	 * via this method after it has participated in post-processing.
+	 *
+	 * @param ppc is the post processing controller.
+	 *
+	 * @pre ppc != null
 	 */
 	void unhook(ProcessingController ppc);
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

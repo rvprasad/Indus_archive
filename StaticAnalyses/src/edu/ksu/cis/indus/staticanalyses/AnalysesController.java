@@ -72,16 +72,22 @@ public abstract class AController {
 
 	/**
 	 * The collection of names used to identify various analyses.  This is just a collection of the above defined constants.
+	 *
+	 * @invariant participatingAnalysesNames != null
 	 */
 	protected Collection participatingAnalysesNames;
 
 	/**
 	 * The collection of analysis which want to preprocess the system.
+	 *
+	 * @invariant preprocessors != null
 	 */
 	protected final Collection preprocessors;
 
 	/**
 	 * A map from methods(<code>SootMethod</code>) to their complete statement graph(<code>CompleteStmtGraph</code>).
+	 *
+	 * @invariant method2cmpltstmtGraph != null
 	 */
 	protected final Map method2cmpltStmtGraph;
 
@@ -197,6 +203,8 @@ public abstract class AController {
 	 * analyses are asked to preprocess the data, and then the analyses are initialized.
 	 *
 	 * @param methods that form the system to be analyzed.
+	 *
+	 * @pre methods != null
 	 */
 	public void initialize(final Collection methods) {
 		stable = false;
@@ -252,9 +260,10 @@ public abstract class AController {
 	 * @param analysis is the implementation of the named analysis.
 	 *
 	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
+	 *
+	 * @pre name != null and analysis != null
 	 */
-	protected final void setDAnalysis(final String name, final AAnalysis analysis)
-	  throws IllegalArgumentException {
+	protected final void setDAnalysis(final String name, final AAnalysis analysis) {
 		if (!participatingAnalysesNames.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
@@ -268,9 +277,11 @@ public abstract class AController {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

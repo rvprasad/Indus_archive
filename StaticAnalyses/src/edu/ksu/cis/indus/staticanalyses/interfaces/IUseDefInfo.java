@@ -43,43 +43,48 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
- * 
- * @version $Revision$ 
+ * This interface will be used to retrieve use-def information of a system.
+ *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IUseDefInfo {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * This is the ID of this interface.
 	 */
 	String ID = "Aliased Use-Def Information";
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Retrieves the def sites that reach the given use site in the given context.
 	 *
-	 * @param useStmt DOCUMENT ME!
-	 * @param context DOCUMENT ME!
+	 * @param useStmt is the statement containing the use site.
+	 * @param context in which the use-site occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of def sites.
 	 */
-	Collection getDefs(AssignStmt useStmt, Context context);
+	Collection getDefs(final AssignStmt useStmt, final Context context);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Retrieves the use sites that reach the given def site in the given context.
 	 *
-	 * @param defStmt DOCUMENT ME!
-	 * @param context DOCUMENT ME!
+	 * @param defStmt is the statement containing the def site.
+	 * @param context in which the def-site occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of use sites.
 	 */
-	Collection getUses(AssignStmt defStmt, Context context);
+	Collection getUses(final AssignStmt defStmt, final Context context);
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/09 23:26:20  venku
+   - Added an interface to provide use-def information.
+   - Added an implementation to the above interface.
+   - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
+   - Modified IValueAnalyzer interface such that only generic queries are possible.
+     If required, this can be extended in the future.
+ */
