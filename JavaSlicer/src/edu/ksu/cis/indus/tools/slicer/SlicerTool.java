@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveUnitGraphFactory;
-import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -199,7 +199,7 @@ public final class SlicerTool
 	/**
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
-	private final IUnitGraphFactory unitGraphProvider;
+	private final IStmtGraphFactory unitGraphProvider;
 
 	/**
 	 * This provides object flow anlaysis.
@@ -281,7 +281,8 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
-		unitGraphProvider = new ExceptionFlowSensitiveUnitGraphFactory();
+		unitGraphProvider =
+			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(unitGraphProvider);
 		// create the thread graph.
@@ -310,6 +311,19 @@ public final class SlicerTool
 		initMapper = new NewExpr2InitMapper();
 
 		criteriaFactory = new SliceCriteriaFactory();
+	}
+
+	/**
+	 * Sets configuration named by <code>configName</code> as the active configuration.
+	 *
+	 * @param configID is id of the configuration to activate.
+	 *
+	 * @pre configID != null
+	 */
+	public void setActiveConfiguration(final String configID) {
+		if (configurationInfo instanceof CompositeToolConfiguration) {
+			((CompositeToolConfiguration) configurationInfo).setActiveToolConfigurationID(configID);
+		}
 	}
 
 	/**
@@ -822,6 +836,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.78  2004/03/03 10:09:42  venku
+   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.77  2004/03/03 05:59:37  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.76  2004/03/03 02:17:54  venku
