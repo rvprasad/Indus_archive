@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.Body;
-import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -26,7 +24,6 @@ import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InvokeExpr;
-import soot.jimple.Jimple;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
@@ -46,8 +43,10 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
@@ -106,13 +105,20 @@ public class SlicingEngine {
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
 	 * 			  (COMPLETE_SLICE)
 	 */
-	private static final Collection SLICE_TYPES = new HashSet();
+	public static final Collection SLICE_TYPES;
 
 	static {
-		SLICE_TYPES.add(BACKWARD_SLICE);
-		SLICE_TYPES.add(FORWARD_SLICE);
-		SLICE_TYPES.add(COMPLETE_SLICE);
+		Collection c = new HashSet();
+		c.add(BACKWARD_SLICE);
+		c.add(FORWARD_SLICE);
+		c.add(COMPLETE_SLICE);
+		SLICE_TYPES = Collections.unmodifiableCollection(c);
 	}
+
+	/**
+	 * The controller used to access the dependency analysis info during slicing.
+	 */
+	private AnalysesController controller;
 
 	/**
 	 * The collection of slice criteria.
@@ -120,18 +126,6 @@ public class SlicingEngine {
 	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
 	private Collection criteria = new HashSet();
-
-	/**
-	 * This is a reference to the jimple body representation.
-	 *
-	 * @invariant jimple != null
-	 */
-	private final Jimple jimple = Jimple.v();
-
-	/**
-	 * The controller used to access the dependency analysis info during slicing.
-	 */
-	private AnalysesController controller;
 
 	/**
 	 * The work bag used during slicing.
@@ -143,10 +137,8 @@ public class SlicingEngine {
 
 	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
-	 *
-	 * @invariant clonedGraphMgr != null
 	 */
-	private BasicBlockGraphMgr clonedGraphMgr = new BasicBlockGraphMgr();
+	private BasicBlockGraphMgr slicedBBGMgr;
 
 	/**
 	 * The ids of the dependencies to be considered for slicing.
@@ -176,36 +168,89 @@ public class SlicingEngine {
 	private Object sliceType = BACKWARD_SLICE;
 
 	/**
-	 * Sets the slicing criteria on which the slice should be based on.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean executableSlice;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean useReady;
+
+	/**
+	 * Sets the given criteria as the slicing criteria over the next run.
 	 *
 	 * @param sliceCriteria are ofcourse the slicing criteria
+	 *
+	 * @throws IllegalStateException when there are criteria which are not of type <code>AbstractSliceCriterion</code>.
+	 *
+	 * @pre sliceCriteria != null and sliceCriteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 */
+	public void setSliceCriteria(final Collection sliceCriteria) {
+		if (sliceCriteria == null || sliceCriteria.size() == 0) {
+			LOGGER.warn("Slice criteria is unspecified.");
+			throw new IllegalStateException("Slice criteria is unspecified.");
+		} else if (controller == null) {
+			LOGGER.warn("Class Manager and/or Controller is unspecified.");
+			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
+		}
+
+		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
+			Object o = i.next();
+
+			if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
+				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion" + o);
+				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion" + o);
+			}
+		}
+		criteria.addAll(sliceCriteria);
+	}
+
+	/**
+	 * Sets the slicing criteria on which the slice should be based on.
+	 *
+	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
+	 * 		  this class.
+	 * @param executable is <code>true</code> if executable slice is requested; <code>false</code>, otherwise.
 	 * @param dependenceInfoController provides dependency information required for slicing.
 	 * @param callgraph provides call graph information about the system being sliced.
 	 * @param sliceTransformer transforms the system based on the slicing decisions of this object.  The provided
 	 * 		  implementation should provide sound and complete information as the engine will use this information to while
 	 * 		  slicing.
 	 * @param dependenciesToUse is the ids of the dependecies to be considered for slicing.
+	 * @param bbgMgr is the basic block graph manager for the system being sliced.
 	 *
-	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
+	 * @throws IllegalArgumentException when direction is not one of the <code>XXX_SLICE</code> values.
+	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>, slice
+	 * 		   criteria, class manager, or controller is unspecified. It is also thrown when the given slice type cannot be
+	 * 		   handled by the configured transformer.
 	 *
-	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and sliceTransformer != null
-	 * 		and dependenciesToUse != null
+	 * @pre callgraph != null and dependenceInfoController != null and sliceTransformer != null     and dependenciesToUse !=
+	 * 		null and theSliceType != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
+	 * @pre SLICE_TYPES.contains(theSliceType)
 	 */
-	public void setSliceCriteria(final Collection sliceCriteria, final AnalysesController dependenceInfoController,
-		final ICallGraphInfo callgraph, final ISlicingBasedTransformer sliceTransformer, final Collection dependenciesToUse) {
-		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
-			Object o = i.next();
-
-			if (!(o instanceof SliceStmt || o instanceof SliceExpr)) {
-				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion");
-				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion");
-			}
+	public void initialize(final Object theSliceType, final boolean executable,
+		final AnalysesController dependenceInfoController, final ICallGraphInfo callgraph,
+		final ISlicingBasedTransformer sliceTransformer, final Collection dependenciesToUse, final BasicBlockGraphMgr bbgMgr) {
+		if (!SLICE_TYPES.contains(theSliceType)) {
+			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
 		}
-		criteria.addAll(sliceCriteria);
 
+		if (!sliceTransformer.handleSliceType(theSliceType, executable)) {
+			throw new IllegalStateException(
+				"The given slice type cannot be handled by the configured transformer. Change the "
+				+ "slice type or provide a suitable transformer.");
+		}
+		executableSlice = executable;
+		sliceType = theSliceType;
 		controller = dependenceInfoController;
 		cgi = callgraph;
+		slicedBBGMgr = bbgMgr;
 		transformer = sliceTransformer;
 		dependencies.addAll(dependenciesToUse);
 		intraProceduralDependencies.clear();
@@ -217,7 +262,13 @@ public class SlicingEngine {
 				  || id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
 				  || id.equals(DependencyAnalysis.CONTROL_DA)
 				  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
-				intraProceduralDependencies.add(controller.getAnalysis(id));
+				intraProceduralDependencies.addAll(controller.getAnalyses(id));
+			}
+
+			if (id.equals(DependencyAnalysis.READY_DA)) {
+				useReady = true;
+			} else {
+				useReady = false;
 			}
 		}
 	}
@@ -241,122 +292,73 @@ public class SlicingEngine {
 
 	/**
 	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
-	 *
-	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
-	 * 		  this class.
-     * @param executableSlice is <code>true</code> if executable slice is requested; <code>false</code>, otherwise.
-	 *
-	 * @throws IllegalStateException when slice criteria, class manager, or controller is unspecified. It is also thrown when
-     * the given slice type cannot be handled by the configured transformer.
-	 * @throws IllegalArgumentException when direction is not one of the <code>XXX_SLICE</code> values.
-	 *
-	 * @pre theSliceType != null
 	 */
-	public void slice(final Object theSliceType, final boolean executableSlice) {
-		if (criteria == null || criteria.size() == 0) {
-			LOGGER.warn("Slice criteria is unspecified.");
-			throw new IllegalStateException("Slice criteria is unspecified.");
-		} else if (controller == null) {
-			LOGGER.warn("Class Manager and/or Controller is unspecified.");
-			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
-		}
-
-		if (!SLICE_TYPES.contains(theSliceType)) {
-			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
-		}
-        if (!transformer.handleSliceType(theSliceType, executableSlice))
-            throw new IllegalStateException("The given slice type cannot be handled by the configured transformer. Change the " +
-                    "slice type or provide a suitable transformer.");
-		sliceType = theSliceType;
-
+	public void slice() {
 		workbag.addAllWorkNoDuplicates(criteria);
-
-		boolean flag = theSliceType.equals(COMPLETE_SLICE);
 
 		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
 		// reappearing.  
 		while (workbag.hasWork()) {
 			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
 
-			if (work instanceof SliceStmt) {
+			if (work instanceof SliceExpr) {
+				sliceExpr((SliceExpr) work);
+			} else if (work instanceof SliceStmt) {
 				SliceStmt temp = (SliceStmt) work;
 				SootMethod sm = temp.getOccurringMethod();
-				sliceStmt((Stmt) temp.getCriterion(), sm, flag || temp.isIncluded());
-			} else if (work instanceof SliceExpr) {
-				sliceExpr((SliceExpr) work);
+				sliceStmt((Stmt) temp.getCriterion(), sm, temp.isIncluded());
 			}
 			work.sliced();
 		}
 		transformer.completeTransformation();
 	}
 
-	/*
-	   private void fixupGoto(StmtList clonedSl, StmtList cloneSl, SootMethod clonedMethod, SootMethod cloneMethod) {
-	       BasicBlockGraph clonedGraph = clonedGraphMgr.getBasicBlockGraph(controller.getStmtGraph(clonedMethod));
-	       Collection gotos = new ArrayList();
-	       for(util.Iterator k = clonedSl.iterator(); k.hasNext();) {
-	           Stmt stmt = (Stmt) k.next();
-	           int index = clonedSl.indexOf(stmt);
-	           Stmt cloneStmt = (Stmt) cloneSl.get(index);
-	           if(stmt instanceof GotoStmt) {
-	               if(cloneStmt == null) {
-	                   cloneStmt = cloner.cloneASTFragment(stmt, cloneMethod);
-	                   cloneSl.add(index, cloneStmt);
-	               }
-	               gotos.add(new Pair(stmt, cloneStmt));
-	           }
-	       }
-	       WorkBag wb = new WorkBag(WorkBag.LIFO);
-	       Collection processed = new HashSet();
-	       for(Iterator i = gotos.iterator(); i.hasNext();) {
-	           Pair pair = (Pair) i.next();
-	           GotoStmt cloned = (GotoStmt) pair.getFirst();
-	           GotoStmt clone = (GotoStmt) pair.getSecond();
-	           processed.clear();
-	           wb.clear();
-	           wb.addWork(cloned);
-	   main_loop:
-	               while(!wb.isEmpty()) {
-	                   cloned = (GotoStmt) wb.getWork();
-	                   BasicBlock bb = clonedGraph.getEnclosingBlock(cloned);
-	                   processed.add(bb);
-	                   List stmts = bb.getStmtsOf();
-	                   int size = stmts.size();
-	                   for(int j = stmts.indexOf(cloned); j < size; j++) {
-	                       Stmt target = (Stmt) cloneSl.get(clonedSl.indexOf(stmts.get(j)));
-	                       if(target != null) {
-	                           clone.setTarget(target);
-	                           break main_loop;
-	                       }
-	                   }
-	                   for(Iterator k = bb.getSuccsOf().iterator(); k.hasNext();) {
-	                       BasicBlock temp = (BasicBlock) k.next();
-	                       if(!processed.contains(temp)) {
-	                           wb.addWork(clonedSl.get(temp.leader));
-	                       }
-	                   }
-	               }
-	           }
-	       }
-	 */
-
 	/**
-	 * This is a helper method used for generating slice criteria based on interprocedural dependence expressions.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param slices is a collection of statement and method pairs.
-	 *
-	 * @pre slices != null
-	 * @pre slices.oclIsKindOf(Collection(Pair(Stmt, SootMethod))
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param das DOCUMENT ME!
 	 */
-	private void interproceduralSliceHelper(final Collection slices) {
-		for (Iterator i = slices.iterator(); i.hasNext();) {
-			Pair pair = (Pair) i.next();
-			Stmt unslicedStmt = (Stmt) pair.getFirst();
-			SootMethod unslicedMethod = (SootMethod) pair.getSecond();
+	private void createNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
+		Collection newCriteria = new HashSet();
+
+		if (sliceType.equals(COMPLETE_SLICE)) {
+			for (Iterator i = das.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				newCriteria.addAll(da.getDependents(stmt, method));
+				newCriteria.addAll(da.getDependees(stmt, method));
+			}
+		} else if (sliceType.equals(BACKWARD_SLICE)) {
+			for (Iterator i = das.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				newCriteria.addAll(da.getDependees(stmt, method));
+			}
+		} else if (sliceType.equals(FORWARD_SLICE)) {
+			for (Iterator i = das.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				newCriteria.addAll(da.getDependents(stmt, method));
+			}
+		}
+
+		for (Iterator i = newCriteria.iterator(); i.hasNext();) {
+			Object o = i.next();
+			Stmt unslicedStmt;
+			SootMethod unslicedMethod;
+
+			if (o instanceof Pair) {
+				Pair pair = (Pair) o;
+				unslicedStmt = (Stmt) pair.getFirst();
+				unslicedMethod = (SootMethod) pair.getSecond();
+			} else {
+				unslicedStmt = (Stmt) o;
+				unslicedMethod = method;
+			}
 
 			if (transformer.getTransformed(unslicedStmt, unslicedMethod) == null) {
-				transformer.transform(unslicedStmt, unslicedMethod);
-
+				// consider it as a slice criterion
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
@@ -365,57 +367,63 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * Generates new slice criteria based on dependence info pertaining to alias expression, both in sequential and
-	 * concurrent setting.  By nature of Jimple, only one alias expression(array/field access) can occur in a statement,
-	 * hence, the arguments.
+	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
 	 *
-	 * @param stmt in which expression which leads to aliased-data dependence occurs.
-	 * @param method in which <code>stmt</code> occurs.
+	 * @param pBox is the parameter reference to be sliced on.
+	 * @param method in which <code>pBox</code> occurs.
 	 *
-	 * @pre stmt != null and method != null
-	 * @pre stmt.containsArrayRef() == true or stmt.containsFieldRef()
+	 * @pre pBox != null and method != null
 	 */
-	private void sliceBasedOnAliasedDataDependence(final Stmt stmt, final SootMethod method) {
-		DependencyAnalysis[] da = new DependencyAnalysis[2];
-		da[0] = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.INTERFERENCE_DA);
-		da[1] = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+	private void createNewCriteriaForParam(final ValueBox pBox, final SootMethod method) {
+		/*
+		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
+		 * intended.
+		 */
+		if (transformer.handlesPartialInclusions()) {
+			ParameterRef param = (ParameterRef) pBox.getValue();
+			int index = param.getIndex();
 
-		Collection slices = new HashSet();
+			for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
+				CallTriple ctrp = (CallTriple) i.next();
+				SootMethod caller = ctrp.getMethod();
+				Stmt stmt = ctrp.getStmt();
+				ValueBox argBox = ctrp.getStmt().getInvokeExpr().getArgBox(index);
 
-		for (int i = da.length - 1; i >= 0; i--) {
-			if (sliceType.equals(COMPLETE_SLICE)) {
-				slices.addAll(da[i].getDependents(stmt, method));
-				slices.addAll(da[i].getDependees(stmt, method));
-			} else if (sliceType.equals(BACKWARD_SLICE)) {
-				slices.addAll(da[i].getDependees(stmt, method));
+				if (transformer.getTransformed(argBox, stmt, method) == null) {
+					SliceExpr critExpr = SliceExpr.getSliceExpr();
+					critExpr.initialize(caller, stmt, argBox, true);
+					workbag.addWorkNoDuplicates(critExpr);
+				}
+			}
+		} else {
+			for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
+				CallTriple ctrp = (CallTriple) i.next();
+				SootMethod caller = ctrp.getMethod();
+				Stmt stmt = ctrp.getStmt();
+
+				if (transformer.getTransformed(stmt, caller) == null) {
+					SliceStmt critStmt = SliceStmt.getSliceStmt();
+					critStmt.initialize(ctrp.getMethod(), ctrp.getStmt(), true);
+					workbag.addWorkNoDuplicates(critStmt);
+				}
 			}
 		}
-		interproceduralSliceHelper(slices);
 	}
 
 	/**
-	 * Generates new slice criteria based on ready dependence info pertaining given statement.
+	 * Generates new slice criteria based on the specified dependence.
 	 *
-	 * @param stmt which may cause to ready dependence.
+	 * @param stmt in which expression which leads to dependence occurs.
 	 * @param method in which <code>stmt</code> occurs.
+	 * @param dependenceId identifies the dependence based on which the slice criteria should be generated.
 	 *
-	 * @pre stmt != null and method != null
-	 * @pre stmt.oclIsKindOf(ExitMonitorStmt) or stmt.oclIsKindOf(EnterMonitorStmt) or stmt.oclIsKindOf(InvokeStmt)
+	 * @pre stmt != null and method != null and dependenceId != null
 	 */
-	private void sliceBasedOnReadyDependence(final Stmt stmt, final SootMethod method) {
-		if (dependencies.contains(DependencyAnalysis.READY_DA)) {
-			DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.READY_DA);
+	private void sliceBasedOnThisDependence(final Stmt stmt, final SootMethod method, final Object dependenceId) {
+		Collection das = controller.getAnalyses(dependenceId);
 
-			Collection slices = new HashSet();
-
-			if (sliceType.equals(COMPLETE_SLICE)) {
-				slices.addAll(da.getDependents(stmt, method));
-				slices.addAll(da.getDependees(stmt, method));
-			} else if (sliceType.equals(BACKWARD_SLICE)) {
-				slices.addAll(da.getDependees(stmt, method));
-			}
-
-			interproceduralSliceHelper(slices);
+		if (!das.isEmpty()) {
+			createNewCriteria(stmt, method, das);
 		}
 	}
 
@@ -432,33 +440,25 @@ public class SlicingEngine {
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
 
-		if (sliceType.equals(COMPLETE_SLICE) || sExpr.isIncluded() || !transformer.handlesPartialInclusions()) {
+		if (!transformer.handlesPartialInclusions()) {
 			sliceStmt(stmt, method, true);
 		} else {
 			Value value = expr.getValue();
 
-			if (value instanceof FieldRef || value instanceof ArrayRef) {
-				sliceBasedOnAliasedDataDependence(stmt, method);
+			if (value instanceof InvokeExpr) {
+				sliceInvokeExpr(stmt, method);
+			} else if (value instanceof FieldRef || value instanceof ArrayRef) {
+				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
+				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			}
-
-			for (Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
-				ValueBox vBox = (ValueBox) i.next();
-				Value temp = vBox.getValue();
-
-				if (temp instanceof Local) {
-					sliceLocal(vBox, stmt, method);
-				} else if (temp instanceof ParameterRef) {
-					sliceParam(vBox, method);
-				}
-			}
-
+			sliceValueBoxes(value.getUseBoxes(), stmt, method);
 			// include the statement to capture control dependency
 			sliceStmt(stmt, method, false);
 		}
 	}
 
 	/**
-	 * Generates new slice criteria based on on what affects the given occurrence of the invoke expression.  By nature of
+	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression.  By nature of
 	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
 	 *
 	 * @param stmt in which the field occurs.
@@ -475,90 +475,23 @@ public class SlicingEngine {
 
 		// add exit points of callees as the slice criteria
 		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
-			CallTriple ctrp = (CallTriple) i.next();
-			SootMethod callee = ctrp.getMethod();
-
-			//			UnitGraph stmtGraph = controller.getStmtGraph(callee);
-			BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(callee);
+			SootMethod callee = (SootMethod) i.next();
+			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
 
 			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
 				BasicBlock bb = (BasicBlock) j.next();
-				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-				sliceCriterion.initialize(callee, bb.getTrailerStmt(), true);
-				workbag.addWorkNoDuplicates(sliceCriterion);
+				Stmt trailer = bb.getTrailerStmt();
+
+				if (transformer.getTransformed(stmt, method) == null) {
+					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+					sliceCriterion.initialize(callee, trailer, true);
+					workbag.addWorkNoDuplicates(sliceCriterion);
+				}
 			}
 		}
-		sliceBasedOnReadyDependence(stmt, method);
-	}
 
-	/**
-	 * Generates new slice criteria based on what affects the given occurrence of the local.
-	 *
-	 * @param vBox is the occurrence of the local.
-	 * @param stmt is the statement in which <code>vBox</code> occurs.
-	 * @param method is the method in which <code>stmt</code> occurs.
-	 *
-	 * @pre vBox != null and stmt != null and method != null
-	 */
-	private void sliceLocal(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
-
-		// add the new local
-		SootMethod transformedMethod = transformer.getTransformed(method);
-		Body body = transformedMethod.getActiveBody();
-		Local local = (Local) vBox.getValue();
-
-		if (transformer.getTransformedLocal(local, transformedMethod) == null) {
-			body.getLocals().add(jimple.newLocal(local.getName(), local.getType()));
-		}
-
-		// slice
-		Collection newCriteria = new HashSet();
-
-		if (sliceType.equals(COMPLETE_SLICE)) {
-			newCriteria.addAll(da.getDependents(stmt, method));
-			newCriteria.addAll(da.getDependees(new Pair(stmt, vBox), method));
-		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			newCriteria.addAll(da.getDependees(new Pair(stmt, vBox), method));
-		}
-
-		// update the workbag
-		for (Iterator i = newCriteria.iterator(); i.hasNext();) {
-			Stmt unsliced = (Stmt) i.next();
-			SliceStmt sliceStmt = SliceStmt.getSliceStmt();
-			sliceStmt.initialize(method, unsliced, true);
-			workbag.addWorkNoDuplicates(sliceStmt);
-		}
-	}
-
-	/**
-	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
-	 *
-	 * @param pBox is the parameter reference to be sliced on.
-	 * @param method in which <code>pBox</code> occurs.
-	 *
-	 * @pre pBox != null and method != null
-	 */
-	private void sliceParam(final ValueBox pBox, final SootMethod method) {
-		ParameterRef param = (ParameterRef) pBox.getValue();
-		int index = param.getIndex();
-		boolean include = !transformer.handlesPartialInclusions();
-
-		/*
-		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
-		 * intended.
-		 */
-		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
-			CallTriple ctrp = (CallTriple) i.next();
-			SliceStmt critStmt = SliceStmt.getSliceStmt();
-			critStmt.initialize(ctrp.getMethod(), ctrp.getStmt(), include);
-			workbag.addWorkNoDuplicates(critStmt);
-
-			if (!include) {
-				SliceExpr critExpr = SliceExpr.getSliceExpr();
-				critExpr.initialize(ctrp.getMethod(), ctrp.getStmt(), ctrp.getStmt().getInvokeExpr().getArgBox(index), true);
-				workbag.addWorkNoDuplicates(critExpr);
-			}
+		if (useReady) {
+			sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.READY_DA);
 		}
 	}
 
@@ -575,59 +508,64 @@ public class SlicingEngine {
 			if (stmt.containsInvokeExpr()) {
 				sliceInvokeExpr(stmt, method);
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
-				sliceBasedOnAliasedDataDependence(stmt, method);
-			} else if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
-				sliceBasedOnReadyDependence(stmt, method);
+				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
+				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+			} else if (useReady && (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt)) {
+				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.READY_DA);
 			}
 
-			for (Iterator i = stmt.getUseAndDefBoxes().iterator(); i.hasNext();) {
-				ValueBox vBox = (ValueBox) i.next();
-				Value value = vBox.getValue();
-
-				if (value instanceof Local) {
-					sliceLocal(vBox, stmt, method);
-				} else if (value instanceof ParameterRef) {
-					sliceParam(vBox, method);
-				}
-			}
+			sliceValueBoxes(stmt.getUseAndDefBoxes(), stmt, method);
 			transformer.transform(stmt, method);
 		}
 
-		Collection slices = new HashSet();
+		// create new slice criteria
+		createNewCriteria(stmt, method, intraProceduralDependencies);
+	}
 
-		// add criteria for an intra-procedural dependency.
-		if (sliceType.equals(COMPLETE_SLICE)) {
-			for (Iterator i = intraProceduralDependencies.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				slices.addAll(da.getDependents(stmt, method));
-				slices.addAll(da.getDependees(stmt, method));
-			}
-		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			for (Iterator i = intraProceduralDependencies.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				slices.addAll(da.getDependees(stmt, method));
+	/**
+	 * Generates slice based on the given value boxes and generates new slice criteria based on what affects the given
+	 * occurrence of the value boxes.
+	 *
+	 * @param vBoxes is collection of value boxes.
+	 * @param stmt is the statement in which <code>vBoxes</code> occur.
+	 * @param method is the method in which <code>stmt</code> occurs.
+	 *
+	 * @pre vBoxes != null and stmt != null and method != null
+	 * @pre vBoxes.oclIsKindOf(Collection(ValueBoxes)) and stmt.getUseAndDefBoxes().containsAll(vBoxes)
+	 */
+	private void sliceValueBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
+		Collection das = controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+
+		for (Iterator i = vBoxes.iterator(); i.hasNext();) {
+			ValueBox vBox = (ValueBox) i.next();
+
+			if (transformer.getTransformed(vBox, stmt, method) == null) {
+				transformer.transform(vBox, stmt, method);
+
+				if (vBox.getValue() instanceof ParameterRef) {
+					createNewCriteriaForParam(vBox, method);
+				}
 			}
 		}
 
-		for (Iterator i = slices.iterator(); i.hasNext();) {
-			Stmt unsliced = (Stmt) i.next();
-
-			if (transformer.getTransformed(unsliced, method) == null) {
-				transformer.transform(stmt, method);
-
-				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
-				sliceStmt.initialize(method, unsliced, inclusive);
-				workbag.addWorkNoDuplicates(sliceStmt);
-			}
-		}
+		// create new slice criteria
+		createNewCriteria(stmt, method, das);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
    Revision 1.1  2003/10/13 00:58:03  venku
- *** empty log message ***
+   - empty log message
    Revision 1.16  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
@@ -640,18 +578,18 @@ public class SlicingEngine {
      in a generic setting.  Also, the theoretics concerned to inclusion
      should be dealt appropriately.
    Revision 1.13  2003/08/21 10:25:08  venku
-   Now here is where things get interesting.  Inclusion has 2 meanings.
-   One is should the entity be included in the transformed system.
-   Two is shoudl the enclosed entities be considered for slicing.
-   In the process of setting this right.  Not fixed yet.  In fact fails to compile.
+   - Now here is where things get interesting.  Inclusion has 2 meanings.
+   - One is should the entity be included in the transformed system.
+   - Two is shoudl the enclosed entities be considered for slicing.
+   - In the process of setting this right.  Not fixed yet.  In fact fails to compile.
    Revision 1.12  2003/08/19 12:44:39  venku
-   Changed the signature of ITransformer.getLocal()
-   Introduced reset() in ITransformer.
-   Ripple effect of the above changes.
+   - Changed the signature of ITransformer.getLocal()
+   - Introduced reset() in ITransformer.
+   - Ripple effect of the above changes.
    Revision 1.11  2003/08/19 11:52:25  venku
-   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
-   and  Slicer to SliceEngine.
-   Ripple effect of the above.
+   - The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+     and  Slicer to SliceEngine.
+   - Ripple effect of the above.
    Revision 1.10  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
@@ -663,17 +601,17 @@ public class SlicingEngine {
     - The slicer now actually detects what needs to be included in the slice.
       Hence, it is more of an analysis/driver/engine that drives the transformation
       and SliceMapImpl is the engine that does or captures the transformation.
-   The immediate following change will be to rename ITransformMap to ITransformer,
-    SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
+   - The immediate following change will be to rename ITransformMap to ITransformer,
+     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
    Revision 1.9  2003/08/18 12:14:13  venku
-   Well, to start with the slicer implementation is complete.
-   Although not necessarily bug free, hoping to stabilize it quickly.
+   - Well, to start with the slicer implementation is complete.
+     Although not necessarily bug free, hoping to stabilize it quickly.
    Revision 1.8  2003/08/18 05:01:45  venku
-   Committing package name change in source after they were moved.
+   - Committing package name change in source after they were moved.
    Revision 1.7  2003/08/18 04:56:47  venku
-   Spruced up Documentation and specification.
-   But committing before moving slicer under transformation umbrella of Indus.
+   - Spruced up Documentation and specification.
+    But committing before moving slicer under transformation umbrella of Indus.
    Revision 1.6  2003/05/22 22:23:49  venku
-   Changed interface names to start with a "I".
-   Formatting.
+   - Changed interface names to start with a "I".
+     Formatting.
  */
