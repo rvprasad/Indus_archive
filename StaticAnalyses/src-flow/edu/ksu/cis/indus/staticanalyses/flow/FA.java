@@ -478,6 +478,7 @@ public class FA
 		classManager.reset();
         sccBasedOptimizer.reset();
 		environment = null;
+        currWorkBag = workBags[0];
 	}
 
 	/**
@@ -629,18 +630,16 @@ public class FA
 		_workLists[1] = new WorkList(workBags[1]);
         
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
-            final int _bag = _bagToggleCounter % 2;
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processing work pieces in workbag " + _bag);
-            }
-            currWorkBag = workBags[_bag];
-			_count += _workLists[_bag].process();
+            final int _bagToProcess = _bagToggleCounter % 2;
             _bagToggleCounter++;
+            final int _bagToCollect = _bagToggleCounter % 2;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Processing work pieces in workbag " + _bagToProcess);
+            }
+            currWorkBag = workBags[_bagToCollect];
+			_count += _workLists[_bagToProcess].process();
 
 			if (sccOptimizationInterval > 0 && (++_count > sccOptimizationInterval)) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Collapsing SCCs...");
-				}
 				collapseSCCOfNodes();
                 _count = 0;
 			}
