@@ -1,0 +1,15 @@
+<!--#set var="menuItem" value="Overview.Licenses" -->
+<!--#set var="title" value="Licenses" -->
+<!--#set var="description" value="Software licenses used in Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+  <p>
+  <ul>
+      <li><a href="http://www.cis.ksu.edu/santos/KSUSourceAcademicLicense.shtml">Source License</a></li>
+      <li><a href="http://www.cis.ksu.edu/santos/KSUAcademicLicense.shtml">Binary License</a></li>
+   </ul>
+   </p>
+   
+<!--#include virtual="/footer.shtml" -->
+

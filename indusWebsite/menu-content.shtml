@@ -30,6 +30,12 @@
     <li><a href="/overview/used.shtml">Used projects</a></li>
     <!--#endif -->
     
+    <!--#if expr="${menuItem} = Overview.Licenses" -->
+    <li>Licenses</li>
+    <!--#else -->
+    <li><a href="/overview/licenses.shtml">Licenses</a></li>
+    <!--#endif -->
+    
     <li><a href="http://projects.cis.ksu.edu/projects/indus/">Sourceforge</a></li>
   </ul>
 
