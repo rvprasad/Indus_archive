@@ -78,9 +78,9 @@ class SliceStmt
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o != null && super.equals(o) && o instanceof SliceStmt) {
+		if (o instanceof SliceStmt) {
 			final SliceStmt _temp = (SliceStmt) o;
-			_result = _temp.stmt == stmt;
+			_result = _temp.stmt == stmt && super.equals(o);
 		}
 		return _result;
 	}
@@ -99,7 +99,7 @@ class SliceStmt
 	 */
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
-																				  .append("stmt", this.stmt).toString();
+																					 .append("stmt", this.stmt).toString();
 	}
 
 	/**
@@ -155,6 +155,8 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/20 00:35:13  venku
+   - use the new custom to string style defined in indus.
    Revision 1.10  2004/01/19 08:27:03  venku
    - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.9  2003/12/13 02:29:16  venku

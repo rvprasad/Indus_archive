@@ -41,7 +41,7 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 class SliceExpr
-  extends SliceStmt {
+  extends AbstractSliceCriterion {
 	/**
 	 * A pool of <code>SliceExpr</code> criterion objects.
 	 *
@@ -65,6 +65,11 @@ class SliceExpr
 	private static final Log LOGGER = LogFactory.getLog(SliceExpr.class);
 
 	/**
+	 * The statement associated with this criterion.
+	 */
+	protected Stmt stmt;
+
+	/**
 	 * The expression associated with this criterion.
 	 */
 	protected ValueBox expr;
@@ -79,9 +84,9 @@ class SliceExpr
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o != null && o instanceof SliceExpr) {
+		if (o instanceof SliceExpr) {
 			final SliceExpr _temp = (SliceExpr) o;
-			_result = _temp.expr == expr && super.equals(_temp);
+			_result = _temp.expr == expr && _temp.stmt == stmt && super.equals(o);
 		}
 		return _result;
 	}
@@ -91,6 +96,7 @@ class SliceExpr
 	 */
 	public int hashCode() {
 		int _hash = super.hashCode();
+		_hash = 37 * _hash + stmt.hashCode();
 		_hash = 37 * _hash + expr.hashCode();
 		return _hash;
 	}
@@ -100,7 +106,7 @@ class SliceExpr
 	 */
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
-																				  .append("expr", this.expr).toString();
+																					 .append("expr", this.expr).toString();
 	}
 
 	/**
@@ -158,7 +164,8 @@ class SliceExpr
 	 * @pre expr != null and stmt != null and method != null
 	 */
 	void initialize(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion) {
-		super.initialize(occurringMethod, occurringStmt);
+		super.initialize(occurringMethod);
+		this.stmt = occurringStmt;
 		this.expr = criterion;
 	}
 }
@@ -166,6 +173,8 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/20 00:35:14  venku
+   - use the new custom to string style defined in indus.
    Revision 1.10  2004/01/19 08:27:03  venku
    - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.9  2003/12/13 02:29:16  venku

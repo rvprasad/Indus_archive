@@ -68,7 +68,7 @@ public abstract class AbstractSliceCriterion
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o != null && o instanceof ISliceCriterion) {
+		if (o instanceof ISliceCriterion) {
 			_result =
 				((AbstractSliceCriterion) o).method == method
 				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
@@ -136,6 +136,8 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/20 00:35:14  venku
+   - use the new custom to string style defined in indus.
    Revision 1.10  2004/01/19 08:27:03  venku
    - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.9  2003/12/13 02:29:16  venku
