@@ -105,7 +105,7 @@ public class CallGraphXMLizer
 
 			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
-			_xmlizer.setXMLOutputDir(_outputDir);
+			_xmlizer.setXmlOutputDir(_outputDir);
 			_xmlizer.setClassNames(_cl.getOptionValues('c'));
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
@@ -129,7 +129,7 @@ public class CallGraphXMLizer
 	 */
 	protected final void writeXML(final String rootname, final Map info) {
 		final File _f =
-			new File(getXmlOutDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+			new File(getXmlOutputDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
 		final FileWriter _writer;
 
 		try {
@@ -214,6 +214,9 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 01:21:03  venku
+   - publicized execute() to be used in regression testing.
+
    Revision 1.1  2004/02/08 03:05:46  venku
    - renamed xmlizer packages to be in par with the packages
      that contain the classes whose data is being xmlized.

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 
-import junit.framework.TestCase;
+import org.custommonkey.xmlunit.XMLTestCase;
 
 
 /**
@@ -32,15 +32,15 @@ import junit.framework.TestCase;
 public class AbstractXMLBasedTest
   extends XMLTestCase
   implements IXMLBasedTest {
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private AbstractXMLizer xmlizer;
+
 	/**
 	 * The directory in which xml-based testing input is read from.
 	 */
 	private String xmlInputDir;
-
-	/**
-	 * The directory in which xml-based testing output is dumped.
-	 */
-	private String xmlOutputDir;
 
 	/**
 	 * DOCUMENT ME!
@@ -63,23 +63,28 @@ public class AbstractXMLBasedTest
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param xmlOutDir ME!
+	 * @param xmlOutputDir
 	 */
-	public void setXmlOutputDir(final String xmlOutDir) {
-		xmlOutputDir = xmlOutDir;
+	public void setXmlOutputDir(String xmlOutputDir) {
+		xmlizer.setXmlOutputDir(xmlOutputDir);
 	}
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @return DOCUMENT ME!
+	 * @return
 	 */
 	public String getXmlOutputDir() {
-		return this.xmlOutputDir;
+		return xmlizer.getXmlOutputDir();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/09 01:20:06  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
  */

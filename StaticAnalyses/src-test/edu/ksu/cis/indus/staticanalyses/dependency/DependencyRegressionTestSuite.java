@@ -146,7 +146,7 @@ public final class DependencyRegressionTestSuite
 				try {
 					_test = new DependencyTest(new DependencyXMLizer(true), _xmlInputDir);
 					_test.xmlizer.setClassNames(_temp);
-					_test.xmlizer.setXMLOutputDir(_xmlOutputDir);
+					_test.xmlizer.setXmlOutputDir(_xmlOutputDir);
 					_test.xmlizer.setGenerator(_generator);
 					_test.xmlizer.populateDAs();
 
@@ -170,6 +170,14 @@ public final class DependencyRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 04:53:11  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
+
    Revision 1.3  2004/02/08 02:34:27  venku
    - wrong property was mentioned in the error message.
 

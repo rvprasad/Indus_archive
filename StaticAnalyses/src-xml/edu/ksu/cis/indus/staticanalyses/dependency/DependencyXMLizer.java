@@ -260,7 +260,7 @@ public class DependencyXMLizer
 
 			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
-			_xmlizer.setXMLOutputDir(_outputDir);
+			_xmlizer.setXmlOutputDir(_outputDir);
 
 			String[] _classNames = _cl.getOptionValues('c');
 
@@ -391,7 +391,7 @@ public class DependencyXMLizer
 
 				try {
 					_writer =
-						new FileWriter(new File(getXmlOutDir() + File.separator
+						new FileWriter(new File(getXmlOutputDir() + File.separator
 								+ _rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "_jimple.xml"));
 					_t.setWriter(_writer);
 					_t.hookup(_xmlcgipc);
@@ -448,7 +448,7 @@ public class DependencyXMLizer
 	public final Map initXMLizers(final String rootname, final ProcessingController ctrl) {
 		final Map _result = new HashMap();
 
-		if (getXmlOutDir() == null) {
+		if (getXmlOutputDir() == null) {
 			LOGGER.fatal("Defaulting to current directory for xml output.");
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
@@ -457,7 +457,7 @@ public class DependencyXMLizer
 			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 
 			final File _f =
-				new File(getXmlOutDir() + File.separator + _da.getId() + "_" + das.indexOf(_da) + "_"
+				new File(getXmlOutputDir() + File.separator + _da.getId() + "_" + das.indexOf(_da) + "_"
 					+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
 
 			try {
@@ -637,6 +637,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 01:25:10  venku
+   - getRootMethods() was defined in SootBasedDriver, hence,
+     deleted in this class.
+
    Revision 1.1  2004/02/08 03:05:46  venku
    - renamed xmlizer packages to be in par with the packages
      that contain the classes whose data is being xmlized.

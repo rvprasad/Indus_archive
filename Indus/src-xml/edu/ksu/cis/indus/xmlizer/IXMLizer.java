@@ -48,19 +48,22 @@ public interface IXMLizer {
 	 *
 	 * @pre xmlOutputDir != null
 	 */
-	void setXMLOutputDir(final String xmlOutputDir);
+	void setXmlOutputDir(final String xmlOutputDir);
 
 	/**
 	 * Retrieves the directory into which xml data will be dumped into.
 	 *
 	 * @return the directory into which xml data will be dumped.
 	 */
-	String getXmlOutDir();
+	String getXmlOutputDir();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 19:08:03  venku
+   - documentation
+
    Revision 1.2  2003/12/16 00:29:12  venku
    - documentation.
    Revision 1.1  2003/12/13 02:28:53  venku

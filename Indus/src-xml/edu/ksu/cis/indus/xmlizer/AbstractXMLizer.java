@@ -91,7 +91,7 @@ public abstract class AbstractXMLizer
 	 *
 	 * @pre xmlOutputDir != null
 	 */
-	public final void setXMLOutputDir(final String xmlOutputDir) {
+	public final void setXmlOutputDir(final String xmlOutputDir) {
 		final File _f = new File(xmlOutputDir);
 
 		if (!_f.exists() | !_f.canWrite()) {
@@ -106,7 +106,7 @@ public abstract class AbstractXMLizer
 	 *
 	 * @return the directory into which xml data will be dumped.
 	 */
-	public final String getXmlOutDir() {
+	public final String getXmlOutputDir() {
 		return xmlOutDir;
 	}
 
@@ -140,7 +140,7 @@ public abstract class AbstractXMLizer
 
 			try {
 				_writer =
-					new FileWriter(new File(getXmlOutDir() + File.separator
+					new FileWriter(new File(getXmlOutputDir() + File.separator
 							+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
 				_t.setWriter(_writer);
 				_t.hookup(xmlcgipc);
@@ -191,6 +191,9 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/28 00:41:48  venku
+   - logging.
+
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

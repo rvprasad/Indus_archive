@@ -80,7 +80,7 @@ public final class DependencyTest
 	 */
 	public void testDA() {
 		final List _das = xmlizer.getDAs();
-		final String _xmlOutDir = xmlizer.getXmlOutDir();
+		final String _xmlOutDir = xmlizer.getXmlOutputDir();
 
 		for (final Iterator _i = xmlizer.getRootMethods().iterator(); _i.hasNext();) {
 			final SootMethod _root = (SootMethod) _i.next();
@@ -135,6 +135,14 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/02/08 04:53:11  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
+
    Revision 1.12  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

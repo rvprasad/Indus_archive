@@ -53,31 +53,25 @@ public class XMLBasedCallGraphTest
 	/**
 	 * This provides the information for the test.  This drives the analyses and this object tests the output.
 	 */
-	CallGraphXMLizer xmlizer;
-
-	/**
-	 * This is the directory in which the regression test inputs are stored.
-	 */
-	private String xmlInDir;
+	private CallGraphXMLizer xmlizer;
 
 	/**
 	 * Creates a new XMLBasedCallGraphTest object.
 	 *
-	 * @param dt is the xmlizer used in this test case.
 	 * @param xmlInputDir is the directory in which the base test data of regression test exists.
 	 *
-	 * @pre dt != null and xmlInputDir != null
+	 * @pre xmlInputDir != null
 	 */
-	public XMLBasedCallGraphTest(final CallGraphXMLizer dt, final String xmlInputDir) {
-		xmlizer = dt;
-		xmlInDir = xmlInputDir;
+	public XMLBasedCallGraphTest() {
+		xmlizer = new CallGraphXMLizer();
 	}
 
 	/**
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testDA() {
-		final String _xmlOutDir = xmlizer.getXmlOutDir();
+		final String _xmlOutDir = getXmlOutputDir();
+        final String _xmlInDir = getXmlInputDir();
 
 		for (final Iterator _i = xmlizer.getRootMethods().iterator(); _i.hasNext();) {
 			final SootMethod _root = (SootMethod) _i.next();
@@ -88,7 +82,7 @@ public class XMLBasedCallGraphTest
 					new FileReader(new File(_xmlOutDir + File.separator + "callgraph_"
 							+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
 				final Reader _previous =
-					new FileReader(new File(xmlInDir + File.separator + "callgraph_"
+					new FileReader(new File(_xmlInDir + File.separator + "callgraph_"
 							+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
 				assertXMLEqual(_previous, _current);
 			} catch (IOException _e) {
@@ -116,4 +110,10 @@ public class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/09 01:20:10  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
+
  */
