@@ -16,8 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
@@ -40,14 +41,23 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.ArrayType;
 import soot.Local;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.Value;
 import soot.ValueBox;
 
+import soot.jimple.ArrayRef;
+import soot.jimple.CastExpr;
+import soot.jimple.FieldRef;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.StaticFieldRef;
 
 
 /**
@@ -135,9 +145,26 @@ public final class RTABasedCallInfoCollector
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
 	public void callback(final SootMethod method) {
-		final Collection _exceptions = method.getExceptions();
-		final Iterator _i = _exceptions.iterator();
-		final int _iEnd = _exceptions.size();
+		final Collection _temp = new HashSet();
+		_temp.addAll(method.getExceptions());
+		_temp.add(method.getDeclaringClass());
+
+		for (int _j = method.getParameterCount() - 1; _j >= 0; _j--) {
+			final Type _type = method.getParameterType(_j);
+
+			if (_type instanceof RefType) {
+				_temp.add(((RefType) _type).getSootClass());
+			}
+		}
+
+		final Type _type = method.getReturnType();
+
+		if (_type != null && _type instanceof RefType) {
+			_temp.add(((RefType) _type).getSootClass());
+		}
+
+		final Iterator _i = _temp.iterator();
+		final int _iEnd = _temp.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			capturePossibleRoots((SootClass) _i.next(), method);
@@ -152,6 +179,12 @@ public final class RTABasedCallInfoCollector
 
 		if (_type instanceof RefType) {
 			capturePossibleRoots(((RefType) _type).getSootClass(), method);
+		} else if (_type instanceof ArrayType) {
+			final Type _baseType = ((ArrayType) _type).baseType;
+
+			if (_baseType instanceof RefType) {
+				capturePossibleRoots(((RefType) _baseType).getSootClass(), method);
+			}
 		}
 	}
 
@@ -159,8 +192,35 @@ public final class RTABasedCallInfoCollector
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-		CollectionsUtilities.putIntoSetInMap(method2instantiatedClasses, context.getCurrentMethod(),
-			((RefType) ((NewExpr) vBox.getValue()).getType()).getSootClass());
+		final Value _value = vBox.getValue();
+		Type _type = null;
+
+		if (_value instanceof NewExpr) {
+			_type = ((NewExpr) _value).getType();
+		} else if (_value instanceof InstanceFieldRef || _value instanceof StaticFieldRef) {
+			final FieldRef _f = (FieldRef) _value;
+			_type = _f.getType();
+			CollectionsUtilities.putIntoSetInMap(method2instantiatedClasses, context.getCurrentMethod(),
+				_f.getField().getDeclaringClass());
+		} else if (_value instanceof ArrayRef) {
+			final ArrayRef _a = (ArrayRef) _value;
+			_type = _a.getType();
+		} else if (_value instanceof CastExpr) {
+			final CastExpr _c = (CastExpr) _value;
+			_type = _c.getType();
+		} else if (_value instanceof NewArrayExpr) {
+			final NewArrayExpr _n = (NewArrayExpr) _value;
+			_type = _n.getBaseType();
+		} else {  // if (_value instanceof NewMultiArrayExpr)
+
+			final NewMultiArrayExpr _n = (NewMultiArrayExpr) _value;
+			_type = _n.getBaseType().baseType;
+		}
+
+		if (_type != null && _type instanceof RefType) {
+			CollectionsUtilities.putIntoSetInMap(method2instantiatedClasses, context.getCurrentMethod(),
+				((RefType) _type).getSootClass());
+		}
 	}
 
 	/**
@@ -171,30 +231,41 @@ public final class RTABasedCallInfoCollector
 			LOGGER.debug("consolidate() - BEGIN");
 		}
 
-		final Collection _temp = new HashSet();
-		final IWorkBag _wb = new FIFOWorkBag();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(callInfoHolder.reachables);
 		_wb.addAllWorkNoDuplicates(roots);
 
 		while (_wb.hasWork()) {
 			final Object _o = _wb.getWork();
 			final SootMethod _sootMethod = (SootMethod) _o;
-			callInfoHolder.reachables.add(_o);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("consolidate() - Processed method:  : " + _sootMethod);
+			}
+
 			processCallerAndAlreadyInstantiatedClasses(_sootMethod, _wb);
 
-			final Collection _t = CollectionsUtilities.getSetFromMap(method2instantiatedClasses, _o);
+			final Collection _t = CollectionsUtilities.getSetFromMap(method2instantiatedClasses, _sootMethod);
 
 			if (!instantiatedClasses.containsAll(_t)) {
 				_t.removeAll(instantiatedClasses);
 				instantiatedClasses.addAll(_t);
 				processNewInstantiatedClasses(_t, _wb);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("consolidate() - Considered classes:  : " + _t);
+				}
 			}
 
-			final Set _s = CollectionsUtilities.getSetFromMap(method2requiredCLInits, _sootMethod);
-			_wb.addAllWorkNoDuplicates(CollectionUtils.subtract(_s, _temp));
-			_temp.addAll(_s);
+			final Set _requiredClassInitializers = CollectionsUtilities.getSetFromMap(method2requiredCLInits, _sootMethod);
+			_wb.addAllWorkNoDuplicates(_requiredClassInitializers);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("consolidate() - Required initializers:  : " + _requiredClassInitializers);
+			}
 		}
 
 		CHABasedCallInfoCollector.calculateHeads(callInfoHolder);
+		instantiatedClasses.clear();
 		method2instantiatedClasses.clear();
 		method2requiredCLInits.clear();
 		roots.clear();
@@ -212,6 +283,10 @@ public final class RTABasedCallInfoCollector
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(this);
 		ppc.register(NewExpr.class, this);
+		ppc.register(InstanceFieldRef.class, this);
+		ppc.register(StaticFieldRef.class, this);
+		ppc.register(ArrayRef.class, this);
+		ppc.register(CastExpr.class, this);
 		ppc.registerForLocals(this);
 	}
 
@@ -253,6 +328,10 @@ public final class RTABasedCallInfoCollector
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(this);
 		ppc.unregister(NewExpr.class, this);
+		ppc.unregister(InstanceFieldRef.class, this);
+		ppc.unregister(StaticFieldRef.class, this);
+		ppc.unregister(ArrayRef.class, this);
+		ppc.unregister(CastExpr.class, this);
 		ppc.unregisterForLocals(this);
 	}
 
@@ -298,11 +377,12 @@ public final class RTABasedCallInfoCollector
 				+ ") - BEGIN");
 		}
 
-		final Collection _chaCallees =
-			(Collection) MapUtils.getObject(chaCallInfo.getCallInfoProvider().getCaller2CalleesMap(), caller,
-				Collections.EMPTY_SET);
-		final Map _callee2callers = callInfoHolder.callee2callers;
-		final Map _caller2callees = callInfoHolder.caller2callees;
+		final Collection _chaCallees = new HashSet();
+		_chaCallees.addAll((Collection) MapUtils.getObject(chaCallInfo.getCallInfoProvider().getCaller2CalleesMap(), caller,
+				Collections.EMPTY_SET));
+		_chaCallees.removeAll((Collection) MapUtils.getObject(callInfoHolder.getCaller2CalleesMap(), caller,
+				Collections.EMPTY_SET));
+
 		final Iterator _i = _chaCallees.iterator();
 		final int _iEnd = _chaCallees.size();
 
@@ -313,9 +393,9 @@ public final class RTABasedCallInfoCollector
 
 			if (instantiatedClasses.contains(_calleeDeclaringClass)
 				  || CollectionUtils.containsAny(instantiatedClasses, cha.properSubclassesOf(_calleeDeclaringClass))) {
-				CollectionsUtilities.putIntoSetInMap(_callee2callers, _callee,
+				CollectionsUtilities.putIntoSetInMap(callInfoHolder.callee2callers, _callee,
 					new CallTriple(caller, _calleeTriple.getStmt(), _calleeTriple.getExpr()));
-				CollectionsUtilities.putIntoSetInMap(_caller2callees, caller, _calleeTriple);
+				CollectionsUtilities.putIntoSetInMap(callInfoHolder.caller2callees, caller, _calleeTriple);
 				wb.addWorkNoDuplicates(_callee);
 			}
 		}
@@ -340,41 +420,33 @@ public final class RTABasedCallInfoCollector
 				+ ", IWorkBag wb = " + wb + ") - BEGIN");
 		}
 
+		final Collection _col = Util.getResolvedMethods(newClasses);
 		final Map _chaCallee2Callers = chaCallInfo.getCallInfoProvider().getCallee2CallersMap();
-		final Set _entrySet = _chaCallee2Callers.entrySet();
-		final Map _caller2callees = callInfoHolder.caller2callees;
-		final Map _callee2callers = callInfoHolder.callee2callers;
 		final Collection _reachables = callInfoHolder.reachables;
-		final Iterator _j = _entrySet.iterator();
-		final int _jEnd = _entrySet.size();
+		final Iterator _j = _col.iterator();
+		final int _jEnd = _col.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Map.Entry _entry = (Map.Entry) _j.next();
-			final SootMethod _callee = (SootMethod) _entry.getKey();
-			final SootClass _calleeDeclaringClass = _callee.getDeclaringClass();
+			final SootMethod _callee = (SootMethod) _j.next();
+			final Collection _callers = (Collection) MapUtils.getObject(_chaCallee2Callers, _callee, Collections.EMPTY_LIST);
+			final Iterator _k = _callers.iterator();
+			final int _kEnd = _callers.size();
+			boolean _flag = false;
 
-			if (newClasses.contains(_calleeDeclaringClass)
-				  || CollectionUtils.containsAny(newClasses, cha.properSubclassesOf(_calleeDeclaringClass))) {
-				final Collection _callers = (Collection) _entry.getValue();
-				final Iterator _k = _callers.iterator();
-				final int _kEnd = _callers.size();
-				boolean _flag = false;
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final CallTriple _callerTriple = (CallTriple) _k.next();
+				final SootMethod _caller = _callerTriple.getMethod();
 
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final CallTriple _callerTriple = (CallTriple) _k.next();
-					final SootMethod _caller = _callerTriple.getMethod();
-
-					if (_reachables.contains(_caller)) {
-						_flag |= true;
-						CollectionsUtilities.putIntoSetInMap(_callee2callers, _callee, _callerTriple);
-						CollectionsUtilities.putIntoSetInMap(_caller2callees, _caller,
-							new CallTriple(_callee, _callerTriple.getStmt(), _callerTriple.getExpr()));
-					}
+				if (_reachables.contains(_caller)) {
+					_flag |= true;
+					CollectionsUtilities.putIntoSetInMap(callInfoHolder.callee2callers, _callee, _callerTriple);
+					CollectionsUtilities.putIntoSetInMap(callInfoHolder.caller2callees, _caller,
+						new CallTriple(_callee, _callerTriple.getStmt(), _callerTriple.getExpr()));
 				}
+			}
 
-				if (_flag) {
-					wb.addWorkNoDuplicates(_callee);
-				}
+			if (_flag) {
+				wb.addWorkNoDuplicates(_callee);
 			}
 		}
 

@@ -345,15 +345,16 @@ public final class CallGraphXMLizerCLI
 
 		final CHABasedCallInfoCollector _chaci = new CHABasedCallInfoCollector();
 		_chaci.initialize(_cha);
+        _chaci.hookup(_pc);
+        _pc.process();
+        _chaci.unhook(_pc);
         
 		final RTABasedCallInfoCollector _rtaci = new RTABasedCallInfoCollector();
 		_rtaci.setRootMethods(getRootMethods());
 		_rtaci.initialize(_chaci, _cha);
-        _chaci.hookup(_pc);
         _rtaci.hookup(_pc);
 		_pc.process();
 		_rtaci.unhook(_pc);
-        _chaci.unhook(_pc);
 
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		_cgi.createCallGraphInfo(_rtaci.getCallInfoProvider());

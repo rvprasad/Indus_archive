@@ -74,8 +74,8 @@ public final class CallGraphInfo
 	private static final Log LOGGER = LogFactory.getLog(CallGraphInfo.class);
 
 	/** 
-	 * The collection of methods that don't have callers in the system.  These typically include root methods and class 
-     * initializers.
+	 * The collection of methods that don't have callers in the system.  These typically include root methods and class
+	 * initializers.
 	 *
 	 * @invariant head != null and heads.oclIsKindOf(Set(SootMethod))
 	 */
@@ -183,15 +183,16 @@ public final class CallGraphInfo
 		 * @post result != null and result.oclIsKindOf(Map(CallTriple, Collection(CallTriple)))
 		 */
 		Map getCaller2CalleesMap();
-        /**
-         * Retrieves the head methods (methods with to caller).
-         *
-         * @return a collection of head methods.
-         *
-         * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-         */
-        Collection getHeads();
-        
+
+		/**
+		 * Retrieves the head methods (methods with to caller).
+		 *
+		 * @return a collection of head methods.
+		 *
+		 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+		 */
+		Collection getHeads();
+
 		/**
 		 * Retrieves the methods reachable in the system.
 		 *
@@ -493,9 +494,9 @@ public final class CallGraphInfo
 		callee2callers.putAll(provider.getCallee2CallersMap());
 		caller2callees.putAll(provider.getCaller2CalleesMap());
 		reachables.addAll(provider.getReachableMethods());
-        heads.addAll(provider.getHeads());
+		heads.addAll(provider.getHeads());
 		createGraph();
-        stable();
+		stable();
 	}
 
 	/**
@@ -521,18 +522,22 @@ public final class CallGraphInfo
 	 */
 	public String toString() {
 		final StringBuffer _result = new StringBuffer();
+		final List _temp1 = new ArrayList();
 
 		_result.append("Root of the system: ");
+		_temp1.addAll(getHeads());
+		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator _i = getHeads().iterator(); _i.hasNext();) {
+		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
 			_result.append("\t" + ((SootMethod) _i.next()).getSignature());
 		}
+
 		_result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
 		_result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		_result.append("top-down\n");
 
-		final List _temp1 = new ArrayList();
 		final List _temp2 = new ArrayList();
+        _temp1.clear();
 		_temp1.addAll(caller2callees.keySet());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
