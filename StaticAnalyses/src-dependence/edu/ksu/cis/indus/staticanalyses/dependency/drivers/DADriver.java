@@ -150,12 +150,6 @@ public abstract class DADriver
 			LOGGER.info("Loading classes....");
 		}
 
-		String[] options = new String[3];
-		options[0] = "-p";
-		options[1] = "jb";
-		options[2] = "use-original-names:true";
-		Options.v().parse(options);
-
 		scm = loadupClassesAndCollectMains(args);
 		aa = OFAnalyzer.getFSOSAnalyzer();
 
@@ -361,6 +355,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/09/29 07:30:51  venku
+   - added support to spit out local variables names as they occur
+     in the source rather than jimplified names.
+
    Revision 1.21  2003/09/29 06:37:31  venku
    - Each driver now handles each root method separately.
    Revision 1.20  2003/09/29 04:20:30  venku
