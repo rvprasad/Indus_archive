@@ -229,15 +229,7 @@ public class SlicerDriver
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
-		slicer.run(Phase.STARTING_PHASE);
-
-		while (!slicer.isStable()) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				LOGGER.error("Error while waiting for the tool to finish.", e);
-			}
-		}
+		slicer.run(Phase.STARTING_PHASE, true);
 	}
 
 	/**
@@ -473,6 +465,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/09 12:10:17  venku
+   - retrieval of config file from jar fails. FIXED.
+
    Revision 1.22  2003/12/09 09:50:54  venku
    - amended output of string output to be XML compliant.
      This means some characters that are unrepresentable in

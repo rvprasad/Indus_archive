@@ -91,10 +91,13 @@ public interface ITool {
 	 * Executes the tool.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
+	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
+	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
+	 * 		  it's run.
 	 *
 	 * @throws RuntimeException when this method called on a paused tool.
 	 */
-	void run(final Object phase);
+	void run(final Object phase, final boolean synchronous);
 
 	/**
 	 * Returns a stringized from of the information in the object suitable for serialization.
@@ -109,4 +112,6 @@ public interface ITool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/02 11:47:19  venku
+   - raised the tool to an interface ITool.
  */

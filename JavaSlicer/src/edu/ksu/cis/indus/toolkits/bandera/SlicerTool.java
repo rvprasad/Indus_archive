@@ -223,13 +223,17 @@ public class SlicerTool
 	 */
 	public void run()
 	  throws Exception {
-		tool.run(Phase.STARTING_PHASE);
+		tool.run(Phase.STARTING_PHASE, true);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/02 11:32:01  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.18  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
