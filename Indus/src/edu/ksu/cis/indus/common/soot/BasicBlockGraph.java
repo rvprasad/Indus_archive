@@ -431,28 +431,44 @@ public final class BasicBlockGraph
 	 * @pre stmts.oclIsKindOf(Collection(Stmt))
 	 */
 	private void getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag wb, final List stmts) {
-		Stmt _stmt = leaderStmt;
-		Stmt _pred = leaderStmt;
+		stmts.add(leaderStmt);
 
-		while (true) {
-			final Collection _preds = stmtGraph.getPredsOf(_stmt);
-			final Collection _succs = stmtGraph.getSuccsOf(_stmt);
-			final int _succsSize = _succs.size();
+		final Collection _t = stmtGraph.getSuccsOf(leaderStmt);
 
-			if (_preds.size() > 1 && _pred != _stmt) {
-				wb.addWorkNoDuplicates(_stmt);
-				break;
-			}
-			stmts.add(_stmt);
+		if (!_t.isEmpty()) {
+			Stmt _pred = leaderStmt;
+			Stmt _stmt = (Stmt) _t.iterator().next();
 
-			if (_succsSize > 1 || _succsSize == 0) {
-				if (_succsSize > 1) {
-					wb.addAllWorkNoDuplicates(_succs);
+			while (true) {
+				final Collection _preds = stmtGraph.getPredsOf(_stmt);
+
+                // if this statement has multiple predecessor then it marks the boundary of a basic block.
+				if (_preds.size() > 1) {
+					wb.addWorkNoDuplicates(_stmt);
+					break;
 				}
-				break;
+
+                final Collection _succs = stmtGraph.getSuccsOf(_stmt);
+                final int _succsSize = _succs.size();
+                if (_succsSize == 1) {
+                    // check if we did not come around basic block involved in a self-loop (a->a)
+                    if (!stmts.contains(_stmt)) {
+                        stmts.add(_stmt);
+                        _pred = _stmt;
+                        _stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);                                            
+                    } else {
+                        // if we did come around a self-loop then the basic block cannot be extended further
+                        break;
+                    }
+                } else {
+                    stmts.add(_stmt);
+                    // if there are multiple successors then it marks the boundary of a basic block.
+					if (_succsSize > 1) {
+						wb.addAllWorkNoDuplicates(_succs);
+					}
+					break;
+				}
 			}
-			_pred = _stmt;
-			_stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);
 		}
 	}
 
