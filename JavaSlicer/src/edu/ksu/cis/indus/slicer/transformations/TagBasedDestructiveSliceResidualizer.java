@@ -142,6 +142,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	final Map stmt2predecessors = new HashMap();
 
 	/**
+	 * The tag that identify the parts of the system that shall be residualized.
+	 */
+	NamedTag tagToResidualize;
+
+	/**
 	 * The system to be residualized.
 	 */
 	Scene theScene;
@@ -154,7 +159,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * The name of the tag used to identify the parts of the system to be residualized.
 	 */
-	String tagToResidualize;
+	String theNameOfTagToResidualize;
 
 	/**
 	 * The collection of classes to be removed from the system after residualization.
@@ -195,11 +200,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	private final class StmtResidualizer
 	  extends AbstractStmtSwitch {
 		/*
-		 * THINK: In enter/exit montior, invoke, and conditional statements, there is no meaning in marking the statement as
-		 * required and not the containing expression.  (Or can it be?) Hence, for such statements we assume that the
-		 * containing expressions will be residualized. If so, then we can leave the expression untouched.  Only in the case
-		 * of invocation statement do we need to process the arguments to the call.
-		 *
 		 * TODO: Depending on the relevant branches of the conditional various branches of the conditional can be sliced to
 		 * improve precision.
 		 */
@@ -236,7 +236,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 			final ValueBox _vBox = stmt.getKeyBox();
 
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
 				stmt.setKey(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
@@ -247,7 +247,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void caseReturnStmt(final ReturnStmt stmt) {
 			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
 				stmt.setOp(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
@@ -258,7 +258,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 			final ValueBox _vBox = stmt.getKeyBox();
 
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
 				stmt.setKey(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
@@ -269,7 +269,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void caseThrowStmt(final ThrowStmt stmt) {
 			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
 				final Value _val = stmt.getOp();
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
@@ -282,7 +282,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				// create an exception of the thrown type and assign it to the created local.
 				final NewExpr _newExpr = _jimple.newNewExpr(_type);
 				final AssignStmt _astmt = _jimple.newAssignStmt(_local, _newExpr);
-				final Tag _tag = new NamedTag(tagToResidualize);
+				final Tag _tag = new NamedTag(theNameOfTagToResidualize);
 				_astmt.addTag(_tag);
 				_astmt.getLeftOpBox().addTag(_tag);
 				_astmt.getRightOpBox().addTag(_tag);
@@ -326,7 +326,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		boolean residualize(final Stmt stmt) {
 			boolean _result = false;
 
-			if (stmt.hasTag(tagToResidualize)) {
+			if (stmt.hasTag(theNameOfTagToResidualize)) {
 				setResult(null);
 				stmt.apply(this);
 
@@ -359,12 +359,10 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 
 			SootMethod _init = clazz.getMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
-			final boolean _existsButIsNotIncluded = _init != null ? !_init.hasTag(tagToResidualize)
+			final boolean _existsButIsNotIncluded = _init != null ? !_init.hasTag(theNameOfTagToResidualize)
 																  : false;
 
 			if (_init == null || _existsButIsNotIncluded) {
-				final Tag _tag = new NamedTag(tagToResidualize);
-
 				if (_existsButIsNotIncluded) {
 					clazz.removeMethod(_init);
 
@@ -376,7 +374,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 				// SPECIALIZATION: Specialization from here on.
 				_init = new SootMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
-				_init.addTag(_tag);
+				_init.addTag(tagToResidualize);
 
 				final Jimple _jimple = Jimple.v();
 				final Body _body = _jimple.newBody(_init);
@@ -386,27 +384,27 @@ public final class TagBasedDestructiveSliceResidualizer
 					final LocalCreation _lc = new LocalCreation(_body.getLocals());
 					final Local _this = _lc.newLocal("_this", _clazzType);
 					final IdentityStmt _astmt = _jimple.newIdentityStmt(_this, _jimple.newThisRef(_clazzType));
-					_astmt.addTag(_tag);
-					_astmt.getLeftOpBox().addTag(_tag);
-					_astmt.getRightOpBox().addTag(_tag);
+					_astmt.addTag(tagToResidualize);
+					_astmt.getLeftOpBox().addTag(tagToResidualize);
+					_astmt.getRightOpBox().addTag(tagToResidualize);
 					_body.getUnits().add(_astmt);
 
 					final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_this, _superinit);
 					final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
-					_istmt.addTag(_tag);
-					_istmt.getInvokeExprBox().addTag(_tag);
-					((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(_tag);
+					_istmt.addTag(tagToResidualize);
+					_istmt.getInvokeExprBox().addTag(tagToResidualize);
+					((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(tagToResidualize);
 					_body.getUnits().add(_istmt);
 				}
 
 				final Stmt _retStmt = _jimple.newReturnVoidStmt();
-				_retStmt.addTag(_tag);
+				_retStmt.addTag(tagToResidualize);
 				_body.getUnits().add(_retStmt);
 				_init.setActiveBody(_body);
 				clazz.addMethod(_init);
 
-				if (!clazz.hasTag(_tag.getName())) {
-					clazz.addTag(_tag);
+				if (!clazz.hasTag(theNameOfTagToResidualize)) {
+					clazz.addTag(tagToResidualize);
 				}
 			}
 
@@ -423,13 +421,13 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @pre stmt != null
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
-			if (!stmt.getLeftOpBox().hasTag(tagToResidualize)) {
+			if (!stmt.getLeftOpBox().hasTag(theNameOfTagToResidualize)) {
 				final ValueBox _rightOpBox = stmt.getRightOpBox();
 
 				/*
 				 * If the definition statement is marked and the lhs is unmarked then the rhs should be a marked invoke expr.
 				 */
-				if (_rightOpBox.hasTag(tagToResidualize) && !stmt.containsInvokeExpr()) {
+				if (_rightOpBox.hasTag(theNameOfTagToResidualize) && !stmt.containsInvokeExpr()) {
 					final String _message =
 						"Incorrect slice.  "
 						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
@@ -485,7 +483,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void residualize(final ValueBox vBox) {
 			final Value _value = vBox.getValue();
 
-			if (!((Host) vBox).hasTag(tagToResidualize)) {
+			if (!((Host) vBox).hasTag(theNameOfTagToResidualize)) {
 				vBox.setValue(Util.getDefaultValueFor(_value.getType()));
 			} else {
 				_value.apply(this);
@@ -501,7 +499,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @pre nameOfTagToResidualize != null
 	 */
 	public void setTagToResidualize(final String nameOfTagToResidualize) {
-		tagToResidualize = nameOfTagToResidualize;
+		theNameOfTagToResidualize = nameOfTagToResidualize;
+		tagToResidualize = new NamedTag(theNameOfTagToResidualize);
 	}
 
 	/**
@@ -545,7 +544,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	public void callback(final SootClass clazz) {
 		consolidateClass();
 
-		if (clazz.hasTag(tagToResidualize)) {
+		if (clazz.hasTag(theNameOfTagToResidualize)) {
 			currClass = clazz;
 			classesToKill.remove(clazz);
 			methodsToKill.addAll(clazz.getMethods());
@@ -645,7 +644,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		theScene = scene;
 
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(tagToResidualize));
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(theNameOfTagToResidualize));
 		_pc.setEnvironment(new Environment(scene));
 		hookup(_pc);
 		_pc.process();
@@ -747,26 +746,6 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.getLocals().retainAll(localsToKeep);
 			_body.getTraps().retainAll(trapsToRetain);
 
-			/*
-			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
-			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
-			 */
-			if (_body.getUnits().isEmpty()) {
-				// remove all traps 
-				_body.getTraps().clear();
-				// remove all locals
-				_body.getLocals().clear();
-
-				final Chain _temp = _body.getUnits();
-				final Type _retType = currMethod.getReturnType();
-
-				if (_retType instanceof VoidType) {
-					_temp.add(_jimple.newReturnVoidStmt());
-				} else {
-					_temp.add(_jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
-				}
-			}
-			
 			// transformations built into Soot
 			NopEliminator.v().transform(_body);
 			UnreachableCodeEliminator.v().transform(_body);
@@ -776,13 +755,83 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.validateLocals();
 			_body.validateTraps();
 			_body.validateUnitBoxes();
-			_body.validateUses();			
+			_body.validateUses();
+			
+			/*
+			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
+			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
+			 * 
+			 * If there are NOP's in the body then the following condition will fail.  For this reason, this block should 
+			 * happen after the previous transformations block.
+			 */
+			if (_body.getUnits().isEmpty()) {
+				pluginSignatureCorrectBody(_body, _jimple);
+			}
+			
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Finishing method " + currMethod);
 		}
 		currMethod = null;
+	}
+
+	/**
+	 * Plugs in a body that satisfies the signature of the current method given by <code>currMethod</code>.
+	 *
+	 * @param body of <code>currMethod</code>.
+	 * @param jimple factory to be used create parts of the body.
+	 *
+	 * @pre body != null and jimple != null
+	 */
+	private void pluginSignatureCorrectBody(final JimpleBody body, final Jimple jimple) {
+		// remove all traps 
+		body.getTraps().clear();
+		// remove all locals
+		body.getLocals().clear();
+
+		final Chain _temp = body.getUnits();
+
+		// add the identity statements to pop out "this" parameter.
+		if (!currMethod.isStatic()) {
+			final RefType _type = RefType.v(currMethod.getDeclaringClass());
+			final LocalCreation _lc = new LocalCreation(body.getLocals());
+			final Local _this = _lc.newLocal("_this", _type);
+			final IdentityStmt _astmt = jimple.newIdentityStmt(_this, jimple.newThisRef(_type));
+			_astmt.addTag(tagToResidualize);
+			_astmt.getLeftOpBox().addTag(tagToResidualize);
+			_astmt.getRightOpBox().addTag(tagToResidualize);
+			body.getUnits().add(_astmt);
+		}
+
+		// add the identity statements to pop out the parameters		
+		final Collection _paramType = currMethod.getParameterTypes();
+		final int _end = _paramType.size();
+		final Iterator _i = _paramType.iterator();
+
+		for (int _pCount = 0; _pCount < _end; _pCount++) {
+			final Type _pType = (Type) _i.next();
+			final LocalCreation _lc = new LocalCreation(body.getLocals());
+			final Local _this = _lc.newLocal("_local", _pType);
+			final IdentityStmt _astmt = jimple.newIdentityStmt(_this, jimple.newParameterRef(_pType, _pCount));
+			_astmt.addTag(tagToResidualize);
+			_astmt.getLeftOpBox().addTag(tagToResidualize);
+			_astmt.getRightOpBox().addTag(tagToResidualize);
+			body.getUnits().add(_astmt);
+		}
+
+		// add the return statements.
+		final Type _retType = currMethod.getReturnType();
+
+		if (_retType instanceof VoidType) {
+			_temp.add(jimple.newReturnVoidStmt());
+		} else {
+			_temp.add(jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Injected lame body for " + currMethod);
+		}
 	}
 
 	/**
@@ -800,7 +849,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		final Body _body = currMethod.retrieveActiveBody();
 
 		// calculate the relevant traps
-		if (stmt.hasTag(tagToResidualize)) {
+		if (stmt.hasTag(theNameOfTagToResidualize)) {
 			trapsToRetain.addAll(TrapManager.getTrapsAt(stmt, _body));
 		}
 
@@ -821,8 +870,9 @@ public final class TagBasedDestructiveSliceResidualizer
 			LOGGER.debug("Pruning locals in " + stmt);
 		}
 
-		if (stmt.hasTag(tagToResidualize)) {
-			for (final Iterator _k = Util.getHostsWithTag(stmt.getUseAndDefBoxes(), tagToResidualize).iterator(); _k.hasNext();) {
+		if (stmt.hasTag(theNameOfTagToResidualize)) {
+			for (final Iterator _k = Util.getHostsWithTag(stmt.getUseAndDefBoxes(), theNameOfTagToResidualize).iterator();
+				  _k.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _k.next();
 				final Value _value = _vBox.getValue();
 
@@ -837,16 +887,17 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/07/08 22:15:18  venku
+   - moved the method body validation code to the end so that it
+     considers any newly introduced code as well.
    Revision 1.12  2004/06/14 04:31:17  venku
    - added method to check tags on a collection of hosts in Util.
    - ripple effect.
-
    Revision 1.11  2004/06/12 06:47:28  venku
    - documentation.
    - refactoring.
    - coding conventions.
    - catered feature request 384, 385, and 386.
-
    Revision 1.10  2004/05/21 22:11:48  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
