@@ -67,7 +67,7 @@ public class AllocationContext
 	 *
 	 * @return the allocation site previously represented by this context.
 	 */
-	public Object setAllocationSite(Object site) {
+	public Object setAllocationSite(final Object site) {
 		Object temp = allocationSite;
 		allocationSite = site;
 
@@ -90,7 +90,7 @@ public class AllocationContext
 	 *
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		boolean result = false;
 
 		if (o != null && o instanceof AllocationContext) {
@@ -111,27 +111,33 @@ public class AllocationContext
 	 * @return the hash code.
 	 */
 	public int hashCode() {
-        int result = 17;
-        if (allocationSite != null)
-        result = 37 * result + allocationSite.hashCode();
-        result = 37 * result + super.hashCode();
+		int result = 17;
+
+		if (allocationSite != null) {
+			result = 37 * result + allocationSite.hashCode();
+		}
+		result = 37 * result + super.hashCode();
 		return result;
 	}
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
+   
+   Revision 1.3  2003/08/12 19:03:47  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode().
+   
    Revision 1.2  2003/08/12 18:47:50  venku
    Spruced up documentation and specification.
    Changed equals() and hashCode() in AllocationContext.
 
-   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.4  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

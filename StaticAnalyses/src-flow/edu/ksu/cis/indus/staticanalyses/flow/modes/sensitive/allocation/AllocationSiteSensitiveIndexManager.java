@@ -79,7 +79,7 @@ public class AllocationSiteSensitiveIndexManager
 	 * @pre o != null and c != null and
 	 * 		c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
 	 */
-	protected IIndex getIndex(Object o, Context c) {
+	protected IIndex getIndex(final Object o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
@@ -94,6 +94,10 @@ public class AllocationSiteSensitiveIndexManager
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/12 18:47:50  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode() in AllocationContext.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
