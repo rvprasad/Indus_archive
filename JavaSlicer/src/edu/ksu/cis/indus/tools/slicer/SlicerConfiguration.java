@@ -667,7 +667,7 @@ public final class SlicerConfiguration
 	 * @pre use != null
 	 */
 	public void setSliceType(final String type) {
-		processProperty(SLICE_TYPE, type);
+		setProperty(SLICE_TYPE, type);
 	}
 
 	/**
