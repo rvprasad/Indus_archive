@@ -822,6 +822,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 		IWorkBag wb = new FIFOWorkBag();
 		Collection processed = new HashSet();
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
+		}
+
 		// Phase 2: The SCCs are ordered bottom up. 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			List nodes = (List) i.next();
@@ -950,6 +954,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 					wb.addWork(callee);
 				}
 			}
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
 	}
 
@@ -1114,13 +1122,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/06 05:59:17  venku
+   - coding convention.
    Revision 1.24  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.23  2003/11/05 09:28:34  venku
    - ripple effect of splitting IWorkBag.
    Revision 1.22  2003/11/02 22:09:57  venku
