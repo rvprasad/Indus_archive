@@ -111,6 +111,8 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/05 12:43:22  venku
+   - logging.
    Revision 1.4  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.

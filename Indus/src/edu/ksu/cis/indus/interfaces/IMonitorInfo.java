@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-
 import java.util.Collection;
 
 
@@ -50,19 +49,19 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:20:40  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.7  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.6  2003/12/02 09:42:39  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

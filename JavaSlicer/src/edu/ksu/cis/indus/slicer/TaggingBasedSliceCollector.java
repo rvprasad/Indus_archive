@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -65,16 +65,12 @@ final class TaggingBasedSliceCollector {
 	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceCollector.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of methods that were tagged.
 	 */
 	private Collection taggedMethods = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the slicing engine to be used for slicing.
 	 */
 	private SlicingEngine engine;
 
@@ -98,29 +94,25 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param host DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected boolean hasBeenCollected(final Host host) {
-		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
-		return _temp != null;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Perform post processing on the slice once it is completed.
 	 */
 	protected void completeSlicing() {
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE) && engine.executableSlice) {
 			makeBackwardSliceExecutable();
 		}
 		processGotos();
+	}
+
+	/**
+	 * Checks if the given host has been collected/tagged.
+	 *
+	 * @param host to be checked.
+	 *
+	 * @return <code>true</code> 
+	 */
+	protected boolean hasBeenCollected(final Host host) {
+		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
+		return _temp != null;
 	}
 
 	/**
@@ -226,14 +218,14 @@ final class TaggingBasedSliceCollector {
 	 * <p></p>
 	 */
 	private void processGotos() {
-		IGotoProcessor gotoProcessor = null;
+		IGotoProcessor _gotoProcessor = null;
 
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			gotoProcessor = new SliceGotoProcessor(this, true);
+			_gotoProcessor = new SliceGotoProcessor(this, true);
 		} else if (engine.sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			gotoProcessor = new SliceGotoProcessor(this, false);
+			_gotoProcessor = new SliceGotoProcessor(this, false);
 		} else if (engine.sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			gotoProcessor = new CompleteSliceGotoProcessor(this);
+			_gotoProcessor = new CompleteSliceGotoProcessor(this);
 		}
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
@@ -246,13 +238,13 @@ final class TaggingBasedSliceCollector {
 			if (_bbg == null) {
 				continue;
 			}
-			gotoProcessor.preprocess(_sm);
+			_gotoProcessor.preprocess(_sm);
 
 			for (final Iterator _j = _bbg.getNodes().iterator(); _j.hasNext();) {
 				final BasicBlock _bb = (BasicBlock) _j.next();
-				gotoProcessor.process(_bb);
+				_gotoProcessor.process(_bb);
 			}
-			gotoProcessor.postprocess();
+			_gotoProcessor.postprocess();
 		}
 	}
 
@@ -264,9 +256,9 @@ final class TaggingBasedSliceCollector {
 	 * @param host DOCUMENT ME!
 	 */
 	private void tagHost(final Host host) {
-		SlicingTag theTag;
+		final SlicingTag _theTag;
 
-		theTag = tag;
+		_theTag = tag;
 
 		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
 
@@ -274,19 +266,19 @@ final class TaggingBasedSliceCollector {
 			if (host.getTag(tagName) != null) {
 				host.removeTag(tagName);
 			}
-			host.addTag(theTag);
+			host.addTag(_theTag);
 
 			if (host instanceof SootMethod) {
 				taggedMethods.add(host);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				Object o = host;
+				Object _o = host;
 
 				if (host instanceof ValueBox) {
-					o = ((ValueBox) host).getValue();
+					_o = ((ValueBox) host).getValue();
 				}
-				LOGGER.debug("Tagged: " + o);
+				LOGGER.debug("Tagged: " + _o);
 			}
 		}
 	}
@@ -295,17 +287,17 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.11  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.10  2003/12/07 22:13:12  venku
    - renamed methods in TaggingBasedSliceCollector.
-
    Revision 1.9  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
-
    Revision 1.8  2003/12/02 09:42:17  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

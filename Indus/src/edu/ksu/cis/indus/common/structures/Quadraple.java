@@ -42,7 +42,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$
  */
-public class Quadraple
+public final class Quadraple
   implements Cloneable {
 	/**
 	 * The first object in this quadraple.
@@ -153,8 +153,8 @@ public class Quadraple
 		 *
 		 * @post result != null
 		 */
-		public final Quadraple getOptimizedQuadraple(final Object firstParam, final Object secondParam,
-			final Object thirdParam, final Object fourthParam) {
+		public Quadraple getOptimizedQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
+			final Object fourthParam) {
 			return getQuadraple(firstParam, secondParam, thirdParam, fourthParam, true);
 		}
 
@@ -170,15 +170,15 @@ public class Quadraple
 		 *
 		 * @post result != null
 		 */
-		public final Quadraple getUnOptimizedQuadraple(final Object firstParam, final Object secondParam,
-			final Object thirdParam, final Object fourthParam) {
+		public Quadraple getUnOptimizedQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
+			final Object fourthParam) {
 			return getQuadraple(firstParam, secondParam, thirdParam, fourthParam, true);
 		}
 
 		/**
 		 * Forgets about all managed quadraples.
 		 */
-		public final void reset() {
+		public void reset() {
 			quadraples.clear();
 		}
 
@@ -197,19 +197,19 @@ public class Quadraple
 		 *
 		 * @post result != null
 		 */
-		private final Quadraple getQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
+		private Quadraple getQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
 			final Object fourthParam, final boolean optimized) {
-			Quadraple result;
+			Quadraple _result;
 			quadraple.first = firstParam;
 			quadraple.second = secondParam;
 
 			if (quadraples.contains(quadraple)) {
-				result = (Quadraple) quadraples.get(quadraples.indexOf(quadraple));
+				_result = (Quadraple) quadraples.get(quadraples.indexOf(quadraple));
 			} else {
-				result = new Quadraple(firstParam, secondParam, thirdParam, fourthParam, optimized);
-				quadraples.add(0, result);
+				_result = new Quadraple(firstParam, secondParam, thirdParam, fourthParam, optimized);
+				quadraples.add(0, _result);
 			}
-			return result;
+			return _result;
 		}
 	}
 
@@ -218,7 +218,7 @@ public class Quadraple
 	 *
 	 * @return the first object in the quadraple.
 	 */
-	public final Object getFirst() {
+	public Object getFirst() {
 		return first;
 	}
 
@@ -227,7 +227,7 @@ public class Quadraple
 	 *
 	 * @return the fourth object in the quadraple.
 	 */
-	public final Object getFourth() {
+	public Object getFourth() {
 		return fourth;
 	}
 
@@ -236,7 +236,7 @@ public class Quadraple
 	 *
 	 * @return the second object in the quadraple.
 	 */
-	public final Object getSecond() {
+	public Object getSecond() {
 		return second;
 	}
 
@@ -245,7 +245,7 @@ public class Quadraple
 	 *
 	 * @return the third object in the quadraple.
 	 */
-	public final Object getThird() {
+	public Object getThird() {
 		return third;
 	}
 
@@ -271,43 +271,29 @@ public class Quadraple
 	 * @post result == true implies o.oclTypeOf(Quadraple) and (o.first.equals(first) or o.first == first) and
 	 * 		 (o.second.equals(second) or o.second == second) and (o.third.equals(third) or o.third == third)
 	 */
-	public final boolean equals(final Object o) {
-		boolean result = false;
+	public boolean equals(final Object o) {
+		boolean _result = false;
 
 		if (o != null && o instanceof Quadraple) {
-			Quadraple temp = (Quadraple) o;
+			final Quadraple _temp = (Quadraple) o;
 
-			if (first != null) {
-				result = first.equals(temp.first);
-			} else {
-				result = first == temp.first;
+			_result = first == _temp.first || first.equals(_temp.first);
+
+			if (_result) {
+				_result = second == _temp.second || second.equals(_temp.second);
 			}
 
-			if (result) {
-				if (second != null) {
-					result = result && second.equals(temp.second);
-				} else {
-					result = result && second == temp.second;
-				}
-
-				if (result) {
-					if (third != null) {
-						result = result && third.equals(temp.third);
-					} else {
-						result = result && third == temp.third;
-					}
-
-					if (result) {
-						if (fourth != null) {
-							result = result && fourth.equals(temp.fourth);
-						} else {
-							result = result && fourth == temp.fourth;
-						}
-					}
-				}
+			if (_result) {
+				_result = third == _temp.third || third.equals(_temp.third);
 			}
+
+			if (_result) {
+				_result = fourth == _temp.fourth || fourth.equals(_temp.fourth);
+			}
+		} else {
+			_result = super.equals(o);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -316,15 +302,15 @@ public class Quadraple
 	 *
 	 * @return the hash code of this quadraple.
 	 */
-	public final int hashCode() {
-		int result;
+	public int hashCode() {
+		int _result;
 
 		if (str == null) {
-			result = hash();
+			_result = hash();
 		} else {
-			result = hashCode;
+			_result = hashCode;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -333,7 +319,7 @@ public class Quadraple
 	 *
 	 * @post str != null
 	 */
-	public final void optimize() {
+	public void optimize() {
 		hashCode = hash();
 		str = stringize();
 	}
@@ -344,15 +330,15 @@ public class Quadraple
 	 *
 	 * @return stringified representation of this object.
 	 */
-	public final String toString() {
-		String result;
+	public String toString() {
+		String _result;
 
 		if (str == null) {
-			result = stringize();
+			_result = stringize();
 		} else {
-			result = str;
+			_result = str;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -361,7 +347,7 @@ public class Quadraple
 	 *
 	 * @post str == null
 	 */
-	public final void unoptimize() {
+	public void unoptimize() {
 		str = null;
 	}
 
@@ -371,24 +357,24 @@ public class Quadraple
 	 * @return the hashcode of this object.
 	 */
 	protected int hash() {
-		int result = 17;
+		int _result = 17;
 
 		if (first != null) {
-			result = 37 * result + first.hashCode();
+			_result = 37 * _result + first.hashCode();
 		}
 
 		if (second != null) {
-			result = 37 * result + second.hashCode();
+			_result = 37 * _result + second.hashCode();
 		}
 
 		if (third != null) {
-			result = 37 * result + third.hashCode();
+			_result = 37 * _result + third.hashCode();
 		}
 
 		if (fourth != null) {
-			result = 37 * result + fourth.hashCode();
+			_result = 37 * _result + fourth.hashCode();
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -404,15 +390,16 @@ public class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.2  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.1  2003/09/02 12:29:59  venku
    - Installed a new component to represent tuples of size 4.
  */

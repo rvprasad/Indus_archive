@@ -16,20 +16,22 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.structures.Pair;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.IPoolable;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.PoolAwareFIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -63,7 +65,6 @@ import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
-import soot.tagkit.AbstractHost;
 import soot.tagkit.Host;
 
 
@@ -185,7 +186,7 @@ public final class SlicingEngine {
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
 	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
-	private final IWorkBag workbag = new PoolAwareFIFOWorkBag();
+	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
 
 	/**
 	 * <p>
@@ -493,20 +494,20 @@ public final class SlicingEngine {
 	 */
 	private boolean considerMethodEntranceForCriteriaGeneration(final SootMethod callee, final SootMethod caller,
 		final Stmt stmt) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (markedAsRequired(callee)) {
 			invoked.remove(caller);
 			required.add(caller);
-			result = true;
+			_result = true;
 		} else {
 			if (invoked.contains(callee)) {
-				result = marked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
+				_result = marked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
 			} else {
 				throw new RuntimeException("How can this happen?" + callee + " was unmarked but was being processed.");
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -519,13 +520,13 @@ public final class SlicingEngine {
 	 * @return DOCUMENT ME!
 	 */
 	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (!marked(callee)) {
 			invoked.add(callee);
-			result = true;
+			_result = true;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -563,18 +564,18 @@ public final class SlicingEngine {
 
 		for (final Iterator _i = _newCriteria.iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
-			Stmt stmtToBeIncluded;
-			SootMethod methodToBeIncluded;
+			Stmt _stmtToBeIncluded;
+			SootMethod _methodToBeIncluded;
 
 			if (_o instanceof Pair) {
 				final Pair _pair = (Pair) _o;
-				stmtToBeIncluded = (Stmt) _pair.getFirst();
-				methodToBeIncluded = (SootMethod) _pair.getSecond();
+				_stmtToBeIncluded = (Stmt) _pair.getFirst();
+				_methodToBeIncluded = (SootMethod) _pair.getSecond();
 			} else {
-				stmtToBeIncluded = (Stmt) _o;
-				methodToBeIncluded = method;
+				_stmtToBeIncluded = (Stmt) _o;
+				_methodToBeIncluded = method;
 			}
-			generateSliceStmtCriterion(stmtToBeIncluded, methodToBeIncluded, true);
+			generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
 		}
 	}
 
@@ -600,6 +601,36 @@ public final class SlicingEngine {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for based on dependence:" + dependenceId);
+		}
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param invocationStmt DOCUMENT ME!
+	 * @param caller DOCUMENT ME!
+	 * @param considerReturnValue DOCUMENT ME!
+	 * @param invokeExpr DOCUMENT ME!
+	 * @param callee DOCUMENT ME!
+	 * @param calleeBasicBlockGraph DOCUMENT ME!
+	 */
+	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
+		final boolean considerReturnValue, final InvokeExpr invokeExpr, final SootMethod callee,
+		final BasicBlockGraph calleeBasicBlockGraph) {
+		final BitSet _params = (BitSet) method2params.get(callee);
+
+		if (considerMethodExitForCriteriaGeneration(callee) || _params == null) {
+			processReturnStmtInInit(callee, calleeBasicBlockGraph);
+
+			for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
+				final BasicBlock _bb = (BasicBlock) _j.next();
+				final Stmt _trailer = _bb.getTrailerStmt();
+				generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
+			}
+		} else if (callee.getParameterCount() > 0) {
+			for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
+				generateSliceExprCriterion(invokeExpr.getArgBox(_j), invocationStmt, caller, true);
+			}
 		}
 	}
 
@@ -665,17 +696,17 @@ public final class SlicingEngine {
 		final ParameterRef _param = (ParameterRef) pBox.getValue();
 		final int _index = _param.getIndex();
 
-		BitSet params = (BitSet) method2params.get(callee);
+		BitSet _params = (BitSet) method2params.get(callee);
 
-		if (params == null) {
+		if (_params == null) {
 			final int _maxArguments = 8;
-			params = new BitSet(_maxArguments);
-			method2params.put(callee, params);
+			_params = new BitSet(_maxArguments);
+			method2params.put(callee, _params);
 		}
-		params.set(_param.getIndex());
+		_params.set(_param.getIndex());
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Parameters required for " + callee + " are " + params);
+			LOGGER.debug("Parameters required for " + callee + " are " + _params);
 		}
 
 		for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
@@ -701,12 +732,13 @@ public final class SlicingEngine {
 	 * <p></p>
 	 *
 	 * @param callees DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
+	 * @param invocationStmt DOCUMENT ME!
 	 * @param caller DOCUMENT ME!
 	 */
-	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt stmt, final SootMethod caller) {
-		final boolean _considerReturnValue = !(stmt instanceof InvokeStmt);
-		final InvokeExpr _expr = stmt.getInvokeExpr();
+	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt invocationStmt,
+		final SootMethod caller) {
+		final boolean _considerReturnValue = !(invocationStmt instanceof InvokeStmt);
+		final InvokeExpr _expr = invocationStmt.getInvokeExpr();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for return points " + _considerReturnValue);
@@ -735,23 +767,7 @@ public final class SlicingEngine {
 				continue;
 			}
 
-			final BitSet _params = (BitSet) method2params.get(_callee);
-
-			if (considerMethodExitForCriteriaGeneration(_callee) || _params == null) {
-				processReturnStmtInInit(_callee, _bbg);
-
-				for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
-					final BasicBlock _bb = (BasicBlock) _j.next();
-					final Stmt _trailer = _bb.getTrailerStmt();
-					generateSliceStmtCriterion(_trailer, _callee, _considerReturnValue);
-				}
-			} else if (_callee.getParameterCount() > 0) {
-				System.err.println("------" + _params + " ---- " + caller);
-
-				for (int i = _params.nextSetBit(0); i >= 0; i = _params.nextSetBit(i + 1)) {
-					generateSliceExprCriterion(_expr.getArgBox(i), stmt, caller, true);
-				}
-			}
+			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, _considerReturnValue, _expr, _callee, _bbg);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -939,17 +955,14 @@ public final class SlicingEngine {
 
 			for (final Iterator _j = bbg.getHead().getStmtsOf().iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
+				final SootMethod _invokedMethod = _stmt.getInvokeExpr().getMethod();
 
-				if (_stmt instanceof InvokeStmt) {
-					final SootMethod _invokedMethod = _stmt.getInvokeExpr().getMethod();
+				if (_stmt instanceof InvokeStmt && _invokedMethod.getName().equals("<init>")) {
+					final SootClass _sc2 = _invokedMethod.getDeclaringClass();
 
-					if (_invokedMethod.getName().equals("<init>")) {
-						final SootClass _sc2 = _invokedMethod.getDeclaringClass();
-
-						if (_sc1 == _sc2 || (_sc1.hasSuperclass() && _sc1.getSuperclass() == _sc2)) {
-							generateSliceStmtCriterion(_stmt, callee, true);
-							break;
-						}
+					if (_sc1 == _sc2 || (_sc1.hasSuperclass() && _sc1.getSuperclass() == _sc2)) {
+						generateSliceStmtCriterion(_stmt, callee, true);
+						break;
 					}
 				}
 			}
@@ -1100,24 +1113,23 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.31  2003/12/08 12:20:48  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.30  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.29  2003/12/07 22:13:12  venku
    - renamed methods in TaggingBasedSliceCollector.
-
    Revision 1.28  2003/12/07 15:16:01  venku
    - the order of collecting the slice had an impact on the
      generation of the slice (due to optimization).  For this
      reason the enclosing method should be collected after
      the criteria are generated.
-
    Revision 1.27  2003/12/05 15:33:35  venku
    - more logging and logic to handle inter procedural slicing.
      Getting there.

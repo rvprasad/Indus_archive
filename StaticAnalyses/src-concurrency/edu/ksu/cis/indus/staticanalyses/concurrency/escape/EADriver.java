@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
+
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -29,10 +29,8 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -102,150 +100,137 @@ public final class EADriver
 		setClassNames(args);
 		initialize();
 
-		String tagName = "EADriver:FA";
-		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer(tagName);
-		Collection rm = new ArrayList();
+		final String _tagName = "EADriver:FA";
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
+		final Collection _rm = new ArrayList();
 
-		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
-			rm.clear();
-			rm.add(l.next());
+		for (final Iterator _l = rootMethods.iterator(); _l.hasNext();) {
+			_rm.clear();
+			_rm.add(_l.next());
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("BEGIN: FA analysis");
 			}
 
-			long start = System.currentTimeMillis();
-			aa.reset();
-			aa.analyze(scene, rm);
+			long _start = System.currentTimeMillis();
+			_aa.reset();
+			_aa.analyze(scene, _rm);
 
-			long stop = System.currentTimeMillis();
+			long _stop = System.currentTimeMillis();
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: FA analysis");
 			}
-			addTimeLog("FA analysis", stop - start);
+			addTimeLog("FA analysis", _stop - _start);
 
-			ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
-			ppc.setAnalyzer(aa);
-			ppc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+			final ValueAnalyzerBasedProcessingController _ppc = new ValueAnalyzerBasedProcessingController();
+			_ppc.setAnalyzer(_aa);
+			_ppc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 
 			// Create call graph
-			CallGraph cg = new CallGraph();
-			cg.hookup(ppc);
+			final CallGraph _cg = new CallGraph();
+			_cg.hookup(_ppc);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("BEGIN: FA postprocessing");
 			}
-			start = System.currentTimeMillis();
-			ppc.process();
-			cg.unhook(ppc);
-            
-            ppc.reset();
-			ppc.setProcessingFilter(new CGBasedProcessingFilter(cg));
-			ppc.setAnalyzer(aa);
+			_start = System.currentTimeMillis();
+			_ppc.process();
+			_cg.unhook(_ppc);
+
+			_ppc.reset();
+			_ppc.setProcessingFilter(new CGBasedProcessingFilter(_cg));
+			_ppc.setAnalyzer(_aa);
 
 			// Create Thread graph
-			ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbm));
-			tg.hookup(ppc);
-			ppc.process();
-			tg.unhook(ppc);
+			final ThreadGraph _tg = new ThreadGraph(_cg, new CFGAnalysis(_cg, bbm));
+			_tg.hookup(_ppc);
+			_ppc.process();
+			_tg.unhook(_ppc);
 
 			// Perform equivalence-class-based escape analysis
-			EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(cg, tg, bbm);
-			analysis.hookup(ppc);
-			ppc.process();
-			stop = System.currentTimeMillis();
-			analysis.unhook(ppc);
+			final EquivalenceClassBasedEscapeAnalysis _analysis = new EquivalenceClassBasedEscapeAnalysis(_cg, _tg, bbm);
+			_analysis.hookup(_ppc);
+			_ppc.process();
+			_stop = System.currentTimeMillis();
+			_analysis.unhook(_ppc);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: FA postprocessing");
 			}
-			addTimeLog("FA postprocessing took ", stop - start);
-			System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
-			System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
+			addTimeLog("FA postprocessing took ", _stop - _start);
+			System.out.println("CALL GRAPH:\n" + _cg.dumpGraph());
+			System.out.println("THREAD GRAPH:\n" + _tg.dumpGraph());
 
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+				LOGGER.info("BEGIN: " + _analysis.getClass().getName() + " processing");
 			}
-			start = System.currentTimeMillis();
-			analysis.execute();
-			stop = System.currentTimeMillis();
+			_start = System.currentTimeMillis();
+			_analysis.execute();
+			_stop = System.currentTimeMillis();
 
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+				LOGGER.info("END: " + _analysis.getClass().getName() + " processing");
 			}
-			addTimeLog(analysis.getClass().getName(), stop - start);
+			addTimeLog(_analysis.getClass().getName(), _stop - _start);
 
-			int count = 1;
-			Map threadMap = new HashMap();
-			System.out.println("\nThread mapping:");
+			final Collection _abstractObjects = new HashSet();
+			int _accessSites = 0;
+			int _allocationSites = 0;
 
-			for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
-				NewExprTriple element = (NewExprTriple) j.next();
-				String tid = "T" + count++;
-				threadMap.put(element, tid);
+			for (int _i = 0; _i < args.length; _i++) {
+				final SootClass _sc = scene.getSootClass(args[_i]);
+				System.out.println("Info for class " + _sc.getName() + "\n");
 
-				if (element.getMethod() == null) {
-					System.out.println(tid + " -> " + element.getExpr().getType());
-				} else {
-					System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
-				}
-			}
+				for (final Iterator _j = CollectionUtils.intersection(_cg.getReachableMethods(), _sc.getMethods()).iterator();
+					  _j.hasNext();) {
+					final SootMethod _sm = (SootMethod) _j.next();
+					System.out.println("\nInfo for Method " + _sm.getSignature());
 
-			Collection abstractObjects = new HashSet();
-			int accessSites = 0;
-			int allocationSites = 0;
-
-			for (int i = 0; i < args.length; i++) {
-				SootClass sc = scene.getSootClass(args[i]);
-				System.out.println("Info for class " + sc.getName() + "\n");
-
-				for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
-					  j.hasNext();) {
-					SootMethod sm = (SootMethod) j.next();
-					System.out.println("\nInfo for Method " + sm.getSignature());
-
-					if (sm.isConcrete()) {
-						JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
-
-						for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
-							Local local = (Local) k.next();
-							System.out.println(" Local " + local + ":" + local.getType() + "\n" + " escapes -> "
-								+ analysis.escapes(local, sm) + "\n" + " global -> " + analysis.isGlobal(local, sm));
-						}
-
-						for (Iterator k = body.getUseAndDefBoxes().iterator(); k.hasNext();) {
-							ValueBox box = (ValueBox) k.next();
-							Value v = box.getValue();
-
-							if (v instanceof ArrayRef || v instanceof FieldRef) {
-								Object as = analysis.getAliasSetFor(v, sm);
-
-								if (as != null) {
-									as = ((AliasSet) as).find();
-
-									if (!abstractObjects.contains(as)) {
-										abstractObjects.add(as);
-									}
-
-									if (analysis.escapes(v, sm)) {
-										accessSites++;
-									}
-								}
-							} else if (v instanceof NewExpr || v instanceof NewArrayExpr || v instanceof NewMultiArrayExpr) {
-								allocationSites++;
-							}
-						}
-					} else {
+					if (!_sm.isConcrete()) {
 						if (LOGGER.isInfoEnabled()) {
-							LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+							LOGGER.info(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+						}
+						continue;
+					}
+
+					final JimpleBody _body = (JimpleBody) _sm.retrieveActiveBody();
+
+					for (final Iterator _k = _body.getLocals().iterator(); _k.hasNext();) {
+						final Local _local = (Local) _k.next();
+						System.out.println(" Local " + _local + ":" + _local.getType() + "\n" + " escapes -> "
+							+ _analysis.escapes(_local, _sm) + "\n" + " global -> " + _analysis.isGlobal(_local, _sm));
+					}
+
+					for (final Iterator _k = _body.getUseAndDefBoxes().iterator(); _k.hasNext();) {
+						final ValueBox _box = (ValueBox) _k.next();
+						final Value _value = _box.getValue();
+
+						if (_value instanceof ArrayRef || _value instanceof FieldRef) {
+							Object _as = _analysis.getAliasSetFor(_value, _sm);
+
+							if (_as != null) {
+								_as = ((AliasSet) _as).find();
+
+								if (!_abstractObjects.contains(_as)) {
+									_abstractObjects.add(_as);
+								}
+
+								if (_analysis.escapes(_value, _sm)) {
+									_accessSites++;
+								}
+							}
+						} else if (_value instanceof NewExpr
+							  || _value instanceof NewArrayExpr
+							  || _value instanceof NewMultiArrayExpr) {
+							_allocationSites++;
 						}
 					}
 				}
 			}
-			System.out.println("Total number of abstract objects is " + abstractObjects.size());
-			System.out.println("Total numbef of allocation sites is " + allocationSites);
-			System.out.println("Total number of shared accesses based on escape information is " + accessSites);
+			System.out.println("Total number of abstract objects is " + _abstractObjects.size());
+			System.out.println("Total numbef of allocation sites is " + _allocationSites);
+			System.out.println("Total number of shared accesses based on escape information is " + _accessSites);
 			System.out.println("Total classes loaded: " + scene.getClasses().size());
 			printTimingStats();
 		}
@@ -268,103 +253,102 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.25  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.24  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.23  2003/12/08 09:46:28  venku
-   *** empty log message ***
-
-   Revision 1.22  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-
-   Revision 1.21  2003/11/30 01:38:52  venku
-   - incorporated tag based filtering during CG construction.
-   Revision 1.20  2003/11/30 01:07:58  venku
-   - added name tagging support in FA to enable faster
-     post processing based on filtering.
-   - ripple effect.
-   Revision 1.19  2003/11/30 00:10:24  venku
-   - Major refactoring:
-     ProcessingController is more based on the sort it controls.
-     The filtering of class is another concern with it's own
-     branch in the inheritance tree.  So, the user can tune the
-     controller with a filter independent of the sort of processors.
-   Revision 1.18  2003/11/17 01:17:12  venku
-   - formatting.
-   Revision 1.17  2003/11/16 19:09:42  venku
-   - documentation.
-   Revision 1.16  2003/11/12 10:50:55  venku
-   - this is now based on SootBasedDriver.
-   Revision 1.15  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.14  2003/11/02 22:09:57  venku
-   - changed the signature of the constructor of
-     EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.13  2003/10/31 01:02:04  venku
-   - added code for extracting data for CC04 paper.
-   Revision 1.12  2003/10/09 00:17:39  venku
-   - changes to instrumetn statistics numbers.
-   Revision 1.11  2003/10/05 06:31:35  venku
-   - Things work.  The bug was the order in which the
-     parameter alias sets were being accessed.  FIXED.
-   Revision 1.10  2003/09/29 14:55:03  venku
-   - don't use "use-orignal-names" option with Jimple.
-     The variables referring to objects need to be unique if the
-     results of the analyses should be meaningful.
-   Revision 1.9  2003/09/29 09:04:30  venku
-   - dump formatting.
-   Revision 1.8  2003/09/29 07:30:51  venku
-   - added support to spit out local variables names as they occur
-     in the source rather than jimplified names.
-   Revision 1.7  2003/09/29 06:37:31  venku
-   - Each driver now handles each root method separately.
-   Revision 1.6  2003/09/29 04:20:57  venku
-   - coding convention.
-   Revision 1.5  2003/09/28 07:32:30  venku
-   - many basic block graphs were being constructed. Now, there
-     is only one that will be used.
-   Revision 1.4  2003/09/28 06:20:39  venku
-   - made the core independent of hard code used to create unit graphs.
-     The core depends on the environment to provide a factory that creates
-     these unit graphs.
-   Revision 1.3  2003/09/28 03:17:13  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.2  2003/09/08 02:23:13  venku
-   - Ripple effect of bbm support in Driver and change of constructor
-     in ThreadGraph.
-   Revision 1.1  2003/08/21 01:24:25  venku
-    - Renamed src-escape to src-concurrency to as to group all concurrency
-      issue related analyses into a package.
-    - Renamed escape package to concurrency.escape.
-    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.4  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/11 06:29:07  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.2  2003/08/10 03:43:26  venku
-   Renamed Tester to Driver.
-   Refactored logic to pick entry points.
-   Provided for logging timing stats into any specified stream.
-   Ripple effect in others.
-   Revision 1.1  2003/08/07 06:39:07  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Minor:
-    - changes to accomodate ripple effect from support package.
-   Revision 1.1  2003/07/30 08:27:03  venku
-   Renamed IATester to EADriver.
-   Also, staged various analyses.
+ *** empty log message ***
+     Revision 1.22  2003/12/02 09:42:38  venku
+     - well well well. coding convention and formatting changed
+       as a result of embracing checkstyle 3.2
+     Revision 1.21  2003/11/30 01:38:52  venku
+     - incorporated tag based filtering during CG construction.
+     Revision 1.20  2003/11/30 01:07:58  venku
+     - added name tagging support in FA to enable faster
+       post processing based on filtering.
+     - ripple effect.
+     Revision 1.19  2003/11/30 00:10:24  venku
+     - Major refactoring:
+       ProcessingController is more based on the sort it controls.
+       The filtering of class is another concern with it's own
+       branch in the inheritance tree.  So, the user can tune the
+       controller with a filter independent of the sort of processors.
+     Revision 1.18  2003/11/17 01:17:12  venku
+     - formatting.
+     Revision 1.17  2003/11/16 19:09:42  venku
+     - documentation.
+     Revision 1.16  2003/11/12 10:50:55  venku
+     - this is now based on SootBasedDriver.
+     Revision 1.15  2003/11/06 05:15:07  venku
+     - Refactoring, Refactoring, Refactoring.
+     - Generalized the processing controller to be available
+       in Indus as it may be useful outside static anlaysis. This
+       meant moving IProcessor, Context, and ProcessingController.
+     - ripple effect of the above changes was large.
+     Revision 1.14  2003/11/02 22:09:57  venku
+     - changed the signature of the constructor of
+       EquivalenceClassBasedEscapeAnalysis.
+     Revision 1.13  2003/10/31 01:02:04  venku
+     - added code for extracting data for CC04 paper.
+     Revision 1.12  2003/10/09 00:17:39  venku
+     - changes to instrumetn statistics numbers.
+     Revision 1.11  2003/10/05 06:31:35  venku
+     - Things work.  The bug was the order in which the
+       parameter alias sets were being accessed.  FIXED.
+     Revision 1.10  2003/09/29 14:55:03  venku
+     - don't use "use-orignal-names" option with Jimple.
+       The variables referring to objects need to be unique if the
+       results of the analyses should be meaningful.
+     Revision 1.9  2003/09/29 09:04:30  venku
+     - dump formatting.
+     Revision 1.8  2003/09/29 07:30:51  venku
+     - added support to spit out local variables names as they occur
+       in the source rather than jimplified names.
+     Revision 1.7  2003/09/29 06:37:31  venku
+     - Each driver now handles each root method separately.
+     Revision 1.6  2003/09/29 04:20:57  venku
+     - coding convention.
+     Revision 1.5  2003/09/28 07:32:30  venku
+     - many basic block graphs were being constructed. Now, there
+       is only one that will be used.
+     Revision 1.4  2003/09/28 06:20:39  venku
+     - made the core independent of hard code used to create unit graphs.
+       The core depends on the environment to provide a factory that creates
+       these unit graphs.
+     Revision 1.3  2003/09/28 03:17:13  venku
+     - I don't know.  cvs indicates that there are no differences,
+       but yet says it is out of sync.
+     Revision 1.2  2003/09/08 02:23:13  venku
+     - Ripple effect of bbm support in Driver and change of constructor
+       in ThreadGraph.
+     Revision 1.1  2003/08/21 01:24:25  venku
+      - Renamed src-escape to src-concurrency to as to group all concurrency
+        issue related analyses into a package.
+      - Renamed escape package to concurrency.escape.
+      - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+     Revision 1.4  2003/08/17 10:48:34  venku
+     Renamed BFA to FA.  Also renamed bfa variables to fa.
+     Ripple effect was huge.
+     Revision 1.3  2003/08/11 06:29:07  venku
+     Changed format of change log accumulation at the end of the file
+     Revision 1.2  2003/08/10 03:43:26  venku
+     Renamed Tester to Driver.
+     Refactored logic to pick entry points.
+     Provided for logging timing stats into any specified stream.
+     Ripple effect in others.
+     Revision 1.1  2003/08/07 06:39:07  venku
+     Major:
+      - Moved the package under indus umbrella.
+     Minor:
+      - changes to accomodate ripple effect from support package.
+     Revision 1.1  2003/07/30 08:27:03  venku
+     Renamed IATester to EADriver.
+     Also, staged various analyses.
  */

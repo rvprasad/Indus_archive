@@ -26,8 +26,8 @@ import java.util.Collections;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class MutableDirectedGraph
-  extends DirectedGraph {
+public abstract class AbstractMutableDirectedGraph
+  extends AbstractDirectedGraph {
 	/**
 	 * This class extends <code>INode</code> such that the resulting node can mutated.
 	 *
@@ -35,7 +35,7 @@ public abstract class MutableDirectedGraph
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	public abstract class MutableNode
+	public abstract class AbstractMutableNode
 	  implements INode {
 		/**
 		 * The collection of nodes which precede this node in the graph.
@@ -52,14 +52,14 @@ public abstract class MutableDirectedGraph
 		protected Collection successors;
 
 		/**
-		 * Creates a new MutableNode object.
+		 * Creates a new AbstractMutableNode object.
 		 *
 		 * @param preds is the reference to the collection of predecessors.
 		 * @param succs is the reference to the collection of successors.
 		 *
 		 * @pre preds != null and succs != null
 		 */
-		protected MutableNode(final Collection preds, final Collection succs) {
+		protected AbstractMutableNode(final Collection preds, final Collection succs) {
 			predecessors = preds;
 			successors = succs;
 		}
@@ -87,11 +87,14 @@ public abstract class MutableDirectedGraph
 		 * @see edu.ksu.cis.indus.common.graph.INode#getSuccsNodesInDirection(boolean)
 		 */
 		public final Collection getSuccsNodesInDirection(final boolean forward) {
+			Collection _result;
+
 			if (forward) {
-				return getSuccsOf();
+				_result = getSuccsOf();
 			} else {
-				return getPredsOf();
+				_result = getPredsOf();
 			}
+			return _result;
 		}
 
 		/**
@@ -140,18 +143,18 @@ public abstract class MutableDirectedGraph
 	 * @pre src != null and dest != null
 	 * @post src.getSuccsOf()->includes(dest) and dest.getPredsOf()->includes(src)
 	 */
-	public final boolean addEdgeFromTo(final MutableNode src, final MutableNode dest) {
-		boolean result = false;
+	public final boolean addEdgeFromTo(final INode src, final INode dest) {
+		boolean _result = false;
 
 		if (containsNodes(src) && containsNodes(dest)) {
-			src.addSuccessors(dest);
-			dest.addPredecessors(src);
+			((AbstractMutableNode) src).addSuccessors(dest);
+			((AbstractMutableNode) dest).addPredecessors(src);
 			tails.remove(src);
 			heads.remove(dest);
-			result = true;
+			_result = true;
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -169,15 +172,16 @@ public abstract class MutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.4  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.3  2003/10/20 00:43:05  venku
     - coding convention.
    Revision 1.2  2003/09/28 03:16:20  venku
@@ -186,7 +190,7 @@ public abstract class MutableDirectedGraph
    Revision 1.1  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
     - Each Mutable graph extends this graph and exposes itself via
       suitable interface to restrict access.
     - Ripple effect of the above changes.

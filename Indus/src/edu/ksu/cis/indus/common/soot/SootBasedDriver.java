@@ -15,8 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.graph.*;
-
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import java.io.File;
 
@@ -37,6 +36,8 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 
+import soot.options.Options;
+
 
 /**
  * This is generic driver that provides basic support to process a system represented in Jimple.
@@ -45,17 +46,11 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class SootBasedDriver {
+public class SootBasedDriver {
 	/**
 	 * This is the type of <code>String[]</code> in Soot type system.
 	 */
 	public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
-
-	/**
-	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>TrapUnitGraphFactory</code>.
-	 */
-	protected AbstractUnitGraphFactory cfgProvider;
 
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
@@ -68,6 +63,12 @@ public abstract class SootBasedDriver {
 	 * @invariant rootMethods.oclIsTypeOf(SootMethod)
 	 */
 	protected Collection rootMethods = new HashSet();
+
+	/**
+	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
+	 * <code>TrapUnitGraphFactory</code>.
+	 */
+	protected IUnitGraphFactory cfgProvider;
 
 	/**
 	 * The list of classes that should be considered as the core of the system.
@@ -120,7 +121,7 @@ public abstract class SootBasedDriver {
 	 *
 	 * @pre s != null
 	 */
-	public void setClassNames(final String[] s) {
+	public final void setClassNames(final String[] s) {
 		classNames = Arrays.asList(s);
 	}
 
@@ -131,7 +132,7 @@ public abstract class SootBasedDriver {
 	 *
 	 * @pre s != null and s.oclIsKindOf(Collection(String))
 	 */
-	public void setClassNames(final Collection s) {
+	public final void setClassNames(final Collection s) {
 		classNames = new ArrayList(s);
 	}
 
@@ -142,7 +143,7 @@ public abstract class SootBasedDriver {
 	 *
 	 * @pre classpath != null
 	 */
-	public void addToSootClassPath(final String classpath) {
+	public final void addToSootClassPath(final String classpath) {
 		classpathToAdd =
 			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
 			+ "rt.jar";
@@ -153,12 +154,21 @@ public abstract class SootBasedDriver {
 	 *
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
 	 */
-	public void initialize() {
+	public final void initialize() {
 		if (classNames == null) {
 			throw new RuntimeException("Please call setClassNames() before using this object.");
 		}
 		writeInfo("Loading classes....");
 		scene = loadupClassesAndCollectMains();
+	}
+
+	/**
+	 * Sets the logger to be used.
+	 *
+	 * @param myLogger is the logger to be used.
+	 */
+	protected final void setLogger(final Log myLogger) {
+		logger = myLogger;
 	}
 
 	/**
@@ -169,7 +179,7 @@ public abstract class SootBasedDriver {
 	 *
 	 * @post return != null
 	 */
-	protected AbstractUnitGraphFactory getUnitGraphFactory() {
+	protected final IUnitGraphFactory getUnitGraphFactory() {
 		return new TrapUnitGraphFactory();
 	}
 
@@ -182,71 +192,8 @@ public abstract class SootBasedDriver {
 	 *
 	 * @pre name != null
 	 */
-	protected void addTimeLog(final String name, final long milliseconds) {
+	protected final void addTimeLog(final String name, final long milliseconds) {
 		times.put("[" + count++ + "]" + name, new Long(milliseconds));
-	}
-
-	/**
-	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
-	 * system being analyzed.  All <code>public static void main()</code> methods defined in <code>public</code> classes
-	 * that are named via <code>args</code>are considered as entry points.  It uses the classpath set via
-	 * <code>addToSootClassPath</code>. It uses <code>use-original-names:false</code>, <code>jb.ls enabled:false</code>, and
-	 * <code>jb.ulp enabled:false unsplit-original-locals:false</code> options for Soot class loading.
-	 *
-	 * @return a soot scene that provides the classes to be analyzed.
-	 *
-	 * @pre args != null and classNames != null
-	 */
-	protected final Scene loadupClassesAndCollectMains() {
-		Scene result = Scene.v();
-		String temp = result.getSootClassPath();
-		String[] options = new String[8];
-		options[0] = "-p";
-		options[1] = "jb";
-		options[2] = "use-original-names:false";
-		options[3] = "jb.ls";
-		options[4] = "enabled:true";
-		options[5] = "jb.ulp";
-		options[6] = "enabled:false";
-		options[7] = "unsplit-original-locals:false";
-
-		if (temp != null) {
-			temp += File.pathSeparator + classpathToAdd;
-		} else {
-			temp = classpathToAdd;
-		}
-		result.setSootClassPath(temp);
-
-		for (Iterator i = classNames.iterator(); i.hasNext();) {
-			result.loadClassAndSupport((String) i.next());
-		}
-
-		Collection mc = new HashSet();
-		mc.addAll(result.getClasses());
-
-		for (Iterator i = mc.iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
-
-			if (considerClassForEntryPoint(sc)) {
-				Collection methods = sc.getMethods();
-
-				for (Iterator j = methods.iterator(); j.hasNext();) {
-					SootMethod sm = (SootMethod) j.next();
-					trapRootMethods(sm);
-				}
-			}
-		}
-		Util.fixupThreadStartBody(result);
-		return result;
-	}
-
-	/**
-	 * Sets the logger to be used.
-	 *
-	 * @param myLogger is the logger to be used.
-	 */
-	protected void setLogger(final Log myLogger) {
-		logger = myLogger;
 	}
 
 	/**
@@ -267,12 +214,12 @@ public abstract class SootBasedDriver {
 	 *
 	 * @pre stream != null
 	 */
-	protected void printTimingStats() {
+	protected final void printTimingStats() {
 		writeInfo("Timing statistics:");
 
-		for (Iterator i = times.keySet().iterator(); i.hasNext();) {
-			Object e = i.next();
-			writeInfo(e + " => " + times.get(e) + "ms");
+		for (final Iterator _i = times.keySet().iterator(); _i.hasNext();) {
+			final Object _e = _i.next();
+			writeInfo(_e + " => " + times.get(_e) + "ms");
 		}
 	}
 
@@ -284,7 +231,7 @@ public abstract class SootBasedDriver {
 	 * @post rootMethods->includes(sm) or not rootMethods->includes(sm)
 	 * @pre sm != null
 	 */
-	protected void trapRootMethods(final SootMethod sm) {
+	protected final void trapRootMethods(final SootMethod sm) {
 		if (sm.getName().equals("main")
 			  && sm.isStatic()
 			  && sm.getParameterCount() == 1
@@ -308,20 +255,72 @@ public abstract class SootBasedDriver {
 			}
 		}
 	}
+
+	/**
+	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
+	 * system being analyzed.  All <code>public static void main()</code> methods defined in <code>public</code> classes
+	 * that are named via <code>args</code>are considered as entry points.  It uses the classpath set via
+	 * <code>addToSootClassPath</code>. It uses <code>use-original-names:false</code>, <code>jb.ls enabled:false</code>, and
+	 * <code>jb.ulp enabled:false unsplit-original-locals:false</code> options for Soot class loading.
+	 *
+	 * @return a soot scene that provides the classes to be analyzed.
+	 *
+	 * @pre args != null and classNames != null
+	 */
+	private Scene loadupClassesAndCollectMains() {
+		final Scene _result = Scene.v();
+		String _temp = _result.getSootClassPath();
+		final String[] _options =
+			{
+				"-p", "jb", "use-original-names:false", "jb.ls", "enabled:true", "jb.ulp", "enabled:false",
+				"unsplit-original-locals:false",
+			};
+		Options.v().parse(_options);
+
+		if (_temp != null) {
+			_temp += File.pathSeparator + classpathToAdd;
+		} else {
+			_temp = classpathToAdd;
+		}
+		_result.setSootClassPath(_temp);
+
+		for (final Iterator _i = classNames.iterator(); _i.hasNext();) {
+			_result.loadClassAndSupport((String) _i.next());
+		}
+
+		final Collection _mc = new HashSet();
+		_mc.addAll(_result.getClasses());
+
+		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (considerClassForEntryPoint(_sc)) {
+				final Collection _methods = _sc.getMethods();
+
+				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
+					final SootMethod _sm = (SootMethod) _j.next();
+					trapRootMethods(_sm);
+				}
+			}
+		}
+		Util.fixupThreadStartBody(_result);
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.13  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.12  2003/11/26 01:49:34  venku
    - minor logical error. FIXED.
    Revision 1.11  2003/11/20 07:28:40  venku

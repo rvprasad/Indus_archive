@@ -47,14 +47,9 @@ final class AliasSet
   extends FastUnionFindElement
   implements Cloneable {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AliasSet.class);
-
-	/**
 	 * This is used to generate unique ready entities.
 	 */
-	static long readyEntityCount = 0;
+	static long readyEntityCount;
 
 	/**
 	 * This constant identifies the cells of an array in the field map of it's alias set.
@@ -62,9 +57,14 @@ final class AliasSet
 	static final String ARRAY_FIELD = "$ELT";
 
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AliasSet.class);
+
+	/**
 	 * This is used to generate unique share entities.
 	 */
-	private static int shareEntityCount = 0;
+	private static int shareEntityCount;
 
 	/**
 	 * This represents if the variable associated with alias set was accessed (read/written).
@@ -117,7 +117,7 @@ final class AliasSet
 	/**
 	 * This indicates if this object is being unified with itself.
 	 */
-	private boolean selfUnifying = false;
+	private boolean selfUnifying;
 
 	/**
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
@@ -174,35 +174,33 @@ final class AliasSet
 	 */
 	public Object clone()
 	  throws CloneNotSupportedException {
+		Object _result;
+
 		if (theClone != null) {
-			return theClone;
+			_result = theClone;
+		} else if (isGlobal()) {
+			//optimization
+			_result = find();
+		} else if (set != null) {
+			//just work on the representative of the class
+			_result = (AliasSet) ((AliasSet) find()).clone();
+		} else {
+			theClone = (AliasSet) super.clone();
+
+			// clone() does a shallow copy. So, change the fields in the clone suitably.
+			theClone.fieldMap = new HashMap();
+
+			for (final Iterator _i = fieldMap.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final AliasSet _temp = (AliasSet) ((AliasSet) _entry.getValue()).clone();
+				theClone.fieldMap.put(_entry.getKey(), _temp);
+			}
+
+			_result = theClone;
+			theClone = null;
 		}
 
-		//optimization
-		if (isGlobal()) {
-			return find();
-		}
-
-		//just work on the representative of the class
-		if (set != null) {
-			return (AliasSet) ((AliasSet) find()).clone();
-		}
-
-		theClone = (AliasSet) super.clone();
-
-		// clone() does a shallow copy. So, change the fields in the clone suitably.
-		theClone.fieldMap = new HashMap();
-
-		for (Iterator i = fieldMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			AliasSet temp = (AliasSet) ((AliasSet) entry.getValue()).clone();
-			theClone.fieldMap.put(entry.getKey(), temp);
-		}
-
-		Object result = theClone;
-		theClone = null;
-
-		return result;
+		return _result;
 	}
 
 	/**
@@ -216,13 +214,13 @@ final class AliasSet
 	 * @post not AliasSet.canHaveAliasSet(type) implies result == null
 	 */
 	static AliasSet getASForType(final Type type) {
-		AliasSet result = null;
+		AliasSet _result = null;
 
 		if (canHaveAliasSet(type)) {
-			result = new AliasSet();
+			_result = new AliasSet();
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -257,19 +255,19 @@ final class AliasSet
 	 * 		 o.isShared() == true)
 	 */
 	void setGlobal() {
-		AliasSet rep = (AliasSet) find();
+		final AliasSet _rep = (AliasSet) find();
 
-		if (rep.global) {
+		if (_rep.global) {
 			return;
 		}
 
-		rep.global = true;
-		rep.shared = true;
+		_rep.global = true;
+		_rep.shared = true;
 
-		if (rep.fieldMap != null) {
-			for (Iterator i = rep.fieldMap.values().iterator(); i.hasNext();) {
-				AliasSet as = (AliasSet) i.next();
-				as.setGlobal();
+		if (_rep.fieldMap != null) {
+			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
+				final AliasSet _as = (AliasSet) _i.next();
+				_as.setGlobal();
 			}
 		}
 	}
@@ -309,11 +307,11 @@ final class AliasSet
 	 * @post self.readyEntity != null
 	 */
 	void setReadyEntity() {
-		AliasSet a = ((AliasSet) find());
+		final AliasSet _a = ((AliasSet) find());
 
-		if (a.readyEntities == null) {
-			a.readyEntities = new HashSet();
-			a.readyEntities.add(getNewReadyEntity());
+		if (_a.readyEntities == null) {
+			_a.readyEntities = new HashSet();
+			_a.readyEntities.add(getNewReadyEntity());
 		}
 	}
 
@@ -362,11 +360,11 @@ final class AliasSet
 	void addReachableAliasSetsTo(final Collection col) {
 		col.add(this);
 
-		for (Iterator i = fieldMap.values().iterator(); i.hasNext();) {
-			AliasSet as = (AliasSet) ((AliasSet) i.next()).find();
+		for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
+			final AliasSet _as = (AliasSet) ((AliasSet) _i.next()).find();
 
-			if (!col.contains(as)) {
-				as.addReachableAliasSetsTo(col);
+			if (!col.contains(_as)) {
+				_as.addReachableAliasSetsTo(col);
 			}
 		}
 	}
@@ -451,9 +449,9 @@ final class AliasSet
 
 		propogating = true;
 
-		AliasSet rep1 = (AliasSet) find();
-		AliasSet rep2 = (AliasSet) as.find();
-		rep2.shared |= rep1.shared;
+		final AliasSet _rep1 = (AliasSet) find();
+		final AliasSet _rep2 = (AliasSet) as.find();
+		_rep2.shared |= _rep1.shared;
 
 		/*
 		 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
@@ -461,28 +459,28 @@ final class AliasSet
 		 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
 		 * and the other may come and erase it if the check is not made.
 		 */
-		if (rep1.readyEntities != null) {
-			if (rep2.readyEntities == null) {
-				rep2.readyEntities = new HashSet();
+		if (_rep1.readyEntities != null) {
+			if (_rep2.readyEntities == null) {
+				_rep2.readyEntities = new HashSet();
 			}
-			rep2.readyEntities = rep1.readyEntities;
+			_rep2.readyEntities = _rep1.readyEntities;
 		}
 
-		if (rep1.shareEntities != null) {
-			if (rep2.shareEntities == null) {
-				rep2.shareEntities = new HashSet();
+		if (_rep1.shareEntities != null) {
+			if (_rep2.shareEntities == null) {
+				_rep2.shareEntities = new HashSet();
 			}
 
-			rep2.shareEntities.addAll(rep1.shareEntities);
+			_rep2.shareEntities.addAll(_rep1.shareEntities);
 		}
 
-		for (Iterator i = rep2.fieldMap.keySet().iterator(); i.hasNext();) {
-			Object key = i.next();
-			AliasSet to = (AliasSet) rep2.fieldMap.get(key);
-			AliasSet from = (AliasSet) rep1.fieldMap.get(key);
+		for (final Iterator _i = _rep2.fieldMap.keySet().iterator(); _i.hasNext();) {
+			final Object _key = _i.next();
+			final AliasSet _to = (AliasSet) _rep2.fieldMap.get(_key);
+			final AliasSet _from = (AliasSet) _rep1.fieldMap.get(_key);
 
-			if ((to != null) && (from != null)) {
-				from.propogateInfoFromTo(to);
+			if ((_to != null) && (_from != null)) {
+				_from.propogateInfoFromTo(_to);
 			}
 		}
 
@@ -518,32 +516,32 @@ final class AliasSet
 		}
 		selfUnifying = true;
 
-		AliasSet m = (AliasSet) find();
+		final AliasSet _m = (AliasSet) find();
 
 		if (unifyAll) {
-			m.shared |= m.accessed;
+			_m.shared |= _m.accessed;
 
-			if (m.waits && m.notifies) {
-				if (m.readyEntities == null) {
-					m.readyEntities = new HashSet();
+			if (_m.waits && _m.notifies) {
+				if (_m.readyEntities == null) {
+					_m.readyEntities = new HashSet();
 				}
-				m.readyEntities.add(getNewReadyEntity());
+				_m.readyEntities.add(getNewReadyEntity());
 			}
 
-			if (m.read && m.written) {
-				if (m.shareEntities == null) {
-					m.shareEntities = new HashSet();
+			if (_m.read && _m.written) {
+				if (_m.shareEntities == null) {
+					_m.shareEntities = new HashSet();
 				}
-				m.shareEntities.add(getNewShareEntity());
+				_m.shareEntities.add(getNewShareEntity());
 			}
 		}
 
-		for (Iterator i = m.fieldMap.keySet().iterator(); i.hasNext();) {
-			String fieldName = (String) i.next();
-			FastUnionFindElement field = (FastUnionFindElement) m.fieldMap.get(fieldName);
+		for (final Iterator _i = _m.fieldMap.keySet().iterator(); _i.hasNext();) {
+			final String _fieldName = (String) _i.next();
+			final FastUnionFindElement _field = (FastUnionFindElement) _m.fieldMap.get(_fieldName);
 
-			if (field != null) {
-				((AliasSet) field).selfUnify(unifyAll);
+			if (_field != null) {
+				((AliasSet) _field).selfUnify(unifyAll);
 			}
 		}
 		selfUnifying = false;
@@ -561,78 +559,39 @@ final class AliasSet
 			LOGGER.warn("Unification with null requested.");
 		}
 
-		AliasSet m = (AliasSet) find();
-		AliasSet n = (AliasSet) a.find();
+		final AliasSet _m = (AliasSet) find();
+		final AliasSet _n = (AliasSet) a.find();
 
-		if (m == n) {
+		if (_m == _n) {
 			return;
 		}
 
-		m.union(n);
+		_m.union(_n);
 
-		AliasSet rep1 = (AliasSet) m.find();
-		AliasSet rep2;
+		final AliasSet _rep1 = (AliasSet) _m.find();
+		AliasSet _rep2;
 
-		if (rep1 == m) {
-			rep2 = n;
+		if (_rep1 == _m) {
+			_rep2 = _n;
 		} else {
-			rep2 = m;
+			_rep2 = _m;
 		}
 
 		if (unifyAll) {
-			rep1.shared |= rep1.accessed && rep2.accessed;
-
-			if ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits)) {
-				if (rep1.readyEntities == null) {
-					rep1.readyEntities = new HashSet();
-				}
-				rep1.readyEntities.add(getNewReadyEntity());
-			}
-
-			if ((rep1.read && rep2.written) || (rep1.written && rep2.read)) {
-				if (rep1.shareEntities == null) {
-					rep1.shareEntities = new HashSet();
-				}
-				rep1.shareEntities.add(getNewShareEntity());
-			}
+			unifyEscapeInfo(_rep1, _rep2);
 		} else {
-			rep1.shared |= rep2.shared;
+			_rep1.shared |= _rep2.shared;
 		}
+		_rep1.waits |= _rep2.waits;
+		_rep1.notifies |= _rep2.notifies;
+		_rep1.accessed |= _rep2.accessed;
+		_rep1.read |= _rep2.read;
+		_rep1.written |= _rep2.written;
 
-		rep1.waits |= rep2.waits;
-		rep1.notifies |= rep2.notifies;
-		rep1.accessed |= rep2.accessed;
-		rep1.read |= rep2.read;
-		rep1.written |= rep2.written;
+		unifyFields(unifyAll, _rep1, _rep2);
 
-		Collection toBeProcessed = new HashSet();
-		Collection keySet = new ArrayList(rep2.fieldMap.keySet());
-		toBeProcessed.addAll(keySet);
-
-		for (Iterator i = keySet.iterator(); i.hasNext();) {
-			String fieldName = (String) i.next();
-			FastUnionFindElement field = (FastUnionFindElement) rep1.fieldMap.get(fieldName);
-
-			if (field != null) {
-				AliasSet repAS = (AliasSet) field;
-				toBeProcessed.remove(fieldName);
-
-				FastUnionFindElement temp = (FastUnionFindElement) rep2.fieldMap.get(fieldName);
-
-				if (temp != null) {
-					repAS.unify((AliasSet) temp, unifyAll);
-				}
-			}
-		}
-
-		for (Iterator i = toBeProcessed.iterator(); i.hasNext();) {
-			String field = (String) i.next();
-			AliasSet rep2AS = (AliasSet) ((FastUnionFindElement) rep2.fieldMap.get(field));
-			rep1.putASForField(field, rep2AS);
-		}
-
-		if (rep1.global || rep2.global) {
-			rep1.setGlobal();
+		if (_rep1.global || _rep2.global) {
+			_rep1.setGlobal();
 		}
 	}
 
@@ -657,20 +616,82 @@ final class AliasSet
 	private Object getNewShareEntity() {
 		return new String("Entity:" + shareEntityCount++);
 	}
+
+	/**
+	 * Unify escape and sharing information in the given alias set.
+	 *
+	 * @param aliasSet1 is one of the alias set involved in the unification.
+	 * @param aliasSet2 is the other alias set involved in the unification.
+	 */
+	private void unifyEscapeInfo(final AliasSet aliasSet1, final AliasSet aliasSet2) {
+		aliasSet1.shared |= aliasSet1.accessed && aliasSet2.accessed;
+
+		if ((aliasSet1.waits && aliasSet2.notifies) || (aliasSet1.notifies && aliasSet2.waits)) {
+			if (aliasSet1.readyEntities == null) {
+				aliasSet1.readyEntities = new HashSet();
+			}
+			aliasSet1.readyEntities.add(getNewReadyEntity());
+		}
+
+		if ((aliasSet1.read && aliasSet2.written) || (aliasSet1.written && aliasSet2.read)) {
+			if (aliasSet1.shareEntities == null) {
+				aliasSet1.shareEntities = new HashSet();
+			}
+			aliasSet1.shareEntities.add(getNewShareEntity());
+		}
+	}
+
+	/**
+	 * Unify the fields of the given alias sets.
+	 *
+	 * @param unifyAll <code>true</code> if all parts of the alias sets need to be unified; <code>false</code>, otherwise.
+	 * @param aliasSet1 is one of the alias set involved in the unification.
+	 * @param aliasSet2 is the other alias set involved in the unification.
+	 *
+	 * @pre aliasSet1 != null and aliasSet2 != null
+	 */
+	private void unifyFields(final boolean unifyAll, final AliasSet aliasSet1, final AliasSet aliasSet2) {
+		final Collection _toBeProcessed = new HashSet();
+		final Collection _keySet = new ArrayList(aliasSet2.fieldMap.keySet());
+		_toBeProcessed.addAll(_keySet);
+
+		for (final Iterator _i = _keySet.iterator(); _i.hasNext();) {
+			final String _fieldName = (String) _i.next();
+			final FastUnionFindElement _field = (FastUnionFindElement) aliasSet1.fieldMap.get(_fieldName);
+
+			if (_field != null) {
+				final AliasSet _repAS = (AliasSet) _field;
+				_toBeProcessed.remove(_fieldName);
+
+				final FastUnionFindElement _temp = (FastUnionFindElement) aliasSet2.fieldMap.get(_fieldName);
+
+				if (_temp != null) {
+					_repAS.unify((AliasSet) _temp, unifyAll);
+				}
+			}
+		}
+
+		for (final Iterator _i = _toBeProcessed.iterator(); _i.hasNext();) {
+			final String _field = (String) _i.next();
+			final AliasSet _rep2AS = (AliasSet) ((FastUnionFindElement) aliasSet2.fieldMap.get(_field));
+			aliasSet1.putASForField(_field, _rep2AS);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.11  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.10  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.9  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider

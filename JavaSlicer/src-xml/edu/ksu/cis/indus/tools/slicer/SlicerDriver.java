@@ -74,6 +74,13 @@ import org.eclipse.swt.widgets.Shell;
 public class SlicerDriver
   extends SootBasedDriver {
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	public static final String SUFFIX_FOR_XMLIZATION_PURPOSES = "slicer";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerDriver.class);
@@ -82,13 +89,6 @@ public class SlicerDriver
 	 * This is the name of the configuration file to use.
 	 */
 	private static String configFileName;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final String SUFFIX_FOR_XMLIZATION_PURPOSES = "slicer";
 
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
@@ -156,7 +156,7 @@ public class SlicerDriver
 		 * 
 		 * <p></p>
 		 */
-		public void populateDAs() {
+		public final void populateDAs() {
 			das.addAll(slicer.getDAs());
 		}
 	}
@@ -167,15 +167,15 @@ public class SlicerDriver
 	 * @param args contains the command line arguments.
 	 */
 	public static void main(final String[] args) {
-		SlicerDriver driver = new SlicerDriver(new UniqueJimpleIDGenerator());
+		final SlicerDriver _driver = new SlicerDriver(new UniqueJimpleIDGenerator());
 
 		// parse command line arguments
-		parseCommandLine(args, driver);
+		parseCommandLine(args, _driver);
 
-		driver.initialize();
-		driver.execute();
+		_driver.initialize();
+		_driver.execute();
 		// serialize the output of the slicer
-		driver.writeXML();
+		_driver.writeXML();
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class SlicerDriver
 	 *
 	 * @param configuration DOCUMENT ME!
 	 */
-	protected void setConfiguration(final String configuration) {
+	protected final void setConfiguration(final String configuration) {
 		slicer.destringizeConfiguration(configuration);
 	}
 
@@ -192,7 +192,7 @@ public class SlicerDriver
 	 *
 	 * @param oDir DOCUMENT ME!
 	 */
-	protected void setOutputDirectory(final String oDir) {
+	protected final void setOutputDirectory(final String oDir) {
 		outputDirectory = oDir;
 	}
 
@@ -205,17 +205,18 @@ public class SlicerDriver
 	 *
 	 * @throws RuntimeException DOCUMENT ME!
 	 */
-	protected AbstractSliceXMLizer getXMLizer() {
-		AbstractSliceXMLizer result;
+	protected final TagBasedSliceXMLizer getXMLizer() {
+		TagBasedSliceXMLizer _result;
 
 		try {
-			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			result = new TagBasedSliceXMLizer(out, tagName, idGenerator);
-		} catch (IOException e) {
-			LOGGER.error("Exception while opening file to write xml information.", e);
-			throw new RuntimeException(e);
+			final Writer _out =
+				new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
+			_result = new TagBasedSliceXMLizer(_out, tagName, idGenerator);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while opening file to write xml information.", _e);
+			throw new RuntimeException(_e);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -223,7 +224,7 @@ public class SlicerDriver
 	 * 
 	 * <p></p>
 	 */
-	protected void execute() {
+	protected final void execute() {
 		// execute the slicer
 		slicer.setTagName(tagName);
 		slicer.setSystem(scene);
@@ -237,45 +238,45 @@ public class SlicerDriver
 	 * 
 	 * <p></p>
 	 */
-	void writeXML() {
-		ICallGraphInfo cgi = slicer.getCallGraph();
-		System.out.println(((CallGraph) cgi).dumpGraph());
+	final void writeXML() {
+		final ICallGraphInfo _cgi = slicer.getCallGraph();
+		System.out.println(((CallGraph) _cgi).dumpGraph());
 
-		ProcessingController ctrl = new ProcessingController();
-		ctrl.setEnvironment(slicer.getEnvironment());
-		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+		final ProcessingController _ctrl = new ProcessingController();
+		_ctrl.setEnvironment(slicer.getEnvironment());
+		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
-		AbstractSliceXMLizer sliceIP = getXMLizer();
-		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
-		dep.setClassNames(rootMethods);
-		dep.setGenerator(idGenerator);
-		dep.populateDAs();
-		sliceIP.hookup(ctrl);
+		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
+		final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
+		_dep.setClassNames(rootMethods);
+		_dep.setGenerator(idGenerator);
+		_dep.populateDAs();
+		_sliceIP.hookup(_ctrl);
 
-		JimpleXMLizer jimpler = null;
+		JimpleXMLizer _jimpler = null;
 
 		if (jimpleWriter != null) {
-			jimpler = new JimpleXMLizer(idGenerator);
-			jimpler.setWriter(jimpleWriter);
-			jimpler.hookup(ctrl);
+			_jimpler = new JimpleXMLizer(idGenerator);
+			_jimpler.setWriter(jimpleWriter);
+			_jimpler.hookup(_ctrl);
 		}
 
-		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
-		ctrl.process();
-		sliceIP.unhook(ctrl);
+		final Map _xmlizers = _dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, _ctrl);
+		_ctrl.process();
+		_sliceIP.unhook(_ctrl);
 
-		if (jimpler != null) {
-			jimpler.unhook(ctrl);
+		if (_jimpler != null) {
+			_jimpler.unhook(_ctrl);
 
 			try {
 				jimpleWriter.flush();
 				jimpleWriter.close();
-			} catch (IOException e) {
-				LOGGER.error("Failed to close the xml file based for jimple representation.", e);
+			} catch (IOException _e) {
+				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
 			}
 		}
-		dep.flushXMLizers(xmlizers, ctrl);
-		sliceIP.flush();
+		_dep.flushXMLizers(_xmlizers, _ctrl);
+		_sliceIP.flush();
 	}
 
 	/**
@@ -286,138 +287,148 @@ public class SlicerDriver
 	 */
 	private static void parseCommandLine(final String[] args, final SlicerDriver xmlizer) {
 		// create options
-		Options options = new Options();
-		Option o =
+		final Options _options = new Options();
+		Option _o =
 			new Option("c", "config-file", false,
 				"The configuration file to use.  If unspecified, uses default configuration file.");
-		o.setArgs(1);
-		o.setArgName("path");
-		o.setOptionalArg(false);
-		options.addOption(o);
-		o = new Option("o", "output-dir", false,
+		_o.setArgs(1);
+		_o.setArgName("path");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("o", "output-dir", false,
 				"The output directory to dump the slice info into.  If unspecified, defaults to current directory.");
-		o.setArgs(1);
-		o.setArgName("path");
-		o.setOptionalArg(false);
-		options.addOption(o);
-		o = new Option("g", "gui-config", false, "Display gui for configuration.");
-		o.setOptionalArg(false);
-		options.addOption(o);
-		o = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
-		o.setArgs(1);
-		o.setArgName("classpath");
-		o.setOptionalArg(false);
-		options.addOption(o);
-		o = new Option("h", "help", false, "Display message.");
-		o.setOptionalArg(false);
-		options.addOption(o);
-		o = new Option("j", "output-jimple", false,
+		_o.setArgs(1);
+		_o.setArgName("path");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("g", "gui-config", false, "Display gui for configuration.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		_o.setArgs(1);
+		_o.setArgName("classpath");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("h", "help", false, "Display message.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("j", "output-jimple", false,
 				"Output xml representation of the jimple.  If unspecified, not jimple output is emitted.");
-		o.setArgs(1);
-		o.setArgName("path");
-		o.setOptionalArg(false);
-		options.addOption(o);
+		_o.setArgs(1);
+		_o.setArgName("path");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 
-		CommandLine cl = null;
+		CommandLine _cl = null;
 
 		// parse the arguments
 		try {
-			cl = (new BasicParser()).parse(options, args);
-		} catch (ParseException e) {
+			_cl = (new BasicParser()).parse(_options, args);
+		} catch (ParseException _e) {
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
-				options, true);
-			LOGGER.fatal("Incorrect command line.  Aborting.", e);
+				_options, true);
+			LOGGER.fatal("Incorrect command line.  Aborting.", _e);
 			System.exit(1);
 		}
 
-		if (cl.hasOption("h")) {
+		if (_cl.hasOption("h")) {
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
-				options, true);
+				_options, true);
 			System.exit(0);
 		} else {
-			String config = cl.getOptionValue("c");
-			Reader reader = null;
+			processCommandLineForConfiguration(xmlizer, _cl);
 
-			if (config != null) {
-				try {
-					reader = new FileReader(config);
-				} catch (FileNotFoundException e) {
-					LOGGER.warn("Non-existent configuration file specified.");
-					config = null;
-				}
-			} else {
-				LOGGER.info("No configuration file specified.");
-			}
+			String _outputDir = _cl.getOptionValue("o");
 
-			configFileName = config;
-
-			if (config == null) {
-				LOGGER.info("Trying to use default configuration.");
-
-				URL defaultConfigFileName =
-					ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
-
-				try {
-					reader = new InputStreamReader(defaultConfigFileName.openStream());
-				} catch (FileNotFoundException e1) {
-					LOGGER.fatal("Even default configuration file could not be found.  Aborting", e1);
-					System.exit(2);
-				} catch (IOException e2) {
-					LOGGER.fatal("Could not retrieve a handle to default configuration file.  Aborting.", e2);
-					System.exit(2);
-				}
-			}
-
-			try {
-				BufferedReader br = new BufferedReader(reader);
-				StringBuffer buffer = new StringBuffer();
-
-				while (br.ready()) {
-					buffer.append(br.readLine());
-				}
-				xmlizer.setConfiguration(buffer.toString());
-			} catch (IOException e) {
-				LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
-				System.exit(3);
-			}
-
-			String outputDir = cl.getOptionValue("o");
-
-			if (outputDir == null) {
+			if (_outputDir == null) {
 				LOGGER.warn("Using the currennt directory to dump slicing artifacts.");
-				outputDir = ".";
+				_outputDir = ".";
 			}
-			xmlizer.setOutputDirectory(outputDir);
+			xmlizer.setOutputDirectory(_outputDir);
 
-			String classpath = cl.getOptionValue("p");
+			final String _classpath = _cl.getOptionValue("p");
 
-			if (classpath != null) {
-				xmlizer.addToSootClassPath(classpath);
+			if (_classpath != null) {
+				xmlizer.addToSootClassPath(_classpath);
 			}
 
-			List result = cl.getArgList();
+			final List _result = _cl.getArgList();
 
-			if (result.isEmpty()) {
+			if (_result.isEmpty()) {
 				LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
-				System.exit(4);
+				System.exit(1);
 			}
 
-			String jimpleOutDir = cl.getOptionValue("j");
+			final String _jimpleOutDir = _cl.getOptionValue("j");
 
-			if (jimpleOutDir != null) {
+			if (_jimpleOutDir != null) {
 				try {
-					xmlizer.jimpleWriter = new FileWriter(new File(jimpleOutDir + File.separator + "jimple.xml"));
-				} catch (IOException e) {
-					LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
-					System.exit(5);
+					xmlizer.jimpleWriter = new FileWriter(new File(_jimpleOutDir + File.separator + "jimple.xml"));
+				} catch (IOException _e) {
+					LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+					System.exit(1);
 				}
 			}
 
-			if (cl.hasOption('g')) {
+			if (_cl.hasOption('g')) {
 				xmlizer.showGUI();
 			}
 
-			xmlizer.setClassNames(cl.getArgList());
+			xmlizer.setClassNames(_cl.getArgList());
+		}
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param xmlizer DOCUMENT ME!
+	 * @param cl DOCUMENT ME!
+	 */
+	private static void processCommandLineForConfiguration(final SlicerDriver xmlizer, final CommandLine cl) {
+		String _config = cl.getOptionValue("c");
+		Reader _reader = null;
+
+		if (_config != null) {
+			try {
+				_reader = new FileReader(_config);
+			} catch (FileNotFoundException _e) {
+				LOGGER.warn("Non-existent configuration file specified.", _e);
+				_config = null;
+			}
+		} else {
+			LOGGER.info("No configuration file specified.");
+		}
+
+		configFileName = _config;
+
+		if (_config == null) {
+			LOGGER.info("Trying to use default configuration.");
+
+			final URL _defaultConfigFileName =
+				ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
+
+			try {
+				_reader = new InputStreamReader(_defaultConfigFileName.openStream());
+			} catch (FileNotFoundException _e1) {
+				LOGGER.fatal("Even default configuration file could not be found.  Aborting", _e1);
+				System.exit(1);
+			} catch (IOException _e2) {
+				LOGGER.fatal("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
+				System.exit(1);
+			}
+		}
+
+		try {
+			final BufferedReader _br = new BufferedReader(_reader);
+			final StringBuffer _buffer = new StringBuffer();
+
+			while (_br.ready()) {
+				_buffer.append(_br.readLine());
+			}
+			xmlizer.setConfiguration(_buffer.toString());
+		} catch (IOException _e) {
+			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+			System.exit(1);
 		}
 	}
 
@@ -428,34 +439,34 @@ public class SlicerDriver
 	 */
 	private void showGUI() {
 		// call the configurator on the slicer
-		Display display = new Display();
-		Shell shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-		shell.setText("Slicer configuration");
-		slicer.getConfigurator().initialize(shell);
-		shell.pack();
-		shell.open();
+		final Display _display = new Display();
+		final Shell _shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		_shell.setText("Slicer configuration");
+		slicer.getConfigurator().initialize(_shell);
+		_shell.pack();
+		_shell.open();
 
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
+		while (!_shell.isDisposed()) {
+			if (!_display.readAndDispatch()) {
+				_display.sleep();
 			}
 		}
-		display.dispose();
+		_display.dispose();
 
 		// save the configuration
 		try {
 			if (configFileName != null) {
-				BufferedWriter configFile = new BufferedWriter(new FileWriter(configFileName));
-				configFile.write(slicer.stringizeConfiguration());
+				final BufferedWriter _configFile = new BufferedWriter(new FileWriter(configFileName));
+				_configFile.write(slicer.stringizeConfiguration());
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Configuration file name is unspecified.  Printing to console.");
 				}
 				System.out.println(slicer.stringizeConfiguration());
 			}
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Could not write the configuration file.  Printing to console", e);
+				LOGGER.warn("Could not write the configuration file.  Printing to console", _e);
 			}
 			System.out.println(slicer.stringizeConfiguration());
 		}
@@ -465,9 +476,11 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/09 12:23:48  venku
+   - added support to control synchronicity of method runs.
+   - ripple effect.
    Revision 1.23  2003/12/09 12:10:17  venku
    - retrieval of config file from jar fails. FIXED.
-
    Revision 1.22  2003/12/09 09:50:54  venku
    - amended output of string output to be XML compliant.
      This means some characters that are unrepresentable in

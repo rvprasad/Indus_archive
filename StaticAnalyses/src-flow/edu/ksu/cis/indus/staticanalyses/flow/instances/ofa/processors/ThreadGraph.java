@@ -560,6 +560,22 @@ public class ThreadGraph
 				result.append("\t" + j.next() + "\n");
 			}
 		}
+        
+        int _count = 1;
+        result.append("\nThread mapping:");
+
+        for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
+            final NewExprTriple _element = (NewExprTriple) _j.next();
+            final String _tid = "T" + _count++;
+
+            if (_element.getMethod() == null) {
+                result.append(_tid + " -> " + _element.getExpr().getType());
+            } else {
+                result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
+            }
+        }
+
+        
 		return result.toString();
 	}
 
@@ -663,6 +679,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.19  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

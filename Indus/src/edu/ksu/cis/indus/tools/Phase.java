@@ -41,11 +41,11 @@ public final class Phase
 	public static final Phase FINISHED_PHASE;
 
 	static {
-		Phase i = new Phase();
-		STARTING_PHASE = i;
-		i = new Phase();
-		i.finished();
-		FINISHED_PHASE = i;
+		Phase _i = new Phase();
+		STARTING_PHASE = _i;
+		_i = new Phase();
+		_i.finished();
+		FINISHED_PHASE = _i;
 	}
 
 	/**
@@ -104,18 +104,18 @@ public final class Phase
 	 * @return the clone.
 	 */
 	public Object clone() {
-		Phase result = null;
+		Phase _result = null;
 
 		try {
-			result = (Phase) super.clone();
-			result.major = major;
-			result.minor = minor;
-		} catch (CloneNotSupportedException e) {
+			_result = (Phase) super.clone();
+			_result.major = major;
+			_result.minor = minor;
+		} catch (CloneNotSupportedException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Cloning of phase failed.", e);
+				LOGGER.warn("Cloning of phase failed.", _e);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -126,13 +126,13 @@ public final class Phase
 	 * @return <code>true</code> if this object is equal to <code>o</code>; <code>false</code>, otherwise.
 	 */
 	public boolean equal(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null && o instanceof Phase) {
 			final Phase _p = (Phase) o;
-			result = equalsMajor(_p) && equalsMinor(_p);
+			_result = equalsMajor(_p) && equalsMinor(_p);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -192,6 +192,10 @@ public final class Phase
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.3  2003/11/18 21:40:00  venku
    - added a new method to check ordering relation between 2 phase object.
    Revision 1.2  2003/09/26 15:00:01  venku

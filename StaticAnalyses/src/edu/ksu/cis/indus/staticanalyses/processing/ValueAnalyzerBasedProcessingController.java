@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 
 
@@ -62,15 +63,20 @@ public class ValueAnalyzerBasedProcessingController
 
 	/**
 	 * Sets the analyzer on all the processors which require the analyzer.
-	 *
-	 * @param processors which need to be initialized.
 	 */
-	protected void initializeProcessors(final Collection processors) {
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			Object o = i.next();
+	protected void initializeProcessors() {
+		final Collection _processors = new HashSet();
+		_processors.addAll(interfaceProcessors);
 
-			if (o instanceof IValueAnalyzerBasedProcessor) {
-				((IValueAnalyzerBasedProcessor) o).setAnalyzer(analyzer);
+		for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
+			_processors.addAll((Collection) _i.next());
+		}
+
+		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+
+			if (_o instanceof IValueAnalyzerBasedProcessor) {
+				((IValueAnalyzerBasedProcessor) _o).setAnalyzer(analyzer);
 			}
 		}
 	}
@@ -79,6 +85,9 @@ public class ValueAnalyzerBasedProcessingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.1  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

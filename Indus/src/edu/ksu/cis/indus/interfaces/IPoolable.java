@@ -20,10 +20,10 @@ import org.apache.commons.pool.ObjectPool;
 
 /**
  * This is a generic interface to be implemented by poolable objects.
- * 
- * @version $Revision$ 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IPoolable {
 	/**
@@ -44,4 +44,7 @@ public interface IPoolable {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/04 09:45:29  venku
+   - added interface and it's abstract implementation to
+     support pooling of objects.
  */

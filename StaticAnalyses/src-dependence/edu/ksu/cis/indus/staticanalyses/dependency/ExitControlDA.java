@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 
 import java.util.BitSet;
 
@@ -24,10 +24,9 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * DOCUMENT ME!
+ * This class contains the logic to calculate control dependences in the reverse direction of control flow considering the
+ * exit points as the entry points.
  * 
- * <p></p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -60,7 +59,7 @@ public class ExitControlDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(DirectedGraph)
 	 */
-	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
+	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		// TODO: Implement this.
 		return super.computeControlDependency(graph);
 	}
@@ -69,15 +68,16 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.4  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.3  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.2  2003/11/25 19:12:59  venku
    - documentation.
    Revision 1.1  2003/11/25 17:51:23  venku

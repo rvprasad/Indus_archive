@@ -72,22 +72,22 @@ class SliceStmt
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null && super.equals(o) && o instanceof SliceStmt) {
 			final SliceStmt _temp = (SliceStmt) o;
-			result = _temp.stmt == stmt;
+			_result = _temp.stmt == stmt;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int hash = super.hashCode();
-		hash = 37 * hash + stmt.hashCode();
-		return hash;
+		int _hash = super.hashCode();
+		_hash = 37 * _hash + stmt.hashCode();
+		return _hash;
 	}
 
 	/**
@@ -113,17 +113,17 @@ class SliceStmt
 	 * @post result != null
 	 */
 	static SliceStmt getSliceStmt() {
-		SliceStmt result;
+		SliceStmt _result;
 
 		try {
-			result = (SliceStmt) STMT_POOL.borrowObject();
-		} catch (Exception e) {
+			_result = (SliceStmt) STMT_POOL.borrowObject();
+		} catch (Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", e);
+				LOGGER.warn("How can this happen?", _e);
 			}
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -143,6 +143,9 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
+
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku

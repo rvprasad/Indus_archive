@@ -58,11 +58,11 @@ public final class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
+     * The logger used by instances of this class to log messages.
+     * 
+     */
+    private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
+    
 
 	/**
 	 * The object flow analyzer to be used to calculate the UD info.
@@ -320,6 +320,10 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.21  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

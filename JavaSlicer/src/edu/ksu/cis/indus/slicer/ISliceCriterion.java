@@ -13,23 +13,16 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.slicer;
 
 /**
- * This is a First-in-First-out implementation of the workbag.
- *
+ * This is a marker interface via which slice criterion is exposed to the external world.
+ * 
+ * @version $Revision$ 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
  */
-public final class FIFOWorkBag
-  extends AbstractWorkBag {
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWork(java.lang.Object)
-	 */
-	public void addWork(final Object o) {
-		container.add(o);
-	}
+public interface ISliceCriterion {
 }
 
 /*

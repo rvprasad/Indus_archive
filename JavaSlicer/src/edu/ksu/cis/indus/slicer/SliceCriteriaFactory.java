@@ -132,12 +132,12 @@ public final class SliceCriteriaFactory {
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	public Collection getCriterion(final SootMethod method, final Local local) {
-		Collection result = Collections.EMPTY_LIST;
+		Collection _result = Collections.EMPTY_LIST;
 
 		final Body _body = method.getActiveBody();
 
 		if (_body != null) {
-			result = new HashSet();
+			_result = new HashSet();
 
 			for (final Iterator _i = _body.getUnits().iterator(); _i.hasNext();) {
 				final  Stmt _stmt = (Stmt) _i.next();
@@ -148,7 +148,7 @@ public final class SliceCriteriaFactory {
 					if (_vBox.getValue().equals(local)) {
 						final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
 						_exprCriterion.initialize(method, _stmt, _vBox);
-						result.add(_exprCriterion);
+						_result.add(_exprCriterion);
 					}
 				}
 			}
@@ -156,7 +156,7 @@ public final class SliceCriteriaFactory {
 			LOGGER.error(method.getSignature() + " does not have a body.");
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -167,18 +167,21 @@ public final class SliceCriteriaFactory {
 	 * @return <code>true</code> if <code>o</code> is a slicing criterion; <code>false</code>, otherwise.
 	 */
 	public static boolean isSlicingCriterion(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null) {
-			result = o instanceof AbstractSliceCriterion;
+			_result = o instanceof ISliceCriterion;
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 19:20:50  venku
+   - coding convention and formatting.
+
    Revision 1.4  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -73,22 +73,22 @@ class SliceExpr
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null && o instanceof SliceExpr) {
 			final SliceExpr _temp = (SliceExpr) o;
-			result = _temp.expr == expr && super.equals(_temp);
+			_result = _temp.expr == expr && super.equals(_temp);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int hash = super.hashCode();
-		hash = 37 * hash + expr.hashCode();
-		return hash;
+		int _hash = super.hashCode();
+		_hash = 37 * _hash + expr.hashCode();
+		return _hash;
 	}
 
 	/**
@@ -111,7 +111,7 @@ class SliceExpr
 	 *
 	 * @post result != null
 	 */
-	protected Stmt getOccurringStmt() {
+	protected final Stmt getOccurringStmt() {
 		return stmt;
 	}
 
@@ -125,17 +125,15 @@ class SliceExpr
 	 * @post result != null
 	 */
 	static SliceExpr getSliceExpr() {
-		SliceExpr result;
-
 		try {
-			result = (SliceExpr) EXPR_POOL.borrowObject();
-		} catch (Exception e) {
+			final SliceExpr _result = (SliceExpr) EXPR_POOL.borrowObject();
+            return _result;
+		} catch (Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", e);
+				LOGGER.warn("How can this happen?", _e);
 			}
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
-		return result;
 	}
 
 	/**
@@ -156,6 +154,9 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
+
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
 

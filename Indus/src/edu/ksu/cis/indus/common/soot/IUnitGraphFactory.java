@@ -17,19 +17,18 @@ package edu.ksu.cis.indus.common.soot;
 
 import java.util.Collection;
 
-
 import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This is the interface via which the user can plugin various sorts of unit graphs into the analyses and
- * also reuse the same implementation at many places.
- * 
- * @version $Revision$ 
+ * This is the interface via which the user can plugin various sorts of unit graphs into the analyses and also reuse the same
+ * implementation at many places.
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IUnitGraphFactory {
 	/**
@@ -62,4 +61,7 @@ public interface IUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
  */

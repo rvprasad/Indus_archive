@@ -16,13 +16,15 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.DirectedGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.structures.Pair;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.structures.Pair;
+
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -212,7 +214,7 @@ public class EntryControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
+	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		Map dag = graph.getDAG();
 		final List NODES = graph.getNodes();
 		final int NUM_OF_NODES = NODES.size();
@@ -328,7 +330,7 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Analyzes and collects the dependences.
 	 */
 	protected void localAnalyze() {
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
@@ -440,19 +442,19 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.5  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.4  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.3  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.2  2003/12/01 11:28:48  venku
    - control da calculation was erroneous when the support
      for direction switch was removed.  FIXED.

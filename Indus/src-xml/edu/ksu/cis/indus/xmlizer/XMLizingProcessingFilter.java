@@ -47,12 +47,13 @@ public final class XMLizingProcessingFilter
 	private final class LexographicalClassComparator
 	  implements Comparator {
 		/**
-		 * DOCUMENT ME!
+		 * Compares the given classes based on their name.
 		 *
-		 * @param o1 DOCUMENT ME!
-		 * @param o2 DOCUMENT ME!
+		 * @param o1 is one of the class to be compared.
+		 * @param o2 is the other class to be compared.
 		 *
-		 * @return DOCUMENT ME!
+		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
+		 * 		   <code>o2</code>.
 		 *
 		 * @pre o1.oclIsKindOf(SootClass) and o2.oclIsKindOf(SootClass)
 		 */
@@ -74,7 +75,15 @@ public final class XMLizingProcessingFilter
 	private final class LexographicalMethodComparator
 	  implements Comparator {
 		/**
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 * Compares the given classes based on their name.
+		 *
+		 * @param o1 is one of the method to be compared.
+		 * @param o2 is the other method to be compared.
+		 *
+		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
+		 * 		   <code>o2</code>.
+		 *
+		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
 		 */
 		public int compare(final Object o1, final Object o2) {
 			final String _sig1 = ((SootMethod) o1).getSubSignature();
@@ -111,6 +120,9 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:24  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.3  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.2  2003/11/30 09:03:58  venku

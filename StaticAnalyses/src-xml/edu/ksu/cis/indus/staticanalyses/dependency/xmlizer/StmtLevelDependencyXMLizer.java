@@ -16,6 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
 import edu.ksu.cis.indus.common.structures.Pair;
+
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -32,6 +34,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.SootClass;
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
@@ -46,15 +49,40 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class StmtLevelDependencyXMLizer
-  extends AbstractDependencyXMLizer {
+public final class StmtLevelDependencyXMLizer
+  extends AbstractProcessor {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtLevelDependencyXMLizer.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * This is the dependency analysis whose information should be xmlized.
+	 */
+	private DependencyAnalysis analysis;
+
+	/**
+	 * This is used to generate id's for xml elements.
+	 */
+	private IJimpleIDGenerator idGenerator;
+
+	/**
+	 * This is the writer used to write the xml information.
+	 */
+	private Writer writer;
+
+	/**
+	 * This indicates if a class is being processed.
+	 */
+	private boolean processingClass;
+
+	/**
+	 * This indicates if a method is being processed.
+	 */
+	private boolean processingMethod;
+
+	/**
+	 * This counts the number of dependences discovered.
 	 */
 	private int totalDependences;
 
@@ -63,37 +91,101 @@ public class StmtLevelDependencyXMLizer
 	 */
 	public StmtLevelDependencyXMLizer(final Writer out, final IJimpleIDGenerator generator,
 		final DependencyAnalysis depAnalysis) {
-		super(out, generator, depAnalysis);
+		writer = out;
+		idGenerator = generator;
+		analysis = depAnalysis;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
-		SootMethod method = context.getCurrentMethod();
-		Collection dependencies = analysis.getDependents(stmt, method);
+		final SootMethod _method = context.getCurrentMethod();
+		final Collection _dependencies = analysis.getDependents(stmt, _method);
 
 		try {
-			if (!dependencies.isEmpty()) {
-				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">\n");
-				totalDependences += dependencies.size();
+			if (!_dependencies.isEmpty()) {
+				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
+				totalDependences += _dependencies.size();
 
-				for (Iterator i = dependencies.iterator(); i.hasNext();) {
-					Object o = i.next();
+				for (final Iterator _i = _dependencies.iterator(); _i.hasNext();) {
+					final Object _o = _i.next();
 
-					if (o instanceof Pair) {
-						Pair pair = (Pair) o;
+					if (_o instanceof Pair) {
+						final Pair _pair = (Pair) _o;
 						writer.write("\t\t\t\t<dependent id=\""
-							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>\n");
-					} else if (o instanceof Stmt) {
-						writer.write("\t\t\t\t<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>\n");
+							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
+					} else if (_o instanceof Stmt) {
+						writer.write("\t\t\t\t<dependent id=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
 					}
 				}
 				writer.write("\t\t\t</dependency_info>\n");
 			}
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", e);
+				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
+	 */
+	public void callback(final SootClass clazz) {
+		try {
+			if (processingMethod) {
+				writer.write("\t\t</method>\n");
+			}
+
+			if (processingClass) {
+				writer.write("\t</class>\n");
+			} else {
+				processingClass = true;
+			}
+			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+			processingMethod = false;
+		} catch (IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 */
+	public void callback(final SootMethod method) {
+		try {
+			if (processingMethod) {
+				writer.write("\t\t</method>\n");
+			} else {
+				processingMethod = true;
+			}
+			writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
+		} catch (IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
+	 */
+	public void consolidate() {
+		try {
+			if (processingMethod) {
+				writer.write("\t\t</method>\n");
+			}
+
+			if (processingClass) {
+				writer.write("\t</class>\n");
+			}
+			writer.write("\t<count>" + getTotalNumberOfDependences() + "</count>\n");
+			writer.write("</dependency>\n");
+		} catch (IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", _e);
 			}
 		}
 	}
@@ -107,6 +199,19 @@ public class StmtLevelDependencyXMLizer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
+	 */
+	public void processingBegins() {
+		try {
+			writer.write("<dependency id=\"" + analysis.getId() + " class=\"" + analysis.getClass().toString() + "\">\n");
+		} catch (IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -117,7 +222,7 @@ public class StmtLevelDependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.AbstractDependencyXMLizer#getTotalNumberOfDependences()
 	 */
-	protected int getTotalNumberOfDependences() {
+	private int getTotalNumberOfDependences() {
 		return totalDependences;
 	}
 }
@@ -125,14 +230,15 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.8  2003/12/08 12:15:56  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.7  2003/12/08 10:57:59  venku
    - outputs count and id of dependences.
-
    Revision 1.6  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -24,22 +24,25 @@ package edu.ksu.cis.indus.tools;
  */
 public interface IToolConfiguration {
 	/**
-	 * DOCUMENT ME!
+	 * Sets the name of this configuration.
 	 *
-	 * @param string DOCUMENT ME!
+	 * @param name of this configuration.
+	 *
+	 * @pre name != null
 	 */
-	void setConfigName(String string);
+	void setConfigName(String name);
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the name of this configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the name of this configuration.
 	 */
 	String getConfigName();
 
 	/**
-	 * Sets a property of the configurationCollection. The given <code>propertyID</code> should be a valid property id
-	 * declared in this class.  If not, an exception will be raised.
+	 * Sets a property in this configuration. The given <code>propertyID</code> should be a valid property id declared in
+	 * this class.  If not, an exception will be raised.  The valid property ids are managed/specified by  concrete
+	 * implementations.
 	 *
 	 * @param propertyID to be set.
 	 * @param value to be assigned to the property.
@@ -48,7 +51,7 @@ public interface IToolConfiguration {
 	 *
 	 * @throws IllegalArgumentException when an invalid property identifier is specified.
 	 *
-	 * @pre property != null and value != null
+	 * @pre propertyID != null and value != null
 	 */
 	boolean setProperty(final Object propertyID, final Object value);
 
@@ -59,12 +62,12 @@ public interface IToolConfiguration {
 	 *
 	 * @return the value of the property if it exists; <code>null</code>, otherwise.
 	 *
-	 * @pre key != null
+	 * @pre id != null
 	 */
 	Object getProperty(final Object id);
 
 	/**
-	 * Initialize the configuration.  This is required if the configuration is created programmatically rather than
+	 * Initialize the configuration.  This is required if the configuration is created programmatically rather than via
 	 * java-to-xml binding.
 	 */
 	void initialize();
@@ -73,8 +76,9 @@ public interface IToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 11:47:19  venku
+   - raised the tool to an interface ITool.
    Revision 1.1  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
-
  */

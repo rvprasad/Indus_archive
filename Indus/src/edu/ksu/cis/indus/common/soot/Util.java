@@ -15,6 +15,12 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.Modifier;
@@ -29,12 +35,6 @@ import soot.VoidType;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.VirtualInvokeExpr;
-
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -67,18 +67,18 @@ public final class Util {
 	 */
 	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List parameterTypes,
 		final Type returnType) {
-		SootClass contains = sc;
+		SootClass _contains = sc;
 
-		while (!contains.declaresMethod(method, parameterTypes, returnType)) {
-			if (contains.hasSuperclass()) {
-				contains = contains.getSuperclass();
+		while (!_contains.declaresMethod(method, parameterTypes, returnType)) {
+			if (_contains.hasSuperclass()) {
+				_contains = _contains.getSuperclass();
 			} else {
-				contains = null;
+				_contains = null;
 				break;
 			}
 		}
 
-		return contains;
+		return _contains;
 	}
 
 	/**
@@ -111,26 +111,26 @@ public final class Util {
 	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
 	public static boolean isDescendentOf(final SootClass child, final String ancestor) {
-		boolean retval = false;
-		SootClass temp = child;
+		boolean _retval = false;
+		SootClass _temp = child;
 
-		while (!retval) {
-			if (temp.getName().equals(ancestor)) {
-				retval = true;
+		while (!_retval) {
+			if (_temp.getName().equals(ancestor)) {
+				_retval = true;
 			} else {
-				if (temp.hasSuperclass()) {
-					temp = temp.getSuperclass();
+				if (_temp.hasSuperclass()) {
+					_temp = _temp.getSuperclass();
 				} else {
 					break;
 				}
 			}
 		}
 
-		if (!retval) {
-			retval = implementsInterface(child, ancestor);
+		if (!_retval) {
+			_retval = implementsInterface(child, ancestor);
 		}
 
-		return retval;
+		return _retval;
 	}
 
 	/**
@@ -177,14 +177,15 @@ public final class Util {
 	 * @post result == t1.oclIsKindOf(t2)
 	 */
 	public static boolean isSameOrSubType(final Type t1, final Type t2, final IEnvironment env) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (t1.equals(t2)) {
-			result = true;
+			_result = true;
 		} else if (t1 instanceof RefType && t2 instanceof RefType) {
-			result = isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
+			_result =
+				isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -200,50 +201,14 @@ public final class Util {
 	 * @post result == t1.oclIsKindOf(t2)
 	 */
 	public static boolean isSameOrSubType(final ArrayType t1, final ArrayType t2, final IEnvironment env) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (t1.equals(t2)) {
-			result = true;
+			_result = true;
 		} else if (t1.numDimensions == t2.numDimensions) {
-			result = isSameOrSubType(t1.baseType, t2.baseType, env);
+			_result = isSameOrSubType(t1.baseType, t2.baseType, env);
 		}
-		return result;
-	}
-
-	/**
-	 * Hooks in a <i>non-native</i><code>start</code> method to facilitate smooth callgraph construction.
-	 *
-	 * @param sm is the method to be changed.  It is changed only if the method is <code>java.lang.Thread.start</code>.
-	 *
-	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
-	 */
-	private static boolean setThreadStartBody(final SootMethod sm) {
-		boolean result = false;
-		SootClass declClass = sm.getDeclaringClass();
-		declClass.setApplicationClass();
-
-		if (sm.isNative()
-			  && sm.getName().equals("start")
-			  && sm.getParameterCount() == 0
-			  && declClass.getName().equals("java.lang.Thread")) {
-			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
-
-			Jimple jimple = Jimple.v();
-			JimpleBody threadStartBody = jimple.newBody(sm);
-			PatchingChain sl = threadStartBody.getUnits();
-			Local thisRef = jimple.newLocal("$this", RefType.v(declClass.getName()));
-			VirtualInvokeExpr ve;
-			threadStartBody.getLocals().add(thisRef);
-			// adds $this := @this;
-			sl.addFirst(jimple.newIdentityStmt(thisRef, jimple.newThisRef(RefType.v(declClass))));
-			// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
-			ve = jimple.newVirtualInvokeExpr(thisRef, declClass.getMethodByName("run"), Collections.EMPTY_LIST);
-			sl.addLast(jimple.newInvokeStmt(ve));
-			sl.addLast(jimple.newReturnVoidStmt());
-			sm.setActiveBody(threadStartBody);
-			result = true;
-		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -253,21 +218,21 @@ public final class Util {
 	 * @param scm is the scene in which the alteration occurs.
 	 */
 	public static void fixupThreadStartBody(final Scene scm) {
-		boolean flag = false;
+		boolean _flag = false;
 
-		for (Iterator i = scm.getClasses().iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
+		for (final Iterator _i = scm.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
 
-			if (Util.implementsInterface(sc, "java.lang.Runnable")) {
-				flag = true;
+			if (Util.implementsInterface(_sc, "java.lang.Runnable")) {
+				_flag = true;
 				break;
 			}
 		}
 
-		if (flag) {
-			SootClass sc = scm.getSootClass("java.lang.Thread");
-			SootMethod sm = sc.getMethodByName("start");
-			Util.setThreadStartBody(sm);
+		if (_flag) {
+			final SootClass _sc = scm.getSootClass("java.lang.Thread");
+			final SootMethod _sm = _sc.getMethodByName("start");
+			Util.setThreadStartBody(_sm);
 		}
 	}
 
@@ -282,45 +247,82 @@ public final class Util {
 	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
 	public static boolean implementsInterface(final SootClass child, final String ancestor) {
-		boolean result = false;
-		SootClass temp = child;
+		boolean _result = false;
+		SootClass _temp = child;
 
-		while (!result && (temp.getInterfaceCount() > 0 || temp.hasSuperclass())) {
-			if (temp.implementsInterface(ancestor)) {
-				result = true;
+		while (!_result && (_temp.getInterfaceCount() > 0 || _temp.hasSuperclass())) {
+			if (_temp.implementsInterface(ancestor)) {
+				_result = true;
 			} else {
-				temp = temp.getSuperclass();
+				_temp = _temp.getSuperclass();
 			}
 		}
-		return result;
+		return _result;
+	}
+
+	/**
+	 * Hooks in a <i>non-native</i><code>start</code> method to facilitate smooth callgraph construction.
+	 *
+	 * @param sm is the method to be changed.  It is changed only if the method is <code>java.lang.Thread.start</code>.
+	 *
+	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
+	 */
+	private static boolean setThreadStartBody(final SootMethod sm) {
+		boolean _result = false;
+		final SootClass _declClass = sm.getDeclaringClass();
+		_declClass.setApplicationClass();
+
+		if (sm.isNative()
+			  && sm.getName().equals("start")
+			  && sm.getParameterCount() == 0
+			  && _declClass.getName().equals("java.lang.Thread")) {
+			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
+
+			final Jimple _jimple = Jimple.v();
+			final JimpleBody _threadStartBody = _jimple.newBody(sm);
+			final PatchingChain _sl = _threadStartBody.getUnits();
+			final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
+			_threadStartBody.getLocals().add(_thisRef);
+			// adds $this := @this;
+			_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+
+			// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
+			final VirtualInvokeExpr _ve =
+				_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
+			_sl.addLast(_jimple.newInvokeStmt(_ve));
+			_sl.addLast(_jimple.newReturnVoidStmt());
+			sm.setActiveBody(_threadStartBody);
+			_result = true;
+		}
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.6  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
-
    Revision 1.5  2003/11/02 20:14:33  venku
    - thread body is fixed external to the driver in Util.
-
    Revision 1.4  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-       Revision 1.2  2003/08/11 04:20:19  venku
-       - Pair and Triple were changed to work in optimized and unoptimized mode.
-       - Ripple effect of the previous change.
-       - Documentation and specification of other classes.
-       Revision 1.1  2003/08/07 06:42:16  venku
-       Major:
-        - Moved the package under indus umbrella.
-        - Renamed isEmpty() to hasWork() in IWorkBag.
+           Revision 1.2  2003/08/11 04:20:19  venku
+           - Pair and Triple were changed to work in optimized and unoptimized mode.
+           - Ripple effect of the previous change.
+           - Documentation and specification of other classes.
+           Revision 1.1  2003/08/07 06:42:16  venku
+           Major:
+            - Moved the package under indus umbrella.
+            - Renamed isEmpty() to hasWork() in IWorkBag.
  */

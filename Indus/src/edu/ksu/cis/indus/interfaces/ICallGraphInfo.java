@@ -15,10 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-
 import edu.ksu.cis.indus.common.structures.Triple;
-import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
@@ -108,7 +107,7 @@ public interface ICallGraphInfo
 		 * @post result != null
 		 */
 		protected String stringize() {
-			return getSecond() + "@" + getMethod();
+			return getStmt() + "@" + getMethod();
 		}
 	}
 
@@ -208,20 +207,20 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:20:40  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.12  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.11  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.
    - ripple effect.
-
    Revision 1.10  2003/11/29 09:34:59  venku
    - removed getCycles() method as it was not being used.
    Revision 1.9  2003/11/29 09:30:37  venku

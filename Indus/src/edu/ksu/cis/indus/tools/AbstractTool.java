@@ -37,6 +37,11 @@ public abstract class AbstractTool
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
 	/**
+	 * This is the unit of time it the tool thread sleeps while trying to provide a synchronous view of the run() call.
+	 */
+	private static final int SYCHRONOUS_CALL_WAIT_TIME = 500;
+
+	/**
 	 * This an object used to control the execution of the tool.
 	 */
 	protected final Object control = new Object();
@@ -74,14 +79,14 @@ public abstract class AbstractTool
 	 * @post result != null
 	 */
 	public final IToolConfiguration getActiveConfiguration() {
-		IToolConfiguration result;
+		IToolConfiguration _result;
 
 		if (configurationInfo instanceof CompositeToolConfiguration) {
-			result = ((CompositeToolConfiguration) configurationInfo).getActiveToolConfiguration();
+			_result = ((CompositeToolConfiguration) configurationInfo).getActiveToolConfiguration();
 		} else {
-			result = configurationInfo;
+			_result = configurationInfo;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -142,8 +147,8 @@ public abstract class AbstractTool
 						public final void run() {
 							try {
 								execute(phase);
-							} catch (InterruptedException e) {
-								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", e);
+							} catch (InterruptedException _e) {
+								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", _e);
 								pause = false;
 							}
 						}
@@ -153,9 +158,9 @@ public abstract class AbstractTool
 			if (synchronous) {
 				while (!isStable()) {
 					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						LOGGER.error("Interrupted while waiting on the run to complete.", e);
+						Thread.sleep(SYCHRONOUS_CALL_WAIT_TIME);
+					} catch (InterruptedException _e) {
+						LOGGER.error("Interrupted while waiting on the run to complete.", _e);
 						pause = false;
 					}
 				}
@@ -193,6 +198,8 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/09 12:18:18  venku
+   - added support to control synchronicity of method runs.
    Revision 1.11  2003/12/02 11:47:19  venku
    - raised the tool to an interface ITool.
    Revision 1.10  2003/12/02 11:31:57  venku

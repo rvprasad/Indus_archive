@@ -28,6 +28,8 @@ import java.util.ArrayList;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class IDADriver
   extends DADriver {
@@ -47,23 +49,21 @@ public class IDADriver
 	 * @param args command line arguemnts.
 	 */
 	public static void main(final String[] args) {
-		(new IDADriver(args)).run();
-	}
-
-	/**
-	 * Initializes the collection of dependence analyses with the interference dependence analyses to be driven.
-	 */
-	protected void initialize() {
-		das = new ArrayList();
-		das.add(new InterferenceDAv1());
-		das.add(new InterferenceDAv2());
-		das.add(new InterferenceDAv3());
+		DADriver da = new IDADriver(args);
+		da.das = new ArrayList();
+		da.das.add(new InterferenceDAv1());
+		da.das.add(new InterferenceDAv2());
+		da.das.add(new InterferenceDAv3());
+		da.execute();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider

@@ -33,8 +33,8 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public class SimpleNodeGraph
-  extends MutableDirectedGraph {
+public final class SimpleNodeGraph
+  extends AbstractMutableDirectedGraph {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -61,12 +61,12 @@ public class SimpleNodeGraph
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public class SimpleNode
-	  extends MutableDirectedGraph.MutableNode {
+	public final class SimpleNode
+	  extends AbstractMutableDirectedGraph.AbstractMutableNode {
 		/**
 		 * The object being represetned by this node.
 		 */
-		public final Object _object;
+		private final Object object;
 
 		/**
 		 * Creates a new SimpleNode object.
@@ -75,7 +75,16 @@ public class SimpleNodeGraph
 		 */
 		SimpleNode(final Object o) {
 			super(new HashSet(), new HashSet());
-			this._object = o;
+			this.object = o;
+		}
+
+		/**
+		 * Retrieves the associated object.
+		 *
+		 * @return the associated object.
+		 */
+		public Object getObject() {
+			return object;
 		}
 
 		/**
@@ -86,7 +95,7 @@ public class SimpleNodeGraph
 		 * @post result != null
 		 */
 		public String toString() {
-			return _object.toString();
+			return object + "";
 		}
 	}
 
@@ -105,7 +114,7 @@ public class SimpleNodeGraph
 	 * 		 object2nodes.get(o) == result
 	 * @post result != null
 	 */
-	public MutableNode getNode(final Object o) {
+	public INode getNode(final Object o) {
 		if (o == null) {
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("object to be represented cannot be null.");
@@ -113,17 +122,17 @@ public class SimpleNodeGraph
 			throw new NullPointerException("object to be represented cannot be null.");
 		}
 
-		MutableNode result = (MutableNode) object2nodes.get(o);
+		INode _result = (INode) object2nodes.get(o);
 
-		if (result == null) {
-			result = new SimpleNode(o);
-			object2nodes.put(o, result);
-			nodes.add(result);
-			heads.add(result);
-			tails.add(result);
+		if (_result == null) {
+			_result = new SimpleNode(o);
+			object2nodes.put(o, _result);
+			nodes.add(_result);
+			heads.add(_result);
+			tails.add(_result);
 			hasSpanningForest = false;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -141,7 +150,7 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
+	 * @see AbstractMutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
 		return nodes.contains(node);
@@ -151,15 +160,16 @@ public class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.7  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.6  2003/09/28 03:16:20  venku
@@ -170,7 +180,7 @@ public class SimpleNodeGraph
    Revision 1.4  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
     - Each Mutable graph extends this graph and exposes itself via
       suitable interface to restrict access.
     - Ripple effect of the above changes.

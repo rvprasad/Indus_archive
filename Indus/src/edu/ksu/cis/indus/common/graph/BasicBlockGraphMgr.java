@@ -64,25 +64,25 @@ public final class BasicBlockGraphMgr {
 		}
 
 		final WeakReference _ref = (WeakReference) method2graph.get(sm);
-		BasicBlockGraph result = null;
-		boolean flag = false;
+		BasicBlockGraph _result = null;
+		boolean _flag = false;
 
 		if (_ref == null) {
-			flag = true;
+			_flag = true;
 		} else {
-			result = (BasicBlockGraph) _ref.get();
+			_result = (BasicBlockGraph) _ref.get();
 
-			if (result == null) {
-				flag = true;
+			if (_result == null) {
+				_flag = true;
 			}
 		}
 
-		if (flag) {
+		if (_flag) {
 			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
-			result = new BasicBlockGraph(_graph);
-			method2graph.put(sm, new WeakReference(result));
+			_result = new BasicBlockGraph(_graph);
+			method2graph.put(sm, new WeakReference(_result));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -120,19 +120,18 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/09 04:42:42  venku
+   - unit graph factories are responsible to construct empty
+     bodies for methods not BasicBlockGraphMgr.  FIXED.
    Revision 1.3  2003/12/09 04:32:09  venku
    - empty method body needs a method to be associated with it.  FIXED.
-
    Revision 1.2  2003/12/09 04:23:49  venku
    - used IUnitGraphFactory instead of AbstractGraphUnitFactory.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.2  2003/12/09 04:02:43  venku
    - empty body is used for methods with no body.
-
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

@@ -76,64 +76,56 @@ import soot.jimple.XorExpr;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides logic xmlize Jimple Values.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ValueXMLizer
+public class JimpleValueXMLizer
   extends AbstractJimpleValueSwitch {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is used to maintain tabbing the output xml.
+	 *
+	 * @invariant tabs != null
 	 */
-	StringBuffer tabs = new StringBuffer("\t\t\t");
+	final StringBuffer tabs = new StringBuffer("\t\t\t");
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is used generate ids used during xmlization.
+	 *
+	 * @pre idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This caches the id of the current value/expression/program point being processed.
 	 */
 	private Object newId;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The current method being processed.
 	 */
 	private SootMethod currMethod;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The current statement being processed.
 	 */
 	private Stmt currStmt;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the stream into which xml data will be written into.
 	 */
 	private Writer out;
 
 	/**
-	 * Creates a new ValueXMLizer object.
+	 * Creates a new JimpleValueXMLizer object.
 	 *
-	 * @param generator DOCUMENT ME!
+	 * @param generator to be used generate ids during xmlization.
+	 *
+	 * @pre generator != null
 	 */
-	ValueXMLizer(final IJimpleIDGenerator generator) {
+	JimpleValueXMLizer(final IJimpleIDGenerator generator) {
 		idGenerator = generator;
 	}
 
@@ -164,8 +156,8 @@ public class ValueXMLizer
 			out.write(tabs + "</index>\n");
 			decrementTabs();
 			out.write(tabs + "</array_ref>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -177,8 +169,8 @@ public class ValueXMLizer
 			out.write(tabs + "<cast id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCastType()) + "\">\n");
 			apply(v.getOpBox());
 			out.write(tabs + "</cast >\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -189,8 +181,8 @@ public class ValueXMLizer
 		try {
 			out.write(tabs + "<caught_exception_ref id=\"" + newId + "\" exceptionTypeId=\""
 				+ idGenerator.getIdForType(v.getType()) + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -228,8 +220,8 @@ public class ValueXMLizer
 	public final void caseDoubleConstant(final DoubleConstant v) {
 		try {
 			out.write(tabs + "<double id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -246,8 +238,8 @@ public class ValueXMLizer
 	public final void caseFloatConstant(final FloatConstant v) {
 		try {
 			out.write(tabs + "<float id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -274,8 +266,8 @@ public class ValueXMLizer
 			writeBase(v.getBaseBox());
 			writeField(v.getField());
 			out.write(tabs + "</instance_field_ref>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -288,8 +280,8 @@ public class ValueXMLizer
 				+ "\">\n");
 			apply(v.getOpBox());
 			out.write(tabs + "</instanceof>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -299,8 +291,8 @@ public class ValueXMLizer
 	public final void caseIntConstant(final IntConstant v) {
 		try {
 			out.write(tabs + "<integer id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -308,7 +300,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 	 */
 	public final void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
-		writeInvokeExpr("interface", v);
+		writeInvokeExpr(v);
 	}
 
 	/**
@@ -332,8 +324,8 @@ public class ValueXMLizer
 		try {
 			out.write(tabs + "<local_ref id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod)
 				+ "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -343,8 +335,8 @@ public class ValueXMLizer
 	public final void caseLongConstant(final LongConstant v) {
 		try {
 			out.write(tabs + "<long id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -385,8 +377,8 @@ public class ValueXMLizer
 				+ "\">\n");
 			writeDimensionSize(1, v.getSizeBox());
 			out.write(tabs + "</new_array>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -396,8 +388,8 @@ public class ValueXMLizer
 	public final void caseNewExpr(final NewExpr v) {
 		try {
 			out.write(tabs + "<new id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getType()) + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -411,12 +403,12 @@ public class ValueXMLizer
 			out.write(tabs + "<new_multi_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(_type.baseType)
 				+ "\" dimension=\"" + _type.numDimensions + "\">\n");
 
-			for (int i = 0; i < v.getSizeCount(); i++) {
-				writeDimensionSize(i + 1, v.getSizeBox(i));
+			for (int _i = 0; _i < v.getSizeCount(); _i++) {
+				writeDimensionSize(_i + 1, v.getSizeBox(_i));
 			}
 			out.write(tabs + "</new_multi_array>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -426,8 +418,8 @@ public class ValueXMLizer
 	public final void caseNullConstant(final NullConstant v) {
 		try {
 			out.write(tabs + "<null/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -444,8 +436,8 @@ public class ValueXMLizer
 	public final void caseParameterRef(final ParameterRef v) {
 		try {
 			out.write(tabs + "<parameter_ref id=\"" + newId + "\" position=\"" + v.getIndex() + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -474,7 +466,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 	 */
 	public final void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
-		writeInvokeExpr("special", v);
+		writeInvokeExpr(v);
 	}
 
 	/**
@@ -485,8 +477,8 @@ public class ValueXMLizer
 			out.write(tabs + "<static_field_ref id=\"" + newId + "\">\n");
 			writeField(v.getField());
 			out.write(tabs + "</static_field_ref>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -494,7 +486,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
 	public final void caseStaticInvokeExpr(final StaticInvokeExpr v) {
-		writeInvokeExpr("static", v);
+		writeInvokeExpr(v);
 	}
 
 	/**
@@ -505,8 +497,8 @@ public class ValueXMLizer
 			String _temp = v.value.replaceAll("[^\\p{Print}]", "");
 			_temp = _temp.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\\\"", "&quot;");
 			out.write(tabs + "<string id=\"" + newId + "\" value=\"" + _temp + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -523,8 +515,8 @@ public class ValueXMLizer
 	public final void caseThisRef(final ThisRef v) {
 		try {
 			out.write(tabs + "<this id=\"" + newId + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -539,7 +531,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 	 */
 	public final void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
-		writeInvokeExpr("virtual", v);
+		writeInvokeExpr(v);
 	}
 
 	/**
@@ -550,90 +542,94 @@ public class ValueXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the method whose values will be processed.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method whose values will be processed.
+	 *
+	 * @pre method != null
 	 */
 	final void setMethod(final SootMethod method) {
 		currMethod = method;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the statement whose values will be processed.
 	 *
-	 * @param stmt DOCUMENT ME!
+	 * @param stmt whose values will be processed.
+	 *
+	 * @pre stmt != null
 	 */
 	final void setStmt(final Stmt stmt) {
 		currStmt = stmt;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the stream into which xml data will be written into.
 	 *
-	 * @param stream DOCUMENT ME!
+	 * @param stream into which xml data will be written into.
+	 *
+	 * @pre stream != null
 	 */
 	final void setWriter(final Writer stream) {
 		out = stream;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Process the given program point.
 	 *
-	 * @param vBox DOCUMENT ME!
+	 * @param programPoint to be processed.
+	 *
+	 * @pre programPoint != null
 	 */
-	final void apply(final ValueBox vBox) {
-		Object temp = newId;
-		newId = idGenerator.getIdForValueBox(vBox, currStmt, currMethod);
+	final void apply(final ValueBox programPoint) {
+		Object _temp = newId;
+		newId = idGenerator.getIdForValueBox(programPoint, currStmt, currMethod);
 		incrementTabs();
-		vBox.getValue().apply(this);
+		programPoint.getValue().apply(this);
 		decrementTabs();
-		newId = temp;
+		newId = _temp;
 	}
 
 	/**
-	 *
+	 * Decrements the indentation.
 	 */
 	private void decrementTabs() {
 		tabs.deleteCharAt(0);
 	}
 
 	/**
-	 *
+	 * Incrementst the indentation.
 	 */
 	private void incrementTabs() {
 		tabs.append("\t");
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes base information in XML.  Base are primaries in field access, array access, and  invocation expressions.
 	 *
-	 * @param v DOCUMENT ME!
+	 * @param base to be xmlized.
+	 *
+	 * @pre base != null
 	 */
-	private void writeBase(final ValueBox v) {
+	private void writeBase(final ValueBox base) {
 		try {
 			incrementTabs();
 			out.write(tabs + "<base>\n");
-			apply(v);
+			apply(base);
 			out.write(tabs + "</base>\n");
 			decrementTabs();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes a binary expression in XML.
 	 *
-	 * @param operatorName DOCUMENT ME!
-	 * @param v DOCUMENT ME!
+	 * @param operatorName is the name of the binary operator occurring in the expresssion.
+	 * @param v is the expression.
+	 *
+	 * @pre operatorName != null and v != null
 	 */
 	private void writeBinaryExpr(final String operatorName, final BinopExpr v) {
 		try {
@@ -647,18 +643,16 @@ public class ValueXMLizer
 			out.write(tabs + "</right_op>\n");
 			decrementTabs();
 			out.write(tabs + "</binary_expr>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Writes array dimension size specification in a new array expression.
 	 *
-	 * @param i DOCUMENT ME!
-	 * @param v DOCUMENT ME!
+	 * @param i is the dimension being specified.
+	 * @param v is the size of the dimension.
 	 */
 	private void writeDimensionSize(final int i, final ValueBox v) {
 		try {
@@ -667,35 +661,56 @@ public class ValueXMLizer
 			apply(v);
 			out.write(tabs + "</size>\n");
 			decrementTabs();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes the field in XML.
 	 *
-	 * @param field DOCUMENT ME!
+	 * @param field to be xmlized.
+	 *
+	 * @pre field != null
 	 */
 	private void writeField(final SootField field) {
 		try {
 			incrementTabs();
 			out.write(tabs + "<field_ref fieldId=\"" + idGenerator.getIdForField(field) + "\"/>\n");
 			decrementTabs();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes the invocation expression in XML.
 	 *
-	 * @param name DOCUMENT ME!
-	 * @param v DOCUMENT ME!
+	 * @param v is the invocation expression.
+	 *
+	 * @throws IllegalArgumentException when input argument is not of any of these types: VirtualInvokeExpr,
+	 * 		   StaticInvokeExpr, SpecialInvokeExpr, or InterfaceInvokeExpr.
+	 *
+	 * @pre name != null and v != null
 	 */
-	private void writeInvokeExpr(final String name, final InvokeExpr v) {
+	private void writeInvokeExpr(final InvokeExpr v) {
+		String _name = "";
+
+		if (v instanceof InterfaceInvokeExpr) {
+			_name = "interface";
+		} else if (v instanceof SpecialInvokeExpr) {
+			_name = "special";
+		} else if (v instanceof StaticInvokeExpr) {
+			_name = "static";
+		} else if (v instanceof VirtualInvokeExpr) {
+			_name = "virtual";
+		} else {
+			throw new IllegalArgumentException(
+				"v has to be of VirtualInvokeExpr, StaticInvokeExpr, SpecialInvokeExpr, or InterfaceInvokeExpr.");
+		}
+
 		try {
-			out.write(tabs + "<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">\n");
+			out.write(tabs + "<invoke_expr name=\"" + _name + "\" id=\"" + newId + "\">\n");
 
 			final SootMethod _method = v.getMethod();
 			incrementTabs();
@@ -709,22 +724,24 @@ public class ValueXMLizer
 			if (v.getArgCount() > 0) {
 				out.write(tabs + "\t<arguments>\n");
 
-				for (int i = 0; i < v.getArgCount(); i++) {
-					apply(v.getArgBox(i));
+				for (int _i = 0; _i < v.getArgCount(); _i++) {
+					apply(v.getArgBox(_i));
 				}
 				out.write(tabs + "\t</arguments>\n");
 			}
 			out.write(tabs + "</invoke_expr>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes a unary expression as XML.
 	 *
-	 * @param operatorName DOCUMENT ME!
-	 * @param value DOCUMENT ME!
+	 * @param operatorName is the name of the unary operator in the expression.
+	 * @param value is the unary expression.
+	 *
+	 * @pre operatorName != null and value != null
 	 */
 	private void writeUnaryExpr(final String operatorName, final UnopExpr value) {
 		try {
@@ -733,8 +750,8 @@ public class ValueXMLizer
 			apply(value.getOpBox());
 			out.write(tabs + "</unary_expr>\n");
 			decrementTabs();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 }
@@ -742,6 +759,10 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/09 09:50:46  venku
+   - amended output of string output to be XML compliant.
+     This means some characters that are unrepresentable in
+     XML are omitted.
    Revision 1.13  2003/12/02 11:36:16  venku
    - coding convention.
    Revision 1.12  2003/12/02 09:42:24  venku

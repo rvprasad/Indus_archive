@@ -40,7 +40,7 @@ import soot.util.Chain;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class Cloner
+public final class Cloner
   implements ASTCloner.IASTClonerHelper {
 	/**
 	 * This instance is used to clone Jimple AST chunks.
@@ -77,16 +77,16 @@ public class Cloner
 	 * @post result != null
 	 */
 	public SootClass getCloneOf(final SootClass clazz) {
-		String clazzName = clazz.getName();
-		boolean declares = cloneClazzManager.containsClass(clazzName);
-		SootClass result;
+		final String _clazzName = clazz.getName();
+		final boolean _declares = cloneClazzManager.containsClass(_clazzName);
+		SootClass _result;
 
-		if (declares) {
-			result = cloneClazzManager.getSootClass(clazzName);
+		if (_declares) {
+			_result = cloneClazzManager.getSootClass(_clazzName);
 		} else {
-			result = clone(clazz);
+			_result = clone(clazz);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -100,14 +100,14 @@ public class Cloner
 	 * @post result != null
 	 */
 	public SootField getCloneOf(final SootField field) {
-		SootClass clazz = getCloneOf(field.getDeclaringClass());
-		String name = field.getName();
-		Type type = field.getType();
+		final SootClass _clazz = getCloneOf(field.getDeclaringClass());
+		final String _name = field.getName();
+		final Type _type = field.getType();
 
-		if (!clazz.declaresField(name, type)) {
-			clazz.addField(new SootField(name, type, field.getModifiers()));
+		if (!_clazz.declaresField(_name, _type)) {
+			_clazz.addField(new SootField(_name, _type, field.getModifiers()));
 		}
-		return clazz.getField(name, type);
+		return _clazz.getField(_name, _type);
 	}
 
 	/**
@@ -122,33 +122,33 @@ public class Cloner
 	 * @post result != null
 	 */
 	public SootMethod getCloneOf(final SootMethod cloneeMethod) {
-		SootClass sc = getCloneOf(cloneeMethod.getDeclaringClass());
-		boolean declares =
-			sc.declaresMethod(cloneeMethod.getName(), cloneeMethod.getParameterTypes(), cloneeMethod.getReturnType());
-		SootMethod result;
+		final SootClass _sc = getCloneOf(cloneeMethod.getDeclaringClass());
+		final boolean _declares =
+			_sc.declaresMethod(cloneeMethod.getName(), cloneeMethod.getParameterTypes(), cloneeMethod.getReturnType());
+		SootMethod _result;
 
-		if (declares) {
-			result = sc.getMethod(cloneeMethod.getName(), cloneeMethod.getParameterTypes(), cloneeMethod.getReturnType());
+		if (_declares) {
+            _result = _sc.getMethod(cloneeMethod.getName(), cloneeMethod.getParameterTypes(), cloneeMethod.getReturnType());
 		} else {
-			result =
+			_result =
 				new SootMethod(cloneeMethod.getName(), cloneeMethod.getParameterTypes(), cloneeMethod.getReturnType(),
 					cloneeMethod.getModifiers());
 
-			for (Iterator i = cloneeMethod.getExceptions().iterator(); i.hasNext();) {
-				SootClass exception = (SootClass) i.next();
-				result.addException(exception);
+			for (final Iterator _i = cloneeMethod.getExceptions().iterator(); _i.hasNext();) {
+				final SootClass _exception = (SootClass) _i.next();
+				_result.addException(_exception);
 			}
 
-			JimpleBody jb = jimple.newBody(result);
-			Chain sl = jb.getUnits();
-			Stmt nop = jimple.newNopStmt();
+			final JimpleBody _jb = jimple.newBody(_result);
+			final Chain _sl = _jb.getUnits();
+			final Stmt _nop = jimple.newNopStmt();
 
-			for (int i = cloneeMethod.getActiveBody().getUnits().size() - 1; i >= 0; i--) {
-				sl.addLast(nop);
+			for (int _i = cloneeMethod.getActiveBody().getUnits().size() - 1; _i >= 0; _i--) {
+				_sl.addLast(_nop);
 			}
-			result.setActiveBody(jb);
+			_result.setActiveBody(_jb);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -162,14 +162,14 @@ public class Cloner
 	 * @post result != null
 	 */
 	public SootClass getCloneOf(final String clazz) {
-		SootClass sc = clazzManager.getSootClass(clazz);
-		SootClass result = null;
+		final SootClass _sc = clazzManager.getSootClass(clazz);
+		SootClass _result = null;
 
-		if (sc != null) {
-			result = getCloneOf(sc);
+		if (_sc != null) {
+			_result = getCloneOf(_sc);
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -183,20 +183,20 @@ public class Cloner
 	 * @pre name != null and method != null
 	 */
 	public Local getLocal(final Local local, final SootMethod method) {
-		SootMethod tranformedMethod = getCloneOf(method);
-		Body body = tranformedMethod.getActiveBody();
-		Local result = null;
-		String localName = local.getName();
+		final SootMethod _tranformedMethod = getCloneOf(method);
+		final Body _body = _tranformedMethod.getActiveBody();
+		Local _result = null;
+		final String _localName = local.getName();
 
-		for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
-			Local temp = (Local) i.next();
+		for (final Iterator _i = _body.getLocals().iterator(); _i.hasNext();) {
+			final Local _temp = (Local) _i.next();
 
-			if (temp.getName().equals(localName)) {
-				result = local;
+			if (_temp.getName().equals(_localName)) {
+				_result = local;
 				break;
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -261,25 +261,29 @@ public class Cloner
 	 * @post result != null
 	 */
 	private SootClass clone(final SootClass clazz) {
-		SootClass result = new SootClass(clazz.getName(), clazz.getModifiers());
+		final SootClass _result = new SootClass(clazz.getName(), clazz.getModifiers());
 
 		if (clazz.hasSuperclass()) {
-			SootClass superClass = getCloneOf(clazz.getSuperclass());
-			result.setSuperclass(superClass);
+			final SootClass _superClass = getCloneOf(clazz.getSuperclass());
+			_result.setSuperclass(_superClass);
 		}
 
-		for (Iterator i = clazz.getInterfaces().iterator(); i.hasNext();) {
-			SootClass cloneeInterface = (SootClass) i.next();
-			SootClass cloneInterface = getCloneOf(cloneeInterface);
-			result.addInterface(cloneInterface);
+		for (final Iterator _i = clazz.getInterfaces().iterator(); _i.hasNext();) {
+			final SootClass _cloneeInterface = (SootClass) _i.next();
+			final SootClass _cloneInterface = getCloneOf(_cloneeInterface);
+			_result.addInterface(_cloneInterface);
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/09/28 06:54:17  venku
    - one more small change to the interface.
    Revision 1.7  2003/09/28 06:46:49  venku

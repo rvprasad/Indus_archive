@@ -30,8 +30,7 @@ public class SlicingTag
 	/**
 	 * Creates a new SlicingTag object.
 	 *
-	 * @param theName DOCUMENT ME!
-	 * @param isSeed DOCUMENT ME!
+	 * @param theName of the tag.
 	 */
 	public SlicingTag(final String theName) {
 		super(theName);
@@ -42,6 +41,10 @@ public class SlicingTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.4  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
 

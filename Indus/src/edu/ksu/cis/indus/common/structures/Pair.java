@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.structures;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +46,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class Pair
+public final class Pair
   implements Cloneable {
 	/**
 	 * The first element of this pair.
@@ -133,7 +134,7 @@ public class Pair
 		 *
 		 * @post result != null
 		 */
-		public final Pair getOptimizedPair(final Object firstParam, final Object secondParam) {
+		public Pair getOptimizedPair(final Object firstParam, final Object secondParam) {
 			return getPair(firstParam, secondParam, true);
 		}
 
@@ -147,14 +148,14 @@ public class Pair
 		 *
 		 * @post result != null
 		 */
-		public final Pair getUnOptimizedPair(final Object firstParam, final Object secondParam) {
+		public Pair getUnOptimizedPair(final Object firstParam, final Object secondParam) {
 			return getPair(firstParam, secondParam, false);
 		}
 
 		/**
 		 * Forgets about all managed pairs.
 		 */
-		public final void reset() {
+		public void reset() {
 			pairs.clear();
 		}
 
@@ -171,18 +172,18 @@ public class Pair
 		 *
 		 * @post result != null
 		 */
-		private final Pair getPair(final Object firstParam, final Object secondParam, final boolean optimized) {
-			Pair result;
+		private Pair getPair(final Object firstParam, final Object secondParam, final boolean optimized) {
+			Pair _result;
 			pair.first = firstParam;
 			pair.second = secondParam;
 
 			if (pairs.contains(pair)) {
-				result = (Pair) pairs.get(pairs.indexOf(pair));
+				_result = (Pair) pairs.get(pairs.indexOf(pair));
 			} else {
-				result = new Pair(firstParam, secondParam, optimized);
-				pairs.add(0, result);
+				_result = new Pair(firstParam, secondParam, optimized);
+				pairs.add(0, _result);
 			}
-			return result;
+			return _result;
 		}
 	}
 
@@ -191,7 +192,7 @@ public class Pair
 	 *
 	 * @return the first element in the pair.
 	 */
-	public final Object getFirst() {
+	public Object getFirst() {
 		return first;
 	}
 
@@ -200,7 +201,7 @@ public class Pair
 	 *
 	 * @return the second element in the pair.
 	 */
-	public final Object getSecond() {
+	public Object getSecond() {
 		return second;
 	}
 
@@ -211,7 +212,7 @@ public class Pair
 	 *
 	 * @throws CloneNotSupportedException will not be thrown.
 	 */
-	public final Object clone()
+	public Object clone()
 	  throws CloneNotSupportedException {
 		return (Pair) super.clone();
 	}
@@ -226,27 +227,21 @@ public class Pair
 	 * @post result == true implies o.oclTypeOf(Pair) and (o.first.equals(first) or o.first == first) and
 	 * 		 (o.second.equals(second) or o.second == second)
 	 */
-	public final boolean equals(final Object o) {
-		boolean result = false;
+	public boolean equals(final Object o) {
+		boolean _result = false;
 
 		if (o != null && o instanceof Pair) {
-			Pair temp = (Pair) o;
+			final Pair _temp = (Pair) o;
 
-			if (first != null) {
-				result = first.equals(temp.first);
-			} else {
-				result = first == temp.first;
-			}
+			_result = first == _temp.first || first.equals(_temp.first);
 
-			if (result) {
-				if (second != null) {
-					result = result && second.equals(temp.second);
-				} else {
-					result = result && second == temp.second;
-				}
+			if (_result) {
+				_result = second == _temp.second || _result && second.equals(_temp.second);
 			}
+		} else {
+			_result = super.equals(o);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -255,15 +250,15 @@ public class Pair
 	 *
 	 * @return the hash code of this pair.
 	 */
-	public final int hashCode() {
-		int result;
+	public int hashCode() {
+		final int _result;
 
 		if (str == null) {
-			result = hash();
+			_result = hash();
 		} else {
-			result = hashCode;
+			_result = hashCode;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -281,31 +276,35 @@ public class Pair
 	 * @post result->entrySet()->forall(o | o.getValue()->forall(p | pairs->includes(Pair(o.getKey(), p))))
 	 * @post pairs->forall(o | result.get(o.getFirst())->includes(o.getSecond()))
 	 */
-	public static final Map mapify(final Collection pairs, final boolean forward) {
-		Map result = new HashMap();
+	public static Map mapify(final Collection pairs, final boolean forward) {
+		Map _result = new HashMap();
 
-		for (Iterator i = pairs.iterator(); i.hasNext();) {
-			Pair pair = (Pair) i.next();
-			Object key;
-			Object value;
+		for (final Iterator _i = pairs.iterator(); _i.hasNext();) {
+			final Pair _pair = (Pair) _i.next();
+			Object _key;
+			Object _value;
 
 			if (forward) {
-				key = pair.getFirst();
-				value = pair.getSecond();
+				_key = _pair.getFirst();
+				_value = _pair.getSecond();
 			} else {
-				key = pair.getSecond();
-				value = pair.getFirst();
+				_key = _pair.getSecond();
+				_value = _pair.getFirst();
 			}
 
-			Collection c = (Collection) result.get(key);
+			Collection _c = (Collection) _result.get(_key);
 
-			if (c == null) {
-				c = new ArrayList();
-				result.put(key, c);
+			if (_c == null) {
+				_c = new ArrayList();
+				_result.put(_key, _c);
 			}
-			c.add(value);
+			_c.add(_value);
 		}
-		return result;
+
+		if (_result.isEmpty()) {
+			_result = Collections.EMPTY_MAP;
+		}
+		return _result;
 	}
 
 	/**
@@ -314,7 +313,7 @@ public class Pair
 	 *
 	 * @post str != null
 	 */
-	public final void optimize() {
+	public void optimize() {
 		hashCode = hash();
 		str = stringize();
 	}
@@ -325,15 +324,15 @@ public class Pair
 	 *
 	 * @return a stringified version of this object.
 	 */
-	public final String toString() {
-		String result;
+	public String toString() {
+		String _result;
 
 		if (str == null) {
-			result = stringize();
+			_result = stringize();
 		} else {
-			result = str;
+			_result = str;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -342,7 +341,7 @@ public class Pair
 	 *
 	 * @post str == null
 	 */
-	public final void unoptimize() {
+	public void unoptimize() {
 		str = null;
 	}
 
@@ -352,16 +351,16 @@ public class Pair
 	 * @return the hashcode of this object.
 	 */
 	protected int hash() {
-		int result = 17;
+		int _result = 17;
 
 		if (first != null) {
-			result = 37 * result + first.hashCode();
+			_result = 37 * _result + first.hashCode();
 		}
 
 		if (second != null) {
-			result = 37 * result + second.hashCode();
+			_result = 37 * _result + second.hashCode();
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -377,15 +376,16 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.8  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.7  2003/11/05 00:35:33  venku
@@ -403,15 +403,15 @@ public class Pair
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-             Revision 1.2  2003/08/11 04:20:19  venku
-             - Pair and Triple were changed to work in optimized and unoptimized mode.
-             - Ripple effect of the previous change.
-             - Documentation and specification of other classes.
-             Revision 1.1  2003/08/07 06:42:16  venku
-             Major:
-              - Moved the package under indus umbrella.
-              - Renamed isEmpty() to hasWork() in IWorkBag.
-             Revision 1.4  2003/05/22 22:18:31  venku
-             All the interfaces were renamed to start with an "I".
-             Optimizing changes related Strings were made.
+                   Revision 1.2  2003/08/11 04:20:19  venku
+                   - Pair and Triple were changed to work in optimized and unoptimized mode.
+                   - Ripple effect of the previous change.
+                   - Documentation and specification of other classes.
+                   Revision 1.1  2003/08/07 06:42:16  venku
+                   Major:
+                    - Moved the package under indus umbrella.
+                    - Renamed isEmpty() to hasWork() in IWorkBag.
+                   Revision 1.4  2003/05/22 22:18:31  venku
+                   All the interfaces were renamed to start with an "I".
+                   Optimizing changes related Strings were made.
  */

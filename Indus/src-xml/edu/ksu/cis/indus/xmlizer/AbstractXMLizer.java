@@ -34,105 +34,103 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides basic infrastructure required to xmlize information in Indus.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public abstract class AbstractXMLizer
-  extends SootBasedDriver {
+  extends SootBasedDriver implements IXMLizer {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if jimple should be dumped in XML form.
 	 */
 	protected boolean dumpXMLizedJimple;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the directory in which the file containing the xmlized data will be placed.
 	 */
 	private String xmlOutDir;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the xml id generator to be used in xml data generation.
 	 *
-	 * @param generator DOCUMENT ME!
+	 * @param generator generates the id used in xml data.
+	 *
+	 * @pre generator != null
 	 */
 	public final void setGenerator(final IJimpleIDGenerator generator) {
 		idGenerator = generator;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the xml id generator used by this object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the xml id generator.
 	 */
 	public final IJimpleIDGenerator getIdGenerator() {
 		return idGenerator;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the directory into which xml data should be dumped.
 	 *
-	 * @param xmlOutputDir DOCUMENT ME!
+	 * @param xmlOutputDir is the directory into which xml data should be dumped.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws IllegalArgumentException when the given directory does not exist or cannot be written into.
+	 *
+	 * @pre xmlOutputDir != null
 	 */
 	public final void setXMLOutputDir(final String xmlOutputDir) {
-		if (xmlOutputDir != null) {
-			File f = new File(xmlOutputDir);
+		final File _f = new File(xmlOutputDir);
 
-			if (f == null || !f.exists() | !f.canWrite()) {
-				throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
-			}
+		if (!_f.exists() | !_f.canWrite()) {
+			throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
 		}
 		xmlOutDir = xmlOutputDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the directory into which xml data will be dumped into.
 	 *
-	 * @return
+	 * @return the directory into which xml data will be dumped.
 	 */
 	public final String getXmlOutDir() {
 		return xmlOutDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Writes information in XML form.
+	 *
+	 * @param rootname is the name of the root method which may be used to create the file name ofthe file into which xml
+	 * 		  form should be dumped.
+	 * @param info is a map in which information required for xmlization will be provided.
+	 *
+	 * @pre rootname != null and info != null
 	 */
 	protected abstract void writeXML(final String rootname, final Map info);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Dumps the jimple into a file.  The name of the file is built from <code>rootname</code> and the parts of the jimple
+	 * that will be dumped is controlled by <code>xmlcgipc</code>.
 	 *
-	 * @param rootname DOCUMENT ME!
-	 * @param xmlcgipc DOCUMENT ME!
+	 * @param rootname is the name of the root method which is used to create the file name of the file into which jimple
+	 * 		  should be dumped.
+	 * @param xmlcgipc is the processing controller to be used to control the dumping operation.  The user can use this
+	 * 		  controller to control the methods and classes to be included in the dump.  This controller sholuld be able to
+	 * 		  have deterministic behavior over a given set of class files.
+	 *
+	 * @pre rootname != null and xmlcgipc != null
 	 */
 	protected final void dumpJimple(final String rootname, final ProcessingController xmlcgipc) {
 		if (dumpXMLizedJimple) {
@@ -149,8 +147,8 @@ public abstract class AbstractXMLizer
 				_t.unhook(xmlcgipc);
 				_writer.flush();
 				_writer.close();
-			} catch (IOException e) {
-				LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", e);
+			} catch (IOException _e) {
+				LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", _e);
 				System.exit(1);
 			}
 		}
@@ -162,28 +160,29 @@ public abstract class AbstractXMLizer
 	 * @param pc controls the processing activity.
 	 * @param processors is the collection of processors.
 	 *
+	 * @pre pc != null and processors != null
 	 * @pre processors.oclIsKindOf(Collection(IValueAnalyzerBasedProcessor))
 	 */
 	protected final void process(final ProcessingController pc, final Collection processors) {
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IProcessor) i.next();
+		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
+			final IProcessor _processor = (IProcessor) _i.next();
 
-			processor.hookup(pc);
+			_processor.hookup(pc);
 		}
 
 		writeInfo("BEGIN: FA post processing");
 
-		long start = System.currentTimeMillis();
+		final long _start = System.currentTimeMillis();
 		pc.process();
 
-		long stop = System.currentTimeMillis();
-		addTimeLog("FA post processing", stop - start);
+		final long _stop = System.currentTimeMillis();
+		addTimeLog("FA post processing", _stop - _start);
 		writeInfo("END: FA post processing");
 
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IProcessor) i.next();
+		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
+			final IProcessor _processor = (IProcessor) _i.next();
 
-			processor.unhook(pc);
+			_processor.unhook(pc);
 		}
 	}
 }
@@ -191,6 +190,8 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/09 10:20:49  venku
+   - formatting.
    Revision 1.3  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

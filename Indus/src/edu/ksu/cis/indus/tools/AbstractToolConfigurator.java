@@ -130,9 +130,8 @@ public abstract class AbstractToolConfigurator
 	 *
 	 * @pre toolConfiguration != null
 	 */
-	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
-	}
-
+	protected abstract void checkConfiguration(final IToolConfiguration toolConfiguration);
+    
 	/**
 	 * Setup the graphical parts of the configurator.  This will be called before the configurator is displayed.
 	 */
@@ -142,6 +141,10 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.6  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

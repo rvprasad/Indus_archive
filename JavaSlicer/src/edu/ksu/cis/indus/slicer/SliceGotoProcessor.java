@@ -35,9 +35,8 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class processes the given slice  to include goto statements such that it realizes the control as in the original
+ * program but as required in the slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -46,43 +45,38 @@ import soot.jimple.Stmt;
 public class SliceGotoProcessor
   implements IGotoProcessor {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The slice collector.
 	 */
 	private final TaggingBasedSliceCollector sliceCollector;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of basic blocks that contained atleast one statement that is tagged.
 	 */
 	private Collection taggedBB = new HashSet();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * A workbag.
 	 */
 	private final IWorkBag workBag = new LIFOWorkBag();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The method being processed.
 	 */
 	private SootMethod method;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the slice is a backward slice or a forward slice. <code>true</code> indicates backward slice and
+	 * <code>false</code> indicates forward slice.
 	 */
 	private final boolean backwardSlice;
 
 	/**
 	 * Creates a new SliceGotoProcessor object.
 	 *
-	 * @param collector DOCUMENT ME!
-	 * @param backward DOCUMENT ME!
+	 * @param collector collects the slice.
+	 * @param backward <code>true</code> indicates the slice is backward; <code>false</code>, otherwise.
+	 *
+	 * @pre collector != null
 	 */
 	public SliceGotoProcessor(final TaggingBasedSliceCollector collector, final boolean backward) {
 		sliceCollector = collector;
@@ -100,21 +94,21 @@ public class SliceGotoProcessor
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			_processed.add(_bb);
 
-			Stmt trailer;
-			Collection succs;
+			Stmt _trailer;
+			Collection _succs;
 
 			if (backwardSlice) {
-				trailer = _bb.getTrailerStmt();
-				succs = _bb.getSuccsOf();
+				_trailer = _bb.getTrailerStmt();
+				_succs = _bb.getSuccsOf();
 			} else {
-				trailer = _bb.getLeaderStmt();
-				succs = _bb.getPredsOf();
+				_trailer = _bb.getLeaderStmt();
+				_succs = _bb.getPredsOf();
 			}
 
-			if (!CollectionUtils.intersection(taggedBB, succs).isEmpty()
-				  && trailer.getTag(_tagName) == null
-				  && trailer instanceof GotoStmt) {
-				sliceCollector.collect(trailer);
+			if (!CollectionUtils.intersection(taggedBB, _succs).isEmpty()
+				  && _trailer.getTag(_tagName) == null
+				  && _trailer instanceof GotoStmt) {
+				sliceCollector.collect(_trailer);
 				sliceCollector.collect(method);
 				process(_bb);
 
@@ -138,7 +132,7 @@ public class SliceGotoProcessor
 	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(BasicBlock)
 	 */
 	public final void process(final BasicBlock bb) {
-		boolean tagged = false;
+		boolean _tagged = false;
 		final String _tagName = sliceCollector.getTagName();
 		final List _list = new ArrayList(bb.getStmtsOf());
 
@@ -150,9 +144,9 @@ public class SliceGotoProcessor
 			final Stmt _stmt = (Stmt) _i.next();
 
 			if (_stmt.getTag(_tagName) != null) {
-				tagged = true;
+				_tagged = true;
 				taggedBB.add(bb);
-			} else if (_stmt instanceof GotoStmt && tagged) {
+			} else if (_stmt instanceof GotoStmt && _tagged) {
 				sliceCollector.collect(_stmt);
 				sliceCollector.collect(method);
 			}
@@ -164,14 +158,15 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.6  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.5  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
-
    Revision 1.4  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.3  2003/12/02 09:42:18  venku

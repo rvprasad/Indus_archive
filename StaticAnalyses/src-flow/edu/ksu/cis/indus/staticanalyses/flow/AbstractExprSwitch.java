@@ -28,6 +28,7 @@ import soot.ValueBox;
 import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
+import soot.jimple.StmtSwitch;
 
 
 /**
@@ -52,11 +53,6 @@ public abstract class AbstractExprSwitch
 	private static final Log LOGGER = LogFactory.getLog(AbstractExprSwitch.class);
 
 	/**
-	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.
-	 */
-	protected final AbstractStmtSwitch stmtSwitch;
-
-	/**
 	 * This visitor works in the context given by <code>context</code>.
 	 */
 	protected final Context context;
@@ -78,13 +74,9 @@ public abstract class AbstractExprSwitch
 	protected final MethodVariant method;
 
 	/**
-	 * This stores the program points as expressions are recursively descended into and processed.
-	 *
-	 * @param stmtVisitor DOCUMENT ME!
-	 * @param connectorToUse DOCUMENT ME!
+	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.
 	 */
-
-	//private final Stack programPoints = new Stack();
+	protected final StmtSwitch stmtSwitch;
 
 	/**
 	 * Creates a new <code>AbstractExprSwitch</code> instance.
@@ -93,16 +85,16 @@ public abstract class AbstractExprSwitch
 	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding to
 	 * 		  AST and non-AST entities.
 	 *
-	 * @pre connectorToUse != null
+	 * @pre connectorToUse != null && stmtVisitor.oclIsKindOf(edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch)
 	 */
-	protected AbstractExprSwitch(final AbstractStmtSwitch stmtVisitor, final IFGNodeConnector connectorToUse) {
+	protected AbstractExprSwitch(final StmtSwitch stmtVisitor, final IFGNodeConnector connectorToUse) {
 		this.stmtSwitch = stmtVisitor;
 		this.connector = connectorToUse;
 
 		if (stmtSwitch != null) {
-			context = stmtSwitch.context;
-			method = stmtSwitch.method;
-			fa = stmtSwitch.method._fa;
+			context = ((AbstractStmtSwitch) stmtSwitch).context;
+			method = ((AbstractStmtSwitch) stmtSwitch).method;
+			fa = ((AbstractStmtSwitch) stmtSwitch).method._fa;
 		} else {
 			context = null;
 			method = null;
@@ -166,14 +158,14 @@ public abstract class AbstractExprSwitch
 	 *
 	 * @pre v != null
 	 */
-	public void process(final ValueBox v) {
+	public final void process(final ValueBox v) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Started to process expression: " + v.getValue());
 		}
 
-		ValueBox temp = context.setProgramPoint(v);
+		final ValueBox _temp = context.setProgramPoint(v);
 		v.getValue().apply(this);
-		context.setProgramPoint(temp);
+		context.setProgramPoint(_temp);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
@@ -184,6 +176,12 @@ public abstract class AbstractExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
    Revision 1.8  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

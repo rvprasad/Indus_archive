@@ -34,9 +34,11 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class generates unique id's for each part of the system represented as Jimple.  The most atomic parts are program
+ * points or <code>ValueBox</code> soot types. Given a system containing a set of classes, this generator will generate the
+ * different id's for the same class, method, field, local, statement, or program point over different runs. The user should
+ * use an external controller with deterministic traversal order to ensure that the id's for same entities are identical
+ * over different runs.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -45,30 +47,26 @@ import soot.jimple.Stmt;
 public final class UniqueJimpleIDGenerator
   implements IJimpleIDGenerator {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps classes to a sequence of fields that occur in it.  This is used to generate unique id.
+	 *
+	 * @invariant class2fields.oclIsKindOf(Map(SootClass, Sequence(SootField)))
 	 */
 	private final Map class2fields = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps methods to a sequence of locals that occur in it.  This is used to generate unique id.
+	 *
+	 * @invariant method2locals.oclIsKindOf(Map(SootMethod, Sequence(Local)))
 	 */
 	private final Map method2locals = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a sequence of classes.  This is used to generate unique id.
 	 */
 	private List classes = new ArrayList();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a cache variable.
 	 */
 	private List tempList = new ArrayList();
 
@@ -86,38 +84,38 @@ public final class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForField(soot.SootField)
 	 */
 	public String getIdForField(final SootField field) {
-		List fields = (List) class2fields.get(field.getDeclaringClass());
-		String result;
+		List _fields = (List) class2fields.get(field.getDeclaringClass());
+		String _result;
 
-		if (fields == null) {
-			fields = new ArrayList();
-			class2fields.put(field.getDeclaringClass(), fields);
+		if (_fields == null) {
+			_fields = new ArrayList();
+			class2fields.put(field.getDeclaringClass(), _fields);
 		}
 
-		if (!fields.contains(field)) {
-			fields.add(field);
+		if (!_fields.contains(field)) {
+			_fields.add(field);
 		}
-		result = getIdForClass(field.getDeclaringClass()) + "_f" + fields.indexOf(field);
-		return result;
+		_result = getIdForClass(field.getDeclaringClass()) + "_f" + _fields.indexOf(field);
+		return _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(soot.Local)
 	 */
 	public String getIdForLocal(final Local v, final SootMethod method) {
-		List locals = (List) method2locals.get(method);
-		String result;
+		List _locals = (List) method2locals.get(method);
+		String _result;
 
-		if (locals == null) {
-			locals = new ArrayList();
-			method2locals.put(method, locals);
+		if (_locals == null) {
+			_locals = new ArrayList();
+			method2locals.put(method, _locals);
 		}
 
-		if (!locals.contains(v)) {
-			locals.add(v);
+		if (!_locals.contains(v)) {
+			_locals.add(v);
 		}
-		result = getIdForMethod(method) + "_l" + locals.indexOf(v);
-		return result;
+		_result = getIdForMethod(method) + "_l" + _locals.indexOf(v);
+		return _result;
 	}
 
 	/**
@@ -132,46 +130,38 @@ public final class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForStmt(soot.jimple.Stmt)
 	 */
 	public String getIdForStmt(final Stmt stmt, final SootMethod method) {
-		String result = "?";
+		String _result = "?";
 
 		if (method.isConcrete()) {
 			final PatchingChain _c = method.getActiveBody().getUnits();
 			tempList.clear();
 			tempList.addAll(_c);
-			result = String.valueOf(tempList.indexOf(stmt));
+			_result = String.valueOf(tempList.indexOf(stmt));
 		}
-		return getIdForMethod(method) + "_s" + result;
+		return getIdForMethod(method) + "_s" + _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForType(soot.Type)
 	 */
 	public String getIdForType(final Type type) {
-		String result;
+		String _result;
 
 		if (type instanceof RefType) {
-			result = getIdForClass(((RefType) type).getSootClass());
+			_result = getIdForClass(((RefType) type).getSootClass());
 		} else if (type instanceof ArrayType) {
 			final ArrayType _arrayType = (ArrayType) type;
 			final StringBuffer _t = new StringBuffer(getIdForType(_arrayType.baseType));
 			_t.append(".." + _arrayType.numDimensions);
-			result = _t.toString();
+			_result = _t.toString();
 		} else {
-			result = type.toString().replaceAll("[\\[\\]]", "_.").replaceAll("\\p{Blank}", "");
+			_result = type.toString().replaceAll("[\\[\\]]", "_.").replaceAll("\\p{Blank}", "");
 		}
-		return result;
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param box DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForType(ValueBox, Stmt, SootMethod)
 	 */
 	public String getIdForValueBox(final ValueBox box, final Stmt stmt, final SootMethod method) {
 		final List _vBoxes = stmt.getUseAndDefBoxes();
@@ -179,9 +169,7 @@ public final class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Resets the internal data structures.
 	 */
 	public void reset() {
 		method2locals.clear();
@@ -193,6 +181,8 @@ public final class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 11:36:16  venku
+   - coding convention.
    Revision 1.7  2003/12/02 09:42:24  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

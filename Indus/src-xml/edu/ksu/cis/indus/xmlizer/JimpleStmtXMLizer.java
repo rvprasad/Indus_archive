@@ -40,320 +40,312 @@ import soot.jimple.ThrowStmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the logic to xmlize Jimple statements.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class StmtXMLizer
+final class JimpleStmtXMLizer
   extends AbstractStmtSwitch {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The xmlizer used to xmlize jimple <code>Value</code> types.
+	 *
+	 * @invariant valueXMLizer != null
 	 */
-	ValueXMLizer valueXMLizer;
+	JimpleValueXMLizer valueXMLizer;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides the id to be used during xmlization.
+	 *
+	 * @invariant idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Object newId;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the method whose statements are being processed.
 	 */
 	private SootMethod currMethod;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The writer used to write the xmlized data.
 	 */
 	private Writer out;
 
 	/**
-	 * Creates a new StmtXMLizer object.
+	 * Creates a new JimpleStmtXMLizer object.
 	 *
-	 * @param valueXML DOCUMENT ME!
-	 * @param generator DOCUMENT ME!
+	 * @param theValueXMLizer to be used for value xmlization.
+	 * @param generator to be used for id generation.
+	 *
+	 * @pre theValueXMLizer != null and generator != null
 	 */
-	StmtXMLizer(final ValueXMLizer valueXML, final IJimpleIDGenerator generator) {
-		valueXMLizer = valueXML;
+	JimpleStmtXMLizer(final JimpleValueXMLizer theValueXMLizer, final IJimpleIDGenerator generator) {
+		valueXMLizer = theValueXMLizer;
 		idGenerator = generator;
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
-	public final void caseAssignStmt(final AssignStmt v) {
+	public void caseAssignStmt(final AssignStmt v) {
 		try {
 			final boolean _notEmpty = !v.getBoxesPointingToThis().isEmpty();
-			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\" label=\"" + (_notEmpty) + "\">\n");
+			out.write("\t\t\t<assign_stmt  id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\"" + (_notEmpty)
+				+ "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
 			valueXMLizer.apply(v.getRightOpBox());
 			out.write("\t\t\t\t</rhs>\n");
 			out.write("\t\t\t</assign_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 	 */
-	public final void caseBreakpointStmt(final BreakpointStmt v) {
+	public void caseBreakpointStmt(final BreakpointStmt v) {
 		try {
-			out.write("\t\t\t<breakpoint_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
-				+ "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+			out.write("\t\t\t<breakpoint_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 	 */
-	public final void caseEnterMonitorStmt(final EnterMonitorStmt v) {
+	public void caseEnterMonitorStmt(final EnterMonitorStmt v) {
 		try {
-			out.write("\t\t\t<entermonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
-				+ "\">\n");
+			out.write("\t\t\t<entermonitor_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</entermonitor_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 	 */
-	public final void caseExitMonitorStmt(final ExitMonitorStmt v) {
+	public void caseExitMonitorStmt(final ExitMonitorStmt v) {
 		try {
-			out.write("\t\t\t<exitmonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
-				+ "\">\n");
+			out.write("\t\t\t<exitmonitor_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</exitmonitor_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 	 */
-	public final void caseGotoStmt(final GotoStmt v) {
+	public void caseGotoStmt(final GotoStmt v) {
 		try {
-			out.write("\t\t\t<goto_stmt id=\"" + newId + "\" target=\""
+			out.write("\t\t\t<goto_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" target=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\" label=\""
 				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
-	public final void caseIdentityStmt(final IdentityStmt v) {
+	public void caseIdentityStmt(final IdentityStmt v) {
 		try {
-			out.write("\t\t\t<identity_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
-				+ "\">\n");
+			out.write("\t\t\t<identity_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
 			valueXMLizer.apply(v.getRightOpBox());
 			out.write("\t\t\t\t</rhs>\n");
 			out.write("\t\t\t</identity_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 	 */
-	public final void caseIfStmt(final IfStmt v) {
+	public void caseIfStmt(final IfStmt v) {
 		try {
-			out.write("\t\t\t<if_stmt id=\"" + newId + "\" trueTargetId=\""
+			out.write("\t\t\t<if_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" trueTargetId=\""
 				+ idGenerator.getIdForStmt(v.getTarget(), currMethod) + "\" label=\""
 				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<condition>\n");
 			valueXMLizer.apply(v.getConditionBox());
 			out.write("\t\t\t\t</condition>\n");
 			out.write("\t\t\t</if_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 	 */
-	public final void caseInvokeStmt(final InvokeStmt v) {
+	public void caseInvokeStmt(final InvokeStmt v) {
 		try {
-			out.write("\t\t\t<invoke_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			out.write("\t\t\t<invoke_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getInvokeExprBox());
 			out.write("\t\t\t</invoke_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 	 */
-	public final void caseLookupSwitchStmt(final LookupSwitchStmt v) {
+	public void caseLookupSwitchStmt(final LookupSwitchStmt v) {
 		try {
-			out.write("\t\t\t<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
+			out.write("\t\t\t<lookupswitch_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
 				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
 			out.write("\t\t\t\t</key>\n");
 
-			for (int i = 0; i < v.getTargetCount(); i++) {
-				out.write("\t\t\t\t<case value=\"" + v.getLookupValue(i) + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>\n");
+			for (int _i = 0; _i < v.getTargetCount(); _i++) {
+				out.write("\t\t\t\t<case value=\"" + v.getLookupValue(_i) + "\" targetId=\""
+					+ idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod) + "\"/>\n");
 			}
 			out.write("\t\t\t</lookupswitch_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 	 */
-	public final void caseNopStmt(final NopStmt v) {
+	public void caseNopStmt(final NopStmt v) {
 		try {
-			out.write("\t\t\t<nop_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+			out.write("\t\t\t<nop_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 	 */
-	public final void caseRetStmt(final RetStmt v) {
+	public void caseRetStmt(final RetStmt v) {
 		try {
-			out.write("\t\t\t<ret_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			out.write("\t\t\t<ret_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getStmtAddressBox());
 			out.write("\t\t\t</ret_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 	 */
-	public final void caseReturnStmt(final ReturnStmt v) {
+	public void caseReturnStmt(final ReturnStmt v) {
 		try {
-			out.write("\t\t\t<return_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			out.write("\t\t\t<return_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</return_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 	 */
-	public final void caseReturnVoidStmt(final ReturnVoidStmt v) {
+	public void caseReturnVoidStmt(final ReturnVoidStmt v) {
 		try {
-			out.write("\t\t\t<returnvoid_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
-				+ "\"/>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+			out.write("\t\t\t<returnvoid_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 	 */
-	public final void caseTableSwitchStmt(final TableSwitchStmt v) {
+	public void caseTableSwitchStmt(final TableSwitchStmt v) {
 		try {
-			out.write("\t\t\t<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
+			out.write("\t\t\t<tableswitch_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
 				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
 			out.write("\t\t\t\t</key>\n");
 
-			for (int i = 0; i < v.getHighIndex() - v.getLowIndex(); i++) {
-				out.write("\t\t\t\t<case value=\"" + i + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>\n");
+			for (int _i = 0; _i < v.getHighIndex() - v.getLowIndex(); _i++) {
+				out.write("\t\t\t\t<case value=\"" + _i + "\" targetId=\""
+					+ idGenerator.getIdForStmt((Stmt) v.getTarget(_i), currMethod) + "\"/>\n");
 			}
 			out.write("\t\t\t</tableswitch_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 	 */
-	public final void caseThrowStmt(final ThrowStmt v) {
+	public void caseThrowStmt(final ThrowStmt v) {
 		try {
-			out.write("\t\t\t<throw_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			out.write("\t\t\t<throw_stmt id=\"" + idGenerator.getIdForStmt(v, currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</throw_stmt>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the method in whose statemetnts will be processed.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method containing the statements to be processed.
+	 *
+	 * @pre method != null
 	 */
-	final void setMethod(final SootMethod method) {
+	void setMethod(final SootMethod method) {
 		currMethod = method;
 		valueXMLizer.setMethod(method);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the stream into which xml data will be written into.
 	 *
-	 * @param stream DOCUMENT ME!
+	 * @param stream into which xml data will be written into.
+	 *
+	 * @pre stream != null
 	 */
-	final void setWriter(final Writer stream) {
+	void setWriter(final Writer stream) {
 		out = stream;
 		valueXMLizer.setWriter(stream);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the given statement.
 	 *
-	 * @param stmt DOCUMENT ME!
+	 * @param stmt is the statement to be processed.
 	 */
-	final void apply(final Stmt stmt) {
-		newId = idGenerator.getIdForStmt(stmt, currMethod);
+	void apply(final Stmt stmt) {
 		valueXMLizer.setStmt(stmt);
 		stmt.apply(this);
 	}
@@ -362,6 +354,8 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 11:36:16  venku
+   - coding convention.
    Revision 1.9  2003/12/02 09:42:24  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

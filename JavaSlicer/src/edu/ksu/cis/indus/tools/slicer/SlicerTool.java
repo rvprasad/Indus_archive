@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.structures.Pair;
@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
@@ -94,11 +95,11 @@ import soot.toolkits.graph.UnitGraph;
 public final class SlicerTool
   extends AbstractTool {
 	static {
-		Phase i = Phase.createPhase();
-		i.nextMajorPhase();
-		DEPENDENCE_MAJOR_PHASE = (Phase) i.clone();
-		i.nextMajorPhase();
-		SLICE_MAJOR_PHASE = (Phase) i.clone();
+		final Phase _i = Phase.createPhase();
+		_i.nextMajorPhase();
+		DEPENDENCE_MAJOR_PHASE = (Phase) _i.clone();
+		_i.nextMajorPhase();
+		SLICE_MAJOR_PHASE = (Phase) _i.clone();
 	}
 
 	/**
@@ -117,9 +118,9 @@ public final class SlicerTool
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
 	/**
-	 * This provides <code>UnitGraph</code>s for the analyses.
+	 * This is the indentation step to be used during stringization of the configuration.
 	 */
-	private final AbstractUnitGraphFactory unitGraphProvider;
+	private static final int INDENT = 4;
 
 	/**
 	 * This controls dependency analysis.
@@ -155,6 +156,11 @@ public final class SlicerTool
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	private final Collection rootMethods;
+
+	/**
+	 * This provides <code>UnitGraph</code>s for the analyses.
+	 */
+	private final IUnitGraphFactory unitGraphProvider;
 
 	/**
 	 * This provides object flow anlaysis.
@@ -197,9 +203,7 @@ public final class SlicerTool
 	private final SliceCriteriaFactory criteriaFactory;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides use-def information based on aliasing.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
@@ -209,9 +213,7 @@ public final class SlicerTool
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
 	private Init2NewExprMapper initMapper;
 
@@ -225,13 +227,13 @@ public final class SlicerTool
 		criteria = new HashSet();
 
 		// create the flow analysis.
-		String tagName = "SlicerTool:FA";
-		ofa = OFAnalyzer.getFSOSAnalyzer(tagName);
+		final String _tagName = "SlicerTool:FA";
+		ofa = OFAnalyzer.getFSOSAnalyzer(_tagName);
 
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
-		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 
 		// create the call graph.
 		callGraph = new CallGraph();
@@ -250,18 +252,18 @@ public final class SlicerTool
 		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
 
 		// set up data required for dependency analyses.
-		Map info = new HashMap();
+		final Map _info = new HashMap();
 		aliasUD = new AliasedUseDefInfo(ofa);
-		info.put(ICallGraphInfo.ID, callGraph);
-		info.put(IThreadGraphInfo.ID, threadGraph);
-		info.put(IEnvironment.ID, ofa.getEnvironment());
-		info.put(IUseDefInfo.ID, aliasUD);
-		info.put(Pair.PairManager.ID, new Pair.PairManager());
-		info.put(IValueAnalyzer.ID, ofa);
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		_info.put(ICallGraphInfo.ID, callGraph);
+		_info.put(IThreadGraphInfo.ID, threadGraph);
+		_info.put(IEnvironment.ID, ofa.getEnvironment());
+		_info.put(IUseDefInfo.ID, aliasUD);
+		_info.put(Pair.PairManager.ID, new Pair.PairManager());
+		_info.put(IValueAnalyzer.ID, ofa);
+		_info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// create dependency analyses controller 
-		daController = new AnalysesController(info, cgBasedPreProcessCtrl, unitGraphProvider);
+		daController = new AnalysesController(_info, cgBasedPreProcessCtrl, unitGraphProvider);
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
@@ -304,15 +306,15 @@ public final class SlicerTool
 	 * @post result != null and result.oclIsKindOf(Set(DependencyAnalysis))
 	 */
 	public Collection getDAs() {
-		Collection result = new LinkedHashSet();
-		SlicerConfiguration config = ((SlicerConfiguration) getActiveConfiguration());
-		List daNames = new ArrayList(config.getNamesOfDAsToUse());
-		Collections.sort(daNames);
+		final Collection _result = new LinkedHashSet();
+		final SlicerConfiguration _config = ((SlicerConfiguration) getActiveConfiguration());
+		final List _daNames = new ArrayList(_config.getNamesOfDAsToUse());
+		Collections.sort(_daNames);
 
-		for (Iterator i = daNames.iterator(); i.hasNext();) {
-			result.addAll(config.getDependenceAnalysis(i.next()));
+		for (final Iterator _i = _daNames.iterator(); _i.hasNext();) {
+			_result.addAll(_config.getDependenceAnalysis(_i.next()));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -371,11 +373,11 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the tag name to identify the slice.
 	 *
-	 * @param tagName DOCUMENT ME!
+	 * @param tagName of the slice.
+	 *
+	 * @pre tagName != null
 	 */
 	public void setTagName(final String tagName) {
 		engine.setTagName(tagName);
@@ -389,28 +391,28 @@ public final class SlicerTool
 	 * </p>
 	 */
 	public boolean destringizeConfiguration(final String stringizedForm) {
-		IBindingFactory bindingFactory;
-		IUnmarshallingContext unmarshallingContext;
-		boolean result = false;
+		IBindingFactory _bindingFactory;
+		IUnmarshallingContext _unmarshallingContext;
+		boolean _result = false;
 
 		try {
-			bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
-			unmarshallingContext = bindingFactory.createUnmarshallingContext();
-		} catch (JiBXException e) {
-			LOGGER.fatal("Error while setting up JiBX.  Aborting.", e);
-			throw new RuntimeException(e);
+			_bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
+			_unmarshallingContext = _bindingFactory.createUnmarshallingContext();
+		} catch (JiBXException _e) {
+			LOGGER.fatal("Error while setting up JiBX.  Aborting.", _e);
+			throw new RuntimeException(_e);
 		}
 
 		configurationInfo = null;
 
 		if (stringizedForm != null && stringizedForm.length() != 0) {
 			try {
-				StringReader reader = new StringReader(stringizedForm);
-				configurationInfo = (IToolConfiguration) unmarshallingContext.unmarshalDocument(reader, null);
-				result = true;
-			} catch (JiBXException e) {
+				final StringReader _reader = new StringReader(stringizedForm);
+				configurationInfo = (IToolConfiguration) _unmarshallingContext.unmarshalDocument(_reader, null);
+				_result = true;
+			} catch (JiBXException _e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
-					+ " configuration.", e);
+					+ " configuration.", _e);
 				configurationInfo = null;
 			}
 		}
@@ -421,7 +423,7 @@ public final class SlicerTool
 		configurator =
 			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
 				SlicerConfiguration.getFactory());
-		return result;
+		return _result;
 	}
 
 	/**
@@ -436,14 +438,14 @@ public final class SlicerTool
 	 */
 	public void execute(final Object phaseParam)
 	  throws InterruptedException {
-		Phase ph = phase;
+		Phase _ph = phase;
 
 		if (phaseParam != null && ((Phase) phaseParam).isEarlierThan(phase)) {
 			phase = (Phase) ((Phase) phaseParam).clone();
-			ph = phase;
+			_ph = phase;
 		}
 
-		if (ph.equalsMajor(Phase.STARTING_PHASE)) {
+		if (_ph.equalsMajor(Phase.STARTING_PHASE)) {
 			phase.reset();
 			// do the flow analyses
 			ofa.reset();
@@ -488,20 +490,20 @@ public final class SlicerTool
 
 		movingToNextPhase();
 
-		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
-		if (ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
+		if (_ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
 			// perform dependency analyses
 			daController.reset();
 
-			for (Iterator i = slicerConfig.getNamesOfDAsToUse().iterator(); i.hasNext();) {
-				Object id = i.next();
-				Collection c = slicerConfig.getDependenceAnalysis(id);
-				daController.setAnalyses(id, c);
+			for (final Iterator _i = _slicerConfig.getNamesOfDAsToUse().iterator(); _i.hasNext();) {
+				final Object _id = _i.next();
+				final Collection _c = _slicerConfig.getDependenceAnalysis(_id);
+				daController.setAnalyses(_id, _c);
 
-				for (Iterator iter = c.iterator(); iter.hasNext();) {
-					DependencyAnalysis da = (DependencyAnalysis) iter.next();
-					da.setBasicBlockGraphManager(bbgMgr);
+				for (final Iterator _iter = _c.iterator(); _iter.hasNext();) {
+					final DependencyAnalysis _da = (DependencyAnalysis) _iter.next();
+					_da.setBasicBlockGraphManager(bbgMgr);
 				}
 			}
 			daController.initialize();
@@ -511,21 +513,21 @@ public final class SlicerTool
 
 		movingToNextPhase();
 
-		if (ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
+		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
 			// perform slicing
 			engine.reset();
 
-			if (slicerConfig.sliceForDeadlock) {
+			if (_slicerConfig.sliceForDeadlock) {
 				populateDeadlockCriteria();
 			}
 
 			if (!criteria.isEmpty()) {
 				engine.setCgi(callGraph);
-				engine.setExecutableSlice(slicerConfig.executableSlice);
-				engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+				engine.setExecutableSlice(_slicerConfig.executableSlice);
+				engine.setSliceType(_slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
-				engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
+				engine.setAnalysesControllerAndDependenciesToUse(daController, _slicerConfig.getNamesOfDAsToUse());
 				engine.setSliceCriteria(criteria);
 				engine.initialize();
 				engine.slice();
@@ -546,9 +548,9 @@ public final class SlicerTool
 	public void initialize() {
 		configurationInfo = new CompositeToolConfiguration();
 
-		IToolConfiguration toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
-		toolConfig.initialize();
-		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
+		final IToolConfiguration _toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
+		_toolConfig.initialize();
+		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(_toolConfig);
 	}
 
 	/**
@@ -562,18 +564,18 @@ public final class SlicerTool
 	 * {@inheritDoc}
 	 */
 	public String stringizeConfiguration() {
-		StringWriter result = new StringWriter();
+		final StringWriter _result = new StringWriter();
 
 		try {
-			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
-			IMarshallingContext mctx = bfact.createMarshallingContext();
-			mctx.setIndent(4);
-			mctx.marshalDocument(configurationInfo, "UTF-8", null, result);
-		} catch (JiBXException e) {
+			final IBindingFactory _bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
+			final IMarshallingContext _marshallingContext = _bindingFactory.createMarshallingContext();
+			_marshallingContext.setIndent(INDENT);
+			_marshallingContext.marshalDocument(configurationInfo, "UTF-8", null, _result);
+		} catch (JiBXException _e) {
 			LOGGER.error("Error while marshalling Slicer configurationCollection.");
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
-		return result.toString();
+		return _result.toString();
 	}
 
 	/**
@@ -601,56 +603,56 @@ public final class SlicerTool
 	 * 		   interface.
 	 */
 	private void populateDeadlockCriteria() {
-		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		Collection das = slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
-		IMonitorInfo im = null;
+		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		final Collection _das = _slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		IMonitorInfo _im = null;
 
-		for (Iterator i = das.iterator(); i.hasNext();) {
-			Object o = i.next();
+		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
 
-			if (o instanceof IMonitorInfo) {
-				im = (IMonitorInfo) o;
+			if (_o instanceof IMonitorInfo) {
+				_im = (IMonitorInfo) _o;
 				break;
 			}
 		}
 
-		if (im == null) {
+		if (_im == null) {
 			throw new IllegalStateException(
 				"This implementation requires atleast one Synchronization dependence analysis to "
 				+ "implement IMonitorInfo interface.");
 		}
 
-		Collection temp = new HashSet();
+		final Collection _temp = new HashSet();
 
-		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
-			Triple mTriple = (Triple) i.next();
-			SootMethod method = (SootMethod) mTriple.getThird();
-			temp.clear();
+		for (final Iterator _i = _im.getMonitorTriples().iterator(); _i.hasNext();) {
+			final Triple _mTriple = (Triple) _i.next();
+			final SootMethod _method = (SootMethod) _mTriple.getThird();
+			_temp.clear();
 
-			if (mTriple.getFirst() == null) {
+			if (_mTriple.getFirst() == null) {
 				// add all return points (including throws) of the method as the criteria
-				UnitGraph graph = unitGraphProvider.getUnitGraph(method);
+				final UnitGraph _graph = unitGraphProvider.getUnitGraph(_method);
 
-				if (graph == null) {
+				if (_graph == null) {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Could not retrieve the unit graph for " + method.getSignature() + ".  Moving on.");
+						LOGGER.warn("Could not retrieve the unit graph for " + _method.getSignature() + ".  Moving on.");
 					}
 				} else {
-					for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
-						Stmt stmt = (Stmt) j.next();
-						temp.addAll(criteriaFactory.getCriterion(method, stmt));
+					for (final Iterator _j = _graph.getTails().iterator(); _j.hasNext();) {
+						final Stmt _stmt = (Stmt) _j.next();
+						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
 					}
 				}
 			} else {
-				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst()));
-				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond()));
+				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst()));
+				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond()));
 			}
 
-			for (Iterator k = temp.iterator(); k.hasNext();) {
-				AbstractSliceCriterion criterion = (AbstractSliceCriterion) k.next();
-				criterion.setConsiderExecution(true);
+			for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+				final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
+				((AbstractSliceCriterion) _criterion).setConsiderExecution(true);
 			}
-			criteria.addAll(temp);
+			criteria.addAll(_temp);
 		}
 	}
 }
@@ -658,19 +660,19 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.45  2003/12/08 12:20:48  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.44  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.43  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
-
    Revision 1.42  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

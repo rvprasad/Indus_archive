@@ -15,9 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
+import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.MutableDirectedGraph.MutableNode;
+import edu.ksu.cis.indus.common.graph.AbstractMutableDirectedGraph.AbstractMutableNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -324,7 +325,7 @@ public class CallGraph
 					java.util.List l = new ArrayList();
 
 					for (Iterator j = scc.iterator(); j.hasNext();) {
-						l.add(((SimpleNode) j.next())._object);
+						l.add(((SimpleNode) j.next()).getObject());
 					}
 					topDownSCC.add(l);
 				}
@@ -340,7 +341,7 @@ public class CallGraph
 					java.util.List l = new ArrayList();
 
 					for (Iterator j = scc.iterator(); j.hasNext();) {
-						l.add(((SimpleNode) j.next())._object);
+						l.add(((SimpleNode) j.next()).getObject());
 					}
 					bottomUpSCC.add(l);
 				}
@@ -502,7 +503,7 @@ public class CallGraph
 			if (temp != null) {
 				c.clear();
 
-				MutableNode callerNode = graphCache.getNode(sm);
+				INode callerNode = graphCache.getNode(sm);
 
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
@@ -613,7 +614,7 @@ public class CallGraph
 	 *
 	 * @return the cached copy of the call graph.
 	 */
-	final DirectedGraph getCallGraph() {
+	final IDirectedGraph getCallGraph() {
 		return graphCache;
 	}
 
@@ -670,6 +671,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.39  2003/12/08 13:29:48  venku
    - StringConstants were not considered at call-sites.  FIXED.
 
@@ -756,7 +761,7 @@ public class CallGraph
    Revision 1.12  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
     - Each Mutable graph extends this graph and exposes itself via
       suitable interface to restrict access.
     - Ripple effect of the above changes.

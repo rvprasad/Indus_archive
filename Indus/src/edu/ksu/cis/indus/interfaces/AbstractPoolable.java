@@ -28,7 +28,8 @@ import org.apache.commons.pool.ObjectPool;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractPoolable implements IPoolable {
+public abstract class AbstractPoolable
+  implements IPoolable {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -41,8 +42,6 @@ public abstract class AbstractPoolable implements IPoolable {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @throws IllegalArgumentException when <code>thePool</code> is <code>null</code>.
 	 */
 	public final void setPool(final ObjectPool thePool) {
 		if (thePool == null) {
@@ -60,11 +59,11 @@ public abstract class AbstractPoolable implements IPoolable {
 		if (pool != null) {
 			try {
 				pool.returnObject(this);
-			} catch (Exception e) {
+			} catch (Exception _e) {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("How can this happen?", e);
+					LOGGER.warn("How can this happen?", _e);
 				}
-				throw new RuntimeException(e);
+				throw new RuntimeException(_e);
 			}
 		}
 	}
@@ -73,8 +72,10 @@ public abstract class AbstractPoolable implements IPoolable {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/04 11:13:20  venku
+   - well, an abstract implementation of an interface
+     did not implement that interface!  FIXED.
    Revision 1.1  2003/12/04 09:45:29  venku
    - added interface and it's abstract implementation to
      support pooling of objects.
-
  */

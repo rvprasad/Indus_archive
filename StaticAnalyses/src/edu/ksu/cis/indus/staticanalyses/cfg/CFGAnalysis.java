@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.cfg;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -91,7 +91,7 @@ public class CFGAnalysis {
 	 *
 	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
 	 */
-	public final boolean occursInCycle(final DirectedGraph graph, final BasicBlock node) {
+	public final boolean occursInCycle(final IDirectedGraph graph, final BasicBlock node) {
 		return graph.isReachable(node, node, true);
 	}
 
@@ -185,6 +185,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.13  2003/12/08 12:19:47  venku
    - coding convention.
 

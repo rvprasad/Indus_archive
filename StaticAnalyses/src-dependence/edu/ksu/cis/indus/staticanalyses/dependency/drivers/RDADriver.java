@@ -24,12 +24,12 @@ import java.util.ArrayList;
 
 /**
  * This class drives ready dependency analyses.
- * 
- * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public final class RDADriver
   extends DADriver {
@@ -49,27 +49,24 @@ public final class RDADriver
 	 * @param args command line arguemnts.
 	 */
 	public static void main(final String[] args) {
-		(new RDADriver(args)).run();
-	}
-
-	/**
-	 * Initializes the collection of dependence analyses with the ready dependence analyses to be driven.
-	 */
-	protected void initialize() {
-		das = new ArrayList();
+		DADriver da = new RDADriver(args);
 
 		ReadyDAv1 rd = new ReadyDAv1();
-		das.add(rd);
+		da.das.add(rd);
 		rd = new ReadyDAv2();
-		das.add(rd);
+		da.das.add(rd);
 		rd = new ReadyDAv3();
-		das.add(rd);
+		da.das.add(rd);
+		da.execute();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.10  2003/11/07 12:00:04  venku
    - added driving code for ReadyDAv3.
    Revision 1.9  2003/09/28 03:16:48  venku

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.xmlizer;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -24,7 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
-import edu.ksu.cis.indus.xmlizer.*;
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
@@ -51,9 +52,7 @@ import soot.SootMethod;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class xmlizes call graphs.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -67,148 +66,143 @@ public class CallGraphXMLizer
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	protected IValueAnalyzer aa;
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * The entry point to the program via command line.
 	 *
-	 * @param s DOCUMENT ME!
+	 * @param args is the command line arguments.
 	 */
-	public static void main(String[] s) {
-		Options options = new Options();
-		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		option.setRequired(true);
-		option.setArgs(Option.UNLIMITED_VALUES);
-		option.setValueSeparator(' ');
-		options.addOption(option);
-		option =
+	public static void main(final String[] args) {
+		final Options _options = new Options();
+		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
+		_option.setRequired(true);
+		_option.setArgs(Option.UNLIMITED_VALUES);
+		_option.setValueSeparator(' ');
+		_options.addOption(_option);
+		_option =
 			new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
-		option.setArgs(1);
-		options.addOption(option);
-		option.setRequired(false);
-		option = new Option("j", "jimple", false, "Dump xmlized jimple.");
-		options.addOption(option);
+		_option.setArgs(1);
+		_options.addOption(_option);
+		_option.setRequired(false);
+		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
+		_options.addOption(_option);
 
-		PosixParser parser = new PosixParser();
+		final PosixParser _parser = new PosixParser();
 
 		try {
-			CommandLine cl = parser.parse(options, s);
-			CallGraphXMLizer xmlizer = new CallGraphXMLizer();
-			String outputDir = cl.getOptionValue('o');
+			final CommandLine _cl = _parser.parse(_options, args);
+			final CallGraphXMLizer _xmlizer = new CallGraphXMLizer();
+			String _outputDir = _cl.getOptionValue('o');
 
-			if (outputDir == null) {
+			if (_outputDir == null) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Defaulting to current directory for output.");
 				}
-				outputDir = ".";
+				_outputDir = ".";
 			}
 
-			xmlizer.dumpXMLizedJimple = cl.hasOption('j');
+			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
-			xmlizer.setXMLOutputDir(outputDir);
-			xmlizer.setClassNames(cl.getOptionValues('c'));
-			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
+			_xmlizer.setXMLOutputDir(_outputDir);
+			_xmlizer.setClassNames(_cl.getOptionValues('c'));
+			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-			xmlizer.initialize();
-			xmlizer.execute();
-		} catch (ParseException e) {
-			LOGGER.error("Error while parsing command line.", e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", options);
+			_xmlizer.initialize();
+			_xmlizer.execute();
+		} catch (ParseException _e) {
+			LOGGER.error("Error while parsing command line.", _e);
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes the call graph in XML.
 	 *
-	 * @param rootname
-	 * @param info
+	 * @param rootname is the name of the root method 
+	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
+     * @pre rootname != null and info != null
+     * @pre info.oclIsKindOf(Map(Object, Object))
+     * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
 	protected final void writeXML(final String rootname, final Map info) {
-		File f = new File(getXmlOutDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
-		FileWriter writer;
+		final File _f =
+			new File(getXmlOutDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+		final FileWriter _writer;
 
 		try {
-			writer = new FileWriter(f);
+			_writer = new FileWriter(_f);
 
-			ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-			writer.write("<callgraph>\n");
+			_writer.write("<callgraph>\n");
 
-			for (final Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
-				SootMethod caller = (SootMethod) i.next();
-				writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(caller) + "\">\n");
+			for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
+				final SootMethod _caller = (SootMethod) _i.next();
+				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
 
-				for (final Iterator j = cgi.getCallees(caller).iterator(); j.hasNext();) {
-					SootMethod callee = (SootMethod) j.next();
-					writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(callee) + "\">\n");
+				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
+					final SootMethod _callee = (SootMethod) _j.next();
+					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\">\n");
 				}
-				writer.write("\t</caller>\n");
+				_writer.write("\t</caller>\n");
 			}
-			writer.write("</callgraph>\n");
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			_writer.write("</callgraph>\n");
+			_writer.flush();
+			_writer.close();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Xmlize the given system.
 	 */
 	private void execute() {
 		setLogger(LOGGER);
 
-		String tagName = "CallGraphXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
+		final String _tagName = "CallGraphXMLizer:FA";
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
 
-		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
-		Collection processors = new ArrayList();
-		ICallGraphInfo cgi = new CallGraph();
-		Collection rm = new ArrayList();
-		ProcessingController xmlcgipc = new ProcessingController();
+		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
+		final Collection _processors = new ArrayList();
+		final ICallGraphInfo _cgi = new CallGraph();
+		final Collection _rm = new ArrayList();
+		final ProcessingController _xmlcgipc = new ProcessingController();
 
-		pc.setAnalyzer(aa);
-		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
-		xmlcgipc.setEnvironment(aa.getEnvironment());
-		xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+		_pc.setAnalyzer(_aa);
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
+		_xmlcgipc.setEnvironment(_aa.getEnvironment());
+		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
-		Map info = new HashMap();
-		info.put(ICallGraphInfo.ID, cgi);
+		final Map _info = new HashMap();
+		_info.put(ICallGraphInfo.ID, _cgi);
 
-		for (Iterator k = rootMethods.iterator(); k.hasNext();) {
-			rm.clear();
+		for (final Iterator _k = rootMethods.iterator(); _k.hasNext();) {
+			_rm.clear();
 
-			SootMethod root = (SootMethod) k.next();
-			rm.add(root);
+			final SootMethod _root = (SootMethod) _k.next();
+			_rm.add(_root);
 
-			String rootname = root.getSignature();
-			writeInfo("RootMethod: " + rootname);
+			final String _rootname = _root.getSignature();
+			writeInfo("RootMethod: " + _rootname);
 			writeInfo("BEGIN: FA");
 
-			long start = System.currentTimeMillis();
-			aa.reset();
+			final long _start = System.currentTimeMillis();
+			_aa.reset();
 			bbm.reset();
 
-			aa.analyze(scene, rm);
+			_aa.analyze(scene, _rm);
 
-			long stop = System.currentTimeMillis();
-			addTimeLog("FA", stop - start);
+			final long _stop = System.currentTimeMillis();
+			addTimeLog("FA", _stop - _start);
 			writeInfo("END: FA");
-			((CallGraph) cgi).reset();
-			processors.clear();
-			processors.add(cgi);
-			pc.reset();
-			process(pc, processors);
-			processors.clear();
-			dumpJimple(rootname, xmlcgipc);
-			writeXML(rootname, info);
+			((CallGraph) _cgi).reset();
+			_processors.clear();
+			_processors.add(_cgi);
+			_pc.reset();
+			process(_pc, _processors);
+			_processors.clear();
+			dumpJimple(_rootname, _xmlcgipc);
+			writeXML(_rootname, _info);
 		}
 	}
 }
@@ -216,11 +210,13 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
    Revision 1.2  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.1  2003/12/08 11:59:47  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.

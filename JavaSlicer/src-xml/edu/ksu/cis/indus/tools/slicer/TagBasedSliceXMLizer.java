@@ -15,7 +15,9 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.slicer.SlicingTag;
 
@@ -42,12 +44,16 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class TagBasedSliceXMLizer
-  extends AbstractSliceXMLizer {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
+final class TagBasedSliceXMLizer extends AbstractProcessor {
+    /**
+     * The logger used by instances of this class to log messages.
+     */
+    private static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
+
+    /**
+     * This is the file/stream into which the xml output will be written into.
+     */
+    protected final Writer writer;
 
 	/**
 	 * The name of the slice tag.
@@ -84,8 +90,8 @@ class TagBasedSliceXMLizer
 	 * @pre out != null and theTagName != null and generator != null
 	 */
 	public TagBasedSliceXMLizer(final Writer out, final String theTagName, final IJimpleIDGenerator generator) {
-		super(out);
-		tagName = theTagName;
+	    writer = out;
+        tagName = theTagName;
 		idGenerator = generator;
 		processingStmt = false;
 		processingMethod = false;
@@ -96,18 +102,18 @@ class TagBasedSliceXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.Value, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-		SootMethod method = context.getCurrentMethod();
-		Stmt stmt = context.getStmt();
+		final SootMethod _method = context.getCurrentMethod();
+		final Stmt _stmt = context.getStmt();
 
 		try {
-			SlicingTag tag = (SlicingTag) vBox.getTag(tagName);
+			final SlicingTag _tag = (SlicingTag) vBox.getTag(tagName);
 
-			if (tag != null) {
-				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValueBox(vBox, stmt, method) + "\"/>\n");
+			if (_tag != null) {
+				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValueBox(vBox, _stmt, _method) + "\"/>\n");
 			}
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing information about " + vBox + " occurring in " + stmt + " and "
-				+ method.getSignature(), e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while writing information about " + vBox + " occurring in " + _stmt + " and "
+				+ _method.getSignature(), _e);
 		}
 	}
 
@@ -115,7 +121,7 @@ class TagBasedSliceXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
-		SootMethod method = context.getCurrentMethod();
+		final SootMethod _method = context.getCurrentMethod();
 
 		try {
 			if (processingStmt) {
@@ -123,14 +129,14 @@ class TagBasedSliceXMLizer
 				processingStmt = false;
 			}
 
-			SlicingTag tag = (SlicingTag) stmt.getTag(tagName);
+			final SlicingTag _tag = (SlicingTag) stmt.getTag(tagName);
 
-			if (tag != null) {
-				writer.write("\t\t\t<stmt id=\"" + idGenerator.getIdForStmt(stmt, method) + "\">\n");
+			if (_tag != null) {
+				writer.write("\t\t\t<stmt id=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
 				processingStmt = true;
 			}
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing information about " + stmt + " occurring in " + method.getSignature(), e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while writing information about " + stmt + " occurring in " + _method.getSignature(), _e);
 		}
 	}
 
@@ -149,14 +155,14 @@ class TagBasedSliceXMLizer
 				processingMethod = false;
 			}
 
-			SlicingTag tag = (SlicingTag) method.getTag(tagName);
+			final SlicingTag _tag = (SlicingTag) method.getTag(tagName);
 
-			if (tag != null) {
+			if (_tag != null) {
 				writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
 				processingMethod = true;
 			}
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing xml information about " + method.getSignature(), e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while writing xml information about " + method.getSignature(), _e);
 		}
 	}
 
@@ -180,14 +186,14 @@ class TagBasedSliceXMLizer
 				processingClass = false;
 			}
 
-			SlicingTag tag = (SlicingTag) clazz.getTag(tagName);
+			final SlicingTag _tag = (SlicingTag) clazz.getTag(tagName);
 
-			if (tag != null) {
+			if (_tag != null) {
 				writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
 				processingClass = true;
 			}
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing xml information about " + clazz.getName(), e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while writing xml information about " + clazz.getName(), _e);
 		}
 	}
 
@@ -195,13 +201,13 @@ class TagBasedSliceXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
 	public void callback(final SootField field) {
-		SlicingTag tag = (SlicingTag) field.getTag(tagName);
+		final SlicingTag _tag = (SlicingTag) field.getTag(tagName);
 
-		if (tag != null) {
+		if (_tag != null) {
 			try {
 				writer.write("\t\t<field id=\"" + idGenerator.getIdForField(field) + "\"/>\n");
-			} catch (IOException e) {
-				LOGGER.error("Exception while writing xml information about " + field.getSignature(), e);
+			} catch (IOException _e) {
+				LOGGER.error("Exception while writing xml information about " + field.getSignature(), _e);
 			}
 		}
 	}
@@ -224,8 +230,8 @@ class TagBasedSliceXMLizer
 			}
 
 			writer.write("</system>\n");
-		} catch (IOException e) {
-			LOGGER.error("Exception while finishing up writing xml information.", e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while finishing up writing xml information.", _e);
 		}
 	}
 
@@ -235,15 +241,52 @@ class TagBasedSliceXMLizer
 	public void processingBegins() {
 		try {
 			writer.write("<system>\n");
-		} catch (IOException e) {
-			LOGGER.error("Exception while starting up writing xml information.", e);
+		} catch (IOException _e) {
+			LOGGER.error("Exception while starting up writing xml information.", _e);
 		}
 	}
+
+    /**
+     * Flushes and closes the associated stream.
+     */
+    public  void flush() {
+    	try {
+    		writer.flush();
+    		writer.close();
+    	} catch (IOException _e) {
+    		LOGGER.error("Exception while closing slice xmlization stream.", _e);
+    	}
+    }
+
+    /**
+     * Registers interests in all values, statements, and interfaces level entities.
+     *
+     * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
+     */
+    public  void hookup(final ProcessingController ppc) {
+    	ppc.registerForAllStmts(this);
+    	ppc.register(this);
+    	ppc.registerForAllValues(this);
+    }
+
+    /**
+     * Unregisters interests in all values, statements, and interfaces level entities.
+     *
+     * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
+     */
+    public  void unhook(final ProcessingController ppc) {
+    	ppc.unregisterForAllStmts(this);
+    	ppc.unregister(this);
+    	ppc.unregisterForAllValues(this);
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.12  2003/11/30 09:46:38  venku
    - coding conventions.
    Revision 1.11  2003/11/30 09:45:35  venku

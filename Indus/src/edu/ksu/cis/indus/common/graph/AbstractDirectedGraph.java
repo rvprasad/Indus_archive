@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.structures.Marker;
 import edu.ksu.cis.indus.common.structures.Pair;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,16 +31,16 @@ import java.util.Stack;
 
 
 /**
- * This class represents a directed graph in which nodes are represented by <code>INode</code> objects.  It is abstract for
- * the reason of extensibility.  The subclasses are responsible for maintaining the collection of nodes that make up this
- * graph. The nodes in the graph are to be ordered.  The subclasses can determine the ordering, but it needs to be fixed
- * over the lifetime of the graph.
+ * This class provides abstract implementation of <code>IDirectedGraph</code> in which nodes are represented by
+ * <code>INode</code> objects.   The subclasses are responsible for maintaining the collection of nodes that make up this
+ * graph.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public abstract class DirectedGraph {
+public abstract class AbstractDirectedGraph
+  implements IDirectedGraph {
 	/**
 	 * The set of nodes that constitute the head nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
@@ -105,49 +103,49 @@ public abstract class DirectedGraph {
 	 * @post graph.getNodes()->forall(o | result.keySet()->includes(o))
 	 */
 	public final Map getDAG() {
-		Map result = new HashMap();
-		Map srcdestBackEdges = Pair.mapify(getBackEdges(), true);
-		Map destsrcBackEdges = Pair.mapify(getBackEdges(), false);
+		final Map _result = new HashMap();
+		final Map _srcdestBackEdges = Pair.mapify(getBackEdges(), true);
+		final Map _destsrcBackEdges = Pair.mapify(getBackEdges(), false);
 
-		Collection succs = new HashSet();
-		Collection preds = new HashSet();
+		final Collection _succs = new HashSet();
+		final Collection _preds = new HashSet();
 
-		for (Iterator i = getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			Collection backSuccessors = (Collection) srcdestBackEdges.get(node);
-			succs.clear();
-			succs.addAll(node.getSuccsOf());
+		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			final Collection _backSuccessors = (Collection) _srcdestBackEdges.get(_node);
+			_succs.clear();
+			_succs.addAll(_node.getSuccsOf());
 
-			if (backSuccessors != null) {
-				succs.removeAll(backSuccessors);
+			if (_backSuccessors != null) {
+				_succs.removeAll(_backSuccessors);
 			}
 
-			Collection backPredecessors = (Collection) destsrcBackEdges.get(node);
-			preds.clear();
-			preds.addAll(node.getPredsOf());
+			final Collection _backPredecessors = (Collection) _destsrcBackEdges.get(_node);
+			_preds.clear();
+			_preds.addAll(_node.getPredsOf());
 
-			if (backPredecessors != null) {
-				preds.removeAll(backPredecessors);
+			if (_backPredecessors != null) {
+				_preds.removeAll(_backPredecessors);
 			}
 
-			Collection s;
-			Collection p;
+			Collection _s;
+			Collection _p;
 
-			if (succs.isEmpty()) {
-				s = Collections.EMPTY_LIST;
+			if (_succs.isEmpty()) {
+				_s = Collections.EMPTY_LIST;
 			} else {
-				s = new ArrayList(succs);
+				_s = new ArrayList(_succs);
 			}
 
-			if (preds.isEmpty()) {
-				p = Collections.EMPTY_LIST;
+			if (_preds.isEmpty()) {
+				_p = Collections.EMPTY_LIST;
 			} else {
-				p = new ArrayList(preds);
+				_p = new ArrayList(_preds);
 			}
 
-			result.put(node, new Pair(p, s));
+			_result.put(_node, new Pair(_p, _s));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -190,9 +188,9 @@ public abstract class DirectedGraph {
 			createSpanningForest();
 		}
 
-		int anc = getNodes().indexOf(ancestor);
-		int desc = getNodes().indexOf(descendent);
-		return prenums[anc] <= prenums[desc] && postnums[anc] >= postnums[desc];
+		final int _anc = getNodes().indexOf(ancestor);
+		final int _desc = getNodes().indexOf(descendent);
+		return prenums[_anc] <= prenums[_desc] && postnums[_anc] >= postnums[_desc];
 	}
 
 	/**
@@ -209,25 +207,25 @@ public abstract class DirectedGraph {
 	 * @pre src != null and dest != null and getNodes().contains(src) and getNodes().contains(dest)
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
-		boolean result = false;
-		Collection processed = new HashSet();
-		IWorkBag worklist = new LIFOWorkBag();
-		worklist.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
+		boolean _result = false;
+		final Collection _processed = new HashSet();
+		final IWorkBag _workbag = new LIFOWorkBag();
+		_workbag.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
 
-		while (worklist.hasWork()) {
-			INode node = (INode) worklist.getWork();
+		while (_workbag.hasWork()) {
+			final INode _node = (INode) _workbag.getWork();
 
-			if (node == dest) {
-				result = true;
+			if (_node == dest) {
+				_result = true;
 				break;
 			}
 
-			if (!processed.contains(node)) {
-				processed.add(node);
-				worklist.addAllWorkNoDuplicates(node.getSuccsNodesInDirection(forward));
+			if (!_processed.contains(_node)) {
+				_processed.add(_node);
+				_workbag.addAllWorkNoDuplicates(_node.getSuccsNodesInDirection(forward));
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -281,21 +279,28 @@ public abstract class DirectedGraph {
 			createSpanningForest();
 		}
 
-		List nodes = getNodes();
-		Collection temp = new ArrayList();
+		final List _nodes = getNodes();
+		final Collection _temp = new ArrayList();
 
-		for (Iterator i = backedges.iterator(); i.hasNext();) {
-			Pair edge = (Pair) i.next();
-			int descendent = nodes.indexOf(edge.getFirst());
-			int ancestor = nodes.indexOf(edge.getSecond());
+		for (final Iterator _i = backedges.iterator(); _i.hasNext();) {
+			final Pair _edge = (Pair) _i.next();
+			final int _descendent = _nodes.indexOf(_edge.getFirst());
+			final int _ancestor = _nodes.indexOf(_edge.getSecond());
 
-			if (prenums[ancestor] > prenums[descendent] || postnums[ancestor] < postnums[descendent]) {
-				temp.add(edge);
+			if (prenums[_ancestor] > prenums[_descendent] || postnums[_ancestor] < postnums[_descendent]) {
+				_temp.add(_edge);
 			}
 		}
-		backedges.removeAll(temp);
-		return backedges.isEmpty() ? Collections.EMPTY_LIST
-								   : Collections.unmodifiableCollection(backedges);
+		backedges.removeAll(_temp);
+
+		final Collection _result;
+
+		if (backedges.isEmpty()) {
+			_result = Collections.EMPTY_LIST;
+		} else {
+			_result = Collections.unmodifiableCollection(backedges);
+		}
+		return _result;
 	}
 
 	/**
@@ -308,59 +313,46 @@ public abstract class DirectedGraph {
 	 * @post result->forall(o | getNodes().containsAll(o))
 	 */
 	public final Collection getCycles() {
-		Collection result = new ArrayList();
-		IWorkBag wb = new LIFOWorkBag();
-		Stack dfsPath = new Stack();
+		Collection _result = new ArrayList();
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Stack _dfsPath = new Stack();
 
-		for (Iterator i = getNodes().iterator(); i.hasNext();) {
-			INode head = (INode) i.next();
-			wb.clear();
-			wb.addWork(head);
-			dfsPath.clear();
+		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
+			final INode _head = (INode) _i.next();
+			_wb.clear();
+			_wb.addWork(_head);
+			_dfsPath.clear();
 
-			while (wb.hasWork()) {
-				Object o = wb.getWork();
+			while (_wb.hasWork()) {
+				final Object _o = _wb.getWork();
 
-				if (o instanceof Marker) {
-					Object temp = ((Marker) o)._content;
-					Object obj = dfsPath.pop();
+				if (_o instanceof Marker) {
+					final Object _temp = ((Marker) _o).getContent();
+					Object _obj = _dfsPath.pop();
 
-					while (!temp.equals(obj)) {
-						obj = dfsPath.pop();
+					while (!_temp.equals(_obj)) {
+						_obj = _dfsPath.pop();
 					}
+				} else if (_dfsPath.contains(_o)) {
+					findCycle(_result, _dfsPath, (INode) _o);
 				} else {
-					INode node = (INode) o;
+					final INode _node = (INode) _o;
+					final Collection _succs = _node.getSuccsOf();
 
-					if (dfsPath.contains(node)) {
-						List temp = new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size()));
-						boolean flag = true;
-
-						for (Iterator j = result.iterator(); j.hasNext();) {
-							Collection cyc = (Collection) j.next();
-
-							if (cyc.containsAll(temp) && temp.containsAll(cyc)) {
-								flag = false;
-								break;
-							}
-						}
-
-						if (flag) {
-							result.add(temp);
-						}
-					} else {
-						Collection succs = node.getSuccsOf();
-
-						if (!succs.isEmpty()) {
-							dfsPath.push(node);
-							wb.addWork(new Marker(node));
-							wb.addAllWork(succs);
-						}
+					if (!_succs.isEmpty()) {
+						_dfsPath.push(_node);
+						_wb.addWork(new Marker(_node));
+						_wb.addAllWork(_succs);
 					}
 				}
 			}
 		}
-		return result.size() == 0 ? Collections.EMPTY_LIST
-								  : result;
+
+		if (_result.isEmpty()) {
+			_result = Collections.EMPTY_LIST;
+		}
+
+		return _result;
 	}
 
 	/**
@@ -375,79 +367,35 @@ public abstract class DirectedGraph {
 	 * @post result->forall(o | getNodes().containsAll(o))
 	 */
 	public final Collection getSCCs(final boolean topDown) {
-		Collection result;
-		List nodes = getNodes();
-		Map finishTime2node = new HashMap();
-		Collection processed = new HashSet();
-		int time = 0;
+		final Collection _result;
+		final List _nodes = getNodes();
+		final Map _finishTime2node = new HashMap();
+		final Collection _processed = new HashSet();
+		int _time = 0;
 
-		for (Iterator i = nodes.iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
+		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
 
-			if (!processed.contains(node)) {
-				time = getFinishTimes(nodes, node, processed, finishTime2node, time, true);
+			if (!_processed.contains(_node)) {
+				_time = getFinishTimes(_nodes, _node, _processed, _finishTime2node, _time, true);
 			}
 		}
 
-		List c = new ArrayList();
-		c.addAll(finishTime2node.keySet());
-		Collections.sort(c);
-		Collections.reverse(c);
-
-		Map node2finishTime = new HashMap();
-
-		for (Iterator i = c.iterator(); i.hasNext();) {
-			Object element = i.next();
-			node2finishTime.put(finishTime2node.get(element), element);
-		}
-		processed.clear();
-
-		Stack stack = new Stack();
-		Map fn2scc = new HashMap();
-
-		for (Iterator i = c.iterator(); i.hasNext() && !processed.containsAll(nodes);) {
-			Integer fn = (Integer) i.next();
-			INode node = (INode) finishTime2node.get(fn);
-
-			if (processed.contains(node)) {
-				continue;
-			}
-			stack.push(node);
-
-			List scc = new ArrayList();
-
-			while (!stack.isEmpty()) {
-				node = (INode) stack.pop();
-
-				if (processed.contains(node)) {
-					continue;
-				}
-
-				Integer temp = (Integer) node2finishTime.get(node);
-
-				if (temp.intValue() > fn.intValue()) {
-					fn = temp;
-				}
-				scc.add(node);
-				processed.add(node);
-				stack.addAll(node.getPredsOf());
-			}
-			fn2scc.put(fn, scc);
-		}
-		c.clear();
-		c.addAll(fn2scc.keySet());
-		Collections.sort(c);
+		final Map _fn2scc = constructSCCs(_finishTime2node);
+		final List _finishTimes = new ArrayList();
+		_finishTimes.addAll(_fn2scc.keySet());
+		Collections.sort(_finishTimes);
 
 		if (topDown) {
-			Collections.reverse(c);
+			Collections.reverse(_finishTimes);
 		}
 
-		result = new ArrayList();
+		_result = new ArrayList();
 
-		for (Iterator i = c.iterator(); i.hasNext();) {
-			result.add(fn2scc.get(i.next()));
+		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext();) {
+			_result.add(_fn2scc.get(_i.next()));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -461,28 +409,28 @@ public abstract class DirectedGraph {
 	 * @post result != null and result.oclIsKindOf(Sequence(INode)) and getNodes().containsAll(result)
 	 */
 	public final List performTopologicalSort(final boolean topdown) {
-		List result;
-		List nodes = getNodes();
-		Map finishTime2node = new HashMap();
-		Collection processed = new HashSet();
-		int time = 0;
+		List _result;
+		final List _nodes = getNodes();
+		final Map _finishTime2node = new HashMap();
+		final Collection _processed = new HashSet();
+		int _time = 0;
 
-		for (Iterator i = nodes.iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
+		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
 
-			if (!processed.contains(node)) {
-				time = getFinishTimes(nodes, node, processed, finishTime2node, time, topdown);
+			if (!_processed.contains(_node)) {
+				_time = getFinishTimes(_nodes, _node, _processed, _finishTime2node, _time, topdown);
 			}
 		}
 
-		List temp = new ArrayList(finishTime2node.keySet());
-		Collections.sort(temp);
-		result = new ArrayList();
+		final List _temp = new ArrayList(_finishTime2node.keySet());
+		Collections.sort(_temp);
+		_result = new ArrayList();
 
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			result.add(0, finishTime2node.get(i.next()));
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			_result.add(0, _finishTime2node.get(_i.next()));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -503,21 +451,79 @@ public abstract class DirectedGraph {
 		final int time, final boolean forward) {
 		processed.add(node);
 
-		int temp = time;
-		temp++;
+		int _temp = time;
+		_temp++;
 
-		Iterator i = node.getSuccsNodesInDirection(forward).iterator();
+		for (final Iterator _i = node.getSuccsNodesInDirection(forward).iterator(); _i.hasNext();) {
+			final INode _succ = (INode) _i.next();
 
-		for (; i.hasNext();) {
-			INode succ = (INode) i.next();
-
-			if (processed.contains(succ) || !nodes.contains(succ)) {
+			if (processed.contains(_succ) || !nodes.contains(_succ)) {
 				continue;
 			}
-			temp = getFinishTimes(nodes, succ, processed, finishTime2node, temp, forward);
+			_temp = getFinishTimes(nodes, _succ, processed, finishTime2node, _temp, forward);
 		}
-		finishTime2node.put(new Integer(++temp), node);
-		return temp;
+		finishTime2node.put(new Integer(++_temp), node);
+		return _temp;
+	}
+
+	/**
+	 * Constructs the SCCS from the given information.
+	 *
+	 * @param finishTime2Node maps the finish time to nodes in the graph.
+	 *
+	 * @return a map from finish time to SCC.
+	 *
+	 * @pre finishTime2Node != null
+	 * @pre finishTime2Node.oclIsKindOf(Map(Integer, INode))
+	 * @post result != null and result.oclIsKindOf(Map(Integer, Sequence(INode)))
+	 */
+	private Map constructSCCs(final Map finishTime2Node) {
+		final Stack _stack = new Stack();
+		final Map _fn2scc = new HashMap();
+		final Collection _processed = new HashSet();
+		final List _finishTimes = new ArrayList();
+		final Collection _nodesInGraph = getNodes();
+		_finishTimes.addAll(finishTime2Node.keySet());
+		Collections.sort(_finishTimes);
+		Collections.reverse(_finishTimes);
+
+		final Map _node2finishTime = new HashMap();
+
+		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext();) {
+			final Object _element = _i.next();
+			_node2finishTime.put(finishTime2Node.get(_element), _element);
+		}
+
+		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext() && !_processed.containsAll(_nodesInGraph);) {
+			Integer _fn = (Integer) _i.next();
+			INode _node = (INode) finishTime2Node.get(_fn);
+
+			if (_processed.contains(_node)) {
+				continue;
+			}
+			_stack.push(_node);
+
+			final List _scc = new ArrayList();
+
+			while (!_stack.isEmpty()) {
+				_node = (INode) _stack.pop();
+
+				if (_processed.contains(_node)) {
+					continue;
+				}
+
+				final Integer _temp = (Integer) _node2finishTime.get(_node);
+
+				if (_temp.intValue() > _fn.intValue()) {
+					_fn = _temp;
+				}
+				_scc.add(_node);
+				_processed.add(_node);
+				_stack.addAll(_node.getPredsOf());
+			}
+			_fn2scc.put(_fn, _scc);
+		}
+		return _fn2scc;
 	}
 
 	/**
@@ -525,8 +531,8 @@ public abstract class DirectedGraph {
 	 *
 	 * @post hasSpanningForest = true
 	 */
-	private final void createSpanningForest() {
-		Collection reached = new HashSet();
+	private void createSpanningForest() {
+		final Collection _reached = new HashSet();
 
 		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap();
@@ -534,80 +540,132 @@ public abstract class DirectedGraph {
 			spanningSuccs.clear();
 		}
 
-		IWorkBag order = new LIFOWorkBag();
-		List nodes = getNodes();
+		final IWorkBag _order = new LIFOWorkBag();
+		final List _nodes = getNodes();
 
 		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here. 
 		if (getHeads().isEmpty()) {
-			order.addAllWork(nodes);
+			_order.addAllWork(_nodes);
 		} else {
-			order.addAllWork(getHeads());
+			_order.addAllWork(getHeads());
 		}
 
-		Collection processed = new ArrayList();
-		int prenum = 0;
-		int postnum = 0;
-		prenums = new int[nodes.size()];
-		postnums = new int[nodes.size()];
+		final Collection _processed = new ArrayList();
+		int _prenum = 0;
+		int _postnum = 0;
+		prenums = new int[_nodes.size()];
+		postnums = new int[_nodes.size()];
 		backedges.clear();
 
-		while (order.hasWork()) {
-			Object work = order.getWork();
+		while (_order.hasWork()) {
+			final Object _work = _order.getWork();
 
-			if (work instanceof Marker) {
-				INode node = (INode) ((Marker) work)._content;
-				postnums[nodes.indexOf(node)] = ++postnum;
-			} else {
-				INode node = (INode) work;
-
+			if (_work instanceof Marker) {
+				final INode _node = (INode) ((Marker) _work).getContent();
+				postnums[_nodes.indexOf(_node)] = ++_postnum;
+			} else if (!_processed.contains(_work)) {
 				// we do not want to process nodes that are already processed.
-				if (!processed.contains(node)) {
-					Collection temp = new HashSet();
-					spanningSuccs.put(node, temp);
-					processed.add(node);
-					order.addWork(new Marker(node));
-					prenums[nodes.indexOf(node)] = ++prenum;
+				final INode _node = (INode) _work;
+				prenums[_nodes.indexOf(_node)] = ++_prenum;
+				_processed.add(_node);
 
-					boolean flag = true;
-
-					for (Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
-						INode succ = (INode) j.next();
-
-						// record only those successors which have not been visited via other nodes. 
-						if (!reached.contains(succ) && !processed.contains(succ)) {
-							temp.add(succ);
-							reached.add(succ);
-							order.addWork(succ);
-							flag = false;
-						} else {
-							backedges.add(new Pair(node, succ, false));
-						}
-					}
-
-					if (flag) {
-						postnums[nodes.indexOf(node)] = ++postnum;
-						order.getWork();
-					}
-				}
+				_postnum = processNodeForSpanningTree(_reached, _order, _processed, _postnum, _node);
 			}
 		}
 
 		hasSpanningForest = true;
+	}
+
+	/**
+	 * Finds a cycle if it exists and starts from the given node.
+	 *
+	 * @param cycles is the collection of cycles that will be updated if a new cycle is found.
+	 * @param dfsPath is the path in the dfs which needs to be checked for cycles.
+	 * @param node which may start a cycle.
+	 *
+	 * @pre cycles != null and dfsPath != null and node != null
+	 * @post cycles.containsAll(cycles$pre)
+	 * @post dfsPath.containsAll(dfsPath$pre) and dfsPath$pre.containsAll(dfsPath)
+	 */
+	private void findCycle(final Collection cycles, final Stack dfsPath, final INode node) {
+		final List _temp = new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size()));
+		boolean _flag = true;
+
+		for (final Iterator _j = cycles.iterator(); _j.hasNext();) {
+			final Collection _cycle = (Collection) _j.next();
+
+			if (_cycle.containsAll(_temp) && _temp.containsAll(_cycle)) {
+				_flag = false;
+				break;
+			}
+		}
+
+		if (_flag) {
+			cycles.add(_temp);
+		}
+	}
+
+	/**
+	 * Processes the given node while creating a spanning tree.
+	 *
+	 * @param reachedNodes is the collection of nodes already visited or reached.
+	 * @param workBag is the work bag that needs to be updates during processing.
+	 * @param processedNodes is the collection of nodes already processed while creating the spanning tree.
+	 * @param currPostNumber is the post number is the seeding post number for processing.
+	 * @param nodeToProcess is the node to be processed.
+	 *
+	 * @return the post number of the last node visited during processing.
+	 *
+	 * @pre reachedNodes != null and workBag != null and processedNodes != null and currPostNumber != null and nodeToProcess
+	 * 		!= null
+	 * @post processedNodes.containsAll(processedNodes$pre)
+     * @post reachedNodes.containsAll(reachedNodes$pre)
+     * @post processedNodes.containsAll(processedNodes$pre)
+	 */
+	private int processNodeForSpanningTree(final Collection reachedNodes, final IWorkBag workBag,
+		final Collection processedNodes, final int currPostNumber, final INode nodeToProcess) {
+		final Collection _temp = new HashSet();
+		int _postnum = currPostNumber;
+		boolean _flag = true;
+
+		spanningSuccs.put(nodeToProcess, _temp);
+		workBag.addWork(new Marker(nodeToProcess));
+
+		for (final Iterator _j = nodeToProcess.getSuccsOf().iterator(); _j.hasNext();) {
+			final INode _succ = (INode) _j.next();
+
+			// record only those successors which have not been visited via other nodes. 
+			if (!reachedNodes.contains(_succ) && !processedNodes.contains(_succ)) {
+				_temp.add(_succ);
+				reachedNodes.add(_succ);
+				workBag.addWork(_succ);
+				_flag = false;
+			} else {
+				backedges.add(new Pair(nodeToProcess, _succ, false));
+			}
+		}
+
+		if (_flag) {
+			postnums[getNodes().indexOf(nodeToProcess)] = ++_postnum;
+			workBag.getWork();
+		}
+		return _postnum;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.14  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.13  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.12  2003/11/05 09:27:48  venku

@@ -69,32 +69,34 @@ public final class SlicerConfigurator
 	 * {@inheritDoc} This method should be called after <code>setConfiguration</code> has been invoked on this object.
 	 */
 	protected void setup() {
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		parent.setLayout(gridLayout);
+		final GridLayout _gridLayout = new GridLayout();
+		_gridLayout.numColumns = 2;
+		parent.setLayout(_gridLayout);
 
-		final SlicerConfiguration CFG = (SlicerConfiguration) configuration;
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Slice-for-deadlock button
-		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		gridData.horizontalSpan = 1;
+		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData.horizontalSpan = 1;
 
-		Button button = new Button(parent, SWT.CHECK);
-		button.setText("Slice for Deadlock");
-		button.setLayoutData(gridData);
-		button.setSelection(CFG.sliceForDeadlock);
+		Button _button = new Button(parent, SWT.CHECK);
+		_button.setText("Slice for Deadlock");
+		_button.setLayoutData(_gridData);
+		_button.setSelection(_cfg.sliceForDeadlock);
 
-		SelectionListener sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, button, CFG);
-		button.addSelectionListener(sl);
+		SelectionListener _sl =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg);
+		_button.addSelectionListener(_sl);
 
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		gridData.horizontalSpan = 1;
+		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData.horizontalSpan = 1;
 
-		button = new Button(parent, SWT.CHECK);
-		button.setText("Executable slice");
-		button.setLayoutData(gridData);
-		button.setSelection(CFG.sliceForDeadlock);
-		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, button, CFG));
+		_button = new Button(parent, SWT.CHECK);
+		_button.setText("Executable slice");
+		_button.setLayoutData(_gridData);
+		_button.setSelection(_cfg.sliceForDeadlock);
+        _sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _button, _cfg);
+		_button.addSelectionListener(_sl);
 
 		setupRow2();
 		setupRow3();
@@ -106,44 +108,44 @@ public final class SlicerConfigurator
 	 * Sets up row 2 corresponding to Slice type and Interference DA in the configurator composite.
 	 */
 	private void setupRow2() {
-		final SlicerConfiguration CFG = (SlicerConfiguration) configuration;
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Slice type related group
-		Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		group.setText("Slice Type");
+		Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Slice Type");
 
-		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		gridData.horizontalSpan = 1;
-		group.setLayoutData(gridData);
+		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		_gridData.horizontalSpan = 1;
+		_group.setLayoutData(_gridData);
 
-		RowLayout rowLayout = new RowLayout();
-		rowLayout.type = SWT.VERTICAL;
-		group.setLayout(rowLayout);
+		RowLayout _rowLayout = new RowLayout();
+		_rowLayout.type = SWT.VERTICAL;
+		_group.setLayout(_rowLayout);
 
-		final Button BW_SLICE = new Button(group, SWT.RADIO);
-		BW_SLICE.setText("Backward slice");
+		final Button _backwardSlice = new Button(_group, SWT.RADIO);
+		_backwardSlice.setText("Backward slice");
 
-		final Button FW_SLICE = new Button(group, SWT.RADIO);
-		FW_SLICE.setText("Forward slice");
+		final Button _forwardSlice = new Button(_group, SWT.RADIO);
+		_forwardSlice.setText("Forward slice");
 
-		final Button CMPLT_SLICE = new Button(group, SWT.RADIO);
-		CMPLT_SLICE.setText("Complete slice");
+		final Button _completeSlice = new Button(_group, SWT.RADIO);
+		_completeSlice.setText("Complete slice");
 
-		SelectionListener sl =
+		SelectionListener _sl =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					Object value = null;
+					Object _value = null;
 
-					if (evt.widget == BW_SLICE) {
-						value = SlicingEngine.BACKWARD_SLICE;
-					} else if (evt.widget == CMPLT_SLICE) {
-						value = SlicingEngine.COMPLETE_SLICE;
-					} else if (evt.widget == FW_SLICE) {
-						value = SlicingEngine.FORWARD_SLICE;
+					if (evt.widget == _backwardSlice) {
+						_value = SlicingEngine.BACKWARD_SLICE;
+					} else if (evt.widget == _completeSlice) {
+						_value = SlicingEngine.COMPLETE_SLICE;
+					} else if (evt.widget == _forwardSlice) {
+						_value = SlicingEngine.FORWARD_SLICE;
 					}
 
-					if (value != null) {
-						CFG.setProperty(SlicerConfiguration.SLICE_TYPE, value);
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.SLICE_TYPE, _value);
 					}
 				}
 
@@ -151,53 +153,53 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		BW_SLICE.addSelectionListener(sl);
-		CMPLT_SLICE.addSelectionListener(sl);
-		FW_SLICE.addSelectionListener(sl);
+		_backwardSlice.addSelectionListener(_sl);
+		_completeSlice.addSelectionListener(_sl);
+		_forwardSlice.addSelectionListener(_sl);
 
-		Object temp = CFG.getSliceType();
+		Object _temp = _cfg.getSliceType();
 
-		if (temp.equals(SlicingEngine.BACKWARD_SLICE)) {
-			BW_SLICE.setSelection(true);
-		} else if (temp.equals(SlicingEngine.COMPLETE_SLICE)) {
-			CMPLT_SLICE.setSelection(true);
-		} else if (temp.equals(SlicingEngine.FORWARD_SLICE)) {
-			FW_SLICE.setSelection(true);
+		if (_temp.equals(SlicingEngine.BACKWARD_SLICE)) {
+			_backwardSlice.setSelection(true);
+		} else if (_temp.equals(SlicingEngine.COMPLETE_SLICE)) {
+			_completeSlice.setSelection(true);
+		} else if (_temp.equals(SlicingEngine.FORWARD_SLICE)) {
+			_forwardSlice.setSelection(true);
 		}
 
 		// Interference dependence related group
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.horizontalSpan = 1;
-		group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		group.setText("Precision of Interference dependence");
-		group.setLayoutData(gridData);
-		rowLayout = new RowLayout();
-		rowLayout.type = SWT.VERTICAL;
-		group.setLayout(rowLayout);
+		_gridData = new GridData(GridData.FILL_HORIZONTAL);
+		_gridData.horizontalSpan = 1;
+		_group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Precision of Interference dependence");
+		_group.setLayoutData(_gridData);
+		_rowLayout = new RowLayout();
+		_rowLayout.type = SWT.VERTICAL;
+		_group.setLayout(_rowLayout);
 
-		final Button TYPED_IDA = new Button(group, SWT.RADIO);
-		TYPED_IDA.setText("use type-based analysis");
+		final Button _typedIDA = new Button(_group, SWT.RADIO);
+		_typedIDA.setText("use type-based analysis");
 
-		final Button EQUIV_IDA = new Button(group, SWT.RADIO);
-		EQUIV_IDA.setText("use equivalence class-based analysis");
+		final Button _equivalenceClassEscapeAnalysisBasedIDA = new Button(_group, SWT.RADIO);
+		_equivalenceClassEscapeAnalysisBasedIDA.setText("use equivalence class-based analysis");
 
-		final Button SYMBOL_IDA = new Button(group, SWT.RADIO);
-		SYMBOL_IDA.setText("use sybmol and equivalence class-based analysis");
+		final Button _symbolBasedEscapeAnalysisBasedIDA = new Button(_group, SWT.RADIO);
+		_symbolBasedEscapeAnalysisBasedIDA.setText("use sybmol and equivalence class-based analysis");
 
-		sl = new SelectionListener() {
+		_sl = new SelectionListener() {
 					public void widgetSelected(final SelectionEvent evt) {
-						Object value = null;
+						Object _value = null;
 
-						if (evt.widget == EQUIV_IDA) {
-							value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
-						} else if (evt.widget == SYMBOL_IDA) {
-							value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
-						} else if (evt.widget == TYPED_IDA) {
-							value = SlicerConfiguration.TYPE_BASED_INFO;
+						if (evt.widget == _equivalenceClassEscapeAnalysisBasedIDA) {
+							_value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
+						} else if (evt.widget == _symbolBasedEscapeAnalysisBasedIDA) {
+							_value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
+						} else if (evt.widget == _typedIDA) {
+							_value = SlicerConfiguration.TYPE_BASED_INFO;
 						}
 
-						if (value != null) {
-							CFG.setProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA, value);
+						if (_value != null) {
+							_cfg.setProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA, _value);
 						}
 					}
 
@@ -205,18 +207,18 @@ public final class SlicerConfigurator
 						widgetSelected(evt);
 					}
 				};
-		EQUIV_IDA.addSelectionListener(sl);
-		SYMBOL_IDA.addSelectionListener(sl);
-		TYPED_IDA.addSelectionListener(sl);
+		_equivalenceClassEscapeAnalysisBasedIDA.addSelectionListener(_sl);
+		_symbolBasedEscapeAnalysisBasedIDA.addSelectionListener(_sl);
+		_typedIDA.addSelectionListener(_sl);
 
-		temp = CFG.getProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA);
+		_temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA);
 
-		if (temp == null || temp.equals(SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
-			SYMBOL_IDA.setSelection(true);
-		} else if (temp.equals(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO)) {
-			EQUIV_IDA.setSelection(true);
-		} else if (temp.equals(SlicerConfiguration.TYPE_BASED_INFO)) {
-			TYPED_IDA.setSelection(true);
+		if (_temp == null || _temp.equals(SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
+			_symbolBasedEscapeAnalysisBasedIDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO)) {
+			_equivalenceClassEscapeAnalysisBasedIDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.TYPE_BASED_INFO)) {
+			_typedIDA.setSelection(true);
 		}
 	}
 
@@ -224,45 +226,45 @@ public final class SlicerConfigurator
 	 * Sets up row 3 corresponding to Divergence DA in the configurator composite.
 	 */
 	private void setupRow3() {
-		final SlicerConfiguration CFG = (SlicerConfiguration) configuration;
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Divergence dependence related group
-		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
-		gridData.horizontalSpan = 2;
+		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
+		_gridData.horizontalSpan = 2;
 
-		Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		group.setText("Divergence dependence");
-		group.setLayoutData(gridData);
+		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Divergence dependence");
+		_group.setLayoutData(_gridData);
 
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		group.setLayout(gridLayout);
+		final GridLayout _gridLayout = new GridLayout();
+		_gridLayout.numColumns = 2;
+		_group.setLayout(_gridLayout);
 
-		final Button USE_DDA_BUTTON = new Button(group, SWT.CHECK);
-		USE_DDA_BUTTON.setText("use divergence dependence");
-		USE_DDA_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
-		USE_DDA_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
-				USE_DDA_BUTTON, CFG));
+		final Button _useDDAButton = new Button(_group, SWT.CHECK);
+		_useDDAButton.setText("use divergence dependence");
+		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
+		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
+				_useDDAButton, _cfg));
 
-		final Button DIVDA_IP_BUTTON = new Button(group, SWT.CHECK);
-		DIVDA_IP_BUTTON.setText("use interprocedural variant");
+		final Button _interProceduralDivergenceDAButton = new Button(_group, SWT.CHECK);
+		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
 
-		if (USE_DDA_BUTTON.getSelection()) {
-			DIVDA_IP_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA))
-				  .booleanValue());
+		if (_useDDAButton.getSelection()) {
+			_interProceduralDivergenceDAButton.setSelection(((Boolean) _cfg.getProperty(
+					SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA)).booleanValue());
 		} else {
-			DIVDA_IP_BUTTON.setEnabled(false);
+			_interProceduralDivergenceDAButton.setEnabled(false);
 		}
-		DIVDA_IP_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(
+		_interProceduralDivergenceDAButton.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
-				DIVDA_IP_BUTTON,
-				CFG));
-		USE_DDA_BUTTON.addSelectionListener(new SelectionListener() {
+				_interProceduralDivergenceDAButton,
+				_cfg));
+		_useDDAButton.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					if (USE_DDA_BUTTON.getSelection()) {
-						DIVDA_IP_BUTTON.setEnabled(true);
+					if (_useDDAButton.getSelection()) {
+						_interProceduralDivergenceDAButton.setEnabled(true);
 					} else {
-						DIVDA_IP_BUTTON.setEnabled(false);
+						_interProceduralDivergenceDAButton.setEnabled(false);
 					}
 				}
 
@@ -276,54 +278,54 @@ public final class SlicerConfigurator
 	 * Sets up row 4 corresponding to Ready DA in the configurator composite.
 	 */
 	private void setupRow4() {
-		final SlicerConfiguration CFG = (SlicerConfiguration) configuration;
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Ready dependence related group
-		Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		group.setText("Ready dependence");
+		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Ready dependence");
 
-		GridData twoSpanHorzFill = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		twoSpanHorzFill.horizontalSpan = 2;
-		group.setLayoutData(twoSpanHorzFill);
+		GridData _twoSpanHorzFill = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		_twoSpanHorzFill.horizontalSpan = 2;
+		_group.setLayoutData(_twoSpanHorzFill);
 
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		group.setLayout(gridLayout);
+		GridLayout _gridLayout = new GridLayout();
+		_gridLayout.numColumns = 2;
+		_group.setLayout(_gridLayout);
 
-		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.horizontalSpan = 2;
+		GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
+		_gridData.horizontalSpan = 2;
 
-		final Group RDA_NATURE_GROUP = new Group(group, SWT.SHADOW_ETCHED_IN);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		RDA_NATURE_GROUP.setLayout(gridLayout);
-		RDA_NATURE_GROUP.setText("Precision of Ready dependence");
-		RDA_NATURE_GROUP.setLayoutData(gridData);
+		final Group _natureOfRDAGroup = new Group(_group, SWT.SHADOW_ETCHED_IN);
+		_gridLayout = new GridLayout();
+		_gridLayout.numColumns = 1;
+		_natureOfRDAGroup.setLayout(_gridLayout);
+		_natureOfRDAGroup.setText("Precision of Ready dependence");
+		_natureOfRDAGroup.setLayoutData(_gridData);
 
-		final Button TYPED_RDA = new Button(RDA_NATURE_GROUP, SWT.RADIO);
-		TYPED_RDA.setText("use type-based analysis");
+		final Button _typedRDA = new Button(_natureOfRDAGroup, SWT.RADIO);
+		_typedRDA.setText("use type-based analysis");
 
-		final Button EQUIV_RDA = new Button(RDA_NATURE_GROUP, SWT.RADIO);
-		EQUIV_RDA.setText("use equivalence class-based analysis");
+		final Button _equivalenceClassBasedEscapceAnalysisBasedRDA = new Button(_natureOfRDAGroup, SWT.RADIO);
+		_equivalenceClassBasedEscapceAnalysisBasedRDA.setText("use equivalence class-based analysis");
 
-		final Button SYMBOL_RDA = new Button(RDA_NATURE_GROUP, SWT.RADIO);
-		SYMBOL_RDA.setText("use sybmol and equivalence class-based analysis");
+		final Button _symbolBasedEscapeAnalysisBasedRDA = new Button(_natureOfRDAGroup, SWT.RADIO);
+		_symbolBasedEscapeAnalysisBasedRDA.setText("use sybmol and equivalence class-based analysis");
 
-		SelectionListener sl =
+		SelectionListener _sl =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					Object value = null;
+					Object _value = null;
 
-					if (evt.widget == EQUIV_RDA) {
-						value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
-					} else if (evt.widget == SYMBOL_RDA) {
-						value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
-					} else if (evt.widget == TYPED_RDA) {
-						value = SlicerConfiguration.TYPE_BASED_INFO;
+					if (evt.widget == _equivalenceClassBasedEscapceAnalysisBasedRDA) {
+						_value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
+					} else if (evt.widget == _symbolBasedEscapeAnalysisBasedRDA) {
+						_value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
+					} else if (evt.widget == _typedRDA) {
+						_value = SlicerConfiguration.TYPE_BASED_INFO;
 					}
 
-					if (value != null) {
-						CFG.setProperty(SlicerConfiguration.NATURE_OF_READY_DA, value);
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.NATURE_OF_READY_DA, _value);
 					}
 				}
 
@@ -331,71 +333,71 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		EQUIV_RDA.addSelectionListener(sl);
-		SYMBOL_RDA.addSelectionListener(sl);
-		TYPED_RDA.addSelectionListener(sl);
+		_equivalenceClassBasedEscapceAnalysisBasedRDA.addSelectionListener(_sl);
+		_symbolBasedEscapeAnalysisBasedRDA.addSelectionListener(_sl);
+		_typedRDA.addSelectionListener(_sl);
 
-		Object temp = CFG.getProperty(SlicerConfiguration.NATURE_OF_READY_DA);
+		final Object _temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_READY_DA);
 
-		if (temp == null || temp.equals(SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
-			SYMBOL_RDA.setSelection(true);
-		} else if (temp.equals(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO)) {
-			EQUIV_RDA.setSelection(true);
-		} else if (temp.equals(SlicerConfiguration.TYPE_BASED_INFO)) {
-			TYPED_RDA.setSelection(true);
+		if (_temp == null || _temp.equals(SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
+			_symbolBasedEscapeAnalysisBasedRDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO)) {
+			_equivalenceClassBasedEscapceAnalysisBasedRDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.TYPE_BASED_INFO)) {
+			_typedRDA.setSelection(true);
 		}
 
-		Composite readyComposite = new Composite(group, SWT.NONE);
-		twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
-		twoSpanHorzFill.horizontalSpan = 2;
-		readyComposite.setLayoutData(twoSpanHorzFill);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		readyComposite.setLayout(gridLayout);
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gridData.horizontalSpan = 2;
-		readyComposite.setLayoutData(gridData);
+		final Composite _readyComposite = new Composite(_group, SWT.NONE);
+		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
+		_twoSpanHorzFill.horizontalSpan = 2;
+		_readyComposite.setLayoutData(_twoSpanHorzFill);
+		_gridLayout = new GridLayout();
+		_gridLayout.numColumns = 2;
+		_readyComposite.setLayout(_gridLayout);
+		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		_gridData.horizontalSpan = 2;
+		_readyComposite.setLayoutData(_gridData);
 
-		final Button USE_RDA_BUTTON = new Button(readyComposite, SWT.CHECK);
-		USE_RDA_BUTTON.setText("use ready dependence");
-		USE_RDA_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
-		USE_RDA_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
-				USE_RDA_BUTTON, CFG));
+		final Button _useRDAButton = new Button(_readyComposite, SWT.CHECK);
+		_useRDAButton.setText("use ready dependence");
+		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
+		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
+				_useRDAButton, _cfg));
 
-		final Button RDA_R1_BUTTON = new Button(readyComposite, SWT.CHECK);
-		RDA_R1_BUTTON.setText("use rule 1 of ready dependence");
-		RDA_R1_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R1_BUTTON, CFG));
+		final Button _rule1RDAButton = new Button(_readyComposite, SWT.CHECK);
+		_rule1RDAButton.setText("use rule 1 of ready dependence");
+		_rule1RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
+				_rule1RDAButton, _cfg));
 
-		final Button RDA_R2_BUTTON = new Button(readyComposite, SWT.CHECK);
-		RDA_R2_BUTTON.setText("use rule 2 of ready dependence");
-		RDA_R2_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R2_BUTTON, CFG));
+		final Button _rule2RDAButton = new Button(_readyComposite, SWT.CHECK);
+		_rule2RDAButton.setText("use rule 2 of ready dependence");
+		_rule2RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
+				_rule2RDAButton, _cfg));
 
-		final Button RDA_R3_BUTTON = new Button(readyComposite, SWT.CHECK);
-		RDA_R3_BUTTON.setText("use rule 3 of ready dependence");
-		RDA_R3_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R3_BUTTON, CFG));
+		final Button _rule3RDAButton = new Button(_readyComposite, SWT.CHECK);
+		_rule3RDAButton.setText("use rule 3 of ready dependence");
+		_rule3RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
+				_rule3RDAButton, _cfg));
 
-		final Button RDA_R4_BUTTON = new Button(readyComposite, SWT.CHECK);
-		RDA_R4_BUTTON.setText("use rule 4 of ready dependence");
-		RDA_R4_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R4_BUTTON, CFG));
-		USE_RDA_BUTTON.addSelectionListener(new SelectionListener() {
+		final Button _rule4RDAButton = new Button(_readyComposite, SWT.CHECK);
+		_rule4RDAButton.setText("use rule 4 of ready dependence");
+		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
+				_rule4RDAButton, _cfg));
+		_useRDAButton.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					boolean val = false;
+					boolean _val = false;
 
-					if (USE_RDA_BUTTON.getSelection()) {
-						val = true;
+					if (_useRDAButton.getSelection()) {
+						_val = true;
 					}
-					RDA_NATURE_GROUP.setEnabled(val);
-					EQUIV_RDA.setEnabled(val);
-					TYPED_RDA.setEnabled(val);
-					SYMBOL_RDA.setEnabled(val);
-					RDA_R1_BUTTON.setEnabled(val);
-					RDA_R2_BUTTON.setEnabled(val);
-					RDA_R3_BUTTON.setEnabled(val);
-					RDA_R4_BUTTON.setEnabled(val);
+					_natureOfRDAGroup.setEnabled(_val);
+					_equivalenceClassBasedEscapceAnalysisBasedRDA.setEnabled(_val);
+					_typedRDA.setEnabled(_val);
+					_symbolBasedEscapeAnalysisBasedRDA.setEnabled(_val);
+					_rule1RDAButton.setEnabled(_val);
+					_rule2RDAButton.setEnabled(_val);
+					_rule3RDAButton.setEnabled(_val);
+					_rule4RDAButton.setEnabled(_val);
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -403,24 +405,29 @@ public final class SlicerConfigurator
 				}
 			});
 
-		if (USE_RDA_BUTTON.getSelection()) {
-			RDA_NATURE_GROUP.setEnabled(true);
-			TYPED_RDA.setEnabled(true);
-			EQUIV_RDA.setEnabled(true);
-			SYMBOL_RDA.setEnabled(true);
-			RDA_R1_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-			RDA_R2_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-			RDA_R3_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
-			RDA_R4_BUTTON.setSelection(((Boolean) CFG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
+		if (_useRDAButton.getSelection()) {
+			_natureOfRDAGroup.setEnabled(true);
+			_typedRDA.setEnabled(true);
+			_equivalenceClassBasedEscapceAnalysisBasedRDA.setEnabled(true);
+			_symbolBasedEscapeAnalysisBasedRDA.setEnabled(true);
+
+			Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA);
+			_rule1RDAButton.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE2_IN_READYDA);
+			_rule2RDAButton.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE3_IN_READYDA);
+			_rule3RDAButton.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE4_IN_READYDA);
+			_rule4RDAButton.setSelection(_bool.booleanValue());
 		} else {
-			RDA_NATURE_GROUP.setEnabled(false);
-			TYPED_RDA.setEnabled(false);
-			EQUIV_RDA.setEnabled(false);
-			SYMBOL_RDA.setEnabled(false);
-			RDA_R1_BUTTON.setEnabled(false);
-			RDA_R2_BUTTON.setEnabled(false);
-			RDA_R3_BUTTON.setEnabled(false);
-			RDA_R4_BUTTON.setEnabled(false);
+			_natureOfRDAGroup.setEnabled(false);
+			_typedRDA.setEnabled(false);
+			_equivalenceClassBasedEscapceAnalysisBasedRDA.setEnabled(false);
+			_symbolBasedEscapeAnalysisBasedRDA.setEnabled(false);
+			_rule1RDAButton.setEnabled(false);
+			_rule2RDAButton.setEnabled(false);
+			_rule3RDAButton.setEnabled(false);
+			_rule4RDAButton.setEnabled(false);
 		}
 	}
 }
@@ -428,6 +435,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/02 11:32:01  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
    Revision 1.18  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -142,7 +142,7 @@ public class Triple
 		 *
 		 * @post result != null
 		 */
-		public final Triple getOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
+		public Triple getOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
 			return getTriple(firstParam, secondParam, thirdParam, true);
 		}
 
@@ -157,14 +157,14 @@ public class Triple
 		 *
 		 * @post result != null
 		 */
-		public final Triple getUnOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
+		public Triple getUnOptimizedTriple(final Object firstParam, final Object secondParam, final Object thirdParam) {
 			return getTriple(firstParam, secondParam, thirdParam, true);
 		}
 
 		/**
 		 * Forgets about all managed triples.
 		 */
-		public final void reset() {
+		public void reset() {
 			triples.clear();
 		}
 
@@ -182,19 +182,19 @@ public class Triple
 		 *
 		 * @post result != null
 		 */
-		private final Triple getTriple(final Object firstParam, final Object secondParam, final Object thirdParam,
+		private Triple getTriple(final Object firstParam, final Object secondParam, final Object thirdParam,
 			final boolean optimized) {
-			Triple result;
+			Triple _result;
 			triple.first = firstParam;
 			triple.second = secondParam;
 
 			if (triples.contains(triple)) {
-				result = (Triple) triples.get(triples.indexOf(triple));
+				_result = (Triple) triples.get(triples.indexOf(triple));
 			} else {
-				result = new Triple(firstParam, secondParam, thirdParam, optimized);
-				triples.add(0, result);
+				_result = new Triple(firstParam, secondParam, thirdParam, optimized);
+				triples.add(0, _result);
 			}
-			return result;
+			return _result;
 		}
 	}
 
@@ -247,35 +247,23 @@ public class Triple
 	 * @post result == true implies o.oclTypeOf(Triple) and (o.first.equals(first) or o.first == first) and
 	 * 		 (o.second.equals(second) or o.second == second) and (o.third.equals(third) or o.third == third)
 	 */
-	public final boolean equals(final Object o) {
-		boolean result = false;
+	public boolean equals(final Object o) {
+		boolean _result = false;
 
 		if (o != null && o instanceof Triple) {
-			Triple temp = (Triple) o;
+			final Triple _temp = (Triple) o;
 
-			if (first != null) {
-				result = first.equals(temp.first);
-			} else {
-				result = first == temp.first;
+			_result = first == _temp.first || first.equals(_temp.first);
+
+			if (_result) {
+				_result = second == _temp.second || second.equals(_temp.second);
 			}
 
-			if (result) {
-				if (second != null) {
-					result = result && second.equals(temp.second);
-				} else {
-					result = result && second == temp.second;
-				}
-
-				if (result) {
-					if (third != null) {
-						result = result && third.equals(temp.third);
-					} else {
-						result = result && third == temp.third;
-					}
-				}
+			if (_result) {
+				_result = third == _temp.third || third.equals(_temp.third);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -284,15 +272,15 @@ public class Triple
 	 *
 	 * @return the hash code of this triple.
 	 */
-	public final int hashCode() {
-		int result;
+	public int hashCode() {
+		int _result;
 
 		if (str == null) {
-			result = hash();
+			_result = hash();
 		} else {
-			result = hashCode;
+			_result = hashCode;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -313,14 +301,14 @@ public class Triple
 	 * @return stringified representation of this object.
 	 */
 	public final String toString() {
-		String result;
+		String _result;
 
 		if (str == null) {
-			result = stringize();
+			_result = stringize();
 		} else {
-			result = str;
+			_result = str;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -338,21 +326,21 @@ public class Triple
 	 *
 	 * @return the hashcode of this object.
 	 */
-	protected int hash() {
-		int result = 17;
+	protected final int hash() {
+		int _result = 17;
 
 		if (first != null) {
-			result = 37 * result + first.hashCode();
+			_result = 37 * _result + first.hashCode();
 		}
 
 		if (second != null) {
-			result = 37 * result + second.hashCode();
+			_result = 37 * _result + second.hashCode();
 		}
 
 		if (third != null) {
-			result = 37 * result + third.hashCode();
+			_result = 37 * _result + third.hashCode();
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -368,15 +356,16 @@ public class Triple
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.7  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.6  2003/09/28 03:16:20  venku
@@ -391,12 +380,12 @@ public class Triple
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-         Revision 1.2  2003/08/11 04:20:19  venku
-         - Pair and Triple were changed to work in optimized and unoptimized mode.
-         - Ripple effect of the previous change.
-         - Documentation and specification of other classes.
-         Revision 1.1  2003/08/07 06:42:16  venku
-         Major:
-          - Moved the package under indus umbrella.
-          - Renamed isEmpty() to hasWork() in IWorkBag.
+             Revision 1.2  2003/08/11 04:20:19  venku
+             - Pair and Triple were changed to work in optimized and unoptimized mode.
+             - Ripple effect of the previous change.
+             - Documentation and specification of other classes.
+             Revision 1.1  2003/08/07 06:42:16  venku
+             Major:
+              - Moved the package under indus umbrella.
+              - Renamed isEmpty() to hasWork() in IWorkBag.
  */

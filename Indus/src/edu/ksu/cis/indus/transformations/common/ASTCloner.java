@@ -81,7 +81,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @author $Author$
  * @version $Revision$
  */
-public class ASTCloner
+public final class ASTCloner
   extends AbstractJimpleValueSwitch
   implements StmtSwitch {
 	/**
@@ -194,9 +194,9 @@ public class ASTCloner
 	public void caseArrayRef(final ArrayRef v) {
 		v.getBase().apply(this);
 
-		Value base = cloneValue;
+		final Value _base = cloneValue;
 		v.getIndex().apply(this);
-		cloneValue = JIMPLE.newArrayRef(base, cloneValue);
+		cloneValue = JIMPLE.newArrayRef(_base, cloneValue);
 	}
 
 	/**
@@ -211,11 +211,11 @@ public class ASTCloner
 	public void caseAssignStmt(final AssignStmt stmt) {
 		stmt.getLeftOp().apply(this);
 
-		Value left = cloneValue;
+		final Value _left = cloneValue;
 		stmt.getRightOp().apply(this);
 
-		Value right = cloneValue;
-		cloneStmt = JIMPLE.newAssignStmt(left, right);
+		final Value _right = cloneValue;
+		cloneStmt = JIMPLE.newAssignStmt(_left, _right);
 	}
 
 	/**
@@ -339,11 +339,11 @@ public class ASTCloner
 	public void caseIdentityStmt(final IdentityStmt stmt) {
 		stmt.getLeftOp().apply(this);
 
-		Value left = cloneValue;
+		final Value _left = cloneValue;
 		stmt.getRightOp().apply(this);
 
-		Value right = cloneValue;
-		cloneStmt = JIMPLE.newIdentityStmt(left, right);
+		final Value _right = cloneValue;
+		cloneStmt = JIMPLE.newIdentityStmt(_left, _right);
 	}
 
 	/**
@@ -408,8 +408,8 @@ public class ASTCloner
 	public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 		v.getBase().apply(this);
 
-		Local base = (Local) cloneValue;
-		cloneValue = JIMPLE.newInterfaceInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		final Local _base = (Local) cloneValue;
+		cloneValue = JIMPLE.newInterfaceInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -474,14 +474,14 @@ public class ASTCloner
 	public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 		stmt.getKey().apply(this);
 
-		List temp = new ArrayList();
+		final List _temp = new ArrayList();
 
-		for (Iterator i = stmt.getLookupValues().iterator(); i.hasNext();) {
-			Value v = (Value) i.next();
-			v.apply(this);
-			temp.add(cloneValue);
+		for (final Iterator _i = stmt.getLookupValues().iterator(); _i.hasNext();) {
+			final Value _v = (Value) _i.next();
+			_v.apply(this);
+			_temp.add(cloneValue);
 		}
-		cloneStmt = JIMPLE.newLookupSwitchStmt(cloneValue, temp, stmt.getTargets(), stmt.getDefaultTarget());
+		cloneStmt = JIMPLE.newLookupSwitchStmt(cloneValue, _temp, stmt.getTargets(), stmt.getDefaultTarget());
 	}
 
 	/**
@@ -521,13 +521,13 @@ public class ASTCloner
 	 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 	 */
 	public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
-		List sizes = new ArrayList();
+		final List _sizes = new ArrayList();
 
-		for (int i = sizes.size() - 1; i >= 0; i--) {
-			v.getSize(i).apply(this);
-			sizes.add(i, cloneValue);
+		for (int _i = _sizes.size() - 1; _i >= 0; _i--) {
+			v.getSize(_i).apply(this);
+			_sizes.add(_i, cloneValue);
 		}
-		cloneValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), sizes);
+		cloneValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), _sizes);
 	}
 
 	/**
@@ -622,8 +622,8 @@ public class ASTCloner
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 		v.getBase().apply(this);
 
-		Local base = (Local) cloneValue;
-		cloneValue = JIMPLE.newSpecialInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		final Local _base = (Local) cloneValue;
+		cloneValue = JIMPLE.newSpecialInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -721,8 +721,8 @@ public class ASTCloner
 	public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
 		v.getBase().apply(this);
 
-		Local base = (Local) cloneValue;
-		cloneValue = JIMPLE.newVirtualInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		final Local _base = (Local) cloneValue;
+		cloneValue = JIMPLE.newVirtualInvokeExpr(_base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -772,19 +772,23 @@ public class ASTCloner
 	 * @post v.getArgs()->forall(o | result->at(v.getArgs().indexOf(o)).oclIsKindOf(o.evaluationType()))
 	 */
 	private List getArgs(final InvokeExpr v) {
-		List result = new ArrayList();
+		final List _result = new ArrayList();
 
-		for (int i = result.size() - 1; i >= 0; i--) {
-			v.getArg(i).apply(this);
-			result.add(i, cloneValue);
+		for (int _i = _result.size() - 1; _i >= 0; _i--) {
+			v.getArg(_i).apply(this);
+			_result.add(_i, cloneValue);
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.12  2003/09/27 23:21:42  venku
  *** empty log message ***
      Revision 1.11  2003/09/26 15:06:05  venku

@@ -15,13 +15,16 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
-import edu.ksu.cis.indus.common.soot.Driver;
+
+//import edu.ksu.cis.indus.common.soot.Driver;
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.common.structures.Pair.PairManager;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -50,8 +53,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.Scene;
-
 
 /**
  * This class provides basic driver facilities for driving dependency analyses.
@@ -59,9 +60,11 @@ import soot.Scene;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public abstract class DADriver
-  extends Driver {
+  extends SootBasedDriver {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -87,11 +90,6 @@ public abstract class DADriver
 	protected final Map info = new HashMap();
 
 	/**
-	 * This is the collection of classes to be analysed.
-	 */
-	protected Scene scm;
-
-	/**
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
@@ -107,9 +105,7 @@ public abstract class DADriver
 	ValueAnalyzerBasedProcessingController cgipc;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides use-def information that considers the effect  of aliasing.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
@@ -150,7 +146,8 @@ public abstract class DADriver
 		}
 
 		String tagName = "DADriver:FA";
-		scm = loadupClassesAndCollectMains(args);
+		setClassNames(args);
+		initialize();
 		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
@@ -193,7 +190,7 @@ public abstract class DADriver
 			if (ecbaRequired) {
 				ecba.reset();
 			}
-			aa.analyze(scm, rm);
+			aa.analyze(scene, rm);
 
 			long stop = System.currentTimeMillis();
 			addTimeLog("FA", stop - start);
@@ -252,8 +249,9 @@ public abstract class DADriver
 			for (Iterator i = das.iterator(); i.hasNext();) {
 				System.out.println(i.next());
 			}
-			System.out.println("Total classes loaded: " + scm.getClasses().size());
-			printTimingStats(System.out);
+			System.out.println("Total classes loaded: " + scene.getClasses().size());
+			setLogger(LOGGER);
+			printTimingStats();
 		}
 	}
 
@@ -358,19 +356,19 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.35  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.34  2003/12/08 12:16:00  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.33  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.32  2003/11/30 01:39:11  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.31  2003/11/30 01:07:57  venku

@@ -137,72 +137,72 @@ public class ProcessingController {
 	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	static {
-		Collection t = new HashSet();
-		t.add(AssignStmt.class);
-		t.add(BreakpointStmt.class);
-		t.add(EnterMonitorStmt.class);
-		t.add(ExitMonitorStmt.class);
-		t.add(GotoStmt.class);
-		t.add(IdentityStmt.class);
-		t.add(IfStmt.class);
-		t.add(InvokeStmt.class);
-		t.add(LookupSwitchStmt.class);
-		t.add(NopStmt.class);
-		t.add(RetStmt.class);
-		t.add(ReturnVoidStmt.class);
-		t.add(ReturnStmt.class);
-		t.add(TableSwitchStmt.class);
-		t.add(ThrowStmt.class);
+		Collection _t = new HashSet();
+		_t.add(AssignStmt.class);
+		_t.add(BreakpointStmt.class);
+		_t.add(EnterMonitorStmt.class);
+		_t.add(ExitMonitorStmt.class);
+		_t.add(GotoStmt.class);
+		_t.add(IdentityStmt.class);
+		_t.add(IfStmt.class);
+		_t.add(InvokeStmt.class);
+		_t.add(LookupSwitchStmt.class);
+		_t.add(NopStmt.class);
+		_t.add(RetStmt.class);
+		_t.add(ReturnVoidStmt.class);
+		_t.add(ReturnStmt.class);
+		_t.add(TableSwitchStmt.class);
+		_t.add(ThrowStmt.class);
 
-		STMT_CLASSES = Collections.unmodifiableCollection(t);
+		STMT_CLASSES = Collections.unmodifiableCollection(_t);
 
-		t = new HashSet();
-		t.add(AddExpr.class);
-		t.add(AndExpr.class);
-		t.add(ArrayRef.class);
-		t.add(CastExpr.class);
-		t.add(CaughtExceptionRef.class);
-		t.add(CmpExpr.class);
-		t.add(CmpgExpr.class);
-		t.add(CmplExpr.class);
-		t.add(DivExpr.class);
-		t.add(DoubleConstant.class);
-		t.add(EqExpr.class);
-		t.add(FloatConstant.class);
-		t.add(GeExpr.class);
-		t.add(GtExpr.class);
-		t.add(InstanceFieldRef.class);
-		t.add(InstanceOfExpr.class);
-		t.add(IntConstant.class);
-		t.add(InterfaceInvokeExpr.class);
-		t.add(LeExpr.class);
-		t.add(LengthExpr.class);
-		t.add(Local.class);
-		t.add(LongConstant.class);
-		t.add(LtExpr.class);
-		t.add(MulExpr.class);
-		t.add(NeExpr.class);
-		t.add(NegExpr.class);
-		t.add(NewArrayExpr.class);
-		t.add(NewExpr.class);
-		t.add(NewMultiArrayExpr.class);
-		t.add(NullConstant.class);
-		t.add(OrExpr.class);
-		t.add(ParameterRef.class);
-		t.add(RemExpr.class);
-		t.add(ShlExpr.class);
-		t.add(ShrExpr.class);
-		t.add(SpecialInvokeExpr.class);
-		t.add(StaticFieldRef.class);
-		t.add(StaticInvokeExpr.class);
-		t.add(StringConstant.class);
-		t.add(SubExpr.class);
-		t.add(ThisRef.class);
-		t.add(UshrExpr.class);
-		t.add(VirtualInvokeExpr.class);
-		t.add(XorExpr.class);
+		_t = new HashSet();
+		_t.add(AddExpr.class);
+		_t.add(AndExpr.class);
+		_t.add(ArrayRef.class);
+		_t.add(CastExpr.class);
+		_t.add(CaughtExceptionRef.class);
+		_t.add(CmpExpr.class);
+		_t.add(CmpgExpr.class);
+		_t.add(CmplExpr.class);
+		_t.add(DivExpr.class);
+		_t.add(DoubleConstant.class);
+		_t.add(EqExpr.class);
+		_t.add(FloatConstant.class);
+		_t.add(GeExpr.class);
+		_t.add(GtExpr.class);
+		_t.add(InstanceFieldRef.class);
+		_t.add(InstanceOfExpr.class);
+		_t.add(IntConstant.class);
+		_t.add(InterfaceInvokeExpr.class);
+		_t.add(LeExpr.class);
+		_t.add(LengthExpr.class);
+		_t.add(Local.class);
+		_t.add(LongConstant.class);
+		_t.add(LtExpr.class);
+		_t.add(MulExpr.class);
+		_t.add(NeExpr.class);
+		_t.add(NegExpr.class);
+		_t.add(NewArrayExpr.class);
+		_t.add(NewExpr.class);
+		_t.add(NewMultiArrayExpr.class);
+		_t.add(NullConstant.class);
+		_t.add(OrExpr.class);
+		_t.add(ParameterRef.class);
+		_t.add(RemExpr.class);
+		_t.add(ShlExpr.class);
+		_t.add(ShrExpr.class);
+		_t.add(SpecialInvokeExpr.class);
+		_t.add(StaticFieldRef.class);
+		_t.add(StaticInvokeExpr.class);
+		_t.add(StringConstant.class);
+		_t.add(SubExpr.class);
+		_t.add(ThisRef.class);
+		_t.add(UshrExpr.class);
+		_t.add(VirtualInvokeExpr.class);
+		_t.add(XorExpr.class);
 
-		VALUE_CLASSES = Collections.unmodifiableCollection(t);
+		VALUE_CLASSES = Collections.unmodifiableCollection(_t);
 	}
 
 	/**
@@ -247,9 +247,7 @@ public class ProcessingController {
 	private IEnvironment env;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The filter used to filter the classes that select the classes and methods to be processed.
 	 */
 	private IProcessingFilter processingFilter;
 
@@ -504,7 +502,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
 		 */
 		public void caseAddExpr(final AddExpr v) {
-			defaultCase(AddExpr.class, v);
+			defaultCase(AddExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -512,7 +510,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseAndExpr(soot.jimple.AndExpr)
 		 */
 		public void caseAndExpr(final AndExpr v) {
-			defaultCase(AndExpr.class, v);
+			defaultCase(AndExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -520,7 +518,7 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 		 */
 		public void caseArrayRef(final ArrayRef v) {
-			defaultCase(ArrayRef.class, v);
+			defaultCase(ArrayRef.class);
 			context.setProgramPoint(v.getBaseBox());
 			v.getBase().apply(this);
 			context.setProgramPoint(v.getIndexBox());
@@ -531,7 +529,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
 		 */
 		public void caseCastExpr(final CastExpr v) {
-			defaultCase(CastExpr.class, v);
+			defaultCase(CastExpr.class);
 			context.setProgramPoint(v.getOpBox());
 			v.getOp().apply(this);
 		}
@@ -540,14 +538,14 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseCaughtExceptionRef(soot.jimple.CaughtExceptionRef)
 		 */
 		public void caseCaughtExceptionRef(final CaughtExceptionRef v) {
-			defaultCase(CaughtExceptionRef.class, v);
+			defaultCase(CaughtExceptionRef.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseCmpExpr(soot.jimple.CmpExpr)
 		 */
 		public void caseCmpExpr(final CmpExpr v) {
-			defaultCase(CmpExpr.class, v);
+			defaultCase(CmpExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -555,7 +553,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseCmpgExpr(soot.jimple.CmpgExpr)
 		 */
 		public void caseCmpgExpr(final CmpgExpr v) {
-			defaultCase(CmpgExpr.class, v);
+			defaultCase(CmpgExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -563,7 +561,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseCmplExpr(soot.jimple.CmplExpr)
 		 */
 		public void caseCmplExpr(final CmplExpr v) {
-			defaultCase(CmplExpr.class, v);
+			defaultCase(CmplExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -571,7 +569,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseDivExpr(soot.jimple.DivExpr)
 		 */
 		public void caseDivExpr(final DivExpr v) {
-			defaultCase(DivExpr.class, v);
+			defaultCase(DivExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -579,14 +577,14 @@ public class ProcessingController {
 		 * @see soot.jimple.ConstantSwitch#caseDoubleConstant(soot.jimple.DoubleConstant)
 		 */
 		public void caseDoubleConstant(final DoubleConstant v) {
-			defaultCase(DoubleConstant.class, v);
+			defaultCase(DoubleConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseEqExpr(soot.jimple.EqExpr)
 		 */
 		public void caseEqExpr(final EqExpr v) {
-			defaultCase(EqExpr.class, v);
+			defaultCase(EqExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -594,14 +592,14 @@ public class ProcessingController {
 		 * @see soot.jimple.ConstantSwitch#caseFloatConstant(soot.jimple.FloatConstant)
 		 */
 		public void caseFloatConstant(final FloatConstant v) {
-			defaultCase(FloatConstant.class, v);
+			defaultCase(FloatConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseGeExpr(soot.jimple.GeExpr)
 		 */
 		public void caseGeExpr(final GeExpr v) {
-			defaultCase(GeExpr.class, v);
+			defaultCase(GeExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -609,7 +607,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseGtExpr(soot.jimple.GtExpr)
 		 */
 		public void caseGtExpr(final GtExpr v) {
-			defaultCase(GtExpr.class, v);
+			defaultCase(GtExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -617,7 +615,7 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
-			defaultCase(InstanceFieldRef.class, v);
+			defaultCase(InstanceFieldRef.class);
 			context.setProgramPoint(v.getBaseBox());
 			v.getBase().apply(this);
 		}
@@ -626,7 +624,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
 		 */
 		public void caseInstanceOfExpr(final InstanceOfExpr v) {
-			defaultCase(InstanceOfExpr.class, v);
+			defaultCase(InstanceOfExpr.class);
 			context.setProgramPoint(v.getOpBox());
 			v.getOp().apply(this);
 		}
@@ -635,14 +633,14 @@ public class ProcessingController {
 		 * @see soot.jimple.ConstantSwitch#caseIntConstant(soot.jimple.IntConstant)
 		 */
 		public void caseIntConstant(final IntConstant v) {
-			defaultCase(IntConstant.class, v);
+			defaultCase(IntConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
-			defaultCase(InterfaceInvokeExpr.class, v);
+			defaultCase(InterfaceInvokeExpr.class);
 			processInvokeExpr(v);
 		}
 
@@ -650,7 +648,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseLeExpr(soot.jimple.LeExpr)
 		 */
 		public void caseLeExpr(final LeExpr v) {
-			defaultCase(LeExpr.class, v);
+			defaultCase(LeExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -658,7 +656,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseLengthExpr(soot.jimple.LengthExpr)
 		 */
 		public void caseLengthExpr(final LengthExpr v) {
-			defaultCase(LengthExpr.class, v);
+			defaultCase(LengthExpr.class);
 			processUnaryExpr(v);
 		}
 
@@ -666,21 +664,21 @@ public class ProcessingController {
 		 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
 		 */
 		public void caseLocal(final Local v) {
-			defaultCase(Local.class, v);
+			defaultCase(Local.class);
 		}
 
 		/**
 		 * @see soot.jimple.ConstantSwitch#caseLongConstant(soot.jimple.LongConstant)
 		 */
 		public void caseLongConstant(final LongConstant v) {
-			defaultCase(LongConstant.class, v);
+			defaultCase(LongConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseLtExpr(soot.jimple.LtExpr)
 		 */
 		public void caseLtExpr(final LtExpr v) {
-			defaultCase(LtExpr.class, v);
+			defaultCase(LtExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -688,7 +686,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseMulExpr(soot.jimple.MulExpr)
 		 */
 		public void caseMulExpr(final MulExpr v) {
-			defaultCase(MulExpr.class, v);
+			defaultCase(MulExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -696,7 +694,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseNeExpr(soot.jimple.NeExpr)
 		 */
 		public void caseNeExpr(final NeExpr v) {
-			defaultCase(NeExpr.class, v);
+			defaultCase(NeExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -704,7 +702,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseNegExpr(soot.jimple.NegExpr)
 		 */
 		public void caseNegExpr(final NegExpr v) {
-			defaultCase(NegExpr.class, v);
+			defaultCase(NegExpr.class);
 			processUnaryExpr(v);
 		}
 
@@ -712,7 +710,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
 		 */
 		public void caseNewArrayExpr(final NewArrayExpr v) {
-			defaultCase(NewArrayExpr.class, v);
+			defaultCase(NewArrayExpr.class);
 			context.setProgramPoint(v.getSizeBox());
 			v.getSize().apply(this);
 		}
@@ -721,18 +719,18 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 		 */
 		public void caseNewExpr(final NewExpr v) {
-			defaultCase(NewExpr.class, v);
+			defaultCase(NewExpr.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 		 */
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
-			defaultCase(NewMultiArrayExpr.class, v);
+			defaultCase(NewMultiArrayExpr.class);
 
-			for (int i = 0; i < v.getSizeCount(); i++) {
-				context.setProgramPoint(v.getSizeBox(i));
-				v.getSize(i).apply(this);
+			for (int _i = 0; _i < v.getSizeCount(); _i++) {
+				context.setProgramPoint(v.getSizeBox(_i));
+				v.getSize(_i).apply(this);
 			}
 		}
 
@@ -740,14 +738,14 @@ public class ProcessingController {
 		 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
 		 */
 		public void caseNullConstant(final NullConstant v) {
-			defaultCase(NullConstant.class, v);
+			defaultCase(NullConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseOrExpr(soot.jimple.OrExpr)
 		 */
 		public void caseOrExpr(final OrExpr v) {
-			defaultCase(OrExpr.class, v);
+			defaultCase(OrExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -755,14 +753,14 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
 		 */
 		public void caseParameterRef(final ParameterRef v) {
-			defaultCase(ParameterRef.class, v);
+			defaultCase(ParameterRef.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseRemExpr(soot.jimple.RemExpr)
 		 */
 		public void caseRemExpr(final RemExpr v) {
-			defaultCase(RemExpr.class, v);
+			defaultCase(RemExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -770,7 +768,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseShlExpr(soot.jimple.ShlExpr)
 		 */
 		public void caseShlExpr(final ShlExpr v) {
-			defaultCase(ShlExpr.class, v);
+			defaultCase(ShlExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -778,7 +776,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseShrExpr(soot.jimple.ShrExpr)
 		 */
 		public void caseShrExpr(final ShrExpr v) {
-			defaultCase(ShrExpr.class, v);
+			defaultCase(ShrExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -786,7 +784,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 		 */
 		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
-			defaultCase(SpecialInvokeExpr.class, v);
+			defaultCase(SpecialInvokeExpr.class);
 			processInvokeExpr(v);
 		}
 
@@ -794,14 +792,14 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
 		 */
 		public void caseStaticFieldRef(final StaticFieldRef v) {
-			defaultCase(StaticFieldRef.class, v);
+			defaultCase(StaticFieldRef.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 		 */
 		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
-			defaultCase(StaticInvokeExpr.class, v);
+			defaultCase(StaticInvokeExpr.class);
 			processInvokeExpr(v);
 		}
 
@@ -809,14 +807,14 @@ public class ProcessingController {
 		 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
 		 */
 		public void caseStringConstant(final StringConstant v) {
-			defaultCase(StringConstant.class, v);
+			defaultCase(StringConstant.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseSubExpr(soot.jimple.SubExpr)
 		 */
 		public void caseSubExpr(final SubExpr v) {
-			defaultCase(SubExpr.class, v);
+			defaultCase(SubExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -824,14 +822,14 @@ public class ProcessingController {
 		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 		 */
 		public void caseThisRef(final ThisRef v) {
-			defaultCase(ThisRef.class, v);
+			defaultCase(ThisRef.class);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseUshrExpr(soot.jimple.UshrExpr)
 		 */
 		public void caseUshrExpr(final UshrExpr v) {
-			defaultCase(UshrExpr.class, v);
+			defaultCase(UshrExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -839,7 +837,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 		 */
 		public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
-			defaultCase(VirtualInvokeExpr.class, v);
+			defaultCase(VirtualInvokeExpr.class);
 			processInvokeExpr(v);
 		}
 
@@ -847,7 +845,7 @@ public class ProcessingController {
 		 * @see soot.jimple.ExprSwitch#caseXorExpr(soot.jimple.XorExpr)
 		 */
 		public void caseXorExpr(final XorExpr v) {
-			defaultCase(XorExpr.class, v);
+			defaultCase(XorExpr.class);
 			processBinaryExpr(v);
 		}
 
@@ -855,9 +853,8 @@ public class ProcessingController {
 		 * Calls the processors interested in processing object of type <code>objClass</code>.
 		 *
 		 * @param objClass is the type of <code>o</code>
-		 * @param o the AST node to be processed.
 		 */
-		public void defaultCase(final Class objClass, final Object o) {
+		public void defaultCase(final Class objClass) {
 			final Collection _temp = (Collection) class2processors.get(objClass);
 
 			if (_temp != null) {
@@ -869,11 +866,11 @@ public class ProcessingController {
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Process expressions with binary operator.
 		 *
-		 * @param v DOCUMENT ME!
+		 * @param v is the expression with binary operator.
+		 *
+		 * @pre v != null
 		 */
 		private void processBinaryExpr(final BinopExpr v) {
 			context.setProgramPoint(v.getOp1Box());
@@ -883,11 +880,11 @@ public class ProcessingController {
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Process method invocation expression.
 		 *
-		 * @param v DOCUMENT ME!
+		 * @param v is the invocation expression.
+		 *
+		 * @pre v != null
 		 */
 		private void processInvokeExpr(final InvokeExpr v) {
 			if (v instanceof InstanceInvokeExpr) {
@@ -895,18 +892,18 @@ public class ProcessingController {
 				((InstanceInvokeExpr) v).getBase().apply(this);
 			}
 
-			for (int i = 0; i < v.getArgCount(); i++) {
-				context.setProgramPoint(v.getArgBox(i));
-				v.getArg(i).apply(this);
+			for (int _i = 0; _i < v.getArgCount(); _i++) {
+				context.setProgramPoint(v.getArgBox(_i));
+				v.getArg(_i).apply(this);
 			}
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Processes expressions with unary operator.
 		 *
-		 * @param v DOCUMENT ME!
+		 * @param v is the expression with unary operator.
+		 *
+		 * @pre v != null
 		 */
 		private void processUnaryExpr(final UnopExpr v) {
 			context.setProgramPoint(v.getOpBox());
@@ -924,9 +921,11 @@ public class ProcessingController {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the filter to be used to pick the classes and methods to be processed.
 	 *
-	 * @param theFilter DOCUMENT ME!
+	 * @param theFilter to be used.
+	 *
+	 * @pre theFilter != null
 	 */
 	public final void setProcessingFilter(final IProcessingFilter theFilter) {
 		processingFilter = theFilter;
@@ -936,19 +935,21 @@ public class ProcessingController {
 	 * Controls the processing activity.
 	 */
 	public final void process() {
-		final Collection _processors = new HashSet();
-		_processors.addAll(interfaceProcessors);
-
-		for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
-			_processors.addAll((Collection) _i.next());
-		}
-
-		initializeProcessors(_processors);
-
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processing classes");
 		}
+        
+        initializeProcessors();
 
+        final Collection _processors = new HashSet();
+        _processors.addAll(interfaceProcessors);
+
+        for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
+            _processors.addAll((Collection) _i.next());
+        }
+
+        
+        
 		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).processingBegins();
 		}
@@ -979,13 +980,13 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public final void register(final Class interest, final IProcessor processor) {
-		Set temp = (Set) class2processors.get(interest);
+		Set _temp = (Set) class2processors.get(interest);
 
-		if (temp == null) {
-			temp = new HashSet();
-			class2processors.put(interest, temp);
+		if (_temp == null) {
+			_temp = new HashSet();
+			class2processors.put(interest, _temp);
 		}
-		temp.add(processor);
+		_temp.add(processor);
 	}
 
 	/**
@@ -1024,7 +1025,7 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Clears internal data structures.  It does not reset values set via set methods. 
+	 * Clears internal data structures.  It does not reset values set via set methods.
 	 */
 	public final void reset() {
 		class2processors.clear();
@@ -1090,12 +1091,8 @@ public class ProcessingController {
 
 	/**
 	 * Initializes the processors before processing the system.
-	 *
-	 * @param processors to be initialized.
-	 *
-	 * @pre processors != null
 	 */
-	protected void initializeProcessors(final Collection processors) {
+	protected void initializeProcessors() {
 	}
 
 	/**
@@ -1106,22 +1103,22 @@ public class ProcessingController {
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	protected final void processClasses(final Collection theClasses) {
-		Collection classes;
+		Collection _classes;
 
 		if (processingFilter == null) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Performance may be hit as processing filter is not set.");
 			}
-			classes = theClasses;
+			_classes = theClasses;
 		} else {
-			classes = processingFilter.filterClasses(theClasses);
+			_classes = processingFilter.filterClasses(theClasses);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Classes to be processed:\n" + classes);
+			LOGGER.debug("Classes to be processed:\n" + _classes);
 		}
 
-		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _classes.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
@@ -1148,21 +1145,21 @@ public class ProcessingController {
 	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	protected final void processMethods(final Collection theMethods) {
-		Collection methods;
+		Collection _methods;
 
 		if (processingFilter == null) {
-			methods = theMethods;
+			_methods = theMethods;
 		} else {
-			methods = processingFilter.filterMethods(theMethods);
+			_methods = processingFilter.filterMethods(theMethods);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Methods to be processed:\n" + methods);
+			LOGGER.debug("Methods to be processed:\n" + _methods);
 		}
 
 		final boolean _processBody = processStmts || processValues;
 
-		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
+		for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 			final SootMethod _sm = (SootMethod) _j.next();
 			context.setRootMethod(_sm);
 
@@ -1179,9 +1176,11 @@ public class ProcessingController {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes the method body.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method whose body needs to be processed.
+	 *
+	 * @pre method != null
 	 */
 	private void processMethodBody(final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
@@ -1199,10 +1198,10 @@ public class ProcessingController {
 				context.setStmt(_stmt);
 				_stmt.apply(stmtSwitcher);
 			}
-		} catch (RuntimeException e) {
+		} catch (RuntimeException _e) {
 			LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
 				+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
-				+ method.getSignature(), e);
+				+ method.getSignature(), _e);
 		}
 	}
 }
@@ -1210,6 +1209,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/08 09:17:55  venku
+   - added a reset() method.
    Revision 1.24  2003/12/05 15:34:17  venku
    - logging and optimization.
    Revision 1.23  2003/12/05 03:10:07  venku

@@ -26,6 +26,8 @@ import java.util.ArrayList;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class RBDDADriver
   extends DADriver {
@@ -44,21 +46,19 @@ public class RBDDADriver
 	 * @param args command line arguemnts.
 	 */
 	public static void main(final String[] args) {
-		(new RBDDADriver(args)).run();
-	}
-
-	/**
-	 * Initializes the collection of dependence analyses with the reference-based data dependence analyses to be driven.
-	 */
-	protected void initialize() {
-		das = new ArrayList();
-		das.add(new ReferenceBasedDataDA());
+		DADriver da = new RBDDADriver(args);
+		da.das = new ArrayList();
+		da.das.add(new ReferenceBasedDataDA());
+		da.execute();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.4  2003/11/03 07:50:06  venku
    - coding convention.
    Revision 1.3  2003/10/31 00:59:37  venku

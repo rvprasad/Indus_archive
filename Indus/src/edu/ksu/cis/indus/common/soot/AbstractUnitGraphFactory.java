@@ -66,31 +66,31 @@ public abstract class AbstractUnitGraphFactory
 	 */
 	public final UnitGraph getUnitGraph(final SootMethod method) {
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
-		UnitGraph result = null;
-		boolean flag = false;
+		UnitGraph _result = null;
+		boolean _flag = false;
 
 		if (_ref == null) {
-			flag = true;
+			_flag = true;
 		} else {
-			result = (UnitGraph) _ref.get();
+			_result = (UnitGraph) _ref.get();
 
-			if (result == null) {
-				flag = true;
+			if (_result == null) {
+				_flag = true;
 			}
 		}
 
-		if (flag) {
-			result = getUnitGraphForMethod(method);
+		if (_flag) {
+			_result = getUnitGraphForMethod(method);
 
-			if (result == null) {
+			if (_result == null) {
 				final Body _body = Jimple.v().newBody();
 				_body.setMethod(method);
-				result = new UnitGraph(_body, false);
+				_result = new UnitGraph(_body, false);
 			}
 
-			method2UnitGraph.put(method, new WeakReference(result));
+			method2UnitGraph.put(method, new WeakReference(_result));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -109,12 +109,15 @@ public abstract class AbstractUnitGraphFactory
 	 *
 	 * @pre not method.isConcrete() implies result == null
 	 */
-	protected abstract UnitGraph getUnitGraphForMethod(SootMethod method);
+	protected abstract UnitGraph getUnitGraphForMethod(final SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:42:42  venku
+   - unit graph factories are responsible to construct empty
+     bodies for methods not BasicBlockGraphMgr.  FIXED.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

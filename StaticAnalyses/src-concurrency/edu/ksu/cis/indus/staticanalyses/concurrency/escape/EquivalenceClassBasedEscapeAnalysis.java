@@ -16,19 +16,21 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 import edu.ksu.cis.indus.common.structures.Triple;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +48,7 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
 import soot.Modifier;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
@@ -96,7 +99,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @author $Author$
  * @version $Revision$
  */
-public class EquivalenceClassBasedEscapeAnalysis
+public final class EquivalenceClassBasedEscapeAnalysis
   extends AbstractValueAnalyzerBasedProcessor {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
@@ -186,6 +189,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 	MethodContext methodCtxtCache;
 
 	/**
+	 * This is the collection of notify methods in the system that can lead to ready dependences.
+	 */
+	private Collection notifyMethods = new ArrayList();
+
+	/**
+	 * This is the collection of wait methods in the system that can lead to ready dependences.
+	 */
+	private Collection waitMethods = new ArrayList();
+
+	/**
 	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
 	 * start call-sites for delayed processing.
 	 */
@@ -227,27 +240,27 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	class StmtProcessor
+	final class StmtProcessor
 	  extends AbstractStmtSwitch {
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
-			boolean temp = valueProcessor.read;
+			boolean _temp = valueProcessor.read;
 			valueProcessor.read = true;
 			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.read = temp;
+			valueProcessor.read = _temp;
 
-			AliasSet r = (AliasSet) valueProcessor.getResult();
-			temp = valueProcessor.read;
+			final AliasSet _r = (AliasSet) valueProcessor.getResult();
+			_temp = valueProcessor.read;
 			valueProcessor.read = false;
 			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.read = temp;
+			valueProcessor.read = _temp;
 
-			AliasSet l = (AliasSet) valueProcessor.getResult();
+			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
-			if ((r != null) && (l != null)) {
-				l.unify(r, false);
+			if ((_r != null) && (_l != null)) {
+				_l.unify(_r, false);
 			}
 		}
 
@@ -269,21 +282,21 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
 		public void caseIdentityStmt(final IdentityStmt stmt) {
-			boolean temp = valueProcessor.read;
+			boolean _temp = valueProcessor.read;
 			valueProcessor.read = true;
 			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.read = temp;
+			valueProcessor.read = _temp;
 
-			AliasSet r = (AliasSet) valueProcessor.getResult();
-			temp = valueProcessor.read;
+			final AliasSet _r = (AliasSet) valueProcessor.getResult();
+			_temp = valueProcessor.read;
 			valueProcessor.read = false;
 			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.read = temp;
+			valueProcessor.read = _temp;
 
-			AliasSet l = (AliasSet) valueProcessor.getResult();
+			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
-			if ((r != null) && (l != null)) {
-				l.unify(r, false);
+			if ((_r != null) && (_l != null)) {
+				_l.unify(_r, false);
 			}
 		}
 
@@ -300,10 +313,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 		public void caseReturnStmt(final ReturnStmt stmt) {
 			valueProcessor.process(stmt.getOp());
 
-			AliasSet l = (AliasSet) valueProcessor.getResult();
+			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
-			if (l != null) {
-				methodCtxtCache.getReturnAS().unify(l, false);
+			if (_l != null) {
+				methodCtxtCache.getReturnAS().unify(_l, false);
 			}
 		}
 
@@ -316,11 +329,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME!
+		 * Processes the given statement.
 		 *
-		 * @param stmt
+		 * @param stmt to be processed.
+		 *
+		 * @pre stmt != null
 		 */
-		void process(Stmt stmt) {
+		void process(final Stmt stmt) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Processing statement: " + stmt);
 			}
@@ -341,7 +356,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	class ValueProcessor
+	final class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
 		/**
 		 * This provides the value to be associated with <code>accessed</code> field of any alias set created during
@@ -363,57 +378,57 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 		 */
 		public void caseArrayRef(final ArrayRef v) {
-			boolean temp = read;
+			boolean _temp = read;
 			read = true;
 			v.getBase().apply(this);
-			read = temp;
+			read = _temp;
 
-			AliasSet base = (AliasSet) getResult();
-			AliasSet elt = base.getASForField(AliasSet.ARRAY_FIELD);
+			final AliasSet _base = (AliasSet) getResult();
+			AliasSet _elt = _base.getASForField(AliasSet.ARRAY_FIELD);
 
-			if (elt == null) {
-				elt = AliasSet.getASForType(v.getType());
+			if (_elt == null) {
+				_elt = AliasSet.getASForType(v.getType());
 
-				if (elt != null) {
-					base.putASForField(AliasSet.ARRAY_FIELD, elt);
+				if (_elt != null) {
+					_base.putASForField(AliasSet.ARRAY_FIELD, _elt);
 				}
 			}
 
-			if (elt != null) {
-				elt.setAccessedTo(accessed);
-				setReadOrWritten(elt);
+			if (_elt != null) {
+				_elt.setAccessedTo(accessed);
+				setReadOrWritten(_elt);
 			}
 
-			setResult(elt);
+			setResult(_elt);
 		}
 
 		/**
 		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
-			boolean temp = read;
+			boolean _temp = read;
 			read = true;
 			v.getBase().apply(this);
-			read = temp;
+			read = _temp;
 
-			AliasSet base = (AliasSet) getResult();
-			String fieldSig = v.getField().getSignature();
-			AliasSet field = base.getASForField(fieldSig);
+			final AliasSet _base = (AliasSet) getResult();
+			final String _fieldSig = v.getField().getSignature();
+			AliasSet _field = _base.getASForField(_fieldSig);
 
-			if (field == null) {
-				field = AliasSet.getASForType(v.getType());
+			if (_field == null) {
+				_field = AliasSet.getASForType(v.getType());
 
-				if (field != null) {
-					base.putASForField(fieldSig, field);
+				if (_field != null) {
+					_base.putASForField(_fieldSig, _field);
 				}
 			}
 
-			if (field != null) {
-				field.setAccessedTo(accessed);
-				setReadOrWritten(field);
+			if (_field != null) {
+				_field.setAccessedTo(accessed);
+				setReadOrWritten(_field);
 			}
 
-			setResult(field);
+			setResult(_field);
 		}
 
 		/**
@@ -427,31 +442,31 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.JimpleValueSwitch#caseLocal(Local)
 		 */
 		public void caseLocal(final Local v) {
-			AliasSet s = (AliasSet) localASsCache.get(v);
+			AliasSet _s = (AliasSet) localASsCache.get(v);
 
-			if (s == null) {
-				s = AliasSet.getASForType(v.getType());
+			if (_s == null) {
+				_s = AliasSet.getASForType(v.getType());
 
-				if (s != null) {
-					localASsCache.put(v, s);
+				if (_s != null) {
+					localASsCache.put(v, _s);
 				}
 			}
 
-			if (s != null) {
-				s.setAccessedTo(accessed);
-				setReadOrWritten(s);
+			if (_s != null) {
+				_s.setAccessedTo(accessed);
+				setReadOrWritten(_s);
 			}
 
-			setResult(s);
+			setResult(_s);
 		}
 
 		/**
 		 * @see soot.jimple.RefSwitch#caseParameterRef( soot.jimple.ParameterRef)
 		 */
 		public void caseParameterRef(final ParameterRef v) {
-			AliasSet as = methodCtxtCache.getParamAS(v.getIndex());
-			setReadOrWritten(as);
-			setResult(as);
+			final AliasSet _as = methodCtxtCache.getParamAS(v.getIndex());
+			setReadOrWritten(_as);
+			setResult(_as);
 		}
 
 		/**
@@ -486,9 +501,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 		 */
 		public void caseThisRef(final ThisRef v) {
-			AliasSet as = methodCtxtCache.getThisAS();
-			setReadOrWritten(as);
-			setResult(as);
+			final AliasSet _as = methodCtxtCache.getThisAS();
+			setReadOrWritten(_as);
+			setResult(_as);
 		}
 
 		/**
@@ -514,11 +529,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME!
+		 * Process the given value/expression.
 		 *
-		 * @param value
+		 * @param value to be processed.
+		 *
+		 * @pre value != null
 		 */
-		void process(Value value) {
+		void process(final Value value) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Processing value: " + value);
 			}
@@ -541,129 +558,171 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * Processes invoke expressions/call-sites.
+		 * Process the arguments of the invoke expression.
 		 *
-		 * @param v invocation expresison to be processed.
+		 * @param v is the invoke expressions containing the arguments to be processed.
+		 * @param method being invoked at <code>v</code>.
 		 *
-		 * @throws RuntimeException when a cloning fails.  However, this should not happen.
+		 * @return the list of alias sets corresponding to the arguments.
+		 *
+		 * @pre v != null and method != null
+		 * @post result != null and result.oclIsKindOf(Sequence(AliasSet))
 		 */
-		private void processInvokeExpr(final InvokeExpr v) {
-			Collection callees = new ArrayList();
-			SootMethod caller = context.getCurrentMethod();
-			SootMethod sm = v.getMethod();
-
-			// fix up "return" alias set.
-			AliasSet retAS = null;
-
-			retAS = AliasSet.getASForType(sm.getReturnType());
-
-			// fix up "this" alias set.
-			AliasSet thisAS = null;
-
-			if (!sm.isStatic()) {
-				((InstanceInvokeExpr) v).getBase().apply(valueProcessor);
-				thisAS = (AliasSet) valueProcessor.getResult();
-			}
-
+		private List processArguments(final InvokeExpr v, final SootMethod method) {
 			// fix up arg alias sets.
-			List argASs;
-			int paramCount = sm.getParameterCount();
+			final List _argASs;
+			final int _paramCount = method.getParameterCount();
 
-			if (paramCount == 0) {
-				argASs = Collections.EMPTY_LIST;
+			if (_paramCount == 0) {
+				_argASs = Collections.EMPTY_LIST;
 			} else {
-				argASs = new ArrayList();
+				_argASs = new ArrayList();
 
-				for (int i = 0; i < paramCount; i++) {
-					Value val = v.getArg(i);
-					Object temp = null;
+				for (int _i = 0; _i < _paramCount; _i++) {
+					final Value _val = v.getArg(_i);
+					Object _temp = null;
 
-					if (AliasSet.canHaveAliasSet(val.getType())) {
-						v.getArg(i).apply(valueProcessor);
-						temp = valueProcessor.getResult();
+					if (AliasSet.canHaveAliasSet(_val.getType())) {
+						v.getArg(_i).apply(valueProcessor);
+						_temp = valueProcessor.getResult();
 					}
 
-					argASs.add(temp);
+					_argASs.add(_temp);
 				}
 			}
+			return _argASs;
+		}
 
-			// create a site-context of the given expression and store it into the associated site-context cache.
-			MethodContext sc = new MethodContext(sm, thisAS, argASs, retAS, AliasSet.createAliasSet());
-			scCache.put(new CallTriple(caller, context.getStmt(), v), sc);
-
-			if (v instanceof StaticInvokeExpr || v instanceof SpecialInvokeExpr) {
-				callees.add(sm);
-			} else if (v instanceof InterfaceInvokeExpr || v instanceof VirtualInvokeExpr) {
-				context.setProgramPoint(((InstanceInvokeExpr) v).getBaseBox());
-				callees.addAll(cgi.getCallees(v, context));
-			}
-
-			for (Iterator i = callees.iterator(); i.hasNext();) {
-				SootMethod callee = (SootMethod) i.next();
-				Triple triple = (Triple) method2Triple.get(callee);
+		/**
+		 * Process the callees in a caller.
+		 *
+		 * @param callees is the collection of methods called.
+		 * @param caller is the calling method.
+		 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
+		 * @param methodContext corresponding to the invocation expression.
+		 *
+		 * @throws RuntimeException when cloning fails.
+		 *
+		 * @pre callees != null and caller != null and primaryAliasSet != null and methodContext != null
+		 * @pre callees.oclIsKindOf(Collection(SootMethod))
+		 */
+		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
+			final MethodContext methodContext) {
+			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
+				final SootMethod _callee = (SootMethod) _i.next();
+				final Triple _triple = (Triple) method2Triple.get(_callee);
 
 				// This is needed when the system is not closed.
-				if (triple == null) {
+				if (_triple == null) {
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + callee.getSignature());
+						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
 					}
 					continue;
 				}
 
-				/*
-				 * If the start sites are processed first then the alias sets are marked as accesssed.
-				 * However, as the sharing information is only changed at "start" call-sites, the marking of the alias sets
-				 * as accessed will not affect sharability, which is incorrect.
-				 *
-				 * As a solution, we collect all method contexts, both site- and method-contexts, for all start call-sites in
-				 * the caller to be unified after all other statements in the caller have been processed.
-				 */
-				boolean delayUnification = false;
-
-				if (callee.getName().equals("start")
-					  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
-					  && callee.getReturnType() instanceof VoidType
-					  && callee.getParameterCount() == 0) {
-					// unify all parts of alias sets if "start" is being invoked.
-					delayUnification = true;
-				} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
-					  && callee.getReturnType() instanceof VoidType
-					  && callee.getParameterCount() == 0) {
-					String calleeName = callee.getName();
-
-					// set notifies/waits flags if this is wait/notify call. 
-					if (calleeName.equals("notify") || calleeName.equals("notifyAll")) {
-						thisAS.setNotifies();
-					} else if (calleeName.equals("wait")) {
-						thisAS.setWaits();
-					}
-				}
+				final boolean _delayUnification = processNotifyStartWait(primaryAliasSet, _callee);
 
 				// retrieve the method context of the callee
-				MethodContext mc = (MethodContext) triple.getFirst();
+				MethodContext _mc = (MethodContext) _triple.getFirst();
 
 				/*
 				 * If the caller and callee occur in different SCCs then clone the callee method context and then unify it
 				 * with the site context.  If not, unify the method context with site-context as precision will be lost any
 				 * which way.
 				 */
-				if (cfgAnalysis.notInSameSCC(caller, callee)) {
+				if (cfgAnalysis.notInSameSCC(caller, _callee)) {
 					try {
-						mc = (MethodContext) mc.clone();
-					} catch (CloneNotSupportedException e) {
-						LOGGER.error("Hell NO!  This should not happen.", e);
-						throw new RuntimeException(e);
+						_mc = (MethodContext) _mc.clone();
+					} catch (CloneNotSupportedException _e) {
+						LOGGER.error("Hell NO!  This should not happen.", _e);
+						throw new RuntimeException(_e);
 					}
 				}
 
-				if (delayUnification) {
-					addToDelayedUnificationSet(sc, mc);
+				if (_delayUnification) {
+					addToDelayedUnificationSet(methodContext, _mc);
 				} else {
-					sc.unify(mc, false);
+					methodContext.unify(_mc, false);
 				}
 			}
+		}
 
-			setResult(retAS);
+		/**
+		 * Processes invoke expressions/call-sites.
+		 *
+		 * @param expr invocation expresison to be processed.
+		 */
+		private void processInvokeExpr(final InvokeExpr expr) {
+			final Collection _callees = new ArrayList();
+			final SootMethod _caller = context.getCurrentMethod();
+			final SootMethod _sm = expr.getMethod();
+
+			// fix up "return" alias set.
+			AliasSet _retAS = null;
+
+			_retAS = AliasSet.getASForType(_sm.getReturnType());
+
+			// fix up "primary" alias set.
+			AliasSet _primaryAS = null;
+
+			if (!_sm.isStatic()) {
+				((InstanceInvokeExpr) expr).getBase().apply(valueProcessor);
+				_primaryAS = (AliasSet) valueProcessor.getResult();
+			}
+
+			final List _argASs = processArguments(expr, _sm);
+
+			// create a site-context of the given expression and store it into the associated site-context cache.
+			final MethodContext _sc = new MethodContext(_sm, _primaryAS, _argASs, _retAS, AliasSet.createAliasSet());
+			scCache.put(new CallTriple(_caller, context.getStmt(), expr), _sc);
+
+			if (expr instanceof StaticInvokeExpr) {
+				_callees.add(_sm);
+			} else if (expr instanceof InterfaceInvokeExpr
+				  || expr instanceof VirtualInvokeExpr
+				  || expr instanceof SpecialInvokeExpr) {
+				context.setProgramPoint(((InstanceInvokeExpr) expr).getBaseBox());
+				_callees.addAll(cgi.getCallees(expr, context));
+			}
+
+			processCallees(_callees, _caller, _primaryAS, _sc);
+
+			setResult(_retAS);
+		}
+
+		/**
+		 * Process the called method for <code>start(), notify(), nofityAll(),</code> and variants of <code>wait</code>
+		 * methods.
+		 *
+		 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
+		 * @param callee being called.
+		 *
+		 * @return <code>true</code> when the called method is <code>java.lang.Thread.start()</code>.
+		 *
+		 * @pre primaryAliasSet != null and callee != null
+		 */
+		private boolean processNotifyStartWait(final AliasSet primaryAliasSet, final SootMethod callee) {
+			boolean _delayUnification = false;
+
+			if (callee.getName().equals("start")
+				  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
+				  && callee.getReturnType() instanceof VoidType
+				  && callee.getParameterCount() == 0) {
+				// unify all parts of alias sets if "start" is being invoked.
+				_delayUnification = true;
+			} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
+				  && callee.getReturnType() instanceof VoidType
+				  && callee.getParameterCount() == 0) {
+				final String _calleeName = callee.getName();
+
+				// set notifies/waits flags if this is wait/notify call. 
+				if (_calleeName.equals("notify") || _calleeName.equals("notifyAll")) {
+					primaryAliasSet.setNotifies();
+				} else if (_calleeName.equals("wait")) {
+					primaryAliasSet.setWaits();
+				}
+			}
+			return _delayUnification;
 		}
 	}
 
@@ -685,40 +744,34 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public boolean isReadyDependent(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
 		final SootMethod notifyMethod) {
-		Triple trp1 = (Triple) method2Triple.get(waitMethod);
+		final Triple _trp1 = (Triple) method2Triple.get(waitMethod);
 
-		if (trp1 == null) {
+		if (_trp1 == null) {
 			throw new IllegalArgumentException(waitMethod + " was not processed.");
 		}
 
-		Triple trp2 = (Triple) method2Triple.get(notifyMethod);
+		final Triple _trp2 = (Triple) method2Triple.get(notifyMethod);
 
-		if (trp2 == null) {
+		if (_trp2 == null) {
 			throw new IllegalArgumentException(notifyMethod + " was not processed.");
 		}
 
-		InvokeExpr wi = wait.getInvokeExpr();
-		InvokeExpr ni = notify.getInvokeExpr();
-		boolean result = false;
+		final InvokeExpr _wi = wait.getInvokeExpr();
+		final InvokeExpr _ni = notify.getInvokeExpr();
+		boolean _result = false;
 
-		if (wi instanceof VirtualInvokeExpr && ni instanceof VirtualInvokeExpr) {
-			VirtualInvokeExpr wTemp = (VirtualInvokeExpr) wi;
-			VirtualInvokeExpr nTemp = (VirtualInvokeExpr) ni;
-			SootMethod wSM = wTemp.getMethod();
-			SootMethod nSM = nTemp.getMethod();
+		if (_wi instanceof VirtualInvokeExpr && _ni instanceof VirtualInvokeExpr) {
+			final VirtualInvokeExpr _wTemp = (VirtualInvokeExpr) _wi;
+			final VirtualInvokeExpr _nTemp = (VirtualInvokeExpr) _ni;
+			final SootMethod _wSM = _wTemp.getMethod();
+			final SootMethod _nSM = _nTemp.getMethod();
 
-			if (wSM.getDeclaringClass().getName().equals("java.lang.Object")
-				  && wSM.getReturnType() instanceof VoidType
-				  && wSM.getName().equals("wait")
-				  && nSM.getDeclaringClass().getName().equals("java.lang.Object")
-				  && nSM.getReturnType() instanceof VoidType
-				  && (nSM.getParameterCount() == 0)
-				  && (nSM.getName().equals("notify") || nSM.getName().equals("notifyAll"))) {
-				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get(wTemp.getBase());
-				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get(nTemp.getBase());
+			if (waitMethods.contains(_wSM) && notifyMethods.contains(_nSM)) {
+				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
+				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
-				if ((as1.getReadyEntity() != null) && (as2.getReadyEntity() != null)) {
-					result = as1.getReadyEntity() == as2.getReadyEntity();
+				if ((_as1.getReadyEntity() != null) && (_as2.getReadyEntity() != null)) {
+					_result = _as1.getReadyEntity() == _as2.getReadyEntity();
 				} else {
 					/*
 					 * This is the case where a start site has wait and notify called on a reference.
@@ -735,7 +788,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -755,15 +808,15 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public boolean isReadyDependent(final ExitMonitorStmt exitStmt, final SootMethod exitMethod,
 		final EnterMonitorStmt enterStmt, final SootMethod enterMethod) {
-		Triple trp1 = (Triple) method2Triple.get(exitMethod);
+		final Triple _trp1 = (Triple) method2Triple.get(exitMethod);
 
-		if (trp1 == null) {
+		if (_trp1 == null) {
 			throw new IllegalArgumentException(exitMethod + " was not processed.");
 		}
 
-		Triple trp2 = (Triple) method2Triple.get(enterMethod);
+		final Triple _trp2 = (Triple) method2Triple.get(enterMethod);
 
-		if (trp2 == null) {
+		if (_trp2 == null) {
 			throw new IllegalArgumentException(enterMethod + " was not processed.");
 		}
 
@@ -777,11 +830,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public void callback(final SootField sf) {
 		if (Modifier.isStatic(sf.getModifiers())) {
-			AliasSet t = AliasSet.getASForType(sf.getType());
+			final AliasSet _t = AliasSet.getASForType(sf.getType());
 
-			if (t != null) {
-				t.setGlobal();
-				globalASs.put(sf.getSignature(), t);
+			if (_t != null) {
+				_t.setGlobal();
+				globalASs.put(sf.getSignature(), _t);
 			}
 		}
 	}
@@ -797,6 +850,17 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
+
+		final SootClass _sc = sm.getDeclaringClass();
+
+		if (_sc.getName().equals("java.lang.Object")) {
+			waitMethods.add(_sc.getMethod("void wait()"));
+			waitMethods.add(_sc.getMethod("void wait(long)"));
+			waitMethods.add(_sc.getMethod("void wait(long,int)"));
+
+			notifyMethods.add(_sc.getMethodByName("notify"));
+			notifyMethods.add(_sc.getMethodByName("notifyAll"));
+		}
 	}
 
 	/**
@@ -810,7 +874,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @pre v != null and sm != null
 	 */
 	public boolean escapes(final Value v, final SootMethod sm) {
-		boolean result = true;
+		boolean _result = true;
 
 		try {
 			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
@@ -824,18 +888,18 @@ public class EquivalenceClassBasedEscapeAnalysis
 				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
 				// structure and the language semantics along with the rules above ensure that the escape information is 
 				// polluted (pessimistic) only when necessary.
-				result = getAliasSetFor(v, sm).escapes();
+				_result = getAliasSetFor(v, sm).escapes();
 			} else {
-				result = false;
+				_result = false;
 			}
-		} catch (RuntimeException e) {
+		} catch (RuntimeException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("There is no information about " + v + " occurring in " + sm
-					+ ".  So, providing pessimistic info (true).", e);
+					+ ".  So, providing pessimistic info (true).", _e);
 			}
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -844,146 +908,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * call-graph.
 	 */
 	public void execute() {
-		Collection sccs = cgi.getSCCs(false);
-		IWorkBag wb = new FIFOWorkBag();
-		Collection processed = new HashSet();
-
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
 
-		// Phase 2: The SCCs are ordered bottom up. 
-		for (Iterator i = sccs.iterator(); i.hasNext();) {
-			List nodes = (List) i.next();
+		performPhase2();
 
-			for (Iterator j = nodes.iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Processing " + sm);
-				}
-
-				if (!sm.isConcrete()) {
-					LOGGER.warn("NO BODY: " + sm.getSignature());
-
-					continue;
-				}
-
-				Triple triple = (Triple) method2Triple.get(sm);
-
-				/*
-				 * NOTE: This is an kludge to fix an anamoly arising from closing open system.  However, this triple should
-				 * have been created for each processed method in the callback method.
-				 */
-				if (triple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO METHOD TRIPLE: " + sm.getSignature());
-					}
-
-					continue;
-				}
-
-				methodCtxtCache = (MethodContext) triple.getFirst();
-				localASsCache = (Map) triple.getSecond();
-				scCache = (Map) triple.getThird();
-				context.setRootMethod(sm);
-
-				if (sm.getName().equals("<init>")) {
-                    // TODO: This value was set to false previously.  However, that optimization is incorrect. After 
-                    // verification.  The accessed flag in valueProcessor should be removed and a default value of "true" 
-                    // should be used in it's place.
-					valueProcessor.accessed = true;
-				} else {
-					valueProcessor.accessed = true;
-				}
-
-				BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
-				wb.clear();
-				processed.clear();
-				wb.addAllWork(bbg.getHeads());
-
-				while (wb.hasWork()) {
-					BasicBlock bb = (BasicBlock) wb.getWork();
-					processed.add(bb);
-
-					for (Iterator k = bb.getStmtsOf().iterator(); k.hasNext();) {
-						Stmt stmt = (Stmt) k.next();
-						context.setStmt(stmt);
-						stmtProcessor.process(stmt);
-					}
-
-					for (Iterator k = bb.getSuccsOf().iterator(); k.hasNext();) {
-						Object o = k.next();
-
-						if (!processed.contains(o)) {
-							wb.addWork(o);
-						}
-					}
-				}
-LOGGER.debug("LocalASsCache: " + localASsCache);
-				// unify the contexts at start call-sites.
-				performDelayedUnification();
-			}
-		}
-
-		// Phase 3
-		processed.clear();
-		wb.addAllWork(cgi.getHeads());
-
-		while (wb.hasWork()) {
-			SootMethod caller = (SootMethod) wb.getWork();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Top-down procesing : CALLER : " + caller);
-			}
-
-			Collection callees = cgi.getCallees(caller);
-			Triple triple = (Triple) method2Triple.get(caller);
-			Map ctrp2sc = (Map) triple.getThird();
-
-			for (Iterator i = callees.iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod callee = ctrp.getMethod();
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Top-down processing : CALLEE : " + callee);
-				}
-
-				triple = (Triple) method2Triple.get(callee);
-
-				/*
-				 * NOTE: This is an anomaly which results from how an open system is closed.  Refer to MethodVariant.java for
-				 * more info.
-				 */
-				if (triple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO CALLEE TRIPLE: " + callee.getSignature());
-					}
-
-					continue;
-				}
-
-				MethodContext mc = (MethodContext) (triple.getFirst());
-				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
-				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
-
-				// It would suffice to unify the site context with it self in the case of loop enclosure
-				// as this is more semantically close to what happens during execution.
-				if (callee.getName().equals("start")
-					  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
-					  && callee.getReturnType() instanceof VoidType
-					  && callee.getParameterCount() == 0
-					  && cfgAnalysis.executedMultipleTimes(ctrp.getStmt(), caller)) {
-					sc.selfUnify(true);
-				}
-				sc.propogateInfoFromTo(mc);
-
-				if (!processed.contains(callee)) {
-					processed.add(callee);
-					wb.addWork(callee);
-				}
-			}
-		}
+		performPhase3();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -1003,6 +934,9 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 	public void reset() {
 		globalASs.clear();
 		method2Triple.clear();
+
+		waitMethods.clear();
+		notifyMethods.clear();
 	}
 
 	/**
@@ -1019,9 +953,9 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
-		boolean result = escapes(v1, sm1) && escapes(v2, sm2);
+		boolean _result = escapes(v1, sm1) && escapes(v2, sm2);
 
-		if (result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
+		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
 				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
 				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
@@ -1031,18 +965,18 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
 				// structure and the language semantics along with the rules above ensure that the escape information is 
 				// polluted (pessimistic) only when necessary.
-				Collection o1 = getAliasSetFor(v1, sm1).getShareEntities();
-				Collection o2 = getAliasSetFor(v2, sm2).getShareEntities();
-				result = (o1 != null) && (o2 != null) && !(CollectionUtils.intersection(o1, o2).isEmpty());
-			} catch (RuntimeException e) {
+				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
+				final Collection _o2 = getAliasSetFor(v2, sm2).getShareEntities();
+				_result = (_o1 != null) && (_o2 != null) && !(CollectionUtils.intersection(_o1, _o2).isEmpty());
+			} catch (RuntimeException _e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
-						+ ".  So, providing pessimistic info (true).", e);
+						+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -1066,31 +1000,31 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 	 * 		v.isOclKindOf(InstanceFieldRef) implies v.getBase().isOclKindOf(Local)
 	 */
 	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
-		Triple trp = (Triple) method2Triple.get(sm);
+		final Triple _trp = (Triple) method2Triple.get(sm);
 
-		if (trp == null) {
+		if (_trp == null) {
 			throw new IllegalArgumentException("Method " + sm + " was not analyzed.");
 		}
 
-		Map local2AS = (Map) trp.getSecond();
-		AliasSet result = null;
+		final Map _local2AS = (Map) _trp.getSecond();
+		AliasSet _result = null;
 
 		if (AliasSet.canHaveAliasSet(v.getType())) {
 			if (v instanceof InstanceFieldRef) {
-				InstanceFieldRef i = (InstanceFieldRef) v;
-				AliasSet temp = (AliasSet) local2AS.get(i.getBase());
-				result = temp.getASForField(((FieldRef) v).getField().getSignature());
+				final InstanceFieldRef _i = (InstanceFieldRef) v;
+				final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
+				_result = _temp.getASForField(((FieldRef) v).getField().getSignature());
 			} else if (v instanceof StaticFieldRef) {
-				result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+				_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
 			} else if (v instanceof ArrayRef) {
-				ArrayRef a = (ArrayRef) v;
-				AliasSet temp = (AliasSet) local2AS.get(a.getBase());
-				result = temp.getASForField(AliasSet.ARRAY_FIELD);
+				final ArrayRef _a = (ArrayRef) v;
+				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
+				_result = _temp.getASForField(AliasSet.ARRAY_FIELD);
 			} else if (v instanceof Local) {
-				result = (AliasSet) local2AS.get(v);
+				_result = (AliasSet) _local2AS.get(v);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -1104,22 +1038,22 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 	 * @pre v != null and sm != null
 	 */
 	boolean isGlobal(final Value v, final SootMethod sm) {
-		boolean result = true;
+		boolean _result = true;
 
 		try {
 			if (AliasSet.canHaveAliasSet(v.getType())) {
-				result = getAliasSetFor(v, sm).isGlobal();
+				_result = getAliasSetFor(v, sm).isGlobal();
 			} else {
-				result = false;
+				_result = false;
 			}
-		} catch (RuntimeException e) {
+		} catch (RuntimeException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("There is no information about " + v + " occurring in " + sm
-					+ ".  So, providing pessimistic info (true).", e);
+					+ ".  So, providing pessimistic info (true).", _e);
 			}
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -1142,33 +1076,187 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 	 * @post delayedSet.isEmpty()
 	 */
 	private void performDelayedUnification() {
-		for (Iterator i = delayedSet.entrySet().iterator(); i.hasNext();) {
-			Map.Entry element = (Map.Entry) i.next();
-			((MethodContext) element.getKey()).unify((MethodContext) element.getValue(), true);
+		for (final Iterator _i = delayedSet.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _element = (Map.Entry) _i.next();
+			((MethodContext) _element.getKey()).unify((MethodContext) _element.getValue(), true);
 		}
 		delayedSet.clear();
+	}
+
+	/**
+	 * Performs phase 2 processing as described in the paper described in the documentation of this class.
+	 */
+	private void performPhase2() {
+		final IWorkBag _wb = new FIFOWorkBag();
+		final Collection _processed = new HashSet();
+		final Collection _sccs = cgi.getSCCs(false);
+
+		// Phase 2: The SCCs are ordered bottom up. 
+		for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
+			final List _nodes = (List) _i.next();
+
+			for (final Iterator _j = _nodes.iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Processing " + _sm);
+				}
+
+				if (!_sm.isConcrete()) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("NO BODY: " + _sm.getSignature());
+					}
+
+					continue;
+				}
+
+				final Triple _triple = (Triple) method2Triple.get(_sm);
+
+				/*
+				 * NOTE: This is an kludge to fix an anamoly arising from closing open system.  However, this triple should
+				 * have been created for each processed method in the callback method.
+				 */
+				if (_triple == null) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("NO METHOD TRIPLE: " + _sm.getSignature());
+					}
+
+					continue;
+				}
+
+				methodCtxtCache = (MethodContext) _triple.getFirst();
+				localASsCache = (Map) _triple.getSecond();
+				scCache = (Map) _triple.getThird();
+				context.setRootMethod(_sm);
+
+				if (_sm.getName().equals("<init>")) {
+					// TODO: This value was set to false previously.  However, that optimization is incorrect. After 
+					// verification.  The accessed flag in valueProcessor should be removed and a default value of "true" 
+					// should be used in it's place.
+					valueProcessor.accessed = true;
+				} else {
+					valueProcessor.accessed = true;
+				}
+
+				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_sm);
+				_wb.clear();
+				_processed.clear();
+				_wb.addAllWork(_bbg.getHeads());
+
+				while (_wb.hasWork()) {
+					final BasicBlock _bb = (BasicBlock) _wb.getWork();
+					_processed.add(_bb);
+
+					for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
+						final Stmt _stmt = (Stmt) _k.next();
+						context.setStmt(_stmt);
+						stmtProcessor.process(_stmt);
+					}
+
+					for (final Iterator _k = _bb.getSuccsOf().iterator(); _k.hasNext();) {
+						final Object _o = _k.next();
+
+						if (!_processed.contains(_o)) {
+							_wb.addWork(_o);
+						}
+					}
+				}
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("LocalASsCache: " + localASsCache);
+				}
+
+				// unify the contexts at start call-sites.
+				performDelayedUnification();
+			}
+		}
+	}
+
+	/**
+	 * Performs phase 3 processing as described in the paper described in the documentation of this class.
+	 */
+	private void performPhase3() {
+		// Phase 3
+		final IWorkBag _wb = new FIFOWorkBag();
+		final Collection _processed = new HashSet();
+		_wb.addAllWork(cgi.getHeads());
+
+		while (_wb.hasWork()) {
+			final SootMethod _caller = (SootMethod) _wb.getWork();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Top-down procesing : CALLER : " + _caller);
+			}
+
+			final Collection _callees = cgi.getCallees(_caller);
+			Triple _triple = (Triple) method2Triple.get(_caller);
+			final Map _ctrp2sc = (Map) _triple.getThird();
+
+			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
+				final SootMethod _callee = _ctrp.getMethod();
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Top-down processing : CALLEE : " + _callee);
+				}
+
+				_triple = (Triple) method2Triple.get(_callee);
+
+				/*
+				 * NOTE: This is an anomaly which results from how an open system is closed.  Refer to MethodVariant.java for
+				 * more info.
+				 */
+				if (_triple == null) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("NO CALLEE TRIPLE: " + _callee.getSignature());
+					}
+
+					continue;
+				}
+
+				final MethodContext _mc = (MethodContext) (_triple.getFirst());
+				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
+				final MethodContext _sc = (MethodContext) _ctrp2sc.get(_callerTrp);
+
+				// It would suffice to unify the site context with it self in the case of loop enclosure
+				// as this is more semantically close to what happens during execution.
+				if (_callee.getName().equals("start")
+					  && _callee.getDeclaringClass().getName().equals("java.lang.Thread")
+					  && _callee.getReturnType() instanceof VoidType
+					  && _callee.getParameterCount() == 0
+					  && cfgAnalysis.executedMultipleTimes(_ctrp.getStmt(), _caller)) {
+					_sc.selfUnify(true);
+				}
+				_sc.propogateInfoFromTo(_mc);
+
+				if (!_processed.contains(_callee)) {
+					_processed.add(_callee);
+					_wb.addWork(_callee);
+				}
+			}
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.35  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.34  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.33  2003/12/08 10:46:45  venku
    - added logging support when processing statements and values.
    - accessed field of valueProcessor is true independent of
      the method as such setting can lead to incorrect results.
    - only Object.wait() was being considered and other variants
      were not being considered. FIXED.
-
    Revision 1.32  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.

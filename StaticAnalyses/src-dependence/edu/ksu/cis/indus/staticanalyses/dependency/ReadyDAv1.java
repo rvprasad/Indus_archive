@@ -568,6 +568,7 @@ public class ReadyDAv1
 					waitMethods.add(sc.getMethod("void wait()"));
 					waitMethods.add(sc.getMethod("void wait(long)"));
 					waitMethods.add(sc.getMethod("void wait(long,int)"));
+                    waitMethods = Collections.unmodifiableCollection(waitMethods);
 
 					notifyMethods = new ArrayList();
 					notifyMethods.add(sc.getMethodByName("notify"));
@@ -859,6 +860,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.32  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

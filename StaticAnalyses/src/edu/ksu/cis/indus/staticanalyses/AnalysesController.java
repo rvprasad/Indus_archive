@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -79,7 +80,7 @@ public class AnalysesController {
 	/**
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
-	private final AbstractUnitGraphFactory stmtGraphProvider;
+	private final IUnitGraphFactory stmtGraphProvider;
 
 	/**
 	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
@@ -97,7 +98,7 @@ public class AnalysesController {
 	 *
 	 * @pre pc != null and cfgProvider != null
 	 */
-	public AnalysesController(final Map infoPrm, final ProcessingController pc, final AbstractUnitGraphFactory cfgProvider) {
+	public AnalysesController(final Map infoPrm, final ProcessingController pc, final IUnitGraphFactory cfgProvider) {
 		participatingAnalyses = new HashMap();
 		info = infoPrm;
 		preprocessController = pc;
@@ -229,6 +230,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.26  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

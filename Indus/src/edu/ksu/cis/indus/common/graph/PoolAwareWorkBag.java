@@ -29,8 +29,36 @@ import java.util.Iterator;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class PoolAwareFIFOWorkBag
-  extends FIFOWorkBag {
+public final class PoolAwareWorkBag
+  implements IWorkBag {
+	/**
+	 * The container that actual contains the work peices.
+	 */
+	private final IWorkBag container;
+
+	/**
+	 * Creates a new PoolAwareWorkBag object.
+	 *
+	 * @param theContainer is the container that actually contains the work peices.
+	 */
+	public PoolAwareWorkBag(final IWorkBag theContainer) {
+		container = theContainer;
+	}
+
+	/**
+	 * @see IWorkBag#getWork()
+	 */
+	public Object getWork() {
+		return container.getWork();
+	}
+
+	/**
+	 * @see IWorkBag#addAllWork(Collection)
+	 */
+	public void addAllWork(final Collection c) {
+		container.addAllWork(c);
+	}
+
 	/**
 	 * Adds the given collection of work to the bag. Duplicate work peices are returned to the pool.
 	 *
@@ -42,13 +70,20 @@ public final class PoolAwareFIFOWorkBag
 	 * @post result != null and result.size() == 0
 	 */
 	public Collection addAllWorkNoDuplicates(final Collection c) {
-		final Collection _coll = super.addAllWorkNoDuplicates(c);
+		final Collection _coll = container.addAllWorkNoDuplicates(c);
 
 		for (final Iterator _i = _coll.iterator(); _i.hasNext();) {
 			final IPoolable _poolable = (IPoolable) _i.next();
 			_poolable.returnToPool();
 		}
 		return Collections.EMPTY_LIST;
+	}
+
+	/**
+	 * @see IWorkBag#addWork(Object)
+	 */
+	public void addWork(final Object o) {
+		container.addWork(o);
 	}
 
 	/**
@@ -62,22 +97,37 @@ public final class PoolAwareFIFOWorkBag
 	 * @post result == true
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
-		if (!super.addWorkNoDuplicates(o)) {
+		if (!container.addWorkNoDuplicates(o)) {
 			((IPoolable) o).returnToPool();
 		}
 		return true;
+	}
+
+	/**
+	 * @see IWorkBag#clear()
+	 */
+	public void clear() {
+		container.clear();
+	}
+
+	/**
+	 * @see IWorkBag#hasWork()
+	 */
+	public boolean hasWork() {
+		return container.hasWork();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.1  2003/12/04 09:43:13  venku
    - extended FIFOWorkBag to return poolable objects to their pool.
-
  */

@@ -69,26 +69,26 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getBackEdges()</code> method.
 	 */
 	public final void testGetBackEdges() {
-		Collection cycles = dg.getCycles();
-		Collection backedges = dg.getBackEdges();
-		Collection nodes = new HashSet();
+		final Collection _cycles = dg.getCycles();
+		final Collection _backedges = dg.getBackEdges();
+		final Collection _nodes = new HashSet();
 
-		for (Iterator i = backedges.iterator(); i.hasNext();) {
-			Pair edge = (Pair) i.next();
-			nodes.clear();
-			nodes.add(edge.getFirst());
-			nodes.add(edge.getSecond());
+		for (final Iterator _i = _backedges.iterator(); _i.hasNext();) {
+			final Pair _edge = (Pair) _i.next();
+			_nodes.clear();
+			_nodes.add(_edge.getFirst());
+			_nodes.add(_edge.getSecond());
 			// ensure that all nodes in the edge do belong to the graph.
-			assertTrue(dg.getNodes().containsAll(nodes));
+			assertTrue(dg.getNodes().containsAll(_nodes));
 
-			boolean flag = false;
+			boolean _flag = false;
 
 			// ensure that the edge belongs to atlease one cycle.
-			for (Iterator j = cycles.iterator(); j.hasNext();) {
-				Collection cycle = (Collection) j.next();
-				flag |= cycle.containsAll(nodes);
+			for (final Iterator _j = _cycles.iterator(); _j.hasNext();) {
+				final Collection _cycle = (Collection) _j.next();
+				_flag |= _cycle.containsAll(_nodes);
 			}
-			assertTrue(flag);
+			assertTrue(_flag);
 		}
 	}
 
@@ -96,13 +96,13 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getCycles()</code> method.
 	 */
 	public final void testGetCycles() {
-		Collection cycles = dg.getCycles();
-		assertFalse(cycles.isEmpty());
+		final Collection _cycles = dg.getCycles();
+		assertFalse(_cycles.isEmpty());
 
-		for (Iterator i = cycles.iterator(); i.hasNext();) {
-			Collection cycle = (Collection) i.next();
-			INode node = (INode) cycle.iterator().next();
-			assertTrue(dg.isReachable(node, node, true));
+		for (final Iterator _i = _cycles.iterator(); _i.hasNext();) {
+			final Collection _cycle = (Collection) _i.next();
+			final INode _node = (INode) _cycle.iterator().next();
+			assertTrue(dg.isReachable(_node, _node, true));
 		}
 	}
 
@@ -110,15 +110,15 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getDAG()</code> method.
 	 */
 	public final void testGetDAG() {
-		Map dag = dg.getDAG();
-		Collection backedges = dg.getBackEdges();
+		final Map _dag = dg.getDAG();
+		final Collection _backedges = dg.getBackEdges();
 
-		for (Iterator i = dag.keySet().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			Collection succs = (Collection) ((Pair) dag.get(node)).getSecond();
+		for (final Iterator _i = _dag.keySet().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			final Collection _succs = (Collection) ((Pair) _dag.get(_node)).getSecond();
 
-			for (Iterator j = succs.iterator(); j.hasNext();) {
-				assertFalse(backedges.contains(new Pair(node, j.next())));
+			for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
+				assertFalse(_backedges.contains(new Pair(_node, _j.next())));
 			}
 		}
 	}
@@ -127,18 +127,18 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getHeads()</code> method.
 	 */
 	public final void testGetHeads() {
-		Collection heads = dg.getHeads();
+		final Collection _heads = dg.getHeads();
 
 		// ensure there are no predecessors for the head nodes
-		for (Iterator i = heads.iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			assertTrue(node.getPredsOf().isEmpty());
+		for (final Iterator _i = _heads.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(_node.getPredsOf().isEmpty());
 		}
 
 		// ensure none of the nodes have a head node as their successor
-		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			assertTrue(CollectionUtils.intersection(node.getSuccsOf(), heads).isEmpty());
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(CollectionUtils.intersection(_node.getSuccsOf(), _heads).isEmpty());
 		}
 	}
 
@@ -146,10 +146,10 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getNode()</code> method.
 	 */
 	public final void testGetNode() {
-		for (Iterator i = name2node.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			INode node = dg.getNode(entry.getKey());
-			assertTrue(node.equals(entry.getValue()));
+		for (final Iterator _i = name2node.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final INode _node = dg.getNode(_entry.getKey());
+			assertTrue(_node.equals(_entry.getValue()));
 		}
 	}
 
@@ -157,113 +157,78 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>getNodes()</code> method.
 	 */
 	public void testGetNodes() {
-		List nodes1 = dg.getNodes();
+		final List _nodes1 = dg.getNodes();
 
 		// check for bidirectional containment to establish equality.
 		assertTrue(name2node.values().containsAll(dg.getNodes()));
 		assertTrue(dg.getNodes().containsAll(name2node.values()));
 
-		List nodes2 = dg.getNodes();
+		final List _nodes2 = dg.getNodes();
 
 		// check ordering across calls is same..
-		assertTrue(nodes1.equals(nodes2));
+		assertTrue(_nodes1.equals(_nodes2));
 	}
 
 	/**
 	 * Tests <code>getSCCs()</code> method.
 	 */
 	public final void testGetSCCs() {
-		Collection sccsTrue = dg.getSCCs(true);
-		assertFalse(sccsTrue.isEmpty());
+		final Collection _sccsTrue = dg.getSCCs(true);
+		assertFalse(_sccsTrue.isEmpty());
 
-		Collection rest = new ArrayList();
-		Collection nodes = new ArrayList();
+		checkSCCReachability(_sccsTrue);
 
-		for (Iterator i = sccsTrue.iterator(); i.hasNext();) {
-			Collection scc = (Collection) i.next();
-			nodes.addAll(scc);
+		final Collection _sccsFalse = dg.getSCCs(false);
+		assertFalse(_sccsFalse.isEmpty());
 
-			if (scc.size() > 1) {
-				for (Iterator j = scc.iterator(); j.hasNext();) {
-					INode srcNode = (INode) j.next();
-					rest.clear();
-					rest.addAll(scc);
-					rest.remove(srcNode);
-
-					for (Iterator k = rest.iterator(); k.hasNext();) {
-						INode destNode = (INode) k.next();
-						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(srcNode, destNode, false));
-					}
-				}
-			}
-		}
-
-		Collection sccsFalse = dg.getSCCs(false);
-		assertFalse(sccsFalse.isEmpty());
-
-		for (Iterator i = sccsFalse.iterator(); i.hasNext();) {
-			Collection scc = (Collection) i.next();
-
-			if (scc.size() > 1) {
-				for (Iterator j = scc.iterator(); j.hasNext();) {
-					INode srcNode = (INode) j.next();
-					rest.clear();
-					rest.addAll(scc);
-					rest.remove(srcNode);
-
-					for (Iterator k = rest.iterator(); k.hasNext();) {
-						INode destNode = (INode) k.next();
-						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(srcNode, destNode, false));
-					}
-				}
-			}
-		}
-		assertTrue(sccsTrue.containsAll(sccsFalse) && sccsFalse.containsAll(sccsTrue) && dg.getNodes().containsAll(nodes));
+		checkSCCReachability(_sccsFalse);
+		assertTrue(_sccsTrue.containsAll(_sccsFalse));
+		assertTrue(_sccsFalse.containsAll(_sccsTrue));
 	}
 
 	/**
 	 * Tests <code>getSpanningSuccs()</code> method.
 	 */
 	public final void testGetSpanningSuccs() {
-		Map spanningSuccs = dg.getSpanningSuccs();
-		Set temp = new HashSet();
+		final Map _spanningSuccs = dg.getSpanningSuccs();
+		final Set _temp = new HashSet();
 
-		for (Iterator i = spanningSuccs.values().iterator(); i.hasNext();) {
-			Collection succs = (Collection) i.next();
-			temp.addAll(succs);
+		for (final Iterator _i = _spanningSuccs.values().iterator(); _i.hasNext();) {
+			final Collection _succs = (Collection) _i.next();
+			_temp.addAll(_succs);
 		}
 
 		// ensure all tree nodes are among the nodes of this graph.
-		assertTrue(dg.getNodes().containsAll(spanningSuccs.keySet()));
-		assertTrue(dg.getNodes().containsAll(temp));
+		assertTrue(dg.getNodes().containsAll(_spanningSuccs.keySet()));
+		assertTrue(dg.getNodes().containsAll(_temp));
 
 		// ensure no node appears as child of two different parents in the spanning tree.
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			assertTrue(CollectionUtils.cardinality(node, temp) == 1);
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(CollectionUtils.cardinality(_node, _temp) == 1);
 		}
 
 		// ensure that all nodes occur in the spanning tree
-		temp.addAll(spanningSuccs.keySet());
-		assertTrue(temp.containsAll(dg.getNodes()));
+		_temp.addAll(_spanningSuccs.keySet());
+		assertTrue(_temp.containsAll(dg.getNodes()));
 	}
 
 	/**
 	 * Tests <code>getTails()</code> method.
 	 */
 	public final void testGetTails() {
-		Collection tails = dg.getTails();
+		final Collection _tails = dg.getTails();
 
 		// ensure none of the tails have a successor
-		for (Iterator i = tails.iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			assertTrue(node.getSuccsOf().isEmpty());
+		for (final Iterator _i = _tails.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(_node.getSuccsOf().isEmpty());
 		}
 
 		// ensure none of the nodes have a tail node as a predecessor
-		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			assertTrue(CollectionUtils.intersection(node.getPredsOf(), tails).isEmpty());
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _tails).isEmpty());
 		}
 		localtestGraphGetTails();
 	}
@@ -286,18 +251,18 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>performTopologicalSort()</code> method.
 	 */
 	public final void testPerformTopologicalSort() {
-		List sorted = dg.performTopologicalSort(true);
-		List nodes = dg.getNodes();
-		assertTrue(nodes.containsAll(sorted) && sorted.containsAll(nodes));
+		final List _sorted = dg.performTopologicalSort(true);
+		final List _nodes = dg.getNodes();
+		assertTrue(_nodes.containsAll(_sorted) && _sorted.containsAll(_nodes));
 
 		if (dg.getCycles().isEmpty()) {
-			for (Iterator i = sorted.iterator(); i.hasNext();) {
-				INode src = (INode) i.next();
-				Collection t = sorted.subList(sorted.indexOf(src), sorted.size() - 1);
+			for (final Iterator _i = _sorted.iterator(); _i.hasNext();) {
+				final INode _src = (INode) _i.next();
+				final Collection _t = _sorted.subList(_sorted.indexOf(_src), _sorted.size() - 1);
 
-				for (Iterator j = t.iterator(); j.hasNext();) {
-					INode dest = (INode) j.next();
-					assertFalse(dg.isReachable(dest, src, true));
+				for (final Iterator _j = _t.iterator(); _j.hasNext();) {
+					final INode _dest = (INode) _j.next();
+					assertFalse(dg.isReachable(_dest, _src, true));
 				}
 			}
 		}
@@ -307,7 +272,7 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>size()</code> method.
 	 */
 	public void testSize() {
-		assertTrue(name2node.values().size() == dg.getNodes().size());
+		assertEquals(name2node.values().size(), dg.getNodes().size());
 	}
 
 	/**
@@ -355,11 +320,11 @@ public class DirectedAndSimpleNodeGraphTest
 	 * @pre graph != null and preds != null and succs != null
 	 * @post preds.oclIsKindOf(INode, Collection(INode)) and succs.oclIsKindOf(INode, Collection(INode))
 	 */
-	protected void extractPredSuccCopy(final DirectedGraph graph, final Map preds, final Map succs) {
-		for (Iterator i = graph.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			preds.put(node, new ArrayList(node.getPredsOf()));
-			succs.put(node, new ArrayList(node.getSuccsOf()));
+	protected final void extractPredSuccCopy(final IDirectedGraph graph, final Map preds, final Map succs) {
+		for (final Iterator _i = graph.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			preds.put(_node, new ArrayList(_node.getPredsOf()));
+			succs.put(_node, new ArrayList(_node.getSuccsOf()));
 		}
 	}
 
@@ -367,9 +332,9 @@ public class DirectedAndSimpleNodeGraphTest
 	 * Tests <code>addEdgeFromTo</code> method on test local graph instance.
 	 */
 	protected void localtestAddEdgeFromTo() {
-		Map preds1 = new HashMap();
-		Map succs1 = new HashMap();
-		extractPredSuccCopy(dg, preds1, succs1);
+		final Map _preds1 = new HashMap();
+		final Map _succs1 = new HashMap();
+		extractPredSuccCopy(dg, _preds1, _succs1);
 
 		// Add edge from c to h
 		dg.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("h"));
@@ -377,41 +342,41 @@ public class DirectedAndSimpleNodeGraphTest
 		assertTrue(((INode) name2node.get("c")).getSuccsOf().contains(name2node.get("h")));
 		assertTrue(((INode) name2node.get("h")).getPredsOf().contains(name2node.get("c")));
 
-		Map preds2 = new HashMap();
-		Map succs2 = new HashMap();
-		extractPredSuccCopy(dg, preds2, succs2);
+		final Map _preds2 = new HashMap();
+		final Map _succs2 = new HashMap();
+		extractPredSuccCopy(dg, _preds2, _succs2);
 
-		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
 
-			if (name2node.get("h") != node) {
-				assertTrue(preds1.get(node).equals(preds2.get(node)));
+			if (name2node.get("h") != _node) {
+				assertTrue(_preds1.get(_node).equals(_preds2.get(_node)));
 			}
 
-			if (name2node.get("c") != node) {
-				assertTrue(succs1.get(node).equals(succs2.get(node)));
+			if (name2node.get("c") != _node) {
+				assertTrue(_succs1.get(_node).equals(_succs2.get(_node)));
 			}
 		}
 
 		// Add edge from a to f
 		dg.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("f"));
 
-		preds1.clear();
-		succs1.clear();
-		extractPredSuccCopy(dg, preds1, succs1);
+		_preds1.clear();
+		_succs1.clear();
+		extractPredSuccCopy(dg, _preds1, _succs1);
 
 		assertTrue(((INode) name2node.get("a")).getSuccsOf().contains(name2node.get("f")));
 		assertTrue(((INode) name2node.get("f")).getPredsOf().contains(name2node.get("a")));
 
-		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
 
-			if (name2node.get("f") != node) {
-				assertTrue(preds1.get(node).equals(preds2.get(node)));
+			if (name2node.get("f") != _node) {
+				assertTrue(_preds1.get(_node).equals(_preds2.get(_node)));
 			}
 
-			if (name2node.get("a") != node) {
-				assertTrue(succs1.get(node).equals(succs2.get(node)));
+			if (name2node.get("a") != _node) {
+				assertTrue(_succs1.get(_node).equals(_succs2.get(_node)));
 			}
 		}
 	}
@@ -449,11 +414,45 @@ public class DirectedAndSimpleNodeGraphTest
 		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), false));
 		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), true));
 	}
+
+	/**
+	 * Checks for the reachability of nodes in the SCCs.
+	 *
+	 * @param sccs in which reachability should be checked.
+	 *
+	 * @pre sccs != null
+	 */
+	private void checkSCCReachability(final Collection sccs) {
+		final Collection _nodes = new ArrayList();
+		final Collection _rest = new ArrayList();
+
+		for (final Iterator _i = sccs.iterator(); _i.hasNext();) {
+			final Collection _scc = (Collection) _i.next();
+			_nodes.addAll(_scc);
+
+			if (_scc.size() > 1) {
+				for (final Iterator _j = _scc.iterator(); _j.hasNext();) {
+					final INode _srcNode = (INode) _j.next();
+					_rest.addAll(_scc);
+					_rest.remove(_srcNode);
+
+					for (final Iterator _k = _rest.iterator(); _k.hasNext();) {
+						final INode _destNode = (INode) _k.next();
+						assertTrue(dg.isReachable(_srcNode, _destNode, true) && dg.isReachable(_srcNode, _destNode, false));
+					}
+				}
+			}
+		}
+		assertTrue(dg.getNodes().containsAll(_nodes));
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
@@ -469,33 +468,33 @@ public class DirectedAndSimpleNodeGraphTest
      DirectedAndSimpleNodeGraphTest.
    Revision 1.12  2003/09/28 23:19:36  venku
  *** empty log message ***
-     Revision 1.11  2003/09/14 23:20:48  venku
-     - added support to retrieve a DAG from a graph.
-     - removed support to extract preds/succs as a bitst from the graph.
-     - added/removed tests for the above changes.
-     Revision 1.10  2003/09/12 08:07:26  venku
-     - documentation.
-     Revision 1.9  2003/09/11 12:31:00  venku
-     - made ancestral relationship antisymmetric
-     - added testcases to test the relationship.
-     Revision 1.8  2003/09/11 02:37:30  venku
-     - formatting.
-     Revision 1.7  2003/09/11 02:37:12  venku
-     - added a test case for javac compilation of Divergent04 test.
-     - created test suite to test directed and simple node graph.
-     Revision 1.6  2003/09/11 01:52:07  venku
-     - prenum, postnum, and back edges support has been added.
-     - added test case to test the above addition.
-     - corrected subtle bugs in test1
-     - refactored test1 so that setup local testing can be added by subclasses.
-     Revision 1.5  2003/09/09 01:14:29  venku
-     - spruced up getSCCs() test for both true and false arguments.
-     Revision 1.4  2003/09/02 02:46:39  venku
-     - Removed unwanted import.
-     Revision 1.3  2003/09/01 20:57:12  venku
-     - Deleted getForwardSuccsOf().
-     Revision 1.2  2003/08/24 12:35:47  venku
-     Documentation changes.
-     Revision 1.1  2003/08/24 12:05:34  venku
-     Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
+           Revision 1.11  2003/09/14 23:20:48  venku
+           - added support to retrieve a DAG from a graph.
+           - removed support to extract preds/succs as a bitst from the graph.
+           - added/removed tests for the above changes.
+           Revision 1.10  2003/09/12 08:07:26  venku
+           - documentation.
+           Revision 1.9  2003/09/11 12:31:00  venku
+           - made ancestral relationship antisymmetric
+           - added testcases to test the relationship.
+           Revision 1.8  2003/09/11 02:37:30  venku
+           - formatting.
+           Revision 1.7  2003/09/11 02:37:12  venku
+           - added a test case for javac compilation of Divergent04 test.
+           - created test suite to test directed and simple node graph.
+           Revision 1.6  2003/09/11 01:52:07  venku
+           - prenum, postnum, and back edges support has been added.
+           - added test case to test the above addition.
+           - corrected subtle bugs in test1
+           - refactored test1 so that setup local testing can be added by subclasses.
+           Revision 1.5  2003/09/09 01:14:29  venku
+           - spruced up getSCCs() test for both true and false arguments.
+           Revision 1.4  2003/09/02 02:46:39  venku
+           - Removed unwanted import.
+           Revision 1.3  2003/09/01 20:57:12  venku
+           - Deleted getForwardSuccsOf().
+           Revision 1.2  2003/08/24 12:35:47  venku
+           Documentation changes.
+           Revision 1.1  2003/08/24 12:05:34  venku
+           Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
  */

@@ -91,6 +91,9 @@ public final class Environment
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
    Revision 1.3  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

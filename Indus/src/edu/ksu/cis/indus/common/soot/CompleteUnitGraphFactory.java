@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,7 +31,7 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CompleteUnitGraphFactory
+public final class CompleteUnitGraphFactory
   extends AbstractUnitGraphFactory {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -43,30 +42,31 @@ public class CompleteUnitGraphFactory
 	 * {@inheritDoc}
 	 */
 	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
-		UnitGraph result = null;
+		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
-			result = new CompleteUnitGraph(method.retrieveActiveBody());
+			_result = new CompleteUnitGraph(method.retrieveActiveBody());
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("Method " + method + " is not concrete.");
 			}
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:42:42  venku
+   - unit graph factories are responsible to construct empty
+     bodies for methods not BasicBlockGraphMgr.  FIXED.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.11  2003/12/08 10:16:26  venku
    - refactored classes such that the subclasses only provide the
      unit graphs whereas the parent class does the bookkeeping.
-
    Revision 1.10  2003/12/08 10:03:29  venku
    - changed the logic to obtain the reference, do the check on it,
      and then reinstall it if it had gone bad.
@@ -89,7 +89,7 @@ public class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-                     Revision 1.1  2003/09/28 06:22:54  venku
-                     - Added support to plug unit graphs from the environment when
-                       requested by the implementations.
+                       Revision 1.1  2003/09/28 06:22:54  venku
+                       - Added support to plug unit graphs from the environment when
+                         requested by the implementations.
  */

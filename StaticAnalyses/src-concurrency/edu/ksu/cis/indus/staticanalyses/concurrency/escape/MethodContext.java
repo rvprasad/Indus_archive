@@ -43,7 +43,7 @@ import soot.Type;
  * @author $Author$
  * @version $Revision$
  */
-class MethodContext
+final class MethodContext
   extends FastUnionFindElement
   implements Cloneable {
 	/**
@@ -124,20 +124,20 @@ class MethodContext
 	MethodContext(final SootMethod sm) {
 		method = sm;
 
-		int paramCount = sm.getParameterCount();
+		final int _paramCount = sm.getParameterCount();
 
-		if (paramCount > 0) {
-			argAliasSets = new ArrayList(paramCount);
+		if (_paramCount > 0) {
+			argAliasSets = new ArrayList(_paramCount);
 
-			for (int i = 0; i < paramCount; i++) {
-				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(i)));
+			for (int _i = 0; _i < _paramCount; _i++) {
+				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(_i)));
 			}
 		} else {
 			argAliasSets = Collections.EMPTY_LIST;
 		}
 
-		Type retType = sm.getReturnType();
-		ret = AliasSet.getASForType(retType);
+		final Type _retType = sm.getReturnType();
+		ret = AliasSet.getASForType(_retType);
 		thrown = AliasSet.createAliasSet();
 
 		if (!sm.isStatic()) {
@@ -154,43 +154,43 @@ class MethodContext
 	 */
 	public Object clone()
 	  throws CloneNotSupportedException {
-		MethodContext result = null;
+		MethodContext _result = null;
 
 		if (set != null) {
-			result = (MethodContext) ((MethodContext) find()).clone();
+			_result = (MethodContext) ((MethodContext) find()).clone();
 		} else {
-			result = (MethodContext) super.clone();
+			_result = (MethodContext) super.clone();
 
-			Map clonee2clone = new HashMap();
-			result.set = null;
+			final Map _clonee2clone = new HashMap();
+			_result.set = null;
 
 			if (thisAS != null) {
-				result.thisAS = (AliasSet) thisAS.clone();
-				buildClonee2CloneMap(thisAS, result.thisAS, clonee2clone);
+				_result.thisAS = (AliasSet) thisAS.clone();
+				buildClonee2CloneMap(thisAS, _result.thisAS, _clonee2clone);
 			}
-			result.argAliasSets = new ArrayList();
+			_result.argAliasSets = new ArrayList();
 
-			for (Iterator i = argAliasSets.iterator(); i.hasNext();) {
-				AliasSet tmp = (AliasSet) i.next();
+			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _tmp = (AliasSet) _i.next();
 
-				if (tmp != null) {
-					Object o = tmp.clone();
-					result.argAliasSets.add(o);
-					buildClonee2CloneMap(tmp, (AliasSet) o, clonee2clone);
+				if (_tmp != null) {
+					final Object _o = _tmp.clone();
+					_result.argAliasSets.add(_o);
+					buildClonee2CloneMap(_tmp, (AliasSet) _o, _clonee2clone);
 				} else {
-					result.argAliasSets.add(null);
+					_result.argAliasSets.add(null);
 				}
 			}
 
 			if (ret != null) {
-				result.ret = (AliasSet) ret.clone();
-				buildClonee2CloneMap(ret, result.ret, clonee2clone);
+				_result.ret = (AliasSet) ret.clone();
+				buildClonee2CloneMap(ret, _result.ret, _clonee2clone);
 			}
-			result.thrown = (AliasSet) thrown.clone();
-			buildClonee2CloneMap(thrown, result.thrown, clonee2clone);
-			unionclones(clonee2clone);
+			_result.thrown = (AliasSet) thrown.clone();
+			buildClonee2CloneMap(thrown, _result.thrown, _clonee2clone);
+			unionclones(_clonee2clone);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -243,39 +243,39 @@ class MethodContext
 	 * @post col.contains(col$pre)
 	 */
 	void addReachableAliasSetsTo(final Collection col) {
-		AliasSet temp;
+		AliasSet _temp;
 
 		if (thisAS != null) {
-			temp = (AliasSet) thisAS.find();
+			_temp = (AliasSet) thisAS.find();
 
-			if (!col.contains(temp)) {
-				temp.addReachableAliasSetsTo(col);
+			if (!col.contains(_temp)) {
+				_temp.addReachableAliasSetsTo(col);
 			}
 		}
 
 		if (ret != null) {
-			temp = (AliasSet) ret.find();
+			_temp = (AliasSet) ret.find();
 
-			if (!col.contains(temp)) {
-				temp.addReachableAliasSetsTo(col);
+			if (!col.contains(_temp)) {
+				_temp.addReachableAliasSetsTo(col);
 			}
 		}
-		temp = (AliasSet) thrown.find();
+		_temp = (AliasSet) thrown.find();
 
-		if (!col.contains(temp)) {
-			temp.addReachableAliasSetsTo(col);
+		if (!col.contains(_temp)) {
+			_temp.addReachableAliasSetsTo(col);
 		}
 
-		int paramCount = method.getParameterCount();
+		final int _paramCount = method.getParameterCount();
 
-		for (int i = 0; i < paramCount; i++) {
-			temp = (AliasSet) argAliasSets.get(i);
+		for (int _i = 0; _i < _paramCount; _i++) {
+			_temp = (AliasSet) argAliasSets.get(_i);
 
-			if (temp != null) {
-				temp = (AliasSet) temp.find();
+			if (_temp != null) {
+				_temp = (AliasSet) _temp.find();
 
-				if (!col.contains(temp)) {
-					temp.addReachableAliasSetsTo(col);
+				if (!col.contains(_temp)) {
+					_temp.addReachableAliasSetsTo(col);
 				}
 			}
 		}
@@ -288,36 +288,36 @@ class MethodContext
 	 * @param mc is the destination of the information transfer.
 	 */
 	void propogateInfoFromTo(final MethodContext mc) {
-		MethodContext rep1 = (MethodContext) find();
-		MethodContext rep2 = (MethodContext) mc.find();
+		final MethodContext _methodContext1 = (MethodContext) find();
+		final MethodContext _methodContext2 = (MethodContext) mc.find();
 
-		AliasSet temp1;
-		AliasSet temp2;
+		AliasSet _temp1;
+		AliasSet _temp2;
 
-		int paramCount = method.getParameterCount();
+		final int _paramCount = method.getParameterCount();
 
-		for (int i = 0; i < paramCount; i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
-				temp1 = (AliasSet) rep1.argAliasSets.get(i);
-				temp2 = (AliasSet) rep2.argAliasSets.get(i);
+		for (int _i = 0; _i < _paramCount; _i++) {
+			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
+				_temp1 = (AliasSet) _methodContext1.argAliasSets.get(_i);
+				_temp2 = (AliasSet) _methodContext2.argAliasSets.get(_i);
 
-				if (temp1 != null && temp2 != null) {
-					temp1.propogateInfoFromTo(temp2);
+				if (_temp1 != null && _temp2 != null) {
+					_temp1.propogateInfoFromTo(_temp2);
 				}
 			}
 		}
 
-		temp1 = rep1.ret;
+		_temp1 = _methodContext1.ret;
 
-		if (temp1 != null) {
-			temp1.propogateInfoFromTo(rep2.ret);
+		if (_temp1 != null) {
+			_temp1.propogateInfoFromTo(_methodContext2.ret);
 		}
-		rep1.thrown.propogateInfoFromTo(rep2.thrown);
+		_methodContext1.thrown.propogateInfoFromTo(_methodContext2.thrown);
 
-		temp1 = rep1.thisAS;
+		_temp1 = _methodContext1.thisAS;
 
-		if (temp1 != null) {
-			temp1.propogateInfoFromTo(rep2.thisAS);
+		if (_temp1 != null) {
+			_temp1.propogateInfoFromTo(_methodContext2.thisAS);
 		}
 	}
 
@@ -327,26 +327,26 @@ class MethodContext
 	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
 	 */
 	void selfUnify(final boolean unifyAll) {
-		MethodContext m = (MethodContext) find();
-		int paramCount = method.getParameterCount();
+		final MethodContext _methodContext = (MethodContext) find();
+		final int _paramCount = method.getParameterCount();
 
-		for (int i = 0; i < paramCount; i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
-				((AliasSet) m.argAliasSets.get(i)).selfUnify(unifyAll);
+		for (int _i = 0; _i < _paramCount; _i++) {
+			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
+				((AliasSet) _methodContext.argAliasSets.get(_i)).selfUnify(unifyAll);
 			}
 		}
 
-		AliasSet mRet = m.ret;
+		final AliasSet _mRet = _methodContext.ret;
 
-		if (mRet != null) {
-			mRet.selfUnify(unifyAll);
+		if (_mRet != null) {
+			_mRet.selfUnify(unifyAll);
 		}
-		m.thrown.selfUnify(unifyAll);
+		_methodContext.thrown.selfUnify(unifyAll);
 
-		AliasSet mThis = m.thisAS;
+		final AliasSet _mThis = _methodContext.thisAS;
 
-		if (mThis != null) {
-			mThis.selfUnify(unifyAll);
+		if (_mThis != null) {
+			_mThis.selfUnify(unifyAll);
 		}
 	}
 
@@ -370,62 +370,27 @@ class MethodContext
 			LOGGER.error("Unification with null requested.");
 		}
 
-		MethodContext m = (MethodContext) find();
-		MethodContext n = (MethodContext) p.find();
+		MethodContext _m = (MethodContext) find();
+		MethodContext _n = (MethodContext) p.find();
 
-		if (m == n) {
+		if (_m == _n) {
 			return;
 		}
 
-		m.union(n);
+		_m.union(_n);
 
-		MethodContext temp = (MethodContext) m.find();
+		final MethodContext _temp = (MethodContext) _m.find();
 
-		if (temp != m) {
-			n = m;
-			m = temp;
+		if (_temp != _m) {
+			_n = _m;
+			_m = _temp;
 		}
 
-		int paramCount = method.getParameterCount();
+		unifyParameters(unifyAll, _m, _n);
 
-		for (int i = 0; i < paramCount; i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
-				AliasSet mAS = (AliasSet) m.argAliasSets.get(i);
-				AliasSet nAS = (AliasSet) n.argAliasSets.get(i);
-
-				if (mAS == null && nAS != null || mAS != null && nAS == null) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Incompatible method contexts being unified - argument[" + i + "] - " + mAS + " " + nAS
-							+ " " + method.getSignature());
-					}
-				} else if (mAS != null) {
-					mAS.unify(nAS, unifyAll);
-				}
-			}
-		}
-
-		AliasSet mRet = m.ret;
-		AliasSet nRet = n.ret;
-
-		if ((mRet == null && nRet != null) || (mRet != null && nRet == null)) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Incompatible method contexts being unified - return value - " + mRet + " " + nRet);
-			}
-		} else if (mRet != null) {
-			mRet.unify(nRet, unifyAll);
-		}
-		m.thrown.unify(n.thrown, unifyAll);
-
-		AliasSet mThis = m.thisAS;
-		AliasSet nThis = n.thisAS;
-
-		if ((mThis == null && nThis != null) || (mThis != null && nThis == null)) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Incompatible method contexts being unified - staticness - " + mThis + " " + nThis);
-			}
-		} else if (mThis != null) {
-			mThis.unify(nThis, unifyAll);
-		}
+		unifyAliasSets(unifyAll, _m.ret, _n.ret);
+		_m.thrown.unify(_n.thrown, unifyAll);
+		unifyAliasSets(unifyAll, _m.thisAS, _n.thisAS);
 	}
 
 	/**
@@ -441,25 +406,74 @@ class MethodContext
 	private void buildClonee2CloneMap(final AliasSet s, final AliasSet d, final Map clonee2clone) {
 		clonee2clone.put(s, d);
 
-		AliasSet rep = (AliasSet) s.find();
+		final AliasSet _rep = (AliasSet) s.find();
 
-		Map sMap = rep.getFieldMap();
+		final Map _sMap = _rep.getFieldMap();
 
-		for (Iterator i = sMap.keySet().iterator(); i.hasNext();) {
-			String fieldName = (String) i.next();
+		for (final Iterator _i = _sMap.keySet().iterator(); _i.hasNext();) {
+			final String _fieldName = (String) _i.next();
 
-			AliasSet a = (AliasSet) sMap.get(fieldName);
+			final AliasSet _a = (AliasSet) _sMap.get(_fieldName);
 
-			if (clonee2clone.containsKey(a)) {
-				d.putASForField(fieldName, (AliasSet) clonee2clone.get(a));
+			if (clonee2clone.containsKey(_a)) {
+				d.putASForField(_fieldName, (AliasSet) clonee2clone.get(_a));
 			} else {
-				AliasSet b = d.getASForField(fieldName);
+				AliasSet _b = d.getASForField(_fieldName);
 
-				if (b == null) {
-					b = AliasSet.createAliasSet();
-					d.putASForField(fieldName, b);
+				if (_b == null) {
+					_b = AliasSet.createAliasSet();
+					d.putASForField(_fieldName, _b);
 				}
-				buildClonee2CloneMap(a, b, clonee2clone);
+				buildClonee2CloneMap(_a, _b, clonee2clone);
+			}
+		}
+	}
+
+	/**
+	 * Unifies the given alias sets.
+	 *
+	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
+	 * @param aliasSet1 is one of the alias set to be unified.
+	 * @param aliasSet2 is the other alias set to be unified.
+	 *
+	 * @pre aliasSet1 != null and aliasSet2 != null
+	 */
+	private void unifyAliasSets(final boolean unifyAll, final AliasSet aliasSet1, final AliasSet aliasSet2) {
+		if ((aliasSet1 == null && aliasSet2 != null) || (aliasSet1 != null && aliasSet2 == null)) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Incompatible method contexts being unified - return value - " + aliasSet1 + " " + aliasSet2);
+			}
+		} else if (aliasSet1 != null) {
+			aliasSet1.unify(aliasSet2, unifyAll);
+		}
+	}
+
+	/**
+	 * Unify the alias sets of the parameters in the given method contexts.
+	 *
+	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
+	 * @param methodContext1 is one of the method context that contains the parameter alias sets to be unified.
+	 * @param methodContext2 is the other method context that contains the parameter alias sets to be unified.
+	 *
+	 * @pre methodContext1 != null and methodContext2 != null
+	 */
+	private void unifyParameters(final boolean unifyAll, final MethodContext methodContext1,
+		final MethodContext methodContext2) {
+		final int _paramCount = method.getParameterCount();
+
+		for (int _i = 0; _i < _paramCount; _i++) {
+			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
+				final AliasSet _mAS = (AliasSet) methodContext1.argAliasSets.get(_i);
+				final AliasSet _nAS = (AliasSet) methodContext2.argAliasSets.get(_i);
+
+				if (_mAS == null && _nAS != null || _mAS != null && _nAS == null) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("Incompatible method contexts being unified - argument[" + _i + "] - " + _mAS + " "
+							+ _nAS + " " + method.getSignature());
+					}
+				} else if (_mAS != null) {
+					_mAS.unify(_nAS, unifyAll);
+				}
 			}
 		}
 	}
@@ -473,29 +487,29 @@ class MethodContext
 	 * @invariant clonee2clone.oclIsKindOf(Map(AliasSet, AliasSet))
 	 */
 	private void unionclones(final Map clonee2clone) {
-		Collection processed = new HashSet();
+		final Collection _processed = new HashSet();
 
-		for (Iterator i = clonee2clone.keySet().iterator(); i.hasNext();) {
-			FastUnionFindElement k1 = (FastUnionFindElement) i.next();
+		for (final Iterator _i = clonee2clone.keySet().iterator(); _i.hasNext();) {
+			final FastUnionFindElement _k1 = (FastUnionFindElement) _i.next();
 
-			if (processed.contains(k1)) {
+			if (_processed.contains(_k1)) {
 				continue;
 			}
 
-			for (Iterator j = clonee2clone.keySet().iterator(); j.hasNext();) {
-				FastUnionFindElement k2 = (FastUnionFindElement) j.next();
+			for (final Iterator _j = clonee2clone.keySet().iterator(); _j.hasNext();) {
+				final FastUnionFindElement _k2 = (FastUnionFindElement) _j.next();
 
-				if (k1 == k2 || processed.contains(k2)) {
+				if (_k1 == _k2 || _processed.contains(_k2)) {
 					continue;
 				}
 
-				if (k1.find() == k2.find()) {
-					FastUnionFindElement v1 = (FastUnionFindElement) clonee2clone.get(k1);
-					FastUnionFindElement v2 = (FastUnionFindElement) clonee2clone.get(k2);
-					v1.find().union(v2.find());
+				if (_k1.find() == _k2.find()) {
+					final FastUnionFindElement _v1 = (FastUnionFindElement) clonee2clone.get(_k1);
+					final FastUnionFindElement _v2 = (FastUnionFindElement) clonee2clone.get(_k2);
+					_v1.find().union(_v2.find());
 				}
 			}
-			processed.add(k1);
+			_processed.add(_k1);
 		}
 	}
 }
@@ -503,15 +517,16 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.10  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.9  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.8  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.

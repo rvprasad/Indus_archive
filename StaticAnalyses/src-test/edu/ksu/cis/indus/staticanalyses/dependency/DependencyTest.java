@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -34,6 +31,9 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,46 +91,46 @@ public final class DependencyTest
 	 * @throws RuntimeException when <code>indus.dependencytest.properties.file</code> property is unspecified.
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
-		String propFileName = System.getProperty("indus.dependencytest.properties.file");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
+		final String _propFileName = System.getProperty("indus.dependencytest.properties.file");
 
-		if (propFileName == null) {
+		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
 				+ "-Dindus.dependencytest.properties.file");
 		}
-		setupTests(propFileName, suite);
-		return suite;
+		setupTests(_propFileName, _suite);
+		return _suite;
 	}
 
 	/**
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testDA() {
-		List das = xmlizer.getDAs();
-		String xmlOutDir = xmlizer.getXmlOutDir();
+		final List _das = xmlizer.getDAs();
+		final String _xmlOutDir = xmlizer.getXmlOutDir();
 
-		for (Iterator i = xmlizer.getRootMethods().iterator(); i.hasNext();) {
-			SootMethod root = (SootMethod) i.next();
-			String rootName = root.getSignature();
+		for (final Iterator _i = xmlizer.getRootMethods().iterator(); _i.hasNext();) {
+			final SootMethod _root = (SootMethod) _i.next();
+			final String _rootName = _root.getSignature();
 
-			for (Iterator iter = das.iterator(); iter.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) iter.next();
+			for (final Iterator _j = _das.iterator(); _j.hasNext();) {
+				final DependencyAnalysis _da = (DependencyAnalysis) _j.next();
 
 				try {
-					Reader current =
-						new FileReader(new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-								+ rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-					Reader previous =
-						new FileReader(new File(xmlInDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-								+ rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-					assertXMLEqual(previous, current);
-				} catch (IOException e) {
-					LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at method "
-						+ rootName, e);
-				} catch (SAXException e) {
-					LOGGER.error("Exception while parsing XML", e);
-				} catch (ParserConfigurationException e) {
-					LOGGER.error("XML parser configuration related exception", e);
+					final Reader _current =
+						new FileReader(new File(_xmlOutDir + File.separator + _da.getId() + "_" + _das.indexOf(_da) + "_"
+								+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+					final Reader _previous =
+						new FileReader(new File(xmlInDir + File.separator + _da.getId() + "_" + _das.indexOf(_da) + "_"
+								+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+					assertXMLEqual(_previous, _current);
+				} catch (IOException _e) {
+					LOGGER.error("Failed to write the xml file based on " + _da.getClass() + " for system rooted at method "
+						+ _rootName, _e);
+				} catch (SAXException _e) {
+					LOGGER.error("Exception while parsing XML", _e);
+				} catch (ParserConfigurationException _e) {
+					LOGGER.error("XML parser configuration related exception", _e);
 				}
 			}
 		}
@@ -168,55 +168,55 @@ public final class DependencyTest
 	 *
 	 * @pre propFileName != null and suite != null
 	 */
-	private static final void setupTests(final String propFileName, final TestSuite suite) {
-		Properties props = new Properties();
-		IJimpleIDGenerator generator = new UniqueJimpleIDGenerator();
+	private static void setupTests(final String propFileName, final TestSuite suite) {
+		final Properties _props = new Properties();
+		final IJimpleIDGenerator _generator = new UniqueJimpleIDGenerator();
 
 		try {
-			props.load(new FileInputStream(new File(propFileName)));
+			_props.load(new FileInputStream(new File(propFileName)));
 
-			String[] configs = props.getProperty("configs").split(" ");
+			final String[] _configs = _props.getProperty("configs").split(" ");
 
-			for (int i = 0; i < configs.length; i++) {
-				String config = configs[i];
-				String[] temp = props.getProperty(config + ".classNames").split(" ");
-				String xmlOutputDir = props.getProperty(config + ".xmlOutputDir");
-				String xmlInputDir = props.getProperty(config + ".xmlInputDir");
-				String classpath = props.getProperty(config + ".classpath");
-				File f = new File(xmlInputDir);
+			for (int _i = 0; _i < _configs.length; _i++) {
+				final String _config = _configs[_i];
+				final String[] _temp = _props.getProperty(_config + ".classNames").split(" ");
+				final String _xmlOutputDir = _props.getProperty(_config + ".xmlOutputDir");
+				final String _xmlInputDir = _props.getProperty(_config + ".xmlInputDir");
+				final String _classpath = _props.getProperty(_config + ".classpath");
+				File _f = new File(_xmlInputDir);
 
-				if (!f.exists() || !f.canRead()) {
-					LOGGER.error("Input directory " + xmlInputDir + " does not exists. Bailing on " + config);
+				if (!_f.exists() || !_f.canRead()) {
+					LOGGER.error("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
-				f = new File(xmlOutputDir);
+				_f = new File(_xmlOutputDir);
 
-				if (!f.exists() || !f.canWrite()) {
-					LOGGER.error("Output directory " + xmlInputDir + " does not exists. Bailing on " + config);
+				if (!_f.exists() || !_f.canWrite()) {
+					LOGGER.error("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 
-				DependencyTest test;
+				DependencyTest _test;
 
 				try {
-					test = new DependencyTest(new DependencyXMLizer(true), xmlInputDir);
-					test.xmlizer.setClassNames(temp);
-					test.xmlizer.setXMLOutputDir(xmlOutputDir);
-					test.xmlizer.setGenerator(generator);
-					test.xmlizer.populateDAs();
+					_test = new DependencyTest(new DependencyXMLizer(true), _xmlInputDir);
+					_test.xmlizer.setClassNames(_temp);
+					_test.xmlizer.setXMLOutputDir(_xmlOutputDir);
+					_test.xmlizer.setGenerator(_generator);
+					_test.xmlizer.populateDAs();
 
-					if (classpath != null) {
-						test.xmlizer.addToSootClassPath(classpath);
+					if (_classpath != null) {
+						_test.xmlizer.addToSootClassPath(_classpath);
 					}
-				} catch (IllegalArgumentException e) {
-					test = null;
+				} catch (IllegalArgumentException _e) {
+					_test = null;
 				}
 
-				if (test != null) {
-					suite.addTest(test);
+				if (_test != null) {
+					suite.addTest(_test);
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			throw new IllegalArgumentException("Specified property file does not exist.");
 		}
 	}
@@ -225,6 +225,9 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/11/17 16:58:15  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.

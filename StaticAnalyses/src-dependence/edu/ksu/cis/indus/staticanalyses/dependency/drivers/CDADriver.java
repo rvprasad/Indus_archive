@@ -27,6 +27,8 @@ import java.util.ArrayList;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class CDADriver
   extends DADriver {
@@ -46,22 +48,21 @@ public class CDADriver
 	 * @param args command line arguemnts.
 	 */
 	public static void main(final String[] args) {
-		(new CDADriver(args)).run();
-	}
+		DADriver da = new CDADriver(args);
+		da.das = new ArrayList();
+		da.das.add(new EntryControlDA());
+		da.das.add(new ExitControlDA());
 
-	/**
-	 * Initializes the collection of dependence analyses with the control dependence analyses to be driven.
-	 */
-	protected void initialize() {
-		das = new ArrayList();
-		das.add(new EntryControlDA());
-		das.add(new ExitControlDA());
+		da.execute();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.6  2003/11/25 17:51:23  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.

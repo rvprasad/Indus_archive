@@ -28,13 +28,13 @@ public class Marker {
 	/**
 	 * Any content to be stored in the marker.
 	 */
-	public final Object _content;
+	private final Object content;
 
 	/**
 	 * Creates a new Marker object with <code>content</code> set to <code>null</code>.
 	 */
 	public Marker() {
-		_content = null;
+		content = null;
 	}
 
 	/**
@@ -43,7 +43,16 @@ public class Marker {
 	 * @param o is any content to be stored in the marker.
 	 */
 	public Marker(final Object o) {
-		_content = o;
+		content = o;
+	}
+
+	/**
+	 * Retrieves the contents of this marker.
+	 *
+	 * @return the content of this marker.
+	 */
+	public Object getContent() {
+		return this.content;
 	}
 
 	/**
@@ -57,18 +66,18 @@ public class Marker {
 	 * @post result == false implies (not o.oclTypeOf(Marker)) or not (o._content.equals(_content) or o._content == _content)
 	 */
 	public boolean equals(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (o != null && o instanceof Marker) {
-			Object temp = ((Marker) o)._content;
+			final Object _temp = ((Marker) o).content;
 
-			if (temp == null && _content == null) {
-				result = this == o;
-			} else if (_content != null && temp != null) {
-				result = _content.equals(temp);
+			if (_temp == null && content == null) {
+				_result = this == o;
+			} else if (content != null && _temp != null) {
+				_result = content.equals(_temp);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -77,29 +86,30 @@ public class Marker {
 	 * @return the hash code of the object.
 	 */
 	public int hashCode() {
-		int result;
+		int _result;
 
-		if (_content != null) {
-			result = _content.hashCode();
+		if (content != null) {
+			_result = content.hashCode();
 		} else {
-			result = super.hashCode();
+			_result = super.hashCode();
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.7  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.6  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.5  2003/09/28 03:16:20  venku
@@ -112,15 +122,15 @@ public class Marker {
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-     Revision 1.2  2003/08/11 04:20:19  venku
-     - Pair and Triple were changed to work in optimized and unoptimized mode.
-     - Ripple effect of the previous change.
-     - Documentation and specification of other classes.
-     Revision 1.1  2003/08/07 06:42:16  venku
-     Major:
-      - Moved the package under indus umbrella.
-      - Renamed isEmpty() to hasWork() in IWorkBag.
-     Revision 1.4  2003/05/22 22:18:31  venku
-     All the interfaces were renamed to start with an "I".
-     Optimizing changes related Strings were made.
+         Revision 1.2  2003/08/11 04:20:19  venku
+         - Pair and Triple were changed to work in optimized and unoptimized mode.
+         - Ripple effect of the previous change.
+         - Documentation and specification of other classes.
+         Revision 1.1  2003/08/07 06:42:16  venku
+         Major:
+          - Moved the package under indus umbrella.
+          - Renamed isEmpty() to hasWork() in IWorkBag.
+         Revision 1.4  2003/05/22 22:18:31  venku
+         All the interfaces were renamed to start with an "I".
+         Optimizing changes related Strings were made.
  */

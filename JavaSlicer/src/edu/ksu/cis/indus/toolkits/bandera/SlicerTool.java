@@ -46,7 +46,7 @@ import soot.Scene;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SlicerTool
+public final class SlicerTool
   extends BaseObservable
   implements Tool {
 	/**
@@ -139,39 +139,40 @@ public class SlicerTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
 	public void setInputMap(final Map inputArgs) {
-		Scene theScene = (Scene) inputArgs.get(SCENE);
+		final Scene _theScene = (Scene) inputArgs.get(SCENE);
 
-		if (theScene == null) {
+		if (_theScene == null) {
 			LOGGER.error("A scene must be provided for slicing.");
 			throw new IllegalArgumentException("A scene must be provided for slicing.");
 		}
-		tool.setSystem(theScene);
+		tool.setSystem(_theScene);
 
-		Collection criteria = (Collection) inputArgs.get(CRITERIA);
+		final Collection _criteria = (Collection) inputArgs.get(CRITERIA);
 
-		if (criteria == null || criteria.isEmpty()) {
+		if (_criteria == null || _criteria.isEmpty()) {
 			LOGGER.warn("Deadlock criteria will be used.");
 		} else {
-			tool.setCriteria(criteria);
+			tool.setCriteria(_criteria);
 
-			for (Iterator i = criteria.iterator(); i.hasNext();) {
-				Object o = i.next();
+			for (final Iterator _i = _criteria.iterator(); _i.hasNext();) {
+				final Object _o = _i.next();
 
-				if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
-					LOGGER.error(o + " is an invalid slicing criterion.  "
+				if (!SliceCriteriaFactory.isSlicingCriterion(_o)) {
+					LOGGER.error(_o + " is an invalid slicing criterion.  "
 						+ "All slicing criterion should be created via SliceCriteriaFactory.");
-					throw new IllegalArgumentException("Slicing criteion " + o + " was not created by SliceCriteriaFactory.");
+					throw new IllegalArgumentException("Slicing criteion " + _o
+						+ " was not created via SliceCriteriaFactory.");
 				}
 			}
 		}
 
-		Collection rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
+		final Collection _rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
 
-		if (rootMethods == null || rootMethods.isEmpty()) {
+		if (_rootMethods == null || _rootMethods.isEmpty()) {
 			LOGGER.error("Atleast one method should be specified as the entry-point into the system.");
 			throw new IllegalArgumentException("Atleast one method should be specified as the entry-point into the system.");
 		}
-		tool.setRootMethods(rootMethods);
+		tool.setRootMethods(_rootMethods);
 	}
 
 	/**
@@ -185,9 +186,9 @@ public class SlicerTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputMap()
 	 */
 	public Map getOutputMap() {
-		Map outputMap = new HashMap();
-		outputMap.put(SCENE, tool.getSystem());
-		return outputMap;
+		final Map _outputMap = new HashMap();
+		_outputMap.put(SCENE, tool.getSystem());
+		return _outputMap;
 	}
 
 	/**
@@ -230,10 +231,12 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/09 12:23:48  venku
+   - added support to control synchronicity of method runs.
+   - ripple effect.
    Revision 1.19  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
-
    Revision 1.18  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

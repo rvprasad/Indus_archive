@@ -36,9 +36,12 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class maps a new instance creation expression to the invocation site that calls the constructor on the created
+ * instance. In Jimple, one can pick the new expression and pick the immediate following statement with
+ * <code>&lt;init&gt;</code> invocation expression.  Note that both these statements should occur in the same method.
+ * However, this can be incorrect in some cases.  A more sound approach is to this approach and only pair the new expression
+ * and the invocation expression only when the object created at the new expression flows into the primary at the
+ * invocation site. We use object flow analysis for this purpose.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -47,25 +50,24 @@ import soot.jimple.Stmt;
 public class Init2NewExprMapper
   extends AbstractValueAnalyzerBasedProcessor {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a cache of the context.
 	 */
 	private Context contextCache = new Context();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the object flow information to be used to improve precision.
 	 */
 	private IValueAnalyzer ofa;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps methods to a map from new expression occurring statement to init invocation expression occurring statement.
+	 *
+	 * @invariant method2map != null
+	 * @invariant method2map.oclIsKindOf(Map(SootMethod, Map(NewExpr, Stmt)))
+	 * @invariant method2map.keySet()->forall(o | method2map.get(o)->forall(p | (p.getValue().containsInvokeExpr() &&
+	 * 			  p.getValue().getInvokeExpr().oclIsKindOf(SpecialInvokeExpr))))
 	 */
-	private Map method2map = new HashMap();
+	private final Map method2map = new HashMap();
 
 	/**
 	 * @see IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
@@ -75,14 +77,15 @@ public class Init2NewExprMapper
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the init invocation expression containing statement corresponding to the given new expression containing
+	 * statement.
 	 *
-	 * @param newExprStmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param newExprStmt is the statement with the new expression.
+	 * @param method in which <code>newExprStmt</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the statement in which the corresponding init invocation expression occurring statement
+	 *
+	 * @post result != null and result.contains(InvokeExpr) and result.getInvokeExpr().oclIsKindOf(SpecialInvokeExpr)
 	 */
 	public Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method) {
 		Map ne2init = (Map) method2map.get(method);
@@ -153,11 +156,16 @@ public class Init2NewExprMapper
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the new expression to init call map for the given method.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method for which the map is requested.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the map corresponding to the given method.
+	 *
+	 * @pre method != null
+	 * @post result != null
+	 * @post result->forall(o | result.get(o).containsInvokeExpr() &&
+	 * 		 result.get(o).getInvokeExpr().oclIsKindOf(SpecialInvokeExpr))))
 	 */
 	private Map getMapFor(final SootMethod method) {
 		Map result = (Map) method2map.get(method);
@@ -173,6 +181,9 @@ public class Init2NewExprMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.1  2003/11/22 00:42:22  venku
    - renamed InitResolved to Init2NewExprMapper.
    - added logic to realize the functionality.

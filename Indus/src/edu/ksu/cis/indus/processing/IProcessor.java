@@ -119,6 +119,9 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.4  2003/11/17 15:58:12  venku

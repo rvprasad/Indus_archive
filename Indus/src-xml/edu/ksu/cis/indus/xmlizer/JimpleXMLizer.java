@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.Modifier;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -45,9 +46,7 @@ import soot.util.Chain;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class can be used to xmlize a system represented as Jimple.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -61,63 +60,58 @@ public class JimpleXMLizer
 	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizer.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The id generator used during xmlization of the jimple.
+	 *
+	 * @invariant idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The Jimple statement xmlizer.
+	 *
+	 * @invariant stmtXmlizer != null
 	 */
-	private final StmtXMLizer stmtXmlizer;
+	private final JimpleStmtXMLizer stmtXmlizer;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the type that is being processed at present or just befor this point in time is a class or an
+	 * interface.
 	 */
 	private String currType;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The stream into which the xmlized data is written into.
 	 */
 	private Writer xmlizedSystem;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the processing of a class has begun.  This is  set in the callback for a class.
 	 */
 	private boolean processingClass;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the processing of a method has begun.  This is  set in the callback for a method.
 	 */
 	private boolean processingMethod;
 
 	/**
 	 * Creates a new JimpleXMLizer object.
 	 *
-	 * @param generator DOCUMENT ME!
+	 * @param generator used to generate ids of xml elements.
+	 *
+	 * @pre generator != null
 	 */
 	public JimpleXMLizer(final IJimpleIDGenerator generator) {
 		idGenerator = generator;
-		stmtXmlizer = new StmtXMLizer(new ValueXMLizer(generator), generator);
+		stmtXmlizer = new JimpleStmtXMLizer(new JimpleValueXMLizer(generator), generator);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the writer/stream to be used by this xmlizer.  This is the stream into which the xml data is written into.
 	 *
-	 * @param writer DOCUMENT ME!
+	 * @param writer used to write the xml data into a stream.
+	 *
+	 * @pre writer != null
 	 */
 	public final void setWriter(final Writer writer) {
 		xmlizedSystem = writer;
@@ -125,11 +119,11 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * The entry point to execute this xmlizer from command prompt.
 	 *
-	 * @param s DOCUMENT ME!
+	 * @param s is the command-line arguments.
+	 *
+	 * @pre s != null
 	 */
 	public static void main(final String[] s) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
@@ -139,8 +133,8 @@ public class JimpleXMLizer
 		_pc.setEnvironment(_env);
 		_pc.setProcessingFilter(new XMLizingProcessingFilter());
 
-		for (int i = 0; i < s.length; i++) {
-			_scene.loadClassAndSupport(s[i]);
+		for (int _i = 0; _i < s.length; _i++) {
+			_scene.loadClassAndSupport(s[_i]);
 		}
 
 		final Writer _writer = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -152,8 +146,8 @@ public class JimpleXMLizer
 		try {
 			_writer.flush();
 			_writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException _e) {
+			_e.printStackTrace();
 		}
 	}
 
@@ -166,8 +160,6 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
 	public final void callback(final SootMethod method) {
@@ -186,16 +178,7 @@ public class JimpleXMLizer
 			xmlizedSystem.write("\t\t  native=\"" + method.isNative() + "\"\n");
 			xmlizedSystem.write("\t\t  synchronized=\"" + method.isSynchronized() + "\"\n");
 
-			String accessSpec = "";
-
-			if (method.isPublic()) {
-				accessSpec = "public";
-			} else if (method.isPrivate()) {
-				accessSpec = "private";
-			} else if (method.isProtected()) {
-				accessSpec = "proctected";
-			}
-			xmlizedSystem.write("\t\t  accessSpec=\"" + accessSpec + "\">\n");
+			xmlizedSystem.write("\t\t  accessSpec=\"" + getAccessSpecifier(method.getModifiers()) + "\">\n");
 
 			// capture info about signature
 			xmlizedSystem.write("\t\t\t<signature>\n");
@@ -204,20 +187,16 @@ public class JimpleXMLizer
 			xmlizedSystem.write(_indent + "<returnType typeId=\"" + idGenerator.getIdForType(method.getReturnType())
 				+ "\"/>\n");
 
-			if (method.getParameterCount() > 0) {
-				int j = 0;
+			int _j = 0;
 
-				for (final Iterator _i = method.getParameterTypes().iterator(); _i.hasNext();) {
-					xmlizedSystem.write(_indent + "<paramType typeId=\"" + idGenerator.getIdForType((Type) _i.next())
-						+ "\" position=\"" + j++ + "\"/>\n");
-				}
+			for (final Iterator _i = method.getParameterTypes().iterator(); _i.hasNext();) {
+				xmlizedSystem.write(_indent + "<paramType typeId=\"" + idGenerator.getIdForType((Type) _i.next())
+					+ "\" position=\"" + _j++ + "\"/>\n");
 			}
 
-			if (method.getExceptions().size() > 0) {
-				for (final Iterator _i = method.getExceptions().iterator(); _i.hasNext();) {
-					xmlizedSystem.write(_indent + "<exception typeId=\"" + idGenerator.getIdForClass((SootClass) _i.next())
-						+ "\"/>\n");
-				}
+			for (final Iterator _i = method.getExceptions().iterator(); _i.hasNext();) {
+				xmlizedSystem.write(_indent + "<exception typeId=\"" + idGenerator.getIdForClass((SootClass) _i.next())
+					+ "\"/>\n");
 			}
 			xmlizedSystem.write("\t\t\t</signature>\n");
 
@@ -247,16 +226,14 @@ public class JimpleXMLizer
 						+ _l.getName() + "\" typeId=\"" + idGenerator.getIdForType(_l.getType()) + "\"/>\n");
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
 	public final void callback(final SootClass clazz) {
@@ -281,16 +258,7 @@ public class JimpleXMLizer
 
 			xmlizedSystem.write("\t  abstract=\"" + clazz.isAbstract() + "\"\n");
 
-			String accessSpec = "";
-
-			if (clazz.isPublic()) {
-				accessSpec = "public";
-			} else if (clazz.isPrivate()) {
-				accessSpec = "private";
-			} else if (clazz.isProtected()) {
-				accessSpec = "proctected";
-			}
-			xmlizedSystem.write("\t  accessSpec=\"" + accessSpec + "\">\n");
+			xmlizedSystem.write("\t  accessSpec=\"" + getAccessSpecifier(clazz.getModifiers()) + "\">\n");
 
 			if (clazz.hasSuperclass()) {
 				final SootClass _sc = clazz.getSuperclass();
@@ -308,10 +276,8 @@ public class JimpleXMLizer
 			}
 
 			processingMethod = false;
-		} catch (IOException e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", e);
-			}
+		} catch (IOException _e) {
+			LOGGER.warn("Error while writing xmlized jimple info.", _e);
 		}
 	}
 
@@ -325,19 +291,19 @@ public class JimpleXMLizer
 			xmlizedSystem.write("\t\t  static=\"" + field.isStatic() + "\"\n");
 			xmlizedSystem.write("\t\t  final=\"" + field.isFinal() + "\"\n");
 
-			String accessSpec = "";
+			String _accessSpec = "";
 
 			if (field.isPublic()) {
-				accessSpec = "public";
+				_accessSpec = "public";
 			} else if (field.isPrivate()) {
-				accessSpec = "private";
+				_accessSpec = "private";
 			} else if (field.isProtected()) {
-				accessSpec = "proctected";
+				_accessSpec = "proctected";
 			}
-			xmlizedSystem.write("\t\t  accessSpec=\"" + accessSpec + "\"/>\n");
-		} catch (IOException e) {
+			xmlizedSystem.write("\t\t  accessSpec=\"" + _accessSpec + "\"/>\n");
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
 		}
 	}
@@ -355,9 +321,9 @@ public class JimpleXMLizer
 				xmlizedSystem.write("\t</" + currType + ">\n");
 			}
 			xmlizedSystem.write("</jimple>\n");
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
 		}
 	}
@@ -377,27 +343,51 @@ public class JimpleXMLizer
 		try {
 			xmlizedSystem.write("<!DOCTYPE jimple PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
 			xmlizedSystem.write("<jimple>\n");
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", e);
+				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
+
+	/**
+	 * Retrieves the string that represents the access specifier in the given modifers.
+	 *
+	 * @param modifiers from which the access specifier should be extracted as a string.
+	 *
+	 * @return the stringized form of the access specifier.
+	 *
+	 * @post result != null
+	 */
+	private String getAccessSpecifier(final int modifiers) {
+		String _result = "";
+
+		if (Modifier.isPublic(modifiers)) {
+			_result = "public";
+		} else if (Modifier.isPrivate(modifiers)) {
+			_result = "private";
+		} else if (Modifier.isProtected(modifiers)) {
+			_result = "proctected";
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/09 09:50:46  venku
+   - amended output of string output to be XML compliant.
+     This means some characters that are unrepresentable in
+     XML are omitted.
    Revision 1.25  2003/12/02 11:36:16  venku
    - coding convention.
    Revision 1.24  2003/12/02 09:42:25  venku

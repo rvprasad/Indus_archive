@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SlicerConfigurationView
+public final class SlicerConfigurationView
   implements ToolConfigurationView,
 	  ToolIconView {
 	/**
@@ -110,6 +110,10 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 11:32:01  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.9  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

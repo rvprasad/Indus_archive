@@ -42,11 +42,11 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-		TestRunner runner = new TestRunner();
-		runner.setLoading(false);
-		runner.start(new String[0]);
-		runner.startTest(suite());
-		runner.runSuite();
+		final TestRunner _runner = new TestRunner();
+		_runner.setLoading(false);
+		_runner.start(new String[0]);
+		_runner.startTest(suite());
+		_runner.runSuite();
 	}
 
 	/**
@@ -57,20 +57,24 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.common.graph");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.graph");
 
 		//$JUnit-BEGIN$
-		suite.addTestSuite(DirectedAndSimpleNodeGraphTest.class);
-		suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
-		suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
+		_suite.addTestSuite(DirectedAndSimpleNodeGraphTest.class);
+		_suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
+		_suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
-		return suite;
+		return _suite;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

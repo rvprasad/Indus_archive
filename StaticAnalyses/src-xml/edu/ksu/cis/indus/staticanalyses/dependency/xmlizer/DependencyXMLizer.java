@@ -86,9 +86,7 @@ import soot.SootMethod;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class xmlizes dependence information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -97,43 +95,39 @@ import soot.SootMethod;
 public class DependencyXMLizer
   extends AbstractXMLizer {
 	/**
+	 * This is used to identify statement level dependence producing analysis.
+	 */
+	public static final Object STMT_LEVEL_DEPENDENCY;
+
+	/**
+	 * This maps dependency ids to dependence sort ids (STMT_LEVEL_DEPENDENCY).
+	 */
+	protected static final Properties PROPERTIES;
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependencyXMLizer.class);
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	protected static final Properties PROPERTIES;
 
 	static {
 		STMT_LEVEL_DEPENDENCY = "STMT_LEVEL_DEPENDENCY";
 		PROPERTIES = new Properties();
 
-		String propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
+		String _propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
 
-		if (propFileName == null) {
-			propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/xmlizer/DependencyXMLizer.properties";
+		if (_propFileName == null) {
+			_propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/xmlizer/DependencyXMLizer.properties";
 		}
 
-		InputStream stream = ClassLoader.getSystemResourceAsStream(propFileName);
+		final InputStream _stream = ClassLoader.getSystemResourceAsStream(_propFileName);
 
 		try {
-			PROPERTIES.load(stream);
-		} catch (IOException e) {
+			PROPERTIES.load(_stream);
+		} catch (IOException _e) {
 			System.out.println("Well, error loading property file.  Bailing.");
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
 	}
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final Object STMT_LEVEL_DEPENDENCY;
 
 	/**
 	 * This is the flow analyser used by the analyses being tested.
@@ -155,9 +149,7 @@ public class DependencyXMLizer
 	protected final Map info = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the directory into which the xml output will be written into.
 	 */
 	protected String xmlOutDir;
 
@@ -169,7 +161,7 @@ public class DependencyXMLizer
 	/**
 	 * This provides equivalence class based escape analysis.
 	 */
-	EquivalenceClassBasedEscapeAnalysis ecba = null;
+	EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * This provides call-graph based processing controller.
@@ -177,23 +169,20 @@ public class DependencyXMLizer
 	ValueAnalyzerBasedProcessingController cgipc;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides use-def info based on aliasing.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This dependency ids to dependence sort ids (STMT_LEVEL_DEPENDENCY).
 	 */
 	private Properties properties;
 
 	/**
 	 * Creates a new DependencyXMLizer object.
 	 *
-	 * @param useECBA DOCUMENT ME!
+	 * @param useECBA <code>true</code> indicates equivalence class based escape analysis should be used; <code>false</code>,
+	 * 		  otherwise.
 	 */
 	public DependencyXMLizer(final boolean useECBA) {
 		setLogger(LogFactory.getLog(DependencyXMLizer.class));
@@ -202,40 +191,40 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the dependences being xmlized.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of dependence analysis.
+	 *
+	 * @post result != null and result.oclIsKindOf(Sequence(DependenceAnalysis))
 	 */
-	public List getDAs() {
+	public final List getDAs() {
 		return Collections.unmodifiableList(das);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This is the entry point via command-line.
 	 *
-	 * @param s DOCUMENT ME!
+	 * @param args is the command line arguments.
+	 *
+	 * @pre args != null
 	 */
-	public static void main(final String[] s) {
-		Options options = new Options();
-		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		option.setRequired(true);
-		option.setArgs(Option.UNLIMITED_VALUES);
-		option.setValueSeparator(' ');
-		options.addOption(option);
-		option =
+	public static void main(final String[] args) {
+		final Options _options = new Options();
+		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
+		_option.setRequired(true);
+		_option.setArgs(Option.UNLIMITED_VALUES);
+		_option.setValueSeparator(' ');
+		_options.addOption(_option);
+		_option =
 			new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
-		option.setArgs(1);
-		options.addOption(option);
-		option.setRequired(false);
-		option = new Option("j", "jimple", false, "Dump xmlized jimple.");
-		options.addOption(option);
+		_option.setArgs(1);
+		_options.addOption(_option);
+		_option.setRequired(false);
+		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
+		_options.addOption(_option);
 
-		Object[][] dasOptions =
+		final Object[][] _dasOptions =
 			{
 				{ "a", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
@@ -248,160 +237,163 @@ public class DependencyXMLizer
 				{ "k", "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "l", "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "m", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "n", "dda", "Divergence dependence", new DivergenceDA() }
+				{ "n", "dda", "Divergence dependence", new DivergenceDA() },
 			};
 
-		for (int i = 0; i < dasOptions.length; i++) {
-			option = new Option(dasOptions[i][0].toString(), dasOptions[i][1].toString(), false, dasOptions[i][2].toString());
-			options.addOption(option);
+		for (int _i = 0; _i < _dasOptions.length; _i++) {
+			final String _shortOption = _dasOptions[_i][0].toString();
+			final String _longOption = _dasOptions[_i][1].toString();
+			final String _description = _dasOptions[_i][2].toString();
+			_option = new Option(_shortOption, _longOption, false, _description);
+			_options.addOption(_option);
 		}
 
-		PosixParser parser = new PosixParser();
+		final PosixParser _parser = new PosixParser();
 
 		try {
-			CommandLine cl = parser.parse(options, s);
-			DependencyXMLizer xmlizer = new DependencyXMLizer(true);
-			String outputDir = cl.getOptionValue('o');
+			final CommandLine _cl = _parser.parse(_options, args);
+			final DependencyXMLizer _xmlizer = new DependencyXMLizer(true);
+			String _outputDir = _cl.getOptionValue('o');
 
-			if (outputDir == null) {
+			if (_outputDir == null) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Defaulting to current directory for output.");
 				}
-				outputDir = ".";
+				_outputDir = ".";
 			}
 
-			xmlizer.dumpXMLizedJimple = cl.hasOption('j');
+			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
-			xmlizer.setXMLOutputDir(outputDir);
-			xmlizer.setClassNames(cl.getOptionValues('c'));
-			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
+			_xmlizer.setXMLOutputDir(_outputDir);
+			_xmlizer.setClassNames(_cl.getOptionValues('c'));
+			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-			for (int i = 0; i < dasOptions.length; i++) {
-				if (cl.hasOption(dasOptions[i][0].toString())) {
-					xmlizer.populateDA((DependencyAnalysis) dasOptions[i][3]);
+			for (int _i = 0; _i < _dasOptions.length; _i++) {
+				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
+					_xmlizer.populateDA((DependencyAnalysis) _dasOptions[_i][3]);
 				}
 			}
-			xmlizer.initialize();
-			xmlizer.execute();
-			xmlizer.reset();
-		} catch (ParseException e) {
-			LOGGER.error("Error while parsing command line.", e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", options);
+			_xmlizer.initialize();
+			_xmlizer.execute();
+			_xmlizer.reset();
+		} catch (ParseException _e) {
+			LOGGER.error("Error while parsing command line.", _e);
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the root methods of the system.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of methods.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	public Collection getRootMethods() {
+	public final Collection getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
 	}
 
 	/**
 	 * Drives the analyses.
 	 */
-	public void execute() {
+	public final void execute() {
 		setLogger(LOGGER);
 
-		String tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
+		final String _tagName = "DependencyXMLizer:FA";
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
 
-		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
-		Collection processors = new ArrayList();
-		ICallGraphInfo cgi = new CallGraph();
-		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
-		Collection rm = new ArrayList();
-		ProcessingController xmlcgipc = new ProcessingController();
+		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
+		final Collection _processors = new ArrayList();
+		final ICallGraphInfo _cgi = new CallGraph();
+		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, bbm));
+		final Collection _rm = new ArrayList();
+		final ProcessingController _xmlcgipc = new ProcessingController();
 		cgipc = new ValueAnalyzerBasedProcessingController();
 
-		pc.setAnalyzer(aa);
-		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+		_pc.setAnalyzer(aa);
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 		cgipc.setAnalyzer(aa);
-		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
-		xmlcgipc.setEnvironment(aa.getEnvironment());
-		xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+		cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
+		_xmlcgipc.setEnvironment(aa.getEnvironment());
+		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
 		aliasUD = new AliasedUseDefInfo(aa);
-		info.put(ICallGraphInfo.ID, cgi);
-		info.put(IThreadGraphInfo.ID, tgi);
+		info.put(ICallGraphInfo.ID, _cgi);
+		info.put(IThreadGraphInfo.ID, _tgi);
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ID, aliasUD);
 
 		if (ecbaRequired) {
-			ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, tgi, bbm);
+			ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, bbm);
 			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		}
 
-		for (Iterator k = rootMethods.iterator(); k.hasNext();) {
-			rm.clear();
+		for (final Iterator _k = rootMethods.iterator(); _k.hasNext();) {
+			_rm.clear();
 
-			SootMethod root = (SootMethod) k.next();
-			rm.add(root);
+			final SootMethod _root = (SootMethod) _k.next();
+			_rm.add(_root);
 
-			String rootname = root.getSignature();
-			writeInfo("RootMethod: " + rootname);
+			final String _rootname = _root.getSignature();
+			writeInfo("RootMethod: " + _rootname);
 			writeInfo("BEGIN: FA");
 
-			long start = System.currentTimeMillis();
+			long _start = System.currentTimeMillis();
 			aa.reset();
 			bbm.reset();
 
 			if (ecbaRequired) {
 				ecba.reset();
 			}
-			aa.analyze(scene, rm);
+			aa.analyze(scene, _rm);
 
-			long stop = System.currentTimeMillis();
-			addTimeLog("FA", stop - start);
+			long _stop = System.currentTimeMillis();
+			addTimeLog("FA", _stop - _start);
 			writeInfo("END: FA");
-			((CallGraph) cgi).reset();
-			processors.clear();
-			processors.add(cgi);
-			pc.reset();
-			process(pc, processors);
-			writeInfo("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
-			processors.clear();
-			((ThreadGraph) tgi).reset();
-			processors.add(tgi);
+			((CallGraph) _cgi).reset();
+			_processors.clear();
+			_processors.add(_cgi);
+			_pc.reset();
+			process(_pc, _processors);
+			writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).dumpGraph());
+			_processors.clear();
+			((ThreadGraph) _tgi).reset();
+			_processors.add(_tgi);
 			cgipc.reset();
-			process(cgipc, processors);
-			writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
+			process(cgipc, _processors);
+			writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
 			setupDependencyAnalyses();
 			writeInfo("BEGIN: dependency analyses");
 
-			for (Iterator i = das.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				start = System.currentTimeMillis();
-				da.analyze();
-				stop = System.currentTimeMillis();
-				addTimeLog(da.getClass().getName() + "[" + da.hashCode() + "] analysis", stop - start);
+			for (final Iterator _i = das.iterator(); _i.hasNext();) {
+				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+				_start = System.currentTimeMillis();
+				_da.analyze();
+				_stop = System.currentTimeMillis();
+				addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
 			}
 			writeInfo("END: dependency analyses");
 
-			Map threadMap = new HashMap();
+			final Map _threadMap = new HashMap();
 			writeInfo("\nThread mapping:");
 
-			int count = 1;
+			int _count = 1;
 
-			for (java.util.Iterator j = tgi.getAllocationSites().iterator(); j.hasNext();) {
-				NewExprTriple element = (NewExprTriple) j.next();
-				String tid = "T" + count++;
-				threadMap.put(element, tid);
+			for (final Iterator _j = _tgi.getAllocationSites().iterator(); _j.hasNext();) {
+				final NewExprTriple _element = (NewExprTriple) _j.next();
+				final String _tid = "T" + _count++;
+				_threadMap.put(_element, _tid);
 
-				if (element.getMethod() == null) {
-					writeInfo(tid + " -> " + element.getExpr().getType());
+				if (_element.getMethod() == null) {
+					writeInfo(_tid + " -> " + _element.getExpr().getType());
 				} else {
-					writeInfo(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+					writeInfo(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
 				}
 			}
 
-			writeXML(rootname, info);
+			writeXML(_rootname, info);
 			writeInfo("Total classes loaded: " + scene.getClasses().size());
 			printTimingStats();
 
@@ -412,15 +404,15 @@ public class DependencyXMLizer
 				try {
 					_writer =
 						new FileWriter(new File(getXmlOutDir() + File.separator
-								+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
+								+ _rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
 					_t.setWriter(_writer);
-					_t.hookup(xmlcgipc);
-					xmlcgipc.process();
-					_t.unhook(xmlcgipc);
+					_t.hookup(_xmlcgipc);
+					_xmlcgipc.process();
+					_t.unhook(_xmlcgipc);
 					_writer.flush();
 					_writer.close();
-				} catch (IOException e) {
-					LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", e);
+				} catch (IOException _e) {
+					LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", _e);
 					System.exit(1);
 				}
 			}
@@ -428,41 +420,43 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Flushes the writes associated with each xmlizers.
 	 *
-	 * @param xmlizers DOCUMENT ME!
-	 * @param ctrl DOCUMENT ME!
+	 * @param xmlizers to be flushed.
+	 * @param ctrl to unhook the xmlizers from.
+	 *
+	 * @pre xmlizers != null and ctrl != null
 	 */
 	public final void flushXMLizers(final Map xmlizers, final ProcessingController ctrl) {
-		for (Iterator i = xmlizers.keySet().iterator(); i.hasNext();) {
-			IProcessor p = (IProcessor) i.next();
-			p.unhook(ctrl);
+		for (final Iterator _i = xmlizers.keySet().iterator(); _i.hasNext();) {
+			final IProcessor _p = (IProcessor) _i.next();
+			_p.unhook(ctrl);
 
 			try {
-				FileWriter f = (FileWriter) xmlizers.get(p);
-				f.flush();
-				f.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				LOGGER.error("Failed to close the xml file based on " + p.getClass(), e);
+				final FileWriter _f = (FileWriter) xmlizers.get(_p);
+				_f.flush();
+				_f.close();
+			} catch (IOException _e) {
+				_e.printStackTrace();
+				LOGGER.error("Failed to close the xml file based on " + _p.getClass(), _e);
 			}
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initializes the xmlizers.
 	 *
-	 * @param root DOCUMENT ME!
-	 * @param ctrl DOCUMENT ME!
+	 * @param rootname is the name of the root method.
+	 * @param ctrl is the controller to be used to initialize the xmlizers and to which to hook up the xmlizers to xmlize the
+	 * 		  dependence information.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a map of xmlizers and the associated writers.
+	 *
+	 * @pre rootname != null and ctrl != null
+	 * @post result != null and result.oclIsKindOf(Map(StmtLevelDependencyXMLizer, Writer))
 	 */
-	public final Map initXMLizers(final String root, final ProcessingController ctrl) {
-		Map result = new HashMap();
+	public final Map initXMLizers(final String rootname, final ProcessingController ctrl) {
+		final Map _result = new HashMap();
 
 		if (xmlOutDir == null) {
 			if (LOGGER.isWarnEnabled()) {
@@ -471,36 +465,35 @@ public class DependencyXMLizer
 			xmlOutDir = ".";
 		}
 
-		for (Iterator iter = das.iterator(); iter.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) iter.next();
+		for (final Iterator _i = das.iterator(); _i.hasNext();) {
+			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 
-			File f =
-				new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-					+ root.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+			final File _f =
+				new File(xmlOutDir + File.separator + _da.getId() + "_" + das.indexOf(_da) + "_"
+					+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
 
 			try {
-				FileWriter writer = new FileWriter(f);
-				AbstractDependencyXMLizer xmlizer = getXMLizerFor(writer, da);
+				final FileWriter _writer = new FileWriter(_f);
+				final StmtLevelDependencyXMLizer _xmlizer = getXMLizerFor(_writer, _da);
 
-				if (xmlizer == null) {
-					LOGGER.error("No xmlizer specified for dependency calculated by " + da.getClass()
+				if (_xmlizer == null) {
+					LOGGER.error("No xmlizer specified for dependency calculated by " + _da.getClass()
 						+ ".  No xml file written.");
-					writer.close();
+					_writer.close();
 				} else {
-					xmlizer.hookup(ctrl);
-					result.put(xmlizer, writer);
+					_xmlizer.hookup(ctrl);
+					_result.put(_xmlizer, _writer);
 				}
-			} catch (IOException e) {
-				LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at " + root, e);
+			} catch (IOException _e) {
+				LOGGER.error("Failed to write the xml file based on " + _da.getClass() + " for system rooted at " + rootname,
+					_e);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Populates the collection of dependences that will be xmlized.
 	 */
 	public void populateDAs() {
 		// The order is important for the purpose of Testing as it influences the output file name
@@ -519,11 +512,9 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Reset internal data structures.
 	 */
-	public void reset() {
+	public final void reset() {
 		das.clear();
 		aa = null;
 		cgipc = null;
@@ -532,64 +523,66 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the properties that map from dependence ids and dependence xmlization ids.
 	 *
-	 * @param props DOCUMENT ME!
+	 * @param props is the mapping.
+	 *
+	 * @pre props != null
 	 */
-	protected void setProperties(final Properties props) {
+	protected final void setProperties(final Properties props) {
 		properties = props;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Write the xml for the given root and given information map.
 	 *
-	 * @param root DOCUMENT ME!
-	 * @param info DOCUMENT ME!
+	 * @param root is the entry point to the system.
+	 * @param infoArg is the map of information (id to implementation mapping).
+	 *
+	 * @pre root != null and infoArg != null
+	 * @pre infoArg.oclIsKindOf(Map(Object, Object))
 	 */
-	protected void writeXML(final String root, final Map info) {
-		ProcessingController ctrl = new ProcessingController();
-		ctrl.setEnvironment(aa.getEnvironment());
-		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) info.get(ICallGraphInfo.ID)));
+	protected final void writeXML(final String root, final Map infoArg) {
+		final ProcessingController _ctrl = new ProcessingController();
+		_ctrl.setEnvironment(aa.getEnvironment());
+		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) infoArg.get(ICallGraphInfo.ID)));
 
-		Map xmlizers = initXMLizers(root, ctrl);
-		ctrl.process();
-		flushXMLizers(xmlizers, ctrl);
+		final Map _xmlizers = initXMLizers(root, _ctrl);
+		_ctrl.process();
+		flushXMLizers(_xmlizers, _ctrl);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrives the xmlizer for the given dependence analysis based on the properties.
 	 *
-	 * @param f DOCUMENT ME!
-	 * @param da DOCUMENT ME!
+	 * @param writer to be used by the xmlizer.
+	 * @param da is the dependence analysis for which the xmlizer is requested.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the xmlizer.
+	 *
+	 * @pre writer != null and da != null
+	 * @post result != null
 	 */
-	private AbstractDependencyXMLizer getXMLizerFor(final FileWriter f, final DependencyAnalysis da) {
-		AbstractDependencyXMLizer result = null;
-		String xmlizerId = da.getId().toString();
+	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final DependencyAnalysis da) {
+		StmtLevelDependencyXMLizer _result = null;
+		final String _xmlizerId = da.getId().toString();
 
-		String temp = properties.getProperty(xmlizerId);
+		final String _temp = properties.getProperty(_xmlizerId);
 
-		if (temp.equals(STMT_LEVEL_DEPENDENCY)) {
-			result = new StmtLevelDependencyXMLizer(f, getIdGenerator(), da);
+		if (_temp.equals(STMT_LEVEL_DEPENDENCY)) {
+			_result = new StmtLevelDependencyXMLizer(writer, getIdGenerator(), da);
 		} else {
 			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
 		}
-		return result;
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Add the given dependence analysis to the xmlization run.
 	 *
-	 * @param da DOCUMENT ME!
+	 * @param da is the dependence analysis to be added.
+	 *
+	 * @pre da != null
 	 */
 	private void populateDA(final DependencyAnalysis da) {
 		das.add(da);
@@ -598,28 +591,28 @@ public class DependencyXMLizer
 	/**
 	 * Sets up the dependence analyses to be driven.
 	 */
-	private final void setupDependencyAnalyses() {
-		Collection failed = new ArrayList();
+	private void setupDependencyAnalyses() {
+		final Collection _failed = new ArrayList();
 
-		for (Iterator i = das.iterator(); i.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) i.next();
-			da.reset();
-			da.setBasicBlockGraphManager(bbm);
+		for (final Iterator _i = das.iterator(); _i.hasNext();) {
+			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			_da.reset();
+			_da.setBasicBlockGraphManager(bbm);
 
-			if (da.doesPreProcessing()) {
-				da.getPreProcessor().hookup(cgipc);
+			if (_da.doesPreProcessing()) {
+				_da.getPreProcessor().hookup(cgipc);
 			}
 
 			try {
-				da.initialize(info);
-			} catch (InitializationException e) {
+				_da.initialize(info);
+			} catch (InitializationException _e) {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn(da.getClass() + " failed to initialize, hence, will not be executed.", e);
-					failed.add(da);
+					LOGGER.warn(_da.getClass() + " failed to initialize, hence, will not be executed.", _e);
+					_failed.add(_da);
 				}
 			}
 		}
-		das.removeAll(failed);
+		das.removeAll(_failed);
 		aliasUD.reset();
 		aliasUD.hookup(cgipc);
 
@@ -630,11 +623,11 @@ public class DependencyXMLizer
 
 		writeInfo("BEGIN: preprocessing for dependency analyses");
 
-		long start = System.currentTimeMillis();
+		final long _start = System.currentTimeMillis();
 		cgipc.process();
 
-		long stop = System.currentTimeMillis();
-		addTimeLog("Dependency preprocessing", stop - start);
+		final long _stop = System.currentTimeMillis();
+		addTimeLog("Dependency preprocessing", _stop - _start);
 		writeInfo("END: preprocessing for dependency analyses");
 
 		if (ecbaRequired) {
@@ -643,11 +636,11 @@ public class DependencyXMLizer
 		}
 		aliasUD.unhook(cgipc);
 
-		for (Iterator i = das.iterator(); i.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) i.next();
+		for (final Iterator _i = das.iterator(); _i.hasNext();) {
+			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 
-			if (da.getPreProcessor() != null) {
-				da.getPreProcessor().unhook(cgipc);
+			if (_da.getPreProcessor() != null) {
+				_da.getPreProcessor().unhook(cgipc);
 			}
 		}
 	}
@@ -656,6 +649,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/09 09:50:50  venku
+   - amended output of string output to be XML compliant.
+     This means some characters that are unrepresentable in
+     XML are omitted.
    Revision 1.27  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

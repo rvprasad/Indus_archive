@@ -82,16 +82,16 @@ public class Context
 	 * @return the current method in this context.
 	 */
 	public final SootMethod getCurrentMethod() {
-		SootMethod result = null;
+		SootMethod _result = null;
 
 		try {
-			result = (SootMethod) callString.peek();
+			_result = (SootMethod) callString.peek();
 		} catch (final EmptyStackException e) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("There are no methods in the call stack.", e);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -169,15 +169,15 @@ public class Context
 	 * @return the clone of the current context.
 	 */
 	public Object clone() {
-		Context temp = null;
+		Context _temp = null;
 
 		try {
-			temp = (Context) super.clone();
-			temp.callString = (Stack) callString.clone();
+			_temp = (Context) super.clone();
+			_temp.callString = (Stack) callString.clone();
 		} catch (final CloneNotSupportedException e) {
 			LOGGER.error("This should not happen.", e);
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -188,34 +188,34 @@ public class Context
 	 * @return <code>true</code> if <code>c</code> and this context represent the same context; <code>false</code> otherwise.
 	 */
 	public boolean equals(final Object o) {
-		boolean ret = false;
+		boolean _ret = false;
 
 		if (o != null && o instanceof Context) {
 			final Context _temp = (Context) o;
 
 			if (progPoint != null) {
-				ret = progPoint.equals(_temp.progPoint);
+				_ret = progPoint.equals(_temp.progPoint);
 			} else {
-				ret = progPoint == _temp.progPoint;
+				_ret = progPoint == _temp.progPoint;
 			}
 
-			if (ret) {
+			if (_ret) {
 				if (stmt != null) {
-					ret = stmt.equals(_temp.stmt);
+					_ret = stmt.equals(_temp.stmt);
 				} else {
-					ret = stmt == _temp.stmt;
+					_ret = stmt == _temp.stmt;
 				}
 			}
 
-			if (ret) {
+			if (_ret) {
 				if (callString != null) {
-					ret &= callString.equals(_temp.callString);
+					_ret &= callString.equals(_temp.callString);
 				} else {
-					ret &= callString == _temp.callString;
+					_ret &= callString == _temp.callString;
 				}
 			}
 		}
-		return ret;
+		return _ret;
 	}
 
 	/**
@@ -224,18 +224,18 @@ public class Context
 	 * @return the hash code of this object.
 	 */
 	public int hashCode() {
-		int result = 17;
+		int _result = 17;
 
 		if (progPoint != null) {
-			result = 37 * result + progPoint.hashCode();
+			_result = 37 * _result + progPoint.hashCode();
 		}
 
 		if (stmt != null) {
-			result = 37 * result + stmt.hashCode();
+			_result = 37 * _result + stmt.hashCode();
 		}
 
-		result = 37 * result + callString.hashCode();
-		return result;
+		_result = 37 * _result + callString.hashCode();
+		return _result;
 	}
 
 	/**
@@ -260,6 +260,9 @@ public class Context
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
    Revision 1.2  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

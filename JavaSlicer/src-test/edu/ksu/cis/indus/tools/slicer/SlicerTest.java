@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -35,6 +32,9 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,16 +61,12 @@ public final class SlicerTest
 	private static final Log LOGGER = LogFactory.getLog(SlicerTest.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The slicer driver.
 	 */
 	SlicerDriver driver;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The properties that define the test configuration.
 	 */
 	private Properties properties;
 
@@ -80,10 +76,12 @@ public final class SlicerTest
 	private String xmlInDir;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates a new instance of this class.
 	 *
-	 * @param object
-	 * @param xmlInputDir DOCUMENT ME!
+	 * @param object is the slicer driver.
+	 * @param xmlInputDir is the directory in which the input to the regression test occurrs in.
+	 *
+	 * @pre driver != null and xmlInputDir != null
 	 */
 	public SlicerTest(final SlicerDriver object, final String xmlInputDir) {
 		driver = object;
@@ -98,56 +96,57 @@ public final class SlicerTest
 	 * @throws RuntimeException when <code>indus.slicertest.properties.file</code> property is unspecified.
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.tools.slicer");
-		String propFileName = System.getProperty("indus.slicertest.properties.file");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.tools.slicer");
+		final String _propFileName = System.getProperty("indus.slicertest.properties.file");
 
-		if (propFileName == null) {
+		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like SlicerTest.properties via"
 				+ "-Dindus.slicertest.properties.file");
 		}
-		setupTests(propFileName, suite);
-		return suite;
+		setupTests(_propFileName, _suite);
+		return _suite;
 	}
 
 	/**
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testDA() {
-		List das = new ArrayList(driver.slicer.getDAs());
-		String xmlOutDir = driver.outputDirectory;
-		String name = properties.getProperty("name");
+		final List _das = new ArrayList(driver.slicer.getDAs());
+		final String _xmlOutDir = driver.outputDirectory;
+		final String _name = properties.getProperty("name");
 
-		for (Iterator iter = das.iterator(); iter.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) iter.next();
+		for (final Iterator _iter = _das.iterator(); _iter.hasNext();) {
+			final DependencyAnalysis _da = (DependencyAnalysis) _iter.next();
 
 			try {
-				Reader current =
-					new FileReader(new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-							+ name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-				Reader previous =
-					new FileReader(new File(xmlInDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-							+ name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-				assertXMLEqual(previous, current);
-			} catch (IOException e) {
-				LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at " + name, e);
-			} catch (SAXException e) {
-				LOGGER.error("Exception while parsing XML", e);
-			} catch (ParserConfigurationException e) {
-				LOGGER.error("XML parser configuration related exception", e);
+				final Reader _current =
+					new FileReader(new File(_xmlOutDir + File.separator + _da.getId() + "_" + _das.indexOf(_da) + "_"
+							+ _name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+				final Reader _previous =
+					new FileReader(new File(xmlInDir + File.separator + _da.getId() + "_" + _das.indexOf(_da) + "_"
+							+ _name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
+				assertXMLEqual(_previous, _current);
+			} catch (IOException _e) {
+				LOGGER.error("Failed to write the xml file based on " + _da.getClass() + " for system rooted at method "
+					+ _name, _e);
+			} catch (SAXException _e) {
+				LOGGER.error("Exception while parsing XML", _e);
+			} catch (ParserConfigurationException _e) {
+				LOGGER.error("XML parser configuration related exception", _e);
 			}
 		}
 		driver.writeXML();
 
 		try {
-			Reader current = new FileReader(new File(xmlOutDir + File.separator + name + "_slice.xml"));
-			Reader previous = new FileReader(new File(xmlInDir + File.separator + name + "_slice.xml"));
-			assertXMLEqual(previous, current);
-		} catch (IOException e) {
-			LOGGER.error("Failed to write the xml file based configuration " + name, e);
-		} catch (SAXException e) {
-			LOGGER.error("Exception while parsing XML", e);
-		} catch (ParserConfigurationException e) {
-			LOGGER.error("XML parser configuration related exception", e);
+			final Reader _current = new FileReader(new File(_xmlOutDir + File.separator + _name + "_slice.xml"));
+			final Reader _previous = new FileReader(new File(xmlInDir + File.separator + _name + "_slice.xml"));
+			assertXMLEqual(_previous, _current);
+		} catch (IOException _e) {
+			LOGGER.error("Failed to write the xml file based configuration " + _name, _e);
+		} catch (SAXException _e) {
+			LOGGER.error("Exception while parsing XML", _e);
+		} catch (ParserConfigurationException _e) {
+			LOGGER.error("XML parser configuration related exception", _e);
 		}
 	}
 
@@ -182,66 +181,66 @@ public final class SlicerTest
 	 *
 	 * @pre propFileName != null and suite != null
 	 */
-	private static final void setupTests(final String propFileName, final TestSuite suite) {
-		Properties props = new Properties();
-		IJimpleIDGenerator idGenerator = new UniqueJimpleIDGenerator();
+	private static void setupTests(final String propFileName, final TestSuite suite) {
+		final Properties _props = new Properties();
+		final IJimpleIDGenerator _idGenerator = new UniqueJimpleIDGenerator();
 
 		try {
-			props.load(new FileInputStream(new File(propFileName)));
+			_props.load(new FileInputStream(new File(propFileName)));
 
-			String[] configs = props.getProperty("configs").split(" ");
+			final String[] _configs = _props.getProperty("configs").split(" ");
 
-			for (int i = 0; i < configs.length; i++) {
-				String config = configs[i];
-				props.setProperty("name", config);
+			for (int _i = 0; _i < _configs.length; _i++) {
+				final String _config = _configs[_i];
+				_props.setProperty("name", _config);
 
-				String[] temp = props.getProperty(config + ".classNames").split(" ");
-				String xmlOutputDir = props.getProperty(config + ".xmlOutputDir");
-				String xmlInputDir = props.getProperty(config + ".xmlInputDir");
-				String classpath = props.getProperty(config + ".classpath");
-				File f = new File(xmlInputDir);
+				final String[] _temp = _props.getProperty(_config + ".classNames").split(" ");
+				final String _xmlOutputDir = _props.getProperty(_config + ".xmlOutputDir");
+				final String _xmlInputDir = _props.getProperty(_config + ".xmlInputDir");
+				final String _classpath = _props.getProperty(_config + ".classpath");
+				File _f = new File(_xmlInputDir);
 
-				if (!f.exists() || !f.canRead()) {
-					LOGGER.error("Input directory " + xmlInputDir + " does not exists. Bailing on " + config);
+				if (!_f.exists() || !_f.canRead()) {
+					LOGGER.error("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
-				f = new File(xmlOutputDir);
+				_f = new File(_xmlOutputDir);
 
-				if (!f.exists() || !f.canWrite()) {
-					LOGGER.error("Output directory " + xmlInputDir + " does not exists. Bailing on " + config);
+				if (!_f.exists() || !_f.canWrite()) {
+					LOGGER.error("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 
-				SlicerTest test;
+				SlicerTest _test;
 
 				try {
-					test = new SlicerTest(new SlicerDriver(idGenerator), xmlInputDir);
-					test.driver.setClassNames(temp);
-					test.driver.setOutputDirectory(xmlOutputDir);
-					test.setProperties(props);
+					_test = new SlicerTest(new SlicerDriver(_idGenerator), _xmlInputDir);
+					_test.driver.setClassNames(_temp);
+					_test.driver.setOutputDirectory(_xmlOutputDir);
+					_test.setProperties(_props);
 
-					if (classpath != null) {
-						test.driver.addToSootClassPath(classpath);
+					if (_classpath != null) {
+						_test.driver.addToSootClassPath(_classpath);
 					}
-				} catch (IllegalArgumentException e) {
-					test = null;
+				} catch (IllegalArgumentException _e) {
+					_test = null;
 				}
 
-				if (test != null) {
-					suite.addTest(test);
+				if (_test != null) {
+					suite.addTest(_test);
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException _e) {
 			throw new IllegalArgumentException("Specified property file does not exist.");
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the properties that capture the configuration.
 	 *
-	 * @param props DOCUMENT ME!
+	 * @param props provides the configuration.
+	 *
+	 * @pre props != null
 	 */
 	private void setProperties(final Properties props) {
 		properties = props;
@@ -251,6 +250,9 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.2  2003/11/24 10:14:39  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.

@@ -26,98 +26,109 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This interface is used to retrieve id's for various parts of a java system represented in Soot.  This is typically useful 
+ * in serialization of Jimple for various purposes as testing and visualization of analysis data. 
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IJimpleIDGenerator {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given class.
 	 *
-	 * @param clazz DOCUMENT ME!
+	 * @param clazz is the class for which the id is requested for.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre clazz != null
+	 * @post result != null
 	 */
 	String getIdForClass(SootClass clazz);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given field.
 	 *
-	 * @param field DOCUMENT ME!
+	 * @param field for which the id is requested for.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre field != null
+	 * @post result != null
 	 */
 	String getIdForField(SootField field);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given local in the given method.
 	 *
-	 * @param v DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param local for which the id is requested for.
+	 * @param method in which <code>local</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre local != null and method != null
+	 * @post result != null
 	 */
-	String getIdForLocal(Local v, SootMethod method);
+	String getIdForLocal(Local local, SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given method.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method for which the id is requested for.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre method != null
+	 * @post result != null
 	 */
 	String getIdForMethod(SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given statement in the given method.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param stmt for which the id is requested for.
+	 * @param method in which <code>stmt</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre stmt != null and method != null
+	 * @post result != null
 	 */
 	String getIdForStmt(Stmt stmt, SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves an id for the given type.
 	 *
-	 * @param type DOCUMENT ME!
+	 * @param type for which the id is requested for.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre type != null
+	 * @post result != null
 	 */
 	String getIdForType(Type type);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves an id for the given program point in the given statement in the given method.
 	 *
-	 * @param box DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param programPoint for which the id is requested for.
+	 * @param stmt in which <code>programPoint</code> occurs.
+	 * @param method in which <code>stmt</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an id.
+	 *
+	 * @pre programPoint != null and stmt != null and method != null
+	 * @post result != null
 	 */
-	String getIdForValueBox(ValueBox box, Stmt stmt, SootMethod method);
+	String getIdForValueBox(ValueBox programPoint, Stmt stmt, SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:24  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.4  2003/11/30 09:44:53  venku

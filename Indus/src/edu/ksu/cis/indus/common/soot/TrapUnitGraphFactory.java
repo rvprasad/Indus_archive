@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,46 +31,46 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class TrapUnitGraphFactory
+public final class TrapUnitGraphFactory
   extends AbstractUnitGraphFactory {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
-    /**
-     * {@inheritDoc}
-     */
-    protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
-        UnitGraph result = null;
+	/**
+	 * {@inheritDoc}
+	 */
+	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
+		UnitGraph _result = null;
 
-        if (method.isConcrete()) {
-            result = new TrapUnitGraph(method.retrieveActiveBody());
+		if (method.isConcrete()) {
+			_result = new TrapUnitGraph(method.retrieveActiveBody());
 
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Method " + method + " is not concrete.");
-            }
-        }
-        return result;
-    }
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Method " + method + " is not concrete.");
+			}
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:42:42  venku
+   - unit graph factories are responsible to construct empty
+     bodies for methods not BasicBlockGraphMgr.  FIXED.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.9  2003/12/08 10:16:26  venku
    - refactored classes such that the subclasses only provide the
      unit graphs whereas the parent class does the bookkeeping.
-
    Revision 1.8  2003/12/08 10:03:29  venku
    - changed the logic to obtain the reference, do the check on it,
      and then reinstall it if it had gone bad.
    - formatting.
-
    Revision 1.7  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

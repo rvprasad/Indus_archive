@@ -28,7 +28,7 @@ import soot.SootMethod;
  * @version $Revision$
  */
 public abstract class AbstractSliceCriterion
-  extends AbstractPoolable {
+  extends AbstractPoolable implements ISliceCriterion {
 	/**
 	 * The method in which <code>stmt</code> occurs.
 	 */
@@ -61,24 +61,24 @@ public abstract class AbstractSliceCriterion
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(final Object o) {
-		boolean result = false;
+		boolean _result = false;
 
-		if (o != null && o instanceof AbstractSliceCriterion) {
-			result =
+		if (o != null && o instanceof ISliceCriterion) {
+			_result =
 				((AbstractSliceCriterion) o).method == method
 				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int hash = 17;
-		hash = hash * 37 + Boolean.valueOf(considerExecution).hashCode();
-		hash = hash * 37 + method.hashCode();
-		return hash;
+		int _hash = 17;
+		_hash = _hash * 37 + Boolean.valueOf(considerExecution).hashCode();
+		_hash = _hash * 37 + method.hashCode();
+		return _hash;
 	}
 
 	/**
@@ -123,6 +123,9 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
+
    Revision 1.7  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku

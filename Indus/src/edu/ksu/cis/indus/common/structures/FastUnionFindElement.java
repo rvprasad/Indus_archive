@@ -26,7 +26,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class FastUnionFindElement {
+public class FastUnionFindElement {
 	/**
 	 * This is the set to which this element belongs to.
 	 */
@@ -47,7 +47,7 @@ public abstract class FastUnionFindElement {
 	 *
 	 * @return <code>true</code>.
 	 */
-	public boolean isAtomic() {
+	public final boolean isAtomic() {
 		return children == null || children.size() == 0;
 	}
 
@@ -57,8 +57,17 @@ public abstract class FastUnionFindElement {
 	 *
 	 * @return <code>false</code>
 	 */
-	public boolean isBound() {
+	public final boolean isBound() {
 		return type != null;
+	}
+
+	/**
+	 * Retrieves the type of this element.
+	 *
+	 * @return the type of this element.
+	 */
+	public final Object getType() {
+		return find().type;
 	}
 
 	/**
@@ -69,25 +78,16 @@ public abstract class FastUnionFindElement {
 	 * @post result != null
 	 */
 	public final FastUnionFindElement find() {
-		FastUnionFindElement result = this;
+		FastUnionFindElement _result = this;
 
-		while (result.set != null) {
-			result = result.set;
+		while (_result.set != null) {
+			_result = _result.set;
 		}
 
-		if (result != this) {
-			set = result;
+		if (_result != this) {
+			set = _result;
 		}
-		return result;
-	}
-
-	/**
-	 * Retrieves the type of this element.
-	 *
-	 * @return the type of this element.
-	 */
-	public Object getType() {
-		return find().type;
+		return _result;
 	}
 
 	/**
@@ -100,8 +100,8 @@ public abstract class FastUnionFindElement {
 	 *
 	 * @pre e != null
 	 */
-	public boolean sameType(final FastUnionFindElement e) {
-		return false;
+	public final boolean sameType(final FastUnionFindElement e) {
+		return e.type.equals(type);
 	}
 
 	/**
@@ -114,21 +114,21 @@ public abstract class FastUnionFindElement {
 	 * @pre e != null
 	 */
 	public final boolean unify(final FastUnionFindElement e) {
-		boolean result = false;
-		FastUnionFindElement a = find();
-		FastUnionFindElement b = e.find();
+		boolean _result = false;
+		final FastUnionFindElement _a = find();
+		final FastUnionFindElement _b = e.find();
 
-		if (a == b || a.sameType(b)) {
-			result = true;
-		} else if (!(a.isAtomic() || b.isAtomic())) {
-			a.union(b);
-			result = a.unifyChildren(b);
-		} else if (!(a.isBound() && b.isBound())) {
-			a.union(b);
-			result = true;
+		if (_a == _b || _a.sameType(_b)) {
+			_result = true;
+		} else if (!(_a.isAtomic() || _b.isAtomic())) {
+			_a.union(_b);
+			_result = _a.unifyChildren(_b);
+		} else if (!(_a.isBound() && _b.isBound())) {
+			_a.union(_b);
+			_result = true;
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -141,19 +141,19 @@ public abstract class FastUnionFindElement {
 	 *
 	 * @pre e != null
 	 */
-	public boolean unifyChildren(final FastUnionFindElement e) {
-		boolean result = false;
+	public final boolean unifyChildren(final FastUnionFindElement e) {
+		boolean _result = false;
 
 		if (children != null && e.children != null && children.size() == e.children.size()) {
-			result = true;
+			_result = true;
 
-			for (int i = children.size() - 1; i >= 0 && result; i--) {
-				FastUnionFindElement c1 = (FastUnionFindElement) children.get(i);
-				FastUnionFindElement c2 = (FastUnionFindElement) e.children.get(i);
-				result &= c1.unify(c2);
+			for (int _i = children.size() - 1; _i >= 0 && _result; _i--) {
+				final FastUnionFindElement _c1 = (FastUnionFindElement) children.get(_i);
+				final FastUnionFindElement _c2 = (FastUnionFindElement) e.children.get(_i);
+				_result &= _c1.unify(_c2);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -164,14 +164,14 @@ public abstract class FastUnionFindElement {
 	 * @pre e != null
 	 */
 	public final void union(final FastUnionFindElement e) {
-		FastUnionFindElement a = find();
-		FastUnionFindElement b = e.find();
+		final FastUnionFindElement _a = find();
+		final FastUnionFindElement _b = e.find();
 
-		if (a != b) {
-			if (b.isBound()) {
-				a.set = b;
+		if (_a != _b) {
+			if (_b.isBound()) {
+				_a.set = _b;
 			} else {  // if a.isBound() or neither is bound
-				b.set = a;
+				_b.set = _a;
 			}
 		}
 	}
@@ -180,15 +180,16 @@ public abstract class FastUnionFindElement {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.6  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.5  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.4  2003/09/28 03:16:20  venku
@@ -196,15 +197,15 @@ public abstract class FastUnionFindElement {
      but yet says it is out of sync.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-     Revision 1.2  2003/08/11 04:20:19  venku
-     - Pair and Triple were changed to work in optimized and unoptimized mode.
-     - Ripple effect of the previous change.
-     - Documentation and specification of other classes.
-     Revision 1.1  2003/08/07 06:42:16  venku
-     Major:
-      - Moved the package under indus umbrella.
-      - Renamed isEmpty() to hasWork() in IWorkBag.
-     Revision 1.4  2003/05/22 22:18:31  venku
-     All the interfaces were renamed to start with an "I".
-     Optimizing changes related Strings were made.
+       Revision 1.2  2003/08/11 04:20:19  venku
+       - Pair and Triple were changed to work in optimized and unoptimized mode.
+       - Ripple effect of the previous change.
+       - Documentation and specification of other classes.
+       Revision 1.1  2003/08/07 06:42:16  venku
+       Major:
+        - Moved the package under indus umbrella.
+        - Renamed isEmpty() to hasWork() in IWorkBag.
+       Revision 1.4  2003/05/22 22:18:31  venku
+       All the interfaces were renamed to start with an "I".
+       Optimizing changes related Strings were made.
  */

@@ -26,6 +26,8 @@ import java.util.ArrayList;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class DDADriver
   extends DADriver {
@@ -45,25 +47,23 @@ public class DDADriver
 	 * @param args command line arguemnts.
 	 */
 	public static void main(final String[] args) {
-		(new DDADriver(args)).run();
-	}
-
-	/**
-	 * Initializes the collection of dependence analyses with the divergence dependence analyses to be driven.
-	 */
-	protected void initialize() {
-		das = new ArrayList();
+		DADriver da = new DDADriver(args);
+		da.das = new ArrayList();
 
 		DivergenceDA dda = new DivergenceDA();
 		dda.setConsiderCallSites(true);
-		das.add(dda);
-		das.add(new DivergenceDA());
+		da.das.add(dda);
+		da.das.add(new DivergenceDA());
+		da.execute();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.3  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

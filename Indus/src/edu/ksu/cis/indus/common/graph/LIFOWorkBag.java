@@ -15,11 +15,6 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import java.util.Collection;
-
-import org.apache.commons.collections.CollectionUtils;
-
-
 /**
  * This is a Last-in-First-out implementation of the workbag.
  *
@@ -27,56 +22,29 @@ import org.apache.commons.collections.CollectionUtils;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class LIFOWorkBag
-  extends FIFOWorkBag {
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWork(java.util.Collection)
-	 */
-	public void addAllWork(final Collection c) {
-		container.addAll(0, c);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
-	 */
-	public Collection addAllWorkNoDuplicates(final Collection c) {
-		Collection result = CollectionUtils.intersection(c, container);
-		container.addAll(0, CollectionUtils.subtract(c, container));
-		return result;
-	}
-
+public final class LIFOWorkBag
+  extends AbstractWorkBag {
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(0, o);
 	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWorkNoDuplicates(java.lang.Object)
-	 */
-	public boolean addWorkNoDuplicates(final Object o) {
-		boolean result = !container.contains(o);
-
-		if (result) {
-			container.add(0, o);
-		}
-		return result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.6  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.5  2003/12/01 13:42:02  venku
    - added support to provide information about which work peices
      were added to the bag and which weren't.

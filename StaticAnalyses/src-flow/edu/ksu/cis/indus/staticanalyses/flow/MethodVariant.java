@@ -140,11 +140,9 @@ public class MethodVariant
 	protected SimpleLocalDefs defs;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if the method variant is unretrievale due to various reasons such as non-concrete body.
 	 */
-	protected boolean unRetrievable = false;
+	protected boolean unRetrievable;
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is
@@ -512,6 +510,10 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.16  2003/12/08 13:30:35  venku
    - cosmetic.
 

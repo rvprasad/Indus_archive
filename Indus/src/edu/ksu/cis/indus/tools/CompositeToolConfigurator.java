@@ -90,6 +90,12 @@ public final class CompositeToolConfigurator
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(edu.ksu.cis.indus.tools.IToolConfiguration)
+	 */
+	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected void setup() {
@@ -100,9 +106,9 @@ public final class CompositeToolConfigurator
 		final Label _label = new Label(parent, SWT.NONE);
 		_label.setText("Configurations:");
 
-		GridData gridData = new GridData();
-		gridData.horizontalSpan = 3;
-		_label.setLayoutData(gridData);
+		GridData _gridData = new GridData();
+		_gridData.horizontalSpan = 3;
+		_label.setLayoutData(_gridData);
 		configCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -120,9 +126,9 @@ public final class CompositeToolConfigurator
 
 		final Button _ok = new Button(parent, SWT.PUSH);
 		_ok.setText("Ok");
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-		gridData.horizontalIndent = _ok.getText().length();
-		_ok.setLayoutData(gridData);
+		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+		_gridData.horizontalIndent = _ok.getText().length();
+		_ok.setLayoutData(_gridData);
 		_ok.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					parent.dispose();
@@ -135,9 +141,9 @@ public final class CompositeToolConfigurator
 
 		final Button _newConfig = new Button(parent, SWT.PUSH);
 		_newConfig.setText("Create");
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-		gridData.horizontalIndent = _newConfig.getText().length();
-		_newConfig.setLayoutData(gridData);
+		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
+		_gridData.horizontalIndent = _newConfig.getText().length();
+		_newConfig.setLayoutData(_gridData);
 		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					final IToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
@@ -191,6 +197,9 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
    Revision 1.10  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
