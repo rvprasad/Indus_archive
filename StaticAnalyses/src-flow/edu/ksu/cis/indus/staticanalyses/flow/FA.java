@@ -109,21 +109,22 @@ public class FA
 	private ModeFactory modeFactory;
 
 	/**
-	 * The <code>Scene</code> which provides the set of class to be analyzed.
-	 */
-	private Scene scm;
-
-	/** 
 	 * The tag used to identify the elements of the AST touched by this framework instance.
 	 */
 	private NamedTag tag;
 
 	/**
+	 * The <code>Scene</code> which provides the set of class to be analyzed.
+	 */
+	private Scene scm;
+
+	/**
 	 * Creates a new <code>FA</code> instance.
 	 *
 	 * @param analyzer to be associated with this instance of the framework.
-	 * @param tagName is the name of the tag that will be tacked onto parts of the AST processed by this framework instance. 
-     * The guarantee is that all elements so tagged were processed by the framework instance.  The inverse need not be true.
+	 * @param tagName is the name of the tag that will be tacked onto parts of the AST processed by this framework instance.
+	 * 		  The guarantee is that all elements so tagged were processed by the framework instance.  The inverse need not
+	 * 		  be true.
 	 *
 	 * @pre analyzer != null and tagName != null
 	 */
@@ -422,9 +423,11 @@ public class FA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the tag associated with the framework instance.
 	 *
-	 * @return
+	 * @return the tag associated with the framework instance.
+	 *
+	 * @post result != null
 	 */
 	public Tag getTag() {
 		return tag;
@@ -510,6 +513,10 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/30 01:07:57  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.8  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
