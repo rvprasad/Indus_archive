@@ -148,7 +148,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseAndExpr(soot.jimple.AndExpr)
 	 */
 	public final void caseAndExpr(AndExpr v) {
-		writeBinaryExpr("binary_and", v);
+		writeBinaryExpr("binary and", v);
 	}
 
 	/**
@@ -158,9 +158,11 @@ public class ValueXMLizer
 		try {
 			out.write(tabs + "<array_ref id=\"" + newId + "\">\n");
 			writeBase(v.getBaseBox());
-			out.write("<index>\n");
+            incrementTabs();
+			out.write(tabs + "<index>\n");
 			apply(v.getIndexBox());
-			out.write("</index>\n");
+			out.write(tabs + "</index>\n");
+            decrementTabs();
 			out.write(tabs + "</array_ref>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -328,7 +330,8 @@ public class ValueXMLizer
 	 */
 	public final void caseLocal(Local v) {
 		try {
-			out.write(tabs + "<local id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod) + "\"/>\n");
+			out.write(tabs + "<local_ref id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod)
+				+ "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -370,7 +373,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseNegExpr(soot.jimple.NegExpr)
 	 */
 	public final void caseNegExpr(NegExpr v) {
-		writeUnaryExpr("binary negation", v);
+		writeUnaryExpr("negation", v);
 	}
 
 	/**
@@ -378,7 +381,7 @@ public class ValueXMLizer
 	 */
 	public final void caseNewArrayExpr(NewArrayExpr v) {
 		try {
-			out.write(tabs + "<new_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(v.getBaseType())
+			out.write(tabs + "<new_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getBaseType())
 				+ "\">\n");
 			writeDimensionSize(1, v.getSizeBox());
 			out.write(tabs + "</new_array>\n");
@@ -405,13 +408,13 @@ public class ValueXMLizer
 		ArrayType type = v.getBaseType();
 
 		try {
-			out.write(tabs + "<new_multi_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(type.baseType)
+			out.write(tabs + "<new_multi_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(type.baseType)
 				+ "\" dimension=\"" + type.numDimensions + "\">\n");
 
-			for (int i = 0; i < type.numDimensions; i++) {
+			for (int i = 0; i < v.getSizeCount(); i++) {
 				writeDimensionSize(i + 1, v.getSizeBox(i));
 			}
-			out.write(tabs + "</new_multi_array>");
+			out.write(tabs + "</new_multi_array>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -675,7 +678,7 @@ public class ValueXMLizer
 	private void writeField(SootField field) {
 		try {
 			incrementTabs();
-			out.write(tabs + "<field id=\"" + idGenerator.getIdForField(field) + "\"/>\n");
+			out.write(tabs + "<field_ref fieldId=\"" + idGenerator.getIdForField(field) + "\"/>\n");
 			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -694,7 +697,7 @@ public class ValueXMLizer
 
 			SootMethod method = v.getMethod();
 			incrementTabs();
-			out.write(tabs + "<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
+			out.write(tabs + "<method_ref methodId=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
 			decrementTabs();
 
 			if (v instanceof InstanceInvokeExpr) {
@@ -724,7 +727,7 @@ public class ValueXMLizer
 	private void writeUnaryExpr(String operatorName, UnopExpr value) {
 		try {
 			incrementTabs();
-			out.write(tabs + "<unary_expr name=\"" + operatorName + "\" id=\"" + newId + "\">\n");
+			out.write(tabs + "<unary_expr op=\"" + operatorName + "\" id=\"" + newId + "\">\n");
 			apply(value.getOpBox());
 			out.write(tabs + "</unary_expr>\n");
 			decrementTabs();
@@ -737,6 +740,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/26 18:26:08  venku
+   - capture a whole lot more information for classes and methods.
+   - removed unnecessary info from the attributes.
    Revision 1.6  2003/11/24 06:45:23  venku
    - corrected xml encoding errors along with tag name emission errors.
    Revision 1.5  2003/11/24 06:28:04  venku
