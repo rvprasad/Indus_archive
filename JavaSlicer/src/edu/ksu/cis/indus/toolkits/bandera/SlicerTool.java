@@ -21,7 +21,9 @@ import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
+import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,11 +92,29 @@ public class SlicerTool
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final edu.ksu.cis.indus.tools.slicer.SlicerTool tool;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private SlicerConfigurationView configurationView;
 
 	/**
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
+		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
+
+		TagBasedSlicingTransformer tgsbt = new TagBasedSlicingTransformer();
+		tgsbt.setTagName("Bandera");
+		tool.setTransformer(tgsbt);
+
+		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
 
 	/**
@@ -102,14 +122,14 @@ public class SlicerTool
 	 */
 	public void setConfiguration(final String configStr)
 	  throws Exception {
-		configuration.set(configStr);
+		tool.destringizeConfiguration(configStr);
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
 	public String getConfiguration() {
-		return configuration.toString();
+		return tool.stringizeConfiguration();
 	}
 
 	/**
@@ -126,23 +146,23 @@ public class SlicerTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
 	public void setInputMap(final Map inputArgs) {
-		theScene = (Scene) inputArgs.get(SCENE);
+		Scene theScene = (Scene) inputArgs.get(SCENE);
 
 		if (theScene == null) {
 			LOGGER.error("A scene must be provided for slicing.");
 			throw new IllegalArgumentException("A scene must be provided for slicing.");
 		}
+		tool.setSystem(theScene);
 
-		Collection temp = (Collection) inputArgs.get(CRITERIA);
-		criteria.clear();
+		Collection criteria = (Collection) inputArgs.get(CRITERIA);
 
-		if (temp == null) {
+		if (criteria == null) {
 			LOGGER.error("Atlease one slicing criteria should be specified.");
 			throw new IllegalArgumentException("Atlease one slicing criteria should be specified.");
-		} else if (temp.isEmpty()) {
+		} else if (criteria.isEmpty()) {
 			LOGGER.warn("Deadlock criteria will be used.");
 		} else {
-			criteria.addAll(temp);
+			tool.setCriteria(criteria);
 		}
 
 		for (Iterator i = criteria.iterator(); i.hasNext();) {
@@ -155,16 +175,14 @@ public class SlicerTool
 			}
 		}
 
-		tagName = (String) inputArgs.get(TAG_NAME);
-		temp = (Collection) inputArgs.get(ROOT_METHODS);
+		Collection rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
 
-		if (temp == null || temp.isEmpty()) {
+		if (criteria == null || criteria.isEmpty()) {
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("Atleast one method should be specified as the entry-point into the system.");
 			}
 		}
-		rootMethods.clear();
-		rootMethods.addAll(temp);
+		tool.setRootMethods(rootMethods);
 	}
 
 	/**
@@ -179,7 +197,7 @@ public class SlicerTool
 	 */
 	public Map getOutputMap() {
 		Map outputMap = new HashMap();
-		outputMap.put(SCENE, theScene);
+		outputMap.put(SCENE, tool.getSystem());
 		return outputMap;
 	}
 
@@ -194,14 +212,14 @@ public class SlicerTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolConfigurationView()
 	 */
 	public ToolConfigurationView getToolConfigurationView() {
-		return configuration;
+		return configurationView;
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolIconView()
 	 */
 	public ToolIconView getToolIconView() {
-		return configuration;
+		return configurationView;
 	}
 
 	/**
@@ -210,27 +228,34 @@ public class SlicerTool
 	public void quit()
 	  throws Exception {
 	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.tool.Tool#run()
+	 */
+	public void run()
+	  throws Exception {
+		tool.run(Phase.STARTING_PHASE);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 05:55:51  venku
+   - a checkpoint commit.
    Revision 1.2  2003/09/24 07:33:24  venku
    - Nightly commit.
    - Need to wrap the indus tool api in ways specific to bandera
      tool api.
-
    Revision 1.1  2003/09/24 01:43:45  venku
    - Renamed edu.ksu.cis.indus.tools to edu.ksu.cis.indus.toolkits.
      This package is to house adaptation of each tools for each toolkits.
    - Retained edu.ksu.cis.indus.tools to contain API/interface to expose
      the implementation as a tool.
-
    Revision 1.1  2003/09/15 08:55:23  venku
    - Well, the SlicerTool is still a mess in my opinion as it needs
      to be implemented as required by Bandera.  It needs to be
      much richer than it is to drive the slicer.
    - SlicerConfigurator is supposed to bridge the above gap.
      I doubt it.
-
  */

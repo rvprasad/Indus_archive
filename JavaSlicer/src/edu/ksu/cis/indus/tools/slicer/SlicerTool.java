@@ -39,13 +39,13 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.Tool;
 import edu.ksu.cis.indus.tools.ToolConfiguration;
-import edu.ksu.cis.indus.tools.ToolConfigurationCollection;
+import edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +60,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,7 +75,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SlicerTool
+public final class SlicerTool
   extends Tool {
 	static {
 		Phase i = Phase.createPhase();
@@ -160,9 +161,9 @@ public class SlicerTool
 	private ProcessingController cgBasedPreProcessCtrl;
 
 	/**
-	 * The scene to be sliced.
+	 * The system to be sliced.
 	 */
-	private Scene theScene;
+	private Scene system;
 
 	/**
 	 * This is the slicing engine that identifies the slice.
@@ -170,19 +171,14 @@ public class SlicerTool
 	private final SlicingEngine engine;
 
 	/**
+	 * This is the slice transformer.
+	 */
+	private ISlicingBasedTransformer transformer;
+
+	/**
 	 * This is the slice criterion factory that will be used.
 	 */
 	private SliceCriteriaFactory criteriaFactory = new SliceCriteriaFactory();
-
-	/**
-	 * The tag name to be used to identify the slicing tags.
-	 */
-	private String tagName;
-
-	/**
-	 * This is the tagging style slice transformer.
-	 */
-	private final TagBasedSlicingTransformer transformer;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -222,8 +218,26 @@ public class SlicerTool
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl);
 
 		// create the slicing objects.
-		transformer = new TagBasedSlicingTransformer();
 		engine = new SlicingEngine();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param theCriteria The criteria to set.
+	 */
+	public void setCriteria(final Collection theCriteria) {
+		criteria.clear();
+		criteria.addAll(theCriteria);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return Returns the criteria.
+	 */
+	public Collection getCriteria() {
+		return this.criteria;
 	}
 
 	/**
@@ -233,6 +247,63 @@ public class SlicerTool
 	 */
 	public Object getPhase() {
 		return phase;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param theRootMethods The rootMethods to set.
+	 */
+	public void setRootMethods(final Collection theRootMethods) {
+		rootMethods.clear();
+		rootMethods.addAll(theRootMethods);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return Returns the rootMethods.
+	 */
+	public Collection getRootMethods() {
+		return Collections.unmodifiableCollection(rootMethods);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param theSystem The theScene to set.
+	 */
+	public void setSystem(final Scene theSystem) {
+		system = theSystem;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return Returns the theScene.
+	 */
+	public Scene getSystem() {
+		return this.system;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param theTransformer DOCUMENT ME!
+	 */
+	public void setTransformer(final ISlicingBasedTransformer theTransformer) {
+		transformer = theTransformer;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return Returns the transformer.
+	 */
+	public ISlicingBasedTransformer getTransformer() {
+		return this.transformer;
 	}
 
 	/**
@@ -248,7 +319,7 @@ public class SlicerTool
 				configurator.hide();
 				configurator.dispose();
 			}
-			configurator = new SlicerConfigurator((SlicerConfigurationCollection) configurationInfo);
+			configurator = new SlicerConfigurator();
 		} catch (JiBXException e) {
 			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
 			throw new RuntimeException(e);
@@ -266,7 +337,7 @@ public class SlicerTool
 			// do the flow analyses
 			bbgMgr.reset();
 			ofa.reset();
-			ofa.analyze(theScene, rootMethods);
+			ofa.analyze(system, rootMethods);
 			phase.nextMinorPhase();
 
 			movingToNextPhase();
@@ -311,11 +382,11 @@ public class SlicerTool
 			// perform slicing
 			transformer.reset();
 			engine.reset();
-			transformer.initialize(theScene, tagName);
 
 			if (slicerConfig.sliceForDeadlock) {
 				populateDeadlockCriteria();
 			}
+			transformer.initialize(system);
 			engine.setSliceCriteria(criteria, daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse());
 			engine.slice(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 		}
@@ -328,7 +399,7 @@ public class SlicerTool
 	public void initialize() {
 		SlicerConfiguration config = new SlicerConfiguration();
 		config.initialize();
-		((ToolConfigurationCollection) configurationInfo).addToolConfiguration(config);
+		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
 	}
 
 	/**
@@ -379,6 +450,8 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 07:33:29  venku
+   - checkpoint commit.
    Revision 1.2  2003/09/26 05:55:28  venku
    - a checkpoint commit. Also a cvs fix commit.
    Revision 1.1  2003/09/24 07:32:23  venku
