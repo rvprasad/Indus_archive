@@ -200,7 +200,7 @@ public class ControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
+	private BitSet[] computeControlDependency(final DirectedGraph graph) {
 		Map dag = graph.getDAG();
 		final List NODES = graph.getNodes();
 		final int NUM_OF_NODES = NODES.size();
@@ -303,7 +303,7 @@ public class ControlDA
 	 * @post dependeeMap.get(method) != null
 	 * @post dependeeMap.values()->forall(o | o->forall(p | p != null()))
 	 */
-	protected void fixupMaps(final BasicBlockGraph graph, final BitSet[] bbCDBitSets, final SootMethod method) {
+	private void fixupMaps(final BasicBlockGraph graph, final BitSet[] bbCDBitSets, final SootMethod method) {
 		List nodes = graph.getNodes();
 		List sl = getStmtList(method);
 		List mDependee = new ArrayList();
@@ -357,6 +357,8 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/15 01:22:06  venku
+   - fixupMaps() was screwed. FIXED.
    Revision 1.9  2003/09/15 00:58:25  venku
    - well, things were fine I guess. Nevertheless, they are more
      streamlined now.
