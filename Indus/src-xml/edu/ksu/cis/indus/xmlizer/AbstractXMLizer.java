@@ -95,6 +95,7 @@ public abstract class AbstractXMLizer
 		final File _f = new File(xmlOutputDir);
 
 		if (!_f.exists() | !_f.canWrite()) {
+            LOGGER.error("XML output directory should exists with proper permissions.");
 			throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
 		}
 		xmlOutDir = xmlOutputDir;
@@ -190,6 +191,10 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.4  2003/12/09 10:20:49  venku
    - formatting.
    Revision 1.3  2003/12/09 04:22:03  venku
