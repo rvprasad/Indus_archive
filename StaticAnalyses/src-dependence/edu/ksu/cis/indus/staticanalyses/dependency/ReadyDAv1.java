@@ -339,7 +339,7 @@ public class ReadyDAv1
 	 * @return a collection of statement.
 	 *
 	 * @pre dependentStmt.isOclKindOf(Stmt)
-	 * @post result->forall(o | o.isOclKindOf(Collection(Stmt)))
+	 * @post result.isOclKindOf(Collection(Stmt))
 	 *
 	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
@@ -363,7 +363,7 @@ public class ReadyDAv1
 	 * @return a collection of statement.
 	 *
 	 * @pre dependeeStmt.isOclKindOf(Stmt)
-	 * @post result->forall(o | o.isOclKindOf(Collection(Stmt)))
+	 * @post result.isOclKindOf(Collection(Stmt))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents( java.lang.Object,
 	 * 		java.lang.Object)
@@ -849,6 +849,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/06 05:31:07  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
+
    Revision 1.24  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
