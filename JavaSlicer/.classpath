@@ -12,6 +12,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/sootclasses-2.1.0-custom.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
