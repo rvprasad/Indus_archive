@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE pgml SYSTEM "pgml.dtd">
-<pgml description="uci.uml.visual.UMLClassDiagram|127-0-0-1-1dddba:ebbda60875:-8000"
-      name="Variants"
+<pgml description="uci.uml.visual.UMLClassDiagram|127-0-0-1-71521:ec7506a1b9:-7ffa"
+      name="variant"
 >
   <group name="Fig0"
-       description="uci.uml.visual.FigInterface[208, 24, 88, 48]"
-       href="127-0-0-1-1dddba:ebbda60875:-7ffe"
+       description="uci.uml.visual.FigInterface[400, 40, 110, 64]"
+       href="127-0-0-1-71521:ec7506a1b9:-7ff1"
        fill="1"
-       fillcolor="-56"
+       fillcolor="-1"
        stroke="1"
        strokecolor="-16777216"
   >
@@ -15,50 +15,50 @@
     </private>
     
     <rectangle name="Fig0.0"
-      x="209"
-      y="25"
-      width="86"
-      height="46"
+      x="401"
+      y="41"
+      width="108"
+      height="62"
       fill="1"
-      fillcolor="-56"
+      fillcolor="-1"
       stroke="1"
-      strokecolor="-16711681"
+      strokecolor="-16777216"
     />
     <rectangle name="Fig0.1"
-      x="208"
-      y="24"
-      width="88"
-      height="29"
+      x="400"
+      y="40"
+      width="110"
+      height="32"
       fill="1"
-      fillcolor="-56"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
     />
     <text name="Fig0.2"
-      x="209"
-      y="25"
+      x="401"
+      y="41"
       fill="1"
-      fillcolor="-56"
+      fillcolor="-1"
       stroke="0"
       strokecolor="-16777216"
       font="Times"
       textsize="10"
     >&lt;&lt;Interface&gt;&gt;</text>
     <text name="Fig0.3"
-      x="209"
-      y="40"
+      x="401"
+      y="59"
       fill="1"
-      fillcolor="-56"
+      fillcolor="-1"
       stroke="0"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
     >Variant</text>
     <text name="Fig0.4"
-      x="208"
-      y="52"
+      x="400"
+      y="71"
       fill="1"
-      fillcolor="-56"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
@@ -66,10 +66,10 @@
     ></text>
   </group>
   <group name="Fig1"
-       description="uci.uml.visual.FigClass[200, 136, 112, 65]"
-       href="127-0-0-1-1dddba:ebbda60875:-7ffc"
+       description="uci.uml.visual.FigClass[536, 216, 443, 203]"
+       href="127-0-0-1-71521:ec7506a1b9:-7ff0"
        fill="1"
-       fillcolor="-3604481"
+       fillcolor="-1"
        stroke="1"
        strokecolor="-16777216"
   >
@@ -77,49 +77,117 @@
     </private>
     
     <rectangle name="Fig1.0"
-      x="201"
-      y="137"
-      width="110"
-      height="63"
+      x="537"
+      y="217"
+      width="441"
+      height="201"
       fill="1"
-      fillcolor="-3604481"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
     />
     <text name="Fig1.1"
-      x="200"
-      y="136"
+      x="536"
+      y="216"
       fill="1"
-      fillcolor="-3604481"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
-      font="dialog.italic"
+      font="dialog"
       textsize="9"
-    >AbstractValuedVariant</text>
+    >MethodVariant</text>
     <text name="Fig1.2"
-      x="200"
-      y="150"
+      x="536"
+      y="230"
       fill="1"
-      fillcolor="-3604481"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >protected AbstractStmtSwitch stmt
+protected AbstractFGNode[] parameters
+protected AbstractFGNode thisVar
+protected AbstractFGNode returnVar
+protected ASTVariantManager astvm
+public static BodyRepresentation bodyrep
+public BFA bfa
+public Context context
+public SootMethod sm
+public SimpleLocalDefs defs</text>
     <text name="Fig1.3"
-      x="200"
-      y="175"
+      x="536"
+      y="334"
       fill="1"
-      fillcolor="-3604481"
+      fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >protected MethodVariant MethodVariant(SootMethod sm, ASTVariantManager astvm, BFA bfa)
+public FGNode getASTNode(Value v)
+public FGNode getASTNode(Value v, Context c)
+public ASTVariant getASTVariant(Value v)
+public ASTVarrant getASTVariant(Value v, Context c)
+public FGNode getParamNode(int index)
+public FGNode getThisNode()
+public FGnode getReturnNode()</text>
+  </group>
+  <group name="Fig2"
+       description="uci.uml.visual.FigClass[448, 544, 352, 61]"
+       href="127-0-0-1-71521:ec7506a1b9:-7fef"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig2.0"
+      x="449"
+      y="545"
+      width="350"
+      height="59"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig2.1"
+      x="448"
+      y="544"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >FieldVariant</text>
+    <text name="Fig2.2"
+      x="448"
+      y="558"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >public SootField field</text>
+    <text name="Fig2.3"
+      x="448"
+      y="581"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >protected FieldVaraint FieldVaraint(SootField field, AbstractFGNode node)</text>
   </group>
   <group name="Fig3"
-       description="uci.uml.visual.FigClass[184, 304, 99, 61]"
-       href="127-0-0-1-1dddba:ebbda60875:-7ff1"
+       description="uci.uml.visual.FigClass[24, 544, 343, 61]"
+       href="127-0-0-1-71521:ec7506a1b9:-7fee"
        fill="1"
        fillcolor="-1"
        stroke="1"
@@ -129,18 +197,18 @@
     </private>
     
     <rectangle name="Fig3.0"
-      x="185"
-      y="305"
-      width="97"
+      x="25"
+      y="545"
+      width="341"
       height="59"
       fill="1"
       fillcolor="-1"
       stroke="1"
-      strokecolor="-16711681"
+      strokecolor="-16777216"
     />
     <text name="Fig3.1"
-      x="184"
-      y="304"
+      x="24"
+      y="544"
       fill="1"
       fillcolor="-1"
       stroke="1"
@@ -149,29 +217,29 @@
       textsize="9"
     >ArrayVariant</text>
     <text name="Fig3.2"
-      x="184"
-      y="318"
+      x="24"
+      y="558"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >public ArrayType a</text>
     <text name="Fig3.3"
-      x="184"
-      y="341"
+      x="24"
+      y="581"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >protected ArrayVariant ArrayVariant(ArrayType a, AbstractFGNode node)</text>
   </group>
   <group name="Fig4"
-       description="uci.uml.visual.FigClass[328, 304, 99, 61]"
-       href="127-0-0-1-1dddba:ebbda60875:-7ff0"
+       description="uci.uml.visual.FigClass[7, 376, 307, 61]"
+       href="127-0-0-1-71521:ec7506a1b9:-7fed"
        fill="1"
        fillcolor="-1"
        stroke="1"
@@ -181,49 +249,49 @@
     </private>
     
     <rectangle name="Fig4.0"
-      x="329"
-      y="305"
-      width="97"
+      x="8"
+      y="377"
+      width="305"
       height="59"
       fill="1"
-      fillcolor="-16711681"
+      fillcolor="-1"
       stroke="1"
-      strokecolor="-16711681"
+      strokecolor="-16777216"
     />
     <text name="Fig4.1"
-      x="328"
-      y="304"
+      x="7"
+      y="376"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    >FieldVariant</text>
+    >ASTVariant</text>
     <text name="Fig4.2"
-      x="328"
-      y="318"
+      x="7"
+      y="390"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >public Value v</text>
     <text name="Fig4.3"
-      x="328"
-      y="341"
+      x="7"
+      y="413"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    ></text>
+    >protected ASTVariant ASTVariant(Value v, AbstractFGNode node)</text>
   </group>
   <group name="Fig5"
-       description="uci.uml.visual.FigClass[520, 296, 99, 61]"
-       href="127-0-0-1-1dddba:ebbda60875:-7fef"
+       description="uci.uml.visual.FigClass[352, 224, 107, 61]"
+       href="127-0-0-1-71521:ec7506a1b9:-7f83"
        fill="1"
        fillcolor="-1"
        stroke="1"
@@ -233,28 +301,28 @@
     </private>
     
     <rectangle name="Fig5.0"
-      x="521"
-      y="297"
-      width="97"
+      x="353"
+      y="225"
+      width="105"
       height="59"
       fill="1"
-      fillcolor="-16711681"
+      fillcolor="-1"
       stroke="1"
-      strokecolor="-16711681"
+      strokecolor="-16777216"
     />
     <text name="Fig5.1"
-      x="520"
-      y="296"
+      x="352"
+      y="224"
       fill="1"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
       font="dialog"
       textsize="9"
-    >MethodVariant</text>
+    >AbstractValuedVariant</text>
     <text name="Fig5.2"
-      x="520"
-      y="310"
+      x="352"
+      y="238"
       fill="1"
       fillcolor="-1"
       stroke="1"
@@ -263,8 +331,8 @@
       textsize="9"
     ></text>
     <text name="Fig5.3"
-      x="520"
-      y="333"
+      x="352"
+      y="261"
       fill="1"
       fillcolor="-1"
       stroke="1"
@@ -274,93 +342,41 @@
     ></text>
   </group>
   <group name="Fig6"
-       description="uci.uml.visual.FigClass[64, 304, 99, 61]"
-       href="127-0-0-1-1dddba:ebbda60875:-7fee"
-       fill="1"
-       fillcolor="-1"
-       stroke="1"
-       strokecolor="-16777216"
-  >
-    <private>
-    </private>
-    
-    <rectangle name="Fig6.0"
-      x="65"
-      y="305"
-      width="97"
-      height="59"
-      fill="1"
-      fillcolor="-1"
-      stroke="1"
-      strokecolor="-16711681"
-    />
-    <text name="Fig6.1"
-      x="64"
-      y="304"
-      fill="1"
-      fillcolor="-1"
-      stroke="1"
-      strokecolor="-16777216"
-      font="dialog"
-      textsize="9"
-    >ASTVariant</text>
-    <text name="Fig6.2"
-      x="64"
-      y="318"
-      fill="1"
-      fillcolor="-1"
-      stroke="1"
-      strokecolor="-16777216"
-      font="dialog"
-      textsize="9"
-    ></text>
-    <text name="Fig6.3"
-      x="64"
-      y="341"
-      fill="1"
-      fillcolor="-1"
-      stroke="1"
-      strokecolor="-16777216"
-      font="dialog"
-      textsize="9"
-    ></text>
-  </group>
-  <group name="Fig2"
        description="uci.uml.visual.FigDependency"
-       href="127-0-0-1-1dddba:ebbda60875:-7ffb"
+       href="127-0-0-1-71521:ec7506a1b9:-7f82"
        stroke="1"
        strokecolor="-16777216"
   >
     <private>
-      sourcePortFig="Fig1.0"
+      sourcePortFig="Fig5.0"
       destPortFig="Fig0.0"
-      sourceFigNode="Fig1"
+      sourceFigNode="Fig5"
       destFigNode="Fig0"
     </private>
-    <path name="Fig2.1"
+    <path name="Fig6.1"
       description="uci.gef.FigPoly"
       fill="0"
       fillcolor="-1"
       stroke="1"
       strokecolor="-16777216"
     >
-      <moveto x="256"
-              y="137" />
-      <lineto x="256"
-              y="71" />
+      <moveto x="449"
+              y="225" />
+      <lineto x="449"
+              y="103" />
     </path>
   </group>
   <group name="Fig7"
        description="uci.uml.visual.FigGeneralization"
-       href="127-0-0-1-1dddba:ebbda60875:-7fed"
+       href="127-0-0-1-71521:ec7506a1b9:-7f81"
        stroke="1"
        strokecolor="-16777216"
   >
     <private>
-      sourcePortFig="Fig6.0"
-      destPortFig="Fig1.0"
-      sourceFigNode="Fig6"
-      destFigNode="Fig1"
+      sourcePortFig="Fig4.0"
+      destPortFig="Fig5.0"
+      sourceFigNode="Fig4"
+      destFigNode="Fig5"
     </private>
     <path name="Fig7.1"
       description="uci.gef.FigPoly"
@@ -369,23 +385,23 @@
       stroke="1"
       strokecolor="-16777216"
     >
-      <moveto x="162"
-              y="305" />
-      <lineto x="201"
-              y="200" />
+      <moveto x="313"
+              y="377" />
+      <lineto x="353"
+              y="284" />
     </path>
   </group>
   <group name="Fig8"
        description="uci.uml.visual.FigGeneralization"
-       href="127-0-0-1-1dddba:ebbda60875:-7fec"
+       href="127-0-0-1-71521:ec7506a1b9:-7f7d"
        stroke="1"
        strokecolor="-16777216"
   >
     <private>
-      sourcePortFig="Fig4.0"
-      destPortFig="Fig1.0"
-      sourceFigNode="Fig4"
-      destFigNode="Fig1"
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig5.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig5"
     </private>
     <path name="Fig8.1"
       description="uci.gef.FigPoly"
@@ -394,23 +410,23 @@
       stroke="1"
       strokecolor="-16777216"
     >
-      <moveto x="329"
-              y="305" />
-      <lineto x="311"
-              y="200" />
+      <moveto x="537"
+              y="273" />
+      <lineto x="458"
+              y="273" />
     </path>
   </group>
   <group name="Fig9"
        description="uci.uml.visual.FigGeneralization"
-       href="127-0-0-1-1dddba:ebbda60875:-7feb"
+       href="127-0-0-1-71521:ec7506a1b9:-7f7c"
        stroke="1"
        strokecolor="-16777216"
   >
     <private>
-      sourcePortFig="Fig3.0"
-      destPortFig="Fig1.0"
-      sourceFigNode="Fig3"
-      destFigNode="Fig1"
+      sourcePortFig="Fig2.0"
+      destPortFig="Fig5.0"
+      sourceFigNode="Fig2"
+      destFigNode="Fig5"
     </private>
     <path name="Fig9.1"
       description="uci.gef.FigPoly"
@@ -419,23 +435,23 @@
       stroke="1"
       strokecolor="-16777216"
     >
-      <moveto x="258"
-              y="305" />
-      <lineto x="258"
-              y="200" />
+      <moveto x="458"
+              y="545" />
+      <lineto x="458"
+              y="284" />
     </path>
   </group>
   <group name="Fig10"
        description="uci.uml.visual.FigGeneralization"
-       href="127-0-0-1-1dddba:ebbda60875:-7fea"
+       href="127-0-0-1-71521:ec7506a1b9:-7f7b"
        stroke="1"
        strokecolor="-16777216"
   >
     <private>
-      sourcePortFig="Fig5.0"
-      destPortFig="Fig1.0"
-      sourceFigNode="Fig5"
-      destFigNode="Fig1"
+      sourcePortFig="Fig3.0"
+      destPortFig="Fig5.0"
+      sourceFigNode="Fig3"
+      destFigNode="Fig5"
     </private>
     <path name="Fig10.1"
       description="uci.gef.FigPoly"
@@ -444,10 +460,10 @@
       stroke="1"
       strokecolor="-16777216"
     >
-      <moveto x="521"
-              y="297" />
-      <lineto x="311"
-              y="200" />
+      <moveto x="366"
+              y="545" />
+      <lineto x="366"
+              y="284" />
     </path>
   </group>
 </pgml>

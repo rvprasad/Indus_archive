@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE pgml SYSTEM "pgml.dtd">
+<pgml description="uci.uml.visual.UMLClassDiagram|127-0-0-1-71521:ec7506a1b9:-7ff6"
+      name="class diagram 15"
+>
+  <group name="Fig0"
+       description="uci.uml.visual.FigClass[448, 280, 99, 61]"
+       href="127-0-0-1-71521:ec7506a1b9:-7faa"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig0.0"
+      x="449"
+      y="281"
+      width="97"
+      height="59"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig0.1"
+      x="448"
+      y="280"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >IndexManager</text>
+    <text name="Fig0.2"
+      x="448"
+      y="294"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig0.3"
+      x="448"
+      y="317"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig1"
+       description="uci.uml.visual.FigClass[488, 96, 136, 57]"
+       href="127-0-0-1-71521:ec7506a1b9:-7fdc"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig1.0"
+      x="489"
+      y="97"
+      width="134"
+      height="55"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig1.1"
+      x="488"
+      y="96"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractIndexManager</text>
+    <text name="Fig1.2"
+      x="488"
+      y="110"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >protected Set indices</text>
+    <text name="Fig1.3"
+      x="488"
+      y="131"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >Index queryIndex(Object o, Context c)
+protected Index getIndex(Object o, Context c)
+void reset()
+public Object prototype(Object o)</text>
+  </group>
+  <group name="Fig2"
+       description="uci.uml.visual.FigGeneralization"
+       href="127-0-0-1-71521:ec7506a1b9:-7fa3"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig0.0"
+      destPortFig="Fig1.0"
+      sourceFigNode="Fig0"
+      destFigNode="Fig1"
+    </private>
+    <path name="Fig2.1"
+      description="uci.gef.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="529"
+              y="281" />
+      <lineto x="529"
+              y="152" />
+    </path>
+  </group>
+</pgml>

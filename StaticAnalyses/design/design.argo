@@ -11,24 +11,116 @@
   
   <searchpath href="PROJECT_DIR" />
   <member
+    type="pgml"
+    name="design_classdiagram8.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_usecasediagram3.pgml"
+  />
+  <member
     type="xmi"
     name="design.xmi"
   />
   <member
     type="pgml"
-    name="jext.pgml"
+    name="design_classdiagram9.pgml"
   />
   <member
     type="pgml"
-    name="usecasediagram3.pgml"
+    name="design_classdiagram10.pgml"
   />
   <member
     type="pgml"
-    name="FlowGraph.pgml"
+    name="design_classdiagram11.pgml"
   />
   <member
     type="pgml"
-    name="variants.pgml"
+    name="design_classdiagram12.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram13.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram14.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram15.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram16.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram17.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram18.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram19.pgml"
+  />
+  <member
+    type="pgml"
+    name="design_classdiagram20.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram21.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram22.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram23.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram24.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram59.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram60.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram61.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram62.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram63.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram64.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram65.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram66.pgml"
+  />
+  <member
+    type="pgml"
+    name="classdiagram27.pgml"
   />
   <historyfile name="" />
   <stats>
@@ -37,15 +129,15 @@
     <stat name="dblClicksInToDoPane"
          value="0" />
     <stat name="longestToDoList"
-         value="222" />
+         value="436" />
     <stat name="longestAdd"
          value="0" />
     <stat name="longestHot"
          value="0" />
     <stat name="numCriticsFired"
-         value="46730" />
+         value="239878" />
     <stat name="numNotValid"
-         value="0" />
+         value="7863" />
     <stat name="numCriticsApplied"
          value="0" />
     <stat name="toDoPerspectivesChanged"
@@ -53,7 +145,7 @@
     <stat name="navPerspectivesChanged"
          value="0" />
     <stat name="clicksInNavPane"
-         value="0" />
+         value="33" />
     <stat name="numFinds"
          value="0" />
     <stat name="numJumpToRelated"
@@ -75,6 +167,6 @@
     <stat name="Drags_To_New"
          value="0" />
     <stat name="Drags_To_Existing"
-         value="0" />
+         value="3" />
   </stats>
 </argo>

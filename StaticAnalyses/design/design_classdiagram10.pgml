@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE pgml SYSTEM "pgml.dtd">
+<pgml description="uci.uml.visual.UMLClassDiagram|127-0-0-1-71521:ec7506a1b9:-7ffc"
+      name="sub-packages"
+>
+  <group name="Fig0"
+       description="uci.uml.visual.FigPackage[192, 192, 140, 100]"
+       href="127-0-0-1-71521:ec7506a1b9:-7ffb"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig0.0"
+      x="193"
+      y="193"
+      width="138"
+      height="98"
+      fill="0"
+      stroke="0"
+    />
+    <text name="Fig0.1"
+      x="192"
+      y="192"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >bandera</text>
+    <text name="Fig0.2"
+      x="192"
+      y="207"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="serif"
+      textsize="10"
+    ></text>
+  </group>
+</pgml>
