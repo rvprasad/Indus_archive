@@ -156,11 +156,11 @@ public interface ITransformer {
 	void completeTransformation();
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initializes the transformer with the system being transformed.
 	 *
-	 * @param scene DOCUMENT ME!
+	 * @param scene contains the classes that constitute the sytem being transformed.
+	 *
+	 * @pre scene != null
 	 */
 	void initialize(Scene scene);
 
@@ -196,6 +196,10 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/26 15:06:05  venku
+   - Formatting.
+   - ITransformer has a new method initialize() via which the system
+     being transformed can be specified.
    Revision 1.7  2003/08/21 09:30:31  venku
     - added a new transform() method which can transform at the level of ValueBox.
     - CloningBasedSlicingTransformer does not do anything in this new method.
