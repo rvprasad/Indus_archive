@@ -147,14 +147,17 @@ final class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the part of the filename based on the given analysis.
 	 *
-	 * @param _da
+	 * @param da to be used to base the name.
 	 *
-	 * @return
+	 * @return the derived name.
+	 *
+	 * @pre da != null
+	 * @post result != null
 	 */
-	String getDAPartOfFileName(final DependencyAnalysis _da) {
-		return _da.getId() + ":" + _da.getClass().getName();
+	String getDAPartOfFileName(final DependencyAnalysis da) {
+		return da.getId() + ":" + da.getClass().getName();
 	}
 
 	/**
@@ -247,6 +250,9 @@ final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/03/29 09:31:01  venku
+   - adds .xml to the retrieved filename.
+   - always defaults to a non-empty DA based file name.
    Revision 1.11  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
