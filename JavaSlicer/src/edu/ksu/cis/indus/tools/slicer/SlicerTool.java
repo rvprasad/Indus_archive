@@ -188,6 +188,13 @@ public final class SlicerTool
 	private final Collection criteria;
 
 	/** 
+	 * This is used to retrieve any application-level criteria as opposed to those hand-picked by the user.
+	 *
+	 * @invariant criteriaGenerators.oclIsKindOf(Collection(ISliceCriteriaGenerator))
+	 */
+	private final Collection criteriaGenerators = new HashSet();
+
+	/** 
 	 * The entry point methods.
 	 *
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
@@ -203,6 +210,11 @@ public final class SlicerTool
 	 * This manages the tokens used in flow analysis.
 	 */
 	private final ITokenManager theTokenMgr;
+
+	/** 
+	 * This is the information map used to initialized analyses.
+	 */
+	private final Map info = new HashMap();
 
 	/** 
 	 * This provides monitor information.
@@ -250,11 +262,6 @@ public final class SlicerTool
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/** 
-	 * This is the information map used to initialized analyses.
-	 */
-	private final Map info = new HashMap();
-
-	/** 
 	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
 	private NewExpr2InitMapper initMapper;
@@ -268,11 +275,6 @@ public final class SlicerTool
 	 * The system to be sliced.
 	 */
 	private IEnvironment environment;
-
-	/** 
-	 * This is used to retrieve any application-level criteria as opposed to those hand-picked by the user. 
-	 */
-	private ISliceCriteriaGenerator criteriaGenerator;
 
 	/** 
 	 * This provides safe lock information.
@@ -408,17 +410,6 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Sets the value of <code>criteriaGenerator</code>.
-	 *
-	 * @param theCriteriaGenerator the new value of <code>criteriaGenerator</code>.
-	 *
-	 * @pre theCriteriaGenerator != null
-	 */
-	public void setCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
-		criteriaGenerator = theCriteriaGenerator;
-	}
-
-	/**
 	 * Returns the dependency analyses used by this object.
 	 *
 	 * @return the collection of dependency analyses.
@@ -510,6 +501,19 @@ public final class SlicerTool
 	 */
 	public void setTagName(final String tagName) {
 		engine.setTagName(tagName);
+	}
+
+	/**
+	 * Adds <code>criteriaGenerator</code> to the collection of criteria generator.
+	 *
+	 * @param theCriteriaGenerator anothre criteria generator.
+	 *
+	 * @return <code>true</code> if the given generator was added; <code>false</code>, otherwise.
+	 *
+	 * @pre theCriteriaGenerator != null
+	 */
+	public boolean addCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
+		return criteriaGenerators.add(theCriteriaGenerator);
 	}
 
 	/**
@@ -614,6 +618,19 @@ public final class SlicerTool
 		final IToolConfiguration _toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
 		_toolConfig.initialize();
 		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(_toolConfig);
+	}
+
+	/**
+	 * Removes <code>criteriaGenerator</code> to the collection of criteria generator.
+	 *
+	 * @param theCriteriaGenerator anothre criteria generator.
+	 *
+	 * @return <code>true</code> if the given generator was removed; <code>false</code>, otherwise.
+	 *
+	 * @pre theCriteriaGenerator != null
+	 */
+	public boolean removeCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
+		return criteriaGenerators.remove(theCriteriaGenerator);
 	}
 
 	/**
@@ -867,12 +884,16 @@ public final class SlicerTool
 		// perform slicing
 		engine.reset();
 
-		if (criteriaGenerator != null) {
-			criteria.addAll(criteriaGenerator.getCriteria(this));
+		final Iterator _i = criteriaGenerators.iterator();
+		final int _iEnd = criteriaGenerators.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final ISliceCriteriaGenerator _e = (ISliceCriteriaGenerator) _i.next();
+			criteria.addAll(_e.getCriteria(this));
 		}
 
 		if (slicerConfig.getSliceForDeadlock()) {
-			criteria.addAll(slicerConfig.getDeadlockCriteriaGenerator().getCriteria(this));
+			criteria.addAll(slicerConfig.getDeadlockPreservingSliceCriteriaGenerator().getCriteria(this));
 		}
 
 		if (!criteria.isEmpty()) {

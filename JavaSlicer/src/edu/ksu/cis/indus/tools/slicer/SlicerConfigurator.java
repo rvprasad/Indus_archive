@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -89,26 +89,16 @@ public final class SlicerConfigurator
 
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
-		// Slice-for-deadlock button
 		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData.horizontalSpan = 1;
-
-		final Button _button = new Button(parent, SWT.CHECK);
-		_button.setText("Slice for Deadlock");
-		_button.setLayoutData(_gridData);
-		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
-
-		SelectionListener _sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg);
-		_button.addSelectionListener(_sl);
-
-		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData.horizontalSpan = 1;
+		_gridData.horizontalSpan = 2;
 
 		executableSliceButton = new Button(parent, SWT.CHECK);
 		executableSliceButton.setText("Executable slice");
 		executableSliceButton.setLayoutData(_gridData);
 		executableSliceButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue());
-		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
+
+		final SelectionListener _sl =
+			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
 		executableSliceButton.addSelectionListener(_sl);
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
@@ -118,37 +108,116 @@ public final class SlicerConfigurator
 		setupRow2();
 		setupRow3();
 		setupRow4();
+		setupRow5();
 		parent.pack();
 	}
 
 	/**
-	 * Sets up row 2 corresponding to Slice type and Interference DA in the configurator composite.
+	 * Sets up row 2 to configure deadlock preserving slicing  and slice type.
 	 */
 	private void setupRow2() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
+		final Composite _comp = new Composite(parent, SWT.NONE);
+		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
+		_gridData1.horizontalSpan = 1;
+		_comp.setLayoutData(_gridData1);
 
-		// Slice type related group
-		Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Slice Type");
+		final RowLayout _rowLayout1 = new RowLayout();
+		_rowLayout1.type = SWT.VERTICAL;
+		_rowLayout1.fill = true;
+		_comp.setLayout(_rowLayout1);
+
+		final Button _button = new Button(_comp, SWT.CHECK);
+		_button.setText("Slice for Deadlock");
+		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
+
+		final Group _group1 = new Group(_comp, SWT.SHADOW_ETCHED_IN);
+		_group1.setText("Deadlock Criteria Selection Strategy");
+
+		final RowLayout _rowLayout2 = new RowLayout();
+		_rowLayout2.type = SWT.VERTICAL;
+		_group1.setLayout(_rowLayout2);
+
+		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
+		_allSycnStrategy.setText("All Synchronization constructs");
+
+		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
+
+		/*final Button _completeSlice = new Button(_group, SWT.RADIO);
+		   _completeSlice.setText("Complete slice");*/
+		final SelectionListener _sl2 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					Object _value = null;
+
+					if (evt.widget == _escapingSyncStrategy) {
+						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _allSycnStrategy) {
+						_value = SlicerConfiguration.ALL_SYCN_CONSTRUCTS;
+
+						/*} else if (evt.widget == _completeSlice) {
+						   _value = SlicingEngine.COMPLETE_SLICE;*/
+					}
+
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.DEADLOCK_CRITERIA_SELECTION_STRATEGY, _value);
+					}
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		_allSycnStrategy.addSelectionListener(_sl2);
+		//_completeSlice.addSelectionListener(_sl);
+		_escapingSyncStrategy.addSelectionListener(_sl2);
+
+		Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
+
+		if (_temp.equals(SlicerConfiguration.ALL_SYCN_CONSTRUCTS)) {
+			_allSycnStrategy.setSelection(true);
+
+			/*} else if (_temp.equals(SlicingEngine.COMPLETE_SLICE)) {
+			   _completeSlice.setSelection(true);*/
+		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
+			_escapingSyncStrategy.setSelection(true);
+		}
+
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg) {
+				public void widgetSelected(final SelectionEvent evt) {
+					final boolean _value = button.getSelection();
+					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
+					_group1.setEnabled(_value);
+					_allSycnStrategy.setEnabled(_value);
+					_escapingSyncStrategy.setEnabled(_value);
+				}
+			};
+		_button.addSelectionListener(_sl1);
+
+		//Slice type related group
+		final Group _group2 = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group2.setText("Slice Type");
 
 		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		_gridData.horizontalSpan = 1;
-		_group.setLayoutData(_gridData);
+		_group2.setLayoutData(_gridData);
 
 		RowLayout _rowLayout = new RowLayout();
 		_rowLayout.type = SWT.VERTICAL;
-		_group.setLayout(_rowLayout);
+		_group2.setLayout(_rowLayout);
 
-		final Button _backwardSlice = new Button(_group, SWT.RADIO);
+		final Button _backwardSlice = new Button(_group2, SWT.RADIO);
 		_backwardSlice.setText("Backward slice");
 
-		final Button _forwardSlice = new Button(_group, SWT.RADIO);
+		final Button _forwardSlice = new Button(_group2, SWT.RADIO);
 		_forwardSlice.setText("Forward slice");
 
-		final Button _completeSlice = new Button(_group, SWT.RADIO);
+		final Button _completeSlice = new Button(_group2, SWT.RADIO);
 		_completeSlice.setText("Complete slice");
 
-		SelectionListener _sl =
+		final SelectionListener _sl3 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					Object _value = null;
@@ -174,27 +243,36 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		_backwardSlice.addSelectionListener(_sl);
-		_completeSlice.addSelectionListener(_sl);
-		_forwardSlice.addSelectionListener(_sl);
+		_backwardSlice.addSelectionListener(_sl3);
+		_completeSlice.addSelectionListener(_sl3);
+		_forwardSlice.addSelectionListener(_sl3);
 
-		Object _temp = _cfg.getSliceType();
+		final Object _sliceType = _cfg.getSliceType();
 
-		if (_temp.equals(SlicingEngine.BACKWARD_SLICE)) {
+		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
 			_backwardSlice.setSelection(true);
-		} else if (_temp.equals(SlicingEngine.COMPLETE_SLICE)) {
+		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
 			_completeSlice.setSelection(true);
-		} else if (_temp.equals(SlicingEngine.FORWARD_SLICE)) {
+		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
 			_forwardSlice.setSelection(true);
 		}
+	}
+
+	/**
+	 * Sets up row 3 corresponding Interference DA in the configurator composite.
+	 */
+	private void setupRow3() {
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Interference dependence related group
-		_gridData = new GridData(GridData.FILL_HORIZONTAL);
-		_gridData.horizontalSpan = 1;
-		_group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Precision of Interference dependence");
+		final GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
+		_gridData.horizontalSpan = 2;
+
+		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		_group.setText("Interference dependence");
 		_group.setLayoutData(_gridData);
-		_rowLayout = new RowLayout();
+
+		final RowLayout _rowLayout = new RowLayout();
 		_rowLayout.type = SWT.VERTICAL;
 		_group.setLayout(_rowLayout);
 
@@ -209,36 +287,38 @@ public final class SlicerConfigurator
 
 		final Button _useOFAForInterference = new Button(_group, SWT.CHECK);
 		_useOFAForInterference.setText("use object flow analysis information");
-		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA, _useOFAForInterference,
-				_cfg);
-		_useOFAForInterference.addSelectionListener(_sl);
 
-		_sl = new SelectionListener() {
-					public void widgetSelected(final SelectionEvent evt) {
-						Object _value = null;
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA, _useOFAForInterference, _cfg);
+		_useOFAForInterference.addSelectionListener(_sl1);
 
-						if (evt.widget == _equivalenceClassEscapeAnalysisBasedIDA) {
-							_value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
-						} else if (evt.widget == _symbolBasedEscapeAnalysisBasedIDA) {
-							_value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
-						} else if (evt.widget == _typedIDA) {
-							_value = SlicerConfiguration.TYPE_BASED_INFO;
-						}
+		final SelectionListener _sl2 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					Object _value = null;
 
-						if (_value != null) {
-							_cfg.setProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA, _value);
-						}
+					if (evt.widget == _equivalenceClassEscapeAnalysisBasedIDA) {
+						_value = SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INFO;
+					} else if (evt.widget == _symbolBasedEscapeAnalysisBasedIDA) {
+						_value = SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO;
+					} else if (evt.widget == _typedIDA) {
+						_value = SlicerConfiguration.TYPE_BASED_INFO;
 					}
 
-					public void widgetDefaultSelected(final SelectionEvent evt) {
-						widgetSelected(evt);
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA, _value);
 					}
-				};
-		_equivalenceClassEscapeAnalysisBasedIDA.addSelectionListener(_sl);
-		_symbolBasedEscapeAnalysisBasedIDA.addSelectionListener(_sl);
-		_typedIDA.addSelectionListener(_sl);
+				}
 
-		_temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA);
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		_equivalenceClassEscapeAnalysisBasedIDA.addSelectionListener(_sl2);
+		_symbolBasedEscapeAnalysisBasedIDA.addSelectionListener(_sl2);
+		_typedIDA.addSelectionListener(_sl2);
+
+		final Object _temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_INTERFERENCE_DA);
 
 		if (_temp == null || _temp.equals(SlicerConfiguration.SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
 			_symbolBasedEscapeAnalysisBasedIDA.setSelection(true);
@@ -253,9 +333,9 @@ public final class SlicerConfigurator
 	}
 
 	/**
-	 * Sets up row 3 corresponding to Divergence DA in the configurator composite.
+	 * Sets up row 4 corresponding to Divergence DA in the configurator composite.
 	 */
-	private void setupRow3() {
+	private void setupRow4() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Divergence dependence related group
@@ -311,9 +391,9 @@ public final class SlicerConfigurator
 	}
 
 	/**
-	 * Sets up row 4 corresponding to Ready DA in the configurator composite.
+	 * Sets up row 5 corresponding to Ready DA in the configurator composite.
 	 */
-	private void setupRow4() {
+	private void setupRow5() {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
 		// Ready dependence related group
@@ -500,94 +580,4 @@ public final class SlicerConfigurator
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.28  2004/07/28 17:20:11  venku
-   - incorrect field used to set value of ofa_for_interference. FIXED.
-   Revision 1.27  2004/07/27 11:07:22  venku
-   - updated project to use safe lock analysis.
-   Revision 1.26  2004/07/21 05:07:25  venku
-   - button to toggle usage of OFA for ReadyDA was not being disabled when
-     ready da was disabled.
-   Revision 1.25  2004/07/20 06:20:27  venku
-   - fixed a few more issues pertaining to serialized configuration and how the
-     configurator should treat illegal configurations.
-   Revision 1.24  2004/07/20 00:31:04  venku
-   - addressed bug #408.
-   Revision 1.23  2004/02/25 00:09:12  venku
-   - documenation.
-   Revision 1.22  2004/02/12 21:30:05  venku
-   - cut-and-paste error when handling boolean properity (useOFA). FIXED.
-   Revision 1.21  2004/01/25 16:19:52  venku
-   - enabled configuration support for using object flow information.
-   Revision 1.20  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.19  2003/12/02 11:32:01  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.18  2003/12/02 09:42:18  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.17  2003/11/06 05:21:49  venku
-   - documentation.
-   Revision 1.16  2003/11/05 08:26:42  venku
-   - changed the xml schema for the slicer configuration.
-   - The configruator, driver, and the configuration handle
-     these changes.
-   Revision 1.15  2003/11/03 08:05:34  venku
-   - lots of changes
-     - changes to get the configuration working with JiBX
-     - changes to make configuration amenable to CompositeConfigurator
-     - added EquivalenceClassBasedAnalysis
-     - added fix for Thread's start method
-   Revision 1.14  2003/10/21 06:07:01  venku
-   - added support for executable slice.
-   Revision 1.13  2003/10/21 06:00:19  venku
-   - Split slicing type into 2 sets:
-        b/w, f/w, and complete
-        executable and non-executable.
-   - Extended transformer classes to handle these
-     classification.
-   - Added a new class to house the logic for fixing
-     return statements in case of backward executable slice.
-   Revision 1.12  2003/10/20 13:55:25  venku
-   - Added a factory to create new configurations.
-   - Simplified AbstractToolConfigurator methods.
-   - The driver manages the shell.
-   - Got all the gui parts running EXCEPT for changing
-     the name of the configuration.
-   Revision 1.11  2003/10/14 05:36:12  venku
-   - implemented checkConfiguration().
-   Revision 1.10  2003/10/14 02:58:21  venku
-   - ripple effect of changes to AbstractToolConfigurator.
-   Revision 1.9  2003/10/13 01:01:45  venku
-   - Split transformations.slicer into 2 packages
-      - transformations.slicer
-      - slicer
-   - Ripple effect of the above changes.
-   Revision 1.8  2003/09/29 04:20:30  venku
-   - coding convention.
-   Revision 1.7  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.6  2003/09/27 01:09:35  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.5  2003/09/26 15:30:39  venku
-   - removed PropertyIdentifier class.
-   - ripple effect of the above change.
-   - formatting
-   Revision 1.4  2003/09/26 15:08:02  venku
-   - completed support for exposing slicer as a tool
-     and configuring it both in Bandera and outside it.
-   Revision 1.3  2003/09/26 07:33:29  venku
-   - checkpoint commit.
-   Revision 1.2  2003/09/26 05:55:28  venku
-   - a checkpoint commit. Also a cvs fix commit.
-   Revision 1.1  2003/09/24 07:32:23  venku
-   - Created an implementation of indus tool api specific to Slicer.
-     The GUI needs to be setup and bandera adapter needs to be fixed.
- */
+// End of File

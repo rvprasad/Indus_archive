@@ -22,13 +22,13 @@
       <xsd:complexContent>
         <xsd:extension base="indus:configuration">
         <xsd:sequence>
+          <xsd:element name="deadlock" type="slicer:deadlock"/>
           <xsd:element name="interference" type="slicer:interference"/>
           <xsd:element name="divergence" type="slicer:divergence"/>
           <xsd:element name="ready" type="slicer:ready"/>
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
-        <xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
         </xsd:extension>
       </xsd:complexContent>
     </xsd:complexType>
@@ -45,6 +45,24 @@
         <xsd:enumeration value="COMPLETE_SLICE"/>
       </xsd:restriction>
     </xsd:simpleType>
+
+    <xsd:simpleType id="deadlockCriteriaSelectionStrategy" name="deadlockCriteriaSelectionStrategy">
+      <xsd:annotation>
+        <xsd:documentation>
+          This captures the strategy used to generate deadlock criteria.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="ESCAPING_SYNC_CONSTRUCTS"/>
+        <xsd:enumeration value="ALL_SYNC_CONSTRUCTS"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
+	<xsd:element id="deadlock" name="deadlock">
+		<xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
+		<xsd:attribute name="deadlockCriteriaSelectionStrategy" type="slicer:deadlockCriteriaSelectionStrategy" 
+			default="ESCAPING_SYNC_CONSTRUCTS"/>
+	</xsd:element>
 
     <xsd:simpleType id="natureOfInterThreadAnalysis1" name="natureOfInterThreadAnalysis1">
       <xsd:annotation>

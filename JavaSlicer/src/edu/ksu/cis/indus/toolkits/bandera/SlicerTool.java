@@ -81,6 +81,16 @@ public final class SlicerTool
 	public static final Object CRITERIA_SPECIFICATION = "slicingCriteriaSpecification";
 
 	/** 
+	 * This identifies the slicer configuration specification (the string as available in xml file).
+	 */
+	public static final Object CONFIGURATION_SPECIFICATION = "configurationSpecification";
+
+	/** 
+	 * This identifies the slicer configuration to be used.
+	 */
+	public static final Object ID_OF_CONFIGURATION_TO_USE = "idOfConfigurationToUse";
+
+	/** 
 	 * The collection of input argument identifiers.
 	 */
 	private static final List IN_ARGUMENTS_IDS;
@@ -216,6 +226,22 @@ public final class SlicerTool
 			throw new IllegalArgumentException(_msg);
 		}
 		tool.setRootMethods(_rootMethods);
+
+		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
+
+		if (_configuration == null) {
+			LOGGER.info("No configuration specification provided.  The default specification will be used.");
+		} else {
+			tool.destringizeConfiguration(_configuration);
+		}
+
+		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
+
+		if (_activeConfID == null) {
+			LOGGER.info("No active configuration is provided. The default in the specification will be used.");
+		} else {
+			tool.setActiveConfiguration(_activeConfID);
+		}
 	}
 
 	/**

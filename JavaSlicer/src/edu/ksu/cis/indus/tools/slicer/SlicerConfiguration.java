@@ -131,10 +131,21 @@ public final class SlicerConfiguration
 	static final Object USE_DIVERGENCEDA = "use divergence dependence";
 
 	/** 
-	 * This identifies the property that indicates if slice criteria should be automatically picked for slicing such that the
-	 * slice has the same deadlock behavior as the original program.
+	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve the
+	 * deadlocking property of the program.
 	 */
 	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
+
+	/** 
+	 * This indicates all-synchronization-constructs-should-be-considered deadlock criteria selection strategy.
+	 */
+	static final Object ALL_SYCN_CONSTRUCTS = "ALL_SYCN_CONSTRUCTS";
+
+	/** 
+	 * This indicates all-synchronization-constructs-with-escaping-monitors-should-be-considered deadlock criteria selection
+	 * strategy.
+	 */
+	static final Object ESCAPING_SYNC_CONSTRUCTS = "ESCAPING_SYNC_CONSTRUCTS";
 
 	/** 
 	 * This identifies the option to create executable slice.
@@ -164,6 +175,11 @@ public final class SlicerConfiguration
 	static final Object USE_SLA_FOR_READY_DA = "use sla for ready";
 
 	/** 
+	 * This identifies the property that determines the strategy used to select criteria to preserve deadlock.
+	 */
+	static final Object DEADLOCK_CRITERIA_SELECTION_STRATEGY = "deadlock criteria selection strategy";
+
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
@@ -182,6 +198,11 @@ public final class SlicerConfiguration
 	 */
 	private final Map id2dependencyAnalyses = new HashMap();
 
+	/** 
+	 * This criteria generator to for deadlock criteria generation.
+	 */
+	private ISliceCriteriaGenerator criteriaGenerator;
+
 	/**
 	 * Creates a new SlicerConfiguration object.
 	 */
@@ -199,19 +220,39 @@ public final class SlicerConfiguration
 		propertyIds.add(USE_RULE4_IN_READYDA);
 		propertyIds.add(USE_SLA_FOR_READY_DA);
 		propertyIds.add(SLICE_FOR_DEADLOCK);
+		propertyIds.add(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
 	}
 
 	/**
+	 * Sets the strategy to be used to select deadlock preserving criteria.
+	 *
+	 * @param dc specifies the strategy.  It has to be one of <code>ALL_SYNC_CONSTRUCTS</code> or
+	 * 		  <code>ESCAPING_SYNC_CONSTRUCTS</code>.
+	 */
+	public void setDeadlockCriteriaSelectionStrategy(final String dc) {
+		super.setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, dc);
+	}
+
+	/**
+	 * Retrieves the strategy used to select deadlock perserving criteria.
+	 *
+	 * @return the selection strategy used.
+	 */
+	public String getDeadlockCriteriaSelectionStrategy() {
+		return (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
+	}
+
+	/**
 	 * Retrieves slicing criteria generator.
 	 *
-	 * @return a slice criteria generator.
+	 * @return the slice criteria generator.
 	 *
 	 * @post result != null
 	 */
-	public ISliceCriteriaGenerator getDeadlockCriteriaGenerator() {
-		return new DeadlockPreservingCriteriaGeneratorv2();
+	public ISliceCriteriaGenerator getDeadlockPreservingSliceCriteriaGenerator() {
+		return criteriaGenerator;
 	}
 
 	/**
@@ -551,6 +592,7 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.INTERFERENCE_DA);
 		dependencesToUse.add(IDependencyAnalysis.READY_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
+		criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
 	}
 
 	/**
@@ -635,6 +677,8 @@ public final class SlicerConfiguration
 			_result = processIDANatureProperty(value);
 		} else if (propertyID.equals(NATURE_OF_READY_DA)) {
 			_result = processRDANatureProperty(value);
+		} else if (propertyID.equals(DEADLOCK_CRITERIA_SELECTION_STRATEGY)) {
+			processNatureOfDeadlock(value);
 		}
 		return _result;
 	}
@@ -791,6 +835,32 @@ public final class SlicerConfiguration
 				_dda.setConsiderCallSites(_temp);
 			}
 		}
+	}
+
+	/**
+	 * Processes the property that dictates the strategy use to select deadlock criteria.
+	 *
+	 * @param property is the property.
+	 *
+	 * @return <code>true</code> if the property value was a valid;  <code>false</code>, otherwise.
+	 *
+	 * @pre property != null
+	 */
+	private boolean processNatureOfDeadlock(final Object property) {
+		boolean _result = false;
+
+		if (getSliceForDeadlock()) {
+			_result = true;
+
+			if (property.equals(ALL_SYCN_CONSTRUCTS)) {
+				criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
+			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
+				criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
+			} else {
+				_result = false;
+			}
+		}
+		return _result;
 	}
 
 	/**
