@@ -35,6 +35,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 
 import soot.jimple.EnterMonitorStmt;
@@ -44,7 +47,6 @@ import soot.jimple.InvokeStmt;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 
 /**
@@ -63,6 +65,12 @@ public class ReadyDAv2
 	 * This provides information to prune ready dependence edges.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
+    
+    /**
+     * The logger used by instances of this class to log messages.
+     * 
+     */
+    private static final Log LOGGER = LogFactory.getLog(ReadyDAv2.class);
 
 	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
@@ -122,7 +130,8 @@ public class ReadyDAv2
 		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
 
 		if (ecba == null) {
-			throw new InitializationException(PairManager.ID + " was not provided in info.");
+            LOGGER.error(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
+			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
 		}
 	}
 
@@ -225,6 +234,12 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/25 09:04:31  venku
+   It was not a good decision to decide interproceduralness of the
+   analyses at construction.  Hence, it now can be controlled via public
+   method setInterprocedural().
+   Ripple effect.
+
    Revision 1.7  2003/08/21 01:25:21  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
