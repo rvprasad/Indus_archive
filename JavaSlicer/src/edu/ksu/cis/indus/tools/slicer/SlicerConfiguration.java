@@ -204,6 +204,222 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if divergence dependence analysis is enabled in this configuration.
+	 *
+	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isDivergenceDepAnalysisUsed() {
+		return ((Boolean) properties.get(USE_DIVERGENCEDA)).booleanValue();
+	}
+
+	/**
+	 * Checks if interprocedural divergence dependence analysis is enabled in this configuration.
+	 *
+	 * @return <code>true</code> if the use of interprocedural divergence dependence analysis is enabled; <code>false</code>,
+	 * 		   otherwise.
+	 */
+	public boolean isInterproceduralDivergenceDepAnalysisUsed() {
+		return getBooleanProperty(INTERPROCEDURAL_DIVERGENCEDA);
+	}
+
+	/**
+	 * Sets the nature of interference dependence analysis to be used.
+	 *
+	 * @param use specifies the nature of analysis.  It has to be one of values defined by
+	 * 		  <code>EQUIVALENCE_CLASS_BASED_INFO</code>,  <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
+	 * 		  <code>TYPE_BASED_INFO</code>.
+	 *
+	 * @pre use != null
+	 */
+	public void setNatureOfInterferenceDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * Retrieves the nature of interference dependence analysis specified by this configuration.
+	 *
+	 * @return <code>true</code> if the use of interference dependence analysis enabled; <code>false</code>, otherwise.
+	 *
+	 * @post result != null
+	 */
+	public String getNatureOfInterferenceDepAnalysis() {
+		return (String) properties.get(NATURE_OF_INTERFERENCE_DA);
+	}
+
+	/**
+	 * Sets the nature of ready dependence analysis to be used.
+	 *
+	 * @param use specifies the nature of analysis.  It has to be one of values defined by
+	 * 		  <code>EQUIVALENCE_CLASS_BASED_INFO</code>,  <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
+	 * 		  <code>TYPE_BASED_INFO</code>.
+	 *
+	 * @pre use != null
+	 */
+	public void setNatureOfReadyDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_READY_DA, use);
+	}
+
+	/**
+	 * Retrieves the nature of ready dependence analysis specified by this configuration.
+	 *
+	 * @return the nature of ready dependence analysis.
+	 *
+	 * @post result != null
+	 */
+	public String getNatureOfReadyDepAnalysis() {
+		String _result = (String) properties.get(NATURE_OF_READY_DA);
+
+		if (_result == null) {
+			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if ready dependence analysis is enabled in this configuration.
+	 *
+	 * @return <code>true</code> if the use of ready dependence analysis enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyDepAnalysisUsed() {
+		return ((Boolean) properties.get(USE_READYDA)).booleanValue();
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 1 is enabled.  Rule 1 being the intraprocedural ready dependence induced by
+	 * enter monitor statements.
+	 *
+	 * @return <code>true</code> if ready dependence analysis rule 1 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule1Used() {
+		return getBooleanProperty(USE_RULE1_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 2 is enabled.  Rule 2 being the interprocedural ready dependence induced by
+	 * enter/exit monitor statements.
+	 *
+	 * @return <code>true</code> if ready dependence analysis rule 2 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule2Used() {
+		return getBooleanProperty(USE_RULE2_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 3 is enabled.  Rule 3 being the intraprocedural ready dependence induced by
+	 * wait statements.
+	 *
+	 * @return <code>true</code> if ready dependence analysis rule 3 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule3Used() {
+		return getBooleanProperty(USE_RULE3_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 4 is enabled.  Rule 4 being the interprocedural ready dependence induced by
+	 * wait/notify statements.
+	 *
+	 * @return <code>true</code> if ready dependence analysis rule 4 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule4Used() {
+		return getBooleanProperty(USE_RULE4_IN_READYDA);
+	}
+
+	/**
+	 * Sets the type of slice to be generated.
+	 *
+	 * @param type specifies the type of slice.  It has to be one of values defined by
+	 * 		  <code>SlicingEngine.BACKWARD_SLICE</code>,  <code>SlicingEngine.FORWARD_SLICE</code>, and
+	 * 		  <code>SlicingEngine.COMPLETE_SLICE</code>.
+	 *
+	 * @pre use != null
+	 */
+	public void setSliceType(final String type) {
+		if (SlicingEngine.SLICE_TYPES.contains(type)) {
+			properties.put(SLICE_TYPE, type);
+
+			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
+				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (_c == null) {
+					_c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
+				} else {
+					_c.clear();
+				}
+				_c.add(new EntryControlDA());
+			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
+				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (_c == null) {
+					_c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
+				} else {
+					_c.clear();
+				}
+				_c.add(new ExitControlDA());
+			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
+				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (_c == null) {
+					_c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
+				} else {
+					_c.clear();
+				}
+				_c.add(new EntryControlDA());
+				_c.add(new ExitControlDA());
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the type of slice that will be generated.
+	 *
+	 * @return the type of slice.
+	 *
+	 * @post result != null
+	 */
+	public String getSliceType() {
+		return properties.get(SLICE_TYPE).toString();
+	}
+
+	/**
+	 * Sets if OFA should be used during interference dependence calculation.
+	 *
+	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
+	 */
+	public void setUseOFAForInterference(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * Checks if OFA is being used for interference dependence calculation.
+	 *
+	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
+	 */
+	public boolean getUseOFAForInterference() {
+		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
+	}
+
+	/**
+	 * Sets if OFA should be used during ready dependence calculation.
+	 *
+	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
+	 */
+	public void setUseOFAForReady(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
+	}
+
+	/**
+	 * Checks if OFA is being used for ready dependence calculation.
+	 *
+	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
+	 */
+	public boolean getUseOFAForReady() {
+		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.tools.IToolConfigurationFactory#createToolConfiguration()
 	 */
 	public IToolConfiguration createToolConfiguration() {
@@ -252,196 +468,66 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if divergence dependence analysis should be used during slicing.
 	 *
-	 * @return Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected boolean isDivergenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_DIVERGENCEDA)).booleanValue();
+	public void useDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_DIVERGENCEDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
 	 *
-	 * @return Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
-		return getBooleanProperty(INTERPROCEDURAL_DIVERGENCEDA);
+	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if ready dependence analysis should be used during slicing.
 	 *
-	 * @param use Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected void setNatureOfInterferenceDepAnalysis(final String use) {
-		super.setProperty(NATURE_OF_INTERFERENCE_DA, use);
+	public void useReadyDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_READYDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
 	 *
-	 * @return Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected String getNatureOfInterferenceDepAnalysis() {
-		return (String) properties.get(NATURE_OF_INTERFERENCE_DA);
+	public void useReadyRule1(final boolean use) {
+		processPropertyHelper(USE_RULE1_IN_READYDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
 	 *
-	 * @param use Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected void setNatureOfReadyDepAnalysis(final String use) {
-		super.setProperty(NATURE_OF_READY_DA, use);
+	public void useReadyRule2(final boolean use) {
+		processPropertyHelper(USE_RULE2_IN_READYDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
 	 *
-	 * @return Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected String getNatureOfReadyDepAnalysis() {
-		String _result = (String) properties.get(NATURE_OF_READY_DA);
-
-		if (_result == null) {
-			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
-		}
-		return _result;
+	public void useReadyRule3(final boolean use) {
+		processPropertyHelper(USE_RULE3_IN_READYDA, use);
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
 	 *
-	 * @return Should not be used!
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
-	protected boolean isReadyDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_READYDA)).booleanValue();
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean isReadyRule1Used() {
-		return getBooleanProperty(USE_RULE1_IN_READYDA);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean isReadyRule2Used() {
-		return getBooleanProperty(USE_RULE2_IN_READYDA);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean isReadyRule3Used() {
-		return getBooleanProperty(USE_RULE3_IN_READYDA);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean isReadyRule4Used() {
-		return getBooleanProperty(USE_RULE4_IN_READYDA);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param type Should not be used!
-	 */
-	protected void setSliceType(final String type) {
-		if (SlicingEngine.SLICE_TYPES.contains(type)) {
-			properties.put(SLICE_TYPE, type);
-
-			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
-
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
-				_c.add(new EntryControlDA());
-			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
-
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
-				_c.add(new ExitControlDA());
-			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
-				Collection _c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
-
-				if (_c == null) {
-					_c = new HashSet();
-					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, _c);
-				} else {
-					_c.clear();
-				}
-				_c.add(new EntryControlDA());
-				_c.add(new ExitControlDA());
-			}
-		}
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected String getSliceType() {
-		return properties.get(SLICE_TYPE).toString();
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void setUseOFAForInterference(final boolean use) {
-		processPropertyHelper(USE_OFA_FOR_INTERFERENCE_DA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean getUseOFAForInterference() {
-		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void setUseOFAForReady(final boolean use) {
-		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean getUseOFAForReady() {
-		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
+	public void useReadyRule4(final boolean use) {
+		processPropertyHelper(USE_RULE4_IN_READYDA, use);
 	}
 
 	/**
@@ -492,69 +578,6 @@ public final class SlicerConfiguration
 			_result = processRDANatureProperty(value);
 		}
 		return _result;
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useInterproceduralDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useReadyDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_READYDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useReadyRule1(final boolean use) {
-		processPropertyHelper(USE_RULE1_IN_READYDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useReadyRule2(final boolean use) {
-		processPropertyHelper(USE_RULE2_IN_READYDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useReadyRule3(final boolean use) {
-		processPropertyHelper(USE_RULE3_IN_READYDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useReadyRule4(final boolean use) {
-		processPropertyHelper(USE_RULE4_IN_READYDA, use);
 	}
 
 	/**
@@ -765,9 +788,10 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/03/21 20:25:49  venku
+   - naming of auto generated configurations were inconsistent. FIXED.
    Revision 1.29  2004/02/13 08:40:04  venku
    - use ofa for interference/ready was being ignored. FIXED.
-
    Revision 1.28  2004/01/25 16:19:52  venku
    - enabled configuration support for using object flow information.
    Revision 1.27  2004/01/20 02:18:42  venku
