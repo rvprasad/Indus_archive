@@ -68,7 +68,7 @@ public class PartialStmtData {
 	/**
 	 * The viewers listening to this model.
 	 */
-	private List listeners;
+	protected List listeners;
 	
 	/**
 	 * Constructor.
@@ -103,7 +103,10 @@ public class PartialStmtData {
 		this.stmtList = stmtsList;
 		if (stmtsList != null) {
 			for (int _i = 0; _i < listeners.size(); _i++) {
-				((IDeltaListener) listeners.get(_i)).propertyChanged();
+			    final IDeltaListener _listener = (IDeltaListener) listeners.get(_i);
+			    if (_listener.isReady()) {
+			        ((IDeltaListener) listeners.get(_i)).propertyChanged();
+			    }
 			}	
 		}				
 	}

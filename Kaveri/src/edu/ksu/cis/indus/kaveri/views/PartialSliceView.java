@@ -15,10 +15,10 @@
 package edu.ksu.cis.indus.kaveri.views;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -88,7 +88,7 @@ public class PartialSliceView extends ViewPart  {
     /**
      * The list of Jimple stmts in the criteria.
      */
-    private Set crtList;
+    private Map crtList;
 
     /**
      * <p>
@@ -100,14 +100,14 @@ public class PartialSliceView extends ViewPart  {
     /**
      * View is ready to receive the data.
      */
-    private boolean isReady;
+    private boolean isReady = false;
 
     /**
      * The constructor.
      */
     public PartialSliceView() {
         isReady = false;
-        crtList = new HashSet();
+        crtList = new HashMap();
     }
 
     /**
@@ -175,7 +175,7 @@ public class PartialSliceView extends ViewPart  {
                         && _crt.getStrMethodName().equals(_methodName)
                         && _crt.getNLineNo() == _nLineno) {
                     // Found a criteria at the given point, hooray!
-                    crtList.add(_jimpleList.get(_crt.getNJimpleIndex()));
+                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()), new Boolean(_crt.isBConsiderValue()));
 
                 }
             }
@@ -242,7 +242,7 @@ public class PartialSliceView extends ViewPart  {
          * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#propertyChanged()
          */
         public void propertyChanged() {
-            if (viewer != null) {
+            if (viewer != null && isReady) {
                 crtList.clear();
                 viewer.refresh();
                 final TableColumn _cols[] = viewer.getTable().getColumns();
@@ -348,6 +348,16 @@ public class PartialSliceView extends ViewPart  {
          * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
          */
         public Color getForeground(Object element) {
+            if (element instanceof Stmt && crtList.keySet().contains(element)) {
+                final Boolean _bConsiderVal = (Boolean) crtList.get(element);
+                if (_bConsiderVal.booleanValue()) {
+                    return KaveriPlugin.getDefault().getIndusConfiguration()
+                        .getRManager().getColor(new RGB(0, 0, 189));                    
+                } else {
+                    return KaveriPlugin.getDefault().getIndusConfiguration()
+                    .getRManager().getColor(new RGB(255, 0, 0));
+                }
+            }
             return null;
         }
 
@@ -357,11 +367,8 @@ public class PartialSliceView extends ViewPart  {
          * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
          */
         public Color getBackground(Object element) {
-            if (element instanceof Stmt && crtList.contains(element)) {
-                return KaveriPlugin.getDefault().getIndusConfiguration()
-                        .getRManager().getColor(new RGB(255, 255, 0));
-            } else
-                return null;
+             
+            return null;
         }
     }
 
@@ -456,6 +463,7 @@ public class PartialSliceView extends ViewPart  {
                                     "data/icons/trackViewAct.gif");
                     this.setImageDescriptor(_desc);
                     isReady = true;
+                    viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
                 }
             }
         };
@@ -476,11 +484,12 @@ public class PartialSliceView extends ViewPart  {
                             partialData.getStmtList().size());
                     final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
                             .getSelectionIndex());
-                    if (crtList.contains(_stmt)) {
+                    if (crtList.containsKey(_stmt)) {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
                         addToCriteria(viewer.getTable().getSelectionIndex(), false);
+                        crtList.put(_stmt, new Boolean(false));
                         viewer.refresh();
                     }
                 }
@@ -506,12 +515,12 @@ public class PartialSliceView extends ViewPart  {
                             partialData.getStmtList().size());
                     final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
                             .getSelectionIndex());
-                    if (crtList.contains(_stmt)) {
+                    if (crtList.containsKey(_stmt)) {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
                         addToCriteria(viewer.getTable().getSelectionIndex(), true);
-                        crtList.add(_stmt);
+                        crtList.put(_stmt, new Boolean(true));
                         viewer.refresh();
                     }
                 }
@@ -536,7 +545,7 @@ public class PartialSliceView extends ViewPart  {
                             partialData.getStmtList().size());
                     final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
                             .getSelectionIndex());
-                    if (!crtList.contains(_stmt)) {
+                    if (!crtList.containsKey(_stmt)) {
                         MessageDialog.openError(null, "Error",
                                 "Statement is not a criteria");
                     } else {

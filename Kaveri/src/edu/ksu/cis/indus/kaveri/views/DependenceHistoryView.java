@@ -321,7 +321,7 @@ public class DependenceHistoryView
 					_to.setDependencyTracked(_depLink);
 					_to.setFile(_file);
 					_to.setLineNumber(lineNo);
-					_to.setDepColor(_data.getDepColor());
+					//_to.setDepColor(_data.getDepColor());
 					_tp.addChild(_to);
 					
 					

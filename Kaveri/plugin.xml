@@ -126,7 +126,7 @@
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
          </action>
       </objectContribution>
-            <viewerContribution
+            <!--<viewerContribution
                   targetID="#CompilationUnitEditorContext"
                   id="edu.ksu.cis.indus.kaveri.popup.editorPopup">
                <menu
@@ -279,6 +279,7 @@
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/controlmenu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CPAction"/>
             </viewerContribution>
+            -->
             <objectContribution
                   adaptable="true"
                   objectClass="org.eclipse.jdt.core.IMember"
@@ -296,7 +297,23 @@
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.scopePopupObjectAction"/>
-            </objectContribution>      
+            </objectContribution>
+            <viewerContribution
+                  targetID="org.eclipse.jdt.callhierarchy.view"
+                  id="edu.ksu.cis.indus.kaveri.callgraph">
+               <menu
+                     label="Indus"
+                     path="additions"
+                     id="edu.ksu.cis.indus.kaveri.callgraph.menu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     label="Add to Context"
+                     class="edu.ksu.cis.indus.kaveri.callgraph.AddToContext"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.callgraph.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.callgraph.addContext"/>
+            </viewerContribution>      
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
 <!-- This extension enables highlighting of the slice elements -->
@@ -528,17 +545,26 @@
             name="Kaveri"
             id="edu.ksu.cis.indus.kaveri"/>
       <view
-            class="edu.ksu.cis.indus.kaveri.views.PartialSliceView"
+            allowMultiple="false"
             icon="data/icons/sample.gif"
+            class="edu.ksu.cis.indus.kaveri.views.PartialSliceView"
             category="edu.ksu.cis.indus.kaveri"
             name="Slice View"
             id="edu.ksu.cis.indus.kaveri.views.PartialSliceView"/>
 	  <view
-            class="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"
-            icon="data/icons/sample.gif"
-            category="edu.ksu.cis.indus.kaveri"
-            name="Dependence History View"
-            id="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"/>
+         allowMultiple="false"
+         icon="data/icons/sample.gif"
+         class="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"
+         category="edu.ksu.cis.indus.kaveri"
+         name="Dependence History View"
+         id="edu.ksu.cis.indus.kaveri.views.DependenceHistoryView"/>
+   <view
+         allowMultiple="false"
+         icon="data/icons/sample.gif"
+         class="edu.ksu.cis.indus.kaveri.dependence.DependenceTrackingView"
+         category="edu.ksu.cis.indus.kaveri"
+         name="Dependence Tracking View"
+         id="edu.ksu.cis.indus.kaveri.dependence.DependenceTrackingView"/>
    </extension>
    
    <extension
