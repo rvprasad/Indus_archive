@@ -3,7 +3,7 @@ package edu.ksu.cis.bandera.bfa.analysis.ofa;
 import edu.ksu.cis.bandera.bfa.FGNodeConnector;
 import edu.ksu.cis.bandera.bfa.AbstractFGNode;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * RHSConnector.java
@@ -17,7 +17,7 @@ import org.apache.log4j.Category;
 
 public class RHSConnector implements FGNodeConnector {
 
-	private static final Category cat = Category.getInstance(RHSConnector.class.getName());
+	private static final Logger logger = Logger.getLogger(RHSConnector.class.getName());
 
 	public void connect(AbstractFGNode ast, AbstractFGNode nonast) {
 		nonast.addSucc(ast);

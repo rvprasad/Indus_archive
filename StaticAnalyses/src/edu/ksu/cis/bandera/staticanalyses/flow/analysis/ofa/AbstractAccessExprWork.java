@@ -1,12 +1,12 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.AbstractWork;
+
 
 import ca.mcgill.sable.soot.jimple.Value;
-
+import edu.ksu.cis.bandera.bfa.AbstractFGNode;
+import edu.ksu.cis.bandera.bfa.AbstractWork;
+import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.MethodVariant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,9 +26,9 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 
 	protected final Value accessExpr;
 
-	protected final MethodVariant caller;
-
 	protected final Context context;
+
+	protected final MethodVariant caller;
 
 	protected final Set installedVariants = new HashSet();
 
@@ -37,11 +37,11 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 	}
 
 	protected AbstractAccessExprWork (AbstractFGNode node, Collection values, MethodVariant caller,
-									  Value accessExpr, Context context){
+									  Value accessExpr, Context context) {
 		super(node, values);
 		this.accessExpr = accessExpr;
-		this.context = context;
 		this.caller = caller;
+		this.context = context;
 	}
 
 }// AbstractAccessExprWork

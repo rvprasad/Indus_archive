@@ -10,7 +10,7 @@ import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.util.Iterator;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * MethodVariant.java
@@ -24,7 +24,7 @@ import org.apache.log4j.Category;
 
 public class MethodVariant implements Variant {
 
-	private static final Category cat = Category.getInstance(MethodVariant.class.getName());
+	private static final Logger logger = Logger.getLogger(MethodVariant.class.getName());
 
 	protected final AbstractStmtSwitch stmt;
 
@@ -44,10 +44,13 @@ public class MethodVariant implements Variant {
 
 	public final SootMethod sm;
 
-	MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa){
+	MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa) {
 		this.sm = sm;
-		context = new Context();
 		this.bfa = bfa;
+		context = (Context)bfa.analyzer.context.clone();
+		context.callNewMethod(sm);
+
+		logger.debug("Method:" + sm);
 
 		if (!sm.isStatic()) {
 			thisVar = bfa.getFGNode();
@@ -64,7 +67,7 @@ public class MethodVariant implements Variant {
 		} // end of else
 
 		if (sm.getParameterCount() > 0) {
-			parameters = new AbstractFGNode[sm.getParameterCount() - 1];
+			parameters = new AbstractFGNode[sm.getParameterCount()];
 			for (int i = 0; i < sm.getParameterCount(); i++) {
 				parameters[i] = bfa.getFGNode();
 			} // end of for (int i = 0; i < sm.getParameterCount(); i++)

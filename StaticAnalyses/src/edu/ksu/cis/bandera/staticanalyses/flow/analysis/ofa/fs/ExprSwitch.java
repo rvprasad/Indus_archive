@@ -28,7 +28,7 @@ public class ExprSwitch extends edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwit
 
 	private static final Category cat = Category.getInstance(ExprSwitch.class.getName());
 
-	protected ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
+	public ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		super(stmt, connector);
 	}
 

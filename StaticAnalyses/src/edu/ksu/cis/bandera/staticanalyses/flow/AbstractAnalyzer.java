@@ -4,11 +4,11 @@ import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.jimple.ParameterRef;
+import ca.mcgill.sable.soot.jimple.ThisRef;
 import ca.mcgill.sable.soot.jimple.Value;
-
 import java.util.Collection;
-
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * AbstractAnalyzer.java
@@ -22,30 +22,53 @@ import org.apache.log4j.Category;
 
 public abstract class AbstractAnalyzer {
 
-	private static final Category cat = Category.getInstance(AbstractAnalyzer.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractAnalyzer.class.getName());
 
 	protected BFA bfa;
 
+	public final Context context;
+
+	protected boolean active;
+
 	protected AbstractAnalyzer (String name, ModeFactory mf){
+		context = new Context();
 		bfa = new BFA(name, this, mf);
+		bfa.init();
+		active = false;
 	}
 
 	public final void analyze(SootClassManager scm, SootMethod root) {
-		bfa.analyze(scm, root);
+		if (root == null) {
+			throw new IllegalStateException("Root method cannot be null.");
+		} // end of if (root == null)
+		context.setRootMethod(root);
+		active = true;
+		bfa.analyze(scm);
+		active = false;
 	}
 
-	public final Collection getArrayValues(ArrayType a, Context c) {
-		return bfa.getArrayVariant(a, c).getFGNode().getValues();
+	public final Collection getValues(ArrayType a) {
+		return bfa.getArrayVariant(a, context).getFGNode().getValues();
 	}
 
-	public final Collection getASTValues(Value v, SootMethod sm, Context c) {
-		MethodVariant mv = bfa.getMethodVariant(sm, c);
-		ASTVariant astv = mv.getASTVariant(v, c);
+	public final Collection getValues(ParameterRef p) {
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		return mv.getParameterNode(p.getIndex()).getValues();
+	}
+
+	public final Collection getValues(SootField sf) {
+		return bfa.getFieldVariant(sf, context).getFGNode().getValues();
+	}
+
+	public final Collection getValues(ThisRef t) {
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		return mv.getThisNode().getValues();
+	}
+
+	public final Collection getValues(Value v) {
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		ASTVariant astv = mv.getASTVariant(v, context);
 		return astv.getFGNode().getValues();
-	}
-
-	public final Collection getFieldValues(SootField sf, Context c) {
-		return bfa.getFieldVariant(sf, c).getFGNode().getValues();
 	}
 
 	public void reset() {

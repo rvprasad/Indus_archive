@@ -4,7 +4,7 @@ package edu.ksu.cis.bandera.bfa;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * WorkList.java
@@ -20,13 +20,14 @@ public class WorkList {
 
 	List list;
 
-	private static final Category cat = Category.getInstance(WorkList.class.getName());
+	private static final Logger logger = Logger.getLogger(WorkList.class.getName());
 
 	WorkList() {
 		list = new ArrayList();
 	}
 
 	public final void addWork(AbstractWork w) {
+		logger.debug(w.values + "--" + w.node + ": new work");
 		if (!list.contains(w)) {
 			list.add(w);
 		} // end of if (!list.contains(w))
@@ -39,6 +40,7 @@ public class WorkList {
 	void process() {
 		while (!list.isEmpty()) {
 			AbstractWork w = (AbstractWork)list.remove(0);
+			logger.debug(w.values + "--" + w.node + ": processing");
 			w.execute();
 		} // end of while (!list.isEmpty())
 	}

@@ -1,6 +1,7 @@
 package edu.ksu.cis.bandera.bfa;
 
 
+import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import java.util.Stack;
 import org.apache.log4j.Category;
@@ -16,20 +17,35 @@ import org.apache.log4j.Category;
  */
 
 public class Context {
+
 	protected ValueBox progPoint;
 
-	protected ValueBox objCreateSite;
+	protected ValueBox allocationSite;
 
 	protected Stack callString;
 
 	private static final Category cat = Category.getInstance(Context.class.getName());
 
-	public Context() {}
+	public Context() {
+		callString = new Stack();
+	}
 
 	public Context(ValueBox progPoint, ValueBox objCreateSite, Stack callString) {
 		this.progPoint = progPoint;
-		this.objCreateSite = objCreateSite;
+		this.allocationSite = allocationSite;
 		this.callString = callString;
+	}
+
+	public void callNewMethod(SootMethod sm) {
+		callString.push(sm);
+	}
+
+	public Object clone() {
+		Context temp = new Context();
+		temp.progPoint = progPoint;
+		temp.allocationSite = allocationSite;
+		temp.callString = (Stack)callString.clone();
+		return temp;
 	}
 
 	public boolean equals(Context c) {
@@ -43,12 +59,12 @@ public class Context {
 			ret &= c.progPoint.equals(progPoint);
 		} // end of else
 
-		if (objCreateSite == null && c.objCreateSite == null) {
+		if (allocationSite == null && c.allocationSite == null) {
 			ret &= true;
-		} else if (objCreateSite != null) {
-			ret &= objCreateSite.equals(c.objCreateSite);
+		} else if (allocationSite != null) {
+			ret &= allocationSite.equals(c.allocationSite);
 		} else {
-			ret &= c.objCreateSite.equals(objCreateSite);
+			ret &= c.allocationSite.equals(allocationSite);
 		} // end of else
 
 		if (callString == null && c.callString == null) {
@@ -66,24 +82,33 @@ public class Context {
 		return callString;
 	}
 
-	public ValueBox getObjectCreationSite() {
-		return objCreateSite;
+	public SootMethod getCurrentMethod() {
+		return (SootMethod)callString.peek();
+	}
+
+	public ValueBox getAllcoationSite() {
+		return allocationSite;
 	}
 
 	public ValueBox getProgramPoint() {
 		return progPoint;
 	}
 
-	public void setCallString(Stack cs) {
-		callString = cs;
+	public SootMethod returnFromCurrentMethod() {
+		return (SootMethod)callString.pop();
 	}
 
-	public void setObjectCreationSite(ValueBox ocs) {
-		objCreateSite = ocs;
+	public void setAllocationSite(ValueBox ocs) {
+		allocationSite = ocs;
 	}
 
 	public void setProgramPoint(ValueBox pp) {
 		progPoint = pp;
+	}
+
+	public void setRootMethod(SootMethod sm) {
+		callString.removeAllElements();
+		callString.push(sm);
 	}
 
 }// Context

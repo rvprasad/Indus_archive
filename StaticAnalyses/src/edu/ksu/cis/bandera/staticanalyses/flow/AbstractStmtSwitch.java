@@ -2,7 +2,7 @@ package edu.ksu.cis.bandera.bfa;
 
 import ca.mcgill.sable.soot.jimple.Stmt;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
 public abstract class AbstractStmtSwitch
 	extends ca.mcgill.sable.soot.jimple.AbstractStmtSwitch implements Prototype {
 
-	private static final Category cat = Category.getInstance(AbstractStmtSwitch.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractStmtSwitch.class.getName());
 
 	protected final MethodVariant method;
 
@@ -32,13 +32,20 @@ public abstract class AbstractStmtSwitch
 
 	protected AbstractStmtSwitch (MethodVariant m){
 		method = m;
-		context = m.context;
-		lexpr = m.bfa.getLHSExpr(this);
-		rexpr = m.bfa.getRHSExpr(this);
+		if (m == null) {
+			context = null;
+			lexpr = rexpr = null;
+		} // end of if (m == null)
+		else {
+			context = m.context;
+			lexpr = m.bfa.getLHSExpr(this);
+			rexpr = m.bfa.getRHSExpr(this);
+		} // end of if (m == null) else
+
 	}
 
 	public void defaultCase(Object o) {
-		cat.info(o + " is not handled.");
+		logger.debug(o + " is not handled.");
 	}
 
 	public Stmt getStmt() {

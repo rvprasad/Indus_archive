@@ -16,7 +16,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * InvokeExprWork.java
@@ -30,9 +30,9 @@ import org.apache.log4j.Category;
 
 public class InvokeExprWork extends AbstractAccessExprWork {
 
-	private static final Category cat = Category.getInstance(InvokeExprWork.class.getName());
+	private static final Logger logger = Logger.getLogger(InvokeExprWork.class.getName());
 
-	public InvokeExprWork (MethodVariant caller, Value accessExpr, Context context){
+	public InvokeExprWork (MethodVariant caller, Value accessExpr, Context context) {
 		super(caller, accessExpr, context);
 	}
 
@@ -41,6 +41,9 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 		SootMethod sm = e.getMethod();
 		BFA bfa = caller.bfa;
 		SootClass sc;
+
+		logger.debug("Expr:" + accessExpr + "   Values:" + values + "   Method:" + sm);
+
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
 

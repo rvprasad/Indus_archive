@@ -15,9 +15,9 @@ public abstract class AbstractWork {
 
 	protected Collection values;
 
-	protected AbstractFGNode node;
+	protected FGNode node;
 
-	protected AbstractWork(AbstractFGNode node, Collection values) {
+	protected AbstractWork(FGNode node, Collection values) {
 		this.node = node;
 		this.values = values;
 	}
@@ -32,7 +32,7 @@ public abstract class AbstractWork {
 
 	public abstract void execute();
 
-	public final void setFGNode(AbstractFGNode node) {
+	public final void setFGNode(FGNode node) {
 		this.node = node;
 	}
 

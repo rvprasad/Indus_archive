@@ -9,7 +9,7 @@ import ca.mcgill.sable.soot.SootMethod;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 
@@ -25,7 +25,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class BFA {
 
-	private static final Category cat = Category.getInstance(BFA.class.getName());
+	private static final Logger logger = Logger.getLogger(BFA.class.getName());
 
 	private static final Map instances = new HashMap();
 
@@ -45,17 +45,6 @@ public class BFA {
 
 	FieldVariantManager staticFieldManager;
 
-	static {
-		try {
-			URL t =
-				BFA.class.getClassLoader().getResource("edu/ksu/cis/bandera/ofa/log4j.properties");
-			PropertyConfigurator.configure(t);
-		} catch (Exception  e) {
-			System.out.println("Failed to initialize log4j.");
-			e.printStackTrace();
-		}
-	}
-
 	BFA (String name, AbstractAnalyzer analyzer, ModeFactory mf) {
 		worklist = new WorkList();
 		modeFactory = mf;
@@ -63,13 +52,14 @@ public class BFA {
 		instances.put(name, this);
 	}
 
-	public void analyze(SootClassManager scm, SootMethod root) {
-		if (root == null) {
-			throw new IllegalStateException("Root method cannot be null.");
-		} // end of if (root == null)
+	void analyze(SootClassManager scm) {
 		this.scm = scm;
-		methodManager.select(root, new Context());
+		methodManager.select(analyzer.context.getCurrentMethod(), analyzer.context);
 		worklist.process();
+	}
+
+	public final ArrayVariant getArrayVariant(ArrayType a) {
+		return getArrayVariant(a, analyzer.context);
 	}
 
 	public final ArrayVariant getArrayVariant(ArrayType a, Context context) {
@@ -88,14 +78,17 @@ public class BFA {
 		return scm.getClass(className);
 	}
 
+	public final FieldVariant getFieldVariant(SootField sf) {
+		return getFieldVariant(sf, analyzer.context);
+	}
+
 	public final FieldVariant getFieldVariant(SootField sf, Context context) {
 		Variant temp = null;
 		if (Modifier.isStatic(sf.getModifiers())) {
 			temp = staticFieldManager.select(sf, context);
 		} else {
-			temp =  instanceFieldManager.select(sf, context);
+			temp = instanceFieldManager.select(sf, context);
 		} // end of else
-
 		return (FieldVariant)temp;
 	}
 
@@ -107,12 +100,16 @@ public class BFA {
 		return modeFactory.getLHSExpr(e);
 	}
 
+	public final MethodVariant getMethodVariant(SootMethod sm) {
+		return getMethodVariant(sm, analyzer.context);
+	}
+
 	public final MethodVariant getMethodVariant(SootMethod sm, Context context) {
 		return (MethodVariant)methodManager.select(sm, context);
 	}
 
 	public final AbstractExprSwitch getRHSExpr(AbstractStmtSwitch e) {
-		return modeFactory.getLHSExpr(e);
+		return modeFactory.getRHSExpr(e);
 	}
 
 	public final AbstractStmtSwitch getStmt(MethodVariant e) {

@@ -1,23 +1,5 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa.fi;
 
-
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractWork;
-import edu.ksu.cis.bandera.bfa.ArrayVariant;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.AbstractValuedVariant;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.FGAccessNode;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.InvokeExprWork;
-import edu.ksu.cis.bandera.jext.ChooseExpr;
-import edu.ksu.cis.bandera.jext.ComplementExpr;
-import edu.ksu.cis.bandera.jext.InExpr;
-import edu.ksu.cis.bandera.jext.LocalExpr;
-import edu.ksu.cis.bandera.jext.LogicalAndExpr;
-import edu.ksu.cis.bandera.jext.LogicalOrExpr;
-
 import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.BaseType;
 import ca.mcgill.sable.soot.SootField;
@@ -33,6 +15,7 @@ import ca.mcgill.sable.soot.jimple.NewArrayExpr;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.NewMultiArrayExpr;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
+import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.ParameterRef;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
 import ca.mcgill.sable.soot.jimple.StaticFieldRef;
@@ -43,8 +26,24 @@ import ca.mcgill.sable.soot.jimple.UnopExpr;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
-
-import org.apache.log4j.Category;
+import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
+import edu.ksu.cis.bandera.bfa.AbstractFGNode;
+import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.bfa.AbstractValuedVariant;
+import edu.ksu.cis.bandera.bfa.AbstractWork;
+import edu.ksu.cis.bandera.bfa.ArrayVariant;
+import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.bfa.analysis.ofa.FGAccessNode;
+import edu.ksu.cis.bandera.bfa.analysis.ofa.InvokeExprWork;
+import edu.ksu.cis.bandera.jext.ChooseExpr;
+import edu.ksu.cis.bandera.jext.ComplementExpr;
+import edu.ksu.cis.bandera.jext.InExpr;
+import edu.ksu.cis.bandera.jext.LocalExpr;
+import edu.ksu.cis.bandera.jext.LogicalAndExpr;
+import edu.ksu.cis.bandera.jext.LogicalOrExpr;
+import org.apache.log4j.Logger;
+import edu.ksu.cis.bandera.bfa.Context;
 
 /**
  * ExprSwitch.java
@@ -58,16 +57,15 @@ import org.apache.log4j.Category;
 
 public class ExprSwitch extends AbstractExprSwitch {
 
-	private static final Category cat = Category.getInstance(ExprSwitch.class.getName());
+	private static final Logger logger = Logger.getLogger(ExprSwitch.class.getName());
 
-	protected ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
+	public ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		super(stmt, connector);
 	}
 
 	public void caseArrayRef(ArrayRef e) {
 		AbstractFGNode ast = method.getASTNode(e);
-		AbstractFGNode nonast =
-			bfa.getArrayVariant((ArrayType)e.getBase().getType(), context).getFGNode();
+		AbstractFGNode nonast = bfa.getArrayVariant((ArrayType)e.getBase().getType(), context).getFGNode();
 		connector.connect(ast, nonast);
         process(e.getBaseBox());
 		process(e.getIndexBox());
@@ -79,7 +77,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 	}
 
 	public void caseChooseExpr(ChooseExpr e) {
-		cat.error("What are the choices?  Are they jimple Values or what?");
+		logger.error("What are the choices?  Are they jimple Values or what?");
 	}
 
 	public void caseComplementExpr(ComplementExpr e) {
@@ -154,6 +152,12 @@ public class ExprSwitch extends AbstractExprSwitch {
 		setResult(ast);
 	}
 
+	public void caseNullConstant(NullConstant e) {
+		AbstractFGNode ast = method.getASTNode(e);
+		ast.addValue(e);
+		setResult(ast);
+	}
+
 	public void caseParameterRef(ParameterRef e) {
 		setResult(method.getParameterNode(e.getIndex()));
 	}
@@ -200,7 +204,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 	}
 
 	public void defaultCase(Object o) {
-		Value v = ((ValueBox)o).getValue();
+		Value v = (Value)o;
 		if (v instanceof BinopExpr) {
 			BinopExpr temp = (BinopExpr)v;
 			process(temp.getOp1Box());
@@ -226,8 +230,9 @@ public class ExprSwitch extends AbstractExprSwitch {
 	protected void processNonStaticInvokeExpr(NonStaticInvokeExpr e) {
 		process(e.getBaseBox());
 
-		AbstractWork work = new InvokeExprWork(method, e, context);
+		AbstractWork work = new InvokeExprWork(method, e, (Context)context.clone());
 		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
+		((AbstractFGNode)getResult()).addSucc(baseNode);
 		work.setFGNode(baseNode);
 		((AbstractValuedVariant)method.getASTVariant(e)).setFGNode(baseNode);
 

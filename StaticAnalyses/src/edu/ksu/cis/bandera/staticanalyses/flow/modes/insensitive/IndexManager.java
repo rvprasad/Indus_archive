@@ -5,7 +5,7 @@ import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
 import edu.ksu.cis.bandera.bfa.Context;
 import edu.ksu.cis.bandera.bfa.Index;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * IndexManager.java
@@ -19,7 +19,7 @@ import org.apache.log4j.Category;
 
 public class IndexManager extends AbstractIndexManager {
 
-	private static final Category cat = Category.getInstance(IndexManager.class.getName());
+	private static final Logger logger = Logger.getLogger(IndexManager.class.getName());
 
 	protected Index getIndex(Object o, Context c) {
 		return new DummyIndex(o);
@@ -37,11 +37,15 @@ public class IndexManager extends AbstractIndexManager {
 		}
 
 		public boolean equals(Object o) {
-			return this.o.equals(o);
+			return hashCode() == o.hashCode();
 		}
 
 		public int hashCode() {
 			return o.hashCode();
+		}
+
+		public String toString() {
+			return o.toString();
 		}
 	}
 

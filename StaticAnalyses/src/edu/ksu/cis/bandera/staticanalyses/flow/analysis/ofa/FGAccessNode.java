@@ -7,7 +7,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 
 import java.util.Collection;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * FGAccessNode.java
@@ -19,26 +19,28 @@ import org.apache.log4j.Category;
  * @version $Revision$ $Name$
  */
 
-public class FGAccessNode extends FGNode {
+public class FGAccessNode extends OFAFGNode {
 
 	private final AbstractWork work;
 
-	private static final Category cat = Category.getInstance(FGAccessNode.class.getName());
+	private static final Logger logger = Logger.getLogger(FGAccessNode.class.getName());
 
 	public FGAccessNode (AbstractWork work, WorkList worklist) {
 		super(worklist);
 		this.work = work;
 	}
 
-	protected void doWorkOnNewValues(Collection values) {
-		super.doWorkOnNewValues(values);
+	public void onNewValues(Collection values) {
+		super.onNewValues(values);
+		logger.debug("Values: "+ values + "\nSuccessors: " + succs);
 		work.addValues(values);
 		worklist.addWork(work);
 	}
 
-	protected void doWorkOnNewValue(Object o) {
-		super.doWorkOnNewValue(o);
-		work.addValue(o);
+	public void onNewValue(Object value) {
+		super.onNewValue(value);
+		logger.debug("Value: "+ value + "\nSuccessors: " + succs);
+		work.addValue(value);
 		worklist.addWork(work);
 	}
 

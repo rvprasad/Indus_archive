@@ -6,7 +6,7 @@ import ca.mcgill.sable.soot.SootMethod;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * AbstractVariantManager.java
@@ -26,7 +26,7 @@ public abstract class AbstractVariantManager {
 
 	private final AbstractIndexManager indexManager;
 
-	private static final Category cat = Category.getInstance(AbstractVariantManager.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractVariantManager.class.getName());
 
 	AbstractVariantManager (BFA bfa, AbstractIndexManager indexManager){
 		this.bfa = bfa;
@@ -37,12 +37,12 @@ public abstract class AbstractVariantManager {
 
 	public final Variant select(Object o, Context context) {
 		Index index = indexManager.getIndex(o, context);
-		Variant temp;
+		Variant temp = null;
 
 		if (index2variant.containsKey(index)) {
 			temp = (Variant)index2variant.get(index);
 		} // end of if (index2variant.containsKey(index))
-		else {
+		else if (bfa.analyzer.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 		} // end of if (index2variant.containsKey(index)) else

@@ -1,7 +1,8 @@
 package edu.ksu.cis.bandera.bfa;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+import org.apache.log4j.Logger;
 
 /**
  * AbstractIndexManager.java
@@ -14,6 +15,8 @@ import java.util.HashSet;
  */
 
 public abstract class AbstractIndexManager implements Prototype {
+
+	private static final Logger logger = Logger.getLogger(AbstractIndexManager.class.getName());
 
 	protected Set indices = new HashSet();
 

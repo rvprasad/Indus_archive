@@ -21,7 +21,27 @@ public class ASTIndexManager extends AbstractIndexManager {
 	private static final Category cat = Category.getInstance(ASTIndexManager.class.getName());
 
 	protected Index getIndex(Object o, Context c) {
-		return null;
+		return new DummyIndex(o);
+	}
+
+	public Object prototype() {
+		return new ASTIndexManager();
+	}
+
+	class DummyIndex implements Index {
+		Object o;
+
+		DummyIndex(Object o) {
+			this.o = o;
+		}
+
+		public boolean equals(Object o) {
+			return this.o.equals(o);
+		}
+
+		public int hashCode() {
+			return o.hashCode();
+		}
 	}
 
 }// ASTIndexManager

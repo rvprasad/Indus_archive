@@ -2,16 +2,24 @@ package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
 
 import edu.ksu.cis.bandera.bfa.AbstractAnalyzer;
+import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
+import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
+import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
 import edu.ksu.cis.bandera.bfa.Context;
 import edu.ksu.cis.bandera.bfa.ModeFactory;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.FGNode;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.LHSConnector;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.RHSConnector;
 import edu.ksu.cis.bandera.bfa.modes.insensitive.IndexManager;
+import edu.ksu.cis.bandera.bfa.modes.sensitive.flow.ASTIndexManager;
 
 import ca.mcgill.sable.soot.SootClass;
+import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.jimple.ArrayRef;
+import ca.mcgill.sable.soot.jimple.IdentityRef;
+import ca.mcgill.sable.soot.jimple.InvokeExpr;
+import ca.mcgill.sable.soot.jimple.Local;
+import ca.mcgill.sable.soot.jimple.NewArrayExpr;
 import ca.mcgill.sable.soot.jimple.NewExpr;
+import ca.mcgill.sable.soot.jimple.NewMultiArrayExpr;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
 
 import java.util.Collection;
@@ -19,7 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * Analyzer.java
@@ -33,28 +41,57 @@ import org.apache.log4j.Category;
 
 public class Analyzer extends AbstractAnalyzer {
 
-	private static final Category cat = Category.getInstance(Analyzer.class.getName());
+	private static final Logger cat = Logger.getLogger(Analyzer.class.getName());
 
-	public final Context context;
-
-	public Analyzer (String name) {
-		super(name, new ModeFactory(new IndexManager(),
+	private Analyzer (String name, AbstractIndexManager astim,
+					  AbstractExprSwitch lexpr, AbstractExprSwitch rexpr, AbstractStmtSwitch stmt) {
+		super(name, new ModeFactory(astim,
 									new IndexManager(),
 									new IndexManager(),
 									new IndexManager(),
 									new IndexManager(),
-									new FGNode(null),
-									new StmtSwitch(null),
-									new ExprSwitch(null, new LHSConnector()),
-									new ExprSwitch(null, new RHSConnector())));
-		context = new Context();
+									new OFAFGNode(null),
+									stmt, lexpr, rexpr));
 	}
 
+	public static Analyzer getFIAnalyzer(String name) {
+		return new Analyzer(name,
+							new IndexManager(),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new LHSConnector()),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new RHSConnector()),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+	}
+
+
+	public static Analyzer getFSAnalyzer(String name) {
+		return new Analyzer(name,
+							new ASTIndexManager(),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.ExprSwitch(null, new LHSConnector()),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
+							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+	}
+	/*
+	public Set getValues(InvokeExpr e, Context c) {
+		return new HashSet();
+	}
+
+	public Set getValues(NewExpr e, Context c) {
+		return new HashSet();
+	}
+
+	public Set getValues(NewArrayExpr e, Context c) {
+		return new HashSet();
+	}
+
+	public Set getValues(NewMultiArrayExpr e, Context c) {
+		return new HashSet();
+	}
+
+	public Set getValues(Local l, Context c) {
+		return new HashSet();
+	}
+	*/
 	public Collection invokeExprResolution (NonStaticInvokeExpr e, SootMethod enclosingMethod) {
-		return invokeExprResolution(e, enclosingMethod, context);
-	}
-
-	public Collection invokeExprResolution (NonStaticInvokeExpr e, SootMethod enclosingMethod, Context context) {
 		Collection newExprs = bfa.getMethodVariant(enclosingMethod, context).getASTVariant(e.getBase(), context).getValues();
 		Set ret = new HashSet();
 		for (Iterator i = newExprs.iterator(); i.hasNext();) {

@@ -28,7 +28,7 @@ public class RHSExprSwitch extends ExprSwitch {
 
 	private static final Category cat = Category.getInstance(RHSExprSwitch.class.getName());
 
-	protected RHSExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
+	public RHSExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		super(stmt, connector);
 	}
 

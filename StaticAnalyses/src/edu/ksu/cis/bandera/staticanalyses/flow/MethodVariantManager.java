@@ -24,8 +24,7 @@ public class MethodVariantManager extends AbstractVariantManager {
 
 	private static final Category cat = Category.getInstance(MethodVariantManager.class.getName());
 
-	MethodVariantManager (BFA bfa, AbstractIndexManager indexManager,
-						  AbstractIndexManager astIndices){
+	MethodVariantManager (BFA bfa, AbstractIndexManager indexManager, AbstractIndexManager astIndices){
 		super(bfa, indexManager);
 		this.astvm = new ASTVariantManager(bfa, astIndices);
 	}
@@ -43,6 +42,11 @@ public class MethodVariantManager extends AbstractVariantManager {
 		} else {
 			throw new IllegalStateException(sm + " not available in " + sc + ".");
 		} // end of else
+	}
+
+	void reset() {
+		super.reset();
+		astvm.reset();
 	}
 
 }// MethodVariantManager

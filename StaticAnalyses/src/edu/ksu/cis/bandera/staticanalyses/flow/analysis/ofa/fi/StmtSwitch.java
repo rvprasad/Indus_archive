@@ -18,7 +18,7 @@ import ca.mcgill.sable.soot.jimple.TableSwitchStmt;
 import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * StmtSwitch.java
@@ -32,7 +32,7 @@ import org.apache.log4j.Category;
 
 public class StmtSwitch extends AbstractStmtSwitch {
 
-	private static final Category cat = Category.getInstance(StmtSwitch.class.getName());
+	private static final Logger logger = Logger.getLogger(StmtSwitch.class.getName());
 
 	public StmtSwitch (MethodVariant m){
 		super(m);

@@ -1,5 +1,11 @@
 package edu.ksu.cis.bandera.bfa;
 
+
+
+import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.VoidType;
+import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 import edu.ksu.cis.bandera.jext.BanderaExprSwitch;
 import edu.ksu.cis.bandera.jext.ChooseExpr;
 import edu.ksu.cis.bandera.jext.ComplementExpr;
@@ -8,13 +14,8 @@ import edu.ksu.cis.bandera.jext.LocalExpr;
 import edu.ksu.cis.bandera.jext.LocationTestExpr;
 import edu.ksu.cis.bandera.jext.LogicalAndExpr;
 import edu.ksu.cis.bandera.jext.LogicalOrExpr;
-
-import ca.mcgill.sable.soot.SootMethod;
-import ca.mcgill.sable.soot.VoidType;
-import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
-import ca.mcgill.sable.soot.jimple.ValueBox;
-
-import org.apache.log4j.Category;
+import edu.ksu.cis.bandera.jext.ThreadExpr;
+import org.apache.log4j.Logger;
 
 /**
  * AbstractExprSwitch.java
@@ -30,7 +31,7 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 																			   BanderaExprSwitch,
 																			   Prototype {
 
-	private static final Category cat = Category.getInstance(AbstractExprSwitch.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractExprSwitch.class.getName());
 
 	protected final MethodVariant method;
 
@@ -44,10 +45,17 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 
 	protected AbstractExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		this.stmt = stmt;
-		context = stmt.context;
 		this.connector = connector;
-		method = stmt.method;
-		bfa = stmt.method.bfa;
+		if (stmt != null) {
+			context = stmt.context;
+			method = stmt.method;
+			bfa = stmt.method.bfa;
+		} else {
+			context = null;
+			method = null;
+			bfa = null;
+		} // end of else
+
 	}
 
 	public void caseChooseExpr(ChooseExpr e) {
@@ -78,8 +86,12 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 		defaultCase(e);
 	}
 
+	public void caseThreadExpr(ThreadExpr e) {
+		defaultCase(e);
+	}
+
 	public void defaultCase(Object o) {
-		cat.info(o + " is not handled.");
+		logger.debug(o + " is not handled.");
 	}
 
 	public final WorkList getWorkList() {
