@@ -96,19 +96,6 @@ public class ExprSwitch
 	}
 
 	/**
-	 * Process the expression at the given program point.
-	 *
-	 * @param vb the program point encapsulating the expression to be processed.
-	 *
-	 * @pre vb != null
-	 */
-	public void process(final ValueBox vb) {
-		ValueBox temp = context.setProgramPoint(vb);
-		super.process(vb);
-		context.setProgramPoint(temp);
-	}
-
-	/**
 	 * Connects the flow graph nodes corresponding to definition of the primary to the use of the primary at the reference
 	 * site.  This method assumes that the primary in a access expression is a local variable.  The idea is that once the
 	 * nodes have been set up for the primary and the identifier, the nodes corresponding to the primary is connected
@@ -144,6 +131,13 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
+
    Revision 1.7  2003/12/02 09:42:39  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
