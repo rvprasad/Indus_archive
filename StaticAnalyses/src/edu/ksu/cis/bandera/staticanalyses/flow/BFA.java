@@ -6,11 +6,11 @@ import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 
 /**
@@ -25,7 +25,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class BFA {
 
-	private static final Logger logger = Logger.getLogger(BFA.class.getName());
+	private static final Logger logger = LogManager.getLogger(BFA.class);
 
 	private static final Map instances = new HashMap();
 
@@ -52,9 +52,9 @@ public class BFA {
 		instances.put(name, this);
 	}
 
-	void analyze(SootClassManager scm) {
+	void analyze(SootClassManager scm, SootMethod root) {
 		this.scm = scm;
-		methodManager.select(analyzer.context.getCurrentMethod(), analyzer.context);
+		methodManager.select(root, analyzer.context);
 		worklist.process();
 	}
 
@@ -112,6 +112,10 @@ public class BFA {
 		return modeFactory.getRHSExpr(e);
 	}
 
+	public final SootClassManager getSootClassManager() {
+		return scm;
+	}
+
 	public final AbstractStmtSwitch getStmt(MethodVariant e) {
 		return modeFactory.getStmt(e);
 	}
@@ -123,10 +127,8 @@ public class BFA {
 		} // end of if
 
 		arrayManager = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
-		instanceFieldManager = new FieldVariantManager(this,
-													   modeFactory.getInstanceFieldIndexManager());
-		methodManager = new MethodVariantManager(this, modeFactory.getMethodIndexManager(),
-												 modeFactory.getASTIndexManager());
+		instanceFieldManager = new FieldVariantManager(this, modeFactory.getInstanceFieldIndexManager());
+		methodManager = new MethodVariantManager(this, modeFactory.getMethodIndexManager(), modeFactory.getASTIndexManager());
 		staticFieldManager = new FieldVariantManager(this, modeFactory.getStaticFieldIndexManager());
 	}
 

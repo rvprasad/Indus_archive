@@ -15,6 +15,7 @@ import edu.ksu.cis.bandera.jext.LocationTestExpr;
 import edu.ksu.cis.bandera.jext.LogicalAndExpr;
 import edu.ksu.cis.bandera.jext.LogicalOrExpr;
 import edu.ksu.cis.bandera.jext.ThreadExpr;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,7 +32,7 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 																			   BanderaExprSwitch,
 																			   Prototype {
 
-	private static final Logger logger = Logger.getLogger(AbstractExprSwitch.class.getName());
+	private static final Logger logger = LogManager.getLogger(AbstractExprSwitch.class.getName());
 
 	protected final MethodVariant method;
 
@@ -103,7 +104,9 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	}
 
 	public void process(ValueBox v) {
+		logger.debug(">>>>>>>>>> Processing: " + v.getValue());
 		v.getValue().apply(this);
+		logger.debug("<<<<<<<<<< Processing: " + v.getValue() + "\n" + getResult());
 	}
 
 	public final Object prototype() {

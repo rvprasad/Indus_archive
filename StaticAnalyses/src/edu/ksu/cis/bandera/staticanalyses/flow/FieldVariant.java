@@ -18,7 +18,7 @@ public class FieldVariant extends AbstractValuedVariant {
 
 	private static final Category cat = Category.getInstance(FieldVariant.class.getName());
 
-	public SootField field;
+	public final SootField field;
 
 	public FieldVariant (SootField field, AbstractFGNode node) {
 		super(node);

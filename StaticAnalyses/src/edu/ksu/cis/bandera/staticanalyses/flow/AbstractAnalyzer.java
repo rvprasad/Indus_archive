@@ -7,7 +7,12 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.ParameterRef;
 import ca.mcgill.sable.soot.jimple.ThisRef;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -22,7 +27,7 @@ import org.apache.log4j.Logger;
 
 public abstract class AbstractAnalyzer {
 
-	private static final Logger logger = Logger.getLogger(AbstractAnalyzer.class.getName());
+	private static final Logger logger = LogManager.getLogger(AbstractAnalyzer.class.getName());
 
 	protected BFA bfa;
 
@@ -41,32 +46,34 @@ public abstract class AbstractAnalyzer {
 		if (root == null) {
 			throw new IllegalStateException("Root method cannot be null.");
 		} // end of if (root == null)
-		context.setRootMethod(root);
 		active = true;
-		bfa.analyze(scm);
+		bfa.analyze(scm, root);
 		active = false;
 	}
 
 	public final Collection getValues(ArrayType a) {
-		return bfa.getArrayVariant(a, context).getFGNode().getValues();
+		return bfa.getArrayVariant(a).getFGNode().getValues();
 	}
 
 	public final Collection getValues(ParameterRef p) {
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
 		return mv.getParameterNode(p.getIndex()).getValues();
 	}
 
 	public final Collection getValues(SootField sf) {
-		return bfa.getFieldVariant(sf, context).getFGNode().getValues();
+		return ((FieldVariant)bfa.getFieldVariant(sf)).getValues();
 	}
 
 	public final Collection getValues(ThisRef t) {
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
 		return mv.getThisNode().getValues();
 	}
 
 	public final Collection getValues(Value v) {
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod(), context);
+		logger.debug(context.getCurrentMethod() + "\n" + context);
+		ValueBox temp = context.setProgramPoint(null);
+		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
+		context.setProgramPoint(temp);
 		ASTVariant astv = mv.getASTVariant(v, context);
 		return astv.getFGNode().getValues();
 	}

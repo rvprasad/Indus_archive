@@ -2,6 +2,7 @@ package edu.ksu.cis.bandera.bfa;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
 
 public abstract class AbstractIndexManager implements Prototype {
 
-	private static final Logger logger = Logger.getLogger(AbstractIndexManager.class.getName());
+	private static final Logger logger = LogManager.getLogger(AbstractIndexManager.class);
 
 	protected Set indices = new HashSet();
 
@@ -30,16 +31,12 @@ public abstract class AbstractIndexManager implements Prototype {
 
 	protected abstract Index getIndex(Object o, Context c);
 
-	public Object prototype(Object o) {
-		throw new UnsupportedOperationException("clone() with parameter is not supported.");
-	}
-
-	public Object prototype() {
-		throw new UnsupportedOperationException("Parameterless clone() is not supported.");
-	}
-
 	void reset() {
 		indices.clear();
+	}
+
+	public Object prototype(Object o) {
+		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
 	}
 
 }// AbstractIndexManager

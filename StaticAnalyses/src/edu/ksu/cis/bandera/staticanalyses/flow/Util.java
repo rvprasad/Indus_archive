@@ -89,19 +89,17 @@ public class Util {
 	}
 
 	/**
-	 * Creates a new object which implements ca.mcgill.sable.util.Collection and copy the contents of
-	 * the given java.util.collection into it.
+	 * Creates a new object which implements ca.mcgill.sable.util.Collection and copy the contents of the given
+	 * java.util.collection into it.
 	 *
-	 * @param name <code>String</code> is the name of the class which implements
-	 * ca.mcgill.sable.util.collection interface and which will be the actual type of the returned
-	 * object.
-	 * @param c <code>Collection</code> is an object which implements java.util.Collection interface
-	 * and contains values that need to be copied into another container object and returned.
-	 * @return <code>ca.mcgill.sable.util.Collection</code> implementing object of type
-	 * <code>String</code> containing all the values that were in <code>Collection</code>.
+	 * @param name <code>String</code> is the name of the class which implements ca.mcgill.sable.util.collection interface and
+	 * which will be the actual type of the returned object.
+	 * @param c <code>Collection</code> is an object which implements java.util.Collection interface and contains values that
+	 * need to be copied into another container object and returned.
+	 * @return <code>ca.mcgill.sable.util.Collection</code> implementing object of type <code>String</code> containing all the
+	 * values that were in <code>Collection</code>.
 	 */
-	public static ca.mcgill.sable.util.Collection convert(String name,
-														  Collection c) {
+	public static ca.mcgill.sable.util.Collection convert(String name, Collection c) {
 		ca.mcgill.sable.util.Collection retval = null;
 		try {
 			Class collect = Class.forName(name);
@@ -129,13 +127,12 @@ public class Util {
 	 * Creates a new object which implements java.util.Collection and copy the contents of the given
 	 * ca.mcgill.sable.util.collection into it.
 	 *
-	 * @param name <code>String</code> is the name of the class which implements java.util.collection
-	 * interface and which will be the actual type of the returned object.
-	 * @param c <code>Collection</code> is an object which implements ca.mcgill.sable.util.Collection
-	 * interface and contains values that need to be copied into another container object and
-	 * returned.
-	 * @return <code>java.util.Collection</code> implementing object of type <code>String</code>
-	 * containing all the values that were in <code>Collection</code>.
+	 * @param name <code>String</code> is the name of the class which implements java.util.collection interface and which will
+	 * be the actual type of the returned object.
+	 * @param c <code>Collection</code> is an object which implements ca.mcgill.sable.util.Collection interface and contains
+	 * values that need to be copied into another container object and returned.
+	 * @return <code>java.util.Collection</code> implementing object of type <code>String</code> containing all the values
+	 * that were in <code>Collection</code>.
 	 */
 	public static Collection convert(String name, ca.mcgill.sable.util.Collection c) {
 		Collection retval = null;
@@ -162,8 +159,7 @@ public class Util {
 	}
 
 	/**
-	 * Shorthand version of Util.getDefiningClass() where the parameter list is empty and the
-	 * returnType is void.
+	 * Shorthand version of Util.getDefiningClass() where the parameter list is empty and the returnType is void.
 	 *
 	 * @param sc class in or above which the method may be defined.
 	 * @param method name of the method (not the fully classified name).
@@ -174,19 +170,18 @@ public class Util {
 	}
 
 	/**
-	 * Provides the SootClass which injects the given method into the specific branch of the
-	 * inheritence hierarchy to which sc belongs to.
+	 * Provides the SootClass which injects the given method into the specific branch of the inheritence hierarchy to which sc
+	 * belongs to.
 	 *
 	 * @param sc class that defines the branch in which the injecting class exists.
 	 * @param method name of the method (not the fully classified name).
 	 * @param parameterTypes list of type of the parameters of the method.
 	 * @param returnType return type of the method.
 	 * @return If there is such a class then a SootClass object is returned.
-	 * @throw <code>ca.mcgill.sable.soot.NoSuchMethodException</code> is thrown when no such method
-	 * is declared in the given hierarchy.
+	 * @throw <code>ca.mcgill.sable.soot.NoSuchMethodException</code> is thrown when no such method is declared in the given
+	 * hierarchy.
 	 */
-	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes,
-											  Type returnType) {
+	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType) {
 		SootClass contains = sc;
 		while(!contains.declaresMethod(method, parameterTypes, returnType)) {
 			if (contains.hasSuperClass()) {
@@ -199,16 +194,14 @@ public class Util {
 	}
 
 	/**
-	 * <code>isAncestorOf</code> checks if a class is an ancestor of another.  It is assumed that a
-	 * class cannot be it's own ancestor.
+	 * <code>isAncestorOf</code> checks if a class is an ancestor of another.  It is assumed that a class cannot be it's own
+	 * ancestor.
 	 *
 	 * @param child <code>SootClass</code> representing the class whose ancestor is of interest.
 	 * @param ancestor <code>String</code> representing the name of the ancestor.
-	 * @return <code>boolean</code> true if ancestor is indeed is one of the ancestor, false
-	 * otherwise.
+	 * @return <code>boolean</code> true if ancestor is indeed is one of the ancestor, false otherwise.
 	 */
 	public static boolean isAncestorOf(SootClass child, String ancestor) {
-
 		boolean retval = false;
 		while ((retval == false) && child.hasSuperClass()) {
 			if (child.getName().equals(ancestor)) {

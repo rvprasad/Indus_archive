@@ -1,7 +1,8 @@
 package edu.ksu.cis.bandera.bfa;
 
-import ca.mcgill.sable.soot.jimple.Stmt;
 
+import ca.mcgill.sable.soot.jimple.Stmt;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
@@ -18,7 +19,7 @@ import org.apache.log4j.Logger;
 public abstract class AbstractStmtSwitch
 	extends ca.mcgill.sable.soot.jimple.AbstractStmtSwitch implements Prototype {
 
-	private static final Logger logger = Logger.getLogger(AbstractStmtSwitch.class.getName());
+	private static final Logger logger = LogManager.getLogger(AbstractStmtSwitch.class.getName());
 
 	protected final MethodVariant method;
 
@@ -54,7 +55,9 @@ public abstract class AbstractStmtSwitch
 
 	protected void process(Stmt stmt) {
 		this.stmt = stmt;
+		logger.debug(">>>>> Processing: " + stmt);
 		stmt.apply(this);
+		logger.debug("<<<<< Processing: " + stmt);
 	}
 
 	public Object prototype() {

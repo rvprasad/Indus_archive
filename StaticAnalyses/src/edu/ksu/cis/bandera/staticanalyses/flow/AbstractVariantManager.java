@@ -2,10 +2,9 @@ package edu.ksu.cis.bandera.bfa;
 
 
 import ca.mcgill.sable.soot.SootMethod;
-
 import java.util.HashMap;
 import java.util.Map;
-
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,7 +25,7 @@ public abstract class AbstractVariantManager {
 
 	private final AbstractIndexManager indexManager;
 
-	private static final Logger logger = Logger.getLogger(AbstractVariantManager.class.getName());
+	private static final Logger logger = LogManager.getLogger(AbstractVariantManager.class);
 
 	AbstractVariantManager (BFA bfa, AbstractIndexManager indexManager){
 		this.bfa = bfa;
@@ -39,6 +38,9 @@ public abstract class AbstractVariantManager {
 		Index index = indexManager.getIndex(o, context);
 		Variant temp = null;
 
+		logger.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + index2variant + "\n" +
+					 bfa.analyzer.active + "\n" + index.hashCode());
+
 		if (index2variant.containsKey(index)) {
 			temp = (Variant)index2variant.get(index);
 		} // end of if (index2variant.containsKey(index))
@@ -46,10 +48,15 @@ public abstract class AbstractVariantManager {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 		} // end of if (index2variant.containsKey(index)) else
+
+		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + index2variant + "\n" +
+					 bfa.analyzer.active);
+
 		return temp;
 	}
 
 	void reset() {
+		logger.debug("Variant manager being reset.");
 		index2variant.clear();
 		indexManager.reset();
 	}

@@ -1,12 +1,11 @@
 package edu.ksu.cis.bandera.bfa;
 
+
+
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.log4j.Category;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * MethodVariantManager.java
@@ -22,7 +21,7 @@ public class MethodVariantManager extends AbstractVariantManager {
 
 	final ASTVariantManager astvm;
 
-	private static final Category cat = Category.getInstance(MethodVariantManager.class.getName());
+	private static final Logger logger = LogManager.getLogger(MethodVariantManager.class.getName());
 
 	MethodVariantManager (BFA bfa, AbstractIndexManager indexManager, AbstractIndexManager astIndices){
 		super(bfa, indexManager);
@@ -45,6 +44,7 @@ public class MethodVariantManager extends AbstractVariantManager {
 	}
 
 	void reset() {
+		logger.debug("MethodVariantManager being reset.");
 		super.reset();
 		astvm.reset();
 	}

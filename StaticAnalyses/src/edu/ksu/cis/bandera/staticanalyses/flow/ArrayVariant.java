@@ -18,7 +18,7 @@ public class ArrayVariant extends AbstractValuedVariant {
 
 	private static final Category cat = Category.getInstance(ArrayVariant.class.getName());
 
-	ArrayType type;
+	public final ArrayType type;
 
 	protected ArrayVariant (ArrayType a, AbstractFGNode node){
 		super(node);

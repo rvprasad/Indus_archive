@@ -1,15 +1,19 @@
 package edu.ksu.cis.bandera.bfa;
 
+
+
 import ca.mcgill.sable.soot.BodyRepresentation;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
+import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.Jimple;
+import ca.mcgill.sable.soot.jimple.SimpleLocalDefs;
 import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.StmtBody;
 import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.util.Iterator;
-
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,7 +28,7 @@ import org.apache.log4j.Logger;
 
 public class MethodVariant implements Variant {
 
-	private static final Logger logger = Logger.getLogger(MethodVariant.class.getName());
+	private static final Logger logger = LogManager.getLogger(MethodVariant.class.getName());
 
 	protected final AbstractStmtSwitch stmt;
 
@@ -44,13 +48,15 @@ public class MethodVariant implements Variant {
 
 	public final SootMethod sm;
 
-	MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa) {
+	public final SimpleLocalDefs defs;
+
+	protected MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa) {
 		this.sm = sm;
 		this.bfa = bfa;
 		context = (Context)bfa.analyzer.context.clone();
 		context.callNewMethod(sm);
 
-		logger.debug("Method:" + sm);
+		logger.debug("Method:" + sm + context + "\n" + astvm.getClass());
 
 		if (!sm.isStatic()) {
 			thisVar = bfa.getFGNode();
@@ -80,18 +86,26 @@ public class MethodVariant implements Variant {
 
 		if (sm.isBodyStored(bodyrep)) {
 			stmt = bfa.getStmt(this);
+			logger.debug("Starting processing statements of " + sm);
 			StmtList list = ((StmtBody)sm.getBody(bodyrep)).getStmtList();
+			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
 			for (Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt)i.next());
 			} // end of for (Iterator i = list.iterator(); i.hasNext();)
+			logger.debug("Finished processing statements of " + sm);
 		} else {
 			stmt = null;
+			defs = null;
 		} // end of else
 
 	}
 
-	public final AbstractFGNode getASTNode(Value v) {
+	public final FGNode getASTNode(Value v) {
 		return getASTVariant(v).getFGNode();
+	}
+
+	public final FGNode getASTNode(Value v, Context c) {
+		return getASTVariant(v, c).getFGNode();
 	}
 
 	public final ASTVariant getASTVariant(Value v) {
@@ -102,15 +116,15 @@ public class MethodVariant implements Variant {
 		return (ASTVariant)astvm.select(v, context);
 	}
 
-	public final AbstractFGNode getParameterNode(int index) {
+	public final FGNode getParameterNode(int index) {
 		return parameters[index];
 	}
 
-	public final AbstractFGNode getReturnNode() {
+	public final FGNode getReturnNode() {
 		return returnVar;
 	}
 
-	public final AbstractFGNode getThisNode() {
+	public final FGNode getThisNode() {
 		return thisVar;
 	}
 

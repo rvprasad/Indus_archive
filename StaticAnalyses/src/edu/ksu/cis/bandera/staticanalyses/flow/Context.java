@@ -2,9 +2,14 @@ package edu.ksu.cis.bandera.bfa;
 
 
 import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Stack;
-import org.apache.log4j.Category;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import java.util.Collections;
 
 /**
  * Context.java
@@ -16,36 +21,41 @@ import org.apache.log4j.Category;
  * @version $Revision$ $Name$
  */
 
-public class Context {
+public class Context implements Cloneable {
 
 	protected ValueBox progPoint;
 
-	protected ValueBox allocationSite;
+	protected Object allocationSite;
 
 	protected Stack callString;
 
-	private static final Category cat = Category.getInstance(Context.class.getName());
+	private static final Logger logger = LogManager.getLogger(Context.class.getName());
 
 	public Context() {
 		callString = new Stack();
 	}
 
-	public Context(ValueBox progPoint, ValueBox objCreateSite, Stack callString) {
+	public Context(ValueBox progPoint, Object allocationSite, Stack callString) {
 		this.progPoint = progPoint;
 		this.allocationSite = allocationSite;
 		this.callString = callString;
 	}
 
 	public void callNewMethod(SootMethod sm) {
+		logger.debug("Adding method " + sm);
 		callString.push(sm);
 	}
 
 	public Object clone() {
-		Context temp = new Context();
-		temp.progPoint = progPoint;
-		temp.allocationSite = allocationSite;
-		temp.callString = (Stack)callString.clone();
-		return temp;
+		Context temp = null;
+		try {
+			temp = (Context)super.clone();
+			temp.callString = (Stack)callString.clone();
+		} catch (CloneNotSupportedException e) {
+			logger.error("This should not happen.", e);
+		} finally {
+			return temp;
+		}
 	}
 
 	public boolean equals(Context c) {
@@ -86,7 +96,7 @@ public class Context {
 		return (SootMethod)callString.peek();
 	}
 
-	public ValueBox getAllcoationSite() {
+	public Object getAllocationSite() {
 		return allocationSite;
 	}
 
@@ -98,17 +108,26 @@ public class Context {
 		return (SootMethod)callString.pop();
 	}
 
-	public void setAllocationSite(ValueBox ocs) {
-		allocationSite = ocs;
+	public Object setAllocationSite(Object sites) {
+		Object temp = allocationSite;
+		allocationSite = sites;
+		return temp;
 	}
 
-	public void setProgramPoint(ValueBox pp) {
+	public ValueBox setProgramPoint(ValueBox pp) {
+		ValueBox temp = progPoint;
 		progPoint = pp;
+		return temp;
 	}
 
 	public void setRootMethod(SootMethod sm) {
 		callString.removeAllElements();
 		callString.push(sm);
+	}
+
+	public String toString() {
+		return "Context:\n\tProgram Point: " + progPoint + "\n\tAllocation Site: " + allocationSite + "\n\tCallStack: " +
+			callString + "\n";
 	}
 
 }// Context

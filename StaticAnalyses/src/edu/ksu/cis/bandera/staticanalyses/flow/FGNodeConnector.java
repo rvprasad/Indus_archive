@@ -12,6 +12,6 @@ package edu.ksu.cis.bandera.bfa;
 
 public interface FGNodeConnector {
 
-	void connect(AbstractFGNode ast, AbstractFGNode nonast);
+	void connect(FGNode ast, FGNode nonast);
 
 }// FGNodeConnector

@@ -32,25 +32,25 @@ public abstract class AbstractFGNode implements FGNode {
 	}
 
 	public void addSucc(FGNode node) {
-		logger.debug("Adding " + node + " as successor of " + this);
+		logger.debug(this + " --> " + node);
 		succs.add(node);
 		onNewSucc(node);
 	}
 
 	public void addSuccs(Collection succs) {
-		logger.debug("Adding " + succs + " as successors of " + this);
+		logger.debug(this + " --> " + succs);
 		this.succs.addAll(succs);
 		onNewSuccs(succs);
 	}
 
 	public void addValue(Object value) {
-		logger.debug("Adding " + value + " to " + this);
+		logger.debug("[" + value + "] --> " + this);
 		values.add(value);
 		onNewValue(value);
 	}
 
 	public void addValues(Collection values) {
-		logger.debug("Adding " + values + " to " + this);
+		logger.debug("[" + values + "] --> " + this);
 		this.values.addAll(values);
 		onNewValues(values);
 	}
@@ -88,6 +88,10 @@ public abstract class AbstractFGNode implements FGNode {
 
 	public Object prototype() {
 		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
+	}
+
+	public String toString() {
+		return "FGNode:" + hashCode() + "\n";
 	}
 
 }// AbstractFGNode

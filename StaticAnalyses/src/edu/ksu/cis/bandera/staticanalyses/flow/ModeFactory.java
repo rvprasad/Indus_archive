@@ -34,9 +34,8 @@ public class ModeFactory {
 
 	private final Prototype stmt;
 
-	public ModeFactory (Prototype astIM, Prototype arrayIM, Prototype instanceFieldIM,
-						Prototype staticFieldIM, Prototype methodIM, Prototype node,
-						Prototype stmt, Prototype lexpr, Prototype rexpr) {
+	public ModeFactory (Prototype astIM, Prototype arrayIM, Prototype instanceFieldIM, Prototype staticFieldIM, 
+						Prototype methodIM, Prototype node, Prototype stmt, Prototype lexpr, Prototype rexpr) {
 		astIndexManager = astIM;
 		arrayIndexManager = arrayIM;
 		instanceFieldIndexManager = instanceFieldIM;
