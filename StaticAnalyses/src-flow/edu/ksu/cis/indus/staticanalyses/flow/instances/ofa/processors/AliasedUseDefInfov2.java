@@ -28,11 +28,10 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 
 import soot.SootMethod;
@@ -122,7 +121,7 @@ public final class AliasedUseDefInfov2
 			 * any of the invocation statement that succeed defStmt in defMethod.
 			 */
 			if (cgi.isCalleeReachableFromCaller(useMethod, defMethod)) {
-				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
+				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, false);
 			}
 
 			/*
@@ -130,7 +129,7 @@ public final class AliasedUseDefInfov2
 			 * any of the invocation statements that precede useStmt in useMethod.
 			 */
 			if (!_result && cgi.isCalleeReachableFromCaller(defMethod, useMethod)) {
-				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
+				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, false);
 			}
 
 			/*
@@ -182,22 +181,31 @@ public final class AliasedUseDefInfov2
 	 * @param targetMethod which the control should reach.
 	 * @param forward <code>true</code> indicates to check if the the control reaches <code>targetmethod</code> after
 	 * 		  executing <code>stmt</code> in <code>method</code>; <code>false</code>, if the the control reaches
-	 * 		  <code>targetmethod</code> before  executing <code>stmt</code> in <code>method</code>
+	 * 		  <code>targetmethod</code> before  executing <code>stmt</code> in <code>method</code>.
+     * @param exclusive <code>true</code> indicates that <code>stmt</code> should not be considered during existence check;
+     * <code>false</code>, otherwise.  
 	 *
 	 * @return <code>true</code> if there is control flow path between the given points; <code>false</code>, otherwise.
 	 */
 	private boolean doesControlFlowPathExistsBetween(final SootMethod method, final Stmt stmt, final SootMethod targetMethod,
-		final boolean forward) {
+		final boolean forward, final boolean exclusive) {
 		boolean _result = false;
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final BasicBlock _bbDef = _bbg.getEnclosingBlock(stmt);
-		final Collection _reachableBBs = new HashSet(_bbg.getReachablesFrom(_bbDef, forward));
-		final Collection _bbDefStmts;
+		final List _bbDefStmts;
 
 		if (forward) {
 			_bbDefStmts = _bbDef.getStmtsFrom(stmt);
+            
+            if (exclusive) {
+                _bbDefStmts.remove(0);
+            }
 		} else {
 			_bbDefStmts = _bbDef.getStmtsFromTo(_bbDef.getLeaderStmt(), stmt);
+            
+            if (exclusive) {
+                _bbDefStmts.remove(_bbDefStmts.size() - 1);
+            }
 		}
 
 		for (final Iterator _j =
@@ -207,7 +215,7 @@ public final class AliasedUseDefInfov2
 			_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 		}
 
-		for (final Iterator _i = _reachableBBs.iterator(); _i.hasNext() && !_result;) {
+		for (final Iterator _i = _bbg.getReachablesFrom(_bbDef, forward).iterator(); _i.hasNext() && !_result;) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
 
 			for (final Iterator _j =
@@ -221,7 +229,9 @@ public final class AliasedUseDefInfov2
 	}
 
 	/**
-	 * Checks if there is a control path between the <code>defMethod</code> and <code>useMethod</code>.
+	 * Checks if there is a control path between the <code>defMethod</code> and <code>useMethod</code> through control flow
+     * path from def-method invoking site to use-method invoking site in a method that is ancestor of both use and def 
+     * methods. 
 	 *
 	 * @param defMethod is the def-site containing method.
 	 * @param useMethod is the use-site containing method.
@@ -232,27 +242,18 @@ public final class AliasedUseDefInfov2
 	 */
 	private boolean doesControlPathExistsFromTo(final SootMethod defMethod, final SootMethod useMethod) {
 		boolean _result = false;
-		final Collection _commonAncestors =
-			CollectionUtils.intersection(cgi.getMethodsReachableFrom(defMethod, false),
-				cgi.getMethodsReachableFrom(useMethod, false));
-		final boolean _flag = cgi.isCalleeReachableFromCaller(useMethod, defMethod);
+		final Collection _commonAncestors = cgi.getCommonMethodsReachableFrom(defMethod, false, useMethod, false);
 
-		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
+        for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = (SootMethod) _i.next();
 			final Iterator _invokingStmtIterator = getInvokingStmtIteratorFor(_sm);
 
 			for (final Iterator _j = _invokingStmtIterator; _j.hasNext() && !_result;) {
 				final Stmt _stmt = (Stmt) _j.next();
-				final Collection _callees = cgi.getMethodsReachableFrom(_stmt, _sm);
-
-				/*
-				 * We cannot just require !_callees.contains(useMethod) as it is possible that useMethod is reachable from
-				 * defMethod but the defStmt may not be (see comments in isReachableViaInterProceduralControlFlow).  However,
-				 * we can strenghten the condition to avoid unnecessary explorations by requiring either the useMethod be not
-				 * reachable from the invocation site or it be reachable via the defMethod also.
-				 */
-				if (_callees.contains(defMethod) && (!_callees.contains(useMethod) ^ _flag)) {
-					_result = doesControlFlowPathExistsBetween(_sm, _stmt, useMethod, true);
+                
+                // THINK: Will adding !cgi.isCalleeReachableFromCallSite(useMethod, _stmt, _sm) to the condition be safe?
+				if (cgi.isCalleeReachableFromCallSite(defMethod, _stmt, _sm)) {
+					_result = doesControlFlowPathExistsBetween(_sm, _stmt, useMethod, true, true);
 				}
 			}
 		}
