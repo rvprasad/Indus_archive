@@ -36,6 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -299,6 +300,7 @@ public final class CallGraphTool
 		_pc.reset();
 		_pc.driveProcessors(_processors);
 		_processors.clear();
+		reachableMethods = new HashSet(_cgi.getReachableMethods());
 	}
 
 	/**
