@@ -620,23 +620,25 @@ public final class SlicerTool
 	 * {@inheritDoc}
 	 */
 	public void reset() {
-		phase.reset();
-		daController.reset();
 		aliasUD.reset();
 		bbgMgr.reset();
 		callGraph.reset();
 		cgBasedPreProcessCtrl.reset();
 		cgPreProcessCtrl.reset();
-		initMapper.reset();
+		criteria.clear();
+		daController.reset();
 		ecba.reset();
+		engine.reset();
+		initMapper.reset();
 		monitorInfo.reset();
 		ofa.reset();
-		theTokenMgr.reset();
-		engine.reset();
-		stmtGraphFactory.reset();
-		threadGraph.reset();
-		criteria.clear();
+		pairMgr.reset();
+		phase.reset();
 		rootMethods.clear();
+		safelockAnalysis.reset();
+		stmtGraphFactory.reset();
+		theTokenMgr.reset();
+		threadGraph.reset();
 	}
 
 	/**
@@ -939,6 +941,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.116  2004/08/17 17:13:07  venku
+   - one of the arguments provided to the constructor was reset in reset(), but not the other. FIXED.
+
    Revision 1.115  2004/08/16 16:48:55  venku
    - changed the names of the methods that set and get UnitGraph or related classes to
      contain StmtGraph instead of UnitGraph.
