@@ -10,3 +10,4 @@ temp
 .clover
 dist
 localbuild.properties
+.fbwarnings
