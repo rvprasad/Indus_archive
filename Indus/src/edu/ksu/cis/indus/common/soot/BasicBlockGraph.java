@@ -13,10 +13,12 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.graph.AbstractMutableDirectedGraph;
+import edu.ksu.cis.indus.common.graph.INode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -411,6 +413,14 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.15  2004/02/24 22:25:56  venku
    - documentation
    Revision 1.14  2004/02/23 09:09:02  venku

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -233,6 +233,8 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/02/12 21:31:18  venku
+   - analyses are initialized and then preprocessing begins.
    Revision 1.32  2004/01/21 00:29:39  venku
    - preprocessors were not being unhooked.
    Revision 1.31  2004/01/20 22:26:08  venku

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.List;
 
@@ -51,13 +51,13 @@ public final class ForwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/25 00:09:12  venku
+   - documenation.
    Revision 1.5  2004/01/22 01:01:40  venku
    - coding convention.
-
    Revision 1.4  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.
-
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.

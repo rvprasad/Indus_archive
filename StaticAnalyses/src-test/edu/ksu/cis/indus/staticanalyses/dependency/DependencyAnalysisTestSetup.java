@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -243,12 +243,15 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
    Revision 1.14  2004/05/14 11:25:48  venku
    - aliasUD was not reset. FIXED.
-
    Revision 1.13  2004/05/14 06:27:25  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.12  2004/04/21 04:13:20  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.

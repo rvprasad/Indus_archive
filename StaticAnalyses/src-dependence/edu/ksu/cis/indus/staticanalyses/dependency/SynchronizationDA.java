@@ -21,8 +21,8 @@ import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 
@@ -183,7 +183,8 @@ public final class SynchronizationDA
 	 * @pre dependentStmt.oclIsKindOf(Stmt)
 	 * @post result->forall( o | o.oclIsKindOf(ExitMonitorStmt) or o.oclIsKindOf(EnterMonitorStmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		return getHelper(dependent2dependee, dependentStmt, method);
@@ -201,7 +202,8 @@ public final class SynchronizationDA
 	 * @pre dependeeStmt.oclIsKindOf(ExitMonitorStmt) or dependeeStmt.oclIsKindOf(EnterMonitorStmt)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		return getHelper(dependee2dependent, dependeeStmt, method);
@@ -520,9 +522,13 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
    Revision 1.37  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.36  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -531,7 +537,6 @@ nextBasicBlock:
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.35  2004/03/04 11:52:21  venku
    - modified ReadyDA to use CollectionsModifiers.
    - fixed some subtle bugs in SyncDA.

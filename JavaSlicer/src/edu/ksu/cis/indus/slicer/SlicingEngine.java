@@ -20,9 +20,9 @@ import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -1298,12 +1298,16 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.75  2004/05/14 09:02:57  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
    Revision 1.74  2004/05/14 06:27:21  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.73  2004/03/03 10:09:41  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
-
    Revision 1.72  2004/02/23 04:40:51  venku
    - does a naive tracking of the call chain back to the roots.
    Revision 1.71  2004/02/13 08:39:38  venku

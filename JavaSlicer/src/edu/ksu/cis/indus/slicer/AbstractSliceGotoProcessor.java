@@ -17,9 +17,9 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -156,6 +156,8 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/27 12:33:31  venku
+   - subtle error when including statement before handler statement. FIXED.
    Revision 1.10  2004/02/27 00:52:52  venku
    - documentation and coding convention.
    Revision 1.9  2004/01/27 01:48:24  venku

@@ -17,9 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -267,7 +267,7 @@ public final class AliasedUseDefInfo
 								// TODO: determine if the use method is reachable via a call-site in the 
 								// def method that is reachable from the def site in the def method.  
 								// If so, set _flag to true
-							    ;
+								;
 							}
 
 							if (_flag) {
@@ -398,12 +398,13 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/05/21 22:30:54  venku
+   - documentation.
    Revision 1.29  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.28  2004/05/21 10:25:47  venku
    - logic to determine if instance field references were related was incorrect.  FIXED.
    - refactoring.

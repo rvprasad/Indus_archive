@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import java.io.PrintWriter;
@@ -71,14 +71,14 @@ public final class SliceCollector {
 	private final Collection taggedMethods = new HashSet();
 
 	/**
-	 * This is the slicing engine to be used for slicing.
-	 */
-	private SlicingEngine engine;
-
-	/**
 	 * The tag to be used during transformation.
 	 */
 	private NamedTag tag;
+
+	/**
+	 * This is the slicing engine to be used for slicing.
+	 */
+	private SlicingEngine engine;
 
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
@@ -327,9 +327,14 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
    Revision 1.10  2004/04/24 08:26:13  venku
    - changed the details of logging of pre/post processing slices.
-
    Revision 1.9  2004/04/24 07:48:26  venku
    - added toString() method for convenience.
    Revision 1.8  2004/02/01 22:16:16  venku

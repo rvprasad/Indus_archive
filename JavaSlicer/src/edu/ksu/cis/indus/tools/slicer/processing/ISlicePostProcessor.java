@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.processing;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
@@ -45,6 +45,8 @@ public interface ISlicePostProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/21 13:52:15  venku
+   - documentation.
    Revision 1.1  2004/01/13 07:53:51  venku
    - as post processing beyond retention of semantics of slice is
      particular to the application or the tool.  Hence, moved the

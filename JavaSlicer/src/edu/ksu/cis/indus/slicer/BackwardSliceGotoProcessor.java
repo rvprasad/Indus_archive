@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,6 +90,8 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/25 00:09:12  venku
+   - documenation.
    Revision 1.7  2004/02/23 06:10:10  venku
    - optimization.
    Revision 1.6  2004/02/23 06:08:43  venku

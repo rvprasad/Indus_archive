@@ -13,9 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
-
-import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+package edu.ksu.cis.indus.common.soot;
 
 import java.lang.ref.SoftReference;
 
@@ -120,6 +118,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/03/26 00:22:31  venku
+   - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
+   - ripple effect.
+   - changed logic in ExceptionFlowSensitiveStmtGraph.
    Revision 1.8  2004/01/22 00:53:32  venku
    - formatting and coding convention.
    Revision 1.7  2004/01/17 00:38:00  venku

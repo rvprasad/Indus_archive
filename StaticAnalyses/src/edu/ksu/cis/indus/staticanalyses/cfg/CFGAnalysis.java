@@ -15,10 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
@@ -80,19 +81,6 @@ public final class CFGAnalysis {
 			result = true;
 		}
 		return result;
-	}
-
-	/**
-	 * Checks if the given node occurs in a cycle in the graph.  This may be sufficient in some cases rather than capturing
-	 * the cycle itself.
-	 *
-	 * @param graph in which <code>node</code> occurs.
-	 * @param node which may occur in a cycle.
-	 *
-	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
-	 */
-	public boolean occursInCycle(final IDirectedGraph graph, final BasicBlock node) {
-		return graph.isReachable(node, node, true);
 	}
 
 	/**
@@ -180,36 +168,45 @@ main_control:
 		}
 		return result;
 	}
+
+	/**
+	 * Checks if the given node occurs in a cycle in the graph.  This may be sufficient in some cases rather than capturing
+	 * the cycle itself.
+	 *
+	 * @param graph in which <code>node</code> occurs.
+	 * @param node which may occur in a cycle.
+	 *
+	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
+	 */
+	public boolean occursInCycle(final IDirectedGraph graph, final BasicBlock node) {
+		return graph.isReachable(node, node, true);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/01/21 02:36:41  venku
+   - coding convention.
    Revision 1.15  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.14  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.13  2003/12/08 12:19:47  venku
    - coding convention.
-
    Revision 1.12  2003/12/08 12:16:00  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.11  2003/12/07 08:41:45  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.
    - ripple effect.
-
    Revision 1.10  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

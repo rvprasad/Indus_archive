@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-
 import java.io.File;
 
 import java.util.ArrayList;
@@ -497,6 +495,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/05/28 21:53:21  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
    Revision 1.24  2004/05/19 10:00:44  venku
    - added feature to control methods which should be considered as root methods.
    Revision 1.23  2004/05/13 03:30:03  venku

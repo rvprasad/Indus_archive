@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -1234,7 +1234,8 @@ public class ReadyDAv1
 
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
-					final Map _dees2dents = (Map) CollectionsUtilities.getFromMap(dependee2dependent, _nMethod, new HashMap());
+					final Map _dees2dents =
+						(Map) CollectionsUtilities.getFromMap(dependee2dependent, _nMethod, new HashMap());
 					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
 				}
 			}
@@ -1245,9 +1246,13 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.52  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
    Revision 1.51  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.50  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -1256,7 +1261,6 @@ public class ReadyDAv1
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.49  2004/03/04 14:03:26  venku
    - wait() and notify() should be retrieved each time the analyses is setup. FIXED.
    Revision 1.48  2004/03/04 11:52:21  venku

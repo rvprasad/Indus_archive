@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,12 +51,12 @@ public final class CompleteSliceGotoProcessor
 	 */
 	protected void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
 		final Collection _gotos = new HashSet();
-        final String _tagName = sliceCollector.getTagName();
+		final String _tagName = sliceCollector.getTagName();
 
 		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
 			boolean _tagged = false;
-            _gotos.clear();
+			_gotos.clear();
 
 			for (final Iterator _i = _bb.getStmtsOf().iterator(); _i.hasNext();) {
 				final Stmt _stmt = (Stmt) _i.next();
@@ -79,13 +79,13 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/02/23 06:08:43  venku
+   - optimization.
    Revision 1.12  2004/01/22 01:01:40  venku
    - coding convention.
-
    Revision 1.11  2004/01/19 11:39:11  venku
    - added new batched includeInSlice() method to SliceCollector.
    - used new includeInSlice() method in CompleteSliceGotoProcessor.
-
    Revision 1.10  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.
