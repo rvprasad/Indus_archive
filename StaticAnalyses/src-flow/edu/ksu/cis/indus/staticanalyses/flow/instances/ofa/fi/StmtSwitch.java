@@ -32,6 +32,7 @@ import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.LookupSwitchStmt;
 import soot.jimple.RetStmt;
@@ -92,10 +93,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseAssignStmt(final AssignStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
 		IFGNode left = null;
 		Value leftOp = stmt.getLeftOp();
@@ -108,7 +105,7 @@ public class StmtSwitch
 		IFGNode right = null;
 		Value rightOp = stmt.getRightOp();
 
-		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef) {
+		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef || rightOp instanceof InvokeExpr) {
 			rexpr.process(stmt.getRightOpBox());
 			right = (IFGNode) rexpr.getResult();
 		}
@@ -126,10 +123,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -141,10 +134,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -157,10 +146,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseIdentityStmt(final IdentityStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		boolean flag = OFAnalyzer.isReferenceType(stmt.getRightOp().getType());
 		IFGNode left = null;
 		Value leftOp = stmt.getLeftOp();
@@ -173,7 +158,7 @@ public class StmtSwitch
 		IFGNode right = null;
 		Value rightOp = stmt.getRightOp();
 
-		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef) {
+		if (flag || rightOp instanceof ArrayRef || rightOp instanceof FieldRef || rightOp instanceof InvokeExpr) {
 			rexpr.process(stmt.getRightOpBox());
 			right = (IFGNode) rexpr.getResult();
 		}
@@ -191,10 +176,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseIfStmt(final IfStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		rexpr.process(stmt.getConditionBox());
 	}
 
@@ -206,15 +187,7 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseInvokeStmt(final InvokeStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing " + stmt);
-		}
-
 		rexpr.process(stmt.getInvokeExprBox());
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processed " + stmt);
-		}
 	}
 
 	/**
@@ -225,10 +198,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		rexpr.process(stmt.getKeyBox());
 	}
 
@@ -240,10 +209,6 @@ public class StmtSwitch
 	 * @pre stmt != null
 	 */
 	public void caseRetStmt(final RetStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
 		rexpr.process(stmt.getStmtAddressBox());
 	}
 
@@ -306,6 +271,9 @@ public class StmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/05 15:31:05  venku
+   - identity and assignment statements skipped certain values.  FIXED.
+
    Revision 1.5  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
