@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
@@ -472,7 +472,7 @@ public final class SlicerConfiguration
 		// default required fixed dependency analyses
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
-			Collections.singleton(new IdentifierBasedDataDA()));
+			Collections.singleton(new IdentifierBasedDataDAv2()));
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
 			Collections.singleton(new ReferenceBasedDataDA()));
@@ -819,6 +819,12 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
+
    Revision 1.35  2004/06/03 21:41:55  venku
    - added equals() method to compare two configurations based on content.
      This means the attributes of the configuration such as name are not considered
