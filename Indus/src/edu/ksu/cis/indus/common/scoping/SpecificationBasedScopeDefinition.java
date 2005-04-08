@@ -145,7 +145,7 @@ public final class SpecificationBasedScopeDefinition {
 	public boolean isInScope(final SootMethod method, final IEnvironment system) {
 		final Iterator _i = methodSpecs.iterator();
 		final int _iEnd = methodSpecs.size();
-		boolean _result = false;
+		boolean _result = !classSpecs.isEmpty() ? isInScope(method.getDeclaringClass(), system) : false;
 
 		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 			final MethodSpecification _ms = (MethodSpecification) _i.next();
@@ -167,7 +167,7 @@ public final class SpecificationBasedScopeDefinition {
 	public boolean isInScope(final SootField field, final IEnvironment system) {
 		final Iterator _i = fieldSpecs.iterator();
 		final int _iEnd = fieldSpecs.size();
-		boolean _result = false;
+        boolean _result = !classSpecs.isEmpty() ? isInScope(field.getDeclaringClass(), system) : false;
 
 		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 			final FieldSpecification _fs = (FieldSpecification) _i.next();
