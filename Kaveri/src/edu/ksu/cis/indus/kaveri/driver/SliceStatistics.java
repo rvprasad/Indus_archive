@@ -75,7 +75,7 @@ public class SliceStatistics implements IWorkbenchWindowActionDelegate {
                 _processors.add(_mp);
                 _pc.setProcessingFilter(_filter);
                 _pc.setEnvironment(KaveriPlugin.getDefault().getSlicerTool().getSystem());
-                _pc.setStmtGraphFactory(KaveriPlugin.getDefault().getSlicerTool().getStmtGraphFactory());                
+                //_pc.setStmtGraphFactory(KaveriPlugin.getDefault().getSlicerTool().getStmtGraphFactory());                
                 _pc.driveProcessors(_processors);
                 final Map _map = _mp.getStatistics();
                 

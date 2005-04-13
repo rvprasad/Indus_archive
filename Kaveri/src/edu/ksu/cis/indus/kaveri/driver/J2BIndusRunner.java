@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-//import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -42,7 +42,7 @@ import soot.G;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
-//import edu.ksu.cis.j2b.J2BEclipsePlugin;
+import edu.ksu.cis.j2b.J2BEclipsePlugin;
 
 
 /**
@@ -153,9 +153,13 @@ public class J2BIndusRunner
 					final Class _j2bClass = _bundle.loadClass("edu.ksu.cis.j2b.J2BEclipsePlugin");
 					final Method _method = _j2bClass.getMethod("getDefault", null);
                     final Object _o = _method.invoke(null, null);
-                //    final J2BEclipsePlugin _j = (J2BEclipsePlugin) _o;
-			/*		_j.generateAndWriteBIRSystem(driver.getScene(), ((IFile) fileList.get(0)).getProject(),
-						driver.getSlicer().getAtomicityInfo());*/
+                    final J2BEclipsePlugin _j = (J2BEclipsePlugin) _o;
+                    Display.getDefault().asyncExec(new Runnable() {
+                       public void run() {
+       					_j.generateAndWriteBIRSystem(driver.getScene(), ((IFile) fileList.get(0)).getProject(),
+       							driver.getSlicer().getAtomicityInfo());                           
+                       }
+                    });
 				} catch (final BundleException _e) {
 					log("The bundle couldnot be started.", _e);
 				} catch (final IllegalArgumentException _e) {
