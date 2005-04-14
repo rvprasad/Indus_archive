@@ -81,11 +81,6 @@ public final class SlicerTool
 	public static final Object CRITERIA_SPECIFICATION = "slicingCriteriaSpecification";
 
 	/** 
-	 * This identifies the slicer configuration specification (the string as available in xml file).
-	 */
-	public static final Object CONFIGURATION_SPECIFICATION = "configurationSpecification";
-
-	/** 
 	 * This identifies the slicer configuration to be used.
 	 */
 	public static final Object ID_OF_CONFIGURATION_TO_USE = "idOfConfigurationToUse";
@@ -135,6 +130,11 @@ public final class SlicerTool
 	 */
 	private SlicerConfigurationView configurationView;
 
+	/** 
+	 * This indicates if the configuration was provided.
+	 */
+	private boolean configurationWasProvided;
+
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -151,6 +151,7 @@ public final class SlicerTool
 	 */
 	public void setConfiguration(final String configStr)
 	  throws Exception {
+		configurationWasProvided = configStr != null;
 		tool.destringizeConfiguration(configStr);
 	}
 
@@ -170,7 +171,6 @@ public final class SlicerTool
 	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.ISliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
-	 * @pre inputArgs.get(CONFIGURATION_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(ID_OF_CONFIGURATION_TO_USE).oclIsKindOf(String)
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
@@ -229,7 +229,13 @@ public final class SlicerTool
 		}
 		tool.setRootMethods(_rootMethods);
 
-		setupConfiguration(inputArgs);
+		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
+        
+        if (_activeConfID == null) {
+        	LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
+        } else {
+            tool.setActiveConfiguration(_activeConfID);
+        }
 	}
 
 	/**
@@ -274,7 +280,7 @@ public final class SlicerTool
 	 */
 	public void quit()
 	  throws Exception {
-        tool.abort();
+		tool.abort();
 	}
 
 	/**
@@ -286,6 +292,12 @@ public final class SlicerTool
 			LOGGER.info("BEGIN: bandera slicer tool");
 		}
 
+		if (!configurationWasProvided) {
+			final String _msg = "No configuration was provided.  Aborting!!!";
+			LOGGER.fatal(_msg);
+			throw new IllegalArgumentException(_msg);
+		}
+        
 		tool.run(Phase.STARTING_PHASE, true);
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
@@ -296,33 +308,6 @@ public final class SlicerTool
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
 		}
-	}
-
-	/**
-	 * Sets up the configuration from the given arguments.
-	 *
-	 * @param inputArgs maps the input argument identifiers to the arguments.
-	 *
-	 * @see #setInputMap(Map)
-	 */
-	private void setupConfiguration(final Map inputArgs) {
-		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
-
-		if (_configuration == null) {
-			final String _msg = "No configuration was provided.  Aborting!!!";
-            LOGGER.fatal(_msg);
-            throw new IllegalArgumentException(_msg);
-		}
-        
-		tool.destringizeConfiguration(_configuration);
-		
-		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
-
-		if (_activeConfID == null) {
-            LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
-		}
-        
-		tool.setActiveConfiguration(_activeConfID);
 	}
 }
 
