@@ -195,7 +195,7 @@ public final class SlicerTool
 				final Object _o = _i.next();
 
 				if (!SliceCriteriaFactory.isSlicingCriterion(_o)) {
-					LOGGER.error(_o + " is an invalid slicing criterion.  "
+					LOGGER.fatal(_o + " is an invalid slicing criterion.  "
 						+ "All slicing criterion should be created via SliceCriteriaFactory.");
 					throw new IllegalArgumentException("Slicing criteion " + _o
 						+ " was not created via SliceCriteriaFactory.");
@@ -212,7 +212,7 @@ public final class SlicerTool
 				tool.setCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
 			} catch (final JiBXException _e) {
 				final String _msg = "Error occurred while deserializing the provided criteria specification.";
-				LOGGER.error(_msg);
+				LOGGER.fatal(_msg);
 
 				final IllegalArgumentException _t = new IllegalArgumentException(_msg);
 				_t.initCause(_e);
@@ -224,7 +224,7 @@ public final class SlicerTool
 
 		if (_rootMethods == null || _rootMethods.isEmpty()) {
 			final String _msg = "Atleast one method should be specified as the entry-point into the system.";
-			LOGGER.error(_msg);
+			LOGGER.fatal(_msg);
 			throw new IllegalArgumentException(_msg);
 		}
 		tool.setRootMethods(_rootMethods);
@@ -309,18 +309,23 @@ public final class SlicerTool
 		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
 
 		if (_configuration == null) {
-			LOGGER.info("No configuration specification provided.  The default specification will be used.");
-		} else {
-			tool.destringizeConfiguration(_configuration);
+			final String _msg = "No configuration specification provided.  Aborting!!!";
+            LOGGER.fatal(_msg);
+            throw new IllegalArgumentException(_msg);
 		}
-
+        
+		tool.destringizeConfiguration(_configuration);
+		
 		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
 
 		if (_activeConfID == null) {
-			LOGGER.info("No active configuration is provided. The default in the specification will be used.");
-		} else {
-			tool.setActiveConfiguration(_activeConfID);
+            final String _msg = "No active configuration was specified.  Aborting!!!";
+            LOGGER.fatal(_msg);
+            throw new IllegalArgumentException(_msg);
+
 		}
+        
+		tool.setActiveConfiguration(_activeConfID);
 	}
 }
 
