@@ -151,7 +151,7 @@ public final class SlicerTool
 	 */
 	public void setConfiguration(final String configStr)
 	  throws Exception {
-		configurationWasProvided = configStr != null;
+		configurationWasProvided = configStr != null && configStr.length() > 0;
 		tool.destringizeConfiguration(configStr);
 	}
 
