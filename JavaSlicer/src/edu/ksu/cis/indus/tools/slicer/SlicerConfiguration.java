@@ -771,7 +771,7 @@ public final class SlicerConfiguration
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_INTERFERENCEDA, Boolean.FALSE);
 		setProperty(USE_SYNCHRONIZATIONDA, Boolean.FALSE);
-		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.TRUE);
+		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.FALSE);
@@ -785,7 +785,7 @@ public final class SlicerConfiguration
 		setProperty(CALL_SITE_SENSITIVE_READY_DA, Boolean.FALSE);
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.FALSE);
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
-		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.TRUE);
+		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
