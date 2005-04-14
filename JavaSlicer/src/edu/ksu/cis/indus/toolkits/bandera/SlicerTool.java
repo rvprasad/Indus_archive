@@ -309,7 +309,7 @@ public final class SlicerTool
 		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
 
 		if (_configuration == null) {
-			final String _msg = "No configuration specification provided.  Aborting!!!";
+			final String _msg = "No configuration was provided.  Aborting!!!";
             LOGGER.fatal(_msg);
             throw new IllegalArgumentException(_msg);
 		}
@@ -319,10 +319,7 @@ public final class SlicerTool
 		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
 
 		if (_activeConfID == null) {
-            final String _msg = "No active configuration was specified.  Aborting!!!";
-            LOGGER.fatal(_msg);
-            throw new IllegalArgumentException(_msg);
-
+            LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
 		}
         
 		tool.setActiveConfiguration(_activeConfID);
