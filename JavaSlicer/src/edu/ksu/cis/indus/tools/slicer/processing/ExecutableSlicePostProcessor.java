@@ -22,9 +22,12 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
 
+import edu.ksu.cis.indus.interfaces.IClassHierarchy;
+
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.impl.ClassHierarchy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.IteratorUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +75,7 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class ExecutableSlicePostProcessor
+public class ExecutableSlicePostProcessor
   implements ISlicePostProcessor {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -124,7 +128,7 @@ public final class ExecutableSlicePostProcessor
 	 * @pre taggedMethods != null and basicBlockMgr != null and theCollector != null
 	 * @pre taggedMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	public void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
+	public final void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
@@ -170,9 +174,25 @@ public final class ExecutableSlicePostProcessor
 	/**
 	 * Resets internal data structure.
 	 */
-	public void reset() {
+	public final void reset() {
 		methodWorkBag.clear();
 		processedMethodCache.clear();
+	}
+
+	/**
+	 * Retrieves a class hierarchy containing the given classes.  This implementation will include classes that are not
+	 * mentioned in <code>classes</code> are required to realize the hierarchy.  Hence, the only requirement is that all
+	 * provided classes should  be in captured in the returned hierarchy.
+	 *
+	 * @param classes of interest.
+	 *
+	 * @return a class hierarchy.
+	 *
+	 * @post result != null
+	 * @post result.getClasses()->union(result.getInterfaces())->includesAll(classes)
+	 */
+	protected IClassHierarchy getClassHierarchyContainingClassesToProcess(final Collection classes) {
+		return ClassHierarchy.createClassHierarchyFrom(false, classes);
 	}
 
 	/**
@@ -180,10 +200,17 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private void fixupAbstractMethodsInClassHierarchy() {
 		// setup the variables for fixing the class hierarchy
-		final Collection _classesInSlice = collector.getClassesInSlice();
-		final Collection _topologicallyOrderedClasses = Util.getClassesInTopologicallySortedOrder(_classesInSlice, true);
-        final Map _class2abstractMethods = new HashMap();
+		final IClassHierarchy _ch = getClassHierarchyContainingClassesToProcess(collector.getClassesInSlice());
+		final Iterator _iter = IteratorUtils.chainedIterator(_ch.getClasses().iterator(), _ch.getInterfaces().iterator());
 
+		while (_iter.hasNext()) {
+			final SootClass _class = (SootClass) _iter.next();
+			collector.includeInSlice(_class);
+            System.out.println(_class);
+		}
+
+		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
+		final Map _class2abstractMethods = new HashMap();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Fixing Class Hierarchy");
@@ -238,7 +265,7 @@ public final class ExecutableSlicePostProcessor
 		}
 	}
 
-    /**
+	/**
 	 * Gathers the collected abstract methods that belong to the super classes/interface of the given class.
 	 *
 	 * @param class2abstractMethods maps classes to collected abstract methods.
@@ -569,6 +596,12 @@ public final class ExecutableSlicePostProcessor
 			}
 		}
 	}
+
+    /**
+     * Creates an instance of this class.
+     */
+    public ExecutableSlicePostProcessor() {
+    }
 }
 
 // End of File
