@@ -245,7 +245,7 @@ public final class CallGraphXMLizerCLI
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 */
 	private void executeCHA(final boolean dumpJimple) {
-		final ClassHierarchy _cha = new ClassHierarchy(true);
+		final ClassHierarchy _cha = new ClassHierarchy();
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
@@ -254,6 +254,7 @@ public final class CallGraphXMLizerCLI
 		_cha.hookup(_pc);
 		_pc.process();
 		_cha.unhook(_pc);
+        _cha.minimizeHierarchy();
 
 		final CHABasedCallInfoCollector _chaci = new CHABasedCallInfoCollector();
 		_chaci.initialize(_cha);
@@ -341,7 +342,7 @@ public final class CallGraphXMLizerCLI
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 */
 	private void executeRTA(final boolean dumpJimple) {
-		final ClassHierarchy _cha = new ClassHierarchy(false);
+		final ClassHierarchy _cha = new ClassHierarchy();
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
