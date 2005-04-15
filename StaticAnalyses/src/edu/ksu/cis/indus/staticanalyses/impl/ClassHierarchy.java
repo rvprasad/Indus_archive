@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
@@ -124,53 +123,30 @@ public final class ClassHierarchy
 	 */
 	private SimpleNodeGraph classHierarchy;
 
-	/** 
-	 * This indicates this is a minimal or class hierarchy tree.
-	 */
-	private final boolean minimal;
-
 	/**
-	 * Creates an instance of this class.  The user can create a hierarchy trimmed down to only the classes that are
-	 * processed.
+	 * Creates a class hierarchy from the given classes.  Any classes required to complete the hierarchy (upwards) will be
+	 * included.
 	 *
-	 * @param minimalHierarchy <code>true</code> indicates construct the hierarchy consisting of only the classes that are
-	 * 		  processed; <code>false</code> indicates construct a hierarchy as defined by the relation between processed and
-	 * 		  unprocessed classes.
-	 */
-	public ClassHierarchy(final boolean minimalHierarchy) {
-		this.minimal = minimalHierarchy;
-	}
-
-	/**
-	 * Creates a class hierarchy from the given classes.
-	 *
-	 * @param minimalHierarchy <code>true</code> indicates that only the given classes should be considered;
-	 * 		  <code>false</code>, indicates  classes not mentioned but required to complete the hierarchy should also be
-	 * 		  considered.
 	 * @param classes of interest
 	 *
 	 * @return the class hierarchy.
 	 *
-	 * @post minimalHierarchy implies (classes.containsAll(result.getClasses())) and
-	 * 		 classes.contains(result.getInterfaces()))
 	 * @post result.getClasses().union(result.getInterfaces())->includesAll(classes)
 	 */
-	public static ClassHierarchy createClassHierarchyFrom(final boolean minimalHierarchy, final Collection classes) {
-		final ClassHierarchy _result = new ClassHierarchy(minimalHierarchy);
+	public static ClassHierarchy createClassHierarchyFrom(final Collection classes) {
+		final ClassHierarchy _result = new ClassHierarchy();
 		final ProcessingController _pc = new ProcessingController();
 		final Collection _temp = new HashSet();
 
-		if (!minimalHierarchy) {
-			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
-			_wb.addAllWork(classes);
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+		_wb.addAllWork(classes);
 
-			while (_wb.hasWork()) {
-				final SootClass _sc = (SootClass) _wb.getWork();
-				_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+		while (_wb.hasWork()) {
+			final SootClass _sc = (SootClass) _wb.getWork();
+			_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
 
-				if (_sc.hasSuperclass()) {
-					_wb.addWorkNoDuplicates(_sc.getSuperclass());
-				}
+			if (_sc.hasSuperclass()) {
+				_wb.addWorkNoDuplicates(_sc.getSuperclass());
 			}
 		}
 
@@ -178,6 +154,7 @@ public final class ClassHierarchy
 		_result.hookup(_pc);
 		_pc.process();
 		_result.unhook(_pc);
+
 		return _result;
 	}
 
@@ -338,16 +315,14 @@ public final class ClassHierarchy
 			classHierarchy.addEdgeFromTo(_superClassNode, _classNode);
 		}
 
-		if (!minimal) {
-			final Chain _interfaces = clazz.getInterfaces();
-			final Iterator _i = _interfaces.iterator();
-			final int _iEnd = _interfaces.size();
+		final Chain _interfaces = clazz.getInterfaces();
+		final Iterator _i = _interfaces.iterator();
+		final int _iEnd = _interfaces.size();
 
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootClass _interfaceClass = (SootClass) _i.next();
-				final INode _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
-				classHierarchy.addEdgeFromTo(_superinterfaceNode, _classNode);
-			}
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _interfaceClass = (SootClass) _i.next();
+			final INode _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
+			classHierarchy.addEdgeFromTo(_superinterfaceNode, _classNode);
 		}
 
 		if (clazz.isInterface()) {
@@ -362,22 +337,58 @@ public final class ClassHierarchy
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
+	 * Prunes the class hierarchy to only include the given classes.  The transitive inheritance relationship between the
+	 * retained classes can be preserved via <code>retainTransitiveInheritanceRelation</code>.
+	 *
+	 * @param confineToClasses is the collection of classes to confine the hierarchy to.
+	 * @param retainTransitiveInheritanceRelation <code>true</code> indicates that the transitive inheritance relationship
+	 * 		  between classes via classes not mentined in <code>confiningClasses</code> should be retained;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @pre confineToClasses != null and confineToClasses.oclIsKindOf(Collection(SootClass))
 	 */
-	public void consolidate() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("consolidate() - BEGIN");
+	public void confine(final Collection confineToClasses, final boolean retainTransitiveInheritanceRelation) {
+		final Collection _classesToRemove = new HashSet();
+		_classesToRemove.addAll(classes);
+		_classesToRemove.addAll(interfaces);
+		_classesToRemove.removeAll(confineToClasses);
+
+		if (retainTransitiveInheritanceRelation) {
+			final Iterator _i = _classesToRemove.iterator();
+			final int _iEnd = _classesToRemove.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final SootClass _sc = (SootClass) _i.next();
+				final INode _node = classHierarchy.queryNode(_sc);
+				final Collection _succsOf = _node.getSuccsOf();
+				final Iterator _j = _succsOf.iterator();
+				final int _jEnd = _succsOf.size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final INode _succ = (INode) _j.next();
+					final Collection _predsOf = _node.getPredsOf();
+					final Iterator _k = _predsOf.iterator();
+					final int _kEnd = _predsOf.size();
+
+					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+						final INode _pred = (INode) _k.next();
+						classHierarchy.addEdgeFromTo(_pred, _succ);
+					}
+				}
+			}
 		}
 
-		if (minimal) {
-			createMinimalClassHierarchyGraph();
-		}
+		final Iterator _i = _classesToRemove.iterator();
+		final int _iEnd = _classesToRemove.size();
 
-		stable();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("consolidate() - END");
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+			final INode _node = classHierarchy.queryNode(_sc);
+			classHierarchy.removeNode(_node);
+			System.out.println(((IObjectNode) _node).getObject());
 		}
+		classes.retainAll(confineToClasses);
+		interfaces.retainAll(confineToClasses);
 	}
 
 	/**
@@ -417,98 +428,21 @@ public final class ClassHierarchy
 	}
 
 	/**
-	 * Creates minimal class hierarchy.
+	 * Updates the classes captured by this hierarchy to reflect the relations captured by this hierarchy.
 	 */
-	private void createMinimalClassHierarchyGraph() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("createMinimalClassHierarchyGraph() - BEGIN");
-		}
+	public void updateEnvironment() {
+		final Iterator _i = classHierarchy.getNodes().iterator();
+		final int _iEnd = classHierarchy.getNodes().size();
 
-		final IWorkBag _wb = new FIFOWorkBag();
-
-		for (final Iterator _i = IteratorUtils.chainedIterator(classes.iterator(), interfaces.iterator()); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			final INode _classNode = classHierarchy.getNode(_sc);
-
-			if (_sc.hasSuperclass()) {
-				SootClass _super = _sc;
-
-				do {
-					_super = _super.getSuperclass();
-				} while (!classes.contains(_super) && _super.hasSuperclass());
-
-				if (classes.contains(_super)) {
-					final INode _superClassNode = classHierarchy.getNode(_super);
-					classHierarchy.addEdgeFromTo(_superClassNode, _classNode);
-				}
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final IObjectNode _node = (IObjectNode) _i.next();
+			final SootClass _sc = (SootClass) _node.getObject();
+			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
+			if (!_superClasses.isEmpty()) {
+				_sc.setSuperclass((SootClass) _superClasses.iterator().next());
 			}
-
-			_wb.clear();
-			_wb.addAllWork(_sc.getInterfaces());
-
-			while (_wb.hasWork()) {
-				final SootClass _interfaceClass = (SootClass) _wb.getWork();
-
-				if (interfaces.contains(_interfaceClass)) {
-					final INode _interfaceClassNode = classHierarchy.getNode(_interfaceClass);
-					classHierarchy.addEdgeFromTo(_interfaceClassNode, _classNode);
-				} else {
-					_wb.addAllWorkNoDuplicates(_interfaceClass.getInterfaces());
-				}
-			}
-		}
-
-		removeRedundancy();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("createMinimalClassHierarchyGraph() - END");
-		}
-	}
-
-	/**
-	 * Removes redundant relation in the hierarchy.
-	 */
-	private void removeRedundancy() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("removeRedundancy() - BEGIN");
-		}
-
-		final Collection _col = new HashSet();
-
-		for (final Iterator _j = classHierarchy.getNodes().iterator(); _j.hasNext();) {
-			final INode _class = (INode) _j.next();
-			final Collection _preds = _class.getPredsOf();
-			final Iterator _k = _preds.iterator();
-			final int _kEnd = _preds.size();
-
-			_col.clear();
-
-			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final INode _n1 = (INode) _k.next();
-				final Iterator _l = _preds.iterator();
-				final int _lEnd = _preds.size();
-
-				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final INode _n2 = (INode) _l.next();
-
-					if (_n1 != _n2 && classHierarchy.getReachablesFrom(_n2, false).contains(_n1)) {
-						_col.add(_n1);
-					}
-				}
-			}
-
-			final Iterator _m = _col.iterator();
-			final int _mEnd = _col.size();
-
-			for (int _mIndex = 0; _mIndex < _mEnd; _mIndex++) {
-				final INode _n1 = (INode) _m.next();
-				classHierarchy.removeEdgeFromTo(_n1, _class);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("removeRedundancy() - END");
+            _sc.getInterfaces().retainAll(CollectionUtils.intersection(interfaces, _parents));
 		}
 	}
 }
