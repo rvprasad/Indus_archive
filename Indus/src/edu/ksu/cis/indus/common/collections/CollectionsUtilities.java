@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -345,7 +347,7 @@ public final class CollectionsUtilities {
 			+ " [" + collection.size() + "]");
 
 		final List _t = new ArrayList(collection);
-		Collections.sort(_t);
+		Collections.sort(_t, ToStringBasedComparator.SINGLETON);
 		final Iterator _i = _t.iterator();
 		final int _iEnd = _t.size();
 
