@@ -344,8 +344,8 @@ public final class RTABasedCallInfoCollector
 	private void capturePossibleRoots(final SootClass sootClass, final SootMethod method) {
 		final Collection _classes = new HashSet();
 		_classes.add(sootClass);
-		_classes.addAll(cha.properAncestorClassesOf(sootClass));
-		_classes.addAll(cha.properAncestorInterfacesOf(sootClass));
+		_classes.addAll(cha.getProperAncestorClassesOf(sootClass));
+		_classes.addAll(cha.getProperAncestorInterfacesOf(sootClass));
 
 		final Collection _reqMethods = CollectionsUtilities.getSetFromMap(method2requiredCLInits, method);
 		final Iterator _i = _classes.iterator();
@@ -390,7 +390,7 @@ public final class RTABasedCallInfoCollector
 			final SootClass _calleeDeclaringClass = _callee.getDeclaringClass();
 
 			if (instantiatedClasses.contains(_calleeDeclaringClass)
-				  || CollectionUtils.containsAny(instantiatedClasses, cha.properSubclassesOf(_calleeDeclaringClass))) {
+				  || CollectionUtils.containsAny(instantiatedClasses, cha.getProperSubclassesOf(_calleeDeclaringClass))) {
 				CollectionsUtilities.putIntoSetInMap(callInfoHolder.callee2callers, _callee,
 					new CallTriple(caller, _calleeTriple.getStmt(), _calleeTriple.getExpr()));
 				CollectionsUtilities.putIntoSetInMap(callInfoHolder.caller2callees, caller, _calleeTriple);
