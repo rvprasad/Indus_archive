@@ -202,7 +202,7 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	private Collection getCallingContexts(final Object token, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getContexts(Object token = " + token + ", SootMethod method = " + method + ") - BEGIN");
+			LOGGER.debug("getCallingContexts(Object token = " + token + ", SootMethod method = " + method + ") - BEGIN");
 		}
 
 		final Collection _result;
@@ -234,7 +234,7 @@ public abstract class AbstractCallingContextRetriever
 					final Iterator _j = _callers.iterator();
 					final int _jEnd = _callers.size();
 
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+                    for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final CallTriple _callSite = (CallTriple) _j.next();
 						final Object _callerSideReference = getCallerSideToken(_currToken, _callee, _callSite);
 
@@ -284,11 +284,11 @@ public abstract class AbstractCallingContextRetriever
 
 					// Collect the contexts when we have reached the top of the (inverted) call chain or the call chains 
 					// cannot be exetended based on the property.
-					if (_jEnd == 0 || (_zeroStacksWereExtended && shouldUnextendedStacksBeConsidered())) {
-						// if we are dealing with an entry method  
-						if (_jEnd == 0 && _calleeSideCallStacks.isEmpty()) {
+					if (_zeroStacksWereExtended) {
+                        // if we are dealing with an entry method  
+						if (_jEnd == 0) {
 							_result.addAll(NULL_CONTEXTS);
-						} else {
+						} else if (shouldUnextendedStacksBeConsidered()){
 							_result.addAll(_calleeSideCallStacks);
 						}
 					}
@@ -315,7 +315,7 @@ public abstract class AbstractCallingContextRetriever
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getContexts() - END - return value = " + _result);
+			LOGGER.debug("getCallingContexts() - END - return value = " + _result);
 		}
 		return _result;
 	}
@@ -336,7 +336,6 @@ public abstract class AbstractCallingContextRetriever
 		if (!_ref2callstacks.containsKey(token)) {
 			final Collection _callstacks = new HashSet();
 			_ref2callstacks.put(token, _callstacks);
-            _callstacks.add(new Stack());
 		}
 	}
 }
