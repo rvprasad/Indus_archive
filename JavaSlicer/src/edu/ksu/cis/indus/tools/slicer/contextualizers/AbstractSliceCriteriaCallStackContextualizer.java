@@ -125,7 +125,7 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
 	}
 
 	/**
-	 * Contextualizes the given criteria with given contexts.  It will inject the contexts only if it
+	 * Contextualizes the given criteria with given contexts.
 	 *
 	 * @param baseCriteria is the collection of criteria to be contextualized.
 	 * @param contexts to be injected into the criteria.  <code>null</code> context indicates an open context.
