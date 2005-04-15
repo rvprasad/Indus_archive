@@ -89,7 +89,7 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
 		final AliasSet _result;
 
-		if (_as != null) {
+		if (_as != null && !_as.isGlobal()) {
 			_result = (AliasSet) _as.find();
 		} else {
 			_result = null;
