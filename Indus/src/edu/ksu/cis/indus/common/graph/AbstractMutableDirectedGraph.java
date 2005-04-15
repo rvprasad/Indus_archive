@@ -27,8 +27,7 @@ import java.util.Collections;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractMutableDirectedGraph
-  extends AbstractDirectedGraph
-  implements IDirectedGraph {
+  extends AbstractDirectedGraph {
 	/**
 	 * This class extends <code>INode</code> such that the resulting node can mutated.
 	 *
