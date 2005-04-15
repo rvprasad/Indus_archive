@@ -15,18 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.StaticEnvironment;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -78,32 +78,46 @@ public final class ClassHierarchy
 	private final Collection interfaces = new HashSet();
 
 	/** 
-	 * This maintains class to immediate subclass relation.
+	 * This maintains class to proper ancestor classes relation.
 	 *
-	 * @invariant class2immSubclasses.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 * @invariant class2properAncestorClasses.oclIsKindOf(Map(SootClass, Collection(SootClass)))
 	 */
-	private final Map class2immSubclasses = new HashMap();
+	private final Map class2properAncestorClasses = new HashMap();
 
 	/** 
-	 * This maintains class to subclass relation.
+	 * This maintains class to proper ancestor interfaces relation.
 	 *
-	 * @invariant class2subclasses.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 * @invariant class2properAncestorInterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
 	 */
-	private final Map class2subclasses = new HashMap();
+	private final Map class2properAncestorInterfaces = new HashMap();
 
 	/** 
-	 * This maintains class to super classes relation.
+	 * This maintains class to proper immediate subclass relation.
 	 *
-	 * @invariant class2superclasses.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 * @invariant class2properChildren.oclIsKindOf(Map(SootClass, Collection(SootClass)))
 	 */
-	private final Map class2superclasses = new HashMap();
+	private final Map class2properChildren = new HashMap();
 
 	/** 
-	 * This maintains class to super interfaces relation.
+	 * This maintains class to proper subclass relation.
 	 *
-	 * @invariant class2superinterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 * @invariant class2properDescendants.oclIsKindOf(Map(SootClass, Collection(SootClass)))
 	 */
-	private final Map class2superinterfaces = new HashMap();
+	private final Map class2properDescendants = new HashMap();
+
+	/** 
+	 * This maintains class to proper parent class relation.
+	 *
+	 * @invariant class2properParent.oclIsKindOf(Map(SootClass, SootClass))
+	 */
+	private final Map class2properParentClass = new HashMap();
+
+	/** 
+	 * This maintains class to proper parent interfaces relation.
+	 *
+	 * @invariant class2properParentInterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 */
+	private final Map class2properParentInterfaces = new HashMap();
 
 	/** 
 	 * This maintains class hierarchy as a graph.
@@ -128,10 +142,58 @@ public final class ClassHierarchy
 	}
 
 	/**
+	 * Creates a class hierarchy from the given classes.
+	 *
+	 * @param minimalHierarchy <code>true</code> indicates that only the given classes should be considered;
+	 * 		  <code>false</code>, indicates  classes not mentioned but required to complete the hierarchy should also be
+	 * 		  considered.
+	 * @param classes of interest
+	 *
+	 * @return the class hierarchy.
+	 *
+	 * @post minimalHierarchy implies (classes.containsAll(result.getClasses())) and
+	 * 		 classes.contains(result.getInterfaces()))
+	 * @post result.getClasses().union(result.getInterfaces())->includesAll(classes)
+	 */
+	public static ClassHierarchy createClassHierarchyFrom(final boolean minimalHierarchy, final Collection classes) {
+		final ClassHierarchy _result = new ClassHierarchy(minimalHierarchy);
+		final ProcessingController _pc = new ProcessingController();
+		final Collection _temp = new HashSet();
+
+		if (!minimalHierarchy) {
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+			_wb.addAllWork(classes);
+
+			while (_wb.hasWork()) {
+				final SootClass _sc = (SootClass) _wb.getWork();
+				_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+
+				if (_sc.hasSuperclass()) {
+					_wb.addWorkNoDuplicates(_sc.getSuperclass());
+				}
+			}
+		}
+
+		_pc.setEnvironment(new StaticEnvironment(_temp));
+		_result.hookup(_pc);
+		_pc.process();
+		_result.unhook(_pc);
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClasses()
 	 */
 	public Collection getClasses() {
 		return Collections.unmodifiableCollection(classes);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClassesInTopologicalOrder(boolean)
+	 */
+	public List getClassesInTopologicalOrder(final boolean topDown) {
+		return (List) CollectionUtils.collect(classHierarchy.performTopologicalSort(topDown),
+			IObjectDirectedGraph.OBJECT_EXTRACTOR);
 	}
 
 	/**
@@ -146,6 +208,119 @@ public final class ClassHierarchy
 	 */
 	public Collection getInterfaces() {
 		return Collections.unmodifiableCollection(interfaces);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorClassesOf(soot.SootClass)
+	 */
+	public Collection getProperAncestorClassesOf(final SootClass clazz) {
+		Collection _result = (Collection) MapUtils.getObject(class2properAncestorClasses, clazz);
+
+		if (_result == null) {
+			_result =
+				CollectionUtils.intersection(classes,
+					CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), false),
+						IObjectDirectedGraph.OBJECT_EXTRACTOR));
+
+			if (_result.isEmpty()) {
+				_result = Collections.EMPTY_SET;
+			}
+			class2properAncestorClasses.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorInterfacesOf(soot.SootClass)
+	 */
+	public Collection getProperAncestorInterfacesOf(final SootClass clazz) {
+		Collection _result = (Collection) MapUtils.getObject(class2properAncestorInterfaces, clazz);
+
+		if (_result == null) {
+			_result =
+				CollectionUtils.intersection(interfaces,
+					CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), false),
+						IObjectDirectedGraph.OBJECT_EXTRACTOR));
+
+			if (_result.isEmpty()) {
+				_result = Collections.EMPTY_SET;
+			}
+			class2properAncestorInterfaces.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperImmediateSubClassesOf(soot.SootClass)
+	 */
+	public Collection getProperImmediateSubClassesOf(final SootClass clazz) {
+		Collection _result = (Collection) MapUtils.getObject(class2properChildren, clazz);
+
+		if (_result == null) {
+			_result =
+				CollectionUtils.collect(classHierarchy.queryNode(clazz).getSuccsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
+
+			if (_result.isEmpty()) {
+				_result = Collections.EMPTY_SET;
+			}
+			class2properChildren.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IClassHierarchy#getProperParentClassOf(SootClass)
+	 */
+	public SootClass getProperParentClassOf(final SootClass clazz) {
+		SootClass _result = (SootClass) MapUtils.getObject(class2properParentClass, clazz);
+
+		if (_result == null) {
+			_result =
+				(SootClass) CollectionUtils.intersection(classes,
+					CollectionUtils.collect(classHierarchy.queryNode(clazz).getPredsOf(),
+						IObjectDirectedGraph.OBJECT_EXTRACTOR)).iterator().next();
+			class2properParentClass.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IClassHierarchy#getProperParentInterfacesOf(SootClass)
+	 */
+	public Collection getProperParentInterfacesOf(final SootClass clazz) {
+		Collection _result = (Collection) MapUtils.getObject(class2properParentInterfaces, clazz);
+
+		if (_result == null) {
+			_result =
+				CollectionUtils.intersection(interfaces,
+					CollectionUtils.collect(classHierarchy.queryNode(clazz).getPredsOf(),
+						IObjectDirectedGraph.OBJECT_EXTRACTOR));
+
+			if (_result.isEmpty()) {
+				_result = Collections.EMPTY_SET;
+			}
+			class2properParentInterfaces.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperSubclassesOf(soot.SootClass)
+	 */
+	public Collection getProperSubclassesOf(final SootClass clazz) {
+		Collection _result = (Collection) MapUtils.getObject(class2properDescendants, clazz);
+
+		if (_result == null) {
+			_result =
+				CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), true),
+					IObjectDirectedGraph.OBJECT_EXTRACTOR);
+
+			if (_result.isEmpty()) {
+				_result = Collections.EMPTY_SET;
+			}
+			class2properDescendants.put(clazz, _result);
+		}
+		return _result;
 	}
 
 	/**
@@ -198,29 +373,6 @@ public final class ClassHierarchy
 			createMinimalClassHierarchyGraph();
 		}
 
-		final List _nodes = classHierarchy.getNodes();
-		final Iterator _i = _nodes.iterator();
-		final int _iEnd = _nodes.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IObjectNode _classNode = (IObjectNode) _i.next();
-			final SootClass _class = (SootClass) _classNode.getObject();
-			CollectionsUtilities.putAllIntoSetInMap(class2immSubclasses, _class,
-				CollectionUtils.collect(_classNode.getSuccsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR));
-			CollectionsUtilities.putAllIntoSetInMap(class2subclasses, _class,
-				CollectionUtils.collect(classHierarchy.getReachablesFrom(_classNode, true),
-					IObjectDirectedGraph.OBJECT_EXTRACTOR));
-			CollectionsUtilities.putAllIntoSetInMap(class2superclasses, _class,
-				CollectionUtils.intersection(classes,
-					CollectionUtils.collect(classHierarchy.getReachablesFrom(_classNode, false),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR)));
-			CollectionsUtilities.putAllIntoSetInMap(class2superinterfaces, _class,
-				CollectionUtils.intersection(interfaces,
-					CollectionUtils.collect(classHierarchy.getReachablesFrom(_classNode, false),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR)));
-		}
-
-		classHierarchy = null;
 		stable();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -244,47 +396,17 @@ public final class ClassHierarchy
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#properAncestorClassesOf(soot.SootClass)
-	 */
-	public Collection properAncestorClassesOf(final SootClass clazz) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(class2superclasses, clazz,
-				Collections.EMPTY_SET));
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#properAncestorInterfacesOf(soot.SootClass)
-	 */
-	public Collection properAncestorInterfacesOf(final SootClass clazz) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(class2superinterfaces, clazz,
-				Collections.EMPTY_SET));
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#properImmediateSubClassesOf(soot.SootClass)
-	 */
-	public Collection properImmediateSubClassesOf(final SootClass clazz) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(class2immSubclasses, clazz,
-				Collections.EMPTY_SET));
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#properSubclassesOf(soot.SootClass)
-	 */
-	public Collection properSubclassesOf(final SootClass clazz) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(class2subclasses, clazz,
-				Collections.EMPTY_SET));
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
 	public void reset() {
 		classes.clear();
 		interfaces.clear();
-		class2immSubclasses.clear();
-		class2subclasses.clear();
-		class2superclasses.clear();
-		class2superinterfaces.clear();
+		class2properChildren.clear();
+		class2properDescendants.clear();
+		class2properAncestorClasses.clear();
+		class2properAncestorInterfaces.clear();
+		class2properParentClass.clear();
+		class2properParentInterfaces.clear();
 	}
 
 	/**
