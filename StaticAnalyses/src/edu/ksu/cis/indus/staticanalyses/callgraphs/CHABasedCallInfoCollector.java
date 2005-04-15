@@ -226,9 +226,11 @@ public final class CHABasedCallInfoCollector
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Injects empty sets for caller and callee information of methods with no callees and callers.
 	 *
-	 * @param callInfoHolder DOCUMENT ME!
+	 * @param callInfoHolder to be modified.
+     * 
+     * @pre callInfoHolder != null
 	 */
 	static void fixupMethodsHavingZeroCallersAndCallees(final CallInfo callInfoHolder) {
 		final Map _map1 = callInfoHolder.callee2callers;
