@@ -208,9 +208,9 @@ public final class SlicerConfigurator
 
 		final Button _applclasses = new Button(_deadlockGroup, SWT.CHECK);
 		_applclasses.setText("Preserve sync constructs in application classes only");
+        _applclasses.setSelection(cfg.areSynchronizationsOnlyInAppClassesConsidered());
         _applclasses.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY, 
                 _applclasses, cfg));
-        _applclasses.setSelection(cfg.areSynchronizationsOnlyInAppClassesConsidered());
 
 		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
 		_group1.setText("Deadlock Criteria Selection Strategy");
@@ -681,24 +681,28 @@ public final class SlicerConfigurator
 		final Button _rule1RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule1RDAButton.setText("use rule 1 of ready dependence");
 		_rule1RDAButton.setToolTipText("Intra-thread intra-procedural monitor acquisition based ready dependence");
+        _rule1RDAButton.setSelection(_cfg.isReadyRule1Used());
 		_rule1RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule1RDAButton, _cfg));
 
 		final Button _rule2RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule2RDAButton.setText("use rule 2 of ready dependence");
 		_rule2RDAButton.setToolTipText("Inter-thread monitor acquisition ready dependence");
+        _rule2RDAButton.setSelection(_cfg.isReadyRule2Used());
 		_rule2RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule2RDAButton, _cfg));
 
 		final Button _rule3RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule3RDAButton.setText("use rule 3 of ready dependence");
 		_rule3RDAButton.setToolTipText("Intra-thread intra-procedural Object.wait() based ready dependence");
+        _rule3RDAButton.setSelection(_cfg.isReadyRule3Used());
 		_rule3RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule3RDAButton, _cfg));
 
 		final Button _rule4RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule4RDAButton.setText("use rule 4 of ready dependence");
 		_rule4RDAButton.setToolTipText("Inter-thread Object.wait() based ready dependence");
+        _rule4RDAButton.setSelection(_cfg.isReadyRule4Used());
 		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule4RDAButton, _cfg));
 
@@ -729,7 +733,6 @@ public final class SlicerConfigurator
 				}
 			});
 
-		_useOFAForReady.setSelection(_cfg.isOFAUsedForInterference());
 		_useRDAButton.setSelection(_cfg.isInterferenceDepAnalysisUsed());
 		_useRDAButton.notifyListeners(SWT.Selection, null);
 	}
