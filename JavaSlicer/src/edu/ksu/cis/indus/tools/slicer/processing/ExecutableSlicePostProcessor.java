@@ -119,6 +119,12 @@ public class ExecutableSlicePostProcessor
 	private boolean stmtCollected;
 
 	/**
+	 * Creates an instance of this class.
+	 */
+	public ExecutableSlicePostProcessor() {
+	}
+
+	/**
 	 * Processes the given methods.
 	 *
 	 * @param taggedMethods are the methods to process.
@@ -206,7 +212,7 @@ public class ExecutableSlicePostProcessor
 		while (_iter.hasNext()) {
 			final SootClass _class = (SootClass) _iter.next();
 			collector.includeInSlice(_class);
-            System.out.println(_class);
+			System.out.println(_class);
 		}
 
 		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
@@ -596,12 +602,6 @@ public class ExecutableSlicePostProcessor
 			}
 		}
 	}
-
-    /**
-     * Creates an instance of this class.
-     */
-    public ExecutableSlicePostProcessor() {
-    }
 }
 
 // End of File
