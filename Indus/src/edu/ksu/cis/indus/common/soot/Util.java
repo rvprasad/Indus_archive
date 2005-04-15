@@ -18,9 +18,6 @@ package edu.ksu.cis.indus.common.soot;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.graph.INode;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -34,8 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,51 +129,6 @@ public final class Util {
 	}
 
 	/**
-	 * Retreives the class in the topologically sorted top-down order.
-	 *
-	 * @param classes to be ordered.
-	 * @param topDown indicates if the sorting needs to be done top down(<code>true</code>)or bottom up(<code>false</code>).
-	 *
-	 * @return a sequence of classes ordered in topological order based on hierarcy relation.
-	 *
-	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
-	 * @post result != null
-	 * @post result->forall(o | result->subSequence(1, result.indexOf(o))->includes(o.getSuperClass()) and
-	 * 		 result->subSequence(1, result.indexOf(o))->includesAll(o.getInterfaces())
-	 * @post result->forall(o | result->subSequence(result.indexOf(o), result->size())->excludes(o.getSuperClass()) and
-	 * 		 result->subSequence(result.indexOf(o) result->size())->excludesAll(o.getInterfaces())
-	 */
-	public static List getClassesInTopologicallySortedOrder(final Collection classes, final boolean topDown) {
-		final SimpleNodeGraph _sng = new SimpleNodeGraph();
-		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-		_wb.addAllWork(classes);
-
-		while (_wb.hasWork()) {
-			final SootClass _sc = (SootClass) _wb.getWork();
-
-			final INode _sn = _sng.getNode(_sc);
-			final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
-
-			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-				final SootClass _interface = (SootClass) _i.next();
-				_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
-
-				_wb.addWorkNoDuplicates(_interface);
-			}
-
-			if (hasSuperclass(_sc)) {
-				final SootClass _superClass = _sc.getSuperclass();
-				_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
-				_wb.addWorkNoDuplicates(_superClass);
-			}
-		}
-
-		final List _tsch = _sng.performTopologicalSort(topDown);
-		CollectionUtils.transform(_tsch, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-		return _tsch;
-	}
-
-	/**
 	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
 	 * the given class.
 	 *
@@ -243,8 +193,9 @@ public final class Util {
 		} else if (type instanceof ShortType) {
 			_result = IntConstant.v(0);
 		} else {
-			LOGGER.error("Illegal type specified." + type);
-			throw new IllegalArgumentException("Illegal type specified." + type);
+			final String _msg = "Illegal type specified.";
+            LOGGER.error(_msg + type);
+			throw new IllegalArgumentException(_msg + type);
 		}
 
 		return _result;
