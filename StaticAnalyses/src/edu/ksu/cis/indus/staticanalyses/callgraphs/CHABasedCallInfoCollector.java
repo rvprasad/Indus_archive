@@ -141,7 +141,7 @@ public final class CHABasedCallInfoCollector
 			final String _invokedMethodSubSignature = _invokedMethod.getSubSignature();
 			final SootClass _declInterface = _invokedMethod.getDeclaringClass();
 			_implClasses.clear();
-			_implClasses.addAll(cha.properSubclassesOf(_declInterface));
+			_implClasses.addAll(cha.getProperSubclassesOf(_declInterface));
 			_implClasses.add(_declInterface);
 
 			final Iterator _i = _implClasses.iterator();
