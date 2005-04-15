@@ -208,6 +208,13 @@ public class SimpleNodeGraph
 	protected boolean containsNode(final INode node) {
 		return nodes.contains(node);
 	}
+
+	/**
+	 * @see AbstractMutableDirectedGraph#removeNodeFromGraph(INode)
+	 */
+	protected boolean removeNodeFromGraph(final INode node) {
+		return nodes.remove(node);
+	}
 }
 
 // End of File

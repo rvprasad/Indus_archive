@@ -15,8 +15,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 
 /**
@@ -216,6 +218,37 @@ public abstract class AbstractMutableDirectedGraph
 	}
 
 	/**
+	 * Removes the given node from the graph.
+	 *
+	 * @param node to be removed.
+	 *
+	 * @return <code>true</code> if the node was removed; <code>false</code>, otherwise.
+	 *
+	 * @pre node != null
+	 */
+	public final boolean removeNode(final INode node) {
+		final Collection _succsOf = new ArrayList(node.getSuccsOf());
+		final Iterator _i = _succsOf.iterator();
+		final int _iEnd = _succsOf.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			((AbstractMutableNode) _i.next()).removePredecessors(node);
+		}
+
+		final Collection _predsOf = new ArrayList(node.getPredsOf());
+		final Iterator _j = _predsOf.iterator();
+		final int _jEnd = _predsOf.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+            ((AbstractMutableNode) _j.next()).removeSuccessors(node);
+		}
+		tails.remove(node);
+		heads.remove(node);
+		shapeChanged();
+		return removeNodeFromGraph(node);
+	}
+
+	/**
 	 * Checks if the given node exists in the graph.
 	 *
 	 * @param node to be checked for containment.
@@ -225,6 +258,19 @@ public abstract class AbstractMutableDirectedGraph
 	 * @pre node != null
 	 */
 	protected abstract boolean containsNode(final INode node);
+
+	/**
+	 * Removes the given node from the graph. This implementation throws an exception.
+	 *
+	 * @param node to be removed.
+	 *
+	 * @return <code>true</code> if the node was removed; <code>false</code>, otherwise.
+	 *
+	 * @throws UnsupportedOperationException when this implementation method is invoked.
+	 */
+	protected boolean removeNodeFromGraph(final INode node) {
+		throw new UnsupportedOperationException("This operation is not supported.");
+	}
 }
 
 // End of File
