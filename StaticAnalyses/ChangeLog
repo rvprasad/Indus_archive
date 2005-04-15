@@ -1,3 +1,9 @@
+2005-04-15  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CHABasedCallInfoCollector.java : ripple effect of changes to IClassHierarchy.
+	* src/edu/ksu/cis/indus/staticanalyses/impl/ClassHierarchy.java :  renamed methods and added a new method to retrieve the 
+	classes in the hierarchy in topological order.
+
 2005-03-19  venku  <rvprasad@cis.ksu.edu>
 
 	* Changes pertaining to Class Hierarchy calculation, class hierarchy based call graph construction, rapid-type	analysis based 

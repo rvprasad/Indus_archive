@@ -1,3 +1,8 @@
+2005-04-15  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/tools/slicer/processing/ExecutableSlicePostProcessor.java (ExecutableSlicePostProcessor): Used
+	IClassHierarchy to fix up class hierarchy.
+
 2005-03-13  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java,

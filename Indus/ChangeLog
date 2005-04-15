@@ -1,3 +1,10 @@
+2005-04-15  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the classes
+	in the hierarchy in topological order.
+	* src/edu/ksu/cis/indus/common/soot/Util.java : deleted getClassesInTopologicalOrder().
+	
+
 2005-03-14  venku  <rvprasad@cis.ksu.edu>
 
 	* src-test/edu/ksu/cis/indus/IEnvironmentBasedTest.java,
