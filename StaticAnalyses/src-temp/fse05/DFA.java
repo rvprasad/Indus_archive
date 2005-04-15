@@ -15,10 +15,7 @@
 
 package fse05;
 
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
-
 import java.util.Collection;
-import java.util.HashSet;
 
 
 /**
@@ -31,155 +28,45 @@ import java.util.HashSet;
  * @version $Revision$ $Date$
  */
 public class DFA
-  implements IAutomata {
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private final Collection finalStates = new HashSet();
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private final SimpleEdgeGraph sng = new SimpleEdgeGraph();
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private IState currentState;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private IState startState;
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public Collection getFinalStates() {
-		return finalStates;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public boolean isInFinalState() {
-		return finalStates.contains(currentState);
-	}
-
+  extends AbstractAutomata
+  implements IDeterministicAutomata {
 	/**
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
 	 *
 	 * @param state DOCUMENT ME!
-	 */
-	public void setStartState(final IState state) {
-		assert startState == null;
-		sng.getNode(state);
-		startState = state;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public IState getStartState() {
-		return startState;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param state DOCUMENT ME!
-	 */
-	public void addFinalState(final IState state) {
-		sng.getNode(state);
-		finalStates.add(state);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param src DOCUMENT ME!
-	 * @param label DOCUMENT ME!
-	 * @param dest DOCUMENT ME!
-	 */
-	public void addLabelledTransitionFromTo(final IState src, final ILabel label, final IState dest) {
-		sng.addEdgeFromTo(sng.getNode(src), label, sng.getNode(dest));
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
 	 * @param label DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalStateException DOCUMENT ME!
 	 */
-	public boolean canPerformTransition(final ILabel label) {
-		return sng.hasOutgoingEdgeLabelled(sng.queryNode(currentState), label);
-	}
+	public IState getResultingState(final IState state, final ITransitionLabel label) {
+		final Collection _t = super.getResultingStates(state, label);
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @throws RuntimeException DOCUMENT ME!
-	 */
-	public Object clone() {
-		try {
-			return (DFA) super.clone();
-		} catch (final CloneNotSupportedException _e) {
-			throw new RuntimeException(_e);
+		if (_t.isEmpty()) {
+			final String _msg = "There is no transition labelled '" + label + "' from the given state (" + state + ")";
+			throw new IllegalStateException(_msg);
 		}
+		return (IState) _t.iterator().next();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * @see fse05.AbstractAutomata#addLabelledTransitionFromTo(fse05.IState, fse05.IAutomata.ITransitionLabel, fse05.IState)
 	 */
-	public void initialize() {
-		currentState = startState;
-	}
+	protected void addLabelledTransitionFromTo(final IState src, final ITransitionLabel label, final IState dest) {
+		final Collection _states = getResultingStates(src, label);
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param label DOCUMENT ME!
-	 */
-	public void performTransitionOn(final ILabel label) {
-		final Collection _dests = sng.getDestOfOutgoingEdgeLabelled(sng.queryNode(currentState), label);
-		currentState = (IState) ((IObjectNode) _dests.iterator().next()).getObject();
+		if (!_states.isEmpty()) {
+			final String _msg = "A transition labelled '" + label + "' already exists from the given source (" + src + ")";
+			throw new IllegalStateException(_msg);
+		} else if (label.equals(EPSILON)) {
+			final String _msg = "Epsilon transitions are not allowed in Deterministic automata.";
+			throw new IllegalArgumentException(_msg);
+		} else {
+			super.addLabelledTransitionFromTo(src, label, dest);
+		}
 	}
 }
 

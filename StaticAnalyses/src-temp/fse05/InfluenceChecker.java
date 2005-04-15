@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -126,13 +127,6 @@ public class InfluenceChecker
 	protected IValueAnalyzer aa;
 
 	/** 
-	 * A collection of dependence analyses.
-	 *
-	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
-	 */
-	List das = new ArrayList();
-
-	/** 
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
 	 *
 	 * @invariant info.oclIsKindOf(Map(String, Object))
@@ -154,6 +148,49 @@ public class InfluenceChecker
 	final Collection ddas = new ArrayList();
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	IAutomata.ITransitionLabel CALLS =
+		new IAutomata.ITransitionLabel() {
+			public String toString() {
+				return "-CALLS->";
+			}
+		};
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	IAutomata.ITransitionLabel CD =
+		new IAutomata.ITransitionLabel() {
+			public String toString() {
+				return "-CD->";
+			}
+		};
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	IAutomata.ITransitionLabel DD =
+		new IAutomata.ITransitionLabel() {
+			public String toString() {
+				return "-DD->";
+			}
+		};
+
+	/** 
+	 * A collection of dependence analyses.
+	 *
+	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 */
+	List das = new ArrayList();
+
+	/** 
 	 * The xmlizer used to xmlize dependence information.
 	 */
 	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
@@ -164,6 +201,13 @@ public class InfluenceChecker
 	 * </p>
 	 */
 	private CallGraphInfo cgi;
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private CallGraphInfo chacgi;
 
 	/** 
 	 * This flag indicates if the simple version of aliased use-def information should be used.
@@ -185,7 +229,7 @@ public class InfluenceChecker
 	 * @version $Revision$ $Date$
 	 */
 	class InvCallGraph
-	  extends SimpleEdgeGraph {
+	  extends AbstractDynamicSimpleEdgeGraph {
 		/** 
 		 * <p>
 		 * DOCUMENT ME!
@@ -200,16 +244,16 @@ public class InfluenceChecker
 		 *
 		 * @param node DOCUMENT ME!
 		 */
-		public void processNode(IObjectNode node) {
+		public void processNode(INode node) {
 			if (!processedNodes.contains(node)) {
-				final Pair _pair = (Pair) node.getObject();
+				final Pair _pair = (Pair) ((IObjectNode) node).getObject();
 				final SootMethod _method = (SootMethod) _pair.getSecond();
 				final Iterator _i = chacgi.getCallers(_method).iterator();
 				final int _iEnd = chacgi.getCallers(_method).size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 					final CallTriple _triple = (CallTriple) _i.next();
-					addEdgeFromTo(node, ILabel.CALLS, super.getNode(_triple.getMethod()));
+					addEdgeFromTo(node, CALLS, super.getNode(_triple.getMethod()));
 				}
 				processedNodes.add(node);
 			}
@@ -227,7 +271,7 @@ public class InfluenceChecker
 	 * @version $Revision$ $Date$
 	 */
 	class InvDependenceGraph
-	  extends SimpleEdgeGraph {
+	  extends AbstractDynamicSimpleEdgeGraph {
 		/** 
 		 * <p>
 		 * DOCUMENT ME!
@@ -242,9 +286,9 @@ public class InfluenceChecker
 		 *
 		 * @param node DOCUMENT ME!
 		 */
-		public void processNode(IObjectNode node) {
+		public void processNode(INode node) {
 			if (!processedNodes.contains(node)) {
-				final Pair _pair = (Pair) node.getObject();
+				final Pair _pair = (Pair) ((IObjectNode) node).getObject();
 				final Stmt _stmt = (Stmt) _pair.getFirst();
 				final SootMethod _method = (SootMethod) _pair.getSecond();
 				final Iterator _i = cdas.iterator();
@@ -260,9 +304,9 @@ public class InfluenceChecker
 						final Object _o = _j.next();
 
 						if (_o instanceof Pair) {
-							addEdgeFromTo(node, ILabel.CD, super.getNode(_o));
+							addEdgeFromTo(node, CD, super.getNode(_o));
 						} else if (_o instanceof Stmt) {
-							addEdgeFromTo(node, ILabel.CD, super.getNode(new Pair(_o, _method)));
+							addEdgeFromTo(node, CD, super.getNode(new Pair(_o, _method)));
 						}
 					}
 				}
@@ -280,9 +324,9 @@ public class InfluenceChecker
 						final Object _o = _j.next();
 
 						if (_o instanceof Pair) {
-							addEdgeFromTo(node, ILabel.DD, super.getNode(_o));
+							addEdgeFromTo(node, DD, super.getNode(_o));
 						} else if (_o instanceof Stmt) {
-							addEdgeFromTo(node, ILabel.DD, super.getNode(new Pair(_o, _method)));
+							addEdgeFromTo(node, DD, super.getNode(new Pair(_o, _method)));
 						}
 					}
 				}
@@ -372,17 +416,14 @@ public class InfluenceChecker
 			final InfluenceChecker _xmlizerCLI = new InfluenceChecker();
 
 			_xmlizerCLI.setRootMethodTrapper(new RootMethodTrapper() {
+					/**
+					 * @see edu.ksu.cis.indus.common.soot.RootMethodTrapper#isThisARootMethod(soot.SootMethod)
+					 */
+					protected boolean isThisARootMethod(final SootMethod sm) {
+						return true;
+					}
+				});
 
-			/** 
-			 * @see edu.ksu.cis.indus.common.soot.RootMethodTrapper#isThisARootMethod(soot.SootMethod)
-			 */
-
-			   protected boolean isThisARootMethod(final SootMethod sm) {
-			       return true;
-			   }
-			
-			   } );
-            
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -456,7 +497,7 @@ public class InfluenceChecker
 	 * @return DOCUMENT ME!
 	 */
 	private IAutomata getAutomata(final String type) {
-		final DFA _result = new DFA();
+		final NFA _result = new NFA();
 
 		if (type.equals("ddi") || type.equals("di")) {
 			IState _s1 = new State("s1");
@@ -465,38 +506,38 @@ public class InfluenceChecker
 			IState _s4 = new State("s4");
 			_result.addFinalState(_s4);
 			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, ILabel.DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.CD, _s3);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.EPSILON, _s3);
-			_result.addLabelledTransitionFromTo(_s3, ILabel.CD, _s3);
-			_result.addLabelledTransitionFromTo(_s3, ILabel.DD, _s4);
-			_result.addLabelledTransitionFromTo(_s3, ILabel.EPSILON, _s4);
-			_result.addLabelledTransitionFromTo(_s4, ILabel.DD, _s4);
+			_result.addLabelledTransitionFromTo(_s1, DD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, DD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, CD, _s3);
+			_result.addLabelledTransitionFromTo(_s2, IAutomata.EPSILON, _s3);
+			_result.addLabelledTransitionFromTo(_s3, CD, _s3);
+			_result.addLabelledTransitionFromTo(_s3, DD, _s4);
+			_result.addLabelledTransitionFromTo(_s3, IAutomata.EPSILON, _s4);
+			_result.addLabelledTransitionFromTo(_s4, DD, _s4);
 		} else if (type.equals("cdi")) {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
 			IState _s3 = new State("s3");
 			_result.addFinalState(_s3);
 			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, ILabel.DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.CD, _s3);
-			_result.addLabelledTransitionFromTo(_s3, ILabel.CD, _s3);
+			_result.addLabelledTransitionFromTo(_s1, DD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, DD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, CD, _s3);
+			_result.addLabelledTransitionFromTo(_s3, CD, _s3);
 		} else if (type.equals("ci")) {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
 			_result.addFinalState(_s2);
 			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, ILabel.CD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.CD, _s2);
+			_result.addLabelledTransitionFromTo(_s1, CD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, CD, _s2);
 		} else {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
 			_result.addFinalState(_s2);
 			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, ILabel.CALLS, _s2);
-			_result.addLabelledTransitionFromTo(_s2, ILabel.CALLS, _s2);
+			_result.addLabelledTransitionFromTo(_s1, CALLS, _s2);
+			_result.addLabelledTransitionFromTo(_s2, CALLS, _s2);
 		}
 		_result.initialize();
 
@@ -556,6 +597,27 @@ public class InfluenceChecker
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	private void calculateCHACallgraph() {
+		chacgi = new CallGraphInfo(new PairManager(false, true));
+
+		final ProcessingController _pc = new ProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
+		_pc.setEnvironment(new Environment(getScene()));
+
+		final CHABasedCallInfoCollector _col = new CHABasedCallInfoCollector();
+		_col.hookup(_pc);
+		_pc.process();
+		_col.unhook(_pc);
+		chacgi.createCallGraphInfo(_col.getCallInfo());
+	}
+
+	/**
 	 * Drives the analyses.
 	 */
 	private void execute() {
@@ -569,7 +631,7 @@ public class InfluenceChecker
 		final PairManager _pairManager = new PairManager(false, true);
 		cgi = new CallGraphInfo(new PairManager(false, true));
 
-        final IThreadGraphInfo _tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, getBbm()), _pairManager);
+		final IThreadGraphInfo _tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, getBbm()), _pairManager);
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
@@ -621,7 +683,7 @@ public class InfluenceChecker
 
 		initialize();
 		aa.analyze(new Environment(getScene()), getRootMethods());
-        
+
 		_callGraphInfoCollector.reset();
 		_processors.clear();
 		_processors.add(_callGraphInfoCollector);
@@ -685,23 +747,7 @@ public class InfluenceChecker
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
 	}
 
-    private CallGraphInfo chacgi;
-    
-	private void calculateCHACallgraph() {
-        chacgi = new CallGraphInfo(new PairManager(false, true));
-        final ProcessingController _pc = new ProcessingController();
-        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        _ssr.setStmtGraphFactory(getStmtGraphFactory());
-        _pc.setStmtSequencesRetriever(_ssr);
-        _pc.setEnvironment(new Environment(getScene()));
-        final CHABasedCallInfoCollector _col = new CHABasedCallInfoCollector();
-        _col.hookup(_pc);
-        _pc.process();
-        _col.unhook(_pc);
-        chacgi.createCallGraphInfo(_col.getCallInfo());
-    }
-
-    /**
+	/**
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
@@ -725,10 +771,10 @@ public class InfluenceChecker
 		final SimpleEdgeGraph _graph = getGraph(type);
 		final IWorkBag _wb = new LIFOWorkBag();
 
-        if (type.equals("ai")) {
-            calculateCHACallgraph();
-        }
-        
+		if (type.equals("ai")) {
+			calculateCHACallgraph();
+		}
+
 		int _missedPaths = 0;
 		final Collection _matchedPaths = new HashSet();
 
@@ -746,12 +792,12 @@ public class InfluenceChecker
 			if (_auto.isInFinalState() && _src.equals(_target)) {
 				_matchedPaths.add(_path);
 			} else {
-				if (_auto.canPerformTransition(ILabel.EPSILON)) {
+				if (_auto.canPerformTransition(IAutomata.EPSILON)) {
 					final IAutomata _aclone = (IAutomata) _auto.clone();
-					_aclone.performTransitionOn(ILabel.EPSILON);
+					_aclone.performTransitionOn(IAutomata.EPSILON);
 
 					final Stack _temp = (Stack) _path.clone();
-					_temp.push(ILabel.EPSILON);
+					_temp.push(IAutomata.EPSILON);
 					_wb.addWork(new Triple(_src, _temp, _aclone));
 				}
 
@@ -762,7 +808,7 @@ public class InfluenceChecker
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 					final Map.Entry _entry = (Map.Entry) _i.next();
-					final ILabel _label = (ILabel) _entry.getKey();
+					final IAutomata.ITransitionLabel _label = (IAutomata.ITransitionLabel) _entry.getKey();
 					final Collection _coll = (Collection) _entry.getValue();
 
 					for (final Iterator _j = _coll.iterator(); _j.hasNext();) {

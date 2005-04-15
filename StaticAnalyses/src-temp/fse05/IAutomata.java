@@ -15,6 +15,8 @@
 
 package fse05;
 
+import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraph.ILabel;
+
 import java.util.Collection;
 
 
@@ -23,12 +25,37 @@ import java.util.Collection;
  * 
  * <p></p>
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IAutomata
   extends Cloneable {
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	IAutomata.ITransitionLabel EPSILON =
+		new IAutomata.ITransitionLabel() {
+			public String toString() {
+				return "-Epsilon->";
+			}
+		};
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	public interface ITransitionLabel
+	  extends ILabel {
+	}
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -65,7 +92,7 @@ public interface IAutomata
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	boolean canPerformTransition(ILabel label);
+	boolean canPerformTransition(ITransitionLabel label);
 
 	/**
 	 * DOCUMENT ME!
@@ -82,10 +109,8 @@ public interface IAutomata
 	 * <p></p>
 	 *
 	 * @param label DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
 	 */
-	void performTransitionOn(ILabel label);
+	void performTransitionOn(ITransitionLabel label);
 }
 
 // End of File

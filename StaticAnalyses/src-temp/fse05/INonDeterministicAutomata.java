@@ -15,50 +15,28 @@
 
 package fse05;
 
+import java.util.Collection;
+
+
 /**
  * DOCUMENT ME!
  * <p></p>
  * 
  * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  */
-public interface ILabel {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+public interface INonDeterministicAutomata
+  extends IAutomata {
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param state DOCUMENT ME!
+	 * @param label DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
 	 */
-	ILabel CALLS = new ILabel() {
-			public String toString() {
-				return "-CALLS->";
-			}
-		};
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	ILabel CD = new ILabel() {
-			public String toString() {
-				return "-CD->";
-			}
-		};
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	ILabel DD = new ILabel() {
-			public String toString() {
-				return "-DD->";
-			}
-		};
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	ILabel EPSILON = new ILabel() {
-			public String toString() {
-				return "-Epsilon->";
-			}
-		};
+	Collection getResultingStates(IState state, ITransitionLabel label);
 }
 
 // End of File
