@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.interfaces;
 
 import java.util.Collection;
+import java.util.List;
 
 import soot.SootClass;
 
@@ -45,6 +46,18 @@ public interface IClassHierarchy
 	Collection getClasses();
 
 	/**
+	 * Retrieves the classes in this hierarchy in topological order.
+	 *
+	 * @param topDown indicates if the sorting needs to be done top down(<code>true</code>)or bottom up(<code>false</code>).
+	 *
+	 * @return the classes in topological order
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post result->forall(o | getClasses().contains(o) or getInterfaces().contains(o))
+	 */
+	List getClassesInTopologicalOrder(boolean topDown);
+
+	/**
 	 * Retrieves the interfaces in the hierarchy.
 	 *
 	 * @return the interfaces in the hierarchy.
@@ -64,7 +77,7 @@ public interface IClassHierarchy
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post result->forall(o | not o.isInterface())
 	 */
-	Collection properAncestorClassesOf(final SootClass clazz);
+	Collection getProperAncestorClassesOf(final SootClass clazz);
 
 	/**
 	 * Retrieves the interfaces that are the proper ancestors of the given class.
@@ -76,7 +89,7 @@ public interface IClassHierarchy
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post result->forall(o | o.isInterface())
 	 */
-	Collection properAncestorInterfacesOf(final SootClass clazz);
+	Collection getProperAncestorInterfacesOf(final SootClass clazz);
 
 	/**
 	 * Retrieves the immediate subclasses of the given class.
@@ -89,7 +102,30 @@ public interface IClassHierarchy
 	 * @post clazz.isInterface() implies result->forall(o | o.getInterfaces().contains(clazz))
 	 * @post (not clazz.isInterface()) implies result->forall(o | o.getSuperClass().equals(clazz))
 	 */
-	Collection properImmediateSubClassesOf(final SootClass clazz);
+	Collection getProperImmediateSubClassesOf(final SootClass clazz);
+
+	/**
+	 * Retrieves the proper parent class of the given class.
+	 *
+	 * @param clazz of interest.
+	 *
+	 * @return the proper ancestor class.
+	 *
+	 * @post not result.isInterface()
+	 */
+	SootClass getProperParentClassOf(final SootClass clazz);
+
+	/**
+	 * Retrieves the interfaces that are the proper parents of the given class.
+	 *
+	 * @param clazz of interest.
+	 *
+	 * @return the proper parent interfaces.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post result->forall(o | o.isInterface())
+	 */
+	Collection getProperParentInterfacesOf(final SootClass clazz);
 
 	/**
 	 * Retrieves the subclasses of the given class.
@@ -102,7 +138,7 @@ public interface IClassHierarchy
 	 * @post clazz.isInterface() implies result->forall(o | properAncestorsClasses(o).contains(clazz))
 	 * @post (not clazz.isInterface()) implies result->forall(o | properAncestorsInterfaces(o).contains(clazz))
 	 */
-	Collection properSubclassesOf(final SootClass clazz);
+	Collection getProperSubclassesOf(final SootClass clazz);
 }
 
 // End of File
