@@ -264,6 +264,11 @@ public final class SlicerConfiguration
 	static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
 
 	/** 
+	 * This identifies the property that governs if the executable slice should be optimized for space.
+	 */
+	static final Object SPACE_OPTIMIZED_EXECUTABLE_SLICE = "optimize executable slice for space";
+
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerConfiguration.class);
@@ -335,6 +340,7 @@ public final class SlicerConfiguration
 		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
 		propertyIds.add(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
 		propertyIds.add(SYNCS_IN_APPLICATION_CLASSES_ONLY);
+		propertyIds.add(SPACE_OPTIMIZED_EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -343,7 +349,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if call-site based ready dependence is used; <code>false</code>, otherwise.
 	 */
 	public boolean isCallSiteSensitiveReadyUsed() {
-		return ((Boolean) properties.get(CALL_SITE_SENSITIVE_READY_DA)).booleanValue();
+		return getBooleanProperty(CALL_SITE_SENSITIVE_READY_DA);
 	}
 
 	/**
@@ -394,7 +400,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isDivergenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_DIVERGENCEDA)).booleanValue();
+		return getBooleanProperty(USE_DIVERGENCEDA);
 	}
 
 	/**
@@ -418,7 +424,16 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
 	 */
 	public boolean getExecutableSlice() {
-		return ((Boolean) getProperty(EXECUTABLE_SLICE)).booleanValue();
+		return getBooleanProperty(EXECUTABLE_SLICE);
+	}
+
+	/**
+	 * Checks if executable slice is optimized for space.
+	 *
+	 * @return <code>true</code> if it is optimized; <code>false</code>, otherwise.
+	 */
+	public boolean isExecutableSliceOptimizedForSpace() {
+		return getBooleanProperty(SPACE_OPTIMIZED_EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -427,7 +442,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if the use of interference dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isInterferenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_INTERFERENCEDA)).booleanValue();
+		return getBooleanProperty(USE_INTERFERENCEDA);
 	}
 
 	/**
@@ -524,7 +539,7 @@ public final class SlicerConfiguration
 	 * 		   otherwise.
 	 */
 	public boolean isNonTerminationSensitiveControlDependenceUsed() {
-		return ((Boolean) getProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE)).booleanValue();
+		return getBooleanProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
 	}
 
 	/**
@@ -533,7 +548,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isOFAUsedForInterference() {
-		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
+		return getBooleanProperty(USE_OFA_FOR_INTERFERENCE_DA);
 	}
 
 	/**
@@ -542,7 +557,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isOFAUsedForReady() {
-		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
+		return getBooleanProperty(USE_OFA_FOR_READY_DA);
 	}
 
 	/**
@@ -560,7 +575,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if the property aware slices will be generated; <code>false</code>, otherwise.
 	 */
 	public boolean getPropertyAware() {
-		return ((Boolean) getProperty(PROPERTY_AWARE)).booleanValue();
+		return getBooleanProperty(PROPERTY_AWARE);
 	}
 
 	/**
@@ -569,7 +584,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_READYDA)).booleanValue();
+		return getBooleanProperty(USE_READYDA);
 	}
 
 	/**
@@ -618,7 +633,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if SLA is used for ready dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isSafeLockAnalysisUsedForReady() {
-		return ((Boolean) properties.get(USE_SLA_FOR_READY_DA)).booleanValue();
+		return getBooleanProperty(USE_SLA_FOR_READY_DA);
 	}
 
 	/**
@@ -636,7 +651,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
 	 */
 	public boolean getSliceForDeadlock() {
-		return ((Boolean) getProperty(SLICE_FOR_DEADLOCK)).booleanValue();
+		return getBooleanProperty(SLICE_FOR_DEADLOCK);
 	}
 
 	/**
@@ -654,7 +669,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
 	 */
 	public boolean getSliceToPreserveAssertions() {
-		return ((Boolean) getProperty(SLICE_TO_PRESERVE_ASSERTIONS)).booleanValue();
+		return getBooleanProperty(SLICE_TO_PRESERVE_ASSERTIONS);
 	}
 
 	/**
@@ -687,7 +702,7 @@ public final class SlicerConfiguration
 	 * @return <code>true</code> if the use of synchronization dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isSynchronizationDepAnalysisUsed() {
-		return ((Boolean) properties.get(USE_SYNCHRONIZATIONDA)).booleanValue();
+		return getBooleanProperty(USE_SYNCHRONIZATIONDA);
 	}
 
 	/**
@@ -697,7 +712,7 @@ public final class SlicerConfiguration
 	 * 		   otherwise.
 	 */
 	public boolean areAssertionsOnlyInAppClassesConsidered() {
-		return ((Boolean) properties.get(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY)).booleanValue();
+		return getBooleanProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
 	}
 
 	/**
@@ -707,7 +722,7 @@ public final class SlicerConfiguration
 	 * 		   <code>false</code>, otherwise.
 	 */
 	public boolean areSynchronizationsOnlyInAppClassesConsidered() {
-		return ((Boolean) properties.get(SYNCS_IN_APPLICATION_CLASSES_ONLY)).booleanValue();
+		return getBooleanProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY);
 	}
 
 	/**
@@ -791,6 +806,15 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
+	}
+
+	/**
+	 * Controls if executable slice should be optimized for space.
+	 *
+	 * @param value <code>true</code> if the slice should be optimized for space; <code>false</code>, otherwise.
+	 */
+	public void optimizeExecutableSliceForSpace(final boolean value) {
+		setProperty(SPACE_OPTIMIZED_EXECUTABLE_SLICE, Boolean.valueOf(value));
 	}
 
 	/**

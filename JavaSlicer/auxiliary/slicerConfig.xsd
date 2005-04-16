@@ -29,6 +29,7 @@
           <xsd:element name="synchronization" type="slicer:synchronization"/>
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
+        <xsd:attribute name="optimizeExecutableSliceForSpace" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
         <xsd:attribute name="propertyAware" type="xsd:boolean" use="required"/>
       </xsd:extension>
@@ -93,7 +94,7 @@
     </xsd:restriction>
   </xsd:simpleType>
   
-  <xsd:simpleType id="proceduralBoundaryProperty" name="proceduralBoundaryProperty">
+  <xsd:simpleType id="procedureBoundaryProperty" name="procedueBoundaryProperty">
     <xsd:annotation>
       <xsd:documentation> This represents the property pertaining to procedural boundary. </xsd:documentation>
     </xsd:annotation>
@@ -121,7 +122,7 @@
       <xsd:documentation> This captures divergence dependence information. </xsd:documentation>
     </xsd:annotation>
     <xsd:attribute default="INTRA_PROCEDURAL_ONLY" name="natureOfDivergenceAnalysis"
-      type="slicer:proceduralBoundaryProperty"/>
+      type="slicer:procedureBoundaryProperty"/>
     <xsd:attribute ref="slicer:active" use="required"/>
   </xsd:complexType>
   

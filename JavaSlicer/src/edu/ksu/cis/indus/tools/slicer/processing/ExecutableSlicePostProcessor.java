@@ -110,7 +110,7 @@ public class ExecutableSlicePostProcessor
 	/** 
 	 * The slice collector to be used to add on to the slice.
 	 */
-	private SliceCollector collector;
+	protected SliceCollector collector;
 
 	/** 
 	 * This indicates if any statements of the method were included during post processing.  If so, other statement based
@@ -198,7 +198,7 @@ public class ExecutableSlicePostProcessor
 	 * @post result.getClasses()->union(result.getInterfaces())->includesAll(classes)
 	 */
 	protected IClassHierarchy getClassHierarchyContainingClassesToProcess(final Collection classes) {
-		return ClassHierarchy.createClassHierarchyFrom(false, classes);
+		return ClassHierarchy.createClassHierarchyFrom(classes);
 	}
 
 	/**
@@ -212,7 +212,6 @@ public class ExecutableSlicePostProcessor
 		while (_iter.hasNext()) {
 			final SootClass _class = (SootClass) _iter.next();
 			collector.includeInSlice(_class);
-			System.out.println(_class);
 		}
 
 		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);

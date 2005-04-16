@@ -37,6 +37,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.transformations.ExecutableSlicePostProcessorAndModifier;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
@@ -357,7 +358,7 @@ public final class SlicerTool
 		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setStmtGraphFactory(getStmtGraphFactory());
-        _ssr.setBbgFactory(bbgMgr);
+		_ssr.setBbgFactory(bbgMgr);
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr), pairMgr);
 		// create equivalence class-based escape analysis.
@@ -944,8 +945,15 @@ public final class SlicerTool
 	private void postProcessSlice() {
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
-		if (((Boolean) _slicerConfig.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
-			final ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
+		if (_slicerConfig.getExecutableSlice()) {
+			final ISlicePostProcessor _postProcessor;
+
+			if (_slicerConfig.isExecutableSliceOptimizedForSpace()) {
+				_postProcessor = new ExecutableSlicePostProcessorAndModifier(engine.getSystem());
+			} else {
+				_postProcessor = new ExecutableSlicePostProcessor();
+			}
+
 			final SliceCollector _collector = engine.getCollector();
 			final Collection _methods = _collector.getMethodsInSlice();
 			final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(_collector);

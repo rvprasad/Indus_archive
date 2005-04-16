@@ -143,7 +143,7 @@ public final class SlicerConfigurator
 		final Group _assertionGroup = new Group(composite, SWT.NONE);
 		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		_gridData1.horizontalSpan = 3;
-        _gridData1.grabExcessHorizontalSpace = true;
+		_gridData1.grabExcessHorizontalSpace = true;
 		_assertionGroup.setLayoutData(_gridData1);
 
 		final GridLayout _gl1 = new GridLayout(3, false);
@@ -153,20 +153,23 @@ public final class SlicerConfigurator
 		final Button _assertionPreservingSliceButton = new Button(_assertionGroup, SWT.CHECK);
 		_assertionPreservingSliceButton.setText("Preserve assertions");
 		_assertionPreservingSliceButton.setEnabled(true);
-        final GridData _gd2 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-        _gd2.horizontalSpan = 1;
-        _assertionPreservingSliceButton.setLayoutData(_gd2);
+
+		final GridData _gd2 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		_gd2.horizontalSpan = 1;
+		_assertionPreservingSliceButton.setLayoutData(_gd2);
 
 		final Button _applclasses = new Button(_assertionGroup, SWT.CHECK);
 		_applclasses.setText("Preserve assertions in application classes only");
-        _applclasses.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, 
-                _applclasses, cfg));
-        _applclasses.setSelection(cfg.areAssertionsOnlyInAppClassesConsidered());
-        
-        final GridData _gd3 = new GridData(SWT.END, SWT.BEGINNING, false, false);
-        _gd3.horizontalSpan = 2;
-        _gd3.grabExcessHorizontalSpace = true;
-        _applclasses.setLayoutData(_gd3);
+		_applclasses.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.ASSERTIONS_IN_APPLICATION_CLASSES_ONLY,
+				_applclasses,
+				cfg));
+		_applclasses.setSelection(cfg.areAssertionsOnlyInAppClassesConsidered());
+
+		final GridData _gd3 = new GridData(SWT.END, SWT.BEGINNING, false, false);
+		_gd3.horizontalSpan = 2;
+		_gd3.grabExcessHorizontalSpace = true;
+		_applclasses.setLayoutData(_gd3);
 
 		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
@@ -208,9 +211,11 @@ public final class SlicerConfigurator
 
 		final Button _applclasses = new Button(_deadlockGroup, SWT.CHECK);
 		_applclasses.setText("Preserve sync constructs in application classes only");
-        _applclasses.setSelection(cfg.areSynchronizationsOnlyInAppClassesConsidered());
-        _applclasses.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY, 
-                _applclasses, cfg));
+		_applclasses.setSelection(cfg.areSynchronizationsOnlyInAppClassesConsidered());
+		_applclasses.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY,
+				_applclasses,
+				cfg));
 
 		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
 		_group1.setText("Deadlock Criteria Selection Strategy");
@@ -681,28 +686,28 @@ public final class SlicerConfigurator
 		final Button _rule1RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule1RDAButton.setText("use rule 1 of ready dependence");
 		_rule1RDAButton.setToolTipText("Intra-thread intra-procedural monitor acquisition based ready dependence");
-        _rule1RDAButton.setSelection(_cfg.isReadyRule1Used());
+		_rule1RDAButton.setSelection(_cfg.isReadyRule1Used());
 		_rule1RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule1RDAButton, _cfg));
 
 		final Button _rule2RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule2RDAButton.setText("use rule 2 of ready dependence");
 		_rule2RDAButton.setToolTipText("Inter-thread monitor acquisition ready dependence");
-        _rule2RDAButton.setSelection(_cfg.isReadyRule2Used());
+		_rule2RDAButton.setSelection(_cfg.isReadyRule2Used());
 		_rule2RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule2RDAButton, _cfg));
 
 		final Button _rule3RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule3RDAButton.setText("use rule 3 of ready dependence");
 		_rule3RDAButton.setToolTipText("Intra-thread intra-procedural Object.wait() based ready dependence");
-        _rule3RDAButton.setSelection(_cfg.isReadyRule3Used());
+		_rule3RDAButton.setSelection(_cfg.isReadyRule3Used());
 		_rule3RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule3RDAButton, _cfg));
 
 		final Button _rule4RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule4RDAButton.setText("use rule 4 of ready dependence");
 		_rule4RDAButton.setToolTipText("Inter-thread Object.wait() based ready dependence");
-        _rule4RDAButton.setSelection(_cfg.isReadyRule4Used());
+		_rule4RDAButton.setSelection(_cfg.isReadyRule4Used());
 		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule4RDAButton, _cfg));
 
@@ -754,17 +759,46 @@ public final class SlicerConfigurator
 		executableSliceButton.setText("Executable slice");
 
 		final GridData _gridData2 = new GridData();
-		_gridData2.horizontalSpan = 2;
+		_gridData2.horizontalSpan = 1;
 		executableSliceButton.setLayoutData(_gridData2);
-
-		final SelectionListener _sl1 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
-		executableSliceButton.addSelectionListener(_sl1);
-        executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
+
+		final Button _spaceOptiExecSlice = new Button(composite, SWT.CHECK);
+		final SelectionListener _sl2 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SPACE_OPTIMIZED_EXECUTABLE_SLICE, _spaceOptiExecSlice,
+				_cfg);
+		_spaceOptiExecSlice.setText("Optimize executable slice for space");
+		_spaceOptiExecSlice.addSelectionListener(_sl2);
+		_spaceOptiExecSlice.setSelection(_cfg.getExecutableSlice());
+
+		final GridData _gridData3 = new GridData();
+		_gridData2.horizontalSpan = 1;
+		_spaceOptiExecSlice.setLayoutData(_gridData3);
+
+		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE) || !_cfg.getExecutableSlice()) {
+			_spaceOptiExecSlice.setEnabled(false);
+		}
+
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg) {
+				public void widgetSelected(final SelectionEvent evt) {
+					super.widgetSelected(evt);
+
+					final boolean _v = ((Button) evt.getSource()).getSelection();
+					_spaceOptiExecSlice.setSelection(_cfg.isExecutableSliceOptimizedForSpace());
+					_spaceOptiExecSlice.notifyListeners(SWT.Selection, null);
+					_spaceOptiExecSlice.setEnabled(_v);
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		executableSliceButton.addSelectionListener(_sl1);
+		executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
 		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
 		_propertyAwareSlicingButton.setText("Property Aware Slicing");
@@ -811,9 +845,12 @@ public final class SlicerConfigurator
 
 					if (evt.widget == _forwardSlice) {
 						_value = SlicingEngine.FORWARD_SLICE;
-                        executableSliceButton.setSelection(false);
-                        executableSliceButton.notifyListeners(SWT.Selection, null);
+						executableSliceButton.setSelection(false);
+						executableSliceButton.notifyListeners(SWT.Selection, null);
 						executableSliceButton.setEnabled(false);
+						_spaceOptiExecSlice.setSelection(false);
+						_spaceOptiExecSlice.notifyListeners(SWT.Selection, null);
+						_spaceOptiExecSlice.setEnabled(false);
 					} else {
 						if (evt.widget == _backwardSlice) {
 							_value = SlicingEngine.BACKWARD_SLICE;
