@@ -254,7 +254,6 @@ public final class CallGraphXMLizerCLI
 		_cha.hookup(_pc);
 		_pc.process();
 		_cha.unhook(_pc);
-        _cha.minimizeHierarchy();
 
 		final CHABasedCallInfoCollector _chaci = new CHABasedCallInfoCollector();
 		_chaci.initialize(_cha);
