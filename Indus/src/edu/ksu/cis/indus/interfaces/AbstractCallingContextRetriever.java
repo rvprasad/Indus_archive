@@ -288,7 +288,7 @@ public abstract class AbstractCallingContextRetriever
                         // if we are dealing with an entry method  
 						if (_jEnd == 0) {
 							_result.addAll(NULL_CONTEXTS);
-						} else if (shouldUnextendedStacksBeConsidered()){
+						} else if (shouldUnextendedStacksBeConsidered()) {
 							_result.addAll(_calleeSideCallStacks);
 						}
 					}

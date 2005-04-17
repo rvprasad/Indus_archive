@@ -427,7 +427,7 @@ final class MethodContext
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-				final AliasSet _aliasSet = ((AliasSet) _methodContext.argAliasSets.get(_i));
+				final AliasSet _aliasSet = (AliasSet) _methodContext.argAliasSets.get(_i);
 
 				// it is possible that the argument at a site-context is null
 				if (_aliasSet != null) {
