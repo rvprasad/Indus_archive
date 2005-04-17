@@ -28,7 +28,9 @@ Required software:
 Version 0.6
 ----------------
 	- Refactored call graph calculation logic.
-	- Added implementations of Class Hierarchy Analysis based and Rapid Type Analysis based call graph construction. [API BREAKING CHANGE]
+	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph 
+	  construction. [API BREAKING CHANGE]
+	- Added support to retrieve field reading/writing thread information from EquivalenceClassBasedEscapeAnalysis.
 	
 
 Version 0.5

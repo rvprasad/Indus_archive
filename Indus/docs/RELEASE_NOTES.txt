@@ -38,6 +38,7 @@ Version 0.6
 	- Added support in the ProcessingController to control the order in which the statements of a method are 
 		visited. [API BREAKING CHANGE]
 	- Added a Class Hierarchy Analysis implementation.
+	- Added support to retrieve field reading/writing thread information from IEscapeInfo.
 
 Version 0.5
 ----------------
