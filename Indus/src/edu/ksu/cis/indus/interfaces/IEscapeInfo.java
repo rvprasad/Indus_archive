@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import java.util.Collection;
+
+import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 
@@ -22,11 +25,11 @@ import soot.jimple.InvokeStmt;
 
 
 /**
- * The interface to access escape analysis information. 
- * 
- * @version $Revision$ 
+ * The interface to access escape analysis information.
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IEscapeInfo
   extends IIdentification,
@@ -35,6 +38,92 @@ public interface IEscapeInfo
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
 	Object ID = "Escape Information";
+
+	/**
+	 * Retrieves abstract threads which read the given local to read the fields of the referred object.
+	 *
+	 * @param local of interest.
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null and local != null
+	 * @post result != null
+	 */
+	Collection getReadingThreadsOf(Local local, SootMethod sm);
+
+	/**
+	 * Retrieves abstract threads which read the given parameter to read the fields of the referred object.
+	 *
+	 * @param paramIndex of interest.
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null and paramIndex >= 0
+	 * @post result != null
+	 */
+	Collection getReadingThreadsOf(int paramIndex, SootMethod sm);
+
+	/**
+	 * Retrieves abstract threads which read the "this" variable of the given method to read the fields of the referred
+	 * object.
+	 *
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null
+	 * @post result != null
+	 */
+	Collection getReadingThreadsOfThis(SootMethod sm);
+
+	/**
+	 * Retrieves abstract threads which read the given local in the given method to write to the fields of the referred
+	 * object.
+	 *
+	 * @param local of interest.
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null and local != null
+	 * @post result != null
+	 */
+	Collection getWritingThreadsOf(Local local, SootMethod sm);
+
+	/**
+	 * Retrieves abstract threads which read the given parameter of the given method to write to the fields of the referred
+	 * object.
+	 *
+	 * @param paramIndex of interest.
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null and paramIndex >= 0
+	 * @post result != null
+	 */
+	Collection getWritingThreadsOf(int paramIndex, SootMethod sm);
+
+	/**
+	 * Retrieves abstract threads which read the "this" variable of the given method to write to the fields of the referred
+	 * object.
+	 *
+	 * @param sm of interest.
+	 *
+	 * @return a collection of abstract thread objects.  The implementation will have to explicitly specify the domain of
+	 * 		   these objects.
+	 *
+	 * @pre sm != null
+	 * @post result != null
+	 */
+	Collection getWritingThreadsOfThis(SootMethod sm);
 
 	/**
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing
@@ -51,8 +140,7 @@ public interface IEscapeInfo
 	 *
 	 * @pre wait != null and waitMethod != null and notify != null and notifyMethod != null
 	 */
-	boolean areWaitAndNotifyCoupled(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
-		final SootMethod notifyMethod);
+	boolean areWaitAndNotifyCoupled(InvokeStmt wait, SootMethod waitMethod, InvokeStmt notify, SootMethod notifyMethod);
 
 	/**
 	 * Checks if the object bound to the given variable in the given method shared or escapes.
@@ -64,7 +152,7 @@ public interface IEscapeInfo
 	 *
 	 * @pre v != null and sm != null
 	 */
-	boolean escapes(final Value v, final SootMethod sm);
+	boolean escapes(Value v, SootMethod sm);
 
 	/**
 	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
@@ -79,7 +167,7 @@ public interface IEscapeInfo
 	 *
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
-	boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2);
+	boolean shared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
 
 	/**
 	 * Checks if "this" variable of the given method escapes.  If the method is static then the result is pessimistic, hence,
@@ -91,7 +179,7 @@ public interface IEscapeInfo
 	 *
 	 * @pre method != null
 	 */
-	boolean thisEscapes(final SootMethod method);
+	boolean thisEscapes(SootMethod method);
 }
 
 // End of File

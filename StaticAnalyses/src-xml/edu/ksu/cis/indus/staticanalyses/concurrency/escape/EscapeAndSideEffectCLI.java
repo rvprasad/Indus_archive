@@ -183,7 +183,7 @@ public class EscapeAndSideEffectCLI
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
-		final ISideEffectInfo _sideeffectInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
+		final ISideEffectInfo _sideeffectInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		final IEscapeInfo _escapeInfo = (IEscapeInfo) _sideeffectInfo;
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
 		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_sideeffectInfo));
@@ -201,11 +201,15 @@ public class EscapeAndSideEffectCLI
 				System.out.println("\tthis:");
 				System.out.println("\t\tside-affected =  " + _sideeffectInfo.isThisSideAffected(_sm));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
+				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
+				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
 				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]: side-affected = "
 					+ _sideeffectInfo.isParameterSideAffected(_sm, _j));
+				System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_j, _sm));
+				System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_j, _sm));
 			}
 
 			if (_sm.hasActiveBody()) {
@@ -213,7 +217,10 @@ public class EscapeAndSideEffectCLI
 
 				for (final Iterator _j = _body.getLocals().iterator(); _j.hasNext();) {
 					final Local _local = (Local) _j.next();
-					System.out.println("\tLocal " + _local.getName() + " : escapes = " + _escapeInfo.escapes(_local, _sm));
+					System.out.println("\tLocal " + _local.getName() + " : ");
+					System.out.println("\t\tescapes = " + _escapeInfo.escapes(_local, _sm));
+					System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_local, _sm));
+					System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_local, _sm));
 				}
 			}
 		}

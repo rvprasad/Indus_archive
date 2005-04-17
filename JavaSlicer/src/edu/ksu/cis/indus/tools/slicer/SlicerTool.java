@@ -362,7 +362,7 @@ public final class SlicerTool
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr), pairMgr);
 		// create equivalence class-based escape analysis.
-		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, bbgMgr);
+		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, null, bbgMgr);
 		// create monitor analysis
 		monitorInfo = new MonitorAnalysis();
 		// create safe lock analysis

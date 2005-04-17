@@ -666,7 +666,7 @@ public class InfluenceChecker
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
 
-		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, getBbm());
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, null, getBbm());
 		info.put(IEscapeInfo.ID, _ecba);
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();

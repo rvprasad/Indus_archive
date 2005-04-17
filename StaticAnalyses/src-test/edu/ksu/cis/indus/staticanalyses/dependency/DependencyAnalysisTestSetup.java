@@ -119,12 +119,12 @@ public class DependencyAnalysisTestSetup
 
 		// setup level 1 analysis here.
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        _ssr.setStmtGraphFactory(getStmtGraphFactory());
-        _pc.setStmtSequencesRetriever(_ssr);
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));		
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
 
 		final PairManager _pairManager = new PairManager(false, true);
 		tgiImpl = new ThreadGraph(cgiImpl, new CFGAnalysis(cgiImpl, bbgMgr), _pairManager);
@@ -132,7 +132,7 @@ public class DependencyAnalysisTestSetup
 		_pc.process();
 		tgiImpl.unhook(_pc);
 		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, tgiImpl, bbgMgr, _pairManager);
-		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, bbgMgr);
+		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, null, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
 
 		//setup info        
@@ -185,10 +185,11 @@ public class DependencyAnalysisTestSetup
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
 			_da1.reset();
+
 			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
-                final Object _id =  _i2.next();
-                _ac.addAnalyses(_id, Collections.singleton(_da1));    
-            }			
+				final Object _id = _i2.next();
+				_ac.addAnalyses(_id, Collections.singleton(_da1));
+			}
 		}
 		_ac.initialize();
 		_ac.execute();

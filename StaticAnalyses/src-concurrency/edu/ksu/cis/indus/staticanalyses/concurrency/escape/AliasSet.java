@@ -62,6 +62,13 @@ final class AliasSet
 	boolean accessed;
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection readThreads;
+
+	/** 
 	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection readyEntities;
@@ -70,6 +77,13 @@ final class AliasSet
 	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection shareEntities;
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection writeThreads;
 
 	/** 
 	 * This maps field signatures to their alias sets.
@@ -137,9 +151,33 @@ final class AliasSet
 		global = false;
 		readyEntities = null;
 		read = false;
+		readThreads = new HashSet();
 		written = false;
+		writeThreads = new HashSet();
 		shareEntities = null;
 		multiThreadAccessibility = false;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public Collection getReadThreads() {
+		return Collections.unmodifiableCollection(((AliasSet) find()).readThreads);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public Collection getWriteThreads() {
+		return Collections.unmodifiableCollection(((AliasSet) find()).writeThreads);
 	}
 
 	/**
@@ -202,6 +240,7 @@ final class AliasSet
 											   .append("multiThreadAccess", this.multiThreadAccessibility)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
+											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
 											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
@@ -413,6 +452,24 @@ final class AliasSet
 	 */
 	void setWritten() {
 		((AliasSet) find()).written = true;
+	}
+
+	/**
+	 * Adds the given threads as the threads that read a member of an object via the variable associated with this aliasset.
+	 *
+	 * @param abstractThreads collection of abstract thread objects in which the write occurs.
+	 */
+	void addReadThreads(final Collection abstractThreads) {
+		((AliasSet) find()).readThreads.addAll(abstractThreads);
+	}
+
+	/**
+	 * Adds the given threads as the threads that wrote a member of an object via the variable associated with this aliasset.
+	 *
+	 * @param abstractThreads collection of abstract thread objects in which the write occurs.
+	 */
+	void addWriteThreads(final Collection abstractThreads) {
+		((AliasSet) find()).writeThreads.addAll(abstractThreads);
 	}
 
 	/**
@@ -651,6 +708,10 @@ final class AliasSet
 			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
 			_representative.sideAffected |= _represented.sideAffected;
+			_representative.readThreads.addAll(_represented.readThreads);
+			_represented.readThreads = null;
+			_representative.writeThreads.addAll(_represented.writeThreads);
+			_represented.writeThreads = null;
 
 			if (_represented.readyEntities != null) {
 				if (_representative.readyEntities == null) {

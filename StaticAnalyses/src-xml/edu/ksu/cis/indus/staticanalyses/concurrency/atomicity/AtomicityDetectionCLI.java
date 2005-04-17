@@ -257,7 +257,7 @@ public final class AtomicityDetectionCLI
 		_info.put(IEnvironment.ID, _aa.getEnvironment());
 		_info.put(IValueAnalyzer.ID, _aa);
 
-		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
 		_info.put(IEscapeInfo.ID, _ecba);
 
 		initialize();

@@ -291,7 +291,7 @@ public final class AtomicityTool
 	  throws IllegalStateException {
 		final ProcessingController _pc = new ProcessingController();
 		final EquivalenceClassBasedEscapeAnalysis _ecba =
-			new EquivalenceClassBasedEscapeAnalysis(callgraph, basicBlockGraphMgr);
+			new EquivalenceClassBasedEscapeAnalysis(callgraph, null, basicBlockGraphMgr);
 		final Map _info = new HashMap();
 		final AnalysesController _ac = new AnalysesController(_info, _pc, basicBlockGraphMgr);
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();

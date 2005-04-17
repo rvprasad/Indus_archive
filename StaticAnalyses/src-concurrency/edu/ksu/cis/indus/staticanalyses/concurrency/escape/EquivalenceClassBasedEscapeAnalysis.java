@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.ISideEffectInfo;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -179,6 +180,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final ValueProcessor valueProcessor;
 
 	/** 
+	 * This provides thread-graph information.
+	 */
+	IThreadGraphInfo tgi;
+
+	/** 
 	 * This is a cache variable that holds local alias set map between method calls.
 	 *
 	 * @invariant localASsCache.oclIsKindOf(Local, AliasSet)
@@ -201,12 +207,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param callgraph provides call-graph information.
+	 * @param threadGraph provides thread graph information.  If this is <code>null</code> then read-write specific thread
+	 * 		  information is not captured.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final BasicBlockGraphMgr basicBlockGraphMgr) {
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadGraph,
+		final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
+		tgi = threadGraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor();
@@ -554,8 +564,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			if (as != null) {
 				if (rhs) {
 					as.setRead();
+
+					if (tgi != null) {
+						as.addReadThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
+					}
 				} else {
 					as.setWritten();
+
+					if (tgi != null) {
+						as.addWriteThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
+					}
 				}
 			}
 		}
@@ -929,6 +947,78 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(soot.Local, soot.SootMethod)
+	 */
+	public Collection getReadingThreadsOf(final Local local, final SootMethod method) {
+		Collection _result = Collections.EMPTY_SET;
+		final Triple _triple = (Triple) method2Triple.get(method);
+
+		if (_triple != null) {
+			final Map _local2as = (Map) _triple.getSecond();
+			final AliasSet _as = (AliasSet) _local2as.get(local);
+
+			if (_as != null) {
+				_result = _as.getReadThreads();
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(int, soot.SootMethod)
+	 */
+	public Collection getReadingThreadsOf(final int paramIndex, final SootMethod method) {
+		if (paramIndex >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but "
+				+ paramIndex + " was provided.");
+		}
+
+		final Collection _result;
+
+		if (method.getParameterType(paramIndex) instanceof RefType) {
+			final Triple _triple = (Triple) method2Triple.get(method);
+
+			if (_triple != null) {
+				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+				_result = _ctxt.getParamAS(paramIndex).getReadThreads();
+			} else {
+				_result = Collections.EMPTY_SET;
+
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + method
+						+ " is available.  Returning pessimistic (true) info.");
+				}
+			}
+		} else {
+			_result = Collections.EMPTY_SET;
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOfThis(soot.SootMethod)
+	 */
+	public Collection getReadingThreadsOfThis(final SootMethod method) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		final Collection _result;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getReadThreads());
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+			_result = Collections.EMPTY_SET;
+		}
+		return _result;
+	}
+
+	/**
 	 * @see ISideEffectInfo#isReceiverBasedAccessPathSideAffected(CallTriple, String[], boolean)
 	 */
 	public boolean isReceiverBasedAccessPathSideAffected(final CallTriple callerTriple, final String[] accesspath,
@@ -1037,6 +1127,78 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(soot.Local, soot.SootMethod)
+	 */
+	public Collection getWritingThreadsOf(final Local local, final SootMethod method) {
+		Collection _result = Collections.EMPTY_SET;
+		final Triple _triple = (Triple) method2Triple.get(method);
+
+		if (_triple != null) {
+			final Map _local2as = (Map) _triple.getSecond();
+			final AliasSet _as = (AliasSet) _local2as.get(local);
+
+			if (_as != null) {
+				_result = _as.getWriteThreads();
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(int, soot.SootMethod)
+	 */
+	public Collection getWritingThreadsOf(final int paramIndex, final SootMethod method) {
+		if (paramIndex >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but "
+				+ paramIndex + " was provided.");
+		}
+
+		final Collection _result;
+
+		if (method.getParameterType(paramIndex) instanceof RefType) {
+			final Triple _triple = (Triple) method2Triple.get(method);
+
+			if (_triple != null) {
+				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+				_result = _ctxt.getParamAS(paramIndex).getWriteThreads();
+			} else {
+				_result = Collections.EMPTY_SET;
+
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + method
+						+ " is available.  Returning pessimistic (true) info.");
+				}
+			}
+		} else {
+			_result = Collections.EMPTY_SET;
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOfThis(soot.SootMethod)
+	 */
+	public Collection getWritingThreadsOfThis(final SootMethod method) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		final Collection _result;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getWriteThreads());
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+			_result = Collections.EMPTY_SET;
 		}
 		return _result;
 	}
@@ -1224,7 +1386,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Reset internal data structures.
 	 */
 	public void reset() {
-        super.reset();
+		super.reset();
 		globalASs.clear();
 		method2Triple.clear();
 	}
