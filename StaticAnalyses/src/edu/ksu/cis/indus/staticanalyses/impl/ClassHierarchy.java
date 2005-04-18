@@ -385,7 +385,6 @@ public final class ClassHierarchy
 			final SootClass _sc = (SootClass) _i.next();
 			final INode _node = classHierarchy.queryNode(_sc);
 			classHierarchy.removeNode(_node);
-			System.out.println(((IObjectNode) _node).getObject());
 		}
 		classes.retainAll(confineToClasses);
 		interfaces.retainAll(confineToClasses);
