@@ -76,7 +76,7 @@ public final class DeadlockPreservingCriteriaGenerator
 				_subResult.clear();
 				_context.setRootMethod(_method);
 
-				if (_method.getDeclaringClass().isApplicationClass() && shouldGenerateCriteriaFrom(_mTriple)) {
+				if (shouldGenerateCriteriaFrom(_mTriple)) {
 					if (_mTriple.getFirst() == null) {
 						// add all entry points and return points (including throws) of the method as the criteria
 						final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
