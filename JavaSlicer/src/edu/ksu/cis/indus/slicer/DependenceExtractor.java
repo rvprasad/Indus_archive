@@ -274,7 +274,8 @@ public final class DependenceExtractor
 								CollectionsUtilities.HASH_SET_FACTORY);
 						}
 					} else {
-						final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis(_criteriabaseMethod);
+                        _context.setRootMethod(_criteriabaseMethod);
+						final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis(_context);
 						CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
 							CollectionsUtilities.HASH_SET_FACTORY);
 					}

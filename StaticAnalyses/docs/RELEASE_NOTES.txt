@@ -11,6 +11,7 @@ Required software:
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
+		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
     xmlenc (0.44)
@@ -31,6 +32,10 @@ Version 0.6
 	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph 
 	  construction. [API BREAKING CHANGE]
 	- Added support to retrieve field reading/writing thread information from EquivalenceClassBasedEscapeAnalysis.
+	- Feature request #590
+	- Added new program point-relative inter-thread context retriever that is sensitive to data-equivalence 
+		(ThreadEscapeInfoBasedCallingContextRetrieverV2)
+	- Added new program point-relative intra-thread alias-based context retriever (DataAliasBasedCallingContextRetriever)
 	
 
 Version 0.5

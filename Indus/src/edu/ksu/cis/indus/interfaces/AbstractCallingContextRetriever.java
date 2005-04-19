@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
@@ -25,13 +25,9 @@ import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Stack;
-
-import org.apache.commons.collections.map.LazyMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,8 +36,8 @@ import soot.SootMethod;
 
 
 /**
- * This is an abstract implementation of <code>ICallingContextRetriever</code>.  A concrete implementation of this class
- * asis will return null (open) contexts.
+ * This is an abstract implementation of <code>ICallingContextRetriever</code>.  A concrete implementation of this class asis
+ * will return null (open) contexts.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -59,6 +55,13 @@ public abstract class AbstractCallingContextRetriever
 	 * The call graph to be used.
 	 */
 	private ICallGraphInfo callGraph;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public AbstractCallingContextRetriever() {
+		super();
+	}
 
 	/**
 	 * Sets the value of <code>callGraph</code>.
@@ -85,13 +88,13 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * @see ICallingContextRetriever#getCallingContextsForThis(SootMethod)
+	 * @see ICallingContextRetriever#getCallingContextsForThis(Context)
 	 */
-	public final Collection getCallingContextsForThis(final SootMethod method) {
+	public final Collection getCallingContextsForThis(final Context methodContext) {
 		final Collection _result;
 
-		if (considerThis(method)) {
-			_result = getCallingContexts(getTokenForThis(method), method);
+		if (considerThis(methodContext)) {
+			_result = getCallingContexts(getTokenForThis(methodContext), methodContext.getCurrentMethod());
 		} else {
 			_result = Collections.EMPTY_SET;
 		}
@@ -99,9 +102,9 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the value in <code>callGraph</code>.
+	 * Retrieves the callGraph used by this object.
 	 *
-	 * @return the value in <code>callGraph</code>.
+	 * @return the callGraph.
 	 */
 	protected final ICallGraphInfo getCallGraph() {
 		return callGraph;
@@ -115,85 +118,125 @@ public abstract class AbstractCallingContextRetriever
 	 * @param callee of course.
 	 * @param callsite at which <code>callee</code> is called.
 	 *
-	 * @return caller side token.  This implementation returns <code>null</code>.
+	 * @return caller side token.
+	 *
+	 * @throws UnsupportedOperationException when this implementation is invoked.
 	 *
 	 * @pre token != null and callee != null and callsite != null
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
-		return null;
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("getCallerSideToken(token = " + token + ", callee = " + callee + ", callsite = " + callsite + ")");
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
-	 * Retrieves the token for the given program point. If this  method returns <code>null</code> then that will terminate
-	 * the extension of current call context along this "path".
+	 * Retrieves the token for the program point specified in the given context.
 	 *
-	 * @param programPoint of interest.
+	 * @param programPointContext of interest.
 	 *
-	 * @return token corresponding to the program point. This implementation returns <code>null</code>.
+	 * @return token corresponding to the program point.
 	 *
-	 * @pre programPoint != null
+	 * @throws UnsupportedOperationException when this implementation is invoked.
+	 *
+	 * @pre programPointContext != null
 	 */
-	protected Object getTokenForProgramPoint(final Context programPoint) {
-		return null;
+	protected Object getTokenForProgramPoint(final Context programPointContext) {
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("getTokenForProgramPoint(programPointContext = " + programPointContext + ")", null);
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
-	 * Retrieves the token for the given method.
+	 * Retrieves the token for for the method specified in the given context.
 	 *
-	 * @param method of interest.
+	 * @param methodContext of interest.
 	 *
-	 * @return token corresponding to the method. This implementation returns <code>null</code>.
+	 * @return token corresponding to the method.
 	 *
-	 * @pre method != null
+	 * @throws UnsupportedOperationException when this implementation is invoked.
+	 *
+	 * @pre methodContext != null
 	 */
-	protected Object getTokenForThis(final SootMethod method) {
-		return null;
+	protected Object getTokenForThis(final Context methodContext) {
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("getTokenForThis(methodContext = " + methodContext + ")", null);
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
-	 * Checks if the given program point (calling context base) should be considered for call context generation.
+	 * Checks if the program point specified in the given context (calling context base) should be considered for call
+	 * context generation.
 	 *
-	 * @param programPoint of interest.
+	 * @param programPointContext of interest.
 	 *
-	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.  This implementation returns
-	 * 		   <code>true</code>.
+	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.
 	 *
-	 * @pre programPoint != null
+	 * @throws UnsupportedOperationException when this implementation is invoked.
+	 *
+	 * @pre programPointContext != null
 	 */
-	protected boolean considerProgramPoint(final Context programPoint) {
-		return true;
+	protected boolean considerProgramPoint(final Context programPointContext) {
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("considerProgramPoint(programPointContext = " + programPointContext + ")", null);
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
-	 * Checks if the "this" variable of the method should be considered for call context generation.
+	 * Checks if the "this" variable of the method specified in the given context should be considered for call context
+	 * generation.
 	 *
-	 * @param method of interest.
+	 * @param methodContext of interest.
 	 *
-	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.  This implementation returns
-	 * 		   <code>true</code>.
+	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.
 	 *
-	 * @pre method != null
+	 * @throws UnsupportedOperationException when this implementation is invoked.
+	 *
+	 * @pre methodContext != null
 	 */
-	protected boolean considerThis(final SootMethod method) {
-		return true;
+	protected boolean considerThis(final Context methodContext) {
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("considerThis(methodContext = " + methodContext + ")", null);
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
-	 * Checks if a call stack that is not extended while discoveing calling contexts should be considered as valid calling
-	 * context.
+	 * Checks if the unextensible inverted call stacks with the given callee on top of them should be considered as valid
+	 * call stacks.
 	 *
-	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.  This implementation returns
-	 * 		   <code>true</code>.
+	 * @param calleeToken is the token in the callee
+	 * @param callee is the top element on the inverted call stack.
+	 * @param callSite for which the call stack could not be extended.
+	 *
+	 * @return <code>true</code> if they should be considered; <code>false</code>, otherwise.
+	 *
+	 * @throws UnsupportedOperationException when this implementation is invoked.
 	 */
-	protected boolean shouldUnextendedStacksBeConsidered() {
-		return true;
+	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
+		final CallTriple callSite) {
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
+				+ ", callSite = " + callSite + ")", null);
+		}
+
+		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
 	/**
 	 * Retrieves the contexts based on the given token and method in which it occurs.
 	 *
 	 * @param token is the seed token
-	 * @param method where the calling context should end.
+	 * @param method where the calling context should start from.
 	 *
 	 * @return a collection of calling contexts.
 	 *
@@ -208,97 +251,48 @@ public abstract class AbstractCallingContextRetriever
 		final Collection _result;
 
 		if (token == null) {
-			_result = NULL_CONTEXTS;
+			_result = ICallingContextRetriever.NULL_CONTEXTS;
 		} else {
-			final Map _method2map = LazyMap.decorate(new HashMap(), CollectionsUtilities.HASH_MAP_FACTORY);
-			initializeCallStacks(_method2map, token, method);
+			final IWorkBag _wb = new LIFOWorkBag();
+			_wb.addWork(new Triple(method, token, new HashSet()));
 			_result = new HashSet();
 
-			final Collection _stacks = new HashSet();
-			final IWorkBag _wb = new LIFOWorkBag();
-			_wb.addAllWork(_method2map.keySet());
-
 			while (_wb.hasWork()) {
-				Map _map1 = null;
+				final Triple _triple = (Triple) _wb.getWork();
+				final SootMethod _callee = (SootMethod) _triple.getFirst();
+				final Object _calleeToken = _triple.getSecond();
+				final Collection _calleeCallStacks = (Collection) _triple.getThird();
+				final Collection _callers = callGraph.getCallers(_callee);
 
-				final SootMethod _callee = (SootMethod) _wb.getWork();
-				final Map _calleeSideRef2callstacks = (Map) _method2map.get(_callee);
-				final Iterator _i = _calleeSideRef2callstacks.keySet().iterator();
-				final int _iEnd = _calleeSideRef2callstacks.keySet().size();
-
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					boolean _zeroStacksWereExtended = true;
-					final Object _currToken = _i.next();
-					final Collection _calleeSideCallStacks = (Collection) _calleeSideRef2callstacks.get(_currToken);
-					final Collection _callers = callGraph.getCallers(_callee);
-					final Iterator _j = _callers.iterator();
+				// if there were no callers then we add all call chains as the border of the call graph was reached.
+				if (_callers.isEmpty()) {
+					_result.addAll(_calleeCallStacks);
+				} else {
+					// for each caller 
 					final int _jEnd = _callers.size();
+					final Iterator _j = _callers.iterator();
 
-                    for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					// For collection of call stacks associated to _currToken
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final CallTriple _callSite = (CallTriple) _j.next();
-						final Object _callerSideReference = getCallerSideToken(_currToken, _callee, _callSite);
+						final Object _callerToken = getCallerSideToken(_calleeToken, _callee, _callSite);
 
-						if (_callerSideReference != null) {
-							final SootMethod _caller = _callSite.getMethod();
-							final Map _callerSideRef2callstacks;
+						// if there was a corresponding token on the caller side
+						if (_callerToken != null) {
+							final Collection _stacks = createNewStacks(_calleeCallStacks, _callSite);
 
-							// we need this to handle concurrent modification to caller-side stacks
-							if (_caller.equals(_callee)) {
-								_map1 = new HashMap();
-								_callerSideRef2callstacks = _map1;
-							} else {
-								_callerSideRef2callstacks = (Map) _method2map.get(_caller);
+							if (!_stacks.isEmpty()) {
+								final SootMethod _caller = _callSite.getMethod();
+								_wb.addWorkNoDuplicates(new Triple(_caller, _callerToken, _stacks));
 							}
-
-							if (!_callerSideRef2callstacks.containsKey(_callerSideReference)) {
-								final Collection _temp = new HashSet();
-								_callerSideRef2callstacks.put(_callerSideReference, _temp);
-							}
-
-							boolean _addCallerToStack = false;
-							final Collection _callerSideCallStacks =
-								(Collection) _callerSideRef2callstacks.get(_callerSideReference);
-							final Iterator _k = _calleeSideCallStacks.iterator();
-							final int _kEnd = _calleeSideCallStacks.size();
-							_stacks.clear();
-
-							for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-								final Stack _callStack = (Stack) _k.next();
-
-								// HACK: This rejects recursive call chains.  Instead, they should be massaged suitably. 
-								if (!_callStack.contains(_callSite)) {
-									final Stack _stack = (Stack) _callStack.clone();
-									_stack.push(_callSite);
-									_stacks.add(_stack);
-									_addCallerToStack = true;
-								}
-							}
-
-							if (_addCallerToStack) {
-								_callerSideCallStacks.addAll(_stacks);
-								_wb.addWorkNoDuplicates(_caller);
-							}
-							_zeroStacksWereExtended = false;
+						} else if (shouldConsiderUnextensibleStacksAt(_calleeToken, _callee, _callSite)) {
+							// if we have reached the property-based "pivotal" point in the call chain then we decide
+							// to extend all call chains and add it to the resulting contexts.
+							_result.addAll(createNewStacks(_calleeCallStacks, _callSite));
 						}
 					}
-
-					// Collect the contexts when we have reached the top of the (inverted) call chain or the call chains 
-					// cannot be exetended based on the property.
-					if (_zeroStacksWereExtended) {
-                        // if we are dealing with an entry method  
-						if (_jEnd == 0) {
-							_result.addAll(NULL_CONTEXTS);
-						} else if (shouldUnextendedStacksBeConsidered()) {
-							_result.addAll(_calleeSideCallStacks);
-						}
-					}
-					_calleeSideCallStacks.clear();
 				}
-
-				// we need this to handle concurrent modification to caller-side stacks due to recursion.
-				if (_map1 != null) {
-					_method2map.put(_callee, _map1);
-				}
+				_calleeCallStacks.clear();
 			}
 
 			// Reverse the call stacks as they have been constructed bottom-up.
@@ -317,26 +311,53 @@ public abstract class AbstractCallingContextRetriever
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallingContexts() - END - return value = " + _result);
 		}
+
 		return _result;
 	}
 
 	/**
-	 * Initializes the call stacks.
+	 * Extends the given call stacks to include the given call site.
 	 *
-	 * @param method2map maps methods to calling contexts.
-	 * @param token for which the contexts are stored.
-	 * @param callee in which <code>token</code> occurs.
+	 * @param calleeSideCallStacks is the collection of stacks to be extended.
+	 * @param callSite to be included.
 	 *
-	 * @pre method2map != null and method2map.oclIsKindOf(Map(SootMethod, Map(Object, Collection(Stack(CallTriple)))))
-	 * @pre callee != null
+	 * @return a collection of new call stacks.
+	 *
+	 * @pre calleeSideCallStacks != null and callSite != null
+	 * @pre calleeSideCallStacks.oclIsKindOf(Collection(CallTriple))
+	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
 	 */
-	private void initializeCallStacks(final Map method2map, final Object token, final SootMethod callee) {
-		final Map _ref2callstacks = (Map) method2map.get(callee);
-
-		if (!_ref2callstacks.containsKey(token)) {
-			final Collection _callstacks = new HashSet();
-			_ref2callstacks.put(token, _callstacks);
+	private Collection createNewStacks(final Collection calleeSideCallStacks, final CallTriple callSite) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(getClass().getName() + ".createNewStacks(Collection calleeSideCallStacks = " + calleeSideCallStacks
+				+ ", CallTriple callSite = " + callSite + ") - BEGIN");
 		}
+
+		final Collection _t = new HashSet(calleeSideCallStacks);
+
+		if (_t.isEmpty()) {
+			_t.add(new Stack());
+		}
+
+		final Iterator _k = _t.iterator();
+		final int _kEnd = _t.size();
+		final Collection _stacks = new HashSet();
+
+		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+			final Stack _callStack = (Stack) _k.next();
+
+			// In case of recursion, we will extend the stack to contain atmost 2 occurrences of a call site 
+			if (!_callStack.contains(callSite) || _callStack.indexOf(callSite) == _callStack.lastIndexOf(callSite)) {
+				final Stack _stack = (Stack) _callStack.clone();
+				_stack.push(callSite);
+				_stacks.add(_stack);
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("createNewStacks() - END - return value = " + _stacks);
+		}
+		return _stacks;
 	}
 }
 

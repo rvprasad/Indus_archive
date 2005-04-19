@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -24,9 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
-import soot.Value;
-
-import soot.jimple.StaticFieldRef;
 
 
 /**
@@ -36,7 +34,7 @@ import soot.jimple.StaticFieldRef;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class ThreadEscapeInfoBasedCallingContextRetriever
+public class ThreadEscapeInfoBasedCallingContextRetriever
   extends AbstractCallingContextRetriever {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -47,6 +45,13 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	 * This provides escape information.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public ThreadEscapeInfoBasedCallingContextRetriever() {
+		super();
+	}
 
 	/**
 	 * Sets the escape information provider.
@@ -60,18 +65,27 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * Retrieves the escape analysis.
+	 *
+	 * @return the escape analysis.
+	 */
+	protected final IEscapeInfo getECBA() {
+		return ecba;
+	}
+
+	/**
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
+		}
 
 		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
 		final AliasSet _result;
 
 		if (_as != null && _as.escapes()) {
-			_result = _as;
+			_result = (AliasSet) _as.find();
 		} else {
 			_result = null;
 		}
@@ -82,12 +96,12 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected Object getTokenForProgramPoint(final Context context) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
+		}
 
 		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
-		final AliasSet _result;
+		final Object _result;
 
 		if (_as != null && !_as.isGlobal()) {
 			_result = (AliasSet) _as.find();
@@ -98,41 +112,51 @@ public final class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#getTokenForThis(soot.SootMethod)
+	 * @see AbstractCallingContextRetriever#getTokenForThis(Context)
 	 */
-	protected Object getTokenForThis(final SootMethod method) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getTokenForThis(method = " + method + ")");
-        }
+	protected Object getTokenForThis(final Context methodContext) {
+		final SootMethod _method = methodContext.getCurrentMethod();
 
-		return ecba.getAliasSetForThis(method).find();
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getTokenForThis(method = " + _method + ")");
+		}
+
+		return ecba.getAliasSetForThis(_method).find();
 	}
 
 	/**
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
-		final Value _value = context.getProgramPoint().getValue();
+		final boolean _result = ecba.escapes(context.getProgramPoint().getValue(), context.getCurrentMethod());
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("considerProgramPoint() - result =" + ecba.escapes(_value, context.getCurrentMethod()));
+			LOGGER.debug("considerProgramPoint() - result =" + _result);
 		}
 
-		return (_value instanceof StaticFieldRef) || (ecba.escapes(_value, context.getCurrentMethod()));
+		return _result;
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#considerThis(soot.SootMethod)
+	 * @see AbstractCallingContextRetriever#considerThis(Context)
 	 */
-	protected boolean considerThis(final SootMethod method) {
-		return !method.isStatic() && ecba.thisEscapes(method);
+	protected boolean considerThis(final Context methodContext) {
+		final SootMethod _method = methodContext.getCurrentMethod();
+		final boolean _result = !_method.isStatic() && ecba.thisEscapes(_method);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("considerThis() -  : _result = " + _result);
+		}
+
+		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever#shouldUnextendedStacksBeConsidered()
+	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, CallTriple)
 	 */
-	protected boolean shouldUnextendedStacksBeConsidered() {
-		return true;
+	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
+		final CallTriple callSite) {
+		return ((AliasSet) calleeToken).isGlobal();
 	}
 }
 

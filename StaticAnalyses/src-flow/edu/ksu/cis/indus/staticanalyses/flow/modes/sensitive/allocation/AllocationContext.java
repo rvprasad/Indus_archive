@@ -64,6 +64,13 @@ public class AllocationContext
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.Context#clone()
+	 */
+	public Object clone() {
+		return super.clone();
+	}
+
+	/**
 	 * Checks if <code>o</code> is equal to this object.
 	 *
 	 * @param o to be checked for equality.

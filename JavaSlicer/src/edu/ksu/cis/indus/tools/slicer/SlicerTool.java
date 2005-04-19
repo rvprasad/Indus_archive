@@ -42,11 +42,13 @@ import edu.ksu.cis.indus.slicer.transformations.ExecutableSlicePostProcessorAndM
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.cfg.DataAliasBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
@@ -1009,7 +1011,15 @@ public final class SlicerTool
 				_t1.setECBA(getECBA());
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
-				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t1);
+                final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
+                _t2.setECBA(getECBA());
+                _t2.setCallGraph(getCallGraph());
+				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
+                final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever();
+                _t3.setCallGraph(getCallGraph());
+                _t3.setThreadGraph(threadGraph);
+                _t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
+                _map.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}
 			engine.initialize();

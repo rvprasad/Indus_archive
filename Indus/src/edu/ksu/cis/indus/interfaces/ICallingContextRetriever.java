@@ -20,8 +20,6 @@ import edu.ksu.cis.indus.processing.Context;
 import java.util.Collection;
 import java.util.Collections;
 
-import soot.SootMethod;
-
 
 /**
  * This is the interface to retrieve calling contexts based on program points.
@@ -40,8 +38,26 @@ public interface ICallingContextRetriever
 	/** 
 	 * This retrives null contexts.
 	 */
-	ICallingContextRetriever NULL_CONTEXT_RETRIEVER = new AbstractCallingContextRetriever() {
-			;
+	ICallingContextRetriever NULL_CONTEXT_RETRIEVER =
+		new ICallingContextRetriever() {
+			public Collection getCallingContextsForProgramPoint(final Context programPointContext) {
+				return NULL_CONTEXTS;
+			}
+
+			public Collection getCallingContextsForThis(final Context methodContext) {
+				return NULL_CONTEXTS;
+			}
+
+			public Object setInfoFor(final Object infoID, final Object info) {
+				return null;
+			}
+
+			public void clearInfo() {
+			}
+
+			public Object removeInfo(final Object infoID) {
+				return null;
+			}
 		};
 
 	/** 
@@ -55,28 +71,28 @@ public interface ICallingContextRetriever
 	Object SRC_METHOD = "Method enclosing the program point";
 
 	/**
-	 * Retrieves the calling contexts for the given program point.
+	 * Retrieves the calling contexts for the program point specified in the given context
 	 *
-	 * @param programPoint of interest.
+	 * @param programPointContext of interest.
 	 *
 	 * @return a collection of calling contexts for the given program point.
 	 *
-	 * @pre programPoint != null
+	 * @pre programPointContext != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
-	Collection getCallingContextsForProgramPoint(Context programPoint);
+	Collection getCallingContextsForProgramPoint(Context programPointContext);
 
 	/**
-	 * Retrieves the calling contexts for the given method based on it's "this" variable.
+	 * Retrieves the calling contexts for the method specified in the given context based on it's "this" variable.
 	 *
-	 * @param method of interest.
+	 * @param methodContext of interest.
 	 *
 	 * @return a collection of calling contexts for the given method based on it's "this" variable.
 	 *
-	 * @pre method != null
+	 * @pre methodContext != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
-	Collection getCallingContextsForThis(SootMethod method);
+	Collection getCallingContextsForThis(Context methodContext);
 }
 
 // End of File

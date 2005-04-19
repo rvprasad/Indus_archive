@@ -77,7 +77,9 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 		if (_ecba != null) {
 			initialize(_ecba);
 
-			_result = ecr.getCallingContextsForThis(method);
+			final Context _context = new Context();
+			_context.setRootMethod(method);
+			_result = ecr.getCallingContextsForThis(_context);
 		} else {
 			_result = Collections.EMPTY_SET;
 		}

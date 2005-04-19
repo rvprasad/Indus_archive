@@ -62,9 +62,7 @@ final class AliasSet
 	boolean accessed;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The threads that read fields of the associated object.
 	 */
 	private Collection readThreads;
 
@@ -79,9 +77,7 @@ final class AliasSet
 	private Collection shareEntities;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The threads that write fields of the associated object.
 	 */
 	private Collection writeThreads;
 
@@ -159,22 +155,18 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the threads that read fields of the associated object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the reading threads.
 	 */
 	public Collection getReadThreads() {
 		return Collections.unmodifiableCollection(((AliasSet) find()).readThreads);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the threads that write fields of the associated object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the writing threads.
 	 */
 	public Collection getWriteThreads() {
 		return Collections.unmodifiableCollection(((AliasSet) find()).writeThreads);

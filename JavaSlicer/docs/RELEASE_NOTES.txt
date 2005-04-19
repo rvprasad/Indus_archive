@@ -17,6 +17,7 @@ Required software:
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
     Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
+		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
     SWT (3.0 >= M7)
@@ -35,6 +36,7 @@ Version 0.6
 ----------------
 	- Bug fixes.
 	- Enabled space optimization of executable slice.
+	- Used new calling context retrievers in property-aware operation mode.
 
 Version 0.5
 -----------
