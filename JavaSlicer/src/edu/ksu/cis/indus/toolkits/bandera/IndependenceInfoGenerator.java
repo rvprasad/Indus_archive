@@ -191,17 +191,25 @@ class IndependenceInfoGenerator {
 				final Map.Entry _entry = (Map.Entry) _i.next();
 				final Pair _pair = (Pair) _entry.getKey();
 				final Collection _interferees = (Collection) _entry.getValue();
-				final StringBuffer _sb = new StringBuffer();
-				_sb.append(generateBIRRep(_pair, _method2birsig));
+                final String _t = generateBIRRep(_pair, _method2birsig);
 
-				final Iterator _j = _interferees.iterator();
-				final int _jEnd = _interferees.size();
+                if (_t != null) {
+				    final StringBuffer _sb = new StringBuffer();
+                    _sb.append(_t);
 
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final Pair _p = (Pair) _j.next();
-					_sb.append(generateBIRRep(_p, _method2birsig));
-				}
-				_result.add(_sb.toString());
+                    final Iterator _j = _interferees.iterator();
+                    final int _jEnd = _interferees.size();
+
+                    for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+                        final Pair _p = (Pair) _j.next();
+                        final String _t2 = generateBIRRep(_p, _method2birsig);
+
+                        if (_t2 != null) {
+                            _sb.append(_t2);
+                        }
+                    }
+                    _result.add(_sb.toString());
+                }
 			}
 
 			try {
@@ -261,19 +269,6 @@ class IndependenceInfoGenerator {
 
 		/**
 		 * DOCUMENT ME!
-		 *
-		 * @param stmt DOCUMENT ME!
-		 * @param method DOCUMENT ME!
-		 *
-		 * @return DOCUMENT ME!
-		 */
-		private Object getBIRLocation(final Stmt stmt, final SootMethod method) {
-			final List _sl = new ArrayList(method.retrieveActiveBody().getUnits());
-			return "loc" + _sl.indexOf(stmt);
-		}
-
-		/**
-		 * DOCUMENT ME!
 		 * 
 		 * <p></p>
 		 *
@@ -313,7 +308,17 @@ class IndependenceInfoGenerator {
 				method2birsig.put(_method, _sig);
 			}
 
-			return _sig + " " + getBIRLocation(_stmt, _method);
+			final List _sl = new ArrayList(_method.retrieveActiveBody().getUnits());
+		    final int _index = _sl.indexOf(_stmt);
+            final String _result;
+
+            if (_index == -1) {
+                _result = null;
+            } else {
+			    _result = _sig + " loc" + _index + " ";
+            }
+            
+            return _result;
 		}
 
 		/**
