@@ -224,15 +224,18 @@ public final class SlicerConfigurator
 		_rowLayout2.type = SWT.VERTICAL;
 		_group1.setLayout(_rowLayout2);
 
-		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
-		_allSycnStrategy.setText("All Synchronization constructs");
+		final Button _allSyncStrategy = new Button(_group1, SWT.RADIO);
+		_allSyncStrategy.setText("All Synchronization constructs");
+        _allSyncStrategy.setToolTipText("Synchronization constructs are preserved independent of any property");
 
 		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
-
+        _escapingSyncStrategy.setToolTipText("Only synchronization constructs involving escaping lock object are preserved.");
+        
 		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
-
+        _ctxtsensEscapingSyncStrategy.setToolTipText("Calling contexs of the preserved synchronization constructs are considered");
+        
 		final SelectionListener _sl4 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
@@ -242,7 +245,7 @@ public final class SlicerConfigurator
 						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
 					} else if (evt.widget == _escapingSyncStrategy) {
 						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
-					} else if (evt.widget == _allSycnStrategy) {
+					} else if (evt.widget == _allSyncStrategy) {
 						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
 					}
 
@@ -255,14 +258,14 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		_allSycnStrategy.addSelectionListener(_sl4);
+		_allSyncStrategy.addSelectionListener(_sl4);
 		_escapingSyncStrategy.addSelectionListener(_sl4);
 		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl4);
 
 		final Object _temp = cfg.getDeadlockCriteriaSelectionStrategy();
 
 		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
-			_allSycnStrategy.setSelection(true);
+			_allSyncStrategy.setSelection(true);
 		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
 			_escapingSyncStrategy.setSelection(true);
 		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
@@ -276,7 +279,7 @@ public final class SlicerConfigurator
 					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
 					_group1.setEnabled(_value);
 					_applclasses.setEnabled(_value);
-					_allSycnStrategy.setEnabled(_value);
+					_allSyncStrategy.setEnabled(_value);
 					_escapingSyncStrategy.setEnabled(_value);
 					_ctxtsensEscapingSyncStrategy.setEnabled(_value);
 				}
@@ -302,6 +305,7 @@ public final class SlicerConfigurator
 
 		final Button _useNonTerminationSensitiveCDAButton = new Button(composite, SWT.CHECK);
 		_useNonTerminationSensitiveCDAButton.setText("use non-termination sensitive control dependence");
+        _useNonTerminationSensitiveCDAButton.setToolTipText("Loop behaviors are not preserved");
 		_useNonTerminationSensitiveCDAButton.setSelection(((Boolean) _cfg.getProperty(
 				SlicerConfiguration.NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE)).booleanValue());
 		_useNonTerminationSensitiveCDAButton.addSelectionListener(new BooleanPropertySelectionListener(
@@ -670,6 +674,7 @@ public final class SlicerConfigurator
 
 		final Button _useCallSiteSensitiveReady = new Button(_analysisComposite, SWT.CHECK);
 		_useCallSiteSensitiveReady.setText("use call-site sensitive");
+        _useCallSiteSensitiveReady.setToolTipText("Calls leading to blocking will be considered as blocking as well.");
 		_useCallSiteSensitiveReady.setSelection(_cfg.isCallSiteSensitiveReadyUsed());
 		_useCallSiteSensitiveReady.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA,
