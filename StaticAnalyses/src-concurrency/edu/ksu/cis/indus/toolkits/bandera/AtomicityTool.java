@@ -295,6 +295,7 @@ public final class AtomicityTool
 		final Map _info = new HashMap();
 		final AnalysesController _ac = new AnalysesController(_info, _pc, basicBlockGraphMgr);
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+        _ssr.setBbgFactory(basicBlockGraphMgr);
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setProcessingFilter(new CGBasedProcessingFilter(callgraph));
 		_pc.setEnvironment(new Environment(scene));

@@ -51,13 +51,19 @@ public final class OneAllStmtSequenceRetriever
 	private static final Log LOGGER = LogFactory.getLog(OneAllStmtSequenceRetriever.class);
 
 	/**
+	 * Creates an instance of this class.
+	 */
+	public OneAllStmtSequenceRetriever() {
+	}
+
+	/**
 	 * @see IStmtSequencesRetriever#retreiveStmtSequences(SootMethod)
 	 */
 	public Collection retreiveStmtSequences(final SootMethod method) {
-        final Collection _temp = new ArrayList();
+		final Collection _temp = new ArrayList();
 		final Collection _result = new ArrayList();
-        _result.add(_temp);
-        
+		_result.add(_temp);
+
 		final BasicBlockGraphMgr _bbgMgr = getBbgFactory();
 
 		if (_bbgMgr != null) {
