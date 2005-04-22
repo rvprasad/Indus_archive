@@ -18,6 +18,8 @@ package edu.ksu.cis.indus.toolkits.bandera;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
+
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
@@ -50,6 +52,7 @@ import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
@@ -68,6 +71,11 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$ $Date$
  */
 class IndependenceInfoGenerator {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	static final Log LOGGER = LogFactory.getLog(CustomProcessor.class);
+
 	/** 
 	 * <p>
 	 * DOCUMENT ME!
@@ -129,17 +137,28 @@ class IndependenceInfoGenerator {
 		final Map map = new HashMap();
 
 		/** 
-		 * The logger used by instances of this class to log messages.
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
-		private final Log LOGGER = LogFactory.getLog(CustomProcessor.class);
+		private final Collection defStmts = new HashSet();
+
+		/** 
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		private final IEscapeInfo einfo;
 
 		/**
 		 * Creates an instance of this class.
 		 *
 		 * @param das DOCUMENT ME!
+		 * @param escapeInfo DOCUMENT ME!
 		 */
-		public CustomProcessor(final Collection das) {
+		public CustomProcessor(final Collection das, final IEscapeInfo escapeInfo) {
 			analyses = das;
+			einfo = escapeInfo;
 		}
 
 		/**
@@ -171,6 +190,12 @@ class IndependenceInfoGenerator {
 				final SootMethod _currentMethod = context.getCurrentMethod();
 				final Stmt _stmt = context.getStmt();
 				populateInterference(_stmt, _currentMethod);
+
+				final DefinitionStmt _dstmt = (DefinitionStmt) _stmt;
+
+				if (_dstmt.getLeftOpBox() == vBox) {
+					defStmts.add(new Pair(_stmt, _currentMethod));
+				}
 			}
 		}
 
@@ -180,8 +205,9 @@ class IndependenceInfoGenerator {
 		 * <p></p>
 		 */
 		public void consolidate() {
-			final Collection _result = new ArrayList();
+			calculateWriteWriteInterference();
 
+			final Collection _result = new ArrayList();
 			final Map _method2birsig = new HashMap();
 
 			final Iterator _i = map.entrySet().iterator();
@@ -191,25 +217,25 @@ class IndependenceInfoGenerator {
 				final Map.Entry _entry = (Map.Entry) _i.next();
 				final Pair _pair = (Pair) _entry.getKey();
 				final Collection _interferees = (Collection) _entry.getValue();
-                final String _t = generateBIRRep(_pair, _method2birsig);
+				final String _t = generateBIRRep(_pair, _method2birsig);
 
-                if (_t != null) {
-				    final StringBuffer _sb = new StringBuffer();
-                    _sb.append(_t);
+				if (_t != null) {
+					final StringBuffer _sb = new StringBuffer();
+					_sb.append(_t);
 
-                    final Iterator _j = _interferees.iterator();
-                    final int _jEnd = _interferees.size();
+					final Iterator _j = _interferees.iterator();
+					final int _jEnd = _interferees.size();
 
-                    for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-                        final Pair _p = (Pair) _j.next();
-                        final String _t2 = generateBIRRep(_p, _method2birsig);
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Pair _p = (Pair) _j.next();
+						final String _t2 = generateBIRRep(_p, _method2birsig);
 
-                        if (_t2 != null) {
-                            _sb.append(_t2);
-                        }
-                    }
-                    _result.add(_sb.toString());
-                }
+						if (_t2 != null) {
+							_sb.append(_t2);
+						}
+					}
+					_result.add(_sb.toString());
+				}
 			}
 
 			try {
@@ -292,6 +318,32 @@ class IndependenceInfoGenerator {
 
 		/**
 		 * DOCUMENT ME!
+		 */
+		private void calculateWriteWriteInterference() {
+			final Iterator _i = defStmts.iterator();
+			final int _iEnd = defStmts.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Pair _p1 = (Pair) _i.next();
+				final Stmt _s1 = (Stmt) _p1.getFirst();
+				final SootMethod _m1 = (SootMethod) _p1.getSecond();
+				final Iterator _j = defStmts.iterator();
+
+				for (int _jIndex = 0; _jIndex < _iEnd; _jIndex++) {
+					final Pair _p2 = (Pair) _j.next();
+					final Stmt _s2 = (Stmt) _p2.getFirst();
+					final SootMethod _m2 = (SootMethod) _p2.getSecond();
+
+					if (shared(_s1, _m1, _s2, _m2)) {
+						CollectionsUtilities.putIntoSetInMap(map, _p1, _p2);
+						CollectionsUtilities.putIntoSetInMap(map, _p2, _p1);
+					}
+				}
+			}
+		}
+
+		/**
+		 * DOCUMENT ME!
 		 *
 		 * @param p DOCUMENT ME!
 		 * @param method2birsig DOCUMENT ME!
@@ -309,16 +361,16 @@ class IndependenceInfoGenerator {
 			}
 
 			final List _sl = new ArrayList(_method.retrieveActiveBody().getUnits());
-		    final int _index = _sl.indexOf(_stmt);
-            final String _result;
+			final int _index = _sl.indexOf(_stmt);
+			final String _result;
 
-            if (_index == -1) {
-                _result = null;
-            } else {
-			    _result = _sig + " loc" + _index + " ";
-            }
-            
-            return _result;
+			if (_index == -1) {
+				_result = null;
+			} else {
+				_result = _sig + " loc" + _index + " ";
+			}
+
+			return _result;
 		}
 
 		/**
@@ -331,6 +383,32 @@ class IndependenceInfoGenerator {
 			final Collection _interferes = new HashSet();
 			_interferes.addAll(getInterferees(stmt, currentMethod));
 			CollectionsUtilities.putAllIntoSetInMap(map, new Pair(stmt, currentMethod), _interferes);
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 *
+		 * @param s1 is one statement of interest.
+		 * @param m1 is the method containing <code>s1</code>.
+		 * @param s2 is the second statement of interest.
+		 * @param m2 is the method containing <code>s2</code>.
+		 *
+		 * @return <code>true</code> if both <code>s1</code> and <code>s2</code> contain either array/field ref in the
+		 * 		   l-position; <code>false</code>, otherwise.
+		 *
+		 * @pre s1 != null and m1 != null and s2 != null and m2 != null
+		 */
+		private boolean shared(final Stmt s1, final SootMethod m1, final Stmt s2, final SootMethod m2) {
+			final boolean _result;
+
+			if (s1.containsArrayRef() && s2.containsArrayRef()) {
+				_result = einfo.shared(s1.getArrayRef(), m1, s2.getArrayRef(), m2);
+			} else if (s1.containsFieldRef() && s2.containsFieldRef()) {
+				_result = einfo.shared(s1.getFieldRef(), m1, s2.getFieldRef(), m2);
+			} else {
+				_result = false;
+			}
+			return _result;
 		}
 	}
 
@@ -406,7 +484,7 @@ class IndependenceInfoGenerator {
 		_ssr.setBbgFactory(tool.getBasicBlockGraphManager());
 		_pc.setStmtSequencesRetriever(_ssr);
 
-		final CustomProcessor _proc = new CustomProcessor(_das);
+		final CustomProcessor _proc = new CustomProcessor(_das, tool.getECBA());
 		_proc.hookup(_pc);
 		_pc.process();
 		_proc.unhook(_pc);
