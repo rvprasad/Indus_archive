@@ -384,9 +384,10 @@ public final class SlicingEngine {
 
 			criteria.add(_criteriaFactory.clone((ISliceCriterion) _o));
 		}
-		Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
 
 		if (LOGGER.isDebugEnabled()) {
+			Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
+
 			final StringBuffer _sb = new StringBuffer();
 
 			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
@@ -855,6 +856,52 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
+	 * the given dependency analyses.
+	 *
+	 * @param stmt that will trigger the dependence.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param das is a collection of dependency analyses.
+	 *
+	 * @pre stmt != null and method != null and das != null
+	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
+	 */
+	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
+		}
+
+		dependenceExtractor.setTrigger(stmt, method);
+		CollectionUtils.forAllDo(das, dependenceExtractor);
+
+		for (final Iterator _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+			final Stmt _stmtToBeIncluded;
+			final SootMethod _methodToBeIncluded;
+
+			if (_o instanceof Pair) {
+				final Pair _pair = (Pair) _o;
+				_stmtToBeIncluded = (Stmt) _pair.getFirst();
+				_methodToBeIncluded = (SootMethod) _pair.getSecond();
+			} else {
+				_stmtToBeIncluded = (Stmt) _o;
+				_methodToBeIncluded = method;
+			}
+
+			if (_methodToBeIncluded.equals(method) && _stmtToBeIncluded != null) {
+				generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
+			} else {
+				generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded);
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating Criteria based on dependences");
+		}
+	}
+
+	/**
 	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression (caller-callee).  By
 	 * nature of Jimple, only one invoke expression can occur in a statement, hence, the arguments.
 	 *
@@ -884,9 +931,9 @@ public final class SlicingEngine {
 
 		CollectionUtils.filter(_callees, nonStartMethodPredicate);
 		directionSensitiveInfo.generateCriteriaToIncludeCallees(stmt, method, _callees);
-        
-        // include the invoked method (not the resolved method)
-        includeMethodAndDeclaringClassInSlice(_sm);
+
+		// include the invoked method (not the resolved method)
+		includeMethodAndDeclaringClassInSlice(_sm);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
@@ -931,8 +978,8 @@ public final class SlicingEngine {
 
 					directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
 				}
-                
-                directionSensitiveInfo.processLocalAt(_local, stmt, method);
+
+				directionSensitiveInfo.processLocalAt(_local, stmt, method);
 			}
 		}
 
@@ -1007,52 +1054,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
-	 * the given dependency analyses.
-	 *
-	 * @param stmt that will trigger the dependence.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param das is a collection of dependency analyses.
-	 *
-	 * @pre stmt != null and method != null and das != null
-	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
-	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
-	 */
-	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
-		}
-
-		dependenceExtractor.setTrigger(stmt, method);
-		CollectionUtils.forAllDo(das, dependenceExtractor);
-
-		for (final Iterator _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
-			final Stmt _stmtToBeIncluded;
-			final SootMethod _methodToBeIncluded;
-
-			if (_o instanceof Pair) {
-				final Pair _pair = (Pair) _o;
-				_stmtToBeIncluded = (Stmt) _pair.getFirst();
-				_methodToBeIncluded = (SootMethod) _pair.getSecond();
-			} else {
-				_stmtToBeIncluded = (Stmt) _o;
-				_methodToBeIncluded = method;
-			}
-
-			if (_methodToBeIncluded.equals(method) && _stmtToBeIncluded != null) {
-				generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
-			} else {
-				generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating Criteria based on dependences");
-		}
-	}
-
-	/**
 	 * Includes the given host in the slice.
 	 *
 	 * @param host to be included in the slice.
@@ -1096,13 +1097,12 @@ public final class SlicingEngine {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
-
 			if (collectedAllInvocationSites.contains(method)) {
 				method2callStacks.remove(method);
-            } else if (callStackCache == null) {
-                method2callStacks.remove(method);
+			} else if (callStackCache == null) {
+				method2callStacks.remove(method);
 				collectedAllInvocationSites.add(method);
-                _result = true;
+				_result = true;
 			} else {
 				_result = shouldTheCallStackBeConsidered(method);
 			}
@@ -1195,20 +1195,21 @@ public final class SlicingEngine {
 		final ValueBox _vBox = (ValueBox) expr.getCriterion();
 		final boolean _considerExecution = expr.isConsiderExecution();
 		final Value _value = _vBox.getValue();
-        if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + _value + "[" + _considerExecution + "] at "
-				+ _stmt + " in " + _method + "   " + callStackCache);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _value + "[" + _considerExecution + "] at " + _stmt + " in "
+				+ _method + "   " + callStackCache);
 		}
 
-        // include the statement to capture control dependency and generate criteria from it. Remember to collect it.
-        if (sliceType.equals(FORWARD_SLICE)) {
-            transformAndGenerateNewCriteriaForStmt(_stmt, _method, true);
-        } else {
-            transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
-        }
+		// include the statement to capture control dependency and generate criteria from it. Remember to collect it.
+		if (sliceType.equals(FORWARD_SLICE)) {
+			transformAndGenerateNewCriteriaForStmt(_stmt, _method, true);
+		} else {
+			transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
+		}
 
-        // generate new slice criteria
-        if (sliceType.equals(COMPLETE_SLICE)
+		// generate new slice criteria
+		if (sliceType.equals(COMPLETE_SLICE)
 			  || (_considerExecution && sliceType.equals(BACKWARD_SLICE))
 			  || (!_considerExecution && sliceType.equals(FORWARD_SLICE))) {
 			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox, _stmt);
@@ -1219,7 +1220,6 @@ public final class SlicingEngine {
 			if (_value instanceof InvokeExpr) {
 				generateCriteriaForInvokeExprIn(_stmt, _method);
 			}
-            
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1340,7 +1340,7 @@ public final class SlicingEngine {
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
 
-                    if (useInterferenceDACache) {
+					if (useInterferenceDACache) {
 						_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
 					}
 
