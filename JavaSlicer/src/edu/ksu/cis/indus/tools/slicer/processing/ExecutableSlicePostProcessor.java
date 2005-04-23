@@ -82,7 +82,12 @@ public class ExecutableSlicePostProcessor
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExecutableSlicePostProcessor.class);
 
-	/** 
+    /** 
+     * The slice collector to be used to add on to the slice.
+     */
+    protected SliceCollector collector;
+
+    /** 
 	 * The basic block manager.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
@@ -106,11 +111,6 @@ public class ExecutableSlicePostProcessor
 	 * This provides entry-based control dependency information required to include exit points.
 	 */
 	private NonTerminationSensitiveEntryControlDA cd = new NonTerminationSensitiveEntryControlDA();
-
-	/** 
-	 * The slice collector to be used to add on to the slice.
-	 */
-	protected SliceCollector collector;
 
 	/** 
 	 * This indicates if any statements of the method were included during post processing.  If so, other statement based
@@ -137,8 +137,7 @@ public class ExecutableSlicePostProcessor
 	public final void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Post Processing.");
-			LOGGER.debug("BEFORE SLICE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
+			LOGGER.debug("BEGIN: Post Processing - " + theCollector.toString());
 		}
 
 		collector = theCollector;
@@ -172,8 +171,7 @@ public class ExecutableSlicePostProcessor
 		fixupAbstractMethodsInClassHierarchy();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("AFTER SLICE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
-			LOGGER.debug("END: Post Processing.");
+			LOGGER.debug("END: Post Processing - " + theCollector.toString());
 		}
 	}
 
@@ -187,7 +185,7 @@ public class ExecutableSlicePostProcessor
 
 	/**
 	 * Retrieves a class hierarchy containing the given classes.  This implementation will include classes that are not
-	 * mentioned in <code>classes</code> are required to realize the hierarchy.  Hence, the only requirement is that all
+	 * mentioned in <code>classes</code> but are required to realize the hierarchy.  Hence, the only requirement is that all
 	 * provided classes should  be in captured in the returned hierarchy.
 	 *
 	 * @param classes of interest.
@@ -218,7 +216,7 @@ public class ExecutableSlicePostProcessor
 		final Map _class2abstractMethods = new HashMap();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Fixing Class Hierarchy");
+			LOGGER.debug("BEGIN: Fixing Class Hierarchy - " + getClass());
 			LOGGER.debug("Topological Sort: " + _topologicallyOrderedClasses);
 		}
 
