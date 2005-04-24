@@ -130,7 +130,7 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Returns an unmodifiable list of statements in the given method, if it exists.
+	 * Returns an unmodifiable list of statements of the given method represented in this graph.
 	 *
 	 * @param method of interest.
 	 *
