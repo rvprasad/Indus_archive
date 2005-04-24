@@ -117,23 +117,18 @@ public class OFABasedCallInfoCollector
 
 		final Stmt _stmt = context.getStmt();
 		final SootMethod _caller = context.getCurrentMethod();
-		SootMethod _callee = null;
-		Set _callees;
-		Set _callers;
-		CallTriple _triple;
 		final Value _value = vBox.getValue();
 		final InvokeExpr _invokeExpr = (InvokeExpr) _value;
-		_callee = _invokeExpr.getMethod();
+        final SootMethod _callee = _invokeExpr.getMethod();
 
-		if (_value instanceof StaticInvokeExpr
-			  || (_value instanceof SpecialInvokeExpr && (_callee.getName().equals("<init>") || _callee.isPrivate()))) {
-			_callees = CollectionsUtilities.getSetFromMap(callInfoHolder.caller2callees, _caller);
-			_triple = new CallTriple(_callee, _stmt, _invokeExpr);
-			_callees.add(_triple);
+		if (_value instanceof StaticInvokeExpr || _value instanceof SpecialInvokeExpr) {
+            final Set _callees = CollectionsUtilities.getSetFromMap(callInfoHolder.caller2callees, _caller);
+            final CallTriple _triple1 = new CallTriple(_callee, _stmt, _invokeExpr);
+			_callees.add(_triple1);
 
-			_callers = CollectionsUtilities.getSetFromMap(callInfoHolder.callee2callers, _callee);
-			_triple = new CallTriple(_caller, _stmt, _invokeExpr);
-			_callers.add(_triple);
+            final Set _callers = CollectionsUtilities.getSetFromMap(callInfoHolder.callee2callers, _callee);
+            final CallTriple _triple2 = new CallTriple(_caller, _stmt, _invokeExpr);
+			_callers.add(_triple2);
 		} else {
 			callBackOnInstanceInvokeExpr(context, (InstanceInvokeExpr) _value);
 		}
