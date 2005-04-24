@@ -213,6 +213,9 @@ public class SimpleNodeGraph
 	 * @see AbstractMutableDirectedGraph#removeNodeFromGraph(INode)
 	 */
 	protected boolean removeNodeFromGraph(final INode node) {
+		if (node2index.containsKey(node)) {
+			node2index.clear();
+		}
 		return nodes.remove(node);
 	}
 }
