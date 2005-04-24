@@ -73,7 +73,7 @@ public abstract class AbstractTool
 	/** 
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
 	 */
-	Exception childException;
+	Throwable childException;
 
 	/** 
 	 * The thread in which the tools is running or ran previously.
@@ -251,7 +251,7 @@ public abstract class AbstractTool
 			thread =
 				new Thread() {
 						public final void run() {
-							Exception _temp = null;
+							Throwable _temp = null;
 
 							try {
 								// we do this to respect any pre-run pause calls. 
@@ -261,7 +261,7 @@ public abstract class AbstractTool
 							} catch (final InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
-							} catch (final Exception _e) {
+							} catch (final Throwable _e) {
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
