@@ -104,12 +104,12 @@ public abstract class AbstractDirectedGraph
 	/*
 	 * This comparator sorts nodes based on their discovery time.
 	 *
-	       private final Comparator discoverTimeBasedNodeComparator =
-	           new Comparator() {
-	               public int compare(final Object o1, final Object o2) {
-	                   return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
-	               }
-	           };
+	           private final Comparator discoverTimeBasedNodeComparator =
+	               new Comparator() {
+	                   public int compare(final Object o1, final Object o2) {
+	                       return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
+	                   }
+	               };
 	 */
 
 	/** 
@@ -551,10 +551,12 @@ public abstract class AbstractDirectedGraph
 		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 			final int _nodePos = getIndexOfNode(_node);
+			final String _str = "[" + _node.toString() + "]";
 
 			for (final Iterator _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
 				final Object _succ = _j.next();
-				_sb.append(_nodePos).append(" -> ").append(getIndexOfNode((INode) _succ)).append("\n");
+				_sb.append(_nodePos).append(_str).append(" -> ").append(getIndexOfNode((INode) _succ)).append("[")
+					 .append(_succ).append("]").append("\n");
 			}
 		}
 		return _sb.toString();
@@ -973,13 +975,13 @@ public abstract class AbstractDirectedGraph
 	 * @param indexOfNode obviously.
 	 * @pre node != null
 	 *
-	       private void processNodeForHighValues(final INode node, final int indexOfNode) {
-	           final Collection _succsOf = node.getSuccsOf();
-	           if (!_succsOf.isEmpty()) {
-	               highnums[indexOfNode] =
-	                   discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
+	           private void processNodeForHighValues(final INode node, final int indexOfNode) {
+	               final Collection _succsOf = node.getSuccsOf();
+	               if (!_succsOf.isEmpty()) {
+	                   highnums[indexOfNode] =
+	                       discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
+	               }
 	           }
-	       }
 	 */
 
 	/**
