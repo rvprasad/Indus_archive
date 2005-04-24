@@ -348,7 +348,7 @@ public class SafeLockAnalysis
 			final Collection _invocationStmts = bbg.getEnclosedStmts(_cycle);
 			final Iterator _filteredIterator =
 				IteratorUtils.filteredIterator(_invocationStmts.iterator(),
-					SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
+					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 
 			for (final Iterator _k = _filteredIterator; _k.hasNext() && _cycleIsUnsafe;) {
 				_cycleIsUnsafe = !callgraphInfo.areAnyMethodsReachableFrom(waitMethods, (Stmt) _k.next(), method);

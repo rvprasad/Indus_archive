@@ -56,7 +56,7 @@ public final class SootPredicatesAndTransformers {
 	 * A predicate used to filter statements with invoke expressions. Filter expression is
 	 * <code>((Stmt)o).containsInvokeExpr()</code>.
 	 */
-	public static final Predicate INVOKE_EXPR_PREDICATE =
+	public static final Predicate INVOKING_STMT_PREDICATE =
 		new Predicate() {
 			public boolean evaluate(final Object object) {
 				return ((Stmt) object).containsInvokeExpr();

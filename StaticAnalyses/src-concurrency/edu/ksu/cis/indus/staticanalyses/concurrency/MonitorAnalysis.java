@@ -312,7 +312,7 @@ public final class MonitorAnalysis
 			_method2stmts.put(method, _intraStmts);
 
 			final Iterator _stmtsWithInvokeExpr =
-				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
 			return _method2stmts;
 		}
@@ -347,7 +347,7 @@ public final class MonitorAnalysis
 			_method2stmts.put(method, _intraStmts);
 
 			final Iterator _stmtsWithInvokeExpr =
-				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
 			return _method2stmts;
 		}
@@ -395,7 +395,7 @@ public final class MonitorAnalysis
 
 						for (final Iterator _j =
 								IteratorUtils.filteredIterator(_stmts.iterator(),
-									SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE); _j.hasNext();) {
+									SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _j.hasNext();) {
 							final Stmt _s = (Stmt) _j.next();
 							_wb.addWork(pairMgr.getPair(_s, _callee));
 						}

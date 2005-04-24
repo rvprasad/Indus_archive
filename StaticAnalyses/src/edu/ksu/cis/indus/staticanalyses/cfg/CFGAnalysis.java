@@ -186,7 +186,7 @@ public final class CFGAnalysis {
 		}
 
 		for (final Iterator _j =
-				IteratorUtils.filteredIterator(_bbDefStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_bbDefStmts.iterator(), SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 			  _j.hasNext() && !_result;) {
 			final Stmt _stmt = (Stmt) _j.next();
 			_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
@@ -197,7 +197,7 @@ public final class CFGAnalysis {
 
 			for (final Iterator _j =
 					IteratorUtils.filteredIterator(_bb.getStmtsOf().iterator(),
-						SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE); _j.hasNext() && !_result;) {
+						SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _j.hasNext() && !_result;) {
 				final Stmt _stmt = (Stmt) _j.next();
 				_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 			}
@@ -374,7 +374,7 @@ public final class CFGAnalysis {
 
 		if (_temp == null) {
 			final Iterator _stmts = bbm.getBasicBlockGraph(method).getStmtGraph().iterator();
-			_result = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
+			_result = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_result));
 		} else {
 			_result = _temp.iterator();
