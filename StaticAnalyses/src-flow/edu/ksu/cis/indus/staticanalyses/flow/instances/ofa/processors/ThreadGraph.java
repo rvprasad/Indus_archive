@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.Constants;
+
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -62,6 +63,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
@@ -417,6 +419,42 @@ public class ThreadGraph
 	}
 
 	/**
+	 * Retrieves the runnable implementations that get executed in the <code>run()</code> method of
+	 * <code>java.lang.Thread</code>.
+	 *
+	 * @param threadClass is the <code>java.lang.Thread</code> class.
+	 *
+	 * @return a collection of object flow values.
+	 *
+	 * @pre threadClass != null
+	 * @post result != null
+	 */
+	private Collection getRunnables(final SootClass threadClass) {
+		Collection _result = Collections.EMPTY_SET;
+		final SootMethod _threadRunMethod = threadClass.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
+
+		for (final Iterator _iter =
+				IteratorUtils.filteredIterator(_threadRunMethod.getActiveBody().getUnits().iterator(),
+					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _iter.hasNext();) {
+			final Stmt _stmt = (Stmt) _iter.next();
+			final InvokeExpr _expr = _stmt.getInvokeExpr();
+			final SootMethod _invokedMethod = _expr.getMethod();
+
+			if (_expr instanceof VirtualInvokeExpr
+				  && _invokedMethod.getName().equals("run")
+				  && _invokedMethod.getDeclaringClass().getName().equals("java.lang.Runnable")) {
+				final Context _context = new Context();
+				_context.setRootMethod(_threadRunMethod);
+				_context.setStmt(_stmt);
+				_context.setProgramPoint(_stmt.getInvokeExprBox());
+				_result = analyzer.getValues(((VirtualInvokeExpr) _expr).getBase(), _context);
+				break;
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Calculates thread call graph.
 	 *
 	 * @throws RuntimeException when the system being analyzed is not type-safe.
@@ -432,6 +470,7 @@ public class ThreadGraph
 
 		final Collection _values = analyzer.getValuesForThis(_ctxt);
 		final Map _class2runCallees = new HashMap();
+		final Collection _runnables = getRunnables(_threadClass);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("New thread expressions are: " + _values);
@@ -447,7 +486,7 @@ public class ThreadGraph
 			if (!_class2runCallees.containsKey(_sc)) {
 				boolean _flag = false;
 
-				SootClass _scTemp = Util.getDeclaringClass(_sc, "run", Collections.EMPTY_LIST, VoidType.v());
+				final SootClass _scTemp = Util.getDeclaringClass(_sc, "run", Collections.EMPTY_LIST, VoidType.v());
 
 				if (_scTemp != null) {
 					_flag = _scTemp.getName().equals("java.lang.Thread");
@@ -458,21 +497,15 @@ public class ThreadGraph
 				}
 
 				if (_flag) {
-					// Here we use the knowledge that all threads a dispatched via target field of Thread class.
-					final Collection _t = new ArrayList();
-					_t.add(_value);
+					// Here we use the knowledge that all threads are dispatched via a "target" field of Thread class.
 					_methods = new HashSet();
 
-					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
-					// object 
-					final Iterator _iterator = analyzer.getValues(_threadClass.getFieldByName("target"), _t).iterator();
-
 					for (final Iterator _j =
-							IteratorUtils.filteredIterator(_iterator, SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
-						  _j.hasNext();) {
+							IteratorUtils.filteredIterator(_runnables.iterator(),
+								SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
 						final NewExpr _temp = (NewExpr) _j.next();
-						_scTemp = _env.getClass((_temp.getBaseType()).getClassName());
-						_methods.addAll(transitiveThreadCallClosure(_scTemp.getMethod("run", Collections.EMPTY_LIST,
+						final SootClass _runnable = _env.getClass((_temp.getBaseType()).getClassName());
+						_methods.addAll(transitiveThreadCallClosure(_runnable.getMethod("run", Collections.EMPTY_LIST,
 									VoidType.v())));
 					}
 				} else {
