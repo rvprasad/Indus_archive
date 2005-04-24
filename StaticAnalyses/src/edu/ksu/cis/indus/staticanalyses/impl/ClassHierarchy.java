@@ -39,6 +39,8 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -354,30 +356,7 @@ public final class ClassHierarchy
 		_classesToRemove.removeAll(confineToClasses);
 
 		if (retainTransitiveInheritanceRelation) {
-			final Iterator _i = _classesToRemove.iterator();
-			final int _iEnd = _classesToRemove.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootClass _sc = (SootClass) _i.next();
-				final INode _node = classHierarchy.queryNode(_sc);
-				final Collection _succsOf = _node.getSuccsOf();
-				final Iterator _j = _succsOf.iterator();
-				final int _jEnd = _succsOf.size();
-
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final INode _succ = (INode) _j.next();
-					final Collection _predsOf = _node.getPredsOf();
-					final Iterator _k = _predsOf.iterator();
-					final int _kEnd = _predsOf.size();
-
-					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-						final INode _pred = (INode) _k.next();
-						classHierarchy.addEdgeFromTo(_pred, _succ);
-					}
-				}
-
-				classHierarchy.removeNode(_node);
-			}
+			removeClassesAndRetainInheritanceRelation(_classesToRemove);
 		} else {
 			final Iterator _i = _classesToRemove.iterator();
 			final int _iEnd = _classesToRemove.size();
@@ -422,6 +401,13 @@ public final class ClassHierarchy
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("classHierarchy", classHierarchy).toString();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -443,9 +429,70 @@ public final class ClassHierarchy
 			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
 
 			if (!_superClasses.isEmpty()) {
-				_sc.setSuperclass((SootClass) _superClasses.iterator().next());
+				assert _superClasses.size() == 1 : "More than one super class on " + _sc;
+
+				final SootClass _superClass = (SootClass) _superClasses.iterator().next();
+				_sc.setSuperclass(_superClass);
 			}
 			_sc.getInterfaces().retainAll(CollectionUtils.intersection(interfaces, _parents));
+		}
+	}
+
+	/**
+	 * Removes the given classes from the hierarchy while inserting new the inheritance relationship that span across the
+	 * deleted classes.
+	 *
+	 * @param classesToRemove a collection of classes to remove.
+	 *
+	 * @pre classesToRemove != null and classesToRemove.oclIsKindOf(Collection(SootClass))
+	 */
+	private void removeClassesAndRetainInheritanceRelation(final Collection classesToRemove) {
+		final Iterator _i = classesToRemove.iterator();
+		final int _iEnd = classesToRemove.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+			final INode _node = classHierarchy.queryNode(_sc);
+			final Collection _succsOf = _node.getSuccsOf();
+			final Iterator _j = _succsOf.iterator();
+			final int _jEnd = _succsOf.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final INode _succ = (INode) _j.next();
+				final Collection _predsOf = _node.getPredsOf();
+				final Iterator _k = _predsOf.iterator();
+				final int _kEnd = _predsOf.size();
+
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					final INode _pred = (INode) _k.next();
+					classHierarchy.addEdgeFromTo(_pred, _succ);
+				}
+			}
+
+			classHierarchy.removeNode(_node);
+		}
+
+		final Iterator _j = classHierarchy.getNodes().iterator();
+		final int _jEnd = classHierarchy.getNodes().size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final INode _node = (INode) _j.next();
+			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
+
+			if (_superClasses.size() > 1) {
+				final Iterator _k = _superClasses.iterator();
+				final int _kEnd = _superClasses.size();
+
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					final SootClass _superClass = (SootClass) _k.next();
+
+					if (_superClass.getName().equals("java.lang.Object")) {
+						classHierarchy.removeEdgeFromTo(classHierarchy.queryNode(_superClass), _node);
+						break;
+					}
+				}
+			}
 		}
 	}
 }
