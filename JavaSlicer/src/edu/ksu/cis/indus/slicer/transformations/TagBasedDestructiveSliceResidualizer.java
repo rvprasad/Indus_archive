@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -748,7 +749,13 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        _ssr.setBbgFactory(bbgMgr);
+
+		/*
+		 * We use a new factory for complete statement graph instead of the existing factory as the existing factory may 
+         * present a project which may cause us to skip over some statements.
+		 */
+		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
+
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(theNameOfTagToResidualize));
 		_pc.setEnvironment(env);
