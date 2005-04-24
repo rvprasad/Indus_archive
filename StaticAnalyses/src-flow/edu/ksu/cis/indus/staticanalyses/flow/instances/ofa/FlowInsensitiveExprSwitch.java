@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import soot.ArrayType;
 import soot.Local;
 import soot.SootField;
-import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 
@@ -334,13 +333,7 @@ class FlowInsensitiveExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
-		final SootMethod _callee = e.getMethod();
-
-		if (_callee.getName().equals("<init>") || _callee.isPrivate()) {
-			processInvokedMethod(e);
-		} else {
-			processInstanceInvokeExpr(e);
-		}
+		processInvokedMethod(e);
 	}
 
 	/**
