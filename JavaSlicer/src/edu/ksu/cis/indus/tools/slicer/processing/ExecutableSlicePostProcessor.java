@@ -203,20 +203,18 @@ public class ExecutableSlicePostProcessor
 	 * Fix up class hierarchy such that all abstract methods have an implemented counterpart in the slice.
 	 */
 	private void fixupAbstractMethodsInClassHierarchy() {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("BEGIN: Fixing Class Hierarchy - " + getClass() + " " + collector.getClassesInSlice());
+        }
+        
 		// setup the variables for fixing the class hierarchy
 		final IClassHierarchy _ch = getClassHierarchyContainingClassesToProcess(collector.getClassesInSlice());
-		final Iterator _iter = IteratorUtils.chainedIterator(_ch.getClasses().iterator(), _ch.getInterfaces().iterator());
-
-		while (_iter.hasNext()) {
-			final SootClass _class = (SootClass) _iter.next();
-			collector.includeInSlice(_class);
-		}
-
 		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
 		final Map _class2abstractMethods = new HashMap();
+        collector.includeInSlice(_ch.getClasses());
+        collector.includeInSlice(_ch.getInterfaces());
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Fixing Class Hierarchy - " + getClass());
 			LOGGER.debug("Topological Sort: " + _topologicallyOrderedClasses);
 		}
 
