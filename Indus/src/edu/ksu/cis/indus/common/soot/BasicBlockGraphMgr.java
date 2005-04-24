@@ -19,12 +19,12 @@ import edu.ksu.cis.indus.Constants;
 
 import java.lang.ref.SoftReference;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -150,7 +150,7 @@ public final class BasicBlockGraphMgr {
 			final UnitGraph _stmtGraph = getStmtGraph(method);
 
 			if (_stmtGraph != null) {
-				_result = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
+				_result = Collections.unmodifiableList(IteratorUtils.toList(_stmtGraph.iterator()));
 			} else {
 				_result = Collections.EMPTY_LIST;
 			}
