@@ -375,16 +375,18 @@ public final class ClassHierarchy
 						classHierarchy.addEdgeFromTo(_pred, _succ);
 					}
 				}
+
+				classHierarchy.removeNode(_node);
 			}
-		}
+		} else {
+			final Iterator _i = _classesToRemove.iterator();
+			final int _iEnd = _classesToRemove.size();
 
-		final Iterator _i = _classesToRemove.iterator();
-		final int _iEnd = _classesToRemove.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
-			final INode _node = classHierarchy.queryNode(_sc);
-			classHierarchy.removeNode(_node);
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final SootClass _sc = (SootClass) _i.next();
+				final INode _node = classHierarchy.queryNode(_sc);
+				classHierarchy.removeNode(_node);
+			}
 		}
 		classes.retainAll(confineToClasses);
 		interfaces.retainAll(confineToClasses);
@@ -430,18 +432,20 @@ public final class ClassHierarchy
 	 * Updates the classes captured by this hierarchy to reflect the relations captured by this hierarchy.
 	 */
 	public void updateEnvironment() {
-		final Iterator _i = classHierarchy.getNodes().iterator();
-		final int _iEnd = classHierarchy.getNodes().size();
+		final List _nodes = classHierarchy.getNodes();
+		final Iterator _i = _nodes.iterator();
+		final int _iEnd = _nodes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final IObjectNode _node = (IObjectNode) _i.next();
 			final SootClass _sc = (SootClass) _node.getObject();
 			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
 			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
+
 			if (!_superClasses.isEmpty()) {
 				_sc.setSuperclass((SootClass) _superClasses.iterator().next());
 			}
-            _sc.getInterfaces().retainAll(CollectionUtils.intersection(interfaces, _parents));
+			_sc.getInterfaces().retainAll(CollectionUtils.intersection(interfaces, _parents));
 		}
 	}
 }
