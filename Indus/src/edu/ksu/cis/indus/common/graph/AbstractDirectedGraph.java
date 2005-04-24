@@ -558,6 +558,12 @@ public abstract class AbstractDirectedGraph
 				_sb.append(_nodePos).append(_str).append(" -> ").append(getIndexOfNode((INode) _succ)).append("[")
 					 .append(_succ).append("]").append("\n");
 			}
+            
+            for (final Iterator _j = _node.getPredsOf().iterator(); _j.hasNext();) {
+                final Object _pred = _j.next();
+                _sb.append(_nodePos).append(_str).append(" <- ").append(getIndexOfNode((INode) _pred)).append("[")
+                     .append(_pred).append("]").append("\n");
+            }
 		}
 		return _sb.toString();
 	}
