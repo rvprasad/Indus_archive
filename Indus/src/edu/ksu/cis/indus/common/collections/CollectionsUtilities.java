@@ -348,6 +348,7 @@ public final class CollectionsUtilities {
 
 		final List _t = new ArrayList(collection);
 		Collections.sort(_t, ToStringBasedComparator.SINGLETON);
+
 		final Iterator _i = _t.iterator();
 		final int _iEnd = _t.size();
 
@@ -397,10 +398,12 @@ public final class CollectionsUtilities {
 	 * @param values to be added into the collection mapped to <code>key</code>.
 	 * @param factory to be used to create the collection if there is no collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if all values were added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null and factory != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putAllIntoCollectionInMap(final Map map, final Object key, final Collection values,
+	public static boolean putAllIntoCollectionInMap(final Map map, final Object key, final Collection values,
 		final Factory factory) {
 		Collection _temp = (Collection) map.get(key);
 
@@ -408,7 +411,7 @@ public final class CollectionsUtilities {
 			_temp = (Collection) factory.create();
 			map.put(key, _temp);
 		}
-		_temp.addAll(values);
+		return _temp.addAll(values);
 	}
 
 	/**
@@ -419,13 +422,15 @@ public final class CollectionsUtilities {
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param values to be added into the collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if all values were added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
 	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Factory)
 	 */
-	public static void putAllIntoListInMap(final Map map, final Object key, final Collection values) {
-		putAllIntoCollectionInMap(map, key, values, ARRAY_LIST_FACTORY);
+	public static boolean putAllIntoListInMap(final Map map, final Object key, final Collection values) {
+		return putAllIntoCollectionInMap(map, key, values, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -436,13 +441,15 @@ public final class CollectionsUtilities {
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param values to be added into the collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if all values were added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
 	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Factory)
 	 */
-	public static void putAllIntoSetInMap(final Map map, final Object key, final Collection values) {
-		putAllIntoCollectionInMap(map, key, values, HASH_SET_FACTORY);
+	public static boolean putAllIntoSetInMap(final Map map, final Object key, final Collection values) {
+		return putAllIntoCollectionInMap(map, key, values, HASH_SET_FACTORY);
 	}
 
 	/**
@@ -454,17 +461,19 @@ public final class CollectionsUtilities {
 	 * @param value to be added into the collection mapped to <code>key</code>.
 	 * @param factory to be used to create a collection if there is no collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if the value was added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null and factory != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putIntoCollectionInMap(final Map map, final Object key, final Object value, final Factory factory) {
+	public static boolean putIntoCollectionInMap(final Map map, final Object key, final Object value, final Factory factory) {
 		Collection _temp = (Collection) map.get(key);
 
 		if (_temp == null) {
 			_temp = (Collection) factory.create();
 			map.put(key, _temp);
 		}
-		_temp.add(value);
+		return _temp.add(value);
 	}
 
 	/**
@@ -475,11 +484,13 @@ public final class CollectionsUtilities {
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param value to be added into the collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if the value was added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putIntoListInMap(final Map map, final Object key, final Object value) {
-		putIntoCollectionInMap(map, key, value, ARRAY_LIST_FACTORY);
+	public static boolean putIntoListInMap(final Map map, final Object key, final Object value) {
+		return putIntoCollectionInMap(map, key, value, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -490,11 +501,13 @@ public final class CollectionsUtilities {
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param value to be added into the collection mapped to <code>key</code>.
 	 *
+	 * @return <code>true</code> if the value was added; <code>false</code>, otherwise.
+	 *
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putIntoSetInMap(final Map map, final Object key, final Object value) {
-		putIntoCollectionInMap(map, key, value, HASH_SET_FACTORY);
+	public static boolean putIntoSetInMap(final Map map, final Object key, final Object value) {
+		return putIntoCollectionInMap(map, key, value, HASH_SET_FACTORY);
 	}
 }
 
