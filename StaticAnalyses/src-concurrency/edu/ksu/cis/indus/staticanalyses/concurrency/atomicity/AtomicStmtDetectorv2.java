@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
 
-import edu.ksu.cis.indus.common.MembershipPredicate;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MembershipPredicate;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.processing.Context;
