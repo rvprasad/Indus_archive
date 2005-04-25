@@ -434,7 +434,7 @@ public class ThreadGraph
 		final SootMethod _threadRunMethod = threadClass.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
 
 		for (final Iterator _iter =
-				IteratorUtils.filteredIterator(_threadRunMethod.getActiveBody().getUnits().iterator(),
+				IteratorUtils.filteredIterator(_threadRunMethod.retrieveActiveBody().getUnits().iterator(),
 					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _iter.hasNext();) {
 			final Stmt _stmt = (Stmt) _iter.next();
 			final InvokeExpr _expr = _stmt.getInvokeExpr();
