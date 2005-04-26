@@ -23,7 +23,8 @@ import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -321,7 +322,7 @@ public final class OFATool
 			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		final ExceptionFlowSensitiveStmtGraphFactory _factory = new ExceptionFlowSensitiveStmtGraphFactory();
+		final IStmtGraphFactory _factory = new CompleteStmtGraphFactory();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		basicBlockGraphMgr.setStmtGraphFactory(_factory);
 		_ssr.setBbgFactory(basicBlockGraphMgr);

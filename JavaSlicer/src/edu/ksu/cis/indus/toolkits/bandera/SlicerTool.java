@@ -21,7 +21,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 
 import edu.ksu.cis.indus.processing.Environment;
 
@@ -141,7 +141,7 @@ public final class SlicerTool
 	public SlicerTool() {
 		tool =
 			new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()),
-				new ExceptionFlowSensitiveStmtGraphFactory());
+				new CompleteStmtGraphFactory());
 		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}

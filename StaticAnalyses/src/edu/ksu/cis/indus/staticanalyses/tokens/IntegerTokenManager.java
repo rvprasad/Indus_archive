@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 
-import edu.ksu.cis.indus.Constants;
+import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
 import gnu.trove.TObjectIntHashMap;

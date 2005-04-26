@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallGraphTest;
@@ -109,7 +109,7 @@ public final class ValueAnalysisRegressionTestSuite
 			_props.load(new FileInputStream(new File(propFileName)));
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
-			final IStmtGraphFactory _stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
+			final IStmtGraphFactory _stmtGraphFactory = new CompleteStmtGraphFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];

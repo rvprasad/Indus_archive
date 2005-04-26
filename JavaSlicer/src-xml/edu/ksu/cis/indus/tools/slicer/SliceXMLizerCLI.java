@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
@@ -190,7 +191,7 @@ public class SliceXMLizerCLI
 	 */
 	protected SliceXMLizerCLI() {
 		slicer =
-			new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new ExceptionFlowSensitiveStmtGraphFactory());
+			new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 

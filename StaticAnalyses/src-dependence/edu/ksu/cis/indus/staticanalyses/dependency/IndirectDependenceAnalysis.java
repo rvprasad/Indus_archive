@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Constants;
 
 import java.util.ArrayList;
 import java.util.Collection;

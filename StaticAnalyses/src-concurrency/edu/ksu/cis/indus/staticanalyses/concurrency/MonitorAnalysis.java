@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency;
 
-import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
@@ -30,6 +29,7 @@ import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 

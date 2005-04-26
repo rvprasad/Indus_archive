@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -152,7 +152,7 @@ public final class JimpleXMLizerCLI {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
-		final IStmtGraphFactory _sgf = new ExceptionFlowSensitiveStmtGraphFactory();
+		final IStmtGraphFactory _sgf = new CompleteStmtGraphFactory();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(_sgf);
 		_pc.setStmtSequencesRetriever(_ssr);

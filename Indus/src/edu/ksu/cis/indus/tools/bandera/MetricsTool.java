@@ -21,7 +21,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 
@@ -167,7 +167,7 @@ public class MetricsTool
 		final ProcessingController _pc = new ProcessingController();
 		final MetricsProcessor _mp = new MetricsProcessor();
         final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        final IStmtGraphFactory _sgf = new ExceptionFlowSensitiveStmtGraphFactory();
+        final IStmtGraphFactory _sgf = new CompleteStmtGraphFactory();
         _ssr.setStmtGraphFactory(_sgf);
         _pc.setStmtSequencesRetriever(_ssr);
 		_mp.hookup(_pc);

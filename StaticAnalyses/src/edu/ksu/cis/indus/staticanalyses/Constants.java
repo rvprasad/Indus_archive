@@ -138,7 +138,7 @@ public final class Constants {
 		final int _defaultValue = DEFAULT_SCC_OPTIMIZATION_INTERVAL;
 		final String _key = SCC_OPTIMIZATION_INTERVAL_PROPERTY;
 		final int _result;
-		_result = edu.ksu.cis.indus.Constants.retrieveIntValue(_defaultValue, _key, CONFIGURATIONS);
+		_result = edu.ksu.cis.indus.common.soot.Constants.retrieveIntValue(_defaultValue, _key, CONFIGURATIONS);
 		return _result;
 	}
 

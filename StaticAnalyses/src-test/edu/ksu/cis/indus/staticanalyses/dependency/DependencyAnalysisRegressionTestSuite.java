@@ -19,13 +19,13 @@ import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
-import edu.ksu.cis.indus.staticanalyses.flow.FATest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.XMLBasedCallGraphTest;
+import edu.ksu.cis.indus.staticanalyses.flow.FATest;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -183,7 +183,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 			final Collection _das = new ArrayList();
-			final IStmtGraphFactory _stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
+			final IStmtGraphFactory _stmtGraphFactory = new CompleteStmtGraphFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -205,10 +205,10 @@ public class DependencyAnalysisRegressionTestSuite
 						_das.clear();
 						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
 						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
-                        _das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
-                        _das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
+						_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
+						_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
 						_das.add(new NonTerminationSensitiveEntryControlDA());
-                        _das.add(new NonTerminationInsensitiveEntryControlDA());
+						_das.add(new NonTerminationInsensitiveEntryControlDA());
 						_das.add(new ExitControlDA());
 						_das.add(new IdentifierBasedDataDA());
 						_das.add(new InterferenceDAv1());

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus;
+package edu.ksu.cis.indus.common.soot;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -185,7 +185,7 @@ public final class Constants {
 		String _result = CONFIGURATIONS.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
 
 		if (_result == null) {
-			_result = "edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory";
+			_result = "edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory";
 		}
 		return _result;
 	}

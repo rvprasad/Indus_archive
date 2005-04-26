@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
-import edu.ksu.cis.indus.Constants;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -26,6 +25,7 @@ import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.soot.Constants;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;

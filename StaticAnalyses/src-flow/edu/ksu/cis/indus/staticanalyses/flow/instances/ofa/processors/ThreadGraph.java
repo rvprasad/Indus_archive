@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.Constants;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
@@ -23,6 +22,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 
