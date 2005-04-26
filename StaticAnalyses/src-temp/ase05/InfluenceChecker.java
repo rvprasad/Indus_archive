@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package fse05;
+package ase05;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -21,8 +21,14 @@ import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.graph.INode;
-import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
+import edu.ksu.cis.indus.common.fa.IAutomaton;
+import edu.ksu.cis.indus.common.fa.IState;
+import edu.ksu.cis.indus.common.fa.NFA;
+import edu.ksu.cis.indus.common.fa.State;
+import edu.ksu.cis.indus.common.graph.IDirectedGraphView;
+import edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode;
+import edu.ksu.cis.indus.common.graph.IEdgeLabel;
+import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -97,6 +103,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -134,50 +143,45 @@ public class InfluenceChecker
 	protected final Map info = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of data dependence analyses.
 	 */
 	final Collection cdas = new ArrayList();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of control dependence analyses.
 	 */
 	final Collection ddas = new ArrayList();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The call graph.
 	 */
-	IAutomata.ITransitionLabel CALLS =
-		new IAutomata.ITransitionLabel() {
+	CallGraphInfo cgi;
+
+	/** 
+	 * This label represents call graph based edges.
+	 */
+	IAutomaton.ITransitionLabel CALLS =
+		new IAutomaton.ITransitionLabel() {
 			public String toString() {
 				return "-CALLS->";
 			}
 		};
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This label represents control dependence based edges.
 	 */
-	IAutomata.ITransitionLabel CD =
-		new IAutomata.ITransitionLabel() {
+	IAutomaton.ITransitionLabel CD =
+		new IAutomaton.ITransitionLabel() {
 			public String toString() {
 				return "-CD->";
 			}
 		};
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This label represents data dependence based edges.
 	 */
-	IAutomata.ITransitionLabel DD =
-		new IAutomata.ITransitionLabel() {
+	IAutomaton.ITransitionLabel DD =
+		new IAutomaton.ITransitionLabel() {
 			public String toString() {
 				return "-DD->";
 			}
@@ -196,20 +200,6 @@ public class InfluenceChecker
 	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private CallGraphInfo cgi;
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private CallGraphInfo chacgi;
-
-	/** 
 	 * This flag indicates if the simple version of aliased use-def information should be used.
 	 */
 	private boolean useAliasedUseDefv1;
@@ -220,118 +210,257 @@ public class InfluenceChecker
 	private boolean useSafeLockAnalysis;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This provides a graph view of the call graph.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	class InvCallGraph
-	  extends AbstractDynamicSimpleEdgeGraph {
-		/** 
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+	class CallGraphView
+	  implements IEdgeLabelledDirectedGraphView {
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getIncomingEdgeLabels(IDirectedGraphView.INode)
 		 */
-		final Collection processedNodes = new HashSet();
+		public Collection getIncomingEdgeLabels(final IDirectedGraphView.INode node) {
+			return !cgi.getCallers((SootMethod) ((PairNode) node).second).isEmpty() ? Collections.singleton(CALLS)
+																					: Collections.EMPTY_SET;
+		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @param node DOCUMENT ME!
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getOutgoingEdgeLabels(IDirectedGraphView.INode)
 		 */
-		public void processNode(INode node) {
-			if (!processedNodes.contains(node)) {
-				final Pair _pair = (Pair) ((IObjectNode) node).getObject();
-				final SootMethod _method = (SootMethod) _pair.getSecond();
-				final Iterator _i = chacgi.getCallers(_method).iterator();
-				final int _iEnd = chacgi.getCallers(_method).size();
+		public Collection getOutgoingEdgeLabels(final IDirectedGraphView.INode node) {
+			return !cgi.getCallees((SootMethod) ((PairNode) node).second).isEmpty() ? Collections.singleton(CALLS)
+																					: Collections.EMPTY_SET;
+		}
 
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final CallTriple _triple = (CallTriple) _i.next();
-					addEdgeFromTo(node, CALLS, super.getNode(_triple.getMethod()));
-				}
-				processedNodes.add(node);
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IDirectedGraphView#getPredsOf(IDirectedGraphView.INode)
+		 */
+		public Collection getPredsOf(IDirectedGraphView.INode node) {
+			final Collection _result = new HashSet();
+			final Iterator _iter = cgi.getCallers((SootMethod) ((PairNode) node).second).iterator();
+			final int _iterEnd = cgi.getCallers((SootMethod) ((PairNode) node).second).size();
+
+			for (int _iterIndex = 0; _iterIndex < _iterEnd; _iterIndex++) {
+				final CallTriple _triple = (CallTriple) _iter.next();
+				_result.add(new PairNode(_triple.getStmt(), _triple.getMethod()));
 			}
+			return _result;
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getPredsViaEdgesLabelled(IDirectedGraphView.INode,
+		 * 		IEdgeLabel)
+		 */
+		public Collection getPredsViaEdgesLabelled(final IDirectedGraphView.INode node, final IEdgeLabel label) {
+			return label.equals(CALLS) ? getPredsOf(node)
+									   : Collections.EMPTY_SET;
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IDirectedGraphView#getSuccsOf(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode)
+		 */
+		public Collection getSuccsOf(final IDirectedGraphView.INode node) {
+			final Collection _result = new HashSet();
+			final SootMethod _method = (SootMethod) ((PairNode) node).second;
+			final Iterator _i = cgi.getCallees(_method).iterator();
+			final int _iEnd = cgi.getCallees(_method).size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final CallTriple _triple = (CallTriple) _i.next();
+				_result.add(new PairNode(_triple.getSecond(), _triple.getMethod()));
+			}
+			return _result;
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getSuccsViaEdgesLabelled(IDirectedGraphView.INode,
+		 * 		IEdgeLabel)
+		 */
+		public Collection getSuccsViaEdgesLabelled(final IDirectedGraphView.INode node, final IEdgeLabel label) {
+			return label.equals(CALLS) ? getSuccsOf(node)
+									   : Collections.EMPTY_SET;
 		}
 	}
 
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This provides a graph view of the control/dependence dependence information.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	class InvDependenceGraph
-	  extends AbstractDynamicSimpleEdgeGraph {
-		/** 
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+	class DependenceGraphView
+	  implements IEdgeLabelledDirectedGraphView {
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getIncomingEdgeLabels(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode)
 		 */
-		final Collection processedNodes = new HashSet();
+		public Collection getIncomingEdgeLabels(final INode node) {
+			throw new UnsupportedOperationException("This operation is unsupported.");
+		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
-		 *
-		 * @param node DOCUMENT ME!
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getOutgoingEdgeLabels(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode)
 		 */
-		public void processNode(INode node) {
-			if (!processedNodes.contains(node)) {
-				final Pair _pair = (Pair) ((IObjectNode) node).getObject();
-				final Stmt _stmt = (Stmt) _pair.getFirst();
-				final SootMethod _method = (SootMethod) _pair.getSecond();
-				final Iterator _i = cdas.iterator();
-				final int _iEnd = cdas.size();
+		public Collection getOutgoingEdgeLabels(final INode node) {
+			final Collection _result = new HashSet();
+			final Stmt _s = (Stmt) ((PairNode) node).first;
+			final SootMethod _sm = (SootMethod) ((PairNode) node).second;
+			final Iterator _i = cdas.iterator();
+			final int _iEnd = cdas.size();
 
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
-					final Collection _dees = _da.getDependents(_stmt, _method);
-					final Iterator _j = _dees.iterator();
-					final int _jEnd = _dees.size();
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
+				final Collection _dents = _da.getDependents(_s, _sm);
 
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Object _o = _j.next();
-
-						if (_o instanceof Pair) {
-							addEdgeFromTo(node, CD, super.getNode(_o));
-						} else if (_o instanceof Stmt) {
-							addEdgeFromTo(node, CD, super.getNode(new Pair(_o, _method)));
-						}
-					}
+				if (!_dents.isEmpty()) {
+					_result.add(CD);
+					break;
 				}
-
-				final Iterator _k = ddas.iterator();
-				final int _kEnd = ddas.size();
-
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final IDependencyAnalysis _da = (IDependencyAnalysis) _k.next();
-					final Collection _dees = _da.getDependents(_stmt, _method);
-					final Iterator _j = _dees.iterator();
-					final int _jEnd = _dees.size();
-
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Object _o = _j.next();
-
-						if (_o instanceof Pair) {
-							addEdgeFromTo(node, DD, super.getNode(_o));
-						} else if (_o instanceof Stmt) {
-							addEdgeFromTo(node, DD, super.getNode(new Pair(_o, _method)));
-						}
-					}
-				}
-				processedNodes.add(node);
 			}
+
+			final Iterator _j = ddas.iterator();
+			final int _jEnd = ddas.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final IDependencyAnalysis _da = (IDependencyAnalysis) _j.next();
+				final Collection _dents = _da.getDependents(_s, _sm);
+
+				if (!_dents.isEmpty()) {
+					_result.add(DD);
+					break;
+				}
+			}
+			return _result;
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IDirectedGraphView#getPredsOf(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode)
+		 */
+		public Collection getPredsOf(final INode node) {
+			throw new UnsupportedOperationException("This operation is not supported.");
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getPredsViaEdgesLabelled(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode,
+		 * 		edu.ksu.cis.indus.common.graph.IEdgeLabel)
+		 */
+		public Collection getPredsViaEdgesLabelled(final INode node, final IEdgeLabel label) {
+			throw new UnsupportedOperationException("This operation is not supported.");
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IDirectedGraphView#getSuccsOf(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode)
+		 */
+		public Collection getSuccsOf(final INode node) {
+			throw new UnsupportedOperationException("This operation is not supported.");
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getSuccsViaEdgesLabelled(edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode,
+		 * 		edu.ksu.cis.indus.common.graph.IEdgeLabel)
+		 */
+		public Collection getSuccsViaEdgesLabelled(final INode node, final IEdgeLabel label) {
+			final Stmt _s = (Stmt) ((PairNode) node).first;
+			final SootMethod _sm = (SootMethod) ((PairNode) node).second;
+			final Collection _result = new HashSet();
+			_result.addAll(getSuccs(_s, _sm, cdas));
+			_result.addAll(getSuccs(_s, _sm, ddas));
+			return _result;
+		}
+
+		/**
+		 * Retrieves the successors of the given
+		 *
+		 * @param s is the statement of interest.
+		 * @param sm is the method containing <code>s</code>.
+		 * @param das is the collection of dependence analysis from which the graph-based information should be retrieved.
+		 *
+		 * @return a collection of successor nodes based on the dependence information available in <code>das</code>.
+		 *
+		 * @pre s != null and sm != null and das.oclIsKindOf(Collection(IDependencyAnalysis))
+		 */
+		private Collection getSuccs(final Stmt s, final SootMethod sm, final Collection das) {
+			final Collection _result = new HashSet();
+			final Iterator _i = das.iterator();
+			final int _iEnd = das.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
+				final Collection _dents = _da.getDependents(s, sm);
+				final Iterator _j = _dents.iterator();
+				final int _jEnd = _dents.size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final Object _o = _j.next();
+
+					if (_o instanceof Pair) {
+						final Pair _p = (Pair) _o;
+						_result.add(new PairNode(_p.getFirst(), _p.getSecond()));
+					} else if (_o instanceof Stmt) {
+						_result.add(new PairNode(_o, sm));
+					}
+				}
+			}
+			return _result;
+		}
+	}
+
+
+	/**
+	 * A node that represents a pair.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static class PairNode
+	  implements IDirectedGraphView.INode {
+		/** 
+		 * First element of the pair.
+		 */
+		final Object first;
+
+		/** 
+		 * Second element of the pair.
+		 */
+		final Object second;
+
+		/**
+		 * Creates a new PairNode object.
+		 *
+		 * @param f first element of the pair.
+		 * @param s second element of the pair.
+		 */
+		PairNode(final Object f, final Object s) {
+			first = f;
+			second = s;
+		}
+
+		/**
+		 * @see java.lang.Object#equals(Object)
+		 */
+		public boolean equals(final Object object) {
+			if (object == this) {
+				return true;
+			}
+
+			if (!(object instanceof PairNode)) {
+				return false;
+			}
+
+			PairNode rhs = (PairNode) object;
+			return new EqualsBuilder().appendSuper(super.equals(object)).append(this.first, rhs.first)
+										.append(this.second, rhs.second).isEquals();
+		}
+
+		/**
+		 * @see java.lang.Object#hashCode()
+		 */
+		public int hashCode() {
+			return new HashCodeBuilder(7, 37).appendSuper(super.hashCode()).append(this.first).append(this.second).toHashCode();
 		}
 	}
 
@@ -413,9 +542,9 @@ public class InfluenceChecker
 				System.exit(1);
 			}
 
-			final InfluenceChecker _xmlizerCLI = new InfluenceChecker();
+			final InfluenceChecker _checker = new InfluenceChecker();
 
-			_xmlizerCLI.setRootMethodTrapper(new RootMethodTrapper() {
+			_checker.setRootMethodTrapper(new RootMethodTrapper() {
 					/**
 					 * @see edu.ksu.cis.indus.common.soot.RootMethodTrapper#isThisARootMethod(soot.SootMethod)
 					 */
@@ -433,37 +562,37 @@ public class InfluenceChecker
 				_outputDir = ".";
 			}
 
-			_xmlizerCLI.xmlizer.setXmlOutputDir(_outputDir);
+			_checker.xmlizer.setXmlOutputDir(_outputDir);
 
 			if (_cl.hasOption('p')) {
-				_xmlizerCLI.addToSootClassPath(_cl.getOptionValue('p'));
+				_checker.addToSootClassPath(_cl.getOptionValue('p'));
 			}
-			_xmlizerCLI.useAliasedUseDefv1 = true;
-			_xmlizerCLI.useSafeLockAnalysis = true;
+			_checker.useAliasedUseDefv1 = true;
+			_checker.useSafeLockAnalysis = true;
 
 			final List _classNames = _cl.getArgList();
 
 			if (_classNames.isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
-			_xmlizerCLI.setClassNames(_classNames);
+			_checker.setClassNames(_classNames);
 
 			final InterferenceDAv1 _da1 = new InterferenceDAv3();
 			_da1.setUseOFA(true);
-			_xmlizerCLI.ddas.add(_da1);
-			_xmlizerCLI.ddas.add(new IdentifierBasedDataDAv3());
-			_xmlizerCLI.ddas.add(new ReferenceBasedDataDA());
+			_checker.ddas.add(_da1);
+			_checker.ddas.add(new IdentifierBasedDataDAv3());
+			_checker.ddas.add(new ReferenceBasedDataDA());
 
 			final ReadyDAv1 _da2 = ReadyDAv3.getBackwardReadyDA();
-			_xmlizerCLI.cdas.add(_da2);
-			_xmlizerCLI.cdas.add(new NonTerminationSensitiveEntryControlDA());
+			_checker.cdas.add(_da2);
+			_checker.cdas.add(new NonTerminationSensitiveEntryControlDA());
 
 			_da2.setUseOFA(true);
-			_da2.setUseSafeLockAnalysis(_xmlizerCLI.useSafeLockAnalysis);
+			_da2.setUseSafeLockAnalysis(_checker.useSafeLockAnalysis);
 
-			_xmlizerCLI.execute();
+			_checker.execute();
 
-			_xmlizerCLI.processPatterns(_cl.getOptionValue("sc"), _cl.getOptionValue("sm"),
+			_checker.performCheck(_cl.getOptionValue("sc"), _cl.getOptionValue("sm"),
 				Integer.parseInt(_cl.getOptionValue("si")), _cl.getOptionValue("ec"), _cl.getOptionValue("em"),
 				Integer.parseInt(_cl.getOptionValue("ei")), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
@@ -488,15 +617,15 @@ public class InfluenceChecker
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieve the automaton based on the type of influence check.
 	 *
-	 * @param type DOCUMENT ME!
+	 * @param type of influence check.  This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an automaton.
+	 *
+	 * @throws IllegalArgumentException if the type is not one of the specified values.
 	 */
-	private IAutomata getAutomata(final String type) {
+	private IAutomaton getAutomaton(final String type) {
 		final NFA _result = new NFA();
 
 		if (type.equals("ddi") || type.equals("di")) {
@@ -509,10 +638,10 @@ public class InfluenceChecker
 			_result.addLabelledTransitionFromTo(_s1, DD, _s2);
 			_result.addLabelledTransitionFromTo(_s2, DD, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CD, _s3);
-			_result.addLabelledTransitionFromTo(_s2, IAutomata.EPSILON, _s3);
+			_result.addLabelledTransitionFromTo(_s2, IAutomaton.EPSILON, _s3);
 			_result.addLabelledTransitionFromTo(_s3, CD, _s3);
 			_result.addLabelledTransitionFromTo(_s3, DD, _s4);
-			_result.addLabelledTransitionFromTo(_s3, IAutomata.EPSILON, _s4);
+			_result.addLabelledTransitionFromTo(_s3, IAutomaton.EPSILON, _s4);
 			_result.addLabelledTransitionFromTo(_s4, DD, _s4);
 		} else if (type.equals("cdi")) {
 			IState _s1 = new State("s1");
@@ -531,65 +660,69 @@ public class InfluenceChecker
 			_result.setStartState(_s1);
 			_result.addLabelledTransitionFromTo(_s1, CD, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CD, _s2);
-		} else {
+		} else if (type.equals("ai")) {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
 			_result.addFinalState(_s2);
 			_result.setStartState(_s1);
 			_result.addLabelledTransitionFromTo(_s1, CALLS, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CALLS, _s2);
+		} else {
+			throw new IllegalArgumentException("type has to be one of ai, ddi, cdi, ci, or di.");
 		}
-		_result.initialize();
+		_result.start();
 
 		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the graph based on the type of influence check.
 	 *
-	 * @param type DOCUMENT ME!
+	 * @param type of influence check.  This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an automaton.
+	 *
+	 * @throws IllegalArgumentException if the type is not one of the specified values.
 	 */
-	private SimpleEdgeGraph getGraph(String type) {
-		final SimpleEdgeGraph _result;
+	private IEdgeLabelledDirectedGraphView getGraph(String type) {
+		final IEdgeLabelledDirectedGraphView _result;
 
 		if (type.equals("ai")) {
-			_result = new InvCallGraph();
+			_result = new CallGraphView();
+		} else if (type.equals("cdi") || type.equals("ddi") || type.equals("ci") || type.equals("di")) {
+			_result = new DependenceGraphView();
 		} else {
-			_result = new InvDependenceGraph();
+			throw new IllegalArgumentException("type has to be one of ai, ddi, cdi, ci, or di.");
 		}
 		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the method from the class based on it's signature.
 	 *
-	 * @param clazz DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param clazz that contains the method.
+	 * @param methodSignature obviously.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the method of the given signature in the named class.
+	 *
+	 * @pre clazz != null and methodSignature != null
 	 */
-	private SootMethod getMethod(final String clazz, final String method) {
+	private SootMethod getMethod(final String clazz, final String methodSignature) {
 		final SootMethod _result;
 		final SootClass _sc = getScene().getSootClass(clazz);
-		_result = _sc.getMethod(method);
+		_result = _sc.getMethod(methodSignature);
 		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the statement at the given index in the method.
 	 *
-	 * @param sm DOCUMENT ME!
-	 * @param index DOCUMENT ME!
+	 * @param sm containing the statement.
+	 * @param index at which the statement occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the statement.
+	 *
+	 * @pre sm != null
 	 */
 	private Stmt getStmt(final SootMethod sm, final int index) {
 		final List _units = new ArrayList(sm.retrieveActiveBody().getUnits());
@@ -597,12 +730,10 @@ public class InfluenceChecker
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves a call graph based on class hierarchy analysis.
 	 */
 	private void calculateCHACallgraph() {
-		chacgi = new CallGraphInfo(new PairManager(false, true));
+		cgi = new CallGraphInfo(new PairManager(false, true));
 
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
@@ -614,7 +745,7 @@ public class InfluenceChecker
 		_col.hookup(_pc);
 		_pc.process();
 		_col.unhook(_pc);
-		chacgi.createCallGraphInfo(_col.getCallInfo());
+		cgi.createCallGraphInfo(_col.getCallInfo());
 	}
 
 	/**
@@ -748,19 +879,20 @@ public class InfluenceChecker
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Does the check.
 	 *
-	 * @param startClass DOCUMENT ME!
-	 * @param startSig DOCUMENT ME!
-	 * @param sIndex DOCUMENT ME!
-	 * @param endClass DOCUMENT ME!
-	 * @param endSig DOCUMENT ME!
-	 * @param eIndex DOCUMENT ME!
-	 * @param type DOCUMENT ME!
+	 * @param startClass contains the starting method and statement.
+	 * @param startSig contains the starting statement.
+	 * @param sIndex is the index of the starting statement.
+	 * @param endClass contains the ending method and statement.
+	 * @param endSig contains the ending statement.
+	 * @param eIndex is the index of the ending statement.
+	 * @param type of check.  This has to be one of "ai", "ddi", "cdi", "ci", or "di".
+	 *
+	 * @pre startClass != null and startSig != null and sIndex != null and endClass != null and endSig != null and  eIndex !=
+	 * 		null
 	 */
-	private void processPatterns(final String startClass, final String startSig, final int sIndex, final String endClass,
+	private void performCheck(final String startClass, final String startSig, final int sIndex, final String endClass,
 		final String endSig, final int eIndex, final String type) {
 		final SootMethod _sm = getMethod(startClass, startSig);
 		final Stmt _ss = type.equals("ai") ? null
@@ -768,7 +900,7 @@ public class InfluenceChecker
 		final SootMethod _em = getMethod(endClass, endSig);
 		final Stmt _es = type.equals("ai") ? null
 										   : getStmt(_em, eIndex);
-		final SimpleEdgeGraph _graph = getGraph(type);
+		final IEdgeLabelledDirectedGraphView _graph = getGraph(type);
 		final IWorkBag _wb = new LIFOWorkBag();
 
 		if (type.equals("ai")) {
@@ -778,55 +910,61 @@ public class InfluenceChecker
 		int _missedPaths = 0;
 		final Collection _matchedPaths = new HashSet();
 
-		final INode _target = _graph.getNode(new Pair(_es, _em));
-		_wb.addWork(new Triple(_graph.getNode(new Pair(_ss, _sm)), new Stack(), getAutomata(type)));
+		final INode _target = new PairNode(_es, _em);
+		_wb.addWork(new Triple(new PairNode(_ss, _sm), new Stack(), getAutomaton(type)));
 
 		while (_wb.hasWork()) {
 			final Triple _triple = (Triple) _wb.getWork();
 			final INode _src = (INode) _triple.getFirst();
 			final Stack _path = (Stack) _triple.getSecond();
-			final IAutomata _auto = (IAutomata) _triple.getThird();
+			final IAutomaton _auto = (IAutomaton) _triple.getThird();
 
 			_path.push(_src);
 
 			if (_auto.isInFinalState() && _src.equals(_target)) {
 				_matchedPaths.add(_path);
 			} else {
-				if (_auto.canPerformTransition(IAutomata.EPSILON)) {
-					final IAutomata _aclone = (IAutomata) _auto.clone();
-					_aclone.performTransitionOn(IAutomata.EPSILON);
+				if (_auto.canPerformTransition(IAutomaton.EPSILON)) {
+					final IAutomaton _aclone = (IAutomaton) _auto.clone();
+					_aclone.performTransitionOn(IAutomaton.EPSILON);
 
 					final Stack _temp = (Stack) _path.clone();
-					_temp.push(IAutomata.EPSILON);
+					_temp.push(IAutomaton.EPSILON);
 					_wb.addWork(new Triple(_src, _temp, _aclone));
 				}
 
 				final Collection _temp = new HashSet();
-				final Map _succsOf = _graph.getSuccsOf(_src);
-				final Iterator _i = _succsOf.entrySet().iterator();
-				final int _iEnd = _succsOf.entrySet().size();
+				final Collection _succs = new ArrayList();
+				final Collection _outgoingEdgeLabels = _graph.getOutgoingEdgeLabels(_src);
+				final Iterator _i = _outgoingEdgeLabels.iterator();
+				final int _iEnd = _outgoingEdgeLabels.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Map.Entry _entry = (Map.Entry) _i.next();
-					final IAutomata.ITransitionLabel _label = (IAutomata.ITransitionLabel) _entry.getKey();
-					final Collection _coll = (Collection) _entry.getValue();
+					final IAutomaton.ITransitionLabel _label = (IAutomaton.ITransitionLabel) _i.next();
 
-					for (final Iterator _j = _coll.iterator(); _j.hasNext();) {
-						final INode _dest = (INode) _j.next();
+					if (_auto.canPerformTransition(_label)) {
+						final Collection _succsViaLabel = _graph.getSuccsViaEdgesLabelled(_src, _label);
+						final Iterator _j = _succsViaLabel.iterator();
+						final int _jEnd = _succsViaLabel.size();
 
-						if (!_path.contains(_dest) && _auto.canPerformTransition(_label)) {
-							final IAutomata _aclone = (IAutomata) _auto.clone();
-							_aclone.performTransitionOn(_label);
+						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+							final INode _dest = (INode) _j.next();
 
-							final Stack _t = (Stack) _path.clone();
-							_t.push(_label);
-							_temp.add(new Triple(_dest, _t, _aclone));
+							if (!_path.contains(_dest)) {
+								final IAutomaton _aclone = (IAutomaton) _auto.clone();
+								_aclone.performTransitionOn(_label);
+
+								final Stack _t = (Stack) _path.clone();
+								_t.push(_label);
+								_temp.add(new Triple(_dest, _t, _aclone));
+							}
 						}
+						_succs.add(_succsViaLabel);
 					}
 				}
 				_wb.addAllWorkNoDuplicates(_temp);
 
-				if (_temp.size() != _succsOf.size() || _succsOf.size() == 0) {
+				if (_temp.isEmpty() || _temp.size() != _succs.size()) {
 					_missedPaths++;
 				}
 			}
