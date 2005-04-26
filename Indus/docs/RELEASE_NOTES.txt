@@ -34,11 +34,13 @@ Required software:
 
 Version 0.6
 ----------------
-	- Added support for fine grained process control.
+	- Added finite automaton implementation.
+	- Added support to represent edge-labelled graphs.
+	- Added support for fine grained control on execution of analyses and processors.
 	- Added support to filter program points and visit locals via the ProcessingController.
 	- Added support in the ProcessingController to control the order in which the statements of a method are 
 		visited. [API BREAKING CHANGE]
-	- Added a Class Hierarchy Analysis implementation.
+	- Added a Class Hierarchy implementation.
 	- Added support to retrieve field reading/writing thread information from IEscapeInfo.
 
 Version 0.5
