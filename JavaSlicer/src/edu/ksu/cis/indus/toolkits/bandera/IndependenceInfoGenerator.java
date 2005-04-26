@@ -207,7 +207,7 @@ class IndependenceInfoGenerator {
 		public void consolidate() {
 			calculateWriteWriteInterference();
 
-			final Collection _result = new ArrayList();
+			final Map _result = new HashMap();
 			final Map _method2birsig = new HashMap();
 
 			final Iterator _i = map.entrySet().iterator();
@@ -220,9 +220,6 @@ class IndependenceInfoGenerator {
 				final String _t = generateBIRRep(_pair, _method2birsig);
 
 				if (_t != null) {
-					final StringBuffer _sb = new StringBuffer();
-					_sb.append(_t);
-
 					final Iterator _j = _interferees.iterator();
 					final int _jEnd = _interferees.size();
 
@@ -231,10 +228,9 @@ class IndependenceInfoGenerator {
 						final String _t2 = generateBIRRep(_p, _method2birsig);
 
 						if (_t2 != null) {
-							_sb.append(_t2);
+							CollectionsUtilities.putIntoSetInMap(_result, _t, _t2);
 						}
 					}
-					_result.add(_sb.toString());
 				}
 			}
 
@@ -244,7 +240,7 @@ class IndependenceInfoGenerator {
 				_output.close();
 
 				final ObjectInputStream _input = new ObjectInputStream(new FileInputStream("independence"));
-				final List _temp = (List) _input.readObject();
+				final Map _temp = (Map) _input.readObject();
 				_input.close();
 
 				if (LOGGER.isDebugEnabled()) {
