@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+    <jar path="/home/venku/workspace/eclipse/StaticAnalyses/staticanalyses-src.jar"/>
+    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/StaticAnalyses/staticanalyses-src.jardesc" useSourceFolders="true" buildIfNeeded="false"/>
+    <selectedElements exportClassFiles="false" exportOutputFolder="false" exportJavaFiles="true">
+        <javaElement handleIdentifier="=StaticAnalyses/src"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-temp"/>
+        <folder path="/StaticAnalyses/auxiliary"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-test"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-concurrency"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-xml"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-dependence"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-flow"/>
+    </selectedElements>
+</jardesc>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+    <jar path="/home/venku/workspace/eclipse/JavaSlicer/slicer-src.jar"/>
+    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/JavaSlicer/slicer-src.jardesc" useSourceFolders="true" buildIfNeeded="false"/>
+    <selectedElements exportClassFiles="false" exportOutputFolder="false" exportJavaFiles="true">
+        <javaElement handleIdentifier="=JavaSlicer/src-test"/>
+        <javaElement handleIdentifier="=JavaSlicer/src-xml"/>
+        <folder path="/JavaSlicer/auxiliary"/>
+        <javaElement handleIdentifier="=JavaSlicer/src"/>
+    </selectedElements>
+</jardesc>
