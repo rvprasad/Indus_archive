@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -219,7 +219,7 @@ public final class CallGraphTest
 		final Collection _d = new HashSet();
 
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
-			final SimpleNode _node = (SimpleNode) _i.next();
+			final IObjectNode _node = (IObjectNode) _i.next();
 			_d.add(_node.getObject());
 		}
 		assertTrue(_d.containsAll(_reachables));
@@ -287,7 +287,7 @@ public final class CallGraphTest
 		Collection _heads = new HashSet();
 
 		for (final Iterator _i = dg.getHeads().iterator(); _i.hasNext();) {
-			final SimpleNode _sn = (SimpleNode) _i.next();
+			final IObjectNode _sn = (IObjectNode) _i.next();
 			_heads.add(_sn.getObject());
 		}
 
@@ -332,7 +332,7 @@ public final class CallGraphTest
 	 */
 	protected void localtestGraphGetTails() {
 		for (final Iterator _i = dg.getTails().iterator(); _i.hasNext();) {
-			final SimpleNode _node = (SimpleNode) _i.next();
+			final IObjectNode _node = (IObjectNode) _i.next();
 			assertTrue(cgi.getCallees((SootMethod) _node.getObject()).isEmpty());
 		}
 

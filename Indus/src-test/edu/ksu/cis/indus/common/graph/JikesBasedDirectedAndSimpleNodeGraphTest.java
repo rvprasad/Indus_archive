@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
 import java.util.Collection;

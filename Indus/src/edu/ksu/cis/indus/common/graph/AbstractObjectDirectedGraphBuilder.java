@@ -20,56 +20,54 @@ import java.util.Iterator;
 
 
 /**
- * this is an abstract implementation of <code>IGraphBuilder</code>.
+ * this is an abstract implementation of <code>IObjectDirectedGraphBuilder</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractGraphBuilder
-  implements IGraphBuilder {
+public abstract class AbstractObjectDirectedGraphBuilder
+  implements IObjectDirectedGraphBuilder {
 	/** 
 	 * The graph that is being built.
 	 */
 	protected IObjectDirectedGraph graph;
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#getBuiltGraph()
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#getBuiltGraph()
 	 */
 	public final IObjectDirectedGraph getBuiltGraph() {
 		return graph;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#addEdgeFromTo(edu.ksu.cis.indus.common.graph.INode,
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object,
 	 * 		java.util.Collection)
 	 */
-	public final void addEdgeFromTo(final INode node, final Collection succs) {
+	public final void addEdgeFromTo(final Object node, final Collection succs) {
 		final Iterator _i = succs.iterator();
 		final int _iEnd = succs.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _succ = (INode) _i.next();
-			addEdgeFromTo(node, _succ);
+			addEdgeFromTo(node, _i.next());
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#addEdgeFromTo(java.util.Collection,
-	 * 		edu.ksu.cis.indus.common.graph.INode)
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(java.util.Collection,
+	 * 		Object)
 	 */
-	public final void addEdgeFromTo(final Collection preds, final INode node) {
+	public final void addEdgeFromTo(final Collection preds, final Object node) {
 		final Iterator _i = preds.iterator();
 		final int _iEnd = preds.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _pred = (INode) _i.next();
-			addEdgeFromTo(_pred, node);
+			addEdgeFromTo(_i.next(), node);
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#finishBuilding()
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#finishBuilding()
 	 */
 	public void finishBuilding() {
 	}
@@ -80,7 +78,7 @@ public abstract class AbstractGraphBuilder
 	 * @param src node in the originating graph.
 	 * @param dest node in the originating graph.
 	 */
-	protected abstract void addEdgeFromTo(final INode src, final INode dest);
+	protected abstract void addEdgeFromTo(final Object src, final Object dest);
 }
 
 // End of File

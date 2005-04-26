@@ -17,8 +17,7 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.graph.AbstractMutableDirectedGraph;
-import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.MutableDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraph
-  extends AbstractMutableDirectedGraph {
+  extends MutableDirectedGraph {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -62,13 +61,6 @@ public final class BasicBlockGraph
 	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
 	final List stmtList;
-
-	/** 
-	 * The collection of basic block nodes in this graph.
-	 *
-	 * @invariant blocks.oclIsKindOf(Sequence(BasicBlock))
-	 */
-	private final List blocks;
 
 	/** 
 	 * An array of <code>BasicBlock</code> objects.
@@ -94,7 +86,6 @@ public final class BasicBlockGraph
 		final int _numOfStmt = stmtList.size();
 
 		if (_numOfStmt == 0) {
-			blocks = Collections.EMPTY_LIST;
 			stmt2BlockMap = Collections.EMPTY_MAP;
 			return;
 		}
@@ -102,7 +93,6 @@ public final class BasicBlockGraph
 		final List _stmts = new ArrayList();
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
 		_wb.addWork(stmtList.get(0));
-		blocks = new ArrayList();
 		stmt2BlockMap = new HashMap(_numOfStmt);
 
 		while (_wb.hasWork()) {
@@ -115,7 +105,7 @@ public final class BasicBlockGraph
 			for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
 				stmt2BlockMap.put(_i.next(), _bblock);
 			}
-			blocks.add(_bblock);
+			addNode(_bblock);
 		}
 		setupGraph();
 	}
@@ -128,7 +118,7 @@ public final class BasicBlockGraph
 	 * @version $Revision$
 	 */
 	public final class BasicBlock
-	  extends AbstractMutableDirectedGraph.AbstractMutableNode {
+	  extends MutableDirectedGraph.MutableNode {
 		/** 
 		 * The list of statements represented by this block.
 		 *
@@ -375,19 +365,6 @@ public final class BasicBlockGraph
 	}
 
 	/**
-	 * Returns the nodes in the graph.
-	 *
-	 * @return an unmodifiable list of <code>BasicBlocks</code> that make up the nodes in the graph.
-	 *
-	 * @post result != null
-	 *
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodes()
-	 */
-	public List getNodes() {
-		return Collections.unmodifiableList(blocks);
-	}
-
-	/**
 	 * Retrieves the statement graph represented by this basic block graph.
 	 *
 	 * @return the statement graph.
@@ -402,14 +379,7 @@ public final class BasicBlockGraph
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this).append("blocks", this.blocks).toString();
-	}
-
-	/**
-	 * @see AbstractMutableDirectedGraph#containsNode(edu.ksu.cis.indus.common.graph.INode)
-	 */
-	protected boolean containsNode(final INode node) {
-		return blocks.contains(node);
+		return new ToStringBuilder(this).append("blocks", getNodes()).toString();
 	}
 
 	/**
@@ -482,7 +452,7 @@ public final class BasicBlockGraph
 	 */
 	private void setupGraph() {
 		// Connect the nodes of the graph.
-		for (final Iterator _i = blocks.iterator(); _i.hasNext();) {
+		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
 			final BasicBlock _block = (BasicBlock) _i.next();
 			final Stmt _stmt = _block.getTrailerStmt();
 

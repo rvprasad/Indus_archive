@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+
 import java.util.Collection;
 import java.util.HashSet;
 

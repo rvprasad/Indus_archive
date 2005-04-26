@@ -15,17 +15,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import gnu.trove.TObjectIntHashMap;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.collections.Transformer;
 
 
 /**
@@ -36,33 +28,24 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision$
  */
 public class SimpleNodeGraph
-  extends AbstractMutableDirectedGraph
+  extends MutableDirectedGraph
   implements IObjectDirectedGraph {
 	/** 
-	 * The logger used by instances of this class to log messages.
+	 * This transforms an object to a <code>SimpleNode</code>.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
+	private static final Transformer OBJECT_TO_NODE_TRANSFORMER =
+		new Transformer() {
+			public Object transform(final Object input) {
+				return new SimpleNode(input);
+			}
+		};
 
-	/** 
-	 * The sequence of nodes in this graph.  They are stored in the order that the nodes are created.
-	 *
-	 * @invariant nodes.oclIsTypeOf(Sequence(SimpleNode))
+	/**
+	 * Creates an instance of this class.
 	 */
-	private List nodes = new ArrayList();
-
-	/** 
-	 * This maps objects to their representative nodes.
-	 *
-	 * @invariant object2nodes.oclIsTypeOf(Map(Object, SimpleNode))
-	 */
-	private Map object2nodes = new HashMap();
-
-	/** 
-	 * This maps nodes to their indices in the node list of this graph.
-	 *
-	 * @invariant node2indices.oclIsTypeOf(Map(INode, int))
-	 */
-	private TObjectIntHashMap node2index = new TObjectIntHashMap();
+	public SimpleNodeGraph() {
+		super(new ObjectGraphInfo(OBJECT_TO_NODE_TRANSFORMER));
+	}
 
 	/**
 	 * This class builds a <code>SimpleNodeGraph</code>.
@@ -72,25 +55,25 @@ public class SimpleNodeGraph
 	 * @version $Revision$ $Date$
 	 */
 	public static class SimpleNodeGraphBuilder
-	  extends AbstractGraphBuilder {
+	  extends AbstractObjectDirectedGraphBuilder {
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#createGraph()
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
 		 */
 		public void createGraph() {
 			graph = new SimpleNodeGraph();
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#createNode(java.lang.Object)
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
 		 */
 		public void createNode(final Object element) {
 			((SimpleNodeGraph) graph).getNode(element);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.AbstractGraphBuilder#addEdgeFromTo(INode, INode)
+		 * @see edu.ksu.cis.indus.common.graph.AbstractObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
 		 */
-		protected void addEdgeFromTo(final INode src, final INode dest) {
+		protected void addEdgeFromTo(final Object src, final Object dest) {
 			final INode _s = ((SimpleNodeGraph) graph).getNode(src);
 			final INode _d = ((SimpleNodeGraph) graph).getNode(dest);
 			((SimpleNodeGraph) graph).addEdgeFromTo(_s, _d);
@@ -105,8 +88,8 @@ public class SimpleNodeGraph
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public final class SimpleNode
-	  extends AbstractMutableDirectedGraph.AbstractMutableNode
+	static class SimpleNode
+	  extends MutableDirectedGraph.MutableNode
 	  implements IObjectNode {
 		/** 
 		 * The object being represetned by this node.
@@ -158,65 +141,18 @@ public class SimpleNodeGraph
 	 * @post result != null
 	 */
 	public INode getNode(final Object o) {
-		INode _result = queryNode(o);
-
-		if (_result == null) {
-			_result = new SimpleNode(o);
-			object2nodes.put(o, _result);
-			node2index.put(_result, nodes.size());
-			nodes.add(_result);
-			heads.add(_result);
-			tails.add(_result);
-			hasSpanningForest = false;
-		}
+		final INode _result = ((ObjectGraphInfo) graphInfo).getNode(o);
+		heads.add(_result);
+		tails.add(_result);
+		shapeChanged();
 		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodes()
-	 */
-	public List getNodes() {
-		return Collections.unmodifiableList(nodes);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
 	 */
 	public IObjectNode queryNode(final Object o) {
-		if (o == null) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("object to be represented cannot be null.");
-			}
-			throw new NullPointerException("object to be represented cannot be null.");
-		}
-
-		final IObjectNode _result = (IObjectNode) object2nodes.get(o);
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraph#getIndexOfNode(edu.ksu.cis.indus.common.graph.INode)
-	 */
-	protected int getIndexOfNode(final INode node) {
-		return node2index.containsKey(node) ? node2index.get(node)
-											: -1;
-	}
-
-	/**
-	 * @see AbstractMutableDirectedGraph#containsNode(edu.ksu.cis.indus.common.graph.INode)
-	 */
-	protected boolean containsNode(final INode node) {
-		return nodes.contains(node);
-	}
-
-	/**
-	 * @see AbstractMutableDirectedGraph#removeNodeFromGraph(INode)
-	 */
-	protected boolean removeNodeFromGraph(final INode node) {
-		if (node2index.containsKey(node)) {
-			node2index.clear();
-		}
-		return nodes.remove(node);
+		return ((ObjectGraphInfo) graphInfo).queryNode(o);
 	}
 }
 

@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IGraphBuilder {
+public interface IObjectDirectedGraphBuilder {
 	/**
 	 * Retrieves the built graph.
 	 *
@@ -39,9 +39,9 @@ public interface IGraphBuilder {
 	 * @param src is the node in the originating graph.
 	 * @param nodes are the nodes in the originating graph.
 	 *
-	 * @pre src != null and nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 * @pre src != null and nodes != null and nodes.oclIsKindOf(Collection(Object))
 	 */
-	void addEdgeFromTo(INode src, Collection nodes);
+	void addEdgeFromTo(Object src, Collection nodes);
 
 	/**
 	 * Adds an edge from the nodes representing the nodes in <code>nodes</code> to the node representing <code>dest</code>.
@@ -49,9 +49,9 @@ public interface IGraphBuilder {
 	 * @param nodes are the nodes in the originating graph.
 	 * @param dest is the node in the originating graph.
 	 *
-	 * @pre dest != null and nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 * @pre dest != null and nodes != null and nodes.oclIsKindOf(Collection(Object))
 	 */
-	void addEdgeFromTo(Collection nodes, INode dest);
+	void addEdgeFromTo(Collection nodes, Object dest);
 
 	/**
 	 * Create the graph to be build.

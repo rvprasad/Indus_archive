@@ -31,24 +31,47 @@ import java.util.Map;
  */
 public interface IDirectedGraph {
 	/**
-	 * Returns the intersection of the nodes reachable from the given nodes in the given direction.  This is equivalent to
-	 * <code>CollectionUtils.intersection(getReachablesFrom(node1, forward1), getReachablesFrom(node2, forward2))</code>.
+	 * The interface to be implemented by node objects occuring in <code>DirectedGraph</code>.
 	 *
-	 * @param node1 of interest.
-	 * @param forward1 direction of reachability from <code>node1</code>.
-	 * @param node2 of interest.
-	 * @param forward2 direction of reachability from <code>node2</code>.
-	 *
-	 * @return a collection of nodes.
-	 *
-	 * @pre node1 != null and node2 != null
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post getReachablesFrom(node2, forward2)->forall(o | getReachablesFrom(node1, forward2).contains(o)  implies
-	 * 		 result.contains(o))
-	 * @post result->forall(o | getReachablesFrom(node2, forward2).contains(o) and  getReachableFrom(node1,
-	 * 		 forward1).contains(o))
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
 	 */
-	Collection getCommonReachablesFrom(final INode node1, boolean forward1, INode node2, boolean forward2);
+	public interface INode {
+		/**
+		 * Retrieves the predecessors of this node.
+		 *
+		 * @return the collection of predecessors of this node.
+		 *
+		 * @post result->forall(o | o.oclIsKindOf(INode))
+		 * @post result->forall(o | o.getSuccsOf()->includes(this))
+		 */
+		Collection getPredsOf();
+
+		/**
+		 * Retrieves the successors of this node.
+		 *
+		 * @param forward <code>true</code> implies forward direction(successors); <code>false</code> implies backward
+		 * 		  direction (predecessors).
+		 *
+		 * @return the collection of successors of this node.
+		 *
+		 * @post result->forall(o | o.oclIsKindOf(INode))
+		 * @post forward == true implies result->forall(o | o.getPredsOf()->includes(this))
+		 * @post forward == false implies result->forall(o | o.getSuccsOf()->includes(this))
+		 */
+		Collection getSuccsNodesInDirection(boolean forward);
+
+		/**
+		 * Retrieves the set of successor nodes of this node.
+		 *
+		 * @return the collection of successor nodes(<code>INode</code>) of this node.
+		 *
+		 * @post result->forall(o | o.oclIsKindOf(INode))
+		 * @post result->forall(o | o.getPredsOf()->includes(this))
+		 */
+		Collection getSuccsOf();
+	}
 
 	/**
 	 * Checks if the given nodes have ancestral relationship.  A node is considered as an ancestor of itself.
@@ -73,6 +96,26 @@ public interface IDirectedGraph {
 	 * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst())
 	 */
 	Collection getBackEdges();
+
+	/**
+	 * Returns the intersection of the nodes reachable from the given nodes in the given direction.  This is equivalent to
+	 * <code>CollectionUtils.intersection(getReachablesFrom(node1, forward1), getReachablesFrom(node2, forward2))</code>.
+	 *
+	 * @param node1 of interest.
+	 * @param forward1 direction of reachability from <code>node1</code>.
+	 * @param node2 of interest.
+	 * @param forward2 direction of reachability from <code>node2</code>.
+	 *
+	 * @return a collection of nodes.
+	 *
+	 * @pre node1 != null and node2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post getReachablesFrom(node2, forward2)->forall(o | getReachablesFrom(node1, forward2).contains(o)  implies
+	 * 		 result.contains(o))
+	 * @post result->forall(o | getReachablesFrom(node2, forward2).contains(o) and  getReachableFrom(node1,
+	 * 		 forward1).contains(o))
+	 */
+	Collection getCommonReachablesFrom(final INode node1, boolean forward1, INode node2, boolean forward2);
 
 	/**
 	 * Returns the cycles that occur in the graph.

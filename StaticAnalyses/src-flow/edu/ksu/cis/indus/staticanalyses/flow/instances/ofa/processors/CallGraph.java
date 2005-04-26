@@ -22,10 +22,10 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.GraphReachabilityPredicate;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -444,7 +444,7 @@ public class CallGraph
 				final List _l = new ArrayList();
 
 				for (final Iterator _j = _scc.iterator(); _j.hasNext();) {
-					_l.add(((SimpleNode) _j.next()).getObject());
+					_l.add(((IObjectNode) _j.next()).getObject());
 				}
 				topDownSCC.add(Collections.unmodifiableList(_l));
 			}

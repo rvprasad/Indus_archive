@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.MembershipPredicate;
+import edu.ksu.cis.indus.common.collections.MembershipPredicate;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
@@ -69,7 +69,7 @@ public abstract class AbstractDirectedGraph
 	/** 
 	 * The graph builder to use to build graphs that represent views of this graph.
 	 */
-	protected IGraphBuilder builder;
+	protected IObjectDirectedGraphBuilder builder;
 
 	/** 
 	 * This indicates if this graph has a spanning forest.
@@ -104,12 +104,12 @@ public abstract class AbstractDirectedGraph
 	/*
 	 * This comparator sorts nodes based on their discovery time.
 	 *
-	           private final Comparator discoverTimeBasedNodeComparator =
-	               new Comparator() {
-	                   public int compare(final Object o1, final Object o2) {
-	                       return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
-	                   }
-	               };
+	             private final Comparator discoverTimeBasedNodeComparator =
+	                 new Comparator() {
+	                     public int compare(final Object o1, final Object o2) {
+	                         return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
+	                     }
+	                 };
 	 */
 
 	/** 
@@ -164,6 +164,19 @@ public abstract class AbstractDirectedGraph
 	 * This indicates if reachability information has been calculated for this graph.
 	 */
 	private boolean reachability;
+
+	/**
+	 * @see IDirectedGraph#isAncestorOf(INode,INode)
+	 */
+	public final boolean isAncestorOf(final INode ancestor, final INode descendent) {
+		if (!hasSpanningForest) {
+			createSpanningForest();
+		}
+
+		final int _anc = getIndexOfNode(ancestor);
+		final int _desc = getIndexOfNode(descendent);
+		return discoverTimes[_anc] <= discoverTimes[_desc] && finishTimes[_anc] >= finishTimes[_desc];
+	}
 
 	/**
 	 * @see IDirectedGraph#getBackEdges()
@@ -332,24 +345,6 @@ public abstract class AbstractDirectedGraph
 			pseudoTailsCalculated = true;
 		}
 		return Collections.unmodifiableCollection(pseudoTails);
-	}
-
-	/**
-	 * @see IDirectedGraph#getNodes()
-	 */
-	public abstract List getNodes();
-
-	/**
-	 * @see IDirectedGraph#isAncestorOf(INode,INode)
-	 */
-	public final boolean isAncestorOf(final INode ancestor, final INode descendent) {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
-
-		final int _anc = getIndexOfNode(ancestor);
-		final int _desc = getIndexOfNode(descendent);
-		return discoverTimes[_anc] <= discoverTimes[_desc] && finishTimes[_anc] >= finishTimes[_desc];
 	}
 
 	/**
@@ -558,12 +553,12 @@ public abstract class AbstractDirectedGraph
 				_sb.append(_nodePos).append(_str).append(" -> ").append(getIndexOfNode((INode) _succ)).append("[")
 					 .append(_succ).append("]").append("\n");
 			}
-            
-            for (final Iterator _j = _node.getPredsOf().iterator(); _j.hasNext();) {
-                final Object _pred = _j.next();
-                _sb.append(_nodePos).append(_str).append(" <- ").append(getIndexOfNode((INode) _pred)).append("[")
-                     .append(_pred).append("]").append("\n");
-            }
+
+			for (final Iterator _j = _node.getPredsOf().iterator(); _j.hasNext();) {
+				final Object _pred = _j.next();
+				_sb.append(_nodePos).append(_str).append(" <- ").append(getIndexOfNode((INode) _pred)).append("[")
+					 .append(_pred).append("]").append("\n");
+			}
 		}
 		return _sb.toString();
 	}
@@ -981,13 +976,13 @@ public abstract class AbstractDirectedGraph
 	 * @param indexOfNode obviously.
 	 * @pre node != null
 	 *
-	           private void processNodeForHighValues(final INode node, final int indexOfNode) {
-	               final Collection _succsOf = node.getSuccsOf();
-	               if (!_succsOf.isEmpty()) {
-	                   highnums[indexOfNode] =
-	                       discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
-	               }
-	           }
+	             private void processNodeForHighValues(final INode node, final int indexOfNode) {
+	                 final Collection _succsOf = node.getSuccsOf();
+	                 if (!_succsOf.isEmpty()) {
+	                     highnums[indexOfNode] =
+	                         discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
+	                 }
+	             }
 	 */
 
 	/**

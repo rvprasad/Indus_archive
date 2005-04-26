@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.common.graph;
 import edu.ksu.cis.indus.IndusTestCase;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 
 import java.util.ArrayList;
 import java.util.Collection;

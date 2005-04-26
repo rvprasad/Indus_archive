@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
 import java.util.Collection;
@@ -206,7 +207,7 @@ public class SimpleNodeGraphTest
 
 		// Adding edges between non-existent nodes
 		try {
-			assertFalse(sng.addEdgeFromTo(sng.new SimpleNode("t1"), sng.new SimpleNode("t2")));
+			assertFalse(sng.addEdgeFromTo(new SimpleNode("t1"), new SimpleNode("t2")));
 			fail("This should not happen!");
 		} catch (final IllegalArgumentException _e) {
 			;

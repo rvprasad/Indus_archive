@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+
 import org.apache.commons.collections.Predicate;
 
 
