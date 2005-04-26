@@ -106,6 +106,7 @@ class ExprLevelSliceCriterion
 	 */
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
+																					 .append("stmt", this.stmt)
 																					 .append("expr", this.expr).toString();
 	}
 
