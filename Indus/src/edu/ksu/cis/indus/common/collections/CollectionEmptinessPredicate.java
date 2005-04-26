@@ -31,27 +31,27 @@ import org.apache.commons.collections.Predicate;
 public final class CollectionEmptinessPredicate
   implements Predicate {
 	/** 
-	 * The singleton instance of this predicate.
+	 * The singleton instance of this predicate that checks for non-emptiness.
 	 */
 	public static final CollectionEmptinessPredicate NON_EMPTY_SINGLETON = new CollectionEmptinessPredicate(false);
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The singleton instance of this predicate that checks for emptiness.
 	 */
 	public static final CollectionEmptinessPredicate EMPTY_SINGLETON = new CollectionEmptinessPredicate(true);
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This indicates if the check is for emptiness or otherwise.
 	 */
 	private final boolean emptiness;
 
 	/**
 	 * Creates a new CollectionEmptinessPredicate object.
 	 *
-	 * @param shouldCollectionBeEmpty DOCUMENT ME!
+	 * @param emptinessTest <code>true</code> if the test is for emptiness; <code>false</code>, otherwise. 
 	 */
-	private CollectionEmptinessPredicate(final boolean shouldCollectionBeEmpty) {
-		emptiness = shouldCollectionBeEmpty;
+	private CollectionEmptinessPredicate(final boolean emptinessTest) {
+		emptiness = emptinessTest;
 	}
 
 	/**
