@@ -29,6 +29,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public final class CustomToStringStyle
   extends ToStringStyle {
 	/** 
+	 * The serial version UID.
+	 */
+	static final long serialVersionUID = -2838615041966055043L;
+
+	/** 
 	 * This is the singleton object of this class.
 	 */
 	public static final ToStringStyle HASHCODE_AT_END_STYLE = new CustomToStringStyle();
