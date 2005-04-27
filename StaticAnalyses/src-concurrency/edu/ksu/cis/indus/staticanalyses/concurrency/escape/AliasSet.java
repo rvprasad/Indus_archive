@@ -554,6 +554,14 @@ final class AliasSet
 
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
+                
+                if (_fromRep.lockEntities != null) {
+                    if (_toRep.lockEntities == null) {
+                        _toRep.lockEntities = new HashSet();
+                    }
+
+                    _toRep.lockEntities.addAll(_fromRep.lockEntities);
+                }
 
 				for (final Iterator _i = _toRep.getFieldMap().keySet().iterator(); _i.hasNext();) {
 					final String _field = (String) _i.next();
