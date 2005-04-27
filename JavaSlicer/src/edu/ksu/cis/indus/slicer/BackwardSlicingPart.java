@@ -367,8 +367,8 @@ public class BackwardSlicingPart
 			final Stmt _stmt = _temp.getStmt();
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 			engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
-			engine.enterMethod(_temp);
 			generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
+			engine.enterMethod(_temp);
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
 			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
