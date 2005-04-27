@@ -555,11 +555,7 @@ final class AliasSet
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
                 
-                if (_fromRep.lockEntities != null) {
-                    if (_toRep.lockEntities == null) {
-                        _toRep.lockEntities = new HashSet();
-                    }
-
+                if (_fromRep.lockEntities != null && _toRep.lockEntities != null) {
                     _toRep.lockEntities.addAll(_fromRep.lockEntities);
                 }
 
