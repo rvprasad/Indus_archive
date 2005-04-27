@@ -115,12 +115,12 @@ public class ReadyDAv1
 	public static final int RULE_1 = 1;
 
 	/** 
-	 * This indicates intra-thread intra-procedural <code>Object.wait()</code> based ready dependence.
+	 * This indicates inter-thread monitor aquisition based ready dependence. 
 	 */
 	public static final int RULE_2 = 2;
 
-	/** 
-	 * This indicates inter-thread monitor aquisition based ready dependence.
+	/**
+     * This indicates intra-thread intra-procedural <code>Object.wait()</code> based ready dependence. 
 	 */
 	public static final int RULE_3 = 4;
 
