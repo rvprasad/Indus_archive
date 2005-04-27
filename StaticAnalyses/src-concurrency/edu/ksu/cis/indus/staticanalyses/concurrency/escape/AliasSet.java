@@ -57,9 +57,19 @@ final class AliasSet
 	private static int shareEntityCount;
 
 	/** 
+	 * This is used to generate unique lock entities.
+	 */
+	private static int lockEntityCount;
+
+	/** 
 	 * This represents if the variable associated with alias set was accessed (read/written).
 	 */
 	boolean accessed;
+
+	/** 
+	 * This represents the lock entities associated with this alias set.
+	 */
+	private Collection lockEntities;
 
 	/** 
 	 * The threads that read fields of the associated object.
@@ -151,6 +161,7 @@ final class AliasSet
 		written = false;
 		writeThreads = new HashSet();
 		shareEntities = null;
+		lockEntities = null;
 		multiThreadAccessibility = false;
 	}
 
@@ -233,6 +244,7 @@ final class AliasSet
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
 											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
+                                               .append("lockEntities", this.lockEntities)
 											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
@@ -385,6 +397,15 @@ final class AliasSet
 	 */
 	boolean isGlobal() {
 		return ((AliasSet) find()).global;
+	}
+
+	/**
+	 * Retrieves the lock entities of this object.
+	 *
+	 * @return a collection of objects.
+	 */
+	Collection getLockEntities() {
+		return ((AliasSet) find()).lockEntities;
 	}
 
 	/**
@@ -656,6 +677,17 @@ final class AliasSet
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	void addNewLockEntity() {
+        final AliasSet _s = ((AliasSet) find());
+		if (_s.lockEntities == null) {
+			_s.lockEntities = new HashSet();
+		}
+		_s.lockEntities.add("LockEntity:" + lockEntityCount++);
+	}
+
+	/**
 	 * Unifies the given alias set with this alias set.
 	 *
 	 * @param a is the alias set to be unified with this alias set.
@@ -705,20 +737,25 @@ final class AliasSet
 			_representative.writeThreads.addAll(_represented.writeThreads);
 			_represented.writeThreads = null;
 
-			if (_represented.readyEntities != null) {
-				if (_representative.readyEntities == null) {
-					_representative.readyEntities = _represented.readyEntities;
-				} else {
-					_representative.readyEntities.addAll(_represented.readyEntities);
-				}
+			if (_representative.lockEntities == null) {
+				_representative.lockEntities = _represented.lockEntities;
+				_represented.lockEntities = null;
+			} else if (_represented.lockEntities != null) {
+				_representative.lockEntities.addAll(_represented.lockEntities);
 			}
 
-			if (_represented.shareEntities != null) {
-				if (_representative.shareEntities == null) {
-					_representative.shareEntities = _represented.shareEntities;
-				} else {
-					_representative.shareEntities.addAll(_represented.shareEntities);
-				}
+			if (_representative.readyEntities == null) {
+				_representative.readyEntities = _represented.readyEntities;
+                _represented.readyEntities = null;
+			} else if (_represented.readyEntities != null) {
+				_representative.readyEntities.addAll(_represented.readyEntities);
+			}
+
+			if (_representative.shareEntities == null) {
+				_representative.shareEntities = _represented.shareEntities;
+                _represented.shareEntities = null;
+			} else if (_represented.shareEntities != null) {
+				_representative.shareEntities.addAll(_represented.shareEntities);
 			}
 
 			if (unifyAll) {

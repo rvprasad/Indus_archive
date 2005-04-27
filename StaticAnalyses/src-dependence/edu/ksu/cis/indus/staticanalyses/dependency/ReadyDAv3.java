@@ -23,7 +23,10 @@ import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitive
 
 import soot.SootMethod;
 
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
 
 
 /**
@@ -74,11 +77,56 @@ public final class ReadyDAv3
 	}
 
 	/**
+	 * Checks if the given enter monitor statement/synchronized method is dependent on the exit monitor
+	 * statement/synchronized method according to rule 2.   The results of escape analysis info calculated {@link
+	 * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
+	 * EquivalenceClassBasedEscapeAnalysis} analysis along with lock entities information is used to  determine the
+	 * dependence.
+	 *
+	 * @param enterPair is the enter monitor statement and containg statement pair.
+	 * @param exitPair is the exit monitor statement and containg statement pair.
+	 *
+	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
+	 *
+	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
+	 *
+	 * @see ReadyDAv2#ifDependentOnByRule2(Pair, Pair)
+	 */
+	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
+		boolean _result = super.ifDependentOnByRule2(enterPair, exitPair);
+
+		if (_result) {
+			final SootMethod _enterMethod = (SootMethod) enterPair.getSecond();
+			final SootMethod _exitMethod = (SootMethod) exitPair.getSecond();
+
+			if (!(_enterMethod.isStatic() && _exitMethod.isStatic())) {
+				final Object _o1 = enterPair.getFirst();
+				final Object _o2 = exitPair.getFirst();
+				final MonitorStmt _enter = (MonitorStmt) _o1;
+				final MonitorStmt _exit = (MonitorStmt) _o2;
+/*
+				if (_o1 instanceof MonitorStmt) {
+					_enter = (MonitorStmt) _o1;
+				} else {
+					_enter = null;
+				}
+
+				if (_o2 instanceof MonitorStmt) {
+					_exit = (MonitorStmt) _o2;
+				} else {
+					_exit = null;
+				}*/
+				_result = ecba.areMonitorsCoupled(_enter, _enterMethod, _exit, _exitMethod);
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the given <code>wait()</code> call-site is dependent on the <code>notifyXX()</code> call-site according to
 	 * rule 2.  The symbolic and escape analysis infomration from {@link
 	 * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
-	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.   This method will also use OFA
-	 * information if it is configured to do so.
+	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
 	 *
 	 * @param wPair is the statement in which <code>java.lang.Object.wait()</code> is invoked.
 	 * @param nPair is the statement in which <code>java.lang.Object.notifyXX()</code> is invoked.

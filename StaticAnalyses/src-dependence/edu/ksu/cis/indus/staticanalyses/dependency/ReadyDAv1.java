@@ -131,11 +131,6 @@ public class ReadyDAv1
 	public static final int RULE_4 = 8;
 
 	/** 
-	 * A token used to represent the nonexistent monitor entry/exit statements in synchronized methods.
-	 */
-	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
-
-	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
@@ -484,9 +479,6 @@ public class ReadyDAv1
 				processRules();
 			}
 
-			normalizeDependenceInfo(dependent2dependee);
-			normalizeDependenceInfo(dependee2dependent);
-
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("analyze() - " + toString());
 			}
@@ -630,9 +622,9 @@ public class ReadyDAv1
 	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
 	 * @pre enterPair.getSecond().oclIsKindOf(SootMethod) and exitPair.getSecond().oclIsKindOf(SootMethod)
 	 * @pre enterPair.getFirst() != null
-	 * @pre enterPair.getFirst().oclIsKindOf(EnterMonitorStmt) or enterPair.getFirst().equals(SYNC_METHOD_PROXY_STMT)
+	 * @pre enterPair.getFirst().oclIsKindOf(EnterMonitorStmt) or enterPair.getFirst().equals(null)
 	 * @pre exitPair.getFirst() != null
-	 * @pre exitPair.getFirst().oclIsKindOf(ExitMonitorStmt) or exitPair.getFirst().equals(SYNC_METHOD_PROXY_STMT)
+	 * @pre exitPair.getFirst().oclIsKindOf(ExitMonitorStmt) or exitPair.getFirst().equals(null)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
 		Type _enterMonitorOptype;
@@ -648,7 +640,7 @@ public class ReadyDAv1
 			boolean _syncedStaticMethod2 = false;
 			final Object _o1 = enterPair.getFirst();
 
-			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
+			if (_o1 == null) {
 				_enterMonitorOptype = _sm1.getDeclaringClass().getType();
 				_syncedStaticMethod1 = _sm1.isStatic();
 			} else {
@@ -658,7 +650,7 @@ public class ReadyDAv1
 
 			final Object _o2 = exitPair.getFirst();
 
-			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
+			if (_o2 == null) {
 				_exitMonitorOpType = _sm2.getDeclaringClass().getType();
 				_syncedStaticMethod2 = _sm2.isStatic();
 			} else {
@@ -835,7 +827,7 @@ public class ReadyDAv1
 		boolean _result = true;
 
 		if (useSafeLockAnalysis) {
-			if (monitorStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+			if (monitorStmt == null) {
 				_result = !safelockAnalysis.isLockSafe(method);
 			} else {
 				_result = !safelockAnalysis.isLockSafe((Stmt) monitorStmt, method);
@@ -936,7 +928,7 @@ public class ReadyDAv1
 		boolean _syncedStaticMethod2 = false;
 		final Context _context = new Context();
 
-		if (_enterStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+		if (_enterStmt == null) {
 			_syncedStaticMethod1 = _enterMethod.isStatic();
 
 			if (!_syncedStaticMethod1) {
@@ -953,7 +945,7 @@ public class ReadyDAv1
 			_col1 = ofa.getValues(_o1.getOp(), _context);
 		}
 
-		if (_exitStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+		if (_exitStmt == null) {
 			_syncedStaticMethod2 = _exitMethod.isStatic();
 
 			if (!_syncedStaticMethod2) {
@@ -993,52 +985,6 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Normalizes dependence information by replacing <code>SYNC_METHOD_PROXY_STMT</code> by <code>null</code>.
-	 *
-	 * @param method2dependence contains method level dependence information to be normalized.
-	 *
-	 * @pre method2dependence != null and method2dependence.oclIsKindOf(Map(SootMethod, Map(Object, Collection(Pair(Stmt,
-	 * 		SootMethod)))))
-	 */
-	private void normalizeDependenceInfo(final Map method2dependence) {
-		for (final Iterator _i = method2dependence.values().iterator(); _i.hasNext();) {
-			final Map _obj2pairCollection = (Map) _i.next();
-
-			for (final Iterator _j = _obj2pairCollection.values().iterator(); _j.hasNext();) {
-				final Collection _col = (Collection) _j.next();
-				normalizePairs(_col);
-			}
-
-			if (_obj2pairCollection.containsKey(SYNC_METHOD_PROXY_STMT)) {
-				final Collection _col = (Collection) _obj2pairCollection.get(SYNC_METHOD_PROXY_STMT);
-				_obj2pairCollection.remove(SYNC_METHOD_PROXY_STMT);
-				_obj2pairCollection.put(null, _col);
-			}
-		}
-	}
-
-	/**
-	 * Normalizes dependence information by replacing <code>SYNC_METHOD_PROXY_STMT</code> by <code>null</code>.
-	 *
-	 * @param pairCollection contains stmt level dependence information to be normalized.
-	 *
-	 * @pre pairCollection != null and pairCollection.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-	 */
-	private void normalizePairs(final Collection pairCollection) {
-		final Collection _t = new HashSet();
-
-		for (final Iterator _i = pairCollection.iterator(); _i.hasNext();) {
-			final Pair _pair = (Pair) _i.next();
-
-			if (_pair.getFirst() == SYNC_METHOD_PROXY_STMT) {
-				_t.add(pairMgr.getPair(null, _pair.getSecond()));
-				_i.remove();
-			}
-		}
-		pairCollection.addAll(_t);
-	}
-
-	/**
 	 * Process monitor info.
 	 *
 	 * @return <code>true</code> if the system has any synchronization in it; <code>false</code>, otherwise.
@@ -1060,8 +1006,8 @@ public class ReadyDAv1
 				final Object _enter = _monitor.getFirst();
 
 				if (_enter == null) {
-					CollectionsUtilities.putIntoSetInMap(enterMonitors, _method, SYNC_METHOD_PROXY_STMT);
-					CollectionsUtilities.putIntoSetInMap(exitMonitors, _method, SYNC_METHOD_PROXY_STMT);
+					CollectionsUtilities.putIntoSetInMap(enterMonitors, _method, null);
+					CollectionsUtilities.putIntoSetInMap(exitMonitors, _method, null);
 				} else {
 					CollectionsUtilities.putIntoSetInMap(enterMonitors, _method, _enter);
 					CollectionsUtilities.putIntoSetInMap(exitMonitors, _method, _monitor.getSecond());
@@ -1154,6 +1100,7 @@ public class ReadyDAv1
 			final Set _keySet = enterMonitors.keySet();
 			final Iterator _j = _keySet.iterator();
 			final int _jEnd = _keySet.size();
+            _dependents.clear();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final SootMethod _enterMethod = (SootMethod) _j.next();

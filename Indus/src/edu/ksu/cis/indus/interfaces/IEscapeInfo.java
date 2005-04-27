@@ -22,6 +22,7 @@ import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
 
 
 /**
@@ -124,6 +125,22 @@ public interface IEscapeInfo
 	 * @post result != null
 	 */
 	Collection getWritingThreadsOfThis(SootMethod sm);
+
+	/**
+	 * Checks if the given monitor statements are coupled, i.e. if they will operate on  the same object.
+	 *
+	 * @param stmt1 is a monitor statement. This should be <code>null</code> when querying about the lock  acquired/released
+	 * 		  while entering/exiting a synchronized method.
+	 * @param method1 contains <code>stmt1</code>.
+	 * @param stmt2 is another monitor statement. This should be <code>null</code> when querying about the lock
+	 * 		  acquired/released while entering/exiting a synchronized method.
+	 * @param method2 contains <code>stmt2</code>.
+	 *
+	 * @return <code>true</code>if they may be coupled; <code>false</code>, otherwise.
+	 *
+	 * @pre method1 != null and method2 != null
+	 */
+	boolean areMonitorsCoupled(MonitorStmt stmt1, SootMethod method1, MonitorStmt stmt2, SootMethod method2);
 
 	/**
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing

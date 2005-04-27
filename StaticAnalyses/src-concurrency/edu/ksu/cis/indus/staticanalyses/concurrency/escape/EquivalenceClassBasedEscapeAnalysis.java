@@ -75,6 +75,7 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
@@ -269,6 +270,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 			valueProcessor.process(stmt.getOp());
+			((AliasSet) valueProcessor.getResult()).addNewLockEntity();
 		}
 
 		/**
@@ -520,6 +522,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public void caseThisRef(final ThisRef v) {
 			final AliasSet _as = methodCtxtCache.getThisAS();
 			setReadOrWritten(_as);
+
+			if (methodCtxtCache.method.isSynchronized()) {
+				_as.addNewLockEntity();
+			}
 			setResult(_as);
 		}
 
@@ -1293,6 +1299,54 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public static boolean canHaveAliasSet(final Type type) {
 		return type instanceof RefType || type instanceof ArrayType;
+	}
+
+	/**
+	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
+	 */
+	public boolean areMonitorsCoupled(final MonitorStmt enter, final SootMethod enterMethod, final MonitorStmt exit,
+		final SootMethod exitMethod) {
+		final boolean _result;
+
+		if (enterMethod.isStatic() || exitMethod.isStatic()) {
+			_result = true;
+		} else {
+			final Triple _trp1 = (Triple) method2Triple.get(enterMethod);
+
+			if (_trp1 == null) {
+				throw new IllegalArgumentException(enterMethod + " was not processed.");
+			}
+
+			final Triple _trp2 = (Triple) method2Triple.get(exitMethod);
+
+			if (_trp2 == null) {
+				throw new IllegalArgumentException(exitMethod + " was not processed.");
+			}
+
+			final AliasSet _n;
+
+			if (enter == null) {
+				_n = ((MethodContext) _trp1.getFirst()).getThisAS();
+			} else {
+				_n = (AliasSet) ((Map) _trp1.getSecond()).get(enter.getOp());
+			}
+
+			final AliasSet _x;
+
+			if (exit == null) {
+				_x = ((MethodContext) _trp2.getFirst()).getThisAS();
+			} else {
+				_x = (AliasSet) ((Map) _trp2.getSecond()).get(exit.getOp());
+			}
+
+			final Collection _xLockEntities = _x.getLockEntities();
+			final Collection _nLockEntities = _n.getLockEntities();
+			_result =
+				_xLockEntities != null && _nLockEntities != null
+				  && CollectionUtils.containsAny(_nLockEntities, _xLockEntities);
+		}
+
+		return _result;
 	}
 
 	/**

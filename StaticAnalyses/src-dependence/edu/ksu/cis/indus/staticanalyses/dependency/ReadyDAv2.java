@@ -129,14 +129,14 @@ public class ReadyDAv2
 			boolean _flag1;
 			boolean _flag2;
 
-			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
+			if (_o1 == null) {
 				_flag1 = ecba.thisEscapes(_enterMethod);
 			} else {
 				final Value _enter = ((EnterMonitorStmt) _o1).getOp();
 				_flag1 = ecba.escapes(_enter, _enterMethod);
 			}
 
-			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
+			if (_o2 == null) {
 				_flag2 = ecba.thisEscapes(_exitMethod);
 			} else {
 				final Value _exit = ((ExitMonitorStmt) _o2).getOp();
