@@ -100,22 +100,8 @@ public final class ReadyDAv3
 			final SootMethod _exitMethod = (SootMethod) exitPair.getSecond();
 
 			if (!(_enterMethod.isStatic() && _exitMethod.isStatic())) {
-				final Object _o1 = enterPair.getFirst();
-				final Object _o2 = exitPair.getFirst();
-				final MonitorStmt _enter = (MonitorStmt) _o1;
-				final MonitorStmt _exit = (MonitorStmt) _o2;
-/*
-				if (_o1 instanceof MonitorStmt) {
-					_enter = (MonitorStmt) _o1;
-				} else {
-					_enter = null;
-				}
-
-				if (_o2 instanceof MonitorStmt) {
-					_exit = (MonitorStmt) _o2;
-				} else {
-					_exit = null;
-				}*/
+				final MonitorStmt _enter = (MonitorStmt) enterPair.getFirst();
+				final MonitorStmt _exit = (MonitorStmt) exitPair.getFirst();
 				_result = ecba.areMonitorsCoupled(_enter, _enterMethod, _exit, _exitMethod);
 			}
 		}
