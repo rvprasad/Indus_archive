@@ -305,7 +305,7 @@ public final class SlicerTool
 		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(tool.getSystem());
         
-        (new IndependenceInfoGenerator()).dumpIndependenceInfo(tool);
+        (new DependenceInfoTool()).dumpIndependenceInfo(tool);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
