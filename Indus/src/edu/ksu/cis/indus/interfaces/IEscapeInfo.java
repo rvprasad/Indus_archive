@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+
 import java.util.Collection;
 
 import soot.Local;
@@ -141,6 +142,22 @@ public interface IEscapeInfo
 	 * @pre method1 != null and method2 != null
 	 */
 	boolean areMonitorsCoupled(MonitorStmt stmt1, SootMethod method1, MonitorStmt stmt2, SootMethod method2);
+
+	/**
+	 * Checks if the given locals may point to some common object and that object may be locked.
+	 *
+	 * @param local1 is a variable whose object is used to realize a monitor. This should be <code>null</code> when querying
+	 * 		  about the lock acquired/released while entering/exiting a synchronized method.
+	 * @param method1 contains <code>local1</code>.
+	 * @param local2 is another variable whose object is used to realize a monitor. This should be <code>null</code> when
+	 * 		  querying about the lock acquired/released while entering/exiting a synchronized method.
+	 * @param method2 contains <code>local2</code>.
+	 *
+	 * @return <code>true</code>if they may be coupled; <code>false</code>, otherwise.
+	 *
+	 * @pre method1 != null and method2 != null
+	 */
+	boolean areCoupledViaLocking(Local local1, SootMethod method1, Local local2, SootMethod method2);
 
 	/**
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing

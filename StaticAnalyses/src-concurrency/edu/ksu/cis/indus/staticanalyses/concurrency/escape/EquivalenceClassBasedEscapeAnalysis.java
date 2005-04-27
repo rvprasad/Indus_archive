@@ -278,6 +278,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 			valueProcessor.process(stmt.getOp());
+			((AliasSet) valueProcessor.getResult()).addNewLockEntity();
 		}
 
 		/**
@@ -522,10 +523,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public void caseThisRef(final ThisRef v) {
 			final AliasSet _as = methodCtxtCache.getThisAS();
 			setReadOrWritten(_as);
-
-			if (methodCtxtCache.method.isSynchronized()) {
-				_as.addNewLockEntity();
-			}
 			setResult(_as);
 		}
 
@@ -647,7 +644,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final boolean _isThreadBoundary = processNotifyStartWait(primaryAliasSet, _callee);
+				final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
 
 				// retrieve the method context of the callee
 				MethodContext _mc = (MethodContext) _triple.getFirst();
@@ -731,7 +728,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * Process the called method for <code>start(), notify(), nofityAll(),</code> and variants of <code>wait</code>
+		 * Process the called method for <code>start(), notify(), nofityAll(),</code>, and variants of <code>wait</code>
 		 * methods.
 		 *
 		 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
@@ -741,7 +738,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 *
 		 * @pre primaryAliasSet != null and callee != null
 		 */
-		private boolean processNotifyStartWait(final AliasSet primaryAliasSet, final SootMethod callee) {
+		private boolean processNotifyStartWaitSync(final AliasSet primaryAliasSet, final SootMethod callee) {
 			boolean _delayUnification = false;
 
 			if (Util.isStartMethod(callee)) {
@@ -749,9 +746,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_delayUnification = true;
 			} else if (Util.isWaitMethod(callee)) {
 				primaryAliasSet.setWaits();
+				primaryAliasSet.addNewLockEntity();
 			} else if (Util.isNotifyMethod(callee)) {
 				primaryAliasSet.setNotifies();
 			}
+
 			return _delayUnification;
 		}
 	}
@@ -786,7 +785,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * algorithm.
 		 */
 		public void callback(final SootMethod sm) {
-			method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
+			final MethodContext _methodContext = new MethodContext(sm);
+			method2Triple.put(sm, new Triple(_methodContext, new HashMap(), new HashMap()));
+
+			if (sm.isSynchronized() && !sm.isStatic()) {
+				_methodContext.getThisAS().addNewLockEntity();
+			}
 		}
 
 		/**
@@ -1346,6 +1350,59 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				  && CollectionUtils.containsAny(_nLockEntities, _xLockEntities);
 		}
 
+		return _result;
+	}
+
+	/**
+	 * @see IEscapeInfo#areCoupledViaLocking(soot.Local, soot.SootMethod, soot.Local, soot.SootMethod)
+	 */
+	public boolean areCoupledViaLocking(final Local local1, final SootMethod method1, final Local local2,
+		final SootMethod method2) {
+		final boolean _result;
+
+		if (local1 == null && local2 == null && method1.isStatic() && method2.isStatic()) {
+			_result = method1.getDeclaringClass().equals(method2.getDeclaringClass());
+		} else if ((local1 == null && method1.isStatic()) ^ (local2 == null && method2.isStatic())) {
+			_result = true;
+		} else {
+			final Triple _trp1 = (Triple) method2Triple.get(method1);
+
+			if (_trp1 == null) {
+				throw new IllegalArgumentException(method1 + " was not processed.");
+			}
+
+			final AliasSet _a1;
+
+			if (local1 != null) {
+				_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local1);
+			} else {
+				_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
+			}
+
+			if (_a1 == null) {
+				throw new IllegalArgumentException(local1 + " in " + method1 + " was not processed.");
+			}
+
+			final Triple _trp2 = (Triple) method2Triple.get(method2);
+
+			if (_trp2 == null) {
+				throw new IllegalArgumentException(method2 + " was not processed.");
+			}
+
+			final AliasSet _a2;
+
+			if (local1 != null) {
+				_a2 = (AliasSet) ((Map) _trp2.getSecond()).get(local2);
+			} else {
+				_a2 = ((MethodContext) _trp2.getFirst()).getThisAS();
+			}
+
+			final Collection _a1LockEntities = _a1.getLockEntities();
+			final Collection _a2LockEntities = _a1.getLockEntities();
+			_result =
+				_a1LockEntities != null && _a2LockEntities != null
+				  && CollectionUtils.containsAny(_a1LockEntities, _a2LockEntities);
+		}
 		return _result;
 	}
 
