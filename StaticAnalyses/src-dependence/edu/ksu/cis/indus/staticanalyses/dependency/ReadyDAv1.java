@@ -50,6 +50,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -115,12 +116,12 @@ public class ReadyDAv1
 	public static final int RULE_1 = 1;
 
 	/** 
-	 * This indicates inter-thread monitor aquisition based ready dependence. 
+	 * This indicates inter-thread monitor aquisition based ready dependence.
 	 */
 	public static final int RULE_2 = 2;
 
-	/**
-     * This indicates intra-thread intra-procedural <code>Object.wait()</code> based ready dependence. 
+	/** 
+	 * This indicates intra-thread intra-procedural <code>Object.wait()</code> based ready dependence.
 	 */
 	public static final int RULE_3 = 4;
 
@@ -1040,7 +1041,7 @@ public class ReadyDAv1
 	/**
 	 * Process monitor info.
 	 *
-	 * @return <code>true</code> if the system has any methods with synchronization; <code>false</code>, otherwise.
+	 * @return <code>true</code> if the system has any synchronization in it; <code>false</code>, otherwise.
 	 */
 	private boolean processMonitorInfo() {
 		boolean _result = false;
@@ -1141,43 +1142,40 @@ public class ReadyDAv1
 	 * in different threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule2()</code>.
 	 */
 	private void processRule2() {
-		final Collection _deSet = new HashSet();
-		final Collection _dtSet = new HashSet();
+		final Collection _dependents = new HashSet();
 		final Collection _temp = getExitMonitorStmtMethodPairs();
+		final Iterator _i = _temp.iterator();
+		final int _iEnd = _temp.size();
 
-		/*
-		 * Iterate thru enter-monitor sites and record dependencies, in both direction, between each exit-monitor sites.
-		 */
-		for (final Iterator _i = enterMonitors.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final SootMethod _enterMethod = (SootMethod) _entry.getKey();
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Pair _exitPair = (Pair) _i.next();
+			final Object _exit = _exitPair.getFirst();
+			final SootMethod _exitMethod = (SootMethod) _exitPair.getSecond();
+			final Set _keySet = enterMonitors.keySet();
+			final Iterator _j = _keySet.iterator();
+			final int _jEnd = _keySet.size();
 
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Object _enter = _j.next();
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final SootMethod _enterMethod = (SootMethod) _j.next();
+				final Collection _collection = (Collection) enterMonitors.get(_enterMethod);
+				final Iterator _iter = _collection.iterator();
+				final int _iterEnd = _collection.size();
 
-				final Pair _enterPair = pairMgr.getPair(_enter, _enterMethod);
-				_deSet.clear();
-
-				// add dependee to dependent information 
-				for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
-					final Pair _exitPair = (Pair) _k.next();
+				for (int _iterIndex = 0; _iterIndex < _iterEnd; _iterIndex++) {
+					final Object _enter = _iter.next();
+					final Pair _enterPair = pairMgr.getPair(_enter, _enterMethod);
 
 					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
-						_dtSet.add(_enterPair);
-						_deSet.add(_exitPair);
-
-						final Object _exit = _exitPair.getFirst();
-						final SootMethod _exitMethod = (SootMethod) _exitPair.getSecond();
-						final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
-						CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dtSet);
+						final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
+						CollectionsUtilities.putIntoSetInMap(_dents2dees, _enter, _exitPair);
+						_dependents.add(_enterPair);
 					}
 				}
+			}
 
-				// add dependent to dependee information
-				if (!_deSet.isEmpty()) {
-					final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
-					CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _enter, _deSet);
-				}
+			if (!_dependents.isEmpty()) {
+				final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+				CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dependents);
 			}
 		}
 	}
@@ -1208,13 +1206,11 @@ public class ReadyDAv1
 
 					for (final Iterator _l = ((Collection) _wEntry.getValue()).iterator(); _l.hasNext();) {
 						final InvokeStmt _wait = (InvokeStmt) _l.next();
-
 						final Pair _wPair = pairMgr.getPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
 							final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
-							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair,
-								CollectionsUtilities.HASH_SET_FACTORY);
+							CollectionsUtilities.putIntoSetInMap(_dents2dees, _wait, _nPair);
 							_dependents.add(_wPair);
 						}
 					}
@@ -1223,8 +1219,7 @@ public class ReadyDAv1
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
 					final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _nMethod);
-					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents,
-						CollectionsUtilities.HASH_SET_FACTORY);
+					CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _notify, _dependents);
 				}
 			}
 		}
@@ -1234,20 +1229,23 @@ public class ReadyDAv1
 	 * Processes various rules during analysis.
 	 */
 	private void processRules() {
-		final boolean _syncedMethodsExist = processMonitorInfo();
+		final boolean _syncExists = processMonitorInfo();
 
-		if (_syncedMethodsExist && (rules & (RULE_1 | RULE_3)) != 0) {
-			processRule1And3();
-		}
+		if (_syncExists) {
+			if ((rules & (RULE_1 | RULE_3)) != 0) {
+				processRule1And3();
+			}
 
-		if (!waits.isEmpty() && !notifies.isEmpty()) {
 			if ((rules & RULE_2) != 0) {
 				processRule2();
 			}
+		}
 
-			if ((rules & RULE_4) != 0) {
-				processRule4();
+		if ((rules & RULE_4) != 0 && (!waits.isEmpty() && !notifies.isEmpty())) {
+			if (!_syncExists && LOGGER.isWarnEnabled()) {
+				LOGGER.warn("All waits and in this system are unsafe - they are not embedded in a synchronized block.");
 			}
+			processRule4();
 		}
 	}
 
