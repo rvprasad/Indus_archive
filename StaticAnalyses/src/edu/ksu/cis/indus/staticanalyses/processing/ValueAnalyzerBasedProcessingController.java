@@ -52,7 +52,8 @@ public class ValueAnalyzerBasedProcessingController
 	protected IValueAnalyzer analyzer;
 
 	/**
-	 * Sets the analyzer which provides the information to be processed.
+	 * Sets the analyzer which provides the information to be processed.  This implementation retrieves the
+     * environment from the provided analyzer.
 	 *
 	 * @param analyzerParam an instance of the FA.
 	 */
