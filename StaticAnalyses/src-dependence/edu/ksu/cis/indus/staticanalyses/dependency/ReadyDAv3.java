@@ -23,8 +23,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitive
 
 import soot.SootMethod;
 
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
 import soot.jimple.MonitorStmt;
 
