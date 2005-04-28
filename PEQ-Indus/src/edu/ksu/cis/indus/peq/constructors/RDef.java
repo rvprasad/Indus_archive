@@ -63,13 +63,15 @@ public class RDef extends GeneralConstructor {
             return false;
         }
         RDef rhs = (RDef) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(-1558278783, -692692025).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 9; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

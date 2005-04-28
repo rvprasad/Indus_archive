@@ -15,10 +15,12 @@
 
 package edu.ksu.cis.indus.peq.test;
 
+import edu.ksu.cis.indus.peq.fsm.EFreeNFA2DFATransformer;
 import edu.ksu.cis.indus.peq.fsm.EpsClosureConvertor;
 import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
 import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
 import edu.ksu.cis.indus.peq.queryglue.QueryObject;
+import edu.ksu.cis.peq.fsm.interfaces.IFSM;
 import edu.ksu.cis.peq.fsm.interfaces.IState;
 import edu.ksu.cis.peq.fsm.interfaces.ITransition;
 
@@ -63,7 +65,10 @@ public final class TesterCLI {
                 final IState _state = _builder.getInitialState();
                 EpsClosureConvertor _ecc = new EpsClosureConvertor(_builder);
                 _ecc.processShallow();
-                describeFSM(_ecc.getResult());
+                final IFSM _eFreeFSM = _ecc.getResult();
+                final EFreeNFA2DFATransformer _efn2dt = new EFreeNFA2DFATransformer(_eFreeFSM);
+				_efn2dt.process();				
+                describeFSM(_efn2dt.getDfaAutomata().getInitialState());
             }
         } catch (IOException _ie) {
             _ie.printStackTrace();

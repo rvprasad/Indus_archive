@@ -63,13 +63,15 @@ public class RUse extends GeneralConstructor {
             return false;
         }
         RUse rhs = (RUse) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(353454931, 326333759).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 12; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

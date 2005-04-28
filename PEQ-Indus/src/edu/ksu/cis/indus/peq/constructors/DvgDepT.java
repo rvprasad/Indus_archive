@@ -60,13 +60,15 @@ public class DvgDepT extends GeneralConstructor {
             return false;
         }
         DvgDepT rhs = (DvgDepT) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(2138936219, 262029327).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 4; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

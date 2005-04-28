@@ -60,13 +60,15 @@ public class ReadyDepT extends GeneralConstructor {
             return false;
         }
         ReadyDepT rhs = (ReadyDepT) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(-1459277465, 1928089483).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 11; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

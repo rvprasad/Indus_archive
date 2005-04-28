@@ -60,13 +60,15 @@ public class SyncDepT extends GeneralConstructor {
             return false;
         }
         SyncDepT rhs = (SyncDepT) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(1463113703, 81674759).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 14; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

@@ -68,13 +68,15 @@ public class IUse extends GeneralConstructor {
             return false;
         }
         IUse rhs = (IUse) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(1737511775, -98171143).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 8; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

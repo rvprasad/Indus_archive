@@ -31,10 +31,7 @@ public abstract class GeneralConstructor implements IConstructor {
     
     private String variableName = "";
     
-    /**
-     * The dependence type represented by this cosntructor.
-     */
-    private Object depType;
+  
     /* (non-Javadoc)
      * @see edu.ksu.cis.peq.constructor.interfaces.IConstructor#isVariablePresent()
      */
@@ -71,16 +68,14 @@ public abstract class GeneralConstructor implements IConstructor {
             return false;
         }
         GeneralConstructor rhs = (GeneralConstructor) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).append(
-                this.depType, rhs.depType).append(this.variableName,
-                rhs.variableName).isEquals();
+        return variableName.equals(rhs.getVariableName());
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(111365751, 570326667).appendSuper(
-                super.hashCode()).append(this.depType)
-                .append(this.variableName).toHashCode();
+        int _result = 17;
+        _result = 37 * _result + variableName.hashCode();
+        return _result;
     }
 }

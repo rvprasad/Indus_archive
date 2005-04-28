@@ -110,8 +110,8 @@ public class EpsClosureConvertor {
                         _t.setLabel(_trans.getLabel());
                         _newState.addExitingTransitions(_t);
                         _theState.addEnteringTransitions(_t);
-                        System.out.print("Creating transition from " + _newState.hashCode() + " : " + _theState.hashCode());
-                        System.out.println(" with label " + _t.getLabel().getClass().toString());
+                       /* System.out.print("Creating transition from " + _newState.hashCode() + " : " + _theState.hashCode());
+                        System.out.println(" with label " + _t.getLabel().getClass().toString());*/
                         createEpsFreeAutm(sToEcMap, _dstnState, reachset);
                     }
 
@@ -216,7 +216,9 @@ public class EpsClosureConvertor {
      * Get the result fsm.
      * @return IFSM The epsilon free fsm.
      */
-    public State getResult() {
-        return initialState;
+    public IFSM getResult() {
+    	final BasicFSM _bfm = new BasicFSM();
+    	_bfm.setInitialState(initialState);
+        return _bfm;
     }
 }

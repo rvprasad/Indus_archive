@@ -60,13 +60,15 @@ public class ControlDepT extends GeneralConstructor {
             return false;
         }
         ControlDepT rhs = (ControlDepT) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(-2089647993, -1055824633).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 2; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }

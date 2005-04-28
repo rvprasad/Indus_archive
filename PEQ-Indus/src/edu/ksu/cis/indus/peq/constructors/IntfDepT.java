@@ -71,13 +71,15 @@ public class IntfDepT extends GeneralConstructor {
             return false;
         }
         IntfDepT rhs = (IntfDepT) object;
-        return new EqualsBuilder().appendSuper(super.equals(object)).isEquals();
+        return super.equals(rhs);
     }
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return new HashCodeBuilder(-1787860291, 140319767).appendSuper(
-                super.hashCode()).toHashCode();
+    	int _result = 17;
+        _result = _result * 37 + 7; 
+        _result = _result * 37 + super.hashCode();
+        return _result;
     }
 }
