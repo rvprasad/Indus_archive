@@ -42,9 +42,9 @@ import soot.jimple.ParameterRef;
 
 
 /**
- * This class represents the central access point for the information calculated in a value flow analysis.  The subclass 
- * should extend this class with methods to access various information about the implmented analysis.  This class by itself 
- * provides the interface to query generic, low-level analysis information.  These interfaces should be used by implemented 
+ * This class represents the central access point for the information calculated in a value flow analysis.  The subclass
+ * should extend this class with methods to access various information about the implmented analysis.  This class by itself
+ * provides the interface to query generic, low-level analysis information.  These interfaces should be used by implemented
  * components of the framework to extract information during the analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -147,16 +147,8 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
-	 * Returns the values associated with <code>astChunk</code> in the given <code>ctxt</code>.
-	 *
-	 * @param astChunk for which the values are requested.
-	 * @param ctxt in which the values were associated to <code>astChunk</code>.
-	 *
-	 * @return a collection of <code>Object</code>s.  The actual instance of the analysis framework decides the static type
-	 * 		   of the objects in this collection.
-	 *
-	 * @pre astChunk != null and ctxt != null
-	 * @post result != null
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer#getValues(soot.Value,
+	 * 		edu.ksu.cis.indus.processing.Context)
 	 */
 	public final Collection getValues(final Value astChunk, final Context ctxt) {
 		final Context _tmpCtxt = context;
@@ -176,15 +168,28 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
-	 * Returns the set of values associated with <code>this</code> variable in the context given by <code>context</code>.
-	 *
-	 * @param ctxt in which the values were associated to <code>this</code> variable.  The instance method associated with
-	 * 		  the interested <code>this</code> variable should be the current method in the call string of this context.
-	 *
-	 * @return the collection of values associated with <code>this</code> in <code>context</code>.
-	 *
-	 * @pre ctxt != null
-	 * @post result != null
+	 * @see IValueAnalyzer#getValuesForParameter(int, edu.ksu.cis.indus.processing.Context)
+	 */
+	public final Collection getValuesForParameter(final int paramIndex, final Context ctxt) {
+		final Context _tmpCtxt = context;
+		context = ctxt;
+
+		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection _temp = Collections.EMPTY_LIST;
+
+		if (_mv != null) {
+			final IFGNode _queryParameterNode = _mv.queryParameterNode(paramIndex);
+
+			if (_queryParameterNode != null) {
+				_temp = _queryParameterNode.getValues();
+			}
+		}
+		context = _tmpCtxt;
+		return _temp;
+	}
+
+	/**
+	 * @see IValueAnalyzer#getValuesForThis(edu.ksu.cis.indus.processing.Context)
 	 */
 	public final Collection getValuesForThis(final Context ctxt) {
 		final Context _tmpCtxt = context;

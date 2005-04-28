@@ -49,7 +49,8 @@ public interface IValueAnalyzer
 	String TAG_ID = "id of tag used by flow analysis";
 
 	/**
-	 * Returns the values associated with thrown exceptions for the given invocation expression and <code>this.context</code>.
+	 * Returns the values associated with thrown exceptions for the given invocation expression and
+	 * <code>this.context</code>.
 	 *
 	 * @param e is the method invoke expression.
 	 * @param context in which the returned values will be associatd with the invocation site.
@@ -87,6 +88,20 @@ public interface IValueAnalyzer
 	 * @post result != null
 	 */
 	Collection getValues(Value value, Context context);
+
+	/**
+	 * Retrieves the values associated with the given parameter position in the given context.
+	 *
+	 * @param paramIndex is the position of the parameter.
+	 * @param context in which value is requested.
+	 *
+	 * @return the collection of values
+	 *
+	 * @pre context != null and 0 &lt;= paramIndex &lt context.getCurrentMethod().getParameterCount()
+	 * @pre context.getCurrentMethod() != null
+	 * @post result != null
+	 */
+	Collection getValuesForParameter(int paramIndex, Context context);
 
 	/**
 	 * Retrieves the values associated with <code>this</code> variable in the given context.
