@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.peq.test;
 
+import edu.ksu.cis.indus.peq.fsm.EpsClosureConvertor;
 import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
 import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
 import edu.ksu.cis.indus.peq.queryglue.QueryObject;
@@ -60,7 +61,9 @@ public final class TesterCLI {
             if (_qo != null) {
                 final FSMBuilder$v1_2 _builder = new FSMBuilder$v1_2(_qo);
                 final IState _state = _builder.getInitialState();
-                describeFSM(_state);
+                EpsClosureConvertor _ecc = new EpsClosureConvertor(_builder);
+                _ecc.processShallow();
+                describeFSM(_ecc.getResult());
             }
         } catch (IOException _ie) {
             _ie.printStackTrace();

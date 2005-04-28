@@ -14,33 +14,32 @@
  * Created on March 8, 2005, 8:39 PM
  */
 
+
 package edu.ksu.cis.peq.fsm.interfaces;
 
-import edu.ksu.cis.peq.graph.interfaces.IEdge;
+import java.util.Map;
 
 /**
  * @author ganeshan
- * This represents the result of the matching function.
  *
+ * Matches the state and the substituion.
+ * Used for universal queries as described in the liu paper.
  */
-public interface IFSMToken extends IMatchStateToken {
-    /**
-     * Get the graph edge that was matched,
-     */
-    IEdge getGraphEdge();
-
+public interface IMatchStateToken {
     
     /**
-     * Returns the parent token; used for finding the path traversed.
-     * @return IFSMTokem The parent toke, if present else null
+     * Indicates if this token is empty => No match was possible.
      */
-    IFSMToken getParent();
-
-    /**    
-     * Set the parent token for this token.
-     * @param parent The parent token
-     * @pre parent != null
-     * @post this.parent != null
+    boolean isEmpty();
+    
+    /**
+     * Get the fsm transition that was matched.
      */
-    void setParent(final IFSMToken parent);
+    ITransition getTransitionEdge();
+    
+    /**
+     * Get the variable substitution map.
+     * @post Result.oclisKindOf(HashMap) and Result.size == 0 <=> isEmpty() == true
+     */
+    Map getSubstituitionMap();
 }

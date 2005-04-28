@@ -33,14 +33,14 @@ public class EpsTransition implements ITransition {
      * @see edu.ksu.cis.peq.fsm.interfaces.ITransition#getSrcState()
      */
     public IState getSrcState() {
-        return dstnState;
+        return srcState;
     }
 
     /* (non-Javadoc)
      * @see edu.ksu.cis.peq.fsm.interfaces.ITransition#getDstnState()
      */
     public IState getDstnState() {
-        return srcState;
+        return dstnState;
     }
 
     /* (non-Javadoc)
