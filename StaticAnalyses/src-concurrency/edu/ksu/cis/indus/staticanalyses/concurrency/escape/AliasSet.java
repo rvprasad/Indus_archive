@@ -280,9 +280,8 @@ final class AliasSet
 	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
 	 * 		  <code>false</code>, otherwise.
 	 *
-	 * @return <code>true</code> if this alias set is side-affected; <code>false</code>, otherwise.
-	 *
-	 * @pre paramAS != null
+	 * @return <code>true</code> if this alias set is side-affected or if the given alias set is <code>null</code>; 
+     * <code>false</code>, otherwise.
 	 */
 	static boolean isSideAffected(final AliasSet paramAS, final boolean recurse) {
 		boolean _result = paramAS == null;
@@ -811,10 +810,10 @@ final class AliasSet
 	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
 	 */
 	private boolean isSideAffected(final Collection visitedASs, final boolean recurse) {
-		boolean _result = false;
-		final AliasSet _rep = (AliasSet) find();
-
-		if (!visitedASs.contains(_rep)) {
+		boolean _result = isSideAffected();
+        final AliasSet _rep = (AliasSet) find();
+        
+		if (!_result && !visitedASs.contains(_rep)) {
 			final Collection _fieldASs = _rep.getFieldMap().values();
 			final Iterator _i = _fieldASs.iterator();
 			final int _iEnd = _fieldASs.size();
