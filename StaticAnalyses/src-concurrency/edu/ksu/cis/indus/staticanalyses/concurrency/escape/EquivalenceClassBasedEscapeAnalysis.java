@@ -1454,19 +1454,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		boolean _result = true;
 
 		try {
-			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
-			// allocation sites which are executed only once. 
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				/*
-				 *  Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape
-				 * information. But this is untrue, as all the data that can be shared across threads have been exposed and
-				 * marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the
-				 * corresponding alias set at the caller side is unified atleast twice in case these threads are started at
-				 * different sites.  In case the threads are started at the same site, then the processing of call-site during
-				 * phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program
-				 * structure and the language semantics along with the rules above ensure that the escape information is
-				 * polluted (pessimistic) only when necessary.
-				 */
 				_result = getAliasSetFor(v, sm).escapes();
 			} else {
 				_result = false;
@@ -1589,23 +1577,24 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final Map _local2AS = (Map) _trp.getSecond();
 		AliasSet _result = null;
 
-		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-			if (v instanceof InstanceFieldRef) {
-				final InstanceFieldRef _i = (InstanceFieldRef) v;
-				final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
-				_result = _temp.getASForField(_i.getField().getSignature());
-			} else if (v instanceof StaticFieldRef) {
-				_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
-			} else if (v instanceof ArrayRef) {
-				final ArrayRef _a = (ArrayRef) v;
-				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(ARRAY_FIELD);
-			} else if (v instanceof Local) {
-				_result = (AliasSet) _local2AS.get(v);
-			} else if (v instanceof ThisRef) {
-				_result = ((MethodContext) _trp.getFirst()).getThisAS();
-			}
-		}
+        if (canHaveAliasSet(v.getType())) {
+    		if (v instanceof InstanceFieldRef) {
+    			final InstanceFieldRef _i = (InstanceFieldRef) v;
+    			final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
+    			_result = _temp.getASForField(_i.getField().getSignature());
+    		} else if (v instanceof StaticFieldRef) {
+    			_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+    		} else if (v instanceof ArrayRef) {
+    			final ArrayRef _a = (ArrayRef) v;
+    			final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
+    			_result = _temp.getASForField(ARRAY_FIELD);
+    		} else if (v instanceof Local) {
+    			_result = (AliasSet) _local2AS.get(v);
+    		} else if (v instanceof ThisRef) {
+    			_result = ((MethodContext) _trp.getFirst()).getThisAS();
+    		} 
+        }
+
 		return _result;
 	}
 
@@ -1662,35 +1651,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
 		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
 		return _calleeContext.getImageOfRefInGivenContext(ref, _callingContext);
-	}
-
-	/**
-	 * Checks if the given value in the given method is global.
-	 *
-	 * @param v is the value to be checked for globalness.
-	 * @param sm is the method in which <code>v</code> occurs.
-	 *
-	 * @return <code>true</code> if <code>v</code> is marked as global; <code>false</code>, otherwise.
-	 *
-	 * @pre v != null and sm != null
-	 */
-	boolean isGlobal(final Value v, final SootMethod sm) {
-		boolean _result = true;
-
-		try {
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = getAliasSetFor(v, sm).isGlobal();
-			} else {
-				_result = false;
-			}
-		} catch (final NullPointerException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("There is no information about " + v + " occurring in " + sm
-					+ ".  So, providing pessimistic info (true).", _e);
-			}
-		}
-
-		return _result;
 	}
 
 	/**
