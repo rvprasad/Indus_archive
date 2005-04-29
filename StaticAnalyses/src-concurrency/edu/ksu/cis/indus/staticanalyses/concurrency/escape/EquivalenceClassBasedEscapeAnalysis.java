@@ -1398,7 +1398,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			final Collection _a1LockEntities = _a1.getLockEntities();
-			final Collection _a2LockEntities = _a1.getLockEntities();
+			final Collection _a2LockEntities = _a2.getLockEntities();
 			_result =
 				_a1LockEntities != null && _a2LockEntities != null
 				  && CollectionUtils.containsAny(_a1LockEntities, _a2LockEntities);
@@ -1495,7 +1495,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean _result = escapes(v1, sm1) && escapes(v2, sm2);
-
+        
 		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
 				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
@@ -1507,7 +1507,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 						+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
-		}
+        }
 
 		return _result;
 	}
