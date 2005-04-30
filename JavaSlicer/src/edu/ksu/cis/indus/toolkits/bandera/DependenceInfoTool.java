@@ -478,9 +478,19 @@ public final class DependenceInfoTool
 					final Stmt _sDest = (Stmt) _pDest.getFirst();
 					final SootMethod _mDest = (SootMethod) _pDest.getSecond();
 
-					if (cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, tgi)) {
-						CollectionsUtilities.putIntoSetInMap(mayFollow, _pSrcInBIR, generateBIRRep(_pDest));
-					}
+                    boolean _flag;
+                    if (_sSrc != null && _sDest != null) {
+                        _flag = cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, tgi);
+                    } else if (_sSrc == null && _sDest == null) {
+                        _flag = cfg.doesControlPathExistsFromTo(_mSrc, _mDest); 
+                    } else if (_sSrc == null) { 
+                        _flag = cfg.doesControlFlowPathExistsBetween(_mDest, _sDest, _mSrc, false, true);
+                    } else {
+                        _flag = cfg.doesControlFlowPathExistsBetween(_mSrc, _sSrc, _mDest, true, true);
+                    }
+                    if (_flag) {
+                        CollectionsUtilities.putIntoSetInMap(mayFollow, _pSrcInBIR, generateBIRRep(_pDest));
+                    }
 				}
 			}
 		}
