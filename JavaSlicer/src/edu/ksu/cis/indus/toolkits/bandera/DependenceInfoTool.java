@@ -112,11 +112,50 @@ import soot.jimple.VirtualInvokeExpr;
 public final class DependenceInfoTool
   extends BaseObservable
   implements Tool {
+    
+    /** 
+     * This identifies the scene in the input arguments.
+     */
+    public static final Object SCENE = "scene";
+
+    /** 
+     * This identifies the root methods/entry point methods in the input arguments.
+     */
+    public static final Object ROOT_METHODS = "entryPoints";
+
+    /** 
+     * <p>
+     * DOCUMENT ME!
+     * </p>
+     */
+    public static final Object DEPENDENCE = "dependence information";
+
+    /** 
+     * <p>
+     * DOCUMENT ME!
+     * </p>
+     */
+    public static final Object KNOWN_TRANSITIONS = "known transitions information";
+
+    /** 
+     * <p>
+     * DOCUMENT ME!
+     * </p>
+     */
+    public static final Object MAY_FOLLOW_RELATION = "may happen relation";
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(CustomProcessor.class);
+	static final Log LOGGER = LogFactory.getLog(DependenceInfoTool.class);
 
+    /** 
+     * <p>
+     * DOCUMENT ME!
+     * </p>
+     */
+    static final String SYNC_METHOD_LOCATIONS = " sync";
+    
 	/** 
 	 * <p>
 	 * DOCUMENT ME!
@@ -145,43 +184,6 @@ public final class DependenceInfoTool
 	 */
 	private static final String VIRTUAL_SUFFIX = "|+";
 
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	static final String SYNC_METHOD_LOCATIONS = " sync";
-
-	/** 
-	 * This identifies the scene in the input arguments.
-	 */
-	public static final Object SCENE = "scene";
-
-	/** 
-	 * This identifies the root methods/entry point methods in the input arguments.
-	 */
-	public static final Object ROOT_METHODS = "entryPoints";
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final Object DEPENDENCE = "dependence information";
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final Object KNOWN_TRANSITIONS = "known transitions information";
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final Object MAY_FOLLOW_RELATION = "may happen relation";
 
 	/** 
 	 * The collection of input argument identifiers.
@@ -275,13 +277,6 @@ public final class DependenceInfoTool
 		 * DOCUMENT ME!
 		 * </p>
 		 */
-		final Map map = new HashMap();
-
-		/** 
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
 		private final CFGAnalysis cfg;
 
 		/** 
@@ -336,7 +331,7 @@ public final class DependenceInfoTool
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
 				final Pair _p = new Pair(null, method);
-				CollectionsUtilities.putAllIntoSetInMap(map, _p, locking.getLockingBasedEquivalentsFor(_p));
+				CollectionsUtilities.putAllIntoSetInMap(dependence, _p, locking.getLockingBasedEquivalentsFor(_p));
 			}
 		}
 
@@ -358,8 +353,8 @@ public final class DependenceInfoTool
 				final SootMethod _currentMethod = context.getCurrentMethod();
 				final Stmt _stmt = context.getStmt();
 				final Pair _pair = new Pair(_stmt, _currentMethod);
-				CollectionsUtilities.putAllIntoSetInMap(map, _pair, interferenceDA.getDependees(_stmt, _currentMethod));
-				CollectionsUtilities.putAllIntoSetInMap(map, _pair, interferenceDA.getDependents(_stmt, _currentMethod));
+				CollectionsUtilities.putAllIntoSetInMap(dependence, _pair, interferenceDA.getDependees(_stmt, _currentMethod));
+				CollectionsUtilities.putAllIntoSetInMap(dependence, _pair, interferenceDA.getDependents(_stmt, _currentMethod));
 
 				if (_stmt instanceof DefinitionStmt && ((DefinitionStmt) _stmt).getLeftOpBox() == vBox) {
 					defStmts.add(_pair);
@@ -374,17 +369,21 @@ public final class DependenceInfoTool
 			calculateWriteWriteDependence();
 			calculateLockingDependence();
 			calculatedMayHappenInFutureRelation();
-
-			final Iterator _i = map.entrySet().iterator();
-			final int _iEnd = map.entrySet().size();
+            
+            final Map _result = new HashMap();
+			final Iterator _i = dependence.entrySet().iterator();
+			final int _iEnd = dependence.entrySet().size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Map.Entry _entry = (Map.Entry) _i.next();
 				final Pair _pair = (Pair) _entry.getKey();
 				final Collection _depends = (Collection) _entry.getValue();
-				translateIntoBIR(dependence, _pair, _depends);
+				translateIntoBIR(_result, _pair, _depends);
 			}
 
+            dependence.clear();
+            dependence.putAll(_result);
+            
 			writeDataToFiles();
 			method2birsig.clear();
 			defStmts.clear();
@@ -428,7 +427,7 @@ public final class DependenceInfoTool
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Pair _p = (Pair) _i.next();
-				CollectionsUtilities.putAllIntoSetInMap(map, _p, locking.getLockingBasedEquivalentsFor(_p));
+				CollectionsUtilities.putAllIntoSetInMap(dependence, _p, locking.getLockingBasedEquivalentsFor(_p));
 			}
 		}
 
@@ -451,8 +450,8 @@ public final class DependenceInfoTool
 					final SootMethod _m2 = (SootMethod) _p2.getSecond();
 
 					if (shared(_s1, _m1, _s2, _m2)) {
-						CollectionsUtilities.putIntoSetInMap(map, _p1, _p2);
-						CollectionsUtilities.putIntoSetInMap(map, _p2, _p1);
+						CollectionsUtilities.putIntoSetInMap(dependence, _p1, _p2);
+						CollectionsUtilities.putIntoSetInMap(dependence, _p2, _p1);
 					}
 				}
 			}
@@ -462,7 +461,7 @@ public final class DependenceInfoTool
 		 * DOCUMENT ME!
 		 */
 		private void calculatedMayHappenInFutureRelation() {
-			final Set _keys = map.keySet();
+			final Set _keys = dependence.keySet();
 			final Iterator _i = _keys.iterator();
 			final int _iEnd = _keys.size();
 
@@ -855,8 +854,6 @@ public final class DependenceInfoTool
 		_ac.initialize();
 		_ac.execute();
 
-		System.out.println(_interferenceDA);
-
 		final ProcessingController _pc2 = new ProcessingController();
 		_pc2.setEnvironment(_aa.getEnvironment());
 		_pc2.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
@@ -866,8 +863,6 @@ public final class DependenceInfoTool
 		_lbe.hookup(_pc2);
 		_pc2.process();
 		_lbe.unhook(_pc2);
-
-		System.out.println(_lbe);
 
 		final CustomProcessor _proc = new CustomProcessor(_interferenceDA, _lbe, _ecba, _tgi, new CFGAnalysis(_cgi, _bbm));
 		_proc.hookup(_pc2);
