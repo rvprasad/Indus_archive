@@ -76,7 +76,7 @@ public final class CFGAnalysis {
 		this.cgi = cgiParam;
 		this.bbm = bbmParam;
 	}
-    
+
 	/**
 	 * Checks if the destination site is reachable from the source site via an interprocedural control flow path.
 	 *
@@ -156,9 +156,9 @@ public final class CFGAnalysis {
 	 * @param method in which control starts.
 	 * @param stmt at which control starts.
 	 * @param targetMethod which the control should reach.
-	 * @param forward <code>true</code> indicates to check if the the control reaches <code>targetmethod</code> after
-	 * 		  executing <code>stmt</code> in <code>method</code>; <code>false</code>, if the the control reaches
-	 * 		  <code>targetmethod</code> before  executing <code>stmt</code> in <code>method</code>.
+	 * @param forward <code>true</code> indicates to check if the the control reaches the <code>targetmethod</code> from  the
+	 * 		  <code>stmt</code> in <code>method</code>; <code>false</code>, if the the control reaches <code>stmt</code> in
+	 * 		  <code>method</code> from <code>targetmethod</code>.
 	 * @param exclusive <code>true</code> indicates that <code>stmt</code> should not be considered during existence check;
 	 * 		  <code>false</code>, otherwise.
 	 *
