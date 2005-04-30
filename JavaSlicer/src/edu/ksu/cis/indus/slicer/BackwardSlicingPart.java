@@ -217,7 +217,7 @@ public class BackwardSlicingPart
 		 */
 		engine.generateStmtLevelSliceCriterion(callStmt, caller, false);
 		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
-		generateCriteriaForReceiverOfAt(callee, callStmt, caller);
+		generateCriteriaForReceiverOfAt(callStmt, caller);
 		recordCallInfoForProcessingArgsTo(callStmt, caller, callee);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -367,8 +367,8 @@ public class BackwardSlicingPart
 			final Stmt _stmt = _temp.getStmt();
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 			engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
-			generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
-			engine.enterMethod(_temp);
+            generateCriteriaForReceiverOfAt(_stmt, _caller);
+            engine.enterMethod(_temp);
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
 			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
@@ -377,7 +377,7 @@ public class BackwardSlicingPart
 				final Stmt _stmt = _ctrp.getStmt();
 				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
 				engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
-				generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
+				generateCriteriaForReceiverOfAt(_stmt, _caller);
 			}
 		}
 
@@ -523,25 +523,24 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * Generates criteria to include the receiver of the callee at the given invocation statement.
+	 * Generates criteria to include the receiver at the given invocation statement.
 	 * 
 	 * <p>
-	 * This should be called from within the callee's context (callStack containing the call to the callee).
+	 * This should be called from the caller's context (callStack containing the call to the callee).
 	 * </p>
 	 *
-	 * @param callee is the method that is invoked.
 	 * @param callStmt at which the invocation occurs.
 	 * @param caller in which the invocation occurs.
 	 *
 	 * @pre callStmt != null and caller != null and callee != null
 	 */
-	private void generateCriteriaForReceiverOfAt(final SootMethod callee, final Stmt callStmt, final SootMethod caller) {
+	private void generateCriteriaForReceiverOfAt(final Stmt callStmt, final SootMethod caller) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt + ", SootMethod callee = " + callee
+			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt
 				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		if (!callee.isStatic()) {
+		if (!callStmt.getInvokeExpr().getMethod().isStatic()) {
 			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
 			engine.generateExprLevelSliceCriterion(_vBox, callStmt, caller, true);
 		}
@@ -670,7 +669,7 @@ public class BackwardSlicingPart
 				}
 			}
 
-			generateCriteriaForReceiverOfAt(_callee, stmt, caller);
+			generateCriteriaForReceiverOfAt(stmt, caller);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
