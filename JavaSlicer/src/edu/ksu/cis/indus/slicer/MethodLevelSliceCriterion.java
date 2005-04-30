@@ -57,14 +57,6 @@ class MethodLevelSliceCriterion
 	private static final Log LOGGER = LogFactory.getLog(MethodLevelSliceCriterion.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
-	 */
-	public void returnToPool() {
-		setCallStack(null);
-		super.returnToPool();
-	}
-
-	/**
 	 * Retrieves a method-level slicing criterion object.
 	 *
 	 * @return a method-level slicing criterion object.

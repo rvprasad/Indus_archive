@@ -98,8 +98,16 @@ abstract class AbstractProgramPointLevelSliceCriterion
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return new HashCodeBuilder(17, 37).append(this.considerExecution).append(this.callStack)
-											.append(this.method).toHashCode();
+		return new HashCodeBuilder(17, 37).append(this.considerExecution).append(this.callStack).append(this.method)
+											.toHashCode();
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
+	 */
+	public void returnToPool() {
+		setCallStack(null);
+		super.returnToPool();
 	}
 
 	/**
