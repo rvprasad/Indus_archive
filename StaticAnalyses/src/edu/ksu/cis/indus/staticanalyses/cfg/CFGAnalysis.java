@@ -78,52 +78,52 @@ public final class CFGAnalysis {
 	}
     
 	/**
-	 * Checks if the use site is reachable from the def site via an interprocedural data-flow path.
+	 * Checks if the destination site is reachable from the source site via an interprocedural control flow path.
 	 *
-	 * @param defMethod contains the def site.
-	 * @param defStmt is the def site.
-	 * @param useMethod contains the use site.
-	 * @param useStmt is the use site.
+	 * @param srcMethod contains the def site.
+	 * @param srcStmt is the def site.
+	 * @param destMethod contains the use site.
+	 * @param destStmt is the use site.
 	 * @param tgi is the thread graph.
 	 *
 	 * @return <code>true</code> if such a path exists; <code>false</code>, otherwise.
 	 *
-	 * @pre defMethod != null and defStmt != null and useMethod != null and useStmt != null and tgi != null
+	 * @pre srdMethod != null and srcStmt != null and destMethod != null and destStmt != null and tgi != null
 	 */
-	public boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
-		final SootMethod useMethod, final Stmt useStmt, final IThreadGraphInfo tgi) {
-		boolean _result = tgi == null || !tgi.mustOccurInDifferentThread(defMethod, useMethod);
+	public boolean isReachableViaInterProceduralControlFlow(final SootMethod srcMethod, final Stmt srcStmt,
+		final SootMethod destMethod, final Stmt destStmt, final IThreadGraphInfo tgi) {
+		boolean _result = tgi == null || !tgi.mustOccurInDifferentThread(srcMethod, destMethod);
 
 		if (_result) {
 			_result = false;
 
 			/*
-			 * Check if the use method is reachable from the def method. If so, check the use method is reachable via
-			 * any of the invocation statement that succeed defStmt in defMethod.
+			 * Check if the dest method is reachable from the src method. If so, check the dest method is reachable via
+			 * any of the invocation statement that succeed srcStmt in srcMethod.
 			 */
-			if (cgi.isCalleeReachableFromCaller(useMethod, defMethod)) {
-				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, false);
+			if (cgi.isCalleeReachableFromCaller(destMethod, srcMethod)) {
+				_result = doesControlFlowPathExistsBetween(srcMethod, srcStmt, destMethod, true, false);
 			}
 
 			/*
-			 * Check if the def method is reachable from the use method. If so, check the def method is reachable via
-			 * any of the invocation statements that precede useStmt in useMethod.
+			 * Check if the src method is reachable from the dest method. If so, check the src method is reachable via
+			 * any of the invocation statements that precede destStmt in destMethod.
 			 */
-			if (!_result && cgi.isCalleeReachableFromCaller(defMethod, useMethod)) {
-				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, false);
+			if (!_result && cgi.isCalleeReachableFromCaller(srcMethod, destMethod)) {
+				_result = doesControlFlowPathExistsBetween(destMethod, destStmt, srcMethod, false, false);
 			}
 
 			/*
-			 * Check if the control can reach from the def method to the use method via some common ancestor in the
+			 * Check if the control can reach from the src method to the dest method via some common ancestor in the
 			 * call-graph.  We cannot assume that the previous two conditions need to be false to evaluate this block.  The
-			 * reason being that there may be a call chain from the defMethod to the useMethod but the invocation site in
-			 * defMethod may occur prior to the defStmt.  The same holds for condition two.
+			 * reason being that there may be a call chain from the srcMethod to the destMethod but the invocation site in
+			 * srcMethod may occur prior to the srcStmt.  The same holds for condition two.
 			 */
 			if (!_result) {
-				_result = doesControlPathExistsFromTo(defMethod, useMethod);
+				_result = doesControlPathExistsFromTo(srcMethod, destMethod);
 			}
 		} else {
-			_result = tgi == null || tgi.containsClassInitThread(tgi.getExecutionThreads(defMethod));
+			_result = tgi == null || tgi.containsClassInitThread(tgi.getExecutionThreads(srcMethod));
 		}
 		return _result;
 	}
@@ -206,52 +206,52 @@ public final class CFGAnalysis {
 	}
 
 	/**
-	 * Checks if there is a control path between the <code>defMethod</code> and <code>useMethod</code> through control flow
-	 * path from def-method invoking site to use-method invoking site in a method that is ancestor of both use and def
+	 * Checks if there is a control path between the <code>srcMethod</code> and <code>destMethod</code> through control flow
+	 * path from src-method invoking site to dest-method invoking site in a method that is ancestor of both src and dest
 	 * methods.
 	 *
-	 * @param defMethod is the def-site containing method.
-	 * @param useMethod is the use-site containing method.
+	 * @param srcMethod is the source method.
+	 * @param destMethod is the destination method.
 	 *
 	 * @return <code>true</code> if there is a control path; <code>false</code>, otherwise.
 	 *
-	 * @pre defMethod != null and useMethod != null
+	 * @pre srcMethod != null and destMethod != null
 	 */
-	public boolean doesControlPathExistsFromTo(final SootMethod defMethod, final SootMethod useMethod) {
+	public boolean doesControlPathExistsFromTo(final SootMethod srcMethod, final SootMethod destMethod) {
 		boolean _result = false;
-		final Collection _commonAncestors = cgi.getCommonMethodsReachableFrom(defMethod, false, useMethod, false);
+		final Collection _commonAncestors = cgi.getCommonMethodsReachableFrom(srcMethod, false, destMethod, false);
 
 		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = (SootMethod) _i.next();
-			_result = doesMethodLiesOnTheDataFlowPathBetween(_sm, defMethod, useMethod);
+			_result = doesMethodLiesOnTheDataFlowPathBetween(_sm, srcMethod, destMethod);
 		}
 		return _result;
 	}
 
 	/**
-	 * Checks if <code>method</code> has calls to <code>defMethod</code> and <code>useMethod</code> and that the callsite to
-	 * the use site is reachable from the call site to the def method.  We shall refer to such methods as interprocedural
+	 * Checks if <code>method</code> has calls to <code>srcMethod</code> and <code>destMethod</code> and that the callsite to
+	 * the dest site is reachable from the call site to the src method.  We shall refer to such methods as interprocedural
 	 * data flow join points.
 	 *
 	 * @param method that connects the interprocedural data flow paths.
-	 * @param defMethod contains the def site.
-	 * @param useMethod contains the use site.
+	 * @param srcMethod is the source method.
+	 * @param destMethod is the destination method.
 	 *
 	 * @return <code>true</code> if <code>method</code> in indeed an interprocedural data-flow join point;
 	 * 		   <code>false</code>, otherwise.
 	 *
-	 * @pre method != null and defMethod != null and useMethod != null
+	 * @pre method != null and srcMethod != null and destMethod != null
 	 */
-	public boolean doesMethodLiesOnTheDataFlowPathBetween(final SootMethod method, final SootMethod defMethod,
-		final SootMethod useMethod) {
+	public boolean doesMethodLiesOnTheDataFlowPathBetween(final SootMethod method, final SootMethod srcMethod,
+		final SootMethod destMethod) {
 		boolean _result = false;
 		final Iterator _invokingStmtIterator = getInvokingStmtIteratorFor(method);
 
 		for (final Iterator _j = _invokingStmtIterator; _j.hasNext() && !_result;) {
 			final Stmt _stmt = (Stmt) _j.next();
 
-			if (cgi.isCalleeReachableFromCallSite(defMethod, _stmt, method)) {
-				_result = doesControlFlowPathExistsBetween(method, _stmt, useMethod, true, true);
+			if (cgi.isCalleeReachableFromCallSite(srcMethod, _stmt, method)) {
+				_result = doesControlFlowPathExistsBetween(method, _stmt, destMethod, true, true);
 			}
 		}
 		return _result;
