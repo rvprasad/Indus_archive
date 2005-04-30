@@ -33,7 +33,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @version $Revision$
  */
 class MethodLevelSliceCriterion
-  extends AbstractProgramPointLevelSliceCriterion {
+  extends AbstractSliceCriterion {
 	/** 
 	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
 	 *

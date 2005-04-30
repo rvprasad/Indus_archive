@@ -42,7 +42,7 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 class StmtLevelSliceCriterion
-  extends AbstractProgramPointLevelSliceCriterion {
+  extends AbstractSliceCriterion {
 	/** 
 	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
 	 *
@@ -108,7 +108,7 @@ class StmtLevelSliceCriterion
 	 *
 	 * @post result != null and result.oclIsKindOf(jimple.Stmt)
 	 *
-	 * @see AbstractProgramPointLevelSliceCriterion#getCriterion()
+	 * @see AbstractSliceCriterion#getCriterion()
 	 */
 	protected Object getCriterion() {
 		return stmt;

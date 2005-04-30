@@ -228,7 +228,7 @@ public final class SliceCriterionSpec
 	 * @post result != null
 	 */
 	static Collection getCriterionSpec(final ISliceCriterion criterion) {
-		final SootMethod _method = CriteriaSpecHelper.getOccurringMethod(criterion);
+		final SootMethod _method = criterion.getOccurringMethod();
 
 		final SootClass _declaringClass = _method.getDeclaringClass();
 		final String _prefix = _declaringClass.getPackageName();

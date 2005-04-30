@@ -29,13 +29,13 @@ import soot.SootMethod;
 
 
 /**
- * This class encapsulates properties of a slice criterion pertaining to program points.
+ * This is an abstract implementation of slice criterion.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-abstract class AbstractProgramPointLevelSliceCriterion
+abstract class AbstractSliceCriterion
   extends AbstractPoolable
   implements ISliceCriterion {
 	/** 
@@ -85,11 +85,11 @@ abstract class AbstractProgramPointLevelSliceCriterion
 			return true;
 		}
 
-		if (!(object instanceof AbstractProgramPointLevelSliceCriterion)) {
+		if (!(object instanceof AbstractSliceCriterion)) {
 			return false;
 		}
 
-		final AbstractProgramPointLevelSliceCriterion _rhs = (AbstractProgramPointLevelSliceCriterion) object;
+		final AbstractSliceCriterion _rhs = (AbstractSliceCriterion) object;
 		return new EqualsBuilder().append(this.considerExecution, _rhs.considerExecution)
 									.append(this.callStack, _rhs.callStack).append(this.method, _rhs.method).isEquals();
 	}

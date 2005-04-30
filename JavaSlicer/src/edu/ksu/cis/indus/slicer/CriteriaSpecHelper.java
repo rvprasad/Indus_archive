@@ -49,7 +49,7 @@ public final class CriteriaSpecHelper {
 	 * @pre criterion != null
 	 */
 	public static boolean isConsiderExecution(final ISliceCriterion criterion) {
-		return ((AbstractProgramPointLevelSliceCriterion) criterion).isConsiderExecution();
+		return ((AbstractSliceCriterion) criterion).isConsiderExecution();
 	}
 
 	/**
@@ -70,20 +70,6 @@ public final class CriteriaSpecHelper {
 			_result = null;
 		}
 		return _result;
-	}
-
-	/**
-	 * Retrieves the method in which the criterion occurs.
-	 *
-	 * @param criterion of interest.
-	 *
-	 * @return the method in which the criterion occurs.
-	 *
-	 * @pre criterion != null
-	 * @post result != null
-	 */
-	public static SootMethod getOccurringMethod(final ISliceCriterion criterion) {
-		return criterion.getOccurringMethod();
 	}
 
 	/**

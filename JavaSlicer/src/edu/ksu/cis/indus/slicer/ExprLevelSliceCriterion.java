@@ -43,7 +43,7 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 class ExprLevelSliceCriterion
-  extends AbstractProgramPointLevelSliceCriterion {
+  extends AbstractSliceCriterion {
 	/** 
 	 * A pool of <code>ExprLevelSliceCriterion</code> criterion objects.
 	 *
@@ -116,7 +116,7 @@ class ExprLevelSliceCriterion
 	 *
 	 * @post result != null and result.oclIsKindOf(ValueBox)
 	 *
-	 * @see AbstractProgramPointLevelSliceCriterion#getCriterion()
+	 * @see AbstractSliceCriterion#getCriterion()
 	 */
 	protected Object getCriterion() {
 		return expr;
