@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
