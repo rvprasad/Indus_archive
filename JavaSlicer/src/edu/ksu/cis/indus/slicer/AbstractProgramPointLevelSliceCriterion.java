@@ -15,7 +15,17 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.CustomToStringStyle;
+
+import edu.ksu.cis.indus.interfaces.AbstractPoolable;
+
+import java.util.Stack;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import soot.SootMethod;
 
 
 /**
@@ -26,7 +36,20 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @version $Revision$
  */
 abstract class AbstractProgramPointLevelSliceCriterion
-  extends MethodLevelSliceCriterion {
+  extends AbstractPoolable
+  implements ISliceCriterion {
+	/** 
+	 * The method which is syntactically part of the slice criteria interest..
+	 */
+	private SootMethod method;
+
+	/** 
+	 * This captures the call sequence that caused this criterion in the callee to occur.  So, when slicing, if this field is
+	 * non-null, we only will return to the call-site instead of all possible call-sites (which is what happend if this
+	 * field is null).
+	 */
+	private Stack callStack;
+
 	/** 
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
 	 * value <code>false</code> to indicate execution should not be considered.
@@ -34,41 +57,68 @@ abstract class AbstractProgramPointLevelSliceCriterion
 	private boolean considerExecution;
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.MethodLevelSliceCriterion#equals(java.lang.Object)
+	 * @see ISliceCriterion#setCallStack(Stack)
 	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o instanceof AbstractProgramPointLevelSliceCriterion) {
-			_result = super.equals(o) && ((AbstractProgramPointLevelSliceCriterion) o).considerExecution == considerExecution;
-		}
-
-		return _result;
+	public final void setCallStack(final Stack theCallStack) {
+		callStack = theCallStack;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.MethodLevelSliceCriterion#hashCode()
+	 * @see ISliceCriterion#getCallStack()
+	 */
+	public final Stack getCallStack() {
+		return callStack;
+	}
+
+	/**
+	 * @see ISliceCriterion#getOccurringMethod()
+	 */
+	public final SootMethod getOccurringMethod() {
+		return method;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(Object)
+	 */
+	public boolean equals(final Object object) {
+		if (object == this) {
+			return true;
+		}
+
+		if (!(object instanceof AbstractProgramPointLevelSliceCriterion)) {
+			return false;
+		}
+
+		final AbstractProgramPointLevelSliceCriterion _rhs = (AbstractProgramPointLevelSliceCriterion) object;
+		return new EqualsBuilder().append(this.considerExecution, _rhs.considerExecution)
+									.append(this.callStack, _rhs.callStack).append(this.method, _rhs.method).isEquals();
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return super.hashCode() * 37 + Boolean.valueOf(considerExecution).hashCode();
+		return new HashCodeBuilder(17, 37).append(this.considerExecution).append(this.callStack)
+											.append(this.method).toHashCode();
 	}
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("considerExecution", this.considerExecution)
-										  .toString();
+		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
+																					 .append("considerExecution",
+			  this.considerExecution).append("callStack", this.callStack).append("method", this.method).toString();
 	}
 
 	/**
-	 * Returns the stored criterion object.
+	 * Initializes this object.
 	 *
-	 * @return Object representing the criterion.
-	 *
-	 * @post result != null
+	 * @param occurringMethod in which the slice criterion occurs.
 	 */
-	abstract Object getCriterion();
+	protected final void initialize(final SootMethod occurringMethod) {
+		method = occurringMethod;
+	}
 
 	/**
 	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
@@ -90,6 +140,19 @@ abstract class AbstractProgramPointLevelSliceCriterion
 	 */
 	final boolean isConsiderExecution() {
 		return considerExecution;
+	}
+
+	/**
+	 * Returns the stored criterion object.
+	 *
+	 * @return Object representing the criterion.
+	 *
+	 * @throws UnsupportedOperationException when this implementation is invoked.
+	 *
+	 * @post result != null
+	 */
+	Object getCriterion() {
+		throw new UnsupportedOperationException("This operation is not supported.");
 	}
 }
 

@@ -15,14 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.CustomToStringStyle;
-
-import edu.ksu.cis.indus.interfaces.AbstractPoolable;
-
-import java.util.Stack;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,7 +23,6 @@ import org.apache.commons.pool.ObjectPool;
 
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
-import soot.SootMethod;
 
 
 /**
@@ -42,8 +33,7 @@ import soot.SootMethod;
  * @version $Revision$
  */
 class MethodLevelSliceCriterion
-  extends AbstractPoolable
-  implements ISliceCriterion {
+  extends AbstractProgramPointLevelSliceCriterion {
 	/** 
 	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
 	 *
@@ -66,101 +56,12 @@ class MethodLevelSliceCriterion
 	 */
 	private static final Log LOGGER = LogFactory.getLog(MethodLevelSliceCriterion.class);
 
-	/** 
-	 * The method which is syntactically part of the slice criteria interest..
-	 */
-	private SootMethod method;
-
-	/** 
-	 * This captures the call sequence that caused this criterion in the callee to occur.  So, when slicing, if this field is
-	 * non-null, we only will return to the call-site instead of all possible call-sites (which is what happend if this
-	 * field is null).
-	 */
-	private Stack callStack;
-
-	/**
-	 * @see ISliceCriterion#setCallStack(Stack)
-	 */
-	public final void setCallStack(final Stack theCallStack) {
-		callStack = theCallStack;
-	}
-
-	/**
-	 * @see ISliceCriterion#getCallStack()
-	 */
-	public final Stack getCallStack() {
-		return callStack;
-	}
-
-	/**
-	 * @see ISliceCriterion#getOccurringMethod()
-	 */
-	public final SootMethod getOccurringMethod() {
-		return method;
-	}
-
-	/**
-	 * Checks if the given object is "equal" to this object.
-	 *
-	 * @param o is the object to be compared.
-	 *
-	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
-	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o instanceof MethodLevelSliceCriterion) {
-			final MethodLevelSliceCriterion _methodLevelSliceCriterion = (MethodLevelSliceCriterion) o;
-			_result = _methodLevelSliceCriterion.method.equals(method);
-
-			if (_result) {
-				if (callStack != null) {
-					_result = callStack.equals(_methodLevelSliceCriterion.callStack);
-				} else {
-					_result = callStack == _methodLevelSliceCriterion.callStack;
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() {
-		int _hash = 17;
-		_hash = _hash * 37 + method.hashCode();
-
-		if (callStack != null) {
-			_hash = _hash * 37 + callStack.hashCode();
-		}
-		return _hash;
-	}
-
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
 	 */
 	public void returnToPool() {
-		callStack = null;
+		setCallStack(null);
 		super.returnToPool();
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("method", this.method)
-																					 .append("callStack", this.callStack)
-																					 .toString();
-	}
-
-	/**
-	 * Initializes this object.
-	 *
-	 * @param occurringMethod in which the slice criterion occurs.
-	 */
-	protected final void initialize(final SootMethod occurringMethod) {
-		method = occurringMethod;
 	}
 
 	/**

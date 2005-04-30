@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.CustomToStringStyle;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import org.apache.commons.logging.Log;
@@ -75,30 +77,27 @@ class ExprLevelSliceCriterion
 	protected ValueBox expr;
 
 	/**
-	 * Checks if the given object is "equal" to this object.
-	 *
-	 * @param o is the object to be compared.
-	 *
-	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
+	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o instanceof ExprLevelSliceCriterion) {
-			final ExprLevelSliceCriterion _temp = (ExprLevelSliceCriterion) o;
-			_result = _temp.expr == expr && _temp.stmt == stmt && super.equals(o);
+	public boolean equals(final Object object) {
+		if (object == this) {
+			return true;
 		}
-		return _result;
+
+		if (!(object instanceof ExprLevelSliceCriterion)) {
+			return false;
+		}
+
+		final ExprLevelSliceCriterion _rhs = (ExprLevelSliceCriterion) object;
+		return new EqualsBuilder().appendSuper(super.equals(object)).append(this.expr, _rhs.expr).append(this.stmt, _rhs.stmt)
+									.isEquals();
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int _hash = super.hashCode();
-		_hash = 37 * _hash + stmt.hashCode();
-		_hash = 37 * _hash + expr.hashCode();
-		return _hash;
+		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(stmt).append(expr).toHashCode();
 	}
 
 	/**
