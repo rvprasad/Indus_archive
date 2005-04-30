@@ -245,6 +245,12 @@ public final class SlicingEngine {
 	 */
 	private static class NonStartMethodPredicate
 	  implements Predicate {
+
+        /**
+         * The logger used by instances of this class to log messages.
+         */
+        private static final Log LOGGER = LogFactory.getLog(NonStartMethodPredicate.class);
+
 		/**
 		 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
 		 */
@@ -656,14 +662,12 @@ public final class SlicingEngine {
 		}
 
 		if (!collectedAllInvocationSites.contains(method)) {
-			final Stack _stack = callStackCache;
-
-			if (_stack != null && !_stack.isEmpty()) {
-				final CallTriple _top = (CallTriple) _stack.pop();
+			if (ifInsideContext()) {
+				final CallTriple _top = (CallTriple) callStackCache.pop();
 				final SootMethod _caller = _top.getMethod();
 				final Stmt _stmt = _top.getStmt();
 				directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
-				_stack.push(_top);
+                callStackCache.push(_top);
 			} else {
 				collectedAllInvocationSites.add(method);
 
@@ -838,6 +842,7 @@ public final class SlicingEngine {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
 
 				_criterion.setCallStack((Stack) callStackCache.clone());
+                }
 			}
 		}
 	}
@@ -1012,19 +1017,19 @@ public final class SlicingEngine {
 		final Iterator _i = _contexts.iterator();
 		final int _iEnd = _contexts.size();
 
-		if (stmtToBeIncluded != null) {
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stack _context = (Stack) _i.next();
-				setCallStackCache(_context);
-				generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
-			}
-		} else {
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stack _context = (Stack) _i.next();
-				setCallStackCache(_context);
-				generateMethodLevelSliceCriteria(methodToBeIncluded);
-			}
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("generateInterProceduralContextualizedCriteria() - Contexts  : _contexts = " + _contexts);
+        }
+        
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Stack _context = (Stack) _i.next();
+			setCallStackCache(_context);
+            if (stmtToBeIncluded != null) {
+                generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
+            } else {
+                generateMethodLevelSliceCriteria(methodToBeIncluded);
+            }
+        }
 		setCallStackCache(_temp);
 
 		if (LOGGER.isDebugEnabled()) {
