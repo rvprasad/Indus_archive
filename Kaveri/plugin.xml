@@ -42,7 +42,7 @@
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="edu.ksu.cis.indus" version="0.5.0" match="greaterOrEqual"/>
       <import plugin="org.antlr" optional="true"/>
-      <import plugin="edu.ksu.cis.j2b" optional="true"/>
+      <import plugin="edu.ksu.cis.peq" optional="true"/>
    </requires>
 
 <!-- The document -->

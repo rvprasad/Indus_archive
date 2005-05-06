@@ -948,7 +948,7 @@ public class PEQView extends ViewPart implements IDeltaListener {
             final List _lst = new LinkedList();
             for (int i = 0; i < _count; i++) {
                 final String _query = cmbQuery.getItem(i);
-                if (!_query.equals("") && !_query.equals("query default {<> <> }; ")) {
+                if (!_query.equals("") && !_query.equals("Equery default {<> <> }; ")) {
                     _lst.add(_query);
                 }
             }

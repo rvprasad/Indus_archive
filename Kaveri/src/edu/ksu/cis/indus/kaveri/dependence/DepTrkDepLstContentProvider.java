@@ -298,9 +298,11 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     dsd.getStmtList().size());
             final SootMethod _sm = (SootMethod) dsd.getStmtList().get(1);
             final Set _depSet = new HashSet();
+            int _masterLine = -1;
             if (dsd.getJimpleIndex() == -1) {
                 for (int _i = 0; _i < _jimpleStmtList.size(); _i++) {
                     final Stmt _stmt = (Stmt) _jimpleStmtList.get(_i);
+                    _masterLine = SECommons.getLineNumberForStmt(_stmt);
                     if (dependee) {
                         _depSet.addAll(handleDependees(_sm, _stmt, daType));
                     } else {
@@ -318,6 +320,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                 }
                 final Stmt _stmt = (Stmt) _jimpleStmtList.get(dsd
                         .getJimpleIndex());
+                _masterLine = SECommons.getLineNumberForStmt(_stmt);
                 if (dependee) {
                     _depSet.addAll(handleDependees(_sm, _stmt, daType));
                 } else {
@@ -333,6 +336,9 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                 final Object _obj = iter.next();
                 if (_obj instanceof Stmt) {
                     final Stmt _stmt = (Stmt) _obj;
+                    if (SECommons.getLineNumberForStmt(_stmt) == _masterLine &&  _masterLine != -1) {
+                        continue;
+                    }
                     final RightPaneTreeObject _toStmt = new RightPaneTreeObject(
                             _stmt.toString() + " [[" + _sm.getName() + "]]");
                     _toStmt.setSm(_sm);
@@ -361,6 +367,9 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
                     final Pair _pair = (Pair) _obj;
                     final Stmt _stmt = (Stmt) _pair.getFirst();                    
                     if (_stmt == null) {
+                        continue;
+                    }
+                    if (SECommons.getLineNumberForStmt(_stmt) == _masterLine &&  _masterLine != -1) {
                         continue;
                     }
                     final SootMethod _sootM = (SootMethod) _pair.getSecond();                    
