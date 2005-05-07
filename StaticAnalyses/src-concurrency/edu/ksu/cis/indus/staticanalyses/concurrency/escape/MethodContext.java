@@ -94,6 +94,11 @@ final class MethodContext
 	private List argAliasSets;
 
 	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean globalDataRead;
+
+	/** 
 	 * This indicates if the method/invocation context writes global data.
 	 */
 	private boolean globalDataWritten;
@@ -208,6 +213,24 @@ final class MethodContext
 		return new ToStringBuilder(this).append("thrown", this.thrown).append("argAliasSets", this.argAliasSets)
 										  .append("ret", this.ret).append("thisAS", this.thisAS).append("method", this.method)
 										  .toString();
+	}
+
+	/**
+	 * Provides information if this method reads global data.
+	 *
+	 * @return <code>true</code> if global data is read by this method; <code>false</code>, otherwise.
+	 */
+	boolean isGlobalDataRead() {
+		return globalDataRead;
+	}
+
+	/**
+	 * Provides information if this method writes global data.
+	 *
+	 * @return <code>true</code> if global data is written by this method; <code>false</code>, otherwise.
+	 */
+	boolean isGlobalDataWritten() {
+		return globalDataWritten;
 	}
 
 	/**
@@ -335,12 +358,10 @@ final class MethodContext
 	}
 
 	/**
-     * Provides information if this method writes global data.
-     * 
-     * @return <code>true</code> if global data is written by this method; <code>false</code>, otherwise.
+	 * Marks this method as reading global data.
 	 */
-	boolean isGlobalDataWritten() {
-		return globalDataWritten;
+	void globalDataWasRead() {
+		globalDataRead = true;
 	}
 
 	/**
@@ -484,6 +505,7 @@ final class MethodContext
 				_represented = _m;
 			}
 			_representative.globalDataWritten |= _represented.globalDataWritten;
+			_representative.globalDataRead |= _represented.globalDataRead;
 
 			final int _paramCount = method.getParameterCount();
 

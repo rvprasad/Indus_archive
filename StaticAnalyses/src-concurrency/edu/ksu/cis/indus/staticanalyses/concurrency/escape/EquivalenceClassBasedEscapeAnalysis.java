@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -26,7 +27,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-import edu.ksu.cis.indus.interfaces.ISideEffectInfo;
+import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -37,7 +38,6 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,6 +48,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.TransformerUtils;
+
+import org.apache.commons.collections.map.LRUMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,30 +65,15 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 
-import soot.jimple.AbstractJimpleValueSwitch;
-import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.ArrayRef;
-import soot.jimple.AssignStmt;
-import soot.jimple.CastExpr;
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
-import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
-import soot.jimple.InstanceInvokeExpr;
-import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.MonitorStmt;
-import soot.jimple.ParameterRef;
-import soot.jimple.ReturnStmt;
-import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
-import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
-import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
-import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
 
@@ -110,7 +99,7 @@ import soot.jimple.VirtualInvokeExpr;
  */
 public final class EquivalenceClassBasedEscapeAnalysis
   extends AbstractAnalysis
-  implements ISideEffectInfo,
+  implements IObjectReadWriteInfo,
 	  IEscapeInfo {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
@@ -120,17 +109,27 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/** 
 	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
 	 */
-	static final Log VALUE_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.ValueProcessor.class);
+	static final Log VALUE_PROCESSOR_LOGGER = LogFactory.getLog(ValueProcessor.class);
 
 	/** 
 	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
 	 */
-	static final Log STMT_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.StmtProcessor.class);
+	static final Log STMT_PROCESSOR_LOGGER = LogFactory.getLog(StmtProcessor.class);
 
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+
+	/** 
+	 * This is used to retrieve the alias set for "this" from a given method context.
+	 */
+	private static final Transformer thisAliasSetRetriever =
+		new Transformer() {
+			public Object transform(final Object input) {
+				return ((MethodContext) input).thisAS;
+			}
+		};
 
 	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
@@ -163,7 +162,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/** 
 	 * This maps a method to a triple containing the method context, the alias sets for the locals in the method (key), and
-	 * the site contexts for all the call-sites in the method(key).
+	 * the site contexts for all the call-sites (caller-side triple) in the method(key).
 	 *
 	 * @invariant method2Triple.oclIsKindOf(Map(SootMethod, Triple(MethodContext, Map(Local, AliasSet), Map(CallTriple,
 	 * 			  MethodContext))))
@@ -204,6 +203,25 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	MethodContext methodCtxtCache;
 
+	/** 
+	 * This maintains a cache of query to alias set.
+	 *
+	 * @invariant query2handle.oclIsKindOf(Map(Pair(AliasSet, String[]), AliasSet))
+	 */
+	private final Map query2handle = new LRUMap();
+
+	/** 
+	 * This retrieves the method context of a method.
+	 */
+	private final Transformer methodCtxtRetriever =
+		new Transformer() {
+			public Object transform(final Object input) {
+				final Triple _t = (Triple) method2Triple.get(input);
+				return _t != null ? _t.getFirst()
+								  : null;
+			}
+		};
+
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
@@ -220,541 +238,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		tgi = threadGraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
-		stmtProcessor = new StmtProcessor();
-		valueProcessor = new ValueProcessor();
+		stmtProcessor = new StmtProcessor(this);
+		valueProcessor = new ValueProcessor(this);
 		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 		preprocessor = new PreProcessor();
 	}
-
-	/**
-	 * This class encapsulates the logic to process the statements during escape analysis.  Each overridden methods in  this
-	 * class will process the expressions in the statement and unify them as per to the rules associated with the
-	 * statements.
-	 * 
-	 * <p>
-	 * The arguments to any of the overridden methods cannot be <code>null</code>.
-	 * </p>
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	final class StmtProcessor
-	  extends AbstractStmtSwitch {
-		/**
-		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
-		 */
-		public void caseAssignStmt(final AssignStmt stmt) {
-			boolean _temp = valueProcessor.rhs;
-			valueProcessor.rhs = true;
-			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.rhs = _temp;
-
-			final AliasSet _r = (AliasSet) valueProcessor.getResult();
-			_temp = valueProcessor.rhs;
-			valueProcessor.rhs = false;
-			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.rhs = _temp;
-
-			final AliasSet _l = (AliasSet) valueProcessor.getResult();
-
-			if ((_r != null) && (_l != null)) {
-				_l.unifyAliasSet(_r);
-			}
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
-		 */
-		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-			valueProcessor.process(stmt.getOp());
-			((AliasSet) valueProcessor.getResult()).addNewLockEntity();
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
-		 */
-		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-			valueProcessor.process(stmt.getOp());
-			((AliasSet) valueProcessor.getResult()).addNewLockEntity();
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
-		 */
-		public void caseIdentityStmt(final IdentityStmt stmt) {
-			boolean _temp = valueProcessor.rhs;
-			valueProcessor.rhs = true;
-			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.rhs = _temp;
-
-			final AliasSet _r = (AliasSet) valueProcessor.getResult();
-			_temp = valueProcessor.rhs;
-			valueProcessor.rhs = false;
-			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.rhs = _temp;
-
-			final AliasSet _l = (AliasSet) valueProcessor.getResult();
-
-			if ((_r != null) && (_l != null)) {
-				_l.unifyAliasSet(_r);
-			}
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
-		 */
-		public void caseInvokeStmt(final InvokeStmt stmt) {
-			valueProcessor.process(stmt.getInvokeExpr());
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
-		 */
-		public void caseReturnStmt(final ReturnStmt stmt) {
-			valueProcessor.process(stmt.getOp());
-
-			final AliasSet _l = (AliasSet) valueProcessor.getResult();
-
-			if (_l != null) {
-				methodCtxtCache.getReturnAS().unifyAliasSet(_l);
-			}
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
-		 */
-		public void caseThrowStmt(final ThrowStmt stmt) {
-			valueProcessor.process(stmt.getOp());
-
-			final AliasSet _l = (AliasSet) valueProcessor.getResult();
-
-			if (_l != null) {
-				methodCtxtCache.getThrownAS().unifyAliasSet(_l);
-			}
-		}
-
-		/**
-		 * Processes the given statement.
-		 *
-		 * @param stmt to be processed.
-		 *
-		 * @pre stmt != null
-		 */
-		void process(final Stmt stmt) {
-			if (STMT_PROCESSOR_LOGGER.isTraceEnabled()) {
-				STMT_PROCESSOR_LOGGER.trace("Processing statement: " + stmt);
-			}
-			stmt.apply(this);
-		}
-	}
-
-
-	/**
-	 * This class encapsulates the logic to process the expressions during escape analysis.  Alias sets are created as
-	 * required.  The class relies on <code>AliasSet</code> to decide if alias set needs to be created for a type of value.
-	 * 
-	 * <p>
-	 * The arguments to any of the overridden methods cannot be <code>null</code>.
-	 * </p>
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	final class ValueProcessor
-	  extends AbstractJimpleValueSwitch {
-		/** 
-		 * This indicates if the value occurs as a rhs-value or a lhs-value in an assignment statement. <code>true</code>
-		 * indicates that it value occurs as a rhs-value in an assignment statement.  <code>false</code> indicates that the
-		 * value occurs as a lhs-value in an assignment statement.  This is used to mark alias sets of primaries in access
-		 * expressions in a manner appropriate to the analysis.  For example, in side-effect analysis, the primaries of
-		 * array  expressions are read as rhs-value and are written to as lhs-value.
-		 */
-		boolean rhs = true;
-
-		/**
-		 * Provides the alias set associated with the array element being referred.  All elements in a dimension of an array
-		 * are abstracted by a single alias set.
-		 *
-		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
-		 */
-		public void caseArrayRef(final ArrayRef v) {
-			boolean _temp = rhs;
-			rhs = true;
-			process(v.getBase());
-			rhs = _temp;
-
-			final AliasSet _base = (AliasSet) getResult();
-			AliasSet _elt = _base.getASForField(ARRAY_FIELD);
-
-			if (_elt == null) {
-				_elt = AliasSet.getASForType(v.getType());
-
-				if (_elt != null) {
-					_base.putASForField(ARRAY_FIELD, _elt);
-				}
-			}
-
-			if (_elt != null) {
-				_elt.setAccessedTo(true);
-				setReadOrWritten(_elt);
-			}
-
-			if (!rhs) {
-				_base.setSideAffected();
-			}
-
-			setResult(_elt);
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
-		 */
-		public void caseCastExpr(final CastExpr v) {
-			process(v.getOp());
-		}
-
-		/**
-		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
-		 */
-		public void caseInstanceFieldRef(final InstanceFieldRef v) {
-			boolean _temp = rhs;
-			rhs = true;
-			process(v.getBase());
-			rhs = _temp;
-
-			final AliasSet _base = (AliasSet) getResult();
-			final String _fieldSig = v.getField().getSignature();
-			AliasSet _field = _base.getASForField(_fieldSig);
-
-			if (_field == null) {
-				_field = AliasSet.getASForType(v.getType());
-
-				if (_field != null) {
-					_base.putASForField(_fieldSig, _field);
-				}
-			}
-
-			if (_field != null) {
-				_field.setAccessedTo(true);
-				setReadOrWritten(_field);
-			}
-
-			if (!rhs) {
-				_base.setSideAffected();
-			}
-
-			setResult(_field);
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr( soot.jimple.InterfaceInvokeExpr)
-		 */
-		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
-			processInvokeExpr(v);
-		}
-
-		/**
-		 * @see soot.jimple.JimpleValueSwitch#caseLocal(Local)
-		 */
-		public void caseLocal(final Local v) {
-			AliasSet _s = (AliasSet) localASsCache.get(v);
-
-			if (_s == null) {
-				_s = AliasSet.getASForType(v.getType());
-
-				if (_s != null) {
-					localASsCache.put(v, _s);
-				}
-			}
-
-			if (_s != null) {
-				_s.setAccessedTo(true);
-				setReadOrWritten(_s);
-			}
-
-			setResult(_s);
-		}
-
-		/**
-		 * @see soot.jimple.RefSwitch#caseParameterRef( soot.jimple.ParameterRef)
-		 */
-		public void caseParameterRef(final ParameterRef v) {
-			final AliasSet _as = methodCtxtCache.getParamAS(v.getIndex());
-			setReadOrWritten(_as);
-			setResult(_as);
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr( soot.jimple.SpecialInvokeExpr)
-		 */
-		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
-			processInvokeExpr(v);
-		}
-
-		/**
-		 * @see soot.jimple.RefSwitch#caseStaticFieldRef( soot.jimple.StaticFieldRef)
-		 */
-		public void caseStaticFieldRef(final StaticFieldRef v) {
-			setResult(globalASs.get(v.getField().getSignature()));
-			methodCtxtCache.globalDataWasWritten();
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr( soot.jimple.StaticInvokeExpr)
-		 */
-		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
-			processInvokeExpr(v);
-		}
-
-		/**
-		 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
-		 */
-		public void caseStringConstant(final StringConstant v) {
-			setResult(AliasSet.getASForType(v.getType()));
-		}
-
-		/**
-		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
-		 */
-		public void caseThisRef(final ThisRef v) {
-			final AliasSet _as = methodCtxtCache.getThisAS();
-			setReadOrWritten(_as);
-			setResult(_as);
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr( soot.jimple.VirtualInvokeExpr)
-		 */
-		public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
-			processInvokeExpr(v);
-		}
-
-		/**
-		 * Creates an alias set if <code>o</code> is of type <code>Value</code>.  It uses <code>AliasSet</code> to decide if
-		 * the given type requires an alias set.  If not, <code>null</code> is provided   as the alias set.  This is also
-		 * the  case when <code>o</code> is not of type <code>Value</code>.
-		 *
-		 * @param o is a piece of IR to be processed.
-		 */
-		public void defaultCase(final Object o) {
-			setResult(null);
-		}
-
-		/**
-		 * Process the given value/expression.
-		 *
-		 * @param value to be processed.
-		 *
-		 * @pre value != null
-		 */
-		void process(final Value value) {
-			if (VALUE_PROCESSOR_LOGGER.isTraceEnabled()) {
-				VALUE_PROCESSOR_LOGGER.trace("Processing value: " + value);
-			}
-			value.apply(this);
-		}
-
-		/**
-		 * Helper method to mark the alias set as read or written.
-		 *
-		 * @param as is the alias set to be marked.
-		 */
-		private void setReadOrWritten(final AliasSet as) {
-			if (as != null) {
-				if (rhs) {
-					as.setRead();
-
-					if (tgi != null) {
-						as.addReadThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
-					}
-				} else {
-					as.setWritten();
-
-					if (tgi != null) {
-						as.addWriteThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
-					}
-				}
-			}
-		}
-
-		/**
-		 * Process the arguments of the invoke expression.
-		 *
-		 * @param v is the invoke expressions containing the arguments to be processed.
-		 * @param method being invoked at <code>v</code>.
-		 *
-		 * @return the list of alias sets corresponding to the arguments.
-		 *
-		 * @pre v != null and method != null
-		 * @post result != null and result.oclIsKindOf(Sequence(AliasSet))
-		 */
-		private List processArguments(final InvokeExpr v, final SootMethod method) {
-			// fix up arg alias sets.
-			final List _argASs;
-			final int _paramCount = method.getParameterCount();
-
-			if (_paramCount == 0) {
-				_argASs = Collections.EMPTY_LIST;
-			} else {
-				_argASs = new ArrayList();
-
-				for (int _i = 0; _i < _paramCount; _i++) {
-					final Value _val = v.getArg(_i);
-					Object _temp = null;
-
-					if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_val.getType())) {
-						process(v.getArg(_i));
-						_temp = valueProcessor.getResult();
-					}
-
-					_argASs.add(_temp);
-				}
-			}
-			return _argASs;
-		}
-
-		/**
-		 * Process the callees in a caller.
-		 *
-		 * @param callees is the collection of methods called.
-		 * @param caller is the calling method.
-		 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
-		 * @param siteContext corresponding to the invocation expression.
-		 *
-		 * @throws RuntimeException when cloning fails.
-		 *
-		 * @pre callees != null and caller != null and primaryAliasSet != null and MethodContext != null
-		 * @pre callees.oclIsKindOf(Collection(SootMethod))
-		 */
-		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
-			final MethodContext siteContext) {
-			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-				final SootMethod _callee = (SootMethod) _i.next();
-				final Triple _triple = (Triple) method2Triple.get(_callee);
-
-				// This is needed when the system is not closed.
-				if (_triple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
-					}
-					continue;
-				}
-
-				final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
-
-				// retrieve the method context of the callee
-				MethodContext _mc = (MethodContext) _triple.getFirst();
-
-				/*
-				 * If the caller and callee occur in different SCCs then clone the callee method context and then unify it
-				 * with the site context.  If not, unify the method context with site-context as precision will be lost any
-				 * which way.
-				 */
-				if (cfgAnalysis.notInSameSCC(caller, _callee)) {
-					try {
-						_mc = (MethodContext) _mc.clone();
-					} catch (CloneNotSupportedException _e) {
-						LOGGER.error("Hell NO!  This should not happen.", _e);
-						throw new RuntimeException(_e);
-					}
-				}
-
-				if (_isThreadBoundary) {
-					_mc.markAsCrossingThreadBoundary();
-				}
-
-				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
-				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
-				// marked rightly so at allocation sites.  By equivalence class-based unification, it is guaranteed that the 
-				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
-				// different sites.  In case the threads are started at the same site, then the processing of call-site during
-				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
-				// structure and the language semantics along with the rules above ensure that the escape information is 
-				// polluted (pessimistic) only when necessary.
-				//
-				// It would suffice to unify the method context with it self in the case of loop enclosure
-				// as this is more semantically close to what happens during execution.
-				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-					_mc.selfUnify();
-				}
-				siteContext.unifyMethodContext(_mc);
-			}
-		}
-
-		/**
-		 * Processes invoke expressions/call-sites.
-		 *
-		 * @param expr invocation expresison to be processed.
-		 */
-		private void processInvokeExpr(final InvokeExpr expr) {
-			final Collection _callees = new ArrayList();
-			final SootMethod _caller = context.getCurrentMethod();
-			final SootMethod _sm = expr.getMethod();
-
-			// fix up "return" alias set.
-			AliasSet _retAS = null;
-
-			_retAS = AliasSet.getASForType(_sm.getReturnType());
-
-			// fix up "primary" alias set.
-			AliasSet _primaryAS = null;
-
-			if (!_sm.isStatic()) {
-				process(((InstanceInvokeExpr) expr).getBase());
-				_primaryAS = (AliasSet) getResult();
-			}
-
-			final List _argASs = processArguments(expr, _sm);
-
-			// create a site-context of the given expression and store it into the associated site-context cache.
-			final MethodContext _sc = new MethodContext(_sm, _primaryAS, _argASs, _retAS, AliasSet.createAliasSet());
-			scCache.put(new CallTriple(_caller, context.getStmt(), expr), _sc);
-
-			if (expr instanceof StaticInvokeExpr) {
-				_callees.add(_sm);
-			} else if (expr instanceof InterfaceInvokeExpr
-				  || expr instanceof VirtualInvokeExpr
-				  || expr instanceof SpecialInvokeExpr) {
-				_callees.addAll(cgi.getCallees(expr, context));
-			}
-
-			processCallees(_callees, _caller, _primaryAS, _sc);
-
-			setResult(_retAS);
-		}
-
-		/**
-		 * Process the called method for <code>start(), notify(), nofityAll(),</code>, and variants of <code>wait</code>
-		 * methods.
-		 *
-		 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
-		 * @param callee being called.
-		 *
-		 * @return <code>true</code> when the called method is <code>java.lang.Thread.start()</code>.
-		 *
-		 * @pre primaryAliasSet != null and callee != null
-		 */
-		private boolean processNotifyStartWaitSync(final AliasSet primaryAliasSet, final SootMethod callee) {
-			boolean _delayUnification = false;
-
-			if (Util.isStartMethod(callee)) {
-				// unify alias sets after all statements are processed if "start" is being invoked.
-				_delayUnification = true;
-			} else if (Util.isWaitMethod(callee)) {
-				primaryAliasSet.setWaits();
-				primaryAliasSet.addNewLockEntity();
-			} else if (Util.isNotifyMethod(callee)) {
-				primaryAliasSet.setNotifies();
-			}
-
-			return _delayUnification;
-		}
-	}
-
 
 	/**
 	 * This class is used to create alias sets for global variables.
@@ -808,76 +298,102 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 	}
 
+
 	/**
-	 * @see ISideEffectInfo#isArgumentBasedAccessPathSideAffected(ICallGraphInfo.CallTriple, int, String[],     boolean)
+	 * This class retrieves the alias set corresponding to a param/arg position from a method context.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
 	 */
-	public boolean isArgumentBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
-		final String[] accesspath, final boolean recurse) {
-		final SootMethod _callee = callerTriple.getExpr().getMethod();
+	private class ArgParamAliasSetRetriever
+	  implements Transformer {
+		/** 
+		 * This is the position of the param/arg.
+		 */
+		private final int position;
 
-		if (argPos >= _callee.getParameterCount()) {
-			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
+		/**
+		 * Creates an instance of this class.
+		 *
+		 * @param pos is the arg/param position of interest.
+		 */
+		ArgParamAliasSetRetriever(final int pos) {
+			this.position = pos;
 		}
 
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(callerTriple = " + callerTriple + ", argPos = "
-						+ argPos + ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
-			} else {
-				_result = AliasSet.isSideAffected(_endPoint, recurse);
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
-			}
+		/**
+		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		 */
+		public Object transform(final Object input) {
+			return ((MethodContext) input).getParamAS(position);
 		}
-		return _result;
+	}
+
+
+	/**
+	 * This retrives the site context in a method based on the initialized call-site.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private class SiteContextRetriever
+	  implements Transformer {
+		/** 
+		 * This is the call-site.
+		 */
+		final Triple callerTriple;
+
+		/**
+		 * Creates an instance of this class.
+		 *
+		 * @param triple of interest.
+		 *
+		 * @pre triple != null
+		 */
+		SiteContextRetriever(final Triple triple) {
+			callerTriple = triple;
+		}
+
+		/**
+		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		 */
+		public Object transform(final Object input) {
+			final Triple _t = (Triple) method2Triple.get(input);
+			return _t != null ? ((Map) _t.getThird()).get(callerTriple)
+							  : null;
+		}
 	}
 
 	/**
-	 * @see ISideEffectInfo#isArgumentSideAffected(ICallGraphInfo.CallTriple, int)
+	 * @see IObjectReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple,
+	 * 		int, java.lang.String[], boolean)
 	 */
-	public boolean isArgumentSideAffected(final CallTriple callerTriple, final int argPos) {
+	public boolean isArgumentBasedAccessPathRead(final CallTriple callerTriple, final int argPos, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException {
 		final SootMethod _callee = callerTriple.getExpr().getMethod();
 
-		if (argPos >= _callee.getParameterCount()) {
-			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
-		}
+		validate(argPos, _callee);
 
-		final boolean _result;
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(new SiteContextRetriever(callerTriple), new ArgParamAliasSetRetriever(argPos));
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
+	}
 
-		if (_callee.getParameterType(argPos) instanceof RefType) {
-			final SootMethod _caller = callerTriple.getMethod();
-			final Triple _triple = (Triple) method2Triple.get(_caller);
+	/**
+	 * @see IObjectReadWriteInfo#isArgumentBasedAccessPathWritten(ICallGraphInfo.CallTriple, int, String[],     boolean)
+	 */
+	public boolean isArgumentBasedAccessPathWritten(final CallTriple callerTriple, final int argPos,
+		final String[] accesspath, final boolean recurse) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
 
-			if (_triple != null) {
-				final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
-				_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
-			} else {
-				_result = true;
+		validate(argPos, _callee);
 
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No recorded information for " + _caller
-						+ " is available.  Returning pessimistic (true) info.");
-				}
-			}
-		} else {
-			_result = false;
-		}
-		return _result;
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(new SiteContextRetriever(callerTriple), new ArgParamAliasSetRetriever(argPos));
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
 	/**
@@ -886,74 +402,33 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	public Collection getIds() {
 		final Collection _temp = new ArrayList();
 		_temp.add(IEscapeInfo.ID);
-		_temp.add(ISideEffectInfo.ID);
+		_temp.add(IObjectReadWriteInfo.ID);
 		return _temp;
 	}
 
 	/**
-	 * @see ISideEffectInfo#isParameterBasedAccessPathSideAffected(SootMethod, int, String[], boolean)
+	 * @see IObjectReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
 	 */
-	public boolean isParameterBasedAccessPathSideAffected(final SootMethod method, final int argPos,
-		final String[] accesspath, final boolean recurse) {
-		if (argPos >= method.getParameterCount()) {
-			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
-		}
+	public boolean isParameterBasedAccessPathRead(final SootMethod method, final int paramPos, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException {
+		validate(paramPos, method);
 
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", argPos = " + argPos
-						+ ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
-			} else {
-				_result = AliasSet.isSideAffected(_endPoint, recurse);
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, new ArgParamAliasSetRetriever(paramPos));
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
 	/**
-	 * @see ISideEffectInfo#isParameterSideAffected(SootMethod, int)
+	 * @see IObjectReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
 	 */
-	public boolean isParameterSideAffected(final SootMethod method, final int argPos) {
-		if (argPos >= method.getParameterCount()) {
-			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
-		}
+	public boolean isParameterBasedAccessPathWritten(final SootMethod method, final int paramPos, final String[] accesspath,
+		final boolean recurse) {
+		validate(paramPos, method);
 
-		final boolean _result;
-
-		if (method.getParameterType(argPos) instanceof RefType) {
-			final Triple _triple = (Triple) method2Triple.get(method);
-
-			if (_triple != null) {
-				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-				_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
-			} else {
-				_result = true;
-
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No recorded information for " + method
-						+ " is available.  Returning pessimistic (true) info.");
-				}
-			}
-		} else {
-			_result = false;
-		}
-		return _result;
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, new ArgParamAliasSetRetriever(paramPos));
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
 	/**
@@ -978,10 +453,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(int, soot.SootMethod)
 	 */
 	public Collection getReadingThreadsOf(final int paramIndex, final SootMethod method) {
-		if (paramIndex >= method.getParameterCount()) {
-			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but "
-				+ paramIndex + " was provided.");
-		}
+		validate(paramIndex, method);
 
 		final Collection _result;
 
@@ -1009,9 +481,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOfThis(soot.SootMethod)
 	 */
 	public Collection getReadingThreadsOfThis(final SootMethod method) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
+		validate(method);
 
 		final Triple _triple = (Triple) method2Triple.get(method);
 		final Collection _result;
@@ -1029,116 +499,54 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isReceiverBasedAccessPathSideAffected(CallTriple, String[], boolean)
+	 * @see IObjectReadWriteInfo#isReceiverBasedAccessPathRead(ICallGraphInfo.CallTriple,     java.lang.String[], boolean)
 	 */
-	public boolean isReceiverBasedAccessPathSideAffected(final CallTriple callerTriple, final String[] accesspath,
+	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException {
+		if (callerTriple.getExpr().getMethod().isStatic()) {
+			throw new IllegalArgumentException("The invoked method should be non-static.");
+		}
+
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(new SiteContextRetriever(callerTriple), thisAliasSetRetriever);
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
+	}
+
+	/**
+	 * @see IObjectReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
+	 */
+	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
 		final boolean recurse) {
 		if (callerTriple.getExpr().getMethod().isStatic()) {
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
 
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
-			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(calltripel = " + callerTriple + ", accesspath = "
-						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
-			} else {
-				_result = AliasSet.isSideAffected(_endPoint, recurse);
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
+		final Transformer _transformer =
+			TransformerUtils.chainedTransformer(new SiteContextRetriever(callerTriple), thisAliasSetRetriever);
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
 	/**
-	 * @see ISideEffectInfo#isReceiverSideAffected(ICallGraphInfo.CallTriple)
+	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
+	 * 		boolean)
 	 */
-	public boolean isReceiverSideAffected(final CallTriple callerTriple) {
-		if (callerTriple.getExpr().getMethod().isStatic()) {
-			throw new IllegalArgumentException("The invoked method should be non-static.");
-		}
+	public boolean isThisBasedAccessPathRead(final SootMethod method, final String[] accesspath, final boolean recurse)
+	  throws IllegalArgumentException {
+		validate(method);
 
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _siteCtxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
-			_result = AliasSet.isSideAffected(_siteCtxt.thisAS, true);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever, thisAliasSetRetriever);
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
 	/**
-	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(SootMethod, String[], boolean)
+	 * @see IObjectReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
 	 */
-	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final String[] accesspath, final boolean deep) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
+	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
+		validate(method);
 
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", accesspath = "
-						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
-			} else {
-				_result = AliasSet.isSideAffected(_endPoint, deep);
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * @see ISideEffectInfo#isThisSideAffected(SootMethod)
-	 */
-	public boolean isThisSideAffected(final SootMethod method) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
-
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			_result = AliasSet.isSideAffected(_ctxt.thisAS, true);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever, thisAliasSetRetriever);
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
 	/**
@@ -1163,10 +571,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(int, soot.SootMethod)
 	 */
 	public Collection getWritingThreadsOf(final int paramIndex, final SootMethod method) {
-		if (paramIndex >= method.getParameterCount()) {
-			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but "
-				+ paramIndex + " was provided.");
-		}
+		validate(paramIndex, method);
 
 		final Collection _result;
 
@@ -1194,9 +599,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOfThis(soot.SootMethod)
 	 */
 	public Collection getWritingThreadsOfThis(final SootMethod method) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
+		validate(method);
 
 		final Triple _triple = (Triple) method2Triple.get(method);
 		final Collection _result;
@@ -1306,54 +709,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
-	 */
-	public boolean areMonitorsCoupled(final MonitorStmt enter, final SootMethod enterMethod, final MonitorStmt exit,
-		final SootMethod exitMethod) {
-		final boolean _result;
-
-		if (enterMethod.isStatic() || exitMethod.isStatic()) {
-			_result = true;
-		} else {
-			final Triple _trp1 = (Triple) method2Triple.get(enterMethod);
-
-			if (_trp1 == null) {
-				throw new IllegalArgumentException(enterMethod + " was not processed.");
-			}
-
-			final Triple _trp2 = (Triple) method2Triple.get(exitMethod);
-
-			if (_trp2 == null) {
-				throw new IllegalArgumentException(exitMethod + " was not processed.");
-			}
-
-			final AliasSet _n;
-
-			if (enter == null) {
-				_n = ((MethodContext) _trp1.getFirst()).getThisAS();
-			} else {
-				_n = (AliasSet) ((Map) _trp1.getSecond()).get(enter.getOp());
-			}
-
-			final AliasSet _x;
-
-			if (exit == null) {
-				_x = ((MethodContext) _trp2.getFirst()).getThisAS();
-			} else {
-				_x = (AliasSet) ((Map) _trp2.getSecond()).get(exit.getOp());
-			}
-
-			final Collection _xLockEntities = _x.getLockEntities();
-			final Collection _nLockEntities = _n.getLockEntities();
-			_result =
-				_xLockEntities != null && _nLockEntities != null
-				  && CollectionUtils.containsAny(_nLockEntities, _xLockEntities);
-		}
-
-		return _result;
-	}
-
-	/**
 	 * @see IEscapeInfo#areCoupledViaLocking(soot.Local, soot.SootMethod, soot.Local, soot.SootMethod)
 	 */
 	public boolean areCoupledViaLocking(final Local local1, final SootMethod method1, final Local local2,
@@ -1407,44 +762,81 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#doesInvocationAffectGlobalData(ICallGraphInfo.CallTriple)
+	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
 	 */
-	public boolean doesInvocationAffectGlobalData(final CallTriple callerTriple) {
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
+	public boolean areMonitorsCoupled(final MonitorStmt enter, final SootMethod enterMethod, final MonitorStmt exit,
+		final SootMethod exitMethod) {
 		final boolean _result;
 
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			_result = _ctxt.isGlobalDataWritten();
-		} else {
+		if (enterMethod.isStatic() || exitMethod.isStatic()) {
 			_result = true;
+		} else {
+			final Triple _trp1 = (Triple) method2Triple.get(enterMethod);
 
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			if (_trp1 == null) {
+				throw new IllegalArgumentException(enterMethod + " was not processed.");
 			}
+
+			final Triple _trp2 = (Triple) method2Triple.get(exitMethod);
+
+			if (_trp2 == null) {
+				throw new IllegalArgumentException(exitMethod + " was not processed.");
+			}
+
+			final AliasSet _n;
+
+			if (enter == null) {
+				_n = ((MethodContext) _trp1.getFirst()).getThisAS();
+			} else {
+				_n = (AliasSet) ((Map) _trp1.getSecond()).get(enter.getOp());
+			}
+
+			final AliasSet _x;
+
+			if (exit == null) {
+				_x = ((MethodContext) _trp2.getFirst()).getThisAS();
+			} else {
+				_x = (AliasSet) ((Map) _trp2.getSecond()).get(exit.getOp());
+			}
+
+			final Collection _xLockEntities = _x.getLockEntities();
+			final Collection _nLockEntities = _n.getLockEntities();
+			_result =
+				_xLockEntities != null && _nLockEntities != null
+				  && CollectionUtils.containsAny(_nLockEntities, _xLockEntities);
 		}
+
 		return _result;
 	}
 
 	/**
-	 * @see ISideEffectInfo#doesMethodAffectGlobalData(SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#doesInvocationReadGlobalData(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
-	public boolean doesMethodAffectGlobalData(final SootMethod method) {
-		final Triple _triple = (Triple) method2Triple.get(method);
-		final boolean _result;
+	public boolean doesInvocationReadGlobalData(final CallTriple callerTriple) {
+		final SootMethod _caller = callerTriple.getMethod();
+		return globalDataReadWriteInfoHelper(_caller, new SiteContextRetriever(callerTriple), true);
+	}
 
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			_result = _ctxt.isGlobalDataWritten();
-		} else {
-			_result = true;
+	/**
+	 * @see IObjectReadWriteInfo#doesInvocationWriteGlobalData(ICallGraphInfo.CallTriple)
+	 */
+	public boolean doesInvocationWriteGlobalData(final CallTriple callerTriple) {
+		final SootMethod _caller = callerTriple.getMethod();
+		return globalDataReadWriteInfoHelper(_caller, new SiteContextRetriever(callerTriple), false);
+	}
 
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
+	 */
+	public boolean doesMethodReadGlobalData(final SootMethod method) {
+		return globalDataReadWriteInfoHelper(method, thisAliasSetRetriever, true);
+	}
+
+	/**
+	 * @see IObjectReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
+	 */
+	public boolean doesMethodWriteGlobalData(final SootMethod method) {
+		return globalDataReadWriteInfoHelper(method, thisAliasSetRetriever, false);
 	}
 
 	/**
@@ -1495,7 +887,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean _result = escapes(v1, sm1) && escapes(v2, sm2);
-        
+
 		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
 				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
@@ -1507,7 +899,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 						+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
-        }
+		}
 
 		return _result;
 	}
@@ -1577,23 +969,23 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final Map _local2AS = (Map) _trp.getSecond();
 		AliasSet _result = null;
 
-        if (canHaveAliasSet(v.getType())) {
-    		if (v instanceof InstanceFieldRef) {
-    			final InstanceFieldRef _i = (InstanceFieldRef) v;
-    			final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
-    			_result = _temp.getASForField(_i.getField().getSignature());
-    		} else if (v instanceof StaticFieldRef) {
-    			_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
-    		} else if (v instanceof ArrayRef) {
-    			final ArrayRef _a = (ArrayRef) v;
-    			final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-    			_result = _temp.getASForField(ARRAY_FIELD);
-    		} else if (v instanceof Local) {
-    			_result = (AliasSet) _local2AS.get(v);
-    		} else if (v instanceof ThisRef) {
-    			_result = ((MethodContext) _trp.getFirst()).getThisAS();
-    		} 
-        }
+		if (canHaveAliasSet(v.getType())) {
+			if (v instanceof InstanceFieldRef) {
+				final InstanceFieldRef _i = (InstanceFieldRef) v;
+				final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
+				_result = _temp.getASForField(_i.getField().getSignature());
+			} else if (v instanceof StaticFieldRef) {
+				_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+			} else if (v instanceof ArrayRef) {
+				final ArrayRef _a = (ArrayRef) v;
+				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
+				_result = _temp.getASForField(ARRAY_FIELD);
+			} else if (v instanceof Local) {
+				_result = (AliasSet) _local2AS.get(v);
+			} else if (v instanceof ThisRef) {
+				_result = ((MethodContext) _trp.getFirst()).getThisAS();
+			}
+		}
 
 		return _result;
 	}
@@ -1692,6 +1084,98 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 		methodCtxtCache.discardReferentialAliasSets();
 		method2Triple.put(method, new Triple(methodCtxtCache, localASsCache, scCache));
+	}
+
+	/**
+	 * Checks if the given method either reads or writes global data.
+	 *
+	 * @param method of interest.
+	 * @param retriever to be used.
+	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write  info is
+	 * 		  requested.
+	 *
+	 * @return <code>true</code> if any global data was read when <code>read</code> is <code>true</code> and
+	 * 		   <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code> if any
+	 * 		   global data was written when <code>read</code> is <code>false</code> and <code>false</code> if it was not
+	 * 		   written when <code>read</code> was <code> false</code>.
+	 *
+	 * @pre method != null and retriever != null
+	 */
+	private boolean globalDataReadWriteInfoHelper(final SootMethod method, final Transformer retriever, final boolean read) {
+		final Triple _triple = (Triple) method2Triple.get(method);
+		final boolean _result;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) retriever.transform(_triple);
+
+			if (read) {
+				_result = _ctxt.isGlobalDataRead();
+			} else {
+				_result = _ctxt.isGlobalDataWritten();
+			}
+		} else {
+			_result = true;
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Calculates the read-write information based on an access path rooted at the given method using the given transformer.
+	 *
+	 * @param method in which the accesspath is rooted.
+	 * @param accesspath of interest.
+	 * @param recurse <code>true</code> indicates that read/write beyond the end point should be considered.
+	 * 		  <code>false</code>, otherwise.
+	 * @param retriever to be used to get the method context and the alias set.
+	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write  info is
+	 * 		  requested.
+	 *
+	 * @return <code>true</code> if the given access path was read when <code>read</code> is <code>true</code> and
+	 * 		   <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code> if the
+	 * 		   given access path was written when <code>read</code> is <code>false</code> and <code>false</code> if it was
+	 * 		   not written when <code>read</code> was <code> false</code>.
+	 *
+	 * @pre method != null and accesspath != null and retriever != null
+	 */
+	private boolean instanceDataReadWriteHelper(final SootMethod method, final String[] accesspath, final boolean recurse,
+		final Transformer retriever, final boolean read) {
+		final AliasSet _aliasSet = ((AliasSet) retriever.transform(method));
+		final AliasSet _endPoint;
+
+		if (_aliasSet == null) {
+			_endPoint = null;
+		} else {
+			final Pair _pair = new Pair(_aliasSet.find(), accesspath);
+
+			if (query2handle.containsKey(_pair)) {
+				_endPoint = (AliasSet) query2handle.get(_pair);
+			} else {
+				_endPoint = _aliasSet.getAccessPathEndPoint(accesspath);
+				query2handle.put(_pair, _endPoint);
+			}
+		}
+
+		final boolean _result;
+
+		if (_endPoint == null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("isAccessPathOperatedHelper(method = " + method + ", accesspath = " + accesspath + ", recurse = "
+					+ recurse + ", retriver = " + retriever + ") - No recorded information for " + method
+					+ " is available.  Returning pessimistic (true) info.");
+			}
+			_result = true;
+		} else {
+			if (read) {
+				_result = AliasSet.isAccessed(_endPoint, recurse);
+			} else {
+				_result = AliasSet.isFieldWritten(_endPoint, recurse);
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -1795,6 +1279,38 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
+		}
+	}
+
+	/**
+	 * Validates the given parameter position in the given method.
+	 *
+	 * @param paramPos obviously.
+	 * @param method in which the position is being validated.
+	 *
+	 * @throws IllegalArgumentException if the given position is invalid.
+	 *
+	 * @pre method != null
+	 */
+	private void validate(final int paramPos, final SootMethod method)
+	  throws IllegalArgumentException {
+		if (paramPos >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + paramPos
+				+ " was provided.");
+		}
+	}
+
+	/**
+	 * Validates if the given method is non-static.
+	 *
+	 * @param method of interest.
+	 *
+	 * @throws IllegalArgumentException if the given method is static.
+	 */
+	private void validate(final SootMethod method)
+	  throws IllegalArgumentException {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
 		}
 	}
 }

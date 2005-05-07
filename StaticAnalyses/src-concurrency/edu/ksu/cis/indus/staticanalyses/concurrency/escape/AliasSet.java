@@ -99,6 +99,11 @@ final class AliasSet
 	private Map fieldMap;
 
 	/** 
+	 * This indicates if a field of the associated object was written.
+	 */
+	private boolean fieldWritten;
+
+	/** 
 	 * This indicates if this alias set is associated with a static field.
 	 */
 	private boolean global;
@@ -126,11 +131,6 @@ final class AliasSet
 	 * not accessibility.
 	 */
 	private boolean shared;
-
-	/** 
-	 * This indicates if the associated object was side-affected.
-	 */
-	private boolean sideAffected;
 
 	/** 
 	 * This indicates that this object is being stringified.
@@ -244,12 +244,21 @@ final class AliasSet
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
 											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
-                                               .append("lockEntities", this.lockEntities)
-											   .append("fieldMap", this.fieldMap).toString();
+											   .append("lockEntities", this.lockEntities).append("fieldMap", this.fieldMap)
+											   .toString();
 				stringifying = false;
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Retrieves the value of <code>accessed</code>.
+	 *
+	 * @return the value of <code>accessed</code>.
+	 */
+	final boolean isAccessed() {
+		return accessed;
 	}
 
 	/**
@@ -273,21 +282,39 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the given alias set is side-affected. Basically, it checks if the variables associated with this alias set
-	 * were written to.
+	 * Checks if a field of the object associated with the given alias set was written.
 	 *
 	 * @param paramAS is the alias set to be checked.
 	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
 	 * 		  <code>false</code>, otherwise.
 	 *
-	 * @return <code>true</code> if this alias set is side-affected or if the given alias set is <code>null</code>; 
-     * <code>false</code>, otherwise.
+	 * @return <code>true</code> if this alias set was field-written or if the given alias set is <code>null</code>;
+	 * 		   <code>false</code>, otherwise.
 	 */
-	static boolean isSideAffected(final AliasSet paramAS, final boolean recurse) {
+	static boolean isAccessed(final AliasSet paramAS, final boolean recurse) {
 		boolean _result = paramAS == null;
 
 		if (!_result) {
-			_result = paramAS.isSideAffected(new HashSet(), recurse);
+			_result = paramAS.isAccessed(new HashSet(), recurse);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if a field of the object associated with the given alias set was written.
+	 *
+	 * @param paramAS is the alias set to be checked.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set was field-written or if the given alias set is <code>null</code>;
+	 * 		   <code>false</code>, otherwise.
+	 */
+	static boolean isFieldWritten(final AliasSet paramAS, final boolean recurse) {
+		boolean _result = paramAS == null;
+
+		if (!_result) {
+			_result = paramAS.isFieldWritten(new HashSet(), recurse);
 		}
 		return _result;
 	}
@@ -361,6 +388,13 @@ final class AliasSet
 	 */
 	Map getFieldMap() {
 		return Collections.unmodifiableMap(((AliasSet) find()).fieldMap);
+	}
+
+	/**
+	 * Records that a field of the object associated with this alias set was written to.
+	 */
+	void setFieldWritten() {
+		((AliasSet) find()).fieldWritten = true;
 	}
 
 	/**
@@ -441,13 +475,6 @@ final class AliasSet
 	 */
 	Collection getShareEntities() {
 		return ((AliasSet) find()).shareEntities;
-	}
-
-	/**
-	 * Marks the object associated with this alias set is side affected.
-	 */
-	void setSideAffected() {
-		((AliasSet) find()).sideAffected = true;
 	}
 
 	/**
@@ -553,10 +580,10 @@ final class AliasSet
 
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
-                
-                if (_fromRep.lockEntities != null && _toRep.lockEntities != null) {
-                    _toRep.lockEntities.addAll(_fromRep.lockEntities);
-                }
+
+				if (_fromRep.lockEntities != null && _toRep.lockEntities != null) {
+					_toRep.lockEntities.addAll(_fromRep.lockEntities);
+				}
 
 				for (final Iterator _i = _toRep.getFieldMap().keySet().iterator(); _i.hasNext();) {
 					final String _field = (String) _i.next();
@@ -680,10 +707,11 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Adds a new lock entity to this alias set.
 	 */
 	void addNewLockEntity() {
-        final AliasSet _s = ((AliasSet) find());
+		final AliasSet _s = ((AliasSet) find());
+
 		if (_s.lockEntities == null) {
 			_s.lockEntities = new HashSet();
 		}
@@ -734,7 +762,7 @@ final class AliasSet
 			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
 			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
-			_representative.sideAffected |= _represented.sideAffected;
+			_representative.fieldWritten |= _represented.fieldWritten;
 			_representative.readThreads.addAll(_represented.readThreads);
 			_represented.readThreads = null;
 			_representative.writeThreads.addAll(_represented.writeThreads);
@@ -749,14 +777,14 @@ final class AliasSet
 
 			if (_representative.readyEntities == null) {
 				_representative.readyEntities = _represented.readyEntities;
-                _represented.readyEntities = null;
+				_represented.readyEntities = null;
 			} else if (_represented.readyEntities != null) {
 				_representative.readyEntities.addAll(_represented.readyEntities);
 			}
 
 			if (_representative.shareEntities == null) {
 				_representative.shareEntities = _represented.shareEntities;
-                _represented.shareEntities = null;
+				_represented.shareEntities = null;
 			} else if (_represented.shareEntities != null) {
 				_representative.shareEntities.addAll(_represented.shareEntities);
 			}
@@ -798,21 +826,20 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if this alias set is side-affected.  Basically, it checks if the variables associated with this alias set were
-	 * written to.
+	 * Checks if the object being represented by this alias set was accessed.
 	 *
 	 * @param visitedASs is a collection of alias sets that are traversed while checking for side-effect.
 	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
 	 * 		  <code>false</code>, otherwise.
 	 *
-	 * @return <code>true</code> if this alias set is side-affected; <code>false</code>, otherwise.
+	 * @return <code>true</code> if this alias set was accessed; <code>false</code>, otherwise.
 	 *
 	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
 	 */
-	private boolean isSideAffected(final Collection visitedASs, final boolean recurse) {
-		boolean _result = isSideAffected();
-        final AliasSet _rep = (AliasSet) find();
-        
+	private boolean isAccessed(final Collection visitedASs, final boolean recurse) {
+		boolean _result = isFieldWritten();
+		final AliasSet _rep = (AliasSet) find();
+
 		if (!_result && !visitedASs.contains(_rep)) {
 			final Collection _fieldASs = _rep.getFieldMap().values();
 			final Iterator _i = _fieldASs.iterator();
@@ -820,7 +847,7 @@ final class AliasSet
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 				final AliasSet _fieldAS = (AliasSet) _i.next();
-				_result |= _fieldAS.isSideAffected();
+				_result |= _fieldAS.isAccessed();
 				visitedASs.add(_fieldAS.find());
 			}
 
@@ -829,7 +856,7 @@ final class AliasSet
 
 				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 					final AliasSet _fieldAS = (AliasSet) _j.next();
-					_result |= _fieldAS.isSideAffected(visitedASs, recurse);
+					_result |= _fieldAS.isAccessed(visitedASs, recurse);
 				}
 			}
 		}
@@ -837,12 +864,50 @@ final class AliasSet
 	}
 
 	/**
-	 * Returns the value of <code>sideAffected</code>.
+	 * Checks if a field of the object being represented by this alias set was written.
 	 *
-	 * @return the value of <code>sideAffected</code>.
+	 * @param visitedASs is a collection of alias sets that are traversed while checking for side-effect.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set was field-written; <code>false</code>, otherwise.
+	 *
+	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
 	 */
-	private boolean isSideAffected() {
-		return ((AliasSet) find()).sideAffected;
+	private boolean isFieldWritten(final Collection visitedASs, final boolean recurse) {
+		boolean _result = isFieldWritten();
+		final AliasSet _rep = (AliasSet) find();
+
+		if (!_result && !visitedASs.contains(_rep)) {
+			final Collection _fieldASs = _rep.getFieldMap().values();
+			final Iterator _i = _fieldASs.iterator();
+			final int _iEnd = _fieldASs.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+				final AliasSet _fieldAS = (AliasSet) _i.next();
+				_result |= _fieldAS.isFieldWritten();
+				visitedASs.add(_fieldAS.find());
+			}
+
+			if (!_result && recurse) {
+				final Iterator _j = _fieldASs.iterator();
+
+				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+					final AliasSet _fieldAS = (AliasSet) _j.next();
+					_result |= _fieldAS.isFieldWritten(visitedASs, recurse);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns the value of <code>fieldWritten</code>.
+	 *
+	 * @return the value of <code>fieldWritten</code>.
+	 */
+	private boolean isFieldWritten() {
+		return ((AliasSet) find()).fieldWritten;
 	}
 
 	/**
