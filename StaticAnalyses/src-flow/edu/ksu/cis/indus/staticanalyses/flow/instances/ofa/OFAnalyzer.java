@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import soot.ArrayType;
 import soot.Modifier;
 import soot.SootField;
 
@@ -188,6 +189,36 @@ public final class OFAnalyzer
 		return _retValues.isEmpty() ? Collections.EMPTY_SET
 									: _retValues;
 	}
+    
+    /**
+     * Returns values associated with the given array type associated with the given allocation sites.
+     *
+     * @param t the array type reqarding which information is requested.
+     * @param sites the collection of allocation sites that are of interest when extracting field information.
+     *
+     * @return a collection of values the array type <code>t</code> may evaluate when associated with object created at allocation
+     *         sites given by <code>sites</code>.
+     *
+     * @pre t != null and sites != null
+     * @pre sites.oclIsKindOf(Collection(Object))
+     */
+    public Collection getValues(final ArrayType t, final Collection sites) {
+        Object _temp = null;
+        Collection _retValues;
+        final AllocationContext _ctxt = (AllocationContext) context;
+
+            _retValues = new HashSet();
+            _temp = _ctxt.getAllocationSite();
+
+            for (final Iterator _i = sites.iterator(); _i.hasNext();) {
+                _ctxt.setAllocationSite(_i.next());
+                _retValues.addAll(getValues(t));
+            }
+            _ctxt.setAllocationSite(_temp);
+
+        return _retValues.isEmpty() ? Collections.EMPTY_SET
+                                    : _retValues;
+    }
 }
 
 // End of File

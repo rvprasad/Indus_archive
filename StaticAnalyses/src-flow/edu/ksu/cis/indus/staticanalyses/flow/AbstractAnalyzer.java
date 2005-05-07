@@ -36,7 +36,6 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
 
-import soot.jimple.ArrayRef;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
@@ -158,8 +157,6 @@ public abstract class AbstractAnalyzer
 
 		if (astChunk instanceof ParameterRef) {
 			_result = getValues((ParameterRef) astChunk);
-		} else if (astChunk instanceof ArrayRef) {
-			_result = getValues((ArrayRef) astChunk);
 		} else {
 			_result = getValues(astChunk);
 		}
@@ -269,30 +266,30 @@ public abstract class AbstractAnalyzer
 	public IActivePart getActivePart() {
 		return fa.getActivePart();
 	}
+    
+    /**
+     * Returns the set of values associated with the given array type in the context given by <code>this.context</code>.
+     *
+     * @param a the array type for which the values are requested.
+     *
+     * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
+     *
+     * @pre a != null
+     * @post result != null
+     */
+    protected final Collection getValues(final ArrayType a) {
+        final ValuedVariant _v = fa.queryArrayVariant(a);
+        Collection _temp = Collections.EMPTY_SET;
 
-	/**
-	 * Returns the set of values associated with the given array reference in the context given by <code>this.context</code>.
-	 *
-	 * @param a the array reference for which the values are requested.
-	 *
-	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
-	 *
-	 * @pre a != null
-	 * @post result != null
-	 */
-	protected final Collection getValues(final ArrayRef a) {
-		final ValuedVariant _v = fa.queryArrayVariant((ArrayType) a.getBase().getType());
-		Collection _temp = Collections.EMPTY_SET;
+        if (_v != null) {
+            _temp = _v.getFGNode().getValues();
 
-		if (_v != null) {
-			_temp = _v.getFGNode().getValues();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Values for array type " + a + " in node " + _v.getFGNode() + " are " + _temp);
-			}
-		}
-		return _temp;
-	}
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Values for array type " + a + " in node " + _v.getFGNode() + " are " + _temp);
+            }
+        }
+        return _temp;
+    }
 
 	/**
 	 * Returns the set of values associated with the given parameter reference in the context given by
