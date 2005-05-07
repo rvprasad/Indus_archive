@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -379,6 +380,7 @@ public class DependencyXMLizerCLI
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
+        info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
 		info.put(IEscapeInfo.ID, _ecba);
