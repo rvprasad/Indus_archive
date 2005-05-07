@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-import edu.ksu.cis.indus.interfaces.ISideEffectInfo;
+import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
@@ -71,12 +71,12 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class EscapeAndSideEffectCLI
+public class EscapeAndReadWriteCLI
   extends SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EscapeAndSideEffectCLI.class);
+	private static final Log LOGGER = LogFactory.getLog(EscapeAndReadWriteCLI.class);
 
 	/**
 	 * The entry point to this class.
@@ -102,7 +102,7 @@ public class EscapeAndSideEffectCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				final String _cmdLineSyn = "java " + EscapeAndSideEffectCLI.class.getName() + " <options> <classnames>";
+				final String _cmdLineSyn = "java " + EscapeAndReadWriteCLI.class.getName() + " <options> <classnames>";
 				(new HelpFormatter()).printHelp(_cmdLineSyn, _options);
 				System.exit(1);
 			}
@@ -111,7 +111,7 @@ public class EscapeAndSideEffectCLI
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
-			final EscapeAndSideEffectCLI _cli = new EscapeAndSideEffectCLI();
+			final EscapeAndReadWriteCLI _cli = new EscapeAndReadWriteCLI();
 
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
@@ -122,7 +122,7 @@ public class EscapeAndSideEffectCLI
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 
-			final String _cmdLineSyn = "java " + EscapeAndSideEffectCLI.class.getName() + " <options> <classnames>";
+			final String _cmdLineSyn = "java " + EscapeAndReadWriteCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {
 			LOGGER.fatal("Beyond our control. May day! May day!", _e);
@@ -183,15 +183,15 @@ public class EscapeAndSideEffectCLI
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
-		final ISideEffectInfo _sideeffectInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
-		final IEscapeInfo _escapeInfo = (IEscapeInfo) _sideeffectInfo;
+		final IObjectReadWriteInfo _rwInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
+		final IEscapeInfo _escapeInfo = (IEscapeInfo) _rwInfo;
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_sideeffectInfo));
+		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_rwInfo));
 		_ac.initialize();
 		_ac.execute();
 		writeInfo("END: Escape analysis");
 
-		System.out.println("Side-Effect and Escape Information:");
+		System.out.println("ReadWrite-Effect and Escape Information:");
 
 		for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -199,15 +199,17 @@ public class EscapeAndSideEffectCLI
 
 			if (!_sm.isStatic()) {
 				System.out.println("\tthis:");
-				System.out.println("\t\tside-affected =  " + _sideeffectInfo.isThisSideAffected(_sm));
+				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, new String[0], true));
+				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, new String[0], true));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
 				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
 				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
-				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]: side-affected = "
-					+ _sideeffectInfo.isParameterSideAffected(_sm, _j));
+				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]:");
+				System.out.println("\t\tread = " + _rwInfo.isParameterBasedAccessPathRead(_sm, _j, new String[0], true));
+				System.out.println("\t\twritten = " + _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, new String[0], true));
 				System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_j, _sm));
 				System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_j, _sm));
 			}
