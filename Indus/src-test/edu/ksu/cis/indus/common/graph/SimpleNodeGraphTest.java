@@ -68,9 +68,8 @@ public class SimpleNodeGraphTest
 
 		try {
 			sng.getNode(null);
-			fail("Should have raised an exception.");
 		} catch (NullPointerException _e) {
-			;
+            fail("Shouldn't have raised an exception.");
 		}
 	}
 
