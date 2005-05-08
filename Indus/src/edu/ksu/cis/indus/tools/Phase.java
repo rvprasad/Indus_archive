@@ -168,7 +168,7 @@ public final class Phase
 	}
 
 	/**
-	 * @see Object#hashCode
+	 * @see Object#hashCode()
 	 */
 	public int hashCode() {
 		return major + minor;
