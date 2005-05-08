@@ -22,7 +22,10 @@ import edu.ksu.cis.indus.common.datastructures.Marker;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
+import gnu.trove.TIntObjectHashMap;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -52,6 +57,16 @@ import org.apache.commons.collections.map.LazyMap;
  */
 public abstract class AbstractDirectedGraph
   implements IDirectedGraph {
+	/** 
+	 * This is used in the calculation of SCCs.
+	 */
+	private static int currCompNum;
+
+	/** 
+	 * This is used in the calculation of SCCs.
+	 */
+	private static int dfsNum;
+
 	/** 
 	 * The set of nodes that constitute the head nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
@@ -101,17 +116,6 @@ public abstract class AbstractDirectedGraph
 	 */
 	private final Collection pseudoTails = new HashSet();
 
-	/*
-	 * This comparator sorts nodes based on their discovery time.
-	 *
-	             private final Comparator discoverTimeBasedNodeComparator =
-	                 new Comparator() {
-	                     public int compare(final Object o1, final Object o2) {
-	                         return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
-	                     }
-	                 };
-	 */
-
 	/** 
 	 * This maps a node to it's spanning successor nodes.
 	 *
@@ -139,16 +143,6 @@ public abstract class AbstractDirectedGraph
 	 * This captures backward reachability information.
 	 */
 	private boolean[][] forwardReachabilityMatrix;
-
-	/*
-	 * This is the node indexed high num of the nodes in this graph.  A high number indicates the number of the highest node
-	 * that is reachable in various trees by following forward and backwards edges.
-	 *
-	 * @invariant highnums.size = getNodes().size()
-	 * @invariant highnums->forall(o | o >= 0)
-	 *
-	 * private int[] highnums;
-	 */
 
 	/** 
 	 * This indicates if dag has been calculated for this graph.
@@ -396,52 +390,78 @@ public abstract class AbstractDirectedGraph
 	 * @see IDirectedGraph#getSCCs(boolean)
 	 */
 	public final List getSCCs(final boolean topDown) {
-		final List _result;
 		final List _nodes = getNodes();
-		_result = findSCCs(_nodes, topDown);
+		final Collection _sccs = findSCCs(_nodes);
+		final Map _node2scc = new HashMap();
+
+		for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
+			final Collection _scc = (Collection) _i.next();
+
+			for (final Iterator _j = _scc.iterator(); _j.hasNext();) {
+				final Object _n = _j.next();
+				_node2scc.put(_n, _scc);
+			}
+		}
+
+		final List _topologicallyOrdered = performTopologicalSort(false);
+		final List _result = new ArrayList();
+		final Collection _keySet = _node2scc.keySet();
+		final Iterator _i =
+			IteratorUtils.filteredIterator(_topologicallyOrdered.iterator(),
+				new Predicate() {
+					public boolean evaluate(final Object o) {
+						return _node2scc.containsKey(o);
+					}
+				});
+
+		for (; _i.hasNext();) {
+			final Object _o = _i.next();
+			final Collection _scc = (Collection) _node2scc.get(_o);
+			_result.add(_scc);
+			_keySet.removeAll(_scc);
+		}
+
+		if (topDown) {
+			Collections.reverse(_result);
+		}
+
 		return _result;
 	}
 
 	/**
-	 * Finds strongly-connected components in the given nodes in the requested direction.
+	 * Finds SCCs in the given node.
 	 *
-	 * @param nodes in which the sccs should be detected.
-	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
-	 * 		  indicates bottom-up.
+	 * @param nodes of interest.
 	 *
-	 * @return the sccs found in the given set of nodes in the requested direction.
+	 * @return a collection of sccs
 	 *
 	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
-	 * @post result != null and result.oclIsKindOf(Collection(Collection(INode)))
-	 * @post result->forall(o | nodes->containsAll(o))
+	 * @post result != null and result.oclIsKindOf(Collection(List(INode)))
+	 * @post result->forall(o | o->forall(p | nodes.contains(p)))
+	 * @post nodes->forall(o | result->exists(p | p.contains(o)))
 	 */
-	public static List findSCCs(final Collection nodes, final boolean topDown) {
-		final List _result;
-		final Map _finishTime2node = new HashMap();
-		final Collection _processed = new HashSet();
-		int _time = 0;
+	public static Collection findSCCs(final Collection nodes) {
+		final Collection _result = new ArrayList();
+		final Map _node2srd =
+			LazyMap.decorate(new HashMap(),
+				new Factory() {
+					public Object create() {
+						return new SCCRelatedData();
+					}
+				});
+		currCompNum = 0;
+		dfsNum = 0;
 
-		for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
+		final ArrayStack _stack = new ArrayStack();
+		final Iterator _i = nodes.iterator();
 
-			if (!_processed.contains(_node)) {
-				_time = getFinishTimes(nodes, _node, _processed, _finishTime2node, _time, true);
+		while (_i.hasNext()) {
+			final INode _n = (INode) _i.next();
+			final SCCRelatedData _nSRD = (SCCRelatedData) _node2srd.get(_n);
+
+			if (_nSRD.getDfsNum() == 0) {
+				calculateSCCs(nodes, _node2srd, _n, _stack, _result);
 			}
-		}
-
-		final Map _fn2scc = constructSCCs(nodes, _finishTime2node);
-		final List _finishTimes = new ArrayList();
-		_finishTimes.addAll(_fn2scc.keySet());
-		Collections.sort(_finishTimes);
-
-		if (topDown) {
-			Collections.reverse(_finishTimes);
-		}
-
-		_result = new ArrayList();
-
-		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext();) {
-			_result.add(_fn2scc.get(_i.next()));
 		}
 		return _result;
 	}
@@ -467,9 +487,8 @@ public abstract class AbstractDirectedGraph
 	 * @see IDirectedGraph#performTopologicalSort(boolean)
 	 */
 	public final List performTopologicalSort(final boolean topdown) {
-		List _result;
 		final List _nodes = getNodes();
-		final Map _finishTime2node = new HashMap();
+		final TIntObjectHashMap _finishTime2node = new TIntObjectHashMap();
 		final Collection _processed = new HashSet();
 		int _time = 0;
 
@@ -477,17 +496,22 @@ public abstract class AbstractDirectedGraph
 			final INode _node = (INode) _i.next();
 
 			if (!_processed.contains(_node)) {
-				_time = getFinishTimes(_nodes, _node, _processed, _finishTime2node, _time, topdown);
+				_time = getFinishTimes(_node, _processed, _finishTime2node, _time);
 			}
 		}
 
-		final List _temp = new ArrayList(_finishTime2node.keySet());
-		Collections.sort(_temp);
-		_result = new ArrayList();
+		final int[] _keys = _finishTime2node.keys();
+		final List _result = new ArrayList(_keys.length);
+		Arrays.sort(_keys);
 
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			_result.add(0, _finishTime2node.get(_i.next()));
+		for (int _i = 0; _i < _keys.length; _i++) {
+			_result.add(_finishTime2node.get(_keys[_i]));
 		}
+
+		if (topdown) {
+			Collections.reverse(_result);
+		}
+
 		return _result;
 	}
 
@@ -507,7 +531,7 @@ public abstract class AbstractDirectedGraph
 	 */
 	public static Collection findCycles(final Collection nodes, final Collection backedges) {
 		final Collection _result = new ArrayList();
-		final List _sccs = findSCCs(nodes, false);
+		final Collection _sccs = findSCCs(nodes);
 		final Iterator _j = _sccs.iterator();
 		final int _jEnd = _sccs.size();
 
@@ -628,6 +652,65 @@ public abstract class AbstractDirectedGraph
 		_result.retainAll(nodes);
 
 		return _result;
+	}
+
+	/**
+	 * Calculates SCC according to the algorithm in Udi Manber's book.
+	 *
+	 * @param nodes of interest.
+	 * @param node2srd maps nodes to an instance of <code>SCCRelatedData</code>.
+	 * @param node to be explored.
+	 * @param stack to be used.
+	 * @param sccs is the outgoing argument to contains the SCCs.
+	 *
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 * @pre node != null and stack != null and stack.oclIsKindOf(ArrayStack(INode))
+	 * @pre sccs != null and sccs.oclIsKindOf(Collection(List(INode)))
+	 * @post sccs.containsAll(sccs$pre)
+	 * @post sccs->forall(o | o->forall(p | nodes.contains(p)))
+	 */
+	private static void calculateSCCs(final Collection nodes, final Map node2srd, final INode node, final ArrayStack stack,
+		final Collection sccs) {
+		final SCCRelatedData _nodeSRD = (SCCRelatedData) node2srd.get(node);
+		_nodeSRD.setDfsNum(dfsNum);
+		_nodeSRD.setHigh(dfsNum);
+		stack.push(node);
+		dfsNum--;
+
+		final Iterator _j =
+			IteratorUtils.filteredIterator(node.getSuccsOf().iterator(),
+				new Predicate() {
+					public boolean evaluate(final Object o) {
+						return nodes.contains(o);
+					}
+				});
+
+		for (; _j.hasNext();) {
+			final INode _succ = (INode) _j.next();
+			final SCCRelatedData _succSRD = (SCCRelatedData) node2srd.get(_succ);
+
+			if (_succSRD.getDfsNum() == 0) {
+				calculateSCCs(nodes, node2srd, _succ, stack, sccs);
+				_nodeSRD.setHigh(Math.max(_nodeSRD.getHigh(), _succSRD.getHigh()));
+			} else if (_succSRD.getDfsNum() > _nodeSRD.getDfsNum() && _succSRD.getComponentNum() == 0) {
+				_nodeSRD.setHigh(Math.max(_nodeSRD.getHigh(), _succSRD.getDfsNum()));
+			}
+		}
+
+		if (_nodeSRD.getHigh() == _nodeSRD.getDfsNum()) {
+			currCompNum++;
+			_nodeSRD.setComponentNum(currCompNum);
+
+			INode _o;
+			final Collection _scc = new ArrayList();
+
+			do {
+				_o = (INode) stack.pop();
+				node2srd.put(_o, _nodeSRD);
+				_scc.add(_o);
+			} while (_o != node);
+			sccs.add(_scc);
+		}
 	}
 
 	/**
@@ -793,35 +876,33 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Calculates the finish times for the nodes of this graph.  version should be coded.
+	 * Calculates the finish times for the nodes of this graph.
 	 *
-	 * @param nodes in this graph.
 	 * @param node to start dfs from.
 	 * @param processed are the nodes processed during dfs.
 	 * @param finishTime2node maps finishTime(<code>Integer</code>) to a node.
 	 * @param time is the counter used to calculate finish times.
-	 * @param forward is the direction in which finish time should be calculated.
 	 *
 	 * @return the finish time after the given dfs traversal.
 	 *
 	 * @pre getNodes().contains(node)
 	 */
-	private static int getFinishTimes(final Collection nodes, final INode node, final Collection processed,
-		final Map finishTime2node, final int time, final boolean forward) {
+	private static int getFinishTimes(final INode node, final Collection processed, final TIntObjectHashMap finishTime2node,
+		final int time) {
 		processed.add(node);
 
 		int _temp = time;
 		_temp++;
 
-		for (final Iterator _i = node.getSuccsNodesInDirection(forward).iterator(); _i.hasNext();) {
+		for (final Iterator _i = node.getSuccsOf().iterator(); _i.hasNext();) {
 			final INode _succ = (INode) _i.next();
 
-			if (processed.contains(_succ) || !nodes.contains(_succ)) {
+			if (processed.contains(_succ)) {
 				continue;
 			}
-			_temp = getFinishTimes(nodes, _succ, processed, finishTime2node, _temp, forward);
+			_temp = getFinishTimes(_succ, processed, finishTime2node, _temp);
 		}
-		finishTime2node.put(new Integer(++_temp), node);
+		finishTime2node.put(++_temp, node);
 		return _temp;
 	}
 
@@ -860,60 +941,6 @@ public abstract class AbstractDirectedGraph
 			}
 		}
 		reachability = true;
-	}
-
-	/**
-	 * Constructs the SCCS from the given information.
-	 *
-	 * @param nodes from which the SCC should be constructed.
-	 * @param finishTime2Node maps the finish time to nodes in the graph.
-	 *
-	 * @return a map from finish time to SCC.
-	 *
-	 * @pre finishTime2Node != null and nodes != null
-	 * @pre finishTime2Node.oclIsKindOf(Map(Integer, INode))
-	 * @post result != null and result.oclIsKindOf(Map(Integer, Sequence(INode)))
-	 */
-	private static Map constructSCCs(final Collection nodes, final Map finishTime2Node) {
-		final Stack _stack = new Stack();
-		final Map _fn2scc = new HashMap();
-		final Collection _processed = new HashSet();
-		final List _finishTimes = new ArrayList();
-		_finishTimes.addAll(finishTime2Node.keySet());
-		Collections.sort(_finishTimes);
-		Collections.reverse(_finishTimes);
-
-		final Map _node2finishTime = new HashMap();
-
-		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext();) {
-			final Object _element = _i.next();
-			_node2finishTime.put(finishTime2Node.get(_element), _element);
-		}
-
-		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext() && !_processed.containsAll(nodes);) {
-			final Integer _fn = (Integer) _i.next();
-			INode _node = (INode) finishTime2Node.get(_fn);
-
-			if (_processed.contains(_node)) {
-				continue;
-			}
-			_stack.push(_node);
-
-			final List _scc = new ArrayList();
-
-			while (!_stack.isEmpty()) {
-				_node = (INode) _stack.pop();
-
-				if (_processed.contains(_node)) {
-					continue;
-				}
-				_scc.add(_node);
-				_processed.add(_node);
-				_stack.addAll(CollectionUtils.intersection(_node.getPredsOf(), nodes));
-			}
-			_fn2scc.put(_fn, _scc);
-		}
-		return _fn2scc;
 	}
 
 	/**
@@ -968,22 +995,6 @@ public abstract class AbstractDirectedGraph
 
 		hasSpanningForest = true;
 	}
-
-	/*
-	 * Calculates high numbers for the given node.
-	 *
-	 * @param node to be processed.
-	 * @param indexOfNode obviously.
-	 * @pre node != null
-	 *
-	             private void processNodeForHighValues(final INode node, final int indexOfNode) {
-	                 final Collection _succsOf = node.getSuccsOf();
-	                 if (!_succsOf.isEmpty()) {
-	                     highnums[indexOfNode] =
-	                         discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
-	                 }
-	             }
-	 */
 
 	/**
 	 * Processes the given node while creating a spanning tree.
