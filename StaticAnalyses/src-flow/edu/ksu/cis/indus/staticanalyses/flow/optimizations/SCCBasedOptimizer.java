@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.optimizations;
 
+import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IMutableFGNode;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
