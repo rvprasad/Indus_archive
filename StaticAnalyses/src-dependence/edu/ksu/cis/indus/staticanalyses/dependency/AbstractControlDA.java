@@ -120,7 +120,7 @@ public abstract class AbstractControlDA
 			_localEntryPointDep = _stmts.size();
 
 			for (int _j = 0; _j < _stmts.size(); _j++) {
-				if (_cd == null) {
+				if (_cd == null || _cd.isEmpty()) {
 					continue;
 				}
 
