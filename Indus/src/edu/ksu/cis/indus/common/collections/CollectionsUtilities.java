@@ -144,9 +144,9 @@ public final class CollectionsUtilities {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}
 
-		if (index > list.size()) {
-			ensureSize(list, index, null);
-			list.set(index, factory.create());
+		if (index >= list.size()) {
+            ensureSize(list, index + 1, null);
+            list.set(index, factory.create());
 		} else if (list.get(index) == null) {
 			list.set(index, factory.create());
 		}
