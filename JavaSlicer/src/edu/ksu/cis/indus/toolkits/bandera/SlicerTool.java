@@ -298,7 +298,7 @@ public final class SlicerTool
 			throw new IllegalArgumentException(_msg);
 		}
         
-		tool.run(Phase.STARTING_PHASE, true);
+		tool.run(Phase.STARTING_PHASE, null, true);
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);

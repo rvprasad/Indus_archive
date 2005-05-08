@@ -235,6 +235,7 @@ public abstract class AbstractTool
 	 * <code>false</code>.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
+     * @param lastPhase is the phase that should be executed last before exiting.
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
@@ -242,22 +243,21 @@ public abstract class AbstractTool
 	 * @throws RuntimeException when the tool fails.
 	 * @throws IllegalStateException when this method is called on a paused tool.
 	 */
-	public final synchronized void run(final Phase phase, final boolean synchronous) {
+	public final synchronized void run(final Phase phase, final Phase lastPhase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
 			checkConfiguration();
 			childException = null;
 			unstable();
-			activePart.activate();
+			activateActiveParts();
 			thread =
 				new Thread() {
 						public final void run() {
 							Throwable _temp = null;
-
 							try {
 								// we do this to respect any pre-run pause calls. 
 								movingToNextPhase();
 
-								execute(phase);
+								execute(phase, lastPhase);
 							} catch (final InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
@@ -356,10 +356,11 @@ public abstract class AbstractTool
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
+     * @param lastPhase is the phase that should be executed last before exiting.
 	 *
 	 * @throws InterruptedException when the execution of the tool is interrupted.
 	 */
-	protected abstract void execute(final Phase phase)
+	protected abstract void execute(final Phase phase, final Phase lastPhase)
 	  throws InterruptedException;
 
 	/**

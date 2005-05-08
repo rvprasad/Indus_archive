@@ -655,10 +655,10 @@ public final class SlicerTool
 	 * This implementation of the tool remembers the last phase in which it was stopped.  This saved phase is used when the
 	 * tool is executed again with a <code>null</code> valued <code>phaseParam</code>.  If a non-null
 	 * <code>phaseParam</code>  is provided, the tool starts executing from the earliest of the saved phase or the given
-	 * phase.
+	 * phase.  <code>lastPhase</code> controls the last phase to have finished execution when the tools stops.
 	 * </p>
 	 */
-	public void execute(final Phase phaseParam)
+	public void execute(final Phase phaseParam, final Phase lastPhase)
 	  throws InterruptedException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Execution of the slicer tool");
@@ -675,6 +675,10 @@ public final class SlicerTool
 			fireToolProgressEvent("Performing low level analyses", _ph);
 			lowLevelAnalysisPhase();
 		}
+        
+        if (phase.equals(lastPhase)) {
+            return;
+        }
 
 		movingToNextPhase();
 
@@ -687,6 +691,10 @@ public final class SlicerTool
 			dependencyAnalysisPhase(_slicerConfig);
 		}
 
+        if (phase.equals(lastPhase)) {
+            return;
+        }
+        
 		movingToNextPhase();
 
 		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {

@@ -85,9 +85,9 @@ public class AbstractToolTest
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.tools.AbstractTool#execute(Phase)
+		 * @see edu.ksu.cis.indus.tools.AbstractTool#execute(Phase, Phase)
 		 */
-		protected void execute(final Phase phase)
+		protected void execute(final Phase phase, final Phase lastPhase)
 		  throws InterruptedException {
 			Thread.sleep(600);
 			movingToNextPhase();
@@ -102,14 +102,14 @@ public class AbstractToolTest
 	 */
 	public final void testAbortInAsyncMode() {
 		final Phase _ph = Phase.createPhase();
-		testTool.run(_ph, false);
+		testTool.run(_ph, null, false);
 
 		if (!testTool.finished) {
 			testTool.abort();
 		}
 
 		try {
-			testTool.run(_ph, false);
+			testTool.run(_ph, null, false);
 		} catch (final Exception _e) {
 			fail("This should not happen.");
 		}
@@ -125,7 +125,7 @@ public class AbstractToolTest
 		final Thread _thread =
 			new Thread(new Runnable() {
 					public void run() {
-						testTool.run(_ph, true);
+						testTool.run(_ph, null, true);
 					}
 				});
 		_thread.start();
@@ -139,7 +139,7 @@ public class AbstractToolTest
 		testTool.abort();
 
 		testTool.finished = false;
-		testTool.run(_ph, true);
+		testTool.run(_ph, null, true);
 		assertTrue(testTool.finished);
 	}
 
@@ -155,7 +155,7 @@ public class AbstractToolTest
 
 		final Phase _ph = Phase.createPhase();
 		testTool.pause();
-		testTool.run(_ph, false);
+		testTool.run(_ph, null, false);
 		_ph.nextMinorPhase();
 		assertTrue(testTool.localPH.isEarlierThan(_ph));
 		testTool.resume();
@@ -182,7 +182,7 @@ public class AbstractToolTest
 		final Thread _thread =
 			new Thread(new Runnable() {
 					public void run() {
-						testTool.run(_ph, true);
+						testTool.run(_ph, null, true);
 					}
 				});
 

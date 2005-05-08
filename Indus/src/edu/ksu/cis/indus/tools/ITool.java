@@ -119,11 +119,12 @@ public interface ITool {
 	 * Executes the tool.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
+     * @param lastPhase is the phase that should be executed last before exiting. 
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 */
-	void run(final Phase phase, final boolean synchronous);
+	void run(Phase phase, Phase lastPhase, boolean synchronous);
 
 	/**
 	 * Returns a stringized from of the information in the object suitable for serialization.

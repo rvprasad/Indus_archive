@@ -290,7 +290,7 @@ public class SliceXMLizerCLI
 		slicer.setSliceScopeDefinition(processSliceScopeSpecFile());
 		slicer.setCriteria(_criteria);
 		slicer.addToolProgressListener(this);
-		slicer.run(Phase.STARTING_PHASE, true);
+		slicer.run(Phase.STARTING_PHASE, null, true);
 
 		if (LOGGER.isInfoEnabled()) {
 			try {
