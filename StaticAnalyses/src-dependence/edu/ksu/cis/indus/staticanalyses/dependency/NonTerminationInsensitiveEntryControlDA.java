@@ -156,6 +156,10 @@ public final class NonTerminationInsensitiveEntryControlDA
 		}
 
 		if (LOGGER.isDebugEnabled()) {
+            if (_nda instanceof IndirectDependenceAnalysis)
+                LOGGER.debug(((IndirectDependenceAnalysis)_nda).toString(methods));
+            else
+                LOGGER.debug(_nda.toString());
 			LOGGER.debug(toString());
 		}
 
@@ -179,8 +183,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	  throws InitializationException {
 		super.setup();
 
-		super.setup();
-		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+        callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 		if (callgraph == null) {
 			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
