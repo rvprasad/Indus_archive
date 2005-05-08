@@ -34,6 +34,7 @@ Required software:
 
 Version 0.6
 ----------------
+	- Feature request #616.
 	- Bug fixes.
 	- Enabled space optimization of executable slice.
 	- Used new calling context retrievers in property-aware operation mode.

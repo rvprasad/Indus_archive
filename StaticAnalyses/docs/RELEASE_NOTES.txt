@@ -28,11 +28,12 @@ Required software:
 
 Version 0.6
 ----------------
+    - New interface to query object-level read/write information.
 	- Refactored call graph calculation logic.
 	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph 
 	  construction. [API BREAKING CHANGE]
 	- Added support to retrieve field reading/writing thread information from EquivalenceClassBasedEscapeAnalysis.
-	- Feature request #590
+	- Feature request #590, #613, #614.
 	- Added new program point-relative inter-thread context retriever that is sensitive to data-equivalence 
 		(ThreadEscapeInfoBasedCallingContextRetrieverV2)
 	- Added new program point-relative intra-thread alias-based context retriever (DataAliasBasedCallingContextRetriever)

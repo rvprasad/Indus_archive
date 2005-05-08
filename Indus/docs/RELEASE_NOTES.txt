@@ -34,6 +34,7 @@ Required software:
 
 Version 0.6
 ----------------
+	- Feature request #612, #616, #617.
 	- Added finite automaton implementation.
 	- Added support to represent edge-labelled graphs.
 	- Added support for fine grained control on execution of analyses and processors.
