@@ -244,7 +244,7 @@ public class IdentifierBasedDataDAv2
 			final SootMethod _sm = (SootMethod) _entry.getKey();
 
 			if (_sm.hasActiveBody()) {
-				for (final Iterator _j = _sm.getActiveBody().getUnits().iterator(); _j.hasNext();) {
+				for (final Iterator _j = getStmtList(_sm).iterator(); _j.hasNext();) {
 					final Stmt _stmt = (Stmt) _j.next();
 
 					if (_stmt instanceof DefinitionStmt) {
