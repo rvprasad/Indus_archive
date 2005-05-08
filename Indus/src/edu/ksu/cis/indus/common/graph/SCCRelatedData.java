@@ -44,7 +44,7 @@ public final class SCCRelatedData {
 	 *
 	 * @param num the new value of <code>componentNum</code>.
 	 */
-	void setComponentNum(final int num) {
+	public void setComponentNum(final int num) {
 		this.componentNum = num;
 	}
 
@@ -53,7 +53,7 @@ public final class SCCRelatedData {
 	 *
 	 * @return the value in <code>componentNum</code>.
 	 */
-	int getComponentNum() {
+    public int getComponentNum() {
 		return componentNum;
 	}
 
@@ -62,7 +62,7 @@ public final class SCCRelatedData {
 	 *
 	 * @param num the new value of <code>dfsNum</code>.
 	 */
-	void setDfsNum(final int num) {
+    public void setDfsNum(final int num) {
 		this.dfsNum = num;
 	}
 
@@ -71,7 +71,7 @@ public final class SCCRelatedData {
 	 *
 	 * @return the value in <code>dfsNum</code>.
 	 */
-	int getDfsNum() {
+    public int getDfsNum() {
 		return dfsNum;
 	}
 
@@ -80,7 +80,7 @@ public final class SCCRelatedData {
 	 *
 	 * @param num the new value of <code>high</code>.
 	 */
-	void setHigh(final int num) {
+    public void setHigh(final int num) {
 		this.high = num;
 	}
 
@@ -89,7 +89,7 @@ public final class SCCRelatedData {
 	 *
 	 * @return the value in <code>high</code>.
 	 */
-	int getHigh() {
+    public int getHigh() {
 		return high;
 	}
 }
