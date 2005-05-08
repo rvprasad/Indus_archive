@@ -16,10 +16,10 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
-import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCRelatedData;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 

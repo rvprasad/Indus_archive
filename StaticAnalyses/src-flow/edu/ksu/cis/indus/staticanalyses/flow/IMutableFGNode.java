@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCRelatedData;
+import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
