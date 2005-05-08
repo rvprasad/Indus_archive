@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.common.fa;
 /**
  * This is a marker interface to be implemented by states of a FA.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */

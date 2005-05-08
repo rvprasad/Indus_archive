@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.callgraphs;
 /**
  * This interface is implemented by tests for call graph.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
