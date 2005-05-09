@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -92,13 +94,30 @@ public class DataAliasBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
-		final Object _result;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
+                    + ", CallTriple callsite = " + callsite + ") - BEGIN");
+        }
 
-		if (((Collection) token).contains(callsite.getMethod())) {
-			_result = token;
-		} else {
-			_result = null;
+		Object _result = null;
+
+		final SootMethod _caller = callsite.getMethod();
+		final Collection _ancestors = (Collection) token;
+
+		if (_ancestors.contains(_caller)) {
+			final Collection _col =
+				CollectionUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false), _ancestors);
+            _col.remove(callee);
+
+			if (!_col.isEmpty()) {
+				_result = _col;
+			}
 		}
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getCallerSideToken() - END - return value = " + _result);
+        }
+        
 		return _result;
 	}
 
@@ -138,15 +157,25 @@ public class DataAliasBasedCallingContextRetriever
 
 		final Collection _result = new HashSet();
 		final ICallGraphInfo _callGraph = getCallGraph();
-		final Collection _commonAncestors = _callGraph.getCommonMethodsReachableFrom(_defMethod, false, _useMethod, false);
-
-		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-
-			if (analysis.doesMethodLiesOnTheDataFlowPathBetween(_sm, _defMethod, _useMethod)) {
-				_result.add(_sm);
-			}
-		}
+        
+        
+        // FIX_ME
+        /*if (_callGraph.isCalleeReachableFromCaller(_defMethod, _useMethod)) {
+            _result.addAll(_callGraph.getCommonMethodsReachableFrom(_defMethod, false, _useMethod, true));
+        } 
+        if (_callGraph.isCalleeReachableFromCaller(_useMethod, _defMethod)) {
+            _result.addAll(_callGraph.getCommonMethodsReachableFrom(_defMethod, true, _useMethod, false));
+        }  */{
+    		final Collection _commonAncestors = _callGraph.getCommonMethodsReachableFrom(_defMethod, false, _useMethod, false);
+            
+    		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
+    			final SootMethod _sm = (SootMethod) _i.next();
+    
+    			if (analysis.doesMethodLiesOnTheDataFlowPathBetween(_sm, _defMethod, _useMethod)) {
+    				_result.addAll(CollectionUtils.intersection(_commonAncestors, _callGraph.getMethodsReachableFrom(_sm, true)));
+    			}
+    		}
+        }
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getTokenForProgramPoint() - END - return value = " + _result);
@@ -206,9 +235,16 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {
-		// we would have already declared the stacks are unextensible.  So, we should be at a method that lies on the 
-		// data flow path between the def/use sites.  Hence, we need to check for this condition.
-		return ((Collection) calleeToken).contains(callee);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
+                    + ", callSite = " + callSite + ")");
+        }
+
+		/* 
+         * We would have already declared the stacks are unextensible by returning a null caller side token.
+         * Now we only need to check if we have reached the merge point - by exhausting all callers. 
+         */ 
+		return ((Collection) calleeToken).contains(callSite.getMethod());
 	}
 }
 
