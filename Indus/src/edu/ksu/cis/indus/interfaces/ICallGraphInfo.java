@@ -36,6 +36,11 @@ import soot.jimple.Stmt;
  * Subtypes of this class have to return the constant <code>ID</code> defined in this class as a result of
  * <code>getId</code>.
  * </p>
+ * 
+ * <p>
+ * A method <i>a</i> is reachable from method <i>b</i> if there is an explicit call from <i>a</i> to <i>b</i>.  This is also
+ * holds when <i>a=b</i>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -208,6 +213,38 @@ public interface ICallGraphInfo
 	 * 		 forward1).contains(o))
 	 */
 	Collection getCommonMethodsReachableFrom(SootMethod method1, boolean forward1, SootMethod method2, boolean forward2);
+
+	/**
+	 * Retrieves the minimum set of callees that ensure the given methods reach common callees.
+	 *
+	 * @param method1 is one method of interest.
+	 * @param method2 is another method of interest.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @pre method1 != null and method2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post getReachableMethods().containsAll(result)
+	 * @post
+	 * @post result->forall(o | isReachable(o, method, false) and isReachable(o, method, false))
+	 */
+	Collection getConnectivityCalleesFor(SootMethod method1, SootMethod method2);
+
+	/**
+	 * Retrieves the minimum set of callers that ensure the common callers can reach the given methods.
+	 *
+	 * @param method1 is one method of interest.
+	 * @param method2 is another method of interest.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @pre method1 != null and method2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post getReachableMethods().containsAll(result)
+	 * @post
+	 * @post result->forall(o | isReachable(o, method, true) and isReachable(o, method, true))
+	 */
+	Collection getConnectivityCallersFor(SootMethod method1, SootMethod method2);
 
 	/**
 	 * Returns the methods from which the system starts.

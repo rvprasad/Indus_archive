@@ -15,16 +15,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
-
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.GraphReachabilityPredicate;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.Constants;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
@@ -323,6 +322,26 @@ public final class CallGraphInfo
 		final Collection _result =
 			graphCache.getCommonReachablesFrom(graphCache.queryNode(method1), forward1, graphCache.queryNode(method2),
 				forward2);
+		CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+		return _result;
+	}
+
+	/**
+	 * @see ICallGraphInfo#getConnectivityCalleesFor(soot.SootMethod, soot.SootMethod)
+	 */
+	public Collection getConnectivityCalleesFor(final SootMethod method1, final SootMethod method2) {
+		final Collection _result =
+			graphCache.getConnectivityNodesFor(graphCache.queryNode(method1), graphCache.queryNode(method2), true);
+		CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+		return _result;
+	}
+
+	/**
+	 * @see ICallGraphInfo#getConnectivityCallersFor(soot.SootMethod, soot.SootMethod)
+	 */
+	public Collection getConnectivityCallersFor(final SootMethod method1, final SootMethod method2) {
+		final Collection _result =
+			graphCache.getConnectivityNodesFor(graphCache.queryNode(method1), graphCache.queryNode(method2), false);
 		CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 		return _result;
 	}
