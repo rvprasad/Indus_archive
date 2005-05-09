@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -94,10 +95,10 @@ public class DataAliasBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
-                    + ", CallTriple callsite = " + callsite + ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
+				+ ", CallTriple callsite = " + callsite + ") - BEGIN");
+		}
 
 		Object _result = null;
 
@@ -107,17 +108,17 @@ public class DataAliasBasedCallingContextRetriever
 		if (_ancestors.contains(_caller)) {
 			final Collection _col =
 				CollectionUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false), _ancestors);
-            _col.remove(callee);
+			_col.remove(callee);
 
 			if (!_col.isEmpty()) {
 				_result = _col;
 			}
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getCallerSideToken() - END - return value = " + _result);
-        }
-        
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallerSideToken() - END - return value = " + _result);
+		}
+
 		return _result;
 	}
 
@@ -129,12 +130,17 @@ public class DataAliasBasedCallingContextRetriever
 			LOGGER.debug("getTokenForProgramPoint(Context programPointContext = " + programPointContext + ") - BEGIN");
 		}
 
-		final SootMethod _defMethod;
-		final SootMethod _useMethod;
+		final SootMethod _curMethod = programPointContext.getCurrentMethod();
+
+		// there may be call path from static initializers to method invocations.  Hence, we return true.
+		if (_curMethod.isStatic() && _curMethod.getName().equals("<clinit>")) {
+			return null;
+		}
+
 		final DefinitionStmt _curDefStmt = (DefinitionStmt) programPointContext.getStmt();
 		final DefinitionStmt _srcDefStmt = (DefinitionStmt) ((Stmt) getInfoFor(SRC_ENTITY));
-		ConcreteRef _curRef;
-		ConcreteRef _srcRef;
+		ConcreteRef _curRef = null;
+		ConcreteRef _srcRef = null;
 
 		if (_curDefStmt.containsArrayRef() && _srcDefStmt.containsArrayRef()) {
 			_curRef = _curDefStmt.getArrayRef();
@@ -142,40 +148,33 @@ public class DataAliasBasedCallingContextRetriever
 		} else if (_curDefStmt.containsFieldRef() && _srcDefStmt.containsFieldRef()) {
 			_curRef = _curDefStmt.getFieldRef();
 			_srcRef = _srcDefStmt.getFieldRef();
+		}
+
+		final Object _result;
+
+		if (_curRef == null) {
+			_result = Collections.EMPTY_SET;
 		} else {
-			_curRef = null;
-			_srcRef = null;
-		}
+			final SootMethod _defMethod;
+			final SootMethod _useMethod;
+			final DefinitionStmt _defStmt;
+			final DefinitionStmt _useStmt;
+			final SootMethod _srcMethod = (SootMethod) getInfoFor(SRC_METHOD);
 
-		if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
-			_defMethod = (SootMethod) getInfoFor(SRC_METHOD);
-			_useMethod = programPointContext.getCurrentMethod();
-		} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
-			_useMethod = (SootMethod) getInfoFor(SRC_METHOD);
-			_defMethod = programPointContext.getCurrentMethod();
-		}
+			if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
+				_defStmt = _srcDefStmt;
+				_defMethod = _srcMethod;
+				_useStmt = _curDefStmt;
+				_useMethod = _curMethod;
+			} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp()) {
+				_defStmt = _curDefStmt;
+				_defMethod = _curMethod;
+				_useStmt = _srcDefStmt;
+				_useMethod = _srcMethod;
+			}
 
-		final Collection _result = new HashSet();
-		final ICallGraphInfo _callGraph = getCallGraph();
-        
-        
-        // FIX_ME
-        /*if (_callGraph.isCalleeReachableFromCaller(_defMethod, _useMethod)) {
-            _result.addAll(_callGraph.getCommonMethodsReachableFrom(_defMethod, false, _useMethod, true));
-        } 
-        if (_callGraph.isCalleeReachableFromCaller(_useMethod, _defMethod)) {
-            _result.addAll(_callGraph.getCommonMethodsReachableFrom(_defMethod, true, _useMethod, false));
-        }  */{
-    		final Collection _commonAncestors = _callGraph.getCommonMethodsReachableFrom(_defMethod, false, _useMethod, false);
-            
-    		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
-    			final SootMethod _sm = (SootMethod) _i.next();
-    
-    			if (analysis.doesMethodLiesOnTheDataFlowPathBetween(_sm, _defMethod, _useMethod)) {
-    				_result.addAll(CollectionUtils.intersection(_commonAncestors, _callGraph.getMethodsReachableFrom(_sm, true)));
-    			}
-    		}
-        }
+			_result = retrieveToken(_defMethod, _useMethod, _defStmt, _useStmt, _srcMethod, _curMethod);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getTokenForProgramPoint() - END - return value = " + _result);
@@ -193,34 +192,39 @@ public class DataAliasBasedCallingContextRetriever
 
 		final Stmt _srcStmt = (Stmt) getInfoFor(SRC_ENTITY);
 		final Stmt _curStmt = programPointContext.getStmt();
-		boolean _result = _curStmt instanceof DefinitionStmt && _srcStmt instanceof DefinitionStmt;
+		final SootMethod _curMethod = programPointContext.getCurrentMethod();
+
+		// there may be call path from static initializers to method invocations.  Hence, we return true. 
+		if (_curMethod.isStatic() && _curMethod.getName().equals("<clinit>")) {
+			return true;
+		}
+
+		ConcreteRef _curRef = null;
+		ConcreteRef _srcRef = null;
+
+		if (_curStmt.containsArrayRef() && _srcStmt.containsArrayRef()) {
+			_curRef = _curStmt.getArrayRef();
+			_srcRef = _srcStmt.getArrayRef();
+		} else if (_curStmt.containsFieldRef() && _srcStmt.containsFieldRef()) {
+			_curRef = _curStmt.getFieldRef();
+			_srcRef = _srcStmt.getFieldRef();
+		}
+
+		boolean _result =
+			_curRef != null && _curStmt instanceof DefinitionStmt && _srcStmt instanceof DefinitionStmt;
 
 		if (_result) {
 			final DefinitionStmt _curDefStmt = (DefinitionStmt) _curStmt;
 			final DefinitionStmt _srcDefStmt = (DefinitionStmt) _srcStmt;
-			ConcreteRef _curRef = null;
-			ConcreteRef _srcRef = null;
 
-			if (_curDefStmt.containsArrayRef() && _srcDefStmt.containsArrayRef()) {
-				_curRef = _curDefStmt.getArrayRef();
-				_srcRef = _srcDefStmt.getArrayRef();
-			} else if (_curDefStmt.containsFieldRef() && _srcDefStmt.containsFieldRef()) {
-				_curRef = _curDefStmt.getFieldRef();
-				_srcRef = _srcDefStmt.getFieldRef();
-			}
-
-			_result = _curRef != null && _srcRef != null;
-
-			if (_result) {
-				if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
-					_result =
-						analysis.isReachableViaInterProceduralControlFlow((SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt,
-							programPointContext.getCurrentMethod(), _curDefStmt, tgi);
-				} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
-					_result =
-						analysis.isReachableViaInterProceduralControlFlow(programPointContext.getCurrentMethod(),
-							_curDefStmt, (SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt, tgi);
-				}
+			if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
+				_result =
+					analysis.isReachableViaInterProceduralControlFlow((SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt,
+						_curMethod, _curDefStmt, tgi);
+			} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
+				_result =
+					analysis.isReachableViaInterProceduralControlFlow(_curMethod, _curDefStmt,
+						(SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt, tgi);
 			}
 		}
 
@@ -235,16 +239,56 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
-                    + ", callSite = " + callSite + ")");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
+				+ ", callSite = " + callSite + ")");
+		}
 
-		/* 
-         * We would have already declared the stacks are unextensible by returning a null caller side token.
-         * Now we only need to check if we have reached the merge point - by exhausting all callers. 
-         */ 
+		/*
+		 * We would have already declared the stacks are unextensible by returning a null caller side token.
+		 * Now we only need to check if we have reached the merge point - by exhausting all callers.
+		 */
 		return ((Collection) calleeToken).contains(callSite.getMethod());
+	}
+
+	/**
+	 * Retrieves the token.
+	 *
+	 * @param defMethod is the method in which the definition occurs.
+	 * @param useMethod is the method in which the use occurs.
+	 * @param defStmt is the definition statement.
+	 * @param useStmt is the use statement.
+	 * @param srcMethod is the method in which the cause originated.
+	 * @param curMethod is the method in which the effect happens.
+	 *
+	 * @return a token object.
+	 *
+	 * @pre defMethod != null and useMethod != null and defStmt != null and useStmt != null and srcMethod != null  and
+	 * 		curMethod != null
+	 * @post result != null
+	 */
+	private Object retrieveToken(final SootMethod defMethod, final SootMethod useMethod, final DefinitionStmt defStmt,
+		final DefinitionStmt useStmt, final SootMethod srcMethod, final SootMethod curMethod) {
+		final Collection _result = new HashSet();
+		final ICallGraphInfo _callGraph = getCallGraph();
+
+		if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
+			_result.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
+		}
+
+		if (analysis.doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, true)) {
+			_result.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
+		}
+
+		final Collection _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
+		final Collection _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
+
+		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
+			_result.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
+		}
+		return _result;
 	}
 }
 
