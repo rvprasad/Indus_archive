@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
@@ -75,7 +76,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * sensitive backward dependence will be used.
 	 */
 	public NonTerminationInsensitiveEntryControlDA() {
-		useIndirectBackwardDependence = true;
+		useIndirectBackwardDependence = false;
 	}
 
 	/**
@@ -151,8 +152,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _method = (SootMethod) _i.next();
-			copyIndirectDAInfo(_method, _nda);
-			processMethod(_method);
+			processMethod(_method, _nda);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -259,61 +259,26 @@ public final class NonTerminationInsensitiveEntryControlDA
 	}
 
 	/**
-	 * Copies the dependency information for the given method from da into the data structures of this instance.
-	 *
-	 * @param method of interest.
-	 * @param da from which to copy information.
-	 *
-	 * @pre method != null and da != null
-	 */
-	private void copyIndirectDAInfo(final SootMethod method, final IDependencyAnalysis da) {
-		final List _dee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
-		final List _dent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
-		final List _stmtList = getStmtList(method);
-		final int _noOfStmtsInMethod = _stmtList.size();
-		CollectionsUtilities.ensureSize(_dee2Dent, _noOfStmtsInMethod, null);
-		CollectionsUtilities.ensureSize(_dent2Dee, _noOfStmtsInMethod, null);
-
-		final BasicBlockGraph _bbg = getBasicBlockGraph(method);
-		final List _nodes = _bbg.getNodes();
-		final Iterator _i = _nodes.iterator();
-		final int _iEnd = _nodes.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final BasicBlock _bb = (BasicBlock) _i.next();
-			final Stmt _dependee = _bb.getTrailerStmt();
-			final Collection _dependents = da.getDependents(_dependee, method);
-			final Collection _stmtLevelDependentSet =
-				(Collection) CollectionsUtilities.getSetAtIndexFromList(_dee2Dent, _stmtList.indexOf(_dependee));
-			_stmtLevelDependentSet.addAll(_dependents);
-
-			final Iterator _k = _dependents.iterator();
-			final int _kEnd = _dependents.size();
-
-			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final Stmt _dent = (Stmt) _k.next();
-				final Collection _stmtLevelDependeeSet =
-					(Collection) CollectionsUtilities.getSetAtIndexFromList(_dent2Dee, _stmtList.indexOf(_dent));
-				_stmtLevelDependeeSet.add(_dependee);
-			}
-		}
-	}
-
-	/**
 	 * Analyzes the given method.
 	 *
 	 * @param method to be analyzed.
+	 * @param da is the control dependence to be used.
 	 *
 	 * @pre method != null
 	 */
-	private void processMethod(final SootMethod method) {
+	private void processMethod(final SootMethod method, final IDependencyAnalysis da) {
 		final List _methodLocalDee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
 		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
 		final List _stmtList = getStmtList(method);
+		final int _size = _stmtList.size();
+		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _size, null);
+		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _size, null);
+
 		final BasicBlockGraph _bbg = getBasicBlockGraph(method);
 		final Collection _sinks = getControlSinksOf(_bbg);
 		final Collection _dependees = new ArrayList();
 		final List _nodes = _bbg.getNodes();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_dependees);
 		final Iterator _i = _nodes.iterator();
 		final int _iEnd = _nodes.size();
 
@@ -323,51 +288,19 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 			// we use a temporary copy of dependees as we will be updating the orginal collection.
 			_dependees.clear();
-			_dependees.addAll(getDependees(_dependentBB.getLeaderStmt(), method));
+			_wb.addAllWork(da.getDependees(_dependentBB.getLeaderStmt(), method));
 
-			final Iterator _j = _dependees.iterator();
-			final int _jEnd = _dependees.size();
-
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stmt _dependeeStmt = (Stmt) _j.next();
+			while (_wb.hasWork()) {
+				final Stmt _dependeeStmt = (Stmt) _wb.getWork();
 				final BasicBlock _dependeeBB = _bbg.getEnclosingBlock(_dependeeStmt);
 
 				if (shouldRemoveDependenceBetween(_dependeeBB, _dependentBB, _sinkNodes)) {
-					removeDependenceOfOn(_dependentBB, _dependeeBB, _methodLocalDee2Dent, _methodLocalDent2Dee, _stmtList);
+					updateDependence(_dependentBB, _dependeeBB, _methodLocalDee2Dent, _methodLocalDent2Dee, _stmtList, true);
+					_wb.addAllWork(da.getDependees(_dependeeBB.getTrailerStmt(), method));
+				} else {
+					updateDependence(_dependentBB, _dependeeBB, _methodLocalDee2Dent, _methodLocalDent2Dee, _stmtList, false);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Removes the dependence of statements in <code>dependentBB</code> on statemetns in <code>dependeeBB</code>. It removes
-	 * the dependence information in both directions.
-	 *
-	 * @param dependentBB is the basic block containing the dependent statements.
-	 * @param dependeeBB is the basic block containing the dependee statements.
-	 * @param methodLocalDee2Dent is the map for dependee to dependent that is to be updated.
-	 * @param methodLocalDent2Dee is the map for dependent to dependee that is to be updated.
-	 * @param stmtList is the list of statements.
-	 *
-	 * @pre dependentBB != null and dependeeBB != null and methodLocalDee2Dent != null and methodLocalDent2Dee != null and
-	 * 		stmtList != null
-	 */
-	private void removeDependenceOfOn(final BasicBlock dependentBB, final BasicBlock dependeeBB,
-		final List methodLocalDee2Dent, final List methodLocalDent2Dee, final List stmtList) {
-		final Stmt _deeStmt = dependeeBB.getTrailerStmt();
-		final Collection _stmtLevelDependentSet =
-			(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDee2Dent, stmtList.indexOf(_deeStmt));
-		final List _stmtsOf = dependentBB.getStmtsOf();
-		_stmtLevelDependentSet.removeAll(_stmtsOf);
-
-		final Iterator _i = _stmtsOf.iterator();
-		final int _iEnd = _stmtsOf.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stmt _dentStmt = (Stmt) _i.next();
-			final Collection _stmtLevelDependeeSet =
-				(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDent2Dee, stmtList.indexOf(_dentStmt));
-			_stmtLevelDependeeSet.remove(_deeStmt);
 		}
 	}
 
@@ -401,6 +334,50 @@ public final class NonTerminationInsensitiveEntryControlDA
 			}
 		}
 		return _notcd;
+	}
+
+	/**
+	 * Updates the dependence of statements in <code>dependentBB</code> on statements in <code>dependeeBB</code>. It updates
+	 * the dependence information in both directions.
+	 *
+	 * @param dependentBB is the basic block containing the dependent statements.
+	 * @param dependeeBB is the basic block containing the dependee statements.
+	 * @param methodLocalDee2Dent is the map for dependee to dependent that is to be updated.
+	 * @param methodLocalDent2Dee is the map for dependent to dependee that is to be updated.
+	 * @param stmtList is the list of statements.
+	 * @param remove <code>true</code> indicates the dependence should be removed. <code>false</code> if dependence should be
+	 * 		  added.
+	 *
+	 * @pre dependentBB != null and dependeeBB != null and methodLocalDee2Dent != null and methodLocalDent2Dee != null and
+	 * 		stmtList != null
+	 */
+	private void updateDependence(final BasicBlock dependentBB, final BasicBlock dependeeBB, final List methodLocalDee2Dent,
+		final List methodLocalDent2Dee, final List stmtList, final boolean remove) {
+		final Stmt _deeStmt = dependeeBB.getTrailerStmt();
+		final Collection _stmtLevelDependentSet =
+			(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDee2Dent, stmtList.indexOf(_deeStmt));
+		final List _dents = dependentBB.getStmtsOf();
+
+		if (remove) {
+			_stmtLevelDependentSet.removeAll(_dents);
+		} else {
+			_stmtLevelDependentSet.addAll(_dents);
+		}
+
+		final Iterator _i = _dents.iterator();
+		final int _iEnd = _dents.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Stmt _dentStmt = (Stmt) _i.next();
+			final Collection _stmtLevelDependeeSet =
+				(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDent2Dee, stmtList.indexOf(_dentStmt));
+
+			if (remove) {
+				_stmtLevelDependeeSet.remove(_deeStmt);
+			} else {
+				_stmtLevelDependeeSet.add(_deeStmt);
+			}
+		}
 	}
 }
 
