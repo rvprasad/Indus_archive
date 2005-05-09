@@ -16,10 +16,12 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.collections.MembershipPredicate;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
 import gnu.trove.TIntObjectHashMap;
@@ -555,6 +557,35 @@ public abstract class AbstractDirectedGraph
 					}
 				}
 				_result.addAll(findCyclesOccurringIn(_scc, _edges));
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IDirectedGraph#getConnectivityNodesFor(IDirectedGraph.INode, IDirectedGraph.INode, boolean)
+	 */
+	public Collection getConnectivityNodesFor(final INode node1, final INode node2, final boolean forward) {
+		final boolean _direction = !forward;
+		Collection _result = Collections.EMPTY_SET;
+
+		if (!getCommonReachablesFrom(node1, forward, node2, forward).isEmpty()) {
+			final Collection _col = new HashSet();
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
+			_wb.addAllWork(node1.getSuccsNodesInDirection(forward));
+
+			while (_wb.hasWork()) {
+				final INode _succ = (INode) _wb.getWork();
+
+				if (isReachable(_succ, node2, _direction)) {
+					_col.add(_succ);
+				} else {
+					_wb.addAllWorkNoDuplicates(_succ.getSuccsNodesInDirection(forward));
+				}
+			}
+
+			if (!_col.isEmpty()) {
+				_result = _col;
 			}
 		}
 		return _result;

@@ -24,6 +24,11 @@ import java.util.Map;
  * This is an interface to a directed graph in which nodes are represented by <code>INode</code> objects.   The nodes in the
  * graph are to be ordered.  The concrete implementation can determine the ordering, but it needs to be fixed over the
  * lifetime of the graph.
+ * 
+ * <p>
+ * A node <i>a</i> is reachable from node <i>b</i> if there is an explicit edge from <i>a</i> to <i>b</i>.  This is also
+ * holds when <i>a=b</i>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -115,7 +120,24 @@ public interface IDirectedGraph {
 	 * @post result->forall(o | getReachablesFrom(node2, forward2).contains(o) and  getReachableFrom(node1,
 	 * 		 forward1).contains(o))
 	 */
-	Collection getCommonReachablesFrom(final INode node1, boolean forward1, INode node2, boolean forward2);
+	Collection getCommonReachablesFrom(INode node1, boolean forward1, INode node2, boolean forward2);
+
+	/**
+	 * Returns the minimum set of nodes that are needed to ensure that the given nodes remain reachable from or can reach
+	 * common nodes.
+	 *
+	 * @param node1 is one node of interest.
+	 * @param node2 is another node of interest.
+	 * @param forward <code>true</code> indicates that common nodes that can reach the given nodes is required;
+	 * 		  <code>false</code> indicates that the common nodes that can be reached from the given nodes is required.
+	 *
+	 * @return a collection of nodes.
+	 *
+	 * @pre node1 != null and node2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode)) and getNodes().containsAll(result)
+	 * @post result->forall(o | isReachable(o, node1, forward) and isReachable(o, node2, forward))
+	 */
+	Collection getConnectivityNodesFor(INode node1, INode node2, boolean forward);
 
 	/**
 	 * Returns the cycles that occur in the graph.
