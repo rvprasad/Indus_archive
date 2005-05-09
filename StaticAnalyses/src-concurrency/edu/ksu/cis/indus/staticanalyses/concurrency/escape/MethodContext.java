@@ -94,7 +94,7 @@ final class MethodContext
 	private List argAliasSets;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This indicates if the method/invocation context reads global data.
 	 */
 	private boolean globalDataRead;
 

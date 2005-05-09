@@ -40,21 +40,18 @@ import soot.jimple.ThrowStmt;
  */
 final class StmtProcessor
   extends AbstractStmtSwitch {
-	/**
-	 *
-	 */
-
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The associated escape analysis. 
 	 */
 	private final EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * Creates an instance of this class.
 	 *
-	 * @param analysis
+	 * @param analysis associated with this instance.
+     * @pre analysis != null
 	 */
-	StmtProcessor(EquivalenceClassBasedEscapeAnalysis analysis) {
+	StmtProcessor(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
 	}
 

@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
+import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.ArrayList;
@@ -69,21 +70,19 @@ final class ValueProcessor
 	 */
 	boolean rhs = true;
 
-	/**
-	 *
-	 */
+    /** 
+     * The associated escape analysis. 
+     */
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
 	private final EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * Creates an instance of this class.
 	 *
-	 * @param analysis
+	 * @param analysis associated with this instance.
+     * @pre analysis != null
 	 */
-	ValueProcessor(EquivalenceClassBasedEscapeAnalysis analysis) {
+	ValueProcessor(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
 	}
 
@@ -100,13 +99,13 @@ final class ValueProcessor
 		rhs = _temp;
 
 		final AliasSet _base = (AliasSet) getResult();
-		AliasSet _elt = _base.getASForField(EquivalenceClassBasedEscapeAnalysis.ARRAY_FIELD);
+		AliasSet _elt = _base.getASForField(IObjectReadWriteInfo.ARRAY_FIELD);
 
 		if (_elt == null) {
 			_elt = AliasSet.getASForType(v.getType());
 
 			if (_elt != null) {
-				_base.putASForField(EquivalenceClassBasedEscapeAnalysis.ARRAY_FIELD, _elt);
+				_base.putASForField(IObjectReadWriteInfo.ARRAY_FIELD, _elt);
 			}
 		}
 
