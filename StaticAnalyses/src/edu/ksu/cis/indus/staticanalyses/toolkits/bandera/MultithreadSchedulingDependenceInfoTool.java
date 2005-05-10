@@ -134,9 +134,9 @@ public final class MultithreadSchedulingDependenceInfoTool
 	public static final Object KNOWN_TRANSITIONS = "known transitions information";
 
 	/** 
-	 * This identifies the may-flow info in the output arguments.
+	 * This identifies the may-flow relation in the output arguments.
 	 */
-	public static final Object MAY_FOLLOW_RELATION = "may happen relation";
+	public static final Object MAY_FOLLOW_RELATION = "may follow relation";
 
 	/** 
 	 * The logger used by instances of this class to log messages.
