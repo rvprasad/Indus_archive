@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.common.collections;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -27,8 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
 
@@ -365,27 +369,19 @@ public final class CollectionsUtilities {
 	 * Returns a pretty print representation of the given map.
 	 *
 	 * @param map to be pretty printed.
+     * @param label to be printed.
 	 *
 	 * @return pretty print representation.
 	 *
 	 * @pre map != null
 	 * @post result != null
 	 */
-	public static String prettyPrint(final Map map) {
-		final StringBuffer _sb = new StringBuffer();
-		_sb.append("-----------------------Collection: " + map.getClass().getName() + " / " + map.hashCode() + " ["
-			+ map.size() + "]");
-
-		final Iterator _i = map.entrySet().iterator();
-		final int _iEnd = map.entrySet().size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			_sb.append("\n");
-			_sb.append(_entry.getKey() + " --> " + _entry.getValue());
-		}
-		_sb.append("\n=====================================================");
-		return _sb.toString();
+	public static String prettyPrint(final String label, final Map map) {
+        final ByteArrayOutputStream _baos = new ByteArrayOutputStream();
+        final Map _r = new TreeMap(ToStringBasedComparator.SINGLETON);
+        _r.putAll(map);
+        MapUtils.verbosePrint(new PrintStream(_baos), label, _r);
+		return _baos.toString();
 	}
 
 	/**
