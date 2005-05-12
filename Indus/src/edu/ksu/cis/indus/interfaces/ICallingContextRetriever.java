@@ -71,7 +71,7 @@ public interface ICallingContextRetriever
 	Object SRC_METHOD = "Method enclosing the program point";
 
 	/**
-	 * Retrieves the calling contexts for the program point specified in the given context
+	 * Retrieves the calling contexts for the program point specified in the given context.
 	 *
 	 * @param programPointContext of interest.
 	 *
