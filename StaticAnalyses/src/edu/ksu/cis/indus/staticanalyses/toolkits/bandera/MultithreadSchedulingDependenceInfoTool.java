@@ -520,9 +520,9 @@ public final class MultithreadSchedulingDependenceInfoTool
 		}
 
 		/**
-		 * DOCUMENT ME!
+		 * Writes the data to files and reads it to verify the integrity.
 		 *
-		 * @throws IllegalStateException
+		 * @throws IllegalStateException when file i/o error occurs or the objects cannot be serialized back.
 		 */
 		private void writeDataToFiles()
 		  throws IllegalStateException {
