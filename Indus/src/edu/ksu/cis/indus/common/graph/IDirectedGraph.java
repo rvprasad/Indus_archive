@@ -42,7 +42,7 @@ public interface IDirectedGraph {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public interface INode {
+	public interface INode extends IDirectedGraphView.INode {
 		/**
 		 * Retrieves the predecessors of this node.
 		 *
