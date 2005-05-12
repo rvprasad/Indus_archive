@@ -137,7 +137,7 @@ public class CallGraphTest
 	 */
 	public void testGetCallersAndGetCallees() {
 		final Collection _heads = cgi.getHeads();
-		final Collection _tails = cg.getTails();
+		final Collection _tails = cg.getSinks();
 
 		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _callee = (SootMethod) _i.next();
@@ -259,7 +259,7 @@ public class CallGraphTest
 	 * Test  <code>getTails()</code> method of the graph associated with the call graph.
 	 */
 	protected void localtestGraphGetTails() {
-		for (final Iterator _i = dg.getTails().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dg.getSinks().iterator(); _i.hasNext();) {
 			final IObjectNode _node = (IObjectNode) _i.next();
 			assertTrue(cgi.getCallees((SootMethod) _node.getObject()).isEmpty());
 		}

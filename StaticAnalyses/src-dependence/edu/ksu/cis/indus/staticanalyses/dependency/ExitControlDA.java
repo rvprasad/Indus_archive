@@ -253,8 +253,8 @@ public class ExitControlDA
 	private Collection calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
 		final Collection _result;
 		final Collection _sinks = new ArrayList();
+		_sinks.addAll(bbg.getSinks());
 		_sinks.addAll(bbg.getTails());
-		_sinks.addAll(bbg.getPseudoTails());
 
 		if (_sinks.size() > 1) {
 			_result = new HashSet();
