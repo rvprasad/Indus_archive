@@ -42,7 +42,8 @@ public interface IDirectedGraph {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public interface INode extends IDirectedGraphView.INode {
+	public interface INode
+	  extends IDirectedGraphView.INode {
 		/**
 		 * Retrieves the predecessors of this node.
 		 *
@@ -162,12 +163,12 @@ public interface IDirectedGraph {
 	IObjectDirectedGraph getDAG();
 
 	/**
-	 * Retrieves the head nodes of this graph.
+	 * Retrieves the head nodes of this graph.  A Head is a source node or any node marked as a head.
 	 *
-	 * @return the head nodes(<code>INode</code>) of this graph.
+	 * @return the collection of nodes.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getPredsOf().size == 0) and getNodes().containsAll(result)
+	 * @post result->containsAll(getSources()) and getNodes().containsAll(result)
 	 */
 	Collection getHeads();
 
@@ -192,17 +193,6 @@ public interface IDirectedGraph {
 	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
 	 */
 	Collection getNodesOnPathBetween(Collection nodes);
-
-	/**
-	 * Retrieves the psuedo-tails of the given graph.  Psuedo tails are tail end of loops in which there is no path from the
-	 * head to a proper tail.
-	 *
-	 * @return a collection of nodes which comprise the psuedo tails in the graph.
-	 *
-	 * @post result != null
-	 * @post result->forall(o | getNodes().contains(o))
-	 */
-	Collection getPseudoTails();
 
 	/**
 	 * Checks if the given destination node is reachable from the given source node in the given direction via outgoing
@@ -248,6 +238,26 @@ public interface IDirectedGraph {
 	List getSCCs(final boolean topDown);
 
 	/**
+	 * Retrieves the sink nodes of this graph.
+	 *
+	 * @return the sink nodes(<code>INode</code>) of this graph.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
+	 */
+	Collection getSinks();
+
+	/**
+	 * Retrieves the source nodes of this graph.
+	 *
+	 * @return the source nodes(<code>INode</code>) of this graph.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post result->forall(o | o.getPredsOf()->size() == 0) and getNodes().containsAll(result)
+	 */
+	Collection getSources();
+
+	/**
 	 * Retrieves the succession information as it occurs in this graph's spanning tree.  The returned map maps a node to a
 	 * collection of nodes which immediately succeed the key node in the  spanning tree of this graph.
 	 *
@@ -259,12 +269,14 @@ public interface IDirectedGraph {
 	Map getSpanningSuccs();
 
 	/**
-	 * Retrieves the tail nodes of this graph.
+	 * Retrieves the tails of the given graph.  A Tail is a sink node or an arbitrary node in a strongly-connected component 
+     * that acts as a sink (only the nodes of the SCC are reachable from the nodes in the SCC). 
 	 *
-	 * @return the tail nodes(<code>INode</code>) of this graph.
+	 * @return a collection of nodes.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
+	 * @post result != null
+	 * @post result->forall(o | getNodes().contains(o))
+	 * @post result.containsAll(getSinks()) and getNodes().containsAll(result)
 	 */
 	Collection getTails();
 

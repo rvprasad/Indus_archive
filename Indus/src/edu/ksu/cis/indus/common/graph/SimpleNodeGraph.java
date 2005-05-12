@@ -143,7 +143,6 @@ public class SimpleNodeGraph
 	public INode getNode(final Object o) {
 		final INode _result = ((ObjectGraphInfo) graphInfo).getNode(o);
 		heads.add(_result);
-		tails.add(_result);
 		shapeChanged();
 		return _result;
 	}

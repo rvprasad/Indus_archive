@@ -223,7 +223,7 @@ public abstract class AbstractDirectedGraphTest
 	 * Tests <code>getTails()</code> method.
 	 */
 	public final void testGetTails() {
-		final Collection _tails = dg.getTails();
+		final Collection _tails = dg.getSinks();
 
 		// ensure none of the tails have a successor
 		for (final Iterator _i = _tails.iterator(); _i.hasNext();) {

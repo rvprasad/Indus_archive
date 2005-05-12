@@ -237,7 +237,7 @@ public class SimpleNodeGraphTest
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
 	 */
 	protected void localtestGetPseudoTails() {
-		final Collection _dtails = dg.getPseudoTails();
+		final Collection _dtails = dg.getTails();
 		assertTrue(_dtails.size() == 1);
 		assertTrue(_dtails.contains(name2node.get("h")));
 	}
@@ -256,7 +256,7 @@ public class SimpleNodeGraphTest
 	 * @see AbstractDirectedGraphTest#localtestGraphGetTails
 	 */
 	protected void localtestGraphGetTails() {
-		assertTrue(dg.getTails().isEmpty());
+		assertTrue(dg.getSinks().isEmpty());
 	}
 
 	/**

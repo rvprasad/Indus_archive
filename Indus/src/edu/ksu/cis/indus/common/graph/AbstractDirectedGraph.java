@@ -21,7 +21,6 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
 import gnu.trove.TIntObjectHashMap;
@@ -77,13 +76,6 @@ public abstract class AbstractDirectedGraph
 	protected final Set heads = new HashSet();
 
 	/** 
-	 * The set of nodes that constitute the tail nodes of this graph.  <i>This needs to be populated by the subclass.</i>
-	 *
-	 * @invariant heads.oclIsKindOf(Set(INode))
-	 */
-	protected final Set tails = new HashSet();
-
-	/** 
 	 * The graph builder to use to build graphs that represent views of this graph.
 	 */
 	protected IObjectDirectedGraphBuilder builder;
@@ -100,6 +92,16 @@ public abstract class AbstractDirectedGraph
 	 * @invariant discoverTimes->forall(o | o > 0)
 	 */
 	int[] discoverTimes;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private final Collection sinks = new HashSet();
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private final Collection sources = new HashSet();
 
 	/** 
 	 * This is the collection of back edges in this graph corresponding to the minimum spanning calculated for this instance
@@ -160,6 +162,16 @@ public abstract class AbstractDirectedGraph
 	 * This indicates if reachability information has been calculated for this graph.
 	 */
 	private boolean reachability;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean sinksAreAvailable;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean sourcesAreAvailable;
 
 	/**
 	 * @see IDirectedGraph#isAncestorOf(INode,INode)
@@ -309,17 +321,17 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#getPseudoTails()
+	 * @see IDirectedGraph#getTails()
 	 */
-	public final Collection getPseudoTails() {
+	public final Collection getTails() {
 		if (!pseudoTailsCalculated) {
 			// get the tails of the DAG into dtails
 			final IDirectedGraph _graph = getDAG();
-			final Collection _dtails = new HashSet(_graph.getTails());
+			final Collection _dtails = new HashSet(_graph.getSinks());
 			CollectionUtils.transform(_dtails, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 
 			// get the tails of the graph into _tails
-			final Collection _tails = getTails();
+			final Collection _tails = getSinks();
 
 			// for each dtail that is not a tail, check if tail is reachable from it.  
 			// If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
@@ -469,6 +481,52 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * @see IDirectedGraph#getSinks()
+	 */
+	public final Collection getSinks() {
+		if (!sinksAreAvailable) {
+			sinks.clear();
+
+			final Iterator _i = getNodes().iterator();
+			final int _iEnd = getNodes().size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final INode _node = (INode) _i.next();
+
+				if (_node.getSuccsOf().isEmpty()) {
+					sinks.add(_node);
+				}
+			}
+            sinksAreAvailable = true;
+		}
+		return Collections.unmodifiableCollection(sinks);
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final Collection getSources() {
+		if (!sourcesAreAvailable) {
+			sources.clear();
+
+			final Iterator _i = getNodes().iterator();
+			final int _iEnd = getNodes().size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final INode _node = (INode) _i.next();
+
+				if (_node.getPredsOf().isEmpty()) {
+					sources.add(_node);
+				}
+			}
+            sourcesAreAvailable = true;
+		}
+		return Collections.unmodifiableCollection(sources);
+	}
+
+	/**
 	 * @see IDirectedGraph#getSpanningSuccs()
 	 */
 	public final Map getSpanningSuccs() {
@@ -476,13 +534,6 @@ public abstract class AbstractDirectedGraph
 			createSpanningForest();
 		}
 		return Collections.unmodifiableMap(spanningSuccs);
-	}
-
-	/**
-	 * @see IDirectedGraph#getTails()
-	 */
-	public final Collection getTails() {
-		return Collections.unmodifiableCollection(tails);
 	}
 
 	/**
@@ -651,6 +702,8 @@ public abstract class AbstractDirectedGraph
 		pseudoTailsCalculated = false;
 		reachability = false;
 		dagExists = false;
+		sinksAreAvailable = false;
+		sourcesAreAvailable = false;
 	}
 
 	/**
@@ -859,7 +912,7 @@ public abstract class AbstractDirectedGraph
 	 * Retrieves the source nodes which cannot reach any of the given destinations.  If there are no destination nodes then
 	 * all source nodes are returned.
 	 *
-	 * @param sources is the collection of source nodes.
+	 * @param sourceNodes is the collection of source nodes.
 	 * @param destinations is the collection of destination nodes.
 	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following incoming
 	 * 		  edges.
@@ -870,20 +923,20 @@ public abstract class AbstractDirectedGraph
 	 *
 	 * @return a collection of source nodes.
 	 *
-	 * @pre sources != null and destinations != null
+	 * @pre sourceNodes != null and destinations != null
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post sources->includesAll(result)
 	 * @post considerSelfReachability implies not result->exists(o | sources.contains(o))
 	 * @post (not considerSelfReachability) implies sources->forall(o | destinations.contains(o) implies result.contains(o))
 	 */
-	private Collection getDestUnreachableSources(final Collection sources, final Collection destinations,
+	private Collection getDestUnreachableSources(final Collection sourceNodes, final Collection destinations,
 		final boolean forward, final boolean considerSelfReachability) {
-		final Collection _result = new HashSet(sources);
+        final Collection _result = new HashSet(sourceNodes);
 		final Collection _temp = new ArrayList(destinations);
 
 		if (!destinations.isEmpty()) {
-			final Iterator _i = sources.iterator();
-			final int _iEnd = sources.size();
+			final Iterator _i = sourceNodes.iterator();
+			final int _iEnd = sourceNodes.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final INode _src = (INode) _i.next();

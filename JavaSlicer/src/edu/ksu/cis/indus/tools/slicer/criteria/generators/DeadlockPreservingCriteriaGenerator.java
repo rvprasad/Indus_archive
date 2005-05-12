@@ -86,7 +86,7 @@ public final class DeadlockPreservingCriteriaGenerator
 								_criteriaFactory.getCriteria(_method, (Stmt) _bbgMgr.getStmtList(_method).get(0), false);
 							_subResult.addAll(_criteria);
 
-							for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+							for (final Iterator _j = _bbg.getSinks().iterator(); _j.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _j.next();
 								final Stmt _stmt = _bb.getTrailerStmt();
 								_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));

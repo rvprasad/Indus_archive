@@ -477,14 +477,7 @@ public final class BasicBlockGraph
 			}
 		}
 
-		// Setup the tails of the graph.
-		for (final Iterator _i = stmtGraph.getTails().iterator(); _i.hasNext();) {
-			final BasicBlock _block = getEnclosingBlock((Stmt) _i.next());
-
-			if (_block != null) {
-				tails.add(_block);
-			}
-		}
+		shapeChanged();
 	}
 }
 

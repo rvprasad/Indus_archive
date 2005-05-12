@@ -358,8 +358,8 @@ public class ExecutableSlicePostProcessor
 		final String _tagName = collector.getTagName();
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final Collection _tails = new HashSet();
+		_tails.addAll(_bbg.getSinks());
 		_tails.addAll(_bbg.getTails());
-		_tails.addAll(_bbg.getPseudoTails());
 		cd.analyze(Collections.singleton(method));
 
 		if (_tails.size() == 1) {

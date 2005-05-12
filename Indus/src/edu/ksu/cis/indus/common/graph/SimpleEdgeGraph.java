@@ -196,7 +196,6 @@ public class SimpleEdgeGraph
 	public IEdgeLabelledNode getNode(final Object o) {
 		final IEdgeLabelledNode _result = (IEdgeLabelledNode) ((ObjectGraphInfo) graphInfo).getNode(o);
 		heads.add(_result);
-		tails.add(_result);
 		shapeChanged();
 		return _result;
 	}

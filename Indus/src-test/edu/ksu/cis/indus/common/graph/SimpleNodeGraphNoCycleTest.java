@@ -95,14 +95,14 @@ public class SimpleNodeGraphNoCycleTest
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
 	 */
 	protected void localtestGetPseudoTails() {
-		assertTrue(dg.getPseudoTails().isEmpty());
+		assertTrue(dg.getTails().isEmpty());
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGraphGetTails()
 	 */
 	protected void localtestGraphGetTails() {
-		assertFalse(sng.getTails().isEmpty());
+		assertFalse(sng.getSinks().isEmpty());
 	}
 
 	/**

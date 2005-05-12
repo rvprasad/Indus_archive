@@ -93,15 +93,15 @@ public class SimpleNodeGraphTest3
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
 	 */
 	protected void localtestGetPseudoTails() {
-		assertTrue(dg.getPseudoTails().size() == 0);
+		assertTrue(dg.getTails().size() == 0);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGraphGetTails()
 	 */
 	protected void localtestGraphGetTails() {
-		assertTrue(dg.getTails().size() == 1);
-		assertTrue(dg.getTails().contains(name2node.get("e")));
+		assertTrue(dg.getSinks().size() == 1);
+		assertTrue(dg.getSinks().contains(name2node.get("e")));
 	}
 
 	/**

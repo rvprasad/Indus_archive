@@ -636,7 +636,7 @@ public class BackwardSlicingPart
 
 					final Collection _temp = new HashSet();
 
-					for (final Iterator _j = _calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
+					for (final Iterator _j = _calleeBasicBlockGraph.getSinks().iterator(); _j.hasNext();) {
 						final BasicBlock _bb = (BasicBlock) _j.next();
 						final Stmt _trailer = _bb.getTrailerStmt();
 						closure.execute(new Pair(_trailer, _callee));
