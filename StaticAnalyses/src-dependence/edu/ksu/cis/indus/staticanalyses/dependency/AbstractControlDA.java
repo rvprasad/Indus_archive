@@ -145,6 +145,8 @@ public abstract class AbstractControlDA
 		return _result.toString();
 	}
 
+    ///CLOVER:ON
+
 	/**
 	 * Sets up internal data structures.
 	 *
@@ -192,8 +194,6 @@ public abstract class AbstractControlDA
 		}
 		return _result;
 	}
-
-	///CLOVER:ON
 }
 
 // End of File
