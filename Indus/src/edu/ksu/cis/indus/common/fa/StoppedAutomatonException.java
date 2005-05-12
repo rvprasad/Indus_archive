@@ -34,7 +34,6 @@ public final class StoppedAutomatonException
 	 */
 	public StoppedAutomatonException() {
 		super();
-		// TODO: Auto-generated constructor stub
 	}
 
 	/**
@@ -44,7 +43,6 @@ public final class StoppedAutomatonException
 	 */
 	public StoppedAutomatonException(final String message) {
 		super(message);
-		// TODO: Auto-generated constructor stub
 	}
 }
 
