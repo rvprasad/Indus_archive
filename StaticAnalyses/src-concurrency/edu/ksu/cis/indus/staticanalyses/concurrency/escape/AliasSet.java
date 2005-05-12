@@ -679,7 +679,6 @@ final class AliasSet
 	AliasSet getImageOfRefUnderRoot(final AliasSet root, final AliasSet ref, final Collection processed) {
 		AliasSet _result = null;
 
-		// THINK: Should the following condition be ref.find() == find() && root.escapes()?
 		if (ref.find() == find()) {
 			_result = root;
 		} else {
