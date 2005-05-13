@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.staticanalyses.cfg;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -229,9 +228,10 @@ public class ExceptionThrowAnalysis
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _j.next();
 				final SootMethod _caller = _ctrp.getMethod();
-
-				if (isThrownExceptionNotCaught(_ctrp.getStmt(), _caller, _thrownType)) {
-					workbagCache.addWorkNoDuplicates(new Pair(_caller, _thrownType));
+				final Stmt _callingStmt = _ctrp.getStmt();
+                
+                if (isThrownExceptionNotCaught(_callingStmt, _caller, _thrownType)) {
+					workbagCache.addWorkNoDuplicates(new Triple(_callingStmt, _caller, _thrownType));
 				}
 			}
 			CollectionsUtilities.putIntoSetInMap(CollectionsUtilities.getMapFromMap(method2stmt2uncaughtExceptions, _method),
@@ -353,8 +353,8 @@ public class ExceptionThrowAnalysis
 				final int _jEnd = TrapManager.getExceptionTypesOf(_handler, _body).size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd && !_isCaught; _jIndex++) {
-					final SootClass _caughtType = (SootClass) _j.next();
-					_isCaught |= Util.isDescendentOf(thrownType, _caughtType);
+					final RefType _caughtType = (RefType) _j.next();
+					_isCaught |= Util.isDescendentOf(thrownType, _caughtType.getSootClass());
 				}
 			}
 			_result = !_isCaught;
