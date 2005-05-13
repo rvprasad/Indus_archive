@@ -1416,30 +1416,22 @@ public final class SlicerConfiguration
 				Collections.singleton(new ReferenceBasedDataDA()));
 
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
+            
+            if (isNonTerminationSensitiveControlDependenceUsed()) {
+                _c.add(new NonTerminationSensitiveEntryControlDA());
+            } else {
+                _c.add(new NonTerminationInsensitiveEntryControlDA());
+            }
 
-			if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-				_c.clear();
-
-				if (isNonTerminationSensitiveControlDependenceUsed()) {
-					_c.add(new NonTerminationSensitiveEntryControlDA());
-				} else {
-					_c.add(new NonTerminationInsensitiveEntryControlDA());
-				}
-			} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-				_c.clear();
+            if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
 				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-				_c.clear();
-
-				if (isNonTerminationSensitiveControlDependenceUsed()) {
-					_c.add(new NonTerminationSensitiveEntryControlDA());
-				} else {
-					_c.add(new NonTerminationInsensitiveEntryControlDA());
-				}
-
 				_c.add(new ExitControlDA());
-			}
+			} else if (!_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+                throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, " 
+                        + "or COMPLETE_SLICE.");
+            }
 		} else {
 			final String _msg = "slice type could not be configured due to illegal slice type.";
 			LOGGER.error("setupSliceTypeRelatedData() -  : " + _msg);

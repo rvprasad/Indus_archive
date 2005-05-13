@@ -50,8 +50,6 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
@@ -810,19 +808,7 @@ public final class SlicerTool
 		// perform dependency analyses
 		daController.reset();
 
-		/*
-		 * Exit control dependence required for complete/forward slices depends on entry control dependence.
-		 * Setup entry control dependence in the info map and for execution via daController.
-		 */
 		final Collection _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
-
-		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			if (slicerConfig.isNonTerminationSensitiveControlDependenceUsed()) {
-				_controlDAs.add(new NonTerminationSensitiveEntryControlDA());
-			} else {
-				_controlDAs.add(new NonTerminationInsensitiveEntryControlDA());
-			}
-		}
 		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
 
 		// drive the analyses
@@ -845,20 +831,6 @@ public final class SlicerTool
 		if (!slicerConfig.getPropertyAware()
 			  && !_deadlockCriteriaSelectionStrategy.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
 			ecba.flushSiteContexts();
-		}
-
-		/*
-		 * We fixed the dependences in the slicer and daController for execution purposes.  Here we unfix it.
-		 */
-		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			for (final Iterator _i = daController.getAnalyses(IDependencyAnalysis.CONTROL_DA).iterator(); _i.hasNext();) {
-				final IDependencyAnalysis _cd = (IDependencyAnalysis) _i.next();
-
-				if (_cd.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-					_controlDAs.remove(_cd);
-					_i.remove();
-				}
-			}
 		}
 
 		phase.nextMajorPhase();
