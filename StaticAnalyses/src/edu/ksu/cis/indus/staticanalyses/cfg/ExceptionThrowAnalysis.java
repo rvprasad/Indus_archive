@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.interfaces.IExceptionThrowAnalysis;
+import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -68,7 +68,7 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class ExceptionThrowAnalysis
   extends AbstractProcessor
-  implements IExceptionThrowAnalysis {
+  implements IExceptionThrowInfo {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -133,7 +133,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowAnalysis#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionThrowInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2exceptions, method, Collections.EMPTY_MAP);
@@ -150,7 +150,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowAnalysis#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionThrowInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
@@ -247,7 +247,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowAnalysis#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionThrowInfo#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public boolean doesStmtThrowUncaughtException(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);

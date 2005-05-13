@@ -29,7 +29,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public interface IExceptionThrowAnalysis
+public interface IExceptionThrowInfo
   extends IIdentification,
 	  IStatus {
 	/** 
