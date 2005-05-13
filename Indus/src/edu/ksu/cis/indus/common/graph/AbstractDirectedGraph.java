@@ -94,12 +94,18 @@ public abstract class AbstractDirectedGraph
 	int[] discoverTimes;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This is the collection of sink nodes in the graph.
+	 *
+	 * @invariant sinks.oclIsKindOf(Set(INode))
+	 * @invariant sinks->forall(o | o.getSuccsOf().size() = 0)
 	 */
 	private final Collection sinks = new HashSet();
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This is the collection of source nodes in the graph.
+	 *
+	 * @invariant sinks.oclIsKindOf(Set(INode))
+	 * @invariant sinks->forall(o | o.getPredsOf().size() = 0)
 	 */
 	private final Collection sources = new HashSet();
 
@@ -164,12 +170,12 @@ public abstract class AbstractDirectedGraph
 	private boolean reachability;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This flag indicates if sinks are available (have been calculated).
 	 */
 	private boolean sinksAreAvailable;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This flag indicates if sources are available (have been calculated).
 	 */
 	private boolean sourcesAreAvailable;
 
@@ -321,41 +327,6 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#getTails()
-	 */
-	public final Collection getTails() {
-		if (!pseudoTailsCalculated) {
-			// get the tails of the DAG into dtails
-			final IDirectedGraph _graph = getDAG();
-			final Collection _dtails = new HashSet(_graph.getSinks());
-			CollectionUtils.transform(_dtails, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-
-			// get the tails of the graph into _tails
-			final Collection _tails = getSinks();
-
-			// for each dtail that is not a tail, check if tail is reachable from it.  
-			// If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
-			_dtails.removeAll(_tails);
-
-			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true, false);
-			final Collection _result = getDestUnreachableSources(_temp, _temp, true, false);
-
-			/*
-			 * It is possible that a graph have 2 pseudo tails which are mutually reachable in the graph. In that case,
-			 * _result is empty.  This is the case when cycles in graph have common nodes. In such case, both should qualify
-			 * as pseudo tails.  In other cases, only those in _result should qualify as pseudo tails.
-			 */
-			if (_result.isEmpty()) {
-				pseudoTails.addAll(_temp);
-			} else {
-				pseudoTails.addAll(_result);
-			}
-			pseudoTailsCalculated = true;
-		}
-		return Collections.unmodifiableCollection(pseudoTails);
-	}
-
-	/**
 	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
@@ -443,6 +414,41 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * @see IDirectedGraph#getTails()
+	 */
+	public final Collection getTails() {
+		if (!pseudoTailsCalculated) {
+			// get the tails of the DAG into dtails
+			final IDirectedGraph _graph = getDAG();
+			final Collection _dtails = new HashSet(_graph.getSinks());
+			CollectionUtils.transform(_dtails, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+
+			// get the tails of the graph into _tails
+			final Collection _tails = getSinks();
+
+			// for each dtail that is not a tail, check if tail is reachable from it.  
+			// If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
+			_dtails.removeAll(_tails);
+
+			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true, false);
+			final Collection _result = getDestUnreachableSources(_temp, _temp, true, false);
+
+			/*
+			 * It is possible that a graph have 2 pseudo tails which are mutually reachable in the graph. In that case,
+			 * _result is empty.  This is the case when cycles in graph have common nodes. In such case, both should qualify
+			 * as pseudo tails.  In other cases, only those in _result should qualify as pseudo tails.
+			 */
+			if (_result.isEmpty()) {
+				pseudoTails.addAll(_temp);
+			} else {
+				pseudoTails.addAll(_result);
+			}
+			pseudoTailsCalculated = true;
+		}
+		return Collections.unmodifiableCollection(pseudoTails);
+	}
+
+	/**
 	 * Finds SCCs in the given node.
 	 *
 	 * @param nodes of interest.
@@ -497,15 +503,13 @@ public abstract class AbstractDirectedGraph
 					sinks.add(_node);
 				}
 			}
-            sinksAreAvailable = true;
+			sinksAreAvailable = true;
 		}
 		return Collections.unmodifiableCollection(sinks);
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getSources()
 	 */
 	public final Collection getSources() {
 		if (!sourcesAreAvailable) {
@@ -521,7 +525,7 @@ public abstract class AbstractDirectedGraph
 					sources.add(_node);
 				}
 			}
-            sourcesAreAvailable = true;
+			sourcesAreAvailable = true;
 		}
 		return Collections.unmodifiableCollection(sources);
 	}
@@ -931,7 +935,7 @@ public abstract class AbstractDirectedGraph
 	 */
 	private Collection getDestUnreachableSources(final Collection sourceNodes, final Collection destinations,
 		final boolean forward, final boolean considerSelfReachability) {
-        final Collection _result = new HashSet(sourceNodes);
+		final Collection _result = new HashSet(sourceNodes);
 		final Collection _temp = new ArrayList(destinations);
 
 		if (!destinations.isEmpty()) {
