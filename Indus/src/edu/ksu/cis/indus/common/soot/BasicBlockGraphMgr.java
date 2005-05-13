@@ -48,6 +48,11 @@ public final class BasicBlockGraphMgr {
 	private static final Log LOGGER = LogFactory.getLog(BasicBlockGraphMgr.class);
 
 	/** 
+	 * This provides exception throwing information used to calculate basic block boundaries.
+	 */
+	private final IExceptionThrowInfo eti;
+
+	/** 
 	 * This maps methods to basic block graphs.
 	 *
 	 * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph))
@@ -65,15 +70,21 @@ public final class BasicBlockGraphMgr {
 	private final Map method2stmtlist = new HashMap();
 
 	/**
-	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
-	 * is abstract or has no available implementation.
-	 *
-	 * @param sm is the method for which the graph is requested.
-	 *
-	 * @return the basic block graph corresponding to <code>sm</code>.
+	 * Creates a new BasicBlockGraphMgr object.
 	 */
-	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
-		return getBasicBlockGraph(sm, null);
+	public BasicBlockGraphMgr() {
+		this(null);
+	}
+
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param info provides excpetion throwing information.  If this is not provided then implicit exceptional exits are not
+     * considered for graph construction.  
+	 */
+	public BasicBlockGraphMgr(final IExceptionThrowInfo info) {
+		super();
+		eti = info;
 	}
 
 	/**
@@ -81,7 +92,6 @@ public final class BasicBlockGraphMgr {
 	 * is abstract or has no available implementation.
 	 *
 	 * @param sm is the method for which the graph is requested.
-	 * @param analysis that provides exception flow based control point information.
 	 *
 	 * @return the basic block graph corresponding to <code>sm</code>.
 	 *
@@ -89,11 +99,10 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @pre sm != null
 	 */
-	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm, final IExceptionThrowInfo analysis)
+	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm)
 	  throws IllegalStateException {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getBasicBlockGraph(SootMethod sm = " + sm + ", IExceptionThrowInfo analysis = " + analysis
-				+ ") - BEGIN");
+			LOGGER.debug("getBasicBlockGraph(SootMethod sm = " + sm + ") - BEGIN");
 		}
 
 		if (stmtGraphProvider == null) {
@@ -117,7 +126,7 @@ public final class BasicBlockGraphMgr {
 
 		if (_flag) {
 			final UnitGraph _graph = stmtGraphProvider.getStmtGraph(sm);
-			_result = new BasicBlockGraph(_graph, sm, analysis);
+			_result = new BasicBlockGraph(_graph, sm, eti);
 			method2graph.put(sm, new SoftReference(_result));
 		}
 
