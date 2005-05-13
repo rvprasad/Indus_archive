@@ -37,7 +37,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractControlDA
+abstract class AbstractControlDA
   extends AbstractDependencyAnalysis {
 	/** 
 	 * This provides the call graph information.
@@ -61,7 +61,6 @@ public abstract class AbstractControlDA
 	 */
 	public final Collection getDependees(final Object dependentStmt, final Object method) {
 		final List _list = (List) dependent2dependee.get(method);
-
 		return getDependenceHelper(dependentStmt, method, _list);
 	}
 
@@ -145,7 +144,7 @@ public abstract class AbstractControlDA
 		return _result.toString();
 	}
 
-    ///CLOVER:ON
+	///CLOVER:ON
 
 	/**
 	 * Sets up internal data structures.
