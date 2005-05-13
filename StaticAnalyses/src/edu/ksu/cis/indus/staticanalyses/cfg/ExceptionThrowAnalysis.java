@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -52,8 +53,19 @@ import soot.TrapManager;
 import soot.Value;
 import soot.ValueBox;
 
+import soot.jimple.ArrayRef;
+import soot.jimple.CastExpr;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticFieldRef;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
+import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -192,7 +204,7 @@ public class ExceptionThrowAnalysis
 		final Value _v = vb.getValue();
 		final Stmt _stmt = context.getStmt();
 		final SootMethod _method = context.getCurrentMethod();
-		final Collection _c = (Collection) astNodeType2thrownTypeNames.get(_v.getClass());
+		final Collection _c = getExceptionTypeNamesFor(_v.getClass());
 		final Iterator _i = _c.iterator();
 		final int _iEnd = _c.size();
 
@@ -229,8 +241,8 @@ public class ExceptionThrowAnalysis
 				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _j.next();
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _callingStmt = _ctrp.getStmt();
-                
-                if (isThrownExceptionNotCaught(_callingStmt, _caller, _thrownType)) {
+
+				if (isThrownExceptionNotCaught(_callingStmt, _caller, _thrownType)) {
 					workbagCache.addWorkNoDuplicates(new Triple(_callingStmt, _caller, _thrownType));
 				}
 			}
@@ -280,6 +292,35 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
+	 * Sets up this object to consider common unchecked exceptions.
+	 */
+	public void setupForCommonUncheckedExceptions() {
+		toggleExceptionsToTrack(ArrayRef.class, "java.lang.ArrayStoreException", true);
+		toggleExceptionsToTrack(ArrayRef.class, "java.lang.ArrayIndexOutOfBoundsException", true);
+		toggleExceptionsToTrack(ArrayRef.class, "java.lang.NullPointerException", true);
+		toggleExceptionsToTrack(NewExpr.class, "java.lang.InstantiationError", true);
+		toggleExceptionsToTrack(NewArrayExpr.class, "java.lang.NegativeArraySizeException", true);
+		toggleExceptionsToTrack(NewArrayExpr.class, "java.lang.InstantiationError", true);
+		toggleExceptionsToTrack(NewMultiArrayExpr.class, "java.lang.NegativeArraySizeException", true);
+		toggleExceptionsToTrack(NewMultiArrayExpr.class, "java.lang.InstantiationError", true);
+		toggleExceptionsToTrack(InstanceFieldRef.class, "java.lang.NullPointerException", true);
+		toggleExceptionsToTrack(InstanceFieldRef.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(StaticFieldRef.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(CastExpr.class, "java.lang.ClassCastException", true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.NoSuchMethodException", true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.NoSuchMethodException", true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.NoSuchMethodException", true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(StaticInvokeExpr.class, "java.lang.NoSuchMethodException", true);
+		toggleExceptionsToTrack(StaticInvokeExpr.class, "java.lang.IllegalAccessError", true);
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -322,6 +363,33 @@ public class ExceptionThrowAnalysis
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			ppc.unregister((Class) _i.next(), this);
 		}
+	}
+
+	/**
+	 * Retrieves the exception type names for the given ast node type.
+	 *
+	 * @param c is the ast node type.
+	 *
+	 * @return a collection of exception type names.
+	 *
+	 * @pre c != null
+	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 */
+	private Collection getExceptionTypeNamesFor(final Class c) {
+		Collection _result = Collections.EMPTY_SET;
+		final Set _keySet = astNodeType2thrownTypeNames.keySet();
+		final Iterator _i = _keySet.iterator();
+		final int _iEnd = _keySet.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Class _nodeType = (Class) _i.next();
+
+			if (_nodeType.isAssignableFrom(c)) {
+				_result = (Collection) astNodeType2thrownTypeNames.get(_nodeType);
+				break;
+			}
+		}
+		return _result;
 	}
 
 	/**
