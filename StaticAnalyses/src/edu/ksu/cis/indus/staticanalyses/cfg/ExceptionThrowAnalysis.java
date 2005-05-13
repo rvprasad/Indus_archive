@@ -280,6 +280,16 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final StringBuffer _sb = new StringBuffer();
+		_sb.append(CollectionsUtilities.prettyPrint("Caught+Uncaught Exception info", method2stmt2exceptions));
+		_sb.append(CollectionsUtilities.prettyPrint("Uncaught exception info", method2stmt2uncaughtExceptions));
+		return _sb.toString();
+	}
+
+	/**
 	 * Toggles the tracking of the named exception type for the given ast node type.
 	 *
 	 * @param astNodeType is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
