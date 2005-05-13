@@ -28,6 +28,8 @@ Required software:
 
 Version 0.6
 ----------------
+	- Control dependence can now consider the effect of interprocedural exception flow on intraprocedural control flow.
+	- Interprocedural-exception-flow-sensitive exception occurrence analysis - ExceptionThrowAnalysis.
     - New interface to query object-level read/write information.
 	- Refactored call graph calculation logic.
 	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph 

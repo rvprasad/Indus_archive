@@ -34,7 +34,9 @@ Required software:
 
 Version 0.6
 ----------------
-	- Feature request #616.
+	- Forward slices can now be configured to consider both exit control dependence and entry control dependence.
+	- Support to consider various levels of interprocedural exception flow sensitive control dependence during slicing.
+	- Feature request #616, #608.
 	- Bug fixes.
 	- Enabled space optimization of executable slice.
 	- Used new calling context retrievers in property-aware operation mode.

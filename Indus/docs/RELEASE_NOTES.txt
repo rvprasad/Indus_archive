@@ -34,6 +34,9 @@ Required software:
 
 Version 0.6
 ----------------
+	- Interprocedural-exception-flow-sensitive control flow aware basic block graph.
+	- New interface to capture exception raising info - IExceptionRaiseInfo.
+	- Added support for sinks and sources (different from heads and tails) to graphs.
 	- Feature request #612, #616, #617.
 	- Added finite automaton implementation.
 	- Added support to represent edge-labelled graphs.
