@@ -19,9 +19,9 @@ import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.Constants;
 
 import edu.ksu.cis.indus.interfaces.IIdentification;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
