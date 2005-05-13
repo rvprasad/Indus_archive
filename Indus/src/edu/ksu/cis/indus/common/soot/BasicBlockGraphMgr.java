@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
+import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import java.lang.ref.SoftReference;
 
@@ -50,7 +50,7 @@ public final class BasicBlockGraphMgr {
 	/** 
 	 * This provides exception throwing information used to calculate basic block boundaries.
 	 */
-	private final IExceptionThrowInfo eti;
+	private final IExceptionRaisingInfo eti;
 
 	/** 
 	 * This maps methods to basic block graphs.
@@ -82,7 +82,7 @@ public final class BasicBlockGraphMgr {
 	 * @param info provides excpetion throwing information.  If this is not provided then implicit exceptional exits are not
      * considered for graph construction.  
 	 */
-	public BasicBlockGraphMgr(final IExceptionThrowInfo info) {
+	public BasicBlockGraphMgr(final IExceptionRaisingInfo info) {
 		super();
 		eti = info;
 	}

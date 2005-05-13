@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
+import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -77,13 +77,13 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$
  */
-public class ExceptionThrowAnalysis
+public class ExceptionRaisingAnalysis
   extends AbstractProcessor
-  implements IExceptionThrowInfo {
+  implements IExceptionRaisingInfo {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExceptionThrowAnalysis.class);
+	private static final Log LOGGER = LogFactory.getLog(ExceptionRaisingAnalysis.class);
 
 	/** 
 	 * The call graph to be used.
@@ -135,7 +135,7 @@ public class ExceptionThrowAnalysis
 	 *
 	 * @pre factory != null and callgraph != null and env != null
 	 */
-	public ExceptionThrowAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph,
+	public ExceptionRaisingAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph,
 		final IEnvironment environment) {
 		stmtGraphFactory = factory;
 		cgi = callgraph;
@@ -144,7 +144,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionRaisingInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2exceptions, method, Collections.EMPTY_MAP);
@@ -161,7 +161,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionRaisingInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
@@ -259,7 +259,7 @@ public class ExceptionThrowAnalysis
 	}
 
 	/**
-	 * @see IExceptionThrowInfo#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
+	 * @see IExceptionRaisingInfo#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public boolean doesStmtThrowUncaughtException(final Stmt stmt, final SootMethod method) {
 		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);

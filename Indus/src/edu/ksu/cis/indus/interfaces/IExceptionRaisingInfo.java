@@ -23,13 +23,13 @@ import soot.jimple.Stmt;
 
 
 /**
- * This is the interface to access thrown exception information. 
+ * This is the interface to access exception raising information. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IExceptionThrowInfo
+public interface IExceptionRaisingInfo
   extends IIdentification,
 	  IStatus {
 	/** 

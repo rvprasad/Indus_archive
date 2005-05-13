@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.MutableDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
-import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
+import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -86,7 +86,7 @@ public final class BasicBlockGraph
 	 *
 	 * @pre theStmtGraph != null
 	 */
-	public BasicBlockGraph(final UnitGraph theStmtGraph, final SootMethod method, final IExceptionThrowInfo analysis) {
+	public BasicBlockGraph(final UnitGraph theStmtGraph, final SootMethod method, final IExceptionRaisingInfo analysis) {
 		this.stmtGraph = theStmtGraph;
 		stmtList = Collections.unmodifiableList(new ArrayList(stmtGraph.getBody().getUnits()));
 
@@ -431,7 +431,7 @@ public final class BasicBlockGraph
 	 * @pre stmts.oclIsKindOf(Collection(Stmt))
 	 */
 	private boolean getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag wb, final List stmts,
-		final IExceptionThrowInfo analysis, final SootMethod method) {
+		final IExceptionRaisingInfo analysis, final SootMethod method) {
 		stmts.add(leaderStmt);
 
 		final Collection _t = stmtGraph.getSuccsOf(leaderStmt);

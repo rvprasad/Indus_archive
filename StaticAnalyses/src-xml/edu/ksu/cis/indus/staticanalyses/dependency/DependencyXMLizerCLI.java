@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
+import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -39,7 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilt
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionThrowAnalysis;
+import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
@@ -370,7 +370,7 @@ public class DependencyXMLizerCLI
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
-        final IExceptionThrowInfo _eti = new ExceptionThrowAnalysis(getStmtGraphFactory(), _cgi, aa.getEnvironment());
+        final IExceptionRaisingInfo _eti = new ExceptionRaisingAnalysis(getStmtGraphFactory(), _cgi, aa.getEnvironment());
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
@@ -433,7 +433,7 @@ public class DependencyXMLizerCLI
 		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
         if (commonUncheckedException) {
-            final ExceptionThrowAnalysis _t = (ExceptionThrowAnalysis) _eti;
+            final ExceptionRaisingAnalysis _t = (ExceptionRaisingAnalysis) _eti;
             _t.setupForCommonUncheckedExceptions();
         }
         
@@ -445,7 +445,7 @@ public class DependencyXMLizerCLI
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
-        writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionThrowAnalysis) _eti).toString());
+        writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionRaisingAnalysis) _eti).toString());
 
 		final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
 		MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
