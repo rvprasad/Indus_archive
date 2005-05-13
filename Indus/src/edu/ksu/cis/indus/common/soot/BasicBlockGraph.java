@@ -20,6 +20,8 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.MutableDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
+import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +36,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.SootMethod;
 import soot.Trap;
 
 import soot.jimple.Stmt;
@@ -73,13 +76,17 @@ public final class BasicBlockGraph
 	private final UnitGraph stmtGraph;
 
 	/**
-	 * Creates a new BasicBlockGraph object.
+	 * Creates an instance of this class.
 	 *
-	 * @param theStmtGraph is the control flow graph being represented by this graph.
+	 * @param theStmtGraph that will be represented by this basic block graph.
+	 * @param method that is being represented by this graph.  <i>This is required only if exception flow based basic block
+	 * 		  graph is required.</i>
+	 * @param analysis to be used for exception based basic block splitting.  <i>This is required only if exception flow
+	 * 		  based basic block graph is required.</i>
 	 *
 	 * @pre theStmtGraph != null
 	 */
-	BasicBlockGraph(final UnitGraph theStmtGraph) {
+	public BasicBlockGraph(final UnitGraph theStmtGraph, final SootMethod method, final IExceptionThrowInfo analysis) {
 		this.stmtGraph = theStmtGraph;
 		stmtList = Collections.unmodifiableList(new ArrayList(stmtGraph.getBody().getUnits()));
 
@@ -96,11 +103,11 @@ public final class BasicBlockGraph
 		stmt2BlockMap = new HashMap(_numOfStmt);
 
 		while (_wb.hasWork()) {
-			final Stmt _stmt = (Stmt) _wb.getWork();
 			_stmts.clear();
-			getBasicBlockStmtsInto(_stmt, _wb, _stmts);
 
-			final BasicBlock _bblock = new BasicBlock(_stmts);
+			final Stmt _stmt = (Stmt) _wb.getWork();
+			final boolean _isExitBlock = getBasicBlockStmtsInto(_stmt, _wb, _stmts, analysis, method);
+			final BasicBlock _bblock = new BasicBlock(_stmts, _isExitBlock);
 
 			for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
 				stmt2BlockMap.put(_i.next(), _bblock);
@@ -136,19 +143,37 @@ public final class BasicBlockGraph
 		 */
 		private final Stmt trailerStmt;
 
+		/** 
+		 * This indicates if this block is an exit block.
+		 */
+		private final boolean isExitBlock;
+
 		/**
 		 * Creates a new BasicBlock object.
 		 *
 		 * @param stmtsParam is the list of statements being represented by this block.
+		 * @param isAnExitBlock indicates if the trailer statement of this basic block may cause an exception that will
+		 * 		  result in the control exiting the graph.
 		 *
 		 * @pre stmtsParam != null and stmsParam.oclIsKindOf(Sequence(Stmt))
 		 * @pre getStmtGraph().getBody().getUnits().containsAll(stmtsParam)
 		 */
-		BasicBlock(final List stmtsParam) {
+		BasicBlock(final List stmtsParam, final boolean isAnExitBlock) {
 			super(new HashSet(), new HashSet());
 			stmts = new ArrayList(stmtsParam);
 			leaderStmt = (Stmt) stmts.get(0);
 			trailerStmt = (Stmt) stmts.get(stmts.size() - 1);
+			isExitBlock = isAnExitBlock;
+		}
+
+		/**
+		 * Checks if the trailer statement of this basic block may cause the control to exit the graph.
+		 *
+		 * @return <code>true</code> if the trailer statement of this basic block may cause the control to exit the graph;
+		 * 		   <code>false</code>, otherwise.
+		 */
+		public boolean isAnExitBlock() {
+			return isExitBlock;
 		}
 
 		/**
@@ -396,17 +421,24 @@ public final class BasicBlockGraph
 	 * @param leaderStmt from which the rest of the basic block body should be discovered.
 	 * @param wb is the workbag into which new leader statement is added.
 	 * @param stmts will contain the statements that make up the current basic block graph.
+	 * @param analysis that is used to detect exception flow based control point.
+	 * @param method for which the basic block graph is being constructed.
+	 *
+	 * @return <code>true</code> if the trailer statement of the detected basic block may cause the control to exit the
+	 * 		   graph; <code>false</code>, otherwise.
 	 *
 	 * @pre leaderStmt != null and wb != null and stmts != null
 	 * @pre stmts.oclIsKindOf(Collection(Stmt))
 	 */
-	private void getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag wb, final List stmts) {
+	private boolean getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag wb, final List stmts,
+		final IExceptionThrowInfo analysis, final SootMethod method) {
 		stmts.add(leaderStmt);
 
 		final Collection _t = stmtGraph.getSuccsOf(leaderStmt);
 		final int _size = _t.size();
+		boolean _throwsUncaughtException = analysis != null && analysis.doesStmtThrowUncaughtException(leaderStmt, method);
 
-		if (_size == 1) {
+		if (_size == 1 && !_throwsUncaughtException) {
 			Stmt _pred = leaderStmt;
 			Stmt _stmt = (Stmt) _t.iterator().next();
 
@@ -421,8 +453,9 @@ public final class BasicBlockGraph
 
 				final Collection _succs = stmtGraph.getSuccsOf(_stmt);
 				final int _succsSize = _succs.size();
+				_throwsUncaughtException = analysis != null && analysis.doesStmtThrowUncaughtException(_stmt, method);
 
-				if (_succsSize == 1) {
+				if (_succsSize == 1 && !_throwsUncaughtException) {
 					// check if we did not come around basic block involved in a self-loop (a->a)
 					if (!stmts.contains(_stmt)) {
 						stmts.add(_stmt);
@@ -436,15 +469,16 @@ public final class BasicBlockGraph
 					stmts.add(_stmt);
 
 					// if there are multiple successors then it marks the boundary of a basic block.
-					if (_succsSize > 1) {
+					if (_succsSize > 1 || _throwsUncaughtException) {
 						wb.addAllWorkNoDuplicates(_succs);
 					}
 					break;
 				}
 			}
-		} else if (_size > 1) {
+		} else if (_size > 1 || _throwsUncaughtException) {
 			wb.addAllWorkNoDuplicates(_t);
 		}
+		return _throwsUncaughtException || _size == 0;
 	}
 
 	/**

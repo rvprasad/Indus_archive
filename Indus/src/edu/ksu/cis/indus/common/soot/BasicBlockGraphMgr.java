@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
 
 import java.lang.ref.SoftReference;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.IteratorUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -69,16 +71,33 @@ public final class BasicBlockGraphMgr {
 	 * @param sm is the method for which the graph is requested.
 	 *
 	 * @return the basic block graph corresponding to <code>sm</code>.
-	 *
-	 * @throws IllegalStateException when this method is called without calling <code>setStmtGraphProvider()</code>.
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
+		return getBasicBlockGraph(sm, null);
+	}
+
+	/**
+	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
+	 * is abstract or has no available implementation.
+	 *
+	 * @param sm is the method for which the graph is requested.
+	 * @param analysis that provides exception flow based control point information.
+	 *
+	 * @return the basic block graph corresponding to <code>sm</code>.
+	 *
+	 * @throws IllegalStateException when a statement graph factory was not set before calling this method.
+	 *
+	 * @pre sm != null
+	 */
+	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm, final IExceptionThrowInfo analysis)
+	  throws IllegalStateException {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getBasicBlockGraph(method = " + sm + ")");
+			LOGGER.debug("getBasicBlockGraph(SootMethod sm = " + sm + ", IExceptionThrowInfo analysis = " + analysis
+				+ ") - BEGIN");
 		}
 
 		if (stmtGraphProvider == null) {
-			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
+			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphFactory() before "
 				+ "calling this method.");
 		}
 
@@ -98,8 +117,12 @@ public final class BasicBlockGraphMgr {
 
 		if (_flag) {
 			final UnitGraph _graph = stmtGraphProvider.getStmtGraph(sm);
-			_result = new BasicBlockGraph(_graph);
+			_result = new BasicBlockGraph(_graph, sm, analysis);
 			method2graph.put(sm, new SoftReference(_result));
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getBasicBlockGraph() - END - return value = " + _result);
 		}
 		return _result;
 	}
