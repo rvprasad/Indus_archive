@@ -16,10 +16,13 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+
+import gnu.trove.TObjectIntHashMap;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +46,11 @@ abstract class AbstractControlDA
 	 * This provides the call graph information.
 	 */
 	protected ICallGraphInfo callgraph;
+
+	/** 
+	 * This maps a node to it's fan out number.
+	 */
+	private final TObjectIntHashMap node2fanout = new TObjectIntHashMap();
 
 	/**
 	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
@@ -142,6 +150,27 @@ abstract class AbstractControlDA
 		_result.append("A total of " + _edgeCount + " control dependence edges exists with " + _entryPointDep
 			+ " entry point dependences.");
 		return _result.toString();
+	}
+
+	/**
+	 * Retrieves the fan out number of the given basic block.
+	 *
+	 * @param basicblock of interest.
+	 *
+	 * @return the fan out number.
+	 *
+	 * @pre basicblock != null
+	 */
+	protected final int getFanoutNumOf(final BasicBlock basicblock) {
+		if (!node2fanout.containsKey(basicblock)) {
+			int _fanout = basicblock.getSuccsOf().size();
+
+			if (_fanout > 0 && basicblock.isAnExitBlock()) {
+				_fanout++;
+			}
+			node2fanout.put(basicblock, _fanout);
+		}
+		return node2fanout.get(basicblock);
 	}
 
 	///CLOVER:ON

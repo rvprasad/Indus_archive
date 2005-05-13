@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -24,6 +25,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
+import edu.ksu.cis.indus.interfaces.IExceptionThrowInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -37,6 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilt
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionThrowAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
@@ -79,6 +82,13 @@ import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import soot.jimple.ArrayRef;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.VirtualInvokeExpr;
 
 
 /**
@@ -134,6 +144,13 @@ public class DependencyXMLizerCLI
 	 * This indicates if safe lock should be used.
 	 */
 	private boolean useSafeLockAnalysis;
+
+    /**
+     * This indicates if exceptional exits should be considered.
+     */
+    private boolean exceptionalExits;
+
+    private boolean commonUncheckedException;
 
 	/**
 	 * This is the entry point via command-line.
@@ -219,6 +236,10 @@ public class DependencyXMLizerCLI
 		_options.addOption(_option);
 		_option = new Option("ofaforready", false, "Use OFA for ready dependence.");
 		_options.addOption(_option);
+        _option = new Option("exceptionalexits", false, "Consider exceptional exits for control dependence.");
+        _options.addOption(_option);
+        _option = new Option("commonuncheckedexceptions", false, "Consider common unchecked exceptions.");
+        _options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
@@ -255,6 +276,8 @@ public class DependencyXMLizerCLI
 			_xmlizerCLI.dumpJimple = _cl.hasOption('j');
 			_xmlizerCLI.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
 			_xmlizerCLI.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
+            _xmlizerCLI.exceptionalExits = _cl.hasOption("exceptionalexits");
+            _xmlizerCLI.commonUncheckedException = _cl.hasOption("commonuncheckedexceptions");
 
 			final List _classNames = _cl.getArgList();
 
@@ -338,7 +361,7 @@ public class DependencyXMLizerCLI
 	 */
 	private void execute() {
 		setLogger(LOGGER);
-
+        
 		final String _tagName = "DependencyXMLizer:FA";
 		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 
@@ -347,6 +370,7 @@ public class DependencyXMLizerCLI
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
+        final IExceptionThrowInfo _eti = new ExceptionThrowAnalysis(getStmtGraphFactory(), _cgi, aa.getEnvironment());
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
@@ -408,13 +432,20 @@ public class DependencyXMLizerCLI
 		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
+        if (commonUncheckedException) {
+            final ExceptionThrowAnalysis _t = (ExceptionThrowAnalysis) _eti;
+            _t.setupForCommonUncheckedExceptions();
+        }
+        
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
 		_processors.add(_tgi);
+        _processors.add(_eti);
 		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
+        writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionThrowAnalysis) _eti).toString());
 
 		final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
 		MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
@@ -428,7 +459,12 @@ public class DependencyXMLizerCLI
 
 		writeInfo("BEGIN: dependency analyses");
 
-		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
+		if (exceptionalExits) {
+            bbm = new BasicBlockGraphMgr(_eti);
+            bbm.setStmtGraphFactory(getStmtGraphFactory());
+        }
+        
+        final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());        
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
 		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
 

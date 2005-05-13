@@ -19,8 +19,6 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
@@ -83,10 +81,10 @@ public final class NonTerminationSensitiveEntryControlDA
 	private final PairManager pairMgr = new PairManager(false, true);
 
 	/**
-	 * {@inheritDoc} This implementation will return <code>BACKWARD_DIRECTION</code>.
+	 * {@inheritDoc} This implementation will return <code>BI_DIRECTIONAL</code>.
 	 */
 	public Object getDirection() {
-		return BACKWARD_DIRECTION;
+		return BI_DIRECTIONAL;
 	}
 
 	/*
@@ -144,7 +142,7 @@ public final class NonTerminationSensitiveEntryControlDA
 			}
 
 			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
-			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
+			fixupMaps(_bbCDBitSets, _currMethod);
 		}
 
 		nodesCache = null;
@@ -183,16 +181,16 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @return a collection of nodes
 	 *
 	 * @post result != null
-	 * @post result->forall(o | o.getSuccsOf().size() > 1)
+	 * @post result->forall(o | getFanoutNumOf(o) > 1)
 	 */
 	private Collection getNodesWithChildren() {
 		final Collection _result = new HashSet();
 
 		for (final Iterator _i = nodesCache.iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
+			final BasicBlock _b = (BasicBlock) _i.next();
 
-			if (_node.getSuccsOf().size() > 1) {
-				_result.add(_node);
+			if (getFanoutNumOf(_b) > 1) {
+				_result.add(_b);
 			}
 		}
 		return _result;
@@ -203,25 +201,24 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * ancestors of the control points which were dependees for the given node are injected into the token set of the given
 	 * node if the dependees are no longer dependees.
 	 *
-	 * @param node at which to accumulate tokens.
+	 * @param bb at which to accumulate tokens.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
 	 * @return <code>true</code> if any new tokens were accumulated; <code>false</code>, otherwise.
 	 *
 	 * @pre node != null and tokenSets != null
 	 */
-	private boolean accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
+	private boolean accumulateTokensAtNode(final BasicBlock bb, final BitSet[][] tokenSets) {
 		boolean _result = false;
-		final int _nodeIndex = nodesCache.indexOf(node);
+		final int _nodeIndex = nodesCache.indexOf(bb);
 		final Iterator _ctrlPoints = nodesWithChildrenCache.iterator();
 
 		for (int _iIndex = nodesWithChildrenCache.size() - 1; _iIndex >= 0; _iIndex--) {
-			final INode _ctrlPointNode = (INode) _ctrlPoints.next();
+			final BasicBlock _ctrlPointNode = (BasicBlock) _ctrlPoints.next();
 			final int _ctrlPointNodeIndex = nodesCache.indexOf(_ctrlPointNode);
 			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
 
-			if (_nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
-				  && _nodeIndex != _ctrlPointNodeIndex) {
+			if (_nodesCtrlPointBitSet.cardinality() == getFanoutNumOf(_ctrlPointNode) && _nodeIndex != _ctrlPointNodeIndex) {
 				_result |= copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
 			}
 		}
@@ -247,9 +244,9 @@ public final class NonTerminationSensitiveEntryControlDA
 		final Iterator _i = nodesWithChildrenCache.iterator();
 
 		for (int _j = nodesWithChildrenCache.size(); _j > 0; _j--) {
-			final INode _controlPoint = (INode) _i.next();
+			final BasicBlock _controlPoint = (BasicBlock) _i.next();
 			final int _cpIndex = nodesCache.indexOf(_controlPoint);
-			final int _succsSize = _controlPoint.getSuccsOf().size();
+			final int _succsSize = getFanoutNumOf(_controlPoint);
 
 			for (int _k = nodesCache.size() - 1; _k >= 0; _k--) {
 				final BitSet _tokens = tokenSets[_k][_cpIndex];
@@ -274,12 +271,11 @@ public final class NonTerminationSensitiveEntryControlDA
 	}
 
 	/**
-	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
-	 * in the graph.  This is later translated to statement level information by {@link
-	 * NonTerminationSensitiveEntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
+	 * Calculates the control dependency from a basic block graph.  This calculates the dependence information in terms of
+	 * nodes in the graph.  This is later translated to statement level information by {@link
+	 * NonTerminationSensitiveEntryControlDA#fixupMaps(BitSet[], SootMethod) fixupMaps}.
 	 *
-	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
-	 * 		  the indices should start from 0.
+	 * @param graph for which control dependency should be calculated.
 	 *
 	 * @return an array of bitsets.  The length of the array and each of the bitset in it is equal to the number of nodes in
 	 * 		   the graph.  The nth bitset captures the dependence information via set bits.  The BitSets capture
@@ -288,7 +284,7 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	private BitSet[] computeControlDependency(final IDirectedGraph graph) {
+	private BitSet[] computeControlDependency(final BasicBlockGraph graph) {
 		nodesCache = graph.getNodes();
 		nodesWithChildrenCache = getNodesWithChildren();
 
@@ -350,7 +346,7 @@ public final class NonTerminationSensitiveEntryControlDA
 		final int _iEnd = nodesWithChildrenCache.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _ancestor = (INode) _i.next();
+			final BasicBlock _ancestor = (BasicBlock) _i.next();
 			final int _ancestorIndex = nodesCache.indexOf(_ancestor);
 
 			if (dest != _ancestorIndex) {
@@ -370,9 +366,8 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * Translates the dependence information as captured in <code>bbCDBitSets</code> to statement level info and populates
 	 * the dependeXXMap fields.
 	 *
-	 * @param graph is the basic block graph corresponding to <code>method</code>.
 	 * @param bbCDBitSets is the array that contains the basic block level dependence information as calculated by {@link
-	 * 		  #computeControlDependency(IDirectedGraph) computeControlDependency}.
+	 * 		  #computeControlDependency(BasicBlockGraph) computeControlDependency}.
 	 * @param method for which the maps are being populated.
 	 *
 	 * @pre graph != null and bbCDBitSets != null and method != null
@@ -381,8 +376,7 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @post dependent2dependee.get(method) != null
 	 * @post dependent2dependee.values()->forall(o | o->forall(p | p != null()))
 	 */
-	private void fixupMaps(final BasicBlockGraph graph, final BitSet[] bbCDBitSets, final SootMethod method) {
-		final List _nodes = graph.getNodes();
+	private void fixupMaps(final BitSet[] bbCDBitSets, final SootMethod method) {
 		final List _sl = getStmtList(method);
 		final List _mDependee = new ArrayList();
 		final List _mDependent = new ArrayList();
@@ -400,14 +394,14 @@ public final class NonTerminationSensitiveEntryControlDA
 
 			if (_cd != null) {
 				final Collection _cdp = new ArrayList();
-				final BasicBlock _bb = (BasicBlock) _nodes.get(_i);
+				final BasicBlock _bb = (BasicBlock) nodesCache.get(_i);
 
 				for (final Iterator _j = _bb.getStmtsOf().iterator(); _j.hasNext();) {
 					_mDependee.set(_sl.indexOf(_j.next()), _cdp);
 				}
 
 				for (int _j = _cd.nextSetBit(0); _j != -1; _j = _cd.nextSetBit(_j + 1)) {
-					final BasicBlock _cdbb = (BasicBlock) _nodes.get(_j);
+					final BasicBlock _cdbb = (BasicBlock) nodesCache.get(_j);
 					final Object _cdStmt = _cdbb.getTrailerStmt();
 					_cdp.add(_cdStmt);
 
@@ -447,13 +441,13 @@ public final class NonTerminationSensitiveEntryControlDA
 		final IWorkBag _wb = new LIFOWorkBag();
 
 		for (final Iterator _i = nodesWithChildrenCache.iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
+			final BasicBlock _node = (BasicBlock) _i.next();
 			final int _nodeIndex = nodesCache.indexOf(_node);
 			final Collection _succs = _node.getSuccsOf();
 			final Iterator _k = _succs.iterator();
 
 			for (int _j = _succs.size(), _count = 0; _j > 0; _j--, _count++) {
-				final INode _succ = (INode) _k.next();
+				final BasicBlock _succ = (BasicBlock) _k.next();
 				final int _succIndex = nodesCache.indexOf(_succ);
 				final BitSet _temp = tokenSets[_succIndex][_nodeIndex];
 				_temp.set(_count);
@@ -483,19 +477,19 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @return the collection of nodes whose token sets were modified.
 	 *
 	 * @pre pair != null and tokenSets != null
-	 * @pre pair.oclIsKindOf(Pair(INode, Boolean)) and 0 &lt;= pair..getFirst().getSuccsOf().size() &lt;= 1
+	 * @pre pair.oclIsKindOf(Pair(INode, Boolean)) and 0 &lt;= graphCache.getNumOfSuccsOf(pair.getFirst()) &lt;= 1
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post pair.getFirst().getSuccsOf().containsAll(result)
 	 */
 	private Collection processNode(final Pair pair, final BitSet[][] tokenSets) {
-		final INode _node = (INode) pair.getFirst();
+		final BasicBlock _node = (BasicBlock) pair.getFirst();
 		final boolean _addedDueToTokePropagation = ((Boolean) pair.getSecond()).booleanValue();
 		final boolean _accumlatedTokens = accumulateTokensAtNode(_node, tokenSets);
 
 		Collection _result = Collections.EMPTY_SET;
 
 		if (_addedDueToTokePropagation || _accumlatedTokens) {
-			final int _size = _node.getSuccsOf().size();
+			final int _size = getFanoutNumOf(_node);
 
 			if (_size == 1) {
 				_result = processNodeWithOneChild(_node, tokenSets);
@@ -534,11 +528,11 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post node.getSuccsOf().containsAll(result)
 	 */
-	private Collection processNodeWithOneChild(final INode node, final BitSet[][] tokenSets) {
+	private Collection processNodeWithOneChild(final BasicBlock node, final BitSet[][] tokenSets) {
 		boolean _addflag = false;
 		final int _nodeIndex = nodesCache.indexOf(node);
 		final BitSet[] _nodeBitSets = tokenSets[_nodeIndex];
-		final INode _succ = (INode) node.getSuccsOf().iterator().next();
+		final BasicBlock _succ = (BasicBlock) node.getSuccsOf().iterator().next();
 		final int _succIndex = nodesCache.indexOf(_succ);
 		final BitSet[] _succBitSets = tokenSets[_succIndex];
 		final BitSet _temp = new BitSet();
@@ -546,7 +540,7 @@ public final class NonTerminationSensitiveEntryControlDA
 		final int _iEnd = nodesWithChildrenCache.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _ancestor = (INode) _i.next();
+			final BasicBlock _ancestor = (BasicBlock) _i.next();
 			final int _ancIndex = nodesCache.indexOf(_ancestor);
 			final BitSet _nodeAncestorTokenSet = _nodeBitSets[_ancIndex];
 			final BitSet _succAncestorTokenSet = _succBitSets[_ancIndex];

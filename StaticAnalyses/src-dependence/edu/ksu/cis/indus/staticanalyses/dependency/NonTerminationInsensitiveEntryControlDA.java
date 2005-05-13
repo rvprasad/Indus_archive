@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -63,7 +62,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	/** 
 	 * The instance of analysis that provides backward control dependence information.
 	 */
-	private final NonTerminationSensitiveEntryControlDA entryControlDA = new NonTerminationSensitiveEntryControlDA();
+	private final NonTerminationSensitiveEntryControlDA entryControlDA;
 
 	/** 
 	 * This indicates which version, direct or indirect, of non-termination sensitive backward dependence should be used as
@@ -76,7 +75,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * sensitive backward dependence will be used.
 	 */
 	public NonTerminationInsensitiveEntryControlDA() {
-		useIndirectBackwardDependence = false;
+		this(false);
 	}
 
 	/**
@@ -85,12 +84,13 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @param indirect <code>true</code> indicates that indirect version of non-termination sensitive  backward dependence
 	 * 		  should be used as the basis of this analysis; <code>false</code> indicates the direct version of
 	 * 		  non-termination sensitive  backward dependence should be used as the basis of this analysis.  <i>Please note
-	 * 		  that this  constructor is  provided for experimentation only.  As discussed in <a
+	 * 		  that this  constructor is  provided only for <b>experimentation</b> purposes.  As discussed in <a
 	 * 		  href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>, only the
 	 * 		  results based on the indirect non-termination sensitive backward dependence will be  complete.</i>
 	 */
-	public NonTerminationInsensitiveEntryControlDA(final boolean indirect) {
+	NonTerminationInsensitiveEntryControlDA(final boolean indirect) {
 		super();
+		entryControlDA = new NonTerminationSensitiveEntryControlDA();
 		this.useIndirectBackwardDependence = indirect;
 	}
 
@@ -103,10 +103,10 @@ public final class NonTerminationInsensitiveEntryControlDA
 	}
 
 	/**
-	 * {@inheritDoc} This implementation will return <code>BACKWARD_DIRECTION</code>.
+	 * {@inheritDoc} This implementation will return <code>BI_DIRECTIONAL</code>.
 	 */
 	public Object getDirection() {
-		return BACKWARD_DIRECTION;
+		return BI_DIRECTIONAL;
 	}
 
 	/**
@@ -204,26 +204,30 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @post result != null and result.oclIsKindOf(Collection(Collection(INode)))
 	 * @post result->forall(o | o->forall(p | graph.getNodes().contains(p)))
 	 */
-	private Collection getControlSinksOf(final IDirectedGraph graph) {
+	private Collection getControlSinksOf(final BasicBlockGraph graph) {
 		final Collection _result = new ArrayList();
-		final Collection _temp = new ArrayList();
 		final Collection _sccs = graph.getSCCs(true);
 		final Iterator _i = _sccs.iterator();
 		final int _iEnd = _sccs.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			boolean _isAControlSink = true;
 			final Collection _scc = (Collection) _i.next();
-			_temp.clear();
+            final int _sccSize = _scc.size();
 
-			final Iterator _j = _scc.iterator();
-			final int _sccSize = _scc.size();
+            if (_scc.size() > 1) {
+            final Iterator _j = _scc.iterator();
 
-			for (int _jIndex = 0; _jIndex < _sccSize; _jIndex++) {
-				final INode _node = (INode) _j.next();
-				_temp.addAll(_node.getSuccsOf());
+			for (int _jIndex = 0; _jIndex < _sccSize && _isAControlSink; _jIndex++) {
+				final BasicBlock _node = (BasicBlock) _j.next();
+                _isAControlSink &= _scc.containsAll(_node.getSuccsOf()) && !_node.isAnExitBlock();
 			}
+            } else {
+                final BasicBlock _node = (BasicBlock) _scc.iterator().next();
+                _isAControlSink &= _node.getSuccsOf().contains(_node) || _node.isAnExitBlock();
+            }
 
-			if (_temp.equals(_scc) || (_sccSize == 1 && _temp.isEmpty())) {
+			if (_isAControlSink) {
 				_result.add(_scc);
 			}
 		}
