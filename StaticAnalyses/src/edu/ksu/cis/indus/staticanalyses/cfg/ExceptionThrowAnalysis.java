@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IExceptionThrowAnalysis;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -38,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
@@ -58,18 +60,19 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This provides interprocedural analysis that calculates the propogation of uncaught exceptions. 
+ * This provides interprocedural analysis that calculates the propogation of uncaught exceptions.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class UncheckedExceptionAnalysis
-  extends AbstractProcessor {
+public class ExceptionThrowAnalysis
+  extends AbstractProcessor
+  implements IExceptionThrowAnalysis {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(UncheckedExceptionAnalysis.class);
+	private static final Log LOGGER = LogFactory.getLog(ExceptionThrowAnalysis.class);
 
 	/** 
 	 * The call graph to be used.
@@ -82,11 +85,18 @@ public class UncheckedExceptionAnalysis
 	private final IEnvironment env;
 
 	/** 
+	 * This maps methods to statements to thrown exception types.
+	 *
+	 * @invariant method22stmt2exceptions.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
+	 */
+	private final Map method2stmt2exceptions = new HashMap();
+
+	/** 
 	 * This maps methods to the statements to a collection of uncaught exception types.
 	 *
 	 * @invariant method2stmt2thrownTypes.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
 	 */
-	private final Map method2stmt2thrownTypes = new HashMap();
+	private final Map method2stmt2uncaughtExceptions = new HashMap();
 
 	/** 
 	 * The statement graph factory to use.
@@ -100,7 +110,8 @@ public class UncheckedExceptionAnalysis
 
 	/** 
 	 * This maps ast node type to a collection of FQN of thrown exception types.
-     * @invariant astNodeType2thrownTypeNames.oclIsKindOf(Map(Class, Collection(String)))
+	 *
+	 * @invariant astNodeType2thrownTypeNames.oclIsKindOf(Map(Class, Collection(String)))
 	 */
 	private final Map astNodeType2thrownTypeNames = new HashMap();
 
@@ -110,9 +121,11 @@ public class UncheckedExceptionAnalysis
 	 * @param factory to retrieve the statement graphs.
 	 * @param callgraph to be used.
 	 * @param environment to be analyzed.
-     * @pre factory != null and callgraph != null and env != null
+	 *
+	 * @pre factory != null and callgraph != null and env != null
 	 */
-	public UncheckedExceptionAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph, final IEnvironment environment) {
+	public ExceptionThrowAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph,
+		final IEnvironment environment) {
 		stmtGraphFactory = factory;
 		cgi = callgraph;
 		workbagCache = new HistoryAwareFIFOWorkBag(new ArrayList());
@@ -120,16 +133,27 @@ public class UncheckedExceptionAnalysis
 	}
 
 	/**
-	 * Retrieves the uncaught exceptions thrown by the given statement in the given method.
-	 *
-	 * @param stmt of interest.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @return a collection of exception type names.
-     * @pre stmt != null and method != null
+	 * @see IExceptionThrowAnalysis#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public Collection getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
+		final Map _map = (Map) MapUtils.getObject(method2stmt2exceptions, method, Collections.EMPTY_MAP);
+		final Collection _col1 = (Collection) MapUtils.getObject(_map, stmt, Collections.EMPTY_SET);
+		final Collection _col2 = getUncaughtExceptionsThrownBy(stmt, method);
+		return CollectionUtils.union(_col1, _col2);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection getIds() {
+		return Collections.singleton(ID);
+	}
+
+	/**
+	 * @see IExceptionThrowAnalysis#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
-		final Map _map = (Map) MapUtils.getObject(method2stmt2thrownTypes, method, Collections.EMPTY_MAP);
+		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
 		return (Collection) MapUtils.getObject(_map, stmt, Collections.EMPTY_SET);
 	}
 
@@ -137,11 +161,28 @@ public class UncheckedExceptionAnalysis
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
-		final SootClass _thrownType = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
 		final SootMethod _method = context.getCurrentMethod();
+		final Map _stmt2exceptions = CollectionsUtilities.getMapFromMap(method2stmt2exceptions, _method);
+		final Collection _thrownTypes = CollectionsUtilities.getSetFromMap(_stmt2exceptions, stmt);
 
-		if (isThrownExceptionNotCaught(stmt, _method, _thrownType)) {
-			workbagCache.addWorkNoDuplicates(new Triple(stmt, _method, _thrownType));
+		if (stmt instanceof ThrowStmt) {
+			final SootClass _thrownType = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
+			processStmt(stmt, _method, _thrownTypes, _thrownType);
+		} else if (stmt.containsInvokeExpr()) {
+			final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), context);
+			final Iterator _i = _callees.iterator();
+			final int _iEnd = _callees.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final SootMethod _callee = (SootMethod) _i.next();
+				final Iterator _j = _callee.getExceptions().iterator();
+				final int _jEnd = _callee.getExceptions().size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final SootClass _thrownType = (SootClass) _j.next();
+					processStmt(stmt, _method, _thrownTypes, _thrownType);
+				}
+			}
 		}
 	}
 
@@ -193,29 +234,23 @@ public class UncheckedExceptionAnalysis
 					workbagCache.addWorkNoDuplicates(new Pair(_caller, _thrownType));
 				}
 			}
-			CollectionsUtilities.putIntoSetInMap(CollectionsUtilities.getMapFromMap(method2stmt2thrownTypes, _method), _stmt,
-				_thrownType);
+			CollectionsUtilities.putIntoSetInMap(CollectionsUtilities.getMapFromMap(method2stmt2uncaughtExceptions, _method),
+				_stmt, _thrownType);
 		}
 
 		workbagCache.clear();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("consolidate() - END - "
-				+ CollectionsUtilities.prettyPrint("method-to-stmt-to-throwntypes", method2stmt2thrownTypes));
+				+ CollectionsUtilities.prettyPrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
 		}
 	}
 
 	/**
-	 * Checks if the given statement throws an uncaught exception in the given method. 
-	 *
-	 * @param stmt of interest.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @return <code>true</code> if an uncaught exception will be thrown; <code>false</code>, otherwise.
-     * @pre stmt != null and method != null
+	 * @see IExceptionThrowAnalysis#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
 	 */
-	public boolean doesStmtThrowException(final Stmt stmt, final SootMethod method) {
-		final Map _map = (Map) MapUtils.getObject(method2stmt2thrownTypes, method, Collections.EMPTY_MAP);
+	public boolean doesStmtThrowUncaughtException(final Stmt stmt, final SootMethod method) {
+		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
 		return _map.containsKey(stmt);
 	}
 
@@ -223,7 +258,7 @@ public class UncheckedExceptionAnalysis
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
-		ppc.register(ThrowStmt.class, this);
+		ppc.registerForAllStmts(this);
 
 		final Collection _c = astNodeType2thrownTypeNames.keySet();
 		final Iterator _i = _c.iterator();
@@ -239,18 +274,20 @@ public class UncheckedExceptionAnalysis
 	 */
 	public void reset() {
 		super.reset();
-		method2stmt2thrownTypes.clear();
+		method2stmt2uncaughtExceptions.clear();
+		method2stmt2exceptions.clear();
 		astNodeType2thrownTypeNames.clear();
 	}
 
 	/**
-	 * Toggles the tracking of the named exception type for the given ast node type. 
+	 * Toggles the tracking of the named exception type for the given ast node type.
 	 *
 	 * @param astNodeType is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
 	 * @param exceptionName is the name of the exception that needs to be tracked at the given ast node.
 	 * @param consider <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates that
-     * the exception should not be tracked.
-     * @pre astNodeType != null and exceptionName != null
+	 * 		  the exception should not be tracked.
+	 *
+	 * @pre astNodeType != null and exceptionName != null
 	 */
 	public void toggleExceptionsToTrack(final Class astNodeType, final String exceptionName, final boolean consider) {
 		if (consider) {
@@ -266,27 +303,28 @@ public class UncheckedExceptionAnalysis
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
-		ppc.unregister(ThrowStmt.class, this);
+		ppc.unregisterForAllStmts(this);
 
 		final Collection _c = astNodeType2thrownTypeNames.keySet();
 		final Iterator _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			ppc.register((Class) _i.next(), this);
+			ppc.unregister((Class) _i.next(), this);
 		}
 	}
 
 	/**
-	 * Checks if the given exception type thrown from the given statement in the given method is not caught in the given 
-     * method.
+	 * Checks if the given exception type thrown from the given statement in the given method is not caught in the given
+	 * method.
 	 *
 	 * @param stmt at which the exception occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param thrownType is the type of the exception that is thrown.
 	 *
 	 * @return <code>true</code> if the thrown exception is caught; <code>false</code>, otherwise.
-     * @pre stmt != null and method != null and thrownType != null
+	 *
+	 * @pre stmt != null and method != null and thrownType != null
 	 */
 	private boolean isThrownExceptionNotCaught(final Stmt stmt, final SootMethod method, final SootClass thrownType) {
 		final UnitGraph _graph = stmtGraphFactory.getStmtGraph(method);
@@ -312,6 +350,25 @@ public class UncheckedExceptionAnalysis
 			_result = !_isCaught;
 		}
 		return _result;
+	}
+
+	/**
+	 * Process the given statement and method against the given exception type and updates the given collection.
+	 *
+	 * @param stmt that may cause the exception.
+	 * @param method contains <code>stmt</code>.
+	 * @param thrownTypes is the collection to which <code>thrownType</code> should be added if it is caught.
+	 * @param thrownType is the exception to be checked for at <code>stmt</code>.
+	 *
+	 * @pre stmt != null and method != null and thrownTypes != null and thrownType != null
+	 */
+	private void processStmt(final Stmt stmt, final SootMethod method, final Collection thrownTypes,
+		final SootClass thrownType) {
+		if (isThrownExceptionNotCaught(stmt, method, thrownType)) {
+			workbagCache.addWorkNoDuplicates(new Triple(stmt, method, thrownType));
+		} else {
+			thrownTypes.add(thrownType);
+		}
 	}
 }
 
