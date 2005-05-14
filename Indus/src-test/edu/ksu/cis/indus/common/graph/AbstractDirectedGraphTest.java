@@ -151,13 +151,13 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
-	 * Tests <code>getHeads()</code> method.
+	 * Tests <code>getSources()</code> method.
 	 */
-	public final void testGetHeads() {
-		final Collection _heads = dg.getHeads();
+	public final void testGetSources() {
+		final Collection _sources = dg.getSources();
 
 		// ensure there are no predecessors for the head nodes
-		for (final Iterator _i = _heads.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _sources.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 			assertTrue(_node.getPredsOf().isEmpty());
 		}
@@ -165,16 +165,8 @@ public abstract class AbstractDirectedGraphTest
 		// ensure none of the nodes have a head node as their successor
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.intersection(_node.getSuccsOf(), _heads).isEmpty());
+			assertTrue(CollectionUtils.intersection(_node.getSuccsOf(), _sources).isEmpty());
 		}
-		localtestGetHeads();
-	}
-
-	/**
-	 * Tests <code>getTailsAndPseudoTails()</code> method.
-	 */
-	public final void testGetPseudoTails() {
-		localtestGetPseudoTails();
 	}
 
 	/**
@@ -220,13 +212,13 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
-	 * Tests <code>getTails()</code> method.
+	 * Tests <code>getSinks()</code> method.
 	 */
-	public final void testGetTails() {
-		final Collection _tails = dg.getSinks();
+	public final void testGetSinks() {
+		final Collection _sinks = dg.getSinks();
 
 		// ensure none of the tails have a successor
-		for (final Iterator _i = _tails.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 			assertTrue(_node.getSuccsOf().isEmpty());
 		}
@@ -234,9 +226,8 @@ public abstract class AbstractDirectedGraphTest
 		// ensure none of the nodes have a tail node as a predecessor
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _tails).isEmpty());
+			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _sinks).isEmpty());
 		}
-		localtestGraphGetTails();
 	}
 
 	/**
@@ -325,17 +316,19 @@ public abstract class AbstractDirectedGraphTest
 	protected void localtestGetCycles() {
 	}
 
-	/**
-	 * Checks <code>getHeads()</code> on the local graph instance.
-	 */
-	protected void localtestGetHeads() {
-	}
+    /** 
+     * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
+     */
+    public void testGetHeads() {
+        assertTrue(dg.getHeads().containsAll(dg.getSources()));        
+    }
 
-	/**
-	 * Tests <code>getPseudoTails()</code> method.
-	 */
-	protected void localtestGetPseudoTails() {
-	}
+    /** 
+     * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
+     */
+    public void testGetTails() {
+        assertTrue(dg.getTails().containsAll(dg.getSinks()));
+    }
 
 	/**
 	 * Checks <code>getSCCs()</code> on the local graph instance.

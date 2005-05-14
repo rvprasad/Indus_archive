@@ -85,16 +85,16 @@ public class SimpleNodeGraphNoCycleTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetHeads()
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
 	 */
-	protected void localtestGetHeads() {
+	public void testGetHeads() {
 		assertFalse(sng.getHeads().isEmpty());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
 	 */
-	protected void localtestGetPseudoTails() {
+	public void testGetTails() {
 		assertTrue(dg.getTails().isEmpty());
 	}
 

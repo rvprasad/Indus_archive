@@ -82,17 +82,17 @@ public class SimpleNodeGraphTest3
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetHeads()
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
 	 */
-	protected void localtestGetHeads() {
+	public void testGetHeads() {
 		assertTrue(dg.getHeads().size() == 1);
 		assertTrue(dg.getHeads().contains(name2node.get("a")));
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
 	 */
-	protected void localtestGetPseudoTails() {
+	public void testGetTails() {
 		assertTrue(dg.getTails().size() == 0);
 	}
 
