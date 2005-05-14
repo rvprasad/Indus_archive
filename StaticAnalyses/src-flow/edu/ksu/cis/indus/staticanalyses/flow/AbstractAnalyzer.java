@@ -282,10 +282,13 @@ public abstract class AbstractAnalyzer
         Collection _temp = Collections.EMPTY_SET;
 
         if (_v != null) {
-            _temp = _v.getFGNode().getValues();
+            final IFGNode _n = _v.getFGNode();
+            if (_n != null) {
+                _temp = _n.getValues();
+            }
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Values for array type " + a + " in node " + _v.getFGNode() + " are " + _temp);
+                LOGGER.debug("Values for array type " + a + " in node " + _n + " are " + _temp);
             }
         }
         return _temp;
@@ -307,10 +310,14 @@ public abstract class AbstractAnalyzer
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_mv != null) {
-			_temp = _mv.queryParameterNode(p.getIndex()).getValues();
+			final int _index = p.getIndex();
+            final IFGNode _queryParameterNode = _mv.queryParameterNode(_index);
+            if (_queryParameterNode != null) {
+                _temp = _queryParameterNode.getValues();
+            }
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Values for param " + p + " in node " + _mv.queryParameterNode(p.getIndex()) + " are " + _temp);
+				LOGGER.debug("Values for param " + p + " in node " + _queryParameterNode + " are " + _temp);
 			}
 		}
 		return _temp;
@@ -331,7 +338,7 @@ public abstract class AbstractAnalyzer
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_fv != null) {
-			_temp = _fv.getFGNode().getValues();
+            _temp = _fv.getFGNode().getValues();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Values for field  " + sf + " are " + _temp);
