@@ -159,7 +159,8 @@ public class DependencyAnalysisTestSetup
 			das.add(_da);
 
 			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
-				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				  && (_da.getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL)
+				  || _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION))) {
 				CollectionsUtilities.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
 			}
 		}

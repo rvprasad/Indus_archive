@@ -132,7 +132,8 @@ public class ExitControlDA
 	 *
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
-	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)
+	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)  or
+	 * 		info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
@@ -151,7 +152,8 @@ public class ExitControlDA
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 
 			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
-				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				  && (_da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)
+				  || _da.getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL))) {
 				entryControlDA = _da;
 			}
 		}
