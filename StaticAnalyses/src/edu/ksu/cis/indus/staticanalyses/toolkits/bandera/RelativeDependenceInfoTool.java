@@ -110,7 +110,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class MultithreadSchedulingDependenceInfoTool
+public final class RelativeDependenceInfoTool
   extends BaseObservable
   implements Tool {
 	/** 
@@ -141,7 +141,7 @@ public final class MultithreadSchedulingDependenceInfoTool
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(MultithreadSchedulingDependenceInfoTool.class);
+	static final Log LOGGER = LogFactory.getLog(RelativeDependenceInfoTool.class);
 
 	/** 
 	 * This is the special location associated with lock acquisition while entering synchronized methods in bir models
