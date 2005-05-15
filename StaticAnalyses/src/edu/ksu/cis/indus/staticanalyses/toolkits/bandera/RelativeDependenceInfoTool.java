@@ -759,15 +759,15 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * Executes the tool.
 	 *
-	 * @param env to be analyzed.
-	 * @param rootMethods are the entry points to the environment.
+	 * @param environment to be analyzed.
+	 * @param entryPointMethods are the entry points to the environment.
 	 */
-	void run(final IEnvironment env, final Collection rootMethods) {
+	void run(final IEnvironment environment, final Collection entryPointMethods) {
 		final String _tagName = "DependenceInfoTool:FA";
 		final IValueAnalyzer _aa =
 			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 
-		_aa.analyze(env, rootMethods);
+		_aa.analyze(environment, entryPointMethods);
 
 		final IStmtGraphFactory _stmtGraphFactory = new CompleteStmtGraphFactory();
 		final BasicBlockGraphMgr _bbm = new BasicBlockGraphMgr();
