@@ -97,11 +97,6 @@ public final class RelativeDependenceInfoTool
 	public static final Object ROOT_METHODS = "entryPoints";
 
 	/** 
-	 * This identifies the precision of the may follow information in the input arguments.
-	 */
-	public static final Object PRECISE_MAY_FOLLOW = "precise may follow";
-
-	/** 
 	 * This identifies the dependence info in the output arguments.
 	 */
 	public static final Object DEPENDENCE = "dependence information";
@@ -176,7 +171,6 @@ public final class RelativeDependenceInfoTool
 		IN_ARGUMENTS_IDS = new ArrayList();
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
-		IN_ARGUMENTS_IDS.add(PRECISE_MAY_FOLLOW);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(DEPENDENCE);
 		OUT_ARGUMENTS_IDS.add(KNOWN_TRANSITIONS);
@@ -239,11 +233,6 @@ public final class RelativeDependenceInfoTool
 	 */
 	private boolean abort = false;
 
-	/** 
-	 * This indicates if may follow relation should be precise.
-	 */
-	private boolean preciseMayFollow;
-
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
@@ -281,15 +270,6 @@ public final class RelativeDependenceInfoTool
 		}
 		rootMethods = new ArrayList();
 		rootMethods.addAll(_rootMethods);
-
-		Boolean _b = (Boolean) arg.get(PRECISE_MAY_FOLLOW);
-
-		if (_b == null) {
-			final String _msg = "Unspecified precision.  Assuming imprecision";
-			LOGGER.warn(_msg);
-			_b = Boolean.FALSE;
-		}
-		preciseMayFollow = _b.booleanValue();
 	}
 
 	/**
@@ -508,17 +488,15 @@ public final class RelativeDependenceInfoTool
 		}
 
 		final DependenceAndMayFollowInfoCalculator _proc;
-
-		if (preciseMayFollow) {
-			_proc =
-				new DependenceAndMayFollowInfoCalculatorV2(this, _iDA, _lbe, _swbe, _tgi, _cgi, _cfgAnalysis,
-					_stmtGraphFactory);
-		} else {
-			_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _swbe, _tgi, _cfgAnalysis);
-		}
+		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _swbe, _tgi, _cfgAnalysis);
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("consolidate()");
+            _proc.writeDataToFiles();
+        }
 	}
 }
 
