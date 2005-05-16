@@ -231,7 +231,7 @@ public final class RelativeDependenceInfoTool
 	/** 
 	 * This captures the signal from the tool framework to abort at the next suitable time.
 	 */
-	private boolean abort = false;
+	private boolean abort;
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
