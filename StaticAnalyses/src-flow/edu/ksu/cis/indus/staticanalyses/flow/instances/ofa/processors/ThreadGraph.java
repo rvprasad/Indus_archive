@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -173,6 +172,13 @@ public class ThreadGraph
 	private final Collection threadCreationSitesSingle;
 
 	/** 
+	 * This is the collection of thread entry point methods.
+	 *
+	 * @invariant threadEntryPoints.oclIsKindOf(Set(SootMethod))
+	 */
+	private final Collection threadEntryPoints = new HashSet();
+
+	/** 
 	 * This provides call graph information pertaining to the system.
 	 *
 	 * @invariant cgi != null
@@ -271,6 +277,13 @@ public class ThreadGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getThreadEntryPoints()
+	 */
+	public Collection getThreadEntryPoints() {
+		return Collections.unmodifiableCollection(threadEntryPoints);
+	}
+
+	/**
 	 * Called by the post processing controller on encountering <code>NewExpr</code> and <code>VirtualInvokeExpr</code>
 	 * values in the system.
 	 *
@@ -359,6 +372,7 @@ public class ThreadGraph
 	public void reset() {
 		thread2methods.clear();
 		method2threads.clear();
+		threadEntryPoints.clear();
 		analyzer = null;
 		startSites.clear();
 		newThreadExprs.clear();
@@ -405,6 +419,9 @@ public class ThreadGraph
 
 			_result.append(_tid + " -> " + _element.getFirst() + "@" + _element.getSecond() + "\n");
 		}
+
+		_result.append("\nThread entry points:\n");
+		_result.append(CollectionsUtilities.prettyPrint(threadEntryPoints));
 
 		return _result.toString();
 	}
@@ -497,7 +514,6 @@ public class ThreadGraph
 				}
 
 				if (_flag) {
-					// Here we use the knowledge that all threads are dispatched via a "target" field of Thread class.
 					_methods = new HashSet();
 
 					for (final Iterator _j =
@@ -505,11 +521,14 @@ public class ThreadGraph
 								SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
 						final NewExpr _temp = (NewExpr) _j.next();
 						final SootClass _runnable = _env.getClass((_temp.getBaseType()).getClassName());
-						_methods.addAll(transitiveThreadCallClosure(_runnable.getMethod("run", Collections.EMPTY_LIST,
-									VoidType.v())));
+						final SootMethod _entryPoint = _runnable.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
+						threadEntryPoints.add(_entryPoint);
+						_methods.addAll(transitiveThreadCallClosure(_entryPoint));
 					}
 				} else {
-					_methods = transitiveThreadCallClosure(_sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v()));
+					final SootMethod _entryPoint = _sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
+					threadEntryPoints.add(_entryPoint);
+					_methods = transitiveThreadCallClosure(_entryPoint);
 				}
 
 				_class2runCallees.put(_sc, _methods);
@@ -642,6 +661,7 @@ public class ThreadGraph
 
 			final Collection _methods = transitiveThreadCallClosure(_head);
 			thread2methods.put(_thread, _methods);
+			threadEntryPoints.add(_head);
 
 			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();

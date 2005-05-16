@@ -52,7 +52,7 @@ public interface IThreadGraphInfo
 	 * 		   statement and the method in which it occurs.  However, system threads are represented as pairs of simple
 	 * 		   objects. So, the caller is adviced to check for the types of the Pair before using them.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Pair)
+	 * @post result != null and result.oclIsKindOf(Collection(Pair))
 	 */
 	Collection getAllocationSites();
 
@@ -63,7 +63,7 @@ public interface IThreadGraphInfo
 	 * 		   invocation statement and the method in which it occurs.  However, system threads are represented as pairs of
 	 * 		   simple objects. So, the caller is adviced to check for the types of the Pair before using them.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Pair)
+	 * @post result != null and result.oclIsKindOf(Collection(Pair))
 	 */
 	Collection getCreationSites();
 
@@ -94,6 +94,16 @@ public interface IThreadGraphInfo
 	 * @post result != null and result.oclIsKindOf(Collection(Triple(InvokeStmt, SootMethod, SootClass)))
 	 */
 	Collection getExecutionThreads(SootMethod sm);
+
+	/**
+	 * Returns the methods that act as the entry points in to the threads.  These are implementations of
+	 * <code>java.lang.Runnable.run()</code> or class initializer methods.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	Collection getThreadEntryPoints();
 
 	/**
 	 * Checks if there is a class initializing thread in the given collection of threads.
