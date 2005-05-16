@@ -1,4 +1,4 @@
-/*
+	/*
  *
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -74,7 +74,7 @@ public class UniversalQueryEngine$v1 extends AbstractQueryEngine {
      * @param fsm The fsm instance.
      * @param matcher The matcher instance.
      */
-    public UniversalQueryEngine$v1(IGraphEngine gEngine, IFSM fsm, IMatcher matcher) {
+    public UniversalQueryEngine$v1(IGraphEngine gEngine, IFSM fsm, IUQMatcher matcher) {
         super(gEngine, fsm, matcher);
     }
 
@@ -117,9 +117,14 @@ public class UniversalQueryEngine$v1 extends AbstractQueryEngine {
                          }
                     }
                     
-                }                        
+                }
+                if (_mPair  == null) {
+                    _matchSet.add(((IUQMatcher) matcher).createBadToken(_edge));
+                }
+                // have to inject <v, badstate, badsubst> but dont see its use.
+                // revised. algorithm doesnt work without that.
             }
-            // have to inject <v, badstate, badsubst> but dont see its use.
+            
         }                       
         
         return _matchSet;
@@ -159,8 +164,13 @@ public class UniversalQueryEngine$v1 extends AbstractQueryEngine {
                            if (!_dCheck) {
                                throw new RuntimeException("Determinism check failed");
                            }
-                        }
-                        
+                        }                        
+                    }                    
+                }
+                if (_mPair == null) {
+                    final IFSMToken _badToken = ((IUQMatcher) matcher).createBadToken(_edge);
+                    if (!reachSet.contains(_badToken)) {
+                        _matchSet.add(_badToken);
                     }
                 }
             }
@@ -169,6 +179,7 @@ public class UniversalQueryEngine$v1 extends AbstractQueryEngine {
         return _matchSet;
     }
 
+   
     /* (non-Javadoc)
      * @see edu.ksu.cis.peq.queryengine.AbstractQueryEngine#execute()
      */
@@ -207,7 +218,7 @@ public class UniversalQueryEngine$v1 extends AbstractQueryEngine {
                     updateMap(_tok.getSubstituitionMap(), _fsmToken.getSubstituitionMap());
                 }
             } else {
-                
+                uMap.put(_reachNode, null);	
             }
             final String _msg = "Processed node : " + _reachNode + " State : " + _reachState;
             fireProgressEvent(this, _msg, null);

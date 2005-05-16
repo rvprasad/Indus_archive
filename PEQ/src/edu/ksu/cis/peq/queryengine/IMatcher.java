@@ -40,4 +40,7 @@ public interface IMatcher {
          * @post Result.isEmpty() => Substitutionmap not mergeable, !Result.isEmpty() => Result.getParent() = sourceToken.
          */
         IFSMToken merge(final IFSMToken sourceToken, final IFSMToken childToken);
+
+        
+        
 }

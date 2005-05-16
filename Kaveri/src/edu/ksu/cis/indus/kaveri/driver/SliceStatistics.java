@@ -28,6 +28,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -75,7 +76,11 @@ public class SliceStatistics implements IWorkbenchWindowActionDelegate {
                 _processors.add(_mp);
                 _pc.setProcessingFilter(_filter);
                 _pc.setEnvironment(KaveriPlugin.getDefault().getSlicerTool().getSystem());
-                //_pc.setStmtGraphFactory(KaveriPlugin.getDefault().getSlicerTool().getStmtGraphFactory());                
+                
+                final OneAllStmtSequenceRetriever _r = new OneAllStmtSequenceRetriever();
+                _r.setStmtGraphFactory(KaveriPlugin.getDefault().getSlicerTool().getStmtGraphFactory());
+               
+                _pc.setStmtSequencesRetriever(_r);
                 _pc.driveProcessors(_processors);
                 final Map _map = _mp.getStatistics();
                 

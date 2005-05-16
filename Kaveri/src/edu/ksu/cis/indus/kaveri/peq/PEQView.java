@@ -92,6 +92,7 @@ import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
 import edu.ksu.cis.indus.peq.customengine.IndusMatcher;
+import edu.ksu.cis.indus.peq.customengine.IndusUniversalQueryEngine;
 import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
 import edu.ksu.cis.indus.peq.graph.GraphBuilder;
 import edu.ksu.cis.indus.peq.graph.Node;
@@ -100,7 +101,9 @@ import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
 import edu.ksu.cis.indus.peq.queryglue.QueryObject;
 import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
 import edu.ksu.cis.peq.graph.interfaces.INode;
+import edu.ksu.cis.peq.queryengine.AbstractQueryEngine;
 import edu.ksu.cis.peq.queryengine.IQueryProgressListener;
+import edu.ksu.cis.peq.queryengine.UniversalQueryEngine$v1;
 
 /**
  * @author ganeshan
@@ -500,10 +503,17 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                                             KaveriPlugin
                                                                     .getDefault()
                                                                     .getSlicerTool());
-                                            final IndusExistentialQueryEngine _ieeq = new IndusExistentialQueryEngine(
-                                                    _gbuilder, _fbuilder,
-                                                    _matcher);
-                                            _ieeq.addListener(_listener);
+                                            AbstractQueryEngine _ieeq;
+                                            if (_qo.isExistential()) {
+                                                _ieeq = new IndusExistentialQueryEngine(
+                                                        _gbuilder, _fbuilder,
+                                                        _matcher);
+                                                ((IndusExistentialQueryEngine) _ieeq).addListener(_listener); 
+                                            } else {
+                                                _ieeq = new IndusUniversalQueryEngine(_gbuilder, _fbuilder, _matcher);
+                                                ((UniversalQueryEngine$v1) _ieeq).addListener(_listener);
+                                            }                                             
+                                            
                                             _ieeq.execute();
                                             queryResults = _ieeq.getResults();
                                             Display.getDefault().asyncExec(
