@@ -233,11 +233,6 @@ class DependenceAndMayFollowInfoCalculator
 		this.tool.dependence.clear();
 		this.tool.dependence.putAll(_result);
 
-		if (RelativeDependenceInfoTool.LOGGER.isDebugEnabled()) {
-			RelativeDependenceInfoTool.LOGGER.debug("consolidate()");
-			writeDataToFiles();
-		}
-
 		method2birsig.clear();
 		virtualMethods.clear();
 	}
@@ -348,7 +343,7 @@ class DependenceAndMayFollowInfoCalculator
 	 *
 	 * @throws IllegalStateException when file i/o error occurs or the objects cannot be serialized back.
 	 */
-	private void writeDataToFiles()
+	void writeDataToFiles()
 	  throws IllegalStateException {
 		try {
 			final ObjectOutputStream _output1 = new ObjectOutputStream(new FileOutputStream("dependence"));
