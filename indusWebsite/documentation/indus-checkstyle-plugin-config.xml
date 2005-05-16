@@ -207,7 +207,8 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck" severity="warning">
             <config-properties>
-                <config-property name="max" value="1"/>
+                <config-property name="format" value="^equals$ (empty)"/>
+                <config-property name="max" value="2"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
