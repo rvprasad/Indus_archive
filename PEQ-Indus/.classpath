@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="/Indus-Plugin/lib/soot-2.1.0-modified.jar"/>
 	<classpathentry kind="src" path="/PEQ-SpecCompiler"/>
 	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="lib" path="libraries/commons-lang-2.0.jar"/>
 	<classpathentry kind="src" path="/Indus-Plugin"/>
+	<classpathentry kind="lib" path="libraries/commons-lang-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

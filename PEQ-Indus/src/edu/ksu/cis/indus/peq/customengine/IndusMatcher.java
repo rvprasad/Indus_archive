@@ -19,13 +19,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import edu.ksu.cis.indus.peq.constructors.BadConstructor;
 import edu.ksu.cis.indus.peq.constructors.GeneralConstructor;
 import edu.ksu.cis.indus.peq.fsm.FSMToken;
+import edu.ksu.cis.indus.peq.fsm.State;
+import edu.ksu.cis.indus.peq.fsm.Transition;
 import edu.ksu.cis.indus.peq.graph.Edge;
 import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
 import edu.ksu.cis.peq.fsm.interfaces.ITransition;
 import edu.ksu.cis.peq.graph.interfaces.IEdge;
-import edu.ksu.cis.peq.queryengine.IMatcher;
+import edu.ksu.cis.peq.queryengine.IUQMatcher;
 
 /**
  * @author ganeshan
@@ -33,7 +36,27 @@ import edu.ksu.cis.peq.queryengine.IMatcher;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class IndusMatcher implements IMatcher {
+public class IndusMatcher implements IUQMatcher {
+    
+    private State _badInitState;
+    private State _badEndState;
+    private Transition _badTransition;
+    
+    /**
+     * Constructor.
+     *
+     */
+    public IndusMatcher() {
+        _badInitState = new State();
+        _badEndState = new State();
+        _badTransition = new Transition();
+        _badTransition.setSrcState(_badInitState);
+        _badTransition.setDstnState(_badEndState);
+        _badTransition.setLabel(new BadConstructor());
+        _badInitState.addExitingTransitions(_badTransition);
+        _badEndState.addEnteringTransitions(_badTransition);
+        
+    }
 
     /* (non-Javadoc)
      * @see edu.ksu.cis.peq.queryengine.IMatcher#getMatch(edu.ksu.cis.peq.graph.interfaces.IEdge, edu.ksu.cis.peq.fsm.interfaces.ITransition)
@@ -85,6 +108,16 @@ public class IndusMatcher implements IMatcher {
             _mergeResult.setParent(sourceToken);
         }
         return _mergeResult;
+    }
+
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.peq.queryengine.IUQMatcher#createBadToken(edu.ksu.cis.peq.graph.interfaces.IEdge)
+     */
+    public IFSMToken createBadToken(IEdge _edge) {
+        FSMToken _badToken = new FSMToken();
+        _badToken.setTheedge(_edge);
+        _badToken.setThetransition(_badTransition);        
+        return _badToken;
     }
 
 }

@@ -110,6 +110,9 @@ public class GraphBuilder implements IGraphEngine {
         final Node _srcNode = (Node) node;
         // Control        
         Collection _depColl = _dt.getControlInfo(informationStmt);
+        if (_depColl.contains(informationStmt.getFirst())) {
+            _depColl.remove(informationStmt.getFirst()); // Removing control loop dependencies.
+        }
         _depeSet.addAll(process(_srcNode, _depColl, ConstructorContainer.getInstance().getCDepD()));
         // Identifier 
         
@@ -147,6 +150,9 @@ public class GraphBuilder implements IGraphEngine {
         final Node _srcNode = (Node) node;
         // Control
         Collection _depColl = _dt.getControlInfo(informationStmt);
+        if (_depColl.contains(informationStmt.getFirst())) {
+            _depColl.remove(informationStmt.getFirst()); // Removing control loop dependencies.
+        }
         _deptSet.addAll(process(_srcNode, _depColl, ConstructorContainer.getInstance().getCDepT()));
         
         // Identifier 
