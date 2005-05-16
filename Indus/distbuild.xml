@@ -14,8 +14,8 @@
 	
     <target name="init">
         <tstamp/>
-        <fail unless="version.fileid" message="specify the property version.fileid (x.y) via the command line. x and y should be numbers"/>
-        <fail unless="version.cvsid" message="specify the property version.cvsid (x_y) via the command line. x and y should be numbers"/>
+        <fail unless="version.fileid" message="specify the property version.fileid (x.y) via the command line. x and y should be numbers.  This will be used to create the filename."/>
+        <fail unless="version.cvsid" message="specify the property version.cvsid (x_y) via the command line. x and y should be numbers.  This will be used to extract the given version and tag the resource with a new tag when the build finishes."/>
     	<delete dir="${projects.dir}"/>
     	<mkdir dir="${projects.dir}"/>
         <cvs cvsroot="${cvs.root}"
@@ -23,19 +23,19 @@
             package="${cvs.modules}"
             cvsRsh="ssh"
             dest="${projects.dir}" failonerror="true"
-            command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
-        <cvs cvsroot="${cvs.root}"
-            compression="true" compressionlevel="3"
-            package="${cvs.modules}"
-            cvsRsh="ssh"
-            dest="${projects.dir}" failonerror="true"
-            command="co"/>
+            command="co -r v${version.cvsid}"/>
     </target>
 
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
     	<delete dir="${projects.dir}"/>
-	</target>
+            <cvs cvsroot="${cvs.root}"
+                compression="true" compressionlevel="3"
+                package="${cvs.modules}"
+                cvsRsh="ssh"
+                dest="${projects.dir}" failonerror="true"
+                command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
+    </target>
 	
 	<target name="package">
         <mkdir dir="${dist.ug.dir}"/>
