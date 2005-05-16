@@ -11,7 +11,8 @@
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -29,7 +30,8 @@
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -47,7 +49,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -65,7 +68,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -83,7 +87,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -101,7 +106,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -119,7 +125,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -137,7 +144,8 @@
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>

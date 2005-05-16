@@ -243,9 +243,24 @@ public final class SlicerConfiguration
 	static final Object PROPERTY_AWARE = "property aware slicing";
 
 	/** 
-	 * This identifies the property that determines if the slice is non-termination sensitive.
+	 * This identifies the property that determines if non-termination sensitive control dependence should be used to create
+	 * the slice.
 	 */
-	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive";
+	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive control dependence";
+
+	/** 
+	 * This identifies the property that determines if explicit exceptional exit sensitive control dependence should be used
+	 * to create the slice.
+	 */
+	static final Object EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE =
+		"explicit exceptional exit sensitive control dependence";
+
+	/** 
+	 * This identifies the property that determines if exceptional exit sensitive control dependence (based on implicit
+	 * unchecked exceptions) should be used to create the slice.
+	 */
+	static final Object COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD =
+		"common unchecked exceptional exit sensitive control dependence";
 
 	/** 
 	 * This identifies the property that determines if call site sensitive ready dependence is used.
@@ -331,6 +346,8 @@ public final class SlicerConfiguration
 		propertyIds.add(EXECUTABLE_SLICE);
 		propertyIds.add(PROPERTY_AWARE);
 		propertyIds.add(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
+		propertyIds.add(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE);
+		propertyIds.add(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD);
 		propertyIds.add(USE_DIVERGENCEDA);
 		propertyIds.add(NATURE_OF_DIVERGENCE_DA);
 		propertyIds.add(INTRA_PROCEDURAL_ONLY);
@@ -434,6 +451,16 @@ public final class SlicerConfiguration
 	 */
 	public boolean isExecutableSliceOptimizedForSpace() {
 		return getBooleanProperty(SPACE_OPTIMIZED_EXECUTABLE_SLICE);
+	}
+
+	/**
+	 * Checks if explicit exceptional exit sensitive control dependence should be used.
+	 *
+	 * @return <code>true</code> if explicit exceptional exit control dependence should be used; <code>false</code>,
+	 * 		   otherwise.
+	 */
+	public boolean isExplicitExceptionalExitSensitiveControlDependenceUsed() {
+		return getBooleanProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE);
 	}
 
 	/**
@@ -716,6 +743,16 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if common unchecked exception based exit sensitive control dependence should be considered.
+	 *
+	 * @return <code>true</code> if common unchecked exception based exit control dependence should be considered;
+	 * 		   <code>false</code>, otherwise.
+	 */
+	public boolean areCommonUncheckedExceptionsConsidered() {
+		return getBooleanProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD);
+	}
+
+	/**
 	 * Checks if synchronization constructs only in application classes will be considered.
 	 *
 	 * @return <code>true</code> if synchronization constructs only in application classes will be considered.;
@@ -733,6 +770,16 @@ public final class SlicerConfiguration
 	 */
 	public void considerAssertionsInAppClassesOnly(final boolean value) {
 		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets if implicit common unchecked exception based exit sensitive control dependence should be considered.
+	 *
+	 * @param value <code>true</code> indicates implicit common unchecked exception based exit sensitive control dependence
+	 * 		  should be considered; <code>false</code>, otherwise.
+	 */
+	public void considerCommonUncheckedExceptions(final boolean value) {
+		setProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD, Boolean.valueOf(value));
 	}
 
 	/**
@@ -787,6 +834,8 @@ public final class SlicerConfiguration
 		setProperty(USE_INTERFERENCEDA, Boolean.FALSE);
 		setProperty(USE_SYNCHRONIZATIONDA, Boolean.FALSE);
 		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.FALSE);
+		setProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE, Boolean.FALSE);
+		setProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.FALSE);
@@ -836,6 +885,16 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Sets if explicit exceptional exit sensitive control dependence should be used.
+	 *
+	 * @param value <code>true</code> indicates explicit exceptional exit sensitive control dependence should be used;
+	 * 		  <code>false</code>, otherwise.
+	 */
+	public void useExplicitExceptionalExitSensitiveControlDependence(final boolean value) {
+		setProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE, Boolean.valueOf(value));
+	}
+
+	/**
 	 * Configures if interference dependence analysis should be used during slicing.
 	 *
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
@@ -845,7 +904,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Sets if non-termination sensitive or non-termination insensitive control dependence should be used.
+	 * Sets if non-termination sensitive control dependence should be used.
 	 *
 	 * @param value <code>true</code> indicates non-termination sensitive control dependence should be used;
 	 * 		  <code>false</code>, otherwise.
@@ -1416,22 +1475,22 @@ public final class SlicerConfiguration
 				Collections.singleton(new ReferenceBasedDataDA()));
 
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
-            
-            if (isNonTerminationSensitiveControlDependenceUsed()) {
-                _c.add(new NonTerminationSensitiveEntryControlDA());
-            } else {
-                _c.add(new NonTerminationInsensitiveEntryControlDA());
-            }
 
-            if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+			if (isNonTerminationSensitiveControlDependenceUsed()) {
+				_c.add(new NonTerminationSensitiveEntryControlDA());
+			} else {
+				_c.add(new NonTerminationInsensitiveEntryControlDA());
+			}
+
+			if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
 				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.add(new ExitControlDA());
 			} else if (!_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-                throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, " 
-                        + "or COMPLETE_SLICE.");
-            }
+				throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, "
+					+ "or COMPLETE_SLICE.");
+			}
 		} else {
 			final String _msg = "slice type could not be configured due to illegal slice type.";
 			LOGGER.error("setupSliceTypeRelatedData() -  : " + _msg);

@@ -115,6 +115,8 @@
       <xsd:documentation> This captures control dependence information. </xsd:documentation>
    	</xsd:annotation>
    	<xsd:attribute name="nonTerminationSensitive" type="xsd:boolean" use="required"/>
+   	<xsd:attribute name="explicitExceptionalExitSensitive" type="xsd:boolean" use="required"/>
+   	<xsd:attribute name="commonUncheckedExceptions" type="xsd:boolean" use="required"/>
   </xsd:complexType>
   
   <xsd:complexType id="divergence" name="divergence">

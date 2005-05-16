@@ -226,16 +226,17 @@ public final class SlicerConfigurator
 
 		final Button _allSyncStrategy = new Button(_group1, SWT.RADIO);
 		_allSyncStrategy.setText("All Synchronization constructs");
-        _allSyncStrategy.setToolTipText("Synchronization constructs are preserved independent of any property");
+		_allSyncStrategy.setToolTipText("Synchronization constructs are preserved independent of any property");
 
 		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
-        _escapingSyncStrategy.setToolTipText("Only synchronization constructs involving escaping lock object are preserved.");
-        
+		_escapingSyncStrategy.setToolTipText("Only synchronization constructs involving escaping lock object are preserved.");
+
 		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
-        _ctxtsensEscapingSyncStrategy.setToolTipText("Calling contexs of the preserved synchronization constructs are considered");
-        
+		_ctxtsensEscapingSyncStrategy.setToolTipText("Calling contexs of the preserved synchronization constructs "
+			+ "are considered");
+
 		final SelectionListener _sl4 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
@@ -291,7 +292,7 @@ public final class SlicerConfigurator
 	}
 
 	/**
-	 * Sets up tab corresponding to general dependencein the configurator composite.
+	 * Sets up tab corresponding to general dependence in the configurator composite.
 	 *
 	 * @param composite to layout the general dependence configuration widgets.
 	 *
@@ -305,13 +306,42 @@ public final class SlicerConfigurator
 
 		final Button _useNonTerminationSensitiveCDAButton = new Button(composite, SWT.CHECK);
 		_useNonTerminationSensitiveCDAButton.setText("use non-termination sensitive control dependence");
-        _useNonTerminationSensitiveCDAButton.setToolTipText("Loop behaviors are not preserved");
+		_useNonTerminationSensitiveCDAButton.setToolTipText("Loop behaviors are not preserved");
 		_useNonTerminationSensitiveCDAButton.setSelection(((Boolean) _cfg.getProperty(
 				SlicerConfiguration.NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE)).booleanValue());
 		_useNonTerminationSensitiveCDAButton.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE,
 				_useNonTerminationSensitiveCDAButton,
 				_cfg));
+
+		final Button _useExplicitExceptionalExitSensitiveCDAButton = new Button(composite, SWT.CHECK);
+		_useExplicitExceptionalExitSensitiveCDAButton.setText("consider explicit exceptional exit points");
+		_useExplicitExceptionalExitSensitiveCDAButton.setSelection(((Boolean) _cfg.getProperty(
+				SlicerConfiguration.EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE)).booleanValue());
+		_useExplicitExceptionalExitSensitiveCDAButton.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE,
+				_useExplicitExceptionalExitSensitiveCDAButton,
+				_cfg));
+
+		final Button _useCommonUncheckedExceptionsCDAButton = new Button(composite, SWT.CHECK);
+		_useCommonUncheckedExceptionsCDAButton.setText("consider common unchecked exception based exit points");
+		_useCommonUncheckedExceptionsCDAButton.setSelection(((Boolean) _cfg.getProperty(
+				SlicerConfiguration.COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD)).booleanValue());
+		_useCommonUncheckedExceptionsCDAButton.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD,
+				_useCommonUncheckedExceptionsCDAButton,
+				_cfg));
+
+		_useExplicitExceptionalExitSensitiveCDAButton.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(final SelectionEvent e) {
+					final boolean _t = _useExplicitExceptionalExitSensitiveCDAButton.getSelection();
+					_useCommonUncheckedExceptionsCDAButton.setEnabled(_t);
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent e) {
+					widgetSelected(e);
+				}
+			});
 
 		final Button _useSyncDepButton = new Button(composite, SWT.CHECK);
 		_useSyncDepButton.setText("use synchronization dependence");
@@ -321,6 +351,10 @@ public final class SlicerConfigurator
 				SlicerConfiguration.USE_SYNCHRONIZATIONDA,
 				_useSyncDepButton,
 				_cfg));
+
+		final boolean _t = _cfg.isExplicitExceptionalExitSensitiveControlDependenceUsed();
+		_useExplicitExceptionalExitSensitiveCDAButton.setSelection(_t);
+		_useExplicitExceptionalExitSensitiveCDAButton.notifyListeners(SWT.Selection, null);
 	}
 
 	/**
@@ -674,7 +708,7 @@ public final class SlicerConfigurator
 
 		final Button _useCallSiteSensitiveReady = new Button(_analysisComposite, SWT.CHECK);
 		_useCallSiteSensitiveReady.setText("use call-site sensitive");
-        _useCallSiteSensitiveReady.setToolTipText("Calls leading to blocking will be considered as blocking as well.");
+		_useCallSiteSensitiveReady.setToolTipText("Calls leading to blocking will be considered as blocking as well.");
 		_useCallSiteSensitiveReady.setSelection(_cfg.isCallSiteSensitiveReadyUsed());
 		_useCallSiteSensitiveReady.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA,
@@ -807,6 +841,7 @@ public final class SlicerConfigurator
 
 		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
 		_propertyAwareSlicingButton.setText("Property Aware Slicing");
+		_propertyAwareSlicingButton.setToolTipText("Precise but expensive");
 
 		final GridData _gridData4 = new GridData();
 		_gridData4.horizontalSpan = 1;

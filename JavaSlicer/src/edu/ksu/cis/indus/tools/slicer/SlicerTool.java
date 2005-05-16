@@ -42,6 +42,7 @@ import edu.ksu.cis.indus.slicer.transformations.ExecutableSlicePostProcessorAndM
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
@@ -181,7 +182,7 @@ public final class SlicerTool
 	 *
 	 * @invariant daController != null
 	 */
-	private final AnalysesController daController;
+	private AnalysesController daController;
 
 	/** 
 	 * This manages the basic block graphs for the methods being transformed.
@@ -383,10 +384,6 @@ public final class SlicerTool
 		info.put(IEscapeInfo.ID, ecba);
 		info.put(IMonitorInfo.ID, monitorInfo);
 		info.put(SafeLockAnalysis.ID, safelockAnalysis);
-
-		// create dependency analyses controller 
-		daController = new AnalysesController(info, cgBasedPreProcessCtrl, bbgMgr);
-		addActivePart(daController.getActivePart());
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
@@ -673,10 +670,10 @@ public final class SlicerTool
 			fireToolProgressEvent("Performing low level analyses", _ph);
 			lowLevelAnalysisPhase();
 		}
-        
-        if (phase.equals(lastPhase)) {
-            return;
-        }
+
+		if (phase.equals(lastPhase)) {
+			return;
+		}
 
 		movingToNextPhase();
 
@@ -689,10 +686,10 @@ public final class SlicerTool
 			dependencyAnalysisPhase(_slicerConfig);
 		}
 
-        if (phase.equals(lastPhase)) {
-            return;
-        }
-        
+		if (phase.equals(lastPhase)) {
+			return;
+		}
+
 		movingToNextPhase();
 
 		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
@@ -740,7 +737,6 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.reset();
 		cgPreProcessCtrl.reset();
 		criteria.clear();
-		daController.reset();
 		ecba.reset();
 		engine.reset();
 		initMapper.reset();
@@ -806,7 +802,34 @@ public final class SlicerTool
 		}
 
 		// perform dependency analyses
-		daController.reset();
+		// create dependency analyses controller 
+		final BasicBlockGraphMgr _b;
+
+		if (slicerConfig.isExplicitExceptionalExitSensitiveControlDependenceUsed()) {
+			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+			_ssr.setStmtGraphFactory(getStmtGraphFactory());
+
+			final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
+			_cgipc.setAnalyzer(ofa);
+			_cgipc.setProcessingFilter(new CGBasedProcessingFilter(getCallGraph()));
+			_cgipc.setStmtSequencesRetriever(_ssr);
+
+			final ExceptionRaisingAnalysis _e =
+				new ExceptionRaisingAnalysis(getStmtGraphFactory(), getCallGraph(), getSystem());
+
+			if (slicerConfig.areCommonUncheckedExceptionsConsidered()) {
+				_e.setupForCommonUncheckedExceptions();
+			}
+			_e.hookup(_cgipc);
+			_cgipc.process();
+			_e.unhook(_cgipc);
+			_b = new BasicBlockGraphMgr(_e);
+			_b.setStmtGraphFactory(getStmtGraphFactory());
+		} else {
+			_b = getBasicBlockGraphManager();
+		}
+		daController = new AnalysesController(info, cgBasedPreProcessCtrl, _b);
+		addActivePart(daController.getActivePart());
 
 		final Collection _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
 		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
@@ -825,6 +848,7 @@ public final class SlicerTool
 		}
 		daController.initialize();
 		daController.execute();
+		removeActivePart(daController.getActivePart());
 
 		final String _deadlockCriteriaSelectionStrategy = slicerConfig.getDeadlockCriteriaSelectionStrategy();
 
@@ -991,15 +1015,17 @@ public final class SlicerTool
 				_t1.setECBA(getECBA());
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
-                final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
-                _t2.setECBA(getECBA());
-                _t2.setCallGraph(getCallGraph());
+
+				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
+				_t2.setECBA(getECBA());
+				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
-                final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever();
-                _t3.setCallGraph(getCallGraph());
-                _t3.setThreadGraph(threadGraph);
-                _t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
-                _map.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _t3);
+
+				final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever();
+				_t3.setCallGraph(getCallGraph());
+				_t3.setThreadGraph(threadGraph);
+				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
+				_map.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}
 			engine.initialize();

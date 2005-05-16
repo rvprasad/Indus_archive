@@ -43,6 +43,12 @@
 			<value style="attribute" name="nonTerminationSensitive" type="boolean" 
 				set-method="useNonTerminationSensitiveControlDependence" 
 				get-method="isNonTerminationSensitiveControlDependenceUsed"/>
+			<value style="attribute" name="explicitExceptionalExitSensitive" type="boolean" 
+				set-method="useExplicitExceptionalExitSensitiveControlDependence" 
+				get-method="isExplicitExceptionalExitSensitiveControlDependenceUsed"/>
+			<value style="attribute" name="commonUncheckedExceptions" type="boolean" 
+				set-method="considerCommonUncheckedExceptions" 
+				get-method="areCommonUncheckedExceptionsConsidered"/>				
 		</structure>
 		<structure name="interference">
 			<value style="attribute" name="active" type="boolean" set-method="useInterferenceDepAnalysis" 
