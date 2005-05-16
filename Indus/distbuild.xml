@@ -29,12 +29,12 @@
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
     	<delete dir="${projects.dir}"/>
-            <cvs cvsroot="${cvs.root}"
-                compression="true" compressionlevel="3"
-                package="${cvs.modules}"
-                cvsRsh="ssh"
-                dest="${projects.dir}" failonerror="true"
-                command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
+        <cvs cvsroot="${cvs.root}"
+             compression="true" compressionlevel="3"
+             package="${cvs.modules}"
+             cvsRsh="ssh"
+             dest="${projects.dir}" failonerror="true"
+             command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
     </target>
 	
 	<target name="package">
