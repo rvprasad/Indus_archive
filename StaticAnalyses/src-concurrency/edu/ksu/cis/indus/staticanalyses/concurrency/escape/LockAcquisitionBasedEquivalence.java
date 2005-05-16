@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.concurrency;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -83,7 +83,7 @@ public class LockAcquisitionBasedEquivalence
 	private ICallGraphInfo cgi;
 
 	/** 
-	 * This maps a lock acquisition statements to the collection of lock acquisition statements that are in the same
+	 * This maps a lock acquisition statement to the collection of lock acquisition statements that are in the same
 	 * equivalence class as the key.
 	 *
 	 * @invariant locking2lockings.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
@@ -112,7 +112,11 @@ public class LockAcquisitionBasedEquivalence
 	 *
 	 * @return a collection of lock acquisition.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre pair.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or pair.oclIsKindOf(Pair(EnterMonitorStmt, SootMethod))
+	 * @post result != null
+	 * @post
+	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
+	 * 		 SootMethod)))
 	 */
 	public Collection getLockAcquisitionsInEquivalenceClassOf(final Pair pair) {
 		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(locking2lockings, pair,
@@ -125,6 +129,8 @@ public class LockAcquisitionBasedEquivalence
 	 * @return a collection of lock acquisition.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod))  or o.oclIsKindOf(Pair(EnterMonitorStmt,
+	 * 		 SootMethod)))
 	 */
 	public Collection getLockAcquisitionsInNonSingletonEquivalenceClass() {
 		return Collections.unmodifiableCollection(locking2lockings.keySet());
