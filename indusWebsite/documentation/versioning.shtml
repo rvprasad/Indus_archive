@@ -7,12 +7,12 @@
 	This document provides normative way to do releases in project Indus.
 
 	<ol>
-	<li>Each project should start with a version tag <i>(v0_0)</i></li>
+	<li>Each project should start with a version tag <i>(v0_0)</i>.</li>
 	<li>After each "settled" change to the project, the project can be tagged with date tag.</li>
 	<li>When the project reaches a state that warrants a new version (minor or major), the project should be tagged with a revision 
-	tag.<i>(v0_1)</i></li>
-	<li>Each time a project releases software, it should be tagged a revision tag (v0_1).</li>
-	<li>The name of every artifact in a release should reflect the revision tag associated with it. <i>(module-0.1)</i></li>
+	tag <i>(v0_1)</i>.</li>
+	<li>Each time a project releases software, it should be tagged a revision tag <i>(v0_1)</i>.</li>
+	<li>The name of every artifact in a release should reflect the revision tag associated with it <i>(module-0.1)</i>.</li>
 	<li>If an older version (v0_0) is updated then it is released as <i>module-0.0.1</i>.</li>
 	</ol>
 
