@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -402,7 +401,6 @@ public final class RelativeDependenceInfoTool
 		final CFGAnalysis _cfgAnalysis = new CFGAnalysis(_cgi, _bbm);
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, _cfgAnalysis, _pairManager);
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
-		final MetricsProcessor _countingProcessor = new MetricsProcessor();
 		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_bbm.setStmtGraphFactory(_stmtGraphFactory);
@@ -443,7 +441,6 @@ public final class RelativeDependenceInfoTool
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
 		_processors.add(_tgi);
-		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 
