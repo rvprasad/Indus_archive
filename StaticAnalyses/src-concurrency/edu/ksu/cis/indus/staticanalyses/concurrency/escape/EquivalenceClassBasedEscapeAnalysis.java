@@ -746,13 +746,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 			final AliasSet _a2;
 
-			if (local1 != null) {
+			if (local2 != null) {
 				_a2 = (AliasSet) ((Map) _trp2.getSecond()).get(local2);
 			} else {
 				_a2 = ((MethodContext) _trp2.getFirst()).getThisAS();
 			}
 
-			final Collection _a1LockEntities = _a1.getLockEntities();
+            if (_a2 == null) {
+                throw new IllegalArgumentException(local2 + " in " + method2 + " was not processed.");
+            }
+
+            final Collection _a1LockEntities = _a1.getLockEntities();
 			final Collection _a2LockEntities = _a2.getLockEntities();
 			_result =
 				_a1LockEntities != null && _a2LockEntities != null
