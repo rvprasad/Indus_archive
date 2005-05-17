@@ -133,7 +133,16 @@ public class LockAcquisitionBasedEquivalence
 	 * 		 SootMethod)))
 	 */
 	public Collection getLockAcquisitionsInNonSingletonEquivalenceClass() {
-		return Collections.unmodifiableCollection(locking2lockings.keySet());
+        final Collection _r = new HashSet();
+        final Iterator _i = locking2lockings.entrySet().iterator();
+        final int _iEnd = locking2lockings.entrySet().size();
+        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+            final Map.Entry _e = (Map.Entry) _i.next();
+            if (((Collection) _e.getValue()).size() > 1) {
+                _r.add(_e.getKey());
+            }
+        }
+		return _r;
 	}
 
 	/**
@@ -142,8 +151,8 @@ public class LockAcquisitionBasedEquivalence
 	public void callback(final SootMethod method) {
 		if (method.isSynchronized()) {
 			final Pair _p = new Pair(null, method);
-			processLocal(null, method, _p);
-			enterMonitorStmts.add(_p);
+            enterMonitorStmts.add(_p);
+            processLocal(null, method, _p);
 		}
 	}
 
@@ -158,15 +167,15 @@ public class LockAcquisitionBasedEquivalence
 				final InvokeStmt _s = (InvokeStmt) stmt;
 				final Pair _p = new Pair(_s, _method);
 				final Local _l = (Local) ((VirtualInvokeExpr) _s.getInvokeExpr()).getBase();
+                invokeStmts.add(_p);
 				processLocal(_l, _method, _p);
-				invokeStmts.add(_p);
 			}
 		} else {
 			final EnterMonitorStmt _n = (EnterMonitorStmt) stmt;
 			final Pair _p = new Pair(_n, _method);
 			final Local _l = (Local) _n.getOp();
-			processLocal(_l, _method, _p);
-			enterMonitorStmts.add(_p);
+            enterMonitorStmts.add(_p);
+            processLocal(_l, _method, _p);
 		}
 	}
 
