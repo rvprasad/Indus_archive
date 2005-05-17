@@ -541,7 +541,7 @@ public final class RelativeDependenceInfoTool
 		}
 
 		final DependenceAndMayFollowInfoCalculator _proc;
-		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _swbe, _tgi, _cfgAnalysis);
+		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _swbe, _cgi, _tgi, _cfgAnalysis);
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);

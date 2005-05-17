@@ -58,12 +58,9 @@ import soot.toolkits.graph.UnitGraph;
 class DependenceAndMayFollowInfoCalculatorV2
   extends DependenceAndMayFollowInfoCalculator {
 	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private ICallGraphInfo cgi;
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private final IStmtGraphFactory stmtGraphFactory;
 
@@ -80,19 +77,20 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 * @param graphFactory DOCUMENT ME!
 	 *
 	 * @see DependenceAndMayFollowInfoCalculator#DependenceAndMayFollowInfoCalculator(RelativeDependenceInfoTool,
-	 * 		InterferenceDAv1, LockAcquisitionBasedEquivalence, SharedWriteBasedEquivalence, IThreadGraphInfo, CFGAnalysis)
+	 * 		InterferenceDAv1, LockAcquisitionBasedEquivalence, SharedWriteBasedEquivalence, ICallGraphInfo,
+	 * 		IThreadGraphInfo, CFGAnalysis)
 	 */
 	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
 		final LockAcquisitionBasedEquivalence lbe, final SharedWriteBasedEquivalence swbe,
 		final IThreadGraphInfo threadGraph, final ICallGraphInfo callGraph, final CFGAnalysis cfgAnalysis,
 		final IStmtGraphFactory graphFactory) {
-		super(theTool, ida, lbe, swbe, threadGraph, cfgAnalysis);
-		cgi = callGraph;
+		super(theTool, ida, lbe, swbe, callGraph, threadGraph, cfgAnalysis);
 		stmtGraphFactory = graphFactory;
 	}
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -102,37 +100,51 @@ class DependenceAndMayFollowInfoCalculatorV2
 	final class Info
 	  implements Cloneable {
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Collection aref;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Collection fref;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Collection lacq;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		SootMethod method;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Stack callstack;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Stack path;
 
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Stmt currStmt;
 
@@ -159,7 +171,9 @@ class DependenceAndMayFollowInfoCalculatorV2
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
