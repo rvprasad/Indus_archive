@@ -49,6 +49,9 @@ import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -71,6 +74,11 @@ import soot.jimple.VirtualInvokeExpr;
  */
 class DependenceAndMayFollowInfoCalculator
   extends AbstractProcessor {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DependenceAndMayFollowInfoCalculator.class);
+
 	/** 
 	 * This provides the thread graph.
 	 */
@@ -301,44 +309,6 @@ class DependenceAndMayFollowInfoCalculator
 	}
 
 	/**
-	 * Generates the bir location for the given statement-method pair.
-	 *
-	 * @param p of interest.
-	 *
-	 * @return the bir location.
-	 *
-	 * @throws IllegalStateException when the given statement does not occur in the system.
-	 *
-	 * @pre p != null and p.oclIsKindOf(Pair(Stmt, SootMethod)) and p.getSecond() != null
-	 * @post result != null
-	 */
-	private String generateBIRRep(final Pair p) {
-		final Stmt _stmt = (Stmt) p.getFirst();
-		final SootMethod _method = (SootMethod) p.getSecond();
-		final String _sig;
-
-		if (method2birsig.containsKey(_method)) {
-			_sig = (String) method2birsig.get(_method);
-		} else {
-			_sig = RelativeDependenceInfoTool.constructMethodName(virtualMethods.contains(_method), _method);
-			method2birsig.put(_method, _sig);
-		}
-
-		final List _sl = new ArrayList(_method.retrieveActiveBody().getUnits());
-		final int _index = _sl.indexOf(_stmt);
-		final String _result;
-
-		if (_index != -1) {
-			_result = _sig + " loc" + _index;
-		} else if (_stmt == null) {
-			_result = _sig + " " + RelativeDependenceInfoTool.SYNC_METHOD_LOCATIONS;
-		} else {
-			throw new IllegalStateException("Hmm");
-		}
-		return _result;
-	}
-
-	/**
 	 * Writes the data to files and reads it to verify the integrity.
 	 *
 	 * @throws IllegalStateException when file i/o error occurs or the objects cannot be serialized back.
@@ -400,15 +370,13 @@ class DependenceAndMayFollowInfoCalculator
 			final ByteArrayOutputStream _b2 = new ByteArrayOutputStream();
 			MapUtils.verbosePrint(new PrintStream(_b2), "May Follow Relation", _temp3);
 
-			System.out.println("Lock Acquisitions:\n" + CollectionsUtilities.prettyPrint(_temp4));
-			System.out.println("Array Refs:\n" + CollectionsUtilities.prettyPrint(_temp5));
-			System.out.println("Field Refs:\n" + CollectionsUtilities.prettyPrint(_temp6));
-
-			if (RelativeDependenceInfoTool.LOGGER.isDebugEnabled()) {
-				RelativeDependenceInfoTool.LOGGER.debug("consolidate()" + this.tool.dependence.equals(_temp1) + " "
-					+ this.tool.seenStmts.equals(_temp2) + " " + this.tool.mayFollow.equals(_temp3) + " "
-					+ tool.lockAcquisitions.equals(_temp4) + " " + tool.arrayRefs.equals(_temp5) + " "
-					+ tool.fieldRefs.equals(_temp6));
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("consolidate()" + _b1.toString() + "\n" + _b2.toString() + "\n" + "Lock Acquisitions:\n"
+					+ CollectionsUtilities.prettyPrint(_temp4) + "\nArray Refs:\n" + CollectionsUtilities.prettyPrint(_temp5)
+					+ "Field Refs:\n" + CollectionsUtilities.prettyPrint(_temp6));
+				LOGGER.debug("consolidate()" + this.tool.dependence.equals(_temp1) + " " + this.tool.seenStmts.equals(_temp2)
+					+ " " + this.tool.mayFollow.equals(_temp3) + " " + tool.lockAcquisitions.equals(_temp4) + " "
+					+ tool.arrayRefs.equals(_temp5) + " " + tool.fieldRefs.equals(_temp6));
 			}
 		} catch (final FileNotFoundException _e) {
 			final IllegalStateException _r = new IllegalStateException();
@@ -423,6 +391,44 @@ class DependenceAndMayFollowInfoCalculator
 			_r.initCause(_e);
 			throw _r;
 		}
+	}
+
+	/**
+	 * Generates the bir location for the given statement-method pair.
+	 *
+	 * @param p of interest.
+	 *
+	 * @return the bir location.
+	 *
+	 * @throws IllegalStateException when the given statement does not occur in the system.
+	 *
+	 * @pre p != null and p.oclIsKindOf(Pair(Stmt, SootMethod)) and p.getSecond() != null
+	 * @post result != null
+	 */
+	private String generateBIRRep(final Pair p) {
+		final Stmt _stmt = (Stmt) p.getFirst();
+		final SootMethod _method = (SootMethod) p.getSecond();
+		final String _sig;
+
+		if (method2birsig.containsKey(_method)) {
+			_sig = (String) method2birsig.get(_method);
+		} else {
+			_sig = RelativeDependenceInfoTool.constructMethodName(virtualMethods.contains(_method), _method);
+			method2birsig.put(_method, _sig);
+		}
+
+		final List _sl = new ArrayList(_method.retrieveActiveBody().getUnits());
+		final int _index = _sl.indexOf(_stmt);
+		final String _result;
+
+		if (_index != -1) {
+			_result = _sig + " loc" + _index;
+		} else if (_stmt == null) {
+			_result = _sig + " " + RelativeDependenceInfoTool.SYNC_METHOD_LOCATIONS;
+		} else {
+			throw new IllegalStateException("Hmm");
+		}
+		return _result;
 	}
 }
 
