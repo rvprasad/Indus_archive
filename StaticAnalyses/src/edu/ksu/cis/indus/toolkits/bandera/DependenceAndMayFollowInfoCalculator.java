@@ -240,9 +240,12 @@ class DependenceAndMayFollowInfoCalculator
 
 		this.tool.dependence.clear();
 		this.tool.dependence.putAll(_result);
-
 		method2birsig.clear();
 		virtualMethods.clear();
+        
+        if (LOGGER.isDebugEnabled()) {
+            writeDataToFiles();
+        }
 	}
 
 	/**
