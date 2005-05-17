@@ -384,7 +384,7 @@ public final class RelativeDependenceInfoTool
 	 * @param entryPointMethods are the entry points to the environment.
 	 */
 	void run(final IEnvironment environment, final Collection entryPointMethods) {
-		final String _tagName = "DependenceInfoTool:FA";
+		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IValueAnalyzer _aa =
 			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 
@@ -492,11 +492,6 @@ public final class RelativeDependenceInfoTool
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);
-        
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("consolidate()");
-            _proc.writeDataToFiles();
-        }
 	}
 }
 
