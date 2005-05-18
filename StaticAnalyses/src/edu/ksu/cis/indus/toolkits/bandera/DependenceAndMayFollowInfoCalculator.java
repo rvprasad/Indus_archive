@@ -142,9 +142,8 @@ class DependenceAndMayFollowInfoCalculator
 	public final void callback(final SootMethod method) {
 		if (method.isSynchronized()) {
 			final Pair _p = new Pair(null, method);
-			final Collection _birLocs = tool.generateBIRRep(_p);
-			tool.lockAcquisitions.addAll(_birLocs);
-			tool.seenStmts.addAll(_birLocs);
+			tool.lockAcquisitions.addAll(tool.generateBIRRep(_p, false));
+			tool.seenStmts.addAll(tool.generateBIRRep(_p, true));
 
 			final Collection _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
 
@@ -159,7 +158,7 @@ class DependenceAndMayFollowInfoCalculator
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
 		final Pair _p = new Pair(stmt, context.getCurrentMethod());
-		final Collection _birLocs = tool.generateBIRRep(_p);
+		final Collection _birLocs = tool.generateBIRRep(_p, false);
 		tool.seenStmts.addAll(_birLocs);
 
 		if (stmt instanceof EnterMonitorStmt || stmt instanceof InvokeStmt) {
@@ -190,9 +189,9 @@ class DependenceAndMayFollowInfoCalculator
 		CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _pair, _dependents);
 
 		if (_stmt.containsArrayRef()) {
-			tool.arrayRefs.addAll(tool.generateBIRRep(_pair));
+			tool.arrayRefs.addAll(tool.generateBIRRep(_pair, false));
 		} else if (_stmt.containsFieldRef()) {
-			tool.fieldRefs.addAll(tool.generateBIRRep(_pair));
+			tool.fieldRefs.addAll(tool.generateBIRRep(_pair, false));
 		}
 	}
 
@@ -248,7 +247,7 @@ class DependenceAndMayFollowInfoCalculator
 			final Pair _pSrc = (Pair) _i.next();
 			final Stmt _sSrc = (Stmt) _pSrc.getFirst();
 			final SootMethod _mSrc = (SootMethod) _pSrc.getSecond();
-			final Collection _pSrcInBIR = tool.generateBIRRep(_pSrc);
+			final Collection _pSrcInBIR = tool.generateBIRRep(_pSrc, false);
 			final Iterator _j = _keys.iterator();
 
 			for (int _jIndex = 0; _jIndex < _iEnd; _jIndex++) {
@@ -269,7 +268,7 @@ class DependenceAndMayFollowInfoCalculator
 				}
 
 				if (_flag) {
-					final Collection _birLocs = tool.generateBIRRep(_pDest);
+					final Collection _birLocs = tool.generateBIRRep(_pDest, false);
 					final Iterator _k = _pSrcInBIR.iterator();
 					final int _kEnd = _pSrcInBIR.size();
 
@@ -382,13 +381,13 @@ class DependenceAndMayFollowInfoCalculator
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final Pair _pair = (Pair) _entry.getKey();
 			final Collection _depends = (Collection) _entry.getValue();
-			final Collection _t = tool.generateBIRRep(_pair);
+			final Collection _t = tool.generateBIRRep(_pair, false);
 			final Iterator _j = _depends.iterator();
 			final int _jEnd = _depends.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final Pair _p = (Pair) _j.next();
-				final Collection _t2 = tool.generateBIRRep(_p);
+				final Collection _t2 = tool.generateBIRRep(_p, false);
 				final Iterator _k = _t.iterator();
 				final int _kEnd = _t.size();
 

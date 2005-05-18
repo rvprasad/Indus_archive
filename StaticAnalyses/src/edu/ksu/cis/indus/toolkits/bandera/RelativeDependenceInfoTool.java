@@ -394,6 +394,9 @@ public final class RelativeDependenceInfoTool
 	 * Generates the bir locations for the given statement-method pair.
 	 *
 	 * @param p of interest.
+	 * @param getUnlocking <code>true</code> indicates that locations names of unlocking transitions are also 
+     * required if the method is synchronized and the statement is <code>null</code>; <code>false</code>, otherwise.
+     * This is applicable only to entry-exit synchronization of sychronized methods. 
 	 *
 	 * @return the bir location.
 	 *
@@ -402,7 +405,7 @@ public final class RelativeDependenceInfoTool
 	 * @pre p != null and p.oclIsKindOf(Pair(Stmt, SootMethod)) and p.getSecond() != null
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
-	Collection generateBIRRep(final Pair p) {
+	Collection generateBIRRep(final Pair p, final boolean getUnlocking) {
 		final Stmt _stmt = (Stmt) p.getFirst();
 		final SootMethod _method = (SootMethod) p.getSecond();
 		final String _sig;
@@ -422,9 +425,11 @@ public final class RelativeDependenceInfoTool
 			_result.add(_sig + " loc" + _index);
 		} else if (_stmt == null) {
 			_result.add(_sig + " sync");
-			_result.add(_sig + " unsync");
-			_result.add(_sig + " unsyncEx");
-			_result.add(_sig + " throwEx");
+            if (getUnlocking) {
+    			_result.add(_sig + " unsync");
+    			_result.add(_sig + " unsyncEx");
+    			_result.add(_sig + " throwEx");
+            }
 		} else {
 			throw new IllegalStateException("Hmm");
 		}
