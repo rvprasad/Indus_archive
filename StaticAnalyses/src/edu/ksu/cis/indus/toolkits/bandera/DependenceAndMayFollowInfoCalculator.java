@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedEquivalence;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.SharedWriteBasedEquivalence;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 
 import java.io.ByteArrayOutputStream;
@@ -55,7 +54,6 @@ import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
-import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InvokeStmt;
@@ -114,18 +112,12 @@ class DependenceAndMayFollowInfoCalculator
 	 */
 	private final Map dependenceCache = new HashMap();
 
-	/** 
-	 * This provides shared write based equivalence class information.
-	 */
-	private final SharedWriteBasedEquivalence sharedwrite;
-
 	/**
 	 * Creates an instance of this class.
 	 *
 	 * @param theTool that uses this instance.
 	 * @param ida to be used.
 	 * @param lbe to be used.
-	 * @param swbe to be used.
 	 * @param callGraph to be used.
 	 * @param threadGraph to be used.
 	 * @param cfgAnalysis to be used.
@@ -134,12 +126,11 @@ class DependenceAndMayFollowInfoCalculator
 	 * 		null and theTool !=     null
 	 */
 	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
-		final LockAcquisitionBasedEquivalence lbe, final SharedWriteBasedEquivalence swbe, ICallGraphInfo callGraph,
+		final LockAcquisitionBasedEquivalence lbe, ICallGraphInfo callGraph,
 		final IThreadGraphInfo threadGraph, final CFGAnalysis cfgAnalysis) {
 		tool = theTool;
 		interferenceDA = ida;
 		locking = lbe;
-		sharedwrite = swbe;
 		tgi = threadGraph;
 		cfg = cfgAnalysis;
 		cgi = callGraph;
@@ -198,14 +189,6 @@ class DependenceAndMayFollowInfoCalculator
 		final Collection _dependents = interferenceDA.getDependents(_stmt, _currentMethod);
 		CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _pair, _dependents);
 
-		if (_stmt instanceof AssignStmt) {
-			final Collection _c = sharedwrite.getSharedWritesInEquivalenceClassOf(_pair);
-
-			if (!_c.isEmpty()) {
-				CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _pair, _c);
-			}
-		}
-
 		if (_stmt.containsArrayRef()) {
 			tool.arrayRefs.addAll(tool.generateBIRRep(_pair));
 		} else if (_stmt.containsFieldRef()) {
@@ -224,7 +207,7 @@ class DependenceAndMayFollowInfoCalculator
 
 		if (LOGGER.isDebugEnabled()) {
 			writeDataToFiles();
-            System.out.println(locking);
+            LOGGER.debug("locking dependence info:" + locking);
 		}
 	}
 
