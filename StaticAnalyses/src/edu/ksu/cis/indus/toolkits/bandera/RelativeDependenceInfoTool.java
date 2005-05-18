@@ -43,7 +43,6 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedEquivalence;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.SharedWriteBasedEquivalence;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -531,17 +530,8 @@ public final class RelativeDependenceInfoTool
 			return;
 		}
 
-		final SharedWriteBasedEquivalence _swbe = new SharedWriteBasedEquivalence(_ecba);
-		_swbe.hookup(_pc2);
-		_pc2.process();
-		_swbe.unhook(_pc2);
-
-		if (abort) {
-			return;
-		}
-
 		final DependenceAndMayFollowInfoCalculator _proc;
-		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _swbe, _cgi, _tgi, _cfgAnalysis);
+		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);
