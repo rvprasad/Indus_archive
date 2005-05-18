@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedEquivalence;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.SharedWriteBasedEquivalence;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 
 import java.util.Collection;
@@ -70,21 +69,20 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 * @param theTool DOCUMENT ME!
 	 * @param ida DOCUMENT ME!
 	 * @param lbe DOCUMENT ME!
-	 * @param swbe DOCUMENT ME!
 	 * @param threadGraph DOCUMENT ME!
 	 * @param callGraph DOCUMENT ME!
 	 * @param cfgAnalysis DOCUMENT ME!
 	 * @param graphFactory DOCUMENT ME!
 	 *
 	 * @see DependenceAndMayFollowInfoCalculator#DependenceAndMayFollowInfoCalculator(RelativeDependenceInfoTool,
-	 * 		InterferenceDAv1, LockAcquisitionBasedEquivalence, SharedWriteBasedEquivalence, ICallGraphInfo,
+	 * 		InterferenceDAv1, LockAcquisitionBasedEquivalence, ICallGraphInfo,
 	 * 		IThreadGraphInfo, CFGAnalysis)
 	 */
 	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
-		final LockAcquisitionBasedEquivalence lbe, final SharedWriteBasedEquivalence swbe,
+		final LockAcquisitionBasedEquivalence lbe,
 		final IThreadGraphInfo threadGraph, final ICallGraphInfo callGraph, final CFGAnalysis cfgAnalysis,
 		final IStmtGraphFactory graphFactory) {
-		super(theTool, ida, lbe, swbe, callGraph, threadGraph, cfgAnalysis);
+		super(theTool, ida, lbe, callGraph, threadGraph, cfgAnalysis);
 		stmtGraphFactory = graphFactory;
 	}
 
