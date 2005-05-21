@@ -39,13 +39,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,6 +77,17 @@ class DependenceAndMayFollowInfoCalculator
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependenceAndMayFollowInfoCalculator.class);
+
+	/** 
+	 * This filter accepts <code>Pair(Object, SootMethod></code> objects and filters them out if the method is not an
+	 * application class.
+	 */
+	private static final Predicate APPLICATION_CLASS_ONLY_PREDICATE =
+		new Predicate() {
+			public boolean evaluate(final Object object) {
+				return ((SootMethod) ((Pair) object).getSecond()).getDeclaringClass().isApplicationClass();
+			}
+		};
 
 	/** 
 	 * This provides the thread graph.
@@ -112,6 +126,21 @@ class DependenceAndMayFollowInfoCalculator
 	 */
 	private final Map dependenceCache = new HashMap();
 
+	/** 
+	 * This indicates if only array reference operation in application classes should be considered.
+	 */
+	private boolean arrayRefInApplicationClassesOnly;
+
+	/** 
+	 * This indicates if only field reference operation in application classes should be considered.
+	 */
+	private boolean fieldRefInApplicationClassesOnly;
+
+	/** 
+	 * This indicates if only lock acquisition operation in application classes should be considered.
+	 */
+	private boolean lockAcqInApplicationClassesOnly;
+
 	/**
 	 * Creates an instance of this class.
 	 *
@@ -126,8 +155,8 @@ class DependenceAndMayFollowInfoCalculator
 	 * 		null and theTool !=     null
 	 */
 	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
-		final LockAcquisitionBasedEquivalence lbe, ICallGraphInfo callGraph,
-		final IThreadGraphInfo threadGraph, final CFGAnalysis cfgAnalysis) {
+		final LockAcquisitionBasedEquivalence lbe, final ICallGraphInfo callGraph, final IThreadGraphInfo threadGraph,
+		final CFGAnalysis cfgAnalysis) {
 		tool = theTool;
 		interferenceDA = ida;
 		locking = lbe;
@@ -142,14 +171,10 @@ class DependenceAndMayFollowInfoCalculator
 	public final void callback(final SootMethod method) {
 		if (method.isSynchronized()) {
 			final Pair _p = new Pair(null, method);
-			tool.lockAcquisitions.addAll(tool.generateBIRRep(_p, false));
-			tool.seenStmts.addAll(tool.generateBIRRep(_p, true));
-
+			final Collection _birLocs = tool.generateBIRRep(_p, false);
 			final Collection _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
-
-			if (!_c.isEmpty()) {
-				CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _p, _c);
-			}
+			addToDependenceCache(_p, _c, tool.lockAcquisitions, _birLocs, lockAcqInApplicationClassesOnly);
+			tool.seenStmts.addAll(tool.generateBIRRep(_p, true));
 		}
 	}
 
@@ -157,21 +182,15 @@ class DependenceAndMayFollowInfoCalculator
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
-		final Pair _p = new Pair(stmt, context.getCurrentMethod());
+		final SootMethod _currentMethod = context.getCurrentMethod();
+		final Pair _p = new Pair(stmt, _currentMethod);
 		final Collection _birLocs = tool.generateBIRRep(_p, false);
 		tool.seenStmts.addAll(_birLocs);
 
-		if (stmt instanceof EnterMonitorStmt || stmt instanceof InvokeStmt) {
-			final Collection _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
-
-			if (!_c.isEmpty()) {
-				CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _p, _c);
-			}
-		}
-
 		if (stmt instanceof EnterMonitorStmt
-			  || (stmt instanceof InvokeStmt && Util.isWaitInvocation((InvokeStmt) stmt, context.getCurrentMethod(), cgi))) {
-			tool.lockAcquisitions.addAll(_birLocs);
+			  || (stmt instanceof InvokeStmt && Util.isWaitInvocation((InvokeStmt) stmt, _currentMethod, cgi))) {
+			final Collection _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
+			addToDependenceCache(_p, _c, tool.lockAcquisitions, _birLocs, lockAcqInApplicationClassesOnly);
 		}
 	}
 
@@ -182,16 +201,28 @@ class DependenceAndMayFollowInfoCalculator
 		final SootMethod _currentMethod = context.getCurrentMethod();
 		final Stmt _stmt = context.getStmt();
 		final Pair _pair = new Pair(_stmt, _currentMethod);
-		final Collection _dependees = interferenceDA.getDependees(_stmt, _currentMethod);
-		CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _pair, _dependees);
-
-		final Collection _dependents = interferenceDA.getDependents(_stmt, _currentMethod);
-		CollectionsUtilities.putAllIntoSetInMap(dependenceCache, _pair, _dependents);
+		final Collection _c;
+		final boolean flag;
 
 		if (_stmt.containsArrayRef()) {
-			tool.arrayRefs.addAll(tool.generateBIRRep(_pair, false));
+			_c = tool.arrayRefs;
+			flag = arrayRefInApplicationClassesOnly;
 		} else if (_stmt.containsFieldRef()) {
-			tool.fieldRefs.addAll(tool.generateBIRRep(_pair, false));
+			_c = tool.fieldRefs;
+			flag = fieldRefInApplicationClassesOnly;
+		} else {
+			_c = null;
+			flag = false;
+		}
+
+		if (_c != null) {
+			final Collection _birLocs = tool.generateBIRRep(_pair, false);
+			final Collection _dependees = interferenceDA.getDependees(_stmt, _currentMethod);
+			addToDependenceCache(_pair, _dependees, _c, _birLocs, flag);
+
+			final Collection _dependents = interferenceDA.getDependents(_stmt, _currentMethod);
+			addToDependenceCache(_pair, _dependents, _c, _birLocs, flag);
+			_c.addAll(_birLocs);
 		}
 	}
 
@@ -206,7 +237,7 @@ class DependenceAndMayFollowInfoCalculator
 
 		if (LOGGER.isDebugEnabled()) {
 			writeDataToFiles();
-            LOGGER.debug("locking dependence info:" + locking);
+			LOGGER.debug("locking dependence info:" + locking);
 		}
 	}
 
@@ -230,6 +261,22 @@ class DependenceAndMayFollowInfoCalculator
 		ppc.unregister(ArrayRef.class, this);
 		ppc.unregister(InstanceFieldRef.class, this);
 		ppc.unregister(StaticFieldRef.class, this);
+	}
+
+	/**
+	 * Sets application class filtering options for various class of operations.
+	 *
+	 * @param lockAcq <code>true</code> indicates that only lock acquisition operation in application classes should be
+	 * 		  considered; <code>false</code>, otherwise.
+	 * @param fieldRef <code>true</code> indicates that only field reference operation in application classes should be
+	 * 		  considered; <code>false</code>, otherwise.
+	 * @param arrayRef <code>true</code> indicates that only array reference operation in application classes should be
+	 * 		  considered; <code>false</code>, otherwise.
+	 */
+	public void setApplicationClassFiltering(boolean lockAcq, boolean fieldRef, boolean arrayRef) {
+		lockAcqInApplicationClassesOnly = lockAcq;
+		arrayRefInApplicationClassesOnly = arrayRef;
+		fieldRefInApplicationClassesOnly = fieldRef;
 	}
 
 	/**
@@ -363,6 +410,39 @@ class DependenceAndMayFollowInfoCalculator
 			final IllegalStateException _r = new IllegalStateException();
 			_r.initCause(_e);
 			throw _r;
+		}
+	}
+
+	/**
+	 * Adds the given pair and it's dependence information to the dependence cache after filtering it according to
+	 * <code>applicationClassOnly</code>.
+	 *
+	 * @param p is the source of dependence.
+	 * @param dependence to be added
+	 * @param equivalents is the collection of location of equivalents of an operation class that needs to be updated.
+	 * @param birLocs a collection of new equivalent locations to be added.
+	 * @param applicationClassesOnly <code>true</code> indicates only dependences in application classes should be captured;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @pre p != null and dependence != null and equivalents != null and birLocs != null
+	 * @pre p.oclIsKindOf(Pair(Stmt, SootMethod))
+	 * @pre dependence.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre equivalents.oclIsKindOf(Collection(String))
+	 * @pre birLocs.oclIsKindOf(Collection(String))
+	 * @post equivalents.containsAll(equivalents$pre)
+	 */
+	private void addToDependenceCache(final Pair p, final Collection dependence, final Collection equivalents,
+		final Collection birLocs, boolean applicationClassesOnly) {
+		if (!applicationClassesOnly || ((SootMethod) p.getSecond()).getDeclaringClass().isApplicationClass()) {
+			if (!dependence.isEmpty()) {
+				final Collection _t = new ArrayList(dependence);
+
+				if (applicationClassesOnly) {
+					CollectionUtils.filter(dependence, APPLICATION_CLASS_ONLY_PREDICATE);
+				}
+				CollectionsUtilities.putAllIntoSetInMap(dependenceCache, p, _t);
+				equivalents.addAll(birLocs);
+			}
 		}
 	}
 

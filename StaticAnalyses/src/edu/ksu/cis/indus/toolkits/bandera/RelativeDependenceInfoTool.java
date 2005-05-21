@@ -176,10 +176,28 @@ public final class RelativeDependenceInfoTool
 	 */
 	private static final List OUT_ARGUMENTS_IDS;
 
+	/** 
+	 * This identifies the input option to analyze array refs in application class only. 
+	 */
+	private static final Object APPL_ARRAY_REFS_ONLY = "application array refs only";
+
+	/** 
+	 * This identifies the input option to analyze field refs in application class only.
+	 */
+	private static final Object APPL_FIELD_REFS_ONLY = "application field refs only";
+
+	/** 
+	 * This identifies the input option to analyze lock acquisition in application class only.
+	 */
+	private static final Object APPL_LOCK_ACQS_ONLY = "application lock acquisitions only";
+
 	static {
 		IN_ARGUMENTS_IDS = new ArrayList();
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
+		IN_ARGUMENTS_IDS.add(APPL_LOCK_ACQS_ONLY);
+		IN_ARGUMENTS_IDS.add(APPL_FIELD_REFS_ONLY);
+		IN_ARGUMENTS_IDS.add(APPL_ARRAY_REFS_ONLY);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(DEPENDENCE);
 		OUT_ARGUMENTS_IDS.add(KNOWN_TRANSITIONS);
@@ -224,6 +242,21 @@ public final class RelativeDependenceInfoTool
 	 * @invariant dependence.oclIsKindOf(Map(Stmt, Collection(Stmt)))
 	 */
 	final Map mayFollow = new HashMap();
+
+	/** 
+	 * This indicates if only the array refs in application class should be analyzed.
+	 */
+	boolean arrayRefInApplicationClassesOnly;
+
+	/** 
+	 * This indicates if only the field refs in application class should be analyzed.
+	 */
+	boolean fieldRefInApplicationClassesOnly;
+
+	/** 
+	 * This indicates if only the lock acquisitions in application class should be analyzed.
+	 */
+	boolean lockAcqInApplicationClassesOnly;
 
 	/** 
 	 * This maps methods to their bir signature.
@@ -286,6 +319,10 @@ public final class RelativeDependenceInfoTool
 		}
 		rootMethods = new ArrayList();
 		rootMethods.addAll(_rootMethods);
+
+		arrayRefInApplicationClassesOnly = arg.containsKey(APPL_ARRAY_REFS_ONLY);
+		fieldRefInApplicationClassesOnly = arg.containsKey(APPL_FIELD_REFS_ONLY);
+		lockAcqInApplicationClassesOnly = arg.containsKey(APPL_LOCK_ACQS_ONLY);
 	}
 
 	/**
@@ -328,6 +365,22 @@ public final class RelativeDependenceInfoTool
 	 */
 	public ToolIconView getToolIconView() {
 		return null;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param lock DOCUMENT ME!
+	 * @param array DOCUMENT ME!
+	 * @param field DOCUMENT ME!
+	 */
+	public void _setApplicationClassesOnly(boolean lock, boolean array, boolean field) {
+		// TODO: method needs to be deleted.
+		lockAcqInApplicationClassesOnly = lock;
+		arrayRefInApplicationClassesOnly = array;
+		fieldRefInApplicationClassesOnly = field;
 	}
 
 	/**
@@ -394,9 +447,9 @@ public final class RelativeDependenceInfoTool
 	 * Generates the bir locations for the given statement-method pair.
 	 *
 	 * @param p of interest.
-	 * @param getUnlocking <code>true</code> indicates that locations names of unlocking transitions are also 
-     * required if the method is synchronized and the statement is <code>null</code>; <code>false</code>, otherwise.
-     * This is applicable only to entry-exit synchronization of sychronized methods. 
+	 * @param getUnlocking <code>true</code> indicates that locations names of unlocking transitions are also  required if
+	 * 		  the method is synchronized and the statement is <code>null</code>; <code>false</code>, otherwise. This is
+	 * 		  applicable only to entry-exit synchronization of sychronized methods.
 	 *
 	 * @return the bir location.
 	 *
@@ -425,11 +478,12 @@ public final class RelativeDependenceInfoTool
 			_result.add(_sig + " loc" + _index);
 		} else if (_stmt == null) {
 			_result.add(_sig + " sync");
-            if (getUnlocking) {
-    			_result.add(_sig + " unsync");
-    			_result.add(_sig + " unsyncEx");
-    			_result.add(_sig + " throwEx");
-            }
+
+			if (getUnlocking) {
+				_result.add(_sig + " unsync");
+				_result.add(_sig + " unsyncEx");
+				_result.add(_sig + " throwEx");
+			}
 		} else {
 			throw new IllegalStateException("Hmm");
 		}
@@ -537,6 +591,8 @@ public final class RelativeDependenceInfoTool
 
 		final DependenceAndMayFollowInfoCalculator _proc;
 		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);
+		_proc.setApplicationClassFiltering(lockAcqInApplicationClassesOnly, fieldRefInApplicationClassesOnly, 
+                arrayRefInApplicationClassesOnly);
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);
