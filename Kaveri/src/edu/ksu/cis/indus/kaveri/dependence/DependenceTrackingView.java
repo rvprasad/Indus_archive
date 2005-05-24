@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -31,6 +34,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -48,19 +53,26 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.internal.util.StatusLineContributionItem;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import com.thoughtworks.xstream.XStream;
 
 import soot.SootMethod;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.dependence.filters.DependenceFilterDialog;
+import edu.ksu.cis.indus.kaveri.dependence.filters.FilterCollector;
+import edu.ksu.cis.indus.kaveri.dependence.filters.FilterInstance;
 import edu.ksu.cis.indus.kaveri.dependence.filters.MainFilter;
 
 import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
@@ -105,6 +117,11 @@ public class DependenceTrackingView extends ViewPart {
     private ViewerFilter readyFilterFwd, readyFilterBck;
 
     /**
+     * The hook to the status bar.
+     */
+    private StatusLineContributionItem statusBar;
+    
+    /**
      * Filter out Synchronization dependence.
      */
     private ViewerFilter synchFilterFwd, synchFilterBck;
@@ -114,18 +131,7 @@ public class DependenceTrackingView extends ViewPart {
      */
     private ViewerFilter divergenceFilterFwd, divergenceFilterBck;
 
-    private Action controlFilterActionFwd, controlFilterActionBck;
-
-    private Action dataFilterActionFwd, dataFilterActionBck;
-
-    private Action readyFilterActionFwd, readyFilterActionBck;
-
-    private Action interferenceFilterActionFwd, interferenceFilterActionBck;
-
-    private Action divergenceFilterActionFwd, divergenceFilterActionBck;
-
-    private Action synchFilterActionFwd, synchFilterActionBck;
-
+    private Action filterAction;
     private Action expandAll, contractAll, normalMode;
 
     /**
@@ -152,8 +158,7 @@ public class DependenceTrackingView extends ViewPart {
      * Constructor.
      */
     public DependenceTrackingView() {
-        dsd = new DependenceStmtData();
-
+        dsd = new DependenceStmtData();        
     }
 
     /**
@@ -164,7 +169,7 @@ public class DependenceTrackingView extends ViewPart {
     public void createPartControl(Composite parent) {
         final Composite _comp = new Composite(parent, SWT.NONE);
         _comp.setLayout(new GridLayout(1, true));
-
+        
         final SashForm _sForm = new SashForm(_comp, SWT.HORIZONTAL);
         GridData _gd = new GridData(GridData.FILL_BOTH);
         _gd.horizontalSpan = 1;
@@ -215,23 +220,66 @@ public class DependenceTrackingView extends ViewPart {
         final IToolBarManager _manager = getViewSite().getActionBars()
                 .getToolBarManager();
         fillToolBar(_manager);
-
+        
+        
         tvLeft.setContentProvider(new DepTrkStmtLstContentProvider());
         tvLeft.setLabelProvider(new StandarLabelProvider());
         tvLeft.setInput(KaveriPlugin.getDefault().getIndusConfiguration()
                 .getStmtList());
         tvLeft.setAutoExpandLevel(1);
 
+        
         tvRight.setContentProvider(new DepTrkDepLstContentProvider());
         tvRight.setLabelProvider(new StandarLabelProvider());
         tvRight.setInput(dsd);
         hookListeners();
         createFilters();
-        hookFiltersFwd();
-        hookFiltersBck();
+        hookFilters();
         createActions();
         createMenus();
+
+        statusBar = new StatusLineContributionItem("DepViewStatus");
+        getViewSite().getActionBars().getStatusLineManager().add(statusBar);
+        initializeFilterStatus();
         hookDoubleClickListeners();
+    }
+    
+    /**
+     * Initialize the filter status bar.
+     *
+     */
+    private void initializeFilterStatus() {
+        final String _filterKey = "edu.ksu.cis.indus.kaveri.depview.filter.key";
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        final String _val = _ps.getString(_filterKey);
+        FilterCollector _fc = null;
+        final XStream _stream = new XStream();
+         
+        if (_val.equals("")) {
+            _fc = new FilterCollector();
+            final String _v = _stream.toXML(_fc);
+            _ps.setValue(_filterKey, _v);
+            KaveriPlugin.getDefault().savePluginPreferences();            
+        } else {
+            _fc = (FilterCollector) _stream.fromXML(_val);
+        }
+        if (_fc.getCurrentFilter().equals("")) {
+            statusBar.setText("Current Filter: None");
+            
+        } else {
+            
+            final List _filterList = _fc.getFilterList();
+            final String _currFilter = _fc.getCurrentFilter();
+            statusBar.setText("Current Filter: " + _currFilter);
+            for (int _i=0; _i< _filterList.size(); _i++) {
+                FilterInstance _inst = (FilterInstance) _filterList.get(_i);
+                if (_inst.filterName.equals(_currFilter)) {
+                    applyFilter(_inst);
+                    tvRight.expandToLevel(3);
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -263,74 +311,123 @@ public class DependenceTrackingView extends ViewPart {
     /**
      * Create the dependee actions.
      */
-    private void hookFiltersBck() {
-        controlFilterActionBck = new Action("Control") {
+    private void hookFilters() {
+        filterAction = new Action("Filters") {
             public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(controlFilterBck);
-                } else {
-                    tvRight.addFilter(controlFilterBck);
+                DependenceFilterDialog _dfd = new  DependenceFilterDialog(Display.getCurrent().getActiveShell());
+                if (_dfd.open() == IDialogConstants.OK_ID)
+                {
+                    initializeFilterStatus();
+                    applyNewFilter();
+                    tvRight.expandToLevel(3);
                 }
             }
 
         };
-        controlFilterActionBck.setChecked(true);
+        final ImageDescriptor _desc = AbstractUIPlugin
+        .imageDescriptorFromPlugin(
+                "edu.ksu.cis.indus.kaveri",
+                "data/icons/filter.gif");
+        filterAction.setImageDescriptor(_desc);
 
-        dataFilterActionBck = new Action("Data") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(dataFilterBck);
-                } else {
-                    tvRight.addFilter(dataFilterBck);
+    }
+
+    /**
+     * Applt the newly chosen filter.
+     */
+    protected void applyNewFilter() {
+        final String _filterKey = "edu.ksu.cis.indus.kaveri.depview.filter.key";
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        final String _val = _ps.getString(_filterKey);
+        final XStream _stream = new XStream();
+        if (!_val.equals("")) {
+            final FilterCollector _fc = (FilterCollector) _stream.fromXML(_val);
+            final String _currFilter = _fc.getCurrentFilter();
+            if (!_currFilter.equals("")) {
+                final List _filterList = _fc.getFilterList();                
+                for (Iterator iter = _filterList.iterator(); iter.hasNext();) {
+                    final FilterInstance _inst = (FilterInstance) iter.next();
+                    if (_inst.filterName.equals(_currFilter)) {                        
+                        applyFilter(_inst);
+                        break;
+                    }
+                    
                 }
+            } else {
+                statusBar.setText("Error while applying filter");
             }
-        };
-        dataFilterActionBck.setChecked(true);
+        }
+        
+    }
 
-        interferenceFilterActionBck = new Action("Interference") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(interferenceFilterBck);
-                } else {
-                    tvRight.addFilter(interferenceFilterBck);
-                }
-            }
-        };
-        interferenceFilterActionBck.setChecked(true);
-
-        readyFilterActionBck = new Action("Ready") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(readyFilterBck);
-                } else {
-                    tvRight.addFilter(readyFilterBck);
-                }
-            }
-        };
-        readyFilterActionBck.setChecked(true);
-
-        synchFilterActionBck = new Action("Synchronization") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(synchFilterBck);
-                } else {
-                    tvRight.addFilter(synchFilterBck);
-                }
-            }
-        };
-        synchFilterActionBck.setChecked(true);
-
-        divergenceFilterActionBck = new Action("Divergence") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(divergenceFilterBck);
-                } else {
-                    tvRight.addFilter(divergenceFilterBck);
-                }
-            }
-        };
-        divergenceFilterActionBck.setChecked(true);
-
+    /**
+     * Apply the filter as specified by the instance.
+     * @param inst The filter instance.
+     */
+    private void applyFilter(FilterInstance inst) {
+        // Dependee
+        if (!inst.controlDd) {
+            tvRight.addFilter(controlFilterBck);
+        } else {
+            tvRight.removeFilter(controlFilterBck);
+        }
+        if (!inst.dataDd) {
+            tvRight.addFilter(dataFilterBck);
+        } else {
+            tvRight.removeFilter(dataFilterBck);
+        }
+        if (!inst.intfDd) {
+            tvRight.addFilter(interferenceFilterBck);
+        } else {
+            tvRight.removeFilter(interferenceFilterBck);
+        }
+        if (!inst.rdyDd) {
+            tvRight.addFilter(readyFilterBck);
+        } else {
+            tvRight.removeFilter(readyFilterBck);
+        }
+        if (!inst.syncDd) {
+            tvRight.addFilter(synchFilterBck);
+        } else {
+            tvRight.removeFilter(synchFilterBck);
+        }
+        if (!inst.dvgDd) {
+            tvRight.addFilter(divergenceFilterBck);
+        } else {
+            tvRight.removeFilter(divergenceFilterBck);
+        }
+        
+        // Dependent
+        if (!inst.controlDt) {
+            tvRight.addFilter(controlFilterFwd);
+        } else {
+            tvRight.removeFilter(controlFilterFwd);
+        }
+        if (!inst.dataDt) {
+            tvRight.addFilter(dataFilterFwd);
+        } else {
+            tvRight.removeFilter(dataFilterFwd);
+        }
+        if (!inst.intfDt) {
+            tvRight.addFilter(interferenceFilterFwd);
+        } else {
+            tvRight.removeFilter(interferenceFilterFwd);
+        }
+        if (!inst.rdyDt) {
+            tvRight.addFilter(readyFilterFwd);
+        } else {
+            tvRight.removeFilter(readyFilterFwd);
+        }
+        if (!inst.syncDt) {
+            tvRight.addFilter(synchFilterFwd);
+        } else {
+            tvRight.removeFilter(synchFilterFwd);
+        }
+        if (!inst.dvgDt) {
+            tvRight.addFilter(divergenceFilterFwd);
+        } else {
+            tvRight.removeFilter(divergenceFilterFwd);
+        }
     }
 
     /**
@@ -490,78 +587,7 @@ public class DependenceTrackingView extends ViewPart {
         synchFilterBck = new MainFilter("Synchronization", false);
     }
 
-    /**
-     * Add the filters,
-     */
-    private void hookFiltersFwd() {
-        controlFilterActionFwd = new Action("Control") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(controlFilterFwd);
-                } else {
-                    tvRight.addFilter(controlFilterFwd);
-                }
-            }
-        };
-        controlFilterActionFwd.setChecked(true);
-
-        dataFilterActionFwd = new Action("Data") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(dataFilterFwd);
-                } else {
-                    tvRight.addFilter(dataFilterFwd);
-                }
-            }
-        };
-        dataFilterActionFwd.setChecked(true);
-
-        interferenceFilterActionFwd = new Action("Interference") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(interferenceFilterFwd);
-                } else {
-                    tvRight.addFilter(interferenceFilterFwd);
-                }
-            }
-        };
-        interferenceFilterActionFwd.setChecked(true);
-
-        readyFilterActionFwd = new Action("Ready") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(readyFilterFwd);
-                } else {
-                    tvRight.addFilter(readyFilterFwd);
-                }
-            }
-        };
-        readyFilterActionFwd.setChecked(true);
-
-        synchFilterActionFwd = new Action("Synchronization") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(synchFilterFwd);
-                } else {
-                    tvRight.addFilter(synchFilterFwd);
-                }
-            }
-        };
-        synchFilterActionFwd.setChecked(true);
-
-        divergenceFilterActionFwd = new Action("Divergence") {
-            public void run() {
-                if (this.isChecked()) {
-                    tvRight.removeFilter(divergenceFilterFwd);
-                } else {
-                    tvRight.addFilter(divergenceFilterFwd);
-                }
-            }
-        };
-        divergenceFilterActionFwd.setChecked(true);
-
-    }
-
+    
     /**
      * Create the filter menus.
      *  
@@ -599,29 +625,8 @@ public class DependenceTrackingView extends ViewPart {
      * 
      * @param mnuMainMenu
      */
-    protected void fillMainMenu(IMenuManager mnuMainMenu) {
-        final IMenuManager _filterMenu = new MenuManager("Filters");
-        mnuMainMenu.add(_filterMenu);
-
-        final IMenuManager _dependeeMenu = new MenuManager("Dependees");
-        final IMenuManager _dependentsMenu = new MenuManager("Dependents");
-        _filterMenu.add(_dependeeMenu);
-        _filterMenu.add(_dependentsMenu);
-
-        _dependeeMenu.add(controlFilterActionBck);
-        _dependeeMenu.add(dataFilterActionBck);
-        _dependeeMenu.add(interferenceFilterActionBck);
-        _dependeeMenu.add(divergenceFilterActionBck);
-        _dependeeMenu.add(readyFilterActionBck);
-        _dependeeMenu.add(synchFilterActionBck);
-
-        _dependentsMenu.add(controlFilterActionFwd);
-        _dependentsMenu.add(dataFilterActionFwd);
-        _dependentsMenu.add(interferenceFilterActionFwd);
-        _dependentsMenu.add(divergenceFilterActionFwd);
-        _dependentsMenu.add(readyFilterActionFwd);
-        _dependentsMenu.add(synchFilterActionFwd);
-
+    protected void fillMainMenu(IMenuManager mnuMainMenu) {        
+        mnuMainMenu.add(filterAction);           
     }
 
     /**
