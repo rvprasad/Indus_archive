@@ -3,7 +3,7 @@
 <plugin
    id="edu.ksu.cis.indus"
    name="Indus Plug-in"
-   version="0.5.1"
+   version="0.6"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.projects.indus.IndusPlugin">
 
