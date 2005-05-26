@@ -5,13 +5,14 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping-propertyAware"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true">
+		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -23,13 +24,14 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false">
+		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -41,13 +43,14 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping-propertyAware"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true">
+		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -59,13 +62,14 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false">
+		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -76,13 +80,15 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-propertyAware" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true"
+		slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -93,13 +99,15 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
+		slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -110,13 +118,15 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
+		slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
@@ -127,13 +137,15 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="complete-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
+		slicer:optimizeExecutableSliceForSpace="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
 			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
-		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:control slicer:nonTerminationSensitive="true" slicer:commonUncheckedExceptions="false" 
+			slicer:explicitExceptionalExitSensitive="false"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:useOFA="true"/>
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
