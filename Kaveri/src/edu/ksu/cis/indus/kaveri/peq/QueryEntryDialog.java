@@ -70,7 +70,7 @@ public class QueryEntryDialog extends Dialog {
 		queryEditor.setLayoutData(_gd);
 		final ResourceManager _rm = KaveriPlugin.getDefault().getIndusConfiguration().getRManager();
 		queryEditor.setForeground(_rm.getColor(new RGB(255, 0, 0)));
-		queryEditor.setText("query default {<> <> }; ");
+		queryEditor.setText("Equery default {<> <> }; ");
 		return _comp;
     }
     /**
