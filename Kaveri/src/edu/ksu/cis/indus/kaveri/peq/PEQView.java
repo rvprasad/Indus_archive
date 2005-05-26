@@ -588,6 +588,24 @@ public class PEQView extends ViewPart implements IDeltaListener {
         manager.add(_actUpdate);
         _actUpdate.setToolTipText("Update the statement");
 
+        final IAction _removeQuery = new Action() {
+        	public void run() {
+        		final int _index = cmbQuery.getSelectionIndex();
+        		if (_index != -1) {
+        			cmbQuery.remove(_index);
+        			queryList.remove(_index);    
+        			if (cmbQuery.getItemCount() > 0) {
+        				cmbQuery.select(0);
+        			}
+        		}
+        	}
+        };
+        final ImageDescriptor _descRemv = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/rem_co.gif");
+        _removeQuery.setImageDescriptor(_descRemv);
+        manager.add(_removeQuery);
+        _removeQuery.setToolTipText("Remove the query");
     }
 
     /**

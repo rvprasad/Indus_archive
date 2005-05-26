@@ -317,9 +317,10 @@ public class DependenceTrackingView extends ViewPart {
                 DependenceFilterDialog _dfd = new  DependenceFilterDialog(Display.getCurrent().getActiveShell());
                 if (_dfd.open() == IDialogConstants.OK_ID)
                 {
+                	tvRight.refresh();
                     initializeFilterStatus();
-                    applyNewFilter();
-                    tvRight.expandToLevel(3);
+                    //applyNewFilter();
+                    tvRight.expandToLevel(3);                    
                 }
             }
 
@@ -365,6 +366,7 @@ public class DependenceTrackingView extends ViewPart {
      * @param inst The filter instance.
      */
     private void applyFilter(FilterInstance inst) {
+    	tvRight.resetFilters();
         // Dependee
         if (!inst.controlDd) {
             tvRight.addFilter(controlFilterBck);
