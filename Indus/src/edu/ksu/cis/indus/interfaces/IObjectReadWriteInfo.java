@@ -46,10 +46,10 @@ public interface IObjectReadWriteInfo
 	 *
 	 * @param callerTriple is the call-site.
 	 * @param argPos is the position of the argument.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given argument to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is read; <code>false</code>, otherwise.
 	 *
@@ -66,10 +66,10 @@ public interface IObjectReadWriteInfo
 	 *
 	 * @param callerTriple is the call-site.
 	 * @param argPos is the position of the argument.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given argument to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is written; <code>false</code>, otherwise.
 	 *
@@ -87,9 +87,9 @@ public interface IObjectReadWriteInfo
 	 * @param method of reference.
 	 * @param paramPos is the position of the parameter.
 	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is read; <code>false</code>, otherwise.
 	 *
@@ -107,9 +107,9 @@ public interface IObjectReadWriteInfo
 	 * @param method of reference.
 	 * @param paramPos is the position of the parameter.
 	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is written; <code>false</code>, otherwise.
 	 *
@@ -125,10 +125,10 @@ public interface IObjectReadWriteInfo
 	 * Checks if the end point of the access path starting at the receiver at the call-site is read.
 	 *
 	 * @param callerTriple is the call-site.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given receiver to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is read; <code>false</code>, otherwise.
 	 *
@@ -143,10 +143,10 @@ public interface IObjectReadWriteInfo
 	 * Checks if the end point of the access path starting at the receiver at the call-site is written.
 	 *
 	 * @param callerTriple is the call-site.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given receiver to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is written; <code>false</code>, otherwise.
 	 *
@@ -161,10 +161,10 @@ public interface IObjectReadWriteInfo
 	 * Checks if the end point of the access path starting at "this" variable of a method is read.
 	 *
 	 * @param method of reference.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given "this" variable to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is read; <code>false</code>, otherwise.
 	 *
@@ -179,10 +179,10 @@ public interface IObjectReadWriteInfo
 	 * Checks if the end point of the access path starting at "this" variable of a method is written.
 	 *
 	 * @param method of reference.
-	 * @param accesspath is the access path from the given parameter to an end point.
-	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
-	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
-	 * 		  point .
+	 * @param accesspath is the access path from the given "this" variable to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths from the end point that are of
+	 * 		  length  greater than 1. <code>false</code> indicates the check should consider access paths from the end point
+	 * 		  that are of length 1 .
 	 *
 	 * @return <code>true</code> if the end point is written; <code>false</code>, otherwise.
 	 *
