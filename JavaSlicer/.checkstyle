@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fileset-config file-format-version="1.0.0">
-    <fileset name="all-java" enabled="true" check-config-name="Indus">
-        <file-match-pattern match-pattern="^src.*/.*\.java$" include-pattern="true"/>
-    </fileset>
+<fileset-config file-format-version="1.1.0" simple-config="true">
+<fileset name="all" check-config-name="Indus" enabled="true"><file-match-pattern match-pattern="." include-pattern="true"/>
+</fileset>
+<filter name="NonSrcDirs" enabled="true"/>
 </fileset-config>
