@@ -255,7 +255,7 @@ public class IndusConfigurationDialog2 extends Dialog implements IStatusChangeLi
         createButton(parent, IDialogConstants.OK_ID, Messages
                 .getString("IndusConfigurationDialog.29"), true);
         
-        createButton(parent, IndusConfigurationDialog2.J2B_ID, "Run J2B", false);
+      //  createButton(parent, IndusConfigurationDialog2.J2B_ID, "Run J2B", false);
         
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);

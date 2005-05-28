@@ -115,10 +115,7 @@ public class ConfigurationDialog extends Dialog {
      */
     private Combo cmbFwdSliceConfig;
     
-    /**
-     * The exception store.
-     */
-    private ExceptionListStore exceptionStore;
+    
     
     /**
      * The configuration when the page is displayed. Used to restore in case of cancel.
@@ -186,10 +183,6 @@ public class ConfigurationDialog extends Dialog {
         _itemButtonConfigs.setText("Slice Button Configurations");
         _itemButtonConfigs.setControl(createSliceButtonConfig(_folder));
 
-        final TabItem _itemExceptions = new  TabItem(_folder, SWT.NONE);
-        _itemExceptions.setText("Exceptions");
-        _itemExceptions.setControl(createExceptionIgnoreSet(_folder));
-                
         return _top;
     }
     
@@ -505,134 +498,8 @@ public class ConfigurationDialog extends Dialog {
         });
 
     }
-
-    
-    /**
-     * Displays the set of exceptions that are ignored.
-     * @param folder
-     * @return
-     */
-    private Control createExceptionIgnoreSet(TabFolder folder) {
-        final Composite _comp = new Composite(folder, SWT.NONE);
-        _comp.setLayoutData(new GridData(GridData.FILL_BOTH));
+       
         
-        final GridLayout _layout = new GridLayout();
-        _layout.numColumns = 1;
-        _comp.setLayout(_layout);
-        
-        final Group _grp = new Group(_comp, SWT.BORDER);
-        _grp.setText("Exception Ignore List");
-        GridData _gd = new GridData(GridData.FILL_BOTH);
-        _gd.horizontalSpan = 1;
-        _gd.grabExcessHorizontalSpace = true;
-        _gd.grabExcessVerticalSpace = true;
-        _grp.setLayoutData(_gd);
-        _grp.setLayout(new GridLayout(1, true));
-        
-        exceptionTable = new Table(_grp, SWT.FULL_SELECTION | SWT.SINGLE);
-        exceptionTable.setLinesVisible(true);
-        exceptionTable.setHeaderVisible(true);
-        _gd = new GridData(GridData.FILL_BOTH);
-        _gd.horizontalSpan = 1;
-        _gd.grabExcessHorizontalSpace = true;
-        _gd.grabExcessVerticalSpace = true;
-        exceptionTable.setLayoutData(_gd);
-        
-        /*final TableColumn _col1 = new TableColumn(exceptionTable, SWT.CENTER);
-        _col1.setText("!");*/
-        final TableColumn _col2 = new TableColumn(exceptionTable, SWT.NONE);
-        _col2.setText("Fully Qualified Exception Name");
-        
-        initExceptionList();
-        
-        for (int _i =0; _i < exceptionTable.getColumnCount(); _i++) {
-            exceptionTable.getColumn(_i).pack();
-        }
-        
-        final Composite _rowComp = new Composite(_comp, SWT.BORDER);
-        _gd = new GridData(GridData.FILL_HORIZONTAL);
-        _gd.horizontalSpan = 1;
-        _gd.grabExcessHorizontalSpace = true;
-        _rowComp.setLayoutData(_gd);
-        
-        _rowComp.setLayout(new RowLayout());
-        final Button _btnAdd = new Button(_rowComp, SWT.PUSH);
-        _btnAdd.setText("Add Exception");
-        _btnAdd.addSelectionListener(
-                new SelectionAdapter() {
-                    public void widgetSelected(SelectionEvent e) {
-                        final Shell _shell = Display.getCurrent().getActiveShell();
-                        
-                        IInputValidator _val = new IInputValidator() {
-
-                            public String isValid(String newText) {
-                                final Status _status = (Status) JavaConventions.validateJavaTypeName(newText);
-                                if (_status.getSeverity() == IStatus.ERROR || _status.getSeverity() == IStatus.WARNING) {
-                                    return _status.getMessage();
-                                }
-                                return null;
-                            }
-                            
-                        };
-                       final InputDialog _id = new InputDialog(_shell, "Exception Name", 
-                               "Enter the fully qualified name of the exception", 
-                               "java.lang.IllegalArgumentException", _val);
-                       if (_id.open() == IDialogConstants.OK_ID) {                                           
-                           if (exceptionStore.addException(_id.getValue())) {
-                               final TableItem _item = new TableItem(exceptionTable, SWT.NONE);
-                               _item.setText(0, _id.getValue());
-                               _item.setData(_id.getValue());    
-                               isExceptionStateDirty = true;
-                           }
-                       }
-                    }
-                }
-                );
-        final Button _btnDelete = new Button(_rowComp, SWT.PUSH);
-        _btnDelete.setText("Delete");
-        _btnDelete.addSelectionListener(
-                new SelectionAdapter() {
-                    public void widgetSelected(SelectionEvent e) {
-                        if (exceptionTable.getSelectionCount() == 1) {
-                            	final TableItem _item = exceptionTable.getSelection()[0];
-                            	final String _exceptionName = (String)  _item.getData();
-                            	exceptionStore.removeException(_exceptionName);
-                            	exceptionTable.remove(exceptionTable.getSelectionIndex());
-                            	isExceptionStateDirty = true;
-                        }
-                    }
-                }
-                );
-        
-        return _comp;
-    }
-
-    /**
-     * Initialize the exception ignore table.
-     */
-    private void initExceptionList() {
-        final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
-        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-        String _val  = _ps.getString(_exceptionKey);
-        final XStream _xstream = new XStream();
-        _xstream.alias("ExceptionListStore", ExceptionListStore.class);
-        if (_val.equals("")) {
-            exceptionStore  = new ExceptionListStore();            
-            _val = _xstream.toXML(exceptionStore);
-        } else {
-            exceptionStore = (ExceptionListStore) _xstream.fromXML(_val);
-        }
-        for (Iterator iter = exceptionStore.getExceptionCollection().iterator(); iter.hasNext();) {
-            final String _exName  = (String) iter.next();
-            final TableItem _ti = new TableItem(exceptionTable, SWT.NONE);
-            _ti.setText(0, _exName);
-            
-        }
-        
-    }
-    
-    
-    
     
     
     /* (non-Javadoc)
@@ -658,16 +525,7 @@ public class ConfigurationDialog extends Dialog {
                 KaveriErrorLog.logException("Jibx Exception", _jbe);
             }
 
-        }
-        if (exceptionStore != null && isExceptionStateDirty) {
-            final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
-            final XStream _xstream = new XStream();
-            _xstream.alias("ExceptionListStore", ExceptionListStore.class);
-            final String _val = _xstream.toXML(exceptionStore);
-            KaveriPlugin.getDefault().getPreferenceStore().setValue(
-                    _exceptionKey, _val);            
-                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());            
-        }
+        }        
         
         storeSliceActionConfigurations();
         

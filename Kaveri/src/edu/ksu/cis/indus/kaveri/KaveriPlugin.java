@@ -163,16 +163,10 @@ public class KaveriPlugin extends AbstractUIPlugin {
             resourceBundle = null;
             //	KaveriErrorLog.logInformation("Missing resource", _x);
         }
-        final Collection _exceptionCollection = fetchExceptionNames();
-        ExceptionFlowSensitiveStmtGraphFactory _factory = null;
-        if (_exceptionCollection.isEmpty()) {
-            _factory = new ExceptionFlowSensitiveStmtGraphFactory();
-        } else {
-            _factory = new ExceptionFlowSensitiveStmtGraphFactory(_exceptionCollection, true);
-        }
-            slicerTool = new SlicerTool(TokenUtil
+                        
+        slicerTool = new SlicerTool(TokenUtil
                 .getTokenManager(new SootValueTypeManager()),
-                _factory);
+                new ExceptionFlowSensitiveStmtGraphFactory());                
         cacheMap = new HashMap();
         rmTrapper = new KaveriRootMethodTrapper();
         /*
@@ -183,25 +177,7 @@ public class KaveriPlugin extends AbstractUIPlugin {
 
     }
 
-    /**
-     * Fetch the collection of exception names.
-     * @return Collection The collection of fqn exception names.
-     */
-    private Collection fetchExceptionNames() {
-        final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
-        Collection _coll = Collections.EMPTY_LIST;
-        final IPreferenceStore _store = getPreferenceStore();
-        final String _val = _store.getString(_exceptionKey);
-        final XStream _xstream = new XStream();
-        _xstream.alias("ExceptionListStore", ExceptionListStore.class);
-        if (!_val.equals("")) {
-            final ExceptionListStore _els = (ExceptionListStore) _xstream.fromXML(_val);
-            _coll = _els.getExceptionCollection();
-        }
-        
-        return _coll;
-    }
-
+   
     /**
      * Loads the defaultConfiguration.xml into slicer tool.
      * 

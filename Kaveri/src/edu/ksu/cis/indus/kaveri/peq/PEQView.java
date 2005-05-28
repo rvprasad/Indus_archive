@@ -28,6 +28,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -77,6 +78,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.progress.IProgressService;
+import org.osgi.framework.Bundle;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -158,6 +160,19 @@ public class PEQView extends ViewPart implements IDeltaListener {
     public void createPartControl(Composite parent) {
         final Composite _comp = new Composite(parent, SWT.NONE);
         _comp.setLayout(new GridLayout(2, false));
+        
+        final boolean _isValid = checkForPlugins();
+        if (!_isValid) {
+            final Label _lblWarning = new Label(_comp, SWT.CENTER);
+            _lblWarning.setText("Unable to find Peq and ANTLR plugins. Peq View will be disabled.");
+            final GridData _gl = new GridData(GridData.FILL_BOTH);
+            _gl.horizontalSpan = 2;
+            _gl.grabExcessHorizontalSpace = true;
+            _gl.grabExcessVerticalSpace = true;
+            _lblWarning.setLayoutData(_gl);
+            return;            
+        }
+        
         final ResourceManager _rm = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getRManager();
 
@@ -273,6 +288,22 @@ public class PEQView extends ViewPart implements IDeltaListener {
         KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
                 .addListener(this);
         initQueries();
+    }
+
+    /**
+     * Determines if the appropriate plugins have been installed.
+     * @return boolean If all the required plugins are installed.	
+     */
+    private boolean checkForPlugins() {
+        boolean _result = false;
+        final Bundle _bundle = Platform.getBundle("edu.ksu.cis.peq");
+        if (_bundle != null) {
+            final Bundle _antLr = Platform.getBundle("org.antlr");
+            if (_antLr != null) {
+                _result = true;
+            }
+        }
+        return _result;
     }
 
     /**
