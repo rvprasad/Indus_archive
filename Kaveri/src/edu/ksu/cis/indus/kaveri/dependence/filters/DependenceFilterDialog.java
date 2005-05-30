@@ -15,6 +15,10 @@
  
 package edu.ksu.cis.indus.kaveri.dependence.filters;
 
+import com.thoughtworks.xstream.XStream;
+
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 import java.util.List;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -36,10 +40,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-
-import com.thoughtworks.xstream.XStream;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 
 /**

@@ -15,13 +15,14 @@
  
 package edu.ksu.cis.indus.kaveri.callgraph;
 
+import edu.ksu.cis.indus.common.datastructures.Triple;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Stack;
 
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jface.dialogs.Dialog;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -32,8 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-
-import edu.ksu.cis.indus.common.datastructures.Triple;
 
 /**
  * @author ganeshan

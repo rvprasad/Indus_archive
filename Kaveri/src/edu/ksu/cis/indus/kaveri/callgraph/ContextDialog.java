@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.kaveri.callgraph;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -41,8 +43,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 /**
  * @author ganeshan

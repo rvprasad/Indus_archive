@@ -38,14 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jface.resource.ImageDescriptor;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**

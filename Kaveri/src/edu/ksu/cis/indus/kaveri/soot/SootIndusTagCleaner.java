@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.kaveri.soot;
 
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,8 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 
 import soot.Body;
 import soot.Scene;

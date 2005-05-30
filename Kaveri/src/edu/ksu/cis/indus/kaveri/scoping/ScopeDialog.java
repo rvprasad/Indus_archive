@@ -5,6 +5,13 @@
  */
 package edu.ksu.cis.indus.kaveri.scoping;
 
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.CellEditor;
@@ -25,13 +32,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.jibx.runtime.JiBXException;
-
-import edu.ksu.cis.indus.common.scoping.ClassSpecification;
-import edu.ksu.cis.indus.common.scoping.FieldSpecification;
-import edu.ksu.cis.indus.common.scoping.MethodSpecification;
-import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan Displayes the scope selection dialog. The set of enabled

@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
+import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
+
 import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -23,9 +26,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
-import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 /**
  * @author ganeshan

@@ -15,13 +15,13 @@
  
 package edu.ksu.cis.indus.kaveri.scoping;
 
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.graphics.Image;
-
 import edu.ksu.cis.indus.common.scoping.ClassSpecification;
 import edu.ksu.cis.indus.common.scoping.FieldSpecification;
 import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * @author ganeshan

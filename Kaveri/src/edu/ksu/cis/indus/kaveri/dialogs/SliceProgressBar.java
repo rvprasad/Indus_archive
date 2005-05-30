@@ -5,6 +5,8 @@
  */
 package edu.ksu.cis.indus.kaveri.dialogs;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 import org.eclipse.jface.dialogs.ProgressIndicator;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -17,8 +19,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 /**
  * @author ganeshan

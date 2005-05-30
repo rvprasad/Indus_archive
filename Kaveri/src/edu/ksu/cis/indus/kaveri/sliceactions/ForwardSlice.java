@@ -19,17 +19,16 @@
  */
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
-
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 /**
  * Runs a forward slice on the chosen Java statement.

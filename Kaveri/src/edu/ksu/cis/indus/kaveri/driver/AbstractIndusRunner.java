@@ -20,6 +20,23 @@
  */
 package edu.ksu.cis.indus.kaveri.driver;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
+import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,6 +63,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.callhierarchy.CallLocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
@@ -59,24 +77,6 @@ import soot.SootMethod;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.util.Chain;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
-import edu.ksu.cis.indus.kaveri.common.PrettySignature;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
-import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
-import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
-import edu.ksu.cis.indus.slicer.ISliceCriterion;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * This does the bulk of the call to the eclipse indus driver. The settings for

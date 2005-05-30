@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.kaveri.common;
 
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.dialogs.ExceptionDialog;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -55,10 +60,6 @@ import soot.jimple.Stmt;
 import soot.options.Options;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.dialogs.ExceptionDialog;
-import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 /**
  * Common functions used throughout Kaveri.

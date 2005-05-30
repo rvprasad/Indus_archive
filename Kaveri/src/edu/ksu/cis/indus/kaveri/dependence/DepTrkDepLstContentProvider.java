@@ -15,6 +15,19 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
+import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
+import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,19 +50,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import soot.SootMethod;
 import soot.jimple.AssignStmt;
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
-import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
-import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
-import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
-import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * @author ganeshan

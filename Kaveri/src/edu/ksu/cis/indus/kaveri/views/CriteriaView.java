@@ -15,6 +15,17 @@
 
 package edu.ksu.cis.indus.kaveri.views;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.alias.CannotResolveClassException;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.dialogs.Messages;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,17 +69,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.alias.CannotResolveClassException;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.Messages;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
 
 /**
  * @author ganeshan

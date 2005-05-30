@@ -15,6 +15,14 @@
  
 package edu.ksu.cis.indus.kaveri.scoping;
 
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,14 +31,6 @@ import java.util.List;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.jibx.runtime.JiBXException;
-
-import edu.ksu.cis.indus.common.scoping.ClassSpecification;
-import edu.ksu.cis.indus.common.scoping.FieldSpecification;
-import edu.ksu.cis.indus.common.scoping.MethodSpecification;
-import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan

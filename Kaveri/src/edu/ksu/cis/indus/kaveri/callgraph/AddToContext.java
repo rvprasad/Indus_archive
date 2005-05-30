@@ -15,6 +15,11 @@
 
 package edu.ksu.cis.indus.kaveri.callgraph;
 
+import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,10 +46,6 @@ import org.eclipse.ui.IViewPart;
 import soot.SootMethod;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
-import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan

@@ -28,15 +28,11 @@ import edu.ksu.cis.indus.kaveri.driver.J2BIndusRunner;
 import edu.ksu.cis.indus.kaveri.driver.KaveriIndusRunner;
 
 import java.lang.reflect.InvocationTargetException;
-
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-
 import org.eclipse.jface.viewers.ISelection;
-
 import org.eclipse.swt.widgets.Shell;
-
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 

@@ -15,6 +15,36 @@
 
 package edu.ksu.cis.indus.kaveri.peq;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.ResourceManager;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
+import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
+import edu.ksu.cis.indus.peq.customengine.IndusMatcher;
+import edu.ksu.cis.indus.peq.customengine.IndusUniversalQueryEngine;
+
+import edu.ksu.cis.indus.peq.fsm.EFreeNFA2DFATransformer;
+import edu.ksu.cis.indus.peq.fsm.EpsClosureConvertor;
+import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
+import edu.ksu.cis.indus.peq.graph.GraphBuilder;
+import edu.ksu.cis.indus.peq.graph.Node;
+import edu.ksu.cis.indus.peq.indusinterface.IndusInterface;
+import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
+import edu.ksu.cis.indus.peq.queryglue.QueryObject;
+import edu.ksu.cis.peq.fsm.interfaces.IFSM;
+import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
+import edu.ksu.cis.peq.graph.interfaces.INode;
+import edu.ksu.cis.peq.queryengine.AbstractQueryEngine;
+import edu.ksu.cis.peq.queryengine.IQueryProgressListener;
+import edu.ksu.cis.peq.queryengine.UniversalQueryEngine$v1;
+
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,32 +110,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.progress.IProgressService;
 import org.osgi.framework.Bundle;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
 import soot.SootMethod;
 import soot.jimple.Stmt;
-import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.ResourceManager;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
-import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
-import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
-import edu.ksu.cis.indus.peq.customengine.IndusMatcher;
-import edu.ksu.cis.indus.peq.customengine.IndusUniversalQueryEngine;
-import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
-import edu.ksu.cis.indus.peq.graph.GraphBuilder;
-import edu.ksu.cis.indus.peq.graph.Node;
-import edu.ksu.cis.indus.peq.indusinterface.IndusInterface;
-import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
-import edu.ksu.cis.indus.peq.queryglue.QueryObject;
-import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
-import edu.ksu.cis.peq.graph.interfaces.INode;
-import edu.ksu.cis.peq.queryengine.AbstractQueryEngine;
-import edu.ksu.cis.peq.queryengine.IQueryProgressListener;
-import edu.ksu.cis.peq.queryengine.UniversalQueryEngine$v1;
 
 /**
  * @author ganeshan
@@ -510,6 +516,12 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                         } else {
                                             FSMBuilder$v1_2 _fbuilder = new FSMBuilder$v1_2(
                                                     _qo);
+                                            EpsClosureConvertor _ecc = new EpsClosureConvertor(_fbuilder);
+                                            _ecc.processShallow();
+                                            final IFSM _eFreeFSM = _ecc.getResult();
+                                            final EFreeNFA2DFATransformer _efn2dt = new EFreeNFA2DFATransformer(_eFreeFSM);
+                            				_efn2dt.process();		
+                            				final IFSM _dfaFSM = _efn2dt.getDfaAutomata();
                                             final Collection _rootCollection = new LinkedList();
                                             final Pair _initPair = new Pair(
                                                     _stmt, _sm);
@@ -537,11 +549,11 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                             AbstractQueryEngine _ieeq;
                                             if (_qo.isExistential()) {
                                                 _ieeq = new IndusExistentialQueryEngine(
-                                                        _gbuilder, _fbuilder,
+                                                        _gbuilder, _dfaFSM,
                                                         _matcher);
                                                 ((IndusExistentialQueryEngine) _ieeq).addListener(_listener); 
                                             } else {
-                                                _ieeq = new IndusUniversalQueryEngine(_gbuilder, _fbuilder, _matcher);
+                                                _ieeq = new IndusUniversalQueryEngine(_gbuilder,  _dfaFSM, _matcher);
                                                 ((UniversalQueryEngine$v1) _ieeq).addListener(_listener);
                                             }                                             
                                             

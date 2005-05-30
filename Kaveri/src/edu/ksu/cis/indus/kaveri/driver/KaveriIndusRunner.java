@@ -20,6 +20,12 @@
  */
 package edu.ksu.cis.indus.kaveri.driver;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
+import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
+import edu.ksu.cis.indus.tools.IToolProgressListener;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
@@ -33,13 +39,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
-
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
-import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
-import edu.ksu.cis.indus.tools.IToolProgressListener;
 
 /**
  * This does the bulk of the call to the eclipse indus driver. The settings for

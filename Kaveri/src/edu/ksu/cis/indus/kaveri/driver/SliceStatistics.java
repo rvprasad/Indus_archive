@@ -15,9 +15,15 @@
  
 package edu.ksu.cis.indus.kaveri.driver;
 
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
+import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
 import java.util.ArrayList;
 import java.util.Collection;
-//import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
@@ -25,13 +31,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-
-import edu.ksu.cis.indus.common.soot.MetricsProcessor;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
-import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * @author ganeshan

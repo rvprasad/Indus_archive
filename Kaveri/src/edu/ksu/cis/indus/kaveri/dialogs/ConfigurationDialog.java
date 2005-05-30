@@ -14,11 +14,6 @@
 
 package edu.ksu.cis.indus.kaveri.dialogs;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import edu.ksu.cis.indus.common.scoping.ClassSpecification;
 import edu.ksu.cis.indus.common.scoping.FieldSpecification;
 import edu.ksu.cis.indus.common.scoping.MethodSpecification;
@@ -27,20 +22,19 @@ import edu.ksu.cis.indus.common.scoping.TypeSpecification;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.preferencedata.ExceptionListStore;
 import edu.ksu.cis.indus.kaveri.preferences.Messages;
 import edu.ksu.cis.indus.kaveri.scoping.IScopeDialogMorphConstants;
 import edu.ksu.cis.indus.kaveri.scoping.ScopePropertiesSelectionDialog;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.JavaConventions;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IInputValidator;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -70,10 +64,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.jibx.runtime.JiBXException;
-
-import com.thoughtworks.xstream.XStream;
 
 /**
  * This dialog allows you to create and edit the slice configuration.

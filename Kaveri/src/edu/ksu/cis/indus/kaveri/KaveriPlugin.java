@@ -15,10 +15,7 @@
 package edu.ksu.cis.indus.kaveri;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
-
-
 import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
-import edu.ksu.cis.indus.kaveri.preferencedata.ExceptionListStore;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -26,12 +23,8 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import java.net.URL;
-
-
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -41,12 +34,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
 import org.osgi.framework.BundleContext;
-
-import com.thoughtworks.xstream.XStream;
 
 
 /**

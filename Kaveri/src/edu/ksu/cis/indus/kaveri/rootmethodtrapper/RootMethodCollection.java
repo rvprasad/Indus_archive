@@ -15,10 +15,10 @@
  
 package edu.ksu.cis.indus.kaveri.rootmethodtrapper;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import edu.ksu.cis.indus.common.datastructures.Pair;
 
 
 /**

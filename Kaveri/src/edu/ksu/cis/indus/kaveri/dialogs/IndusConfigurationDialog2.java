@@ -20,6 +20,32 @@
  */
 package edu.ksu.cis.indus.kaveri.dialogs;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.alias.CannotResolveClassException;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.scoping.ClassSpecification;
+import edu.ksu.cis.indus.common.scoping.FieldSpecification;
+import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextContentProvider;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextDialog;
+import edu.ksu.cis.indus.kaveri.callgraph.ContextLabelProvider;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodContentProvider;
+import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodLabelProvider;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeViewContentProvider;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeViewLabelProvider;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,32 +97,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.jibx.runtime.JiBXException;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.alias.CannotResolveClassException;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.scoping.ClassSpecification;
-import edu.ksu.cis.indus.common.scoping.FieldSpecification;
-import edu.ksu.cis.indus.common.scoping.MethodSpecification;
-import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.callgraph.ContextContentProvider;
-import edu.ksu.cis.indus.kaveri.callgraph.ContextDialog;
-import edu.ksu.cis.indus.kaveri.callgraph.ContextLabelProvider;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
-import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
-import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodContentProvider;
-import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodLabelProvider;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeViewContentProvider;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeViewLabelProvider;
-import edu.ksu.cis.indus.tools.IToolConfiguration;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * The slice configuration dialog box. Allows you to pick the configuration and

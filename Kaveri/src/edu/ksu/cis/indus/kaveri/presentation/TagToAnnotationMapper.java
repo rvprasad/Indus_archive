@@ -19,6 +19,12 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
+import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,11 +43,6 @@ import soot.jimple.Stmt;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
 import soot.util.Chain;
-import edu.ksu.cis.indus.common.soot.NamedTag;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 /**
  * This class is responsible for returning the mappings between classes and the

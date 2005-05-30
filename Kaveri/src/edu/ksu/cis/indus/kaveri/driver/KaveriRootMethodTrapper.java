@@ -15,6 +15,10 @@
  
 package edu.ksu.cis.indus.kaveri.driver;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,9 +27,6 @@ import soot.ArrayType;
 import soot.RefType;
 import soot.SootMethod;
 import soot.VoidType;
-import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 /**
  * @author ganeshan

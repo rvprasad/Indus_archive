@@ -15,16 +15,15 @@
  
 package edu.ksu.cis.indus.kaveri.preferences;
 
-import org.eclipse.jface.action.IAction;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.dialogs.ConfigurationDialog;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.dialogs.ConfigurationDialog;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * @author ganeshan

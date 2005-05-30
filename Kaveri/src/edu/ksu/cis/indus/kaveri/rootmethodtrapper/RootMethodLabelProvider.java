@@ -15,11 +15,11 @@
  
 package edu.ksu.cis.indus.kaveri.rootmethodtrapper;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-
-import edu.ksu.cis.indus.common.datastructures.Pair;
 
 /**
  * @author ganeshan

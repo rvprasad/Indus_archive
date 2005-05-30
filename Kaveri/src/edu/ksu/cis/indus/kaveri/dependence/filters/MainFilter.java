@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.kaveri.dependence.filters;
 
+import edu.ksu.cis.indus.kaveri.dependence.RightPaneTreeParent;
+
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-
-import edu.ksu.cis.indus.kaveri.dependence.RightPaneTreeParent;
 
 /**
  * @author ganeshan

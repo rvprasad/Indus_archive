@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
-import java.util.Iterator;
-
 import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
+
+import java.util.Iterator;
 
 /**
  * @author ganeshan

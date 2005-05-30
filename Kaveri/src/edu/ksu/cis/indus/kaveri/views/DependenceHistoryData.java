@@ -19,11 +19,11 @@
  */
 package edu.ksu.cis.indus.kaveri.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.datastructures.HistoryTracker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class maintains the set of partial jimple statements for the chosen java

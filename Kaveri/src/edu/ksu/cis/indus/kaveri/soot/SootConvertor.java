@@ -19,6 +19,12 @@
  */
 package edu.ksu.cis.indus.kaveri.soot;
 
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +41,8 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.search.PrettySignature;
+
 import soot.Body;
 import soot.G;
 import soot.Scene;
@@ -46,12 +54,6 @@ import soot.options.Options;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
 import soot.util.Chain;
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.PrettySignature;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 /**
  * This class is responsible for performing the conversion from a specified Java

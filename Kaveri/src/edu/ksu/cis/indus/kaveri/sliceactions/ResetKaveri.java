@@ -15,6 +15,10 @@
  
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
+import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -26,9 +30,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import soot.G;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
-import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 
 /**
  * @author ganeshan

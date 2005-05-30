@@ -22,16 +22,13 @@ package edu.ksu.cis.indus.kaveri.driver;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
-
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
-
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 import edu.ksu.cis.indus.tools.slicer.contextualizers.StaticSliceCriteriaCallStackContextualizer;
@@ -41,9 +38,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import java.net.URL;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +51,6 @@ import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.core.runtime.Path;
 import org.jibx.runtime.JiBXException;
 
@@ -65,14 +59,10 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
-
 import soot.options.Options;
-
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
-
 import soot.util.Chain;
 
 /**
