@@ -294,14 +294,16 @@
       <decorator
             lightweight="true"
             adaptable="true"
-            objectClass="org.eclipse.core.resources.IResource"
             label="Kaveri.Decorator"
             class="edu.ksu.cis.indus.kaveri.decorator.IndusDecorator"
             icon="data/icons/indus-decorator.gif"
             location="TOP_LEFT"
             id="edu.ksu.cis.indus.kaveri.decorator">
-         <description/> The indus slice decorator.
-      </decorator>
+         <description/>
+         <enablement>
+            <objectClass name="org.eclipse.core.resources.IResource"/>
+         </enablement> The indus slice decorator.
+      </decorator>           
    </extension>
    <extension
          point="org.eclipse.ui.views">

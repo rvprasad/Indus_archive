@@ -666,7 +666,9 @@ public class PEQView extends ViewPart implements IDeltaListener {
      * @see org.eclipse.ui.IWorkbenchPart#setFocus()
      */
     public void setFocus() {
+    	if (cmbQuery != null) {
         cmbQuery.setFocus();
+    	}
     }
 
     class TreeObject implements IAdaptable {

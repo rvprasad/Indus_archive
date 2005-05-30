@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.core.CompilationUnit;
 
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import org.eclipse.jface.text.ITextSelection;
@@ -56,6 +55,7 @@ import soot.G;
 
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog2;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;

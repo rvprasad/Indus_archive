@@ -41,7 +41,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
+import org.eclipse.jdt.internal.ui.search.PatternStrings;
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -89,7 +89,7 @@ public final class SECommons {
      *         declaration.
      */
     public static String getProperMethodName(final IMethod method) {
-        String _methodPattern = PrettySignature.getMethodSignature(method);
+        String _methodPattern = PatternStrings.getMethodSignature(method);
         final int _index = _methodPattern.indexOf('(');
         final String _fullclassString = _methodPattern.substring(0, _index);
         final int _index1 = _fullclassString.lastIndexOf(".");

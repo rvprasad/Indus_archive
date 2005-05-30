@@ -25,8 +25,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
-
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -63,18 +61,19 @@ import org.eclipse.ui.internal.util.StatusLineContributionItem;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import soot.SootMethod;
+
 import com.thoughtworks.xstream.XStream;
 
-import soot.SootMethod;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dependence.filters.DependenceFilterDialog;
 import edu.ksu.cis.indus.kaveri.dependence.filters.FilterCollector;
 import edu.ksu.cis.indus.kaveri.dependence.filters.FilterInstance;
 import edu.ksu.cis.indus.kaveri.dependence.filters.MainFilter;
-
 import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.DependenceStackData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;

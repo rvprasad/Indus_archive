@@ -35,8 +35,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
-
 import soot.Body;
 import soot.G;
 import soot.Scene;
@@ -51,6 +49,7 @@ import soot.util.Chain;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.Messages;
 
