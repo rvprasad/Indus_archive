@@ -22,6 +22,7 @@ package edu.ksu.cis.indus.kaveri.presentation;
 
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
@@ -44,7 +45,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;

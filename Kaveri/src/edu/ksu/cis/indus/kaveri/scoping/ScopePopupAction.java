@@ -12,6 +12,7 @@ import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.scoping.TypeSpecification;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 
 import java.util.LinkedList;
@@ -23,7 +24,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ISelection;
