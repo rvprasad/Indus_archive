@@ -1,23 +1,20 @@
-package edu.ksu.cis.indus.kaveri.common;
-
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+package edu.ksu.cis.indus.kaveri.common;
 
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
-
-import org.eclipse.jdt.ui.JavaElementLabels;
+import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 public class PrettySignature {
 
@@ -29,9 +26,7 @@ public class PrettySignature {
 				case IJavaElement.METHOD:
 					return getMethodSignature((IMethod)element);
 				case IJavaElement.TYPE:
-					return getTypeSignature((IType) element);
-				case IJavaElement.FIELD:
-					return getFieldSignature((IField) element);
+					return JavaModelUtil.getFullyQualifiedName((IType)element);
 				default:
 					return element.getElementName();
 			}
@@ -39,9 +34,7 @@ public class PrettySignature {
 	
 	public static String getMethodSignature(IMethod method) {
 		StringBuffer buffer= new StringBuffer();
-		buffer.append(JavaElementLabels.getElementLabel(
-			method.getDeclaringType(), 
-			JavaElementLabels.T_FULLY_QUALIFIED | JavaElementLabels.USE_RESOLVED));
+		buffer.append(JavaModelUtil.getFullyQualifiedName(method.getDeclaringType()));
 		boolean isConstructor= method.getElementName().equals(method.getDeclaringType().getElementName());
 		if (!isConstructor) {
 			buffer.append('.');
@@ -50,8 +43,12 @@ public class PrettySignature {
 		
 		return buffer.toString();
 	}
+
+	public static String getUnqualifiedTypeSignature(IType type) {
+		return type.getElementName();
+	}
 	
-	private static String getUnqualifiedMethodSignature(IMethod method, boolean includeName) {
+	public static String getUnqualifiedMethodSignature(IMethod method, boolean includeName) {
 		StringBuffer buffer= new StringBuffer();
 		if (includeName) {
 			buffer.append(method.getElementName());
@@ -59,12 +56,13 @@ public class PrettySignature {
 		buffer.append('(');
 		
 		String[] types= method.getParameterTypes();
-		for (int i= 0; i < types.length; i++) {
-			if (i > 0)
-				buffer.append(", "); //$NON-NLS-1$
-			String typeSig= Signature.toString(types[i]);
-			buffer.append(typeSig);
+		if (types.length > 0)
+			buffer.append(Signature.toString(types[0]));
+		for (int i= 1; i < types.length; i++) {
+			buffer.append(", "); //$NON-NLS-1$
+			buffer.append(Signature.toString(types[i]));
 		}
+		
 		buffer.append(')');
 		
 		return buffer.toString();
@@ -72,14 +70,5 @@ public class PrettySignature {
 
 	public static String getUnqualifiedMethodSignature(IMethod method) {
 		return getUnqualifiedMethodSignature(method, true);
-	}
-
-	public static String getTypeSignature(IType field) {
-		return JavaElementLabels.getElementLabel(field, 
-			JavaElementLabels.T_FULLY_QUALIFIED | JavaElementLabels.T_TYPE_PARAMETERS | JavaElementLabels.USE_RESOLVED);
-	}	
-	
-	public static String getFieldSignature(IField field) {
-		return JavaElementLabels.getElementLabel(field, JavaElementLabels.F_FULLY_QUALIFIED);
 	}	
 }
