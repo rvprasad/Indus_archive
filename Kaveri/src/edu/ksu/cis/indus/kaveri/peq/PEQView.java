@@ -490,9 +490,7 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                                 .getStmtList().subList(
                                                         2,
                                                         _psd.getStmtList()
-                                                                .size());
-                                        final Stmt _stmt = (Stmt) _jimpleList
-                                                .get(_jimpleList.size() - 1);
+                                                                .size());                                        
                                         final SootMethod _sm = (SootMethod) _psd
                                                 .getStmtList().get(1);
                                         monitor.worked(5);
@@ -523,9 +521,13 @@ public class PEQView extends ViewPart implements IDeltaListener {
                             				_efn2dt.process();		
                             				final IFSM _dfaFSM = _efn2dt.getDfaAutomata();
                                             final Collection _rootCollection = new LinkedList();
-                                            final Pair _initPair = new Pair(
-                                                    _stmt, _sm);
-                                            _rootCollection.add(_initPair);
+                                            for (int _i=0; _i < _jimpleList.size(); _i++) {
+                                                final Stmt _stmt = (Stmt) _jimpleList.get(_i);
+                                                final Pair _initPair = new Pair(
+                                                        _stmt, _sm);
+                                                _rootCollection.add(_initPair);    
+                                            }
+                                            
                                             final GraphBuilder _gbuilder = new GraphBuilder(
                                                     _rootCollection);
                                             final IndusMatcher _matcher = new IndusMatcher();
