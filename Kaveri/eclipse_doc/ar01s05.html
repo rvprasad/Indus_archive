@@ -8,7 +8,7 @@
 					<a href="http://projects.cis.ksu.edu/docman/view.php/12/71/slicer-ug.pdf" target="_top">Indus Java Slicer Documentation</a>
  				</p></li><li><span class="bold"><b>Jimple</b></span>
 				 - Jimple is a typed 3-address intermediate representation of Java and Indus slicer operates on Jimple. Hence, all the Java code is converted into Jimple and then fed to the Slicer. The slicer calculates the slice of the given system in terms of Jimple. 
-				<div class="example"><a name="d0e122"></a><p class="title"><b>Example&nbsp;1.&nbsp;Example conversion of Java into Jimple</b></p><p>
+				<div class="example"><a name="d0e135"></a><p class="title"><b>Example&nbsp;1.&nbsp;Example conversion of Java into Jimple</b></p><p>
 						Consider 
 						<tt class="code">nw++</tt>
 						, a Java expression. Following is a Jimple representation of this expression: 
@@ -28,13 +28,13 @@
 					 , the user has to pick one or more of the Jimple statements to which the Java statement/expression is mapped to. For more information about Jimple please refer to 
 					[<span class="citation">VH98</span>]
 					. For more exposition about how to pick criteria closest to your requirements, please refer to 
-					<span class="bold"><b><a href="ar01s10.html">Appendix - How to pick criteria</a>.</b></span>
+					<span class="bold"><b><a href="ar01s11.html">Appendix - How to pick criteria</a>.</b></span>
  				</p></li><li><p>
 					<span class="bold"><b>Value of the expression</b></span>
 					 - When an expression / statement is specified as a criteria, does this mean that: 
 					</p><div class="itemizedlist"><ul type="circle"><li>The value of the expression should be preserved (post-execution) or</li><li>The control reaching the expression should be preserved (pre-execution) </li></ul></div><p>
 					In the former we consider all those statements which might affect the computed value of the expression while in the latter we consider only those statements through which control can reach the selected expression or statement. 
-					</p><div class="example"><a name="d0e177"></a><p class="title"><b>Example&nbsp;2.&nbsp;Example to show the influence of control or value while choosing a criteria</b></p><p>
+					</p><div class="example"><a name="d0e190"></a><p class="title"><b>Example&nbsp;2.&nbsp;Example to show the influence of control or value while choosing a criteria</b></p><p>
 							Consider the following fragment of code. 
 							</p><pre class="programlisting">
 public static void main(final String[] args) { 

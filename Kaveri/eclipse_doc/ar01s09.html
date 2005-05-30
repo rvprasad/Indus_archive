@@ -1,27 +1,102 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Features</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s08.html" title="Dependence Chasing"><link rel="next" href="ar01s10.html" title="Appendix - How to pick criteria"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Features</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Features"></a>Features</h2></div></div><div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e703"></a>Toolbar buttons</h3></div></div><div></div></div><p>
-				The following toolbar buttons are activated when a Java file is open in the editor. 
-				</p><div class="figure"><a name="toolbars"></a><p class="title"><b>Figure&nbsp;10.&nbsp;Toolbars</b></p><div><img src="images/toolbars.png" width="382" height="254.00000000000003" alt="Toolbars"></div></div><p>
-			</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e713"></a>Slice highlight toggle</h4></div></div><div></div></div><p>The slice toggle menu button is used to toggle the slice highlighting on / off in the Java editor. After a file is sliced, open it and press this button to show the slice in the editor. </p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e718"></a>Backward Slice</h4></div></div><div></div></div><p>To run a backward slice without going through the criteria and configuration selection phases, you can select a Java statement and press the <span class="emphasis"><em>backward slice menu button</em></span> to run a backward slice with the selected statement as the criteria. After the slice if performed the relevant statements are highlighted automatically.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e726"></a>Forward Slice</h4></div></div><div></div></div><p>To run the forward slice on a given Java statement select it and press the <span class="emphasis"><em>Forward Slice menu button</em></span>. Note that Indus currently supports only non-executable forward slicing.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e734"></a>Reset</h4></div></div><div></div></div><p>The reset button resets the slice, removes the annotations and clears the views. If any changes are made to the program, it is advisable to press this button as 
-				doing so resets soot, allowing the changed code to be sliced.</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e739"></a>Slice label decoration</h3></div></div><div></div></div><p>
-				Kaveri has a 
-				<span class="emphasis"><em>label decorator</em></span>
-				 that annotates the list of Java files shown in the package or navigator window with a marker to indicate that the file has a slice associated with it. To enable or disable it go to 
-				<span class="bold"><b>Window -&gt; Preferences -&gt; Workbench -&gt; Label Decorations</b></span>
-				 from the Eclipse menu and toggle the checkbox with the 
-				<span class="emphasis"><em>Kaveri.Decorator</em></span>
-				 label. 
-				</p><div class="figure"><a name="decoration"></a><p class="title"><b>Figure&nbsp;11.&nbsp;Slice label decorator</b></p><div><img src="images/annotation.png" width="224" height="233" alt="Slice label decorator"></div></div><p>
-			</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e758"></a>Criteria View</h3></div></div><div></div></div><p>
-				The <span class="bold"><b>criteria view</b></span> allows the user to view the criteria specified in a  Java file. The view can be activated from <span class="bold"><b>Window -&gt; Show Views -&gt; Kaveri -&gt; Criteria View</b></span>.
-				Once the view is open, loading any Java file in the editor displays the list of criteria specified in that file, in the criteria view. This is helpful for the user in determining the list of criterias specified for a given Java file.
-				</p><div class="figure"><a name="criteriaview"></a><p class="title"><b>Figure&nbsp;12.&nbsp;Criteria View</b></p><div><img src="images/criteriaview.png" width="481.99999999999994" height="216" alt="Criteria View"></div></div><p>
-				
-			</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e774"></a>Indus Menu</h3></div></div><div></div></div><p>The <span class="bold"><b>Indus Menu</b></span> visible in the main eclipse menu bar allows the user to quickly access Indus features. The following
-				items are included at the moment:
-				</p><div class="itemizedlist"><ul type="disc"><li><span class="bold"><b>Slicer Configuration:</b></span> This is a shortcut to the Indus preferences option. It allows you to 
-						change the slicer configurations, manage the scope entities and add elements to the exception ignore list.</li><li><span class="bold"><b>Slice Statistics:</b></span> This action presents statistics for the previously performed slice.
-					</li></ul></div><p>
-				More items will be included in this menu to increase the usability of the tool.				
-			</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Dependence Chasing&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix - How to pick criteria</td></tr></table></div></body></html>
+   <title>Parametric Regular Path Queries</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s08.html" title="Dependence Chasing"><link rel="next" href="ar01s10.html" title="Features"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Parametric Regular Path Queries</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e710"></a>Parametric Regular Path Queries</h2></div></div><div></div></div><p>
+                    Kaveri now includes an implementation of the parametric regular path query engine. Regular path queries are regular expression based
+                    queries that are matched against graph paths. The result of the query is a graph path that satisfies the properties specified by the query.
+                    Parametric regular path queries extend the regular expression pattern with variables called parameters. These parameters are bound 
+                    to special values in the path as the property is satisfied. They are useful in finding paths with interesting properties or for 
+                    verifying properties along all paths between two nodes in the graph.  For details about the parametric regular queries please
+                    refer to [<span class="citation">PEQ</span>]. 
+                    There are two kinds of queries that are supported:
+                    </p><div class="itemizedlist"><ul type="disc"><li><span class="bold"><b>Existential Queries:</b></span> These determine if there exist paths in the graph that 
+                        satisfy a given property. The query is run from a starting node and the result of the query is all the paths leading out from that
+                        node that satisfy the given property.</li><li><span class="bold"><b>Universal Queries:</b></span> These determine if all the paths from a given node 
+                        satisfy the given property. They are used for verifying properties along paths in the graph.</li></ul></div><p>
+                    In Kaveri, the queries are run on the program dependency graph as calculated by Indus. The graph is constructed 
+                    as follows:
+                    </p><div class="itemizedlist"><ul type="disc"><li><span class="bold"><b>Node:</b></span> Nodes are linked to Jimple program points.</li><li><span class="bold"><b>Edges:</b></span> Edges connect program points with each edge having a label. The label indicates the dependency relation between the two
+                        program points.</li></ul></div><p>
+                    The query is thus a program dependency based parametric regular expression. The BNF for the input query language is as follows:
+                    </p><div class="blockquote"><blockquote class="blockquote"><div class="literallayout"><p><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Query&nbsp;:=&nbsp;("Equery"&nbsp;|&nbsp;"Uquery")&nbsp;&nbsp;Name&nbsp;{&nbsp;union&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;:=&nbsp;('a'..'z'|'A'..'Z')&nbsp;('a'..'z'|'A'..'Z'|'_'|'0'..'9')*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;union&nbsp;:=&nbsp;repterm&nbsp;repterm*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repterm&nbsp;:=&nbsp;term&nbsp;repetition?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repetition&nbsp;:=&nbsp;&nbsp;?&nbsp;|&nbsp;*&nbsp;|&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;term&nbsp;:=&nbsp;group&nbsp;|&nbsp;atom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group&nbsp;:=&nbsp;'('&nbsp;union&nbsp;')'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atom&nbsp;:=&nbsp;&lt;&nbsp;constructor&nbsp;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor&nbsp;:=&nbsp;constructor-name&nbsp;'('&nbsp;var-name&nbsp;')'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var-name&nbsp;:=&nbsp;('a'..'z'|'A'..'Z'|'_')&nbsp;('a'..'z'|'A'..'Z'|'_'|'0'..'9')*&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></blockquote></div><p>
+                    The constructors are defined as follows: (x is the variable name).                                      
+                    </p><div class="orderedlist"><ol type="1"><li>cdepd(x) : Follow the control dependence edge from the current node and reach the
+                        point that the current node is control dependent on. x binds to current node.</li><li>cdept(x) : Follow the control dependence edge from the current node and reach the
+                        point that control dependent on the current node. x binds to current node.</li><li>idef(x) : Follow the identifier data dependence  edge from the current node and reach the
+                        point where the variable used in the current node is defined. x binds to local variable.</li><li>iuse(x) : Follow the identifier data dependence  edge from the current node and reach the
+                        point where the variable defined in the current node is used. x binds to local variable.</li><li>idepd(x) : Follow the interference dependence edge from the current node and reach the
+                        point that the current node is interference depedent on. x binds to soot field that causes the interference.</li><li>idept(x) : Follow the interference dependence edge from the current node and reach the
+                        point that the node that is interference dependent on the current node. x binds to soot field that causes the interference.</li><li>rdepd(x) : Follow the ready dependence edge from the current node and reach the
+                        point that the current node is ready dependent on. x binds to current node.</li><li>rdept(x) : Follow the ready dependence edge from the current node and reach the
+                        point that ready dependent on the current node. x binds to current node.</li><li>sdepd(x) : Follow the synchronization dependence edge from the current node and reach the
+                        point that the current node is synchronization dependent on. x binds to current node.</li><li>sdept(x) : Follow the synchronization dependence edge from the current node and reach the
+                        point that synchronization dependent on the current node. x binds to current node.</li><li>ddepd(x) : Follow the divergence dependence edge from the current node and reach the
+                        point that the current node is divergence dependent on. x binds to current node.</li><li>ddept(x) : Follow the divergence dependence edge from the current node and reach the
+                        point that divergence dependent on the current node. x binds to current node.</li><li>rdef(x) : Follow the reference data dependence  edge from the current node and reach the
+                        point where the variable used in the current node is defined. x binds to reference variable.</li><li>ruse(x) : Follow the reference data dependence  edge from the current node and reach the
+                        point where the variable defined in the current node is used. x binds to reference variable.</li></ol></div><p>                    
+                </p><p>
+                    Examples of valid queries are:
+                    </p><div class="itemizedlist"><ul type="disc"><li>Equery q1 { &lt;idept(x)&gt; (&lt;sdepd(y)&gt;)}; - This existential query finds a path where the first edge
+                        in the path is a interference dependent edge on the starting node and the second edge is a synchronization dependee edge.
+                            So it matches the following code:
+<pre class="programlisting">
+    Thread 1:
+    
+    if (a&gt;b) {
+     t = s + 10;
+    }
+    ............
+    Thread 2:    
+    synchronized(obj) {
+    System.out.printtln(t);
+    }
+    ......
+    System.out.println("t = " + t);
+</pre>
+                           As per the query, x binds to the reference variable <span class="emphasis"><em>t</em></span> and y binds to the program point <span class="emphasis"><em>System.out.println(t)</em></span>.
+                        </li><li>
+                            Uquery q2 { &lt;cdept(x)&gt; (&lt;iuse(y)&gt;)*}; This query matches the paths from the starting point where all the paths have one contol dependent edge
+                            and zero or more variable usage edges. No other type of edges are allowed between the points.
+                            This matches the following fragment:
+                            <pre class="programlisting">
+ if (a &gt; b) {
+     e = 10;
+      f = 20;                                
+ }
+                                
+ r = e * 10;                                                                
+                            </pre>
+                            According to the query in the first result , x binds to <span class="emphasis"><em>if (a&gt;b)</em></span> and y binds to <span class="emphasis"><em>e</em></span>. In the
+                            second result x binds to <span class="emphasis"><em>if (a&gt;b)</em></span> following the control dependence between <span class="emphasis"><em>if(a&gt;b)</em></span>
+                            and <span class="emphasis"><em>f=20;</em></span>.
+                        </li></ul></div><p>
+                    To run the parametric queries, the peq view has to be activated. This can be done from <span class="bold"><b>Window -&gt; Show View -&gt; Others
+                    -&gt; Kaveri -&gt; Peq View</b></span>. Before using the peq view, a slice must already have been performed. Also a point to be noted is that the 
+                    dependence information available from peq depends on the configuration used by the slice. If the particular configuration disables a dependence 
+                    and the query uses it, the result will be empty even though edges might exist in reality. So before using the peq engine, please use a slice configuration with all the
+                    dependencies turned on. The following toolbar buttons are present in the view:
+                    </p><div class="itemizedlist"><ul type="disc"><li><span class="bold"><b>Tracking: </b></span>Switches the view on/off like the Jimple view.</li><li><span class="bold"><b>Add a query: </b></span>Opens a text box where the query can be entered. A default template is provided.</li><li><span class="bold"><b>Run the query :</b></span>Runs the query and populates the result tab..</li><li><span class="bold"><b>Update the statement: </b></span>Updates the location from which to run the query. To use it, navigate to a different
+                        program point in the Java editor and press Update to change the starting location of the query..</li><li><span class="bold"><b>Remove the query: </b></span>Deletes the currently selected query from the combo box.</li></ul></div><p>
+                    Steps to use the query engine:
+                    </p><div class="orderedlist"><ol type="1"><li>Switch the view to on state by toggling the tracking toolbar button.</li><li>Naviate to the desired program point in the Java editor.</li><li>Press update to refresh the view.</li><li>Press add to add a new query or pick a query from the combo box.</li><li>Press run to run the query. The result pane is populated with the results of the query. The result nodes can be expaned to  view the
+                            graph edge that was matched. Double clicking on the edge source and destination nodes highlights the corressponding Java statement in the editor.
+                            The substitutions that were made till that point are displayed on the right pane. Click on the result node to get the complete substitution map.
+                        </li></ol></div><p>
+                    
+                    </p><div class="figure"><a name="peqview"></a><p class="title"><b>Figure&nbsp;9.&nbsp;Peq View</b></p><div><img src="images/peq.png" width="464.00000000000006" height="263" alt="Peq View"></div></div><p>
+                        <span class="emphasis"><em>
+        Using PEQ requires that the ANTLR eclipse plugin is installed. It can be obtained from http://antlreclipse.sourceforge.net/ . Also the peq eclipse plugin has
+        to be installed separately. Install procedure for the peq plugin is similar to that of Kaveri. 
+    </em></span>
+                </p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Dependence Chasing&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Features</td></tr></table></div></body></html>

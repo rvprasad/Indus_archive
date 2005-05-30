@@ -1,54 +1,27 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Appendix - How to pick criteria</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s09.html" title="Features"><link rel="next" href="ar01s11.html" title="Appendix - Creating Scope Specifications"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix - How to pick criteria</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Appendix-1"></a>Appendix - How to pick criteria</h2></div></div><div></div></div><p>As mentioned before, the criteria for slicing is a Jimple statement. When a Java statement is picked, the user is allowed to select one of the corresponding Jimple statements as the criteria. The following examples show how to choose the correct Jimple statement depending on the requirement.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e797"></a>Examples of picking Jimple criteria</h3></div></div><div></div></div><div class="example"><a name="d0e800"></a><p class="title"><b>Example&nbsp;3.&nbsp;Setting up criteria for an assignment statement</b></p><p>
-					Consider the simple statement : 
-					<tt class="code">nw++</tt>
-					, where nw is a integer. The equivalent Jimple for this statement consists of the following: 
-					</p><div class="itemizedlist"><ul type="disc"><li><p>
-								<tt class="code">$i2 = r0.&lt;myPackage.Monitor: int nw&gt;</tt>
-							</p></li><li><p>
-								<tt class="code">$i3 = $i2 + 1</tt>
-							</p></li><li><p>
-								<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt>
-							</p></li></ul></div><p>
-					Here 
-					<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; </tt>
-					corresponds to the variable nw. So to pick 
-					<tt class="code">nw = nw + 1 </tt>
-					as a criteria you would pick the last statement 
-					<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt>
-					as in that statement the final value of nw is assigned. 
-				</p></div><div class="example"><a name="d0e837"></a><p class="title"><b>Example&nbsp;4.&nbsp;Setting up criteria for a function call</b></p><p>
-					Consider the expression 
-					<tt class="code">monitor.start_write()</tt>
-					. The Jimple for this consists of two statements: 
-					</p><div class="itemizedlist"><ul type="disc"><li><tt class="code">r1 = r0.&lt;myPackage.Writers: myPackage.Monitor mon&gt;</tt></li><li><tt class="code">virtualinvoke r1.&lt;myPackage.Monitor: void start_write()&gt;()</tt></li></ul></div><p>
-					To pick the function call, the second statement 
-					<tt class="code">virtualinvoke r1.&lt;myPackage.Monitor: void start_write()&gt;()</tt>
-					is to be selected as it involves the call to the function 
-					<tt class="code">start_write()</tt>
-					in the 
-					<tt class="code">Monitor</tt>
-					class. 
-				</p></div><div class="example"><a name="d0e862"></a><p class="title"><b>Example&nbsp;5.&nbsp;Setting up criteria for a conditional</b></p><p>
-					Consider the expression: 
-					<tt class="code">if (!empty(Clist))</tt>
-					. The equivalent Jimple for this statement is: 
-					</p><div class="itemizedlist"><ul type="disc"><li><p>
-								<tt class="code">$r4 = r0.&lt;temp.DiskScheduler:java.util.LinkedList Clist&gt;</tt>
-							</p></li><li><p>
-								<tt class="code">$z0 = virtualinvoke r0.&lt;temp.DiskScheduler: boolean empty(java.util.LinkedList)&gt;($r4)</tt>
-							</p></li><li><p>
-								<tt class="code">if $z0 != 0 goto $r7 = r0.&lt;temp.DiskScheduler:java.util.LinkedList NList&gt;</tt>
-							</p></li></ul></div><p>
-					To pick the function call 
-					<tt class="code">empty(Clist) </tt>
-					you would choose the second statement 
-					<tt class="code">$z0 = virtualinvoke r0.&lt;temp.DiskScheduler: boolean empty(java.util.LinkedList)&gt; </tt>
-					as it invokes the 
-					<tt class="code">empty()</tt>
-					method. On the other hand if you wanted to choose the 
-					<tt class="code">if </tt>
-					conditional you would choose the last line 
-					<tt class="code">if $z0 != 0 goto $r7 = r0.&lt;temp.DiskScheduler:java.util.LinkedList NList&gt;</tt>
-				</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Features&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix - Creating Scope Specifications</td></tr></table></div></body></html>
+   <title>Features</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s09.html" title="Parametric Regular Path Queries"><link rel="next" href="ar01s11.html" title="Appendix - How to pick criteria"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Features</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Features"></a>Features</h2></div></div><div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e855"></a>Toolbar buttons</h3></div></div><div></div></div><p>
+				The following toolbar buttons are activated when a Java file is open in the editor. 
+				</p><div class="figure"><a name="toolbars"></a><p class="title"><b>Figure&nbsp;10.&nbsp;Toolbars</b></p><div><img src="images/toolbars.png" width="382" height="254.00000000000003" alt="Toolbars"></div></div><p>
+			</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e865"></a>Slice highlight toggle</h4></div></div><div></div></div><p>The slice toggle menu button is used to toggle the slice highlighting on / off in the Java editor. After a file is sliced, open it and press this button to show the slice in the editor. </p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e870"></a>Backward Slice</h4></div></div><div></div></div><p>To run a backward slice without going through the criteria and configuration selection phases, you can select a Java statement and press the <span class="emphasis"><em>backward slice menu button</em></span> to run a backward slice with the selected statement as the criteria. After the slice if performed the relevant statements are highlighted automatically.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e878"></a>Forward Slice</h4></div></div><div></div></div><p>To run the forward slice on a given Java statement select it and press the <span class="emphasis"><em>Forward Slice menu button</em></span>. Note that Indus currently supports only non-executable forward slicing.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e886"></a>Reset</h4></div></div><div></div></div><p>The reset button resets the slice, removes the annotations and clears the views. If any changes are made to the program, it is advisable to press this button as 
+				doing so resets soot, allowing the changed code to be sliced.</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e891"></a>Slice label decoration</h3></div></div><div></div></div><p>
+				Kaveri has a 
+				<span class="emphasis"><em>label decorator</em></span>
+				 that annotates the list of Java files shown in the package or navigator window with a marker to indicate that the file has a slice associated with it. To enable or disable it go to 
+				<span class="bold"><b>Window -&gt; Preferences -&gt; Workbench -&gt; Label Decorations</b></span>
+				 from the Eclipse menu and toggle the checkbox with the 
+				<span class="emphasis"><em>Kaveri.Decorator</em></span>
+				 label. 
+				</p><div class="figure"><a name="decoration"></a><p class="title"><b>Figure&nbsp;11.&nbsp;Slice label decorator</b></p><div><img src="images/annotation.png" width="224" height="233" alt="Slice label decorator"></div></div><p>
+			</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e910"></a>Criteria View</h3></div></div><div></div></div><p>
+				The <span class="bold"><b>criteria view</b></span> allows the user to view the criteria specified in a  Java file. The view can be activated from <span class="bold"><b>Window -&gt; Show Views -&gt; Kaveri -&gt; Criteria View</b></span>.
+				Once the view is open, loading any Java file in the editor displays the list of criteria specified in that file, in the criteria view. This is helpful for the user in determining the list of criterias specified for a given Java file.
+				</p><div class="figure"><a name="criteriaview"></a><p class="title"><b>Figure&nbsp;12.&nbsp;Criteria View</b></p><div><img src="images/criteriaview.png" width="481.99999999999994" height="216" alt="Criteria View"></div></div><p>
+				
+			</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e926"></a>Indus Menu</h3></div></div><div></div></div><p>The <span class="bold"><b>Indus Menu</b></span> visible in the main eclipse menu bar allows the user to quickly access Indus features. The following
+				items are included at the moment:
+				</p><div class="itemizedlist"><ul type="disc"><li><span class="bold"><b>Slicer Configuration:</b></span> This is a shortcut to the Indus preferences option. It allows you to 
+						change the slicer configurations, manage the scope entities and add elements to the exception ignore list.</li><li><span class="bold"><b>Slice Statistics:</b></span> This action presents statistics for the previously performed slice.
+					</li></ul></div><p>
+				More items will be included in this menu to increase the usability of the tool.				
+			</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s11.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Parametric Regular Path Queries&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix - How to pick criteria</td></tr></table></div></body></html>

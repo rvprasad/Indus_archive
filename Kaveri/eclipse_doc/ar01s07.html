@@ -8,11 +8,11 @@
 							 for slicing. The 
 							<span class="bold"><b>Additive slice display </b></span>
 							 check box indicates that the new slice should be added onto the display of the previous slice. This displays the slice as the union of the previous and the new slice. 
-							</p><div class="figure"><a name="sliceparameters"></a><p class="title"><b>Figure&nbsp;6.&nbsp;Running the slicer</b></p><div><img src="images/sliceproperties.png" width="482.99999999999994" height="374.00000000000006" alt="Running the slicer"></div></div><p>
+							</p><div class="figure"><a name="sliceparameters"></a><p class="title"><b>Figure&nbsp;5.&nbsp;Running the slicer</b></p><div><img src="images/sliceproperties.png" width="482.99999999999994" height="374.00000000000006" alt="Running the slicer"></div></div><p>
 						</p></dd><dt><span class="term">Step 3</span></dt><dd>Pick the scope that needs to be considered during the slice. The <span class="bold"><b>Scope</b></span> tab in the <span class="emphasis"><em>slice configuration</em></span> dialog  enables the user to choose the scopes to be considered from the set of scope specifications created previously. </dd><dt><span class="term">Step 4</span></dt><dd>Pick the context for the slice, if required. The <span class="bold"><b>Contexts</b></span> tab in the <span class="emphasis"><em>slice configuration</em></span> dialog allows the user to specify the context for the slice.
-						Please refer to <span class="bold"><b><a href="ar01s12.html">Appendix - Contexts</a></b></span> for details about picking contexts.
+						Please refer to <span class="bold"><b><a href="ar01s13.html">Appendix - Contexts</a></b></span> for details about picking contexts.
 					</dd><dt><span class="term">Step 5</span></dt><dd>Manage the set of additional root methods. The <span class="bold"><b>Root Methods </b></span> tab in the <span class="emphasis"><em>slice configuration</em></span> dialog  allows the user to
-						delete any user-defined root methods before performing the slice. Please refer to  <span class="bold"><b><a href="ar01s13.html">Appendix - Root Methods</a></b></span> for details about adding custom root methods.
+						delete any user-defined root methods before performing the slice. Please refer to  <span class="bold"><b><a href="ar01s14.html">Appendix - Root Methods</a></b></span> for details about adding custom root methods.
 					</dd><dt><span class="term">Step 6</span></dt><dd>Change the classpath used for slicing, if required. The <span class="bold"><b>Slice Class Path</b></span> tab in the <span class="emphasis"><em>slice configuration</em></span> dialog  allows the user to
 						change the classpath used by soot. The user can change the classpath to instrument alternative libraries in order to increase the speed of slicing. 
 					</dd><dt><span class="term">Step 7</span></dt><dd><p>
@@ -21,11 +21,11 @@
 							 button to start the slicing. A progress dialog indicates the progress of the slicing. After the slice is completed, open the Java file if it is not currently open. If the 
 							<span class="emphasis"><em>Kaveri decorator</em></span>
 							 is enabled (Refer to 
-							<a href="ar01s09.html#decoration">Figure 10</a>
+							<a href="ar01s10.html#decoration">Figure 10</a>
 							 ) the slice is automatically highlighted. Else press the 
 							<span class="emphasis"><em>Slice Toggle</em></span>
 							 button 
-							<span class="emphasis"><em>(Refer to <a href="ar01s09.html#toolbars">Figure 9</a>) </em></span>
+							<span class="emphasis"><em>(Refer to <a href="ar01s10.html#toolbars">Figure 9</a>) </em></span>
 							 to highlight the slice in the editor. There are two types of highlighting that are displayed. Java statements for which all the corresponding Jimple statements have the slice tag are highlighted in once color while those in which only a part of the Jimple statements have the slice tag are highlighted in a different color. To change the color for the slice highlighting go to 
 							<span class="bold"><b>Window -&gt; Preferences -&gt; Workbench -&gt; Editors -&gt; Annotations</b></span>
 							 from the Eclipse menu and change the color for the ' 
@@ -33,6 +33,6 @@
 							 for the complete slice element highlight annotation and 
 							<span class="bold"><b>IndusPartialSliceAnnotation</b></span>
 							 for the partial slice element highlight annotation. You may have to reopen the file in the editor and toggle the slice highlight for the change in color to be updated. 
-							</p><div class="figure"><a name="viewslice"></a><p class="title"><b>Figure&nbsp;7.&nbsp;Viewing the slice</b></p><div><img src="images/slice.png" width="576" height="395.00000000000006" alt="Viewing the slice"></div></div><p>
+							</p><div class="figure"><a name="viewslice"></a><p class="title"><b>Figure&nbsp;6.&nbsp;Viewing the slice</b></p><div><img src="images/slice.png" width="576" height="395.00000000000006" alt="Viewing the slice"></div></div><p>
 						</p><p><span class="emphasis"><em>Please note that in this version of Kaveri, <span class="bold"><b>the soot environment is not reset</b></span> for performance reasons. This means that when a slice has been performed on a project, the contents of the project should not be changed until Eclipse is closed. Doing so, may lead to incorrect slice displays. For example, if among two consecutive statements 'a' and 'b', only 'a' has the slice highlight and the statements are interchanged; then, on performing the same slice operation, 'b' will be tagged with the slice highlight meant for 'a'. Thus, it is necessary that the project contents remain unchanged after using the slice on a project. 
 						If any changes are made, please press the reset toolbar button  and then perform a new slice on the changed code.</em></span> </p></dd></dl></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s08.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Setup&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Dependence Chasing</td></tr></table></div></body></html>
