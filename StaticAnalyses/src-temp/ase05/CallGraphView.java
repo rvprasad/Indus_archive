@@ -56,8 +56,20 @@ class CallGraphView
 	 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView#getOutgoingEdgeLabels(IDirectedGraphView.INode)
 	 */
 	public Collection getOutgoingEdgeLabels(final IDirectedGraphView.INode node) {
-		return !this.checker.cgi.getCallees((SootMethod) ((PairNode) node).second).isEmpty() ? Collections.singleton(InfluenceChecker.CALLS)
-																				: Collections.EMPTY_SET;
+        final Collection _result = new HashSet();
+        
+        final SootMethod _method = (SootMethod) ((PairNode) node).second;
+        if (!this.checker.cgi.getCallees(_method).isEmpty()) {
+            _result.add(InfluenceChecker.CALLS);
+        }
+        
+        if (invoked && _method.hasActiveBody()) {
+            final List _l = new ArrayList(_method.getActiveBody().getUnits());
+            if (CollectionUtils.exists(_l, SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE)) {
+                _result.add(InfluenceChecker.CALLS);
+            }
+        }
+		return _result;
 	}
 
 	/**
@@ -108,8 +120,8 @@ class CallGraphView
                 }
             }
         }
-        
-		return _result;
+
+        return _result;
 	}
 
 	/**

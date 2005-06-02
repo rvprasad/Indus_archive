@@ -272,13 +272,7 @@ public class InfluenceChecker
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option =
-			new Option("o", "output", true,
-				"Directory into which files will be written into.  Defaults to current directory if omitted");
-		_option.setArgs(1);
-		_option.setArgName("output-directory");
-		_options.addOption(_option);
-		_option = new Option("h", "help", false, "Display message.");
+		Option _option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
 		_option = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
@@ -353,15 +347,6 @@ public class InfluenceChecker
 					}
 				});
 
-			String _outputDir = _cl.getOptionValue('o');
-
-			if (_outputDir == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Defaulting to current directory for output.");
-				}
-				_outputDir = ".";
-			}
-
 			if (_cl.hasOption('p')) {
 				_checker.addToSootClassPath(_cl.getOptionValue('p'));
 			}
@@ -386,7 +371,7 @@ public class InfluenceChecker
 			_da2.setUseOFA(true);
 			_da2.setUseSafeLockAnalysis(true);
 
-			_checker.execute();
+            _checker.execute();
 
 			_checker.performCheck(_cl.getOptionValue("sc"), _cl.getOptionValue("sm"),
 				Integer.parseInt(_cl.getOptionValue("si")), _cl.getOptionValue("ec"), _cl.getOptionValue("em"),
@@ -713,6 +698,7 @@ public class InfluenceChecker
 
         System.out.println("Starting at statement '" + _ss + "' in method '" + _sm + "'");
         System.out.println("Ending at method '" + _es + "' in method '" + _em + "'");
+        System.out.println("Type: " + type);
 		System.out.println("Lower bound on the number of Missed paths: " + _missedPaths);
         System.out.println("Number of Matched paths: " + _matchedPaths.size());
         System.out.println("Matched paths are ");
