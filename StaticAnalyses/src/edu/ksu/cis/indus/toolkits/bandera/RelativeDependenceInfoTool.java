@@ -200,7 +200,7 @@ public final class RelativeDependenceInfoTool
 	/** 
 	 * This identifies the input option to analyze field refs in application class only.
 	 */
-	private static final String APPL_FIELD_REFS_ONLY = "FieldRefsInApplicationClassesOnlye";
+	private static final String APPL_FIELD_REFS_ONLY = "FieldRefsInApplicationClassesOnly";
 
 	/** 
 	 * This identifies the input option to analyze lock acquisition in application class only.
