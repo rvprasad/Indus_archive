@@ -54,6 +54,9 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +64,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,34 +102,46 @@ public final class RelativeDependenceInfoTool
 	public static final Object ROOT_METHODS = "entryPoints";
 
 	/** 
-	 * This identifies the dependence info in the output arguments.
+	 * This identifies the dependence info in the to-be serizalized output map.
 	 */
-	public static final Object DEPENDENCE = "dependence information";
+	public static final Object DEPENDENCE =
+		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.dependence";
 
 	/** 
-	 * This identifies the known transitions info in the output arguments.
+	 * This identifies the known transitions info in the to-be serizalized output map.
 	 */
-	public static final Object KNOWN_TRANSITIONS = "known transitions information";
+	public static final Object KNOWN_TRANSITIONS =
+		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.knowntransitions";
 
 	/** 
-	 * This identifies the may-flow relation in the output arguments.
+	 * This identifies the may-flow relation in the to-be serizalized output map.
 	 */
-	public static final Object MAY_FOLLOW_RELATION = "may follow relation";
+	public static final Object MAY_FOLLOW_RELATION =
+		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.mayfollow";
 
 	/** 
-	 * This identifies the lock acquisition equivalence class in the output arguments.
+	 * This identifies the lock acquisition equivalence class in the to-be serizalized output map.
 	 */
-	public static final Object LOCK_ACQUISITIONS = "lock acquisitions";
+	public static final Object LOCK_ACQUISITIONS =
+		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.lockAcquisitions";
 
 	/** 
-	 * This identifies the array refs equivalence class in the output arguments.
+	 * This identifies the array refs equivalence class in the to-be serizalized output map.
 	 */
-	public static final Object ARRAY_REFS = "array refs";
+	public static final Object ARRAY_REFS =
+		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.arrayRefs";
 
 	/** 
-	 * This identifies the field refs equivalence class in the output arguments.
+	 * This identifies the field refs equivalence class in the to-be serizalized output map.
 	 */
-	public static final Object FIELD_REFS = "field refs";
+	public static final Object FIELD_REFS =
+		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.fieldRefs";
+
+	/** 
+	 * This identifies the output map that contains the data that needs to be serialized.  The map maps one of the above keys
+	 * to an object.
+	 */
+	public static final Object SERIALIZE_DATA_OUTPUT = "SerializedDataMap";
 
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -177,34 +193,25 @@ public final class RelativeDependenceInfoTool
 	private static final List OUT_ARGUMENTS_IDS;
 
 	/** 
-	 * This identifies the input option to analyze array refs in application class only. 
+	 * This identifies the input option to analyze array refs in application class only.
 	 */
-	private static final Object APPL_ARRAY_REFS_ONLY = "application array refs only";
+	private static final String APPL_ARRAY_REFS_ONLY = "ArrayRefsInApplicationClassesOnly";
 
 	/** 
 	 * This identifies the input option to analyze field refs in application class only.
 	 */
-	private static final Object APPL_FIELD_REFS_ONLY = "application field refs only";
+	private static final String APPL_FIELD_REFS_ONLY = "FieldRefsInApplicationClassesOnlye";
 
 	/** 
 	 * This identifies the input option to analyze lock acquisition in application class only.
 	 */
-	private static final Object APPL_LOCK_ACQS_ONLY = "application lock acquisitions only";
-
+	private static final String APPL_LOCK_ACQS_ONLY = "LockAcquisitionsInApplicationClassesOnly";
 	static {
 		IN_ARGUMENTS_IDS = new ArrayList();
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
-		IN_ARGUMENTS_IDS.add(APPL_LOCK_ACQS_ONLY);
-		IN_ARGUMENTS_IDS.add(APPL_FIELD_REFS_ONLY);
-		IN_ARGUMENTS_IDS.add(APPL_ARRAY_REFS_ONLY);
 		OUT_ARGUMENTS_IDS = new ArrayList();
-		OUT_ARGUMENTS_IDS.add(DEPENDENCE);
-		OUT_ARGUMENTS_IDS.add(KNOWN_TRANSITIONS);
-		OUT_ARGUMENTS_IDS.add(MAY_FOLLOW_RELATION);
-		OUT_ARGUMENTS_IDS.add(LOCK_ACQUISITIONS);
-		OUT_ARGUMENTS_IDS.add(ARRAY_REFS);
-		OUT_ARGUMENTS_IDS.add(FIELD_REFS);
+		OUT_ARGUMENTS_IDS.add(SERIALIZE_DATA_OUTPUT);
 	}
 
 	/** 
@@ -287,6 +294,14 @@ public final class RelativeDependenceInfoTool
 	 */
 	public void setConfiguration(final String arg0)
 	  throws Exception {
+		final Properties _p = new Properties();
+		_p.load(new ByteArrayInputStream(arg0.getBytes()));
+		fieldRefInApplicationClassesOnly =
+			_p.contains(APPL_FIELD_REFS_ONLY) && Boolean.valueOf(_p.getProperty(APPL_FIELD_REFS_ONLY)).booleanValue();
+		arrayRefInApplicationClassesOnly =
+			_p.contains(APPL_ARRAY_REFS_ONLY) && Boolean.valueOf(_p.getProperty(APPL_ARRAY_REFS_ONLY)).booleanValue();
+		lockAcqInApplicationClassesOnly =
+			_p.contains(APPL_LOCK_ACQS_ONLY) && Boolean.valueOf(_p.getProperty(APPL_LOCK_ACQS_ONLY)).booleanValue();
 	}
 
 	/**
@@ -294,7 +309,14 @@ public final class RelativeDependenceInfoTool
 	 */
 	public String getConfiguration()
 	  throws Exception {
-		return null;
+		final Properties _result = new Properties();
+		_result.setProperty(APPL_ARRAY_REFS_ONLY, String.valueOf(arrayRefInApplicationClassesOnly));
+		_result.setProperty(APPL_FIELD_REFS_ONLY, String.valueOf(fieldRefInApplicationClassesOnly));
+		_result.setProperty(APPL_LOCK_ACQS_ONLY, String.valueOf(lockAcqInApplicationClassesOnly));
+
+		final ByteArrayOutputStream _out = new ByteArrayOutputStream();
+		_result.store(_out, null);
+		return _out.toString();
 	}
 
 	/**
@@ -319,10 +341,6 @@ public final class RelativeDependenceInfoTool
 		}
 		rootMethods = new ArrayList();
 		rootMethods.addAll(_rootMethods);
-
-		arrayRefInApplicationClassesOnly = arg.containsKey(APPL_ARRAY_REFS_ONLY);
-		fieldRefInApplicationClassesOnly = arg.containsKey(APPL_FIELD_REFS_ONLY);
-		lockAcqInApplicationClassesOnly = arg.containsKey(APPL_LOCK_ACQS_ONLY);
 	}
 
 	/**
@@ -343,7 +361,7 @@ public final class RelativeDependenceInfoTool
 		_map.put(LOCK_ACQUISITIONS, lockAcquisitions);
 		_map.put(ARRAY_REFS, arrayRefs);
 		_map.put(FIELD_REFS, fieldRefs);
-		return _map;
+		return Collections.singletonMap(SERIALIZE_DATA_OUTPUT, _map);
 	}
 
 	/**
@@ -369,8 +387,6 @@ public final class RelativeDependenceInfoTool
 
 	/**
 	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 *
 	 * @param lock DOCUMENT ME!
 	 * @param array DOCUMENT ME!
@@ -591,8 +607,8 @@ public final class RelativeDependenceInfoTool
 
 		final DependenceAndMayFollowInfoCalculator _proc;
 		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);
-		_proc.setApplicationClassFiltering(lockAcqInApplicationClassesOnly, fieldRefInApplicationClassesOnly, 
-                arrayRefInApplicationClassesOnly);
+		_proc.setApplicationClassFiltering(lockAcqInApplicationClassesOnly, fieldRefInApplicationClassesOnly,
+			arrayRefInApplicationClassesOnly);
 		_proc.hookup(_pc2);
 		_pc2.process();
 		_proc.unhook(_pc2);
