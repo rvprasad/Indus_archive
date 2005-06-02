@@ -54,13 +54,11 @@ public interface IAnalyzer
 	 * Analyzes the system represented by the given classes and and scene.
 	 *
 	 * @param env is the environment of classes to be analyzed.
-	 * @param classes which were mentioned by the user as being part of the system.  This generally serves as the starting
-	 * 		  point to discover other constituents of the system.  These may serve as the classes in which to explore for
-	 * 		  the  entry point of the system.
+	 * @param methods that serve a entry points into the system.
 	 *
-	 * @pre env != null and classes != null and classes.size() != 0
+	 * @pre env != null and methods != null and methods.oclIsKindOf(Collection(SootMethod))
 	 */
-	void analyze(IEnvironment env, Collection classes);
+	void analyze(IEnvironment env, Collection methods);
 
 	/**
 	 * Analyzes the system represented by the given classes starting at the given entry point.
