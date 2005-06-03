@@ -194,7 +194,7 @@ public class ExecutableSlicePostProcessor
 	 * @post result != null
 	 * @post result.getClasses()->union(result.getInterfaces())->includesAll(classes)
 	 */
-	protected IClassHierarchy getClassHierarchyContainingClassesToProcess(final Collection classes) {
+	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection classes) {
 		return ClassHierarchy.createClassHierarchyFrom(classes);
 	}
 
@@ -207,7 +207,7 @@ public class ExecutableSlicePostProcessor
         }
         
 		// setup the variables for fixing the class hierarchy
-		final IClassHierarchy _ch = getClassHierarchyContainingClassesToProcess(collector.getClassesInSlice());
+		final IClassHierarchy _ch = getClassHierarchyContainingClasses(collector.getClassesInSlice());
 		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
 		final Map _class2abstractMethods = new HashMap();
         collector.includeInSlice(_ch.getClasses());
