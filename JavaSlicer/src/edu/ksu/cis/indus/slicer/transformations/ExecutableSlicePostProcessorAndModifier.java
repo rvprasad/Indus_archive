@@ -51,14 +51,10 @@ public class ExecutableSlicePostProcessorAndModifier
 	}
 
 	/**
-	 * @see ExecutableSlicePostProcessor#getClassHierarchyContainingClassesToProcess(Collection)
+	 * @see ExecutableSlicePostProcessor#getClassHierarchyContainingClasses(Collection)
 	 */
-	protected IClassHierarchy getClassHierarchyContainingClassesToProcess(final Collection classes) {
+	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection classes) {
 		final ClassHierarchy _ch = ClassHierarchy.createClassHierarchyFrom(classes);
-		collector.includeInSlice(environment.getClass("java.lang.Throwable"));
-		collector.includeInSlice(environment.getClass("java.lang.Runnable"));
-        collector.includeInSlice(environment.getClass("java.lang.Cloneable"));
-        collector.includeInSlice(environment.getClass("java.io.Serializable"));
 		_ch.confine(classes, true);
 		_ch.updateEnvironment();
 		return _ch;
