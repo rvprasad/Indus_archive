@@ -955,7 +955,7 @@ public final class SlicerTool
 			final ISlicePostProcessor _postProcessor;
 
 			if (_slicerConfig.isExecutableSliceOptimizedForSpace()) {
-				_postProcessor = new ExecutableSlicePostProcessorAndModifier();
+				_postProcessor = new ExecutableSlicePostProcessorAndModifier(engine.getSystem());
 			} else {
 				_postProcessor = new ExecutableSlicePostProcessor();
 			}

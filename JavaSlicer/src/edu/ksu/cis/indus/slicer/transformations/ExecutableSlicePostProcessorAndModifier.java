@@ -34,11 +34,20 @@ import java.util.Collection;
  */
 public class ExecutableSlicePostProcessorAndModifier
   extends ExecutableSlicePostProcessor {
+	/** 
+	 * The environment on which this processor is operating.
+	 */
+	private final IEnvironment environment;
+
 	/**
 	 * Creates an instance of this class.
+	 *
+	 * @param env on which this processor should operate on.
+	 *
+	 * @pre env != null
 	 */
-	public ExecutableSlicePostProcessorAndModifier() {
-		super();
+	public ExecutableSlicePostProcessorAndModifier(final IEnvironment env) {
+		environment = env;
 	}
 
 	/**
@@ -46,6 +55,10 @@ public class ExecutableSlicePostProcessorAndModifier
 	 */
 	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection classes) {
 		final ClassHierarchy _ch = ClassHierarchy.createClassHierarchyFrom(classes);
+        collector.includeInSlice(environment.getClass("java.lang.Throwable"));
+        collector.includeInSlice(environment.getClass("java.lang.Runnable"));
+        collector.includeInSlice(environment.getClass("java.lang.Cloneable"));
+        collector.includeInSlice(environment.getClass("java.io.Serializable"));
 		_ch.confine(classes, true);
 		_ch.updateEnvironment();
 		return _ch;
