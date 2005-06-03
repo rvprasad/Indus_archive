@@ -752,7 +752,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		/*
 		 * We use a new factory for complete statement graph instead of the existing factory as the existing factory may 
-         * present a project which may cause us to skip over some statements.
+         * present a projection of the graph which may cause us to skip over some statements.
 		 */
 		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
 
@@ -762,8 +762,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		hookup(_pc);
 		_pc.process();
 		unhook(_pc);
-		_pc.reset();
-
+        
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Deleting classes: " + classesToKill);
 		}
@@ -771,6 +770,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		for (final Iterator _i = classesToKill.iterator(); _i.hasNext();) {
 			env.removeClass((SootClass) _i.next());
 		}
+
+		Util.eraseEmptyClassesIn(env);
 	}
 
 	/**
