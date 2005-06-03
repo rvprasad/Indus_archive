@@ -23,6 +23,8 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
+import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -194,7 +196,7 @@ public final class Util {
 			_result = IntConstant.v(0);
 		} else {
 			final String _msg = "Illegal type specified.";
-            LOGGER.error(_msg + type);
+			LOGGER.error(_msg + type);
 			throw new IllegalArgumentException(_msg + type);
 		}
 
@@ -571,6 +573,46 @@ public final class Util {
 	 */
 	public static boolean isWaitMethod(final SootMethod method) {
 		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
+	}
+
+	/**
+	 * Erases empty classes in the given environment while keeping the environment type safe.
+	 *
+	 * @param env to be updated.
+	 *
+	 * @pre env != null
+	 */
+	public static void eraseEmptyClassesIn(final IEnvironment env) {
+		final Collection _classesToErase = new HashSet();
+		final Iterator _i = env.getClasses().iterator();
+		final int _iEnd = env.getClasses().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (_sc.getMethods().size() == 0 && _sc.getFields().size() == 0) {
+				_classesToErase.add(_sc);
+			}
+		}
+
+		final ProcessingController _pc = new ProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
+		_pc.setEnvironment(env);
+
+		final ClassEraser _ece = new ClassEraser(_classesToErase);
+		_ece.hookup(_pc);
+		_pc.process();
+		_ece.unhook(_pc);
+		_pc.reset();
+
+		final Iterator _j = _classesToErase.iterator();
+		final int _jEnd = _classesToErase.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			env.removeClass((SootClass) _j.next());
+		}
 	}
 
 	/**
