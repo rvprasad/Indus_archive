@@ -34,20 +34,11 @@ import java.util.Collection;
  */
 public class ExecutableSlicePostProcessorAndModifier
   extends ExecutableSlicePostProcessor {
-	/** 
-	 * The environment on which this processor is operating.
-	 */
-	private final IEnvironment environment;
-
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param env on which this processor should operate on.
-	 *
-	 * @pre env != null
 	 */
-	public ExecutableSlicePostProcessorAndModifier(final IEnvironment env) {
-		environment = env;
+	public ExecutableSlicePostProcessorAndModifier() {
+		super();
 	}
 
 	/**
