@@ -57,6 +57,8 @@ public class ExecutableSlicePostProcessorAndModifier
 		final ClassHierarchy _ch = ClassHierarchy.createClassHierarchyFrom(classes);
 		collector.includeInSlice(environment.getClass("java.lang.Throwable"));
 		collector.includeInSlice(environment.getClass("java.lang.Runnable"));
+        collector.includeInSlice(environment.getClass("java.lang.Cloneable"));
+        collector.includeInSlice(environment.getClass("java.io.Serializable"));
 		_ch.confine(classes, true);
 		_ch.updateEnvironment();
 		return _ch;
