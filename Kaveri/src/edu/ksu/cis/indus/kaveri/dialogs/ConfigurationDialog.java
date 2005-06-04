@@ -511,6 +511,7 @@ public class ConfigurationDialog extends Dialog {
                         .serialize(sbsd);
                 KaveriPlugin.getDefault().getPreferenceStore().setValue(
                         _scopeKey, _scopeSpec);
+                KaveriPlugin.getDefault().getIndusConfiguration().getInfoBroadcaster().update();
             } catch (JiBXException _jbe) {
                 SECommons.handleException(_jbe);
                 KaveriErrorLog.logException("Jibx Exception", _jbe);

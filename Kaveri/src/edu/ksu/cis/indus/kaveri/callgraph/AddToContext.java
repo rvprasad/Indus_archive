@@ -127,7 +127,8 @@ public class AddToContext implements IViewActionDelegate {
                                 final IProject _prj = _res.getProject();
                                 if (_prj != null && hasJavaNature(_prj)) {
                                     KaveriPlugin.getDefault().getIndusConfiguration()
-                                    .addContext(JavaCore.create(_prj), _context);            
+                                    .addContext(JavaCore.create(_prj), _context);
+                                    KaveriPlugin.getDefault().getIndusConfiguration().getInfoBroadcaster().update();
                                 }
                             }
                         }

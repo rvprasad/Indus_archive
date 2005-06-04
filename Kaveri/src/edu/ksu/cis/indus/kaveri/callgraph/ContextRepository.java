@@ -18,7 +18,10 @@ package edu.ksu.cis.indus.kaveri.callgraph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -74,6 +77,20 @@ public class ContextRepository {
         return (Collection) contextCollections.get(project);
     }
 
+    /**
+     * Returns the set of all contexts.
+     * @return Collection The set of all contexts.
+     */
+    public Collection getAllContexts() {
+        final  Set _entrySet =  contextCollections.entrySet();
+        final List _retList = new ArrayList();
+        for (Iterator iter = _entrySet.iterator(); iter.hasNext();) {
+            final Map.Entry _entry = (Map.Entry) iter.next();
+            _retList.addAll((Collection) _entry.getValue());            
+        }
+        return _retList;
+    }
+    
     /**
      * 
      * Reset the contexts.

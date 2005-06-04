@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.callgraph.ContextRepository;
 import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
+import edu.ksu.cis.indus.kaveri.infoView.InfoUpdateBroadcaster;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 import edu.ksu.cis.indus.kaveri.views.CriteriaListMaintainer;
@@ -68,6 +69,11 @@ public class IndusConfiguration {
      */
     private EclipseIndusDriver eclipseIndusDriver;
 
+    /**
+     * The info view broadcaster.
+     */
+    private InfoUpdateBroadcaster infoBroadcaster; 
+    
     /**
      * The slice decorator.
      */
@@ -187,6 +193,7 @@ public class IndusConfiguration {
         ctxRepository = new ContextRepository();
         chosenContext = new ArrayList();
         nNoOfSlicesRun = 0;
+        infoBroadcaster = new InfoUpdateBroadcaster();
         crtMaintainer = new CriteriaListMaintainer();
     }
 
@@ -547,5 +554,12 @@ public class IndusConfiguration {
      */
     public CriteriaListMaintainer getCrtMaintainer() {
         return crtMaintainer;
+    }
+    /**
+     * Return the broadcaster instance.
+     * @return Returns the infoBroadcaster.
+     */
+    public InfoUpdateBroadcaster getInfoBroadcaster() {
+        return infoBroadcaster;
     }
 }

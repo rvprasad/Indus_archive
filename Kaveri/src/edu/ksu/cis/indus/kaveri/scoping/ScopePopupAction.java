@@ -136,6 +136,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
                 KaveriPlugin.getDefault().getPreferenceStore().setValue(
                         scopePreferenceId, _scopeSpec);
                 KaveriPlugin.getDefault().savePluginPreferences();
+                KaveriPlugin.getDefault().getIndusConfiguration().getInfoBroadcaster().update();
             } catch (JiBXException _jbe) {
                 SECommons.handleException(_jbe);
                 KaveriErrorLog.logException(

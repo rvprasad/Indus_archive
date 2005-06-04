@@ -45,7 +45,12 @@ public class ContextContentProvider implements IStructuredContentProvider {
     public Object[] getElements(final Object inputElement) {
         Object[] _retObj = new Object[0]; 
         if (inputElement instanceof ContextRepository) {
-            final Collection _c = ((ContextRepository) inputElement).getContext(jProject);
+            Collection _c = null;
+            if (jProject != null) {
+             _c = ((ContextRepository) inputElement).getContext(jProject);
+            } else {
+                _c = ((ContextRepository) inputElement).getAllContexts();
+            }
             if (_c != null) {
                 _retObj = _c.toArray();    
             }            
