@@ -425,8 +425,8 @@ public class SliceXMLizerCLI
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("r", "residualize", true,
-				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide an" +
-                "optional argument to optimize the slice (via transformation) for space.");
+				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide an"
+              + "optional argument to optimize the slice (via transformation) for space.");
 		_o.setOptionalArg(true);
 		_options.addOption(_o);
 		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");

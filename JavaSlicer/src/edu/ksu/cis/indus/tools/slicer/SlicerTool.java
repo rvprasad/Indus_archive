@@ -791,7 +791,7 @@ public final class SlicerTool
 	 *
 	 * @return the slice collector.
 	 */
-	final SliceCollector getSliceCollector() {
+	SliceCollector getSliceCollector() {
 		return engine.getCollector();
 	}
 

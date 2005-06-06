@@ -55,6 +55,7 @@ public final class SlicerConfigurator
 	 * Creates a new SlicerConfigurator object.
 	 */
 	SlicerConfigurator() {
+        super();
 	}
 
 	/**
