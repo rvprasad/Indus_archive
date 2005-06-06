@@ -45,9 +45,8 @@ import soot.util.Chain;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This processor can be used to erase a collection of classes along with their references.  References to the erased
+ * class are replaced by a reference to the parent class of the erased class.  
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
