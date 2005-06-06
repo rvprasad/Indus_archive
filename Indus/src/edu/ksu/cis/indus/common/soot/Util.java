@@ -576,39 +576,28 @@ public final class Util {
 	}
 
 	/**
-	 * Erases empty classes in the given environment while keeping the environment type safe.
+	 * Erases given classes in the given environment while trying to keep the environment type safe.
 	 *
 	 * @param env to be updated.
+     * @param classes to be erased.
 	 *
-	 * @pre env != null
+	 * @pre env != null and classes != null and classes.oclIsKindOf(Collection(SootClass))
 	 */
-	public static void eraseEmptyClassesIn(final IEnvironment env) {
-		final Collection _classesToErase = new HashSet();
-		final Iterator _i = env.getClasses().iterator();
-		final int _iEnd = env.getClasses().size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (_sc.getMethods().size() == 0 && _sc.getFields().size() == 0) {
-				_classesToErase.add(_sc);
-			}
-		}
-
+	public static void eraseClassesFrom(final Collection classes, final IEnvironment env) {
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(env);
 
-		final ClassEraser _ece = new ClassEraser(_classesToErase);
+		final ClassEraser _ece = new ClassEraser(classes);
 		_ece.hookup(_pc);
 		_pc.process();
 		_ece.unhook(_pc);
 		_pc.reset();
 
-		final Iterator _j = _classesToErase.iterator();
-		final int _jEnd = _classesToErase.size();
+		final Iterator _j = classes.iterator();
+		final int _jEnd = classes.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			env.removeClass((SootClass) _j.next());
