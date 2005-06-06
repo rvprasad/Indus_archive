@@ -374,8 +374,9 @@ public final class CFGAnalysis {
 
 		if (_temp == null) {
 			final Iterator _stmts = bbm.getBasicBlockGraph(method).getStmtGraph().iterator();
-			_result = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
-			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_result));
+			final Iterator _r = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
+			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_r));
+            _result = ((Collection) method2EnclosingInvokingStmtsCache.get(method)).iterator();
 		} else {
 			_result = _temp.iterator();
 		}
