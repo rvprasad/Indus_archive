@@ -289,6 +289,9 @@ public class DataAliasBasedCallingContextRetriever
 			final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
 			_result.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
 		}
+        
+        _result.addAll(CollectionUtils.intersection(_callersOfCurrMethod, _commonAncestors));
+        
 		return _result;
 	}
 }
