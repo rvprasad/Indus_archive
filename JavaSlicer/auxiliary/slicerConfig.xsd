@@ -29,7 +29,6 @@
           <xsd:element name="synchronization" type="slicer:synchronization"/>
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
-        <xsd:attribute name="optimizeExecutableSliceForSpace" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
         <xsd:attribute name="propertyAware" type="xsd:boolean" use="required"/>
       </xsd:extension>
@@ -94,7 +93,7 @@
     </xsd:restriction>
   </xsd:simpleType>
   
-  <xsd:simpleType id="procedureBoundaryProperty" name="procedueBoundaryProperty">
+  <xsd:simpleType id="procedureBoundaryProperty" name="procedureBoundaryProperty">
     <xsd:annotation>
       <xsd:documentation> This represents the property pertaining to procedural boundary. </xsd:documentation>
     </xsd:annotation>

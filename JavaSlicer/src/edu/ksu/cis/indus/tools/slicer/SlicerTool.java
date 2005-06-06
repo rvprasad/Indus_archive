@@ -35,9 +35,7 @@ import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
-import edu.ksu.cis.indus.slicer.SliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.slicer.transformations.ExecutableSlicePostProcessorAndModifier;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
@@ -69,7 +67,6 @@ import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.processing.ExecutableSlicePostProcessor;
-import edu.ksu.cis.indus.tools.slicer.processing.ISlicePostProcessor;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -790,6 +787,15 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Retrieves the slice collector used by this tool.
+	 *
+	 * @return the slice collector.
+	 */
+	final SliceCollector getSliceCollector() {
+		return engine.getCollector();
+	}
+
+	/**
 	 * Executes dependency analyses and monitor analysis.
 	 *
 	 * @param slicerConfig provides the configuration.
@@ -952,20 +958,7 @@ public final class SlicerTool
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
 		if (_slicerConfig.getExecutableSlice()) {
-			final ISlicePostProcessor _postProcessor;
-
-			if (_slicerConfig.isExecutableSliceOptimizedForSpace()) {
-				_postProcessor = new ExecutableSlicePostProcessorAndModifier(engine.getSystem());
-			} else {
-				_postProcessor = new ExecutableSlicePostProcessor();
-			}
-
-			final SliceCollector _collector = engine.getCollector();
-			final Collection _methods = _collector.getMethodsInSlice();
-			final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(_collector);
-
-			_postProcessor.process(_methods, bbgMgr, _collector);
-			_gotoProcessor.process(_methods, bbgMgr);
+			SlicerToolHelper.injectExecutability(this, new ExecutableSlicePostProcessor());
 		}
 	}
 

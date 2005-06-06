@@ -22,7 +22,6 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
-
 import edu.ksu.cis.indus.processing.Environment;
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
@@ -32,6 +31,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.SlicerToolHelper;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 
 import java.util.ArrayList;
@@ -84,6 +84,13 @@ public final class SlicerTool
 	 * This identifies the slicer configuration to be used.
 	 */
 	public static final Object ID_OF_CONFIGURATION_TO_USE = "idOfConfigurationToUse";
+    
+    /**
+     * This identifies the property that indicates if the slice needs to be optimized for space.  This implies that the slice 
+     * will be
+     * transformed.
+     */
+    public static final Object OPTIMIZE_FOR_SPACE = "optimizeForSpace";
 
 	/** 
 	 * The collection of input argument identifiers.
@@ -101,6 +108,7 @@ public final class SlicerTool
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
 		IN_ARGUMENTS_IDS.add(CRITERIA_SPECIFICATION);
+        IN_ARGUMENTS_IDS.add(OPTIMIZE_FOR_SPACE);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -134,6 +142,11 @@ public final class SlicerTool
 	 * This indicates if the configuration was provided.
 	 */
 	private boolean configurationWasProvided;
+    
+    /**
+     * This indicates of the slice should be optimized for space.
+     */
+    private boolean optimizeForSpace;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -236,6 +249,8 @@ public final class SlicerTool
         } else {
             tool.setActiveConfiguration(_activeConfID);
         }
+        
+        optimizeForSpace = inputArgs.containsKey(OPTIMIZE_FOR_SPACE);
 	}
 
 	/**
@@ -300,10 +315,18 @@ public final class SlicerTool
         
 		tool.run(Phase.STARTING_PHASE, null, true);
 
-		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+        if (optimizeForSpace) {
+            SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool);
+        }
+
+        final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
 		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(tool.getSystem());
+        
+        if (optimizeForSpace) {
+            SlicerToolHelper.optimizeForSpaceAfterResidualization(tool);
+        }
         
         // TODO: DEL_START
         //RelativeDependenceInfoTool _r = new RelativeDependenceInfoTool();

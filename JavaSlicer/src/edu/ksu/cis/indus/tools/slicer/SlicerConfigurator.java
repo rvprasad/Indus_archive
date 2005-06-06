@@ -798,45 +798,12 @@ public final class SlicerConfigurator
 		executableSliceButton.setText("Executable slice");
 
 		final GridData _gridData2 = new GridData();
-		_gridData2.horizontalSpan = 1;
+		_gridData2.horizontalSpan = 2;
 		executableSliceButton.setLayoutData(_gridData2);
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
-
-		final Button _spaceOptiExecSlice = new Button(composite, SWT.CHECK);
-		final SelectionListener _sl2 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SPACE_OPTIMIZED_EXECUTABLE_SLICE, _spaceOptiExecSlice,
-				_cfg);
-		_spaceOptiExecSlice.setText("Optimize executable slice for space");
-		_spaceOptiExecSlice.addSelectionListener(_sl2);
-		_spaceOptiExecSlice.setSelection(_cfg.getExecutableSlice());
-
-		final GridData _gridData3 = new GridData();
-		_gridData2.horizontalSpan = 1;
-		_spaceOptiExecSlice.setLayoutData(_gridData3);
-
-		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE) || !_cfg.getExecutableSlice()) {
-			_spaceOptiExecSlice.setEnabled(false);
-		}
-
-		final SelectionListener _sl1 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg) {
-				public void widgetSelected(final SelectionEvent evt) {
-					super.widgetSelected(evt);
-
-					final boolean _v = ((Button) evt.getSource()).getSelection();
-					_spaceOptiExecSlice.setSelection(_cfg.isExecutableSliceOptimizedForSpace());
-					_spaceOptiExecSlice.notifyListeners(SWT.Selection, null);
-					_spaceOptiExecSlice.setEnabled(_v);
-				}
-
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			};
-		executableSliceButton.addSelectionListener(_sl1);
 		executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
 		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
@@ -888,9 +855,6 @@ public final class SlicerConfigurator
 						executableSliceButton.setSelection(false);
 						executableSliceButton.notifyListeners(SWT.Selection, null);
 						executableSliceButton.setEnabled(false);
-						_spaceOptiExecSlice.setSelection(false);
-						_spaceOptiExecSlice.notifyListeners(SWT.Selection, null);
-						_spaceOptiExecSlice.setEnabled(false);
 					} else {
 						if (evt.widget == _backwardSlice) {
 							_value = SlicingEngine.BACKWARD_SLICE;

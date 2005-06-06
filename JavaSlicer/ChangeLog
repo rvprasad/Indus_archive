@@ -1,3 +1,12 @@
+2005-06-05  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java:  "Optimize for space" was a transformation and it was sucked into the tool incorrectly. FIXED.
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java: The configuration does not support "optimize for space".
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java: The configuration does not support "optimize for space".
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerToolHelper.java: Contains helper methods used by the slicer tool.
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: added command line option to explicitly trigger space optimization.
+	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java: added logic to explicitly trigger space optimization.	
+
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/tools/slicer/processing/ExecutableSlicePostProcessor.java (ExecutableSlicePostProcessor): Used

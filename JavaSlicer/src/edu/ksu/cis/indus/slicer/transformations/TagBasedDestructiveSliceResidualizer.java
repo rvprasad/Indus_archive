@@ -770,8 +770,6 @@ public final class TagBasedDestructiveSliceResidualizer
 		for (final Iterator _i = classesToKill.iterator(); _i.hasNext();) {
 			env.removeClass((SootClass) _i.next());
 		}
-
-		Util.eraseEmptyClassesIn(env);
 	}
 
 	/**

@@ -5,7 +5,7 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping-propertyAware"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:propertyAware="true" >
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
@@ -24,7 +24,7 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:propertyAware="false" >
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
@@ -43,7 +43,7 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping-propertyAware"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:propertyAware="true" >
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -62,7 +62,7 @@
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping"
 		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:propertyAware="false" >
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -80,8 +80,7 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-propertyAware" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -99,8 +98,7 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"	>
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -118,8 +116,7 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"	>
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -137,8 +134,7 @@
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="complete-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>

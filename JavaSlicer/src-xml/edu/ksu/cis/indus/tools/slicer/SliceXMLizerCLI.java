@@ -155,6 +155,11 @@ public class SliceXMLizerCLI
 	private String sliceScopeSpecFileName;
 
 	/** 
+	 * This indicates if space optimizations need to be performed.
+	 */
+	private boolean optimizedForSpace;
+
+	/** 
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
 	 */
 	private boolean postResJimpleDump;
@@ -189,8 +194,7 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer =
-			new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
+		slicer = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -420,9 +424,10 @@ public class SliceXMLizerCLI
 		_o.setArgName("slice-scope-spec-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("r", "residualize", false,
-				"Residualize after slicing. This will also dump the class files for the residualized classes.");
-		_o.setOptionalArg(false);
+		_o = new Option("r", "residualize", true,
+				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide an" +
+                "optional argument to optimize the slice (via transformation) for space.");
+		_o.setOptionalArg(true);
 		_options.addOption(_o);
 		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");
 		_o.setOptionalArg(false);
@@ -470,6 +475,7 @@ public class SliceXMLizerCLI
 
 		if (_cl.hasOption('r')) {
 			xmlizer.setResidulization(true);
+			xmlizer.optimizedForSpace = _cl.getOptionValue('r') != null;
 		}
 
 		if (_cl.hasOption('S')) {
@@ -830,7 +836,13 @@ public class SliceXMLizerCLI
 		}
 
 		if (residualize) {
+            if (optimizedForSpace) {
+                SlicerToolHelper.optimizeForSpaceBeforeResidualization(slicer);
+            }
 			destructivelyUpdateJimple();
+            if (optimizedForSpace) {
+                SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer);
+            }
 			dumpJimple("", false, true);
 		}
 

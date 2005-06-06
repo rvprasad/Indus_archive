@@ -279,11 +279,6 @@ public final class SlicerConfiguration
 	static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
 
 	/** 
-	 * This identifies the property that governs if the executable slice should be optimized for space.
-	 */
-	static final Object SPACE_OPTIMIZED_EXECUTABLE_SLICE = "optimize executable slice for space";
-
-	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerConfiguration.class);
@@ -357,7 +352,6 @@ public final class SlicerConfiguration
 		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
 		propertyIds.add(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
 		propertyIds.add(SYNCS_IN_APPLICATION_CLASSES_ONLY);
-		propertyIds.add(SPACE_OPTIMIZED_EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -442,15 +436,6 @@ public final class SlicerConfiguration
 	 */
 	public boolean getExecutableSlice() {
 		return getBooleanProperty(EXECUTABLE_SLICE);
-	}
-
-	/**
-	 * Checks if executable slice is optimized for space.
-	 *
-	 * @return <code>true</code> if it is optimized; <code>false</code>, otherwise.
-	 */
-	public boolean isExecutableSliceOptimizedForSpace() {
-		return getBooleanProperty(SPACE_OPTIMIZED_EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -855,15 +840,6 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
-	}
-
-	/**
-	 * Controls if executable slice should be optimized for space.
-	 *
-	 * @param value <code>true</code> if the slice should be optimized for space; <code>false</code>, otherwise.
-	 */
-	public void optimizeExecutableSliceForSpace(final boolean value) {
-		setProperty(SPACE_OPTIMIZED_EXECUTABLE_SLICE, Boolean.valueOf(value));
 	}
 
 	/**
