@@ -73,6 +73,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -280,43 +281,7 @@ public class InfluenceChecker
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("sc", "start-class", false, "start class signature");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("class");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("sm", "start-method", false, "start method signature");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("method");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("si", "start-stmt-index", false, "start statement index");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("stmt-index");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("ec", "end-class", false, "end class signature");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("class");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("em", "end-method", false, "end method signature");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("method");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("ei", "end-stmt-index", false, "end statement index");
-		_option.setRequired(true);
-		_option.setArgs(1);
-		_option.setArgName("stmt-index");
-		_option.setOptionalArg(false);
-		_options.addOption(_option);
-		_option = new Option("t", "type", false, "influence type (ai, ddi, cdi, di, ci)");
+		_option = new Option("t", "type", false, "influence type (ai, di, ci)");
 		_option.setRequired(true);
 		_option.setArgs(1);
 		_option.setArgName("type");
@@ -324,6 +289,12 @@ public class InfluenceChecker
 		_options.addOption(_option);
         _option = new Option("i", "invoked method", false, "consider invoked method for ai");
         _option.setArgs(0);
+        _options.addOption(_option);
+        _option = new Option("c", "classnames", false, "list of class of interest");
+        _option.setRequired(true);
+        _option.setArgs(1);
+        _option.setArgName("list of classes");
+        _option.setOptionalArg(false);
         _options.addOption(_option);
 
 		final CommandLineParser _parser = new GnuParser();
@@ -351,12 +322,12 @@ public class InfluenceChecker
 				_checker.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 
-			final List _classNames = _cl.getArgList();
+			final String _classNames = _cl.getOptionValue('c');
 
-			if (_classNames.isEmpty()) {
+			if (_classNames.length() == 0) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
-			_checker.setClassNames(_classNames);
+			_checker.setClassNames(Arrays.asList(_classNames.split(" ")));
 
 			final InterferenceDAv1 _da1 = new InterferenceDAv3();
 			_da1.setUseOFA(true);
@@ -372,10 +343,7 @@ public class InfluenceChecker
 			_da2.setUseSafeLockAnalysis(true);
 
             _checker.execute();
-
-			_checker.performCheck(_cl.getOptionValue("sc"), _cl.getOptionValue("sm"),
-				Integer.parseInt(_cl.getOptionValue("si")), _cl.getOptionValue("ec"), _cl.getOptionValue("em"),
-				Integer.parseInt(_cl.getOptionValue("ei")), _cl.getOptionValue('t'));
+			_checker.performCheck(_cl.getArgList(), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
@@ -409,38 +377,34 @@ public class InfluenceChecker
 	private IAutomaton getAutomaton(final String type) {
 		final NFA _result = new NFA();
 
-		if (type.equals("ddi") || type.equals("di")) {
-			IState _s1 = new State("s1");
-			IState _s2 = new State("s2");
-			IState _s3 = new State("s3");
-			IState _s4 = new State("s4");
-			_result.addFinalState(_s4);
-			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, CD, _s3);
-			_result.addLabelledTransitionFromTo(_s2, IAutomaton.EPSILON, _s3);
-			_result.addLabelledTransitionFromTo(_s3, CD, _s3);
-			_result.addLabelledTransitionFromTo(_s3, DD, _s4);
-			_result.addLabelledTransitionFromTo(_s3, IAutomaton.EPSILON, _s4);
-			_result.addLabelledTransitionFromTo(_s4, DD, _s4);
-		} else if (type.equals("cdi")) {
+		if (type.equals("di")) {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
 			IState _s3 = new State("s3");
 			_result.addFinalState(_s3);
 			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, DD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, CD, _s3);
-			_result.addLabelledTransitionFromTo(_s3, CD, _s3);
-		} else if (type.equals("ci")) {
-			IState _s1 = new State("s1");
-			IState _s2 = new State("s2");
-			_result.addFinalState(_s2);
-			_result.setStartState(_s1);
-			_result.addLabelledTransitionFromTo(_s1, CD, _s2);
+			_result.addLabelledTransitionFromTo(_s1, DD, _s1);
+			_result.addLabelledTransitionFromTo(_s1, IAutomaton.EPSILON, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CD, _s2);
+			_result.addLabelledTransitionFromTo(_s2, IAutomaton.EPSILON, _s3);
+			_result.addLabelledTransitionFromTo(_s3, DD, _s3);
+
+		} else if (type.equals("ci")) {
+            IState _s1 = new State("s1");
+            IState _s2 = new State("s2");
+            IState _s3 = new State("s3");
+            IState _s4 = new State("s4");
+            IState _s5 = new State("s5");
+            _result.addFinalState(_s5);
+            _result.setStartState(_s1);
+            _result.addLabelledTransitionFromTo(_s1, DD, _s1);
+            _result.addLabelledTransitionFromTo(_s1, IAutomaton.EPSILON, _s2);
+            _result.addLabelledTransitionFromTo(_s2, CD, _s2);
+            _result.addLabelledTransitionFromTo(_s2, IAutomaton.EPSILON, _s3);
+            _result.addLabelledTransitionFromTo(_s3, DD, _s3);
+            _result.addLabelledTransitionFromTo(_s3, IAutomaton.EPSILON, _s4);
+            _result.addLabelledTransitionFromTo(_s4, CD, _s5);
+            _result.addLabelledTransitionFromTo(_s5, CD, _s5);
 		} else if (type.equals("ai")) {
 			IState _s1 = new State("s1");
 			IState _s2 = new State("s2");
@@ -449,7 +413,7 @@ public class InfluenceChecker
 			_result.addLabelledTransitionFromTo(_s1, CALLS, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CALLS, _s2);
 		} else {
-			throw new IllegalArgumentException("type has to be one of ai, ddi, cdi, ci, or di.");
+			throw new IllegalArgumentException("type has to be one of ai, di, ci.");
 		}
 		_result.start();
 
@@ -470,7 +434,7 @@ public class InfluenceChecker
 
 		if (type.equals("ai")) {
 			_result = new CallGraphView(this, invoked);
-		} else if (type.equals("cdi") || type.equals("ddi") || type.equals("ci") || type.equals("di")) {
+		} else if (type.equals("di") || type.equals("ci")) {
 			_result = new DependenceGraphView(this);
 		} else {
 			throw new IllegalArgumentException("type has to be one of ai, ddi, cdi, ci, or di.");
@@ -613,29 +577,19 @@ public class InfluenceChecker
 
 	/**
 	 * Does the check.
+	 * @param args 
 	 *
-	 * @param startClass contains the starting method and statement.
-	 * @param startSig contains the starting statement.
-	 * @param sIndex is the index of the starting statement.
-	 * @param endClass contains the ending method and statement.
-	 * @param endSig contains the ending statement.
-	 * @param eIndex is the index of the ending statement.
 	 * @param type of check.  This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 *
-	 * @pre startClass != null and startSig != null and sIndex != null and endClass != null and endSig != null and  eIndex !=
-	 * 		null
+	 * @pre cl != null and type != null
 	 */
-	private void performCheck(final String startClass, final String startSig, final int sIndex, final String endClass,
-		final String endSig, final int eIndex, final String type) {
-		final SootMethod _sm = getMethod(startClass, startSig);
-		final Stmt _ss = type.equals("ai") ? null : getStmt(_sm, sIndex);
-		final SootMethod _em = getMethod(endClass, endSig);
-		final Stmt _es = type.equals("ai") ? null : getStmt(_em, eIndex);
+	private void performCheck(final List args, final String type) {
 		final IEdgeLabelledDirectedGraphView _graph = getGraph(type);
 		final IWorkBag _wb = new LIFOWorkBag();
+        final Collection _targets = new HashSet();
+        final PairNode _source = getSourceAndTargets(args, type, _targets);
         final Collection _matchedPaths = new HashSet();
-        final INode _target = new PairNode(_es, _em);
-        _wb.addWork(new Triple(new PairNode(_ss, _sm), new Stack(), getAutomaton(type)));
+        _wb.addWork(new Triple(_source, new Stack(), getAutomaton(type)));
 
 		int _missedPaths = 0;
 
@@ -647,7 +601,7 @@ public class InfluenceChecker
 
 			_path.push(_src);
 
-			if (_auto.isInFinalState() && _src.equals(_target)) {
+			if (_auto.isInFinalState() && _targets.contains(_src)) {
 				_matchedPaths.add(_path);
 			} else {
 				if (_auto.canPerformTransition(IAutomaton.EPSILON)) {
@@ -696,21 +650,50 @@ public class InfluenceChecker
 			}
 		}
 
-        System.out.println("Starting at statement '" + _ss + "' in method '" + _sm + "'");
-        System.out.println("Ending at method '" + _es + "' in method '" + _em + "'");
+        System.out.println("Starting at statement '" + _source.first + "' in method '" + _source.second + "'");
+        final Iterator _i = _targets.iterator();
+        final int _iEnd = _targets.size();
+        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+            final PairNode _p = (PairNode) _i.next();
+            System.out.println("Ending at statement '" + _p.first + "' in method '" + _p.second + "'");            
+        }
         System.out.println("Type: " + type);
 		System.out.println("Lower bound on the number of Missed paths: " + _missedPaths);
         System.out.println("Number of Matched paths: " + _matchedPaths.size());
         System.out.println("Matched paths are ");
         
-        final Iterator _i = _matchedPaths.iterator();
-        final int _iEnd = _matchedPaths.size();
-        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-            final Stack _path = (Stack) _i.next();
+        final Iterator _j = _matchedPaths.iterator();
+        final int _jEnd = _matchedPaths.size();
+        for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+            final Stack _path = (Stack) _j.next();
             System.out.println(_path + "\n");    
         }
         
 	}
+
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param args
+     * @param type
+     * @param targets 
+     * @return
+     */
+    private PairNode getSourceAndTargets(final List args, final String type, final Collection targets) {
+        final Iterator _i = args.iterator();
+        final SootMethod _sm = getMethod((String) _i.next(), (String) _i.next());
+        final Stmt _ss = type.equals("ai") ? null : getStmt(_sm, Integer.parseInt((String) _i.next()));
+
+        for (; _i.hasNext();) {
+            final String _ecName = (String) _i.next();
+            final String _emSig = (String) _i.next();
+            final SootMethod _em = getMethod(_ecName, _emSig);
+            final Stmt _es = type.equals("ai") ? null : getStmt(_em, Integer.parseInt((String) _i.next()));
+            targets.add(new PairNode(_es, _em));
+        }
+
+        return new PairNode(_ss, _sm);
+    }
 }
 
 // End of File
