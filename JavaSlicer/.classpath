@@ -12,10 +12,10 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
-	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
@@ -24,5 +24,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt-pi.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
