@@ -46,10 +46,12 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +60,7 @@ import java.io.PrintWriter;
 
 import java.net.URL;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,6 +138,11 @@ public class SliceXMLizerCLI
 	String jimpleXMLDumpDir;
 
 	/** 
+	 * This is the names of the classes that need to be retained when optimizing the slice for space.
+	 */
+	private Collection retentionList;
+
+	/** 
 	 * The id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
@@ -153,11 +161,6 @@ public class SliceXMLizerCLI
 	 * The name of the slice scope specification file.
 	 */
 	private String sliceScopeSpecFileName;
-
-	/** 
-	 * This indicates if space optimizations need to be performed.
-	 */
-	private boolean optimizedForSpace;
 
 	/** 
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
@@ -425,8 +428,9 @@ public class SliceXMLizerCLI
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("r", "residualize", true,
-				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide an"
-              + "optional argument to optimize the slice (via transformation) for space.");
+				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide the "
+				+ "name of the file as an optional argument to optimize the slice (via transformation) for space.  The file should"
+				+ "contain the FQN of classes (1 per line) to be retained during optimization.");
 		_o.setOptionalArg(true);
 		_options.addOption(_o);
 		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");
@@ -475,7 +479,12 @@ public class SliceXMLizerCLI
 
 		if (_cl.hasOption('r')) {
 			xmlizer.setResidulization(true);
-			xmlizer.optimizedForSpace = _cl.getOptionValue('r') != null;
+
+			final String _optionValue = _cl.getOptionValue('r');
+
+			if (_optionValue != null) {
+				xmlizer.extractExclusionListForCompaction(_optionValue);
+			}
 		}
 
 		if (_cl.hasOption('S')) {
@@ -492,6 +501,32 @@ public class SliceXMLizerCLI
 		}
 
 		xmlizer.setClassNames(_cl.getArgList());
+	}
+
+	/**
+	 * Extracts the FQN of classes that need to retained in the system when optimizing the slice for space.
+	 *
+	 * @param fileName obviously.
+	 *
+	 * @pre fileName != null
+	 */
+	private void extractExclusionListForCompaction(final String fileName) {
+		retentionList = new ArrayList();
+
+		try {
+			final BufferedReader _br = new BufferedReader(new FileReader(new File(fileName)));
+
+			while (_br.ready()) {
+				retentionList.add(_br.readLine());
+			}
+			_br.close();
+		} catch (final FileNotFoundException _e) {
+			LOGGER.error("File does not exists - " + fileName + ". Hence the slice will not be optimized for space.", _e);
+			retentionList = null;
+		} catch (final IOException _e) {
+			LOGGER.error("Error reading the file - " + fileName + ". Hence the slice will not be optimized for space.", _e);
+			retentionList = null;
+		}
 	}
 
 	/**
@@ -836,13 +871,14 @@ public class SliceXMLizerCLI
 		}
 
 		if (residualize) {
-            if (optimizedForSpace) {
-                SlicerToolHelper.optimizeForSpaceBeforeResidualization(slicer);
-            }
+			if (retentionList != null) {
+				SlicerToolHelper.optimizeForSpaceBeforeResidualization(slicer);
+			}
 			destructivelyUpdateJimple();
-            if (optimizedForSpace) {
-                SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer);
-            }
+
+			if (retentionList != null) {
+				SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer, retentionList);
+			}
 			dumpJimple("", false, true);
 		}
 
