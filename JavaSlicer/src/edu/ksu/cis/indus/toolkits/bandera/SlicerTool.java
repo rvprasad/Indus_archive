@@ -84,13 +84,6 @@ public final class SlicerTool
 	 * This identifies the slicer configuration to be used.
 	 */
 	public static final Object ID_OF_CONFIGURATION_TO_USE = "idOfConfigurationToUse";
-    
-    /**
-     * This identifies the property that indicates if the slice needs to be optimized for space.  This implies that the slice 
-     * will be
-     * transformed.
-     */
-    public static final Object OPTIMIZE_FOR_SPACE = "optimizeForSpace";
 
 	/** 
 	 * The collection of input argument identifiers.
@@ -108,7 +101,6 @@ public final class SlicerTool
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
 		IN_ARGUMENTS_IDS.add(CRITERIA_SPECIFICATION);
-        IN_ARGUMENTS_IDS.add(OPTIMIZE_FOR_SPACE);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -143,11 +135,6 @@ public final class SlicerTool
 	 */
 	private boolean configurationWasProvided;
     
-    /**
-     * This indicates of the slice should be optimized for space.
-     */
-    private boolean optimizeForSpace;
-
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -249,8 +236,6 @@ public final class SlicerTool
         } else {
             tool.setActiveConfiguration(_activeConfID);
         }
-        
-        optimizeForSpace = inputArgs.containsKey(OPTIMIZE_FOR_SPACE);
 	}
 
 	/**
@@ -315,18 +300,18 @@ public final class SlicerTool
         
 		tool.run(Phase.STARTING_PHASE, null, true);
 
-        if (optimizeForSpace) {
-            SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool);
-        }
+        SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool);
 
         final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
 		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(tool.getSystem());
         
-        if (optimizeForSpace) {
-            SlicerToolHelper.optimizeForSpaceAfterResidualization(tool);
-        }
+        final Collection _retentionList = new ArrayList();
+        _retentionList.add("java.lang.Throwable");
+        _retentionList.add("java.lang.Cloneable");
+        _retentionList.add("java.io.Serializable");        
+        SlicerToolHelper.optimizeForSpaceAfterResidualization(tool,  _retentionList);
         
         // TODO: DEL_START
         //RelativeDependenceInfoTool _r = new RelativeDependenceInfoTool();
