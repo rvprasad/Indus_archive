@@ -64,13 +64,6 @@ public class SimpleNodeGraph
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
-		 */
-		public void createNode(final Object element) {
-			((SimpleNodeGraph) graph).getNode(element);
-		}
-
-		/**
 		 * @see edu.ksu.cis.indus.common.graph.AbstractObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
 		 */
 		protected void addEdgeFromTo(final Object src, final Object dest) {

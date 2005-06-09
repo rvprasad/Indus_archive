@@ -64,7 +64,7 @@ public class SimpleEdgeGraph
 	 * @version $Revision$ $Date$
 	 */
 	public static class SimpleEdgeGraphBuilder
-	  extends AbstractObjectDirectedGraphBuilder
+	  extends AbstractEdgeLabelledObjectDirectedGraphBuilder
 	  implements IEdgeLabelledObjectDirectedGraphBuilder {
 		/**
 		 * @see IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.lang.Object, java.lang.Object,
@@ -81,13 +81,6 @@ public class SimpleEdgeGraph
 		 */
 		public void createGraph() {
 			graph = new SimpleEdgeGraph();
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
-		 */
-		public void createNode(final Object element) {
-			((SimpleEdgeGraph) graph).getNode(element);
 		}
 
 		/**

@@ -59,13 +59,6 @@ public interface IObjectDirectedGraphBuilder {
 	void createGraph();
 
 	/**
-	 * Creates a node representing the given object.
-	 *
-	 * @param element to be represented by the node.
-	 */
-	void createNode(Object element);
-
-	/**
 	 * Finish up the built graph.
 	 */
 	void finishBuilding();
