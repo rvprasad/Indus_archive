@@ -116,7 +116,7 @@
 	<target name="javadocs">
 		<delete dir="${docs}/javadocs" />
 		<mkdir dir="${docs}/javadocs" />
-		<javadoc packagenames="${package}.*"
+		<javadoc packagenames="${doc.packages}"
 		         destdir="${docs}/javadocs"
 		         access="${access}"
 		         use="true"

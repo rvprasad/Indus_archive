@@ -3,7 +3,8 @@
     <property file="antbuild.properties"/>
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus.javaslicer"/>
-
+	<property name="doc.packages" value="${package}.*"/>
+	
     <condition property="custombuild.exists">
         <equals arg1="${ant.project.name}" arg2="indus.javaslicer"/>
     </condition>
