@@ -43,6 +43,7 @@ public final class SlicerToolHelper {
 	 * Creates an instance of this class.
 	 */
 	private SlicerToolHelper() {
+        super();
 	}
 
 	/**
@@ -66,16 +67,11 @@ public final class SlicerToolHelper {
 	 * Optimizes the slice calculated by the given tool for space.  This method should be called after residualization.
 	 *
 	 * @param tool in which the slice should be optimized.
+	 * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 *
-	 * @pre tool != null
+	 * @pre tool != null and classesToRetain != null and classesToRetain.oclIsKindOf(Collection(String))
 	 */
-	public static void optimizeForSpaceAfterResidualization(final SlicerTool tool) {
-		final Collection _exclusions = new HashSet();
-		_exclusions.add("java.io.Serializable");
-		_exclusions.add("java.lang.Throwable");
-		_exclusions.add("java.lang.Cloneable");
-		_exclusions.add("java.lang.Runnable");
-
+	public static void optimizeForSpaceAfterResidualization(final SlicerTool tool, final Collection classesToRetain) {
 		final Collection _classesToErase = new HashSet();
 		final Collection _classes = tool.getSystem().getClasses();
 		final Iterator _i = _classes.iterator();
@@ -84,7 +80,7 @@ public final class SlicerToolHelper {
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (_sc.getMethods().size() == 0 && _sc.getFields().size() == 0 && !_exclusions.contains(_sc.getName())) {
+			if (_sc.getMethods().size() == 0 && _sc.getFields().size() == 0 && !classesToRetain.contains(_sc.getName())) {
 				_classesToErase.add(_sc);
 			}
 		}
