@@ -32,6 +32,11 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Verion 0.6.1
+----------------
+	- Added a new optimization that (tries) prunes sliced class hierarchy to get rid of empty classes and methods.
+	- The format of the slicer's configuration changed yet again. (sorry)
+
 Version 0.6
 ----------------
 	- Forward slices can now be configured to consider both exit control dependence and entry control dependence.

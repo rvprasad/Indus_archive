@@ -26,6 +26,11 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.6.1
+-----------------
+	- Fixed a bug in DataAliasBasedCallingContextRetriever.  (This is was identified by Aysu Betin-Can).
+	- Added a class to create system dependence graph (SDG).
+
 Version 0.6
 ----------------
 	- Control dependence can now consider the effect of interprocedural exception flow on intraprocedural control flow.
