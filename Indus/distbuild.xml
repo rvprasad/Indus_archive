@@ -34,7 +34,7 @@
              package="${cvs.modules}"
              cvsRsh="ssh"
              dest="${projects.dir}" failonerror="true"
-             command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
+             command="rtag v${version.cvsid}"/>
     </target>
 	
 	<target name="package">
@@ -63,7 +63,7 @@
             <fileset dir="${dist.dir}">
                 <include name="*.jar"/>
             </fileset>
-            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version.fileid}-${DSTAMP}-${TSTAMP}.jar"/>
+            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version.fileid}.jar"/>
         </move>
 
         <zip destfile="${examples.src.zip.filename}">
