@@ -29,6 +29,10 @@ import java.util.Iterator;
 import soot.SootClass;
 import soot.SootMethod;
 
+import soot.jimple.AssignStmt;
+import soot.jimple.IdentityStmt;
+import soot.jimple.ParameterRef;
+import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 
 
@@ -40,6 +44,11 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class SystemDependenceGraphBuilder {
+	/** 
+	 * This is the label of the data dependence arch across method boundaries.
+	 */
+	private static final Object INTER_PROCEDURAL_DATA_DEPENDENCE = "Inter-procedural data dependence";
+
 	/** 
 	 * The collection of classes that define the scope in which dependence nodes have both incoming and outgoing edges.
 	 */
@@ -98,7 +107,7 @@ public final class SystemDependenceGraphBuilder {
 	 * @post result != null
 	 * @post result.getNodes()->forall(o | o.getObject().oclIsKindOf(Pair(Stmt, SootMethod)))
 	 * @post result.getNodes()->forall(o | o.getIncomingEdgeLabels()->forall(p | dependences->exists(q |
-	 * 		 q.getIds().contains(p))))
+	 * 		 q.getIds().contains(p)) or p.equals(INTER_PROCEDURAL_DATA_DEPENDENCE)))
 	 */
 	public static SimpleEdgeGraph getSystemDependenceGraph(final Collection dependences, final ICallGraphInfo cgi,
 		final Collection classes) {
@@ -127,12 +136,12 @@ public final class SystemDependenceGraphBuilder {
 			final Collection _dees = _da.getDependees(stmt, method);
 			final Iterator _j = _dees.iterator();
 			final int _jEnd = _dees.size();
-            _sources.clear();
+			_sources.clear();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final Object _o = _j.next();
 
-                if (_o == null) {
+				if (_o == null) {
 					if (callgraph != null) {
 						final Collection _callers = callgraph.getCallers(method);
 						final Iterator _k = _callers.iterator();
@@ -176,6 +185,8 @@ public final class SystemDependenceGraphBuilder {
 				segb.addEdgeFromTo(_sources, IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, _dest);
 			}
 		}
+
+		processForInterProceduralEdges(_dest);
 	}
 
 	/**
@@ -214,6 +225,45 @@ public final class SystemDependenceGraphBuilder {
 
 		segb.finishBuilding();
 		return (SimpleEdgeGraph) segb.getBuiltGraph();
+	}
+
+	/**
+	 * Adds data dependence edges across procedure boundaries.
+	 *
+	 * @param node that needs to be processed.
+	 *
+	 * @pre node != null
+	 */
+	private void processForInterProceduralEdges(final Pair node) {
+		final Stmt _stmt = (Stmt) node.getFirst();
+		final SootMethod _sm = (SootMethod) node.getSecond();
+
+		if (_stmt instanceof ReturnStmt) {
+			final Iterator _i = callgraph.getCallers(_sm).iterator();
+			final int _iEnd = callgraph.getCallers(_sm).size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _i.next();
+				final Stmt _dest = _ctrp.getStmt();
+
+				if (_dest instanceof AssignStmt) {
+					segb.addEdgeFromTo(node, INTER_PROCEDURAL_DATA_DEPENDENCE, pairMgr.getPair(_dest, _ctrp.getMethod()));
+				}
+			}
+		} else if (_stmt instanceof IdentityStmt) {
+			final IdentityStmt _s = (IdentityStmt) _stmt;
+
+			if (_s.getRightOp() instanceof ParameterRef) {
+				final Iterator _i = callgraph.getCallers(_sm).iterator();
+				final int _iEnd = callgraph.getCallers(_sm).size();
+
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _i.next();
+					segb.addEdgeFromTo(pairMgr.getPair(_ctrp.getStmt(), _ctrp.getMethod()), INTER_PROCEDURAL_DATA_DEPENDENCE,
+						node);
+				}
+			}
+		}
 	}
 }
 
