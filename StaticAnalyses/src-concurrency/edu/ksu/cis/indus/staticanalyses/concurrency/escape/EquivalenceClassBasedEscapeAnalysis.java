@@ -255,6 +255,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 		preprocessor = new PreProcessor();
+        escapesDefaultValue = true;
+        readDefaultValue = false;
+        writeDefaultValue = false;
 	}
 
 	/**
