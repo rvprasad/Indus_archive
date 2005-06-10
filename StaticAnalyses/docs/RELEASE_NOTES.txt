@@ -25,6 +25,11 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.6.2
+----------------
+	- Refactored EquivalenceClassBasedEscapeAnalysis.  This changes how escape/read-write info is accessed.
+	- A bug fix in read-write information.
+	- Modified SDG to capture inter-procedural data flow via arguments and return values.
 
 Version 0.6.1
 -----------------
