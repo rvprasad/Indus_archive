@@ -71,6 +71,13 @@ public class SimpleNodeGraph
 			final INode _d = ((SimpleNodeGraph) graph).getNode(dest);
 			((SimpleNodeGraph) graph).addEdgeFromTo(_s, _d);
 		}
+
+        /** 
+         * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+         */
+        public void createNode(final Object obj) {
+            ((SimpleNodeGraph) graph).getNode(obj);            
+        }
 	}
 
 

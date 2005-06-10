@@ -90,6 +90,13 @@ public class SimpleEdgeGraph
 			final SimpleEdgeGraph _simpleEdgeGraph = (SimpleEdgeGraph) graph;
 			_simpleEdgeGraph.addEdgeFromTo(_simpleEdgeGraph.getNode(src), NULL_LABEL, _simpleEdgeGraph.getNode(dest));
 		}
+
+        /** 
+         * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+         */
+        public void createNode(final Object obj) {
+            ((SimpleEdgeGraph) graph).getNode(obj);
+        }
 	}
 
 

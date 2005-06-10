@@ -62,6 +62,13 @@ public interface IObjectDirectedGraphBuilder {
 	 * Finish up the built graph.
 	 */
 	void finishBuilding();
+
+    /**
+     * Creates a node to represent the given object.  This method is needed to create a graph with one node.
+     * 
+     * @param obj to be represented.
+     */
+    void createNode(Object obj);
 }
 
 // End of File

@@ -271,6 +271,7 @@ public abstract class AbstractDirectedGraph
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final INode _node = (INode) _i.next();
 				_succs.remove(_node);
+                builder.createNode(_node);
 				builder.addEdgeFromTo(_node, CollectionUtils.intersection(_node.getSuccsOf(), _succs));
 				builder.addEdgeFromTo(CollectionUtils.intersection(_node.getPredsOf(), _preds), _node);
 				_preds.add(_node);
