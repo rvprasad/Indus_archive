@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
@@ -300,12 +299,12 @@ public final class AtomicityTool
 		_pc.setProcessingFilter(new CGBasedProcessingFilter(callgraph));
 		_pc.setEnvironment(new Environment(scene));
 		_info.put(ICallGraphInfo.ID, callgraph);
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 		_ac.initialize();
 		_ac.execute();
 
 		final AtomicStmtDetector _atomic = new AtomicStmtDetector();
-		_atomic.setEscapeAnalysis(_ecba);
+		_atomic.setEscapeAnalysis(_ecba.getEscapeInfo());
 		_atomic.hookup(_pc);
 		_pc.process();
 		_atomic.unhook(_pc);

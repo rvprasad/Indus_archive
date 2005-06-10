@@ -575,7 +575,7 @@ public final class RelativeDependenceInfoTool
 		_cgipc.driveProcessors(_processors);
 
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, _bbm);
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
 		if (abort) {
 			return;
@@ -596,7 +596,7 @@ public final class RelativeDependenceInfoTool
 			return;
 		}
 
-		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_ecba, _cgi);
+		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_ecba.getEscapeInfo(), _cgi);
 		_lbe.hookup(_pc2);
 		_pc2.process();
 		_lbe.unhook(_pc2);

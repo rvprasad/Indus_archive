@@ -61,6 +61,7 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.SootField;
 import soot.SootMethod;
 
 
@@ -182,34 +183,41 @@ public class EscapeAndReadWriteCLI
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
-
-		final IObjectReadWriteInfo _rwInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
-		final IEscapeInfo _escapeInfo = (IEscapeInfo) _rwInfo;
+        final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
+		final IObjectReadWriteInfo _rwInfo = _ecba.getReadWriteInfo();
+		final IEscapeInfo _escapeInfo = _ecba.getEscapeInfo();
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_rwInfo));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 		_ac.initialize();
 		_ac.execute();
 		writeInfo("END: Escape analysis");
 
 		System.out.println("ReadWrite-Effect and Escape Information:");
+        final String[] _emptyStringArray = new String[0];
 
 		for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
 			System.out.println("Method: " + _sm.getSignature());
-
-			if (!_sm.isStatic()) {
+            if (!_sm.isStatic()) {
 				System.out.println("\tthis:");
-				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, new String[0], true));
-				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, new String[0], true));
+				System.out.println("\t\thread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));
+				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, _emptyStringArray, true));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
 				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
 				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
+
+				for (final Iterator _j = _sm.getDeclaringClass().getFields().iterator(); _j.hasNext();) {
+					final String[] _accessPath = { ((SootField) _j.next()).getSignature() };
+					System.out.println("\t\t\t" + _accessPath[0] + ": ["
+						+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
+						+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
+				}
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
 				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]:");
-				System.out.println("\t\tread = " + _rwInfo.isParameterBasedAccessPathRead(_sm, _j, new String[0], true));
-				System.out.println("\t\twritten = " + _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, new String[0], true));
+				System.out.println("\t\thread = " + _rwInfo.isParameterBasedAccessPathRead(_sm, _j, _emptyStringArray, true));
+				System.out.println("\t\twritten = " + _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, _emptyStringArray, true));
 				System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_j, _sm));
 				System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_j, _sm));
 			}

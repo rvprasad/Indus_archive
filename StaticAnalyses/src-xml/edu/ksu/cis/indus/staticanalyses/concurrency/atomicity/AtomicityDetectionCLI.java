@@ -258,7 +258,8 @@ public final class AtomicityDetectionCLI
 		_info.put(IValueAnalyzer.ID, _aa);
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
-		_info.put(IEscapeInfo.ID, _ecba);
+		final IEscapeInfo _escapeInfo = _ecba.getEscapeInfo();
+        _info.put(IEscapeInfo.ID, _escapeInfo);
 
 		initialize();
 		_aa.analyze(new Environment(getScene()), getRootMethods());
@@ -280,12 +281,12 @@ public final class AtomicityDetectionCLI
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 		_ac.initialize();
 		_ac.execute();
 		writeInfo("END: Escape analysis");
 
-		detector.setEscapeAnalysis(_ecba);
+		detector.setEscapeAnalysis(_escapeInfo);
 		detector.hookup(_cgipc);
 		_cgipc.process();
 		detector.unhook(_cgipc);

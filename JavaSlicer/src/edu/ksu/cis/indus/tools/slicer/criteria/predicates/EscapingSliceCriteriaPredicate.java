@@ -16,9 +16,9 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.concurrency.ConcurrencyHelper;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 
 import soot.SootMethod;
 
@@ -43,16 +43,16 @@ public final class EscapingSliceCriteriaPredicate
 
 		if (ConcurrencyHelper.isMonitorTriple(entity)) {
 			final Triple _monitorTriple = (Triple) entity;
-			final EquivalenceClassBasedEscapeAnalysis _ecba = getSlicerTool().getECBA();
+			final IEscapeInfo _escapes = getSlicerTool().getEscapeInfo();
 
-			if (_ecba != null) {
+			if (_escapes != null) {
 				final EnterMonitorStmt _enterMonitor = (EnterMonitorStmt) _monitorTriple.getFirst();
 				final SootMethod _method = (SootMethod) _monitorTriple.getThird();
 
 				if (_enterMonitor == null) {
-					_result = _method.isStatic() || _ecba.thisEscapes(_method);
+					_result = _method.isStatic() || _escapes.thisEscapes(_method);
 				} else {
-					_result = _ecba.escapes(_enterMonitor.getOp(), _method);
+					_result = _escapes.escapes(_enterMonitor.getOp(), _method);
 				}
 			} else {
 				_result = true;

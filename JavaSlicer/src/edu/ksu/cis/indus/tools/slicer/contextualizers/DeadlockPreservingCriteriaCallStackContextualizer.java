@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.tools.slicer.contextualizers;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -95,9 +93,8 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 	 */
 	private void initialize(final EquivalenceClassBasedEscapeAnalysis ecba) {
 		ecr.setECBA(ecba);
-
-		final ICallGraphInfo _callGraph = getSlicerTool().getCallGraph();
-		ecr.setCallGraph(_callGraph);
+        ecr.setEscapeInfo(ecba.getEscapeInfo());
+		ecr.setCallGraph(getSlicerTool().getCallGraph());
 	}
 }
 

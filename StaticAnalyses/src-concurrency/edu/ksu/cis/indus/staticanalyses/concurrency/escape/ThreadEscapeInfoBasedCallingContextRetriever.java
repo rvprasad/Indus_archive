@@ -42,9 +42,14 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	private static final Log LOGGER = LogFactory.getLog(ThreadEscapeInfoBasedCallingContextRetriever.class);
 
 	/** 
-	 * This provides escape information.
+	 * This guides calling context construction.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/** 
+	 * This provides escapes information according to interface.
+	 */
+	private IEscapeInfo escapesInfo;
 
 	/**
 	 * Creates an instance of this class.
@@ -54,23 +59,34 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * Sets the escape information provider.
+	 * Sets the object that guides calling context construction.
 	 *
-	 * @param escapeAnalysis to be used.
+	 * @param oracle to be used.
 	 *
-	 * @pre escapeAnalysis != null
+	 * @pre oracle != null
 	 */
-	public void setECBA(final EquivalenceClassBasedEscapeAnalysis escapeAnalysis) {
-		ecba = escapeAnalysis;
+	public void setECBA(final EquivalenceClassBasedEscapeAnalysis oracle) {
+		ecba = oracle;
 	}
+    
+    /**
+     * Sets the escape analysis.
+     *
+     * @param info to be used.
+     *
+     * @pre oracle != null
+     */
+    public void setEscapeInfo(final IEscapeInfo info) {
+        escapesInfo = info;
+    }
 
 	/**
 	 * Retrieves the escape analysis.
 	 *
 	 * @return the escape analysis.
 	 */
-	protected final IEscapeInfo getECBA() {
-		return ecba;
+	protected final IEscapeInfo getEscapeInfo() {
+		return escapesInfo;
 	}
 
 	/**
@@ -128,7 +144,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
-		final boolean _result = ecba.escapes(context.getProgramPoint().getValue(), context.getCurrentMethod());
+		final boolean _result = escapesInfo.escapes(context.getProgramPoint().getValue(), context.getCurrentMethod());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint() - result =" + _result);
@@ -142,7 +158,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result = !_method.isStatic() && ecba.thisEscapes(_method);
+		final boolean _result = !_method.isStatic() && escapesInfo.thisEscapes(_method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerThis() -  : _result = " + _result);

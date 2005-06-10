@@ -19,12 +19,11 @@ import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 
 import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +65,7 @@ public class AtomicStmtDetector
 	/** 
 	 * The escape analysis to use.
 	 */
-	protected EquivalenceClassBasedEscapeAnalysis ecba;
+	protected IEscapeInfo ecba;
 
 	/**
 	 * Checks if the statement is atomic.
@@ -88,7 +87,7 @@ public class AtomicStmtDetector
 	 *
 	 * @pre analysis != null
 	 */
-	public final void setEscapeAnalysis(final EquivalenceClassBasedEscapeAnalysis analysis) {
+	public final void setEscapeAnalysis(final IEscapeInfo analysis) {
 		ecba = analysis;
 	}
 

@@ -39,6 +39,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 * Creates an instance of this class.
 	 */
 	public ThreadEscapeInfoBasedCallingContextRetrieverV2() {
+        super();
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 
 				if (_val != null) {
 					_result =
-						getECBA().shared(context.getProgramPoint().getValue(), context.getCurrentMethod(), _val,
+						getEscapeInfo().shared(context.getProgramPoint().getValue(), context.getCurrentMethod(), _val,
 							(SootMethod) getInfoFor(SRC_METHOD));
 				}
 			}

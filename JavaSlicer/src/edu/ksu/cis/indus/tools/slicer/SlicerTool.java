@@ -378,7 +378,7 @@ public final class SlicerTool
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, staticFieldUD);
 		info.put(PairManager.ID, pairMgr);
 		info.put(IValueAnalyzer.ID, ofa);
-		info.put(IEscapeInfo.ID, ecba);
+		info.put(IEscapeInfo.ID, ecba.getEscapeInfo());
 		info.put(IMonitorInfo.ID, monitorInfo);
 		info.put(SafeLockAnalysis.ID, safelockAnalysis);
 
@@ -414,7 +414,7 @@ public final class SlicerTool
 	 */
 	public IAtomicityInfo getAtomicityInfo() {
 		final AtomicStmtDetector _atomic = new AtomicStmtDetector();
-		_atomic.setEscapeAnalysis(getECBA());
+		_atomic.setEscapeAnalysis(getEscapeInfo());
 		_atomic.hookup(cgBasedPreProcessCtrl);
 		cgBasedPreProcessCtrl.process();
 		_atomic.unhook(cgBasedPreProcessCtrl);
@@ -483,12 +483,25 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Retrieves the value in <code>ecba</code>.
+	 * Retrieves the equivalance class based escape analysis implementation.
 	 *
-	 * @return the value in <code>ecba</code>.
+	 * @return the escape analysis implementation.
+	 *
+	 * @post result != null
 	 */
 	public EquivalenceClassBasedEscapeAnalysis getECBA() {
 		return ecba;
+	}
+
+	/**
+	 * Retrieves escape info provider.
+	 *
+	 * @return an escape info provider.
+	 *
+	 * @post result != null
+	 */
+	public IEscapeInfo getEscapeInfo() {
+		return ecba.getEscapeInfo();
 	}
 
 	/**
@@ -634,6 +647,7 @@ public final class SlicerTool
 		if (configurationInfo == null) {
 			initialize();
 		}
+
 		configurator =
 			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
 				SlicerConfiguration.getFactory());
@@ -847,7 +861,7 @@ public final class SlicerTool
 			daController.addAnalyses(_id, _c);
 		}
 		daController.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
-		daController.addAnalyses(IEscapeInfo.ID, Collections.singleton(ecba));
+		daController.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
 
 		if (slicerConfig.isSafeLockAnalysisUsedForReady()) {
 			daController.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(safelockAnalysis));
@@ -1005,12 +1019,14 @@ public final class SlicerTool
 			if (slicerConfig.getPropertyAware()) {
 				final Map _map = new HashMap();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetriever();
-				_t1.setECBA(getECBA());
+				_t1.setEscapeInfo(getEscapeInfo());
+				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
 
 				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
-				_t2.setECBA(getECBA());
+				_t2.setEscapeInfo(getEscapeInfo());
+				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
 
