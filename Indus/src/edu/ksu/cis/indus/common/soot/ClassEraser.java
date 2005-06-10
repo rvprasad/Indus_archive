@@ -37,16 +37,19 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Trap;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
+
+import soot.jimple.ParameterRef;
 
 import soot.util.Chain;
 
 
 /**
- * This processor can be used to erase a collection of classes along with their references.  References to the erased
- * class are replaced by a reference to the parent class of the erased class.  
+ * This processor can be used to erase a collection of classes along with their references.  References to the erased class
+ * are replaced by a reference to the parent class of the erased class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -180,11 +183,24 @@ final class ClassEraser
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final Type _type = (Type) _j.next();
 			_j.remove();
-			_c.add(_type);
+			_c.add(getType(_type));
 		}
 		method.setParameterTypes(_c);
 
 		method.setReturnType(getType(method.getReturnType()));
+
+        if (method.hasActiveBody()) {
+    		_c.clear();
+    		_c.addAll(method.getActiveBody().getTraps());
+    
+    		final Iterator _k = _c.iterator();
+    		final int _kEnd = _c.size();
+    
+    		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+    			final Trap _t = (Trap) _k.next();
+    			_t.setException(getClass(_t.getException()));
+    		}
+        }
 	}
 
 	/**
@@ -198,13 +214,16 @@ final class ClassEraser
 		if (_v instanceof Local) {
 			final Local _l = (Local) _v;
 			_l.setType(getType(_l.getType()));
+		} else if (_v instanceof ParameterRef) {
+			final ParameterRef _l = (ParameterRef) _v;
+			vBox.setValue(new ParameterRef(getType(_l.getType()), _l.getIndex()));
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public void hookup(ProcessingController ppc) {
+	public void hookup(final ProcessingController ppc) {
 		ppc.registerForAllValues(this);
 		ppc.register(this);
 	}
@@ -212,7 +231,7 @@ final class ClassEraser
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public void unhook(ProcessingController ppc) {
+	public void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllValues(this);
 		ppc.unregister(this);
 	}
