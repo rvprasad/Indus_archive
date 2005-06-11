@@ -40,12 +40,7 @@ import soot.jimple.InstanceFieldRef;
  * @see InterferenceDAv1
  */
 public class InterferenceDAv3
-  extends InterferenceDAv1 {
-	/** 
-	 * This provide information shared access in the analyzed system.  This is required by the analysis.
-	 */
-	private IEscapeInfo ecba;
-
+  extends InterferenceDAv2 {
 	/**
 	 * @see InterferenceDAv1#isArrayDependentOn(Pair, Pair, ArrayRef, ArrayRef)
 	 */

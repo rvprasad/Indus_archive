@@ -44,7 +44,7 @@ public class InterferenceDAv2
 	/** 
 	 * This provide information shared access in the analyzed system.  This is required by the analysis.
 	 */
-	private IEscapeInfo ecba;
+	protected IEscapeInfo ecba;
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
