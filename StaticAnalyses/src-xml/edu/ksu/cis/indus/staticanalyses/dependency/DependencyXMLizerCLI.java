@@ -407,7 +407,7 @@ public class DependencyXMLizerCLI
         info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
-		info.put(IEscapeInfo.ID, _ecba);
+		info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
 		info.put(IMonitorInfo.ID, _monitorInfo);
@@ -466,7 +466,7 @@ public class DependencyXMLizerCLI
         
         final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());        
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
 		if (useSafeLockAnalysis) {
 			_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));

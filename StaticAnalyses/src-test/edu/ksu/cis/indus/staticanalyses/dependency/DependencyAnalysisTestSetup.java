@@ -143,7 +143,7 @@ public class DependencyAnalysisTestSetup
 		info.put(IEnvironment.ID, valueAnalyzer.getEnvironment());
 		info.put(IValueAnalyzer.ID, valueAnalyzer);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
-		info.put(IEscapeInfo.ID, ecba);
+		info.put(IEscapeInfo.ID, ecba.getEscapeInfo());
 		info.put(IMonitorInfo.ID, monitorInfo);
 
 		// retrieve dependence analysis

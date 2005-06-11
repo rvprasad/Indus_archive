@@ -556,7 +556,7 @@ public final class RelativeDependenceInfoTool
 		}
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, _bbm);
-		_info.put(IEscapeInfo.ID, _ecba);
+		_info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
 		_callGraphInfoCollector.reset();
 		_processors.clear();
 		_processors.add(_callGraphInfoCollector);
