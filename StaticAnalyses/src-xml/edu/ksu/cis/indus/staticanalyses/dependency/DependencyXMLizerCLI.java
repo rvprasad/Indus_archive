@@ -83,14 +83,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.jimple.ArrayRef;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.InterfaceInvokeExpr;
-import soot.jimple.NewArrayExpr;
-import soot.jimple.SpecialInvokeExpr;
-import soot.jimple.VirtualInvokeExpr;
-
-
 /**
  * This class provides a command-line interface to xmlize dependence information.  Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
