@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
@@ -375,7 +376,7 @@ public class InterferenceDAv1
 		final StringBuffer _temp = new StringBuffer();
 
 		final List _entrySet = new ArrayList(dependent2dependee.entrySet());
-        Collections.sort(_entrySet);
+        Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
         for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_lEdgeCount = 0;
