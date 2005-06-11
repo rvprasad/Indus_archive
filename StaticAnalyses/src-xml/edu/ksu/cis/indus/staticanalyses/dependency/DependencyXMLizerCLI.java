@@ -150,6 +150,9 @@ public class DependencyXMLizerCLI
      */
     private boolean exceptionalExits;
 
+    /**
+     * This indicates if common unchecked exceptions should be considered.
+     */
     private boolean commonUncheckedException;
 
 	/**
