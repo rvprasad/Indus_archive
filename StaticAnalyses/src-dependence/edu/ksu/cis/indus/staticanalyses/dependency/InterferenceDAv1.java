@@ -31,9 +31,11 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -372,7 +374,9 @@ public class InterferenceDAv1
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
+		final List _entrySet = new ArrayList(dependent2dependee.entrySet());
+        Collections.sort(_entrySet);
+        for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_lEdgeCount = 0;
 
