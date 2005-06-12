@@ -788,7 +788,7 @@ final class AliasSet
 			_result =
 				recursiveBooleanPropertyDiscovery(new Transformer() {
 						public Object transform(final Object input) {
-							return Boolean.valueOf(((AliasSet) input).wasAnyFieldRead());
+							return Boolean.valueOf(((AliasSet) input).wasFieldRead(fieldSig));
 						}
 					});
 		}
@@ -823,7 +823,7 @@ final class AliasSet
 			_result =
 				recursiveBooleanPropertyDiscovery(new Transformer() {
 						public Object transform(final Object input) {
-							return Boolean.valueOf(((AliasSet) input).wasAnyFieldWritten());
+							return Boolean.valueOf(((AliasSet) input).wasFieldWritten(fieldSig));
 						}
 					});
 		}
