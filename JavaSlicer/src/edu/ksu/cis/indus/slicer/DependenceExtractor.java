@@ -71,9 +71,9 @@ public final class DependenceExtractor
 	protected SootMethod occurringMethod;
 
 	/** 
-	 * The collection of new criteria.
+	 * The collection of dependees/dependents that form the new criteria bases.
 	 */
-	private final Collection newCriteria;
+	private final Collection dependences;
 
 	/** 
 	 * This maps criteria bases to a collection of contexts.
@@ -98,7 +98,7 @@ public final class DependenceExtractor
 	 * Creates a new CriteriaClosure object.
 	 */
 	protected DependenceExtractor() {
-		newCriteria = new HashSet();
+		dependences = new HashSet();
 	}
 
 	/**
@@ -168,8 +168,9 @@ public final class DependenceExtractor
 	 */
 	public void execute(final Object analysis) {
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
-		newCriteria.addAll(retriever.getDependences(_da, entity, occurringMethod));
-		populateCriteriaBaseToContextsMap(_da);
+        final Collection _t = new HashSet(retriever.getDependences(_da, entity, occurringMethod));
+        dependences.addAll(_t);
+		populateCriteriaBaseToContextsMap(_da, _t);
 
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
@@ -200,7 +201,7 @@ public final class DependenceExtractor
 	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
 	 */
 	Collection getDependences() {
-		return Collections.unmodifiableCollection(newCriteria);
+		return Collections.unmodifiableCollection(dependences);
 	}
 
 	/**
@@ -214,7 +215,7 @@ public final class DependenceExtractor
 	void setTrigger(final Object theEntity, final SootMethod method) {
 		entity = theEntity;
 		occurringMethod = method;
-		newCriteria.clear();
+		dependences.clear();
 		criteriabase2contexts.clear();
 	}
 
@@ -222,11 +223,12 @@ public final class DependenceExtractor
 	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given dependence analysis.
 	 *
 	 * @param da to be used while populating the map.
+	 * @param criteriaBases for which contexts need to be retrieved.
 	 *
-	 * @pre da != null
+	 * @pre da != null and criteriaBases != null and criteriaBases
 	 * @post criteriabase2contexts.oclIsKindOf(Map(Object, Collection(Stack(CallTriple))))
 	 */
-	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da) {
+	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da, final Collection criteriaBases) {
 		final Collection _ids = da.getIds();
 		final Collection _retrievers = new HashSet();
 
@@ -245,8 +247,8 @@ public final class DependenceExtractor
 			_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_METHOD, occurringMethod);
 
 			final Context _context = new Context();
-			final Iterator _j = newCriteria.iterator();
-			final int _jEnd = newCriteria.size();
+			final Iterator _j = criteriaBases.iterator();
+			final int _jEnd = criteriaBases.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final Object _t = _j.next();
