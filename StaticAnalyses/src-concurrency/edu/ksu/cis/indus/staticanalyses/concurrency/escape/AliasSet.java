@@ -123,8 +123,8 @@ final class AliasSet
 	private Map fieldMap;
 
 	/** 
-	 * This indicates if the object associated with the alias set was accessed.  This is related to read-write info and not to
-	 * escape or shared info.
+	 * This indicates if the object associated with the alias set was accessed.  This is related to read-write info and not
+	 * to escape or shared info.
 	 */
 	private boolean accessed;
 
@@ -786,9 +786,10 @@ final class AliasSet
 
 		if (!_result && recurse) {
 			_result =
-				recursiveBooleanPropertyDiscovery(new Transformer() {
+				recursiveBooleanPropertyDiscovery(fieldSig,
+					new Transformer() {
 						public Object transform(final Object input) {
-							return Boolean.valueOf(((AliasSet) input).wasFieldRead(fieldSig));
+							return Boolean.valueOf(((AliasSet) input).wasAnyFieldRead());
 						}
 					});
 		}
@@ -821,9 +822,10 @@ final class AliasSet
 
 		if (!_result && recurse) {
 			_result =
-				recursiveBooleanPropertyDiscovery(new Transformer() {
+				recursiveBooleanPropertyDiscovery(fieldSig,
+					new Transformer() {
 						public Object transform(final Object input) {
-							return Boolean.valueOf(((AliasSet) input).wasFieldWritten(fieldSig));
+							return Boolean.valueOf(((AliasSet) input).wasAnyFieldWritten());
 						}
 					});
 		}
@@ -877,9 +879,10 @@ final class AliasSet
 	/**
 	 * Handles the unification of entity info.
 	 *
-	 * @param represented is the alias set being unified with this alias set such that this alias set is the
-     * representative alias set.
-     * @pre represented != null 
+	 * @param represented is the alias set being unified with this alias set such that this alias set is the representative
+	 * 		  alias set.
+	 *
+	 * @pre represented != null
 	 */
 	private void handleInfoUnification(final AliasSet represented) {
 		if (lockEntities == null) {
@@ -921,25 +924,30 @@ final class AliasSet
 	/**
 	 * Discovers a boolean property recursively through the alias set tree.
 	 *
+	 * @param fieldSig is the signature of the field whose alias set serves as the anchor for recursion.
 	 * @param transformer is used to extract the property.
 	 *
 	 * @return <code>true</code> if the property holds on an alias set reachable from this alias set; <code>false</code>,
 	 * 		   otherwise.
 	 *
-	 * @pre transformer != null
+	 * @pre transformer != null and fieldSig != null
 	 */
-	private boolean recursiveBooleanPropertyDiscovery(final Transformer transformer) {
+	private boolean recursiveBooleanPropertyDiscovery(final String fieldSig, final Transformer transformer) {
 		boolean _result = false;
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
-		_wb.addWork(find());
+		final Object _fieldAS = ((AliasSet) find()).fieldMap.get(fieldSig);
 
-		while (_wb.hasWork() && !_result) {
-			final AliasSet _rep = (AliasSet) _wb.getWork();
-			_result |= ((Boolean) transformer.transform(_rep)).booleanValue();
+		if (_fieldAS != null) {
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
+			_wb.addWork(_fieldAS);
 
-			if (!_result) {
-				final Collection _values = _rep.getFieldMap().values();
-				_wb.addAllWorkNoDuplicates(CollectionUtils.collect(_values, REPRESENTATIVE_ALIAS_SET_RETRIEVER));
+			while (_wb.hasWork() && !_result) {
+				final AliasSet _rep = (AliasSet) _wb.getWork();
+				_result |= ((Boolean) transformer.transform(_rep)).booleanValue();
+
+				if (!_result) {
+					final Collection _values = _rep.getFieldMap().values();
+					_wb.addAllWorkNoDuplicates(CollectionUtils.collect(_values, REPRESENTATIVE_ALIAS_SET_RETRIEVER));
+				}
 			}
 		}
 		return _result;
