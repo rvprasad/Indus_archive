@@ -49,7 +49,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	/** 
 	 * This provides escapes information according to interface.
 	 */
-	private IEscapeInfo escapesInfo;
+	protected IEscapeInfo escapesInfo;
 
 	/**
 	 * Creates an instance of this class.

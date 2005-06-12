@@ -15,19 +15,19 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
+
 import edu.ksu.cis.indus.processing.Context;
 
-import soot.SootMethod;
-import soot.Value;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import soot.jimple.FieldRef;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.Stmt;
+import soot.SootMethod;
 
 
 /**
- * This implementation provides program-point-relative calling context based on read/write access-based sharing as opposed
- * to mere read/read sharing between threads.
+ * This implementation facilitates the extraction of calling-contexts based on multithread data sharing (more precise
+ * than escape information). 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -35,42 +35,40 @@ import soot.jimple.Stmt;
  */
 public class ThreadEscapeInfoBasedCallingContextRetrieverV2
   extends ThreadEscapeInfoBasedCallingContextRetriever {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ThreadEscapeInfoBasedCallingContextRetrieverV2.class);
+
 	/**
 	 * Creates an instance of this class.
 	 */
 	public ThreadEscapeInfoBasedCallingContextRetrieverV2() {
-        super();
+		super();
 	}
 
 	/**
-	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(Context)
+	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
-		boolean _result = super.considerProgramPoint(context);
-		final Object _entity = getInfoFor(SRC_ENTITY);
+		final boolean _result = escapesInfo.shared(context.getProgramPoint().getValue(), context.getCurrentMethod());
 
-		if (_result && _entity instanceof Stmt) {
-			final Stmt _stmt = (Stmt) _entity;
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("considerProgramPoint() - result =" + _result);
+		}
 
-			if (_stmt != null) {
-				Value _val = null;
+		return _result;
+	}
 
-				if (_stmt.containsArrayRef()) {
-					_val = _stmt.getArrayRef().getBase();
-				} else if (_stmt.containsFieldRef()) {
-					final FieldRef _fieldRef = _stmt.getFieldRef();
+	/**
+	 * @see AbstractCallingContextRetriever#considerThis(Context)
+	 */
+	protected boolean considerThis(final Context methodContext) {
+		final SootMethod _method = methodContext.getCurrentMethod();
+		final boolean _result = !_method.isStatic() && escapesInfo.thisShared(_method);
 
-					if (_fieldRef instanceof InstanceFieldRef) {
-						_val = ((InstanceFieldRef) _fieldRef).getBase();
-					}
-				}
-
-				if (_val != null) {
-					_result =
-						getEscapeInfo().shared(context.getProgramPoint().getValue(), context.getCurrentMethod(), _val,
-							(SootMethod) getInfoFor(SRC_METHOD));
-				}
-			}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("considerThis() -  : _result = " + _result);
 		}
 
 		return _result;
