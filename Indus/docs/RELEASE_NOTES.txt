@@ -34,6 +34,7 @@ Required software:
 Version 0.6.3
 -----------------
 	- Renamed IObjectReadWriteInfo to IReadWriteInfo.
+    - Added support for limited calling context retrieval.
 
 
 Version 0.6
