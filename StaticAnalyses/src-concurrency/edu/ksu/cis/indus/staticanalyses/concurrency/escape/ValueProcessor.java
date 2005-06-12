@@ -18,8 +18,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
-import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +29,7 @@ import java.util.List;
 
 import soot.Local;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 import soot.jimple.AbstractJimpleValueSwitch;
@@ -68,22 +69,39 @@ final class ValueProcessor
 	 * expressions in a manner appropriate to the analysis.  For example, in side-effect analysis, the primaries of array
 	 * expressions are read as rhs-value and are written to as lhs-value.
 	 */
-	boolean rhs = true;
+	private boolean rhs = true;
 
-    /** 
-     * The associated escape analysis. 
-     */
-
+	/** 
+	 * The associated escape analysis.
+	 */
 	private final EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/** 
+	 * This indicates if locals should be marked as read and written.
+	 */
+	private boolean markLocals = true;
 
 	/**
 	 * Creates an instance of this class.
 	 *
 	 * @param analysis associated with this instance.
-     * @pre analysis != null
+	 *
+	 * @pre analysis != null
 	 */
 	ValueProcessor(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
+	}
+
+	/**
+	 * Sets the value of <code>markLocals</code>.
+	 *
+	 * @param value the new value of <code>markLocals</code>.
+	 * @return the previous value of markLocals.
+	 */
+	boolean setMarkLocals(final boolean value) {
+        final boolean _result = markLocals;
+		this.markLocals = value;
+        return _result;
 	}
 
 	/**
@@ -99,25 +117,8 @@ final class ValueProcessor
 		rhs = _temp;
 
 		final AliasSet _base = (AliasSet) getResult();
-		AliasSet _elt = _base.getASForField(IObjectReadWriteInfo.ARRAY_FIELD);
-
-		if (_elt == null) {
-			_elt = AliasSet.getASForType(v.getType());
-
-			if (_elt != null) {
-				_base.putASForField(IObjectReadWriteInfo.ARRAY_FIELD, _elt);
-			}
-		}
-
-		if (_elt != null) {
-			_elt.setAccessedTo(true);
-			setReadOrWritten(_elt);
-		}
-
-		if (!rhs) {
-			_base.setFieldWritten();
-		}
-
+		final AliasSet _elt = processField(v.getType(), _base, IObjectReadWriteInfo.ARRAY_FIELD);
+		
 		setResult(_elt);
 	}
 
@@ -139,27 +140,40 @@ final class ValueProcessor
 
 		final AliasSet _base = (AliasSet) getResult();
 		final String _fieldSig = v.getField().getSignature();
-		AliasSet _field = _base.getASForField(_fieldSig);
+		final AliasSet _field = processField(v.getType(), _base, _fieldSig);
 
-		if (_field == null) {
-			_field = AliasSet.getASForType(v.getType());
+		setResult(_field);
+	}
+
+    /**
+     * Processes the fields.
+     * 
+     * @param t type of the access expression.
+     * @param base is the alias set of the primary.
+     * @param fieldSig is the signature of the accessed field.
+     * @return the alias set for the field.
+     */
+    private AliasSet processField(final Type t, final AliasSet base, final String fieldSig) {
+        AliasSet _field = base.getASForField(fieldSig);
+        if (_field == null) {
+			_field = AliasSet.getASForType(t);
 
 			if (_field != null) {
-				_base.putASForField(_fieldSig, _field);
+				base.putASForField(fieldSig, _field);
 			}
 		}
 
 		if (_field != null) {
-			_field.setAccessedTo(true);
-			setReadOrWritten(_field);
+			recordAccessInfo(_field);
 		}
 
-		if (!rhs) {
-			_base.setFieldWritten();
+		if (rhs) {
+			base.addReadField(fieldSig);
+		} else {
+			base.addWrittenField(fieldSig);
 		}
-
-		setResult(_field);
-	}
+        return _field;
+    }
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr( soot.jimple.InterfaceInvokeExpr)
@@ -182,9 +196,8 @@ final class ValueProcessor
 			}
 		}
 
-		if (_s != null) {
-			_s.setAccessedTo(true);
-			setReadOrWritten(_s);
+		if (_s != null && markLocals) {
+			recordAccessInfo(_s);
 		}
 
 		setResult(_s);
@@ -195,7 +208,6 @@ final class ValueProcessor
 	 */
 	public void caseParameterRef(final ParameterRef v) {
 		final AliasSet _as = ecba.methodCtxtCache.getParamAS(v.getIndex());
-		setReadOrWritten(_as);
 		setResult(_as);
 	}
 
@@ -238,7 +250,6 @@ final class ValueProcessor
 	 */
 	public void caseThisRef(final ThisRef v) {
 		final AliasSet _as = ecba.methodCtxtCache.getThisAS();
-		setReadOrWritten(_as);
 		setResult(_as);
 	}
 
@@ -272,29 +283,6 @@ final class ValueProcessor
 			EquivalenceClassBasedEscapeAnalysis.VALUE_PROCESSOR_LOGGER.trace("Processing value: " + value);
 		}
 		value.apply(this);
-	}
-
-	/**
-	 * Helper method to mark the alias set as read or written.
-	 *
-	 * @param as is the alias set to be marked.
-	 */
-	private void setReadOrWritten(final AliasSet as) {
-		if (as != null) {
-			if (rhs) {
-				as.setRead();
-
-				if (ecba.tgi != null) {
-					as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
-				}
-			} else {
-				as.setWritten();
-
-				if (ecba.tgi != null) {
-					as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
-				}
-			}
-		}
 	}
 
 	/**
@@ -361,8 +349,6 @@ final class ValueProcessor
 				continue;
 			}
 
-			final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
-
 			// retrieve the method context of the callee
 			MethodContext _mc = (MethodContext) _triple.getFirst();
 
@@ -374,11 +360,13 @@ final class ValueProcessor
 			if (ecba.cfgAnalysis.notInSameSCC(caller, _callee)) {
 				try {
 					_mc = (MethodContext) _mc.clone();
-				} catch (CloneNotSupportedException _e) {
+				} catch (final CloneNotSupportedException _e) {
 					EquivalenceClassBasedEscapeAnalysis.LOGGER.error("Hell NO!  This should not happen.", _e);
 					throw new RuntimeException(_e);
 				}
 			}
+
+            final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
 
 			if (_isThreadBoundary) {
 				_mc.markAsCrossingThreadBoundary();
@@ -462,13 +450,43 @@ final class ValueProcessor
 			_delayUnification = true;
 		} else if (Util.isWaitMethod(callee)) {
 			primaryAliasSet.setWaits();
-			primaryAliasSet.addNewLockEntity();
+			primaryAliasSet.setLocked();
 		} else if (Util.isNotifyMethod(callee)) {
 			primaryAliasSet.setNotifies();
 		}
 
 		return _delayUnification;
 	}
+
+	/**
+	 * Helper method to record threads in which alias is accessed.
+	 *
+	 * @param as is the alias set to be marked.
+	 */
+	private void recordAccessInfo(final AliasSet as) {
+		if (as != null) {
+            as.setAccessed();
+            if (ecba.tgi != null) {
+			if (rhs) {
+				as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+			} else {
+				as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+			}
+            }
+		}
+	}
+
+    /**
+     * Sets the value of <code>rhs</code>.
+     *
+     * @param b the new value of <code>rhs</code>.
+     * @return the previous value of rhs.
+     */
+    boolean setRHS(final boolean b) {
+        final boolean _r = rhs;
+        rhs = b;
+        return _r;
+    }
 }
 
 // End of File

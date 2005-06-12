@@ -401,7 +401,7 @@ public class DependencyXMLizerCLI
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
         info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 
-		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();

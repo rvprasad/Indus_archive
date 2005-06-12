@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -42,9 +43,31 @@ class ReadWriteInfo
   extends AbstractStatus
   implements IObjectReadWriteInfo {
 	/** 
+	 * This is used to retrieve the alias set for "this" from a given method context.
+	 */
+	private static final Transformer THIS_ALIAS_SET_RETRIEVER =
+		new Transformer() {
+			public Object transform(final Object input) {
+				return ((MethodContext) input).thisAS;
+			}
+		};
+
+	/** 
 	 * The creating/containing object.
 	 */
-	private final EquivalenceClassBasedEscapeAnalysis analysis;
+	final EquivalenceClassBasedEscapeAnalysis analysis;
+
+	/** 
+	 * This retrieves the method context of a method.
+	 */
+	private final Transformer methodCtxtRetriever =
+		new Transformer() {
+			public Object transform(final Object input) {
+				final Triple _t = (Triple) analysis.method2Triple.get(input);
+				return _t != null ? _t.getFirst()
+								  : null;
+			}
+		};
 
 	/**
 	 * Creates an instance of this class.
@@ -105,8 +128,7 @@ class ReadWriteInfo
 		this.analysis.validate(paramPos, method);
 
 		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.methodCtxtRetriever,
-				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
@@ -118,8 +140,7 @@ class ReadWriteInfo
 		this.analysis.validate(paramPos, method);
 
 		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.methodCtxtRetriever,
-				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
@@ -135,7 +156,7 @@ class ReadWriteInfo
 
 		final Transformer _transformer =
 			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever);
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
 	}
 
@@ -150,7 +171,7 @@ class ReadWriteInfo
 
 		final Transformer _transformer =
 			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever);
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
@@ -163,8 +184,7 @@ class ReadWriteInfo
 		this.analysis.validate(method);
 
 		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.methodCtxtRetriever,
-				EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever);
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
@@ -175,8 +195,7 @@ class ReadWriteInfo
 		this.analysis.validate(method);
 
 		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.methodCtxtRetriever,
-				EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever);
+			TransformerUtils.chainedTransformer(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
@@ -200,14 +219,28 @@ class ReadWriteInfo
 	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
 	 */
 	public boolean doesMethodReadGlobalData(final SootMethod method) {
-		return globalDataReadWriteInfoHelper(method, EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever, true);
+		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, true);
 	}
 
 	/**
 	 * @see IObjectReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
 	 */
 	public boolean doesMethodWriteGlobalData(final SootMethod method) {
-		return globalDataReadWriteInfoHelper(method, EquivalenceClassBasedEscapeAnalysis.thisAliasSetRetriever, false);
+		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, false);
+	}
+
+	/**
+	 * This exposes <code>super.stable</code>.
+	 */
+	void stableAdapter() {
+		super.stable();
+	}
+
+	/**
+	 * This exposes <code>super.unstable</code>.
+	 */
+	void unstableAdapter() {
+		super.unstable();
 	}
 
 	/**
@@ -270,17 +303,28 @@ class ReadWriteInfo
 	private boolean instanceDataReadWriteHelper(final SootMethod method, final String[] accesspath, final boolean recurse,
 		final Transformer retriever, final boolean read) {
 		final AliasSet _aliasSet = (AliasSet) retriever.transform(method);
+		final int _pathLength = accesspath.length;
+		final boolean _zeroLenghtPath = _pathLength == 0;
 		final AliasSet _endPoint;
 
 		if (_aliasSet == null) {
 			_endPoint = null;
 		} else {
-			final Pair _pair = new Pair(_aliasSet.find(), accesspath);
+			final String[] _s;
+
+			if (_zeroLenghtPath) {
+				_s = new String[0];
+			} else {
+				_s = new String[_pathLength - 1];
+				System.arraycopy(accesspath, 0, _s, 0, _s.length);
+			}
+
+			final Pair _pair = new Pair(_aliasSet.find(), _s);
 
 			if (this.analysis.query2handle.containsKey(_pair)) {
 				_endPoint = (AliasSet) this.analysis.query2handle.get(_pair);
 			} else {
-				_endPoint = _aliasSet.getAccessPathEndPoint(accesspath);
+				_endPoint = _aliasSet.getAccessPathEndPoint(_s);
 				this.analysis.query2handle.put(_pair, _endPoint);
 			}
 		}
@@ -293,14 +337,22 @@ class ReadWriteInfo
 
 			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
 				EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("isAccessPathOperatedHelper(method = " + method
-					+ ", accesspath = " + accesspath + ", recurse = " + recurse + ", retriver = " + retriever
+					+ ", accesspath = " + Arrays.asList(accesspath) + ", recurse = " + recurse + ", retriver = " + retriever
 					+ ") - No recorded information for " + method + " is available.  Returning default value - " + _result);
 			}
 		} else {
 			if (read) {
-				_result = AliasSet.isAccessed(_endPoint, recurse);
+				if (_zeroLenghtPath) {
+					_result = _endPoint.isAccessed();
+				} else {
+					_result = _endPoint.wasFieldRead(accesspath[_pathLength - 1], recurse);
+				}
 			} else {
-				_result = AliasSet.isFieldWritten(_endPoint, recurse);
+				if (_zeroLenghtPath) {
+					_result = false;
+				} else {
+					_result = _endPoint.wasFieldWritten(accesspath[_pathLength - 1], recurse);
+				}
 			}
 		}
 		return _result;

@@ -16,10 +16,12 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +29,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -62,14 +67,26 @@ final class AliasSet
 	private static int lockEntityCount;
 
 	/** 
-	 * This represents if the variable associated with alias set was accessed (read/written).
+	 * This is used to retrieve the representative of the alias set.
 	 */
-	boolean accessed;
+	private static final Transformer REPRESENTATIVE_ALIAS_SET_RETRIEVER =
+		new Transformer() {
+			public Object transform(final Object input) {
+				return ((AliasSet) input).find();
+			}
+		};
 
 	/** 
 	 * This represents the lock entities associated with this alias set.
 	 */
 	private Collection lockEntities;
+
+	/** 
+	 * This is the signatures of the fields of the objects associated with this alias set that are read.
+	 *
+	 * @invariant writtenThreads.oclIsKindOf(Collection(String))
+	 */
+	private Collection readFields = new ArrayList();
 
 	/** 
 	 * The threads that read fields of the associated object.
@@ -92,6 +109,13 @@ final class AliasSet
 	private Collection writeThreads;
 
 	/** 
+	 * This is the signatures of the fields of the objects associated with this alias set that are written.
+	 *
+	 * @invariant writtenThreads.oclIsKindOf(Collection(String))
+	 */
+	private Collection writtenFields = new ArrayList();
+
+	/** 
 	 * This maps field signatures to their alias sets.
 	 *
 	 * @invariant fieldMap.oclIsKindOf(Map(String, AliasSet))
@@ -99,14 +123,20 @@ final class AliasSet
 	private Map fieldMap;
 
 	/** 
-	 * This indicates if a field of the associated object was written.
+	 * This indicates if the object associated with the alias set was accessed.  This is related to read-write info and not to
+	 * escape or shared info.
 	 */
-	private boolean fieldWritten;
+	private boolean accessed;
 
 	/** 
 	 * This indicates if this alias set is associated with a static field.
 	 */
 	private boolean global;
+
+	/** 
+	 * This indicates the alias set participated in a locking operation.
+	 */
+	private boolean locked;
 
 	/** 
 	 * This is used to indicate that the alias set represents an object that is accessible in multiple threads. This differs
@@ -119,11 +149,6 @@ final class AliasSet
 	 * call.
 	 */
 	private boolean notifies;
-
-	/** 
-	 * This indicates if the associated variable was read from.
-	 */
-	private boolean read;
 
 	/** 
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set is shared via access
@@ -142,27 +167,29 @@ final class AliasSet
 	 */
 	private boolean waits;
 
-	/** 
-	 * This indicates if the assocaited variable was written into.
-	 */
-	private boolean written;
-
 	/**
 	 * Creates a new instance of this class.
 	 */
 	private AliasSet() {
 		fieldMap = new HashMap();
 		shared = false;
-		accessed = false;
 		global = false;
+		accessed = false;
 		readyEntities = null;
-		read = false;
 		readThreads = new HashSet();
-		written = false;
 		writeThreads = new HashSet();
 		shareEntities = null;
 		lockEntities = null;
 		multiThreadAccessibility = false;
+		readFields = Collections.EMPTY_SET;
+		writtenFields = Collections.EMPTY_SET;
+	}
+
+	/**
+	 * Marks the alias set as participating in a lock operation.
+	 */
+	public void setLocked() {
+		((AliasSet) find()).locked = true;
 	}
 
 	/**
@@ -209,12 +236,21 @@ final class AliasSet
 			_clone.fieldMap.clear();
 
 			if (readyEntities != null) {
-				_clone.readyEntities = (HashSet) ((HashSet) readyEntities).clone();
+				_clone.readyEntities = (Collection) ((HashSet) readyEntities).clone();
 			}
 
 			if (shareEntities != null) {
-				_clone.shareEntities = (HashSet) ((HashSet) shareEntities).clone();
+				_clone.shareEntities = (Collection) ((HashSet) shareEntities).clone();
 			}
+
+			if (readFields != Collections.EMPTY_SET) {
+				_clone.readFields = (Collection) ((HashSet) readFields).clone();
+			}
+
+			if (writtenFields != Collections.EMPTY_SET) {
+				_clone.writtenFields = (Collection) ((HashSet) writtenFields).clone();
+			}
+
 			_clone.set = null;
 
 			_result = _clone;
@@ -237,12 +273,11 @@ final class AliasSet
 			} else {
 				stringifying = true;
 				_result =
-					new ToStringBuilder(this).append("waits", this.waits).append("written", this.written)
-											   .append("global", this.global).append("accessed", this.accessed)
-											   .append("readyEntities", this.readyEntities)
+					new ToStringBuilder(this).append("waits", this.waits).append("writtenFields", this.writtenFields)
+											   .append("global", this.global).append("readyEntities", this.readyEntities)
 											   .append("multiThreadAccess", this.multiThreadAccessibility)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
-											   .append("notifies", this.notifies).append("read", this.read)
+											   .append("notifies", this.notifies).append("readFields", this.readFields)
 											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
 											   .append("lockEntities", this.lockEntities).append("fieldMap", this.fieldMap)
 											   .toString();
@@ -250,15 +285,6 @@ final class AliasSet
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * Retrieves the value of <code>accessed</code>.
-	 *
-	 * @return the value of <code>accessed</code>.
-	 */
-	final boolean isAccessed() {
-		return accessed;
 	}
 
 	/**
@@ -279,68 +305,6 @@ final class AliasSet
 		}
 
 		return _result;
-	}
-
-	/**
-	 * Checks if a field of the object associated with the given alias set was written.
-	 *
-	 * @param paramAS is the alias set to be checked.
-	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @return <code>true</code> if this alias set was field-written or if the given alias set is <code>null</code>;
-	 * 		   <code>false</code>, otherwise.
-	 */
-	static boolean isAccessed(final AliasSet paramAS, final boolean recurse) {
-		boolean _result = paramAS == null;
-
-		if (!_result) {
-			_result = paramAS.isAccessed(new HashSet(), recurse);
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if a field of the object associated with the given alias set was written.
-	 *
-	 * @param paramAS is the alias set to be checked.
-	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @return <code>true</code> if this alias set was field-written or if the given alias set is <code>null</code>;
-	 * 		   <code>false</code>, otherwise.
-	 */
-	static boolean isFieldWritten(final AliasSet paramAS, final boolean recurse) {
-		boolean _result = paramAS == null;
-
-		if (!_result) {
-			_result = paramAS.isFieldWritten(new HashSet(), recurse);
-		}
-		return _result;
-	}
-
-	/**
-	 * Creates a new alias set.
-	 *
-	 * @return a new alias set.
-	 *
-	 * @post result != null
-	 */
-	static AliasSet createAliasSet() {
-		return new AliasSet();
-	}
-
-	/**
-	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
-	 *
-	 * @param field is the signature of the field.
-	 *
-	 * @return the alias set associated with <code>field</code>.
-	 *
-	 * @post result == self.find().fieldMap.get(field)
-	 */
-	AliasSet getASForField(final String field) {
-		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
 	}
 
 	/**
@@ -370,31 +334,12 @@ final class AliasSet
 	}
 
 	/**
-	 * Records the access information pertaining to the object associated with this alias set.
-	 *
-	 * @param value is the access information.  <code>true</code> indicates that the associated variable  was accessed;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @post self.find().accessed == value
-	 */
-	void setAccessedTo(final boolean value) {
-		((AliasSet) find()).accessed = value;
-	}
-
-	/**
 	 * Retrieves an unmodifiable copy of the field map of this alias set.
 	 *
 	 * @return the field map.
 	 */
 	Map getFieldMap() {
 		return Collections.unmodifiableMap(((AliasSet) find()).fieldMap);
-	}
-
-	/**
-	 * Records that a field of the object associated with this alias set was written to.
-	 */
-	void setFieldWritten() {
-		((AliasSet) find()).fieldWritten = true;
 	}
 
 	/**
@@ -433,6 +378,50 @@ final class AliasSet
 	}
 
 	/**
+	 * Retrieves the alias set that is reachable from <code>root</code> and that corresponds to <code>ref</code>, an alias
+	 * set reachable from this alias set. This method can be used to retrieve the alias set in the site-context
+	 * corresponding to an alias side in the callee method context.
+	 *
+	 * @param root the alias set to start point in the search context.
+	 * @param ref the alias set in end point in the reference (this) context.
+	 * @param processed a collection of alias set pairs that is used during the search.  The contents of this alias set is
+	 * 		  not relevant to the caller.
+	 *
+	 * @return the alias set reachable from <code>root</code> and that corresponds to <code>ref</code>.  This will be
+	 * 		   <code>null</code> if there is no such alias set.
+	 *
+	 * @pre root != null and ref != null and processed != null
+	 */
+	AliasSet getImageOfRefUnderRoot(final AliasSet root, final AliasSet ref, final Collection processed) {
+		AliasSet _result = null;
+
+		if (ref.find() == find()) {
+			_result = root;
+		} else {
+			processed.add(new Pair(find(), root.find()));
+
+			final Set _keySet = getFieldMap().keySet();
+			final Iterator _i = _keySet.iterator();
+			final int _iEnd = _keySet.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd && _result == null; _iIndex++) {
+				final String _key = (String) _i.next();
+				final AliasSet _as1 = getASForField(_key);
+				final AliasSet _as2 = root.getASForField(_key);
+
+				if (_as1 != null && _as2 != null) {
+					final Pair _pair = new Pair(_as1.find(), _as2.find());
+
+					if (!processed.contains(_pair)) {
+						_result = _as1.getImageOfRefUnderRoot(_as2, ref, processed);
+					}
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Retrieves the lock entities of this object.
 	 *
 	 * @return a collection of objects.
@@ -448,13 +437,6 @@ final class AliasSet
 	 */
 	void setNotifies() {
 		((AliasSet) find()).notifies = true;
-	}
-
-	/**
-	 * Marks this object such that it capture the action that the associated variable was read from.
-	 */
-	void setRead() {
-		((AliasSet) find()).read = true;
 	}
 
 	/**
@@ -487,10 +469,17 @@ final class AliasSet
 	}
 
 	/**
-	 * Marks this object such that it capture the action that the associated variable was written into.
+	 * Adds the given field signature to the collection of read fields of this alias set's object.
+	 *
+	 * @param fieldSig is the field signature.
 	 */
-	void setWritten() {
-		((AliasSet) find()).written = true;
+	void addReadField(final String fieldSig) {
+		final AliasSet _l = (AliasSet) find();
+
+		if (_l.readFields == Collections.EMPTY_SET) {
+			_l.readFields = new HashSet();
+		}
+		_l.readFields.add(fieldSig);
 	}
 
 	/**
@@ -512,14 +501,68 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the object associated with this alias set is shared between threads.
+	 * Adds the given field signature to the collection of written fields of this alias set's object.
+	 *
+	 * @param fieldSig is the field signature.
+	 */
+	void addWrittenField(final String fieldSig) {
+		final AliasSet _l = (AliasSet) find();
+
+		if (_l.writtenFields == Collections.EMPTY_SET) {
+			_l.writtenFields = new HashSet();
+		}
+		_l.writtenFields.add(fieldSig);
+	}
+
+	/**
+	 * Creates a new alias set.
+	 *
+	 * @return a new alias set.
+	 *
+	 * @post result != null
+	 */
+	static AliasSet createAliasSet() {
+		return new AliasSet();
+	}
+
+	/**
+	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
+	 *
+	 * @param field is the signature of the field.
+	 *
+	 * @return the alias set associated with <code>field</code>.
+	 *
+	 * @post result == self.find().fieldMap.get(field)
+	 */
+	AliasSet getASForField(final String field) {
+		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
+	}
+
+	/**
+	 * Marks the alias set was accessed.
+	 */
+	void setAccessed() {
+		((AliasSet) find()).accessed = true;
+	}
+
+	/**
+	 * Checks if the alias set was accessed.
+	 *
+	 * @return <code>true</code> if it was accessed; <code>false</code>, otherwise.
+	 */
+	boolean isAccessed() {
+		return ((AliasSet) find()).accessed;
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is accessible in multiple threads.
 	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
 	 *
 	 * @post result == find().shared
 	 */
 	boolean escapes() {
-		return ((AliasSet) find()).shared;
+		return ((AliasSet) find()).multiThreadAccessibility;
 	}
 
 	/**
@@ -559,6 +602,7 @@ final class AliasSet
 
 			if (_fromRep != _toRep) {
 				_toRep.shared |= _fromRep.shared;
+				_toRep.multiThreadAccessibility |= _fromRep.multiThreadAccessibility;
 
 				/*
 				 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
@@ -625,96 +669,24 @@ final class AliasSet
 	static void selfUnify(final AliasSet as) {
 		final Collection _processed = new HashSet();
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_processed);
-		_wb.addWork(as);
+		_wb.addWork(as.find());
 
 		while (_wb.hasWork()) {
-			final AliasSet _m = (AliasSet) _wb.getWork();
-			final AliasSet _repr = (AliasSet) _m.find();
-
-			if (_repr != _m) {
-				_processed.add(_repr);
-			}
-
-			_repr.shared |= _repr.accessed;
-
-			if (_repr.waits && _repr.notifies) {
-				if (_repr.readyEntities == null) {
-					_repr.readyEntities = new HashSet();
-				}
-
-				if (_repr.readyEntities.isEmpty()) {
-					_repr.readyEntities.add(getNewReadyEntity());
-				}
-			}
-
-			if (_repr.read && _repr.written) {
-				if (_repr.shareEntities == null) {
-					_repr.shareEntities = new HashSet();
-				}
-
-				if (_repr.shareEntities.isEmpty()) {
-					_repr.shareEntities.add(getNewShareEntity());
-				}
-			}
-
-			_wb.addAllWorkNoDuplicates(_repr.fieldMap.values());
+			final AliasSet _repr = (AliasSet) _wb.getWork();
+			_repr.unifyThreadEscapeInfo(_repr);
+			_wb.addAllWorkNoDuplicates(CollectionUtils.collect(_repr.fieldMap.values(), REPRESENTATIVE_ALIAS_SET_RETRIEVER));
 		}
 	}
 
 	/**
-	 * Retrieves the alias set that is reachable from <code>root</code> and that corresponds to <code>ref</code>, an alias
-	 * set reachable from this alias set. This method can be used to retrieve the alias set in the site-context
-	 * corresponding to an alias side in the callee method context.
+	 * Checks if the object associated with this alias set is accessed between threads.
 	 *
-	 * @param root the alias set to start point in the search context.
-	 * @param ref the alias set in end point in the reference (this) context.
-	 * @param processed a collection of alias set pairs that is used during the search.  The contents of this alias set is
-	 * 		  not relevant to the caller.
+	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
 	 *
-	 * @return the alias set reachable from <code>root</code> and that corresponds to <code>ref</code>.  This will be
-	 * 		   <code>null</code> if there is no such alias set.
-	 *
-	 * @pre root != null and ref != null and processed != null
+	 * @post result == find().shared
 	 */
-	AliasSet getImageOfRefUnderRoot(final AliasSet root, final AliasSet ref, final Collection processed) {
-		AliasSet _result = null;
-
-		if (ref.find() == find()) {
-			_result = root;
-		} else {
-			processed.add(new Pair(find(), root.find()));
-
-			final Set _keySet = getFieldMap().keySet();
-			final Iterator _i = _keySet.iterator();
-			final int _iEnd = _keySet.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd && _result == null; _iIndex++) {
-				final String _key = (String) _i.next();
-				final AliasSet _as1 = getASForField(_key);
-				final AliasSet _as2 = root.getASForField(_key);
-
-				if (_as1 != null && _as2 != null) {
-					final Pair _pair = new Pair(_as1.find(), _as2.find());
-
-					if (!processed.contains(_pair)) {
-						_result = _as1.getImageOfRefUnderRoot(_as2, ref, processed);
-					}
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Adds a new lock entity to this alias set.
-	 */
-	void addNewLockEntity() {
-		final AliasSet _s = ((AliasSet) find());
-
-		if (_s.lockEntities == null) {
-			_s.lockEntities = new HashSet();
-		}
-		_s.lockEntities.add("LockEntity:" + lockEntityCount++);
+	boolean shared() {
+		return ((AliasSet) find()).shared;
 	}
 
 	/**
@@ -755,44 +727,23 @@ final class AliasSet
 
 			_representative.waits |= _represented.waits;
 			_representative.notifies |= _represented.notifies;
-			_representative.accessed |= _represented.accessed;
-			_representative.read |= _represented.read;
-			_representative.written |= _represented.written;
 			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
 			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
-			_representative.fieldWritten |= _represented.fieldWritten;
+			_representative.locked |= _represented.locked;
+			_representative.accessed |= _represented.accessed;
 			_representative.readThreads.addAll(_represented.readThreads);
 			_represented.readThreads = null;
 			_representative.writeThreads.addAll(_represented.writeThreads);
 			_represented.writeThreads = null;
 
-			if (_representative.lockEntities == null) {
-				_representative.lockEntities = _represented.lockEntities;
-				_represented.lockEntities = null;
-			} else if (_represented.lockEntities != null) {
-				_representative.lockEntities.addAll(_represented.lockEntities);
+			if (unifyAll && _representative.multiThreadAccessibility) {
+				_representative.unifyThreadEscapeInfo(_represented);
 			}
 
-			if (_representative.readyEntities == null) {
-				_representative.readyEntities = _represented.readyEntities;
-				_represented.readyEntities = null;
-			} else if (_represented.readyEntities != null) {
-				_representative.readyEntities.addAll(_represented.readyEntities);
-			}
-
-			if (_representative.shareEntities == null) {
-				_representative.shareEntities = _represented.shareEntities;
-				_represented.shareEntities = null;
-			} else if (_represented.shareEntities != null) {
-				_representative.shareEntities.addAll(_represented.shareEntities);
-			}
-
-			if (unifyAll) {
-				if (_representative.multiThreadAccessibility) {
-					_representative.unifyThreadEscapeInfo(_represented);
-				}
-			}
+			// We need to unify the read/write fields after unification as they are used to calcuate shared entities in 
+			// unifyThreadEscapeInfo()
+			_representative.handleInfoUnification(_represented);
 
 			_representative.unifyFields(_represented, unifyAll);
 
@@ -800,6 +751,105 @@ final class AliasSet
 				_representative.setGlobal();
 			}
 		}
+	}
+
+	/**
+	 * Checks if the a field of the object associated with alias set was read.
+	 *
+	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
+	 */
+	boolean wasAnyFieldRead() {
+		return !((AliasSet) find()).readFields.isEmpty();
+	}
+
+	/**
+	 * Checks if the a field of the object associated with alias set was written.
+	 *
+	 * @return <code>true</code> if it was written; <code>false</code>, otherwise.
+	 */
+	boolean wasAnyFieldWritten() {
+		return !((AliasSet) find()).writtenFields.isEmpty();
+	}
+
+	/**
+	 * Checks if the given field or an object reachable from it was read.
+	 *
+	 * @param fieldSig is the field signature.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set was read or if the given alias set is <code>null</code>;
+	 * 		   <code>false</code>, otherwise.
+	 */
+	boolean wasFieldRead(final String fieldSig, final boolean recurse) {
+		boolean _result = wasFieldRead(fieldSig);
+
+		if (!_result && recurse) {
+			_result =
+				recursiveBooleanPropertyDiscovery(new Transformer() {
+						public Object transform(final Object input) {
+							return Boolean.valueOf(((AliasSet) input).wasAnyFieldRead());
+						}
+					});
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the field of the provided signature was read via the object associated with this alias set.
+	 *
+	 * @param fieldSig is the field signature.
+	 *
+	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
+	 */
+	boolean wasFieldRead(final String fieldSig) {
+		return ((AliasSet) find()).readFields.contains(fieldSig);
+	}
+
+	/**
+	 * Checks if the given field or an object reachable from it was written.
+	 *
+	 * @param fieldSig is the field signature.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set was written or if the given alias set is <code>null</code>;
+	 * 		   <code>false</code>, otherwise.
+	 */
+	boolean wasFieldWritten(final String fieldSig, final boolean recurse) {
+		boolean _result = wasFieldWritten(fieldSig);
+
+		if (!_result && recurse) {
+			_result =
+				recursiveBooleanPropertyDiscovery(new Transformer() {
+						public Object transform(final Object input) {
+							return Boolean.valueOf(((AliasSet) input).wasAnyFieldWritten());
+						}
+					});
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the field of the provided signature was read via the object associated with this alias set.
+	 *
+	 * @param fieldSig is the field signature.
+	 *
+	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
+	 */
+	boolean wasFieldWritten(final String fieldSig) {
+		return ((AliasSet) find()).writtenFields.contains(fieldSig);
+	}
+
+	/**
+	 * Returns a new lock entity object.
+	 *
+	 * @return a new lock entity object.
+	 *
+	 * @post result != null
+	 */
+	private static Object getNewLockEntity() {
+		return "LockEntity:" + lockEntityCount++;
 	}
 
 	/**
@@ -825,88 +875,74 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the object being represented by this alias set was accessed.
+	 * Handles the unification of entity info.
 	 *
-	 * @param visitedASs is a collection of alias sets that are traversed while checking for side-effect.
-	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @return <code>true</code> if this alias set was accessed; <code>false</code>, otherwise.
-	 *
-	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
+	 * @param represented is the alias set being unified with this alias set such that this alias set is the
+     * representative alias set.
+     * @pre represented != null 
 	 */
-	private boolean isAccessed(final Collection visitedASs, final boolean recurse) {
-		boolean _result = isFieldWritten();
-		final AliasSet _rep = (AliasSet) find();
-
-		if (!_result && !visitedASs.contains(_rep)) {
-			final Collection _fieldASs = _rep.getFieldMap().values();
-			final Iterator _i = _fieldASs.iterator();
-			final int _iEnd = _fieldASs.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-				final AliasSet _fieldAS = (AliasSet) _i.next();
-				_result |= _fieldAS.isAccessed();
-				visitedASs.add(_fieldAS.find());
-			}
-
-			if (!_result && recurse) {
-				final Iterator _j = _fieldASs.iterator();
-
-				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-					final AliasSet _fieldAS = (AliasSet) _j.next();
-					_result |= _fieldAS.isAccessed(visitedASs, recurse);
-				}
-			}
+	private void handleInfoUnification(final AliasSet represented) {
+		if (lockEntities == null) {
+			lockEntities = represented.lockEntities;
+		} else if (represented.lockEntities != null) {
+			lockEntities.addAll(represented.lockEntities);
 		}
-		return _result;
+		represented.lockEntities = null;
+
+		if (readyEntities == null) {
+			readyEntities = represented.readyEntities;
+		} else if (represented.readyEntities != null) {
+			readyEntities.addAll(represented.readyEntities);
+		}
+		represented.readyEntities = null;
+
+		if (shareEntities == null) {
+			shareEntities = represented.shareEntities;
+		} else if (represented.shareEntities != null) {
+			shareEntities.addAll(represented.shareEntities);
+		}
+		readyEntities = null;
+
+		if (readFields == Collections.EMPTY_SET) {
+			readFields = represented.readFields;
+		} else {
+			readFields.addAll(represented.readFields);
+		}
+		represented.readFields = null;
+
+		if (writtenFields == Collections.EMPTY_SET) {
+			writtenFields = represented.writtenFields;
+		} else {
+			writtenFields.addAll(represented.writtenFields);
+		}
+		represented.writtenFields = null;
 	}
 
 	/**
-	 * Checks if a field of the object being represented by this alias set was written.
+	 * Discovers a boolean property recursively through the alias set tree.
 	 *
-	 * @param visitedASs is a collection of alias sets that are traversed while checking for side-effect.
-	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
-	 * 		  <code>false</code>, otherwise.
+	 * @param transformer is used to extract the property.
 	 *
-	 * @return <code>true</code> if this alias set was field-written; <code>false</code>, otherwise.
+	 * @return <code>true</code> if the property holds on an alias set reachable from this alias set; <code>false</code>,
+	 * 		   otherwise.
 	 *
-	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
+	 * @pre transformer != null
 	 */
-	private boolean isFieldWritten(final Collection visitedASs, final boolean recurse) {
-		boolean _result = isFieldWritten();
-		final AliasSet _rep = (AliasSet) find();
+	private boolean recursiveBooleanPropertyDiscovery(final Transformer transformer) {
+		boolean _result = false;
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
+		_wb.addWork(find());
 
-		if (!_result && !visitedASs.contains(_rep)) {
-			final Collection _fieldASs = _rep.getFieldMap().values();
-			final Iterator _i = _fieldASs.iterator();
-			final int _iEnd = _fieldASs.size();
+		while (_wb.hasWork() && !_result) {
+			final AliasSet _rep = (AliasSet) _wb.getWork();
+			_result |= ((Boolean) transformer.transform(_rep)).booleanValue();
 
-			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-				final AliasSet _fieldAS = (AliasSet) _i.next();
-				_result |= _fieldAS.isFieldWritten();
-				visitedASs.add(_fieldAS.find());
-			}
-
-			if (!_result && recurse) {
-				final Iterator _j = _fieldASs.iterator();
-
-				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-					final AliasSet _fieldAS = (AliasSet) _j.next();
-					_result |= _fieldAS.isFieldWritten(visitedASs, recurse);
-				}
+			if (!_result) {
+				final Collection _values = _rep.getFieldMap().values();
+				_wb.addAllWorkNoDuplicates(CollectionUtils.collect(_values, REPRESENTATIVE_ALIAS_SET_RETRIEVER));
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * Returns the value of <code>fieldWritten</code>.
-	 *
-	 * @return the value of <code>fieldWritten</code>.
-	 */
-	private boolean isFieldWritten() {
-		return ((AliasSet) find()).fieldWritten;
 	}
 
 	/**
@@ -941,27 +977,30 @@ final class AliasSet
 	 * @pre represented != null
 	 */
 	private void unifyThreadEscapeInfo(final AliasSet represented) {
-		shared |= accessed && represented.accessed;
-
 		if ((waits && represented.notifies) || (notifies && represented.waits)) {
 			if (readyEntities == null) {
 				readyEntities = new HashSet();
 			}
-
-			if (readyEntities.isEmpty()) {
-				readyEntities.add(getNewReadyEntity());
-			}
+			readyEntities.add(getNewReadyEntity());
 		}
 
-		if ((read && represented.written) || (written && represented.read)) {
+		if (locked && represented.locked) {
+			if (lockEntities == null) {
+				lockEntities = new HashSet();
+			}
+			lockEntities.add(getNewLockEntity());
+		}
+
+		if (CollectionUtils.containsAny(readFields, represented.writtenFields)
+			  || CollectionUtils.containsAny(writtenFields, represented.readFields)) {
 			if (shareEntities == null) {
 				shareEntities = new HashSet();
 			}
-
-			if (shareEntities.isEmpty()) {
-				shareEntities.add(getNewShareEntity());
-			}
+			shareEntities.add(getNewShareEntity());
 		}
+
+		shared |= !(shareEntities != null && shareEntities.isEmpty() && readyEntities != null && readyEntities.isEmpty()
+		  && lockEntities != null && lockEntities.isEmpty());
 	}
 }
 

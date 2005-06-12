@@ -400,18 +400,40 @@ class EscapeInfo
 	 * @see IEscapeInfo#shared(Value, SootMethod, Value, SootMethod)
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
-		boolean _result = escapes(v1, sm1) && escapes(v2, sm2);
+		boolean _result = shared(v1, sm1) && shared(v2, sm2);
 
 		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
-				final Collection _o1 = this.analysis.getAliasSetFor(v1, sm1).getShareEntities();
-				final Collection _o2 = this.analysis.getAliasSetFor(v2, sm2).getShareEntities();
+				final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getShareEntities();
+				final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getShareEntities();
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 			} catch (final NullPointerException _e) {
 				if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
 					EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + v1 + "/" + v2
 						+ " occurring in " + sm1 + "/" + sm2 + ".  So, providing pessimistic info (true).", _e);
 				}
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#shared(soot.Value, soot.SootMethod)
+	 */
+	public boolean shared(final Value v, final SootMethod sm) {
+		boolean _result = this.analysis.escapesDefaultValue;
+
+		try {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				_result = this.analysis.getAliasSetFor(v, sm).shared();
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
+				EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
 			}
 		}
 
@@ -440,6 +462,44 @@ class EscapeInfo
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * @see IEscapeInfo#thisShared(SootMethod)
+	 */
+	public boolean thisShared(final SootMethod method) {
+		boolean _result = this.analysis.escapesDefaultValue;
+		;
+
+		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+
+		if (_triple == null && EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
+			EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + method
+				+ ".  So, providing default value - " + _result);
+		} else {
+			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+
+			// if non-static query the alias set of "this" variable.  If static, just return true assuming that the 
+			// application to decide wisely :-)
+			if (_as1 != null) {
+				_result = _as1.shared();
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * This exposes <code>super.stable</code>.
+	 */
+	void stableAdapter() {
+		super.stable();
+	}
+
+	/**
+	 * This exposes <code>super.unstable</code>.
+	 */
+	void unstableAdapter() {
+		super.unstable();
 	}
 }
 

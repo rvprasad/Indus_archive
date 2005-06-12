@@ -117,16 +117,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/** 
-	 * This is used to retrieve the alias set for "this" from a given method context.
-	 */
-	static final Transformer thisAliasSetRetriever =
-		new Transformer() {
-			public Object transform(final Object input) {
-				return ((MethodContext) input).thisAS;
-			}
-		};
-
-	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
 	 */
 	final BasicBlockGraphMgr bbm;
@@ -177,7 +167,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/** 
 	 * This provides thread-graph information.
 	 */
-	IThreadGraphInfo tgi;
+	final IThreadGraphInfo tgi;
 
 	/** 
 	 * This is a cache variable that holds local alias set map between method calls.
@@ -206,18 +196,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	MethodContext methodCtxtCache;
 
 	/** 
-	 * This retrieves the method context of a method.
-	 */
-	final Transformer methodCtxtRetriever =
-		new Transformer() {
-			public Object transform(final Object input) {
-				final Triple _t = (Triple) method2Triple.get(input);
-				return _t != null ? _t.getFirst()
-								  : null;
-			}
-		};
-
-	/** 
 	 * This is the default verdict for escapes queries.
 	 */
 	boolean escapesDefaultValue;
@@ -232,21 +210,31 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	boolean writeDefaultValue;
 
+    /**
+     * This is the object that exposes object read-write info calculated by this instance.
+     */
+    private final ReadWriteInfo objectReadWriteInfo;
+    
+    /**
+     * This is the object that exposes object escape info calculated by this instance.
+     */
+    private final EscapeInfo escapeInfo;
+
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.  The default value for escapes, reads, and writes is set to
 	 * <code>true</code>, <code>false</code>, and <code>false</code>, respectively.
 	 *
 	 * @param callgraph provides call-graph information.
-	 * @param threadGraph provides thread graph information.  If this is <code>null</code> then read-write specific thread
-	 * 		  information is not captured.
+     * @param threadgraph provides thread graph information.  If this is <code>null</code> then read-write specific thread
+     *        information is not captured.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
-	 * @pre scene != null and callgraph != null and tgi != null
+	 * @pre scene != null and callgraph != null and threadgraph != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadGraph,
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadgraph,
 		final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
-		tgi = threadGraph;
+        tgi = threadgraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor(this);
@@ -258,6 +246,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
         escapesDefaultValue = true;
         readDefaultValue = false;
         writeDefaultValue = false;
+        escapeInfo = new EscapeInfo(this);
+        objectReadWriteInfo = new ReadWriteInfo(this);
 	}
 
 	/**
@@ -361,7 +351,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			method2Triple.put(sm, new Triple(_methodContext, new HashMap(), new HashMap()));
 
 			if (sm.isSynchronized() && !sm.isStatic()) {
-				_methodContext.getThisAS().addNewLockEntity();
+				final AliasSet _thisAS = _methodContext.getThisAS();
+                _thisAS.setLocked();
 			}
 		}
 
@@ -385,7 +376,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @param value the new value of <code>escapesDefaultValue</code>.
 	 */
-	public final void setEscapesDefaultValue(boolean value) {
+	public void setEscapesDefaultValue(final boolean value) {
 		this.escapesDefaultValue = value;
 	}
 
@@ -394,7 +385,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @param value the new value of <code>readDefaultValue</code>.
 	 */
-	public final void setReadDefaultValue(boolean value) {
+	public void setReadDefaultValue(final boolean value) {
 		this.readDefaultValue = value;
 	}
 
@@ -403,10 +394,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @param value the new value of <code>value</code>.
 	 */
-	public final void setWriteDefaultValue(boolean value) {
+	public void setWriteDefaultValue(final boolean value) {
 		this.writeDefaultValue = value;
 	}
-
+    
 	/**
 	 * Retrieves escape info provider.
 	 *
@@ -415,7 +406,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @post result != null
 	 */
 	public IEscapeInfo getEscapeInfo() {
-		return new EscapeInfo(this);
+		return escapeInfo;
 	}
 
 	/**
@@ -426,9 +417,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @post result != null
 	 */
 	public IObjectReadWriteInfo getReadWriteInfo() {
-		return new ReadWriteInfo(this);
+		return objectReadWriteInfo;
 	}
 
+    
+    
 	/**
 	 * Executes phase 2 and 3 as mentioned in the technical report.  It processed each methods in the call-graph bottom-up
 	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
@@ -436,6 +429,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public void analyze() {
 		unstable();
+        escapeInfo.unstableAdapter();
+        objectReadWriteInfo.unstableAdapter();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -452,7 +447,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
+        
 		stable();
+        escapeInfo.stableAdapter();
+        objectReadWriteInfo.stableAdapter();
 	}
 
 	/**
@@ -465,7 +463,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre type != null
 	 */
 	public static boolean canHaveAliasSet(final Type type) {
-		return type instanceof RefType || type instanceof ArrayType;
+       return type instanceof RefType || type instanceof ArrayType;
 	}
 
 	/**

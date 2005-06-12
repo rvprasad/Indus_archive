@@ -41,7 +41,7 @@ import soot.jimple.ThrowStmt;
 final class StmtProcessor
   extends AbstractStmtSwitch {
 	/** 
-	 * The associated escape analysis. 
+	 * The associated escape analysis.
 	 */
 	private final EquivalenceClassBasedEscapeAnalysis ecba;
 
@@ -49,7 +49,8 @@ final class StmtProcessor
 	 * Creates an instance of this class.
 	 *
 	 * @param analysis associated with this instance.
-     * @pre analysis != null
+	 *
+	 * @pre analysis != null
 	 */
 	StmtProcessor(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
@@ -59,18 +60,13 @@ final class StmtProcessor
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
 	public void caseAssignStmt(final AssignStmt stmt) {
-		boolean _temp = ecba.valueProcessor.rhs;
-		ecba.valueProcessor.rhs = true;
+		boolean _temp = ecba.valueProcessor.setRHS(true);        
 		ecba.valueProcessor.process(stmt.getRightOp());
-		ecba.valueProcessor.rhs = _temp;
-
 		final AliasSet _r = (AliasSet) ecba.valueProcessor.getResult();
-		_temp = ecba.valueProcessor.rhs;
-		ecba.valueProcessor.rhs = false;
+		ecba.valueProcessor.setRHS(false);
 		ecba.valueProcessor.process(stmt.getLeftOp());
-		ecba.valueProcessor.rhs = _temp;
-
 		final AliasSet _l = (AliasSet) ecba.valueProcessor.getResult();
+        ecba.valueProcessor.setRHS(_temp);
 
 		if ((_r != null) && (_l != null)) {
 			_l.unifyAliasSet(_r);
@@ -82,7 +78,7 @@ final class StmtProcessor
 	 */
 	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 		ecba.valueProcessor.process(stmt.getOp());
-		((AliasSet) ecba.valueProcessor.getResult()).addNewLockEntity();
+		((AliasSet) ecba.valueProcessor.getResult()).setLocked();
 	}
 
 	/**
@@ -90,25 +86,20 @@ final class StmtProcessor
 	 */
 	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 		ecba.valueProcessor.process(stmt.getOp());
-		((AliasSet) ecba.valueProcessor.getResult()).addNewLockEntity();
 	}
 
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
 	public void caseIdentityStmt(final IdentityStmt stmt) {
-		boolean _temp = ecba.valueProcessor.rhs;
-		ecba.valueProcessor.rhs = true;
+		final boolean _t = ecba.valueProcessor.setMarkLocals(false);
 		ecba.valueProcessor.process(stmt.getRightOp());
-		ecba.valueProcessor.rhs = _temp;
 
 		final AliasSet _r = (AliasSet) ecba.valueProcessor.getResult();
-		_temp = ecba.valueProcessor.rhs;
-		ecba.valueProcessor.rhs = false;
 		ecba.valueProcessor.process(stmt.getLeftOp());
-		ecba.valueProcessor.rhs = _temp;
 
 		final AliasSet _l = (AliasSet) ecba.valueProcessor.getResult();
+		ecba.valueProcessor.setMarkLocals(_t);
 
 		if ((_r != null) && (_l != null)) {
 			_l.unifyAliasSet(_r);

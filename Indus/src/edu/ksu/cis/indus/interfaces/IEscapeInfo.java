@@ -177,20 +177,34 @@ public interface IEscapeInfo
 	boolean areWaitAndNotifyCoupled(InvokeStmt wait, SootMethod waitMethod, InvokeStmt notify, SootMethod notifyMethod);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method shared or escapes.
+	 * Checks if the object bound to the given variable in the given method escapes.  This suggests mere multithread 
+     * visibility and not multithread access. 
 	 *
-	 * @param v is the object value being checked for sharing.
+	 * @param v is the object value being checked for escaping.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 *
-	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+	 * @return <code>true</code> if <code>v</code> is escapes; <code>false</code>, otherwise.
 	 *
 	 * @pre v != null and sm != null
 	 */
 	boolean escapes(Value v, SootMethod sm);
+    
+    /**
+     * Checks if the object bound to the given variable in the given method shared. This suggests multithread access.  
+     *
+     * @param v is the object value being checked for sharing.
+     * @param sm is the method in which <code>v</code> occurs.
+     *
+     * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+     *
+     * @pre v != null and sm != null
+     */
+    boolean shared(Value v, SootMethod sm);
 
 	/**
 	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
-	 * escaping as well as represent a common entity.
+	 * escaping, involved in a inter-thread operations (locking and unlocking, field/array read-writes), and possible a common
+     * entity.
 	 *
 	 * @param v1 is one of the value in the check.
 	 * @param sm1 is the method in which <code>v1</code> occurs.
@@ -214,6 +228,18 @@ public interface IEscapeInfo
 	 * @pre method != null
 	 */
 	boolean thisEscapes(SootMethod method);
+    
+    /**
+     * Checks if "this" variable of the given method is shared.  If the method is static then the result is pessimistic, hence,
+     * <code>true</code> is returned.
+     *
+     * @param method in which "this" occurs.
+     *
+     * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
+     *
+     * @pre method != null
+     */
+    boolean thisShared(SootMethod method);
 }
 
 // End of File
