@@ -242,6 +242,7 @@ public final class CompositeToolConfigurator
 					final MessageBox _msgBox = new MessageBox(parent.getShell(), SWT.OK | SWT.ICON_INFORMATION);
 					_msgBox.setMessage("A configuration with the name of \"" + _newText
 						+ "\" exists.  \nNo changes will be made.");
+                    _msgBox.open();
 					_noDuplicate = false;
 				}
 			}

@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import org.apache.commons.logging.Log;
@@ -41,14 +39,15 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	private static final Log LOGGER = LogFactory.getLog(ThreadEscapeInfoBasedCallingContextRetrieverV2.class);
 
 	/**
-	 * Creates an instance of this class.
+	 * Creates an instance of this instance.
+	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV2() {
-		super();
+	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit) {
+		super(callContextLenLimit);
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
+	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
 		final boolean _result = escapesInfo.shared(context.getProgramPoint().getValue(), context.getCurrentMethod());
@@ -61,7 +60,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#considerThis(Context)
+	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerThis(Context)
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();

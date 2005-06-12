@@ -23,9 +23,13 @@ import edu.ksu.cis.indus.tools.IToolConfiguration;
 import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -33,8 +37,11 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Text;
 
 
 /**
@@ -55,7 +62,7 @@ public final class SlicerConfigurator
 	 * Creates a new SlicerConfigurator object.
 	 */
 	SlicerConfigurator() {
-        super();
+		super();
 	}
 
 	/**
@@ -594,6 +601,76 @@ public final class SlicerConfigurator
 	}
 
 	/**
+	 * Sets up calling context related part of the UI.
+	 *
+	 * @param composite on which to draw.
+	 * @param cfg that provides/receives the info.
+	 *
+	 * @pre composite != null and cfg != null
+	 */
+	private void setupCallingContextUI(final Composite composite, final SlicerConfiguration cfg) {
+		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
+		_propertyAwareSlicingButton.setText("Property Aware Slicing");
+		_propertyAwareSlicingButton.setToolTipText("Precise but expensive");
+
+		final GridData _gridData4 = new GridData();
+		_gridData4.horizontalSpan = 1;
+		_propertyAwareSlicingButton.setLayoutData(_gridData4);
+		_propertyAwareSlicingButton.setSelection(cfg.getPropertyAware());
+
+		final SelectionListener _sl3 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.PROPERTY_AWARE, _propertyAwareSlicingButton, cfg);
+		_propertyAwareSlicingButton.addSelectionListener(_sl3);
+
+        final Composite _c = new Composite(composite, SWT.NONE);
+        final GridData _gridData5 = new GridData();
+        _gridData4.horizontalSpan = 1;
+        _c.setLayoutData(_gridData5);
+        _c.setLayout(new FillLayout(SWT.HORIZONTAL));
+        
+        final Label _l = new Label(_c, SWT.HORIZONTAL | SWT.LEFT);
+        _l.setText("Limit for calling contexts");
+		final Text _callingContextLimit = new Text(_c, SWT.LEFT | SWT.SINGLE);
+		_callingContextLimit.setToolTipText("This has to be >=0");
+		_callingContextLimit.setText(String.valueOf(cfg.getCallingContextLimit()));
+
+		final FocusListener _sl4 =
+			new FocusAdapter() {
+				public void focusLost(final FocusEvent e) {
+					try {
+						final int _i = Integer.parseInt(_callingContextLimit.getText());
+
+						if (_i < 0) {
+							throw new NumberFormatException();
+						}
+						cfg.setCallingContextLimit(_i);
+					} catch (final NumberFormatException _e) {
+						final MessageBox _msgBox =
+							new MessageBox(composite.getShell(), SWT.ERROR_INVALID_ARGUMENT | SWT.ICON_ERROR);
+						_msgBox.setMessage("The limit has to be zero or a positive integer. It was \""
+							+ _callingContextLimit.getText() + "\".");
+						_msgBox.open();
+                        _callingContextLimit.setText(SlicerConfiguration.DEFAULT_CALLING_CONTEXT_LIMIT.toString());
+					}
+				}
+			};
+		_callingContextLimit.addFocusListener(_sl4);
+
+		final SelectionListener _sl5 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent e) {
+					_callingContextLimit.setEnabled(_propertyAwareSlicingButton.getSelection());
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent e) {
+					widgetSelected(e);
+				}
+			};
+		_propertyAwareSlicingButton.addSelectionListener(_sl5);
+        _c.pack();
+	}
+
+	/**
 	 * Sets up row corresponding to Ready DA in the configurator composite.
 	 *
 	 * @param composite to layout the ready dependence configuration widgets.
@@ -799,7 +876,7 @@ public final class SlicerConfigurator
 		executableSliceButton.setText("Executable slice");
 
 		final GridData _gridData2 = new GridData();
-		_gridData2.horizontalSpan = 2;
+		_gridData2.horizontalSpan = 1;
 		executableSliceButton.setLayoutData(_gridData2);
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
@@ -807,19 +884,7 @@ public final class SlicerConfigurator
 		}
 		executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
-		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
-		_propertyAwareSlicingButton.setText("Property Aware Slicing");
-		_propertyAwareSlicingButton.setToolTipText("Precise but expensive");
-
-		final GridData _gridData4 = new GridData();
-		_gridData4.horizontalSpan = 1;
-		_propertyAwareSlicingButton.setLayoutData(_gridData4);
-		_propertyAwareSlicingButton.setSelection(_cfg.getPropertyAware());
-
-		final SelectionListener _sl3 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.PROPERTY_AWARE, _propertyAwareSlicingButton, _cfg);
-		_propertyAwareSlicingButton.addSelectionListener(_sl3);
-
+		setupCallingContextUI(composite, _cfg);
 		setupAssertionUI(composite, _cfg);
 		setupDeadlockUI(composite, _cfg);
 

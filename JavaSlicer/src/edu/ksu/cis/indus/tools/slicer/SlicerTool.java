@@ -1018,19 +1018,23 @@ public final class SlicerTool
 
 			if (slicerConfig.getPropertyAware()) {
 				final Map _map = new HashMap();
-				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
+				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
+				final ThreadEscapeInfoBasedCallingContextRetriever _t1 =
+					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
 
-				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
+				final ThreadEscapeInfoBasedCallingContextRetriever _t2 =
+					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever();
+				final DataAliasBasedCallingContextRetriever _t3 =
+					new DataAliasBasedCallingContextRetriever(_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));

@@ -278,6 +278,16 @@ public final class SlicerConfiguration
 	 */
 	static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
 
+    /**
+     * This is the default limit on the length of the calling contexts.
+     */
+    static final Integer DEFAULT_CALLING_CONTEXT_LIMIT = new Integer(10);
+    
+    /**
+     * This identifies the property that control the limit on the length of the calling context. 
+     */
+    static final Object CALLING_CONTEXT_LENGTH = "calling context length";
+    
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -352,6 +362,7 @@ public final class SlicerConfiguration
 		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
 		propertyIds.add(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
 		propertyIds.add(SYNCS_IN_APPLICATION_CLASSES_ONLY);
+        propertyIds.add(CALLING_CONTEXT_LENGTH);
 	}
 
 	/**
@@ -379,7 +390,7 @@ public final class SlicerConfiguration
 	 * @return the selection strategy used.
 	 */
 	public String getDeadlockCriteriaSelectionStrategy() {
-		String _result = (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
+		String _result = (String) getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 
 		if (_result == null) {
 			_result = CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.toString();
@@ -478,7 +489,7 @@ public final class SlicerConfiguration
 	 * @post result != null
 	 */
 	public String getNatureOfDivergenceDepAnalysis() {
-		String _result = (String) properties.get(NATURE_OF_DIVERGENCE_DA);
+		String _result = (String) getProperty(NATURE_OF_DIVERGENCE_DA);
 
 		if (_result == null) {
 			_result = INTRA_PROCEDURAL_ONLY.toString();
@@ -507,7 +518,7 @@ public final class SlicerConfiguration
 	 * @post result != null
 	 */
 	public String getNatureOfInterferenceDepAnalysis() {
-		String _result = (String) properties.get(NATURE_OF_INTERFERENCE_DA);
+		String _result = (String) getProperty(NATURE_OF_INTERFERENCE_DA);
 
 		if (_result == null) {
 			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
@@ -536,7 +547,7 @@ public final class SlicerConfiguration
 	 * @post result != null
 	 */
 	public String getNatureOfReadyDepAnalysis() {
-		String _result = (String) properties.get(NATURE_OF_READY_DA);
+		String _result = (String) getProperty(NATURE_OF_READY_DA);
 
 		if (_result == null) {
 			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
@@ -705,7 +716,7 @@ public final class SlicerConfiguration
 	 * @post result != null
 	 */
 	public String getSliceType() {
-		return properties.get(SLICE_TYPE).toString();
+		return getProperty(SLICE_TYPE).toString();
 	}
 
 	/**
@@ -836,6 +847,7 @@ public final class SlicerConfiguration
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
 		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
+        setProperty(CALLING_CONTEXT_LENGTH, DEFAULT_CALLING_CONTEXT_LIMIT);
 
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
@@ -1046,7 +1058,7 @@ public final class SlicerConfiguration
 	 * @return the value associated with <code>propertyId</code>.  Default value is <code>false</code>.
 	 */
 	private boolean getBooleanProperty(final Object propertyId) {
-		final Boolean _value = (Boolean) properties.get(propertyId);
+		final Boolean _value = (Boolean) getProperty(propertyId);
 		boolean _result = false;
 
 		if (_value != null) {
@@ -1112,7 +1124,7 @@ public final class SlicerConfiguration
 	 * Sets up assertion preserving part of the slicer.
 	 */
 	private void setupAssertionPreservation() {
-		final Boolean _b = (Boolean) properties.get(SLICE_TO_PRESERVE_ASSERTIONS);
+		final Boolean _b = (Boolean) getProperty(SLICE_TO_PRESERVE_ASSERTIONS);
 
 		if (_b.booleanValue()) {
 			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
@@ -1138,7 +1150,7 @@ public final class SlicerConfiguration
 	 */
 	private void setupDeadlockPreservation() {
 		if (getSliceForDeadlock()) {
-			final String _property = (String) properties.get(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
+			final String _property = (String) getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 			final DeadlockPreservingCriteriaGenerator _t = new DeadlockPreservingCriteriaGenerator();
 			id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, _t);
 
@@ -1150,7 +1162,7 @@ public final class SlicerConfiguration
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
-				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer());
+				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(getCallingContextLimit()));
 			} else {
 				final String _msg =
 					"Deadlock preservation criteria generation could not be configured due to illegal "
@@ -1167,6 +1179,31 @@ public final class SlicerConfiguration
 	}
 
 	/**
+     * Retrieves the limit on the length of the calling context. 
+     * 
+     * @return the limit.
+     */
+    public int getCallingContextLimit() {
+        return ((Integer) getProperty(CALLING_CONTEXT_LENGTH)).intValue();
+    }
+    
+    /**
+     * sets the limit of calling context length.
+     * 
+     * @param limit obviously. If this is <= 0 then it will be set to 10.
+     */
+    public void setCallingContextLimit(final int limit) {
+        final Integer _i;
+        if (limit < 0) {
+            _i = DEFAULT_CALLING_CONTEXT_LIMIT;
+        } else {
+            _i = new Integer(limit);
+        }
+        setProperty(CALLING_CONTEXT_LENGTH, _i);
+    }
+    
+
+    /**
 	 * Sets up divergence dependence.
 	 *
 	 * @throws IllegalStateException when divergence dependence cannot be setup due to invalid nature or illegal slice type.

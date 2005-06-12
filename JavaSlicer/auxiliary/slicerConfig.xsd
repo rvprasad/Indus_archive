@@ -27,10 +27,10 @@
           <xsd:element name="divergence" type="slicer:divergence"/>
           <xsd:element name="ready" type="slicer:ready"/>
           <xsd:element name="synchronization" type="slicer:synchronization"/>
+          <xsd:attribute name="callingcontext" type="slicer:callingcontext" />
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
-        <xsd:attribute name="propertyAware" type="xsd:boolean" use="required"/>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -154,5 +154,15 @@
   <xsd:complexType id="synchronization" name="synchronization">  	
 	<xsd:attribute ref="slicer:active" use="required"/>
   </xsd:complexType>	    
+  
+  <xsd:complexType id="callingcontext" name="callingcontext">
+  	<xsd:annotation>
+	  	<xsd:documentation>This captures info pertaining to calling contexts.</xsd:documentation>
+  	</xsd:annotation>
+  	<xsd:sequence>
+  		<xsd:attribute name="contextLengthLimit" type="xsd:positiveInteger" default="10"/>
+  		<xsd:attribute ref="slicer:active" use="required"/>
+  	</xsd:sequence>
+  </xsd:complexType>
   
 </xsd:schema>

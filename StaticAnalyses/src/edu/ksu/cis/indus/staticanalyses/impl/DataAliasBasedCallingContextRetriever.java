@@ -64,10 +64,12 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	private IThreadGraphInfo tgi;
 
-	/**
-	 * Creates a new DataAliasBasedCallingContextRetriever object.
-	 */
-	public DataAliasBasedCallingContextRetriever() {
+    /**
+     * Creates an instance of this instance.
+     * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
+     */
+	public DataAliasBasedCallingContextRetriever(int callingContextLengthLimit) {
+        super(callingContextLengthLimit);
 	}
 
 	/**

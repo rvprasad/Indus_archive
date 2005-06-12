@@ -51,11 +51,12 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 */
 	protected IEscapeInfo escapesInfo;
 
-	/**
-	 * Creates an instance of this class.
-	 */
-	public ThreadEscapeInfoBasedCallingContextRetriever() {
-		super();
+    /**
+     * Creates an instance of this instance.
+     * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
+     */
+	public ThreadEscapeInfoBasedCallingContextRetriever(final int callContextLenLimit) {
+		super(callContextLenLimit);
 	}
 
 	/**

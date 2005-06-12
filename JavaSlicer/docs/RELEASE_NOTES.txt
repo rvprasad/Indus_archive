@@ -32,6 +32,11 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.6.3
+-----------------
+	- Bug fix pertaining to property-aware slicing.
+	- Enabled support to limit the length of calling context during property-aware slicing.
+
 Verion 0.6.1
 ----------------
 	- Added a new optimization that (tries) prunes sliced class hierarchy to get rid of empty classes and methods.

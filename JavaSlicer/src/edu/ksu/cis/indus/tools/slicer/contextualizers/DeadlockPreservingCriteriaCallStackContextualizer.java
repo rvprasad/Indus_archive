@@ -42,9 +42,10 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 
 	/**
 	 * Creates a new DeadlockPreservingCriteriaCallStackContextualizer object.
+	 * @param limit <i>refer to the constructor in the super class</code>.
 	 */
-	public DeadlockPreservingCriteriaCallStackContextualizer() {
-		ecr = new ThreadEscapeInfoBasedCallingContextRetriever();
+	public DeadlockPreservingCriteriaCallStackContextualizer(final int limit) {
+		ecr = new ThreadEscapeInfoBasedCallingContextRetriever(limit);
 	}
 
 	/**
