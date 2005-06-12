@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,7 +117,7 @@ final class ValueProcessor
 		rhs = _temp;
 
 		final AliasSet _base = (AliasSet) getResult();
-		final AliasSet _elt = processField(v.getType(), _base, IObjectReadWriteInfo.ARRAY_FIELD);
+		final AliasSet _elt = processField(v.getType(), _base, IReadWriteInfo.ARRAY_FIELD);
 		
 		setResult(_elt);
 	}

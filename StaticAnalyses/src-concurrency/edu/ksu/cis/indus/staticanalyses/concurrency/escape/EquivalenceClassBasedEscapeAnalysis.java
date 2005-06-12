@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -416,7 +416,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @post result != null
 	 */
-	public IObjectReadWriteInfo getReadWriteInfo() {
+	public IReadWriteInfo getReadWriteInfo() {
 		return objectReadWriteInfo;
 	}
 
@@ -541,7 +541,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (v instanceof ArrayRef) {
 				final ArrayRef _a = (ArrayRef) v;
 				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(IObjectReadWriteInfo.ARRAY_FIELD);
+				_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				_result = (AliasSet) _local2AS.get(v);
 			} else if (v instanceof ThisRef) {

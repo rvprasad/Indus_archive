@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
@@ -184,7 +184,7 @@ public class EscapeAndReadWriteCLI
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
         final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
-		final IObjectReadWriteInfo _rwInfo = _ecba.getReadWriteInfo();
+		final IReadWriteInfo _rwInfo = _ecba.getReadWriteInfo();
 		final IEscapeInfo _escapeInfo = _ecba.getEscapeInfo();
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));

@@ -28,7 +28,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  */
-public interface IObjectReadWriteInfo
+public interface IReadWriteInfo
   extends IIdentification,
 	  IStatus {
 	/** 

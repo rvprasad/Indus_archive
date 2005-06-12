@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import soot.SootMethod;
 
 
 /**
- * This class provides implementation of <code>IObjectReadWriteInfo</code>.
+ * This class provides implementation of <code>IReadWriteInfo</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -41,7 +41,7 @@ import soot.SootMethod;
  */
 class ReadWriteInfo
   extends AbstractStatus
-  implements IObjectReadWriteInfo {
+  implements IReadWriteInfo {
 	/** 
 	 * This is used to retrieve the alias set for "this" from a given method context.
 	 */
@@ -81,7 +81,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, int,
+	 * @see IReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, int,
 	 * 		java.lang.String[], boolean)
 	 */
 	public boolean isArgumentBasedAccessPathRead(final CallTriple callerTriple, final int argPos, final String[] accesspath,
@@ -98,7 +98,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isArgumentBasedAccessPathWritten(CallTriple, int, String[],     boolean)
+	 * @see IReadWriteInfo#isArgumentBasedAccessPathWritten(CallTriple, int, String[],     boolean)
 	 */
 	public boolean isArgumentBasedAccessPathWritten(final CallTriple callerTriple, final int argPos,
 		final String[] accesspath, final boolean recurse) {
@@ -116,11 +116,11 @@ class ReadWriteInfo
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection getIds() {
-		return Collections.singleton(IObjectReadWriteInfo.ID);
+		return Collections.singleton(IReadWriteInfo.ID);
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
+	 * @see IReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
 	 */
 	public boolean isParameterBasedAccessPathRead(final SootMethod method, final int paramPos, final String[] accesspath,
 		final boolean recurse)
@@ -133,7 +133,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
+	 * @see IReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
 	 */
 	public boolean isParameterBasedAccessPathWritten(final SootMethod method, final int paramPos, final String[] accesspath,
 		final boolean recurse) {
@@ -145,7 +145,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isReceiverBasedAccessPathRead(CallTriple,     java.lang.String[], boolean)
+	 * @see IReadWriteInfo#isReceiverBasedAccessPathRead(CallTriple,     java.lang.String[], boolean)
 	 */
 	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
 		final boolean recurse)
@@ -161,7 +161,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
+	 * @see IReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
 	 */
 	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
 		final boolean recurse) {
@@ -176,7 +176,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
+	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
 	 * 		boolean)
 	 */
 	public boolean isThisBasedAccessPathRead(final SootMethod method, final String[] accesspath, final boolean recurse)
@@ -189,7 +189,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
+	 * @see IReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
 	 */
 	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
 		this.analysis.validate(method);
@@ -200,7 +200,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#doesInvocationReadGlobalData(CallTriple)
+	 * @see IReadWriteInfo#doesInvocationReadGlobalData(CallTriple)
 	 */
 	public boolean doesInvocationReadGlobalData(final CallTriple callerTriple) {
 		final SootMethod _caller = callerTriple.getMethod();
@@ -208,7 +208,7 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#doesInvocationWriteGlobalData(CallTriple)
+	 * @see IReadWriteInfo#doesInvocationWriteGlobalData(CallTriple)
 	 */
 	public boolean doesInvocationWriteGlobalData(final CallTriple callerTriple) {
 		final SootMethod _caller = callerTriple.getMethod();
@@ -216,14 +216,14 @@ class ReadWriteInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IObjectReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
 	 */
 	public boolean doesMethodReadGlobalData(final SootMethod method) {
 		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, true);
 	}
 
 	/**
-	 * @see IObjectReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
+	 * @see IReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
 	 */
 	public boolean doesMethodWriteGlobalData(final SootMethod method) {
 		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, false);
