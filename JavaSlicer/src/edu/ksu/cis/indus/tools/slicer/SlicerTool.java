@@ -1018,7 +1018,7 @@ public final class SlicerTool
 
 			if (slicerConfig.getPropertyAware()) {
 				final Map _map = new HashMap();
-				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetriever();
+				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetrieverV2();
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
