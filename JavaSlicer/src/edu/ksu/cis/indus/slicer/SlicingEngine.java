@@ -464,7 +464,7 @@ public final class SlicingEngine {
 	public void setTagName(final String tagName) {
 		collector.setTagName(tagName);
 	}
-
+    
 	/**
 	 * Places the given call site on top of the call stack to simulate a call.  The callsite comprises of the caller and the
 	 * invocation statement in the caller.
@@ -708,11 +708,13 @@ public final class SlicingEngine {
 	 * @param method is the method containing <code>stmt</code>.
 	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
 	 * 		  reaching it.
+	 * @return <code>true</code> if the expression was previously not in the slice; <code>false</code>, otherwise.
 	 *
 	 * @pre valueBox != null and stmt != null and method != null
 	 */
-	void generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+	boolean generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
+        final boolean _result;
 		if (isNotIncludedInSlice(valueBox)) {
 			final Collection _sliceCriteria =
 				SliceCriteriaFactory.getFactory().getCriteria(method, stmt, valueBox, considerExecution);
@@ -723,6 +725,7 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
 					+ method.getSignature() + " @ " + callStackCache + " to workbag.");
 			}
+            _result = true;
 		} else {
 			if (valueBox.getValue() instanceof InvokeExpr) {
 				generateCriteriaForInvokeExprIn(stmt, method);
@@ -732,7 +735,9 @@ public final class SlicingEngine {
 				LOGGER.debug("Already collected expr " + valueBox.getValue() + " occurring at " + stmt + " in "
 					+ method.getSignature());
 			}
+            _result = false;
 		}
+        return _result;
 	}
 
 	/**
@@ -742,10 +747,12 @@ public final class SlicingEngine {
 	 * @param method is the method containing <code>stmt</code>.
 	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
 	 * 		  it.
+	 * @return <code>true</code> if the statement was previously not in the slice; <code>false</code>, otherwise.
 	 *
 	 * @pre stmt != null and method != null
 	 */
-	void generateStmtLevelSliceCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
+	boolean generateStmtLevelSliceCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
+        final boolean _result;
 		if (isNotIncludedInSlice(stmt)) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
@@ -755,6 +762,7 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " @ "
 					+ callStackCache + " to workbag.");
 			}
+            _result = true;
 		} else {
 			if (sliceType.equals(COMPLETE_SLICE)
 				  || (considerExecution && sliceType.equals(BACKWARD_SLICE))
@@ -781,7 +789,9 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 			}
+            _result = false;
 		}
+        return _result;
 	}
 
 	/**
@@ -1019,7 +1029,10 @@ public final class SlicingEngine {
 			setCallStackCache(_context);
 
 			if (stmtToBeIncluded != null) {
-				generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
+				final boolean _b = generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
+                if (!_b) {
+                    generateMethodLevelSliceCriteria(methodToBeIncluded);
+                }
 			} else {
 				generateMethodLevelSliceCriteria(methodToBeIncluded);
 			}
@@ -1136,22 +1149,21 @@ public final class SlicingEngine {
 
 			if (_tSize > _cSize) {
 				_max = _tSize;
-				_min = _tSize - _cSize;
+				_min = _cSize;
 				_long = _t;
 				_short = _c;
 			} else {
 				_max = _cSize;
-				_min = _cSize - _tSize;
+				_min = _tSize;
 				_long = _c;
 				_short = _t;
 			}
 
 			boolean _equal = true;
-			int _j = _max - 1;
-
-			for (; _j >= 0 && _equal; _j--) {
-				final Object _longObj = _long.get(_j);
-				final Object _shortObj = _short.get(_j - _min);
+			final int _diff = _max - _min;
+			for (int _j = _min - 1; _j >= 0 && _equal; _j--) {
+				final Object _longObj = _long.get(_j + _diff);
+				final Object _shortObj = _short.get(_j);
 				_equal = _longObj.equals(_shortObj);
 			}
 
@@ -1159,7 +1171,7 @@ public final class SlicingEngine {
 				/*
 				 *  if the call stacks match then
 				 *    if they are not of equal size and the shorter one does not belong to the collection of
-				 *      call stacks for the method then we need to add remove the call stack from the collection
+				 *      call stacks for the method then we need to remove the long call stack from the collection
 				 *      and replace it with the given call stack.
 				 *    else
 				 *      we don't need to consider the current call stack.
