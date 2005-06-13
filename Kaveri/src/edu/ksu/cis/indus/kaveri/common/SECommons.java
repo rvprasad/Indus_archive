@@ -122,7 +122,7 @@ public final class SECommons {
         final List _lst = new LinkedList();
         final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
                 .create(file);
-
+        
         if (_icunit != null) {
             IType[] _types = null;
             try {
