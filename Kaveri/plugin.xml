@@ -341,10 +341,10 @@
    <view
          allowMultiple="false"
          icon="data/icons/sample.gif"
-         class="edu.ksu.cis.indus.kaveri.infoView.InfoView"
+         class="edu.ksu.cis.indus.kaveri.views.CriteriaView"
          category="edu.ksu.cis.indus.kaveri"
-         name="Slice Information View"
-         id="edu.ksu.cis.indus.kaveri.infoView"/>
+         name="Criteria View"
+         id="edu.ksu.cis.indus.kaveri.criteriaView"/>
 
    </extension>
    
