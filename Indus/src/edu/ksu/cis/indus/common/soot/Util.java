@@ -91,6 +91,7 @@ public final class Util {
 	 * A private constructor to prevent the instantiation of this class.
 	 */
 	private Util() {
+		super();
 	}
 
 	///CLOVER:ON
@@ -578,19 +579,23 @@ public final class Util {
 	/**
 	 * Erases given classes in the given environment while trying to keep the environment type safe.
 	 *
+	 * @param classes to be erased.
 	 * @param env to be updated.
-     * @param classes to be erased.
+	 *
+	 * @return the classes that were erased.  It is possible that for safety reasons some classes are retained.
 	 *
 	 * @pre env != null and classes != null and classes.oclIsKindOf(Collection(SootClass))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass)) and classes.containsAll(result)
 	 */
-	public static void eraseClassesFrom(final Collection classes, final IEnvironment env) {
+	public static Collection eraseClassesFrom(final Collection classes, final IEnvironment env) {
+		final Collection _r = new ArrayList(classes);
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(env);
 
-		final ClassEraser _ece = new ClassEraser(classes);
+		final ClassEraser _ece = new ClassEraser(_r);
 		_ece.hookup(_pc);
 		_pc.process();
 		_ece.unhook(_pc);
@@ -600,8 +605,13 @@ public final class Util {
 		final int _jEnd = classes.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			env.removeClass((SootClass) _j.next());
+			final SootClass _o = (SootClass) _j.next();
+
+			if (_r.contains(_o)) {
+				env.removeClass(_o);
+			}
 		}
+		return _r;
 	}
 
 	/**

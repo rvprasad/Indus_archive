@@ -972,7 +972,7 @@ public final class SlicerTool
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
 		if (_slicerConfig.getExecutableSlice()) {
-			SlicerToolHelper.injectExecutability(this, new ExecutableSlicePostProcessor());
+			SlicerToolHelper.applyPostProcessor(this, new ExecutableSlicePostProcessor());
 		}
 	}
 

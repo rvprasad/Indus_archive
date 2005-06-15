@@ -22,7 +22,11 @@ import edu.ksu.cis.indus.staticanalyses.impl.ClassHierarchy;
 
 import edu.ksu.cis.indus.tools.slicer.processing.ExecutableSlicePostProcessor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+
+import soot.SootClass;
 
 
 /**
@@ -35,6 +39,13 @@ import java.util.Collection;
 public class ExecutableSlicePostProcessorAndModifier
   extends ExecutableSlicePostProcessor {
 	/** 
+	 * The names of the classes to be retained.
+	 *
+	 * @invariant retain.oclIsKindOf(Collection(String))
+	 */
+	private final Collection retain;
+
+	/** 
 	 * The environment on which this processor is operating.
 	 */
 	private final IEnvironment environment;
@@ -43,23 +54,31 @@ public class ExecutableSlicePostProcessorAndModifier
 	 * Creates an instance of this class.
 	 *
 	 * @param env on which this processor should operate on.
+	 * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 *
-	 * @pre env != null
+	 * @pre env != null and classesToRetain != null and classesToRetain.oclIsKindOf(Collection(String))
 	 */
-	public ExecutableSlicePostProcessorAndModifier(final IEnvironment env) {
+	public ExecutableSlicePostProcessorAndModifier(final IEnvironment env, final Collection classesToRetain) {
 		environment = env;
+		retain = classesToRetain;
 	}
 
 	/**
 	 * @see ExecutableSlicePostProcessor#getClassHierarchyContainingClasses(Collection)
 	 */
 	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection classes) {
-		final ClassHierarchy _ch = ClassHierarchy.createClassHierarchyFrom(classes);
-        collector.includeInSlice(environment.getClass("java.lang.Throwable"));
-        collector.includeInSlice(environment.getClass("java.lang.Runnable"));
-        collector.includeInSlice(environment.getClass("java.lang.Cloneable"));
-        collector.includeInSlice(environment.getClass("java.io.Serializable"));
-		_ch.confine(classes, true);
+		final Collection _cl = new ArrayList(classes);
+		final ClassHierarchy _ch = ClassHierarchy.createClassHierarchyFrom(_cl);
+		final Iterator _i = retain.iterator();
+		final int _iEnd = retain.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final String _scName = (String) _i.next();
+			final SootClass _sc = environment.getClass(_scName);
+			collector.includeInSlice(_sc);
+			_cl.add(_sc);
+		}
+		_ch.confine(_cl, true);
 		_ch.updateEnvironment();
 		return _ch;
 	}

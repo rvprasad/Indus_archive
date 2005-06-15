@@ -872,7 +872,7 @@ public class SliceXMLizerCLI
 
 		if (residualize) {
 			if (retentionList != null) {
-				SlicerToolHelper.optimizeForSpaceBeforeResidualization(slicer);
+				SlicerToolHelper.optimizeForSpaceBeforeResidualization(slicer, retentionList);
 			}
 			destructivelyUpdateJimple();
 

@@ -43,18 +43,18 @@ public final class SlicerToolHelper {
 	 * Creates an instance of this class.
 	 */
 	private SlicerToolHelper() {
-        super();
+		super();
 	}
 
 	/**
-	 * Injects executability using the given processor into the slice calculated by the given tool.
+	 * Applies the given post processor o the slice calculated by the given tool.
 	 *
 	 * @param tool of interest.
-	 * @param processor to be used to inject executability.
+	 * @param processor to be applied.
 	 *
 	 * @pre tool != null and processor != null
 	 */
-	public static void injectExecutability(final SlicerTool tool, final ISlicePostProcessor processor) {
+	public static void applyPostProcessor(final SlicerTool tool, final ISlicePostProcessor processor) {
 		final SliceCollector _collector = tool.getSliceCollector();
 		final Collection _methods = _collector.getMethodsInSlice();
 		final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(_collector);
@@ -69,9 +69,12 @@ public final class SlicerToolHelper {
 	 * @param tool in which the slice should be optimized.
 	 * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 *
+	 * @return the unspecified classes that were retained.
+	 *
 	 * @pre tool != null and classesToRetain != null and classesToRetain.oclIsKindOf(Collection(String))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 */
-	public static void optimizeForSpaceAfterResidualization(final SlicerTool tool, final Collection classesToRetain) {
+	public static Collection optimizeForSpaceAfterResidualization(final SlicerTool tool, final Collection classesToRetain) {
 		final Collection _classesToErase = new HashSet();
 		final Collection _classes = tool.getSystem().getClasses();
 		final Iterator _i = _classes.iterator();
@@ -84,20 +87,24 @@ public final class SlicerToolHelper {
 				_classesToErase.add(_sc);
 			}
 		}
-		Util.eraseClassesFrom(_classesToErase, tool.getSystem());
+
+		final Collection _c = Util.eraseClassesFrom(_classesToErase, tool.getSystem());
+		_classesToErase.removeAll(_c);
+		return _c;
 	}
 
 	/**
 	 * Optimizes the slice calculated by the given tool for space.  This method should be called before residualization.
 	 *
 	 * @param tool in which the slice should be optimized.
+     * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 *
-	 * @pre tool != null
+	 * @pre tool != null and classesToRetain != null and classesToRetain.oclIsKindOf(Collection(String))
 	 */
-	public static void optimizeForSpaceBeforeResidualization(final SlicerTool tool) {
+	public static void optimizeForSpaceBeforeResidualization(final SlicerTool tool, final Collection classesToRetain) {
 		final ExecutableSlicePostProcessorAndModifier _processor =
-			new ExecutableSlicePostProcessorAndModifier(tool.getSystem());
-		injectExecutability(tool, _processor);
+			new ExecutableSlicePostProcessorAndModifier(tool.getSystem(), classesToRetain);
+		applyPostProcessor(tool, _processor);
 	}
 }
 
