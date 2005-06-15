@@ -22,6 +22,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
+
 import edu.ksu.cis.indus.processing.Environment;
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
@@ -34,6 +35,10 @@ import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerToolHelper;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +50,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
 
 import soot.Scene;
@@ -126,6 +135,11 @@ public final class SlicerTool
 	private Scene scene;
 
 	/** 
+	 * This is the configuration.
+	 */
+	private SlicerConfiguration configuration;
+
+	/** 
 	 * The configuration interface provided by this object to configure the slicer tool.
 	 */
 	private SlicerConfigurationView configurationView;
@@ -134,7 +148,7 @@ public final class SlicerTool
 	 * This indicates if the configuration was provided.
 	 */
 	private boolean configurationWasProvided;
-    
+
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -152,14 +166,34 @@ public final class SlicerTool
 	public void setConfiguration(final String configStr)
 	  throws Exception {
 		configurationWasProvided = configStr != null && configStr.length() > 0;
-		tool.destringizeConfiguration(configStr);
+
+		final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
+		final IUnmarshallingContext _uctx = _bfact.createUnmarshallingContext();
+		configuration =
+			(SlicerConfiguration) _uctx.unmarshalDocument(new BufferedInputStream(
+					new ByteArrayInputStream(configStr.getBytes())), null);
+		tool.destringizeConfiguration(configuration.slicerConfigurationStr);
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
 	public String getConfiguration() {
-		return tool.stringizeConfiguration();
+		try {
+			configuration.slicerConfigurationStr = tool.stringizeConfiguration();
+
+			final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
+			final IMarshallingContext mctx = _bfact.createMarshallingContext();
+			mctx.setIndent(4);
+
+			final ByteArrayOutputStream _b = new ByteArrayOutputStream();
+			mctx.marshalDocument(configuration, "UTF-8", null, _b);
+			return _b.toString();
+		} catch (final JiBXException _e) {
+			final UnknownError _r = new UnknownError();
+			_r.initCause(_e);
+			throw _r;
+		}
 	}
 
 	/**
@@ -230,12 +264,12 @@ public final class SlicerTool
 		tool.setRootMethods(_rootMethods);
 
 		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
-        
-        if (_activeConfID == null) {
-        	LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
-        } else {
-            tool.setActiveConfiguration(_activeConfID);
-        }
+
+		if (_activeConfID == null) {
+			LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
+		} else {
+			tool.setActiveConfiguration(_activeConfID);
+		}
 	}
 
 	/**
@@ -297,28 +331,25 @@ public final class SlicerTool
 			LOGGER.fatal(_msg);
 			throw new IllegalArgumentException(_msg);
 		}
-        
+
 		tool.run(Phase.STARTING_PHASE, null, true);
 
-        SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool);
+		SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool, configuration.retentionList);
 
-        final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
 		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(tool.getSystem());
-        
-        final Collection _retentionList = new ArrayList();
-        _retentionList.add("java.lang.Throwable");
-        _retentionList.add("java.lang.Cloneable");
-        _retentionList.add("java.io.Serializable");        
-        SlicerToolHelper.optimizeForSpaceAfterResidualization(tool,  _retentionList);
-        
-        // TODO: DEL_START
-        //RelativeDependenceInfoTool _r = new RelativeDependenceInfoTool();
-        //_r._setApplicationClassesOnly(true, true, true);
-        //_r.run(tool.getSystem(), tool.getRootMethods());
-        //TODO: DEL_END
-        
+
+		if (configuration.eraseUnnecessaryClasses) {
+			SlicerToolHelper.optimizeForSpaceAfterResidualization(tool, configuration.retentionList);
+		}
+
+		// TODO: DEL_START
+		//RelativeDependenceInfoTool _r = new RelativeDependenceInfoTool();
+		//_r._setApplicationClassesOnly(true, true, true);
+		//_r.run(tool.getSystem(), tool.getRootMethods());
+		//TODO: DEL_END
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
 		}

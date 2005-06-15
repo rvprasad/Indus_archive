@@ -1,0 +1,13 @@
+<binding package="edu.ksu.cis.indus.toolkits.bandera">
+	<namespace default="all" prefix="slicertool" uri="http://indus.projects.cis.ksu.edu/slicer/bandera"/>
+	<mapping class="edu.ksu.cis.indus.toolkits.bandera.SlicerConfiguration" name="configuration"
+		ns="http://indus.projects.cis.ksu.edu/slicer/bandera">
+		<value field="eraseUnnecessaryClasses" name="eraseUnnecessaryClasses" style="attribute" type="boolean"/>
+		<collection field="retentionList" name="retentionList" ordered="false" type="java.util.ArrayList" usage="optional">
+			<value name="class" type="java.lang.String" style="element" usage="optional"/>
+		</collection>
+		<structure name="slicerConfig">
+			<value field="slicerConfigurationStr" style="cdata"/>			
+		</structure>
+	</mapping>
+</binding>
