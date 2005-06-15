@@ -877,7 +877,11 @@ public class SliceXMLizerCLI
 			destructivelyUpdateJimple();
 
 			if (retentionList != null) {
-				SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer, retentionList);
+				final Collection _c = SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer, retentionList);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Retained classes are " + _c);
+				}
 			}
 			dumpJimple("", false, true);
 		}
