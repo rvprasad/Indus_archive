@@ -88,6 +88,13 @@ public final class Environment
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
+	 */
+	public boolean hasClass(final String scName) {
+		return system.containsClass(scName);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
 	 */
 	public void removeClass(final SootClass clazz) {

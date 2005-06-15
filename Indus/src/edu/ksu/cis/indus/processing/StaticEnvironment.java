@@ -100,6 +100,23 @@ public final class StaticEnvironment
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
+	 */
+	public boolean hasClass(final String scName) {
+		final Iterator _i = classes.iterator();
+		final int _iEnd = classes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (_sc.getName().equals(scName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
 	 */
 	public void removeClass(final SootClass clazz) {

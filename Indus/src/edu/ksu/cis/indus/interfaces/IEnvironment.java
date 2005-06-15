@@ -64,6 +64,15 @@ public interface IEnvironment {
 	Collection getRoots();
 
 	/**
+	 * Checks if a class by the givne name exists in the environment.
+	 *
+	 * @param scName if the FQN of the class of interest.
+	 *
+	 * @return <code>true</code> if it exists; <code>false</code>, otherwise.
+	 */
+	boolean hasClass(String scName);
+
+	/**
 	 * Removes the given class from the environment.
 	 *
 	 * @param clazz to be removed from the system.

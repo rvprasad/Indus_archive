@@ -430,6 +430,13 @@ public class FA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
+	 */
+	public boolean hasClass(final String scName) {
+		return environment.hasClass(scName);
+	}
+
+	/**
 	 * Performs type-based processing of the given class.
 	 *
 	 * @param clazz is the class to be processed.
