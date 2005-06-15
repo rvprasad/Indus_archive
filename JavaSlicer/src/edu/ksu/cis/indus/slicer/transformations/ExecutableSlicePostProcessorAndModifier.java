@@ -74,9 +74,12 @@ public class ExecutableSlicePostProcessorAndModifier
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final String _scName = (String) _i.next();
-			final SootClass _sc = environment.getClass(_scName);
-			collector.includeInSlice(_sc);
-			_cl.add(_sc);
+
+			if (environment.hasClass(_scName)) {
+				final SootClass _sc = environment.getClass(_scName);
+				collector.includeInSlice(_sc);
+				_cl.add(_sc);
+			}
 		}
 		_ch.confine(_cl, true);
 		_ch.updateEnvironment();
