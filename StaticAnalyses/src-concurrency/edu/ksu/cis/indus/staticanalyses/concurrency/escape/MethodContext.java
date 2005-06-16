@@ -256,34 +256,35 @@ final class MethodContext
 			_result = _thisAS.getImageOfRefUnderRoot(_thisAS2, ref, _temp);
 		}
 
-		if (_result == null) {
-			for (int _i = argAliasSets.size() - 1; _i >= 0; _i--) {
-				final AliasSet _paramAS = getParamAS(_i);
-				final AliasSet _paramAS2 = context.getParamAS(_i);
+		for (int _i = argAliasSets.size() - 1; _i >= 0 && _result == null; _i--) {
+			final AliasSet _paramAS = getParamAS(_i);
+			final AliasSet _paramAS2 = context.getParamAS(_i);
 
-				if (_result != null && _paramAS != null && _paramAS2 != null) {
-					_temp.clear();
-					_result = _paramAS.getImageOfRefUnderRoot(_paramAS2, ref, _temp);
-				}
+			if (_paramAS != null && _paramAS2 != null) {
+				_temp.clear();
+				_result = _paramAS.getImageOfRefUnderRoot(_paramAS2, ref, _temp);
 			}
 		}
 
-		final AliasSet _thrownAS = getThrownAS();
-		final AliasSet _thrownAS2 = context.getThrownAS();
+		if (_result == null) {
+            final AliasSet _thrownAS = getThrownAS();
+            final AliasSet _thrownAS2 = context.getThrownAS();
+            
+            if (_thrownAS != null && _thrownAS2 != null) {
+            	_temp.clear();
+            	_result = _thrownAS.getImageOfRefUnderRoot(_thrownAS2, ref, _temp);
+            }
 
-		if (_result == null && _thrownAS != null && _thrownAS2 != null) {
-			_temp.clear();
-			_result = _thrownAS.getImageOfRefUnderRoot(_thrownAS2, ref, _temp);
-		}
-
-		final AliasSet _returnAS = getReturnAS();
-		final AliasSet _returnAS2 = context.getReturnAS();
-
-		if (_result == null && _returnAS != null && _returnAS2 != null) {
-			_temp.clear();
-			_result = _returnAS.getImageOfRefUnderRoot(_returnAS2, ref, _temp);
-		}
-
+    		if (_result == null) {
+                final AliasSet _returnAS = getReturnAS();
+                final AliasSet _returnAS2 = context.getReturnAS();    
+    
+                if (_returnAS != null && _returnAS2 != null) {
+                	_temp.clear();
+                	_result = _returnAS.getImageOfRefUnderRoot(_returnAS2, ref, _temp);
+                }
+            }
+        }
 		return _result;
 	}
 
