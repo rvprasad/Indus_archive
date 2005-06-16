@@ -114,7 +114,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+	private static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.

@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
@@ -42,6 +45,12 @@ import soot.SootMethod;
 class ReadWriteInfo
   extends AbstractStatus
   implements IReadWriteInfo {
+
+    /**
+     * The logger used by instances of this class to log messages.
+     */
+    private static final Log LOGGER = LogFactory.getLog(ReadWriteInfo.class);
+
 	/** 
 	 * This is used to retrieve the alias set for "this" from a given method context.
 	 */
@@ -274,8 +283,8 @@ class ReadWriteInfo
 			_result = read ? this.analysis.readDefaultValue
 						   : this.analysis.writeDefaultValue;
 
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("No recorded information for " + method
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method
 					+ " is available.  Returning default value - " + _result);
 			}
 		}
@@ -335,8 +344,8 @@ class ReadWriteInfo
 			_result = read ? this.analysis.readDefaultValue
 						   : this.analysis.writeDefaultValue;
 
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("isAccessPathOperatedHelper(method = " + method
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("isAccessPathOperatedHelper(method = " + method
 					+ ", accesspath = " + Arrays.asList(accesspath) + ", recurse = " + recurse + ", retriver = " + retriever
 					+ ") - No recorded information for " + method + " is available.  Returning default value - " + _result);
 			}

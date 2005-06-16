@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -62,6 +65,12 @@ import soot.jimple.VirtualInvokeExpr;
  */
 final class ValueProcessor
   extends AbstractJimpleValueSwitch {
+
+    /**
+     * The logger used by instances of this class to log messages.
+     */
+    private static final Log LOGGER = LogFactory.getLog(ValueProcessor.class);
+
 	/** 
 	 * This indicates if the value occurs as a rhs-value or a lhs-value in an assignment statement. <code>true</code>
 	 * indicates that it value occurs as a rhs-value in an assignment statement.  <code>false</code> indicates that the
@@ -342,8 +351,8 @@ final class ValueProcessor
 
 			// This is needed when the system is not closed.
 			if (_triple == null) {
-				if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-					EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("NO TRIPLE.  May be due to open system. - "
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("NO TRIPLE.  May be due to open system. - "
 						+ _callee.getSignature());
 				}
 				continue;
@@ -361,7 +370,7 @@ final class ValueProcessor
 				try {
 					_mc = (MethodContext) _mc.clone();
 				} catch (final CloneNotSupportedException _e) {
-					EquivalenceClassBasedEscapeAnalysis.LOGGER.error("Hell NO!  This should not happen.", _e);
+					LOGGER.error("Hell NO!  This should not happen.", _e);
 					throw new RuntimeException(_e);
 				}
 			}

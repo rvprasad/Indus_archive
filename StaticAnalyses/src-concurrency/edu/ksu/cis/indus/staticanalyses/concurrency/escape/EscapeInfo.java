@@ -115,8 +115,8 @@ class EscapeInfo
 			} else {
 				_result = Collections.EMPTY_SET;
 
-				if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-					EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("No recorded information for " + method
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + method
 						+ " is available.  Returning pessimistic (true) info.");
 				}
 			}
@@ -139,8 +139,8 @@ class EscapeInfo
 			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getReadThreads());
 		} else {
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("No recorded information for " + method
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method
 					+ " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.EMPTY_SET;
@@ -183,8 +183,8 @@ class EscapeInfo
 			} else {
 				_result = Collections.EMPTY_SET;
 
-				if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-					EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("No recorded information for " + method
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + method
 						+ " is available.  Returning pessimistic (true) info.");
 				}
 			}
@@ -207,8 +207,8 @@ class EscapeInfo
 			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getWriteThreads());
 		} else {
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isWarnEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.warn("No recorded information for " + method
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method
 					+ " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.EMPTY_SET;
@@ -387,8 +387,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -408,8 +408,8 @@ class EscapeInfo
 				final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getShareEntities();
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 			} catch (final NullPointerException _e) {
-				if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-					EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + v1 + "/" + v2
+				if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("There is no information about " + v1 + "/" + v2
 						+ " occurring in " + sm1 + "/" + sm2 + ".  So, providing pessimistic info (true).", _e);
 				}
 			}
@@ -431,8 +431,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-				EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -449,8 +449,8 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-			EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + method
+		if (_triple == null && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("There is no information about " + method
 				+ ".  So, providing default value - " + _result);
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
@@ -473,8 +473,8 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && EquivalenceClassBasedEscapeAnalysis.LOGGER.isDebugEnabled()) {
-			EquivalenceClassBasedEscapeAnalysis.LOGGER.debug("There is no information about " + method
+		if (_triple == null && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("There is no information about " + method
 				+ ".  So, providing default value - " + _result);
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
