@@ -4,8 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping-propertyAware"
-		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
@@ -20,11 +19,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true" slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="true" slicer:contextLengthLimit="10"/>
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping"
-		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
@@ -39,11 +38,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true" 	slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="false"/>
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping-propertyAware"
-		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="true" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -58,11 +57,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="true" slicer:contextLengthLimit="10"/>
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping"
-		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
-		slicer:propertyAware="false" slicer:optimizeExecutableSliceForSpace="true">
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -77,11 +76,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="false"/>		
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-propertyAware" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -96,11 +95,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="true" slicer:contextLengthLimit="10"/>		
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -115,11 +114,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="false"/>		
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="backward-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -134,11 +133,11 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="false"/>
 	</indus:configurationInfo>
 	
 	<indus:configurationInfo indus:name="complete-executable-assertion-sequential" slicer:executableSlice="true"
-		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false"
-		slicer:optimizeExecutableSliceForSpace="true">
+		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
 				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
@@ -153,6 +152,7 @@
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
 			slicer:callSiteSensitive="true"			slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
+		<slicer:callingcontext slicer:active="false"/>
 	</indus:configurationInfo>	
 
 </indus:compositeConfiguration>
