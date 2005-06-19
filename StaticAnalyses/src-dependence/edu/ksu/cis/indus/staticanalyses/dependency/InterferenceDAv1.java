@@ -376,8 +376,9 @@ public class InterferenceDAv1
 		final StringBuffer _temp = new StringBuffer();
 
 		final List _entrySet = new ArrayList(dependent2dependee.entrySet());
-        Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
-        for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
+		Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
+
+		for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_lEdgeCount = 0;
 
@@ -448,7 +449,7 @@ public class InterferenceDAv1
 		boolean _result;
 		final SootField _ifr1 = dependeeFieldRef.getField();
 		final SootField _ifr2 = dependentFieldRef.getField();
-		_result = _ifr1.equals(_ifr2);
+		_result = _ifr1.equals(_ifr2) && !_ifr1.isFinal();
 
 		if (_result && useOFA) {
 			_result = isFieldDependentOnByOFA(dependent, dependee);
@@ -550,6 +551,9 @@ public class InterferenceDAv1
 				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
 			} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
 				_result = isFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
+			} else if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
+				final SootField _field = ((StaticFieldRef) _de).getField();
+				_result = ((StaticFieldRef) _dt).getField().equals(_field) && !_field.isFinal();
 			}
 		}
 
