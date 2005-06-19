@@ -659,7 +659,9 @@ public final class SlicerConfigurator
 		final SelectionListener _sl5 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent e) {
-					_callingContextLimit.setEnabled(_propertyAwareSlicingButton.getSelection());
+					final boolean _b = _propertyAwareSlicingButton.getSelection();
+                    _callingContextLimit.setEnabled(_b);
+                    _l.setEnabled(_b);
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent e) {
@@ -785,7 +787,7 @@ public final class SlicerConfigurator
 				_useSLAForReady, _cfg));
 
 		final Button _useCallSiteSensitiveReady = new Button(_analysisComposite, SWT.CHECK);
-		_useCallSiteSensitiveReady.setText("use call-site sensitive");
+		_useCallSiteSensitiveReady.setText("blocking call-site aware");
 		_useCallSiteSensitiveReady.setToolTipText("Calls leading to blocking will be considered as blocking as well.");
 		_useCallSiteSensitiveReady.setSelection(_cfg.isCallSiteSensitiveReadyUsed());
 		_useCallSiteSensitiveReady.addSelectionListener(new BooleanPropertySelectionListener(
