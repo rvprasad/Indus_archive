@@ -140,8 +140,7 @@ class EscapeInfo
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getReadThreads());
 		} else {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method
-					+ " is available.  Returning pessimistic (true) info.");
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.EMPTY_SET;
 		}
@@ -208,8 +207,7 @@ class EscapeInfo
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getWriteThreads());
 		} else {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method
-					+ " is available.  Returning pessimistic (true) info.");
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.EMPTY_SET;
 		}
@@ -388,7 +386,7 @@ class EscapeInfo
 			}
 		} catch (final NullPointerException _e) {
 			if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("There is no information about " + v + " occurring in " + sm
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -397,10 +395,10 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see IEscapeInfo#shared(Value, SootMethod, Value, SootMethod)
+	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod)
 	 */
-	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
-		boolean _result = shared(v1, sm1) && shared(v2, sm2);
+	public boolean fieldAccessShared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
+		boolean _result = fieldAccessShared(v1, sm1) && fieldAccessShared(v2, sm2);
 
 		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
@@ -409,8 +407,8 @@ class EscapeInfo
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 			} catch (final NullPointerException _e) {
 				if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("There is no information about " + v1 + "/" + v2
-						+ " occurring in " + sm1 + "/" + sm2 + ".  So, providing pessimistic info (true).", _e);
+					LOGGER.debug("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
+						+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
 		}
@@ -419,20 +417,42 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#shared(soot.Value, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod)
 	 */
-	public boolean shared(final Value v, final SootMethod sm) {
+	public boolean fieldAccessShared(final Value v, final SootMethod sm) {
 		boolean _result = this.analysis.escapesDefaultValue;
 
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = this.analysis.getAliasSetFor(v, sm).shared();
+				_result = this.analysis.getAliasSetFor(v, sm).readWriteShared();
 			} else {
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
 			if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("There is no information about " + v + " occurring in " + sm
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#lockUnlockShared(soot.Value, soot.SootMethod)
+	 */
+	public boolean lockUnlockShared(final Value v, final SootMethod sm) {
+		boolean _result = this.analysis.escapesDefaultValue;
+
+		try {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				_result = this.analysis.getAliasSetFor(v, sm).lockUnlockShared();
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -450,8 +470,7 @@ class EscapeInfo
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
 		if (_triple == null && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("There is no information about " + method
-				+ ".  So, providing default value - " + _result);
+			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
 
@@ -465,26 +484,92 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see IEscapeInfo#thisShared(SootMethod)
+	 * @see IEscapeInfo#thisFieldAccessShared(SootMethod)
 	 */
-	public boolean thisShared(final SootMethod method) {
+	public boolean thisFieldAccessShared(final SootMethod method) {
 		boolean _result = this.analysis.escapesDefaultValue;
-		;
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
 		if (_triple == null && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("There is no information about " + method
-				+ ".  So, providing default value - " + _result);
+			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
 
 			// if non-static query the alias set of "this" variable.  If static, just return true assuming that the 
 			// application to decide wisely :-)
 			if (_as1 != null) {
-				_result = _as1.shared();
+				_result = _as1.readWriteShared();
 			}
 		}
+		return _result;
+	}
+
+	/**
+	 * @see IEscapeInfo#thisLockUnlockShared(SootMethod)
+	 */
+	public boolean thisLockUnlockShared(final SootMethod method) {
+		boolean _result = this.analysis.escapesDefaultValue;
+		;
+
+		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+
+		if (_triple == null && LOGGER.isDebugEnabled()) {
+			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		} else {
+			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+
+			// if non-static query the alias set of "this" variable.  If static, just return true assuming that the 
+			// application to decide wisely :-)
+			if (_as1 != null) {
+				_result = _as1.lockUnlockShared();
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IEscapeInfo#thisWaitNotifyShared(SootMethod)
+	 */
+	public boolean thisWaitNotifyShared(final SootMethod method) {
+		boolean _result = this.analysis.escapesDefaultValue;
+		;
+
+		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+
+		if (_triple == null && LOGGER.isDebugEnabled()) {
+			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		} else {
+			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+
+			// if non-static query the alias set of "this" variable.  If static, just return true assuming that the 
+			// application to decide wisely :-)
+			if (_as1 != null) {
+				_result = _as1.waitNotifyShared();
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#waitNotifyShared(soot.Value, soot.SootMethod)
+	 */
+	public boolean waitNotifyShared(final Value v, final SootMethod sm) {
+		boolean _result = this.analysis.escapesDefaultValue;
+
+		try {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				_result = this.analysis.getAliasSetFor(v, sm).waitNotifyShared();
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
+
 		return _result;
 	}
 

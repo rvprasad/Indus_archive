@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-
 import java.util.Collection;
 
 import soot.Local;
@@ -128,22 +127,6 @@ public interface IEscapeInfo
 	Collection getWritingThreadsOfThis(SootMethod sm);
 
 	/**
-	 * Checks if the given monitor statements are coupled, i.e. if they will operate on  the same object.
-	 *
-	 * @param stmt1 is a monitor statement. This should be <code>null</code> when querying about the lock  acquired/released
-	 * 		  while entering/exiting a synchronized method.
-	 * @param method1 contains <code>stmt1</code>.
-	 * @param stmt2 is another monitor statement. This should be <code>null</code> when querying about the lock
-	 * 		  acquired/released while entering/exiting a synchronized method.
-	 * @param method2 contains <code>stmt2</code>.
-	 *
-	 * @return <code>true</code>if they may be coupled; <code>false</code>, otherwise.
-	 *
-	 * @pre method1 != null and method2 != null
-	 */
-	boolean areMonitorsCoupled(MonitorStmt stmt1, SootMethod method1, MonitorStmt stmt2, SootMethod method2);
-
-	/**
 	 * Checks if the given locals may point to some common object and that object may be locked.
 	 *
 	 * @param local1 is a variable whose object is used to realize a monitor. This should be <code>null</code> when querying
@@ -158,6 +141,22 @@ public interface IEscapeInfo
 	 * @pre method1 != null and method2 != null
 	 */
 	boolean areCoupledViaLocking(Local local1, SootMethod method1, Local local2, SootMethod method2);
+
+	/**
+	 * Checks if the given monitor statements are coupled, i.e. if they will operate on  the same object.
+	 *
+	 * @param stmt1 is a monitor statement. This should be <code>null</code> when querying about the lock  acquired/released
+	 * 		  while entering/exiting a synchronized method.
+	 * @param method1 contains <code>stmt1</code>.
+	 * @param stmt2 is another monitor statement. This should be <code>null</code> when querying about the lock
+	 * 		  acquired/released while entering/exiting a synchronized method.
+	 * @param method2 contains <code>stmt2</code>.
+	 *
+	 * @return <code>true</code>if they may be coupled; <code>false</code>, otherwise.
+	 *
+	 * @pre method1 != null and method2 != null
+	 */
+	boolean areMonitorsCoupled(MonitorStmt stmt1, SootMethod method1, MonitorStmt stmt2, SootMethod method2);
 
 	/**
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing
@@ -177,8 +176,8 @@ public interface IEscapeInfo
 	boolean areWaitAndNotifyCoupled(InvokeStmt wait, SootMethod waitMethod, InvokeStmt notify, SootMethod notifyMethod);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method escapes.  This suggests mere multithread 
-     * visibility and not multithread access. 
+	 * Checks if the object bound to the given variable in the given method escapes.  This suggests mere multithread
+	 * visibility and not multithread access.
 	 *
 	 * @param v is the object value being checked for escaping.
 	 * @param sm is the method in which <code>v</code> occurs.
@@ -188,23 +187,23 @@ public interface IEscapeInfo
 	 * @pre v != null and sm != null
 	 */
 	boolean escapes(Value v, SootMethod sm);
-    
-    /**
-     * Checks if the object bound to the given variable in the given method shared. This suggests multithread access.  
-     *
-     * @param v is the object value being checked for sharing.
-     * @param sm is the method in which <code>v</code> occurs.
-     *
-     * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
-     *
-     * @pre v != null and sm != null
-     */
-    boolean shared(Value v, SootMethod sm);
+
+	/**
+	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread field-access
+	 * access.
+	 *
+	 * @param v is the object value being checked for sharing.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre v != null and sm != null
+	 */
+	boolean fieldAccessShared(Value v, SootMethod sm);
 
 	/**
 	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
-	 * escaping, involved in a inter-thread operations (locking and unlocking, field/array read-writes), and possible a common
-     * entity.
+	 * escaping and be involved in a inter-thread field access operation.
 	 *
 	 * @param v1 is one of the value in the check.
 	 * @param sm1 is the method in which <code>v1</code> occurs.
@@ -215,7 +214,20 @@ public interface IEscapeInfo
 	 *
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
-	boolean shared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
+	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
+
+	/**
+	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread lock-unlock
+	 * access.
+	 *
+	 * @param v is the object value being checked for sharing.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre v != null and sm != null
+	 */
+	boolean lockUnlockShared(Value v, SootMethod sm);
 
 	/**
 	 * Checks if "this" variable of the given method escapes.  If the method is static then the result is pessimistic, hence,
@@ -228,18 +240,55 @@ public interface IEscapeInfo
 	 * @pre method != null
 	 */
 	boolean thisEscapes(SootMethod method);
-    
-    /**
-     * Checks if "this" variable of the given method is shared.  If the method is static then the result is pessimistic, hence,
-     * <code>true</code> is returned.
-     *
-     * @param method in which "this" occurs.
-     *
-     * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
-     *
-     * @pre method != null
-     */
-    boolean thisShared(SootMethod method);
+
+	/**
+	 * Checks if "this" variable of the given method is shared via field access.  If the method is static then the result is
+	 * pessimistic, hence, <code>true</code> is returned.
+	 *
+	 * @param method in which "this" occurs.
+	 *
+	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	boolean thisFieldAccessShared(SootMethod method);
+
+	/**
+	 * Checks if "this" variable of the given method is lock-unlock shared.  If the method is static then the result is
+	 * pessimistic, hence, <code>true</code> is returned.
+	 *
+	 * @param method in which "this" occurs.
+	 *
+	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	boolean thisLockUnlockShared(SootMethod method);
+
+	/**
+	 * Checks if "this" variable of the given method is wait-notify shared.  If the method is static then the result is
+	 * pessimistic, hence, <code>true</code> is returned.
+	 *
+	 * @param method in which "this" occurs.
+	 *
+	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	boolean thisWaitNotifyShared(SootMethod method);
+
+	/**
+	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread wait-notify
+	 * access.
+	 *
+	 * @param v is the object value being checked for sharing.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
+	 *
+	 * @pre v != null and sm != null
+	 */
+	boolean waitNotifyShared(Value v, SootMethod sm);
 }
 
 // End of File
