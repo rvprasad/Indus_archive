@@ -32,21 +32,11 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.IteratorUtils;
 
+import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
 
-import soot.jimple.ExitMonitorStmt;
-import soot.jimple.GotoStmt;
-import soot.jimple.IdentityStmt;
-import soot.jimple.IfStmt;
-import soot.jimple.LookupSwitchStmt;
-import soot.jimple.NopStmt;
-import soot.jimple.RetStmt;
-import soot.jimple.ReturnStmt;
-import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
-import soot.jimple.TableSwitchStmt;
-import soot.jimple.ThrowStmt;
 
 
 /**
@@ -61,6 +51,24 @@ public class AtomicStmtDetector
   extends AbstractProcessor
   implements IAtomicityInfo {
 	/** 
+	 * A collection of names of immutable classes. 
+	 */
+	private static final Collection IMMUTABLE_CLASS_NAMES;
+
+	static {
+		IMMUTABLE_CLASS_NAMES = new ArrayList();
+		IMMUTABLE_CLASS_NAMES.add("java.lang.String");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Integer");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Float");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Double");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Boolean");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Byte");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Long");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Short");
+		IMMUTABLE_CLASS_NAMES.add("java.lang.Character");
+	}
+
+	/** 
 	 * The collection of atomic statements.
 	 *
 	 * @invariant atomicStmts.oclIsKindOf(Collection(Stmt))
@@ -71,6 +79,11 @@ public class AtomicStmtDetector
 	 * The escape analysis to use.
 	 */
 	protected IEscapeInfo escapeInfo;
+
+	/** 
+	 * This indicates if the currently being processed scope is atomic.  
+	 */
+	private boolean atomicScope;
 
 	/**
 	 * Checks if the statement is atomic.
@@ -107,16 +120,25 @@ public class AtomicStmtDetector
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
-		if ((!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
+		if (atomicScope || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
 			  || isAtomic(stmt, context.getCurrentMethod())) {
 			atomicStmts.add(stmt);
 		}
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootClass)
+	 */
+	public final void callback(final SootClass clazz) {
+		super.callback(clazz);
+		atomicScope = IMMUTABLE_CLASS_NAMES.contains(clazz.getName());
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void hookup(final ProcessingController ppc) {
+        ppc.register(this);
 		ppc.registerForAllStmts(this);
 	}
 
@@ -139,6 +161,7 @@ public class AtomicStmtDetector
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void unhook(final ProcessingController ppc) {
+        ppc.unregister(this);
 		ppc.unregisterForAllStmts(this);
 	}
 
