@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
@@ -25,6 +27,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
+import soot.Value;
+
+import soot.jimple.ArrayRef;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.MonitorStmt;
+import soot.jimple.StaticFieldRef;
+import soot.jimple.Stmt;
+import soot.jimple.VirtualInvokeExpr;
 
 
 /**
@@ -42,19 +52,20 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	private static final Log LOGGER = LogFactory.getLog(ThreadEscapeInfoBasedCallingContextRetriever.class);
 
 	/** 
-	 * This guides calling context construction.
-	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
-
-	/** 
 	 * This provides escapes information according to interface.
 	 */
 	protected IEscapeInfo escapesInfo;
 
-    /**
-     * Creates an instance of this instance.
-     * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
-     */
+	/** 
+	 * This guides calling context construction.
+	 */
+	private EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/**
+	 * Creates an instance of this instance.
+	 *
+	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
+	 */
 	public ThreadEscapeInfoBasedCallingContextRetriever(final int callContextLenLimit) {
 		super(callContextLenLimit);
 	}
@@ -69,17 +80,17 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	public void setECBA(final EquivalenceClassBasedEscapeAnalysis oracle) {
 		ecba = oracle;
 	}
-    
-    /**
-     * Sets the escape analysis.
-     *
-     * @param info to be used.
-     *
-     * @pre oracle != null
-     */
-    public void setEscapeInfo(final IEscapeInfo info) {
-        escapesInfo = info;
-    }
+
+	/**
+	 * Sets the escape analysis.
+	 *
+	 * @param info to be used.
+	 *
+	 * @pre oracle != null
+	 */
+	public void setEscapeInfo(final IEscapeInfo info) {
+		escapesInfo = info;
+	}
 
 	/**
 	 * Retrieves the escape analysis.
@@ -145,7 +156,32 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
-		final boolean _result = escapesInfo.escapes(context.getProgramPoint().getValue(), context.getCurrentMethod());
+		final Value _value = context.getProgramPoint().getValue();
+		final Stmt _stmt = context.getStmt();
+		final Value _r;
+		final boolean _result;
+
+		if (_value instanceof InstanceFieldRef) {
+			_r = ((InstanceFieldRef) _value).getBase();
+		} else if (_value instanceof ArrayRef) {
+			_r = ((ArrayRef) _value).getBase();
+		} else if (_value instanceof StaticFieldRef) {
+			_r = _value;
+		} else if (_stmt instanceof MonitorStmt) {
+			_r = ((MonitorStmt) _stmt).getOp();
+		} else if (_value instanceof VirtualInvokeExpr
+			  && (Util.isWaitMethod(((VirtualInvokeExpr) _value).getMethod())
+			  || Util.isNotifyMethod(((VirtualInvokeExpr) _value).getMethod()))) {
+			_r = ((VirtualInvokeExpr) _value).getBase();
+		} else {
+			_r = null;
+		}
+
+		if (_r == null) {
+			_result = false;
+		} else {
+			_result = escapesInfo.escapes(_r, context.getCurrentMethod());
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint() - result =" + _result);

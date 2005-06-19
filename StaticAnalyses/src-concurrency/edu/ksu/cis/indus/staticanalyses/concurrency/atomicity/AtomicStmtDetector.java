@@ -35,12 +35,17 @@ import org.apache.commons.collections.IteratorUtils;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.LookupSwitchStmt;
+import soot.jimple.NopStmt;
 import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 
 
@@ -65,7 +70,7 @@ public class AtomicStmtDetector
 	/** 
 	 * The escape analysis to use.
 	 */
-	protected IEscapeInfo ecba;
+	protected IEscapeInfo escapeInfo;
 
 	/**
 	 * Checks if the statement is atomic.
@@ -88,39 +93,22 @@ public class AtomicStmtDetector
 	 * @pre analysis != null
 	 */
 	public final void setEscapeAnalysis(final IEscapeInfo analysis) {
-		ecba = analysis;
+		escapeInfo = analysis;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection getIds() {
+	public final Collection getIds() {
 		return Collections.singleton(ID);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
-		boolean _escapes = false;
-
-		if (!(stmt instanceof ReturnVoidStmt
-			  || stmt instanceof ReturnStmt
-			  || stmt instanceof ThrowStmt
-			  || stmt instanceof GotoStmt
-			  || stmt instanceof RetStmt
-			  || stmt instanceof IdentityStmt)) {
-			final SootMethod _currentMethod = context.getCurrentMethod();
-
-			for (final Iterator _i =
-					IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(),
-						SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && !_escapes;) {
-				final ValueBox _vb = (ValueBox) _i.next();
-				_escapes = ecba.escapes(_vb.getValue(), _currentMethod);
-			}
-		}
-
-		if (!_escapes) {
+	public final void callback(final Stmt stmt, final Context context) {
+		if ((!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
+			  || isAtomic(stmt, context.getCurrentMethod())) {
 			atomicStmts.add(stmt);
 		}
 	}
@@ -128,14 +116,14 @@ public class AtomicStmtDetector
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public void hookup(final ProcessingController ppc) {
+	public final void hookup(final ProcessingController ppc) {
 		ppc.registerForAllStmts(this);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#reset()
 	 */
-	public void reset() {
+	public final void reset() {
 		super.reset();
 		atomicStmts.clear();
 	}
@@ -143,15 +131,37 @@ public class AtomicStmtDetector
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	public final String toString() {
 		return CollectionsUtilities.prettyPrint(atomicStmts);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public void unhook(final ProcessingController ppc) {
+	public final void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllStmts(this);
+	}
+
+	/**
+	 * Checks if the given statement is atomic based on escape information.
+	 *
+	 * @param stmt to be tested.
+	 * @param method in which the statement occurs.
+	 *
+	 * @return <code>true</code> if the statement is atomic; <code>false</code>, otherwise.
+	 *
+	 * @pre stmt != null and method != null
+	 */
+	protected boolean isAtomic(final Stmt stmt, final SootMethod method) {
+		boolean atomic = !stmt.containsInvokeExpr();
+
+		for (final Iterator _i =
+				IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(),
+					SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && atomic;) {
+			final ValueBox _vb = (ValueBox) _i.next();
+			atomic = !escapeInfo.escapes(_vb.getValue(), method);
+		}
+		return atomic;
 	}
 }
 

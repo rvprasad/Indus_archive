@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -29,6 +26,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
 import soot.SootMethod;
@@ -65,20 +65,10 @@ import soot.jimple.VirtualInvokeExpr;
  */
 final class ValueProcessor
   extends AbstractJimpleValueSwitch {
-
-    /**
-     * The logger used by instances of this class to log messages.
-     */
-    private static final Log LOGGER = LogFactory.getLog(ValueProcessor.class);
-
 	/** 
-	 * This indicates if the value occurs as a rhs-value or a lhs-value in an assignment statement. <code>true</code>
-	 * indicates that it value occurs as a rhs-value in an assignment statement.  <code>false</code> indicates that the
-	 * value occurs as a lhs-value in an assignment statement.  This is used to mark alias sets of primaries in access
-	 * expressions in a manner appropriate to the analysis.  For example, in side-effect analysis, the primaries of array
-	 * expressions are read as rhs-value and are written to as lhs-value.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private boolean rhs = true;
+	private static final Log LOGGER = LogFactory.getLog(ValueProcessor.class);
 
 	/** 
 	 * The associated escape analysis.
@@ -90,6 +80,15 @@ final class ValueProcessor
 	 */
 	private boolean markLocals = true;
 
+	/** 
+	 * This indicates if the value occurs as a rhs-value or a lhs-value in an assignment statement. <code>true</code>
+	 * indicates that it value occurs as a rhs-value in an assignment statement.  <code>false</code> indicates that the
+	 * value occurs as a lhs-value in an assignment statement.  This is used to mark alias sets of primaries in access
+	 * expressions in a manner appropriate to the analysis.  For example, in side-effect analysis, the primaries of array
+	 * expressions are read as rhs-value and are written to as lhs-value.
+	 */
+	private boolean rhs = true;
+
 	/**
 	 * Creates an instance of this class.
 	 *
@@ -99,18 +98,6 @@ final class ValueProcessor
 	 */
 	ValueProcessor(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
-	}
-
-	/**
-	 * Sets the value of <code>markLocals</code>.
-	 *
-	 * @param value the new value of <code>markLocals</code>.
-	 * @return the previous value of markLocals.
-	 */
-	boolean setMarkLocals(final boolean value) {
-        final boolean _result = markLocals;
-		this.markLocals = value;
-        return _result;
 	}
 
 	/**
@@ -127,7 +114,7 @@ final class ValueProcessor
 
 		final AliasSet _base = (AliasSet) getResult();
 		final AliasSet _elt = processField(v.getType(), _base, IReadWriteInfo.ARRAY_FIELD);
-		
+
 		setResult(_elt);
 	}
 
@@ -153,36 +140,6 @@ final class ValueProcessor
 
 		setResult(_field);
 	}
-
-    /**
-     * Processes the fields.
-     * 
-     * @param t type of the access expression.
-     * @param base is the alias set of the primary.
-     * @param fieldSig is the signature of the accessed field.
-     * @return the alias set for the field.
-     */
-    private AliasSet processField(final Type t, final AliasSet base, final String fieldSig) {
-        AliasSet _field = base.getASForField(fieldSig);
-        if (_field == null) {
-			_field = AliasSet.getASForType(t);
-
-			if (_field != null) {
-				base.putASForField(fieldSig, _field);
-			}
-		}
-
-		if (_field != null) {
-			recordAccessInfo(_field);
-		}
-
-		if (rhs) {
-			base.addReadField(fieldSig);
-		} else {
-			base.addWrittenField(fieldSig);
-		}
-        return _field;
-    }
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr( soot.jimple.InterfaceInvokeExpr)
@@ -281,6 +238,32 @@ final class ValueProcessor
 	}
 
 	/**
+	 * Sets the value of <code>markLocals</code>.
+	 *
+	 * @param value the new value of <code>markLocals</code>.
+	 *
+	 * @return the previous value of markLocals.
+	 */
+	boolean setMarkLocals(final boolean value) {
+		final boolean _result = markLocals;
+		this.markLocals = value;
+		return _result;
+	}
+
+	/**
+	 * Sets the value of <code>rhs</code>.
+	 *
+	 * @param b the new value of <code>rhs</code>.
+	 *
+	 * @return the previous value of rhs.
+	 */
+	boolean setRHS(final boolean b) {
+		final boolean _r = rhs;
+		rhs = b;
+		return _r;
+	}
+
+	/**
 	 * Process the given value/expression.
 	 *
 	 * @param value to be processed.
@@ -298,17 +281,16 @@ final class ValueProcessor
 	 * Process the arguments of the invoke expression.
 	 *
 	 * @param v is the invoke expressions containing the arguments to be processed.
-	 * @param method being invoked at <code>v</code>.
 	 *
 	 * @return the list of alias sets corresponding to the arguments.
 	 *
-	 * @pre v != null and method != null
+	 * @pre v != null
 	 * @post result != null and result.oclIsKindOf(Sequence(AliasSet))
 	 */
-	private List processArguments(final InvokeExpr v, final SootMethod method) {
+	private List processArguments(final InvokeExpr v) {
 		// fix up arg alias sets.
 		final List _argASs;
-		final int _paramCount = method.getParameterCount();
+		final int _paramCount = v.getMethod().getParameterCount();
 
 		if (_paramCount == 0) {
 			_argASs = Collections.EMPTY_LIST;
@@ -352,8 +334,7 @@ final class ValueProcessor
 			// This is needed when the system is not closed.
 			if (_triple == null) {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("NO TRIPLE.  May be due to open system. - "
-						+ _callee.getSignature());
+					LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
 				}
 				continue;
 			}
@@ -375,7 +356,7 @@ final class ValueProcessor
 				}
 			}
 
-            final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
+			final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
 
 			if (_isThreadBoundary) {
 				_mc.markAsCrossingThreadBoundary();
@@ -397,6 +378,38 @@ final class ValueProcessor
 			}
 			siteContext.unifyMethodContext(_mc);
 		}
+	}
+
+	/**
+	 * Processes the fields.
+	 *
+	 * @param t type of the access expression.
+	 * @param base is the alias set of the primary.
+	 * @param fieldSig is the signature of the accessed field.
+	 *
+	 * @return the alias set for the field.
+	 */
+	private AliasSet processField(final Type t, final AliasSet base, final String fieldSig) {
+		AliasSet _field = base.getASForField(fieldSig);
+
+		if (_field == null) {
+			_field = AliasSet.getASForType(t);
+
+			if (_field != null) {
+				base.putASForField(fieldSig, _field);
+			}
+		}
+
+		if (_field != null) {
+			recordAccessInfo(_field);
+		}
+
+		if (rhs) {
+			base.addReadField(fieldSig);
+		} else {
+			base.addWrittenField(fieldSig);
+		}
+		return _field;
 	}
 
 	/**
@@ -422,7 +435,7 @@ final class ValueProcessor
 			_primaryAS = (AliasSet) getResult();
 		}
 
-		final List _argASs = processArguments(expr, _sm);
+		final List _argASs = processArguments(expr);
 
 		// create a site-context of the given expression and store it into the associated site-context cache.
 		final MethodContext _sc = new MethodContext(_sm, _primaryAS, _argASs, _retAS, AliasSet.createAliasSet());
@@ -474,28 +487,17 @@ final class ValueProcessor
 	 */
 	private void recordAccessInfo(final AliasSet as) {
 		if (as != null) {
-            as.setAccessed();
-            if (ecba.tgi != null) {
-			if (rhs) {
-				as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
-			} else {
-				as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+			as.setAccessed();
+
+			if (ecba.tgi != null) {
+				if (rhs) {
+					as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+				} else {
+					as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+				}
 			}
-            }
 		}
 	}
-
-    /**
-     * Sets the value of <code>rhs</code>.
-     *
-     * @param b the new value of <code>rhs</code>.
-     * @return the previous value of rhs.
-     */
-    boolean setRHS(final boolean b) {
-        final boolean _r = rhs;
-        rhs = b;
-        return _r;
-    }
 }
 
 // End of File

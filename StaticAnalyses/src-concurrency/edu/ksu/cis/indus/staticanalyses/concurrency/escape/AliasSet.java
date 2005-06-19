@@ -151,13 +151,6 @@ final class AliasSet
 	private boolean notifies;
 
 	/** 
-	 * This indicates if the variable (hence, the object referred to) associated with this alias set is shared via access
-	 * across threads. This is different from <code>multiThreadAccess</code> as this captures access in multiple threads and
-	 * not accessibility.
-	 */
-	private boolean shared;
-
-	/** 
 	 * This indicates that this object is being stringified.
 	 */
 	private boolean stringifying;
@@ -172,7 +165,6 @@ final class AliasSet
 	 */
 	private AliasSet() {
 		fieldMap = new HashMap();
-		shared = false;
 		global = false;
 		accessed = false;
 		readyEntities = null;
@@ -276,11 +268,10 @@ final class AliasSet
 					new ToStringBuilder(this).append("waits", this.waits).append("writtenFields", this.writtenFields)
 											   .append("global", this.global).append("readyEntities", this.readyEntities)
 											   .append("multiThreadAccess", this.multiThreadAccessibility)
-											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
-											   .append("notifies", this.notifies).append("readFields", this.readFields)
-											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
-											   .append("lockEntities", this.lockEntities).append("fieldMap", this.fieldMap)
-											   .toString();
+											   .append("shareEntities", this.shareEntities).append("notifies", this.notifies)
+											   .append("readFields", this.readFields).append("readThreads", readThreads)
+											   .append("writeThreads", writeThreads).append("lockEntities", this.lockEntities)
+											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
 		}
@@ -352,7 +343,6 @@ final class AliasSet
 		final AliasSet _rep = (AliasSet) find();
 
 		_rep.global = true;
-		_rep.shared = true;
 		_rep.multiThreadAccessibility = true;
 
 		if (_rep.fieldMap != null) {
@@ -601,7 +591,6 @@ final class AliasSet
 			final AliasSet _toRep = (AliasSet) ((AliasSet) _pair.getSecond()).find();
 
 			if (_fromRep != _toRep) {
-				_toRep.shared |= _fromRep.shared;
 				_toRep.multiThreadAccessibility |= _fromRep.multiThreadAccessibility;
 
 				/*
@@ -679,14 +668,23 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the object associated with this alias set is accessed between threads.
+	 * Checks if the object associated with this alias set is accessed by multiple threads for locks and unlocks.
 	 *
-	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
-	 *
-	 * @post result == find().shared
+	 * @return <code>true</code> if the object is lock-unlock shared; <code>false</code>, otherwise.
 	 */
-	boolean shared() {
-		return ((AliasSet) find()).shared;
+	boolean lockUnlockShared() {
+		final AliasSet _rep = (AliasSet) find();
+		return _rep.lockEntities != null && !_rep.lockEntities.isEmpty();
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is accessed by multiple threads for reads and writes.
+	 *
+	 * @return <code>true</code> if the object is read-write shared; <code>false</code>, otherwise.
+	 */
+	boolean readWriteShared() {
+		final AliasSet _rep = (AliasSet) find();
+		return _rep.shareEntities != null && !_rep.shareEntities.isEmpty();
 	}
 
 	/**
@@ -728,7 +726,6 @@ final class AliasSet
 			_representative.waits |= _represented.waits;
 			_representative.notifies |= _represented.notifies;
 			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
-			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
 			_representative.locked |= _represented.locked;
 			_representative.accessed |= _represented.accessed;
@@ -750,7 +747,19 @@ final class AliasSet
 			if (_representative.isGlobal()) {
 				_representative.setGlobal();
 			}
+		} else if (unifyAll && _m.multiThreadAccessibility) {
+			_m.unifyThreadEscapeInfo(_n);
 		}
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is accessed by multiple threads for waits and notifys.
+	 *
+	 * @return <code>true</code> if the object is wait-notify shared; <code>false</code>, otherwise.
+	 */
+	boolean waitNotifyShared() {
+		final AliasSet _rep = (AliasSet) find();
+		return _rep.readyEntities != null && !_rep.readyEntities.isEmpty();
 	}
 
 	/**
@@ -904,7 +913,7 @@ final class AliasSet
 		} else if (represented.shareEntities != null) {
 			shareEntities.addAll(represented.shareEntities);
 		}
-		readyEntities = null;
+		represented.shareEntities = null;
 
 		if (readFields == Collections.EMPTY_SET) {
 			readFields = represented.readFields;
@@ -989,14 +998,20 @@ final class AliasSet
 			if (readyEntities == null) {
 				readyEntities = new HashSet();
 			}
-			readyEntities.add(getNewReadyEntity());
+
+			if (readyEntities.isEmpty()) {
+				readyEntities.add(getNewReadyEntity());
+			}
 		}
 
 		if (locked && represented.locked) {
 			if (lockEntities == null) {
 				lockEntities = new HashSet();
 			}
-			lockEntities.add(getNewLockEntity());
+
+			if (lockEntities.isEmpty()) {
+				lockEntities.add(getNewLockEntity());
+			}
 		}
 
 		if (CollectionUtils.containsAny(readFields, represented.writtenFields)
@@ -1004,11 +1019,11 @@ final class AliasSet
 			if (shareEntities == null) {
 				shareEntities = new HashSet();
 			}
-			shareEntities.add(getNewShareEntity());
-		}
 
-		shared |= !(shareEntities != null && shareEntities.isEmpty() && readyEntities != null && readyEntities.isEmpty()
-		  && lockEntities != null && lockEntities.isEmpty());
+			if (shareEntities.isEmpty()) {
+				shareEntities.add(getNewShareEntity());
+			}
+		}
 	}
 }
 

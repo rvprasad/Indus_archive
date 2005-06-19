@@ -61,8 +61,10 @@ import soot.Type;
 import soot.Value;
 
 import soot.jimple.ArrayRef;
+import soot.jimple.CaughtExceptionRef;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.ParameterRef;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
@@ -90,12 +92,11 @@ import soot.jimple.ThisRef;
  */
 public final class EquivalenceClassBasedEscapeAnalysis
   extends AbstractAnalysis {
-    
-    /**
-     * The id of this analysis.
-     */
-    public static final Object ID = "equivalence class based escape analysis";
-    
+	/** 
+	 * The id of this analysis.
+	 */
+	public static final Object ID = "equivalence class based escape analysis";
+
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
@@ -139,6 +140,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final ICallGraphInfo cgi;
 
 	/** 
+	 * This provides thread-graph information.
+	 */
+	final IThreadGraphInfo tgi;
+
+	/** 
 	 * This maps global/static fields to their alias sets.
 	 *
 	 * @invariant globalASs->forall(o | o.oclIsKindOf(AliasSet))
@@ -163,11 +169,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This is the <code>Value</code> processor used to process Jimple pieces that make up the methods.
 	 */
 	final ValueProcessor valueProcessor;
-
-	/** 
-	 * This provides thread-graph information.
-	 */
-	final IThreadGraphInfo tgi;
 
 	/** 
 	 * This is a cache variable that holds local alias set map between method calls.
@@ -210,23 +211,23 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	boolean writeDefaultValue;
 
-    /**
-     * This is the object that exposes object read-write info calculated by this instance.
-     */
-    private final ReadWriteInfo objectReadWriteInfo;
-    
-    /**
-     * This is the object that exposes object escape info calculated by this instance.
-     */
-    private final EscapeInfo escapeInfo;
+	/** 
+	 * This is the object that exposes object escape info calculated by this instance.
+	 */
+	private final EscapeInfo escapeInfo;
+
+	/** 
+	 * This is the object that exposes object read-write info calculated by this instance.
+	 */
+	private final ReadWriteInfo objectReadWriteInfo;
 
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.  The default value for escapes, reads, and writes is set to
 	 * <code>true</code>, <code>false</code>, and <code>false</code>, respectively.
 	 *
 	 * @param callgraph provides call-graph information.
-     * @param threadgraph provides thread graph information.  If this is <code>null</code> then read-write specific thread
-     *        information is not captured.
+	 * @param threadgraph provides thread graph information.  If this is <code>null</code> then read-write specific thread
+	 * 		  information is not captured.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
 	 * @pre scene != null and callgraph != null and threadgraph != null
@@ -234,7 +235,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadgraph,
 		final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
-        tgi = threadgraph;
+		tgi = threadgraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor(this);
@@ -243,11 +244,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 		preprocessor = new PreProcessor();
-        escapesDefaultValue = true;
-        readDefaultValue = false;
-        writeDefaultValue = false;
-        escapeInfo = new EscapeInfo(this);
-        objectReadWriteInfo = new ReadWriteInfo(this);
+		escapesDefaultValue = true;
+		readDefaultValue = false;
+		writeDefaultValue = false;
+		escapeInfo = new EscapeInfo(this);
+		objectReadWriteInfo = new ReadWriteInfo(this);
 	}
 
 	/**
@@ -352,7 +353,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 			if (sm.isSynchronized() && !sm.isStatic()) {
 				final AliasSet _thisAS = _methodContext.getThisAS();
-                _thisAS.setLocked();
+				_thisAS.setLocked();
 			}
 		}
 
@@ -369,6 +370,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(this);
 		}
+	}
+
+	/**
+	 * Retrieves escape info provider.
+	 *
+	 * @return an escape info provider.
+	 *
+	 * @post result != null
+	 */
+	public IEscapeInfo getEscapeInfo() {
+		return escapeInfo;
 	}
 
 	/**
@@ -390,26 +402,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Sets the default value to be returned on unanswerable access-path based written queries.
-	 *
-	 * @param value the new value of <code>value</code>.
-	 */
-	public void setWriteDefaultValue(final boolean value) {
-		this.writeDefaultValue = value;
-	}
-    
-	/**
-	 * Retrieves escape info provider.
-	 *
-	 * @return an escape info provider.
-	 *
-	 * @post result != null
-	 */
-	public IEscapeInfo getEscapeInfo() {
-		return escapeInfo;
-	}
-
-	/**
 	 * Retrieves read-write info provider.
 	 *
 	 * @return an read-write info provider.
@@ -420,8 +412,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		return objectReadWriteInfo;
 	}
 
-    
-    
+	/**
+	 * Sets the default value to be returned on unanswerable access-path based written queries.
+	 *
+	 * @param value the new value of <code>value</code>.
+	 */
+	public void setWriteDefaultValue(final boolean value) {
+		this.writeDefaultValue = value;
+	}
+
 	/**
 	 * Executes phase 2 and 3 as mentioned in the technical report.  It processed each methods in the call-graph bottom-up
 	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
@@ -429,8 +428,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public void analyze() {
 		unstable();
-        escapeInfo.unstableAdapter();
-        objectReadWriteInfo.unstableAdapter();
+		escapeInfo.unstableAdapter();
+		objectReadWriteInfo.unstableAdapter();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -447,10 +446,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
-        
+
 		stable();
-        escapeInfo.stableAdapter();
-        objectReadWriteInfo.stableAdapter();
+		escapeInfo.stableAdapter();
+		objectReadWriteInfo.stableAdapter();
 	}
 
 	/**
@@ -463,7 +462,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre type != null
 	 */
 	public static boolean canHaveAliasSet(final Type type) {
-       return type instanceof RefType || type instanceof ArrayType;
+		return type instanceof RefType || type instanceof ArrayType;
 	}
 
 	/**
@@ -509,7 +508,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Retrieves the alias set corresponding to the given value.
+	 * Retrieves the alias set corresponding to the given value.  This method cannot handled <code>CaughtExceptionRef</code>.
 	 *
 	 * @param v is the value for which the alias set is requested.
 	 * @param sm is the method in which <code>v</code> occurs.
@@ -519,7 +518,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @throws IllegalArgumentException if <code>sm</code> was not analyzed.
 	 *
 	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
-	 * 		v.isOclKindOf(InstanceFieldRef) implies v.getBase().isOclKindOf(Local)
+	 * 		v.isOclKindOf(InstanceFieldRef) or v.isOclIsKindOf(ParameterRef)
 	 */
 	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
 		final Triple _trp = (Triple) method2Triple.get(sm);
@@ -529,24 +528,30 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		final Map _local2AS = (Map) _trp.getSecond();
-		AliasSet _result = null;
+		final AliasSet _result;
 
-		if (canHaveAliasSet(v.getType())) {
-			if (v instanceof InstanceFieldRef) {
-				final InstanceFieldRef _i = (InstanceFieldRef) v;
-				final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
-				_result = _temp.getASForField(_i.getField().getSignature());
-			} else if (v instanceof StaticFieldRef) {
-				_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
-			} else if (v instanceof ArrayRef) {
-				final ArrayRef _a = (ArrayRef) v;
-				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
-			} else if (v instanceof Local) {
-				_result = (AliasSet) _local2AS.get(v);
-			} else if (v instanceof ThisRef) {
-				_result = ((MethodContext) _trp.getFirst()).getThisAS();
-			}
+		if (v instanceof InstanceFieldRef) {
+			final InstanceFieldRef _i = (InstanceFieldRef) v;
+			final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
+			_result = _temp.getASForField(_i.getField().getSignature());
+		} else if (v instanceof StaticFieldRef) {
+			_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+		} else if (v instanceof ArrayRef) {
+			final ArrayRef _a = (ArrayRef) v;
+			final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
+			_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
+		} else if (v instanceof Local) {
+			_result = (AliasSet) _local2AS.get(v);
+		} else if (v instanceof ThisRef) {
+			_result = ((MethodContext) _trp.getFirst()).getThisAS();
+		} else if (v instanceof ParameterRef) {
+			_result = ((MethodContext) _trp.getFirst()).getParamAS(((ParameterRef) v).getIndex());
+		} else if (v instanceof CaughtExceptionRef) {
+			final String _msg = "CaughtExceptionRef cannot be handled.";
+			LOGGER.error(_msg);
+			throw new IllegalArgumentException(_msg);
+		} else {
+			_result = null;
 		}
 
 		return _result;

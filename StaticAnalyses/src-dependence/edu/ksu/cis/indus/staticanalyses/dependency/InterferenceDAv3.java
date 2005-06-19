@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -53,7 +54,7 @@ public class InterferenceDAv3
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 			final Value _de = dependeeArrayRef.getBase();
 			final Value _dt = dependentArrayRef.getBase();
-			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
+			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod);
 		}
 		return _result;
 	}
@@ -70,7 +71,7 @@ public class InterferenceDAv3
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 			final Value _de = dependeeFieldRef.getBase();
 			final Value _dt = dependentFieldRef.getBase();
-			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
+			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod);
 		}
 		return _result;
 	}
