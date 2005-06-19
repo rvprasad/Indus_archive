@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
 
 import edu.ksu.cis.indus.common.soot.Util;
 
+import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.EnterMonitorStmt;
@@ -46,34 +46,38 @@ public class AtomicStmtDetectorv2
 	protected boolean isAtomic(final Stmt stmt, final SootMethod method) {
 		boolean _result = super.isAtomic(stmt, method);
 
-        if (!_result) {
-    		if (stmt.containsArrayRef()) {
-    			final ArrayRef _arrayRef = stmt.getArrayRef();
-    			_result = !escapeInfo.fieldAccessShared(_arrayRef.getBase(), method);
-    		} else if (stmt.containsFieldRef()) {
-    			final FieldRef _fieldRef = stmt.getFieldRef();
-    			final Value _v;
-    
-    			if (_fieldRef instanceof InstanceFieldRef) {
-    				_v = ((InstanceFieldRef) _fieldRef).getBase();
-    			} else {
-    				_v = _fieldRef;
-    			}
-    			_result = !_fieldRef.getField().isFinal() && !escapeInfo.fieldAccessShared(_v, method);
-    		} else if (stmt instanceof EnterMonitorStmt) {
-    			_result = !escapeInfo.lockUnlockShared(((EnterMonitorStmt) stmt).getOp(), method);
-    		} else if (stmt.containsInvokeExpr()) {
-    			final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
-    
-    			if (_invokeExpr instanceof VirtualInvokeExpr) {
-    				final VirtualInvokeExpr _vExpr = (VirtualInvokeExpr) _invokeExpr;
-    				final SootMethod _sm = _invokeExpr.getMethod();
-    				_result =
-    					Util.isNotifyMethod(_sm)
-    					  || (Util.isWaitMethod(_sm) && !escapeInfo.waitNotifyShared(_vExpr.getBase(), method));
-    			}
-    		} 
-        }
+		if (!_result) {
+			if (stmt.containsArrayRef()) {
+				final ArrayRef _arrayRef = stmt.getArrayRef();
+				_result = !escapeInfo.fieldAccessShared(_arrayRef.getBase(), method);
+			} else if (stmt.containsFieldRef()) {
+				final FieldRef _fieldRef = stmt.getFieldRef();
+				final SootField _field = _fieldRef.getField();
+				_result = _field.isFinal();
+
+				if (!_result) {
+					if (_fieldRef instanceof InstanceFieldRef) {
+						_result =
+							!escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method,
+								_field.getSignature());
+					} else {
+						_result = !escapeInfo.fieldAccessShared(_fieldRef, method);
+					}
+				}
+			} else if (stmt instanceof EnterMonitorStmt) {
+				_result = !escapeInfo.lockUnlockShared(((EnterMonitorStmt) stmt).getOp(), method);
+			} else if (stmt.containsInvokeExpr()) {
+				final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+
+				if (_invokeExpr instanceof VirtualInvokeExpr) {
+					final VirtualInvokeExpr _vExpr = (VirtualInvokeExpr) _invokeExpr;
+					final SootMethod _sm = _invokeExpr.getMethod();
+					_result =
+						Util.isNotifyMethod(_sm)
+						  || (Util.isWaitMethod(_sm) && !escapeInfo.waitNotifyShared(_vExpr.getBase(), method));
+				}
+			}
+		}
 		return _result;
 	}
 }

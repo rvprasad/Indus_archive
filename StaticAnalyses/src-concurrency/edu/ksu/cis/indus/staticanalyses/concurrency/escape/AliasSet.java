@@ -104,6 +104,12 @@ final class AliasSet
 	private Collection shareEntities;
 
 	/** 
+	 * This is the collection of field signatures of fields of this alias set's object that are shared across multiple
+	 * threads via read-write access.
+	 */
+	private Collection sigsOfSharedFields;
+
+	/** 
 	 * The threads that write fields of the associated object.
 	 */
 	private Collection writeThreads;
@@ -171,6 +177,7 @@ final class AliasSet
 		readThreads = new HashSet();
 		writeThreads = new HashSet();
 		shareEntities = null;
+		sigsOfSharedFields = null;
 		lockEntities = null;
 		multiThreadAccessibility = false;
 		readFields = Collections.EMPTY_SET;
@@ -614,8 +621,18 @@ final class AliasSet
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
 
-				if (_fromRep.lockEntities != null && _toRep.lockEntities != null) {
+				if (_fromRep.lockEntities != null) {
+					if (_toRep.lockEntities == null) {
+						_toRep.lockEntities = new HashSet();
+					}
 					_toRep.lockEntities.addAll(_fromRep.lockEntities);
+				}
+
+				if (_fromRep.sigsOfSharedFields != null) {
+					if (_toRep.sigsOfSharedFields == null) {
+						_toRep.sigsOfSharedFields = new HashSet();
+					}
+					_toRep.sigsOfSharedFields.addAll(_fromRep.sigsOfSharedFields);
 				}
 
 				for (final Iterator _i = _toRep.getFieldMap().keySet().iterator(); _i.hasNext();) {
@@ -685,6 +702,20 @@ final class AliasSet
 	boolean readWriteShared() {
 		final AliasSet _rep = (AliasSet) find();
 		return _rep.shareEntities != null && !_rep.shareEntities.isEmpty();
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is accessed by multiple threads for read and writes of the
+	 * specified field.
+	 *
+	 * @param fieldSignature is the signature of the field.
+	 *
+	 * @return <code>true</code> if the object is shared via read-write of the given field; <code>false</code>, otherwise.
+	 */
+	boolean readWriteShared(final String fieldSignature) {
+		final AliasSet _rep = (AliasSet) find();
+		return _rep.shareEntities != null && !_rep.shareEntities.isEmpty()
+		  && _rep.sigsOfSharedFields.contains(fieldSignature);
 	}
 
 	/**
@@ -915,6 +946,13 @@ final class AliasSet
 		}
 		represented.shareEntities = null;
 
+		if (sigsOfSharedFields == null) {
+			sigsOfSharedFields = represented.sigsOfSharedFields;
+		} else if (represented.sigsOfSharedFields != null) {
+			sigsOfSharedFields.addAll(represented.sigsOfSharedFields);
+		}
+		represented.sigsOfSharedFields = null;
+
 		if (readFields == Collections.EMPTY_SET) {
 			readFields = represented.readFields;
 		} else {
@@ -1018,11 +1056,14 @@ final class AliasSet
 			  || CollectionUtils.containsAny(writtenFields, represented.readFields)) {
 			if (shareEntities == null) {
 				shareEntities = new HashSet();
+				sigsOfSharedFields = new HashSet();
 			}
 
 			if (shareEntities.isEmpty()) {
 				shareEntities.add(getNewShareEntity());
 			}
+			sigsOfSharedFields.addAll(CollectionUtils.intersection(readFields, represented.writtenFields));
+			sigsOfSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.readFields));
 		}
 	}
 }

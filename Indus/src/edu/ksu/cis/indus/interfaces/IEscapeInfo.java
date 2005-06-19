@@ -189,7 +189,7 @@ public interface IEscapeInfo
 	boolean escapes(Value v, SootMethod sm);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread field-access
+	 * Checks if the object bound to the given variable in the given method is shared. This suggests multithread field
 	 * access.
 	 *
 	 * @param v is the object value being checked for sharing.
@@ -215,6 +215,20 @@ public interface IEscapeInfo
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
 	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
+
+	/**
+	 * Checks if the object bound to the given variable in the given method is shared via access to the specified field.
+	 * This suggests multithread field access.
+	 *
+	 * @param v is the object value being checked for sharing.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 * @param signature is the field signature of interest.
+	 *
+	 * @return <code>true</code> if <code>v</code> is shared via access to the given field; <code>false</code>, otherwise.
+	 *
+	 * @pre v != null and sm != null and signature != null
+	 */
+	boolean fieldAccessShared(Value v, SootMethod sm, String signature);
 
 	/**
 	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread lock-unlock
