@@ -8,18 +8,18 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/swt/swtsrc.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
+	<classpathentry sourcepath="/JAVACLASSES/swt/src.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry sourcepath="/JAVACLASSES/src/commons-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/xmlenc-0.44.zip" kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry sourcepath="/JAVACLASSES/src/xmlenc.jar" kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-io.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
