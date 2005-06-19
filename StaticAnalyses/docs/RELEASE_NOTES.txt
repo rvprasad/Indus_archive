@@ -26,6 +26,13 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.6.4
+-----------------
+	- Improved the precision of statement-level atomicity information.
+	- Enabled field-specific shared access query in EscapeInfo.
+	- Bug fixes in escape analysis.
+	- Minor improvement in Interference dependences.
+
 Version 0.6.3
 -----------------
 	- Modified ThreadEscapeInfoBasedCallingContextRetriever to use sharing information as opposed to escape info.
