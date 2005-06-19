@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,7 +66,7 @@ public abstract class AbstractCallingContextRetriever
 	 *
 	 * @param callingContextLengthLimit is the limit on the length of the generated calling contexts.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws IllegalArgumentException when <code>callingContextLengthLimit</code> is a negative integer.
 	 *
 	 * @pre callingContextLengthLimit >= 0
 	 */
@@ -280,27 +279,24 @@ public abstract class AbstractCallingContextRetriever
 			_result = ICallingContextRetriever.NULL_CONTEXTS;
 		} else {
 			final IWorkBag _wb = new LIFOWorkBag();
-			_wb.addWork(new Triple(method, token, new HashSet()));
+			_wb.addWork(new Triple(method, token, new Stack()));
 			_result = new HashSet();
 
 			while (_wb.hasWork()) {
 				final Triple _triple = (Triple) _wb.getWork();
 				final SootMethod _callee = (SootMethod) _triple.getFirst();
 				final Object _calleeToken = _triple.getSecond();
-				final Collection _calleeCallStacks = (Collection) _triple.getThird();
-				final Collection _callers = callGraph.getCallers(_callee);
+				final Stack _calleeCallStack = (Stack) _triple.getThird();
 
-				// if there were no callers then we add all call chains as the border of the call graph was reached.
-				if (_callers.isEmpty()) {
-					_result.addAll(_calleeCallStacks);
+				if (_calleeCallStack.size() == callContextLenLimit) {
+					_result.add(_calleeCallStack);
 				} else {
-					final int _pre = _calleeCallStacks.size();
-					_result.addAll(getLengthLimitedStacks(_calleeCallStacks));
+					final Collection _callers = callGraph.getCallers(_callee);
+					final int _jEnd = _callers.size();
 
-                    // if no callstacks existed or onlly some were of limit length then processing is required. 
-					if (_pre == 0 || _pre - _calleeCallStacks.size() != _pre) {
-						// for each caller 
-						final int _jEnd = _callers.size();
+					if (_jEnd == 0 && _calleeCallStack.size() < callContextLenLimit) {
+						_result.add(_calleeCallStack);
+					} else {
 						final Iterator _j = _callers.iterator();
 
 						// For collection of call stacks associated to _currToken
@@ -310,21 +306,19 @@ public abstract class AbstractCallingContextRetriever
 
 							// if there was a corresponding token on the caller side
 							if (_callerToken != null) {
-								final Collection _stacks = createNewStacks(_calleeCallStacks, _callSite);
-
-								if (!_stacks.isEmpty()) {
-									final SootMethod _caller = _callSite.getMethod();
-									_wb.addWorkNoDuplicates(new Triple(_caller, _callerToken, _stacks));
-								}
+								final Stack _callerStack = (Stack) _calleeCallStack.clone();
+								_callerStack.push(_callSite);
+								_wb.addWorkNoDuplicates(new Triple(_callSite.getMethod(), _callerToken, _callerStack));
 							} else if (shouldConsiderUnextensibleStacksAt(_calleeToken, _callee, _callSite)) {
 								// if we have reached the property-based "pivotal" point in the call chain then we decide
 								// to extend all call chains and add it to the resulting contexts.
-								_result.addAll(createNewStacks(_calleeCallStacks, _callSite));
+								final Stack _callerStack = (Stack) _calleeCallStack.clone();
+								_callerStack.push(_callSite);
+								_result.add(_callerStack);
 							}
 						}
 					}
 				}
-				_calleeCallStacks.clear();
 			}
 
 			// Reverse the call stacks as they have been constructed bottom-up.
@@ -345,80 +339,6 @@ public abstract class AbstractCallingContextRetriever
 		}
 
 		return _result;
-	}
-
-	/**
-	 * Retrieves the call stacks of length <code>callContextLenLimit</code> from the given collection.
-	 *
-	 * @param calleeCallStacks to be filered.
-	 *
-	 * @return a collection of call stacks that are <code>callContextLenLimit</code> long.
-	 *
-	 * @pre calleeCallStacks != null and calleeCallStacks.oclIsKindOf(Collection(Stack))
-	 * @post result != null and result.oclIsKindOf(Collection(Stack))
-	 * @post calleeCallStacks$pre.containsAll(result)
-	 * @post calleeCallStacks->intersection(result)->isEmpty
-	 * @post result->forall(o | o.size() == callContextLenLimit)
-	 */
-	private Collection getLengthLimitedStacks(final Collection calleeCallStacks) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = calleeCallStacks.iterator();
-		final int _iEnd = calleeCallStacks.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stack _s = (Stack) _i.next();
-
-			if (_s.size() == callContextLenLimit) {
-				_result.add(_s);
-				_i.remove();
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Extends the given call stacks to include the given call site.
-	 *
-	 * @param calleeSideCallStacks is the collection of stacks to be extended.
-	 * @param callSite to be included.
-	 *
-	 * @return a collection of new call stacks.
-	 *
-	 * @pre calleeSideCallStacks != null and callSite != null
-	 * @pre calleeSideCallStacks.oclIsKindOf(Collection(CallTriple))
-	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
-	 */
-	private Collection createNewStacks(final Collection calleeSideCallStacks, final CallTriple callSite) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(getClass().getName() + ".createNewStacks(Collection calleeSideCallStacks = " + calleeSideCallStacks
-				+ ", CallTriple callSite = " + callSite + ") - BEGIN");
-		}
-
-		final Collection _t = new HashSet(calleeSideCallStacks);
-
-		if (_t.isEmpty()) {
-			_t.add(new Stack());
-		}
-
-		final Iterator _k = _t.iterator();
-		final int _kEnd = _t.size();
-		final Collection _stacks = new HashSet();
-
-		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Stack _callStack = (Stack) _k.next();
-
-			// In case of recursion, we will extend the stack to contain atmost 2 occurrences of a call site 
-			if (!_callStack.contains(callSite) || _callStack.indexOf(callSite) == _callStack.lastIndexOf(callSite)) {
-				final Stack _stack = (Stack) _callStack.clone();
-				_stack.push(callSite);
-				_stacks.add(_stack);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("createNewStacks() - END - return value = " + _stacks);
-		}
-		return _stacks;
 	}
 }
 
