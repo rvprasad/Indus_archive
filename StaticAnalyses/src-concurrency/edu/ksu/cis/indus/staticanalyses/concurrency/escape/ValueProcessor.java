@@ -205,13 +205,6 @@ final class ValueProcessor
 	}
 
 	/**
-	 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
-	 */
-	public void caseStringConstant(final StringConstant v) {
-		setResult(AliasSet.getASForType(v.getType()));
-	}
-
-	/**
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
 	public void caseThisRef(final ThisRef v) {
