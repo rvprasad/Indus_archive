@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector;
+import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetectorv2;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -303,7 +304,7 @@ public final class AtomicityTool
 		_ac.initialize();
 		_ac.execute();
 
-		final AtomicStmtDetector _atomic = new AtomicStmtDetector();
+		final AtomicStmtDetector _atomic = new AtomicStmtDetectorv2();
 		_atomic.setEscapeAnalysis(_ecba.getEscapeInfo());
 		_atomic.hookup(_pc);
 		_pc.process();
