@@ -560,7 +560,11 @@ public final class SlicingEngine {
 
 		while (workbag.hasWork() && activePart.canProceed()) {
 			final Object _work = workbag.getWork();
-
+			
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("BEGIN - Processing criterion - " + _work);
+            }
+            
 			if (_work instanceof ExprLevelSliceCriterion) {
 				final ExprLevelSliceCriterion _sliceExpr = (ExprLevelSliceCriterion) _work;
 
@@ -586,7 +590,13 @@ public final class SlicingEngine {
 					transformAndGenerateNewCriteriaForMethod(_sm);
 				}
 			}
-			((IPoolable) _work).returnToPool();
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("END - Processing criterion - " + _work);
+            }            
+            
+            ((IPoolable) _work).returnToPool();
+            
 		}
 
 		if (activePart.canProceed()) {
@@ -752,8 +762,8 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 */
 	boolean generateStmtLevelSliceCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
-        final boolean _result;
-		if (isNotIncludedInSlice(stmt)) {
+        final boolean _result = isNotIncludedInSlice(stmt);
+		if (_result) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
@@ -762,7 +772,6 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " @ "
 					+ callStackCache + " to workbag.");
 			}
-            _result = true;
 		} else {
 			if (sliceType.equals(COMPLETE_SLICE)
 				  || (considerExecution && sliceType.equals(BACKWARD_SLICE))
@@ -789,7 +798,6 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 			}
-            _result = false;
 		}
         return _result;
 	}
@@ -1057,9 +1065,9 @@ public final class SlicingEngine {
 		if (_generateCriteria) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
 			setContext(_sliceCriteria);
-			workbag.addAllWorkNoDuplicates(_sliceCriteria);
+			final Collection _c = workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
-			if (LOGGER.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled() && !_c.isEmpty()) {
 				LOGGER.debug("Adding " + method.getSignature() + " @ " + callStackCache + " to workbag.");
 			}
 		}
@@ -1109,15 +1117,11 @@ public final class SlicingEngine {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
-			if (collectedAllInvocationSites.contains(method)) {
-				method2callStacks.remove(method);
-			} else if (callStackCache == null) {
-				method2callStacks.remove(method);
-				collectedAllInvocationSites.add(method);
-				_result = true;
-			} else {
-				_result = shouldTheCallStackBeConsidered(method);
-			}
+            if (callStackCache == null) {
+                _result = !collectedAllInvocationSites.contains(method);
+            } else if (!collectedAllInvocationSites.contains(method)) {
+                _result = shouldTheCallStackBeConsidered(method);
+            }
 		}
 
 		return _result;
@@ -1131,15 +1135,12 @@ public final class SlicingEngine {
 	 * @return <code>true</code> if the call stack should be considered; <code>false</code>, otherwise.
 	 */
 	private boolean shouldTheCallStackBeConsidered(final SootMethod method) {
-		boolean _result = true;
-		final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
-		final Iterator _i = _col.iterator();
-		final int _iEnd = _col.size();
+        boolean _result = true;
+		final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);		
 		final List _t = callStackCache;
 		final int _tSize = _t.size();
-		final Collection _toBeRemoved = new ArrayList();
 
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+		for (final Iterator _i = _col.iterator(); _i.hasNext() && _result;) {
 			final List _c = (List) _i.next();
 			final int _cSize = _c.size();
 			final int _max;
@@ -1159,34 +1160,39 @@ public final class SlicingEngine {
 				_short = _t;
 			}
 
-			boolean _equal = true;
+			boolean _match = true;
 			final int _diff = _max - _min;
-			for (int _j = _min - 1; _j >= 0 && _equal; _j--) {
+			for (int _j = _min - 1; _j >= 0 && _match; _j--) {
 				final Object _longObj = _long.get(_j + _diff);
 				final Object _shortObj = _short.get(_j);
-				_equal = _longObj.equals(_shortObj);
+				_match = _longObj.equals(_shortObj);
 			}
 
-			if (_equal) {
-				/*
-				 *  if the call stacks match then
-				 *    if they are not of equal size and the shorter one does not belong to the collection of
-				 *      call stacks for the method then we need to remove the long call stack from the collection
-				 *      and replace it with the given call stack.
-				 *    else
-				 *      we don't need to consider the current call stack.
-				 */
-				if (_min != 0 && _short != _c) {
-					_toBeRemoved.add(_c);
-				} else {
-					_result = false;
-					break;
-				}
+			if (_match) {
+                // if the call stacks match
+                /*
+                 *  if the call stacks match then
+                 *    if they are not of equal size and the shorter one does not belong to the collection of
+                 *      call stacks for the method then we need to remove the long call stack from the collection
+                 *      and replace it with the given call stack.
+                 *    else
+                 *      we don't need to consider the current call stack.
+                 */
+                if (_max != _min) {
+                    // if the match is partial
+                    if (_short != _c) {
+                        // if the shorter call stack does not occur in the collection of call stacks
+                        _i.remove();
+                    } else {
+                        _result = false;
+                    }
+                } else {
+                    _result = false;
+                }
 			}
 		}
-		_col.remove(_toBeRemoved);
 
-		if (_result || _iEnd == 0) {
+		if (_result || _col.isEmpty()) {
 			_col.add(callStackCache.clone());
 		}
 		return _result;
@@ -1250,9 +1256,15 @@ public final class SlicingEngine {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod(SootMethod method = " + method + ") - BEGIN");
 		}
 
-		includeMethodAndDeclaringClassInSlice(method);
-		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
-		generateCriteriaForTheCallToMethod(method);
+        if (callStackCache == null) {
+            collectedAllInvocationSites.add(method);
+            method2callStacks.remove(method);
+        } else {
+            CollectionsUtilities.putIntoSetInMap(method2callStacks, method, callStackCache.clone());
+        }
+
+        generateCriteriaForTheCallToMethod(method);
+		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);		
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod() - END");
