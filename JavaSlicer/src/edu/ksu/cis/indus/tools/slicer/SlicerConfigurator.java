@@ -629,7 +629,7 @@ public final class SlicerConfigurator
         _c.setLayout(new FillLayout(SWT.HORIZONTAL));
         
         final Label _l = new Label(_c, SWT.HORIZONTAL | SWT.LEFT);
-        _l.setText("Limit for calling contexts");
+        _l.setText("Limit for calling contexts: ");
 		final Text _callingContextLimit = new Text(_c, SWT.LEFT | SWT.SINGLE);
 		_callingContextLimit.setToolTipText("This has to be >=0");
 		_callingContextLimit.setText(String.valueOf(cfg.getCallingContextLimit()));
