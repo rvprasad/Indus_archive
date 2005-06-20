@@ -42,7 +42,7 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 
 	/**
 	 * Creates a new DeadlockPreservingCriteriaCallStackContextualizer object.
-	 * @param limit <i>refer to the constructor in the super class</code>.
+	 * @param limit <i>refer to the constructor in the super class</i>.
 	 */
 	public DeadlockPreservingCriteriaCallStackContextualizer(final int limit) {
 		ecr = new ThreadEscapeInfoBasedCallingContextRetriever(limit);
@@ -76,9 +76,9 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 		if (_ecba != null) {
 			initialize(_ecba);
 
-			final Context _context = new Context();
-			_context.setRootMethod(method);
-			_result = ecr.getCallingContextsForThis(_context);
+            final Context _context = new Context();
+    		_context.setRootMethod(method);
+    		_result = ecr.getCallingContextsForThis(_context);            
 		} else {
 			_result = Collections.EMPTY_SET;
 		}
