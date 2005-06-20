@@ -149,7 +149,14 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 			LOGGER.debug("getTokenForThis(method = " + _method + ")");
 		}
 
-		return ecba.getAliasSetForThis(_method).find();
+		final AliasSet _as = ecba.getAliasSetForThis(_method);
+        final Object _result;
+        if (_as != null) {
+            _result = _as.find();
+        } else {
+            _result = null;
+        }
+        return _result;
 	}
 
 	/**
@@ -195,7 +202,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result = !_method.isStatic() && escapesInfo.thisEscapes(_method);
+		final boolean _result = _method.isStatic() || escapesInfo.thisEscapes(_method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerThis() -  : _result = " + _result);
