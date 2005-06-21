@@ -22,7 +22,7 @@ import java.util.List;
 
 
 /**
- * This class provides abstract implementation and methods to mutate a directed graph.
+ * This class provides common implementations and methods to mutate a directed graph.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
