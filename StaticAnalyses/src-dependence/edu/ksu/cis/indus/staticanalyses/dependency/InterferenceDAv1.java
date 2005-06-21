@@ -449,7 +449,7 @@ public class InterferenceDAv1
 		boolean _result;
 		final SootField _ifr1 = dependeeFieldRef.getField();
 		final SootField _ifr2 = dependentFieldRef.getField();
-		_result = _ifr1.equals(_ifr2) && !_ifr1.isFinal();
+		_result = _ifr1.equals(_ifr2);
 
 		if (_result && useOFA) {
 			_result = isFieldDependentOnByOFA(dependent, dependee);
