@@ -281,13 +281,10 @@ public final class SlicingEngine {
 
 			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
 				  || _id.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
-				  || _id.equals(IDependencyAnalysis.DIVERGENCE_DA)) {
+				  || _id.equals(IDependencyAnalysis.DIVERGENCE_DA)
+                  || _id.equals(IDependencyAnalysis.READY_DA)) {
 				controlflowBasedDAs.addAll(controller.getAnalyses(_id));
 			}
-		}
-
-		if (dependenciesToUse.contains(IDependencyAnalysis.READY_DA)) {
-			controlflowBasedDAs.addAll(controller.getAnalyses(IDependencyAnalysis.READY_DA));
 		}
 	}
 
