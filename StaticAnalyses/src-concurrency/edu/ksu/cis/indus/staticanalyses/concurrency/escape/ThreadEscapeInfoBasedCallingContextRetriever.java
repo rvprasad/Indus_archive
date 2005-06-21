@@ -29,8 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootMethod;
 import soot.Value;
 
-import soot.jimple.ArrayRef;
+import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InvokeExpr;
 import soot.jimple.MonitorStmt;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
@@ -165,23 +166,24 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	protected boolean considerProgramPoint(final Context context) {
 		final Value _value = context.getProgramPoint().getValue();
 		final Stmt _stmt = context.getStmt();
-		final Value _r;
+		Value _r = null;
 		final boolean _result;
 
-		if (_value instanceof InstanceFieldRef) {
-			_r = ((InstanceFieldRef) _value).getBase();
-		} else if (_value instanceof ArrayRef) {
-			_r = ((ArrayRef) _value).getBase();
-		} else if (_value instanceof StaticFieldRef) {
+		if (_stmt.containsFieldRef()) {
+            final FieldRef _fr = _stmt.getFieldRef();
+            if ((_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _value).getBase() == _value) || 
+                    (_fr instanceof StaticFieldRef && _fr == _value)) {
+                _r = _value;
+            }
+		} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
 			_r = _value;
-		} else if (_stmt instanceof MonitorStmt) {
-			_r = ((MonitorStmt) _stmt).getOp();
-		} else if (_value instanceof VirtualInvokeExpr
-			  && (Util.isWaitMethod(((VirtualInvokeExpr) _value).getMethod())
-			  || Util.isNotifyMethod(((VirtualInvokeExpr) _value).getMethod()))) {
-			_r = ((VirtualInvokeExpr) _value).getBase();
-		} else {
-			_r = null;
+		} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
+			_r = _value;
+		} else if (_stmt.containsInvokeExpr()) {
+		    final InvokeExpr _ex = _stmt.getInvokeExpr();
+			  if(_ex instanceof InstanceFieldRef && (Util.isWaitMethod(_ex.getMethod())
+			  || Util.isNotifyMethod(_ex.getMethod())) && ((VirtualInvokeExpr) _ex).getBase() == _value) 
+			_r = _value;
 		}
 
 		if (_r == null) {

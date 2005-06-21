@@ -25,8 +25,9 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootMethod;
 import soot.Value;
 
-import soot.jimple.ArrayRef;
+import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InvokeExpr;
 import soot.jimple.MonitorStmt;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
@@ -58,7 +59,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
-	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
+	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(Context)
 	 */
 	protected boolean considerProgramPoint(final Context context) {
 		final Value _value = context.getProgramPoint().getValue();
@@ -66,20 +67,24 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 		final SootMethod _currentMethod = context.getCurrentMethod();
 		boolean _result = false;
 
-		if (_value instanceof InstanceFieldRef) {
-			_result = escapesInfo.fieldAccessShared(((InstanceFieldRef) _value).getBase(), _currentMethod);
-		} else if (_value instanceof ArrayRef) {
-			_result = escapesInfo.fieldAccessShared(((ArrayRef) _value).getBase(), _currentMethod);
-		} else if (_value instanceof StaticFieldRef) {
-			_result = escapesInfo.fieldAccessShared(_value, _currentMethod);
-		} else if (_stmt instanceof MonitorStmt) {
-			_result = escapesInfo.lockUnlockShared(((MonitorStmt) _stmt).getOp(), _currentMethod);
-		} else if (_value instanceof VirtualInvokeExpr
-			  && (Util.isWaitMethod(((VirtualInvokeExpr) _value).getMethod())
-			  || Util.isNotifyMethod(((VirtualInvokeExpr) _value).getMethod()))) {
-			final Value _base = ((VirtualInvokeExpr) _value).getBase();
+		if (_stmt.containsFieldRef()) {
+			final FieldRef _fr = _stmt.getFieldRef();
 
-			if (_base == _value) {
+			if ((_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _fr).getBase() == _value)
+				  || (_fr instanceof StaticFieldRef && _fr == _value)) {
+				_result = escapesInfo.fieldAccessShared(_value, _currentMethod);
+			}
+		} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
+			_result = escapesInfo.fieldAccessShared(_value, _currentMethod);
+		} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
+			_result = escapesInfo.lockUnlockShared(_value, _currentMethod);
+		} else if (_stmt.containsInvokeExpr()) {
+			final InvokeExpr _ex = _stmt.getInvokeExpr();
+			final SootMethod _invokedMethod = _ex.getMethod();
+
+			if (_ex instanceof VirtualInvokeExpr
+				  && (Util.isWaitMethod(_invokedMethod) || Util.isNotifyMethod(_invokedMethod))
+				  && ((VirtualInvokeExpr) _ex).getBase() == _value) {
 				_result = escapesInfo.waitNotifyShared(_value, _currentMethod);
 			}
 		}
