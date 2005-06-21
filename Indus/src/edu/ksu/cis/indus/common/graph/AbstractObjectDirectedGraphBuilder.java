@@ -72,13 +72,6 @@ public abstract class AbstractObjectDirectedGraphBuilder
 	public void finishBuilding() {
 	}
 
-	/**
-	 * Adds an edge from the node representing <code>src</code> the node representing <code>dest</code>.
-	 *
-	 * @param src node in the originating graph.
-	 * @param dest node in the originating graph.
-	 */
-	protected abstract void addEdgeFromTo(final Object src, final Object dest);
 }
 
 // End of File

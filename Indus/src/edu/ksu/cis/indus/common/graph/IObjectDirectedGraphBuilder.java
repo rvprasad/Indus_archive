@@ -69,6 +69,14 @@ public interface IObjectDirectedGraphBuilder {
      * @param obj to be represented.
      */
     void createNode(Object obj);
+    
+    /**
+     * Adds an edge from the node representing <code>src</code> the node representing <code>dest</code>.
+     *
+     * @param src node in the originating graph.
+     * @param dest node in the originating graph.
+     */
+    void addEdgeFromTo(final Object src, final Object dest);
 }
 
 // End of File
