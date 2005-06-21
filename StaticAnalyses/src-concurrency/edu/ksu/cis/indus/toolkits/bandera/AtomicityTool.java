@@ -36,10 +36,6 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -126,33 +122,28 @@ public final class AtomicityTool
 	private Scene scene;
 
 	/**
-	 * There is no configuration information at this time so the parameter is ignored.
+	 * Accepts a comma-separated list of FQN of atomic classes.
 	 *
-	 * @param configurationString Ignored at this time.
+	 * @param configurationString the list of FQN of atomic classes.  If <code>null</code> then the default set mentioned in
+	 * 		  <code>edu.ksu.cis.indus.staticanalyses.atomicity.AtomicStmtDetector</code>.
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
 	public void setConfiguration(final String configurationString) {
 		if (configurationString != null) {
-			final BufferedReader _br = new BufferedReader(new StringReader(configurationString));
+			final String[] _a = configurationString.split(",");
 			atomicClassNames = new ArrayList();
 
-			try {
-				while (_br.ready()) {
-					atomicClassNames.add(_br.readLine());
-				}
-				_br.close();
-			} catch (final IOException _e) {
-				_e.printStackTrace();
-				atomicClassNames = null;
+			for (int _i = _a.length - 1; _i >= 0; _i--) {
+				atomicClassNames.add(_a[_i].trim());
 			}
 		}
 	}
 
 	/**
-	 * Get the configuration String for this tool.  At this time, it will always return null.
+	 * Get the configuration String for this tool.  
 	 *
-	 * @return Always returns null.
+	 * @return the configuration string.
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
@@ -168,7 +159,10 @@ public final class AtomicityTool
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final String _s = (String) _i.next();
 			_sb.append(_s);
-			_sb.append(Character.LINE_SEPARATOR);
+
+			if (_iIndex != _iEnd - 1) {
+				_sb.append(',');
+			}
 		}
 		return _sb.toString();
 	}
