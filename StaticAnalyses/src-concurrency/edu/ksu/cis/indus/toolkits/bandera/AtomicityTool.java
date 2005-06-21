@@ -36,9 +36,15 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +104,13 @@ public final class AtomicityTool
 	private BasicBlockGraphMgr basicBlockGraphMgr;
 
 	/** 
+	 * The collection of names of atomic classes.
+	 *
+	 * @invariant atomic.oclIsKindOf(Collection(String))
+	 */
+	private Collection atomicClassNames;
+
+	/** 
 	 * The atomicity info.
 	 */
 	private IAtomicityInfo atomicityInfo;
@@ -120,6 +133,20 @@ public final class AtomicityTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
 	public void setConfiguration(final String configurationString) {
+		if (configurationString != null) {
+			final BufferedReader _br = new BufferedReader(new StringReader(configurationString));
+			atomicClassNames = new ArrayList();
+
+			try {
+				while (_br.ready()) {
+					atomicClassNames.add(_br.readLine());
+				}
+				_br.close();
+			} catch (final IOException _e) {
+				_e.printStackTrace();
+				atomicClassNames = null;
+			}
+		}
 	}
 
 	/**
@@ -130,7 +157,20 @@ public final class AtomicityTool
 	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
 	public String getConfiguration() {
-		return null;
+		if (atomicClassNames == null) {
+			return "";
+		}
+
+		final StringBuffer _sb = new StringBuffer();
+		final Iterator _i = atomicClassNames.iterator();
+		final int _iEnd = atomicClassNames.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final String _s = (String) _i.next();
+			_sb.append(_s);
+			_sb.append(Character.LINE_SEPARATOR);
+		}
+		return _sb.toString();
 	}
 
 	/**
@@ -295,7 +335,7 @@ public final class AtomicityTool
 		final Map _info = new HashMap();
 		final AnalysesController _ac = new AnalysesController(_info, _pc, basicBlockGraphMgr);
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        _ssr.setBbgFactory(basicBlockGraphMgr);
+		_ssr.setBbgFactory(basicBlockGraphMgr);
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setProcessingFilter(new CGBasedProcessingFilter(callgraph));
 		_pc.setEnvironment(new Environment(scene));
@@ -305,6 +345,11 @@ public final class AtomicityTool
 		_ac.execute();
 
 		final AtomicStmtDetector _atomic = new AtomicStmtDetectorv2();
+
+		if (atomicClassNames != null) {
+			_atomic.setAtomicClassNames(atomicClassNames);
+		}
+
 		_atomic.setEscapeAnalysis(_ecba.getEscapeInfo());
 		_atomic.hookup(_pc);
 		_pc.process();

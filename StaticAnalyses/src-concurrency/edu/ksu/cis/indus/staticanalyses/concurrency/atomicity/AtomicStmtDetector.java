@@ -42,6 +42,43 @@ import soot.jimple.Stmt;
 /**
  * This class provides atomicity detection that is based on escape analysis information.  Atomicity is the property that
  * ensures the execution of a statement will only affect the state of the thread that executes it and not other threads.
+ * 
+ * <p>
+ * By default, this class will treat methods of the following class as atomic.
+ * 
+ * <ul>
+ * <li>
+ * java.lang.String
+ * </li>
+ * <li>
+ * java.lang.Integer
+ * </li>
+ * <li>
+ * java.lang.Long
+ * </li>
+ * <li>
+ * java.lang.Short
+ * </li>
+ * <li>
+ * java.lang.Float
+ * </li>
+ * <li>
+ * java.lang.Double
+ * </li>
+ * <li>
+ * java.lang.Byte
+ * </li>
+ * <li>
+ * java.lang.Boolean
+ * </li>
+ * <li>
+ * java.lang.Character
+ * </li>
+ * <li>
+ * java.lang.StringBuffer
+ * </li>
+ * </ul>
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -50,24 +87,6 @@ import soot.jimple.Stmt;
 public class AtomicStmtDetector
   extends AbstractProcessor
   implements IAtomicityInfo {
-	/** 
-	 * A collection of names of immutable classes. 
-	 */
-	private static final Collection IMMUTABLE_CLASS_NAMES;
-
-	static {
-		IMMUTABLE_CLASS_NAMES = new ArrayList();
-		IMMUTABLE_CLASS_NAMES.add("java.lang.String");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Integer");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Float");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Double");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Boolean");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Byte");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Long");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Short");
-		IMMUTABLE_CLASS_NAMES.add("java.lang.Character");
-	}
-
 	/** 
 	 * The collection of atomic statements.
 	 *
@@ -81,9 +100,31 @@ public class AtomicStmtDetector
 	protected IEscapeInfo escapeInfo;
 
 	/** 
-	 * This indicates if the currently being processed scope is atomic.  
+	 * A collection of names of atomic classes.
+	 */
+	private final Collection atomicClassNames;
+
+	/** 
+	 * This indicates if the currently being processed scope is atomic.
 	 */
 	private boolean atomicScope;
+
+	/**
+	 * Creates a new AtomicStmtDetector object.
+	 */
+	public AtomicStmtDetector() {
+		atomicClassNames = new ArrayList();
+		atomicClassNames.add("java.lang.String");
+		atomicClassNames.add("java.lang.Integer");
+		atomicClassNames.add("java.lang.Float");
+		atomicClassNames.add("java.lang.Double");
+		atomicClassNames.add("java.lang.Boolean");
+		atomicClassNames.add("java.lang.Byte");
+		atomicClassNames.add("java.lang.Long");
+		atomicClassNames.add("java.lang.Short");
+		atomicClassNames.add("java.lang.Character");
+		atomicClassNames.add("java.lang.StringBuffer");
+	}
 
 	/**
 	 * Checks if the statement is atomic.
@@ -117,10 +158,28 @@ public class AtomicStmtDetector
 	}
 
 	/**
+	 * Sets the names of the classes in which each method should be treated as atomic.
+	 *
+	 * @param names is a collection of FQN of classes.
+	 *
+	 * @return the previous list of class names.
+	 *
+	 * @pre names != null and names.oclIsKindOf(Collection(String))
+	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 */
+	public Collection setAtomicClassNames(final Collection names) {
+		final Collection _result = new ArrayList(atomicClassNames);
+		atomicClassNames.clear();
+		atomicClassNames.addAll(names);
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
-		if (atomicScope || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
+		if (atomicScope
+			  || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
 			  || isAtomic(stmt, context.getCurrentMethod())) {
 			atomicStmts.add(stmt);
 		}
@@ -131,14 +190,14 @@ public class AtomicStmtDetector
 	 */
 	public final void callback(final SootClass clazz) {
 		super.callback(clazz);
-		atomicScope = IMMUTABLE_CLASS_NAMES.contains(clazz.getName());
+		atomicScope = atomicClassNames.contains(clazz.getName());
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void hookup(final ProcessingController ppc) {
-        ppc.register(this);
+		ppc.register(this);
 		ppc.registerForAllStmts(this);
 	}
 
@@ -161,7 +220,7 @@ public class AtomicStmtDetector
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void unhook(final ProcessingController ppc) {
-        ppc.unregister(this);
+		ppc.unregister(this);
 		ppc.unregisterForAllStmts(this);
 	}
 
