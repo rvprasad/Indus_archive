@@ -253,7 +253,7 @@ public interface ICallGraphInfo
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
-	Collection getHeads();
+	Collection getEntryMethods();
 
 	/**
 	 * Retrieves the methods in the call graph in topological order.

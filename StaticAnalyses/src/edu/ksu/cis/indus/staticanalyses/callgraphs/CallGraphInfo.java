@@ -353,9 +353,9 @@ public final class CallGraphInfo
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getHeads()
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getEntryMethods()
 	 */
-	public Collection getHeads() {
+	public Collection getEntryMethods() {
 		return Collections.unmodifiableCollection(heads);
 	}
 
@@ -528,7 +528,7 @@ public final class CallGraphInfo
 		final List _temp1 = new ArrayList();
 
 		_result.append("Root of the system: ");
-		_temp1.addAll(getHeads());
+		_temp1.addAll(getEntryMethods());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
 		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {

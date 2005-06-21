@@ -69,7 +69,7 @@ public class CallGraphTest
 	 */
 	public void localtestIsReachable() {
 		final Collection _reachables = cgi.getReachableMethods();
-		final Collection _heads = cgi.getHeads();
+		final Collection _heads = cgi.getEntryMethods();
 
 		for (final Iterator _i = _reachables.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -136,7 +136,7 @@ public class CallGraphTest
 	 * Tests <code>getCallers(soot.Method)</code> and <code>getCallees(soot.Method)</code>.
 	 */
 	public void testGetCallersAndGetCallees() {
-		final Collection _heads = cgi.getHeads();
+		final Collection _heads = cgi.getEntryMethods();
 		final Collection _tails = cg.getSinks();
 
 		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
@@ -214,15 +214,15 @@ public class CallGraphTest
 	protected void localtestGetHeads() {
 		Collection _heads = new HashSet();
 
-		for (final Iterator _i = dg.getHeads().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dg.getSources().iterator(); _i.hasNext();) {
 			final IObjectNode _sn = (IObjectNode) _i.next();
 			_heads.add(_sn.getObject());
 		}
 
-		assertTrue(_heads.containsAll(cgi.getHeads()));
-		assertTrue(cgi.getHeads().containsAll(_heads));
+		assertTrue(_heads.containsAll(cgi.getEntryMethods()));
+		assertTrue(cgi.getEntryMethods().containsAll(_heads));
 
-		_heads = cgi.getHeads();
+		_heads = cgi.getEntryMethods();
 		assertNotNull(_heads);
 
 		for (final Iterator _i = _heads.iterator(); _i.hasNext();) {

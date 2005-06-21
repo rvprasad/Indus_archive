@@ -72,7 +72,7 @@ public final class OFABasedCallGraphTest
 	 */
 	public void localtestIsReachable() {
 		final Collection _reachables = cgi.getReachableMethods();
-		final Collection _heads = cgi.getHeads();
+		final Collection _heads = cgi.getEntryMethods();
 
 		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();

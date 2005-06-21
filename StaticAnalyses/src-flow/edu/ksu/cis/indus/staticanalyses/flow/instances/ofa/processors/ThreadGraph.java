@@ -639,7 +639,7 @@ public class ThreadGraph
 		 * the first approach of one dedicated thread executes all intializers in the VM.  Hence, all <clinit> methods are
 		 * associated with an "ClassInitThread:".
 		 */
-		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
+		for (final Iterator _i = cgi.getEntryMethods().iterator(); _i.hasNext();) {
 			final SootMethod _head = (SootMethod) _i.next();
 			final Pair _threadCreationSite;
 			final Pair _threadAllocationSite;
