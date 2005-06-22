@@ -53,8 +53,8 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
 import soot.Local;
-import soot.Modifier;
 import soot.RefType;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
@@ -62,7 +62,6 @@ import soot.Value;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.CaughtExceptionRef;
-import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.ParameterRef;
 import soot.jimple.StaticFieldRef;
@@ -145,11 +144,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final IThreadGraphInfo tgi;
 
 	/** 
-	 * This maps global/static fields to their alias sets.
+	 * This maps classes to alias sets that serve as bases for static fields.
 	 *
-	 * @invariant globalASs->forall(o | o.oclIsKindOf(AliasSet))
+	 * @invariant class2aliasSets->forall(o | o.oclIsKindOf(AliasSet))
 	 */
-	final Map globalASs;
+	final Map class2aliasSet;
 
 	/** 
 	 * This maps a method to a triple containing the method context, the alias sets for the locals in the method (key), and
@@ -236,7 +235,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
 		tgi = threadgraph;
-		globalASs = new HashMap();
+		class2aliasSet = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor(this);
 		valueProcessor = new ValueProcessor(this);
@@ -329,26 +328,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final class PreProcessor
 	  extends AbstractProcessor {
 		/**
-		 * {@inheritDoc}  Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's
-		 * algorithm.
-		 */
-		public void callback(final SootField sf) {
-			if (Modifier.isStatic(sf.getModifiers())) {
-				final AliasSet _t = AliasSet.getASForType(sf.getType());
-
-				if (_t != null) {
-					_t.setGlobal();
-					globalASs.put(sf.getSignature(), _t);
-				}
-			}
-		}
-
-		/**
 		 * {@inheritDoc}  Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's
 		 * algorithm.
 		 */
 		public void callback(final SootMethod sm) {
-			final MethodContext _methodContext = new MethodContext(sm);
+			final MethodContext _methodContext = new MethodContext(sm, EquivalenceClassBasedEscapeAnalysis.this);
 			method2Triple.put(sm, new Triple(_methodContext, new HashMap(), new HashMap()));
 
 			if (sm.isSynchronized() && !sm.isStatic()) {
@@ -482,7 +466,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public void reset() {
 		super.reset();
-		globalASs.clear();
+		class2aliasSet.clear();
 		method2Triple.clear();
 	}
 
@@ -505,6 +489,26 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			_result.append("\n");
 		}
 		return _result.toString();
+	}
+
+	/**
+	 * Retrieves the alias set for the class. This acts like "this" variable for static fields defined in the  given class.
+	 *
+	 * @param declaringClass of interest.
+	 *
+	 * @return the alias set.
+	 *
+	 * @pre declaringClass != null
+	 * @post result != null
+	 */
+	AliasSet getASForClass(final SootClass declaringClass) {
+		AliasSet _result = (AliasSet) class2aliasSet.get(declaringClass);
+
+		if (_result == null) {
+			_result = AliasSet.getASForType(declaringClass.getType());
+			class2aliasSet.put(declaringClass, _result);
+		}
+		return _result;
 	}
 
 	/**
@@ -535,7 +539,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
 			_result = _temp.getASForField(_i.getField().getSignature());
 		} else if (v instanceof StaticFieldRef) {
-			_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+			final SootField _field = ((StaticFieldRef) v).getField();
+			final AliasSet _base = getASForClass(_field.getDeclaringClass());
+			_result = _base.getASForField(_field.getSignature());
 		} else if (v instanceof ArrayRef) {
 			final ArrayRef _a = (ArrayRef) v;
 			final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
@@ -722,7 +728,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_sm);
 				_wb.clear();
 				_processed.clear();
-				_wb.addAllWork(_bbg.getHeads());
+				_wb.addWork(_bbg.getHead());
 
 				while (_wb.hasWork()) {
 					final BasicBlock _bb = (BasicBlock) _wb.getWork();

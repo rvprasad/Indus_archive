@@ -132,7 +132,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
 		final Object _result;
 
-		if (_as != null && !_as.isGlobal()) {
+		if (_as != null) {
 			_result = (AliasSet) _as.find();
 		} else {
 			_result = null;
@@ -151,13 +151,14 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		}
 
 		final AliasSet _as = ecba.getAliasSetForThis(_method);
-        final Object _result;
-        if (_as != null) {
-            _result = _as.find();
-        } else {
-            _result = null;
-        }
-        return _result;
+		final Object _result;
+
+		if (_as != null) {
+			_result = _as.find();
+		} else {
+			_result = null;
+		}
+		return _result;
 	}
 
 	/**
@@ -170,20 +171,24 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		final boolean _result;
 
 		if (_stmt.containsFieldRef()) {
-            final FieldRef _fr = _stmt.getFieldRef();
-            if ((_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _value).getBase() == _value) || 
-                    (_fr instanceof StaticFieldRef && _fr == _value)) {
-                _r = _value;
-            }
+			final FieldRef _fr = _stmt.getFieldRef();
+
+			if ((_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _value).getBase() == _value)
+				  || (_fr instanceof StaticFieldRef && _fr == _value)) {
+				_r = _value;
+			}
 		} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
 			_r = _value;
 		} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
 			_r = _value;
 		} else if (_stmt.containsInvokeExpr()) {
-		    final InvokeExpr _ex = _stmt.getInvokeExpr();
-			  if(_ex instanceof InstanceFieldRef && (Util.isWaitMethod(_ex.getMethod())
-			  || Util.isNotifyMethod(_ex.getMethod())) && ((VirtualInvokeExpr) _ex).getBase() == _value) 
-			_r = _value;
+			final InvokeExpr _ex = _stmt.getInvokeExpr();
+
+			if (_ex instanceof InstanceFieldRef
+				  && (Util.isWaitMethod(_ex.getMethod()) || Util.isNotifyMethod(_ex.getMethod()))
+				  && ((VirtualInvokeExpr) _ex).getBase() == _value) {
+				_r = _value;
+			}
 		}
 
 		if (_r == null) {

@@ -714,8 +714,7 @@ final class AliasSet
 	 */
 	boolean readWriteShared(final String fieldSignature) {
 		final AliasSet _rep = (AliasSet) find();
-		return _rep.shareEntities != null && !_rep.shareEntities.isEmpty()
-		  && _rep.sigsOfSharedFields.contains(fieldSignature);
+		return readWriteShared() && _rep.sigsOfSharedFields.contains(fieldSignature);
 	}
 
 	/**

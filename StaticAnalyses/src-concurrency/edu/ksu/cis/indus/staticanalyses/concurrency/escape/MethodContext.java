@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,9 +80,14 @@ final class MethodContext
 	AliasSet thrown;
 
 	/** 
+	 * The analysis that created this instance.
+	 */
+	private final EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/** 
 	 * The associated method.
 	 */
-	SootMethod method;
+	private final SootMethod method;
 
 	/** 
 	 * The alias sets associated with the arguments to the associated method.
@@ -111,12 +117,14 @@ final class MethodContext
 	 * @param argASs is the alias sets corresponding to the arguments/parameters of the method.
 	 * @param retAS is the alias set corresponding to the return value of the method.
 	 * @param thrownAS is the alias set corresponding to the exceptions thrown by the method.
+	 * @param analysis that created this instance.
 	 *
-	 * @pre sm != null and argASs != null and thrownAS != null
+	 * @pre sm != null and argASs != null and thrownAS != null and analysis != null
 	 */
 	MethodContext(final SootMethod sm, final AliasSet thisASParam, final List argASs, final AliasSet retAS,
-		final AliasSet thrownAS) {
+		final AliasSet thrownAS, final EquivalenceClassBasedEscapeAnalysis analysis) {
 		method = sm;
+		ecba = analysis;
 		argAliasSets = new ArrayList(argASs);
 
 		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(sm.getReturnType())) {
@@ -134,9 +142,13 @@ final class MethodContext
 	 * required.
 	 *
 	 * @param sm is the method being represented by this object.
+	 * @param analysis that created this instance.
+	 *
+	 * @pre sm != null and analysis != null
 	 */
-	MethodContext(final SootMethod sm) {
+	MethodContext(final SootMethod sm, final EquivalenceClassBasedEscapeAnalysis analysis) {
 		method = sm;
+		ecba = analysis;
 
 		final int _paramCount = sm.getParameterCount();
 
@@ -201,6 +213,7 @@ final class MethodContext
 				_clone.ret = getCloneOf(_clonee2clone, ret);
 			}
 			_clone.thrown = getCloneOf(_clonee2clone, thrown);
+
 			MethodContext.fixUpFieldMapsOfClone(_clonee2clone);
 		}
 		return _clone;
@@ -267,24 +280,24 @@ final class MethodContext
 		}
 
 		if (_result == null) {
-            final AliasSet _thrownAS = getThrownAS();
-            final AliasSet _thrownAS2 = context.getThrownAS();
-            
-            if (_thrownAS != null && _thrownAS2 != null) {
-            	_temp.clear();
-            	_result = _thrownAS.getImageOfRefUnderRoot(_thrownAS2, ref, _temp);
-            }
+			final AliasSet _thrownAS = getThrownAS();
+			final AliasSet _thrownAS2 = context.getThrownAS();
 
-    		if (_result == null) {
-                final AliasSet _returnAS = getReturnAS();
-                final AliasSet _returnAS2 = context.getReturnAS();    
-    
-                if (_returnAS != null && _returnAS2 != null) {
-                	_temp.clear();
-                	_result = _returnAS.getImageOfRefUnderRoot(_returnAS2, ref, _temp);
-                }
-            }
-        }
+			if (_thrownAS != null && _thrownAS2 != null) {
+				_temp.clear();
+				_result = _thrownAS.getImageOfRefUnderRoot(_thrownAS2, ref, _temp);
+			}
+
+			if (_result == null) {
+				final AliasSet _returnAS = getReturnAS();
+				final AliasSet _returnAS2 = context.getReturnAS();
+
+				if (_returnAS != null && _returnAS2 != null) {
+					_temp.clear();
+					_result = _returnAS.getImageOfRefUnderRoot(_returnAS2, ref, _temp);
+				}
+			}
+		}
 		return _result;
 	}
 
@@ -398,6 +411,12 @@ final class MethodContext
 					_argAS.markAsCrossingThreadBoundary();
 				}
 			}
+
+			for (final Iterator _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+				final AliasSet _as = (AliasSet) _j.next();
+
+				_as.markAsCrossingThreadBoundary();
+			}
 		}
 	}
 
@@ -470,6 +489,11 @@ final class MethodContext
 		if (_mThis != null) {
 			AliasSet.selfUnify(_mThis);
 		}
+
+		for (final Iterator _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+			final AliasSet _as = (AliasSet) _j.next();
+			AliasSet.selfUnify(_as);
+		}
 	}
 
 	/**
@@ -520,6 +544,15 @@ final class MethodContext
 			unifyAliasSets(_representative.ret, _represented.ret);
 			unifyAliasSets(_representative.thrown, _represented.thrown);
 			unifyAliasSets(_representative.thisAS, _represented.thisAS);
+
+			final Collection _values = ecba.class2aliasSet.values();
+			final Iterator _i = _values.iterator();
+			final int _iEnd = _values.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final AliasSet _as = (AliasSet) _i.next();
+				AliasSet.selfUnify(_as);
+			}
 		}
 	}
 

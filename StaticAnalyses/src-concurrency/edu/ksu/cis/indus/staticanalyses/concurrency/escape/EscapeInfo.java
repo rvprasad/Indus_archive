@@ -400,7 +400,7 @@ class EscapeInfo
 	public boolean fieldAccessShared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean _result = fieldAccessShared(v1, sm1) && fieldAccessShared(v2, sm2);
 
-		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
+		if (_result) {
 			try {
 				final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getShareEntities();
 				final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getShareEntities();
@@ -438,29 +438,28 @@ class EscapeInfo
 		return _result;
 	}
 
-    /**
-     * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, String)
-     */
-    public boolean fieldAccessShared(final Value v, final SootMethod sm, final String fieldSignature) {
-        boolean _result = this.analysis.escapesDefaultValue;
+	/**
+	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, String)
+	 */
+	public boolean fieldAccessShared(final Value v, final SootMethod sm, final String fieldSignature) {
+		boolean _result = this.analysis.escapesDefaultValue;
 
-        try {
-            if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-                _result = this.analysis.getAliasSetFor(v, sm).readWriteShared(fieldSignature);
-            } else {
-                _result = false;
-            }
-        } catch (final NullPointerException _e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("There is no information about " + v + " occurring in " + sm
-                    + ".  So, providing default value - " + _result, _e);
-            }
-        }
+		try {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				_result = this.analysis.getAliasSetFor(v, sm).readWriteShared(fieldSignature);
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
 
-        return _result;
-    }
-    
-    
+		return _result;
+	}
+
 	/**
 	 * @see IEscapeInfo#lockUnlockShared(soot.Value, soot.SootMethod)
 	 */

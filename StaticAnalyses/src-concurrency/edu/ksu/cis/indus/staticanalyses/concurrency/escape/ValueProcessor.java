@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
+import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
@@ -46,7 +48,6 @@ import soot.jimple.ParameterRef;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
-import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.VirtualInvokeExpr;
 
@@ -188,7 +189,20 @@ final class ValueProcessor
 	 * @see soot.jimple.RefSwitch#caseStaticFieldRef( soot.jimple.StaticFieldRef)
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef v) {
-		setResult(ecba.globalASs.get(v.getField().getSignature()));
+		final SootField _field = v.getField();
+		final SootClass _declaringClass = _field.getDeclaringClass();
+		AliasSet _base = (AliasSet) ecba.class2aliasSet.get(_declaringClass);
+
+		if (_base == null) {
+			_base = AliasSet.getASForType(_declaringClass.getType());
+
+			if (_base != null) {
+				ecba.class2aliasSet.put(v, _base);
+			}
+		}
+
+		final AliasSet _as = processField(v.getType(), _base, _field.getSignature());
+		setResult(_as);
 
 		if (rhs) {
 			ecba.methodCtxtCache.globalDataWasRead();
@@ -431,7 +445,7 @@ final class ValueProcessor
 		final List _argASs = processArguments(expr);
 
 		// create a site-context of the given expression and store it into the associated site-context cache.
-		final MethodContext _sc = new MethodContext(_sm, _primaryAS, _argASs, _retAS, AliasSet.createAliasSet());
+		final MethodContext _sc = new MethodContext(_sm, _primaryAS, _argASs, _retAS, AliasSet.createAliasSet(), ecba);
 		ecba.scCache.put(new CallTriple(_caller, ecba.context.getStmt(), expr), _sc);
 
 		if (expr instanceof StaticInvokeExpr) {
