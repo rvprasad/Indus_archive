@@ -35,6 +35,7 @@ Required software:
 Version 0.6.4
 -----------------
 	- Minor bug fixes and performance improvements.
+	- Feature Request: #576.
 
 Version 0.6.3
 -----------------
