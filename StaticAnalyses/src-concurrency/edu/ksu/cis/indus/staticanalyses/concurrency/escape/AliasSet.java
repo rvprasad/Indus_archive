@@ -350,7 +350,6 @@ final class AliasSet
 		final AliasSet _rep = (AliasSet) find();
 
 		_rep.global = true;
-		_rep.multiThreadAccessibility = true;
 
 		if (_rep.fieldMap != null) {
 			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
