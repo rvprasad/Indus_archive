@@ -60,7 +60,7 @@ public class SimpleNodeGraphTest3
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>getSinks</code> on local data.
 	 */
 	public void testlocalGetSinks() {
 		assertFalse(dg.getSinks().isEmpty());
