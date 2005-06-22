@@ -27,6 +27,7 @@
     </target>
 
 	<target name="tag">
+        <fail unless="version.cvsid" message="specify the property version.cvsid (x_y) via the command line. x and y should be numbers.  This will be used to extract the given version and tag the resource with a new tag when the build finishes."/>
         <cvs cvsroot="${cvs.root}"
              compression="true" compressionlevel="3"
              package="${cvs.modules}"
@@ -35,7 +36,7 @@
              command="rtag v${version.cvsid}"/>
 	</target>
 
-    <target name="dist" depends="tag, init, cleanAll, buildAllCode, buildAllDoc">
+    <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
     	<delete dir="${projects.dir}"/>
     </target>
