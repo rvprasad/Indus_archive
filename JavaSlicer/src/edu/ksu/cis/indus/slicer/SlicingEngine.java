@@ -16,11 +16,13 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
+import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -282,7 +284,7 @@ public final class SlicingEngine {
 			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
 				  || _id.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
 				  || _id.equals(IDependencyAnalysis.DIVERGENCE_DA)
-                  || _id.equals(IDependencyAnalysis.READY_DA)) {
+				  || _id.equals(IDependencyAnalysis.READY_DA)) {
 				controlflowBasedDAs.addAll(controller.getAnalyses(_id));
 			}
 		}
@@ -461,7 +463,7 @@ public final class SlicingEngine {
 	public void setTagName(final String tagName) {
 		collector.setTagName(tagName);
 	}
-    
+
 	/**
 	 * Places the given call site on top of the call stack to simulate a call.  The callsite comprises of the caller and the
 	 * invocation statement in the caller.
@@ -557,11 +559,11 @@ public final class SlicingEngine {
 
 		while (workbag.hasWork() && activePart.canProceed()) {
 			final Object _work = workbag.getWork();
-			
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("BEGIN - Processing criterion - " + _work);
-            }
-            
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("BEGIN - Processing criterion - " + _work);
+			}
+
 			if (_work instanceof ExprLevelSliceCriterion) {
 				final ExprLevelSliceCriterion _sliceExpr = (ExprLevelSliceCriterion) _work;
 
@@ -588,12 +590,11 @@ public final class SlicingEngine {
 				}
 			}
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("END - Processing criterion - " + _work);
-            }            
-            
-            ((IPoolable) _work).returnToPool();
-            
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("END - Processing criterion - " + _work);
+			}
+
+			((IPoolable) _work).returnToPool();
 		}
 
 		if (activePart.canProceed()) {
@@ -715,13 +716,15 @@ public final class SlicingEngine {
 	 * @param method is the method containing <code>stmt</code>.
 	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
 	 * 		  reaching it.
+	 *
 	 * @return <code>true</code> if the expression was previously not in the slice; <code>false</code>, otherwise.
 	 *
 	 * @pre valueBox != null and stmt != null and method != null
 	 */
 	boolean generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
-        final boolean _result;
+		final boolean _result;
+
 		if (isNotIncludedInSlice(valueBox)) {
 			final Collection _sliceCriteria =
 				SliceCriteriaFactory.getFactory().getCriteria(method, stmt, valueBox, considerExecution);
@@ -732,7 +735,7 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
 					+ method.getSignature() + " @ " + callStackCache + " to workbag.");
 			}
-            _result = true;
+			_result = true;
 		} else {
 			if (valueBox.getValue() instanceof InvokeExpr) {
 				generateCriteriaForInvokeExprIn(stmt, method);
@@ -742,9 +745,9 @@ public final class SlicingEngine {
 				LOGGER.debug("Already collected expr " + valueBox.getValue() + " occurring at " + stmt + " in "
 					+ method.getSignature());
 			}
-            _result = false;
+			_result = false;
 		}
-        return _result;
+		return _result;
 	}
 
 	/**
@@ -754,12 +757,14 @@ public final class SlicingEngine {
 	 * @param method is the method containing <code>stmt</code>.
 	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
 	 * 		  it.
+	 *
 	 * @return <code>true</code> if the statement was previously not in the slice; <code>false</code>, otherwise.
 	 *
 	 * @pre stmt != null and method != null
 	 */
 	boolean generateStmtLevelSliceCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
-        final boolean _result = isNotIncludedInSlice(stmt);
+		final boolean _result = isNotIncludedInSlice(stmt);
+
 		if (_result) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
@@ -796,7 +801,7 @@ public final class SlicingEngine {
 				LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 			}
 		}
-        return _result;
+		return _result;
 	}
 
 	/**
@@ -1035,9 +1040,10 @@ public final class SlicingEngine {
 
 			if (stmtToBeIncluded != null) {
 				final boolean _b = generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
-                if (!_b) {
-                    generateMethodLevelSliceCriteria(methodToBeIncluded);
-                }
+
+				if (!_b) {
+					generateMethodLevelSliceCriteria(methodToBeIncluded);
+				}
 			} else {
 				generateMethodLevelSliceCriteria(methodToBeIncluded);
 			}
@@ -1062,6 +1068,7 @@ public final class SlicingEngine {
 		if (_generateCriteria) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
 			setContext(_sliceCriteria);
+
 			final Collection _c = workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled() && !_c.isEmpty()) {
@@ -1102,6 +1109,83 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Tries to record the current call stack against the given method and returns the status of the recording.
+	 *
+	 * @param method of interest
+	 *
+	 * @return <code>true</code> if the call stack was recored; <code>false</code> if another call stack subsumed this.
+	 *
+	 * @pre method != null
+	 */
+	private boolean recordCallStackForMethod(final SootMethod method) {
+		boolean _result = true;
+
+		if (method2callStacks.containsKey(method)) {
+			final SimpleNodeGraph _sng = (SimpleNodeGraph) method2callStacks.get(method);
+			final int _limit = callStackCache.size() - 1;
+            final Collection _succsOfSrc = new ArrayList();
+            final Collection _reachablesFrom = new HashSet();
+            
+			for (int _i = _limit; _i >= 0 && _result; _i--) {
+				final Object _o = callStackCache.get(_i);
+				INode _node = _sng.queryNode(_o);
+
+				if (_node == null) {
+					_node = _sng.getNode(_o);
+				} else {
+					if (_node.getSuccsOf().isEmpty()) {
+						_result = false;
+					} else if (_i == 0) {
+                        _reachablesFrom.clear();
+                        _reachablesFrom.addAll(_sng.getReachablesFrom(_node, true));
+                        _reachablesFrom.add(_node);
+						final Iterator _j = _reachablesFrom.iterator();
+						final int _jEnd = _reachablesFrom.size();
+
+						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+							final INode _src = (INode) _j.next();
+							_succsOfSrc.clear();
+							_succsOfSrc.addAll(_src.getSuccsOf());
+
+							final Iterator _k = _succsOfSrc.iterator();
+							final int _kEnd = _succsOfSrc.size();
+
+							for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+								final INode _dest = (INode) _k.next();
+								_sng.removeEdgeFromTo(_src, _dest);
+							}
+						}
+						_result = false;
+					}
+				}
+
+				if (_limit - _i > 0 && _result) {
+					final INode _prev = _sng.queryNode(callStackCache.get(_i + 1));
+
+					if (_prev != null) {
+						_sng.addEdgeFromTo(_prev, _node);
+					}
+				}
+			}
+		} else {
+			final SimpleNodeGraphBuilder _sngb = new SimpleNodeGraph.SimpleNodeGraphBuilder();
+			_sngb.createGraph();
+
+			Object _s = callStackCache.peek();
+
+			for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
+				final Object _t = callStackCache.get(_i);
+				_sngb.addEdgeFromTo(_s, _t);
+				_s = _t;
+			}
+			_sngb.finishBuilding();
+			method2callStacks.put(method, _sngb.getBuiltGraph());
+		}
+
+		return _result;
+	}
+
+	/**
 	 * Checks if method level criteria should be generated for the given method.
 	 *
 	 * @param method of interest.
@@ -1114,84 +1198,13 @@ public final class SlicingEngine {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
-            if (callStackCache == null) {
-                _result = !collectedAllInvocationSites.contains(method);
-            } else if (!collectedAllInvocationSites.contains(method)) {
-                _result = shouldTheCallStackBeConsidered(method);
-            }
-		}
-
-		return _result;
-	}
-
-	/**
-	 * Checks if the current call stack for the given method be considered.
-	 *
-	 * @param method of interest
-	 *
-	 * @return <code>true</code> if the call stack should be considered; <code>false</code>, otherwise.
-	 */
-	private boolean shouldTheCallStackBeConsidered(final SootMethod method) {
-        boolean _result = true;
-		final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);		
-		final List _t = callStackCache;
-		final int _tSize = _t.size();
-
-		for (final Iterator _i = _col.iterator(); _i.hasNext() && _result;) {
-			final List _c = (List) _i.next();
-			final int _cSize = _c.size();
-			final int _max;
-			final int _min;
-			final List _long;
-			final List _short;
-
-			if (_tSize > _cSize) {
-				_max = _tSize;
-				_min = _cSize;
-				_long = _t;
-				_short = _c;
-			} else {
-				_max = _cSize;
-				_min = _tSize;
-				_long = _c;
-				_short = _t;
-			}
-
-			boolean _match = true;
-			final int _diff = _max - _min;
-			for (int _j = _min - 1; _j >= 0 && _match; _j--) {
-				final Object _longObj = _long.get(_j + _diff);
-				final Object _shortObj = _short.get(_j);
-				_match = _longObj.equals(_shortObj);
-			}
-
-			if (_match) {
-                // if the call stacks match
-                /*
-                 *  if the call stacks match then
-                 *    if they are not of equal size and the shorter one does not belong to the collection of
-                 *      call stacks for the method then we need to remove the long call stack from the collection
-                 *      and replace it with the given call stack.
-                 *    else
-                 *      we don't need to consider the current call stack.
-                 */
-                if (_max != _min) {
-                    // if the match is partial
-                    if (_short != _c) {
-                        // if the shorter call stack does not occur in the collection of call stacks
-                        _i.remove();
-                    } else {
-                        _result = false;
-                    }
-                } else {
-                    _result = false;
-                }
+			if (callStackCache == null) {
+				_result = !collectedAllInvocationSites.contains(method);
+			} else if (!collectedAllInvocationSites.contains(method)) {
+				_result = recordCallStackForMethod(method);
 			}
 		}
 
-		if (_result || _col.isEmpty()) {
-			_col.add(callStackCache.clone());
-		}
 		return _result;
 	}
 
@@ -1253,15 +1266,15 @@ public final class SlicingEngine {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod(SootMethod method = " + method + ") - BEGIN");
 		}
 
-        if (callStackCache == null) {
-            collectedAllInvocationSites.add(method);
-            method2callStacks.remove(method);
-        } else {
-            CollectionsUtilities.putIntoSetInMap(method2callStacks, method, callStackCache.clone());
-        }
+		if (callStackCache == null) {
+			collectedAllInvocationSites.add(method);
+			method2callStacks.remove(method);
+		} else {
+			recordCallStackForMethod(method);
+		}
 
-        generateCriteriaForTheCallToMethod(method);
-		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);		
+		generateCriteriaForTheCallToMethod(method);
+		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod() - END");
