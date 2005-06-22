@@ -77,13 +77,6 @@ public class SimpleEdgeGraph
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
-		 */
-		public void createGraph() {
-			graph = new SimpleEdgeGraph();
-		}
-
-		/**
 		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(INode, INode)
 		 */
 		public void addEdgeFromTo(final Object src, final Object dest) {
@@ -91,12 +84,19 @@ public class SimpleEdgeGraph
 			_simpleEdgeGraph.addEdgeFromTo(_simpleEdgeGraph.getNode(src), NULL_LABEL, _simpleEdgeGraph.getNode(dest));
 		}
 
-        /** 
-         * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
-         */
-        public void createNode(final Object obj) {
-            ((SimpleEdgeGraph) graph).getNode(obj);
-        }
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
+		 */
+		public void createGraph() {
+			graph = new SimpleEdgeGraph();
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+		 */
+		public void createNode(final Object obj) {
+			((SimpleEdgeGraph) graph).getNode(obj);
+		}
 	}
 
 
@@ -195,7 +195,6 @@ public class SimpleEdgeGraph
 	 */
 	public IEdgeLabelledNode getNode(final Object o) {
 		final IEdgeLabelledNode _result = (IEdgeLabelledNode) ((ObjectGraphInfo) graphInfo).getNode(o);
-		heads.add(_result);
 		shapeChanged();
 		return _result;
 	}

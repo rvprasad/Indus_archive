@@ -46,6 +46,14 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 public class JavacBasedDirectedAndSimpleNodeGraphTest
   extends JikesBasedDirectedAndSimpleNodeGraphTest {
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testlocalGetSinks()
+	 */
+	public void testlocalGetSinks() {
+		assertFalse(dg.getSinks().isEmpty());
+		assertTrue(dg.getSinks().contains(name2node.get("e")));
+	}
+
+	/**
 	 * @see JikesBasedDirectedAndSimpleNodeGraphTest#setUp()
 	 */
 	protected void setUp()
@@ -65,7 +73,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("b"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("b"));
 		setSNG(_sng);
-		
+
 		numberOfCycles = 2;
 	}
 

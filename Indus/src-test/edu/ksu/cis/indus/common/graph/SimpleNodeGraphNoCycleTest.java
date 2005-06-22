@@ -44,6 +44,27 @@ public class SimpleNodeGraphNoCycleTest
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
+	 */
+	public void testGetTails() {
+		assertFalse(dg.getTails().isEmpty());
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testlocalGetSinks()
+	 */
+	public void testlocalGetSinks() {
+		assertFalse(dg.getSinks().isEmpty());
+	}
+
+	/**
+	 * Tests <code>getSinks()</code> locally.
+	 */
+	public void testlocalGraphGetSinks() {
+		assertFalse(sng.getSinks().isEmpty());
+	}
+
+	/**
 	 * @see SimpleNodeGraphTest#setUp()
 	 */
 	protected void setUp()
@@ -82,27 +103,6 @@ public class SimpleNodeGraphNoCycleTest
 	protected final void tearDown()
 	  throws Exception {
 		super.tearDown();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
-	 */
-	public void testGetHeads() {
-		assertFalse(sng.getHeads().isEmpty());
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
-	 */
-	public void testGetTails() {
-		assertTrue(dg.getTails().isEmpty());
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGraphGetTails()
-	 */
-	protected void localtestGraphGetTails() {
-		assertFalse(sng.getSinks().isEmpty());
 	}
 
 	/**

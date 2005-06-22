@@ -151,6 +151,39 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * Tests <code>getSCCs()</code> method.
+	 */
+	public final void testGetSCCs() {
+		final Collection _sccsTrue = dg.getSCCs(true);
+		checkSCCReachability(_sccsTrue);
+
+		final Collection _sccsFalse = dg.getSCCs(false);
+		checkSCCReachability(_sccsFalse);
+		assertTrue(_sccsTrue.containsAll(_sccsFalse));
+		assertTrue(_sccsFalse.containsAll(_sccsTrue));
+		localtestGetSCCs();
+	}
+
+	/**
+	 * Tests <code>getSinks()</code> method.
+	 */
+	public final void testGetSinks() {
+		final Collection _sinks = dg.getSinks();
+
+		// ensure none of the tails have a successor
+		for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(_node.getSuccsOf().isEmpty());
+		}
+
+		// ensure none of the nodes have a tail node as a predecessor
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _sinks).isEmpty());
+		}
+	}
+
+	/**
 	 * Tests <code>getSources()</code> method.
 	 */
 	public final void testGetSources() {
@@ -167,20 +200,6 @@ public abstract class AbstractDirectedGraphTest
 			final INode _node = (INode) _i.next();
 			assertTrue(CollectionUtils.intersection(_node.getSuccsOf(), _sources).isEmpty());
 		}
-	}
-
-	/**
-	 * Tests <code>getSCCs()</code> method.
-	 */
-	public final void testGetSCCs() {
-		final Collection _sccsTrue = dg.getSCCs(true);
-		checkSCCReachability(_sccsTrue);
-
-		final Collection _sccsFalse = dg.getSCCs(false);
-		checkSCCReachability(_sccsFalse);
-		assertTrue(_sccsTrue.containsAll(_sccsFalse));
-		assertTrue(_sccsFalse.containsAll(_sccsTrue));
-		localtestGetSCCs();
 	}
 
 	/**
@@ -209,25 +228,6 @@ public abstract class AbstractDirectedGraphTest
 		// ensure that all nodes occur in the spanning tree
 		_temp.addAll(_spanningSuccs.keySet());
 		assertTrue(_temp.containsAll(dg.getNodes()));
-	}
-
-	/**
-	 * Tests <code>getSinks()</code> method.
-	 */
-	public final void testGetSinks() {
-		final Collection _sinks = dg.getSinks();
-
-		// ensure none of the tails have a successor
-		for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
-			assertTrue(_node.getSuccsOf().isEmpty());
-		}
-
-		// ensure none of the nodes have a tail node as a predecessor
-		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _sinks).isEmpty());
-		}
 	}
 
 	/**
@@ -285,6 +285,13 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
+	 */
+	public void testGetTails() {
+		assertTrue(dg.getTails().containsAll(dg.getSinks()));
+	}
+
+	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
 	 *
 	 * @param graph from which to extract information.
@@ -316,30 +323,10 @@ public abstract class AbstractDirectedGraphTest
 	protected void localtestGetCycles() {
 	}
 
-    /** 
-     * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
-     */
-    public void testGetHeads() {
-        assertTrue(dg.getHeads().containsAll(dg.getSources()));        
-    }
-
-    /** 
-     * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
-     */
-    public void testGetTails() {
-        assertTrue(dg.getTails().containsAll(dg.getSinks()));
-    }
-
 	/**
 	 * Checks <code>getSCCs()</code> on the local graph instance.
 	 */
 	protected void localtestGetSCCs() {
-	}
-
-	/**
-	 * Checks <code>getTails()</code> on the local graph instance.
-	 */
-	protected void localtestGraphGetTails() {
 	}
 
 	/**

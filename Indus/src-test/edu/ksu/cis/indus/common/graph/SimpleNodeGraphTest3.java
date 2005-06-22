@@ -53,6 +53,20 @@ public class SimpleNodeGraphTest3
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
+	 */
+	public void testGetTails() {
+		assertFalse(dg.getTails().isEmpty());
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	public void testlocalGetSinks() {
+		assertFalse(dg.getSinks().isEmpty());
+	}
+
+	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
@@ -70,7 +84,7 @@ public class SimpleNodeGraphTest3
 		_sng.addEdgeFromTo((INode) name2node.get("d"), (INode) name2node.get("b"));
 		_sng.addEdgeFromTo((INode) name2node.get("b"), (INode) name2node.get("e"));
 		setSNG(_sng);
-		
+
 		numberOfCycles = 1;
 	}
 
@@ -79,29 +93,6 @@ public class SimpleNodeGraphTest3
 	 */
 	protected void localtestAddEdgeFromTo() {
 		// do nothing.
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
-	 */
-	public void testGetHeads() {
-		assertTrue(dg.getHeads().size() == 1);
-		assertTrue(dg.getHeads().contains(name2node.get("a")));
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
-	 */
-	public void testGetTails() {
-		assertTrue(dg.getTails().size() == 0);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGraphGetTails()
-	 */
-	protected void localtestGraphGetTails() {
-		assertTrue(dg.getSinks().size() == 1);
-		assertTrue(dg.getSinks().contains(name2node.get("e")));
 	}
 
 	/**

@@ -369,7 +369,7 @@ public final class BasicBlockGraph
 	 * @return the head node
 	 */
 	public BasicBlock getHead() {
-		final Collection _heads = getHeads();
+		final Collection _heads = getSources();
 		BasicBlock _result = null;
 
 		if (_heads.size() == 1) {
@@ -499,18 +499,6 @@ public final class BasicBlockGraph
 				}
 			}
 		}
-
-		// Setup the head of the graph.
-		final List _hds = stmtGraph.getHeads();
-
-		if (!_hds.isEmpty()) {
-			final BasicBlock _enclosingBlock = getEnclosingBlock((Stmt) _hds.get(0));
-
-			if (_enclosingBlock != null) {
-				heads.add(_enclosingBlock);
-			}
-		}
-
 		shapeChanged();
 	}
 }

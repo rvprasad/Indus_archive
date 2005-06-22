@@ -163,16 +163,6 @@ public interface IDirectedGraph {
 	IObjectDirectedGraph getDAG();
 
 	/**
-	 * Retrieves the head nodes of this graph.  A Head is a source node or any node marked as a head.
-	 *
-	 * @return the collection of nodes.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->containsAll(getSources()) and getNodes().containsAll(result)
-	 */
-	Collection getHeads();
-
-	/**
 	 * Retrieves the nodes in the graph.  The order of the nodes should be the same across calls to this method, if no nodes
 	 * are added or removed.  In case of addition and removal, the relative ordering between the old nodes should not change
 	 * across calls.
@@ -269,8 +259,8 @@ public interface IDirectedGraph {
 	Map getSpanningSuccs();
 
 	/**
-	 * Retrieves the tails of the given graph.  A Tail is a sink node or an arbitrary node in a strongly-connected component 
-     * that acts as a sink (only the nodes of the SCC are reachable from the nodes in the SCC). 
+	 * Retrieves the tails of the given graph.  A Tail is a sink node or an arbitrary node in a strongly-connected component
+	 * that acts as a sink (only the nodes of the SCC are reachable from the nodes in the SCC).
 	 *
 	 * @return a collection of nodes.
 	 *

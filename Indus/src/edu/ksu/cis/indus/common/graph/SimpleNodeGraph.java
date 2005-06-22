@@ -57,13 +57,6 @@ public class SimpleNodeGraph
 	public static class SimpleNodeGraphBuilder
 	  extends AbstractObjectDirectedGraphBuilder {
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
-		 */
-		public void createGraph() {
-			graph = new SimpleNodeGraph();
-		}
-
-		/**
 		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
 		 */
 		public void addEdgeFromTo(final Object src, final Object dest) {
@@ -72,12 +65,19 @@ public class SimpleNodeGraph
 			((SimpleNodeGraph) graph).addEdgeFromTo(_s, _d);
 		}
 
-        /** 
-         * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
-         */
-        public void createNode(final Object obj) {
-            ((SimpleNodeGraph) graph).getNode(obj);            
-        }
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
+		 */
+		public void createGraph() {
+			graph = new SimpleNodeGraph();
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+		 */
+		public void createNode(final Object obj) {
+			((SimpleNodeGraph) graph).getNode(obj);
+		}
 	}
 
 
@@ -142,7 +142,6 @@ public class SimpleNodeGraph
 	 */
 	public INode getNode(final Object o) {
 		final INode _result = ((ObjectGraphInfo) graphInfo).getNode(o);
-		heads.add(_result);
 		shapeChanged();
 		return _result;
 	}

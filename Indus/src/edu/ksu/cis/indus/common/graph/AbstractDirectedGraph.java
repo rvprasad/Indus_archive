@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.collections.ArrayStack;
@@ -67,13 +66,6 @@ public abstract class AbstractDirectedGraph
 	 * This is used in the calculation of SCCs.
 	 */
 	private static int dfsNum;
-
-	/** 
-	 * The set of nodes that constitute the head nodes of this graph.  <i>This needs to be populated by the subclass.</i>
-	 *
-	 * @invariant heads.oclIsKindOf(Set(INode))
-	 */
-	protected final Set heads = new HashSet();
 
 	/** 
 	 * The graph builder to use to build graphs that represent views of this graph.
@@ -283,13 +275,6 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#getHeads()
-	 */
-	public final Collection getHeads() {
-		return Collections.unmodifiableCollection(heads);
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodesOnPathBetween(java.util.Collection)
 	 */
 	public Collection getNodesOnPathBetween(final Collection nodes) {
@@ -445,7 +430,7 @@ public abstract class AbstractDirectedGraph
 			}
 			pseudoTailsCalculated = true;
 		}
-		return Collections.unmodifiableCollection(pseudoTails);
+		return CollectionUtils.union(pseudoTails, getSinks());
 	}
 
 	/**
@@ -1047,10 +1032,10 @@ public abstract class AbstractDirectedGraph
 		final List _nodes = getNodes();
 
 		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here. 
-		if (getHeads().isEmpty()) {
+		if (getSources().isEmpty()) {
 			_order.addAllWork(_nodes);
 		} else {
-			_order.addAllWork(getHeads());
+			_order.addAllWork(getSources());
 		}
 
 		final Collection _blackNodes = new ArrayList();

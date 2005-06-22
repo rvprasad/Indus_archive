@@ -122,7 +122,6 @@ public class MutableDirectedGraph
 		if (containsNode(src) && containsNode(dest)) {
 			((IMutableNode) src).addSuccessor(dest);
 			((IMutableNode) dest).addPredecessor(src);
-			heads.remove(dest);
 			shapeChanged();
 			_result = true;
 		} else {
@@ -169,7 +168,6 @@ public class MutableDirectedGraph
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			((IMutableNode) _j.next()).removeSuccessor(node);
 		}
-		heads.remove(node);
 		shapeChanged();
 		return graphInfo.removeNode(node);
 	}

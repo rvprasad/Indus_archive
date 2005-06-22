@@ -69,6 +69,21 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testGetTails()
+	 */
+	public void testGetTails() {
+		testlocalGetSinks();
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testlocalGetSinks()
+	 */
+	public void testlocalGetSinks() {
+		assertFalse(dg.getSinks().isEmpty());
+		assertTrue(dg.getSinks().contains(name2node.get("f")));
+	}
+
+	/**
 	 * We construct a graph with cycles enclosed in cycles.
 	 *
 	 * @see junit.framework.TestCase#setUp()
@@ -91,29 +106,8 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("b"));
 		setSNG(_sng);
-		
+
 		numberOfCycles = 2;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetHeads()
-	 */
-	public void testGetHeads() {
-		assertFalse(sng.getHeads().isEmpty());
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
-	 */
-	public void testGetTails() {
-		assertTrue(dg.getTails().isEmpty());
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGraphGetTails()
-	 */
-	protected void localtestGraphGetTails() {
-		assertFalse(sng.getSinks().isEmpty());
 	}
 
 	/**

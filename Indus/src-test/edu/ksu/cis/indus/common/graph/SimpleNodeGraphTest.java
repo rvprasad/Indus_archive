@@ -69,7 +69,7 @@ public class SimpleNodeGraphTest
 		try {
 			sng.getNode(null);
 		} catch (NullPointerException _e) {
-            fail("Shouldn't have raised an exception.");
+			fail("Shouldn't have raised an exception.");
 		}
 	}
 
@@ -100,6 +100,22 @@ public class SimpleNodeGraphTest
 		final Collection _nodes = dg.getNodesOnPathBetween(_t);
 		_t.add(sng.getNode("a"));
 		assertTrue(_nodes + " " + _t, _nodes.containsAll(_t) && _t.containsAll(_nodes));
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
+	 */
+	public void testGetTails() {
+		final Collection _dtails = dg.getTails();
+		assertTrue(_dtails.size() == 1);
+		assertTrue(_dtails.contains(name2node.get("h")));
+	}
+
+	/**
+	 * Performs local <code>getSinks()</code> test.
+	 */
+	public void testlocalGetSinks() {
+		assertTrue(dg.getSinks().isEmpty());
 	}
 
 	/**
@@ -227,22 +243,6 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
-	 * @see AbstractDirectedGraphTest#testGetHeads
-	 */
-	public void testGetHeads() {
-		assertTrue(dg.getHeads().isEmpty());
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testGetTails()
-	 */
-	public void testGetTails() {
-		final Collection _dtails = dg.getTails();
-		assertTrue(_dtails.size() == 1);
-		assertTrue(_dtails.contains(name2node.get("h")));
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetSCCs()
 	 */
 	protected void localtestGetSCCs() {
@@ -250,13 +250,6 @@ public class SimpleNodeGraphTest
 		final Collection _sccsFalse = dg.getSCCs(false);
 		assertFalse(_sccsTrue.isEmpty());
 		assertFalse(_sccsFalse.isEmpty());
-	}
-
-	/**
-	 * @see AbstractDirectedGraphTest#localtestGraphGetTails
-	 */
-	protected void localtestGraphGetTails() {
-		assertTrue(dg.getSinks().isEmpty());
 	}
 
 	/**
