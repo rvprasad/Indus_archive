@@ -62,7 +62,7 @@
         <zip destfile="${docs.zip.filename}">
 			<zipfileset dir="${dist.doc.dir}" prefix=""/>
 		</zip>
-        <delete dir="${dist.ug.dir}"/> 
+        <delete dir="${dist.doc.dir}"/> 
 
         <copy todir="${dist.dir}" flatten="true">
             <fileset dir="${projects.dir}">
