@@ -53,7 +53,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DependenceExtractor
+final class DependenceExtractor
   implements Closure {
 	/** 
 	 * The logger used by instances of this class to log messages.
