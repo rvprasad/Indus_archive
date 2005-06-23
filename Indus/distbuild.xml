@@ -3,7 +3,9 @@
 
 <project name="indus" default="dist" basedir=".">
     <tstamp/>
-
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>	
+	
 	<property file="distbuild.properties" />
 
     <path id="subprojects.buildfiles">
@@ -41,20 +43,26 @@
     	<delete dir="${projects.dir}"/>
     </target>
 	
+	<target name="prepare-docs">
+		<mkdir dir="${dist.doc.dir}/${module}/docs/ug"/>
+		<unzip dest="${dist.doc.dir}/${module}/docs/ug">
+			<fileset dir="${projects.dir}/${module}/docs/ug/dist/">
+				<include name="*html-single.zip"/>
+			</fileset>			
+		</unzip>
+		<mkdir dir="${dist.doc.dir}/${module}/docs/javadocs"/>
+		<copy todir="${dist.doc.dir}/${module}/docs/javadocs">
+			<fileset dir="${projects.dir}/${module}/docs/javadocs"/>
+		</copy>
+	</target>
+	
 	<target name="package">
-        <mkdir dir="${dist.ug.dir}"/>
-        <copy todir="${dist.ug.dir}" flatten="true">
-            <fileset dir="${projects.dir}">
-                <include name="*/docs/ug/build/*.pdf"/>
-            </fileset>
-        </copy>
+        <mkdir dir="${dist.doc.dir}"/>
+		<foreach list="${cvs.modules}" target="prepare-docs" param="module" delimiter=" " inheritall="true"/>		
         <zip destfile="${docs.zip.filename}">
-            <zipfileset dir="${projects.dir}/Indus/docs/javadocs/" prefix="Indus/Indus/docs/javadocs"/>
-            <zipfileset dir="${projects.dir}/StaticAnalyses/docs/javadocs/" prefix="Indus/StaticAnalyses/docs/javadocs"/>
-            <zipfileset dir="${projects.dir}/JavaSlicer/docs/javadocs/" prefix="Indus/JavaSlicer/docs/javadocs"/>
-            <zipfileset dir="${dist.ug.dir}" prefix="Indus/ug"/>
-        </zip>
-        <delete dir="${dist.ug.dir}"/>
+			<zipfileset dir="${dist.doc.dir}" prefix=""/>
+		</zip>
+        <delete dir="${dist.ug.dir}"/> 
 
         <copy todir="${dist.dir}" flatten="true">
             <fileset dir="${projects.dir}">
