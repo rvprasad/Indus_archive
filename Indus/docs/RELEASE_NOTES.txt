@@ -36,6 +36,7 @@ Version 0.6.3
 -----------------
 	- Renamed IObjectReadWriteInfo to IReadWriteInfo.
     - Added support for limited calling context retrieval.
+    - Renamed indus.tools.bandera package as indus.toolkits.bandera.
 
 Version 0.6
 ----------------
