@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<toc label="Indus Documentation">
+    <topic label="Indus User's Guide (PDF)" href="Indus/docs/ug/indus-ug.pdf"/>
+    <topic label="Static Analyses User's Guide (PDF)" href="StaticAnalyses/ug/staticanalyses-ug.pdf"/>
+    <topic label="Slicer User's Guide (PDF)" href="JavaSlicer/ug/slicer-ug.pdf"/>
+    <topic label="Indus User's Guide (HTML)" href="Indus/docs/ug/indus-ug.html"/>
+    <topic label="Static Analyses User's Guide (HTML)" href="StaticAnalyses/ug/staticanalyses-ug.html"/>
+    <topic label="Slicer User's Guide (HTML)" href="JavaSlicer/ug/slicer-ug.html"/>
+    <topic label="Indus API docs" href="Indus/docs/javadocs/index.html"/>
+    <topic label="Static Analyses API docs" href="StaticAnalyses/docs/javadocs/index.html"/>
+    <topic label="Slicer API docs" href="JavaSlicer/docs/javadocs/index.html"/>
+</toc>

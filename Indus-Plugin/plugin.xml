@@ -63,6 +63,11 @@
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.junit"/>
+      <import plugin="org.eclipse.help"/>
    </requires>
-
+   
+   <extension  point="org.eclipse.help.toc">
+      <toc file="toc.xml"
+             primary="true"/>
+   </extension>
 </plugin>
