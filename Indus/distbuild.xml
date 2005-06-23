@@ -38,7 +38,7 @@
              command="rtag v${version.cvsid}"/>
 	</target>
 
-    <target name="dist" depends="init, cleanAll, buildAllDoc">
+    <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
     	<delete dir="${projects.dir}"/>
     </target>
