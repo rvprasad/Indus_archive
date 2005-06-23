@@ -59,14 +59,14 @@ public class Node
 	}
 
 	/**
-	 * @see INode#getPredsOf()
+	 * @see IDirectedGraph.INode#getPredsOf()
 	 */
 	public Collection getPredsOf() {
 		return Collections.unmodifiableCollection(predecessors);
 	}
 
 	/**
-	 * @see INode#getSuccsNodesInDirection(boolean)
+	 * @see IDirectedGraph.INode#getSuccsNodesInDirection(boolean)
 	 */
 	public final Collection getSuccsNodesInDirection(final boolean forward) {
 		Collection _result;
@@ -80,7 +80,7 @@ public class Node
 	}
 
 	/**
-	 * @see INode#getSuccsOf()
+	 * @see IDirectedGraph.INode#getSuccsOf()
 	 */
 	public Collection getSuccsOf() {
 		return Collections.unmodifiableCollection(successors);

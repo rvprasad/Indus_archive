@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.bandera;
+package edu.ksu.cis.indus.toolkits.bandera;
 
 import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;

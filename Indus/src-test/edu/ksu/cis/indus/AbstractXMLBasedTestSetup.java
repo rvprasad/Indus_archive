@@ -69,7 +69,7 @@ public class AbstractXMLBasedTestSetup
 	 *
 	 * @pre test != null
 	 *
-	 * @see TestSetup#TestSetup(TestSuite)
+	 * @see TestSetup#TestSetup(Test)
 	 */
 	public AbstractXMLBasedTestSetup(final TestSuite test) {
 		super(test);

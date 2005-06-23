@@ -172,7 +172,7 @@ public abstract class AbstractDirectedGraph
 	private boolean sourcesAreAvailable;
 
 	/**
-	 * @see IDirectedGraph#isAncestorOf(INode,INode)
+	 * @see IDirectedGraph#isAncestorOf(IDirectedGraph.INode,IDirectedGraph.INode)
 	 */
 	public final boolean isAncestorOf(final INode ancestor, final INode descendent) {
 		if (!hasSpanningForest) {
@@ -203,7 +203,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#getCommonReachablesFrom(INode, boolean, INode, boolean)
+	 * @see IDirectedGraph#getCommonReachablesFrom(IDirectedGraph.INode, boolean, IDirectedGraph.INode, boolean)
 	 */
 	public Collection getCommonReachablesFrom(final INode node1, final boolean forward1, final INode node2,
 		final boolean forward2) {
@@ -263,7 +263,7 @@ public abstract class AbstractDirectedGraph
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final INode _node = (INode) _i.next();
 				_succs.remove(_node);
-                builder.createNode(_node);
+				builder.createNode(_node);
 				builder.addEdgeFromTo(_node, CollectionUtils.intersection(_node.getSuccsOf(), _succs));
 				builder.addEdgeFromTo(CollectionUtils.intersection(_node.getPredsOf(), _preds), _node);
 				_preds.add(_node);
@@ -312,7 +312,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
+	 * @see IDirectedGraph#isReachable(IDirectedGraph.INode,IDirectedGraph.INode,boolean)
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		if (!reachability) {
@@ -330,7 +330,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
+	 * @see IDirectedGraph#getReachablesFrom(IDirectedGraph.INode, boolean)
 	 */
 	public final Collection getReachablesFrom(final INode root, final boolean forward) {
 		if (!reachability) {

@@ -143,7 +143,7 @@ public interface IEscapeInfo
 	boolean areCoupledViaLocking(Local local1, SootMethod method1, Local local2, SootMethod method2);
 
 	/**
-	 * Checks if the given monitor statements are coupled, i.e. if they will operate on  the same object.
+	 * Checks if the given monitor statements are coupled (if they will operate on  the same object).
 	 *
 	 * @param stmt1 is a monitor statement. This should be <code>null</code> when querying about the lock  acquired/released
 	 * 		  while entering/exiting a synchronized method.
@@ -217,8 +217,8 @@ public interface IEscapeInfo
 	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method is shared via access to the specified field.
-	 * This suggests multithread field access.
+	 * Checks if the object bound to the given variable in the given method is shared via access to the specified field. This
+	 * suggests multithread field access.
 	 *
 	 * @param v is the object value being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.

@@ -169,7 +169,7 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
-	 * @see AbstractDirectedGraphTest#localtestAddEdgeFromTo
+	 * @see AbstractDirectedGraphTest#localtestAddEdgeFromTo()
 	 */
 	protected void localtestAddEdgeFromTo() {
 		final Map _preds1 = new HashMap();

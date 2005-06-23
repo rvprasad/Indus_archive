@@ -72,21 +72,22 @@ public class MutableEdgeLabelledDirectedGraph
 		}
 
 		/**
-		 * @see IMutableNode#addPredecessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#addPredecessor(IDirectedGraph.INode)
 		 */
 		public final boolean addPredecessor(final INode node) {
 			return addIncomingEdgeLabelledFrom(IEdgeLabel.DUMMY_LABEL, (IEdgeLabelledNode) node);
 		}
 
 		/**
-		 * @see IMutableNode#addSuccessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#addSuccessor(IDirectedGraph.INode)
 		 */
 		public final boolean addSuccessor(final INode node) {
 			return addOutgoingEdgeLabelledTo(IEdgeLabel.DUMMY_LABEL, (IEdgeLabelledNode) node);
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#addIncomingEdgeLabelledFrom(IEdgeLabel, IEdgeLabelledNode)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#addIncomingEdgeLabelledFrom(IEdgeLabel,
+		 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 		 */
 		public boolean addIncomingEdgeLabelledFrom(final IEdgeLabel label, final IEdgeLabelledNode node) {
 			predecessors.add(node);
@@ -94,7 +95,8 @@ public class MutableEdgeLabelledDirectedGraph
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#addOutgoingEdgeLabelledTo(IEdgeLabel, IEdgeLabelledNode)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#addOutgoingEdgeLabelledTo(IEdgeLabel,
+		 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 		 */
 		public boolean addOutgoingEdgeLabelledTo(final IEdgeLabel label, final IEdgeLabelledNode node) {
 			successors.add(node);
@@ -102,42 +104,44 @@ public class MutableEdgeLabelledDirectedGraph
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#removeIncomingEdgeLabelledFrom(IEdgeLabel, IEdgeLabelledNode)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#removeIncomingEdgeLabelledFrom(IEdgeLabel,
+		 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 		 */
 		public boolean removeIncomingEdgeLabelledFrom(final IEdgeLabel label, final IEdgeLabelledNode node) {
 			return removeEdgesLabelledForViaUpdate(label, node, label2inNodes, predecessors);
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#removeIncomingEdgesLabelled(IEdgeLabel)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#removeIncomingEdgesLabelled(IEdgeLabel)
 		 */
 		public boolean removeIncomingEdgesLabelled(final IEdgeLabel label) {
 			return removedEdgesLabelled(label, label2inNodes, predecessors);
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#removeOutgoingEdgeLabelledTo(IEdgeLabel, IEdgeLabelledNode)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#removeOutgoingEdgeLabelledTo(IEdgeLabel,
+		 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 		 */
 		public boolean removeOutgoingEdgeLabelledTo(final IEdgeLabel label, final IEdgeLabelledNode node) {
 			return removeEdgesLabelledForViaUpdate(label, node, label2outNodes, successors);
 		}
 
 		/**
-		 * @see IMutableEdgeLabelledNode#removeOutgoingEdgesLabelled(IEdgeLabel)
+		 * @see IMutableEdgeLabelledDirectedGraph.IMutableEdgeLabelledNode#removeOutgoingEdgesLabelled(IEdgeLabel)
 		 */
 		public boolean removeOutgoingEdgesLabelled(final IEdgeLabel label) {
 			return removedEdgesLabelled(label, label2outNodes, successors);
 		}
 
 		/**
-		 * @see IMutableNode#removePredecessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#removePredecessor(IDirectedGraph.INode)
 		 */
 		public boolean removePredecessor(final INode node) {
 			return removeNode(node, label2inNodes, predecessors);
 		}
 
 		/**
-		 * @see IMutableNode#removeSuccessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#removeSuccessor(IDirectedGraph.INode)
 		 */
 		public boolean removeSuccessor(final INode node) {
 			return removeNode(node, label2outNodes, successors);
@@ -232,7 +236,8 @@ public class MutableEdgeLabelledDirectedGraph
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#addEdgeFromTo(IEdgeLabelledNode, IEdgeLabel,     IEdgeLabelledNode)
+	 * @see IMutableEdgeLabelledDirectedGraph#addEdgeFromTo(IEdgeLabelledDirectedGraph.IEdgeLabelledNode, IEdgeLabel,
+	 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 	 */
 	public final boolean addEdgeFromTo(final IEdgeLabelledNode src, final IEdgeLabel label, final IEdgeLabelledNode dest) {
 		final boolean _result = super.addEdgeFromTo(src, dest);
@@ -271,7 +276,8 @@ public class MutableEdgeLabelledDirectedGraph
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledFrom(IEdgeLabel,     IEdgeLabelledNode)
+	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledFrom(IEdgeLabel,
+	 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 	 */
 	public boolean removeAllEdgesLabelledFrom(final IEdgeLabel label, final IEdgeLabelledNode node) {
 		final Collection _dests = ((IMutableEdgeLabelledNode) node).getSuccsViaEdgesLabelled(label);
@@ -286,7 +292,8 @@ public class MutableEdgeLabelledDirectedGraph
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledTo(IEdgeLabel,     IEdgeLabelledNode)
+	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledTo(IEdgeLabel,
+	 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 	 */
 	public boolean removeAllEdgesLabelledTo(final IEdgeLabel label, final IEdgeLabelledNode node) {
 		final Collection _srcs = ((IMutableEdgeLabelledNode) node).getPredsViaEdgesLabelled(label);
@@ -301,14 +308,15 @@ public class MutableEdgeLabelledDirectedGraph
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(INode,     INode)
+	 * @see IMutableDirectedGraph#removeEdgeFromTo(IDirectedGraph.INode,     IDirectedGraph.INode)
 	 */
 	public boolean removeEdgeFromTo(final INode src, final INode dest) {
 		return removeEdgeFromTo((IEdgeLabelledNode) src, IEdgeLabel.DUMMY_LABEL, (IEdgeLabelledNode) dest);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeEdgeFromTo(IEdgeLabelledNode,     IEdgeLabel, IEdgeLabelledNode)
+	 * @see IMutableEdgeLabelledDirectedGraph#removeEdgeFromTo(IEdgeLabelledDirectedGraph.IEdgeLabelledNode, IEdgeLabel,
+	 * 		IEdgeLabelledDirectedGraph.IEdgeLabelledNode)
 	 */
 	public boolean removeEdgeFromTo(final IEdgeLabelledNode src, final IEdgeLabel label, final IEdgeLabelledNode dest) {
 		return ((IMutableEdgeLabelledNode) src).removeOutgoingEdgeLabelledTo(label, dest)

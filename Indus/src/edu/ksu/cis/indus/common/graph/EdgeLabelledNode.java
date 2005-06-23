@@ -52,52 +52,52 @@ public class EdgeLabelledNode
 	/**
 	 * Creates an instance of this class.
 	 *
-     * @param preds is the reference to the collection of predecessors.
-     * @param succs is the reference to the collection of successors.
-     *
-     * @pre preds != null and succs != null
+	 * @param preds is the reference to the collection of predecessors.
+	 * @param succs is the reference to the collection of successors.
+	 *
+	 * @pre preds != null and succs != null
 	 */
 	protected EdgeLabelledNode(final Collection preds, final Collection succs) {
 		super(preds, succs);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getIncomingEdgeLabels()
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getIncomingEdgeLabels()
 	 */
 	public Collection getIncomingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2inNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getOutGoingEdgeLabels()
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getOutGoingEdgeLabels()
 	 */
 	public Collection getOutGoingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2outNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
 	 */
 	public Collection getPredsViaEdgesLabelled(final IEdgeLabel label) {
 		return (Collection) MapUtils.getObject(label2inNodes, label, Collections.EMPTY_SET);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
 	 */
 	public Collection getSuccsViaEdgesLabelled(final IEdgeLabel label) {
 		return (Collection) MapUtils.getObject(label2outNodes, label, Collections.EMPTY_SET);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#hasIncomingEdgeLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#hasIncomingEdgeLabelled(IEdgeLabel)
 	 */
 	public boolean hasIncomingEdgeLabelled(final IEdgeLabel label) {
 		return label2inNodes.containsKey(label);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#hasOutgoingEdgeLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#hasOutgoingEdgeLabelled(IEdgeLabel)
 	 */
 	public boolean hasOutgoingEdgeLabelled(final IEdgeLabel label) {
 		return label2outNodes.containsKey(label);

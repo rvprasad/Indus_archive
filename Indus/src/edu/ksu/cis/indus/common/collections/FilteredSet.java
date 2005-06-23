@@ -31,8 +31,6 @@ import org.apache.commons.collections.set.AbstractSetDecorator;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- *
- * @see FilteredCollection
  */
 public class FilteredSet
   extends AbstractSetDecorator {

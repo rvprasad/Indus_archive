@@ -78,28 +78,28 @@ public class MutableDirectedGraph
 		}
 
 		/**
-		 * @see IMutableNode#addPredecessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#addPredecessor(IDirectedGraph.INode)
 		 */
 		public final boolean addPredecessor(final INode node) {
 			return predecessors.add(node);
 		}
 
 		/**
-		 * @see IMutableNode#addSuccessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#addSuccessor(IDirectedGraph.INode)
 		 */
 		public final boolean addSuccessor(final INode node) {
 			return successors.add(node);
 		}
 
 		/**
-		 * @see IMutableNode#removePredecessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#removePredecessor(IDirectedGraph.INode)
 		 */
 		public boolean removePredecessor(final INode node) {
 			return predecessors.remove(node);
 		}
 
 		/**
-		 * @see IMutableNode#removeSuccessor(INode)
+		 * @see IMutableDirectedGraph.IMutableNode#removeSuccessor(IDirectedGraph.INode)
 		 */
 		public boolean removeSuccessor(final INode node) {
 			return successors.remove(node);
@@ -114,7 +114,7 @@ public class MutableDirectedGraph
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addEdgeFromTo(INode, INode)
+	 * @see IMutableDirectedGraph#addEdgeFromTo(IDirectedGraph.INode, IDirectedGraph.INode)
 	 */
 	public boolean addEdgeFromTo(final INode src, final INode dest) {
 		boolean _result = false;
@@ -132,7 +132,7 @@ public class MutableDirectedGraph
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(INode,INode)
+	 * @see IMutableDirectedGraph#removeEdgeFromTo(IDirectedGraph.INode,IDirectedGraph.INode)
 	 */
 	public boolean removeEdgeFromTo(final INode src, final INode dest) {
 		boolean _result = false;
@@ -150,7 +150,7 @@ public class MutableDirectedGraph
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeNode(INode)
+	 * @see IMutableDirectedGraph#removeNode(IDirectedGraph.INode)
 	 */
 	public final boolean removeNode(final INode node) {
 		final Collection _succsOf = new ArrayList(node.getSuccsOf());
@@ -180,7 +180,7 @@ public class MutableDirectedGraph
 	}
 
 	/**
-	 * @see AbstractDirectedGraph#getIndexOfNode(INode)
+	 * @see AbstractDirectedGraph#getIndexOfNode(IDirectedGraph.INode)
 	 */
 	protected final int getIndexOfNode(final INode node) {
 		return graphInfo.getIndexOfNode(node);

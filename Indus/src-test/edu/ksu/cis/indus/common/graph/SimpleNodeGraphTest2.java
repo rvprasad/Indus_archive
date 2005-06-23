@@ -48,12 +48,6 @@ public class SimpleNodeGraphTest2
 	 */
 	public void testGetTails() {
 		assertTrue(dg.getTails().size() == 2);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testlocalGetTails()
-	 */
-	public void testlocalGetTails() {
 		assertTrue(dg.getTails().contains(name2node.get("d")));
 		assertTrue(dg.getTails().contains(name2node.get("e")));
 	}

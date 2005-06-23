@@ -77,7 +77,7 @@ public class SimpleEdgeGraph
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(INode, INode)
+		 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
 		 */
 		public void addEdgeFromTo(final Object src, final Object dest) {
 			final SimpleEdgeGraph _simpleEdgeGraph = (SimpleEdgeGraph) graph;

@@ -42,7 +42,7 @@ public class DFA
 	}
 
 	/**
-	 * @see NFA#addLabelledTransitionFromTo(IState, ITransitionLabel, IState)
+	 * @see NFA#addLabelledTransitionFromTo(IState, edu.ksu.cis.indus.common.fa.IAutomaton.ITransitionLabel, IState)
 	 */
 	public void addLabelledTransitionFromTo(final IState src, final ITransitionLabel label, final IState dest) {
 		final Collection _states = getResultingStates(src, label);
