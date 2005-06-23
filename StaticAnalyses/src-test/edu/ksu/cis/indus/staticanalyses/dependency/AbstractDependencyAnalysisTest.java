@@ -94,7 +94,7 @@ public abstract class AbstractDependencyAnalysisTest
 	}
 
 	/**
-	 * @see IDependencyAnalysisTest#setEnvironment(IEnvironment)
+	 * @see edu.ksu.cis.indus.IEnvironmentBasedTest#setEnvironment(IEnvironment)
 	 */
 	public void setEnvironment(final IEnvironment environment) {
 		env = environment;

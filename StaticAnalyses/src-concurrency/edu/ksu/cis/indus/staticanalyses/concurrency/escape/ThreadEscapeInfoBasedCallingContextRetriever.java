@@ -103,7 +103,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
+	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, 
+     * edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
 		if (LOGGER.isDebugEnabled()) {
@@ -219,7 +220,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, CallTriple)
+	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, 
+     * edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
 	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {

@@ -90,7 +90,7 @@ public class XMLBasedDependencyAnalysisTest
 	}
 
 	/**
-	 * @see IDependencyAnalysisTest#setEnvironment(edu.ksu.cis.indus.interfaces.IEnvironment)
+	 * @see edu.ksu.cis.indus.IEnvironmentBasedTest#setEnvironment(edu.ksu.cis.indus.interfaces.IEnvironment)
 	 */
 	public void setEnvironment(final IEnvironment environment) {
 		env = environment;

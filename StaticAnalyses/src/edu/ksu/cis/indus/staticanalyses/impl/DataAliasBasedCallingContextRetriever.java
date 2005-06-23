@@ -95,7 +95,7 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, CallTriple)
+	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
 		if (LOGGER.isDebugEnabled()) {
@@ -238,7 +238,7 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, CallTriple)
+	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, ICallGraphInfo.CallTriple)
 	 */
 	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {
