@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
     <jar path="/home/venku/workspace/eclipse/Indus/indus.jar"/>
-    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/Indus/indus.jardesc" useSourceFolders="false" buildIfNeeded="false"/>
+    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/Indus/indus.jardesc" useSourceFolders="false" buildIfNeeded="false" includeDirectoryEntries="false"/>
     <manifest manifestVersion="1.0" usesManifest="false" reuseManifest="false" saveManifest="false" generateManifest="true" manifestLocation="">
         <sealing sealJar="false">
-            <packagesToSeal/>
+            <packagesToSeal>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.collections"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.datastructures"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.fa"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.graph"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.scoping"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common.soot"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.interfaces"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.processing"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.toolkits.bandera"/>
+                <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.tools"/>
+                <package handleIdentifier="=Indus/src-xml&lt;edu.ksu.cis.indus.xmlizer"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus.common.collections"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus.common.datastructures"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus.common.graph"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus.common.soot"/>
+                <package handleIdentifier="=Indus/src-test&lt;edu.ksu.cis.indus.tools"/>
+            </packagesToSeal>
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
+    <selectedElements exportClassFiles="true" exportOutputFolder="false" exportJavaFiles="false">
         <javaElement handleIdentifier="=Indus/src"/>
         <javaElement handleIdentifier="=Indus/src-test"/>
         <javaElement handleIdentifier="=Indus/src-xml"/>
