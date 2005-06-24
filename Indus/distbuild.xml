@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- $Revision$ -->
 
-<project name="indus" default="dist" basedir=".">
+<project name="indus" default="dist-all" basedir=".">
     <tstamp/>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>	
@@ -38,11 +38,16 @@
              command="rtag v${version.cvsid}"/>
 	</target>
 
-    <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
+    <target name="dist-all" depends="init, cleanAll, buildAllCode, buildAllDoc">
 		<antcall target="package"/>
     	<delete dir="${projects.dir}"/>
     </target>
-	
+
+	<target name="dist-bin" depends="init, cleanAll, buildAllCode">
+		<antcall target="package-bin"/>
+    	<delete dir="${projects.dir}"/>
+    </target>
+		
 	<target name="prepare-docs">
 		<mkdir dir="${dist.doc.dir}/${module}/docs/ug"/>
 		<unzip dest="${dist.doc.dir}/${module}/docs/ug">
@@ -56,6 +61,21 @@
 		</copy>
 	</target>
 	
+	<target name="package-bin">
+		<copy todir="${dist.dir}" flatten="true">
+            <fileset dir="${projects.dir}">
+                <include name="*/*.jar"/>
+                <exclude name="*/*src*.jar"/>
+            </fileset>
+        </copy>
+		<move todir="${dist.dir}">
+            <fileset dir="${dist.dir}">
+                <include name="*.jar"/>
+            </fileset>
+            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version.fileid}.jar"/>
+        </move>
+	</target>
+	
 	<target name="package">
         <mkdir dir="${dist.doc.dir}"/>
 		<foreach list="${cvs.modules}" target="prepare-docs" param="module" delimiter=" " inheritall="true"/>		
@@ -63,21 +83,9 @@
 			<zipfileset dir="${dist.doc.dir}" prefix=""/>
 		</zip>
         <delete dir="${dist.doc.dir}"/> 
-
-        <copy todir="${dist.dir}" flatten="true">
-            <fileset dir="${projects.dir}">
-                <include name="*/*.jar"/>
-                <exclude name="*/*src*.jar"/>
-            </fileset>
-        </copy>
-
-        <move todir="${dist.dir}">
-            <fileset dir="${dist.dir}">
-                <include name="*.jar"/>
-            </fileset>
-            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version.fileid}.jar"/>
-        </move>
-
+	
+		<antcall target="package-bin"/>
+		
         <zip destfile="${examples.src.zip.filename}">
             <fileset dir="${projects.dir}">
                 <include name="*/src-xml/**/*CLI.java"/>
