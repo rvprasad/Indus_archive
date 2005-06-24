@@ -508,12 +508,12 @@ public final class SlicerConfigurator
 		_typedIDA.setToolTipText("Only primaries of compatible types will be considered");
 
 		final Button _equivalenceClassBasedEscapeAnalysisBasedIDA = new Button(_precisionGroup, SWT.RADIO);
-		_equivalenceClassBasedEscapeAnalysisBasedIDA.setText("use equivalence class-based analysis");
+		_equivalenceClassBasedEscapeAnalysisBasedIDA.setText("use equivalence class-based escape analysis");
 		_equivalenceClassBasedEscapeAnalysisBasedIDA.setToolTipText(
 			"Only primaries of belonging to the same equivalence class will be considered.");
 
 		final Button _symbolBasedEscapeAnalysisBasedIDA = new Button(_precisionGroup, SWT.RADIO);
-		_symbolBasedEscapeAnalysisBasedIDA.setText("use symbol and equivalence class-based analysis");
+		_symbolBasedEscapeAnalysisBasedIDA.setText("use symbolic and equivalence class-based escape analysis");
 		_symbolBasedEscapeAnalysisBasedIDA.setToolTipText(
 			"Only symbolically equivalent primaries that belong to the same equivalence class will be considered.");
 
@@ -717,12 +717,12 @@ public final class SlicerConfigurator
 		_typedRDA.setToolTipText("Only primaries of compatible types will be considered");
 
 		final Button _equivalenceClassBasedEscapeAnalysisBasedRDA = new Button(_precisionGroup, SWT.RADIO);
-		_equivalenceClassBasedEscapeAnalysisBasedRDA.setText("use equivalence class-based analysis");
+		_equivalenceClassBasedEscapeAnalysisBasedRDA.setText("use equivalence class-based escape analysis");
 		_equivalenceClassBasedEscapeAnalysisBasedRDA.setToolTipText(
 			"Only primaries belonging to the same equivalence class  will be considered.");
 
 		final Button _symbolBasedEscapeAnalysisBasedRDA = new Button(_precisionGroup, SWT.RADIO);
-		_symbolBasedEscapeAnalysisBasedRDA.setText("use sybmol and equivalence class-based analysis");
+		_symbolBasedEscapeAnalysisBasedRDA.setText("use sybmolic and equivalence class-based escape analysis");
 		_symbolBasedEscapeAnalysisBasedRDA.setToolTipText(
 			"Only symbolically equivalent primaries that belong to the same equivalence class will be considered.");
 
@@ -880,7 +880,9 @@ public final class SlicerConfigurator
 		final GridData _gridData2 = new GridData();
 		_gridData2.horizontalSpan = 1;
 		executableSliceButton.setLayoutData(_gridData2);
-
+        executableSliceButton.addSelectionListener(new BooleanPropertySelectionListener(
+                SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg));
+        
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
