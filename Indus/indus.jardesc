@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
     <jar path="/home/venku/workspace/eclipse/Indus/indus.jar"/>
-    <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/Indus/indus.jardesc" useSourceFolders="false" buildIfNeeded="false" includeDirectoryEntries="false"/>
-    <manifest manifestVersion="1.0" usesManifest="false" reuseManifest="false" saveManifest="false" generateManifest="true" manifestLocation="">
+    <options buildIfNeeded="false" compress="true" descriptionLocation="/Indus/indus.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" useSourceFolders="false"/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="false">
         <sealing sealJar="false">
             <packagesToSeal>
                 <package handleIdentifier="=Indus/src&lt;edu.ksu.cis.indus.common"/>
@@ -27,7 +27,7 @@
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="true" exportOutputFolder="false" exportJavaFiles="false">
+    <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
         <javaElement handleIdentifier="=Indus/src"/>
         <javaElement handleIdentifier="=Indus/src-test"/>
         <javaElement handleIdentifier="=Indus/src-xml"/>
