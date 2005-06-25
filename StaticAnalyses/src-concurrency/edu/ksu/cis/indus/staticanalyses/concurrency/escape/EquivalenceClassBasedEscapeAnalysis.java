@@ -692,7 +692,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Performs phase 2 processing as described in the paper described in the documentation of this class.
+	 * Performs phase 2 processing as described in the paper mentioned in the documentation of this class.
 	 */
 	private void performPhase2() {
 		final Collection _processed = new HashSet();
