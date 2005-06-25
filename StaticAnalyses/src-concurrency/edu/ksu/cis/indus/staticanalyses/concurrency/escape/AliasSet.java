@@ -275,6 +275,7 @@ final class AliasSet
 					new ToStringBuilder(this).append("waits", this.waits).append("writtenFields", this.writtenFields)
 											   .append("global", this.global).append("readyEntities", this.readyEntities)
 											   .append("multiThreadAccess", this.multiThreadAccessibility)
+                                               .append("accessed", this.accessed)
 											   .append("shareEntities", this.shareEntities).append("notifies", this.notifies)
 											   .append("readFields", this.readFields).append("readThreads", readThreads)
 											   .append("writeThreads", writeThreads).append("lockEntities", this.lockEntities)
