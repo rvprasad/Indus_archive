@@ -197,7 +197,7 @@ final class ValueProcessor
 			_base = AliasSet.getASForType(_declaringClass.getType());
 
 			if (_base != null) {
-				ecba.class2aliasSet.put(v, _base);
+				ecba.class2aliasSet.put(_declaringClass, _base);
 			}
 		}
 
@@ -492,17 +492,17 @@ final class ValueProcessor
 	 * Helper method to record threads in which alias is accessed.
 	 *
 	 * @param as is the alias set to be marked.
+     * 
+     * @pre as != null
 	 */
 	private void recordAccessInfo(final AliasSet as) {
-		if (as != null) {
-			as.setAccessed();
+		as.setAccessed();
 
-			if (ecba.tgi != null) {
-				if (rhs) {
-					as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
-				} else {
-					as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
-				}
+		if (ecba.tgi != null) {
+			if (rhs) {
+				as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+			} else {
+				as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
 			}
 		}
 	}
