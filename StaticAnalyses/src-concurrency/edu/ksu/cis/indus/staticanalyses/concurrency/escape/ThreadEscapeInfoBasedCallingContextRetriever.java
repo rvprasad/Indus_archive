@@ -167,36 +167,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 */
 	protected boolean considerProgramPoint(final Context context) {
 		final Value _value = context.getProgramPoint().getValue();
-		final Stmt _stmt = context.getStmt();
-		Value _r = null;
-		final boolean _result;
-
-		if (_stmt.containsFieldRef()) {
-			final FieldRef _fr = _stmt.getFieldRef();
-
-			if ((_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _value).getBase() == _value)
-				  || (_fr instanceof StaticFieldRef && _fr == _value)) {
-				_r = _value;
-			}
-		} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
-			_r = _value;
-		} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
-			_r = _value;
-		} else if (_stmt.containsInvokeExpr()) {
-			final InvokeExpr _ex = _stmt.getInvokeExpr();
-
-			if (_ex instanceof InstanceFieldRef
-				  && (Util.isWaitMethod(_ex.getMethod()) || Util.isNotifyMethod(_ex.getMethod()))
-				  && ((VirtualInvokeExpr) _ex).getBase() == _value) {
-				_r = _value;
-			}
-		}
-
-		if (_r == null) {
-			_result = false;
-		} else {
-			_result = escapesInfo.escapes(_r, context.getCurrentMethod());
-		}
+		final boolean _result = escapesInfo.escapes(_value, context.getCurrentMethod());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint() - result =" + _result);
