@@ -272,13 +272,16 @@ final class AliasSet
 			} else {
 				stringifying = true;
 				_result =
-					new ToStringBuilder(this).append("waits", this.waits).append("writtenFields", this.writtenFields)
-											   .append("global", this.global).append("readyEntities", this.readyEntities)
+					new ToStringBuilder(this).append("global", this.global)
 											   .append("multiThreadAccess", this.multiThreadAccessibility)
-                                               .append("accessed", this.accessed)
-											   .append("shareEntities", this.shareEntities).append("notifies", this.notifies)
-											   .append("readFields", this.readFields).append("readThreads", readThreads)
-											   .append("writeThreads", writeThreads).append("lockEntities", this.lockEntities)
+											   .append("accessed", this.accessed).append("notifies", this.notifies)
+											   .append("waits", this.waits).append("writtenFields", this.writtenFields)
+											   .append("readFields", this.readFields)
+											   .append("readyEntities", this.readyEntities)
+											   .append("lockEntities", this.lockEntities)
+											   .append("shareEntities", this.shareEntities)
+											   .append("sigsOfSharedFields", sigsOfSharedFields)
+											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
 											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
