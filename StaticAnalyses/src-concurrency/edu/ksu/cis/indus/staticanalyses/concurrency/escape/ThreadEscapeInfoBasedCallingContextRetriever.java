@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
