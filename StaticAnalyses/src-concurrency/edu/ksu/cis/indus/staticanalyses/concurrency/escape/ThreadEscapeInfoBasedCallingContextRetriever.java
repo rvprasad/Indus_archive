@@ -27,14 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootMethod;
 import soot.Value;
 
-import soot.jimple.FieldRef;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.InvokeExpr;
-import soot.jimple.MonitorStmt;
-import soot.jimple.StaticFieldRef;
-import soot.jimple.Stmt;
-import soot.jimple.VirtualInvokeExpr;
-
 
 /**
  * This class provides facilities to retrieve context based on thread escape information.
@@ -101,8 +93,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, 
-     * edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
+	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod,
+	 * 		edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
 		if (LOGGER.isDebugEnabled()) {
@@ -179,7 +171,13 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result = _method.isStatic() || escapesInfo.thisEscapes(_method);
+		final boolean _result;
+
+		if (_method.isStatic()) {
+			_result = escapesInfo.escapes(_method.getDeclaringClass(), _method);
+		} else {
+			_result = escapesInfo.thisEscapes(_method);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerThis() -  : _result = " + _result);
@@ -189,12 +187,12 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, 
-     * edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
+	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod,
+	 * 		edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
 	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {
-		return ((AliasSet) calleeToken).isGlobal();
+		return ((AliasSet) calleeToken).escapes();
 	}
 }
 
