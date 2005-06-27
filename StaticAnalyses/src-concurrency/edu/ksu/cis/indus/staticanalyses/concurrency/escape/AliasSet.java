@@ -135,7 +135,8 @@ final class AliasSet
 	private boolean accessed;
 
 	/** 
-	 * This indicates if this alias set is associated with a static field.
+	 * This indicates if this alias set is associated with a static field.  This is maintained to quickly differentiate a  an
+	 * alias set associated with system-common (static) data.
 	 */
 	private boolean global;
 
@@ -367,17 +368,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the object associated with this alias set is accessible globally via static fields.
-	 *
-	 * @return <code>true</code> if the associated object is accessible globally; <code>false</code>, otherwise.
-	 *
-	 * @post result == find().global
-	 */
-	boolean isGlobal() {
-		return ((AliasSet) find()).global;
-	}
-
-	/**
 	 * Retrieves the alias set that is reachable from <code>root</code> and that corresponds to <code>ref</code>, an alias
 	 * set reachable from this alias set. This method can be used to retrieve the alias set in the site-context
 	 * corresponding to an alias side in the callee method context.
@@ -558,7 +548,6 @@ final class AliasSet
 	 * Checks if the object associated with this alias set is accessible in multiple threads.
 	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
-	 *
 	 */
 	boolean escapes() {
 		return ((AliasSet) find()).multiThreadAccessibility;
@@ -882,6 +871,17 @@ final class AliasSet
 	 */
 	boolean wasFieldWritten(final String fieldSig) {
 		return ((AliasSet) find()).writtenFields.contains(fieldSig);
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is accessible globally via static fields.
+	 *
+	 * @return <code>true</code> if the associated object is accessible globally; <code>false</code>, otherwise.
+	 *
+	 * @post result == find().global
+	 */
+	private boolean isGlobal() {
+		return ((AliasSet) find()).global;
 	}
 
 	/**
