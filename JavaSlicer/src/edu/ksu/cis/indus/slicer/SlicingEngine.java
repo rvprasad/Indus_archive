@@ -151,7 +151,7 @@ public final class SlicingEngine {
 	 * The closure used to extract dependence information based on slice direction.  See <code>setSliceType()</code> for
 	 * details.
 	 */
-	private final DependenceExtractor dependenceExtractor = new DependenceExtractor();
+	private final DependenceExtractor dependenceExtractor = new DependenceExtractor(this);
 
 	/** 
 	 * The work bag used during slicing.
@@ -887,7 +887,7 @@ public final class SlicingEngine {
 	 */
 	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
+			LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) - start");
 		}
 
 		dependenceExtractor.setTrigger(stmt, method);
@@ -895,6 +895,7 @@ public final class SlicingEngine {
 
 		for (final Iterator _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
+			final Collection _contexts = dependenceExtractor.getContextsFor(_o);
 			final Stmt _stmtToBeIncluded;
 			final SootMethod _methodToBeIncluded;
 
@@ -907,15 +908,34 @@ public final class SlicingEngine {
 				_methodToBeIncluded = method;
 			}
 
-			if (_methodToBeIncluded.equals(method) && _stmtToBeIncluded != null) {
-				generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
-			} else {
-				generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) -  : _contexts=" + _contexts
+					+ ", _stmtToBeIncluded=" + _stmtToBeIncluded + ", _methodToBeIncluded=" + _methodToBeIncluded);
 			}
+
+			final Stack _temp = getCopyOfCallStackCache();
+			final Iterator _i1 = _contexts.iterator();
+			final int _iEnd = _contexts.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Stack _context = (Stack) _i1.next();
+				setCallStackCache(_context);
+
+				if (_stmtToBeIncluded != null) {
+					final boolean _b = generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
+
+					if (!_b) {
+						generateMethodLevelSliceCriteria(_methodToBeIncluded);
+					}
+				} else {
+					generateMethodLevelSliceCriteria(_methodToBeIncluded);
+				}
+			}
+			setCallStackCache(_temp);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating Criteria based on dependences");
+			LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) - end");
 		}
 	}
 
@@ -1007,55 +1027,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Generates contextualized criteria based on inter-procedural dependence.
-	 *
-	 * @param criteriaBase a reference that is required to generate contexts.  This is not used by this method. Rather it is
-	 * 		  provided to the context generator.
-	 * @param stmtToBeIncluded the criteria needs to be generated to include this statement into the slice.  If this is
-	 * 		  <code>null</code> then the provided method is included in the slice.
-	 * @param methodToBeIncluded this method contains <code>stmtToBeIncluded</code>.
-	 *
-	 * @pre criteriaBase != null and methodToBeIncluded != null
-	 */
-	private void generateInterProceduralContextualizedCriteria(final Object criteriaBase, final Stmt stmtToBeIncluded,
-		final SootMethod methodToBeIncluded) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateInterProceduralContextualizedCriteria(Object criteriaBase = " + criteriaBase
-				+ ", Stmt stmtToBeIncluded = " + stmtToBeIncluded + ", SootMethod methodToBeIncluded = " + methodToBeIncluded
-				+ ") - BEGIN");
-		}
-
-		final Stack _temp = getCopyOfCallStackCache();
-		final Collection _contexts = dependenceExtractor.getContextsFor(criteriaBase);
-		final Iterator _i = _contexts.iterator();
-		final int _iEnd = _contexts.size();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateInterProceduralContextualizedCriteria() - Contexts  : _contexts = " + _contexts);
-		}
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stack _context = (Stack) _i.next();
-			setCallStackCache(_context);
-
-			if (stmtToBeIncluded != null) {
-				final boolean _b = generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
-
-				if (!_b) {
-					generateMethodLevelSliceCriteria(methodToBeIncluded);
-				}
-			} else {
-				generateMethodLevelSliceCriteria(methodToBeIncluded);
-			}
-		}
-		setCallStackCache(_temp);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateInterProceduralContextualizedCriteria() - END");
-		}
-	}
-
-	/**
 	 * Generates method level slice criteria for the given method.
 	 *
 	 * @param method of interest.
@@ -1123,9 +1094,9 @@ public final class SlicingEngine {
 		if (method2callStacks.containsKey(method)) {
 			final SimpleNodeGraph _sng = (SimpleNodeGraph) method2callStacks.get(method);
 			final int _limit = callStackCache.size() - 1;
-            final Collection _succsOfSrc = new ArrayList();
-            final Collection _reachablesFrom = new HashSet();
-            
+			final Collection _succsOfSrc = new ArrayList();
+			final Collection _reachablesFrom = new HashSet();
+
 			for (int _i = _limit; _i >= 0 && _result; _i--) {
 				final Object _o = callStackCache.get(_i);
 				INode _node = _sng.queryNode(_o);
@@ -1136,9 +1107,10 @@ public final class SlicingEngine {
 					if (_node.getSuccsOf().isEmpty()) {
 						_result = false;
 					} else if (_i == 0) {
-                        _reachablesFrom.clear();
-                        _reachablesFrom.addAll(_sng.getReachablesFrom(_node, true));
-                        _reachablesFrom.add(_node);
+						_reachablesFrom.clear();
+						_reachablesFrom.addAll(_sng.getReachablesFrom(_node, true));
+						_reachablesFrom.add(_node);
+
 						final Iterator _j = _reachablesFrom.iterator();
 						final int _jEnd = _reachablesFrom.size();
 

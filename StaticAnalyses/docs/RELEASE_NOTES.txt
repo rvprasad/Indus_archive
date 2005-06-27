@@ -26,6 +26,12 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.7
+---------------
+	- Incorret escape information for static fields due to recent refactorings was fixed.
+	- Improved precision of escape information pertaining to static fields.
+	- Improved precision of atomicity information as well.
+
 Version 0.6.4
 -----------------
 	- Improved the precision of statement-level atomicity information.

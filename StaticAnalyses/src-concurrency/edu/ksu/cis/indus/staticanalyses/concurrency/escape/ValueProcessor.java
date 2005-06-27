@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
-import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
@@ -190,19 +189,9 @@ final class ValueProcessor
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef v) {
 		final SootField _field = v.getField();
-		final SootClass _declaringClass = _field.getDeclaringClass();
-		AliasSet _base = (AliasSet) ecba.class2aliasSet.get(_declaringClass);
-
-		if (_base == null) {
-			_base = AliasSet.getASForType(_declaringClass.getType());
-
-			if (_base != null) {
-				ecba.class2aliasSet.put(_declaringClass, _base);
-			}
-		}
-
+		final AliasSet _base = ecba.getASForClass(_field.getDeclaringClass());
 		final AliasSet _fieldAS = processField(v.getType(), _base, _field.getSignature());
-        _base.setGlobal();
+		_base.setGlobal();
 		setResult(_fieldAS);
 
 		if (rhs) {
@@ -473,11 +462,11 @@ final class ValueProcessor
 	 * @pre primaryAliasSet != null and callee != null
 	 */
 	private boolean processNotifyStartWaitSync(final AliasSet primaryAliasSet, final SootMethod callee) {
-		boolean _delayUnification = false;
+		boolean _startWasInvoked = false;
 
 		if (Util.isStartMethod(callee)) {
 			// unify alias sets after all statements are processed if "start" is being invoked.
-			_delayUnification = true;
+			_startWasInvoked = true;
 		} else if (Util.isWaitMethod(callee)) {
 			primaryAliasSet.setWaits();
 			primaryAliasSet.setLocked();
@@ -485,15 +474,15 @@ final class ValueProcessor
 			primaryAliasSet.setNotifies();
 		}
 
-		return _delayUnification;
+		return _startWasInvoked;
 	}
 
 	/**
 	 * Helper method to record threads in which alias is accessed.
 	 *
 	 * @param as is the alias set to be marked.
-     * 
-     * @pre as != null
+	 *
+	 * @pre as != null
 	 */
 	private void recordAccessInfo(final AliasSet as) {
 		as.setAccessed();

@@ -32,6 +32,10 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.7
+----------------
+	- Extended IEscapeInfo to provide more precise escape info pertaining to static fields.
+
 Version 0.6.4
 ----------------
     - Renamed indus.tools.bandera package as indus.toolkits.bandera.

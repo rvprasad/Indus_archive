@@ -564,6 +564,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Retrieves the alias set for the given soot class.
+	 *
+	 * @param sc is the class of interest.
+	 *
+	 * @return an alias set.
+	 */
+	AliasSet getAliasSetFor(final SootClass sc) {
+		return (AliasSet) class2aliasSet.get(sc);
+	}
+
+	/**
 	 * Retrieves the alias set for "this" variable of the given method.
 	 *
 	 * @param method of interest.

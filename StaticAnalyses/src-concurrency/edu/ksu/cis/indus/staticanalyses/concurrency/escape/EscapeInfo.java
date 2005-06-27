@@ -32,13 +32,13 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
 import soot.RefType;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.MonitorStmt;
-import soot.jimple.StaticFieldRef;
 import soot.jimple.VirtualInvokeExpr;
 
 
@@ -226,42 +226,8 @@ class EscapeInfo
 		} else if ((local1 == null && method1.isStatic()) ^ (local2 == null && method2.isStatic())) {
 			_result = true;
 		} else {
-			final Triple _trp1 = (Triple) analysis.method2Triple.get(method1);
-
-			if (_trp1 == null) {
-				throw new IllegalArgumentException(method1 + " was not processed.");
-			}
-
-			final AliasSet _a1;
-
-			if (local1 != null) {
-				_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local1);
-			} else {
-				_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
-			}
-
-			if (_a1 == null) {
-				throw new IllegalArgumentException(local1 + " in " + method1 + " was not processed.");
-			}
-
-			final Triple _trp2 = (Triple) analysis.method2Triple.get(method2);
-
-			if (_trp2 == null) {
-				throw new IllegalArgumentException(method2 + " was not processed.");
-			}
-
-			final AliasSet _a2;
-
-			if (local2 != null) {
-				_a2 = (AliasSet) ((Map) _trp2.getSecond()).get(local2);
-			} else {
-				_a2 = ((MethodContext) _trp2.getFirst()).getThisAS();
-			}
-
-			if (_a2 == null) {
-				throw new IllegalArgumentException(local2 + " in " + method2 + " was not processed.");
-			}
-
+			final AliasSet _a1 = getAliasSetForIn(local1, method1);
+			final AliasSet _a2 = getAliasSetForIn(local2, method2);
 			final Collection _a1LockEntities = _a1.getLockEntities();
 			final Collection _a2LockEntities = _a2.getLockEntities();
 			_result =
@@ -270,6 +236,36 @@ class EscapeInfo
 		}
 		return _result;
 	}
+
+    /**
+     * Retrieves the alias set for the given local in the given method.
+     * 
+     * @param local of interest.
+     * @param method in which <code>local</code> occurs.
+     * @return the alias set if it exists.
+     * @throws IllegalArgumentException when either the method or the local was not processed.
+     * @pre local != null and method != null 
+     */
+    private AliasSet getAliasSetForIn(final Local local, final SootMethod method) throws IllegalArgumentException {
+        final Triple _trp1 = (Triple) analysis.method2Triple.get(method);
+
+        if (_trp1 == null) {
+        	throw new IllegalArgumentException(method + " was not processed.");
+        }
+
+        final AliasSet _a1;
+
+        if (local != null) {
+        	_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local);
+        } else {
+        	_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
+        }
+
+        if (_a1 == null) {
+        	throw new IllegalArgumentException(local + " in " + method + " was not processed.");
+        }
+        return _a1;
+    }
 
 	/**
 	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
@@ -393,6 +389,29 @@ class EscapeInfo
 
 		return _result;
 	}
+    
+    /**
+     * @see IEscapeInfo#escapes(SootClass, SootMethod)
+     */
+    public boolean escapes(final SootClass sc, final SootMethod sm) {
+        boolean _result = this.analysis.escapesDefaultValue;
+
+        try {
+            final AliasSet _as = this.analysis.getAliasSetFor(sc);
+            if (_as != null) {
+                _result = _as.escapes();
+            } else {
+                _result = false;
+            }
+        } catch (final NullPointerException _e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+                    + ".  So, providing default value - " + _result, _e);
+            }
+        }
+
+        return _result;
+    }
 
 	/**
 	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod)
@@ -475,6 +494,79 @@ class EscapeInfo
 		} catch (final NullPointerException _e) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod)
+	 */
+	public boolean staticfieldAccessShared(final SootClass sc, final SootMethod sm) {
+		boolean _result = this.analysis.escapesDefaultValue;
+
+		try {
+			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+
+			if (_as != null) {
+				_result = _as.readWriteShared();
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod, soot.SootClass,
+	 * 		soot.SootMethod)
+	 */
+	public boolean staticfieldAccessShared(final SootClass sc1, final SootMethod sm1, final SootClass sc2,
+		final SootMethod sm2) {
+		boolean _result = staticfieldAccessShared(sc1, sm1) && staticfieldAccessShared(sc1, sm2);
+
+		if (_result) {
+			try {
+				final Collection _o1 = analysis.getAliasSetFor(sc1).getShareEntities();
+				final Collection _o2 = analysis.getAliasSetFor(sc2).getShareEntities();
+				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
+			} catch (final NullPointerException _e) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("There is no information about " + sc1 + "/" + sc2 + " occurring in " + sm1 + "/" + sm2
+						+ ".  So, providing pessimistic info (true).", _e);
+				}
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod,
+	 * 		java.lang.String)
+	 */
+	public boolean staticfieldAccessShared(final SootClass sc, final SootMethod sm, final String signature) {
+		boolean _result = this.analysis.escapesDefaultValue;
+
+		try {
+			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+
+			if (_as != null) {
+				_result = _as.readWriteShared(signature);
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
 			}
 		}

@@ -32,6 +32,14 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.7
+-------------------
+	- improved the precision of context-sensitive slicing.
+
+Version 0.6.4.1
+-------------------
+	- Persistence bugs were fixed in SliceConfigurator.
+
 Version 0.6.4
 -----------------
 	- Minor bug fixes and performance improvements.

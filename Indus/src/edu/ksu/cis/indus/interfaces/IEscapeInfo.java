@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.interfaces;
 import java.util.Collection;
 
 import soot.Local;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
 
@@ -176,10 +177,10 @@ public interface IEscapeInfo
 	boolean areWaitAndNotifyCoupled(InvokeStmt wait, SootMethod waitMethod, InvokeStmt notify, SootMethod notifyMethod);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method escapes.  This suggests mere multithread
+	 * Checks if the object bound to the given program point in the given method escapes.  This suggests mere multithread
 	 * visibility and not multithread access.
 	 *
-	 * @param v is the object value being checked for escaping.
+	 * @param v is the program point being checked for escaping.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 *
 	 * @return <code>true</code> if <code>v</code> is escapes; <code>false</code>, otherwise.
@@ -187,12 +188,26 @@ public interface IEscapeInfo
 	 * @pre v != null and sm != null
 	 */
 	boolean escapes(Value v, SootMethod sm);
-
+    
+    /**
+     * Checks if the given class in the given method escapes.  This suggests mere multithread
+     * visibility and not multithread access.  Although a class is accessible in all location it is visible at, it does not
+     * imply that it is accessed in multiple threads.
+     *
+     * @param sc is the class being checked for escaping.
+     * @param sm is the method in which <code>sc</code> occurs.
+     *
+     * @return <code>true</code> if <code>sc</code> is escapes; <code>false</code>, otherwise.
+     *
+     * @pre sc != null and sm != null
+     */
+    boolean escapes(SootClass sc, SootMethod sm);
+    
 	/**
-	 * Checks if the object bound to the given variable in the given method is shared. This suggests multithread field
+	 * Checks if the object bound to the given program point in the given method is shared. This suggests multithread field
 	 * access.
 	 *
-	 * @param v is the object value being checked for sharing.
+	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 *
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
@@ -202,12 +217,12 @@ public interface IEscapeInfo
 	boolean fieldAccessShared(Value v, SootMethod sm);
 
 	/**
-	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
-	 * escaping and be involved in a inter-thread field access operation.
+	 * Checks if the object bound to the given program points are shared.  This is more stricter than escape-ness.  This
+	 * requires that the values be escaping and be involved in a inter-thread field access operation.
 	 *
-	 * @param v1 is one of the value in the check.
+	 * @param v1 is one of the program point in the check.
 	 * @param sm1 is the method in which <code>v1</code> occurs.
-	 * @param v2 is the other value in the check.
+	 * @param v2 is the other program point in the check.
 	 * @param sm2 is the method in which <code>v2</code> occurs.
 	 *
 	 * @return <code>true</code> if the given values are indeed shared across threads; <code>false</code>, otherwise.
@@ -217,10 +232,10 @@ public interface IEscapeInfo
 	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method is shared via access to the specified field. This
-	 * suggests multithread field access.
+	 * Checks if the object bound to the given program point in the given method is shared via access to the specified field.
+	 * This suggests multithread field access.
 	 *
-	 * @param v is the object value being checked for sharing.
+	 * @param v is the  program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @param signature is the field signature of interest.
 	 *
@@ -231,10 +246,10 @@ public interface IEscapeInfo
 	boolean fieldAccessShared(Value v, SootMethod sm, String signature);
 
 	/**
-	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread lock-unlock
-	 * access.
+	 * Checks if the object bound to the given program point in the given method shared. This suggests multithread
+	 * lock-unlock access.
 	 *
-	 * @param v is the object value being checked for sharing.
+	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 *
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
@@ -242,6 +257,52 @@ public interface IEscapeInfo
 	 * @pre v != null and sm != null
 	 */
 	boolean lockUnlockShared(Value v, SootMethod sm);
+
+	/**
+	 * Checks if the given class is shared in the given method via an access to a static field. This suggests multithread
+	 * field access.
+	 *
+	 * @param sc is the class being checked for static field sharing.
+	 * @param sm is the method in which <code>sc</code> is accessed for static field access.
+	 *
+	 * @return <code>true</code> if <code>sc</code> is shared across threads for static field access; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre sc != null and sm != null
+	 */
+	boolean staticfieldAccessShared(SootClass sc, SootMethod sm);
+
+	/**
+	 * Checks if the given classes are shared in the given methods via an access to a common static field.  This is more
+	 * stricter than escape-ness.  This requires that the values be escaping and be involved in a inter-thread field access
+	 * operation.
+	 *
+	 * @param sc1 is one of the class being checked for static field sharing.
+	 * @param sm1 is the method in which <code>sc1</code> is accessed for static field access.
+	 * @param sc2 is the other class being checked for static field sharing.
+	 * @param sm2 is the method in which <code>sc2</code> is accessed for static field access.
+	 *
+	 * @return <code>true</code> if the given classes are indeed shared across threads for static field access;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre sc1 != null and sm1 != null and sc2 != null and sm2 != null
+	 */
+	boolean staticfieldAccessShared(SootClass sc1, SootMethod sm1, SootClass sc2, SootMethod sm2);
+
+	/**
+	 * Checks if the given class is shared in the given method via an access to the static field with the given signature.
+	 * This suggests multithread field access.
+	 *
+	 * @param sc is the class being checked for static field sharing.
+	 * @param sm is the method in which <code>sc</code> is accessed for static field access.
+	 * @param signature is the field signature of interest.
+	 *
+	 * @return <code>true</code> if <code>sc</code> is shared across multiple threads for access to the given static field;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre sc != null and sm != null and signature != null
+	 */
+	boolean staticfieldAccessShared(SootClass sc, SootMethod sm, String signature);
 
 	/**
 	 * Checks if "this" variable of the given method escapes.  If the method is static then the result is pessimistic, hence,

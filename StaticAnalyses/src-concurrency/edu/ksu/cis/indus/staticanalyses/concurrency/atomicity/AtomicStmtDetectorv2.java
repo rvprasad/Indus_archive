@@ -53,15 +53,16 @@ public class AtomicStmtDetectorv2
 			} else if (stmt.containsFieldRef()) {
 				final FieldRef _fieldRef = stmt.getFieldRef();
 				final SootField _field = _fieldRef.getField();
-				_result = _field.isFinal();
+                _result = _field.isFinal();
 
 				if (!_result) {
+                    final String _signature = _field.getSignature();
 					if (_fieldRef instanceof InstanceFieldRef) {
-						_result =
+                        _result =
 							!escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method,
-								_field.getSignature());
+								_signature);
 					} else {
-						_result = !escapeInfo.fieldAccessShared(_fieldRef, method);
+						_result = !escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), method, _signature);
 					}
 				}
 			} else if (stmt instanceof EnterMonitorStmt) {

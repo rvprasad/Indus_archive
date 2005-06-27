@@ -235,8 +235,11 @@ public class AtomicStmtDetector
 	 * @pre stmt != null and method != null
 	 */
 	protected boolean isAtomic(final Stmt stmt, final SootMethod method) {
-		boolean atomic = !stmt.containsInvokeExpr();
-
+		boolean atomic = !stmt.containsInvokeExpr();        
+        if (atomic && stmt.containsFieldRef() && stmt.getFieldRef().getField().isStatic()) {
+            atomic = escapeInfo.escapes(stmt.getFieldRef().getField().getDeclaringClass(), method);            
+        }
+        
 		for (final Iterator _i =
 				IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(),
 					SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && atomic;) {

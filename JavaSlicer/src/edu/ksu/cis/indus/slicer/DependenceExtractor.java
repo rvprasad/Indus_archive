@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +43,12 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.FieldRef;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
 import soot.jimple.Stmt;
+import soot.jimple.VirtualInvokeExpr;
 
 
 /**
@@ -59,6 +65,61 @@ final class DependenceExtractor
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependenceExtractor.class);
+
+	/** 
+	 * This retriever will return the program point containing the locked object.
+	 */
+	private static final IProgramPointRetriever SYNCHRONIZATION_DA_PPR =
+		new IProgramPointRetriever() {
+			public Collection getProgramPoints(final Stmt stmt) {
+				if (stmt instanceof MonitorStmt) {
+					return Collections.singleton(((MonitorStmt) stmt).getOpBox());
+				}
+				throw new IllegalArgumentException("stmt has to be of type MonitorStmt.");
+			}
+		};
+
+	/** 
+	 * This retriever will return the program point containing the reference.
+	 */
+	private static final IProgramPointRetriever REFERENTIAL_DA_PPR =
+		new IProgramPointRetriever() {
+			public Collection getProgramPoints(final Stmt stmt) {
+				final Collection _result;
+
+				if (stmt.containsArrayRef()) {
+					_result = Collections.singleton(stmt.getArrayRef().getBaseBox());
+				} else if (stmt.containsFieldRef()) {
+					final FieldRef _fr = stmt.getFieldRef();
+
+					if (_fr instanceof InstanceFieldRef) {
+						_result = Collections.singleton(((InstanceFieldRef) _fr).getBaseBox());
+					} else {
+						_result = Collections.singleton(stmt.getFieldRefBox());
+					}
+				} else {
+					throw new IllegalArgumentException("stmt has to contain an array/field reference.");
+				}
+				return _result;
+			}
+		};
+
+	/** 
+	 * This retriever will return the program point containing the receiver of the wait/notify invocation or the locked
+	 * object of the monitor.
+	 */
+	private static final IProgramPointRetriever READY_DA_PPR =
+		new IProgramPointRetriever() {
+			public Collection getProgramPoints(final Stmt stmt) {
+				if (stmt instanceof InvokeStmt) {
+					return Collections.singleton((((VirtualInvokeExpr) ((InvokeStmt) stmt).getInvokeExpr())).getBaseBox());
+				} else if (stmt instanceof MonitorStmt) {
+					return Collections.singleton(((MonitorStmt) stmt).getOpBox());
+				} else {
+					throw new IllegalArgumentException("stmt has to be of type MonitorStmt or InvokeStmt.");
+				}
+			}
+		};
 
 	/** 
 	 * The entity which is the trigger.
@@ -94,11 +155,21 @@ final class DependenceExtractor
 	 */
 	private IDependenceRetriver retriever;
 
+	/** 
+	 * The instance of SlicingEngine that will use this instance.
+	 */
+	private final SlicingEngine engine;
+
 	/**
 	 * Creates a new CriteriaClosure object.
+	 *
+	 * @param slicingEngine that will use this instance.
+	 *
+	 * @pre slicingEngine != null
 	 */
-	protected DependenceExtractor() {
+	protected DependenceExtractor(final SlicingEngine slicingEngine) {
 		dependences = new HashSet();
+		engine = slicingEngine;
 	}
 
 	/**
@@ -124,6 +195,27 @@ final class DependenceExtractor
 		Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method);
 	}
 
+
+	/**
+	 * The interface used to extract program points of a statement for the purpose of context generation.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private interface IProgramPointRetriever {
+		/**
+		 * Retrieves the program points of interest from the given statement.
+		 *
+		 * @param stmt of interest.
+		 *
+		 * @return the collection of value boxes/program points.
+		 *
+		 * @pre stmt != null
+		 */
+		Collection getProgramPoints(Stmt stmt);
+	}
+
 	/**
 	 * Retrieves the contexts for the given criteria base.
 	 *
@@ -135,7 +227,8 @@ final class DependenceExtractor
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
 	public Collection getContextsFor(final Object criteriaBase) {
-		final Collection _result = (Collection) criteriabase2contexts.get(criteriaBase);
+		final Collection _result =
+			(Collection) MapUtils.getObject(criteriabase2contexts, criteriaBase, Collections.EMPTY_SET);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getContextsFor(criteriaBase = " + criteriaBase + ") -  : _result = " + _result);
@@ -168,15 +261,15 @@ final class DependenceExtractor
 	 */
 	public void execute(final Object analysis) {
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
-        final Collection _t = new HashSet(retriever.getDependences(_da, entity, occurringMethod));
-        dependences.addAll(_t);
+		final Collection _t = retriever.getDependences(_da, entity, occurringMethod);
+		dependences.addAll(_t);
 		populateCriteriaBaseToContextsMap(_da, _t);
 
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
 			_sb.append("Criteria bases for " + entity + "@" + occurringMethod + " from " + _da.getClass() + " are :\n[");
 
-			for (final Iterator _j = retriever.getDependences(_da, entity, occurringMethod).iterator(); _j.hasNext();) {
+			for (final Iterator _j = _t.iterator(); _j.hasNext();) {
 				_sb.append("\n\t->" + _j.next());
 			}
 			_sb.append("\n]");
@@ -220,41 +313,47 @@ final class DependenceExtractor
 	}
 
 	/**
-	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given dependence analysis.
+	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given interprocedural dependence analysis.
 	 *
-	 * @param da to be used while populating the map.
-	 * @param criteriaBases for which contexts need to be retrieved.
+	 * @param ids of the dependence analysis from which <code>criteriaBases</code> was generated.
+	 * @param criteriaBases for which contexts are required.
 	 *
-	 * @pre da != null and criteriaBases != null and criteriaBases
-	 * @post criteriabase2contexts.oclIsKindOf(Map(Object, Collection(Stack(CallTriple))))
+	 * @throws IllegalArgumentException when the preconditions are not satisfied.
+	 *
+	 * @pre ids != null and criteriaBases != null
+	 * @pre ids.oclIsKindOf(Collection(String)) and criteriaBases.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre ids.contains(IDependencyAnalysis.READY_DA) or ids.contains(IDependencyAnalysis.INTERFERENCE_DA)  or
+	 * 		ids.contains(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) or
+	 * 		ids.contains(IDependencyAnalysis.SYNCHRONIZATION_DA)
 	 */
-	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da, final Collection criteriaBases) {
-		final Collection _ids = da.getIds();
-		final Collection _retrievers = new HashSet();
+	private void populateContextsForInterProceduralDependences(final Collection ids, final Collection criteriaBases) {
+		final IProgramPointRetriever _result;
 
-		if (CollectionUtils.containsAny(_ids, depID2ctxtRetriever.keySet())) {
-			for (final Iterator _i = CollectionUtils.intersection(_ids, depID2ctxtRetriever.keySet()).iterator();
-				  _i.hasNext();) {
-				_retrievers.add(depID2ctxtRetriever.get(_i.next()));
-			}
+		if (ids.contains(IDependencyAnalysis.READY_DA)) {
+			_result = READY_DA_PPR;
+		} else if (ids.contains(IDependencyAnalysis.INTERFERENCE_DA)
+			  || ids.contains(IDependencyAnalysis.REFERENCE_BASED_DATA_DA)) {
+			_result = REFERENTIAL_DA_PPR;
+		} else if (ids.contains(IDependencyAnalysis.SYNCHRONIZATION_DA)) {
+			_result = SYNCHRONIZATION_DA_PPR;
 		} else {
-			_retrievers.add(ICallingContextRetriever.NULL_CONTEXT_RETRIEVER);
+			throw new IllegalArgumentException("da has to have one of these Ids mentioned in the documentation. - " + ids);
 		}
 
-		for (final Iterator _l = _retrievers.iterator(); _l.hasNext();) {
-			final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) _l.next();
+		final IProgramPointRetriever _ppr = _result;
+
+		for (final Iterator _i = CollectionUtils.intersection(ids, depID2ctxtRetriever.keySet()).iterator(); _i.hasNext();) {
+			final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(_i.next());
 			_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_ENTITY, entity);
 			_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_METHOD, occurringMethod);
 
 			final Context _context = new Context();
-			final Iterator _j = criteriaBases.iterator();
-			final int _jEnd = criteriaBases.size();
 
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			for (final Iterator _j = criteriaBases.iterator(); _j.hasNext();) {
 				final Object _t = _j.next();
 				final boolean _containsKey = criteriabase2contexts.containsKey(_t);
 
-				if (_t instanceof Pair && !(_containsKey && ((Collection) criteriabase2contexts.get(_t)).contains(null))) {
+				if (!(_containsKey && ((Collection) criteriabase2contexts.get(_t)).contains(null))) {
 					final Pair _pair = (Pair) _t;
 					final Object _o = _pair.getFirst();
 					final SootMethod _criteriabaseMethod = (SootMethod) _pair.getSecond();
@@ -264,11 +363,9 @@ final class DependenceExtractor
 						_context.setStmt(_stmt);
 						_context.setRootMethod(_criteriabaseMethod);
 
-						final Collection _programPoints = _stmt.getUseAndDefBoxes();
-						final Iterator _k = _programPoints.iterator();
-						final int _kEnd = _programPoints.size();
+						final Collection _programPoints = _ppr.getProgramPoints(_stmt);
 
-						for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+						for (final Iterator _k = _programPoints.iterator(); _k.hasNext();) {
 							_context.setProgramPoint((ValueBox) _k.next());
 
 							final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
@@ -276,7 +373,8 @@ final class DependenceExtractor
 								CollectionsUtilities.HASH_SET_FACTORY);
 						}
 					} else {
-                        _context.setRootMethod(_criteriabaseMethod);
+						_context.setRootMethod(_criteriabaseMethod);
+
 						final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis(_context);
 						CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
 							CollectionsUtilities.HASH_SET_FACTORY);
@@ -284,12 +382,37 @@ final class DependenceExtractor
 				}
 			}
 		}
+	}
+
+	/**
+	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given dependence analysis.
+	 *
+	 * @param da to be used while populating the map.
+	 * @param criteriaBases for which contexts need to be retrieved.
+	 *
+	 * @pre da != null and criteriaBases != null and criteriaBases
+	 * @post criteriabase2contexts.oclIsKindOf(Map(Object, Collection(Stack(CallTriple))))
+	 */
+	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da, final Collection criteriaBases) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("populateCriteriaBaseToContextsMap(IDependencyAnalysis da=" + da.getIds()
+				+ ", Collection criteriaBases=" + criteriaBases + ") - BEGIN");
+		}
+
+		final Collection _ids = da.getIds();
+
+		if (_ids.contains(IDependencyAnalysis.CONTROL_DA) || _ids.contains(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)) {
+			for (final Iterator _i = criteriaBases.iterator(); _i.hasNext();) {
+				CollectionsUtilities.putIntoSetInMap(criteriabase2contexts, _i.next(), engine.getCopyOfCallStackCache());
+			}
+		} else if (CollectionUtils.containsAny(_ids, depID2ctxtRetriever.keySet())) {
+			populateContextsForInterProceduralDependences(_ids, criteriaBases);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			final List _t = new ArrayList(_ids);
 			Collections.sort(_t);
-			LOGGER.debug("populateDependenceToContextsMap(da = " + _t.toString() + ") : - dependence2contexts - "
-				+ criteriabase2contexts);
+			LOGGER.debug("populateDependenceToContextsMap(): criteriabasee2contexts - " + criteriabase2contexts + " - END");
 		}
 	}
 }
