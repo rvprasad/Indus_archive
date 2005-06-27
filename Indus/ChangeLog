@@ -1,3 +1,7 @@
+2005-06-27  venku  <rvprasad@cis.ksu.edu>
+
+	* Renamed IAtomicityInfo to IConcurrentIndependenceInfo.
+
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the classes

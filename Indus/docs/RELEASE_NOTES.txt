@@ -34,6 +34,7 @@ Required software:
 
 Version 0.7
 ----------------
+	- Renamed IAtomicityInfo to IConcurrentIndependenceInfo.
 	- Extended IEscapeInfo to provide more precise escape info pertaining to static fields.
 
 Version 0.6.4
