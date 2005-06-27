@@ -1,5 +1,6 @@
 2005-06-27  venku  <rvprasad@cis.ksu.edu>
 
+    * deleted IEscapeInfo.staticfieldAccessShared(SootClass, SootMethod, SootClass, SootMethod)
 	* Renamed IAtomicityInfo to IConcurrentIndependenceInfo.
 
 2005-04-15  venku  <rvprasad@cis.ksu.edu>

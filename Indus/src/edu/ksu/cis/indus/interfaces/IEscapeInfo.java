@@ -188,21 +188,21 @@ public interface IEscapeInfo
 	 * @pre v != null and sm != null
 	 */
 	boolean escapes(Value v, SootMethod sm);
-    
-    /**
-     * Checks if the given class in the given method escapes.  This suggests mere multithread
-     * visibility and not multithread access.  Although a class is accessible in all location it is visible at, it does not
-     * imply that it is accessed in multiple threads.
-     *
-     * @param sc is the class being checked for escaping.
-     * @param sm is the method in which <code>sc</code> occurs.
-     *
-     * @return <code>true</code> if <code>sc</code> is escapes; <code>false</code>, otherwise.
-     *
-     * @pre sc != null and sm != null
-     */
-    boolean escapes(SootClass sc, SootMethod sm);
-    
+
+	/**
+	 * Checks if the given class in the given method escapes.  This suggests mere multithread visibility and not multithread
+	 * access.  Although a class is accessible in all location it is visible at, it does not imply that it is accessed in
+	 * multiple threads.
+	 *
+	 * @param sc is the class being checked for escaping.
+	 * @param sm is the method in which <code>sc</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>sc</code> is escapes; <code>false</code>, otherwise.
+	 *
+	 * @pre sc != null and sm != null
+	 */
+	boolean escapes(SootClass sc, SootMethod sm);
+
 	/**
 	 * Checks if the object bound to the given program point in the given method is shared. This suggests multithread field
 	 * access.
@@ -271,23 +271,6 @@ public interface IEscapeInfo
 	 * @pre sc != null and sm != null
 	 */
 	boolean staticfieldAccessShared(SootClass sc, SootMethod sm);
-
-	/**
-	 * Checks if the given classes are shared in the given methods via an access to a common static field.  This is more
-	 * stricter than escape-ness.  This requires that the values be escaping and be involved in a inter-thread field access
-	 * operation.
-	 *
-	 * @param sc1 is one of the class being checked for static field sharing.
-	 * @param sm1 is the method in which <code>sc1</code> is accessed for static field access.
-	 * @param sc2 is the other class being checked for static field sharing.
-	 * @param sm2 is the method in which <code>sc2</code> is accessed for static field access.
-	 *
-	 * @return <code>true</code> if the given classes are indeed shared across threads for static field access;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @pre sc1 != null and sm1 != null and sc2 != null and sm2 != null
-	 */
-	boolean staticfieldAccessShared(SootClass sc1, SootMethod sm1, SootClass sc2, SootMethod sm2);
 
 	/**
 	 * Checks if the given class is shared in the given method via an access to the static field with the given signature.
