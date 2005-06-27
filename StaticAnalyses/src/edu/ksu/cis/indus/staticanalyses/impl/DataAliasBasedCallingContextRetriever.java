@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Context;
+
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 
 import java.util.Collection;
@@ -64,12 +65,13 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	private IThreadGraphInfo tgi;
 
-    /**
-     * Creates an instance of this instance.
-     * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
-     */
+	/**
+	 * Creates an instance of this instance.
+	 *
+	 * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
+	 */
 	public DataAliasBasedCallingContextRetriever(int callingContextLengthLimit) {
-        super(callingContextLengthLimit);
+		super(callingContextLengthLimit);
 	}
 
 	/**
@@ -213,21 +215,29 @@ public class DataAliasBasedCallingContextRetriever
 			_srcRef = _srcStmt.getFieldRef();
 		}
 
-		boolean _result =
-			_curRef != null && _curStmt instanceof DefinitionStmt && _srcStmt instanceof DefinitionStmt;
+		boolean _result = _curRef != null && _curStmt instanceof DefinitionStmt && _srcStmt instanceof DefinitionStmt;
 
 		if (_result) {
 			final DefinitionStmt _curDefStmt = (DefinitionStmt) _curStmt;
 			final DefinitionStmt _srcDefStmt = (DefinitionStmt) _srcStmt;
+            final boolean _sameMethod = _curMethod.equals(getInfoFor(SRC_METHOD));
 
 			if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
+                if (_sameMethod) {
+                    _result = analysis.doesControlFlowPathExistsBetween(_srcDefStmt, _curDefStmt, _curMethod);
+                } else {
 				_result =
 					analysis.isReachableViaInterProceduralControlFlow((SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt,
 						_curMethod, _curDefStmt, tgi);
+                }
 			} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
+                if (_sameMethod) {
+                    _result = analysis.doesControlFlowPathExistsBetween(_curDefStmt, _srcDefStmt, _curMethod);
+                } else {
 				_result =
 					analysis.isReachableViaInterProceduralControlFlow(_curMethod, _curDefStmt,
 						(SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt, tgi);
+                }
 			}
 		}
 
@@ -272,28 +282,42 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	private Object retrieveToken(final SootMethod defMethod, final SootMethod useMethod, final DefinitionStmt defStmt,
 		final DefinitionStmt useStmt, final SootMethod srcMethod, final SootMethod curMethod) {
-		final Collection _result = new HashSet();
+		final Collection _result;
 		final ICallGraphInfo _callGraph = getCallGraph();
 
-		if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
-			_result.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
+		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistsBetween(defStmt, useStmt, defMethod)) {
+			final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(defMethod, false);
+
+			if (_methodsReachableFrom.isEmpty()) {
+				_result = null;
+			} else {
+				_result = new HashSet(_methodsReachableFrom);
+			}
+		} else {
+			_result = new HashSet();
+
+			if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
+				_result.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
+			}
+
+			if (analysis.doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, true)) {
+				_result.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
+			}
+
+			final Collection _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
+
+			if (_callersOfCurrMethod.isEmpty()) {
+				final Collection _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
+
+				for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
+					final SootMethod _sm = (SootMethod) _i.next();
+					final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
+					_result.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
+				}
+				_result.addAll(CollectionUtils.intersection(_callersOfCurrMethod, _commonAncestors));
+			}
 		}
 
-		if (analysis.doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, true)) {
-			_result.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
-		}
-
-		final Collection _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
-		final Collection _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
-
-		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
-			_result.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
-		}
-        
-        _result.addAll(CollectionUtils.intersection(_callersOfCurrMethod, _commonAncestors));
-        
 		return _result;
 	}
 }

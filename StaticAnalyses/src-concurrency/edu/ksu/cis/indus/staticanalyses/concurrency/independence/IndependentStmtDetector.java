@@ -13,12 +13,12 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
+package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 
-import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
+import edu.ksu.cis.indus.interfaces.IConcurrentIndependenceInfo;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -40,11 +40,11 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides atomicity detection that is based on escape analysis information.  Atomicity is the property that
+ * This class provides independence detection that is based on escape analysis information.  Atomicity is the property that
  * ensures the execution of a statement will only affect the state of the thread that executes it and not other threads.
  * 
  * <p>
- * By default, this class will treat methods of the following class as atomic.
+ * By default, this class will treat methods of the following class as independent.
  * 
  * <ul>
  * <li>
@@ -84,15 +84,15 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class AtomicStmtDetector
+public class IndependentStmtDetector
   extends AbstractProcessor
-  implements IAtomicityInfo {
+  implements IConcurrentIndependenceInfo {
 	/** 
-	 * The collection of atomic statements.
+	 * The collection of independent statements.
 	 *
-	 * @invariant atomicStmts.oclIsKindOf(Collection(Stmt))
+	 * @invariant independentStmts.oclIsKindOf(Collection(Stmt))
 	 */
-	protected final Collection atomicStmts = new ArrayList();
+	protected final Collection independentStmts = new ArrayList();
 
 	/** 
 	 * The escape analysis to use.
@@ -100,43 +100,43 @@ public class AtomicStmtDetector
 	protected IEscapeInfo escapeInfo;
 
 	/** 
-	 * A collection of names of atomic classes.
+	 * A collection of names of independent classes.
 	 */
-	private final Collection atomicClassNames;
+	private final Collection independentClassNames;
 
 	/** 
-	 * This indicates if the currently being processed scope is atomic.
+	 * This indicates if the currently being processed scope is independent.
 	 */
-	private boolean atomicScope;
+	private boolean independentScope;
 
 	/**
-	 * Creates a new AtomicStmtDetector object.
+	 * Creates a new IndependentStmtDetector object.
 	 */
-	public AtomicStmtDetector() {
-		atomicClassNames = new ArrayList();
-		atomicClassNames.add("java.lang.String");
-		atomicClassNames.add("java.lang.Integer");
-		atomicClassNames.add("java.lang.Float");
-		atomicClassNames.add("java.lang.Double");
-		atomicClassNames.add("java.lang.Boolean");
-		atomicClassNames.add("java.lang.Byte");
-		atomicClassNames.add("java.lang.Long");
-		atomicClassNames.add("java.lang.Short");
-		atomicClassNames.add("java.lang.Character");
-		atomicClassNames.add("java.lang.StringBuffer");
+	public IndependentStmtDetector() {
+		independentClassNames = new ArrayList();
+		independentClassNames.add("java.lang.String");
+		independentClassNames.add("java.lang.Integer");
+		independentClassNames.add("java.lang.Float");
+		independentClassNames.add("java.lang.Double");
+		independentClassNames.add("java.lang.Boolean");
+		independentClassNames.add("java.lang.Byte");
+		independentClassNames.add("java.lang.Long");
+		independentClassNames.add("java.lang.Short");
+		independentClassNames.add("java.lang.Character");
+		independentClassNames.add("java.lang.StringBuffer");
 	}
 
 	/**
-	 * Checks if the statement is atomic.
+	 * Checks if the statement is independent.
 	 *
 	 * @param stmt to be checked.
 	 *
-	 * @return <code>true</code> if <code>stmt</code> is atomic; <code>false</code>, otherwise.
+	 * @return <code>true</code> if <code>stmt</code> is independent; <code>false</code>, otherwise.
 	 *
 	 * @pre stmt != null
 	 */
-	public final boolean isAtomic(final Stmt stmt) {
-		return atomicStmts.contains(stmt);
+	public final boolean isIndependent(final Stmt stmt) {
+		return independentStmts.contains(stmt);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class AtomicStmtDetector
 	}
 
 	/**
-	 * Sets the names of the classes in which each method should be treated as atomic.
+	 * Sets the names of the classes in which each method should be treated as independent.
 	 *
 	 * @param names is a collection of FQN of classes.
 	 *
@@ -168,9 +168,9 @@ public class AtomicStmtDetector
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
 	public Collection setAtomicClassNames(final Collection names) {
-		final Collection _result = new ArrayList(atomicClassNames);
-		atomicClassNames.clear();
-		atomicClassNames.addAll(names);
+		final Collection _result = new ArrayList(independentClassNames);
+		independentClassNames.clear();
+		independentClassNames.addAll(names);
 		return _result;
 	}
 
@@ -178,10 +178,10 @@ public class AtomicStmtDetector
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
-		if (atomicScope
+		if (independentScope
 			  || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
-			  || isAtomic(stmt, context.getCurrentMethod())) {
-			atomicStmts.add(stmt);
+			  || isIndependent(stmt, context.getCurrentMethod())) {
+			independentStmts.add(stmt);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class AtomicStmtDetector
 	 */
 	public final void callback(final SootClass clazz) {
 		super.callback(clazz);
-		atomicScope = atomicClassNames.contains(clazz.getName());
+		independentScope = independentClassNames.contains(clazz.getName());
 	}
 
 	/**
@@ -206,14 +206,14 @@ public class AtomicStmtDetector
 	 */
 	public final void reset() {
 		super.reset();
-		atomicStmts.clear();
+		independentStmts.clear();
 	}
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public final String toString() {
-		return CollectionsUtilities.prettyPrint(atomicStmts);
+		return CollectionsUtilities.prettyPrint(independentStmts);
 	}
 
 	/**
@@ -225,28 +225,28 @@ public class AtomicStmtDetector
 	}
 
 	/**
-	 * Checks if the given statement is atomic based on escape information.
+	 * Checks if the given statement is independent based on escape information.
 	 *
 	 * @param stmt to be tested.
 	 * @param method in which the statement occurs.
 	 *
-	 * @return <code>true</code> if the statement is atomic; <code>false</code>, otherwise.
+	 * @return <code>true</code> if the statement is independent; <code>false</code>, otherwise.
 	 *
 	 * @pre stmt != null and method != null
 	 */
-	protected boolean isAtomic(final Stmt stmt, final SootMethod method) {
-		boolean atomic = !stmt.containsInvokeExpr();        
-        if (atomic && stmt.containsFieldRef() && stmt.getFieldRef().getField().isStatic()) {
-            atomic = escapeInfo.escapes(stmt.getFieldRef().getField().getDeclaringClass(), method);            
+	protected boolean isIndependent(final Stmt stmt, final SootMethod method) {
+		boolean independent = !stmt.containsInvokeExpr();        
+        if (independent && stmt.containsFieldRef() && stmt.getFieldRef().getField().isStatic()) {
+            independent = escapeInfo.escapes(stmt.getFieldRef().getField().getDeclaringClass(), method);            
         }
         
 		for (final Iterator _i =
 				IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(),
-					SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && atomic;) {
+					SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && independent;) {
 			final ValueBox _vb = (ValueBox) _i.next();
-			atomic = !escapeInfo.escapes(_vb.getValue(), method);
+			independent = !escapeInfo.escapes(_vb.getValue(), method);
 		}
-		return atomic;
+		return independent;
 	}
 }
 

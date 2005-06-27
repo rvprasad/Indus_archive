@@ -1,3 +1,13 @@
+2005-06-27  venku  <rvprasad@cis.ksu.edu>
+	
+	* moved AnalysesController from impl package to processing package.
+	* added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.
+	* refactored AliasedUseDefInfo and AliasedUseDefInfoV2 to accomodate change to CFGAnalysis.
+	* DataAliasBasedCallingContextRetriever was missing the corner case where use and def occurred in the same 
+	method when there were no callers. FIXED.
+	* refactored concurrency.atomicity package to concurrency.independence
+	* renamed AtomicXXXX classes as IndependentXXXX.
+
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CHABasedCallInfoCollector.java : ripple effect of changes to IClassHierarchy.

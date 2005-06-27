@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
+package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -43,24 +43,24 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class detects atomic region. Atomicity is the property that ensures the execution of a statement will only affect the
+ * This class detects independent region. Independence is the property that ensures the execution of a statement will only affect the
  * state of the thread that executes it and not other threads.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class AtomicRegionDetector
+public final class IndependentRegionDetector
   extends AbstractProcessor {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AtomicRegionDetector.class);
+	private static final Log LOGGER = LogFactory.getLog(IndependentRegionDetector.class);
 
 	/** 
 	 * The statement level detector to be used.
 	 */
-	private AtomicStmtDetector atomicityDetector;
+	private IndependentStmtDetector independenceDetector;
 
 	/** 
 	 * The basic block graph manager to be used during region discovery.
@@ -68,21 +68,21 @@ public final class AtomicRegionDetector
 	private BasicBlockGraphMgr bbgMgr;
 
 	/** 
-	 * This is a cache variable that records the basic blocks that have an atomic leader statement.
+	 * This is a cache variable that records the basic blocks that have an independent leader statement.
 	 *
 	 * @invariant atomicBeginsBBCache.oclIsKindOf(Sequence(BasicBlock))
 	 */
-	private final Collection atomicBeginsBBCache = new ArrayList();
+	private final Collection independentBeginsBBCache = new ArrayList();
 
 	/** 
-	 * This is a cache variable that records the basic blocks that have an atomic trailer statement.
+	 * This is a cache variable that records the basic blocks that have an independent trailer statement.
 	 *
-	 * @invariant atomicEndsBBCache.oclIsKindOf(Sequence(BasicBlock))
+	 * @invariant independentEndsBBCache.oclIsKindOf(Sequence(BasicBlock))
 	 */
-	private final Collection atomicEndsBBCache = new ArrayList();
+	private final Collection independentEndsBBCache = new ArrayList();
 
 	/** 
-	 * This is a cache variable that maps basic blocks to statements (in them) after which atomic regions begin.
+	 * This is a cache variable that maps basic blocks to statements (in them) after which independent regions begin.
 	 *
 	 * @invariant bb2beginsAfterCache.oclIsKindOf(Map(BasicBlock, Collection(Stmt)))
 	 * @invariant o.getStmtsOf().containsAll(bb2beginsAfterCache.get(o))
@@ -90,7 +90,7 @@ public final class AtomicRegionDetector
 	private final Map bb2beginsAfterCache = new HashMap();
 
 	/** 
-	 * This is a cache variable that maps basic blocks to statements (in them) before which atomic regions begin.
+	 * This is a cache variable that maps basic blocks to statements (in them) before which independent regions begin.
 	 *
 	 * @invariant bb2beginsBeforeCache.oclIsKindOf(Map(BasicBlock, Collection(Stmt)))
 	 * @invariant o.getStmtsOf().containsAll(bb2beginsBeforeCache.get(o))
@@ -98,7 +98,7 @@ public final class AtomicRegionDetector
 	private final Map bb2beginsBeforeCache = new HashMap();
 
 	/** 
-	 * This is a cache variable that maps basic blocks to statements (in them) after which atomic regions end.
+	 * This is a cache variable that maps basic blocks to statements (in them) after which independent regions end.
 	 *
 	 * @invariant bb2endsAfterCache.oclIsKindOf(Map(BasicBlock, Collection(Stmt)))
 	 * @invariant o.getStmtsOf().containsAll(bb2endsAfterCache.get(o))
@@ -106,7 +106,7 @@ public final class AtomicRegionDetector
 	private final Map bb2endsAfterCache = new HashMap();
 
 	/** 
-	 * This is a cache variable that maps basic blocks to statements (in them) before which atomic regions end.
+	 * This is a cache variable that maps basic blocks to statements (in them) before which independent regions end.
 	 *
 	 * @invariant bb2endsAfterCache.oclIsKindOf(Map(BasicBlock, Collection(Stmt)))
 	 * @invariant o.getStmtsOf().containsAll(bb2endsAfterCache.get(o))
@@ -114,35 +114,35 @@ public final class AtomicRegionDetector
 	private final Map bb2endsBeforeCache = new HashMap();
 
 	/** 
-	 * This maps methods to statements (in the method) after which atomic regions begin.
+	 * This maps methods to statements (in the method) after which independent regions begin.
 	 *
 	 * @invariant method2beginsAfter.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map method2beginsAfter = new HashMap();
 
 	/** 
-	 * This maps methods to statements (in the method) before which atomic regions begin.
+	 * This maps methods to statements (in the method) before which independent regions begin.
 	 *
 	 * @invariant method2beginsBefore.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map method2beginsBefore = new HashMap();
 
 	/** 
-	 * This maps methods to statements (in the method) after which atomic regions end.
+	 * This maps methods to statements (in the method) after which independent regions end.
 	 *
 	 * @invariant method2endsAfter.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map method2endsAfter = new HashMap();
 
 	/** 
-	 * This maps methods to statements (in the method) before which atomic regions end.
+	 * This maps methods to statements (in the method) before which independent regions end.
 	 *
 	 * @invariant method2endsBefore.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map method2endsBefore = new HashMap();
 
 	/**
-	 * Retrieves a collection of statements after which atomic regions begin in the given method.
+	 * Retrieves a collection of statements after which independent regions begin in the given method.
 	 *
 	 * @param method of interest.
 	 *
@@ -155,7 +155,7 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Retrieves a collection of statements before which atomic regions begin in the given method.
+	 * Retrieves a collection of statements before which independent regions begin in the given method.
 	 *
 	 * @param method of interest.
 	 *
@@ -168,7 +168,7 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Retrieves a collection of statements after which atomic regions end in the given method.
+	 * Retrieves a collection of statements after which independent regions end in the given method.
 	 *
 	 * @param method of interest.
 	 *
@@ -181,7 +181,7 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Retrieves a collection of statements before which atomic regions end in the given method.
+	 * Retrieves a collection of statements before which independent regions end in the given method.
 	 *
 	 * @param method of interest.
 	 *
@@ -194,12 +194,12 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Sets the value of <code>atomicityDetector</code>.
+	 * Sets the value of <code>independenceDetector</code>.
 	 *
-	 * @param detector the new value of <code>atomicityDetector</code>.
+	 * @param detector the new value of <code>independenceDetector</code>.
 	 */
-	public void setAtomicityDetector(final AtomicStmtDetector detector) {
-		atomicityDetector = detector;
+	public void setAtomicityDetector(final IndependentStmtDetector detector) {
+		independenceDetector = detector;
 	}
 
 	/**
@@ -232,43 +232,43 @@ public final class AtomicRegionDetector
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
 			final List _stmtsOf = _bb.getStmtsOf();
-			boolean _atomic = false;
-			Stmt _atomicBegin = null;
+			boolean _independent = false;
+			Stmt _independentBegin = null;
 			final Iterator _j = _stmtsOf.iterator();
 			final int _jEnd = _stmtsOf.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final Stmt _stmt = (Stmt) _j.next();
 
-				if (atomicityDetector.isAtomic(_stmt) && !_atomic) {
-					_atomic = true;
-					_atomicBegin = _stmt;
-				} else if (!atomicityDetector.isAtomic(_stmt) && _atomic) {
+				if (independenceDetector.isIndependent(_stmt) && !_independent) {
+					_independent = true;
+					_independentBegin = _stmt;
+				} else if (!independenceDetector.isIndependent(_stmt) && _independent) {
 					final int _indexOfAtomicEnd = _stmtsOf.indexOf(_stmt);
 
-					if (_indexOfAtomicEnd - _stmtsOf.indexOf(_atomicBegin) >= 1) {
-						CollectionsUtilities.putIntoListInMap(bb2beginsBeforeCache, _bb, _atomicBegin);
+					if (_indexOfAtomicEnd - _stmtsOf.indexOf(_independentBegin) >= 1) {
+						CollectionsUtilities.putIntoListInMap(bb2beginsBeforeCache, _bb, _independentBegin);
 						CollectionsUtilities.putIntoListInMap(bb2endsAfterCache, _bb, _stmtsOf.get(_indexOfAtomicEnd - 1));
 					}
-					_atomic = false;
+					_independent = false;
 				}
 			}
 
-			if (_atomic) {
+			if (_independent) {
 				final Stmt _trailerStmt = _bb.getTrailerStmt();
 				final int _indexOfAtomicEnd = _stmtsOf.indexOf(_trailerStmt);
 
-				if (_indexOfAtomicEnd - _stmtsOf.indexOf(_atomicBegin) >= 0) {
-					CollectionsUtilities.putIntoListInMap(bb2beginsBeforeCache, _bb, _atomicBegin);
+				if (_indexOfAtomicEnd - _stmtsOf.indexOf(_independentBegin) >= 0) {
+					CollectionsUtilities.putIntoListInMap(bb2beginsBeforeCache, _bb, _independentBegin);
 					CollectionsUtilities.putIntoListInMap(bb2endsAfterCache, _bb, _trailerStmt);
-					atomicEndsBBCache.add(_bb);
+					independentEndsBBCache.add(_bb);
 				}
 			}
 
 			final Collection _collection = (Collection) bb2beginsBeforeCache.get(_bb);
 
 			if (_collection != null && _collection.contains(_bb.getLeaderStmt())) {
-				atomicBeginsBBCache.add(_bb);
+				independentBeginsBBCache.add(_bb);
 			}
 		}
 
@@ -279,8 +279,8 @@ public final class AtomicRegionDetector
 		bb2beginsAfterCache.clear();
 		bb2endsBeforeCache.clear();
 		bb2endsAfterCache.clear();
-		atomicBeginsBBCache.clear();
-		atomicEndsBBCache.clear();
+		independentBeginsBBCache.clear();
+		independentEndsBBCache.clear();
 	}
 
 	/**
@@ -308,7 +308,7 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Calculates atomic regions that span across basic blocks.
+	 * Calculates independent regions that span across basic blocks.
 	 *
 	 * @param basicblocks of course.
 	 *
@@ -318,31 +318,31 @@ public final class AtomicRegionDetector
 		final IWorkBag _beginsAfterTrailer = new LIFOWorkBag();
 		final IWorkBag _endsBeforeLeader = new LIFOWorkBag();
 
-		final Iterator _i1 = atomicEndsBBCache.iterator();
-		final int _i1End = atomicEndsBBCache.size();
+		final Iterator _i1 = independentEndsBBCache.iterator();
+		final int _i1End = independentEndsBBCache.size();
 
 		for (int _i1Index = 0; _i1Index < _i1End; _i1Index++) {
 			final BasicBlock _bb = (BasicBlock) _i1.next();
 			final Collection _succsOf = _bb.getSuccsOf();
 
-			if (CollectionUtils.containsAny(atomicBeginsBBCache, _succsOf)) {
+			if (CollectionUtils.containsAny(independentBeginsBBCache, _succsOf)) {
 				((Collection) bb2endsAfterCache.get(_bb)).remove(_bb.getTrailerStmt());
-				_endsBeforeLeader.addAllWorkNoDuplicates(CollectionUtils.subtract(_succsOf, atomicBeginsBBCache));
+				_endsBeforeLeader.addAllWorkNoDuplicates(CollectionUtils.subtract(_succsOf, independentBeginsBBCache));
 			} else {
 				_i1.remove();
 			}
 		}
 
-		final Iterator _i2 = atomicBeginsBBCache.iterator();
-		final int _i2End = atomicBeginsBBCache.size();
+		final Iterator _i2 = independentBeginsBBCache.iterator();
+		final int _i2End = independentBeginsBBCache.size();
 
 		for (int _i2Index = 0; _i2Index < _i2End; _i2Index++) {
 			final BasicBlock _bb = (BasicBlock) _i2.next();
 			final Collection _predsOf = _bb.getPredsOf();
 
-			if (CollectionUtils.containsAny(atomicEndsBBCache, _predsOf)) {
+			if (CollectionUtils.containsAny(independentEndsBBCache, _predsOf)) {
 				((Collection) bb2beginsBeforeCache.get(_bb)).remove(_bb.getLeaderStmt());
-				_beginsAfterTrailer.addAllWorkNoDuplicates(CollectionUtils.subtract(_predsOf, atomicEndsBBCache));
+				_beginsAfterTrailer.addAllWorkNoDuplicates(CollectionUtils.subtract(_predsOf, independentEndsBBCache));
 			} else {
 				_i2.remove();
 			}
@@ -350,8 +350,8 @@ public final class AtomicRegionDetector
 
 		final Collection _nonAtomicBegins = new ArrayList(basicblocks);
 		final Collection _nonAtomicEnds = new ArrayList(basicblocks);
-		_nonAtomicBegins.removeAll(atomicBeginsBBCache);
-		_nonAtomicEnds.removeAll(atomicEndsBBCache);
+		_nonAtomicBegins.removeAll(independentBeginsBBCache);
+		_nonAtomicEnds.removeAll(independentEndsBBCache);
 
 		do {
 			while (_beginsAfterTrailer.hasWork()) {
@@ -391,7 +391,7 @@ public final class AtomicRegionDetector
 	}
 
 	/**
-	 * Records the beginnings and ends of atomic region for the given method.
+	 * Records the beginnings and ends of independent region for the given method.
 	 *
 	 * @param method for which to record the information.
 	 *

@@ -53,11 +53,6 @@ public final class AliasedUseDefInfov2
 	 */
 	protected final IThreadGraphInfo tgi;
 
-    /**
-     * This provide control flow analysis.
-     */
-    private final CFGAnalysis cfgAnalysis;
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -72,8 +67,7 @@ public final class AliasedUseDefInfov2
 	 */
 	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
 		final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
-		super(iva, bbgManager, pairManager);
-        cfgAnalysis = new CFGAnalysis(cg, bbgManager);
+		super(iva, bbgManager, pairManager, new CFGAnalysis(cg, bbgManager));
 		cgi = cg;
 		tgi = tg;
 	}

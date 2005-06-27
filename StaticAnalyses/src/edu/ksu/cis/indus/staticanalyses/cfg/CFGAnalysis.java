@@ -35,6 +35,7 @@ import org.apache.commons.collections.IteratorUtils;
 
 import soot.SootMethod;
 
+import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 
@@ -201,6 +202,33 @@ public final class CFGAnalysis {
 				final Stmt _stmt = (Stmt) _j.next();
 				_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given destination statement is reachable from the given source statement in the given method.
+	 *
+	 * @param srcStmt of interest.
+	 * @param destStmt of interest.
+	 * @param method in which <code>defStmt</code> and <code>useStmt</code> occur.
+	 *
+	 * @return <code>true</code> if <code>destStmt</code> is reachable from <code>srcStmt</code> via a control flow path;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre srcStmt != null and dest != null and method != null
+	 */
+	public boolean doesControlFlowPathExistsBetween(Stmt srcStmt, Stmt destStmt, SootMethod method) {
+		final boolean _result;
+		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
+		final BasicBlock _bbDest = _bbg.getEnclosingBlock(destStmt);
+		final BasicBlock _bbSrc = _bbg.getEnclosingBlock(srcStmt);
+
+		if (_bbDest == _bbSrc) {
+			final List _sl = _bbDest.getStmtsOf();
+			_result = _sl.indexOf(srcStmt) < _sl.indexOf(destStmt);
+		} else {
+			_result = _bbg.isReachable(_bbSrc, _bbDest, true);
 		}
 		return _result;
 	}
@@ -376,7 +404,7 @@ public final class CFGAnalysis {
 			final Iterator _stmts = bbm.getBasicBlockGraph(method).getStmtGraph().iterator();
 			final Iterator _r = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_r));
-            _result = ((Collection) method2EnclosingInvokingStmtsCache.get(method)).iterator();
+			_result = ((Collection) method2EnclosingInvokingStmtsCache.get(method)).iterator();
 		} else {
 			_result = _temp.iterator();
 		}

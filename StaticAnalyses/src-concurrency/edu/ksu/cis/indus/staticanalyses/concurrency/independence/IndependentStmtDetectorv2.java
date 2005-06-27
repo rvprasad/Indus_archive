@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
+package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -30,21 +30,21 @@ import soot.jimple.VirtualInvokeExpr;
 
 
 /**
- * This is a specialized version of <code>AtomicStmtDetector</code> that uses sharing information calculated by
- * <code>EquivalenceClassBasedEscapeAnalysis</code> to detect atomic statements.
+ * This is a specialized version of <code>IndependentStmtDetector</code> that uses sharing information calculated by
+ * <code>EquivalenceClassBasedEscapeAnalysis</code> to detect independent statements.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class AtomicStmtDetectorv2
-  extends AtomicStmtDetector {
+public class IndependentStmtDetectorv2
+  extends IndependentStmtDetector {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector#isAtomic(soot.jimple.Stmt,
+	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetector#isIndependent(soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
-	protected boolean isAtomic(final Stmt stmt, final SootMethod method) {
-		boolean _result = super.isAtomic(stmt, method);
+	protected boolean isIndependent(final Stmt stmt, final SootMethod method) {
+		boolean _result = super.isIndependent(stmt, method);
 
 		if (!_result) {
 			if (stmt.containsArrayRef()) {

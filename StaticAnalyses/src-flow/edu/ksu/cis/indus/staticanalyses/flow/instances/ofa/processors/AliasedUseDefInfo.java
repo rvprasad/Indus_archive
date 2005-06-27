@@ -18,8 +18,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Constants;
 
@@ -29,6 +27,7 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
@@ -37,7 +36,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -108,6 +106,11 @@ public class AliasedUseDefInfo
 	 * This manages <code>Pair</code> objects.
 	 */
 	private final PairManager pairMgr;
+    
+       /**
+     * This provide control flow analysis.
+     */
+    protected final CFGAnalysis cfgAnalysis;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
@@ -115,10 +118,13 @@ public class AliasedUseDefInfo
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param bbgManager is the basic block graph manager to use.
 	 * @param pairManager to be used.
+	 * @param analysis to be used.
 	 *
 	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager,
+            final CFGAnalysis analysis) {
+        cfgAnalysis = analysis;
 		analyzer = iva;
 		bbgMgr = bbgManager;
 		pairMgr = pairManager;
@@ -440,16 +446,7 @@ public class AliasedUseDefInfo
 			_result = true;
 		} else {
 			if (_useMethod.equals(_defMethod)) {
-				final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_useMethod);
-				final BasicBlock _bbUse = _bbg.getEnclosingBlock(_useStmt);
-				final BasicBlock _bbDef = _bbg.getEnclosingBlock(_defStmt);
-
-				if (_bbUse == _bbDef) {
-					final List _sl = _bbUse.getStmtsOf();
-					_result = _sl.indexOf(_defStmt) < _sl.indexOf(_useStmt);
-				} else {
-					_result = _bbg.isReachable(_bbDef, _bbUse, true);
-				}
+				_result = cfgAnalysis.doesControlFlowPathExistsBetween(_defStmt, _useStmt, _useMethod);
 			} else {
 				_result = isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 			}

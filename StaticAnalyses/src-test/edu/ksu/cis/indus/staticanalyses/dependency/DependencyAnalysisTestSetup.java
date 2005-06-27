@@ -39,8 +39,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisTestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 

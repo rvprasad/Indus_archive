@@ -48,8 +48,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
@@ -388,7 +388,7 @@ public class DependencyXMLizerCLI
 		final AliasedUseDefInfo _aliasUD;
 
 		if (useAliasedUseDefv1) {
-			_aliasUD = new AliasedUseDefInfo(aa, bbm, _pairManager);
+			_aliasUD = new AliasedUseDefInfo(aa, bbm, _pairManager, new CFGAnalysis(_cgi, bbm));
 		} else {
 			_aliasUD = new AliasedUseDefInfov2(aa, _cgi, _tgi, bbm, _pairManager);
 		}

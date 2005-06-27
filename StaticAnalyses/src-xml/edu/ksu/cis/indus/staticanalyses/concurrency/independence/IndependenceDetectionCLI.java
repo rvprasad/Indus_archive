@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
+package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.NamedTag;
@@ -32,10 +32,13 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentRegionDetector;
+import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetector;
+import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetectorv2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
@@ -67,24 +70,24 @@ import soot.jimple.Stmt;
 
 
 /**
- * This is a command-line interface to drive atomicity detection implementation in Indus.  This interface will generate
+ * This is a command-line interface to drive independence detection implementation in Indus.  This interface will generate
  * annotated jimple.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class AtomicityDetectionCLI
+public final class IndependenceDetectionCLI
   extends SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AtomicityDetectionCLI.class);
+	private static final Log LOGGER = LogFactory.getLog(IndependenceDetectionCLI.class);
 
 	/** 
 	 * The detector to be used.
 	 */
-	private final AtomicStmtDetector detector;
+	private final IndependentStmtDetector detector;
 
 	/** 
 	 * The directory in which to dump jimple.
@@ -98,7 +101,7 @@ public final class AtomicityDetectionCLI
 	 *
 	 * @pre arg != null
 	 */
-	public AtomicityDetectionCLI(final AtomicStmtDetector arg) {
+	public IndependenceDetectionCLI(final IndependentStmtDetector arg) {
 		detector = arg;
 	}
 
@@ -141,7 +144,7 @@ public final class AtomicityDetectionCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				final String _cmdLineSyn = "java " + AtomicityDetectionCLI.class.getName() + " <options> <classnames>";
+				final String _cmdLineSyn = "java " + IndependenceDetectionCLI.class.getName() + " <options> <classnames>";
 				(new HelpFormatter()).printHelp(_cmdLineSyn, _options);
 				System.exit(1);
 			}
@@ -150,12 +153,12 @@ public final class AtomicityDetectionCLI
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
-			final AtomicityDetectionCLI _cli;
+			final IndependenceDetectionCLI _cli;
 
 			if (_cl.hasOption("useV2")) {
-				_cli = new AtomicityDetectionCLI(new AtomicStmtDetectorv2());
+				_cli = new IndependenceDetectionCLI(new IndependentStmtDetectorv2());
 			} else {
-				_cli = new AtomicityDetectionCLI(new AtomicStmtDetector());
+				_cli = new IndependenceDetectionCLI(new IndependentStmtDetector());
 			}
 
 			if (_cl.hasOption('p')) {
@@ -168,7 +171,7 @@ public final class AtomicityDetectionCLI
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 
-			final String _cmdLineSyn = "java " + AtomicityDetectionCLI.class.getName() + " <options> <classnames>";
+			final String _cmdLineSyn = "java " + IndependenceDetectionCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {
 			LOGGER.fatal("Beyond our control. May day! May day!", _e);
@@ -210,7 +213,7 @@ public final class AtomicityDetectionCLI
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 					final Stmt _stmt = (Stmt) _j.next();
 
-					if (detector.isAtomic(_stmt)) {
+					if (detector.isIndependent(_stmt)) {
 						_stmt.addTag(_atomicTag);
 					}
 				}
@@ -290,24 +293,22 @@ public final class AtomicityDetectionCLI
 		detector.hookup(_cgipc);
 		_cgipc.process();
 		detector.unhook(_cgipc);
-		writeInfo("END: Atomic statement detection");
+		writeInfo("BEGIN: Independent statement detection");
 
 		final String _optionValue = cl.getOptionValue("scheme", "tag-stmt");
 
 		if (_optionValue.equals("tag-region")) {
-			final AtomicRegionDetector _regionDetector = new AtomicRegionDetector();
+			final IndependentRegionDetector _regionDetector = new IndependentRegionDetector();
 			_regionDetector.setAtomicityDetector(detector);
 			_regionDetector.setBasicBlockGraphMgr(getBbm());
 			_regionDetector.hookup(_cgipc);
 			_cgipc.process();
 			_regionDetector.unhook(_cgipc);
-			writeInfo("END: Atomic region detection");
-
 			insertAtomicBoundaries(_regionDetector, _cgi);
 		} else {
 			annotateAtomicStmts(_cgi);
 		}
-
+        writeInfo("END: Independent region detection");
 		dumpJimpleAndClassFiles(outputDir, true, false);
 	}
 
@@ -319,7 +320,7 @@ public final class AtomicityDetectionCLI
 	 *
 	 * @pre regionDetector != null and cgi != null
 	 */
-	private void insertAtomicBoundaries(final AtomicRegionDetector regionDetector, final ICallGraphInfo cgi) {
+	private void insertAtomicBoundaries(final IndependentRegionDetector regionDetector, final ICallGraphInfo cgi) {
 		final NamedTag _atomicBeginBeforeTag = new NamedTag("Atomic-Begin-Before-Tag");
 		final NamedTag _atomicBeginAfterTag = new NamedTag("Atomic-Begin-After-Tag");
 		final NamedTag _atomicEndBeforeTag = new NamedTag("Atomic-End-Before-Tag");

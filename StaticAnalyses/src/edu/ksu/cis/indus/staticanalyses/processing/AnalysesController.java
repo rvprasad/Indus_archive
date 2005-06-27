@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.impl;
+package edu.ksu.cis.indus.staticanalyses.processing;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
