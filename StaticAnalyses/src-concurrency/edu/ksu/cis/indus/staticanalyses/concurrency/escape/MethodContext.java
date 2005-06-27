@@ -618,14 +618,10 @@ final class MethodContext
 				final AliasSet _srcFieldAS = (AliasSet) _src.getASForField(_field).find();
 				final AliasSet _cloneFieldAS;
 
-				// if the alias set is global, then we would have just used the representative instead of the clone, so...
-				if (_srcFieldAS.isGlobal()) {
-					_cloneFieldAS = _srcFieldAS;
-				} else {
-					_cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
+				_cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
+                // if the clone is different from the src only then we need to further process src.  
+				if (_cloneFieldAS != _srcFieldAS) {
 					_wb.addWork(_srcFieldAS);
-					assert _clone.getASForField(_field) == null;
-					assert _cloneFieldAS != null;
 				}
 				_clone.putASForField(_field, _cloneFieldAS);
 			}
