@@ -886,9 +886,10 @@ public final class SlicingEngine {
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
 	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) - start");
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("generateCriteriaBasedOnDependences(Stmt stmt=" + stmt + ", SootMethod method=" + method
+                    + ", Collection das) - BEGIN");
+        }
 
 		dependenceExtractor.setTrigger(stmt, method);
 		CollectionUtils.forAllDo(das, dependenceExtractor);
@@ -934,9 +935,9 @@ public final class SlicingEngine {
 			setCallStackCache(_temp);
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) - end");
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("generateCriteriaBasedOnDependences(Stmt, SootMethod, Collection) - END");
+        }
 	}
 
 	/**

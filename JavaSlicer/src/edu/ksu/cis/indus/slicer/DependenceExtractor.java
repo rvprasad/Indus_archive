@@ -264,17 +264,6 @@ final class DependenceExtractor
 		final Collection _t = retriever.getDependences(_da, entity, occurringMethod);
 		dependences.addAll(_t);
 		populateCriteriaBaseToContextsMap(_da, _t);
-
-		if (LOGGER.isDebugEnabled()) {
-			final StringBuffer _sb = new StringBuffer();
-			_sb.append("Criteria bases for " + entity + "@" + occurringMethod + " from " + _da.getClass() + " are :\n[");
-
-			for (final Iterator _j = _t.iterator(); _j.hasNext();) {
-				_sb.append("\n\t->" + _j.next());
-			}
-			_sb.append("\n]");
-			LOGGER.debug(_sb.toString());
-		}
 	}
 
 	/**
