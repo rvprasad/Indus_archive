@@ -559,7 +559,6 @@ final class AliasSet
 	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
 	 *
-	 * @post result == find().shared
 	 */
 	boolean escapes() {
 		return ((AliasSet) find()).multiThreadAccessibility;
