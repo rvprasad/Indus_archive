@@ -60,7 +60,7 @@ final class StmtProcessor
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
 	public void caseAssignStmt(final AssignStmt stmt) {
-		boolean _temp = ecba.valueProcessor.setRHS(true);        
+		final boolean _temp = ecba.valueProcessor.setRHS(true);        
 		ecba.valueProcessor.process(stmt.getRightOp());
 		final AliasSet _r = (AliasSet) ecba.valueProcessor.getResult();
 		ecba.valueProcessor.setRHS(false);
