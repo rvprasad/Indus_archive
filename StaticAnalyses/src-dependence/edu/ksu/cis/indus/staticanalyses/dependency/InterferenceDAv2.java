@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -25,6 +26,7 @@ import soot.Value;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.StaticFieldRef;
 
 
 /**
@@ -75,11 +77,11 @@ public class InterferenceDAv2
 	}
 
 	/**
-	 * @see InterferenceDAv1#isFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
+	 * @see InterferenceDAv1#isInstanceFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
 	 */
-	protected boolean isFieldDependentOn(final Pair dependent, final Pair dependee, final InstanceFieldRef dependentFieldRef,
-		final InstanceFieldRef dependeeFieldRef) {
-		boolean _result = super.isFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
+	protected boolean isInstanceFieldDependentOn(final Pair dependent, final Pair dependee,
+		final InstanceFieldRef dependentFieldRef, final InstanceFieldRef dependeeFieldRef) {
+		boolean _result = super.isInstanceFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
 
 		if (_result) {
 			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
@@ -87,6 +89,19 @@ public class InterferenceDAv2
 			final Value _de = dependeeFieldRef.getBase();
 			final Value _dt = dependentFieldRef.getBase();
 			_result = ecba.escapes(_de, _deMethod) && ecba.escapes(_dt, _dtMethod);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see InterferenceDAv1#isStaticFieldDependentOn(Pair, Pair, StaticFieldRef, StaticFieldRef)
+	 */
+	protected boolean isStaticFieldDependentOn(Pair dependent, Pair dependee, StaticFieldRef dependentFieldRef,
+		StaticFieldRef dependeeFieldRef) {
+		boolean _result = super.isStaticFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
+
+		if (_result) {
+			ecba.escapes(dependeeFieldRef.getField().getDeclaringClass(), (SootMethod) dependee.getSecond());
 		}
 		return _result;
 	}

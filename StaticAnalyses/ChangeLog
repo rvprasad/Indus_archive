@@ -1,5 +1,7 @@
 2005-06-27  venku  <rvprasad@cis.ksu.edu>
 	
+	* assumed that class initializers are always simple and will not lead to interference with other class initializers.
+	* deleted EscapeInfo.staticfieldAccessShared(SootClass, SootMethod, SootClass, SootMethod)
 	* moved AnalysesController from impl package to processing package.
 	* added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.
 	* refactored AliasedUseDefInfo and AliasedUseDefInfoV2 to accomodate change to CFGAnalysis.

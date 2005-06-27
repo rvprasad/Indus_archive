@@ -21,11 +21,13 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
+import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.StaticFieldRef;
 
 
 /**
@@ -60,11 +62,11 @@ public class InterferenceDAv3
 	}
 
 	/**
-	 * @see InterferenceDAv1#isFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
+	 * @see InterferenceDAv1#isInstanceFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
 	 */
-	protected boolean isFieldDependentOn(final Pair dependent, final Pair dependee, final InstanceFieldRef dependentFieldRef,
-		final InstanceFieldRef dependeeFieldRef) {
-		boolean _result = super.isFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
+	protected boolean isInstanceFieldDependentOn(final Pair dependent, final Pair dependee,
+		final InstanceFieldRef dependentFieldRef, final InstanceFieldRef dependeeFieldRef) {
+		boolean _result = super.isInstanceFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
 
 		if (_result) {
 			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
@@ -72,6 +74,23 @@ public class InterferenceDAv3
 			final Value _de = dependeeFieldRef.getBase();
 			final Value _dt = dependentFieldRef.getBase();
 			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2#isStaticFieldDependentOn(edu.ksu.cis.indus.common.datastructures.Pair,
+	 * 		edu.ksu.cis.indus.common.datastructures.Pair, soot.jimple.StaticFieldRef, soot.jimple.StaticFieldRef)
+	 */
+	protected boolean isStaticFieldDependentOn(Pair dependent, Pair dependee, StaticFieldRef dependentFieldRef,
+		StaticFieldRef dependeeFieldRef) {
+		boolean _result = super.isStaticFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
+
+		if (_result) {
+			final SootField _field = dependeeFieldRef.getField();
+			_result =
+				ecba.staticfieldAccessShared(_field.getDeclaringClass(), (SootMethod) dependee.getSecond(),
+					_field.getSignature());
 		}
 		return _result;
 	}

@@ -64,9 +64,17 @@ import soot.jimple.Stmt;
 /**
  * This class provides interference dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
- * with JVM Concurrency Primitives"</a>.  The calculated information is very pessimistic.  For fields, it assumes any
- * assignment to a field can affect any reference to the same field.  This is imprecise in the light of thread local objects
- * and unrelated primaries.
+ * with JVM Concurrency Primitives"</a>.
+ * 
+ * <p>
+ * The calculated information is very pessimistic.  This analysis uses points-to analysis to check if the primaries of two
+ * field references may be aliased.
+ * </p>
+ * 
+ * <p>
+ * This analysis assumes that there can be no interference between field references in class initializers.  This is true for
+ * good programs.
+ * </p>
  * 
  * <p>
  * This analysis should be <code>setup</code> before preprocessing.
@@ -432,7 +440,7 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Checks if the given field access expression are interference dependent on each other.
+	 * Checks if the given instance field access expression are interference dependent on each other.
 	 *
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
@@ -444,8 +452,8 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isFieldDependentOn(final Pair dependent, final Pair dependee, final InstanceFieldRef dependentFieldRef,
-		final InstanceFieldRef dependeeFieldRef) {
+	protected boolean isInstanceFieldDependentOn(final Pair dependent, final Pair dependee,
+		final InstanceFieldRef dependentFieldRef, final InstanceFieldRef dependeeFieldRef) {
 		boolean _result;
 		final SootField _ifr1 = dependeeFieldRef.getField();
 		final SootField _ifr2 = dependentFieldRef.getField();
@@ -453,6 +461,36 @@ public class InterferenceDAv1
 
 		if (_result && useOFA) {
 			_result = isFieldDependentOnByOFA(dependent, dependee);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given instance field access expression are interference dependent on each other.
+	 *
+	 * @param dependent is location of the dependent field access expression.
+	 * @param dependee is location of the dependee field access expression.
+	 * @param dependentFieldRef is the dependent field access expression.
+	 * @param dependeeFieldRef is the dependee field access expression.
+	 *
+	 * @return <code>true</code> if an interference dependence exists; <code>false</code> otherwise.
+	 *
+	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
+	 */
+	protected boolean isStaticFieldDependentOn(final Pair dependent, final Pair dependee,
+		final StaticFieldRef dependentFieldRef, final StaticFieldRef dependeeFieldRef) {
+		boolean _result;
+		final SootField _field = dependeeFieldRef.getField();
+		_result = dependentFieldRef.getField().equals(_field) && !_field.isFinal();
+
+		if (_result) {
+			final SootMethod dentMethod = ((SootMethod) dependent.getSecond());
+			final SootMethod deeMethod = ((SootMethod) dependee.getSecond());
+			final String _name = dentMethod.getName();
+			_result =
+				!(dentMethod.isStatic() && deeMethod.isStatic() && _name.equals(deeMethod.getName())
+				  && _name.equals("<clinit>"));
 		}
 		return _result;
 	}
@@ -550,10 +588,9 @@ public class InterferenceDAv1
 			if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
 				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
 			} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
-				_result = isFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
+				_result = isInstanceFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
 			} else if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
-				final SootField _field = ((StaticFieldRef) _de).getField();
-				_result = ((StaticFieldRef) _dt).getField().equals(_field) && !_field.isFinal();
+				_result = isStaticFieldDependentOn(dependent, dependee, (StaticFieldRef) _dt, (StaticFieldRef) _de);
 			}
 		}
 

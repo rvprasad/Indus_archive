@@ -237,36 +237,6 @@ class EscapeInfo
 		return _result;
 	}
 
-    /**
-     * Retrieves the alias set for the given local in the given method.
-     * 
-     * @param local of interest.
-     * @param method in which <code>local</code> occurs.
-     * @return the alias set if it exists.
-     * @throws IllegalArgumentException when either the method or the local was not processed.
-     * @pre local != null and method != null 
-     */
-    private AliasSet getAliasSetForIn(final Local local, final SootMethod method) throws IllegalArgumentException {
-        final Triple _trp1 = (Triple) analysis.method2Triple.get(method);
-
-        if (_trp1 == null) {
-        	throw new IllegalArgumentException(method + " was not processed.");
-        }
-
-        final AliasSet _a1;
-
-        if (local != null) {
-        	_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local);
-        } else {
-        	_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
-        }
-
-        if (_a1 == null) {
-        	throw new IllegalArgumentException(local + " in " + method + " was not processed.");
-        }
-        return _a1;
-    }
-
 	/**
 	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
 	 */
@@ -389,29 +359,30 @@ class EscapeInfo
 
 		return _result;
 	}
-    
-    /**
-     * @see IEscapeInfo#escapes(SootClass, SootMethod)
-     */
-    public boolean escapes(final SootClass sc, final SootMethod sm) {
-        boolean _result = this.analysis.escapesDefaultValue;
 
-        try {
-            final AliasSet _as = this.analysis.getAliasSetFor(sc);
-            if (_as != null) {
-                _result = _as.escapes();
-            } else {
-                _result = false;
-            }
-        } catch (final NullPointerException _e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("There is no information about " + sc + " occurring in " + sm
-                    + ".  So, providing default value - " + _result, _e);
-            }
-        }
+	/**
+	 * @see IEscapeInfo#escapes(SootClass, SootMethod)
+	 */
+	public boolean escapes(final SootClass sc, final SootMethod sm) {
+		boolean _result = this.analysis.escapesDefaultValue;
 
-        return _result;
-    }
+		try {
+			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+
+			if (_as != null) {
+				_result = _as.escapes();
+			} else {
+				_result = false;
+			}
+		} catch (final NullPointerException _e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+					+ ".  So, providing default value - " + _result, _e);
+			}
+		}
+
+		return _result;
+	}
 
 	/**
 	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod)
@@ -519,30 +490,6 @@ class EscapeInfo
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
 					+ ".  So, providing default value - " + _result, _e);
-			}
-		}
-
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod, soot.SootClass,
-	 * 		soot.SootMethod)
-	 */
-	public boolean staticfieldAccessShared(final SootClass sc1, final SootMethod sm1, final SootClass sc2,
-		final SootMethod sm2) {
-		boolean _result = staticfieldAccessShared(sc1, sm1) && staticfieldAccessShared(sc1, sm2);
-
-		if (_result) {
-			try {
-				final Collection _o1 = analysis.getAliasSetFor(sc1).getShareEntities();
-				final Collection _o2 = analysis.getAliasSetFor(sc2).getShareEntities();
-				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
-			} catch (final NullPointerException _e) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("There is no information about " + sc1 + "/" + sc2 + " occurring in " + sm1 + "/" + sm2
-						+ ".  So, providing pessimistic info (true).", _e);
-				}
 			}
 		}
 
@@ -697,6 +644,40 @@ class EscapeInfo
 	 */
 	void unstableAdapter() {
 		super.unstable();
+	}
+
+	/**
+	 * Retrieves the alias set for the given local in the given method.
+	 *
+	 * @param local of interest.
+	 * @param method in which <code>local</code> occurs.
+	 *
+	 * @return the alias set if it exists.
+	 *
+	 * @throws IllegalArgumentException when either the method or the local was not processed.
+	 *
+	 * @pre local != null and method != null
+	 */
+	private AliasSet getAliasSetForIn(final Local local, final SootMethod method)
+	  throws IllegalArgumentException {
+		final Triple _trp1 = (Triple) analysis.method2Triple.get(method);
+
+		if (_trp1 == null) {
+			throw new IllegalArgumentException(method + " was not processed.");
+		}
+
+		final AliasSet _a1;
+
+		if (local != null) {
+			_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local);
+		} else {
+			_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
+		}
+
+		if (_a1 == null) {
+			throw new IllegalArgumentException(local + " in " + method + " was not processed.");
+		}
+		return _a1;
 	}
 }
 
