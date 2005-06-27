@@ -579,7 +579,6 @@ class EscapeInfo
 	 */
 	public boolean thisEscapes(final SootMethod method) {
 		boolean _result = this.analysis.escapesDefaultValue;
-		;
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
@@ -624,7 +623,6 @@ class EscapeInfo
 	 */
 	public boolean thisLockUnlockShared(final SootMethod method) {
 		boolean _result = this.analysis.escapesDefaultValue;
-		;
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
