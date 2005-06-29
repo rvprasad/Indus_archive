@@ -36,6 +36,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.EnterMonitorStmt;
 import soot.jimple.Stmt;
 
 
@@ -179,7 +180,8 @@ public class IndependentStmtDetector
 	 */
 	public final void callback(final Stmt stmt, final Context context) {
 		if (independentScope
-			  || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr())
+			  || (!stmt.containsArrayRef() && !stmt.containsFieldRef() && !stmt.containsInvokeExpr() 
+                      && !(stmt instanceof EnterMonitorStmt))
 			  || isIndependent(stmt, context.getCurrentMethod())) {
 			independentStmts.add(stmt);
 		}
