@@ -90,6 +90,11 @@ public final class OFAXMLizerCLI
 	 */
 	private boolean cumulative;
 
+    /**
+     * The type/sort of OFA to use.
+     */
+    private String type;
+
 	/**
 	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
 	 * methods to be considered in one execution of the analyses.
@@ -140,6 +145,11 @@ public final class OFAXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
+        _option = new Option("t", "ofa-type", false, "Type of analysis : fioi, fsoi, fios, fsos.");
+        _option.setArgs(1);
+        _option.setArgName("type");
+        _option.setOptionalArg(false);
+        _options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -169,7 +179,8 @@ public final class OFAXMLizerCLI
 			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
-
+			_cli.type = _cl.getOptionValue('t');
+            
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
@@ -217,8 +228,19 @@ public final class OFAXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa;
+        if (type.equals("fioi")) {
+            _aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+        } else if (type.equals("fios")) {
+            _aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+        } else if (type.equals("fsoi")) {
+            _aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+        } else if (type.equals("fsos")) {
+            _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+        } else {
+            throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");
+        }
+			
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
