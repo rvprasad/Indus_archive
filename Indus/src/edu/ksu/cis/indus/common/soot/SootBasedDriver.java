@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,6 +39,8 @@ import soot.SootMethod;
 
 import soot.options.Options;
 
+import soot.util.Chain;
+
 
 /**
  * This is generic driver that provides basic support to process a system represented in Jimple.
@@ -57,8 +58,8 @@ import soot.options.Options;
  * <p>
  * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
  * provide one,  then an instance of the class named via <code>indus.common.soot.RootMethodTrapper.class</code> property
- * will be used.  This named class should be a subclass of <code>edu.ksu.cis.indus.common.soot.RootMethodTrapper</code>.
- * As reflection is used on to instantiate an object, the specified class by the property should have a no-argument
+ * will be used.  This named class should be a subclass of <code>edu.ksu.cis.indus.common.soot.RootMethodTrapper</code>. As
+ * reflection is used on to instantiate an object, the specified class by the property should have a no-argument
  * constructor.
  * </p>
  * 
@@ -70,7 +71,9 @@ import soot.options.Options;
  * object, the specified class by the property should have a no-argument constructor.
  * </p>
  * 
- * <p>Please refer to <code>edu.ksu.cis.indus.Constants</code> for a file-based approach to specifying these properties.
+ * <p>
+ * Please refer to <code>edu.ksu.cis.indus.Constants</code> for a file-based approach to specifying these properties.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -333,6 +336,30 @@ public class SootBasedDriver {
 		for (final Iterator _i = times.keySet().iterator(); _i.hasNext();) {
 			final Object _e = _i.next();
 			writeInfo(_e + " => " + times.get(_e) + "ms");
+		}
+	}
+
+	/**
+	 * Loads the bodies of all methods in the system.
+	 */
+	public void loadupMethodBodies() {
+		final Chain _classes = Scene.v().getClasses();
+		final Iterator _i = _classes.iterator();
+		final int _iEnd = _classes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+			final List _methods = _sc.getMethods();
+			final Iterator _j = _methods.iterator();
+			final int _jEnd = _methods.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final SootMethod _sm = (SootMethod) _j.next();
+
+				if (_sm.isConcrete()) {
+					_sm.retrieveActiveBody();
+				}
+			}
 		}
 	}
 
