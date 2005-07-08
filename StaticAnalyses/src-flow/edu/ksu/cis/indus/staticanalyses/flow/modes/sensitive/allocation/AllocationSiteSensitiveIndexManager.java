@@ -17,12 +17,20 @@ package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import soot.ArrayType;
+import soot.RefType;
+import soot.Type;
+import soot.Value;
 
 
 /**
@@ -38,6 +46,31 @@ public class AllocationSiteSensitiveIndexManager
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AllocationSiteSensitiveIndexManager.class);
+
+	/** 
+	 * The pattern that defines an object-based scope in which value flow through fields is object sensitive.
+	 */
+	private final Pattern pattern;
+
+	/** 
+	 * This indicates if value flow through arrays should be object sensitive.
+	 */
+	private final boolean objectSensitiveArrayTracking;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public AllocationSiteSensitiveIndexManager() {
+		final String _p = Constants.getObjectSensitivityScopePattern();
+
+		if (_p != null) {
+			pattern = Pattern.compile(_p);
+		} else {
+			pattern = null;
+		}
+
+		objectSensitiveArrayTracking = Constants.getObjectSensitiveArrayTracking();
+	}
 
 	/**
 	 * Returns a new instance of this class.
@@ -66,7 +99,12 @@ public class AllocationSiteSensitiveIndexManager
 		}
 
 		final AllocationContext _ctxt = (AllocationContext) c;
-		return new OneContextInfoIndex(o, _ctxt.getAllocationSite());
+		final Type _type = ((Value) _ctxt.allocationSite).getType();
+		if ((_type instanceof RefType && pattern != null && pattern.matcher(((RefType) _type).getClassName()).matches())
+			  || (objectSensitiveArrayTracking && _type instanceof ArrayType)) {
+			return new OneContextInfoIndex(o, _ctxt.getAllocationSite());
+		}
+		return new OneContextInfoIndex(o, null);
 	}
 }
 

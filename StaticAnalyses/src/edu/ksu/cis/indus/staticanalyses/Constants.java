@@ -75,6 +75,27 @@ public final class Constants {
 		"edu.ksu.cis.indus.staticanalyses.tokens.TokenManagerClass";
 
 	/** 
+	 * The name of the property that identifies the class name based regex used to establish an object-based scope in which
+	 * value flow through fields are tracked in a object sensitive manner. The name is
+	 * "staticanalyses.flow.instances.ofa.ObjectSensitivityScope.pattern".
+	 */
+	public static final String OBJECT_SENSITIVITY_SCOPE_PATTERN_PROPERTY =
+		"edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ObjectSensitivityScope.pattern";
+
+	/** 
+	 * The name of the property that identifies the class name based regex used to determine the methods that need to be
+	 * analyzed during flow analysis. The name is "staticanalyses.flow.FAScope.pattern".
+	 */
+	public static final String FA_SCOPE_PATTERN_PROPERTY = "edu.ksu.cis.indus.staticanalyses.flow.FAScope.pattern";
+
+	/** 
+	 * The name of the property that identifies if value flow through arrays is tracked in a object sensitive manner. The
+	 * name is "staticanalyses.flow.instances.ofa.ObjectSensitivityArrayTracking".
+	 */
+	public static final String OBJECT_SENSITIVE_ARRAY_TRACKING_PROPERTY =
+		"edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ObjectSensitivityArrayTracking";
+
+	/** 
 	 * This is the default length of the interval between which SCC-based optimization is applied to the flow network.  It is
 	 * 1000.
 	 */
@@ -110,6 +131,15 @@ public final class Constants {
 	///CLOVER:ON
 
 	/**
+	 * Retrieves the pattern that defines class based scope that should not be analyzed.
+	 *
+	 * @return the regular expression.
+	 */
+	public static String getFAScopePattern() {
+		return CONFIGURATIONS.getProperty(FA_SCOPE_PATTERN_PROPERTY);
+	}
+
+	/**
 	 * Returns the index management strategy.
 	 *
 	 * @return index management strategy.
@@ -126,6 +156,24 @@ public final class Constants {
 			_result = new ProcessorIntensiveIndexManagementStrategy();
 		}
 		return _result;
+	}
+
+	/**
+	 * Returns if array-based object flow should be object sensitive.
+	 *
+	 * @return <code>true</code> if array-based object flow should be object sensitive; <code>false</code>, otherwise.
+	 */
+	public static boolean getObjectSensitiveArrayTracking() {
+		return retrieveBooleanValue(true, OBJECT_SENSITIVE_ARRAY_TRACKING_PROPERTY, CONFIGURATIONS);
+	}
+
+	/**
+	 * Retrieves the pattern that defines a class/object based scope in which object sensitivity should be maintined.
+	 *
+	 * @return the regular expression.
+	 */
+	public static String getObjectSensitivityScopePattern() {
+		return CONFIGURATIONS.getProperty(OBJECT_SENSITIVITY_SCOPE_PATTERN_PROPERTY);
 	}
 
 	/**
@@ -174,6 +222,30 @@ public final class Constants {
 			_result = _t;
 		} else {
 			_result = "edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager";
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves an integer constant.  <i>This method is not for public use.</i>
+	 *
+	 * @param defaultValue obviously.
+	 * @param key of interest.
+	 * @param props from which to retrieve the values.
+	 *
+	 * @return the constant.
+	 *
+	 * @throws NumberFormatException when configuration file is syntactically incorrect.
+	 */
+	public static boolean retrieveBooleanValue(final boolean defaultValue, final String key, final Properties props)
+	  throws NumberFormatException {
+		final boolean _result;
+		final String _temp = props.getProperty(key);
+
+		if (_temp != null) {
+			_result = Boolean.valueOf(_temp).booleanValue();
+		} else {
+			_result = defaultValue;
 		}
 		return _result;
 	}

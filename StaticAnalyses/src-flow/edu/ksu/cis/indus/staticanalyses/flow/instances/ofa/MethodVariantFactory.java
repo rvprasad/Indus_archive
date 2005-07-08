@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -15,10 +15,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariantFactory;
+
+import java.util.regex.Pattern;
 
 import soot.SootMethod;
 
@@ -32,12 +35,38 @@ import soot.SootMethod;
  */
 class MethodVariantFactory
   implements IMethodVariantFactory {
+	/** 
+	 * The pattern used to decide if a stub variant or a complete variant needs to be returned during <code>create()</code>
+	 * call. 
+	 */
+	private final Pattern pattern;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public MethodVariantFactory() {
+		final String _p = Constants.getFAScopePattern();
+
+		if (_p != null) {
+			pattern = Pattern.compile(_p);
+		} else {
+			pattern = null;
+		}
+	}
+
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IMethodVariantFactory#create(soot.SootMethod,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager, edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
 	public IMethodVariant create(final SootMethod sootMethod, final ASTVariantManager astVM, final FA fa) {
-		return new MethodVariant(sootMethod, astVM, fa);
+		final IMethodVariant _result;
+
+		if (pattern == null || pattern.matcher(sootMethod.getDeclaringClass().getName()).matches()) {
+			_result = new MethodVariant(sootMethod, astVM, fa);
+		} else {
+			_result = new StubMethodVariant(sootMethod, astVM, fa);
+		}
+		return _result;
 	}
 }
 

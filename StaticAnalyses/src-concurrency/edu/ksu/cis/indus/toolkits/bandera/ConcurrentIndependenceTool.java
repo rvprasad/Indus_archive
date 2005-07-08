@@ -56,7 +56,7 @@ import soot.util.Chain;
  * @author Todd Wallentine tcw AT cis ksu edu
  * @version $Revision$ - $Date$
  */
-public final class GlobalIndependenceTool
+public final class ConcurrentIndependenceTool
   extends BaseObservable
   implements Tool {
 	/** 
@@ -77,7 +77,7 @@ public final class GlobalIndependenceTool
 	/** 
 	 * This key denotes the independence info.
 	 */
-	public static final String ATOMICITY_OUTPUT_KEY = "globalIndependenceInfo";
+	public static final String INDEPENDENCEE_OUTPUT_KEY = "concurrentIndependenceInfo";
 
 	/** 
 	 * The list of input parameters.
@@ -261,7 +261,7 @@ public final class GlobalIndependenceTool
 	 */
 	public Map getOutputMap() {
 		final Map _m = new HashMap(1);
-		_m.put(ATOMICITY_OUTPUT_KEY, independenceInfo);
+		_m.put(INDEPENDENCEE_OUTPUT_KEY, independenceInfo);
 		return _m;
 	}
 
@@ -367,7 +367,7 @@ public final class GlobalIndependenceTool
 	 */
 	private static void initOutputParameters() {
 		outputParameterList = new ArrayList(1);
-		outputParameterList.add(ATOMICITY_OUTPUT_KEY);
+		outputParameterList.add(INDEPENDENCEE_OUTPUT_KEY);
 	}
 }
 

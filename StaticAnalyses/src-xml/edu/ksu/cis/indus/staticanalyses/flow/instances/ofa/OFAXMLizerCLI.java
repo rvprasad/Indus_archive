@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -65,45 +64,45 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 
-
 /**
  * This class provides a command-line interface to xmlize object flow information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class OFAXMLizerCLI
-  extends SootBasedDriver {
-	/** 
+		extends SootBasedDriver {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
 
-	/** 
+	/**
 	 * The xmlizer used to xmlize information.
 	 */
 	private final OFAXMLizer xmlizer = new OFAXMLizer();
 
-	/** 
+	/**
 	 * This indicates if analysis should be run for all root methods or separated for each root method.
 	 */
 	private boolean cumulative;
 
-    /**
-     * The type/sort of OFA to use.
-     */
-    private String type;
+	/**
+	 * The type/sort of OFA to use.
+	 */
+	private String type;
 
 	/**
 	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
 	 * methods to be considered in one execution of the analyses.
-	 *
-	 * @param root is the object based on which base name should be generated.
-	 * @param methods is the collection that will contain the root methods upon return.
-	 *
+	 * 
+	 * @param root
+	 *            is the object based on which base name should be generated.
+	 * @param methods
+	 *            is the collection that will contain the root methods upon return.
 	 * @return a name along with the root methods via <code>methods</code>.
-	 *
 	 * @pre root != null and methods != null
 	 * @post result != null and (methods.contains(root) or methods.containsAll(root))
 	 */
@@ -123,10 +122,11 @@ public final class OFAXMLizerCLI
 
 	/**
 	 * The entry point to the program via command line.
-	 *
-	 * @param args is the command line arguments.
-	 *
-	 * @throws RuntimeException when object flow analysis fails.
+	 * 
+	 * @param args
+	 *            is the command line arguments.
+	 * @throws RuntimeException
+	 *             when object flow analysis fails.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
@@ -145,11 +145,13 @@ public final class OFAXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-        _option = new Option("t", "ofa-type", false, "Type of analysis : fioi, fsoi, fios, fsos.");
-        _option.setArgs(1);
-        _option.setArgName("type");
-        _option.setOptionalArg(false);
-        _options.addOption(_option);
+		_option = new Option("t", "ofa-type", false, "Type of analysis : fioi, fsoi, fios, fsos.");
+		_option.setArgs(1);
+		_option.setArgName("type");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
+		_option = new Option("l", "preload", false, "Preload method bodies.");
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -170,9 +172,7 @@ public final class OFAXMLizerCLI
 				_outputDir = ".";
 			}
 
-			if (_cl.getArgList().isEmpty()) {
-				throw new MissingArgumentException("Please specify atleast one class.");
-			}
+			if (_cl.getArgList().isEmpty()) { throw new MissingArgumentException("Please specify atleast one class."); }
 
 			final OFAXMLizerCLI _cli = new OFAXMLizerCLI();
 			_cli.xmlizer.setXmlOutputDir(_outputDir);
@@ -180,12 +180,17 @@ public final class OFAXMLizerCLI
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
 			_cli.type = _cl.getOptionValue('t');
-            
+
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 
 			_cli.initialize();
+
+			if (_cl.hasOption('l')) {
+				_cli.loadupMethodBodies();
+			}
+
 			_cli.execute(_cl.hasOption('j'));
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
@@ -198,9 +203,9 @@ public final class OFAXMLizerCLI
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
-	 * @param options is the command line option.
-	 *
+	 * 
+	 * @param options
+	 *            is the command line option.
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
@@ -210,9 +215,10 @@ public final class OFAXMLizerCLI
 
 	/**
 	 * Sets cumulative mode.
-	 *
-	 * @param option <code>true</code> indicates all root methods should be analyzed in one go; <code>false</code> indicates
-	 * 		  analysis should be executed once for each root method.
+	 * 
+	 * @param option
+	 *            <code>true</code> indicates all root methods should be analyzed in one go; <code>false</code> indicates
+	 *            analysis should be executed once for each root method.
 	 */
 	private void setCumulative(final boolean option) {
 		cumulative = option;
@@ -220,27 +226,27 @@ public final class OFAXMLizerCLI
 
 	/**
 	 * Xmlize the given system.
-	 *
-	 * @param dumpJimple <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>,
-	 * 		  otherwise.
+	 * 
+	 * @param dumpJimple
+	 *            <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>, otherwise.
 	 */
 	private void execute(final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer _aa;
-        if (type.equals("fioi")) {
-            _aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
-        } else if (type.equals("fios")) {
-            _aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
-        } else if (type.equals("fsoi")) {
-            _aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
-        } else if (type.equals("fsos")) {
-            _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
-        } else {
-            throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");
-        }
-			
+		if (type.equals("fioi")) {
+			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		} else if (type.equals("fios")) {
+			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		} else if (type.equals("fsoi")) {
+			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		} else if (type.equals("fsos")) {
+			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		} else {
+			throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");
+		}
+
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));

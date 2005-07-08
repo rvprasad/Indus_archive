@@ -122,7 +122,7 @@ class MethodVariant
 	/**
 	 * Processes the body of the method implementation associated with this variant.
 	 */
-	public final void process() {
+	public void process() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing of " + method);
 		}
