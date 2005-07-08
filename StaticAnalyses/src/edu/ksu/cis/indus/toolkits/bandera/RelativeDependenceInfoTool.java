@@ -105,37 +105,37 @@ public final class RelativeDependenceInfoTool
 	 * This identifies the dependence info in the to-be serizalized output map.
 	 */
 	public static final Object DEPENDENCE =
-		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.dependence";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.dependence";
 
 	/** 
 	 * This identifies the known transitions info in the to-be serizalized output map.
 	 */
 	public static final Object KNOWN_TRANSITIONS =
-		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.knowntransitions";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.knowntransitions";
 
 	/** 
 	 * This identifies the may-flow relation in the to-be serizalized output map.
 	 */
 	public static final Object MAY_FOLLOW_RELATION =
-		"edu.ksu.cis.projects.bogor.module.por.RelativeDependenceBasedPORTransformationFilter.mayfollow";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.mayfollow";
 
 	/** 
 	 * This identifies the lock acquisition equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object LOCK_ACQUISITIONS =
-		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.lockAcquisitions";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.lockAcquisitions";
 
 	/** 
 	 * This identifies the array refs equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object ARRAY_REFS =
-		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.arrayRefs";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.arrayRefs";
 
 	/** 
 	 * This identifies the field refs equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object FIELD_REFS =
-		"edu.ksu.cis.projects.bogor.module.por.DynamicRelativeDependenceBasedPORTransformationFilter.fieldRefs";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.fieldRefs";
 
 	/** 
 	 * This identifies the output map that contains the data that needs to be serialized.  The map maps one of the above keys
@@ -383,20 +383,6 @@ public final class RelativeDependenceInfoTool
 	 */
 	public ToolIconView getToolIconView() {
 		return null;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param lock DOCUMENT ME!
-	 * @param array DOCUMENT ME!
-	 * @param field DOCUMENT ME!
-	 */
-	public void _setApplicationClassesOnly(boolean lock, boolean array, boolean field) {
-		// TODO: method needs to be deleted.
-		lockAcqInApplicationClassesOnly = lock;
-		arrayRefInApplicationClassesOnly = array;
-		fieldRefInApplicationClassesOnly = field;
 	}
 
 	/**
