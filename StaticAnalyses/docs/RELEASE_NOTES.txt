@@ -28,6 +28,7 @@ Required software:
 
 Version 0.7
 ---------------
+	- Added preliminary support to do fast, scoped,  (yet unsound) flow analysis.  [EXPERIMENTAL]
 	- moved AnalysesController from staticanalyses.impl package to staticanalyses.processing package.
 	- added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.
 	- refactored concurrency.atomicity package to concurrency.independence
