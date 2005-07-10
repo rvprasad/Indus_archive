@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -69,74 +68,116 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.UnitGraph;
 
-
 /**
  * This provides interprocedural analysis that calculates the propogation of uncaught exceptions.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class ExceptionRaisingAnalysis
-  extends AbstractProcessor
-  implements IExceptionRaisingInfo {
-	/** 
+		extends AbstractProcessor
+		implements IExceptionRaisingInfo {
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_ARRAY_STORE_EXCEPTION = "java.lang.ArrayStoreException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.ArrayIndexOutOfBoundsException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_CLASS_CAST_EXCEPTION = "java.lang.ClassCastException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_NEGATIVE_ARRAY_SIZE_EXCEPTION = "java.lang.NegativeArraySizeException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_INSTANTIATION_ERROR = "java.lang.InstantiationError";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_NULL_POINTER_EXCEPTION = "java.lang.NullPointerException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_NO_SUCH_METHOD_EXCEPTION = "java.lang.NoSuchMethodException";
+
+	/**
+	 * The name of an java exception/error class.
+	 */
+	private static final String JAVA_LANG_ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExceptionRaisingAnalysis.class);
 
-	/** 
+	/**
 	 * The call graph to be used.
 	 */
 	private final ICallGraphInfo cgi;
 
-	/** 
+	/**
 	 * The environment to be analyzed.
 	 */
 	private final IEnvironment env;
 
-	/** 
+	/**
 	 * This maps methods to statements to thrown exception types.
-	 *
+	 * 
 	 * @invariant method22stmt2exceptions.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
 	 */
 	private final Map method2stmt2exceptions = new HashMap();
 
-	/** 
+	/**
 	 * This maps methods to the statements to a collection of uncaught exception types.
-	 *
+	 * 
 	 * @invariant method2stmt2thrownTypes.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
 	 */
 	private final Map method2stmt2uncaughtExceptions = new HashMap();
 
-	/** 
+	/**
 	 * The statement graph factory to use.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
 
-	/** 
+	/**
 	 * A workbag.
 	 */
 	private final IWorkBag workbagCache;
 
-	/** 
+	/**
 	 * This maps ast node type to a collection of FQN of thrown exception types.
-	 *
+	 * 
 	 * @invariant astNodeType2thrownTypeNames.oclIsKindOf(Map(Class, Collection(String)))
 	 */
 	private final Map astNodeType2thrownTypeNames = new HashMap();
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param factory to retrieve the statement graphs.
-	 * @param callgraph to be used.
-	 * @param environment to be analyzed.
-	 *
+	 * 
+	 * @param factory
+	 *            to retrieve the statement graphs.
+	 * @param callgraph
+	 *            to be used.
+	 * @param environment
+	 *            to be analyzed.
 	 * @pre factory != null and callgraph != null and env != null
 	 */
 	public ExceptionRaisingAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph,
-		final IEnvironment environment) {
+			final IEnvironment environment) {
 		stmtGraphFactory = factory;
 		cgi = callgraph;
 		workbagCache = new HistoryAwareFIFOWorkBag(new ArrayList());
@@ -247,14 +288,14 @@ public class ExceptionRaisingAnalysis
 				}
 			}
 			CollectionsUtilities.putIntoSetInMap(CollectionsUtilities.getMapFromMap(method2stmt2uncaughtExceptions, _method),
-				_stmt, _thrownType);
+					_stmt, _thrownType);
 		}
 
 		workbagCache.clear();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("consolidate() - END - "
-				+ CollectionsUtilities.prettyPrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
+					+ CollectionsUtilities.prettyPrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
 		}
 	}
 
@@ -295,29 +336,29 @@ public class ExceptionRaisingAnalysis
 	 * Sets up this object to consider common unchecked exceptions.
 	 */
 	public void setupForCommonUncheckedExceptions() {
-		toggleExceptionsToTrack(ArrayRef.class, "java.lang.ArrayStoreException", true);
-		toggleExceptionsToTrack(ArrayRef.class, "java.lang.ArrayIndexOutOfBoundsException", true);
-		toggleExceptionsToTrack(ArrayRef.class, "java.lang.NullPointerException", true);
-		toggleExceptionsToTrack(NewExpr.class, "java.lang.InstantiationError", true);
-		toggleExceptionsToTrack(NewArrayExpr.class, "java.lang.NegativeArraySizeException", true);
-		toggleExceptionsToTrack(NewArrayExpr.class, "java.lang.InstantiationError", true);
-		toggleExceptionsToTrack(NewMultiArrayExpr.class, "java.lang.NegativeArraySizeException", true);
-		toggleExceptionsToTrack(NewMultiArrayExpr.class, "java.lang.InstantiationError", true);
-		toggleExceptionsToTrack(InstanceFieldRef.class, "java.lang.NullPointerException", true);
-		toggleExceptionsToTrack(InstanceFieldRef.class, "java.lang.IllegalAccessError", true);
-		toggleExceptionsToTrack(StaticFieldRef.class, "java.lang.IllegalAccessError", true);
-		toggleExceptionsToTrack(CastExpr.class, "java.lang.ClassCastException", true);
-		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
-		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.NoSuchMethodException", true);
-		toggleExceptionsToTrack(VirtualInvokeExpr.class, "java.lang.IllegalAccessError", true);
-		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
-		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.NoSuchMethodException", true);
-		toggleExceptionsToTrack(SpecialInvokeExpr.class, "java.lang.IllegalAccessError", true);
-		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.NullPointerExcpetion", true);
-		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.NoSuchMethodException", true);
-		toggleExceptionsToTrack(InterfaceInvokeExpr.class, "java.lang.IllegalAccessError", true);
-		toggleExceptionsToTrack(StaticInvokeExpr.class, "java.lang.NoSuchMethodException", true);
-		toggleExceptionsToTrack(StaticInvokeExpr.class, "java.lang.IllegalAccessError", true);
+		toggleExceptionsToTrack(ArrayRef.class, JAVA_LANG_ARRAY_STORE_EXCEPTION, true);
+		toggleExceptionsToTrack(ArrayRef.class, JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION, true);
+		toggleExceptionsToTrack(ArrayRef.class, JAVA_LANG_NULL_POINTER_EXCEPTION, true);
+		toggleExceptionsToTrack(NewExpr.class, JAVA_LANG_INSTANTIATION_ERROR, true);
+		toggleExceptionsToTrack(NewArrayExpr.class, JAVA_LANG_NEGATIVE_ARRAY_SIZE_EXCEPTION, true);
+		toggleExceptionsToTrack(NewArrayExpr.class, JAVA_LANG_INSTANTIATION_ERROR, true);
+		toggleExceptionsToTrack(NewMultiArrayExpr.class, JAVA_LANG_NEGATIVE_ARRAY_SIZE_EXCEPTION, true);
+		toggleExceptionsToTrack(NewMultiArrayExpr.class, JAVA_LANG_INSTANTIATION_ERROR, true);
+		toggleExceptionsToTrack(InstanceFieldRef.class, JAVA_LANG_NULL_POINTER_EXCEPTION, true);
+		toggleExceptionsToTrack(InstanceFieldRef.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
+		toggleExceptionsToTrack(StaticFieldRef.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
+		toggleExceptionsToTrack(CastExpr.class, JAVA_LANG_CLASS_CAST_EXCEPTION, true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, JAVA_LANG_NULL_POINTER_EXCEPTION, true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, JAVA_LANG_NO_SUCH_METHOD_EXCEPTION, true);
+		toggleExceptionsToTrack(VirtualInvokeExpr.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, JAVA_LANG_NULL_POINTER_EXCEPTION, true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, JAVA_LANG_NO_SUCH_METHOD_EXCEPTION, true);
+		toggleExceptionsToTrack(SpecialInvokeExpr.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, JAVA_LANG_NULL_POINTER_EXCEPTION, true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, JAVA_LANG_NO_SUCH_METHOD_EXCEPTION, true);
+		toggleExceptionsToTrack(InterfaceInvokeExpr.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
+		toggleExceptionsToTrack(StaticInvokeExpr.class, JAVA_LANG_NO_SUCH_METHOD_EXCEPTION, true);
+		toggleExceptionsToTrack(StaticInvokeExpr.class, JAVA_LANG_ILLEGAL_ACCESS_ERROR, true);
 	}
 
 	/**
@@ -332,20 +373,22 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Toggles the tracking of the named exception type for the given ast node type.
-	 *
-	 * @param astNodeType is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
-	 * @param exceptionName is the name of the exception that needs to be tracked at the given ast node.
-	 * @param consider <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates that
-	 * 		  the exception should not be tracked.
-	 *
+	 * 
+	 * @param astNodeType
+	 *            is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
+	 * @param exceptionName
+	 *            is the name of the exception that needs to be tracked at the given ast node.
+	 * @param consider
+	 *            <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates that
+	 *            the exception should not be tracked.
 	 * @pre astNodeType != null and exceptionName != null
 	 */
 	public void toggleExceptionsToTrack(final Class astNodeType, final String exceptionName, final boolean consider) {
 		if (consider) {
 			CollectionsUtilities.putIntoSetInMap(astNodeType2thrownTypeNames, astNodeType, exceptionName);
 		} else {
-			final Collection _typeNames =
-				(Collection) MapUtils.getObject(astNodeType2thrownTypeNames, astNodeType, Collections.EMPTY_SET);
+			final Collection _typeNames = (Collection) MapUtils.getObject(astNodeType2thrownTypeNames, astNodeType,
+					Collections.EMPTY_SET);
 			_typeNames.remove(exceptionName);
 		}
 	}
@@ -367,11 +410,10 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Retrieves the exception type names for the given ast node type.
-	 *
-	 * @param c is the ast node type.
-	 *
+	 * 
+	 * @param c
+	 *            is the ast node type.
 	 * @return a collection of exception type names.
-	 *
 	 * @pre c != null
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
@@ -395,13 +437,14 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * Checks if the given exception type thrown from the given statement in the given method is not caught in the given
 	 * method.
-	 *
-	 * @param stmt at which the exception occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param thrownType is the type of the exception that is thrown.
-	 *
+	 * 
+	 * @param stmt
+	 *            at which the exception occurs.
+	 * @param method
+	 *            in which <code>stmt</code> occurs.
+	 * @param thrownType
+	 *            is the type of the exception that is thrown.
 	 * @return <code>true</code> if the thrown exception is caught; <code>false</code>, otherwise.
-	 *
 	 * @pre stmt != null and method != null and thrownType != null
 	 */
 	private boolean isThrownExceptionNotCaught(final Stmt stmt, final SootMethod method, final SootClass thrownType) {
@@ -432,16 +475,19 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Process the given statement and method against the given exception type and updates the given collection.
-	 *
-	 * @param stmt that may cause the exception.
-	 * @param method contains <code>stmt</code>.
-	 * @param thrownTypes is the collection to which <code>thrownType</code> should be added if it is caught.
-	 * @param thrownType is the exception to be checked for at <code>stmt</code>.
-	 *
+	 * 
+	 * @param stmt
+	 *            that may cause the exception.
+	 * @param method
+	 *            contains <code>stmt</code>.
+	 * @param thrownTypes
+	 *            is the collection to which <code>thrownType</code> should be added if it is caught.
+	 * @param thrownType
+	 *            is the exception to be checked for at <code>stmt</code>.
 	 * @pre stmt != null and method != null and thrownTypes != null and thrownType != null
 	 */
 	private void processStmt(final Stmt stmt, final SootMethod method, final Collection thrownTypes,
-		final SootClass thrownType) {
+			final SootClass thrownType) {
 		if (isThrownExceptionNotCaught(stmt, method, thrownType)) {
 			workbagCache.addWorkNoDuplicates(new Triple(stmt, method, thrownType));
 		} else {
