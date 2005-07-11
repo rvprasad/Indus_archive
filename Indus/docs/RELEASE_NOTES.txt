@@ -36,6 +36,7 @@ Version 0.7
 ----------------
 	- Renamed IAtomicityInfo to IConcurrentIndependenceInfo.
 	- Extended IEscapeInfo to provide more precise escape info pertaining to static fields.
+	- Extended fieldAccessShared in IEscapeInfo to specifically answer read-write and write-write based shared access.
 
 Version 0.6.4
 ----------------

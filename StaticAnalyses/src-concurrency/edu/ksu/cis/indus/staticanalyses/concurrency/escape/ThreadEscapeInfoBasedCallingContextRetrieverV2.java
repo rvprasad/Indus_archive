@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -75,7 +76,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 				final FieldRef _fr = _stmt.getFieldRef();
 
 				if (_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _fr).getBase() == _value) {
-					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature());
+					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature(), IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 				} else if (_fr instanceof StaticFieldRef && _fr == _value) {
 					final SootField _field = _fr.getField();
 					final SootClass _declaringClass = _field.getDeclaringClass();
@@ -83,7 +84,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 					_result = escapesInfo.staticfieldAccessShared(_declaringClass, _currentMethod, _signature);
 				}
 			} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
-				_result = escapesInfo.fieldAccessShared(_value, _currentMethod);
+				_result = escapesInfo.fieldAccessShared(_value, _currentMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 			} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
 				_result = escapesInfo.lockUnlockShared(_value, _currentMethod);
 			} else if (_stmt.containsInvokeExpr()) {

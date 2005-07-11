@@ -385,16 +385,22 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod)
+	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod, Object)
 	 */
-	public boolean fieldAccessShared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
-		boolean _result = fieldAccessShared(v1, sm1) && fieldAccessShared(v2, sm2);
+	public boolean fieldAccessShared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2, final Object sharedAccessSort) {
+		boolean _result = fieldAccessShared(v1, sm1, sharedAccessSort) && fieldAccessShared(v2, sm2, sharedAccessSort);
 
 		if (_result) {
 			try {
-				final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getShareEntities();
-				final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getShareEntities();
+				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
+				final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getReadWriteShareEntities();
+				final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getReadWriteShareEntities();
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
+				} else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)) {
+					final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getWriteWriteShareEntities();
+					final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getWriteWriteShareEntities();
+					_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
+				}
 			} catch (final NullPointerException _e) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
@@ -407,16 +413,18 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod)
+	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, Object)
 	 */
-	public boolean fieldAccessShared(final Value v, final SootMethod sm) {
+	public boolean fieldAccessShared(final Value v, final SootMethod sm, final Object sharedAccessSort) {
 		boolean _result = this.analysis.escapesDefaultValue;
 
 		try {
+			_result = false;
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS))
 				_result = this.analysis.getAliasSetFor(v, sm).readWriteShared();
-			} else {
-				_result = false;
+				else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS))
+					_result = this.analysis.getAliasSetFor(v, sm).writeWriteShared();
 			}
 		} catch (final NullPointerException _e) {
 			if (LOGGER.isDebugEnabled()) {
@@ -429,17 +437,19 @@ class EscapeInfo
 	}
 
 	/**
-	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, String)
+	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, String, Object)
 	 */
-	public boolean fieldAccessShared(final Value v, final SootMethod sm, final String fieldSignature) {
+	public boolean fieldAccessShared(final Value v, final SootMethod sm, final String fieldSignature, final Object sharedAccessSort) {
 		boolean _result = this.analysis.escapesDefaultValue;
 
 		try {
+			_result = false;
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS))
 				_result = this.analysis.getAliasSetFor(v, sm).readWriteShared(fieldSignature);
-			} else {
-				_result = false;
-			}
+				else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS))
+					_result = this.analysis.getAliasSetFor(v, sm).writeWriteShared(fieldSignature);
+			} 
 		} catch (final NullPointerException _e) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + v + " occurring in " + sm

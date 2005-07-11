@@ -28,6 +28,8 @@ Required software:
 
 Version 0.7
 ---------------
+	- Implemented fieldAccessShared in EscapeInfo to specifically answer read-write and write-write based shared access.
+	- Used write-write shared access based info in SharedWriteEquivalence analysis.
 	- Added preliminary support to do fast, scoped,  (yet unsound) flow analysis.  [EXPERIMENTAL]
 	- moved AnalysesController from staticanalyses.impl package to staticanalyses.processing package.
 	- added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.

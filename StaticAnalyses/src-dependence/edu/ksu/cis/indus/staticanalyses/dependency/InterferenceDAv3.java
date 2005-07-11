@@ -56,7 +56,7 @@ public class InterferenceDAv3
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 			final Value _de = dependeeArrayRef.getBase();
 			final Value _dt = dependentArrayRef.getBase();
-			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod);
+			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 		}
 		return _result;
 	}
@@ -73,17 +73,17 @@ public class InterferenceDAv3
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 			final Value _de = dependeeFieldRef.getBase();
 			final Value _dt = dependentFieldRef.getBase();
-			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod);
+			_result = ecba.fieldAccessShared(_de, _deMethod, _dt, _dtMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 		}
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2#isStaticFieldDependentOn(edu.ksu.cis.indus.common.datastructures.Pair,
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2#isStaticFieldDependentOn(Pair,
 	 * 		edu.ksu.cis.indus.common.datastructures.Pair, soot.jimple.StaticFieldRef, soot.jimple.StaticFieldRef)
 	 */
-	protected boolean isStaticFieldDependentOn(Pair dependent, Pair dependee, StaticFieldRef dependentFieldRef,
-		StaticFieldRef dependeeFieldRef) {
+	protected boolean isStaticFieldDependentOn(final Pair dependent, final Pair dependee, 
+			final StaticFieldRef dependentFieldRef,	final StaticFieldRef dependeeFieldRef) {
 		boolean _result = super.isStaticFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
 
 		if (_result) {

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import soot.SootField;
 import soot.SootMethod;
@@ -49,7 +50,7 @@ public class IndependentStmtDetectorv2
 		if (!_result) {
 			if (stmt.containsArrayRef()) {
 				final ArrayRef _arrayRef = stmt.getArrayRef();
-				_result = !escapeInfo.fieldAccessShared(_arrayRef.getBase(), method);
+				_result = !escapeInfo.fieldAccessShared(_arrayRef.getBase(), method, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 			} else if (stmt.containsFieldRef()) {
 				final FieldRef _fieldRef = stmt.getFieldRef();
 				final SootField _field = _fieldRef.getField();
@@ -60,7 +61,7 @@ public class IndependentStmtDetectorv2
 					if (_fieldRef instanceof InstanceFieldRef) {
                         _result =
 							!escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method,
-								_signature);
+								_signature, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 					} else {
 						_result = !escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), method, _signature);
 					}

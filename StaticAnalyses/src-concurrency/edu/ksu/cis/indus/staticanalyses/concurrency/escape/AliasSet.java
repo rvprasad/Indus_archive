@@ -99,16 +99,28 @@ final class AliasSet
 	private Collection readyEntities;
 
 	/** 
-	 * This represents the ready Entities associated with this alias set.
+	 * This represents the read-write entities associated with this alias set.
 	 */
-	private Collection shareEntities;
+	private Collection readwriteEntities;
 
+	/** 
+	 * This represents the write-write entities associated with this alias set.
+	 */
+	private Collection writewriteEntities;
+	
 	/** 
 	 * This is the collection of field signatures of fields of this alias set's object that are shared across multiple
 	 * threads via read-write access.
 	 */
-	private Collection sigsOfSharedFields;
+	private Collection sigsOfRWSharedFields;
 
+	/** 
+	 * This is the collection of field signatures of fields of this alias set's object that are shared across multiple
+	 * threads via write-write access.
+	 */
+	private Collection sigsOfWWSharedFields;
+
+	
 	/** 
 	 * The threads that write fields of the associated object.
 	 */
@@ -177,8 +189,10 @@ final class AliasSet
 		readyEntities = null;
 		readThreads = new HashSet();
 		writeThreads = new HashSet();
-		shareEntities = null;
-		sigsOfSharedFields = null;
+		readwriteEntities = null;
+		writewriteEntities = null;
+		sigsOfRWSharedFields = null;
+		sigsOfWWSharedFields = null;
 		lockEntities = null;
 		multiThreadAccessibility = false;
 		readFields = Collections.EMPTY_SET;
@@ -239,8 +253,12 @@ final class AliasSet
 				_clone.readyEntities = (Collection) ((HashSet) readyEntities).clone();
 			}
 
-			if (shareEntities != null) {
-				_clone.shareEntities = (Collection) ((HashSet) shareEntities).clone();
+			if (readwriteEntities != null) {
+				_clone.readwriteEntities = (Collection) ((HashSet) readwriteEntities).clone();
+			}
+			
+			if (writewriteEntities != null) {
+				_clone.writewriteEntities = (Collection) ((HashSet) writewriteEntities).clone();
 			}
 
 			if (readFields != Collections.EMPTY_SET) {
@@ -280,8 +298,10 @@ final class AliasSet
 											   .append("readFields", this.readFields)
 											   .append("readyEntities", this.readyEntities)
 											   .append("lockEntities", this.lockEntities)
-											   .append("shareEntities", this.shareEntities)
-											   .append("sigsOfSharedFields", sigsOfSharedFields)
+											   .append("rwEntities", this.readwriteEntities)
+											   .append("wwEntities", this.writewriteEntities)
+											   .append("sigsOfSharedFields", sigsOfRWSharedFields)
+											   .append("sigsOfWriteWriteSharedFields", sigsOfWWSharedFields)
 											   .append("readThreads", readThreads).append("writeThreads", writeThreads)
 											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
@@ -445,8 +465,17 @@ final class AliasSet
 	 *
 	 * @return a collection of objects.
 	 */
-	Collection getShareEntities() {
-		return ((AliasSet) find()).shareEntities;
+	Collection getReadWriteShareEntities() {
+		return ((AliasSet) find()).readwriteEntities;
+	}
+	
+	/**
+	 * Retrieves the shared entities pertaining to write-write sharing of the associated object.
+	 *
+	 * @return a collection of objects.
+	 */
+	Collection getWriteWriteShareEntities() {
+		return ((AliasSet) find()).writewriteEntities;
 	}
 
 	/**
@@ -604,12 +633,20 @@ final class AliasSet
 					_toRep.readyEntities.addAll(_fromRep.readyEntities);
 				}
 
-				if (_fromRep.shareEntities != null) {
-					if (_toRep.shareEntities == null) {
-						_toRep.shareEntities = new HashSet();
+				if (_fromRep.readwriteEntities != null) {
+					if (_toRep.readwriteEntities == null) {
+						_toRep.readwriteEntities = new HashSet();
 					}
 
-					_toRep.shareEntities.addAll(_fromRep.shareEntities);
+					_toRep.readwriteEntities.addAll(_fromRep.readwriteEntities);
+				}
+				
+				if (_fromRep.writewriteEntities != null) {
+					if (_toRep.writewriteEntities == null) {
+						_toRep.writewriteEntities = new HashSet();
+					}
+
+					_toRep.writewriteEntities.addAll(_fromRep.writewriteEntities);
 				}
 
 				if (_fromRep.lockEntities != null) {
@@ -619,11 +656,18 @@ final class AliasSet
 					_toRep.lockEntities.addAll(_fromRep.lockEntities);
 				}
 
-				if (_fromRep.sigsOfSharedFields != null) {
-					if (_toRep.sigsOfSharedFields == null) {
-						_toRep.sigsOfSharedFields = new HashSet();
+				if (_fromRep.sigsOfRWSharedFields != null) {
+					if (_toRep.sigsOfRWSharedFields == null) {
+						_toRep.sigsOfRWSharedFields = new HashSet();
 					}
-					_toRep.sigsOfSharedFields.addAll(_fromRep.sigsOfSharedFields);
+					_toRep.sigsOfRWSharedFields.addAll(_fromRep.sigsOfRWSharedFields);
+				}
+				
+				if (_fromRep.sigsOfWWSharedFields != null) {
+					if (_toRep.sigsOfWWSharedFields == null) {
+						_toRep.sigsOfWWSharedFields = new HashSet();
+					}
+					_toRep.sigsOfWWSharedFields.addAll(_fromRep.sigsOfWWSharedFields);
 				}
 
 				for (final Iterator _i = _toRep.getFieldMap().keySet().iterator(); _i.hasNext();) {
@@ -692,7 +736,17 @@ final class AliasSet
 	 */
 	boolean readWriteShared() {
 		final AliasSet _rep = (AliasSet) find();
-		return _rep.shareEntities != null && !_rep.shareEntities.isEmpty();
+		return _rep.readwriteEntities != null && !_rep.readwriteEntities.isEmpty();
+	}
+	
+	/**
+	 * Checks if the object associated with this alias set is accessed by multiple threads for writes.
+	 *
+	 * @return <code>true</code> if the object is write-write shared; <code>false</code>, otherwise.
+	 */
+	boolean writeWriteShared() {
+		final AliasSet _rep = (AliasSet) find();
+		return _rep.writewriteEntities != null && !_rep.writewriteEntities.isEmpty();
 	}
 
 	/**
@@ -705,7 +759,20 @@ final class AliasSet
 	 */
 	boolean readWriteShared(final String fieldSignature) {
 		final AliasSet _rep = (AliasSet) find();
-		return readWriteShared() && _rep.sigsOfSharedFields.contains(fieldSignature);
+		return readWriteShared() && _rep.sigsOfRWSharedFields.contains(fieldSignature);
+	}
+	
+	/**
+	 * Checks if the object associated with this alias set is shared by multiple threads for writes of the
+	 * specified field.
+	 *
+	 * @param fieldSignature is the signature of the field.
+	 *
+	 * @return <code>true</code> if the object is shared via write-write of the given field; <code>false</code>, otherwise.
+	 */
+	boolean writeWriteShared(final String fieldSignature) {
+		final AliasSet _rep = (AliasSet) find();
+		return writeWriteShared() && _rep.sigsOfWWSharedFields.contains(fieldSignature);
 	}
 
 	/**
@@ -940,19 +1007,33 @@ final class AliasSet
 		}
 		represented.readyEntities = null;
 
-		if (shareEntities == null) {
-			shareEntities = represented.shareEntities;
-		} else if (represented.shareEntities != null) {
-			shareEntities.addAll(represented.shareEntities);
+		if (readwriteEntities == null) {
+			readwriteEntities = represented.readwriteEntities;
+		} else if (represented.readwriteEntities != null) {
+			readwriteEntities.addAll(represented.readwriteEntities);
 		}
-		represented.shareEntities = null;
+		represented.readwriteEntities = null;
 
-		if (sigsOfSharedFields == null) {
-			sigsOfSharedFields = represented.sigsOfSharedFields;
-		} else if (represented.sigsOfSharedFields != null) {
-			sigsOfSharedFields.addAll(represented.sigsOfSharedFields);
+		if (writewriteEntities == null) {
+			writewriteEntities = represented.writewriteEntities;
+		} else if (represented.writewriteEntities != null) {
+			writewriteEntities.addAll(represented.writewriteEntities);
 		}
-		represented.sigsOfSharedFields = null;
+		represented.writewriteEntities = null;
+
+		if (sigsOfRWSharedFields == null) {
+			sigsOfRWSharedFields = represented.sigsOfRWSharedFields;
+		} else if (represented.sigsOfRWSharedFields != null) {
+			sigsOfRWSharedFields.addAll(represented.sigsOfRWSharedFields);
+		}
+		represented.sigsOfRWSharedFields = null;
+		
+		if (sigsOfWWSharedFields == null) {
+			sigsOfWWSharedFields = represented.sigsOfWWSharedFields;
+		} else if (represented.sigsOfWWSharedFields != null) {
+			sigsOfWWSharedFields.addAll(represented.sigsOfWWSharedFields);
+		}
+		represented.sigsOfWWSharedFields = null;
 
 		if (readFields == Collections.EMPTY_SET) {
 			readFields = represented.readFields;
@@ -1055,17 +1136,29 @@ final class AliasSet
 
 		if (CollectionUtils.containsAny(readFields, represented.writtenFields)
 			  || CollectionUtils.containsAny(writtenFields, represented.readFields)) {
-			if (shareEntities == null) {
-				shareEntities = new HashSet();
-				sigsOfSharedFields = new HashSet();
+			if (readwriteEntities == null) {
+				readwriteEntities = new HashSet();
+				sigsOfRWSharedFields = new HashSet();
 			}
 
-			if (shareEntities.isEmpty()) {
-				shareEntities.add(getNewShareEntity());
+			if (readwriteEntities.isEmpty()) {
+				readwriteEntities.add(getNewShareEntity());
 			}
-			sigsOfSharedFields.addAll(CollectionUtils.intersection(readFields, represented.writtenFields));
-			sigsOfSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.readFields));
+			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(readFields, represented.writtenFields));
+			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.readFields));
 		}
+		
+		if (CollectionUtils.containsAny(writtenFields, represented.writtenFields)) {
+				if (writewriteEntities == null) {
+					writewriteEntities = new HashSet();
+					sigsOfWWSharedFields = new HashSet();
+				}
+
+				if (writewriteEntities.isEmpty()) {
+					writewriteEntities.add(getNewShareEntity());
+				}
+				sigsOfWWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.writtenFields));
+			}
 	}
 }
 

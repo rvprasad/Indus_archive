@@ -27,9 +27,7 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
-import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
@@ -106,8 +104,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		/**
 		 * Creates an instance of this class.
 		 * 
-		 * @param pos
-		 *            is the arg/param position of interest.
+		 * @param pos is the arg/param position of interest.
 		 */
 		ArgParamAliasSetRetriever(final int pos) {
 			this.position = pos;
@@ -144,8 +141,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		/**
 		 * Creates an instance of this class.
 		 * 
-		 * @param triple
-		 *            of interest.
+		 * @param triple of interest.
 		 * @pre triple != null
 		 */
 		SiteContextRetriever(final Triple triple) {
@@ -158,44 +154,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public Object transform(final Object input) {
 			final Triple _t = (Triple) method2Triple.get(input);
 			return _t != null ? ((Map) _t.getThird()).get(callerTriple) : null;
-		}
-	}
-
-	/**
-	 * This class is used to create alias sets for global variables.
-	 * 
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private final class PreProcessor
-			extends AbstractProcessor {
-
-		/**
-		 * {@inheritDoc} Creates a method context for <code>sm</code>. This is the creation of method contexts in Ruf's
-		 * algorithm.
-		 */
-		public void callback(final SootMethod sm) {
-			final MethodContext _methodContext = new MethodContext(sm, EquivalenceClassBasedEscapeAnalysis.this);
-			method2Triple.put(sm, new Triple(_methodContext, new HashMap(), new HashMap()));
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("pre-processing : callback(SootMethod sm = " + sm + ")"); 
-			}
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
-		 */
-		public void hookup(final ProcessingController ppc) {
-			ppc.register(this);
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
-		 */
-		public void unhook(final ProcessingController ppc) {
-			ppc.unregister(this);
 		}
 	}
 
@@ -327,13 +285,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object. The default value for escapes, reads, and writes is set to
 	 * <code>true</code>, <code>false</code>, and <code>false</code>, respectively.
 	 * 
-	 * @param callgraph
-	 *            provides call-graph information.
-	 * @param threadgraph
-	 *            provides thread graph information. If this is <code>null</code> then read-write specific thread
+	 * @param callgraph provides call-graph information.
+	 * @param threadgraph provides thread graph information. If this is <code>null</code> then read-write specific thread
 	 *            information is not captured.
-	 * @param basicBlockGraphMgr
-	 *            provides basic block graphs required by this analysis.
+	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 * @pre scene != null and callgraph != null and threadgraph != null
 	 */
 	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadgraph,
@@ -347,7 +302,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
-		preprocessor = new PreProcessor();
+		// preprocessor = new PreProcessor();
 		escapesDefaultValue = true;
 		readDefaultValue = false;
 		writeDefaultValue = false;
@@ -358,8 +313,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Checks if the given type can contribute to aliasing. Only reference and array types can lead to aliasing.
 	 * 
-	 * @param type
-	 *            to be checked for aliasing support.
+	 * @param type to be checked for aliasing support.
 	 * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
 	 * @pre type != null
 	 */
@@ -442,8 +396,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Sets the default value to be returned on unanswerable escape equeries.
 	 * 
-	 * @param value
-	 *            the new value of <code>escapesDefaultValue</code>.
+	 * @param value the new value of <code>escapesDefaultValue</code>.
 	 */
 	public void setEscapesDefaultValue(final boolean value) {
 		this.escapesDefaultValue = value;
@@ -452,8 +405,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Sets the default value to be returned on unanswerable access-path based read queries.
 	 * 
-	 * @param value
-	 *            the new value of <code>readDefaultValue</code>.
+	 * @param value the new value of <code>readDefaultValue</code>.
 	 */
 	public void setReadDefaultValue(final boolean value) {
 		this.readDefaultValue = value;
@@ -462,8 +414,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Sets the default value to be returned on unanswerable access-path based written queries.
 	 * 
-	 * @param value
-	 *            the new value of <code>value</code>.
+	 * @param value the new value of <code>value</code>.
 	 */
 	public void setWriteDefaultValue(final boolean value) {
 		this.writeDefaultValue = value;
@@ -493,8 +444,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set for the given soot class.
 	 * 
-	 * @param sc
-	 *            is the class of interest.
+	 * @param sc is the class of interest.
 	 * @return an alias set.
 	 */
 	AliasSet getAliasSetFor(final SootClass sc) {
@@ -504,13 +454,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set corresponding to the given value. This method cannot handled <code>CaughtExceptionRef</code>.
 	 * 
-	 * @param v
-	 *            is the value for which the alias set is requested.
-	 * @param sm
-	 *            is the method in which <code>v</code> occurs.
+	 * @param v is the value for which the alias set is requested.
+	 * @param sm is the method in which <code>v</code> occurs.
 	 * @return the alias set corresponding to <code>v</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>sm</code> was not analyzed.
+	 * @throws IllegalArgumentException if <code>sm</code> was not analyzed.
 	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
 	 *      v.isOclKindOf(InstanceFieldRef) or v.isOclIsKindOf(ParameterRef)
 	 */
@@ -554,8 +501,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set for "this" variable of the given method.
 	 * 
-	 * @param method
-	 *            of interest.
+	 * @param method of interest.
 	 * @return the alias set corresponding to the "this" variable of the given method.
 	 * @pre method != null and method.isStatic()
 	 */
@@ -566,8 +512,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set for the class. This acts like "this" variable for static fields defined in the given class.
 	 * 
-	 * @param declaringClass
-	 *            of interest.
+	 * @param declaringClass of interest.
 	 * @return the alias set.
 	 * @pre declaringClass != null
 	 * @post result != null
@@ -586,12 +531,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Retrieves the alias set on the callee side that corresponds to the given alias set on the caller side at the given call
 	 * site in the caller.
 	 * 
-	 * @param ref
-	 *            the reference alias set.
-	 * @param callee
-	 *            provides the context in which the requested reference occurs.
-	 * @param site
-	 *            the call site at which <code>callee</code> is called.
+	 * @param ref the reference alias set.
+	 * @param callee provides the context in which the requested reference occurs.
+	 * @param site the call site at which <code>callee</code> is called.
 	 * @return the callee side alias set that corresponds to <code>ref</code>. This will be <code>null</code> if there is
 	 *         no such alias set.
 	 * @pre ref != null and callee != null and site != null
@@ -608,12 +550,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Retrieves the alias set on the caller side that corresponds to the given alias set on the callee side at the given call
 	 * site in the caller.
 	 * 
-	 * @param ref
-	 *            the reference alias set.
-	 * @param callee
-	 *            the method in which <code>ref</code> occurs.
-	 * @param site
-	 *            the call site at which <code>callee</code> is called.
+	 * @param ref the reference alias set.
+	 * @param callee the method in which <code>ref</code> occurs.
+	 * @param site the call site at which <code>callee</code> is called.
 	 * @return the caller side alias set that corresponds to <code>ref</code>. This will be <code>null</code> if there is
 	 *         no such alias set.
 	 * @pre ref != null and callee != null and site != null
@@ -629,12 +568,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Validates the given parameter position in the given method.
 	 * 
-	 * @param paramPos
-	 *            obviously.
-	 * @param method
-	 *            in which the position is being validated.
-	 * @throws IllegalArgumentException
-	 *             if the given position is invalid.
+	 * @param paramPos obviously.
+	 * @param method in which the position is being validated.
+	 * @throws IllegalArgumentException if the given position is invalid.
 	 * @pre method != null
 	 */
 	void validate(final int paramPos, final SootMethod method) throws IllegalArgumentException {
@@ -645,10 +581,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Validates if the given method is non-static.
 	 * 
-	 * @param method
-	 *            of interest.
-	 * @throws IllegalArgumentException
-	 *             if the given method is static.
+	 * @param method of interest.
+	 * @throws IllegalArgumentException if the given method is static.
 	 */
 	void validate(final SootMethod method) throws IllegalArgumentException {
 		if (method.isStatic()) { throw new IllegalArgumentException("The provided method should be non-static."); }
@@ -658,8 +592,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Rewires the method context, local variable alias sets, and site contexts such that they contain only representative
 	 * alias sets and no the nominal(indirectional) alias sets.
 	 * 
-	 * @param method
-	 *            for which this processing should occur.
+	 * @param method for which this processing should occur.
 	 * @pre method != null
 	 */
 	private void discardReferentialAliasSets(final SootMethod method) {
@@ -722,8 +655,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final Triple _triple = (Triple) method2Triple.get(_sm);
- 
+				final Triple _triple;
+
+				if (method2Triple.containsKey(_sm)) {
+					_triple = (Triple) method2Triple.get(_sm);
+				} else {
+					final MethodContext _methodContext = new MethodContext(_sm, EquivalenceClassBasedEscapeAnalysis.this);
+					_triple = new Triple(_methodContext, new HashMap(), new HashMap());
+					method2Triple.put(_sm, _triple);
+				}
+
 				methodCtxtCache = (MethodContext) _triple.getFirst();
 				localASsCache = (Map) _triple.getSecond();
 				scCache = (Map) _triple.getThird();
@@ -765,9 +706,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				LOGGER.debug("Top-down processing method : CALLER : " + _caller);
 			}
 
-			final Collection _callees = cgi.getCallees(_caller);
+			if (!method2Triple.containsKey(_caller)) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("NO BODY: " + _caller.getSignature());
+				}
+
+				continue;
+			}
+
 			final Triple _callerTriple = (Triple) method2Triple.get(_caller);
 			final Map _ctrp2sc = (Map) _callerTriple.getThird();
+			final Collection _callees = cgi.getCallees(_caller);
 
 			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
 				final CallTriple _ctrp = (CallTriple) _i.next();
@@ -801,3 +750,4 @@ public final class EquivalenceClassBasedEscapeAnalysis
 }
 
 // End of File
+

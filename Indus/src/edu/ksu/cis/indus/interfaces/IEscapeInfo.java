@@ -40,6 +40,16 @@ public interface IEscapeInfo
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
 	Object ID = "Escape Information";
+	
+	/**
+	 * This identifies shared access due to write by different threads. 
+	 */
+	String WRITE_WRITE_SHARED_ACCESS = "write write shared access";
+	
+	/**
+	 * This identifies shared access due to read by one thread and write by another thread.
+	 */
+	String READ_WRITE_SHARED_ACCESS = "read write shared access";
 
 	/**
 	 * Retrieves abstract threads which read the given local to read the fields of the referred object.
@@ -209,12 +219,13 @@ public interface IEscapeInfo
 	 *
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>. 
 	 *
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
 	 *
 	 * @pre v != null and sm != null
 	 */
-	boolean fieldAccessShared(Value v, SootMethod sm);
+	boolean fieldAccessShared(Value v, SootMethod sm, Object sharedAccessSort);
 
 	/**
 	 * Checks if the object bound to the given program points are shared.  This is more stricter than escape-ness.  This
@@ -224,12 +235,13 @@ public interface IEscapeInfo
 	 * @param sm1 is the method in which <code>v1</code> occurs.
 	 * @param v2 is the other program point in the check.
 	 * @param sm2 is the method in which <code>v2</code> occurs.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
 	 *
 	 * @return <code>true</code> if the given values are indeed shared across threads; <code>false</code>, otherwise.
 	 *
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
-	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2);
+	boolean fieldAccessShared(Value v1, SootMethod sm1, Value v2, SootMethod sm2, Object sharedAccessSort);
 
 	/**
 	 * Checks if the object bound to the given program point in the given method is shared via access to the specified field.
@@ -238,12 +250,13 @@ public interface IEscapeInfo
 	 * @param v is the  program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @param signature is the field signature of interest.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
 	 *
 	 * @return <code>true</code> if <code>v</code> is shared via access to the given field; <code>false</code>, otherwise.
 	 *
 	 * @pre v != null and sm != null and signature != null
 	 */
-	boolean fieldAccessShared(Value v, SootMethod sm, String signature);
+	boolean fieldAccessShared(Value v, SootMethod sm, String signature, Object sharedAccessSort);
 
 	/**
 	 * Checks if the object bound to the given program point in the given method shared. This suggests multithread

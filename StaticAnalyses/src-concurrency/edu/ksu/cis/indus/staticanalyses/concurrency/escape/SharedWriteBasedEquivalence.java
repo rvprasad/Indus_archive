@@ -203,7 +203,7 @@ public class SharedWriteBasedEquivalence
 		boolean _result = false;
 
 		if (s1.containsArrayRef() && s2.containsArrayRef()) {
-			_result = einfo.fieldAccessShared(s1.getArrayRef().getBase(), m1, s2.getArrayRef().getBase(), m2);
+			_result = einfo.fieldAccessShared(s1.getArrayRef().getBase(), m1, s2.getArrayRef().getBase(), m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 		} else if (s1.containsFieldRef() && s2.containsFieldRef()) {
 			final FieldRef _fieldRef2 = s2.getFieldRef();
 			final FieldRef _fieldRef1 = s1.getFieldRef();
@@ -213,11 +213,11 @@ public class SharedWriteBasedEquivalence
 				if (_fieldRef1 instanceof InstanceFieldRef && _fieldRef2 instanceof InstanceFieldRef) {
 					_result =
 						einfo.fieldAccessShared(((InstanceFieldRef) _fieldRef1).getBase(), m1,
-							((InstanceFieldRef) _fieldRef2).getBase(), m2);
+							((InstanceFieldRef) _fieldRef2).getBase(), m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 				} else if (_fieldRef1 instanceof StaticFieldRef && _fieldRef2 instanceof StaticFieldRef) {
 					_result =
 						!EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_field1.getType())
-						  || einfo.fieldAccessShared(_fieldRef1, m1, _fieldRef2, m2);
+						  || einfo.fieldAccessShared(_fieldRef1, m1, _fieldRef2, m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 				}
 			}
 		}
