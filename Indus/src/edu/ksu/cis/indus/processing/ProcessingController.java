@@ -1213,7 +1213,7 @@ public class ProcessingController {
 	 */
 	private void processClasses(final Collection theClasses) {
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("processClasses(Collection=" + theClasses + ") - BEGIN");
+			LOGGER.info("processClasses(Collection) - BEGIN");
 		}
 
 		Collection _classes;
