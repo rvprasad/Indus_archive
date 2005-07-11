@@ -70,7 +70,7 @@ public class DataAliasBasedCallingContextRetriever
 	 *
 	 * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
 	 */
-	public DataAliasBasedCallingContextRetriever(int callingContextLengthLimit) {
+	public DataAliasBasedCallingContextRetriever(final int callingContextLengthLimit) {
 		super(callingContextLengthLimit);
 	}
 
@@ -171,7 +171,8 @@ public class DataAliasBasedCallingContextRetriever
 				_defMethod = _srcMethod;
 				_useStmt = _curDefStmt;
 				_useMethod = _curMethod;
-			} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp()) {
+			} else {  
+				//if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp()) {
 				_defStmt = _curDefStmt;
 				_defMethod = _curMethod;
 				_useStmt = _srcDefStmt;
@@ -230,7 +231,8 @@ public class DataAliasBasedCallingContextRetriever
 					analysis.isReachableViaInterProceduralControlFlow((SootMethod) getInfoFor(SRC_METHOD), _srcDefStmt,
 						_curMethod, _curDefStmt, tgi);
                 }
-			} else {  //if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
+			} else {  
+				//if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
                 if (_sameMethod) {
                     _result = analysis.doesControlFlowPathExistsBetween(_curDefStmt, _srcDefStmt, _curMethod);
                 } else {
@@ -306,7 +308,7 @@ public class DataAliasBasedCallingContextRetriever
 
 			final Collection _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
 
-			if (_callersOfCurrMethod.isEmpty()) {
+			if (!_callersOfCurrMethod.isEmpty()) {
 				final Collection _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
 
 				for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
