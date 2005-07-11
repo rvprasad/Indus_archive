@@ -90,7 +90,7 @@ public class InterferenceDAv3
 			final SootField _field = dependeeFieldRef.getField();
 			_result =
 				ecba.staticfieldAccessShared(_field.getDeclaringClass(), (SootMethod) dependee.getSecond(),
-					_field.getSignature());
+					_field.getSignature(), IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 		}
 		return _result;
 	}

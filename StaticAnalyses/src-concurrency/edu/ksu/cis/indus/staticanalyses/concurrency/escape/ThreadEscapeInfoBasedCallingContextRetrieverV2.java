@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -36,25 +35,25 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * This implementation facilitates the extraction of calling-contexts based on multithread data sharing (more precise than
  * escape information).
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ThreadEscapeInfoBasedCallingContextRetrieverV2
-  extends ThreadEscapeInfoBasedCallingContextRetriever {
-	/** 
+		extends ThreadEscapeInfoBasedCallingContextRetriever {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ThreadEscapeInfoBasedCallingContextRetrieverV2.class);
 
 	/**
 	 * Creates an instance of this instance.
-	 *
+	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
 	 */
 	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit) {
@@ -76,12 +75,14 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 				final FieldRef _fr = _stmt.getFieldRef();
 
 				if (_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _fr).getBase() == _value) {
-					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature(), IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature(),
+							IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 				} else if (_fr instanceof StaticFieldRef && _fr == _value) {
 					final SootField _field = _fr.getField();
 					final SootClass _declaringClass = _field.getDeclaringClass();
 					final String _signature = _field.getSignature();
-					_result = escapesInfo.staticfieldAccessShared(_declaringClass, _currentMethod, _signature);
+					_result = escapesInfo.staticfieldAccessShared(_declaringClass, _currentMethod, _signature,
+							IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 				}
 			} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
 				_result = escapesInfo.fieldAccessShared(_value, _currentMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
@@ -92,8 +93,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 				final SootMethod _invokedMethod = _ex.getMethod();
 
 				if (_ex instanceof VirtualInvokeExpr
-					  && (Util.isWaitMethod(_invokedMethod) || Util.isNotifyMethod(_invokedMethod))
-					  && ((VirtualInvokeExpr) _ex).getBase() == _value) {
+						&& (Util.isWaitMethod(_invokedMethod) || Util.isNotifyMethod(_invokedMethod))
+						&& ((VirtualInvokeExpr) _ex).getBase() == _value) {
 					_result = escapesInfo.waitNotifyShared(_value, _currentMethod);
 				}
 			}
@@ -111,9 +112,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result =
-			escapesInfo.thisFieldAccessShared(_method) || escapesInfo.thisWaitNotifyShared(_method)
-			  || escapesInfo.thisLockUnlockShared(_method);
+		final boolean _result = escapesInfo.thisFieldAccessShared(_method, IEscapeInfo.READ_WRITE_SHARED_ACCESS)
+				|| escapesInfo.thisWaitNotifyShared(_method) || escapesInfo.thisLockUnlockShared(_method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerThis() -  : _result = " + _result);

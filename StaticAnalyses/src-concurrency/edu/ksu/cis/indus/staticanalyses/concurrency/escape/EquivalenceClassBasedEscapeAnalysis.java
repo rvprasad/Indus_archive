@@ -207,11 +207,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final Context context;
 
 	/**
-	 * This is the default verdict for escapes queries.
-	 */
-	boolean escapesDefaultValue;
-
-	/**
 	 * This is a cache variable that holds local alias set map between method calls.
 	 * 
 	 * @invariant localASsCache.oclIsKindOf(Local, AliasSet)
@@ -240,11 +235,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final Map query2handle = new LRUMap();
 
 	/**
-	 * This is the default verdict for access-path based read queries.
-	 */
-	boolean readDefaultValue;
-
-	/**
 	 * This is a cache variable that holds site context map between method calls.
 	 * 
 	 * @invariant scCache.oclIsKindOf(CallTriple, MethodContex)
@@ -265,11 +255,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This is the <code>Value</code> processor used to process Jimple pieces that make up the methods.
 	 */
 	final ValueProcessor valueProcessor;
-
-	/**
-	 * This is the default verdict for access-path based write queries.
-	 */
-	boolean writeDefaultValue;
 
 	/**
 	 * This is the object that exposes object escape info calculated by this instance.
@@ -302,10 +287,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
-		// preprocessor = new PreProcessor();
-		escapesDefaultValue = true;
-		readDefaultValue = false;
-		writeDefaultValue = false;
 		escapeInfo = new EscapeInfo(this);
 		objectReadWriteInfo = new ReadWriteInfo(this);
 	}
@@ -399,7 +380,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @param value the new value of <code>escapesDefaultValue</code>.
 	 */
 	public void setEscapesDefaultValue(final boolean value) {
-		this.escapesDefaultValue = value;
+		escapeInfo.escapesDefaultValue = value;
 	}
 
 	/**
@@ -408,7 +389,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @param value the new value of <code>readDefaultValue</code>.
 	 */
 	public void setReadDefaultValue(final boolean value) {
-		this.readDefaultValue = value;
+		objectReadWriteInfo.readDefaultValue = value;
 	}
 
 	/**
@@ -417,7 +398,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @param value the new value of <code>value</code>.
 	 */
 	public void setWriteDefaultValue(final boolean value) {
-		this.writeDefaultValue = value;
+		objectReadWriteInfo.writeDefaultValue = value;
 	}
 
 	/**

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,9 +14,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
@@ -32,180 +28,73 @@ import java.util.Collections;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.TransformerUtils;
 
-import soot.SootMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import soot.SootMethod;
 
 /**
  * This class provides implementation of <code>IReadWriteInfo</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 class ReadWriteInfo
-  extends AbstractStatus
-  implements IReadWriteInfo {
+		extends AbstractStatus
+		implements IReadWriteInfo {
 
-    /**
-     * The logger used by instances of this class to log messages.
-     */
-    private static final Log LOGGER = LogFactory.getLog(ReadWriteInfo.class);
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ReadWriteInfo.class);
 
-	/** 
+	/**
 	 * This is used to retrieve the alias set for "this" from a given method context.
 	 */
-	private static final Transformer THIS_ALIAS_SET_RETRIEVER =
-		new Transformer() {
-			public Object transform(final Object input) {
-				return ((MethodContext) input).thisAS;
-			}
-		};
+	private static final Transformer THIS_ALIAS_SET_RETRIEVER = new Transformer() {
 
-	/** 
+		public Object transform(final Object input) {
+			return ((MethodContext) input).thisAS;
+		}
+	};
+
+	/**
 	 * The creating/containing object.
 	 */
 	final EquivalenceClassBasedEscapeAnalysis analysis;
 
-	/** 
+	/**
+	 * This is the default verdict for access-path based read queries.
+	 */
+	boolean readDefaultValue;
+
+	/**
+	 * This is the default verdict for access-path based write queries.
+	 */
+	boolean writeDefaultValue;
+
+	/**
 	 * This retrieves the method context of a method.
 	 */
-	private final Transformer methodCtxtRetriever =
-		new Transformer() {
-			public Object transform(final Object input) {
-				final Triple _t = (Triple) analysis.method2Triple.get(input);
-				return _t != null ? _t.getFirst()
-								  : null;
-			}
-		};
+	private final Transformer methodCtxtRetriever = new Transformer() {
+
+		public Object transform(final Object input) {
+			final Triple _t = (Triple) analysis.method2Triple.get(input);
+			return _t != null ? _t.getFirst() : null;
+		}
+	};
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param instance that creates this instance.
-	 *
 	 * @pre instance != null
 	 */
 	ReadWriteInfo(final EquivalenceClassBasedEscapeAnalysis instance) {
 		this.analysis = instance;
-	}
-
-	/**
-	 * @see IReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, int,
-	 * 		java.lang.String[], boolean)
-	 */
-	public boolean isArgumentBasedAccessPathRead(final CallTriple callerTriple, final int argPos, final String[] accesspath,
-		final boolean recurse)
-	  throws IllegalArgumentException {
-		final SootMethod _callee = callerTriple.getExpr().getMethod();
-
-		this.analysis.validate(argPos, _callee);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				this.analysis.new ArgParamAliasSetRetriever(argPos));
-		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isArgumentBasedAccessPathWritten(CallTriple, int, String[],     boolean)
-	 */
-	public boolean isArgumentBasedAccessPathWritten(final CallTriple callerTriple, final int argPos,
-		final String[] accesspath, final boolean recurse) {
-		final SootMethod _callee = callerTriple.getExpr().getMethod();
-
-		this.analysis.validate(argPos, _callee);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				this.analysis.new ArgParamAliasSetRetriever(argPos));
-		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
-	 */
-	public Collection getIds() {
-		return Collections.singleton(IReadWriteInfo.ID);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
-	 */
-	public boolean isParameterBasedAccessPathRead(final SootMethod method, final int paramPos, final String[] accesspath,
-		final boolean recurse)
-	  throws IllegalArgumentException {
-		this.analysis.validate(paramPos, method);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
-		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
-	 */
-	public boolean isParameterBasedAccessPathWritten(final SootMethod method, final int paramPos, final String[] accesspath,
-		final boolean recurse) {
-		this.analysis.validate(paramPos, method);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
-		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isReceiverBasedAccessPathRead(CallTriple,     java.lang.String[], boolean)
-	 */
-	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
-		final boolean recurse)
-	  throws IllegalArgumentException {
-		if (callerTriple.getExpr().getMethod().isStatic()) {
-			throw new IllegalArgumentException("The invoked method should be non-static.");
-		}
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
-		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
-	 */
-	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
-		final boolean recurse) {
-		if (callerTriple.getExpr().getMethod().isStatic()) {
-			throw new IllegalArgumentException("The invoked method should be non-static.");
-		}
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(callerTriple),
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
-		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
-	 * 		boolean)
-	 */
-	public boolean isThisBasedAccessPathRead(final SootMethod method, final String[] accesspath, final boolean recurse)
-	  throws IllegalArgumentException {
-		this.analysis.validate(method);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
-		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
-	}
-
-	/**
-	 * @see IReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
-	 */
-	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
-		this.analysis.validate(method);
-
-		final Transformer _transformer =
-			TransformerUtils.chainedTransformer(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
-		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
+		readDefaultValue = true;
+		writeDefaultValue = true;
 	}
 
 	/**
@@ -239,6 +128,116 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection getIds() {
+		return Collections.singleton(IReadWriteInfo.ID);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, int,
+	 *      java.lang.String[], boolean)
+	 */
+	public boolean isArgumentBasedAccessPathRead(final CallTriple callerTriple, final int argPos, final String[] accesspath,
+			final boolean recurse) throws IllegalArgumentException {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		this.analysis.validate(argPos, _callee);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
+				callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isArgumentBasedAccessPathWritten(CallTriple, int, String[], boolean)
+	 */
+	public boolean isArgumentBasedAccessPathWritten(final CallTriple callerTriple, final int argPos,
+			final String[] accesspath, final boolean recurse) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		this.analysis.validate(argPos, _callee);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
+				callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
+	 */
+	public boolean isParameterBasedAccessPathRead(final SootMethod method, final int paramPos, final String[] accesspath,
+			final boolean recurse) throws IllegalArgumentException {
+		this.analysis.validate(paramPos, method);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
+	 */
+	public boolean isParameterBasedAccessPathWritten(final SootMethod method, final int paramPos, final String[] accesspath,
+			final boolean recurse) {
+		this.analysis.validate(paramPos, method);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isReceiverBasedAccessPathRead(CallTriple, java.lang.String[], boolean)
+	 */
+	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
+			final boolean recurse) throws IllegalArgumentException {
+		if (callerTriple.getExpr().getMethod().isStatic()) { throw new IllegalArgumentException(
+				"The invoked method should be non-static."); }
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
+				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
+	 */
+	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
+			final boolean recurse) {
+		if (callerTriple.getExpr().getMethod().isStatic()) { throw new IllegalArgumentException(
+				"The invoked method should be non-static."); }
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
+				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
+	 *      boolean)
+	 */
+	public boolean isThisBasedAccessPathRead(final SootMethod method, final String[] accesspath, final boolean recurse)
+			throws IllegalArgumentException {
+		this.analysis.validate(method);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
+	}
+
+	/**
+	 * @see IReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
+	 */
+	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
+		this.analysis.validate(method);
+
+		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
+	}
+
+	/**
 	 * This exposes <code>super.stable</code>.
 	 */
 	void stableAdapter() {
@@ -254,17 +253,15 @@ class ReadWriteInfo
 
 	/**
 	 * Checks if the given method either reads or writes global data.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @param retriever to be used.
-	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write  info is
-	 * 		  requested.
-	 *
+	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write info is
+	 *            requested.
 	 * @return <code>true</code> if any global data was read when <code>read</code> is <code>true</code> and
-	 * 		   <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code> if any
-	 * 		   global data was written when <code>read</code> is <code>false</code> and <code>false</code> if it was not
-	 * 		   written when <code>read</code> was <code> false</code>.
-	 *
+	 *         <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code>
+	 *         if any global data was written when <code>read</code> is <code>false</code> and <code>false</code> if it
+	 *         was not written when <code>read</code> was <code> false</code>.
 	 * @pre method != null and retriever != null
 	 */
 	private boolean globalDataReadWriteInfoHelper(final SootMethod method, final Transformer retriever, final boolean read) {
@@ -280,12 +277,10 @@ class ReadWriteInfo
 				_result = _ctxt.isGlobalDataWritten();
 			}
 		} else {
-			_result = read ? this.analysis.readDefaultValue
-						   : this.analysis.writeDefaultValue;
+			_result = read ? readDefaultValue : writeDefaultValue;
 
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method
-					+ " is available.  Returning default value - " + _result);
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning default value - " + _result);
 			}
 		}
 		return _result;
@@ -293,24 +288,22 @@ class ReadWriteInfo
 
 	/**
 	 * Calculates the read-write information based on an access path rooted at the given method using the given transformer.
-	 *
+	 * 
 	 * @param method in which the accesspath is rooted.
 	 * @param accesspath of interest.
 	 * @param recurse <code>true</code> indicates that read/write beyond the end point should be considered.
-	 * 		  <code>false</code>, otherwise.
+	 *            <code>false</code>, otherwise.
 	 * @param retriever to be used to get the method context and the alias set.
-	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write  info is
-	 * 		  requested.
-	 *
+	 * @param read <code>true</code> indicates read information is requested; <code>false</code> indidates write info is
+	 *            requested.
 	 * @return <code>true</code> if the given access path was read when <code>read</code> is <code>true</code> and
-	 * 		   <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code> if the
-	 * 		   given access path was written when <code>read</code> is <code>false</code> and <code>false</code> if it was
-	 * 		   not written when <code>read</code> was <code> false</code>.
-	 *
+	 *         <code>false</code> if it was not read when <code>read</code> was <code>true</code>. <code>true</code>
+	 *         if the given access path was written when <code>read</code> is <code>false</code> and <code>false</code>
+	 *         if it was not written when <code>read</code> was <code> false</code>.
 	 * @pre method != null and accesspath != null and retriever != null
 	 */
 	private boolean instanceDataReadWriteHelper(final SootMethod method, final String[] accesspath, final boolean recurse,
-		final Transformer retriever, final boolean read) {
+			final Transformer retriever, final boolean read) {
 		final AliasSet _aliasSet = (AliasSet) retriever.transform(method);
 		final int _pathLength = accesspath.length;
 		final boolean _zeroLenghtPath = _pathLength == 0;
@@ -341,13 +334,12 @@ class ReadWriteInfo
 		final boolean _result;
 
 		if (_endPoint == null) {
-			_result = read ? this.analysis.readDefaultValue
-						   : this.analysis.writeDefaultValue;
+			_result = read ? readDefaultValue : writeDefaultValue;
 
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("isAccessPathOperatedHelper(method = " + method
-					+ ", accesspath = " + Arrays.asList(accesspath) + ", recurse = " + recurse + ", retriver = " + retriever
-					+ ") - No recorded information for " + method + " is available.  Returning default value - " + _result);
+				LOGGER.warn("isAccessPathOperatedHelper(method = " + method + ", accesspath = " + Arrays.asList(accesspath)
+						+ ", recurse = " + recurse + ", retriver = " + retriever + ") - No recorded information for "
+						+ method + " is available.  Returning default value - " + _result);
 			}
 		} else {
 			if (read) {

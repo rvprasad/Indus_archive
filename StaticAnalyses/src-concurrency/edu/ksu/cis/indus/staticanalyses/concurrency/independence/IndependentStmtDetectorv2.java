@@ -63,7 +63,8 @@ public class IndependentStmtDetectorv2
 							!escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method,
 								_signature, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 					} else {
-						_result = !escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), method, _signature);
+						_result = !escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), method, _signature,
+								IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 					}
 				}
 			} else if (stmt instanceof EnterMonitorStmt) {
