@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -67,81 +66,29 @@ import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
-
 /**
  * This class provides the logic to detect parts of a backward slice.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class BackwardSlicingPart
-  implements IDirectionSensitivePartOfSlicingEngine {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(BackwardSlicingPart.class);
-
-	/** 
-	 * The engine with which this part is a part of.
-	 */
-	final SlicingEngine engine;
-
-	/** 
-	 * This closure is used generate criteria to include the value in return statements.
-	 */
-	private final Closure returnValueInclClosure = new ReturnValueInclusionClosure();
-
-	/** 
-	 * This closure is used generate criteria to include return statements.
-	 */
-	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
-
-	/** 
-	 * this maps methods to their call sites.
-	 *
-	 * @invariant callee2callsites.oclIsKindOf(Map(SootMethod, Collection(Pair(Stmt, SootMethod))))
-	 * @invariant callee2callsites.values()->forAll(o | o->forall(p | p.getFirst().containsInvokeExpr()))
-	 */
-	private final Map callee2callsites = new HashMap();
-
-	/** 
-	 * This is a map from methods to transformed return statements.
-	 */
-	private final Map exitTransformedMethods = new HashMap();
-
-	/** 
-	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
-	 * slice.
-	 *
-	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
-	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
-	 */
-	private final Map method2params = new HashMap();
-
-	/**
-	 * Creates an instance of this class.
-	 *
-	 * @param theEngine of which this part is a part of.
-	 *
-	 * @pre theEngine != null
-	 */
-	BackwardSlicingPart(final SlicingEngine theEngine) {
-		engine = theEngine;
-	}
+		implements IDirectionSensitivePartOfSlicingEngine {
 
 	/**
 	 * This closure contains logic to generate criteria to include the value in the return statements.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class ReturnValueInclusionClosure
-	  implements Closure {
+			implements Closure {
+
 		/**
 		 * {@inheritDoc}
-		 *
+		 * 
 		 * @pre input.oclIsKindOf(Pair(Stmt, SootMethod))
 		 */
 		public void execute(final Object input) {
@@ -150,23 +97,23 @@ public class BackwardSlicingPart
 			final SootMethod _callee = (SootMethod) _pair.getSecond();
 
 			if (_trailer instanceof ReturnStmt) {
-				// TODO: we are considering both throws and returns as return points. This should change when we 
+				// TODO: we are considering both throws and returns as return points. This should change when we
 				// consider if control-flow based on exceptions.
 				engine.generateExprLevelSliceCriterion(((ReturnStmt) _trailer).getOpBox(), _trailer, _callee, true);
 			}
 		}
 	}
 
-
 	/**
 	 * This closure contains logic to generate criteria to include return statements.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class TailStmtInclusionClosure
-	  implements Closure {
+			implements Closure {
+
 		/**
 		 * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
 		 */
@@ -179,41 +126,72 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
+	 * The logger used by instances of this class to log messages.
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection _result = new HashSet();
-		final Object _direction = analysis.getDirection();
+	private static final Log LOGGER = LogFactory.getLog(BackwardSlicingPart.class);
 
-		if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
-			  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)
-			  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependees(entity, method));
-		} else if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
-				+ analysis.getClass() + " - " + _direction);
-		}
+	/**
+	 * The engine with which this part is a part of.
+	 */
+	final SlicingEngine engine;
 
-		return _result;
+	/**
+	 * this maps methods to their call sites.
+	 * 
+	 * @invariant callee2callsites.oclIsKindOf(Map(SootMethod, Collection(Pair(Stmt, SootMethod))))
+	 * @invariant callee2callsites.values()->forAll(o | o->forall(p | p.getFirst().containsInvokeExpr()))
+	 */
+	private final Map callee2callsites = new HashMap();
+
+	/**
+	 * This is a map from methods to transformed return statements.
+	 */
+	private final Map exitTransformedMethods = new HashMap();
+
+	/**
+	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the slice.
+	 * 
+	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
+	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
+	 */
+	private final Map method2params = new HashMap();
+
+	/**
+	 * This closure is used generate criteria to include the value in return statements.
+	 */
+	private final Closure returnValueInclClosure = new ReturnValueInclusionClosure();
+
+	/**
+	 * This closure is used generate criteria to include return statements.
+	 */
+	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
+
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param theEngine of which this part is a part of.
+	 * @pre theEngine != null
+	 */
+	BackwardSlicingPart(final SlicingEngine theEngine) {
+		engine = theEngine;
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod,     soot.SootMethod,
-	 * 		soot.jimple.Stmt)
+	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod, soot.SootMethod,
+	 *      soot.jimple.Stmt)
 	 */
 	public void generateCriteriaForTheCallToMethod(final SootMethod callee, final SootMethod caller, final Stmt callStmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForTheCallToMethod(Stmt callStmt = " + callStmt + "SootMethod callee = " + callee
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
-		 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
-		 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
-		 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
-		 * parameters to suck in the arguments.  So, we generate criteria only for the invocation expression and
-		 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
-		 * invoke expressions are handled differently.
+		 * _stmt may be an assignment statement. Hence, we want the control to reach the statement but not leave it. However,
+		 * the execution of the invoke expression should be considered as it is requied to reach the callee. Likewise, we want
+		 * to include the expression but not all arguments. We rely on the reachable parameters to suck in the arguments. So,
+		 * we generate criteria only for the invocation expression and not the arguments. Refer to
+		 * transformAndGenerateToNewCriteriaForXXXX for information about how invoke expressions are handled differently.
 		 */
 		engine.generateStmtLevelSliceCriterion(callStmt, caller, false);
 		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
@@ -227,12 +205,12 @@ public class BackwardSlicingPart
 
 	/**
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#generateCriteriaToIncludeCallees(soot.jimple.Stmt,
-	 * 		soot.SootMethod, java.util.Collection)
+	 *      soot.SootMethod, java.util.Collection)
 	 */
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaToIncludeCallees(Stmt stmt = " + stmt + ", Collection callees = " + callees
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
@@ -251,13 +229,31 @@ public class BackwardSlicingPart
 	}
 
 	/**
+	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
+	 */
+	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection _result = new HashSet();
+		final Object _direction = analysis.getDirection();
+
+		if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION) || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)
+				|| _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+			_result.addAll(analysis.getDependees(entity, method));
+		} else if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
+					+ analysis.getClass() + " - " + _direction);
+		}
+
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, soot.jimple.Stmt,
-	 * 		soot.SootMethod)
+	 *      soot.SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processLocalAt(Local local = " + local + ", Stmt stmt = " + stmt + ", SootMethod method = "
-				+ method + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ method + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		engine.generateStmtLevelSliceCriterion(stmt, method, true);
@@ -275,7 +271,7 @@ public class BackwardSlicingPart
 					_ctxt.setRootMethod(method);
 					_ctxt.setStmt(stmt);
 					processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method,
-						returnValueInclClosure);
+							returnValueInclClosure);
 					break;
 				}
 			}
@@ -288,36 +284,35 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes new expressions to include corresponding init statements into the slice.
-	 *
+	 * 
 	 * @param stmt is the statement containing the new expression.
 	 * @param method contains <code>stmt</code>.
-	 *
 	 * @pre stmt != null and method != null
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processNewExpr(Stmt stmt = " + stmt + ", SootMethod method = " + method + ", stack = "
-				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
-		 * Here we make some assumptions.  new expressions will always be assigned to a variable in order to call the
-		 * constructor. Hence, they will always occur in assignment statement.  It is common practice in compilers to emit
-		 * code to construct the instance just after emitting for creating the instance.  Hence, we should be able to find the
-		 * <init> call site by following use-def chain. However, this may fail in case where the <init> call is made on
-		 * a variable other than the one to which the new expression was assigned to.
-		 *     r1 = new <X>;
-		 *     r2 = r1;
-		 *     r2.<init>();
-		 * To handle such cases, we use OFA.
-		 *
+		 * Here we make some assumptions. new expressions will always be assigned to a variable in order to call the
+		 * constructor. Hence, they will always occur in assignment statement. It is common practice in compilers to emit code
+		 * to construct the instance just after emitting for creating the instance. Hence, we should be able to find the
+		 * <init> call site by following use-def chain. However, this may fail in case where the <init> call is made on a
+		 * variable other than the one to which the new expression was assigned to. r1 = new <X>; r2 = r1; r2.<init>(); To
+		 * handle such cases, we use OFA.
 		 */
 		if (stmt instanceof AssignStmt) {
 			final AssignStmt _as = (AssignStmt) stmt;
 
 			if (_as.getRightOp() instanceof NewExpr) {
 				final Stmt _def = engine.getInitMapper().getInitCallStmtForNewExprStmt(stmt, method);
-				engine.generateStmtLevelSliceCriterion(_def, method, true);
+				if (_def != null) {
+					engine.generateStmtLevelSliceCriterion(_def, method, true);
+				} else if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Could not find the <init> for " + stmt + "@" + method);
+				}
 			}
 		}
 
@@ -328,20 +323,18 @@ public class BackwardSlicingPart
 
 	/**
 	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
-	 * 
 	 * <p>
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
-	 *
+	 * 
 	 * @param stmt is the statement in which <code>pBox</code> occurs.
 	 * @param callee in which<code>stmt</code> occurs.
-	 *
 	 * @pre method != null and stmt != null
 	 */
 	public void processParameterRef(final IdentityStmt stmt, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processParameterRef(ValueBox pBox = " + stmt.getRightOpBox() + ", SootMethod callee = " + callee
-				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final ParameterRef _param = (ParameterRef) stmt.getRightOp();
@@ -350,7 +343,7 @@ public class BackwardSlicingPart
 		BitSet _params = (BitSet) method2params.get(callee);
 
 		if (_params == null) {
-			// we size the bitset on a maximum sane value for arguments to improve efficiency. 
+			// we size the bitset on a maximum sane value for arguments to improve efficiency.
 			final int _maxArguments = 8;
 			_params = new BitSet(_maxArguments);
 			method2params.put(callee, _params);
@@ -367,8 +360,8 @@ public class BackwardSlicingPart
 			final Stmt _stmt = _temp.getStmt();
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 			engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
-            generateCriteriaForReceiverOfAt(_stmt, _caller);
-            engine.enterMethod(_temp);
+			generateCriteriaForReceiverOfAt(_stmt, _caller);
+			engine.enterMethod(_temp);
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
 			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
@@ -402,7 +395,7 @@ public class BackwardSlicingPart
 
 		final Value _value = valueBox.getValue();
 
-		//if it is an invocation expression, we do not want to include the arguments/sub-expressions. 
+		// if it is an invocation expression, we do not want to include the arguments/sub-expressions.
 		// in case of instance invocation, we do want to include the receiver position expression.
 		if (!(_value instanceof InvokeExpr)) {
 			_valueBoxes.addAll(_value.getUseBoxes());
@@ -412,7 +405,7 @@ public class BackwardSlicingPart
 
 		/*
 		 * Note that l-position is the lhs of an assignment statement whereas an l-value is value that occurs the l-position
-		 * and is defined.  In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
+		 * and is defined. In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
 		 * r-position.
 		 */
 
@@ -448,13 +441,12 @@ public class BackwardSlicingPart
 	/**
 	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
 	 * should be marked as invoked or required before calling this method.
-	 *
+	 * 
 	 * @param callee is the method in question.
 	 * @param expr indicates if the expression in the tail statement should be probed to indicate if criteria should be
-	 * 		  generated.
-	 *
+	 *            generated.
 	 * @return <code>true</code> if method's return points of callee should be considered to generate new slice criterion;
-	 * 		   <code>false</code>, otherwise.
+	 *         <code>false</code>, otherwise.
 	 */
 	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee, final boolean expr) {
 		boolean _result = false;
@@ -488,20 +480,18 @@ public class BackwardSlicingPart
 	/**
 	 * Generates criteria for the argument positions at call-sites that could have been missed due to criteria processing
 	 * order.
-	 * 
 	 * <p>
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
-	 *
+	 * 
 	 * @param callee of interest.
 	 * @param argIndex at the call site.
-	 *
 	 * @pre callee != null
 	 */
 	private void generateCriteriaForMissedParameters(final SootMethod callee, final int argIndex) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForMissedParameters(SootMethod callee = " + callee + ", int argIndex = " + argIndex
-				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final Collection _temp = (Collection) MapUtils.getObject(callee2callsites, callee, Collections.EMPTY_SET);
@@ -524,20 +514,18 @@ public class BackwardSlicingPart
 
 	/**
 	 * Generates criteria to include the receiver at the given invocation statement.
-	 * 
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the callee).
 	 * </p>
-	 *
+	 * 
 	 * @param callStmt at which the invocation occurs.
 	 * @param caller in which the invocation occurs.
-	 *
 	 * @pre callStmt != null and caller != null and callee != null
 	 */
 	private void generateCriteriaForReceiverOfAt(final Stmt callStmt, final SootMethod caller) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt + ", SootMethod caller = " + caller
+					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		if (!callStmt.getInvokeExpr().getMethod().isStatic()) {
@@ -552,25 +540,24 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes the init call to the super class inside init method.
-	 *
+	 * 
 	 * @param initMethod is the init method.
 	 * @param bbg is the basic block graph of <code>callee</code>.
-	 *
 	 * @pre initMethod != null and bbg != null and engine.getCallStackCache() != null
 	 */
 	private void processSuperInitInInit(final SootMethod initMethod, final BasicBlockGraph bbg) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processSuperInitInInit(SootMethod initMethod = " + initMethod + ", BasicBlockGraph bbg = " + bbg
-				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
-		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
-		 * be the first statement in the constructor.  However, if it accepts arguments, the arguments will be set up
-		 * before the call.  Hence, it is safe to suck in the first <init> invoke expression in the <init> method being
-		 * sucked in.  However, care must be taken to suck in the first <init> invocation that is invokes <init> from the same
-		 * class as the enclosing <init> method. As we process invocation expressions, we are bound to suck in any other
-		 * required <init>'s from other higher super classes.
+		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to be
+		 * the first statement in the constructor. However, if it accepts arguments, the arguments will be set up before the
+		 * call. Hence, it is safe to suck in the first <init> invoke expression in the <init> method being sucked in.
+		 * However, care must be taken to suck in the first <init> invocation that is invokes <init> from the same class as
+		 * the enclosing <init> method. As we process invocation expressions, we are bound to suck in any other required
+		 * <init>'s from other higher super classes.
 		 */
 		if (initMethod.getName().equals("<init>") && initMethod.getDeclaringClass().hasSuperclass()) {
 			final CompleteUnitGraph _ug = new CompleteUnitGraph(initMethod.getActiveBody());
@@ -585,7 +572,7 @@ public class BackwardSlicingPart
 					final SootMethod _called = _stmt.getInvokeExpr().getMethod();
 
 					if (_called.getName().equals("<init>")
-						  && _called.getDeclaringClass().equals(initMethod.getDeclaringClass().getSuperclass())) {
+							&& _called.getDeclaringClass().equals(initMethod.getDeclaringClass().getSuperclass())) {
 						engine.generateStmtLevelSliceCriterion(_stmt, initMethod, true);
 						break;
 					}
@@ -601,23 +588,21 @@ public class BackwardSlicingPart
 	/**
 	 * Processes the callees called at the given statements in the caller with the given closure to include tails of the
 	 * callees along with any arguments at the call-site.
-	 * 
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the caller).
 	 * </p>
-	 *
+	 * 
 	 * @param callees are the methods called at the statement.
 	 * @param stmt is the statment containing the invocation.
 	 * @param caller is the method in which <code>invocationStmt</code> occurs.
 	 * @param closure to be executed.
-	 *
-	 * @pre stmt !=  null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
+	 * @pre stmt != null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
 	 */
 	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller, final Closure closure) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
-				+ ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = "
-				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = "
+					+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
@@ -653,10 +638,10 @@ public class BackwardSlicingPart
 				}
 			} else {
 				/*
-				 * if not, then check if any of the method parameters are marked as required.  If so, include them.
-				 * It is possible that the return statements are not affected by the parameters in which case _params will be
-				 * null.  On the other hand, may be the return statements have been included but not yet processed in which
-				 * case _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
+				 * if not, then check if any of the method parameters are marked as required. If so, include them. It is
+				 * possible that the return statements are not affected by the parameters in which case _params will be null.
+				 * On the other hand, may be the return statements have been included but not yet processed in which case
+				 * _params will be null again. In the latter case, we postpone for callee-caller propogation to generate
 				 * criteria to consider suitable argument expressions.
 				 */
 				final BitSet _params = (BitSet) method2params.get(_callee);
@@ -679,22 +664,20 @@ public class BackwardSlicingPart
 
 	/**
 	 * Records the given callee was called from the given call-site in the current context.
-	 * 
 	 * <p>
 	 * The context should be for the caller and not the callee. That is, the TOS should have the callsite for the caller
 	 * method and not the callsite for the callee in the caller method.
 	 * </p>
-	 *
+	 * 
 	 * @param stmt containing the call site.
 	 * @param caller containing <code>stmt</code>
 	 * @param callee being called.
-	 *
 	 * @pre stmt != null and caller != null and callee != null
 	 */
 	private void recordCallInfoForProcessingArgsTo(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
-				+ ", SootMethod callee = " + callee + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", SootMethod callee = " + callee + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final Stack _stackClone = engine.getCopyOfCallStackCache();
