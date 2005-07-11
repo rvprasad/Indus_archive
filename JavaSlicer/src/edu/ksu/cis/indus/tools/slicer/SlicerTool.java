@@ -808,23 +808,16 @@ public final class SlicerTool
 		final BasicBlockGraphMgr _b;
 
 		if (slicerConfig.isExplicitExceptionalExitSensitiveControlDependenceUsed()) {
-			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-			_ssr.setStmtGraphFactory(getStmtGraphFactory());
-
-			final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
-			_cgipc.setAnalyzer(ofa);
-			_cgipc.setProcessingFilter(new CGBasedProcessingFilter(getCallGraph()));
-			_cgipc.setStmtSequencesRetriever(_ssr);
-
 			final ExceptionRaisingAnalysis _e =
 				new ExceptionRaisingAnalysis(getStmtGraphFactory(), getCallGraph(), getSystem());
 
 			if (slicerConfig.areCommonUncheckedExceptionsConsidered()) {
 				_e.setupForCommonUncheckedExceptions();
 			}
-			_e.hookup(_cgipc);
-			_cgipc.process();
-			_e.unhook(_cgipc);
+			_e.hookup(cgBasedPreProcessCtrl);
+			cgBasedPreProcessCtrl.process();
+			_e.unhook(cgBasedPreProcessCtrl);
+			
 			_b = new BasicBlockGraphMgr(_e);
 			_b.setStmtGraphFactory(getStmtGraphFactory());
 		} else {
