@@ -1091,6 +1091,8 @@ public class ProcessingController {
 	 * Sets the environment which provides the system to be processed.
 	 * 
 	 * @param environment an instance of the FA.
+	 * 
+	 * @pre environment != null
 	 */
 	public final void setEnvironment(final IEnvironment environment) {
 		env = environment;
@@ -1183,12 +1185,33 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Processes the given value boxes.
+	 * 
+	 * @param boxes to be processed.
+	 * @pre boxes != null and boxes.oclIsKindOf(Collection(ValueBox))
+	 */
+	void processValueBoxes(final Collection boxes) {
+		if (processingFilter != null) {
+			processingFilter.filterValueBoxes(boxes);
+		}
+
+		final Iterator _i = boxes.iterator();
+		final int _iEnd = boxes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final ValueBox _vb = (ValueBox) _i.next();
+			context.setProgramPoint(_vb);
+			_vb.getValue().apply(valueSwitcher);
+		}
+	}
+
+	/**
 	 * Controls the processing of class level entities.
 	 * 
 	 * @param theClasses to be processed.
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
-	protected final void processClasses(final Collection theClasses) {
+	private void processClasses(final Collection theClasses) {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("processClasses(Collection=" + theClasses + ") - BEGIN");
 		}
@@ -1207,6 +1230,11 @@ public class ProcessingController {
 			_classes = processingFilter.filterClasses(theClasses);
 		}
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Classes NOT to be processed:\n" + CollectionUtils.subtract(theClasses, _classes));
+			LOGGER.debug("Classes to be processed:\n" + _classes);
+		}
+
 		for (final Iterator _i = _classes.iterator(); _i.hasNext() && activePart.canProceed();) {
 			final SootClass _sc = (SootClass) _i.next();
 
@@ -1218,15 +1246,19 @@ public class ProcessingController {
 				final IProcessor _pp = (IProcessor) _k.next();
 				_pp.callback(_sc);
 
-				Collection _methods;
+				Collection _fields;
 
 				if (processingFilter == null) {
-					_methods = _sc.getFields();
+					_fields = _sc.getFields();
 				} else {
-					_methods = processingFilter.filterFields(_sc.getFields());
+					_fields = processingFilter.filterFields(_sc.getFields());
+				}
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Fields NOT to be processed:\n" + CollectionUtils.subtract(_sc.getFields(), _fields));
+					LOGGER.debug("Fields to be processed:\n" + _fields);
 				}
 
-				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
+				for (final Iterator _j = _fields.iterator(); _j.hasNext();) {
 					_pp.callback((SootField) _j.next());
 				}
 			}
@@ -1235,64 +1267,6 @@ public class ProcessingController {
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("processClasses(Collection) - END");
-		}
-	}
-
-	/**
-	 * Controls the processing of methods and their bodies.
-	 * 
-	 * @param theMethods to be processed.
-	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	protected final void processMethods(final Collection theMethods) {
-		Collection _methods;
-
-		if (processingFilter == null) {
-			_methods = theMethods;
-		} else {
-			_methods = processingFilter.filterMethods(theMethods);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Methods to be processed:\n" + _methods);
-		}
-
-		final boolean _processBody = processStmts || processValues;
-
-		for (final Iterator _j = _methods.iterator(); _j.hasNext() && activePart.canProceed();) {
-			final SootMethod _sm = (SootMethod) _j.next();
-			context.setRootMethod(_sm);
-
-			for (final Iterator _k = interfaceProcessors.iterator(); _k.hasNext();) {
-				((IProcessor) _k.next()).callback(_sm);
-			}
-
-			if (_processBody && _sm.isConcrete()) {
-				processMethodBody(_sm);
-			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
-			}
-		}
-	}
-
-	/**
-	 * Processes the given value boxes.
-	 * 
-	 * @param boxes to be processed.
-	 * @pre boxes != null and boxes.oclIsKindOf(Collection(ValueBox))
-	 */
-	void processValueBoxes(final Collection boxes) {
-		if (processingFilter != null) {
-			processingFilter.filterValueBoxes(boxes);
-		}
-
-		final Iterator _i = boxes.iterator();
-		final int _iEnd = boxes.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final ValueBox _vb = (ValueBox) _i.next();
-			context.setProgramPoint(_vb);
-			_vb.getValue().apply(valueSwitcher);
 		}
 	}
 
@@ -1339,7 +1313,8 @@ public class ProcessingController {
 		}
 
 		if (stmtSequencesRetriever == null) {
-			final String _msg = "Please call setStmtSequenceRetriever() with a non-null argument before executing the controller.";
+			final String _msg = "Please call setStmtSequenceRetriever() with a non-null argument "
+					+ "before executing the controller.";
 			LOGGER.error(_msg);
 			throw new IllegalStateException(_msg);
 		}
@@ -1374,6 +1349,44 @@ public class ProcessingController {
 			LOGGER.error("Well, exception while processing statements of a method may mean the processor does not"
 					+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
 					+ method.getSignature(), _e);
+		}
+	}
+
+	/**
+	 * Controls the processing of methods and their bodies.
+	 * 
+	 * @param theMethods to be processed.
+	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
+	 */
+	private void processMethods(final Collection theMethods) {
+		Collection _methods;
+
+		if (processingFilter == null) {
+			_methods = theMethods;
+		} else {
+			_methods = processingFilter.filterMethods(theMethods);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Methods NOT to be processed:\n" + CollectionUtils.subtract(theMethods, _methods));
+			LOGGER.debug("Methods to be processed:\n" + _methods);
+		}
+
+		final boolean _processBody = processStmts || processValues;
+
+		for (final Iterator _j = _methods.iterator(); _j.hasNext() && activePart.canProceed();) {
+			final SootMethod _sm = (SootMethod) _j.next();
+			context.setRootMethod(_sm);
+
+			for (final Iterator _k = interfaceProcessors.iterator(); _k.hasNext();) {
+				((IProcessor) _k.next()).callback(_sm);
+			}
+
+			if (_processBody && _sm.isConcrete()) {
+				processMethodBody(_sm);
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+			}
 		}
 	}
 }
