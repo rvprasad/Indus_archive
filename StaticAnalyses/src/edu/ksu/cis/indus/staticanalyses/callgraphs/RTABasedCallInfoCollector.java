@@ -81,6 +81,11 @@ public final class RTABasedCallInfoCollector
 	private final CallInfo callInfoHolder = new CallInfo();
 
 	/** 
+	 * The instance of class hierarchy to be used for analysis.
+	 */
+	private IClassHierarchy cha;
+
+	/** 
 	 * This holds CHA based call information.
 	 */
 	private CHABasedCallInfoCollector chaCallInfo;
@@ -91,18 +96,6 @@ public final class RTABasedCallInfoCollector
 	 * @invariant instantiatedClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	private final Collection instantiatedClasses = new HashSet();
-
-	/** 
-	 * The collection of methods that serve as root methods during the analysis.
-	 *
-	 * @invariant roots.oclIsKindOf(Collection(SootMethod))
-	 */
-	private final Collection roots = new HashSet();
-
-	/** 
-	 * The instance of class hierarchy to be used for analysis.
-	 */
-	private IClassHierarchy cha;
 
 	/** 
 	 * This maps method to the collection of classes that are instantiated whose effect has been considered on the key
@@ -119,23 +112,28 @@ public final class RTABasedCallInfoCollector
 	 */
 	private final Map method2requiredCLInits = new HashMap();
 
-	/**
-	 * @see ICallInfoCollector#getCallInfo()
+	/** 
+	 * The collection of methods that serve as root methods during the analysis.
+	 *
+	 * @invariant roots.oclIsKindOf(Collection(SootMethod))
 	 */
-	public CallGraphInfo.ICallInfo getCallInfo() {
-		return callInfoHolder;
-	}
+	private final Collection roots = new HashSet();
 
 	/**
-	 * Sets the root methods for the analysis.
-	 *
-	 * @param rootMethods of course.
-	 *
-	 * @pre rootMethods.oclIsKindOf(Collection(SootMethod))
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.Local, soot.SootMethod)
 	 */
-	public void setRootMethods(final Collection rootMethods) {
-		roots.clear();
-		roots.addAll(rootMethods);
+	public void callback(final Local local, final SootMethod method) {
+		final Type _type = local.getType();
+
+		if (_type instanceof RefType) {
+			capturePossibleRoots(((RefType) _type).getSootClass(), method);
+		} else if (_type instanceof ArrayType) {
+			final Type _baseType = ((ArrayType) _type).baseType;
+
+			if (_baseType instanceof RefType) {
+				capturePossibleRoots(((RefType) _baseType).getSootClass(), method);
+			}
+		}
 	}
 
 	/**
@@ -169,23 +167,6 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.Local, soot.SootMethod)
-	 */
-	public void callback(final Local local, final SootMethod method) {
-		final Type _type = local.getType();
-
-		if (_type instanceof RefType) {
-			capturePossibleRoots(((RefType) _type).getSootClass(), method);
-		} else if (_type instanceof ArrayType) {
-			final Type _baseType = ((ArrayType) _type).baseType;
-
-			if (_baseType instanceof RefType) {
-				capturePossibleRoots(((RefType) _baseType).getSootClass(), method);
-			}
-		}
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
@@ -208,8 +189,8 @@ public final class RTABasedCallInfoCollector
 		} else if (_value instanceof NewArrayExpr) {
 			final NewArrayExpr _n = (NewArrayExpr) _value;
 			_type = _n.getBaseType();
-		} else {  // if (_value instanceof NewMultiArrayExpr)
-
+		} else {  
+			//if (_value instanceof NewMultiArrayExpr)
 			final NewMultiArrayExpr _n = (NewMultiArrayExpr) _value;
 			_type = _n.getBaseType().baseType;
 		}
@@ -228,7 +209,7 @@ public final class RTABasedCallInfoCollector
 			LOGGER.debug("consolidate() - BEGIN");
 		}
 
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(callInfoHolder.reachables);
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(callInfoHolder.getReachableMethods());
 		_wb.addAllWorkNoDuplicates(roots);
 
 		while (_wb.hasWork()) {
@@ -261,18 +242,25 @@ public final class RTABasedCallInfoCollector
 			}
 		}
 
-        CHABasedCallInfoCollector.fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
+		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
         
 		instantiatedClasses.clear();
 		method2instantiatedClasses.clear();
 		method2requiredCLInits.clear();
 		roots.clear();
-
+		
 		stable();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("consolidate() - END");
 		}
+	}
+
+	/**
+	 * @see ICallInfoCollector#getCallInfo()
+	 */
+	public CallGraphInfo.ICallInfo getCallInfo() {
+		return callInfoHolder;
 	}
 
 	/**
@@ -318,6 +306,18 @@ public final class RTABasedCallInfoCollector
 		callInfoHolder.reset();
 		method2instantiatedClasses.clear();
 		method2requiredCLInits.clear();
+	}
+
+	/**
+	 * Sets the root methods for the analysis.
+	 *
+	 * @param rootMethods of course.
+	 *
+	 * @pre rootMethods.oclIsKindOf(Collection(SootMethod))
+	 */
+	public void setRootMethods(final Collection rootMethods) {
+		roots.clear();
+		roots.addAll(rootMethods);
 	}
 
 	/**
@@ -420,7 +420,7 @@ public final class RTABasedCallInfoCollector
 
 		final Collection _col = Util.getResolvedMethods(newClasses);
 		final Map _chaCallee2Callers = chaCallInfo.getCallInfo().getCallee2CallersMap();
-		final Collection _reachables = callInfoHolder.reachables;
+		final Collection _reachables = callInfoHolder.getReachableMethods();
 		final Iterator _j = _col.iterator();
 		final int _jEnd = _col.size();
 

@@ -69,35 +69,23 @@ public class OFABasedCallInfoCollector
 	static final Log LOGGER = LogFactory.getLog(OFABasedCallInfoCollector.class);
 
 	/** 
-	 * This holds call information.
-	 */
-	private final CallInfo callInfoHolder = new CallInfo();
-
-	/** 
 	 * The FA instance which implements object flow analysis. This instance is used to calculate call graphCache information.
 	 *
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
 	private IValueAnalyzer analyzer;
 
-	/**
-	 * Sets the analyzer to be used to calculate call graph information upon call back.
-	 *
-	 * @param objFlowAnalyzer that provides the information to create the call graph.
-	 *
-	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
+	/** 
+	 * This holds call information.
 	 */
-	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
-		analyzer = objFlowAnalyzer;
-	}
+	private final CallInfo callInfoHolder = new CallInfo();
 
 	/**
-	 * @see ICallInfoCollector#getCallInfo()
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
-	public CallGraphInfo.ICallInfo getCallInfo() {
-		return callInfoHolder;
+	public void callback(final SootMethod method) {
+		// all method marked by the object flow analyses are reachable.
+		callInfoHolder.addReachable(method);
 	}
 
 	/**
@@ -128,7 +116,7 @@ public class OFABasedCallInfoCollector
 
             final Set _callers = CollectionsUtilities.getSetFromMap(callInfoHolder.callee2callers, _callee);
             final CallTriple _triple2 = new CallTriple(_caller, _stmt, _invokeExpr);
-			_callers.add(_triple2);
+			_callers.add(_triple2);			
 		} else {
 			callBackOnInstanceInvokeExpr(context, (InstanceInvokeExpr) _value);
 		}
@@ -136,14 +124,6 @@ public class OFABasedCallInfoCollector
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("callback() - END");
 		}
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
-	 */
-	public void callback(final SootMethod method) {
-		// all method marked by the object flow analyses are reachable.
-		callInfoHolder.reachables.add(method);
 	}
 
 	/**
@@ -156,7 +136,16 @@ public class OFABasedCallInfoCollector
 			LOGGER.info("BEGIN: call graph consolidation");
 		}
 
-		CHABasedCallInfoCollector.fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
+		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
+		
+		stable();
+	}
+
+	/**
+	 * @see ICallInfoCollector#getCallInfo()
+	 */
+	public CallGraphInfo.ICallInfo getCallInfo() {
+		return callInfoHolder;
 	}
 
 	/**
@@ -172,10 +161,30 @@ public class OFABasedCallInfoCollector
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
+	 */
+	public void processingBegins() {
+		unstable();
+	}
+	
+	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
 	public void reset() {
 		callInfoHolder.reset();
+	}
+
+	/**
+	 * Sets the analyzer to be used to calculate call graph information upon call back.
+	 *
+	 * @param objFlowAnalyzer that provides the information to create the call graph.
+	 *
+	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
+	 */
+	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
+		analyzer = objFlowAnalyzer;
 	}
 
 	/**

@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -81,17 +80,10 @@ public final class CHABasedCallInfoCollector
 	private final Map invokedMethod2callerTriple = new HashMap();
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.callgraphs.ICallInfoCollector#getCallInfo()
-	 */
-	public CallGraphInfo.ICallInfo getCallInfo() {
-		return callInfoHolder;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
 	public void callback(final SootMethod method) {
-		callInfoHolder.reachables.add(method);
+		callInfoHolder.addReachable(method);
 	}
 
 	/**
@@ -179,10 +171,18 @@ public final class CHABasedCallInfoCollector
 			}
 		}
 
-		fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
+		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
 		invokedMethod2callerTriple.clear();
+		
+		stable();
+	}
 
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.callgraphs.ICallInfoCollector#getCallInfo()
+	 */
+	public CallGraphInfo.ICallInfo getCallInfo() {
+		return callInfoHolder;
 	}
 
 	/**
@@ -206,6 +206,13 @@ public final class CHABasedCallInfoCollector
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
+	 */
+	public void processingBegins() {
+		unstable();
+	}
+	
+	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
 	public void reset() {
@@ -223,32 +230,6 @@ public final class CHABasedCallInfoCollector
 		ppc.unregister(SpecialInvokeExpr.class, this);
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(VirtualInvokeExpr.class, this);
-	}
-
-	/**
-	 * Injects empty sets for caller and callee information of methods with no callees and callers.
-	 *
-	 * @param callInfoHolder to be modified.
-     * 
-     * @pre callInfoHolder != null
-	 */
-	static void fixupMethodsHavingZeroCallersAndCallees(final CallInfo callInfoHolder) {
-		final Map _map1 = callInfoHolder.callee2callers;
-		final Map _map2 = callInfoHolder.caller2callees;
-		final Iterator _i = callInfoHolder.reachables.iterator();
-		final int _iEnd = callInfoHolder.reachables.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _o = _i.next();
-
-			if (_map1.get(_o) == null) {
-				_map1.put(_o, Collections.EMPTY_SET);
-			}
-
-			if (_map2.get(_o) == null) {
-				_map2.put(_o, Collections.EMPTY_SET);
-			}
-		}
 	}
 }
 
