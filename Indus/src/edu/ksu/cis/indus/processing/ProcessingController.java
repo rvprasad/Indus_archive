@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -106,198 +105,38 @@ import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
-
 /**
- * This class controls the post processing for an analysis.  The analyses such as FA are very low-level.  The information is
- * raw.  This needs to be massaged via post processing.  Each post processor can registered interest in particular types of
- * AST chunks.  The controller will walk over the analyzed system and call the registered post processors. The post
- * processors then collect information from the analysis in form which is more accessible to the other applications. This
- * visitor will notify the interested post processors with the given AST node and then visit it's children.
- * 
+ * This class controls the post processing for an analysis. The analyses such as FA are very low-level. The information is
+ * raw. This needs to be massaged via post processing. Each post processor can registered interest in particular types of AST
+ * chunks. The controller will walk over the analyzed system and call the registered post processors. The post processors then
+ * collect information from the analysis in form which is more accessible to the other applications. This visitor will notify
+ * the interested post processors with the given AST node and then visit it's children.
  * <p>
- * This class will control the processing of statements in methods.  If the clients want to process the statements based on
+ * This class will control the processing of statements in methods. If the clients want to process the statements based on
  * their reachability local to the method, then the clients should call <code>setStmtGraphFactory()</code> before using an
  * instance of this class for processing.
  * </p>
- * 
  * <p>
- * Please note that the processor should be registered/unregistered separately for interface-level (class/method)  processing
+ * Please note that the processor should be registered/unregistered separately for interface-level (class/method) processing
  * and functional (method-body) processing.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class ProcessingController {
-	/** 
-	 * A collection of all possible Jimple statement types for which a processor can register interest.
-	 */
-	public static final Collection STMT_CLASSES;
-
-	/** 
-	 * A collection of all possible Jimple value types for which a processor can register interest.
-	 */
-	public static final Collection VALUE_CLASSES;
-
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
-
-	static {
-		Collection _t = new HashSet();
-		_t.add(AssignStmt.class);
-		_t.add(BreakpointStmt.class);
-		_t.add(EnterMonitorStmt.class);
-		_t.add(ExitMonitorStmt.class);
-		_t.add(GotoStmt.class);
-		_t.add(IdentityStmt.class);
-		_t.add(IfStmt.class);
-		_t.add(InvokeStmt.class);
-		_t.add(LookupSwitchStmt.class);
-		_t.add(NopStmt.class);
-		_t.add(RetStmt.class);
-		_t.add(ReturnVoidStmt.class);
-		_t.add(ReturnStmt.class);
-		_t.add(TableSwitchStmt.class);
-		_t.add(ThrowStmt.class);
-
-		STMT_CLASSES = Collections.unmodifiableCollection(_t);
-
-		_t = new HashSet();
-		_t.add(AddExpr.class);
-		_t.add(AndExpr.class);
-		_t.add(ArrayRef.class);
-		_t.add(CastExpr.class);
-		_t.add(CaughtExceptionRef.class);
-		_t.add(CmpExpr.class);
-		_t.add(CmpgExpr.class);
-		_t.add(CmplExpr.class);
-		_t.add(DivExpr.class);
-		_t.add(DoubleConstant.class);
-		_t.add(EqExpr.class);
-		_t.add(FloatConstant.class);
-		_t.add(GeExpr.class);
-		_t.add(GtExpr.class);
-		_t.add(InstanceFieldRef.class);
-		_t.add(InstanceOfExpr.class);
-		_t.add(IntConstant.class);
-		_t.add(InterfaceInvokeExpr.class);
-		_t.add(LeExpr.class);
-		_t.add(LengthExpr.class);
-		_t.add(Local.class);
-		_t.add(LongConstant.class);
-		_t.add(LtExpr.class);
-		_t.add(MulExpr.class);
-		_t.add(NeExpr.class);
-		_t.add(NegExpr.class);
-		_t.add(NewArrayExpr.class);
-		_t.add(NewExpr.class);
-		_t.add(NewMultiArrayExpr.class);
-		_t.add(NullConstant.class);
-		_t.add(OrExpr.class);
-		_t.add(ParameterRef.class);
-		_t.add(RemExpr.class);
-		_t.add(ShlExpr.class);
-		_t.add(ShrExpr.class);
-		_t.add(SpecialInvokeExpr.class);
-		_t.add(StaticFieldRef.class);
-		_t.add(StaticInvokeExpr.class);
-		_t.add(StringConstant.class);
-		_t.add(SubExpr.class);
-		_t.add(ThisRef.class);
-		_t.add(UshrExpr.class);
-		_t.add(VirtualInvokeExpr.class);
-		_t.add(XorExpr.class);
-
-		VALUE_CLASSES = Collections.unmodifiableCollection(_t);
-	}
-
-	/** 
-	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
-	 * the insertion order.
-	 *
-	 * @invariant interfaceProcessors->forall(o | o.oclIsKindOf(IProcessor))
-	 */
-	protected final Collection interfaceProcessors = new ArrayList();
-
-	/** 
-	 * The collection of processors registered with this controller to process method local variables.  This maintains the
-	 * insertion order.
-	 *
-	 * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
-	 */
-	protected final Collection localsProcessors = new ArrayList();
-
-	/** 
-	 * The context in which the AST chunk is visited during post processing.
-	 */
-	protected Context context = new Context();
-
-	/** 
-	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
-	 * class type.
-	 *
-	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
-	 */
-	protected final Map class2processors = new HashMap();
-
-	/** 
-	 * This indicates if statements are being processed.
-	 */
-	boolean processStmts;
-
-	/** 
-	 * This indicates if values are being processed.
-	 */
-	boolean processValues;
-
-	/** 
-	 * The object used to realize the "active" part of this object.
-	 */
-	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
-
-	/** 
-	 * This caches the processed locals while processing each method body.
-	 */
-	private final Collection processedLocals = new HashSet();
-
-	/** 
-	 * This defines the environment in which the processing runs.
-	 */
-	private IEnvironment env;
-
-	/** 
-	 * The filter used to filter the classes that select the classes and methods to be processed.
-	 */
-	private IProcessingFilter processingFilter;
-
-	/** 
-	 * The object that controls the order in which the statements should be processed.  This should be set before process()
-	 * or driveProcessors() is called.
-	 */
-	private IStmtSequencesRetriever stmtSequencesRetriever;
-
-	/** 
-	 * This walks over the statements for processing.
-	 */
-	private final StmtSwitcher stmtSwitcher = new StmtSwitcher();
-
-	/** 
-	 * This walks over the value for processing.
-	 */
-	private final ValueSwitcher valueSwitcher = new ValueSwitcher();
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
 	private final class StmtSwitcher
-	  extends AbstractStmtSwitch {
+			extends AbstractStmtSwitch {
+
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -479,7 +318,7 @@ public class ProcessingController {
 
 		/**
 		 * Calls the processors interested in processing objects of type <code>objClass</code>.
-		 *
+		 * 
 		 * @param objClass is the type of <code>o</code>.
 		 * @param o the AST INode to be processed.
 		 */
@@ -498,9 +337,8 @@ public class ProcessingController {
 
 		/**
 		 * Processes the value boxes in the given definition statement.
-		 *
+		 * 
 		 * @param stmt to be processed.
-		 *
 		 * @pre stmt != null
 		 */
 		private void processValuesBoxesInDefStmt(final DefinitionStmt stmt) {
@@ -511,16 +349,16 @@ public class ProcessingController {
 		}
 	}
 
-
 	/**
 	 * This class walks the expressions and calls the call-methods of the registered processors.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
 	private final class ValueSwitcher
-	  extends AbstractJimpleValueSwitch {
+			extends AbstractJimpleValueSwitch {
+
 		/**
 		 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
 		 */
@@ -873,7 +711,7 @@ public class ProcessingController {
 
 		/**
 		 * Calls the processors interested in processing object of type <code>objClass</code>.
-		 *
+		 * 
 		 * @param objClass is the type of <code>o</code>
 		 */
 		public void defaultCase(final Class objClass) {
@@ -889,9 +727,8 @@ public class ProcessingController {
 
 		/**
 		 * Process expressions with binary operator.
-		 *
+		 * 
 		 * @param v is the expression with binary operator.
-		 *
 		 * @pre v != null
 		 */
 		private void processBinaryExpr(final BinopExpr v) {
@@ -903,13 +740,12 @@ public class ProcessingController {
 
 		/**
 		 * Process method invocation expression.
-		 *
+		 * 
 		 * @param v is the invocation expression.
-		 *
 		 * @pre v != null
 		 */
 		private void processInvokeExpr(final InvokeExpr v) {
-            final Collection _boxes = new ArrayList();
+			final Collection _boxes = new ArrayList();
 			if (v instanceof InstanceInvokeExpr) {
 				_boxes.add(((InstanceInvokeExpr) v).getBaseBox());
 			}
@@ -917,59 +753,184 @@ public class ProcessingController {
 			for (int _i = 0; _i < v.getArgCount(); _i++) {
 				_boxes.add(v.getArgBox(_i));
 			}
-            
-            processValueBoxes(_boxes);
+
+			processValueBoxes(_boxes);
 		}
 
 		/**
 		 * Processes expressions with unary operator.
-		 *
+		 * 
 		 * @param v is the expression with unary operator.
-		 *
 		 * @pre v != null
 		 */
 		private void processUnaryExpr(final UnopExpr v) {
-            processValueBoxes(Collections.singletonList(v.getOpBox()));
+			processValueBoxes(Collections.singletonList(v.getOpBox()));
 		}
 	}
 
 	/**
-	 * Sets the environment which provides the system to be processed.
-	 *
-	 * @param environment an instance of the FA.
+	 * A collection of all possible Jimple statement types for which a processor can register interest.
 	 */
-	public final void setEnvironment(final IEnvironment environment) {
-		env = environment;
+	public static final Collection STMT_CLASSES;
+
+	/**
+	 * A collection of all possible Jimple value types for which a processor can register interest.
+	 */
+	public static final Collection VALUE_CLASSES;
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
+
+	static {
+		Collection _t = new HashSet();
+		_t.add(AssignStmt.class);
+		_t.add(BreakpointStmt.class);
+		_t.add(EnterMonitorStmt.class);
+		_t.add(ExitMonitorStmt.class);
+		_t.add(GotoStmt.class);
+		_t.add(IdentityStmt.class);
+		_t.add(IfStmt.class);
+		_t.add(InvokeStmt.class);
+		_t.add(LookupSwitchStmt.class);
+		_t.add(NopStmt.class);
+		_t.add(RetStmt.class);
+		_t.add(ReturnVoidStmt.class);
+		_t.add(ReturnStmt.class);
+		_t.add(TableSwitchStmt.class);
+		_t.add(ThrowStmt.class);
+
+		STMT_CLASSES = Collections.unmodifiableCollection(_t);
+
+		_t = new HashSet();
+		_t.add(AddExpr.class);
+		_t.add(AndExpr.class);
+		_t.add(ArrayRef.class);
+		_t.add(CastExpr.class);
+		_t.add(CaughtExceptionRef.class);
+		_t.add(CmpExpr.class);
+		_t.add(CmpgExpr.class);
+		_t.add(CmplExpr.class);
+		_t.add(DivExpr.class);
+		_t.add(DoubleConstant.class);
+		_t.add(EqExpr.class);
+		_t.add(FloatConstant.class);
+		_t.add(GeExpr.class);
+		_t.add(GtExpr.class);
+		_t.add(InstanceFieldRef.class);
+		_t.add(InstanceOfExpr.class);
+		_t.add(IntConstant.class);
+		_t.add(InterfaceInvokeExpr.class);
+		_t.add(LeExpr.class);
+		_t.add(LengthExpr.class);
+		_t.add(Local.class);
+		_t.add(LongConstant.class);
+		_t.add(LtExpr.class);
+		_t.add(MulExpr.class);
+		_t.add(NeExpr.class);
+		_t.add(NegExpr.class);
+		_t.add(NewArrayExpr.class);
+		_t.add(NewExpr.class);
+		_t.add(NewMultiArrayExpr.class);
+		_t.add(NullConstant.class);
+		_t.add(OrExpr.class);
+		_t.add(ParameterRef.class);
+		_t.add(RemExpr.class);
+		_t.add(ShlExpr.class);
+		_t.add(ShrExpr.class);
+		_t.add(SpecialInvokeExpr.class);
+		_t.add(StaticFieldRef.class);
+		_t.add(StaticInvokeExpr.class);
+		_t.add(StringConstant.class);
+		_t.add(SubExpr.class);
+		_t.add(ThisRef.class);
+		_t.add(UshrExpr.class);
+		_t.add(VirtualInvokeExpr.class);
+		_t.add(XorExpr.class);
+
+		VALUE_CLASSES = Collections.unmodifiableCollection(_t);
 	}
 
 	/**
-	 * Sets the filter to be used to pick the classes and methods to be processed.
-	 *
-	 * @param theFilter to be used.
-	 *
-	 * @pre theFilter != null
+	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
+	 * class type.
+	 * 
+	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
 	 */
-	public final void setProcessingFilter(final IProcessingFilter theFilter) {
-		processingFilter = theFilter;
-	}
+	protected final Map class2processors = new HashMap();
 
 	/**
-	 * Sets the object that controls the order in which the statements are processed.  This should be called before calling
-	 * <code>process()</code> or <code>driverProcessors()</code>.
-	 *
-	 * @param retriever controls the statement processing order.
-	 *
-	 * @pre retriever != null
+	 * The context in which the AST chunk is visited during post processing.
 	 */
-	public void setStmtSequencesRetriever(final IStmtSequencesRetriever retriever) {
-		stmtSequencesRetriever = retriever;
-	}
+	protected Context context = new Context();
 
 	/**
-	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
-	 *
+	 * The collection of processors registered with this controller to process interfaces (class/method). This maintains the
+	 * insertion order.
+	 * 
+	 * @invariant interfaceProcessors->forall(o | o.oclIsKindOf(IProcessor))
+	 */
+	protected final Collection interfaceProcessors = new ArrayList();
+
+	/**
+	 * The collection of processors registered with this controller to process method local variables. This maintains the
+	 * insertion order.
+	 * 
+	 * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
+	 */
+	protected final Collection localsProcessors = new ArrayList();
+
+	/**
+	 * This indicates if statements are being processed.
+	 */
+	boolean processStmts;
+
+	/**
+	 * This indicates if values are being processed.
+	 */
+	boolean processValues;
+
+	/**
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
+
+	/**
+	 * This defines the environment in which the processing runs.
+	 */
+	private IEnvironment env;
+
+	/**
+	 * This caches the processed locals while processing each method body.
+	 */
+	private final Collection processedLocals = new HashSet();
+
+	/**
+	 * The filter used to filter the classes that select the classes and methods to be processed.
+	 */
+	private IProcessingFilter processingFilter;
+
+	/**
+	 * The object that controls the order in which the statements should be processed. This should be set before process() or
+	 * driveProcessors() is called.
+	 */
+	private IStmtSequencesRetriever stmtSequencesRetriever;
+
+	/**
+	 * This walks over the statements for processing.
+	 */
+	private final StmtSwitcher stmtSwitcher = new StmtSwitcher();
+
+	/**
+	 * This walks over the value for processing.
+	 */
+	private final ValueSwitcher valueSwitcher = new ValueSwitcher();
+
+	/**
+	 * Drive the given processors by the given controller. This is helpful to batch pre/post-processors.
+	 * 
 	 * @param processors is the collection of processors.
-	 *
 	 * @pre processors != null
 	 * @pre processors.oclIsKindOf(Collection(IProcessor))
 	 */
@@ -989,26 +950,29 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Controls the processing activity.
+	 * Returns the active part of this object.
 	 * 
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
+	}
+
+	/**
+	 * Controls the processing activity.
 	 * <p>
 	 * If statements in the system should be processed, then
-	 * 
 	 * <ul>
-	 * <li>
-	 * calling <code>setStmtGraphFactory()</code> before this method will cause the processing of the statements based on
-	 * reachability of the statements determined by the graph retrieved by the provided factory.
-	 * </li>
-	 * <li>
-	 * not calling <code>setStmtGraphFactory()</code> before this method will cause the processing of all statements of a
-	 * method if it's body is available
-	 * </li>
+	 * <li> calling <code>setStmtGraphFactory()</code> before this method will cause the processing of the statements based
+	 * on reachability of the statements determined by the graph retrieved by the provided factory. </li>
+	 * <li> not calling <code>setStmtGraphFactory()</code> before this method will cause the processing of all statements of
+	 * a method if it's body is available </li>
 	 * </ul>
 	 * </p>
 	 */
 	public final void process() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing classes");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processing classes");
 		}
 
 		initializeProcessors();
@@ -1028,24 +992,24 @@ public class ProcessingController {
 		processValues = !CollectionUtils.intersection(class2processors.keySet(), VALUE_CLASSES).isEmpty();
 		processClasses(env.getClasses());
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processing classes");
-			LOGGER.debug("BEGIN: consolidation");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processing classes");
+			LOGGER.info("BEGIN: consolidation");
 		}
 
 		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).consolidate();
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: consolidation");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: consolidation");
 		}
 	}
 
 	/**
-	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of type
+	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of type
 	 * <code>interest</code>.
-	 *
+	 * 
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
 	 */
@@ -1060,9 +1024,9 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor for class, fields, and method interface processing only.  The processors are invoked in the
+	 * Registers the processor for class, fields, and method interface processing only. The processors are invoked in the
 	 * order that they register.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void register(final IProcessor processor) {
@@ -1072,10 +1036,10 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of statement type.
+	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of statement type.
 	 * Please refer to <code>STMT_CLASSES</code> for the actual types. The processors are invoked in the order that they
 	 * register.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllStmts(final IProcessor processor) {
@@ -1085,9 +1049,9 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of value type. Please
+	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of value type. Please
 	 * refer to <code>VALUE_CLASSES</code> for the actual types. The processors are invoked in the order that they register.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllValues(final IProcessor processor) {
@@ -1097,9 +1061,9 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor for method local variable processing only.  The processors are invoked in the order that they
+	 * Registers the processor for method local variable processing only. The processors are invoked in the order that they
 	 * register.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForLocals(final IProcessor processor) {
@@ -1109,7 +1073,7 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Clears internal data structures.  It does not reset values set via set methods.
+	 * Clears internal data structures. It does not reset values set via set methods.
 	 */
 	public final void reset() {
 		class2processors.clear();
@@ -1124,26 +1088,54 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Unregisters the processor.  It indicates that the processor is no longer interested in processing AST chunk of type
+	 * Sets the environment which provides the system to be processed.
+	 * 
+	 * @param environment an instance of the FA.
+	 */
+	public final void setEnvironment(final IEnvironment environment) {
+		env = environment;
+	}
+
+	/**
+	 * Sets the filter to be used to pick the classes and methods to be processed.
+	 * 
+	 * @param theFilter to be used.
+	 * @pre theFilter != null
+	 */
+	public final void setProcessingFilter(final IProcessingFilter theFilter) {
+		processingFilter = theFilter;
+	}
+
+	/**
+	 * Sets the object that controls the order in which the statements are processed. This should be called before calling
+	 * <code>process()</code> or <code>driverProcessors()</code>.
+	 * 
+	 * @param retriever controls the statement processing order.
+	 * @pre retriever != null
+	 */
+	public void setStmtSequencesRetriever(final IStmtSequencesRetriever retriever) {
+		stmtSequencesRetriever = retriever;
+	}
+
+	/**
+	 * Unregisters the processor. It indicates that the processor is no longer interested in processing AST chunk of type
 	 * <code>interest</code>.
-	 *
+	 * 
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
-	 *
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
 	public final void unregister(final Class interest, final IProcessor processor) {
 		final Set _temp = (Set) class2processors.get(interest);
 
-		if (_temp == null) {
-			throw new IllegalArgumentException("There are no processors registered  for " + interest.getName());
-		}
+		if (_temp == null) { throw new IllegalArgumentException("There are no processors registered  for "
+				+ interest.getName()); }
 		_temp.remove(processor);
 	}
 
 	/**
 	 * Unregisters the processor for class and method interface processing only.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void unregister(final IProcessor processor) {
@@ -1153,7 +1145,7 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor. It indicates that the processor is not interested in processing the statement types. Please
 	 * refer to <code>STMT_CLASSES</code> for the actual types.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllStmts(final IProcessor processor) {
@@ -1165,7 +1157,7 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor. It indicates that the processor is not interested in processing the value types. Please
 	 * refer to <code>VALUE_CLASSES</code> for the actual types.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllValues(final IProcessor processor) {
@@ -1176,7 +1168,7 @@ public class ProcessingController {
 
 	/**
 	 * Registers the processor for method local variable processing only.
-	 *
+	 * 
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForLocals(final IProcessor processor) {
@@ -1184,28 +1176,23 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Returns the active part of this object.
-	 *
-	 * @return the active part.
-	 */
-	public IActivePart getActivePart() {
-		return activePart;
-	}
-
-	/**
 	 * Initializes the processors before processing the system.
 	 */
 	protected void initializeProcessors() {
+		// does nothing.
 	}
 
 	/**
 	 * Controls the processing of class level entities.
-	 *
+	 * 
 	 * @param theClasses to be processed.
-	 *
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	protected final void processClasses(final Collection theClasses) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("processClasses(Collection=" + theClasses + ") - BEGIN");
+		}
+
 		Collection _classes;
 
 		if (processingFilter == null) {
@@ -1218,10 +1205,6 @@ public class ProcessingController {
 				LOGGER.debug("Processing filter class: " + processingFilter);
 			}
 			_classes = processingFilter.filterClasses(theClasses);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Classes to be processed:\n" + _classes);
 		}
 
 		for (final Iterator _i = _classes.iterator(); _i.hasNext() && activePart.canProceed();) {
@@ -1249,13 +1232,16 @@ public class ProcessingController {
 			}
 			processMethods(_sc.getMethods());
 		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("processClasses(Collection) - END");
+		}
 	}
 
 	/**
 	 * Controls the processing of methods and their bodies.
-	 *
+	 * 
 	 * @param theMethods to be processed.
-	 *
 	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	protected final void processMethods(final Collection theMethods) {
@@ -1291,9 +1277,8 @@ public class ProcessingController {
 
 	/**
 	 * Processes the given value boxes.
-	 *
+	 * 
 	 * @param boxes to be processed.
-	 *
 	 * @pre boxes != null and boxes.oclIsKindOf(Collection(ValueBox))
 	 */
 	void processValueBoxes(final Collection boxes) {
@@ -1313,10 +1298,9 @@ public class ProcessingController {
 
 	/**
 	 * Processes the method body.
-	 *
+	 * 
 	 * @param stmt in which the locals need to be processed.
 	 * @param method in which <code>stmt</code> occurs.
-	 *
 	 * @pre method != null
 	 */
 	private void processLocals(final Stmt stmt, final SootMethod method) {
@@ -1343,12 +1327,10 @@ public class ProcessingController {
 
 	/**
 	 * Processes the method body.
-	 *
+	 * 
 	 * @param method whose body needs to be processed.
-	 *
 	 * @throws IllegalStateException when <code>setStmtSequenceRetriever()</code> is not called with a non-null argument
-	 * 		   before calling this method.
-	 *
+	 *             before calling this method.
 	 * @pre method != null
 	 */
 	private void processMethodBody(final SootMethod method) {
@@ -1357,8 +1339,7 @@ public class ProcessingController {
 		}
 
 		if (stmtSequencesRetriever == null) {
-			final String _msg =
-				"Please call setStmtSequenceRetriever() with a non-null argument before executing the controller.";
+			final String _msg = "Please call setStmtSequenceRetriever() with a non-null argument before executing the controller.";
 			LOGGER.error(_msg);
 			throw new IllegalStateException(_msg);
 		}
@@ -1379,7 +1360,7 @@ public class ProcessingController {
 					_seq = (Collection) _j.next();
 				}
 
-                final Iterator _i = _seq.iterator();
+				final Iterator _i = _seq.iterator();
 				final int _iEnd = _seq.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd && activePart.canProceed(); _iIndex++) {
@@ -1391,8 +1372,8 @@ public class ProcessingController {
 			}
 		} catch (final RuntimeException _e) {
 			LOGGER.error("Well, exception while processing statements of a method may mean the processor does not"
-				+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
-				+ method.getSignature(), _e);
+					+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
+					+ method.getSignature(), _e);
 		}
 	}
 }
