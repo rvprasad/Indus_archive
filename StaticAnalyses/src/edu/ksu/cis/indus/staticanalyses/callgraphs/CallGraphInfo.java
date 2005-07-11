@@ -525,7 +525,7 @@ public final class CallGraphInfo
 			_result.append("\t" + ((SootMethod) _i.next()).getSignature());
 		}
 
-		_result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
+		_result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n" + getReachableMethods());
 		_result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		_result.append("top-down\n");
 
