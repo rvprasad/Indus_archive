@@ -628,22 +628,24 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					LOGGER.debug("Bottom-up processing method " + _sm);
 				}
 
-				if (!_sm.isConcrete()) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("NO BODY: " + _sm.getSignature());
-					}
-
-					continue;
-				}
-
 				final Triple _triple;
 
+				// we need to do the following even if _sm does not have a body because every 
+				// reachable method should have a method context.
 				if (method2Triple.containsKey(_sm)) {
 					_triple = (Triple) method2Triple.get(_sm);
 				} else {
 					final MethodContext _methodContext = new MethodContext(_sm, EquivalenceClassBasedEscapeAnalysis.this);
 					_triple = new Triple(_methodContext, new HashMap(), new HashMap());
 					method2Triple.put(_sm, _triple);
+				}
+
+				if (!_sm.isConcrete()) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("NO BODY: " + _sm.getSignature());
+					}
+
+					continue;
 				}
 
 				methodCtxtCache = (MethodContext) _triple.getFirst();
