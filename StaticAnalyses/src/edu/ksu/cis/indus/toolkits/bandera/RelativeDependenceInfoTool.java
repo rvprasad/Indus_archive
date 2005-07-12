@@ -105,37 +105,37 @@ public final class RelativeDependenceInfoTool
 	 * This identifies the dependence info in the to-be serizalized output map.
 	 */
 	public static final Object DEPENDENCE =
-		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORBasedSchedulingStrategist.dependence";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.dependence";
 
 	/** 
 	 * This identifies the known transitions info in the to-be serizalized output map.
 	 */
 	public static final Object KNOWN_TRANSITIONS =
-		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORBasedSchedulingStrategist.knowntransitions";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.knowntransitions";
 
 	/** 
 	 * This identifies the may-flow relation in the to-be serizalized output map.
 	 */
 	public static final Object MAY_FOLLOW_RELATION =
-		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORBasedSchedulingStrategist.mayfollow";
+		"edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.mayfollow";
 
 	/** 
 	 * This identifies the lock acquisition equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object LOCK_ACQUISITIONS =
-		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORBasedSchedulingStrategist.lockAcquisitions";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.lockAcquisitions";
 
 	/** 
 	 * This identifies the array refs equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object ARRAY_REFS =
-		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORBasedSchedulingStrategist.arrayRefs";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.arrayRefs";
 
 	/** 
 	 * This identifies the field refs equivalence class in the to-be serizalized output map.
 	 */
 	public static final Object FIELD_REFS =
-		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORBasedSchedulingStrategist.fieldRefs";
+		"edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.fieldRefs";
 
 	/** 
 	 * This identifies the output map that contains the data that needs to be serialized.  The map maps one of the above keys
