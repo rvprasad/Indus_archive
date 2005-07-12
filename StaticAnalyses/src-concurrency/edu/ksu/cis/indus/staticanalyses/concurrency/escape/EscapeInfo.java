@@ -586,8 +586,10 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		if (_triple == null) {
+			if  (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			}
 		} else {
 			final AliasSet _as = ((MethodContext) _triple.getFirst()).getThisAS();
 
@@ -608,8 +610,10 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		if (_triple == null) {
+			 if (LOGGER.isDebugEnabled()) {
+				 LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			 }
 		} else {
 			final AliasSet _as = ((MethodContext) _triple.getFirst()).getThisAS();
 
@@ -666,8 +670,10 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		if (_triple == null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			}
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
 
@@ -689,8 +695,10 @@ class EscapeInfo
 
 		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		if (_triple == null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			}
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
 
