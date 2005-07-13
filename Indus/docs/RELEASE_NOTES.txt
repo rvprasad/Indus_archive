@@ -5,8 +5,8 @@ Required software:
         (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
     Jakarta Commons Lang 2.0 
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Logging 1.0.2 
-        (commons-logging-api.jar, commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
+    Jakarta Commons Logging 1.0.4 
+        (commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
     Jakarta Commons Pool 1.1 
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     JiBX: Binding XML to Java Code (bleeding edge)
@@ -18,9 +18,9 @@ Required software:
 		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
-    SWT (3.0 >= M7)
+    SWT (3.1)
         (swt.jar, swt-pi.jar) [http://www.eclipse.org]
-    xmlenc (0.44)
+    xmlenc (0.47)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
