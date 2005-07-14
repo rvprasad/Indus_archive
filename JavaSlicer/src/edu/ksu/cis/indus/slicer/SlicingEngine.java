@@ -1144,12 +1144,14 @@ public final class SlicingEngine {
 			final SimpleNodeGraphBuilder _sngb = new SimpleNodeGraph.SimpleNodeGraphBuilder();
 			_sngb.createGraph();
 
-			Object _s = callStackCache.peek();
-
-			for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
-				final Object _t = callStackCache.get(_i);
-				_sngb.addEdgeFromTo(_s, _t);
-				_s = _t;
+			if (callStackCache.size() > 0) {
+				Object _s = callStackCache.peek();
+	
+				for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
+					final Object _t = callStackCache.get(_i);
+					_sngb.addEdgeFromTo(_s, _t);
+					_s = _t;
+				}
 			}
 			_sngb.finishBuilding();
 			method2callStacks.put(method, _sngb.getBuiltGraph());
