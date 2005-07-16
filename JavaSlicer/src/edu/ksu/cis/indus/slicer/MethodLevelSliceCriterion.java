@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -23,46 +22,58 @@ import org.apache.commons.pool.ObjectPool;
 
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
-
-
 /**
- * This class represents method-level slice criterion.  This class has support builtin for object pooling.
- *
+ * This class represents method-level slice criterion. This class has support builtin for object pooling.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 class MethodLevelSliceCriterion
-  extends AbstractSliceCriterion {
-	/** 
+		extends AbstractSliceCriterion {
+
+	/**
 	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
-	 *
+	 * 
 	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(StmtLevelSliceCriterion)
 	 */
-	static final ObjectPool METHOD_POOL =
-		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-				/**
-				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-				 */
-				public final Object makeObject() {
-					final MethodLevelSliceCriterion _result = new MethodLevelSliceCriterion();
-					_result.setPool(METHOD_POOL);
-					return _result;
-				}
-			});
+	static final ObjectPool METHOD_POOL = new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
 
-	/** 
+		/**
+		 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
+		 */
+		public final Object makeObject() {
+			final MethodLevelSliceCriterion _result = new MethodLevelSliceCriterion();
+			_result.setPool(METHOD_POOL);
+			return _result;
+		}
+	});
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(MethodLevelSliceCriterion.class);
 
 	/**
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceCriterion#equals(java.lang.Object)
+	 */
+	public boolean equals(Object object) {
+		if (object == this) {
+			return true;
+		}
+
+		if (!(object instanceof MethodLevelSliceCriterion)) {
+			return false;
+		}
+
+		return super.equals(object);
+	}
+
+	/**
 	 * Retrieves a method-level slicing criterion object.
-	 *
+	 * 
 	 * @return a method-level slicing criterion object.
-	 *
 	 * @throws RuntimeException if an object could not be retrieved from the pool.
-	 *
 	 * @post result != null
 	 */
 	static MethodLevelSliceCriterion getMethodLevelSliceCriterion() {
