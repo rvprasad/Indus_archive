@@ -159,7 +159,7 @@ public final class CompositeToolConfiguration
 	 *
 	 * @pre configs != null and configs.oclIsKindOf(Collection(AbstractToolConfiguration))
 	 */
-	protected void setConfigurations(final Collection configs) {
+	public void setConfigurations(final List configs) {
 		configurations.clear();
 		configurations.addAll(configs);
 	}

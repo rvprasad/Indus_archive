@@ -3,9 +3,10 @@
     <namespace uri="http://indus.projects.cis.ksu.edu/slicer" prefix="slicer" default="all"/>
 	<mapping name="compositeConfiguration" class="edu.ksu.cis.indus.tools.CompositeToolConfiguration"
         ns="http://indus.projects.cis.ksu.edu/indus">
-		<collection field="configurations" item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
+		<collection field="configurations" type="java.util.List"
+			item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
 			factory="edu.ksu.cis.indus.tools.CompositeToolConfiguration.createConfigurations"
-			set-method="setConfigurations"/>
+			set-method="setConfigurations" />
 		<value style="attribute" name="activeConfiguration" set-method="setActiveToolConfigurationID" 
 			get-method="getActiveToolConfigurationID" ns="http://indus.projects.cis.ksu.edu/indus"/>
 	</mapping>
