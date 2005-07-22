@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Website Update" default="website.ftp" basedir=".">
-    <property file="localbuild.properties"/>
-	<target name="website.ftp">
+	<taskdef name="query" classname="com.jera.anttasks.Query" classpath="lib/JeraAntTasks.jar"/>
+	<property file="localbuild.properties"/>
+	
+	<target name="website.ftp">		
+		<query name="passphrase" password="true"/>
        	<scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
        		keyfile="${user.home}/.ssh/id_rsa" passphrase="${passphrase}">
        	   	<fileset dir="${basedir}">
