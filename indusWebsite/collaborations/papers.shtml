@@ -6,26 +6,41 @@
 
 <p>
 	<ul>
-	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">A New Foundation For
-        Control-Dependence and Slicing for Modern Program Structures.</a>
+	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-TR2004-8.pdf">A New Foundation For
+    	    Control-Dependence and Slicing for Modern Program Structures (extended version)</a>
 			<i>Venkatesh Prasad Ranganath, Torben Amtoft, Anindya Banerjee, Matthew B. Dwyer, and John Hatcliff</i>.
-            October 2004, Technical Report, SAnToS-TR2004-8. <i>Last updated: October 26, 2004.</i></li>
+			<br />October 2004, Technical Report, SAnToS-TR2004-8.  <i>Last updated: March 29, 2005</i>
+        </li>
+	</ul> 
+	<ul>
+	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/110/esop2005.pdf">A New Foundation For
+    	    Control-Dependence and Slicing for Modern Program Structures</a>
+			<i>Venkatesh Prasad Ranganath, Torben Amtoft, Anindya Banerjee, Matthew B. Dwyer, and John Hatcliff</i>.
+        	 <br />Accepted at European Symposium On Programming (ESOP'05) held as part of ETAPS 2005. 
+        </li>
 	</ul>  
     <ul>
-        <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/97/fase05-tp.ps">Kaveri: Delivering Indus Java Program
-        Slicer to Eclipse</a>
-        <i>Ganeshan Jayaraman, Venkatesh Prasad Ranganath, and John Hatcliff</i>.
-        October 2004. <i>Last updated: October 16, 2004.</i>
+        <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/111/fase2005-tool.pdf">Kaveri: Delivering Indus Java 
+				Program Slicer to Eclipse</a>
+            <i>Ganeshan Jayaraman, Venkatesh Prasad Ranganath, and John Hatcliff</i>. 
+			<br />Accepted at <i>Fundamental Approaches to Software Engineering (FASE'05)</i> held as part of 
+			ETAPS 2005.  (<a href="http://projects.cis.ksu.edu/docman/view.php/12/97/fase2005-tool-extended.ps">extended version</a>)
+        </li>
     </ul>
 	<ul>
-    	<li><a href="http://projects.cis.ksu.edu/docman/view.php/12/68/cc04.pdf">Pruning Interference and Ready Dependence for Slicing Concurrent Java Programs.</a> 
-			<a href="http://projects.cis.ksu.edu/docman/view.php/12/69/cc04.ps">(.ps)</a>
-			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. Accepted at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of ETAPS 2004.
-			<i>Last updated: January 9, 2004.</i></li>
+    	<li><a href="http://projects.cis.ksu.edu/docman/view.php/12/68/cc04.pdf">Pruning Interference and Ready 
+				Dependence for Slicing Concurrent Java Programs.</a> 
+			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. 
+			<br />Accepted at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of 
+			ETAPS 2004.
+        </li>
 	</ul>
 	<ul>
-	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/16/54/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
-			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. July 2003, Technical Report, SAnToS-TR2003-6. <i>Last updated: July 14, 2003.</i></li>
+	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/106/cc04-extended.pdf">Pruning the Detection of 
+				Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
+			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. October 2003, Technical Report, SAnToS-TR2003-6. 
+			<i>Last updated: March 29, 2005.</i>
+        </li>
 	</ul>  
 </p>
 
