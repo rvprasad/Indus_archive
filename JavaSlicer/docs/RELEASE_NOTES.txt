@@ -11,7 +11,7 @@ Required software:
         (commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
     Jakarta Commons Pool 1.1 
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
-    JiBX: Binding XML to Java Code (bleeding edge)
+    JiBX: Binding XML to Java Code (RC1)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
