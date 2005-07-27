@@ -5,8 +5,7 @@
         ns="http://indus.projects.cis.ksu.edu/indus">
 		<collection field="configurations" type="java.util.List"
 			item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
-			factory="edu.ksu.cis.indus.tools.CompositeToolConfiguration.createConfigurations"
-			set-method="setConfigurations" />
+			factory="edu.ksu.cis.indus.tools.CompositeToolConfiguration.createConfigurations" />
 		<value style="attribute" name="activeConfiguration" set-method="setActiveToolConfigurationID" 
 			get-method="getActiveToolConfigurationID" ns="http://indus.projects.cis.ksu.edu/indus"/>
 	</mapping>
