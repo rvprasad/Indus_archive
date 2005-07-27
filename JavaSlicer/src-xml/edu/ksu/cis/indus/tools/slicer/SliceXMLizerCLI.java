@@ -561,7 +561,7 @@ public class SliceXMLizerCLI
 			try {
 				_inStream = new FileInputStream(_config);
 			} catch (FileNotFoundException _e) {
-				final String _msg = "Non-existent configuration file specified.";
+				final String _msg = "Non-existent configuration file specified - " + _config;
 				LOGGER.error(_msg, _e);
 
 				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
