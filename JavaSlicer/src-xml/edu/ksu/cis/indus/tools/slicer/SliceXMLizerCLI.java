@@ -553,7 +553,7 @@ public class SliceXMLizerCLI
 	 * @pre cl != null
 	 */
 	private static String processCommandLineForConfiguration(final CommandLine cl) {
-		String _config = cl.getOptionValue("c");
+		String _config = cl.getOptionValue('c');
 		InputStream _inStream = null;
 		String _result = null;
 
