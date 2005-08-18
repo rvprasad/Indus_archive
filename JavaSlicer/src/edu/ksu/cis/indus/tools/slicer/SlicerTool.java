@@ -607,7 +607,7 @@ public final class SlicerTool
 		try {
 			_bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			_unmarshallingContext = _bindingFactory.createUnmarshallingContext();
-		} catch (JiBXException _e) {
+		} catch (final JiBXException _e) {
 			LOGGER.fatal("Error while setting up JiBX.  Aborting.", _e);
 			throw new RuntimeException(_e);
 		}
@@ -619,7 +619,7 @@ public final class SlicerTool
 				final StringReader _reader = new StringReader(stringizedForm);
 				configurationInfo = (IToolConfiguration) _unmarshallingContext.unmarshalDocument(_reader, null);
 				_result = true;
-			} catch (JiBXException _e) {
+			} catch (final JiBXException _e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
 					+ " configuration.", _e);
 				configurationInfo = null;
@@ -697,7 +697,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractTool#initialize()
+	 * @see edu.ksu.cis.indus.tools.ITool#initialize()
 	 */
 	public void initialize() {
 		configurationInfo = new CompositeToolConfiguration();
