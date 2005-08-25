@@ -21,7 +21,7 @@
 	<target name="localbuild" depends="init">
 		<mkdir dir="${build.dir}" />
 		<javac source="1.4" target="1.4" destdir="${build.dir}" debug="on" 
-			debuglevel="${debuglevel}" includes="**/*.java">
+			debuglevel="${debuglevel}" includes="**/*.java"  compiler="modern">
 			<src refid="${ant.project.name}.srcpath" />
 			<classpath refid="${classpath}" />
 		</javac>
