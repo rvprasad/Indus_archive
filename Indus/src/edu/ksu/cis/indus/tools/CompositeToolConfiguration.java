@@ -149,6 +149,7 @@ public final class CompositeToolConfiguration
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
+		// Does nothing
 	}
 
 	/**

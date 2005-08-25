@@ -56,6 +56,7 @@ public final class SliceCriteriaParser {
 	 * Creates a new SliceCriteriaParser object.
 	 */
 	private SliceCriteriaParser() {
+		// Does nothing
 	}
 
 	///CLOVER:ON
