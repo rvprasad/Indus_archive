@@ -229,7 +229,6 @@ public final class SliceCriterionSpec
 	 */
 	static Collection getCriterionSpec(final ISliceCriterion criterion) {
 		final SootMethod _method = criterion.getOccurringMethod();
-
 		final SootClass _declaringClass = _method.getDeclaringClass();
 		final String _prefix = _declaringClass.getPackageName();
 		final String _shortJavaStyleName = _declaringClass.getShortJavaStyleName();
@@ -242,54 +241,59 @@ public final class SliceCriterionSpec
 		}
 
 		final String _methodName = _method.getName();
-		final Body _body = _method.retrieveActiveBody();
+		final Collection _result;
+		if (!_method.isAbstract() && !_method.isNative()) {
+			final Body _body  = _method.retrieveActiveBody();
 
-		if (_body == null) {
-			final String _msg = _method.getSignature() + " does not have a body.";
-			LOGGER.error(_msg);
-			throw new IllegalStateException(_msg);
-		}
-
-		final List _stmts = Collections.list(Collections.enumeration(_body.getUnits()));
-		final Stmt _occurringStmt = CriteriaSpecHelper.getOccurringStmt(criterion);
-		final int _stmtIndex = _stmts.indexOf(_occurringStmt);
-		final boolean _considerExecution = CriteriaSpecHelper.isConsiderExecution(criterion);
-
-		final SliceCriterionSpec _spec = new SliceCriterionSpec();
-		_spec.className = _className;
-		_spec.methodName = _methodName;
-		_spec.parameterTypeNames = getNamesOfTypes(_method.getParameterTypes());
-		_spec.returnTypeName = _method.getReturnType().toString();
-		_spec.stmtIndex = _stmtIndex;
-		_spec.exprIndex = -1;
-		_spec.considerExecution = _considerExecution;
-		_spec.considerEntireStmt = false;
-
-		final Collection _result = new ArrayList();
-		final ValueBox _occurringExprBox = CriteriaSpecHelper.getOccurringExpr(criterion);
-
-		if (_occurringExprBox != null) {
-			final Value _expr = _occurringExprBox.getValue();
-			final int _size = _expr.getUseBoxes().size();
-
-			if (_size == 0) {
-				_spec.exprIndex = _occurringStmt.getUseAndDefBoxes().indexOf(_occurringExprBox);
-				_result.add(_spec);
-			} else {
-				for (int _i = _size - 1; _i >= 0; _i--) {
-					try {
-						final SliceCriterionSpec _temp = (SliceCriterionSpec) _spec.clone();
-						_temp.exprIndex = _i;
-						_result.add(_temp);
-					} catch (final CloneNotSupportedException _e) {
-						final String _msg = "Low level Error while creating criterion specification.";
-						LOGGER.error(_msg);
-						throw new IllegalStateException(_msg);
+			if (_body == null) {
+				final String _msg = _method.getSignature() + " does not have a body.";
+				LOGGER.error(_msg);
+				throw new IllegalStateException(_msg);
+			}
+	
+			final List _stmts = Collections.list(Collections.enumeration(_body.getUnits()));
+			final Stmt _occurringStmt = CriteriaSpecHelper.getOccurringStmt(criterion);
+			final int _stmtIndex = _stmts.indexOf(_occurringStmt);
+			final boolean _considerExecution = CriteriaSpecHelper.isConsiderExecution(criterion);
+	
+			final SliceCriterionSpec _spec = new SliceCriterionSpec();
+			_spec.className = _className;
+			_spec.methodName = _methodName;
+			_spec.parameterTypeNames = getNamesOfTypes(_method.getParameterTypes());
+			_spec.returnTypeName = _method.getReturnType().toString();
+			_spec.stmtIndex = _stmtIndex;
+			_spec.exprIndex = -1;
+			_spec.considerExecution = _considerExecution;
+			_spec.considerEntireStmt = false;
+	
+			_result = new ArrayList();
+			final ValueBox _occurringExprBox = CriteriaSpecHelper.getOccurringExpr(criterion);
+	
+			if (_occurringExprBox != null) {
+				final Value _expr = _occurringExprBox.getValue();
+				final int _size = _expr.getUseBoxes().size();
+	
+				if (_size == 0) {
+					_spec.exprIndex = _occurringStmt.getUseAndDefBoxes().indexOf(_occurringExprBox);
+					_result.add(_spec);
+				} else {
+					for (int _i = _size - 1; _i >= 0; _i--) {
+						try {
+							final SliceCriterionSpec _temp = (SliceCriterionSpec) _spec.clone();
+							_temp.exprIndex = _i;
+							_result.add(_temp);
+						} catch (final CloneNotSupportedException _e) {
+							final String _msg = "Low level Error while creating criterion specification.";
+							LOGGER.error(_msg);
+							throw new IllegalStateException(_msg);
+						}
 					}
 				}
+			} else {
+				_result.add(_spec);
 			}
 		} else {
-			_result.add(_spec);
+			_result = Collections.EMPTY_SET;
 		}
 
 		return _result;
