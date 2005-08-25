@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -173,13 +174,13 @@ public final class CFGAnalysis {
 		final List _bbDefStmts;
 
 		if (forward) {
-			_bbDefStmts = _bbDef.getStmtsFrom(stmt);
+			_bbDefStmts = new ArrayList(_bbDef.getStmtsFrom(stmt));
 
 			if (exclusive) {
 				_bbDefStmts.remove(0);
 			}
 		} else {
-			_bbDefStmts = _bbDef.getStmtsFromTo(_bbDef.getLeaderStmt(), stmt);
+			_bbDefStmts = new ArrayList(_bbDef.getStmtsFromTo(_bbDef.getLeaderStmt(), stmt));
 
 			if (exclusive) {
 				_bbDefStmts.remove(_bbDefStmts.size() - 1);
