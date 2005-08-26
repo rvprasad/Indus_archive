@@ -36,7 +36,6 @@ import org.apache.commons.collections.IteratorUtils;
 
 import soot.SootMethod;
 
-import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 
@@ -219,7 +218,7 @@ public final class CFGAnalysis {
 	 *
 	 * @pre srcStmt != null and dest != null and method != null
 	 */
-	public boolean doesControlFlowPathExistsBetween(Stmt srcStmt, Stmt destStmt, SootMethod method) {
+	public boolean doesControlFlowPathExistsBetween(final Stmt srcStmt, final Stmt destStmt, final SootMethod method) {
 		final boolean _result;
 		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
 		final BasicBlock _bbDest = _bbg.getEnclosingBlock(destStmt);
