@@ -54,7 +54,7 @@ public final class AliasedUseDefInfov2
 	protected final IThreadGraphInfo tgi;
 
 	/**
-	 * {@inheritDoc}
+	 * Creates an instance of this class.
 	 *
 	 * @param iva is the value analyzer to use.
 	 * @param cg is the call graph to use.
