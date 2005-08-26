@@ -288,13 +288,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 	private boolean handleRecursion(Info info) {
 		final Pair _pair = new Pair(info.currStmt, info.method);
 		boolean _result = info.path.contains(_pair);
-		final Iterator _i = info.lacq.iterator();
-		final int _iEnd = info.lacq.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-
-			// TODO: logic please
-		}
+		// TODO: logic please
 		return _result;
 	}
 
