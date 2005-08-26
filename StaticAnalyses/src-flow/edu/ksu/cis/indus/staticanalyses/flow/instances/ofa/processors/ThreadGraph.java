@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -62,160 +61,176 @@ import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 
+import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
- * This class provides information regarding threads that occur in the system.  It can provide information such as the
- * possible threads in the system and the methods invoked in these threads.
- * 
+ * This class provides information regarding threads that occur in the system. It can provide information such as the possible
+ * threads in the system and the methods invoked in these threads.
  * <p>
- * Each thread is associated with a start() call-site which we refer to as <i>thread creation site</i>.  A thread  creation
- * site is represented as a pair of object allocating statement with the method enclosing the statement. A thread  is
- * represented as a triple of the invocation statement, method enclosing the invocation statement, and the class  providing
- * the run() method that is executed in the thread.
+ * Each thread is associated with a start() call-site which we refer to as <i>thread creation site</i>. A thread creation
+ * site is represented as a pair of object allocating statement with the method enclosing the statement. A thread is
+ * represented as a triple of the invocation statement, method enclosing the invocation statement, and the class providing the
+ * run() method that is executed in the thread.
  * </p>
- * 
  * <p>
  * Each thread object is associated with an object allocation site which we refer to as <i>thread allocation site</i>. A
- * thread  allocation site is represented as a pair of object allocating statement with the method enclosing the statement.
+ * thread allocation site is represented as a pair of object allocating statement with the method enclosing the statement.
  * </p>
- * 
  * <p>
- * As for the syntactically non-existent threads, we assume an imaginary method creates the non-existent threads.  We refer
- * to this as the <i>system creator method</i>.  We assume all class initializers are executed by the same dedicated thread.
- * We refer to this as <i>class initializign thread</i>.  <code>CLASS_INIT_THREAD_CREATION_SITE</code>,
+ * As for the syntactically non-existent threads, we assume an imaginary method creates the non-existent threads. We refer to
+ * this as the <i>system creator method</i>. We assume all class initializers are executed by the same dedicated thread. We
+ * refer to this as <i>class initializign thread</i>. <code>CLASS_INIT_THREAD_CREATION_SITE</code>,
  * <code>CLASS_INIT_THREAD_ALLOCATION_SITE</code>, and <code>CLASS_INIT_THREAD</code> represent the creation site,
  * allocation site, and the class initializing thread.
  * </p>
- * 
  * <p>
  * For main/system threads, we use the main classes as the classes providing the implementation along with the system creator
  * method as the creation method along with an imaginary object indicating the invocation site.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class ThreadGraph
-  extends AbstractValueAnalyzerBasedProcessor
-  implements IThreadGraphInfo {
-	/** 
-	 * This represents the site at which the "class initializing" thread is created.  We assume that all classes are
-	 * initialized by a dedicated thread.  This conforms to the JVM spec.
-	 */
-	public static final Pair CLASS_INIT_THREAD_CREATION_SITE =
-		new Pair("CLASS_INIT_THREAD_CREATION_STMT", "CLASS_INIT_THREAD_CREATTION_METHOD");
+		extends AbstractValueAnalyzerBasedProcessor
+		implements IThreadGraphInfo {
 
-	/** 
-	 * This represents the site at which the "class initializing" thread is allocated.  We assume that all classes are
+	/**
+	 * This represents the "class initializing" thread.
+	 */
+	public static final Triple CLASS_INIT_THREAD = new Triple("CLASS_INIT_THREAD_CREATION_STMT",
+			"CLASS_INIT_THREAD_CREATTION_METHOD", "CLASS_INIT_THREAD_CLASS");
+
+	/**
+	 * This represents the site at which the "class initializing" thread is allocated. We assume that all classes are
 	 * initialized by a dedicated thread.
 	 */
-	public static final Pair CLASS_INIT_THREAD_ALLOCATION_SITE =
-		new Pair("CLASS_INIT_THREAD_ALLOCATION_STMT", "CLASS_INIT_THREAD_ALLOCATION_METHOD");
+	public static final Pair CLASS_INIT_THREAD_ALLOCATION_SITE = new Pair("CLASS_INIT_THREAD_ALLOCATION_STMT",
+			"CLASS_INIT_THREAD_ALLOCATION_METHOD");
 
-	/** 
+	/**
+	 * This represents the site at which the "class initializing" thread is created. We assume that all classes are
+	 * initialized by a dedicated thread. This conforms to the JVM spec.
+	 */
+	public static final Pair CLASS_INIT_THREAD_CREATION_SITE = new Pair("CLASS_INIT_THREAD_CREATION_STMT",
+			"CLASS_INIT_THREAD_CREATTION_METHOD");
+
+	/**
 	 * This represents the method in which the system threads are created.
 	 */
 	public static final Object SYSTEM_CREATOR_METHOD = "SYSTEM_CREATOR_METHOD";
 
-	/** 
-	 * This represents the "class initializing" thread.
+	/**
+	 * 
 	 */
-	public static final Triple CLASS_INIT_THREAD =
-		new Triple("CLASS_INIT_THREAD_CREATION_STMT", "CLASS_INIT_THREAD_CREATTION_METHOD", "CLASS_INIT_THREAD_CLASS");
+	private static final String JAVA_LANG_RUNNABLE = "java.lang.Runnable";
 
-	/** 
+	/**
+	 * 
+	 */
+	private static final String JAVA_LANG_THREAD = "java.lang.Thread";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
 
-	/** 
+	/**
+	 * The name of the "run" method.
+	 */
+	private static final String RUN_METHOD_NAME = "run";
+
+	/**
+	 * The name of the "start" method.
+	 */
+	private static final String START_METHOD_NAME = "start";
+
+	/**
 	 * This provides inter-procedural control-flow information.
 	 */
 	final CFGAnalysis cfgAnalysis;
 
-	/** 
-	 * The collection of thread allocation sites.
-	 *
-	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
-	 */
-	private final Collection newThreadExprs = new HashSet();
-
-	/** 
-	 * The collection of method invocation sites at which <code>java.lang.Thread.start()</code> is invoked.
-	 *
-	 * @invariant startSites.oclIsKindOf(Collection(CallTriple)) and startSites != null
-	 */
-	private final Collection startSites = new HashSet();
-
-	/** 
-	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph.  This  also
-	 * includes any allocation sites reachable from a method executed in a loop.
-	 *
-	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
-	 */
-	private final Collection threadCreationSitesMulti;
-
-	/** 
-	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph.  This
-	 * also includes any allocation sites reachable from a method executed in a loop. This is the dual of
-	 * <code>threadAllocSitesMulti.</code>
-	 *
-	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
-	 */
-	private final Collection threadCreationSitesSingle;
-
-	/** 
-	 * This is the collection of thread entry point methods.
-	 *
-	 * @invariant threadEntryPoints.oclIsKindOf(Set(SootMethod))
-	 */
-	private final Collection threadEntryPoints = new HashSet();
-
-	/** 
-	 * This provides call graph information pertaining to the system.
-	 *
-	 * @invariant cgi != null
-	 */
-	private final ICallGraphInfo cgi;
-
-	/** 
-	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
-	 *
-	 * @invariant method2threads != null and method2threads.oclIsKindOf(Map(SootMethod, Collection(NewExprTriple)))
-	 */
-	private final Map method2threads = new HashMap(Constants.getNumOfMethodsInApplication());
-
-	/** 
-	 * This maps threads allocation sites to the methods which are executed in the created threads.
-	 *
-	 * @invariant thread2methods != null and thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
-	 */
-	private final Map thread2methods = new HashMap();
-
-	/** 
+	/**
 	 * This provides object flow information required by this analysis.
 	 */
 	private OFAnalyzer analyzer;
 
-	/** 
+	/**
+	 * This provides call graph information pertaining to the system.
+	 * 
+	 * @invariant cgi != null
+	 */
+	private final ICallGraphInfo cgi;
+
+	/**
+	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
+	 * 
+	 * @invariant method2threads != null and method2threads.oclIsKindOf(Map(SootMethod, Collection(NewExprTriple)))
+	 */
+	private final Map method2threads = new HashMap(Constants.getNumOfMethodsInApplication());
+
+	/**
+	 * The collection of thread allocation sites.
+	 * 
+	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
+	 */
+	private final Collection newThreadExprs = new HashSet();
+
+	/**
 	 * This manages pair objects.
 	 */
 	private PairManager pairMgr;
 
 	/**
+	 * The collection of method invocation sites at which <code>java.lang.Thread.start()</code> is invoked.
+	 * 
+	 * @invariant startSites.oclIsKindOf(Collection(CallTriple)) and startSites != null
+	 */
+	private final Collection startSites = new HashSet();
+
+	/**
+	 * This maps threads allocation sites to the methods which are executed in the created threads.
+	 * 
+	 * @invariant thread2methods != null and thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
+	 */
+	private final Map thread2methods = new HashMap();
+
+	/**
+	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph. This also
+	 * includes any allocation sites reachable from a method executed in a loop.
+	 * 
+	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
+	 */
+	private final Collection threadCreationSitesMulti;
+
+	/**
+	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph. This also
+	 * includes any allocation sites reachable from a method executed in a loop. This is the dual of
+	 * <code>threadAllocSitesMulti.</code>
+	 * 
+	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
+	 */
+	private final Collection threadCreationSitesSingle;
+
+	/**
+	 * This is the collection of thread entry point methods.
+	 * 
+	 * @invariant threadEntryPoints.oclIsKindOf(Set(SootMethod))
+	 */
+	private final Collection threadEntryPoints = new HashSet();
+
+	/**
 	 * Creates a new ThreadGraph object.
-	 *
+	 * 
 	 * @param callGraph provides call graph information.
 	 * @param cfa provides control-flow information.
 	 * @param pairManager to be used.
-	 *
 	 * @pre callGraph != null and cfa != null and pairManager != null
 	 */
 	public ThreadGraph(final ICallGraphInfo callGraph, final CFGAnalysis cfa, final PairManager pairManager) {
@@ -227,72 +242,14 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
-	 */
-	public Collection getAllocationSites() {
-		return Collections.unmodifiableCollection(newThreadExprs);
-	}
-
-	/**
-	 * Sets the object flow analyzer to be used for analysis.
-	 *
-	 * @param objFlowAnalyzer is the object flow analyzer.
-	 *
-	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
-	 */
-	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
-		analyzer = (OFAnalyzer) objFlowAnalyzer;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getCreationSites()
-	 */
-	public Collection getCreationSites() {
-		return Collections.unmodifiableCollection(startSites);
-	}
-
-	/**
-	 * @see IThreadGraphInfo#getExecutedMethods(InvokeStmt,Context)
-	 */
-	public Collection getExecutedMethods(final InvokeStmt startStmt, final Context ctxt) {
-		final Collection _result =
-			(Collection) MapUtils.getObject(thread2methods, pairMgr.getPair(startStmt, ctxt.getCurrentMethod()),
-				Collections.EMPTY_SET);
-		return Collections.unmodifiableCollection(_result);
-	}
-
-	/**
-	 * @see IThreadGraphInfo#getExecutionThreads(SootMethod)
-	 */
-	public Collection getExecutionThreads(final SootMethod sm) {
-		final Collection _result = (Collection) MapUtils.getObject(method2threads, sm, Collections.EMPTY_SET);
-		return Collections.unmodifiableCollection(_result);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
-	 */
-	public Collection getIds() {
-		return Collections.singleton(IThreadGraphInfo.ID);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getThreadEntryPoints()
-	 */
-	public Collection getThreadEntryPoints() {
-		return Collections.unmodifiableCollection(threadEntryPoints);
-	}
-
-	/**
 	 * Called by the post processing controller on encountering <code>NewExpr</code> and <code>VirtualInvokeExpr</code>
 	 * values in the system.
-	 *
+	 * 
 	 * @param vBox that was encountered and needs processing.
 	 * @param context in which the value was encountered.
-	 *
 	 * @pre value != null and context != null
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, final Context context) {
 		final IEnvironment _env = analyzer.getEnvironment();
 		final Value _value = vBox.getValue();
 
@@ -308,7 +265,7 @@ public class ThreadGraph
 	/**
 	 * Consolidates the thread graph information before it is available to the application.
 	 */
-	public void consolidate() {
+	@Override public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: thread graph consolidation");
 		}
@@ -339,6 +296,52 @@ public class ThreadGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
+	 */
+	public Collection getAllocationSites() {
+		return Collections.unmodifiableCollection(newThreadExprs);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getCreationSites()
+	 */
+	public Collection getCreationSites() {
+		return Collections.unmodifiableCollection(startSites);
+	}
+
+	/**
+	 * @see IThreadGraphInfo#getExecutedMethods(InvokeStmt,Context)
+	 */
+	public Collection getExecutedMethods(final InvokeStmt startStmt, final Context ctxt) {
+		final SootMethod _currentMethod = ctxt.getCurrentMethod();
+		final Pair _pair = pairMgr.getPair(startStmt, _currentMethod);
+		final Collection _result = (Collection) MapUtils.getObject(thread2methods, _pair, Collections.EMPTY_SET);
+		return Collections.unmodifiableCollection(_result);
+	}
+
+	/**
+	 * @see IThreadGraphInfo#getExecutionThreads(SootMethod)
+	 */
+	public Collection getExecutionThreads(final SootMethod sm) {
+		final Collection _result = (Collection) MapUtils.getObject(method2threads, sm, Collections.EMPTY_SET);
+		return Collections.unmodifiableCollection(_result);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection getIds() {
+		return Collections.singleton(IThreadGraphInfo.ID);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getThreadEntryPoints()
+	 */
+	public Collection getThreadEntryPoints() {
+		return Collections.unmodifiableCollection(threadEntryPoints);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -363,13 +366,13 @@ public class ThreadGraph
 		final Collection _t1 = getExecutionThreads(methodOne);
 		final Collection _t2 = getExecutionThreads(methodTwo);
 		return _t1.size() == 1 && _t1.size() == _t2.size() && _t1.containsAll(_t2)
-		  && threadCreationSitesSingle.containsAll(_t1);
+				&& threadCreationSitesSingle.containsAll(_t1);
 	}
 
 	/**
 	 * Resets all internal data structure and forgets all info from the previous run.
 	 */
-	public void reset() {
+	@Override public void reset() {
 		thread2methods.clear();
 		method2threads.clear();
 		threadEntryPoints.clear();
@@ -382,9 +385,19 @@ public class ThreadGraph
 	}
 
 	/**
+	 * Sets the object flow analyzer to be used for analysis.
+	 * 
+	 * @param objFlowAnalyzer is the object flow analyzer.
+	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
+	 */
+	@Override public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
+		analyzer = (OFAnalyzer) objFlowAnalyzer;
+	}
+
+	/**
 	 * @see Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		final StringBuffer _result = new StringBuffer();
 		final List _l = new ArrayList();
 
@@ -436,52 +449,15 @@ public class ThreadGraph
 	}
 
 	/**
-	 * Retrieves the runnable implementations that get executed in the <code>run()</code> method of
-	 * <code>java.lang.Thread</code>.
-	 *
-	 * @param threadClass is the <code>java.lang.Thread</code> class.
-	 *
-	 * @return a collection of object flow values.
-	 *
-	 * @pre threadClass != null
-	 * @post result != null
-	 */
-	private Collection getRunnables(final SootClass threadClass) {
-		Collection _result = Collections.EMPTY_SET;
-		final SootMethod _threadRunMethod = threadClass.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
-
-		for (final Iterator _iter =
-				IteratorUtils.filteredIterator(_threadRunMethod.retrieveActiveBody().getUnits().iterator(),
-					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _iter.hasNext();) {
-			final Stmt _stmt = (Stmt) _iter.next();
-			final InvokeExpr _expr = _stmt.getInvokeExpr();
-			final SootMethod _invokedMethod = _expr.getMethod();
-
-			if (_expr instanceof VirtualInvokeExpr
-				  && _invokedMethod.getName().equals("run")
-				  && _invokedMethod.getDeclaringClass().getName().equals("java.lang.Runnable")) {
-				final Context _context = new Context();
-				_context.setRootMethod(_threadRunMethod);
-				_context.setStmt(_stmt);
-				_context.setProgramPoint(_stmt.getInvokeExprBox());
-				_result = analyzer.getValues(((VirtualInvokeExpr) _expr).getBase(), _context);
-				break;
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * Calculates thread call graph.
-	 *
+	 * 
 	 * @throws RuntimeException when the system being analyzed is not type-safe.
 	 */
-	private void calculateThreadCallGraph()
-	  throws RuntimeException {
+	private void calculateThreadCallGraph() throws RuntimeException {
 		// capture the run call-site in Thread.start method
 		final IEnvironment _env = analyzer.getEnvironment();
-		final SootClass _threadClass = _env.getClass("java.lang.Thread");
-		final SootMethod _startMethod = _threadClass.getMethodByName("start");
+		final SootClass _threadClass = _env.getClass(JAVA_LANG_THREAD);
+		final SootMethod _startMethod = _threadClass.getMethodByName(START_METHOD_NAME);
 		final Context _ctxt = new Context();
 		_ctxt.setRootMethod(_startMethod);
 
@@ -491,11 +467,11 @@ public class ThreadGraph
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("New thread expressions are: " + _values);
+			LOGGER.debug("New runnables are: " + _runnables);
 		}
 
-		for (final Iterator _i =
-				IteratorUtils.filteredIterator(_values.iterator(), SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
-			  _i.hasNext();) {
+		for (final Iterator _i = IteratorUtils.filteredIterator(_values.iterator(),
+				SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _i.hasNext();) {
 			final NewExpr _value = (NewExpr) _i.next();
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			Collection _methods;
@@ -503,30 +479,29 @@ public class ThreadGraph
 			if (!_class2runCallees.containsKey(_sc)) {
 				boolean _flag = false;
 
-				final SootClass _scTemp = Util.getDeclaringClass(_sc, "run", Collections.EMPTY_LIST, VoidType.v());
+				final SootClass _scTemp = Util.getDeclaringClass(_sc, RUN_METHOD_NAME, Collections.EMPTY_LIST, VoidType.v());
 
 				if (_scTemp != null) {
-					_flag = _scTemp.getName().equals("java.lang.Thread");
+					_flag = _scTemp.getName().equals(JAVA_LANG_THREAD);
 				} else {
 					LOGGER.error("How can there be a descendent of java.lang.Thread without access to run() method.");
 					throw new RuntimeException("run() method is unavailable via " + _sc
-						+ " even though it is a descendent of java.lang.Thread.");
+							+ " even though it is a descendent of java.lang.Thread.");
 				}
 
 				if (_flag) {
 					_methods = new HashSet();
 
-					for (final Iterator _j =
-							IteratorUtils.filteredIterator(_runnables.iterator(),
-								SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
+					for (final Iterator _j = IteratorUtils.filteredIterator(_runnables.iterator(),
+							SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
 						final NewExpr _temp = (NewExpr) _j.next();
 						final SootClass _runnable = _env.getClass((_temp.getBaseType()).getClassName());
-						final SootMethod _entryPoint = _runnable.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
+						final SootMethod _entryPoint = getRunMethod(_runnable);
 						threadEntryPoints.add(_entryPoint);
 						_methods.addAll(transitiveThreadCallClosure(_entryPoint));
 					}
 				} else {
-					final SootMethod _entryPoint = _sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v());
+					final SootMethod _entryPoint = getRunMethod(_sc);
 					threadEntryPoints.add(_entryPoint);
 					_methods = transitiveThreadCallClosure(_entryPoint);
 				}
@@ -552,9 +527,8 @@ public class ThreadGraph
 
 			final Collection _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
 
-			for (final Iterator _j =
-					IteratorUtils.filteredIterator(_baseValues.iterator(), SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
-				  _j.hasNext();) {
+			for (final Iterator _j = IteratorUtils.filteredIterator(_baseValues.iterator(),
+					SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
 				final NewExpr _value = (NewExpr) _j.next();
 				final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 
@@ -577,8 +551,8 @@ public class ThreadGraph
 		final Collection _tassBak = new HashSet(threadCreationSitesSingle);
 		final Context _ctxt = new Context();
 
-		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC 
-		// as creating multiple threads.  The execution considers entire call chain to the entry method.
+		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC
+		// as creating multiple threads. The execution considers entire call chain to the entry method.
 		for (final Iterator _i = _tassBak.iterator(); _i.hasNext();) {
 			final Pair _pair = (Pair) _i.next();
 			final Object _o = _pair.getSecond();
@@ -595,7 +569,7 @@ public class ThreadGraph
 
 		final Collection _multiExecMethods = new HashSet();
 
-		// Collect methods executed in threads which are created at sites that create more than one thread.  These methods 
+		// Collect methods executed in threads which are created at sites that create more than one thread. These methods
 		// will be executed multiple times.
 		for (final Iterator _i = threadCreationSitesMulti.iterator(); _i.hasNext();) {
 			final Pair _pair = (Pair) _i.next();
@@ -622,22 +596,66 @@ public class ThreadGraph
 	}
 
 	/**
+	 * Retrieves a method with the signature "void run()" in the given class, if it exists.
+	 * 
+	 * @param threadClass of interest
+	 * @return the run method
+	 * @pre threadClass != null
+	 */
+	private SootMethod getRunMethod(final SootClass threadClass) {
+		return threadClass.getMethod(RUN_METHOD_NAME, Collections.EMPTY_LIST, VoidType.v());
+	}
+
+	/**
+	 * Retrieves the runnable implementations that get executed in the <code>run()</code> method of
+	 * <code>java.lang.Thread</code>.
+	 * 
+	 * @param threadClass is the <code>java.lang.Thread</code> class.
+	 * @return a collection of object flow values.
+	 * @pre threadClass != null
+	 * @post result != null
+	 */
+	private Collection getRunnables(final SootClass threadClass) {
+		Collection _result = Collections.EMPTY_SET;
+		final SootMethod _threadRunMethod = getRunMethod(threadClass);
+
+		final Iterator _units = _threadRunMethod.retrieveActiveBody().getUnits().iterator();
+		for (final Iterator _iter = IteratorUtils.filteredIterator(_units,
+				SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _iter.hasNext();) {
+			final Stmt _stmt = (Stmt) _iter.next();
+			final InvokeExpr _expr = _stmt.getInvokeExpr();
+			final SootMethod _invokedMethod = _expr.getMethod();
+
+			if (_expr instanceof InterfaceInvokeExpr && _invokedMethod.getName().equals(RUN_METHOD_NAME)
+					&& _invokedMethod.getDeclaringClass().getName().equals(JAVA_LANG_RUNNABLE)) {
+				final InterfaceInvokeExpr _iExpr = (InterfaceInvokeExpr) _expr;
+				final Context _context = new Context();
+				_context.setRootMethod(_threadRunMethod);
+				_context.setStmt(_stmt);
+				_context.setProgramPoint(_iExpr.getBaseBox());
+				_result = analyzer.getValues(_iExpr.getBase(), _context);
+				break;
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Injects information for the "syntactically" non-occurring main thread.
 	 */
 	private void injectMainThread() {
-		/* Note, main threads in the system are non-existent in terms of allocation sites.  So, we create a hypothetical expr
-		 * with no associated statement and method and use that to create a NewExprTriple.  This triple represents the thread
-		 * allocation site of main threads.  The triple would have null for the method and statement, but a NewExpr whose
-		 * type name starts with "MainThread:".
-		 *
-		 * Also, class initializers (<clinit> methods) need to be treated differently.  They execute either in the current
-		 * thread or another thread.  However, the interesting property is that class initializers are executed only once and
-		 * by atmost one thread (which can be any thread) via locking.  Hence, for thread-sensitive analyses this matters.
-		 * For other cases, we can assume that there is an arbitrary but same thread in the VM that just executes these
-		 * initializers.  Another alternative is that each initializer is executed in a new dedicated thread. Like in the case
-		 * of main threads we will use similar triples except "ClassInitThread:" is used as the type name prefix. We adapt
-		 * the first approach of one dedicated thread executes all intializers in the VM.  Hence, all <clinit> methods are
-		 * associated with an "ClassInitThread:".
+		/*
+		 * Note, main threads in the system are non-existent in terms of allocation sites. So, we create a hypothetical expr
+		 * with no associated statement and method and use that to create a NewExprTriple. This triple represents the thread
+		 * allocation site of main threads. The triple would have null for the method and statement, but a NewExpr whose type
+		 * name starts with "MainThread:". Also, class initializers (<clinit> methods) need to be treated differently. They
+		 * execute either in the current thread or another thread. However, the interesting property is that class
+		 * initializers are executed only once and by atmost one thread (which can be any thread) via locking. Hence, for
+		 * thread-sensitive analyses this matters. For other cases, we can assume that there is an arbitrary but same thread
+		 * in the VM that just executes these initializers. Another alternative is that each initializer is executed in a new
+		 * dedicated thread. Like in the case of main threads we will use similar triples except "ClassInitThread:" is used as
+		 * the type name prefix. We adapt the first approach of one dedicated thread executes all intializers in the VM.
+		 * Hence, all <clinit> methods are associated with an "ClassInitThread:".
 		 */
 		for (final Iterator _i = cgi.getEntryMethods().iterator(); _i.hasNext();) {
 			final SootMethod _head = (SootMethod) _i.next();
@@ -666,32 +684,29 @@ public class ThreadGraph
 			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
 				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _thread,
-					CollectionsUtilities.HASH_SET_FACTORY);
+						CollectionsUtilities.HASH_SET_FACTORY);
 			}
 		}
 	}
 
 	/**
 	 * Processes new expressoins.
-	 *
+	 * 
 	 * @param context in which the new expression occurs.
 	 * @param env to be used.
 	 * @param newExpr to be processed.
-	 *
 	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
-	 *
 	 * @pre context != null and env != null and newExpr != null
 	 * @pre context.getStmt() != null and context.getCurrentMethod() != null
 	 */
-	private void processNewExpr(final Context context, final IEnvironment env, final NewExpr newExpr)
-	  throws RuntimeException {
+	private void processNewExpr(final Context context, final IEnvironment env, final NewExpr newExpr) throws RuntimeException {
 		final SootClass _clazz = env.getClass(newExpr.getBaseType().getClassName());
 
 		// collect the new expressions which create Thread objects.
-		if (Util.isDescendentOf(_clazz, "java.lang.Thread")) {
-			final SootClass _temp = Util.getDeclaringClass(_clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+		if (Util.isDescendentOf(_clazz, JAVA_LANG_THREAD)) {
+			final SootClass _temp = Util.getDeclaringClass(_clazz, START_METHOD_NAME, Collections.EMPTY_LIST, VoidType.v());
 
-			if (_temp != null && _temp.getName().equals("java.lang.Thread")) {
+			if (_temp != null && _temp.getName().equals(JAVA_LANG_THREAD)) {
 				final Stmt _stmt = context.getStmt();
 				final SootMethod _sm = context.getCurrentMethod();
 				newThreadExprs.add(pairMgr.getPair(_stmt, _sm));
@@ -700,17 +715,16 @@ public class ThreadGraph
 					LOGGER.warn("How can there be a descendent of java.lang.Thread without access to start() method.");
 				}
 				throw new RuntimeException("start() method is unavailable via " + _clazz
-					+ " even though it is a descendent of java.lang.Thread.");
+						+ " even though it is a descendent of java.lang.Thread.");
 			}
 		}
 	}
 
 	/**
 	 * Processes invocation expressoins.
-	 *
+	 * 
 	 * @param context in which the new expression occurs.
 	 * @param invokeExpr to be processed.
-	 *
 	 * @pre context != null and env != null and invokeExpr != null
 	 * @pre context.getStmt() != null and context.getCurrentMethod() != null
 	 */
@@ -765,13 +779,11 @@ public class ThreadGraph
 	}
 
 	/**
-	 * Calculates the transitive closure of methods called from the given method.  The inclusion constraint for the closure
-	 * is that the method cannot be an instance of <code>java.lang.Thread.start()</code>.
-	 *
+	 * Calculates the transitive closure of methods called from the given method. The inclusion constraint for the closure is
+	 * that the method cannot be an instance of <code>java.lang.Thread.start()</code>.
+	 * 
 	 * @param starterMethod is the method from where the closure calculation starts.
-	 *
 	 * @return a collection of <code>SootMethod</code>s occurring the call closure.
-	 *
 	 * @pre starterMethod != null
 	 * @post result != null and result.isOclKindOf(Collection(SootMethod))
 	 */
