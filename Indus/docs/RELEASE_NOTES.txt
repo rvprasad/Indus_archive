@@ -3,13 +3,13 @@ Required software:
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
     Jakarta Commons Collection 3.1 
         (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
-    Jakarta Commons Lang 2.0 
+    Jakarta Commons Lang 2.1 
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
     Jakarta Commons Logging 1.0.4 
         (commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
-    Jakarta Commons Pool 1.1 
+    Jakarta Commons Pool 1.2 
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
-    JiBX: Binding XML to Java Code (bleeding edge)
+    JiBX: Binding XML to Java Code (bleeding edge >= RC1)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
@@ -20,17 +20,21 @@ Required software:
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
     SWT (3.1)
         (swt.jar, swt-pi.jar) [http://www.eclipse.org]
-    xmlenc (0.47)
+    xmlenc (0.48)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
-    GNU Trove (1.1b3)
+    GNU Trove (1.1b4)
     	(trove.jar) [http://trove4j.sourceforge.net/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+
+Version 0.7.1
+-----------------
+	- Java 5 compatible class files.  JDK 1.5 and above is required.
 
 Version 0.7
 ----------------
