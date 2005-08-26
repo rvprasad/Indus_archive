@@ -292,7 +292,6 @@ class DependenceAndMayFollowInfoCalculatorV2
 		final int _iEnd = info.lacq.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Pair _p = (Pair) _i.next();
 
 			// TODO: logic please
 		}
