@@ -5,8 +5,6 @@ Required software:
         (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
     Jakarta Commons Lang 2.1 
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Logging 1.0.4 
-        (commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
     Jakarta Commons Pool 1.2 
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     JiBX: Binding XML to Java Code (bleeding edge >= RC1)
@@ -28,6 +26,8 @@ Required software:
     	(junit.jar) [http://junit.org]
     GNU Trove (1.1b4)
     	(trove.jar) [http://trove4j.sourceforge.net/]
+    Simple Logging Facade For Java (>=1.0b7)
+    	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
