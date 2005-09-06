@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry sourcepath="/JAVACLASSES/src/commons-logging.jar" kind="var" path="JAVACLASSES/commons-logging.jar"/>
 	<classpathentry sourcepath="/JAVACLASSES/swt/src.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry sourcepath="/JAVACLASSES/src/commons-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/nlog4j.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
