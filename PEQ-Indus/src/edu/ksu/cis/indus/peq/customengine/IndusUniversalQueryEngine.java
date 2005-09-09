@@ -39,7 +39,7 @@ import edu.ksu.cis.peq.queryengine.UniversalQueryEngine$v1;
 public class IndusUniversalQueryEngine extends UniversalQueryEngine$v1 {
 
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param gEngine
      * @param fsm
      * @param matcher

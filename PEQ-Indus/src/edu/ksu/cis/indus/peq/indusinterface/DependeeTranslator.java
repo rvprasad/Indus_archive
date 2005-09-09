@@ -32,7 +32,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 public class DependeeTranslator extends AbstractDependenceAnalyser {
 
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param sTool
      */
     protected DependeeTranslator() {        

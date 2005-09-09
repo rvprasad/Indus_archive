@@ -36,7 +36,11 @@ import edu.ksu.cis.indus.peq.constructors.ReadyDepD;
 import edu.ksu.cis.indus.peq.constructors.ReadyDepT;
 import edu.ksu.cis.indus.peq.constructors.SyncDepD;
 import edu.ksu.cis.indus.peq.constructors.SyncDepT;
-import edu.ksu.cis.indus.peq.queryglue.Constructor;
+import edu.ksu.cis.indus.peq.constructors.WcConstructor;
+import edu.ksu.cis.indus.peq.queryast.AndAST;
+import edu.ksu.cis.indus.peq.queryast.BaseAST;
+import edu.ksu.cis.indus.peq.queryast.ConstructorAST;
+import edu.ksu.cis.indus.peq.queryast.OrAST;
 import edu.ksu.cis.indus.peq.queryglue.IIndusConstructorTypes;
 import edu.ksu.cis.indus.peq.queryglue.IPEQRegexTypes;
 import edu.ksu.cis.indus.peq.queryglue.QueryObject;
@@ -153,16 +157,16 @@ public class FSMBuilder$v1_2 implements IFSM {
      */
     private IState createFSM() {
         State _initialState = null;
-        final List _lst = qObject.getConstructorList();
-        if (_lst.size() > 0) {
-            final List _stateList = new LinkedList();
+        final BaseAST _startNode = qObject.getStartNode();
+        if (_startNode != null) {            
             _initialState = new State();
             State _currState = _initialState;
-            _stateList.add(_initialState);
-            for (Iterator iter = _lst.iterator(); iter.hasNext();) {
-                final Constructor _c = (Constructor) iter.next();
-                _currState =  createTransition(_currState, _c, _stateList);
-            }                   
+            BaseAST _currAST = _startNode;
+            while (_currAST != null) {                
+                _currState =  processTransition(_currState, _currAST);
+                _currAST = _currAST.getNextNode();
+            }
+                           
             _currState.setFinal(true);
         }
 
@@ -170,13 +174,183 @@ public class FSMBuilder$v1_2 implements IFSM {
     }
 
     
+    
+    
+    /**
+     * Process the constructor. Handles the alternation. 
+     * @param currState The current state.
+     * @param currast The current AST constructor to process.
+     * 
+     * @return State The resulting end state..
+     */
+    private State processTransition(State currState, BaseAST currAST) {
+        if (currAST instanceof OrAST) {
+            final OrAST _orast = (OrAST) currAST;
+            State _retState = null;
+            switch (_orast.getRegexType()) {
+            	case IPEQRegexTypes.NO_REGEXTYPE:
+            	    _retState = processOr(currState, _orast);
+            	    break;
+            	case IPEQRegexTypes.ONE_OR_MORE:
+            	    _retState = processPlusGroup(currState, _orast);
+            	    break;
+            	case IPEQRegexTypes.ZERO_OR_MORE:
+            	    _retState = processKleeneGroup(currState, _orast);
+            	    break;
+            	case IPEQRegexTypes.ZERO_OR_ONE:
+            	    _retState = processZeroOrOneGroup(currState, _orast);
+            	    break;            
+            }
+                        
+            return _retState;
+        } else if (currAST instanceof AndAST) {
+            final AndAST _aAst = (AndAST) currAST;
+            State _retState = null;
+            switch(_aAst.getRegexType()) {
+    		case IPEQRegexTypes.NO_REGEXTYPE:
+    		    _retState = processAnd(currState, _aAst);
+    	    	break;
+    		case IPEQRegexTypes.ONE_OR_MORE:
+    		    _retState = processPlusGroup(currState, _aAst);
+    	    	break;
+    		case IPEQRegexTypes.ZERO_OR_MORE:
+    		    _retState = processKleeneGroup(currState, _aAst);
+    	    	break;
+    		case IPEQRegexTypes.ZERO_OR_ONE:
+    		    _retState = processZeroOrOneGroup(currState, _aAst);
+    	    	break;            
+            }
+            return _retState;
+        }
+        else {
+            final ConstructorAST _cast = (ConstructorAST) currAST;
+            return createTransition(currState, _cast);
+        }
+    }
+
+    /**
+     * Process the plus for the compound Ast.
+     * @param currState
+     * @param ast
+     * @return
+     */
+    private State processPlusGroup(State currState, BaseAST ast) {
+        final State _s1 = processTransition(currState, ast);
+        return processKleeneGroup(_s1, ast);
+    }
+
+    /**
+     * Process the kleene for the compound Ast.
+     * @param currState
+     * @param ast
+     * @return
+     */
+    private State processKleeneGroup(State currState, BaseAST ast) {
+        final State _s1 = new State();    	
+    	final State _dState = new State();
+    	
+    	State _s2 = null;
+    	if (ast instanceof OrAST) {
+    	    _s2 = processOr(_s1,  (OrAST) ast); 
+    	} else if (ast instanceof AndAST) {
+    	    _s2 = processAnd(_s1, (AndAST) ast);
+    	} 
+    	
+    	
+    	
+        final EpsTransition _ep1 = new EpsTransition();
+        final EpsTransition _ep2 = new EpsTransition();
+        final EpsTransition _ep3 = new EpsTransition();
+        final EpsTransition _ep4 = new EpsTransition();
+        // 1
+        _ep1.setSrcState(currState);
+        _ep1.setDstnState(_s1);
+        currState.addExitingTransitions(_ep1);
+        _s1.addEnteringTransitions(_ep1);
+        // 2
+        _ep2.setSrcState(_s2);
+        _ep2.setDstnState(_s1);
+        _s1.addEnteringTransitions(_ep2);
+        _s2.addExitingTransitions(_ep2);        
+        // 3
+        _ep3.setSrcState(_s2);
+        _ep3.setDstnState(_dState);
+        _s2.addExitingTransitions(_ep3);
+        _dState.addEnteringTransitions(_ep3);        
+        // 4
+        _ep4.setSrcState(currState);
+        _ep4.setDstnState(_dState);
+       currState.addExitingTransitions(_ep4);
+       _dState.addEnteringTransitions(_ep4);       
+       return _dState;
+    }
+    
+    /**
+     * Process the zero or one for the compound Ast.
+     * @param currState
+     * @param ast
+     * @return
+     */
+    private State processZeroOrOneGroup(State currState, BaseAST ast) {
+        
+        final EpsTransition _ep = new EpsTransition();
+        State _dState = null;
+        if (ast instanceof OrAST) {
+            _dState = processOr(currState, (OrAST) ast);
+        } else if (ast instanceof AndAST) {
+            _dState = processAnd(currState, (AndAST) ast);
+        }
+                        
+        // epsilon
+        _ep.setSrcState(currState);
+        _ep.setDstnState(_dState);
+        currState.addExitingTransitions(_ep);
+        _dState.addEnteringTransitions(_ep);        
+        return _dState;
+    }
+    
+    
+    /**
+     * Process the concateantion.
+     * @param currState
+     * @param baseAST
+     * @return
+     */
+    private State processAnd(final State currState, final AndAST andAST) {
+        final State _leftState = processTransition(currState, andAST.getLeftNode());
+        final State _rightState = processTransition(_leftState, andAST.getRightNode());                    
+        return _rightState;
+    }
+    
+    /**
+     * Process the alternation.
+     * @param currState
+     * @param baseAST
+     * @return
+     */
+    private State processOr(final State currState, final OrAST orAST) {
+        final State _leftState = processTransition(currState, orAST.getLeftNode());
+        final State _rightState = processTransition(currState, orAST.getRightNode());
+        final State _newEndState = new State();
+        final EpsTransition _ep1 = new EpsTransition();
+        final EpsTransition _ep2 = new EpsTransition();
+        _ep1.setSrcState(_leftState);
+        _ep2.setSrcState(_rightState);
+        _ep1.setDstnState(_newEndState);
+        _ep2.setDstnState(_newEndState);
+        _leftState.addExitingTransitions(_ep1);
+        _rightState.addExitingTransitions(_ep2);
+        _newEndState.addEnteringTransitions(_ep1);
+        _newEndState.addEnteringTransitions(_ep2);            
+        return _newEndState;
+    }
     /**
      * Adds the given constructor as a transition.
      * @param constructor The constructor to create a transition for.
-     * @param stateList The current set of states.
+     * 
      * @return State The end state of the transitions corrssponding to this fragment.
      */
-    private State createTransition(final State currState, final Constructor constructor, final List stateList) {              
+    private State createTransition(final State currState, final ConstructorAST constructor) {              
         GeneralConstructor _gc = null;
         State _retState = null;
         switch (constructor.getConstructType()) {
@@ -222,6 +396,9 @@ public class FSMBuilder$v1_2 implements IFSM {
         	case IIndusConstructorTypes.SDEPT:
         	    _gc = new SyncDepT();
         	    break;
+        	case IIndusConstructorTypes.WC:
+        	    _gc = new WcConstructor();
+        		break;
         	
         }
         _gc.setVariableName(constructor.getVariableName());

@@ -54,7 +54,7 @@ public class IDef extends GeneralConstructor {
                 }
             }
             
-        } else {
+        } else if(!(cons instanceof WcConstructor)) {
             _token.setEmpty(true);
         }
         return _token;

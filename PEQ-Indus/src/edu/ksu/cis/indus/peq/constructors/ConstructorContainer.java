@@ -25,7 +25,7 @@ package edu.ksu.cis.indus.peq.constructors;
 public class ConstructorContainer {
     
     /**
-     * Constructor instances.
+     * ConstructorAST instances.
      */
     private ControlDepD cDepD = new ControlDepD();
     private ControlDepT cDepT = new ControlDepT();

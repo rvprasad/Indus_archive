@@ -38,7 +38,7 @@ import edu.ksu.cis.peq.queryengine.IMatcher;
 public class IndusExistentialQueryEngine extends ExistentialQueryEngine$v1 {
 
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param engine
      * @param fsm
      * @param matcher

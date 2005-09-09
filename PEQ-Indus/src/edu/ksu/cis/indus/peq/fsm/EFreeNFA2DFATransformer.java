@@ -58,7 +58,7 @@ public class EFreeNFA2DFATransformer {
     private State newInitState;
     
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param src
      * @pre src is an epsilon free nfa and src != null.
      * 
@@ -135,9 +135,7 @@ public class EFreeNFA2DFATransformer {
                 _t.setSrcState(_srcState);
                 _t.setDstnState(_dstnState);
                 _srcState.addExitingTransitions(_t);
-                _dstnState.addEnteringTransitions(_t);
-                System.out.print("Creating transition from " + _srcState.hashCode() + " : " + _dstnState.hashCode());
-                System.out.println(" with label " + _t.getLabel().getClass().toString());
+                _dstnState.addEnteringTransitions(_t);                
                 processForDFA(_stateSet, reachSet, stateSet2NewStateMap);
 			}
             

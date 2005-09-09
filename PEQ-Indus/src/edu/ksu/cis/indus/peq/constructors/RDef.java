@@ -49,7 +49,7 @@ public class RDef extends GeneralConstructor {
                     _token.getSubstituitionMap().put(cons.getVariableName(), _val);
             }            
             
-        } else {
+        } else if(!(cons instanceof WcConstructor)) {
             _token.setEmpty(true);
         }
         return _token;

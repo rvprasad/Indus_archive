@@ -37,7 +37,7 @@ public class AbstractDependenceAnalyser {
     private SlicerTool sTool;
 
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param sTool
      */
     protected AbstractDependenceAnalyser() {

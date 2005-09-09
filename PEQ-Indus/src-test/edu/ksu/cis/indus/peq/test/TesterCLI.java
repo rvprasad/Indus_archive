@@ -28,6 +28,7 @@ import edu.ksu.cis.peq.fsm.interfaces.ITransition;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ import java.util.Set;
 public final class TesterCLI {
 
     /**
-     * Constructor.
+     * ConstructorAST.
      */
     private TesterCLI() {
     }
@@ -68,7 +69,7 @@ public final class TesterCLI {
                 final IFSM _eFreeFSM = _ecc.getResult();
                 final EFreeNFA2DFATransformer _efn2dt = new EFreeNFA2DFATransformer(_eFreeFSM);
 				_efn2dt.process();				
-                describeFSM(_efn2dt.getDfaAutomata().getInitialState());
+                describeFSM(_efn2dt.getDfaAutomata().getInitialState(), new HashSet());
             }
         } catch (IOException _ie) {
             _ie.printStackTrace();
@@ -81,8 +82,12 @@ public final class TesterCLI {
      * 
      * @param state
      *            The current state.
+     * @param reachSet The reach set.
      */
-    private static void describeFSM(final IState state) {
+    private static void describeFSM(final IState state, final Set reachSet) {
+        if (!reachSet.contains(state)) {
+            reachSet.add(state);
+        } else return;
         System.out.println(state + " isFinal: " + state.isFinalState());
         final IState _currState = state;
         final Set _set = _currState.getExitingTransitions();
@@ -93,7 +98,7 @@ public final class TesterCLI {
                         + _trans.getDstnState() + " variable : "
                         + _trans.getLabel().getVariableName());            
             if (_trans.getDstnState() != _currState) {
-                describeFSM(_trans.getDstnState());
+                describeFSM(_trans.getDstnState(), reachSet);
             }
         }
     }

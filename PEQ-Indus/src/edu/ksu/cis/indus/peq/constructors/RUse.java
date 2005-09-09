@@ -49,7 +49,7 @@ public class RUse extends GeneralConstructor {
             if (!cons.getVariableName().equals("_")) {   
                     _token.getSubstituitionMap().put(cons.getVariableName(), _val);
                 }            
-        } else {
+        } else if(!(cons instanceof WcConstructor)){
             _token.setEmpty(true);
         }
         return _token;

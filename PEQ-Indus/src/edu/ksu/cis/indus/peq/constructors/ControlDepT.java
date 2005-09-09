@@ -44,7 +44,7 @@ public class ControlDepT extends GeneralConstructor {
                 _token.getSubstituitionMap().put(cons.getVariableName(), _subst);
                 
             }
-        } else {
+        } else if(!(cons instanceof WcConstructor)) {
             _token.setEmpty(true);
         }
         return _token;

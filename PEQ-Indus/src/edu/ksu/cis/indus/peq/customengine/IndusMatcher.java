@@ -43,7 +43,7 @@ public class IndusMatcher implements IUQMatcher {
     private Transition _badTransition;
     
     /**
-     * Constructor.
+     * ConstructorAST.
      *
      */
     public IndusMatcher() {

@@ -43,7 +43,7 @@ public class SyncDepD extends GeneralConstructor {
             if (!cons.getVariableName().equals("_")) {                            
                 _token.getSubstituitionMap().put(cons.getVariableName(), _subst);
             }
-        } else {
+        } else if(!(cons instanceof WcConstructor)) {
             _token.setEmpty(true);
         }
         return _token;

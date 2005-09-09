@@ -40,7 +40,7 @@ public class EpsClosureConvertor {
     /** The initial state of the new fsm */
     private State initialState; 
     /**
-     * Constructor.
+     * ConstructorAST.
      * @param fsm
      */
     public EpsClosureConvertor(final IFSM fsm) {
