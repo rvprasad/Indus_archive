@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -91,7 +91,7 @@ public final class DependencyXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyXMLizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DependencyXMLizer.class);
 
 	/** 
 	 * The name of the files into which dependence information was written into.

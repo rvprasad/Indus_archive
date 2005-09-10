@@ -31,8 +31,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -47,7 +47,7 @@ public final class BitSetTokenManager
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(BitSetTokenManager.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(BitSetTokenManager.class);
 
 	/** 
 	 * The list used to canonicalize bit position for values.

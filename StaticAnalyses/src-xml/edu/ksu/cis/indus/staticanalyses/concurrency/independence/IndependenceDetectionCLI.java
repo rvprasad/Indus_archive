@@ -60,8 +60,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.SootMethod;
@@ -82,7 +82,7 @@ public final class IndependenceDetectionCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(IndependenceDetectionCLI.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(IndependenceDetectionCLI.class);
 
 	/** 
 	 * The detector to be used.

@@ -33,8 +33,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,7 +55,7 @@ public class AnalysesController {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AnalysesController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AnalysesController.class);
 
 	/** 
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.

@@ -24,8 +24,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -45,7 +45,7 @@ public class AllocationSiteSensitiveIndexManager
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AllocationSiteSensitiveIndexManager.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AllocationSiteSensitiveIndexManager.class);
 
 	/** 
 	 * The pattern that defines an object-based scope in which value flow through fields is object sensitive.

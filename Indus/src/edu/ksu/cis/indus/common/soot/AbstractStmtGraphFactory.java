@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.VoidType;
@@ -49,7 +49,7 @@ public abstract class AbstractStmtGraphFactory
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractStmtGraphFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtGraphFactory.class);
 
 	/** 
 	 * This maps methods to unit graphs.

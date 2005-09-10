@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,7 +36,7 @@ public abstract class AbstractToolConfiguration
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractToolConfiguration.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToolConfiguration.class);
 
 	/** 
 	 * This is set of property ids recognized by this configurationCollection.

@@ -99,8 +99,8 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -121,7 +121,7 @@ public class InfluenceChecker
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(InfluenceChecker.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InfluenceChecker.class);
 
 	/** 
 	 * This is the flow analyser used by the analyses being tested.

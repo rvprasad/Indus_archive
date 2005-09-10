@@ -27,8 +27,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -47,7 +47,7 @@ public abstract class AbstractFGNode
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractFGNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFGNode.class);
 
 	/** 
 	 * The work bag provided associated with the enclosing instance of the framework.  This is required if subclasses  want

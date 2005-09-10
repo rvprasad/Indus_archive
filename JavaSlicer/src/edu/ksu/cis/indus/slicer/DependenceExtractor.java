@@ -37,8 +37,8 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.ValueBox;
@@ -64,7 +64,7 @@ final class DependenceExtractor
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependenceExtractor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DependenceExtractor.class);
 
 	/** 
 	 * This retriever will return the program point containing the locked object.

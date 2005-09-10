@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Type;
@@ -44,7 +44,7 @@ public final class MethodSpecification
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MethodSpecification.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodSpecification.class);
 
 	/** 
 	 * This is the specifications of the types of the parameters.

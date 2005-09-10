@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -35,7 +35,7 @@ class MethodVariantManager
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MethodVariantManager.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodVariantManager.class);
 
 	/** 
 	 * A prototype object used to create index managers related to AST nodes.  Objects created via this prototype object are

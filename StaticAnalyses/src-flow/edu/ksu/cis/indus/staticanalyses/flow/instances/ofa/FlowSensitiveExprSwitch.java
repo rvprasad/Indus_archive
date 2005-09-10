@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Local;
 import soot.SootMethod;
@@ -51,7 +51,7 @@ class FlowSensitiveExprSwitch
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(FlowSensitiveExprSwitch.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlowSensitiveExprSwitch.class);
 
 	/** 
 	 * This is a weak reference to the local def information and it provides the def sites for local variables in the

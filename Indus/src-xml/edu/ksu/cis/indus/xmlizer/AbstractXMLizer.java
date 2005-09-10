@@ -23,8 +23,8 @@ import java.nio.ByteBuffer;
 
 import java.nio.charset.Charset;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -49,7 +49,7 @@ public abstract class AbstractXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractXMLizer.class);
 
 	/** 
 	 * The hexadecimal digits!

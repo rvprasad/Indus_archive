@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.RefType;
 import soot.SootClass;
@@ -42,7 +42,7 @@ public final class TypeSpecification {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TypeSpecification.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecification.class);
 
 	/** 
 	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.

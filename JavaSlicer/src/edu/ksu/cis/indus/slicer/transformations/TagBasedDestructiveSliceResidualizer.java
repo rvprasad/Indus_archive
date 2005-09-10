@@ -48,8 +48,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.Factory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.Local;
@@ -111,7 +111,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(TagBasedDestructiveSliceResidualizer.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(TagBasedDestructiveSliceResidualizer.class);
 
 	/** 
 	 * The collection of classes to be removed from the system after residualization.

@@ -46,8 +46,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.znerd.xmlenc.XMLOutputter;
 
@@ -70,7 +70,7 @@ public final class OFAXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(OFAXMLizer.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(OFAXMLizer.class);
 
 	/**
 	 * This class is used by the xmlizer to xmlize OFA information.

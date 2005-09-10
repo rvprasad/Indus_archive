@@ -34,8 +34,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 
@@ -58,7 +58,7 @@ public class MetricsTool
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MetricsTool.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTool.class);
 
 	/** 
 	 * The map containing the statistics that is provided as the output.

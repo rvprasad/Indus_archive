@@ -23,8 +23,8 @@ import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSe
 import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
 import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitiveInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Value;
@@ -51,7 +51,7 @@ public class ReadyDAv2
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ReadyDAv2.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyDAv2.class);
 
 	/** 
 	 * This provides information to prune ready dependence edges.

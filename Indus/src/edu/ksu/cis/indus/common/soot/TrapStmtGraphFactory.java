@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -38,7 +38,7 @@ public final class TrapStmtGraphFactory
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TrapStmtGraphFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TrapStmtGraphFactory.class);
 
 	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)

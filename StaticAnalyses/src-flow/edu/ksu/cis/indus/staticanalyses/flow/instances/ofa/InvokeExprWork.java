@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.RefLikeType;
@@ -57,7 +57,7 @@ class InvokeExprWork
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(InvokeExprWork.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InvokeExprWork.class);
 
 	/** 
 	 * Indicates if the method represented by this object returns a value of with reference-like type.

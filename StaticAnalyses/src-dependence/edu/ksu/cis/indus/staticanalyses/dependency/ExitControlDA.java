@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -53,7 +53,7 @@ public class ExitControlDA
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExitControlDA.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExitControlDA.class);
 
 	/** 
 	 * The instance of analysis that provides backward control dependence information.

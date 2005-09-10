@@ -19,8 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -56,7 +56,7 @@ public class SendTokensWork
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SendTokensWork.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SendTokensWork.class);
 
 	/** 
 	 * The flow graph node associated with this work.

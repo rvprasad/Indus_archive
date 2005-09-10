@@ -14,8 +14,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -52,7 +52,7 @@ class MethodLevelSliceCriterion
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MethodLevelSliceCriterion.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodLevelSliceCriterion.class);
 
 	/**
 	 * @see edu.ksu.cis.indus.slicer.AbstractSliceCriterion#equals(java.lang.Object)

@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -49,7 +49,7 @@ public abstract class AbstractCallingContextRetriever
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractCallingContextRetriever.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCallingContextRetriever.class);
 
 	/** 
 	 * The call graph to be used.

@@ -63,8 +63,8 @@ import org.apache.commons.cli.PosixParser;
 
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -79,7 +79,7 @@ public final class CallGraphXMLizerCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizerCLI.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphXMLizerCLI.class);
 
 	/** 
 	 * The xmlizer to be used.

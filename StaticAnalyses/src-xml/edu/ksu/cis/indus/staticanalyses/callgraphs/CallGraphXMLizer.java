@@ -33,8 +33,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.znerd.xmlenc.XMLOutputter;
 
@@ -53,7 +53,7 @@ final class CallGraphXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphXMLizer.class);
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IXMLizer#getFileName(String)

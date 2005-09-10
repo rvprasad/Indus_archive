@@ -31,8 +31,8 @@ import java.util.MissingResourceException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.Scene;
@@ -58,7 +58,7 @@ public final class SliceCriterionSpec
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceCriterionSpec.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SliceCriterionSpec.class);
 
 	/** 
 	 * The singleton slice criteria factory.

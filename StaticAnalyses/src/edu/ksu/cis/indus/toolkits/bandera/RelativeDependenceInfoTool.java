@@ -65,8 +65,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 import soot.SootClass;
@@ -155,7 +155,7 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(RelativeDependenceInfoTool.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(RelativeDependenceInfoTool.class);
 
 	/**
 	 * This is the special location associated with lock acquisition while entering synchronized methods in bir models

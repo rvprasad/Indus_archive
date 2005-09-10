@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -50,7 +50,7 @@ public final class SpecificationBasedScopeDefinition {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SpecificationBasedScopeDefinition.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpecificationBasedScopeDefinition.class);
 
 	/** 
 	 * Indentation space during serialization.

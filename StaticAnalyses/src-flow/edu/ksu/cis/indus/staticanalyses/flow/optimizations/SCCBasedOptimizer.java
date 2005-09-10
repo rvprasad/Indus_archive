@@ -32,8 +32,8 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,7 +61,7 @@ public class SCCBasedOptimizer {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SCCBasedOptimizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SCCBasedOptimizer.class);
 
 	/** 
 	 * The filter used to select mutable graph nodes.

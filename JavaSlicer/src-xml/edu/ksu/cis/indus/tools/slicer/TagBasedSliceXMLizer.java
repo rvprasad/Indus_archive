@@ -38,8 +38,8 @@ import java.io.IOException;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.znerd.xmlenc.XMLOutputter;
 
@@ -63,7 +63,7 @@ public final class TagBasedSliceXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(TagBasedSliceXMLizer.class);
 
 	/** 
 	 * The name of the tag to residualize.

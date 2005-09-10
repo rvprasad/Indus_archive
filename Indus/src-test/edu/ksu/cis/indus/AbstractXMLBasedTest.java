@@ -31,8 +31,8 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
@@ -54,7 +54,7 @@ public abstract class AbstractXMLBasedTest
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractXMLBasedTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractXMLBasedTest.class);
 
 	/** 
 	 * The xmlizer used to xmlize analysis info before testing.

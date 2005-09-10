@@ -37,8 +37,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 import soot.SootClass;
@@ -55,7 +55,7 @@ public final class JimpleXMLizerCLI {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizerCLI.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JimpleXMLizerCLI.class);
 
 	///CLOVER:OFF
 

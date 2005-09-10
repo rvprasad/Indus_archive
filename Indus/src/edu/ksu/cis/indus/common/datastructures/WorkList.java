@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,7 +35,7 @@ public final class WorkList {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(WorkList.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WorkList.class);
 
 	/** 
 	 * The backend workbag object which holds the work piece.

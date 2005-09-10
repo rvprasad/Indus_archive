@@ -40,8 +40,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -79,7 +79,7 @@ public class ExecutableSlicePostProcessor
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExecutableSlicePostProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableSlicePostProcessor.class);
 
     /** 
      * The slice collector to be used to add on to the slice.

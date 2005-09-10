@@ -19,8 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.jimple.Stmt;
 
@@ -40,7 +40,7 @@ public abstract class AbstractStmtSwitch
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractStmtSwitch.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtSwitch.class);
 
 	/** 
 	 * The context in which this object should process statements.  It is possible for this object to alter the context, but

@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.RefType;
 import soot.SootField;
@@ -41,7 +41,7 @@ public final class AssertionSliceCriteriaPredicate
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AssertionSliceCriteriaPredicate.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AssertionSliceCriteriaPredicate.class);
 
 	/**
 	 * {@inheritDoc}

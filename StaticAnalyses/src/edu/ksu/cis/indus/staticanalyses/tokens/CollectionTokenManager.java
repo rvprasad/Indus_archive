@@ -25,8 +25,8 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +41,7 @@ public final class CollectionTokenManager
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(CollectionTokenManager.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(CollectionTokenManager.class);
 
 	/**
 	 * Creates an instacne of this class.

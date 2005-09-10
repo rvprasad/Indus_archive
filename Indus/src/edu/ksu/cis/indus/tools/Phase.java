@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.tools;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -53,7 +53,7 @@ public final class Phase
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(Phase.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Phase.class);
 
 	/** 
 	 * This is the major phase.

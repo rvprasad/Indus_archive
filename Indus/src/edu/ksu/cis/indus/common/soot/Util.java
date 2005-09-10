@@ -34,8 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.BooleanType;
@@ -83,7 +83,7 @@ public final class Util {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(Util.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 
 	///CLOVER:OFF
 

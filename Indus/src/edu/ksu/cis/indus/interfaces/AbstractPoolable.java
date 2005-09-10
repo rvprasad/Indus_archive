@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.pool.ObjectPool;
 
@@ -33,7 +33,7 @@ public abstract class AbstractPoolable
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractPoolable.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPoolable.class);
 
 	/** 
 	 * The pool to which this object should be returned to.

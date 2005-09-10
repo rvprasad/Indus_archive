@@ -38,8 +38,8 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.Local;
@@ -73,7 +73,7 @@ public final class RTABasedCallInfoCollector
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(RTABasedCallInfoCollector.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RTABasedCallInfoCollector.class);
 
 	/** 
 	 * This holds call information.

@@ -47,8 +47,8 @@ import junit.framework.TestSuite;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -69,7 +69,7 @@ public class DependencyAnalysisRegressionTestSuite
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisRegressionTestSuite.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DependencyAnalysisRegressionTestSuite.class);
 
 	/** 
 	 * The property that maps a dependency class to the class that should be used to test its output.

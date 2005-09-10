@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -46,7 +46,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveStmtGraphFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionFlowSensitiveStmtGraphFactory.class);
 
 	/** 
 	 * The names of the exceptions via which the control flow should be ignored.

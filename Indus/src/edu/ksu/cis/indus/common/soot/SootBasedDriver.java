@@ -29,8 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Printer;
 import soot.Scene;
@@ -83,10 +83,10 @@ public class SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER;
+	private static final Logger LOGGER;
 
 	static {
-		LOGGER = LogFactory.getLog(SootBasedDriver.class);
+		LOGGER = LoggerFactory.getLogger(SootBasedDriver.class);
 
 		final String _rmtClassName = Constants.getRootMethodTrapperClassName();
 
@@ -172,7 +172,7 @@ public class SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class and it's subclasses to log messages.
 	 */
-	private Log logger;
+	private Logger LOGGER;
 
 	/** 
 	 * This is used to maintain the execution time of each analysis/transformation.  This timing information is printed via

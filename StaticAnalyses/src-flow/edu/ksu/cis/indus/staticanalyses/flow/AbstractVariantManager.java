@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +41,7 @@ public abstract class AbstractVariantManager
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractVariantManager.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractVariantManager.class);
 
 	/** 
 	 * The instance of the framework in which this object is used.

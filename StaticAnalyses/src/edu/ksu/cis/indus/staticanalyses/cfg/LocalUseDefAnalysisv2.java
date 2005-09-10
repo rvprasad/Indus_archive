@@ -38,8 +38,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.Local;
@@ -63,7 +63,7 @@ public final class LocalUseDefAnalysisv2
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(LocalUseDefAnalysisv2.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LocalUseDefAnalysisv2.class);
 
 	/** 
 	 * A map from local and statement pair to a collection of def statement.

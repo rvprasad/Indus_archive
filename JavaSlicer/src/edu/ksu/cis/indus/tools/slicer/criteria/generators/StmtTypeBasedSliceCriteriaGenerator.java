@@ -22,8 +22,8 @@ import java.util.HashSet;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.jimple.Stmt;
 
@@ -41,7 +41,7 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(StmtTypeBasedSliceCriteriaGenerator.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StmtTypeBasedSliceCriteriaGenerator.class);
 
 	/** 
 	 * The fully qualified name of the types of the statements to be considered as slice criteria.

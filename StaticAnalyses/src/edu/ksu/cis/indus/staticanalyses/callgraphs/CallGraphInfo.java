@@ -49,8 +49,8 @@ import org.apache.commons.collections.collection.CompositeCollection;
 
 import org.apache.commons.collections.map.LRUMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -123,7 +123,7 @@ public final class CallGraphInfo
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(CallGraphInfo.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphInfo.class);
 
 	/**
 	 * The collection of SCCs in this call graph in bottom-up direction.

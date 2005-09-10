@@ -45,8 +45,8 @@ import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.collections.map.LRUMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.Local;
@@ -165,17 +165,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/**
 	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
 	 */
-	static final Log STMT_PROCESSOR_LOGGER = LogFactory.getLog(StmtProcessor.class);
+	static final Log STMT_PROCESSOR_LOGGER = LoggerFactory.getLogger(StmtProcessor.class);
 
 	/**
 	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
 	 */
-	static final Log VALUE_PROCESSOR_LOGGER = LogFactory.getLog(ValueProcessor.class);
+	static final Log VALUE_PROCESSOR_LOGGER = LoggerFactory.getLogger(ValueProcessor.class);
 
 	/**
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.

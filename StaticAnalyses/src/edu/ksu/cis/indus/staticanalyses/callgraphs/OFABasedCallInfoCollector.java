@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -66,7 +66,7 @@ public class OFABasedCallInfoCollector
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(OFABasedCallInfoCollector.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(OFABasedCallInfoCollector.class);
 
 	/** 
 	 * The FA instance which implements object flow analysis. This instance is used to calculate call graphCache information.

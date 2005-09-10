@@ -60,8 +60,8 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Type;
@@ -85,7 +85,7 @@ public final class MonitorAnalysis
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(MonitorAnalysis.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(MonitorAnalysis.class);
 
 	/** 
 	 * This is the approximate number of monitors in the application.

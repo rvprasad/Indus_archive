@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.znerd.xmlenc.XMLOutputter;
 
@@ -56,7 +56,7 @@ final class StmtAndMethodBasedDependencyXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(StmtAndMethodBasedDependencyXMLizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StmtAndMethodBasedDependencyXMLizer.class);
 
 	/** 
 	 * This is the dependency analysis whose information should be xmlized.

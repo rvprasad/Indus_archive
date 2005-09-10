@@ -52,8 +52,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -82,7 +82,7 @@ public class SafeLockAnalysis
 	/** 
 	 * The logger used to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(SafeLockAnalysis.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(SafeLockAnalysis.class);
 
 	/** 
 	 * The map from wait invoking statements to the immediately enclosing method.

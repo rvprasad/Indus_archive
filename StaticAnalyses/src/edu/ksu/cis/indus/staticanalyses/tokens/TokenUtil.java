@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.staticanalyses.Constants;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,7 +35,7 @@ public final class TokenUtil {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TokenUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TokenUtil.class);
 
 	///CLOVER:OFF
 

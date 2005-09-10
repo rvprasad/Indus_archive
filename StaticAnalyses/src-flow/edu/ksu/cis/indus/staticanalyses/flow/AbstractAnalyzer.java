@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.SootField;
@@ -55,7 +55,7 @@ public abstract class AbstractAnalyzer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractAnalyzer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAnalyzer.class);
 
 	/** 
 	 * The context to be used when analysis information is requested and a context is not provided.

@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -44,7 +44,7 @@ public class RootMethodTrapper {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(RootMethodTrapper.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RootMethodTrapper.class);
 
 	/** 
 	 * The collection of regular expression that is used to match classes which may contain root methods.

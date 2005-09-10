@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 
@@ -42,7 +42,7 @@ public final class SliceCriteriaSpec {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceCriteriaSpec.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SliceCriteriaSpec.class);
 
 	/** 
 	 * The collection of criterion specification.

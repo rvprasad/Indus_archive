@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.Local;
@@ -60,7 +60,7 @@ final class ClassEraser
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ClassEraser.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClassEraser.class);
 
 	/** 
 	 * The collection of classes to erase.

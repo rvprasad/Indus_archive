@@ -80,8 +80,8 @@ import org.apache.commons.cli.ParseException;
 
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides a command-line interface to xmlize dependence information.  Refer to <code>SootBasedDriver</code> for
@@ -96,7 +96,7 @@ public class DependencyXMLizerCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyXMLizerCLI.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DependencyXMLizerCLI.class);
 
 	/** 
 	 * This is the flow analyser used by the analyses being tested.

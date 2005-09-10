@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,7 +42,7 @@ public abstract class AbstractTool
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(AbstractTool.class);
 
 	/** 
 	 * This an object used to control the execution of the tool.

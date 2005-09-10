@@ -50,8 +50,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.RefLikeType;
 import soot.RefType;
@@ -139,7 +139,7 @@ public class ThreadGraph
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ThreadGraph.class);
 
 	/**
 	 * The name of the "run" method.

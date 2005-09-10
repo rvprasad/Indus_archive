@@ -31,8 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.RefType;
 import soot.SootClass;
@@ -62,7 +62,7 @@ class MethodVariant
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MethodVariant.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodVariant.class);
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is

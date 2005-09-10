@@ -80,8 +80,8 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.eclipse.swt.SWT;
 
@@ -115,7 +115,7 @@ public class SliceXMLizerCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(SliceXMLizerCLI.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(SliceXMLizerCLI.class);
 
 	/** 
 	 * This is the name of the configuration file to use.

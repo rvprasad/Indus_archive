@@ -18,8 +18,8 @@ package edu.ksu.cis.indus.processing;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.ValueBox;
@@ -39,7 +39,7 @@ public class Context
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(Context.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
 	/** 
 	 * The call-stack sensitive component of the context.  This is relevant in call-site sensitive mode of analysis.

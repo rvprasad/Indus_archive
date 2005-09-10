@@ -30,8 +30,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -51,7 +51,7 @@ public final class DeadlockPreservingCriteriaGenerator
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DeadlockPreservingCriteriaGenerator.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DeadlockPreservingCriteriaGenerator.class);
 
 	/**
 	 * @see edu.ksu.cis.indus.tools.slicer.criteria.generators.AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()

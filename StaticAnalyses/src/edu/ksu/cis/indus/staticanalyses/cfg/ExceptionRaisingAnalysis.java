@@ -41,8 +41,8 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.RefType;
@@ -122,7 +122,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExceptionRaisingAnalysis.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionRaisingAnalysis.class);
 
 	/**
 	 * The call graph to be used.

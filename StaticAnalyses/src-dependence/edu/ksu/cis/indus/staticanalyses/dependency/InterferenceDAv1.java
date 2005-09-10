@@ -42,8 +42,8 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.SootClass;
@@ -94,7 +94,7 @@ public class InterferenceDAv1
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(InterferenceDAv1.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InterferenceDAv1.class);
 
 	/** 
 	 * This provides threading information pertaining to the system being analyzed.

@@ -26,8 +26,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Local;
 import soot.RefType;
@@ -54,7 +54,7 @@ class EscapeInfo
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EscapeInfo.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EscapeInfo.class);
 
 	/**
 	 * This is the default verdict for escapes queries.

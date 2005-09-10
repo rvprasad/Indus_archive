@@ -28,8 +28,8 @@ import java.util.Collections;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.TransformerUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
@@ -47,7 +47,7 @@ class ReadWriteInfo
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ReadWriteInfo.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReadWriteInfo.class);
 
 	/**
 	 * This is used to retrieve the alias set for "this" from a given method context.

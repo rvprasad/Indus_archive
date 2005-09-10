@@ -30,8 +30,8 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.Local;
@@ -73,7 +73,7 @@ class FlowInsensitiveExprSwitch
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(FlowInsensitiveExprSwitch.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlowInsensitiveExprSwitch.class);
 
 	/** 
 	 * The token manager to be used.

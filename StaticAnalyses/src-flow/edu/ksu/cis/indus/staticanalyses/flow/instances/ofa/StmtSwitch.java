@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
@@ -49,7 +49,7 @@ class StmtSwitch
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(StmtSwitch.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StmtSwitch.class);
 
 	/**
 	 * Creates a new <code>StmtSwitch</code> instance.

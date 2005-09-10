@@ -52,8 +52,8 @@ import java.util.Stack;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
 import soot.Local;
@@ -110,7 +110,7 @@ public final class SlicingEngine {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(SlicingEngine.class);
 
 	static {
 		final Collection _c = new HashSet();

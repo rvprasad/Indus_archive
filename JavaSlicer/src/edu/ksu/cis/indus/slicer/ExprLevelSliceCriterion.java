@@ -21,8 +21,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -64,7 +64,7 @@ class ExprLevelSliceCriterion
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExprLevelSliceCriterion.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExprLevelSliceCriterion.class);
 
 	/** 
 	 * The statement associated with this criterion.

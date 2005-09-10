@@ -47,8 +47,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -117,7 +117,7 @@ public final class SlicerTool
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerTool.class);
 
 	/** 
 	 * The default tag name to be used.

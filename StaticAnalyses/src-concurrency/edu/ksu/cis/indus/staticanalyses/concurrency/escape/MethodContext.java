@@ -30,8 +30,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Type;
@@ -53,7 +53,7 @@ final class MethodContext
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(MethodContext.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodContext.class);
 
 	/**
 	 * The alias set associated with the return value of the associated method.

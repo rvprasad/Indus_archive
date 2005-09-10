@@ -61,8 +61,8 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.jimple.AssignStmt;
 import soot.jimple.ThrowStmt;
@@ -291,7 +291,7 @@ public final class SlicerConfiguration
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SlicerConfiguration.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerConfiguration.class);
 
 	/** 
 	 * This is the factory object to create configurations.

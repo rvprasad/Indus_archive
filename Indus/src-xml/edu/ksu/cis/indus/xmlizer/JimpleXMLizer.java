@@ -27,8 +27,8 @@ import java.io.OutputStreamWriter;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.znerd.xmlenc.XMLOutputter;
 
@@ -58,7 +58,7 @@ public class JimpleXMLizer
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JimpleXMLizer.class);
 
 	/** 
 	 * The id generator used during xmlization of the jimple.

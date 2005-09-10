@@ -56,8 +56,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.Local;
@@ -77,7 +77,7 @@ public class EscapeAndReadWriteCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EscapeAndReadWriteCLI.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EscapeAndReadWriteCLI.class);
 
 	/**
 	 * The entry point to this class.

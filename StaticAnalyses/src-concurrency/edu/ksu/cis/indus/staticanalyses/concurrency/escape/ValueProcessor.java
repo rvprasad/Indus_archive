@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Local;
 import soot.SootField;
@@ -68,7 +68,7 @@ final class ValueProcessor
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ValueProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ValueProcessor.class);
 
 	/** 
 	 * The associated escape analysis.

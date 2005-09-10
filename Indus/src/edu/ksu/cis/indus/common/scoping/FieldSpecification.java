@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootField;
 
@@ -39,7 +39,7 @@ public final class FieldSpecification
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(FieldSpecification.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FieldSpecification.class);
 
 	/** 
 	 * The pattern of the field's name.
