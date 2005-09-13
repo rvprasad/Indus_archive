@@ -244,10 +244,10 @@ public final class SlicerTool
 
 		SlicerToolHelper.optimizeForSpaceBeforeResidualization(tool, configuration.retentionList);
 
-		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
-		_residualizer.setTagToResidualize(TAG_NAME);
-		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		if (!abortFlag) {
+			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+			_residualizer.setTagToResidualize(TAG_NAME);
+			_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 			_residualizer.residualizeSystem(tool.getSystem());
 		}
 
