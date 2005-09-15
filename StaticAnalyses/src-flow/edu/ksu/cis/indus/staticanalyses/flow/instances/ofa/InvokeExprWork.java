@@ -167,7 +167,7 @@ class InvokeExprWork
 				new IllegalStateException("Non-reference/array type flowing into invocation site.");
 
 			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(expr);
+				LOGGER.error(expr.toString());
 			}
 			throw _excp;
 		}

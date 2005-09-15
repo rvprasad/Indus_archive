@@ -275,7 +275,7 @@ public final class DivergenceDA
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(this);
+			LOGGER.debug(this.toString());
 		}
 
 		if (LOGGER.isInfoEnabled()) {

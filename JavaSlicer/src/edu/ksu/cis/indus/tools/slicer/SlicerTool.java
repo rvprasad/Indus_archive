@@ -608,7 +608,7 @@ public final class SlicerTool
 			_bindingFactory = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			_unmarshallingContext = _bindingFactory.createUnmarshallingContext();
 		} catch (final JiBXException _e) {
-			LOGGER.fatal("Error while setting up JiBX.  Aborting.", _e);
+			LOGGER.error("Error while setting up JiBX.  Aborting.", _e);
 			throw new RuntimeException(_e);
 		}
 

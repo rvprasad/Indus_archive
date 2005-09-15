@@ -84,7 +84,7 @@ public final class SliceCriteriaParser {
 			_bindingFactory = BindingDirectory.getFactory(SliceCriteriaSpec.class);
 			_unmarshallingContext = _bindingFactory.createUnmarshallingContext();
 		} catch (final JiBXException _e) {
-			LOGGER.fatal("Error while setting up JiBX.  Aborting.", _e);
+			LOGGER.error("Error while setting up JiBX.  Aborting.", _e);
 			throw _e;
 		}
 
@@ -125,7 +125,7 @@ public final class SliceCriteriaParser {
 			_marshallingContext = _bindingFactory.createMarshallingContext();
 			_marshallingContext.setIndent(INDENT);
 		} catch (final JiBXException _e) {
-			LOGGER.fatal("Error while setting up JiBX.", _e);
+			LOGGER.error("Error while setting up JiBX.", _e);
 			throw _e;
 		}
 

@@ -211,7 +211,7 @@ public final class DependencyXMLizer
 		final Map _result = new HashMap();
 
 		if (getXmlOutputDir() == null) {
-			LOGGER.fatal("Please specify an output directory while using the xmlizer.");
+			LOGGER.error("Please specify an output directory while using the xmlizer.");
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 

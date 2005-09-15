@@ -452,7 +452,7 @@ public class SliceXMLizerCLI
 			printUsage(_options);
 
 			if (_exception != null) {
-				LOGGER.fatal("Incorrect command line.  Aborting.", _exception);
+				LOGGER.error("Incorrect command line.  Aborting.", _exception);
 				System.exit(1);
 			} else {
 				System.exit(0);
@@ -496,7 +496,7 @@ public class SliceXMLizerCLI
 		final List _result = _cl.getArgList();
 
 		if (_result.isEmpty()) {
-			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+			LOGGER.error("Please specify atleast one class that contains an entry method into the system to be sliced.");
 			System.exit(1);
 		}
 
@@ -583,10 +583,10 @@ public class SliceXMLizerCLI
 			try {
 				_inStream = _defaultConfigFileName.openStream();
 			} catch (FileNotFoundException _e1) {
-				LOGGER.fatal("Even default configuration file could not be found.  Aborting", _e1);
+				LOGGER.error("Even default configuration file could not be found.  Aborting", _e1);
 				System.exit(1);
 			} catch (IOException _e2) {
-				LOGGER.fatal("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
+				LOGGER.error("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
 				System.exit(1);
 			}
 		}
@@ -594,7 +594,7 @@ public class SliceXMLizerCLI
 		try {
 			_result = IOUtils.toString(_inStream);
 		} catch (IOException _e) {
-			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+			LOGGER.error("IO error while reading configuration file.  Aborting", _e);
 			IOUtils.closeQuietly(_inStream);
 			System.exit(1);
 		}

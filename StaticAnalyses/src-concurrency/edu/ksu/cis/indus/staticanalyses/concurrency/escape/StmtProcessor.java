@@ -147,8 +147,8 @@ final class StmtProcessor
 	 * @pre stmt != null
 	 */
 	void process(final Stmt stmt) {
-		if (EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.isTraceEnabled()) {
-			EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.trace("Processing statement: " + stmt);
+		if (EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.isDebugEnabled()) {
+			EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.debug("Processing statement: " + stmt);
 		}
 		stmt.apply(this);
 	}

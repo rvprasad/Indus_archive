@@ -168,10 +168,10 @@ public class SlicerTestSetup
 		try {
 			_reader = new InputStreamReader(_defaultConfigFileName.openStream());
 		} catch (FileNotFoundException _e1) {
-			LOGGER.fatal("Even default configuration file could not be found.  Aborting", _e1);
+			LOGGER.error("Even default configuration file could not be found.  Aborting", _e1);
 			throw new RuntimeException(_e1);
 		} catch (IOException _e2) {
-			LOGGER.fatal("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
+			LOGGER.error("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
 			throw new RuntimeException(_e2);
 		}
 
@@ -186,7 +186,7 @@ public class SlicerTestSetup
 			}
 			_result = _buffer.toString();
 		} catch (IOException _e) {
-			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+			LOGGER.error("IO error while reading configuration file.  Aborting", _e);
 			throw new RuntimeException(_e);
 		}
 		return _result;

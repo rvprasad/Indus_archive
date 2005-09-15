@@ -268,8 +268,8 @@ final class ValueProcessor
 	 * @pre value != null
 	 */
 	void process(final Value value) {
-		if (EquivalenceClassBasedEscapeAnalysis.VALUE_PROCESSOR_LOGGER.isTraceEnabled()) {
-			EquivalenceClassBasedEscapeAnalysis.VALUE_PROCESSOR_LOGGER.trace("Processing value: " + value);
+		if (EquivalenceClassBasedEscapeAnalysis.VALUE_PROCESSOR_LOGGER.isDebugEnabled()) {
+			EquivalenceClassBasedEscapeAnalysis.VALUE_PROCESSOR_LOGGER.debug("Processing value: " + value);
 		}
 		value.apply(this);
 	}

@@ -4,7 +4,6 @@ import ase05.InfluenceChecker.PairNode;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView;
-import edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import java.util.Collection;

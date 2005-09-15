@@ -498,7 +498,7 @@ public final class SlicingEngine {
 	public void initialize() {
 		if (collector.getTagName() == null) {
 			final String _temp = "Please set the tag name before executing the engine.";
-			LOGGER.fatal(_temp);
+			LOGGER.error(_temp);
 			throw new IllegalStateException(_temp);
 		}
 

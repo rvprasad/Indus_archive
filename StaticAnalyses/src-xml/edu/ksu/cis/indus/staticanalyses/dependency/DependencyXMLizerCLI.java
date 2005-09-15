@@ -299,10 +299,10 @@ public class DependencyXMLizerCLI
 
 			_xmlizerCLI.execute();
 		} catch (final ParseException _e) {
-			LOGGER.fatal("Error while parsing command line.", _e);
+			LOGGER.error("Error while parsing command line.", _e);
 			printUsage(_options);
 		} catch (final Throwable _e) {
-			LOGGER.fatal("Beyond our control. May day! May day!", _e);
+			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
 	}
@@ -355,7 +355,7 @@ public class DependencyXMLizerCLI
 	 * Drives the analyses.
 	 */
 	private void execute() {
-		setLogger(LOGGER);
+		setInfoLogger(LOGGER);
         
 		final String _tagName = "DependencyXMLizer:FA";
 		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));

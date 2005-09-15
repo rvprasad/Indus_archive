@@ -170,12 +170,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
 	 */
-	static final Log STMT_PROCESSOR_LOGGER = LoggerFactory.getLogger(StmtProcessor.class);
+	static final Logger STMT_PROCESSOR_LOGGER = LoggerFactory.getLogger(StmtProcessor.class);
 
 	/**
 	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
 	 */
-	static final Log VALUE_PROCESSOR_LOGGER = LoggerFactory.getLogger(ValueProcessor.class);
+	static final Logger VALUE_PROCESSOR_LOGGER = LoggerFactory.getLogger(ValueProcessor.class);
 
 	/**
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.

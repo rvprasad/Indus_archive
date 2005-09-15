@@ -72,33 +72,33 @@ public final class TokenUtil {
 				_tokenMgr = (ITokenManager) _ctstr.newInstance(new Object[] { typeManager });
 			}
 		} catch (final InstantiationException _e) {
-			LOGGER.fatal("getTokenManager() - Unable to creat an instance of the given token manager class. : _tmType = "
+			LOGGER.error("getTokenManager() - Unable to creat an instance of the given token manager class. : _tmType = "
 				+ _tmType, _e);
 
 			final Error _t = new InstantiationError();
 			_t.initCause(_e);
 			throw _t;
 		} catch (final IllegalAccessException _e) {
-			LOGGER.fatal("getTokenManager() - Unable to access the contructor of the given token manager class. : _tmType = "
+			LOGGER.error("getTokenManager() - Unable to access the contructor of the given token manager class. : _tmType = "
 				+ _tmType, _e);
 
 			final Error _t = new IllegalAccessError();
 			_t.initCause(_e);
 			throw _t;
 		} catch (final ClassNotFoundException _e) {
-			LOGGER.fatal("getTokenManager() - Unable to find the given token manager class. : _tmType = " + _tmType, _e);
+			LOGGER.error("getTokenManager() - Unable to find the given token manager class. : _tmType = " + _tmType, _e);
 
 			final Error _t = new NoClassDefFoundError();
 			_t.initCause(_e);
 			throw _t;
 		} catch (final NoSuchMethodException _e) {
-			LOGGER.fatal("getTokenManager() - security exception. : _tmType = " + _tmType, _e);
+			LOGGER.error("getTokenManager() - security exception. : _tmType = " + _tmType, _e);
 
 			final Error _t = new NoSuchMethodError();
 			_t.initCause(_e);
 			throw _t;
 		} catch (final InvocationTargetException _e) {
-			LOGGER.fatal("getTokenManager() - the constructor threw an exception. : _tmType = " + _tmType, _e);
+			LOGGER.error("getTokenManager() - the constructor threw an exception. : _tmType = " + _tmType, _e);
 
 			final Error _t = new NoSuchMethodError();
 			_t.initCause(_e);

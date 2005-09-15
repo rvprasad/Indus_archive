@@ -247,7 +247,7 @@ public final class InterProceduralDivergenceDA
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(this);
+			LOGGER.debug(this.toString());
 		}
 
 		if (LOGGER.isInfoEnabled()) {

@@ -441,7 +441,7 @@ public final class RelativeDependenceInfoTool
 
 		if (_rootMethods == null || _rootMethods.isEmpty()) {
 			final String _msg = "Atleast one method should be specified as the entry-point into the system.";
-			LOGGER.fatal(_msg);
+			LOGGER.error(_msg);
 			throw new IllegalArgumentException(_msg);
 		}
 		rootMethods = new ArrayList();

@@ -169,12 +169,12 @@ public final class IndependenceDetectionCLI
 			_cli.setOutputDir(_cl.getOptionValue('o'));
 			_cli.execute(_cl);
 		} catch (final ParseException _e) {
-			LOGGER.fatal("Error while parsing command line.", _e);
+			LOGGER.error("Error while parsing command line.", _e);
 
 			final String _cmdLineSyn = "java " + IndependenceDetectionCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {
-			LOGGER.fatal("Beyond our control. May day! May day!", _e);
+			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
 	}
@@ -229,7 +229,7 @@ public final class IndependenceDetectionCLI
 	 * @pre cl != null
 	 */
 	private void execute(final CommandLine cl) {
-		setLogger(LOGGER);
+		setInfoLogger(LOGGER);
 
 		final String _tagName = "AtomicityDetection:FA";
 		final IValueAnalyzer _aa =

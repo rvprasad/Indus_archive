@@ -81,7 +81,7 @@ import soot.util.Chain;
  */
 public class SootBasedDriver {
 	/** 
-	 * The logger used by instances of this class to log messages.
+	 * The logger used by instances of this class and it's subclasses to log messages.
 	 */
 	private static final Logger LOGGER;
 
@@ -99,13 +99,13 @@ public class SootBasedDriver {
 				throw new IllegalArgumentException(_rmtClassName + " is not a subclass of SootBasedDriver.RootMethodTrapper.");
 			}
 		} catch (final ClassNotFoundException _e) {
-			LOGGER.fatal("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
+			LOGGER.error("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
 			throw new RuntimeException(_e);
 		} catch (final InstantiationException _e) {
-			LOGGER.fatal("An instance of class " + _rmtClassName + " could not be created. Bailing.", _e);
+			LOGGER.error("An instance of class " + _rmtClassName + " could not be created. Bailing.", _e);
 			throw new RuntimeException(_e);
 		} catch (final IllegalAccessException _e) {
-			LOGGER.fatal("No-arg constructor of " + _rmtClassName + " cannot be accessed.  Bailing.", _e);
+			LOGGER.error("No-arg constructor of " + _rmtClassName + " cannot be accessed.  Bailing.", _e);
 			throw new RuntimeException(_e);
 		}
 
@@ -120,13 +120,13 @@ public class SootBasedDriver {
 				throw new IllegalArgumentException(_nameOfStmtGraphFactoryClass + " is not a subclass of IStmtGraphFactory.");
 			}
 		} catch (final ClassNotFoundException _e) {
-			LOGGER.fatal("class " + _nameOfStmtGraphFactoryClass + " could not be loaded/resolved. Bailing.", _e);
+			LOGGER.error("class " + _nameOfStmtGraphFactoryClass + " could not be loaded/resolved. Bailing.", _e);
 			throw new RuntimeException(_e);
 		} catch (final InstantiationException _e) {
-			LOGGER.fatal("An instance of class " + _nameOfStmtGraphFactoryClass + " could not be created. Bailing.", _e);
+			LOGGER.error("An instance of class " + _nameOfStmtGraphFactoryClass + " could not be created. Bailing.", _e);
 			throw new RuntimeException(_e);
 		} catch (final IllegalAccessException _e) {
-			LOGGER.fatal("No-arg constructor of " + _nameOfStmtGraphFactoryClass + " cannot be accessed.  Bailing.", _e);
+			LOGGER.error("No-arg constructor of " + _nameOfStmtGraphFactoryClass + " cannot be accessed.  Bailing.", _e);
 			throw new RuntimeException(_e);
 		}
 	}
@@ -170,11 +170,6 @@ public class SootBasedDriver {
 	protected Scene scene;
 
 	/** 
-	 * The logger used by instances of this class and it's subclasses to log messages.
-	 */
-	private Logger LOGGER;
-
-	/** 
 	 * This is used to maintain the execution time of each analysis/transformation.  This timing information is printed via
 	 * <code>printTimingStats</code>.
 	 *
@@ -191,6 +186,11 @@ public class SootBasedDriver {
 	 * The class path that should be added.
 	 */
 	private String classpathToAdd;
+
+	/**
+	 * Logger to be used to log information written via <code>writeInfo</code>.
+	 */
+	protected Logger infoLogger;
 
 	/**
 	 * Creates a new Test object.  This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
@@ -226,12 +226,12 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * Sets the logger to be used.
+	 * Sets the logger to be used to log information written via <code>writeInfo</code>.
 	 *
 	 * @param myLogger is the logger to be used.
 	 */
-	public final void setLogger(final Log myLogger) {
-		logger = myLogger;
+	public final void setInfoLogger(final Logger myLogger) {
+		infoLogger = myLogger;
 	}
 
 	/**
@@ -379,11 +379,11 @@ public class SootBasedDriver {
 	 * @param info to be logged.
 	 */
 	public void writeInfo(final Object info) {
-		if (logger != null && logger.isInfoEnabled()) {
+		if (infoLogger != null && infoLogger.isInfoEnabled()) {
 			if (info != null) {
-				logger.info(info.toString());
+				infoLogger.info(info.toString());
 			} else {
-				logger.info("null");
+				infoLogger.info("null");
 			}
 		}
 	}

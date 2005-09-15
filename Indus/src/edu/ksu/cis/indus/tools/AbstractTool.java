@@ -259,10 +259,10 @@ public abstract class AbstractTool
 
 								execute(phase, lastPhase);
 							} catch (final InterruptedException _e) {
-								LOGGER.fatal("Interrupted while executing the tool.", _e);
+								LOGGER.error("Interrupted while executing the tool.", _e);
 								_temp = _e;
 							} catch (final Throwable _e) {
-								LOGGER.fatal("Tool failed.", _e);
+								LOGGER.error("Tool failed.", _e);
 								_temp = _e;
 							} finally {
 								if (_temp != null) {
@@ -388,7 +388,7 @@ public abstract class AbstractTool
 								try {
 									listeners.wait();
 								} catch (final InterruptedException _e) {
-									LOGGER.fatal("Thread interrupted.  Message will not be delivered - " + _evt, _e);
+									LOGGER.error("Thread interrupted.  Message will not be delivered - " + _evt, _e);
 									token++;
 									throw new RuntimeException(_e);
 								}
