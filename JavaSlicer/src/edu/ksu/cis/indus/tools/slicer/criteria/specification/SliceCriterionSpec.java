@@ -309,26 +309,7 @@ public final class SliceCriterionSpec
 	private static List createParameterTypeNamesContainer() {
 		return new ArrayList();
 	}
-
-	/**
-	 * Tests if the expression index is available in this spec. <b>This is used to serialize/deserialize.</b>
-	 *
-	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>,
-	 * 		   otherwise.
-	 */
-	private boolean testExpr() {
-		return exprIndex != -1;
-	}
-
-	/**
-	 * Tests if the stmt index is available in this spec. <b>This is used to serialize/deserialize.</b>
-	 *
-	 * @return <code>true</code> if an element capturing the statement index should be output; <code>false</code>, otherwise.
-	 */
-	private boolean testStmt() {
-		return stmtIndex != -1;
-	}
-
+	
 	/**
 	 * Trims the string data in the specification.
 	 */

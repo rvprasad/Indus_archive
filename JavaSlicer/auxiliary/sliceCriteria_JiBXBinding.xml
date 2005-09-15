@@ -19,11 +19,11 @@
 				<value name="parameterTypeName" type="java.lang.String"/>
 			</collection>
 		</structure>
-		<structure name="stmt" test-method="testStmt" usage="optional">
+		<structure name="stmt" usage="optional">
 			<value field="stmtIndex" name="index" style="attribute" type="int"/>
 			<value field="considerEntireStmt" name="considerEntireStmt" style="attribute" type="boolean"/>
 		</structure>
-		<structure name="expr" test-method="testExpr" usage="optional">
+		<structure name="expr" usage="optional">
 			<value default="-1" field="exprIndex" name="index" style="attribute" type="int"/>
 		</structure>
 	</mapping>
