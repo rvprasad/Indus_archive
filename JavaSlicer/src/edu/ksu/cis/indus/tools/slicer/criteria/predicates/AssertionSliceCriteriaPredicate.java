@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.RefType;
-import soot.SootField;
 import soot.Value;
 import soot.ValueBox;
 
@@ -55,11 +54,6 @@ public final class AssertionSliceCriteriaPredicate
 
 		final Stmt _stmt = (Stmt) entity;
 		boolean _result = false;
-
-		if (_stmt.containsFieldRef()) {
-			final SootField _field = _stmt.getFieldRef().getField();
-			_result |= _field.getName().equals("$assertionDisabled");
-		}
 
 		for (final Iterator _i = _stmt.getUseAndDefBoxes().iterator(); _i.hasNext() && !_result;) {
 			final ValueBox _vb = (ValueBox) _i.next();

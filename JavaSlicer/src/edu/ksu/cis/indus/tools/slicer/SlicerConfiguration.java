@@ -64,7 +64,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import soot.jimple.AssignStmt;
 import soot.jimple.ThrowStmt;
 
 
@@ -1128,9 +1127,7 @@ public final class SlicerConfiguration
 
 		if (_b.booleanValue()) {
 			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
-			final Collection _stmtTypes = new ArrayList();
-			_stmtTypes.add(AssignStmt.class);
-			_stmtTypes.add(ThrowStmt.class);
+			final Collection _stmtTypes = Collections.singleton(ThrowStmt.class);
 			_t.setStmtTypes(_stmtTypes);
 			_t.setCriteriaFilterPredicate(new AssertionSliceCriteriaPredicate());
 
@@ -1201,8 +1198,7 @@ public final class SlicerConfiguration
         }
         setProperty(CALLING_CONTEXT_LENGTH, _i);
     }
-    
-
+   
     /**
 	 * Sets up divergence dependence.
 	 *
