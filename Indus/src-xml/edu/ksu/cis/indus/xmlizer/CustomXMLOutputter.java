@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.xmlizer;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import org.znerd.xmlenc.LineBreak;
 import org.znerd.xmlenc.XMLOutputter;
 
 
@@ -63,8 +62,6 @@ public final class CustomXMLOutputter
 	 */
 	private void initialize() {
 		setEscaping(true);
-		setIndentation(DEFAULT_INDENTATION);
-		setLineBreak(LineBreak.NONE);
 	}
 }
 
