@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
@@ -40,6 +43,12 @@ import soot.jimple.ThrowStmt;
  */
 final class StmtProcessor
   extends AbstractStmtSwitch {
+	
+	/**
+	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
+	 */
+	static final Logger LOGGER = LoggerFactory.getLogger(StmtProcessor.class);
+	
 	/** 
 	 * The associated escape analysis.
 	 */
@@ -147,8 +156,8 @@ final class StmtProcessor
 	 * @pre stmt != null
 	 */
 	void process(final Stmt stmt) {
-		if (EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.isDebugEnabled()) {
-			EquivalenceClassBasedEscapeAnalysis.STMT_PROCESSOR_LOGGER.debug("Processing statement: " + stmt);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
 		}
 		stmt.apply(this);
 	}

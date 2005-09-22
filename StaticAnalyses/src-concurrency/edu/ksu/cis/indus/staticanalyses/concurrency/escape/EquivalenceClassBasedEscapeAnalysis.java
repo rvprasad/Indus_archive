@@ -168,16 +168,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	static final Logger LOGGER = LoggerFactory.getLogger(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/**
-	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
-	 */
-	static final Logger STMT_PROCESSOR_LOGGER = LoggerFactory.getLogger(StmtProcessor.class);
-
-	/**
-	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
-	 */
-	static final Logger VALUE_PROCESSOR_LOGGER = LoggerFactory.getLogger(ValueProcessor.class);
-
-	/**
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
 	 */
 	final BasicBlockGraphMgr bbm;
@@ -726,6 +716,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final MethodContext _calleeMethodContext = (MethodContext) (_calleeTriple.getFirst());
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
 				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
+				
+				if (_calleeSiteContext == null) {
+					LOGGER.error("callee site context was null - (\n" + _callerTrp + "\n" + _ctrp2sc.keySet() 
+							+ "\n)");
+				}
+				
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
