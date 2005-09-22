@@ -172,7 +172,7 @@ public final class MonitorAnalysis
 		 *
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(SootMethod)
 		 */
-		public void callback(final SootMethod method) {
+		@Override public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
 				final Triple _triple = new Triple(null, null, method);
 				_triple.optimize();
@@ -192,7 +192,7 @@ public final class MonitorAnalysis
 		 *
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(Stmt,Context)
 		 */
-		public void callback(final Stmt stmt, final Context context) {
+		@Override public void callback(final Stmt stmt, final Context context) {
 			if (stmt instanceof EnterMonitorStmt) {
 				CollectionsUtilities.putIntoSetInMap(method2enterMonitors, context.getCurrentMethod(), stmt);
 			}
@@ -693,7 +693,7 @@ public final class MonitorAnalysis
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public void analyze() {
+	@Override public void analyze() {
 		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -740,7 +740,7 @@ public final class MonitorAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 		monitorTriples.clear();
 		syncedMethods.clear();
@@ -757,7 +757,7 @@ public final class MonitorAnalysis
 	 *
 	 * @return a stringized representation of this object.
 	 */
-	public String toString() {
+	@Override public String toString() {
 		final StringBuffer _result =
 			new StringBuffer("Statistics for Monitor Analysis as calculated by " + getClass().getName() + "\n");
 		int _localEdgeCount = 0;
@@ -823,7 +823,7 @@ public final class MonitorAnalysis
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
-	protected void setup()
+	@Override protected void setup()
 	  throws InitializationException {
 		super.setup();
 
@@ -1075,6 +1075,10 @@ public final class MonitorAnalysis
 	 */
 	private Collection processMonitor(final Collection processedMonitors, final Stmt enterMonitor, final SootMethod method,
 		final Map enter2exits) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing stmt " + enterMonitor + " in method " + method);
+		}
+		
 		final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(new HashSet());
 		final BasicBlockGraph _bbGraph = getBasicBlockGraph(method);
 		final Collection _enterMonitors = new HashSet();
