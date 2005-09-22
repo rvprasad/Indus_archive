@@ -396,12 +396,17 @@ final class DependenceExtractor
 			}
 		} else if (CollectionUtils.containsAny(_ids, depID2ctxtRetriever.keySet())) {
 			populateContextsForInterProceduralDependences(_ids, criteriaBases);
+		} else {
+			//if there are no context retrievers for the given dependence analysis, then return a null context.  
+			for (Object _cb : criteriaBases) {
+				CollectionsUtilities.putIntoSetInMap(criteriabase2contexts, _cb, null);
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			final List _t = new ArrayList(_ids);
 			Collections.sort(_t);
-			LOGGER.debug("populateDependenceToContextsMap(): criteriabasee2contexts - " + criteriabase2contexts + " - END");
+			LOGGER.debug("populateDependenceToContextsMap(): criteriabases2contexts - " + criteriabase2contexts + " - END");
 		}
 	}
 }
