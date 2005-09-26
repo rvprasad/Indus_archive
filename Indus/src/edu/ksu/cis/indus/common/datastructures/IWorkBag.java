@@ -25,10 +25,11 @@ import java.util.Collection;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad</a>
  * @version $Revision$
+ * @param <T> the type of the work handled by this work bag.
  *
  * @since Created: Thu Jul 25 18:37:24 2002.
  */
-public interface IWorkBag {
+public interface IWorkBag<T> {
 	/**
 	 * Returns a work pieces.
 	 *
@@ -36,7 +37,7 @@ public interface IWorkBag {
 	 *
 	 * @post hasWork() implies self$pre->exists(o | result == o)
 	 */
-	Object getWork();
+	T getWork();
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
@@ -46,7 +47,7 @@ public interface IWorkBag {
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includesAll(c)
 	 */
-	void addAllWork(final Collection c);
+	void addAllWork(final Collection<? extends T> c);
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag, if they do not exist in the bag.
@@ -62,7 +63,7 @@ public interface IWorkBag {
 	 * @post result != null
 	 * @post result->forall(j | c.contains(j))
 	 */
-	Collection addAllWorkNoDuplicates(final Collection c);
+	Collection<T> addAllWorkNoDuplicates(final Collection<? extends T> c);
 
 	/**
 	 * Adds a new work to the bag.  This will not check if the work exists in the bag.
@@ -72,7 +73,7 @@ public interface IWorkBag {
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includes(o)
 	 */
-	void addWork(final Object o);
+	void addWork(final T o);
 
 	/**
 	 * Adds a new work to the bag, if it does not exist in the bag.
@@ -86,7 +87,7 @@ public interface IWorkBag {
 	 * @post self->includes(o)
 	 * @post self->forall( o | self->count() = 1)
 	 */
-	boolean addWorkNoDuplicates(final Object o);
+	boolean addWorkNoDuplicates(final T o);
 
 	/**
 	 * Removes all work pieces in this bag.

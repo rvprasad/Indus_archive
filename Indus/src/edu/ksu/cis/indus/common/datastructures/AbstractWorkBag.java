@@ -31,13 +31,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> The type of work handled by this work bag.
  */
-public abstract class AbstractWorkBag
-  implements IWorkBag {
+public abstract class AbstractWorkBag<T>
+  implements IWorkBag<T> {
 	/** 
 	 * This contains the work pieces put into the work bag.
 	 */
-	protected final List container = new ArrayList();
+	protected final List<T> container = new ArrayList<T>();
 
 	/** 
 	 * This is a backing structure to maintain element containment information.
@@ -47,12 +48,12 @@ public abstract class AbstractWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#getWork()
 	 */
-	public final Object getWork() {
+	public final T getWork() {
 		if (container.isEmpty()) {
 			throw new IllegalStateException("The workbag is empty.");
 		}
 
-		final Object _result = container.remove(0);
+		final T _result = container.remove(0);
 		countingStructure.adjustValue(_result, -1);
 
 		if (countingStructure.get(_result) == 0) {
@@ -64,8 +65,8 @@ public abstract class AbstractWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addAllWork(java.util.Collection)
 	 */
-	public final void addAllWork(final Collection c) {
-		for (final Iterator _i = c.iterator(); _i.hasNext();) {
+	public final void addAllWork(final Collection<? extends T> c) {
+		for (final Iterator<? extends T> _i = c.iterator(); _i.hasNext();) {
 			addWork(_i.next());
 		}
 	}
@@ -73,13 +74,13 @@ public abstract class AbstractWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
-	public final Collection addAllWorkNoDuplicates(final Collection c) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = c.iterator();
+	public final Collection<T> addAllWorkNoDuplicates(final Collection<? extends T> c) {
+		final Collection<T> _result = new ArrayList<T>();
+		final Iterator<? extends T> _i = c.iterator();
 		final int _iEnd = c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _element = _i.next();
+			final T _element = _i.next();
 
 			if (!countingStructure.containsKey(_element)) {
 				addWork(_element);
@@ -90,10 +91,10 @@ public abstract class AbstractWorkBag
 		return _result;
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWorkNoDuplicates(java.lang.Object)
+	/** 
+	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWorkNoDuplicates(Object)
 	 */
-	public final boolean addWorkNoDuplicates(final Object o) {
+	public final boolean addWorkNoDuplicates(final T o) {
 		final boolean _result = !countingStructure.containsKey(o);
 
 		if (_result) {
@@ -120,7 +121,7 @@ public abstract class AbstractWorkBag
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).append("work pieces", container).toString();
 	}
 
@@ -130,7 +131,7 @@ public abstract class AbstractWorkBag
 	 *
 	 * @param o is the element that was added.
 	 */
-	protected final void updateInternal(final Object o) {
+	protected final void updateInternal(final T o) {
 		if (countingStructure.contains(o)) {
 			countingStructure.increment(o);
 		} else {

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,6 +16,7 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 
 import java.util.Collections;
@@ -31,43 +31,43 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
+import soot.jimple.Stmt;
 import soot.toolkits.graph.UnitGraph;
-
 
 /**
  * This class manages a set of basic block graphs.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
-	/** 
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasicBlockGraphMgr.class);
 
-	/** 
+	/**
 	 * This provides exception throwing information used to calculate basic block boundaries.
 	 */
 	private final IExceptionRaisingInfo eti;
 
-	/** 
+	/**
 	 * This maps methods to basic block graphs.
-	 *
-	 * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph))
 	 */
-	private final Map method2graph = new HashMap(Constants.getNumOfMethodsInApplication());
+	private final Map<SootMethod, Reference<BasicBlockGraph>> method2graph = new HashMap<SootMethod, Reference<BasicBlockGraph>>(
+			Constants.getNumOfMethodsInApplication());
 
-	/** 
+	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
 	private IStmtGraphFactory stmtGraphProvider;
 
-	/** 
+	/**
 	 * This maps methods to their statement list.
 	 */
-	private final Map method2stmtlist = new HashMap();
+	private final Map<SootMethod, List<Stmt>> method2stmtlist = new HashMap<SootMethod, List<Stmt>>();
 
 	/**
 	 * Creates a new BasicBlockGraphMgr object.
@@ -78,9 +78,9 @@ public final class BasicBlockGraphMgr {
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param info provides excpetion throwing information.  If this is not provided then implicit exceptional exits are not
-     * considered for graph construction.  
+	 * 
+	 * @param info provides excpetion throwing information. If this is not provided then implicit exceptional exits are not
+	 *            considered for graph construction.
 	 */
 	public BasicBlockGraphMgr(final IExceptionRaisingInfo info) {
 		super();
@@ -88,36 +88,32 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
-	 * is abstract or has no available implementation.
-	 *
+	 * Retrieves the basic block graph corresponding to the given method. Returns an empty basic block graph if the method is
+	 * abstract or has no available implementation.
+	 * 
 	 * @param sm is the method for which the graph is requested.
-	 *
 	 * @return the basic block graph corresponding to <code>sm</code>.
-	 *
 	 * @throws IllegalStateException when a statement graph factory was not set before calling this method.
-	 *
 	 * @pre sm != null
 	 */
-	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm)
-	  throws IllegalStateException {
+	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) throws IllegalStateException {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getBasicBlockGraph(SootMethod sm = " + sm + ") - BEGIN");
 		}
 
 		if (stmtGraphProvider == null) {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphFactory() before "
-				+ "calling this method.");
+					+ "calling this method.");
 		}
 
-		final SoftReference _ref = (SoftReference) method2graph.get(sm);
+		final Reference<BasicBlockGraph> _ref = method2graph.get(sm);
 		BasicBlockGraph _result = null;
 		boolean _flag = false;
 
 		if (_ref == null) {
 			_flag = true;
 		} else {
-			_result = (BasicBlockGraph) _ref.get();
+			_result = _ref.get();
 
 			if (_result == null) {
 				_flag = true;
@@ -127,7 +123,7 @@ public final class BasicBlockGraphMgr {
 		if (_flag) {
 			final UnitGraph _graph = stmtGraphProvider.getStmtGraph(sm);
 			_result = new BasicBlockGraph(_graph, sm, eti);
-			method2graph.put(sm, new SoftReference(_result));
+			method2graph.put(sm, new SoftReference<BasicBlockGraph>(_result));
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -137,13 +133,11 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Provides the unit graph for the given method.  This is retrieved from the unit graph provider set via
+	 * Provides the unit graph for the given method. This is retrieved from the unit graph provider set via
 	 * <code>setUnitGraphProvider</code>.
-	 *
+	 * 
 	 * @param method for which the unit graph is requested.
-	 *
 	 * @return the unit graph for the method.
-	 *
 	 * @pre method != null
 	 * @post result != null
 	 */
@@ -153,7 +147,7 @@ public final class BasicBlockGraphMgr {
 
 	/**
 	 * Sets the unit graph provider.
-	 *
+	 * 
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
 	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
@@ -162,11 +156,9 @@ public final class BasicBlockGraphMgr {
 
 	/**
 	 * Returns an unmodifiable list of statements of the given method represented in this graph.
-	 *
+	 * 
 	 * @param method of interest.
-	 *
 	 * @return an unmodifiable list of statements.
-	 *
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
@@ -175,7 +167,7 @@ public final class BasicBlockGraphMgr {
 			LOGGER.debug("getStmtList(method = " + method + ")");
 		}
 
-		List _result = (List) method2stmtlist.get(method);
+		List<Stmt> _result = method2stmtlist.get(method);
 
 		if (_result == null) {
 			final UnitGraph _stmtGraph = getStmtGraph(method);
@@ -183,7 +175,7 @@ public final class BasicBlockGraphMgr {
 			if (_stmtGraph != null) {
 				_result = Collections.unmodifiableList(IteratorUtils.toList(_stmtGraph.iterator()));
 			} else {
-				_result = Collections.EMPTY_LIST;
+				_result = Collections.emptyList();
 			}
 			method2stmtlist.put(method, _result);
 		}

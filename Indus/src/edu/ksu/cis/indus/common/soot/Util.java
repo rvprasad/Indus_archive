@@ -55,6 +55,7 @@ import soot.Scene;
 import soot.ShortType;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Trap;
 import soot.Type;
 import soot.Value;
 import soot.VoidType;
@@ -68,6 +69,7 @@ import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
+import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
 import soot.tagkit.Host;
@@ -104,16 +106,16 @@ public final class Util {
 	 * @return a collection of classes.
 	 *
 	 * @pre sootClass != null
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post result != null
 	 */
-	public static Collection getAncestors(final SootClass sootClass) {
-		final Collection _result = new HashSet();
-		final Collection _temp = new HashSet();
-		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_result);
+	public static Collection<SootClass> getAncestors(final SootClass sootClass) {
+		final Collection<SootClass> _result = new HashSet<SootClass>();
+		final Collection<SootClass> _temp = new HashSet<SootClass>();
+		final IWorkBag<SootClass> _wb = new HistoryAwareLIFOWorkBag<SootClass>(_result);
 		_wb.addWork(sootClass);
 
 		while (_wb.hasWork()) {
-			final SootClass _work = (SootClass) _wb.getWork();
+			final SootClass _work = _wb.getWork();
 
 			if (hasSuperclass(_work)) {
 				final SootClass _superClass = _work.getSuperclass();
@@ -121,8 +123,8 @@ public final class Util {
 			}
 			_temp.addAll(_work.getInterfaces());
 
-			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-				final SootClass _sc = (SootClass) _i.next();
+			for (final Iterator<SootClass> _i = _temp.iterator(); _i.hasNext();) {
+				final SootClass _sc = _i.next();
 
 				_wb.addWorkNoDuplicates(_sc);
 			}
@@ -280,15 +282,14 @@ public final class Util {
 	 * @return a collection of hosts.
 	 *
 	 * @pre hosts != null and tagName != null
-	 * @pre hosts.oclIsKindOf(Host)
-	 * @post result != null and result.oclIsKindOf(Collection(Host))
+	 * @post result != null
 	 * @post result->forall(o | hosts->contains(o) and o.hasTag(tagName))
 	 */
-	public static Collection getHostsWithTag(final Collection hosts, final String tagName) {
-		Collection _result = new ArrayList();
+	public static Collection<Host> getHostsWithTag(final Collection<Host> hosts, final String tagName) {
+		Collection<Host> _result = new ArrayList<Host>();
 
-		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
-			final Host _host = (Host) _i.next();
+		for (final Iterator<Host> _i = hosts.iterator(); _i.hasNext();) {
+			final Host _host = _i.next();
 
 			if (_host.hasTag(tagName)) {
 				_result.add(_host);
@@ -296,7 +297,7 @@ public final class Util {
 		}
 
 		if (_result.isEmpty()) {
-			_result = Collections.EMPTY_LIST;
+			_result = Collections.emptyList();
 		}
 		return _result;
 	}
@@ -404,27 +405,26 @@ public final class Util {
 	 * @param newClasses is a collection of classes to be processed.
 	 *
 	 * @return the resolved methods
-	 *
-	 * @pre newClasses.oclIsKindOf(Collection(SootClass))
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @pre newClasses != null and newClasses->forall(o | o != null)
+	 * @post result != null
 	 */
-	public static Collection getResolvedMethods(final Collection newClasses) {
-		final Collection _col = new HashSet();
-		final Collection _temp = new HashSet();
-		final Iterator _i = newClasses.iterator();
+	public static Collection<SootMethod> getResolvedMethods(final Collection<SootClass> newClasses) {
+		final Collection<SootMethod> _col = new HashSet<SootMethod>();
+		final Collection<String> _temp = new HashSet<String>();
+		final Iterator<SootClass> _i = newClasses.iterator();
 		final int _iEnd = newClasses.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
-			final Collection _methods = _sc.getMethods();
+			final SootClass _sc = _i.next();
+			@SuppressWarnings("unchecked") final Collection<SootMethod> _methods = _sc.getMethods();
 			_col.addAll(_methods);
 			_temp.clear();
 
-			final Iterator _l = _methods.iterator();
+			final Iterator<SootMethod> _l = _methods.iterator();
 			final int _lEnd = _methods.size();
 
 			for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-				final SootMethod _sm = (SootMethod) _l.next();
+				final SootMethod _sm = _l.next();
 				_temp.add(_sm.getSubSignature());
 			}
 
@@ -433,11 +433,11 @@ public final class Util {
 			while (hasSuperclass(_super)) {
 				_super = _super.getSuperclass();
 
-				final Iterator _j = _super.getMethods().iterator();
+				@SuppressWarnings("unchecked") final Iterator<SootMethod> _j = _super.getMethods().iterator();
 				final int _jEnd = _super.getMethods().size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final SootMethod _superMethod = (SootMethod) _j.next();
+					final SootMethod _superMethod = _j.next();
 
 					if (!_temp.contains(_superMethod.getSubSignature())) {
 						_temp.add(_superMethod.getSubSignature());
@@ -447,11 +447,11 @@ public final class Util {
 			}
 		}
 
-		final Iterator _j = _col.iterator();
+		final Iterator<SootMethod> _j = _col.iterator();
 		final int _jEnd = _col.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final SootMethod _sm = (SootMethod) _j.next();
+			final SootMethod _sm = _j.next();
 
 			if (_sm.getName().equals("<init>") && !newClasses.contains(_sm.getDeclaringClass())) {
 				_j.remove();
@@ -584,34 +584,34 @@ public final class Util {
 	 *
 	 * @return the classes that were erased.  It is possible that for safety reasons some classes are retained.
 	 *
-	 * @pre env != null and classes != null and classes.oclIsKindOf(Collection(SootClass))
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass)) and classes.containsAll(result)
+	 * @pre env != null and classes != null
+	 * @post result != null and classes.containsAll(result)
 	 */
-	public static Collection eraseClassesFrom(final Collection classes, final IEnvironment env) {
-		final Collection _r = new ArrayList(classes);
+	public static Collection<SootClass> eraseClassesFrom(final Collection<SootClass> classes, final IEnvironment env) {
+		final Collection<SootClass> _result = new ArrayList<SootClass>(classes);
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(env);
 
-		final ClassEraser _ece = new ClassEraser(_r);
+		final ClassEraser _ece = new ClassEraser(_result);
 		_ece.hookup(_pc);
 		_pc.process();
 		_ece.unhook(_pc);
 		_pc.reset();
 
-		final Iterator _j = classes.iterator();
+		@SuppressWarnings("unchecked") final Iterator<SootClass> _j = classes.iterator();
 		final int _jEnd = classes.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final SootClass _o = (SootClass) _j.next();
+			final SootClass _o = _j.next();
 
-			if (_r.contains(_o)) {
+			if (_result.contains(_o)) {
 				env.removeClass(_o);
 			}
 		}
-		return _r;
+		return _result;
 	}
 
 	/**
@@ -682,11 +682,11 @@ public final class Util {
 	 * @return a collection of methods.
 	 *
 	 * @pre method != null
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post result != null
 	 */
-	public static Collection findMethodInSuperClassesAndInterfaces(final SootMethod method) {
-		final IWorkBag _toProcess = new HistoryAwareFIFOWorkBag(new HashSet());
-		Collection _result = new HashSet();
+	public static Collection<SootMethod> findMethodInSuperClassesAndInterfaces(final SootMethod method) {
+		final IWorkBag<SootClass> _toProcess = new HistoryAwareFIFOWorkBag<SootClass>(new HashSet<SootClass>());
+		Collection<SootMethod> _result = new HashSet<SootMethod>();
 		_toProcess.addWork(method.getDeclaringClass());
 
 		final List _parameterTypes = method.getParameterTypes();
@@ -694,7 +694,7 @@ public final class Util {
 		final String _methodName = method.getName();
 
 		while (_toProcess.hasWork()) {
-			final SootClass _sc = (SootClass) _toProcess.getWork();
+			final SootClass _sc = _toProcess.getWork();
 
 			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
 				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
@@ -714,7 +714,7 @@ public final class Util {
 		}
 
 		if (_result.isEmpty()) {
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptyList();
 		}
 		return _result;
 	}
@@ -728,8 +728,8 @@ public final class Util {
 	public static void fixupThreadStartBody(final Scene scm) {
 		boolean _flag = false;
 
-		for (final Iterator _i = scm.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scm.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
 
 			if (Util.implementsInterface(_sc, "java.lang.Runnable")) {
 				_flag = true;
@@ -818,11 +818,10 @@ public final class Util {
 	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
 	 *
 	 * @pre methods != null and methodsToRemove != null
-	 * @pre methods.oclIsKindOf(Collection(SootMethod))
-	 * @pre methodsToRemove.oclIsKindOf(Collection(SootMethod))
+
 	 */
-	public static void removeMethodsWithSameSignature(final Collection methods, final Collection methodsToRemove) {
-		final Collection _removeSet = new HashSet();
+	public static void removeMethodsWithSameSignature(final Collection<SootMethod> methods, final Collection<SootMethod> methodsToRemove) {
+		final Collection<SootMethod> _removeSet = new HashSet<SootMethod>();
 		_removeSet.addAll(methods);
 		retainMethodsWithSameSignature(_removeSet, methodsToRemove);
 		methods.removeAll(_removeSet);
@@ -836,17 +835,15 @@ public final class Util {
 	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
 	 *
 	 * @pre methods != null and methodsToRetain!= null
-	 * @pre methods.oclIsKindOf(Collection(SootMethod))
-	 * @pre methodsToRetain.oclIsKindOf(Collection(SootMethod))
 	 */
-	public static void retainMethodsWithSameSignature(final Collection methods, final Collection methodsToRetain) {
-		final Collection _retainSet = new HashSet();
+	public static void retainMethodsWithSameSignature(final Collection<SootMethod> methods, final Collection<SootMethod> methodsToRetain) {
+		final Collection<SootMethod> _retainSet = new HashSet<SootMethod>();
 
-		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
-			final SootMethod _abstractMethod = (SootMethod) _j.next();
+		for (final Iterator<SootMethod> _j = methods.iterator(); _j.hasNext();) {
+			final SootMethod _abstractMethod = _j.next();
 
-			for (final Iterator _k = methodsToRetain.iterator(); _k.hasNext();) {
-				final SootMethod _method = (SootMethod) _k.next();
+			for (final Iterator<SootMethod> _k = methodsToRetain.iterator(); _k.hasNext();) {
+				final SootMethod _method = _k.next();
 
 				if (_abstractMethod.getSubSignature().equals(_method.getSubSignature())) {
 					_retainSet.add(_abstractMethod);
@@ -856,6 +853,29 @@ public final class Util {
 		methods.retainAll(_retainSet);
 	}
 
+	/**
+	 * Retrieves the maximal subset of traps from <code>traps</code> such that each trap encloses the <code>stmt</code> in the
+	 * list of statements <code>stmtList</code>. 
+	 * 
+	 * @param traps is the list of traps.
+	 * @param stmt is the statement being enclosed.
+	 * @param stmtList is the list of statements.
+	 * @return a list of traps.
+	 * @pre traps != null and stmt != null and stmtList != null
+	 * @pre stmtList.contains(stmt)
+	 * @post traps.containsAll(result)
+	 */
+	public static List<Trap> getEnclosingTrap(final List<Trap> traps, final Stmt stmt, final List<Stmt> stmtList) {
+		final List<Trap> _result = new ArrayList<Trap>();
+		final int _stmtIndex = stmtList.indexOf(stmt);
+		for (final Trap _trap : traps) {
+			if (stmtList.indexOf(_trap.getBeginUnit()) <= _stmtIndex && _stmtIndex <= stmtList.indexOf(_trap.getEndUnit())) {
+				_result.add(_trap);
+			}
+		}
+		return _result;
+	}
+	
 	/**
 	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement and method
 	 * in the given callgraph.
@@ -885,6 +905,32 @@ public final class Util {
 			_result |= _callee.equals(invokedMethod);
 		}
 		return _result;
+	}
+
+	/**
+	 * Prunes the given list of traps that cover atleast one common statement. 
+	 * 
+	 * @param enclosingTraps is the list of traps.
+	 * @pre enclosingTraps != null
+	 * @post enclosingTraps.containsAll(enclosingTraps$pre)
+	 */
+	public static void pruneEnclosingTraps(final List<Trap> enclosingTraps) {
+		final Collection<Trap> _r = new ArrayList<Trap>();
+		int _size = enclosingTraps.size();
+		for (int _i = 0; _i < _size; _i++) {
+			final Trap _t1 = enclosingTraps.get(_i);
+			final SootClass _c1 = _t1.getException();
+			for (int _j = _i + 1; _j < _size; _j++) {
+				final Trap _t2 = enclosingTraps.get(_j);
+				final SootClass _c2 = _t2.getException();
+				if (isDescendentOf(_c2, _c1)) {
+					_r.add(_t2);
+				}
+			}
+			enclosingTraps.removeAll(_r);
+			_size -= _r.size();
+			_r.clear();
+		}		
 	}
 }
 

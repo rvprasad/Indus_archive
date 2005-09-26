@@ -30,8 +30,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <T> The type of work handled by this work bag.
  */
-public final class WorkList {
+public final class WorkList<T> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -40,7 +41,7 @@ public final class WorkList {
 	/** 
 	 * The backend workbag object which holds the work piece.
 	 */
-	private final IWorkBag workbag;
+	private final IWorkBag<T> workbag;
 
 	/**
 	 * Creates a new <code>WorkList</code> instance.
@@ -49,7 +50,7 @@ public final class WorkList {
 	 *
 	 * @pre container != null
 	 */
-	public WorkList(final IWorkBag container) {
+	public WorkList(final IWorkBag<T> container) {
 		workbag = container;
 	}
 
@@ -72,7 +73,7 @@ public final class WorkList {
 		int _result = 0;
 
 		while (workbag.hasWork()) {
-			final Object _o = workbag.getWork();
+			final T _o = workbag.getWork();
 
 			if (_o instanceof IWork) {
 				final IWork _w = (IWork) _o;

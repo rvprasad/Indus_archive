@@ -33,7 +33,7 @@ public interface IIDBasedInfoManagement {
 	 *
 	 * @pre infoID != null and info != null
 	 */
-	Object setInfoFor(final Object infoID, final Object info);
+	Object setInfoFor(final Comparable infoID, final Object info);
 
 	/**
 	 * Clears all ID to info mapping.
@@ -49,7 +49,7 @@ public interface IIDBasedInfoManagement {
 	 *
 	 * @pre infoID != null
 	 */
-	Object removeInfo(final Object infoID);
+	Object removeInfo(final Comparable infoID);
 }
 
 // End of File

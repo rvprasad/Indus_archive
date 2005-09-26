@@ -21,13 +21,14 @@ package edu.ksu.cis.indus.common.datastructures;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> The type of work handled by this work bag.
  */
-public final class FIFOWorkBag
-  extends AbstractWorkBag {
+public final class FIFOWorkBag<T>
+  extends AbstractWorkBag<T> {
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWork(java.lang.Object)
 	 */
-	public void addWork(final Object o) {
+	public void addWork(final T o) {
 		container.add(o);
 		updateInternal(o);
 	}

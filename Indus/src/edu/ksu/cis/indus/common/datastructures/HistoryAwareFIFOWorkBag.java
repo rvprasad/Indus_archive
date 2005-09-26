@@ -24,23 +24,24 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> The type of work handled by this work bag.
  */
-public final class HistoryAwareFIFOWorkBag
-  extends AbstractHistoryAwareWorkBag {
+public final class HistoryAwareFIFOWorkBag<T>
+  extends AbstractHistoryAwareWorkBag<T> {
 	/**
 	 * Creates a new FIFOWorkBag object.
 	 *
 	 * @param processed is the collection to be used to remember work pieces put into the bag.  Refer to
 	 * 		  <code>AbstractHistoryAwareWorkBag#AbstractHistoryAwareWorkBag(Collection)</code>.
 	 */
-	public HistoryAwareFIFOWorkBag(final Collection processed) {
+	public HistoryAwareFIFOWorkBag(final Collection<T> processed) {
 		super(processed);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.AbstractHistoryAwareWorkBag#subAddWork(java.lang.Object)
 	 */
-	protected void subAddWork(final Object o) {
+	@Override protected void subAddWork(final T o) {
 		container.add(o);
 		updateInternal(o);
 	}

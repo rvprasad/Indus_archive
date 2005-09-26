@@ -24,13 +24,14 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> The type of work handled by this work bag.
  */
-public abstract class AbstractHistoryAwareWorkBag
-  extends AbstractWorkBag {
+public abstract class AbstractHistoryAwareWorkBag<T>
+  extends AbstractWorkBag<T> {
 	/** 
 	 * The container that remembers the items that were processed by this work bag.
 	 */
-	private final Collection processedWorkPieces;
+	private final Collection<T> processedWorkPieces;
 
 	/**
 	 * Creates a new AbstractWorkBag object.  If a non-null collection is provided via <code>processed</code>, then a work
@@ -38,14 +39,14 @@ public abstract class AbstractHistoryAwareWorkBag
 	 *
 	 * @param processed If it is non-null, this collection is used to remember the work pieces added to this work bag.
 	 */
-	protected AbstractHistoryAwareWorkBag(final Collection processed) {
+	protected AbstractHistoryAwareWorkBag(final Collection<T> processed) {
 		processedWorkPieces = processed;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWork(Object)
 	 */
-	public final void addWork(final Object o) {
+	public final void addWork(final T o) {
 		if (processedWorkPieces != null) {
 			if (!processedWorkPieces.contains(o)) {
 				processedWorkPieces.add(o);
@@ -61,7 +62,7 @@ public abstract class AbstractHistoryAwareWorkBag
 	 *
 	 * @param o is the object to be added.
 	 */
-	protected abstract void subAddWork(final Object o);
+	protected abstract void subAddWork(final T o);
 }
 
 // End of File

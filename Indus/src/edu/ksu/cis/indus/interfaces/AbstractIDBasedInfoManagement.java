@@ -31,12 +31,12 @@ public abstract class AbstractIDBasedInfoManagement
 	/** 
 	 * This maps IDs to implementations that provides information.
 	 */
-	private final Map infoMap = new HashMap();
+	private final Map<Comparable, Object> infoMap = new HashMap<Comparable, Object>();
 
 	/**
-	 * @see IIDBasedInfoManagement#setInfoFor(Object, Object)
+	 * @see IIDBasedInfoManagement#setInfoFor(Comparable, Object)
 	 */
-	public final Object setInfoFor(final Object infoID, final Object info) {
+	public final Object setInfoFor(final Comparable infoID, final Object info) {
 		return infoMap.put(infoID, info);
 	}
 
@@ -48,9 +48,9 @@ public abstract class AbstractIDBasedInfoManagement
 	}
 
 	/**
-	 * @see IIDBasedInfoManagement#removeInfo(Object)
+	 * @see IIDBasedInfoManagement#removeInfo(Comparable)
 	 */
-	public final Object removeInfo(final Object infoID) {
+	public final Object removeInfo(final Comparable infoID) {
 		return infoMap.remove(infoID);
 	}
 
@@ -63,7 +63,7 @@ public abstract class AbstractIDBasedInfoManagement
 	 *
 	 * @pre infoID != null
 	 */
-	protected final Object getInfoFor(final Object infoID) {
+	protected final Object getInfoFor(final Comparable infoID) {
 		return infoMap.get(infoID);
 	}
 }

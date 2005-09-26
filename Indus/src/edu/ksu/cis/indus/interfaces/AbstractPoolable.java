@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import org.apache.commons.pool.ObjectPool;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.pool.ObjectPool;
 
 
 /**
@@ -42,16 +42,6 @@ public abstract class AbstractPoolable
 
 	/**
 	 * {@inheritDoc}
-	 */
-	public final void setPool(final ObjectPool thePool) {
-		if (thePool == null) {
-			throw new IllegalArgumentException("Invalid argument: null");
-		}
-		pool = thePool;
-	}
-
-	/**
-	 * {@inheritDoc}
 	 *
 	 * @throws RuntimeException if the returning of the object to it's pool failed.
 	 */
@@ -66,6 +56,16 @@ public abstract class AbstractPoolable
 				throw new RuntimeException(_e);
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final void setPool(final ObjectPool thePool) {
+		if (thePool == null) {
+			throw new IllegalArgumentException("Invalid argument: null");
+		}
+		pool = thePool;
 	}
 }
 

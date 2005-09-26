@@ -28,13 +28,14 @@ import java.util.Iterator;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> The type of work handled by this work bag.
  */
-public final class PoolAwareWorkBag
-  implements IWorkBag {
+public final class PoolAwareWorkBag<T>
+  implements IWorkBag<T> {
 	/** 
 	 * The container that actual contains the work peices.
 	 */
-	private final IWorkBag container;
+	private final IWorkBag<T> container;
 
 	/**
 	 * Creates a new PoolAwareWorkBag object.
@@ -43,21 +44,21 @@ public final class PoolAwareWorkBag
 	 *
 	 * @pre theContainer != null
 	 */
-	public PoolAwareWorkBag(final IWorkBag theContainer) {
+	public PoolAwareWorkBag(final IWorkBag<T> theContainer) {
 		container = theContainer;
 	}
 
 	/**
 	 * @see IWorkBag#getWork()
 	 */
-	public Object getWork() {
+	public T getWork() {
 		return container.getWork();
 	}
 
 	/**
 	 * @see IWorkBag#addAllWork(Collection)
 	 */
-	public void addAllWork(final Collection c) {
+	public void addAllWork(final Collection<? extends T> c) {
 		container.addAllWork(c);
 	}
 
@@ -71,24 +72,24 @@ public final class PoolAwareWorkBag
 	 * @pre c != null
 	 * @post result != null and result.size() == 0
 	 */
-	public Collection addAllWorkNoDuplicates(final Collection c) {
-		final Collection _coll = container.addAllWorkNoDuplicates(c);
+	public Collection<T> addAllWorkNoDuplicates(final Collection<? extends T> c) {
+		final Collection<T> _coll = container.addAllWorkNoDuplicates(c);
 
-		for (final Iterator _i = _coll.iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
+		for (final Iterator<T> _i = _coll.iterator(); _i.hasNext();) {
+			final T _o = _i.next();
 
 			if (_o instanceof IPoolable) {
 				final IPoolable _poolable = (IPoolable) _o;
 				_poolable.returnToPool();
 			}
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	/**
 	 * @see IWorkBag#addWork(Object)
 	 */
-	public void addWork(final Object o) {
+	public void addWork(final T o) {
 		container.addWork(o);
 	}
 
@@ -102,7 +103,7 @@ public final class PoolAwareWorkBag
 	 *
 	 * @pre o != null
 	 */
-	public boolean addWorkNoDuplicates(final Object o) {
+	public boolean addWorkNoDuplicates(final T o) {
 		final boolean _result = container.addWorkNoDuplicates(o);
 
 		if (!_result && o instanceof IPoolable) {

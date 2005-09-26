@@ -36,7 +36,7 @@ public class FastUnionFindElement {
 	/** 
 	 * A sequence of children elements of this element.
 	 */
-	protected List children;
+	protected List<FastUnionFindElement> children;
 
 	/** 
 	 * This is the type associated with this element.
@@ -100,7 +100,7 @@ public class FastUnionFindElement {
 	 */
 	public final void addChild(final FastUnionFindElement child) {
 		if (children == null) {
-			children = new ArrayList();
+			children = new ArrayList<FastUnionFindElement>();
 		}
 		children.add(child);
 	}
@@ -188,8 +188,8 @@ public class FastUnionFindElement {
 			_result = true;
 
 			for (int _i = children.size() - 1; _i >= 0 && _result; _i--) {
-				final FastUnionFindElement _c1 = (FastUnionFindElement) children.get(_i);
-				final FastUnionFindElement _c2 = (FastUnionFindElement) e.children.get(_i);
+				final FastUnionFindElement _c1 = children.get(_i);
+				final FastUnionFindElement _c2 = e.children.get(_i);
 				_result &= _c1.unify(_c2);
 			}
 		}
@@ -210,7 +210,8 @@ public class FastUnionFindElement {
 		if (_a != _b) {
 			if (_b.isBound()) {
 				_a.set = _b;
-			} else {  // if a.isBound() or neither is bound
+			} else {  
+				// if a.isBound() or neither is bound
 				_b.set = _a;
 			}
 		}

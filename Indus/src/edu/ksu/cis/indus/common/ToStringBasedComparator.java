@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,35 +16,37 @@ package edu.ksu.cis.indus.common;
 
 import java.util.Comparator;
 
-
 /**
  * This class compares given objects based on the return value of <code>toString()</code> method.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> the type of the objects that this comparator can compare.
  */
-public final class ToStringBasedComparator
-  implements Comparator {
-	/** 
+public final class ToStringBasedComparator<T>
+		implements Comparator<T> {
+
+	/**
 	 * A single of this class.
 	 */
-	public static final Comparator SINGLETON = new ToStringBasedComparator();
+	public static final Comparator<Object> SINGLETON = new ToStringBasedComparator<Object>();
 
-	/// CLOVER:OFF
+	// / CLOVER:OFF
 
 	/**
 	 * Creates an instance of this class.
 	 */
 	private ToStringBasedComparator() {
+		// does nothing.
 	}
 
-	/// CLOVER:ON
+	// / CLOVER:ON
 
 	/**
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 * @see java.util.Comparator#compare(T, T)
 	 */
-	public int compare(final Object o1, final Object o2) {
+	public int compare(final T o1, final T o2) {
 		return String.valueOf(o1).compareTo(String.valueOf(o2));
 	}
 }

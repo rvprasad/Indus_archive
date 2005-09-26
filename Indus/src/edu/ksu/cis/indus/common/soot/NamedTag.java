@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,26 +16,25 @@ package edu.ksu.cis.indus.common.soot;
 
 import soot.tagkit.Tag;
 
-
 /**
  * This is a tag implementation which can be differentiated by the name given at instantiation time.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class NamedTag
-  implements Tag {
-	/** 
+		implements Tag {
+
+	/**
 	 * The name of this tag.
 	 */
 	protected final String name;
 
 	/**
 	 * Creates a new NamedTag object.
-	 *
+	 * 
 	 * @param theName is the name associated with this tag.
-	 *
 	 * @pre theName != null
 	 */
 	public NamedTag(final String theName) {
@@ -44,10 +42,22 @@ public class NamedTag
 	}
 
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override public boolean equals(final Object o) {
+		boolean _result = false;
+
+		if (o instanceof NamedTag) {
+			final NamedTag _t = (NamedTag) o;
+			_result = (this == o) || (name == _t.name) || ((name != null) && name.equals(_t.name));
+		}
+		return _result;
+	}
+
+	/**
 	 * Returns the name of this tag as provided at it's creation.
-	 *
+	 * 
 	 * @return the name of this tag.
-	 *
 	 * @post result != null
 	 */
 	public final String getName() {
@@ -62,22 +72,9 @@ public class NamedTag
 	}
 
 	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o instanceof NamedTag) {
-			final NamedTag _t = (NamedTag) o;
-			_result = (this == o) || (name == _t.name) || ((name != null) && name.equals(_t.name));
-		}
-		return _result;
-	}
-
-	/**
 	 * @see java.lang.Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		int _result = 17;
 		_result = _result * 37 + name.hashCode();
 		return _result;
@@ -86,7 +83,7 @@ public class NamedTag
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return super.toString() + "[name = " + name + "]";
 	}
 }
