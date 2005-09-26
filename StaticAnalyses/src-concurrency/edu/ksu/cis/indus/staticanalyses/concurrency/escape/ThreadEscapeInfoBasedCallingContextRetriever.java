@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -26,35 +25,36 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Value;
-
+import soot.jimple.StaticFieldRef;
 
 /**
  * This class provides facilities to retrieve context based on thread escape information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ThreadEscapeInfoBasedCallingContextRetriever
-  extends AbstractCallingContextRetriever {
-	/** 
+		extends AbstractCallingContextRetriever {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ThreadEscapeInfoBasedCallingContextRetriever.class);
 
-	/** 
+	/**
 	 * This provides escapes information according to interface.
 	 */
 	protected IEscapeInfo escapesInfo;
 
-	/** 
+	/**
 	 * This guides calling context construction.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * Creates an instance of this instance.
-	 *
+	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
 	 */
 	public ThreadEscapeInfoBasedCallingContextRetriever(final int callContextLenLimit) {
@@ -63,9 +63,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 
 	/**
 	 * Sets the object that guides calling context construction.
-	 *
+	 * 
 	 * @param oracle to be used.
-	 *
 	 * @pre oracle != null
 	 */
 	public void setECBA(final EquivalenceClassBasedEscapeAnalysis oracle) {
@@ -74,9 +73,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 
 	/**
 	 * Sets the escape analysis.
-	 *
+	 * 
 	 * @param info to be used.
-	 *
 	 * @pre oracle != null
 	 */
 	public void setEscapeInfo(final IEscapeInfo info) {
@@ -84,80 +82,17 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the escape analysis.
-	 *
-	 * @return the escape analysis.
-	 */
-	protected final IEscapeInfo getEscapeInfo() {
-		return escapesInfo;
-	}
-
-	/**
-	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod,
-	 * 		edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
-	 */
-	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
-		}
-
-		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
-		final AliasSet _result;
-
-		if (_as != null && _as.escapes()) {
-			_result = (AliasSet) _as.find();
-		} else {
-			_result = null;
-		}
-		return _result;
-	}
-
-	/**
-	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(edu.ksu.cis.indus.processing.Context)
-	 */
-	protected Object getTokenForProgramPoint(final Context context) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
-		}
-
-		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
-		final Object _result;
-
-		if (_as != null) {
-			_result = (AliasSet) _as.find();
-		} else {
-			_result = null;
-		}
-		return _result;
-	}
-
-	/**
-	 * @see AbstractCallingContextRetriever#getTokenForThis(Context)
-	 */
-	protected Object getTokenForThis(final Context methodContext) {
-		final SootMethod _method = methodContext.getCurrentMethod();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getTokenForThis(method = " + _method + ")");
-		}
-
-		final AliasSet _as = ecba.getAliasSetForThis(_method);
-		final Object _result;
-
-		if (_as != null) {
-			_result = _as.find();
-		} else {
-			_result = null;
-		}
-		return _result;
-	}
-
-	/**
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
-	protected boolean considerProgramPoint(final Context context) {
+	@Override protected boolean considerProgramPoint(final Context context) {
 		final Value _value = context.getProgramPoint().getValue();
-		final boolean _result = escapesInfo.escapes(_value, context.getCurrentMethod());
+		final SootMethod _currentMethod = context.getCurrentMethod();
+		final boolean _result;
+		if (_value instanceof StaticFieldRef) {
+			_result = escapesInfo.escapes(((StaticFieldRef) _value).getField().getDeclaringClass(), _currentMethod);
+		} else {
+			_result = escapesInfo.escapes(_value, _currentMethod);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint() - result =" + _result);
@@ -169,7 +104,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#considerThis(Context)
 	 */
-	protected boolean considerThis(final Context methodContext) {
+	@Override protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
 		final boolean _result;
 
@@ -187,12 +122,85 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod,
-	 * 		edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
+	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod,
+	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
 	 */
-	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
-		final CallTriple callSite) {
+	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
+		}
+
+		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
+		final AliasSet _result;
+
+		if (_as != null && _as.escapes()) {
+			_result = (AliasSet) _as.find();
+		} else {
+			_result = null;
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the escape analysis.
+	 * 
+	 * @return the escape analysis.
+	 */
+	protected final IEscapeInfo getEscapeInfo() {
+		return escapesInfo;
+	}
+
+	/**
+	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(edu.ksu.cis.indus.processing.Context)
+	 */
+	@Override protected Object getTokenForProgramPoint(final Context context) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
+		}
+
+		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
+		return prepareToken(_as);
+	}
+
+	/**
+	 * @see AbstractCallingContextRetriever#getTokenForThis(Context)
+	 */
+	@Override protected Object getTokenForThis(final Context methodContext) {
+		final SootMethod _method = methodContext.getCurrentMethod();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getTokenForThis(method = " + _method + ")");
+		}
+
+		final AliasSet _as = ecba.getAliasSetForThis(_method);
+		return prepareToken(_as);
+	}
+
+	/**
+	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod,
+	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
+	 */
+	@Override protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken,
+			@SuppressWarnings ("unused") final SootMethod callee, @SuppressWarnings ("unused") final CallTriple callSite) {
 		return ((AliasSet) calleeToken).escapes();
+	}
+
+	/**
+	 * Prepare a token based on the given alias set.
+	 * 
+	 * @param as is the alias set of interest.
+	 * @return the token based on the given alias set.
+	 * @pre as != null
+	 */
+	private Object prepareToken(final AliasSet as) {
+		final Object _result;
+
+		if (as != null) {
+			_result = (AliasSet) as.find();
+		} else {
+			_result = null;
+		}
+		return _result;
 	}
 }
 
