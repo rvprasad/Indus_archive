@@ -99,7 +99,7 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple)
 	 */
-	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
 				+ ", CallTriple callsite = " + callsite + ") - BEGIN");
@@ -130,7 +130,7 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(Context)
 	 */
-	protected Object getTokenForProgramPoint(final Context programPointContext) {
+	@Override protected Object getTokenForProgramPoint(final Context programPointContext) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getTokenForProgramPoint(Context programPointContext = " + programPointContext + ") - BEGIN");
 		}
@@ -179,7 +179,7 @@ public class DataAliasBasedCallingContextRetriever
 				_useMethod = _srcMethod;
 			}
 
-			_result = retrieveToken(_defMethod, _useMethod, _defStmt, _useStmt, _srcMethod, _curMethod);
+			_result = retrieveAncestors(_defMethod, _useMethod, _defStmt, _useStmt, _srcMethod, _curMethod);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -191,7 +191,7 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(Context)
 	 */
-	protected boolean considerProgramPoint(final Context programPointContext) {
+	@Override protected final boolean considerProgramPoint(final Context programPointContext) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint(Context programPointContext = " + programPointContext + ") - BEGIN");
 		}
@@ -252,7 +252,7 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod, ICallGraphInfo.CallTriple)
 	 */
-	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
+	@Override protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
 		final CallTriple callSite) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
@@ -267,7 +267,7 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the token.
+	 * Retrieves the ancestors.
 	 *
 	 * @param defMethod is the method in which the definition occurs.
 	 * @param useMethod is the method in which the use occurs.
@@ -282,45 +282,46 @@ public class DataAliasBasedCallingContextRetriever
 	 * 		curMethod != null
 	 * @post result != null
 	 */
-	private Object retrieveToken(final SootMethod defMethod, final SootMethod useMethod, final DefinitionStmt defStmt,
+	protected final Collection<SootMethod> retrieveAncestors(final SootMethod defMethod, final SootMethod useMethod, final DefinitionStmt defStmt,
 		final DefinitionStmt useStmt, final SootMethod srcMethod, final SootMethod curMethod) {
-		final Collection _result;
+		final Collection<SootMethod> _ancestors;
 		final ICallGraphInfo _callGraph = getCallGraph();
 
 		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistsBetween(defStmt, useStmt, defMethod)) {
-			final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(defMethod, false);
+			final Collection<SootMethod> _methodsReachableFrom = _callGraph.getMethodsReachableFrom(defMethod, false);
 
 			if (_methodsReachableFrom.isEmpty()) {
-				_result = null;
+				_ancestors = null;
 			} else {
-				_result = new HashSet(_methodsReachableFrom);
+				_ancestors = new HashSet<SootMethod>(_methodsReachableFrom);
 			}
 		} else {
-			_result = new HashSet();
+			_ancestors = new HashSet<SootMethod>();
 
 			if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
-				_result.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
+				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
 			}
 
 			if (analysis.doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, true)) {
-				_result.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
+				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
 			}
 
-			final Collection _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
+			final Collection<SootMethod> _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
 
 			if (!_callersOfCurrMethod.isEmpty()) {
-				final Collection _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
+				final Collection<SootMethod> _commonAncestors = _callGraph.getConnectivityCallersFor(srcMethod, curMethod);
 
-				for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext();) {
-					final SootMethod _sm = (SootMethod) _i.next();
-					final Collection _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
-					_result.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
+				for (final Iterator<SootMethod> _i = _commonAncestors.iterator(); _i.hasNext();) {
+					final SootMethod _sm = _i.next();
+					final Collection<SootMethod> _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
+					_ancestors.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
 				}
-				_result.addAll(CollectionUtils.intersection(_callersOfCurrMethod, _commonAncestors));
+				_ancestors.addAll(CollectionUtils.intersection(_callersOfCurrMethod, _commonAncestors));
 			}
+			
 		}
 
-		return _result;
+		return _ancestors;
 	}
 }
 
