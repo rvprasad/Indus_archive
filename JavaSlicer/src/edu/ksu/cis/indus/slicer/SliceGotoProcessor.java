@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -89,10 +90,10 @@ public final class SliceGotoProcessor {
 	 * @pre methods != null and bbgMgr != null
 	 * @pre methods.oclIsKindOf(Collection(SootMethod))
 	 */
-	public void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
+	public void process(final Collection<SootMethod> methods, final BasicBlockGraphMgr bbgMgr) {
 		// include all gotos required to recreate the control flow of the system.
-		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = _i.next();
 			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_sm);
 
 			if (_bbg != null) {
@@ -118,34 +119,34 @@ public final class SliceGotoProcessor {
 		method = theMethod;
 
 		// process basic blocks to include all gotos in basic blocks with slice statements.
-		final Collection _bbInSliceInOrig = processForIntraBasicBlockGotos(bbg);
+		final Collection<BasicBlock> _bbInSlice = processForIntraBasicBlockGotos(bbg);
 		final IObjectDirectedGraph _dag = bbg.getDAG();
-		final Collection _bbInSliceInDAG = new ArrayList();
-		final Iterator _i = _bbInSliceInOrig.iterator();
-		final int _iEnd = _bbInSliceInOrig.size();
+		final Collection<IObjectNode> _bbInSliceInDAG = new ArrayList<IObjectNode>();
+		final Iterator<BasicBlock> _i = _bbInSlice.iterator();
+		final int _iEnd = _bbInSlice.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final BasicBlock _bb = (BasicBlock) _i.next();
+			final BasicBlock _bb = _i.next();
 			_bbInSliceInDAG.add(_dag.queryNode(_bb));
 		}
 
 		// find basic blocks between slice basic blocks to include the gotos in them into the slice.
-		final Collection _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
+		final Collection<IObjectNode> _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
 		// find basic blocks that are part of cycles (partially or completely) in the slice.
-		final Collection _backedges = bbg.getBackEdges();
-		final Iterator _k = _backedges.iterator();
+		final Collection<Pair<IObjectNode, IObjectNode>> _backedges = bbg.getBackEdges();
+		final Iterator<Pair<IObjectNode, IObjectNode>> _k = _backedges.iterator();
 		final int _kEnd = _backedges.size();
 
 		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Pair _edge = (Pair) _k.next();
+			final Pair<IObjectNode, IObjectNode> _edge =  _k.next();
 			_bbInSliceInDAG.clear();
 			_bbInSliceInDAG.add(_dag.queryNode(_edge.getFirst()));
 			_bbInSliceInDAG.add(_dag.queryNode(_edge.getSecond()));
 
-			final Collection _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
+			final Collection<IObjectNode> _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
-			if (CollectionUtils.containsAny(_nodes, _bbInSliceInDAG)) {
+			if (CollectionUtils.containsAny(_nodes, _bbInSlice)) {
 				_bbToBeIncludedInSlice.addAll(_nodes);
 			}
 		}
@@ -158,7 +159,7 @@ public final class SliceGotoProcessor {
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
-			final List _stmtsOf = new ArrayList(_bb.getStmtsOf());
+			final List<Stmt> _stmtsOf = new ArrayList<Stmt>(_bb.getStmtsOf());
 			CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 			sliceCollector.includeInSlice(_stmtsOf);
 		}
@@ -178,14 +179,14 @@ public final class SliceGotoProcessor {
 	 * @pre bb != null and bbInSlice != null
 	 * @post bbInSlice.containsAll(bbInSlice$pre)
 	 */
-	private void processForIntraBasicBlockGotos(final BasicBlock bb, final Collection bbInSlice) {
-		for (final Iterator _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
+	private void processForIntraBasicBlockGotos(final BasicBlock bb, final Collection<BasicBlock> bbInSlice) {
+		for (final Iterator<Stmt> _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
+			final Stmt _stmt = _i.next();
 
 			if (sliceCollector.hasBeenCollected(_stmt)) {
 				bbInSlice.add(bb);
 
-				final List _stmtsOf = new ArrayList(bb.getStmtsOf());
+				final List<Stmt> _stmtsOf = new ArrayList<Stmt>(bb.getStmtsOf());
 				CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 				sliceCollector.includeInSlice(_stmtsOf);
 				break;
@@ -204,11 +205,11 @@ public final class SliceGotoProcessor {
 	 * @post result != null and result.oclIsKindOf(Collection(BasicBloc))
 	 * @post bbg.getNodes().containsAll(result)
 	 */
-	private Collection processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
-		final Collection _result = new HashSet();
+	private Collection<BasicBlock> processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+		final Collection<BasicBlock> _result = new HashSet<BasicBlock>();
 
-		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
+		for (final Iterator<BasicBlock> _j = bbg.getNodes().iterator(); _j.hasNext();) {
+			final BasicBlock _bb = _j.next();
 			processForIntraBasicBlockGotos(_bb, _result);
 		}
 		return _result;
