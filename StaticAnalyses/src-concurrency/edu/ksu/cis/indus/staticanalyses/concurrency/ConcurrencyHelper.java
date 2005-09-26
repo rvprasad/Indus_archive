@@ -35,6 +35,7 @@ public final class ConcurrencyHelper {
 	 * Creates a new ConcurrencyHelper object.
 	 */
 	private ConcurrencyHelper() {
+		// does nothing
 	}
 
 	/**
