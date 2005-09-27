@@ -995,14 +995,15 @@ public final class SlicerTool
 				final Map _map = new HashMap();
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 =
-					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit);
+					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, IDependencyAnalysis.READY_DA);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
 
 				final ThreadEscapeInfoBasedCallingContextRetriever _t2 =
-					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit);
+					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, 
+							IDependencyAnalysis.INTERFERENCE_DA);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());

@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -153,15 +155,16 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple)
+	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple, Stack)
 	 */
-	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
+			final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
 					+ ", CallTriple callsite = " + callsite + ") - BEGIN");
 		}
 
-		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
+		final Object _result;
 
 		final SootMethod _caller = callsite.getMethod();
 		final Collection _ancestors = (Collection) token;
@@ -173,7 +176,18 @@ public class DataAliasBasedCallingContextRetriever
 
 			if (!_col.isEmpty()) {
 				_result = _col;
+			} else {
+				Object _t = Tokens.ACCEPT_CONTEXT_TOKEN;
+				for (final CallTriple _triple : calleeCallStack) {
+					if (Util.isStartMethod(_triple.getExpr().getMethod())) {
+						_t = Tokens.DISCARD_CONTEXT_TOKEN;
+						break;
+					}
+				}
+				_result = _t;
 			}
+		} else {
+			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}
 
 		if (LOGGER.isDebugEnabled()) {

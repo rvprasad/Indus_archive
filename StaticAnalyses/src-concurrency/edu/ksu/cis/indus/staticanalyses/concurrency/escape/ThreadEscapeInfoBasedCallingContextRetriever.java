@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import java.util.Stack;
+
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
@@ -123,20 +126,27 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 
 	/**
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod,
-	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
+	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, Stack)
 	 */
-	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
+			final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
 		}
 
 		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
-		final Object _result;
+		Object _result;
 
 		if (_as != null && _as.escapes()) {
 			_result = _as.find();
 		} else {
 			_result = Tokens.DISCARD_CONTEXT_TOKEN;
+			for (final CallTriple _triple : calleeCallStack) {
+				if (Util.isStartMethod(_triple.getExpr().getMethod())) {
+					_result = Tokens.ACCEPT_CONTEXT_TOKEN;
+					break;
+				}
+			}
 		}
 		return _result;
 	}

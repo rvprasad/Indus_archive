@@ -15,10 +15,16 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
+import java.util.Collection;
+import java.util.Stack;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,18 +58,33 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	private static final Logger LOGGER = LoggerFactory.getLogger(ThreadEscapeInfoBasedCallingContextRetrieverV2.class);
 
 	/**
+	 * This indicates if this instance retrieves context required to preserve interference dependence.
+	 */
+	private final boolean interferenceBased;
+
+	/**
+	 * This indicates if this instance retrieves context required to preserve ready dependence.
+	 */
+	private final boolean readyBased;
+
+	/**
 	 * Creates an instance of this instance.
 	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
+	 * @param dependenceID id of the dependence type for which this retriever is used.
+	 * @pre depenenceID != null
+	 * @pre dependenceId.equals(IDependencyAnalysis.READY_DA) or dependenceId.equals(IDependencyAnalysis.INTERFERENCE_DA)
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit) {
+	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final Object dependenceID) {
 		super(callContextLenLimit);
+		readyBased = dependenceID.equals(IDependencyAnalysis.READY_DA);
+		interferenceBased = dependenceID.equals(IDependencyAnalysis.INTERFERENCE_DA);
 	}
 
 	/**
 	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(Context)
 	 */
-	protected boolean considerProgramPoint(final Context context) {
+	@Override protected boolean considerProgramPoint(final Context context) {
 		boolean _result = super.considerProgramPoint(context);
 
 		if (_result) {
@@ -71,31 +92,35 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 			final Stmt _stmt = context.getStmt();
 			final SootMethod _currentMethod = context.getCurrentMethod();
 
-			if (_stmt.containsFieldRef()) {
-				final FieldRef _fr = _stmt.getFieldRef();
+			if (interferenceBased) {
+				if (_stmt.containsFieldRef()) {
+					final FieldRef _fr = _stmt.getFieldRef();
 
-				if (_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _fr).getBase() == _value) {
-					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature(),
-							IEscapeInfo.READ_WRITE_SHARED_ACCESS);
-				} else if (_fr instanceof StaticFieldRef && _fr == _value) {
-					final SootField _field = _fr.getField();
-					final SootClass _declaringClass = _field.getDeclaringClass();
-					final String _signature = _field.getSignature();
-					_result = escapesInfo.staticfieldAccessShared(_declaringClass, _currentMethod, _signature,
-							IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+					if (_fr instanceof InstanceFieldRef && ((InstanceFieldRef) _fr).getBase() == _value) {
+						_result = escapesInfo.fieldAccessShared(_value, _currentMethod, _fr.getField().getSignature(),
+								IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+					} else if (_fr instanceof StaticFieldRef && _fr == _value) {
+						final SootField _field = _fr.getField();
+						final SootClass _declaringClass = _field.getDeclaringClass();
+						final String _signature = _field.getSignature();
+						_result = escapesInfo.staticfieldAccessShared(_declaringClass, _currentMethod, _signature,
+								IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+					}
+				} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
+					_result = escapesInfo.fieldAccessShared(_value, _currentMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 				}
-			} else if (_stmt.containsArrayRef() && _stmt.getArrayRef().getBase() == _value) {
-				_result = escapesInfo.fieldAccessShared(_value, _currentMethod, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
-			} else if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
-				_result = escapesInfo.lockUnlockShared(_value, _currentMethod);
-			} else if (_stmt.containsInvokeExpr()) {
-				final InvokeExpr _ex = _stmt.getInvokeExpr();
-				final SootMethod _invokedMethod = _ex.getMethod();
+			} else if (readyBased) {
+				if (_stmt instanceof MonitorStmt && ((MonitorStmt) _stmt).getOp() == _value) {
+					_result = escapesInfo.lockUnlockShared(_value, _currentMethod);
+				} else if (_stmt.containsInvokeExpr()) {
+					final InvokeExpr _ex = _stmt.getInvokeExpr();
+					final SootMethod _invokedMethod = _ex.getMethod();
 
-				if (_ex instanceof VirtualInvokeExpr
-						&& (Util.isWaitMethod(_invokedMethod) || Util.isNotifyMethod(_invokedMethod))
-						&& ((VirtualInvokeExpr) _ex).getBase() == _value) {
-					_result = escapesInfo.waitNotifyShared(_value, _currentMethod);
+					if (_ex instanceof VirtualInvokeExpr
+							&& (Util.isWaitMethod(_invokedMethod) || Util.isNotifyMethod(_invokedMethod))
+							&& ((VirtualInvokeExpr) _ex).getBase() == _value) {
+						_result = escapesInfo.waitNotifyShared(_value, _currentMethod);
+					}
 				}
 			}
 		}
@@ -110,10 +135,11 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	/**
 	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerThis(Context)
 	 */
-	protected boolean considerThis(final Context methodContext) {
+	@Override protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result = escapesInfo.thisFieldAccessShared(_method, IEscapeInfo.READ_WRITE_SHARED_ACCESS)
-				|| escapesInfo.thisWaitNotifyShared(_method) || escapesInfo.thisLockUnlockShared(_method);
+		final boolean _result = (interferenceBased && escapesInfo.thisFieldAccessShared(_method,
+				IEscapeInfo.READ_WRITE_SHARED_ACCESS))
+				|| (readyBased && (escapesInfo.thisWaitNotifyShared(_method) || escapesInfo.thisLockUnlockShared(_method)));
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerThis() -  : _result = " + _result);
@@ -121,6 +147,52 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 
 		return _result;
 	}
+
+	/**
+	 * @see ThreadEscapeInfoBasedCallingContextRetriever#getCallerSideToken(java.lang.Object, soot.SootMethod,
+	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, Stack)
+	 */
+	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
+			final Stack<CallTriple> calleeCallStack) {
+		Object _result = super.getCallerSideToken(token, callee, callsite, calleeCallStack);
+		if (!(_result instanceof Tokens)) {
+			final AliasSet _callerSideToken = (AliasSet) _result;
+			final AliasSet _calleeSideToken = (AliasSet) token;
+			if (_callerSideToken != null && _calleeSideToken != null) {
+				final boolean _discardToken;
+				if (interferenceBased) {
+					final Collection _callerRWEntities = _callerSideToken.getReadWriteShareEntities();
+					final Collection _calleeRWEntities = _calleeSideToken.getReadWriteShareEntities();
+					_discardToken = _callerRWEntities == null || _calleeRWEntities == null
+							|| CollectionUtils.intersection(_callerRWEntities, _calleeRWEntities).isEmpty();
+				} else if (readyBased) {
+					final Collection _callerReadyEntities = _callerSideToken.getReadyEntities();
+					final Collection _calleeReadyEntities = _calleeSideToken.getReadyEntities();
+					final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
+							|| CollectionUtils.intersection(_callerReadyEntities, _calleeReadyEntities).isEmpty();
+					final Collection _callerLockEntities = _callerSideToken.getLockEntities();
+					final Collection _calleeLockEntities = _calleeSideToken.getLockEntities();
+					_discardToken = _b2
+							|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.intersection(
+									_callerLockEntities, _calleeLockEntities).isEmpty());
+
+				} else {
+					_discardToken = false;
+				}
+				if (_discardToken) {
+					_result = Tokens.DISCARD_CONTEXT_TOKEN;
+					for (final CallTriple _triple : calleeCallStack) {
+						if (Util.isStartMethod(_triple.getExpr().getMethod())) {
+							_result = Tokens.ACCEPT_CONTEXT_TOKEN;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return _result;
+	}
+
 }
 
 // End of File

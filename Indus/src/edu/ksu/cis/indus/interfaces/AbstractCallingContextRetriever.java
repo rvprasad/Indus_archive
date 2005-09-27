@@ -185,11 +185,13 @@ public abstract class AbstractCallingContextRetriever
 	 * @param token on the calle side.
 	 * @param callee of course.
 	 * @param callsite at which <code>callee</code> is called.
+	 * @param calleeCallStack the call stack leading upto the call site.
 	 * @return caller side token.
 	 * @throws UnsupportedOperationException when this implementation is invoked.
-	 * @pre token != null and callee != null and callsite != null
+	 * @pre token != null and callee != null and callsite != null and calleeCallStack != null
 	 */
-	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite) {
+	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
+			final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("getCallerSideToken(token = " + token + ", callee = " + callee + ", callsite = " + callsite + ")");
 		}
@@ -287,7 +289,7 @@ public abstract class AbstractCallingContextRetriever
 						// For collection of call stacks associated to _currToken
 						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 							final CallTriple _callSite = _j.next();
-							final Object _callerToken = getCallerSideToken(_calleeToken, _callee, _callSite);
+							final Object _callerToken = getCallerSideToken(_calleeToken, _callee, _callSite, _calleeCallStack);
 
 							// if there was a corresponding token on the caller side
 							if (_callerToken == Tokens.DISCARD_CONTEXT_TOKEN) {
