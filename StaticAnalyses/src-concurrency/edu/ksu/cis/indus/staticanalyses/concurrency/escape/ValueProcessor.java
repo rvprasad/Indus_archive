@@ -353,9 +353,9 @@ final class ValueProcessor
 				}
 			}
 
-			final boolean _isThreadBoundary = processNotifyStartWaitSync(primaryAliasSet, _callee);
+			processNotifyWaitSync(primaryAliasSet, _callee);
 
-			if (_isThreadBoundary) {
+			if (Util.isStartMethod(_callee)) {
 				_mc.markAsCrossingThreadBoundary();
 			}
 
@@ -452,29 +452,20 @@ final class ValueProcessor
 	}
 
 	/**
-	 * Process the called method for <code>start(), notify(), nofityAll(),</code>, and variants of <code>wait</code> methods.
+	 * Process the called method for <code>notify(), nofityAll(),</code>, and variants of <code>wait</code> methods.
 	 *
 	 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
 	 * @param callee being called.
 	 *
-	 * @return <code>true</code> when the called method is <code>java.lang.Thread.start()</code>.
-	 *
 	 * @pre primaryAliasSet != null and callee != null
 	 */
-	private boolean processNotifyStartWaitSync(final AliasSet primaryAliasSet, final SootMethod callee) {
-		boolean _startWasInvoked = false;
-
-		if (Util.isStartMethod(callee)) {
-			// unify alias sets after all statements are processed if "start" is being invoked.
-			_startWasInvoked = true;
-		} else if (Util.isWaitMethod(callee)) {
+	private void processNotifyWaitSync(final AliasSet primaryAliasSet, final SootMethod callee) {
+		if (Util.isWaitMethod(callee)) {
 			primaryAliasSet.setWaits();
 			primaryAliasSet.setLocked();
 		} else if (Util.isNotifyMethod(callee)) {
 			primaryAliasSet.setNotifies();
 		}
-
-		return _startWasInvoked;
 	}
 
 	/**
