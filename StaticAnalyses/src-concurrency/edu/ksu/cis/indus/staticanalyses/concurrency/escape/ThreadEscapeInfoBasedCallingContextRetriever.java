@@ -131,12 +131,12 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		}
 
 		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
-		final AliasSet _result;
+		final Object _result;
 
 		if (_as != null && _as.escapes()) {
-			_result = (AliasSet) _as.find();
+			_result = _as.find();
 		} else {
-			_result = null;
+			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}
 		return _result;
 	}
@@ -177,15 +177,6 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
-	 * @see AbstractCallingContextRetriever#shouldConsiderUnextensibleStacksAt(Object, SootMethod,
-	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple)
-	 */
-	@Override protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken,
-			@SuppressWarnings ("unused") final SootMethod callee, @SuppressWarnings ("unused") final CallTriple callSite) {
-		return ((AliasSet) calleeToken).escapes();
-	}
-
-	/**
 	 * Prepare a token based on the given alias set.
 	 * 
 	 * @param as is the alias set of interest.
@@ -198,7 +189,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		if (as != null) {
 			_result = (AliasSet) as.find();
 		} else {
-			_result = null;
+			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}
 		return _result;
 	}

@@ -46,6 +46,28 @@ public abstract class AbstractCallingContextRetriever
 		implements ICallingContextRetriever {
 
 	/**
+	 * This enum type defines the tokens used during the calling context construction.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	protected enum Tokens {
+		/**
+		 * This value indicates that the current context should be accepted without further extensions.
+		 */
+		ACCEPT_CONTEXT_TOKEN,
+		/**
+		 * This value indicates that all context should be considered.
+		 */
+		CONSIDER_ALL_CONTEXTS_TOKEN,
+		/**
+		 * This value indicates that the current context should be discarded.
+		 */
+		DISCARD_CONTEXT_TOKEN
+	};
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCallingContextRetriever.class);
@@ -158,8 +180,7 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves caller side token at the given call-site corresponding to the given token at the callee side. If this method
-	 * returns <code>null</code> then that will terminate the extension of current call context along this "path".
+	 * Retrieves caller side token at the given call-site corresponding to the given token at the callee side.
 	 * 
 	 * @param token on the calle side.
 	 * @param callee of course.
@@ -186,12 +207,15 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the token for the program point specified in the given context.
+	 * Retrieves the token for the program point specified in the given context. The implementation should return
+	 * <code>Tokens.CONSIDER_ALL_CONTEXTS_TOKEN</code> as the token if all calling contexts for the given context should be
+	 * considered.
 	 * 
 	 * @param programPointContext of interest.
 	 * @return token corresponding to the program point.
 	 * @throws UnsupportedOperationException when this implementation is invoked.
 	 * @pre programPointContext != null
+	 * @post result != null and not result.equals(Tokens.ACCEPT_CONTEXT_TOKEN)
 	 */
 	protected Object getTokenForProgramPoint(final Context programPointContext) {
 		if (LOGGER.isWarnEnabled()) {
@@ -202,36 +226,19 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the token for for the method specified in the given context.
+	 * Retrieves the token for the "this" variable or ".class" variable of the method specified in the given context. The
+	 * implementation should return <code>Tokens.CONSIDER_ALL_CONTEXTS_TOKEN</code> as the token if all calling contexts for
+	 * the given method (based on its "this" variable) should be considered.
 	 * 
 	 * @param methodContext of interest.
 	 * @return token corresponding to the method.
 	 * @throws UnsupportedOperationException when this implementation is invoked.
 	 * @pre methodContext != null
+	 * @post result != null and not result.equals(Tokens.ACCEPT_CONTEXT_TOKEN)
 	 */
 	protected Object getTokenForThis(final Context methodContext) {
 		if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("getTokenForThis(methodContext = " + methodContext + ")", null);
-		}
-
-		throw new UnsupportedOperationException("This method is unsupported.");
-	}
-
-	/**
-	 * Checks if the unextensible inverted call stacks with the given callee on top of them should be considered as valid call
-	 * stacks.
-	 * 
-	 * @param calleeToken is the token in the callee
-	 * @param callee is the top element on the inverted call stack.
-	 * @param callSite for which the call stack could not be extended.
-	 * @return <code>true</code> if they should be considered; <code>false</code>, otherwise.
-	 * @throws UnsupportedOperationException when this implementation is invoked.
-	 */
-	protected boolean shouldConsiderUnextensibleStacksAt(final Object calleeToken, final SootMethod callee,
-			final CallTriple callSite) {
-		if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("shouldConsiderUnextensibleStacksAt(calleeToken = " + calleeToken + ", callee = " + callee
-					+ ", callSite = " + callSite + ")", null);
 		}
 
 		throw new UnsupportedOperationException("This method is unsupported.");
@@ -253,9 +260,9 @@ public abstract class AbstractCallingContextRetriever
 
 		final Collection<Stack<CallTriple>> _result;
 
-		if (token == null) {
+		if (token == Tokens.CONSIDER_ALL_CONTEXTS_TOKEN) {
 			_result = ICallingContextRetriever.NULL_CONTEXTS;
-		} else {
+		} else if (token != Tokens.DISCARD_CONTEXT_TOKEN) {
 			final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> _wb = new LIFOWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>>();
 			_wb.addWork(new Triple<SootMethod, Object, Stack<CallTriple>>(method, token, new Stack<CallTriple>()));
 			_result = new HashSet<Stack<CallTriple>>();
@@ -283,19 +290,23 @@ public abstract class AbstractCallingContextRetriever
 							final Object _callerToken = getCallerSideToken(_calleeToken, _callee, _callSite);
 
 							// if there was a corresponding token on the caller side
-							if (_callerToken != null) {
-								final Stack<CallTriple> _callerStack = new Stack<CallTriple>();
-								_callerStack.addAll(_calleeCallStack);
-								_callerStack.push(_callSite);
-								_wb.addWorkNoDuplicates(new Triple<SootMethod, Object, Stack<CallTriple>>(_callSite
-										.getMethod(), _callerToken, _callerStack));
-							} else if (shouldConsiderUnextensibleStacksAt(_calleeToken, _callee, _callSite)) {
+							if (_callerToken == Tokens.DISCARD_CONTEXT_TOKEN) {
+								if (LOGGER.isDebugEnabled()) {
+									LOGGER.debug("Discarding context " + _calleeToken + "   " + this.getClass());
+								}
+							} else if (_callerToken == Tokens.ACCEPT_CONTEXT_TOKEN) {
 								// if we have reached the property-based "pivotal" point in the call chain then we decide
 								// to extend all call chains and add it to the resulting contexts.
 								final Stack<CallTriple> _callerStack = new Stack<CallTriple>();
 								_callerStack.addAll(_calleeCallStack);
 								_callerStack.push(_callSite);
 								_result.add(_callerStack);
+							} else {
+								final Stack<CallTriple> _callerStack = new Stack<CallTriple>();
+								_callerStack.addAll(_calleeCallStack);
+								_callerStack.push(_callSite);
+								_wb.addWorkNoDuplicates(new Triple<SootMethod, Object, Stack<CallTriple>>(_callSite
+										.getMethod(), _callerToken, _callerStack));
 							}
 						}
 					}
@@ -313,6 +324,8 @@ public abstract class AbstractCallingContextRetriever
 					Collections.reverse(_stack);
 				}
 			}
+		} else {
+			_result = Collections.emptySet();
 		}
 
 		if (LOGGER.isDebugEnabled()) {
