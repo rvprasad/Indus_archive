@@ -146,13 +146,14 @@ public final class SliceGotoProcessor {
 
 			final Collection<IObjectNode> _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
-			if (CollectionUtils.containsAny(_nodes, _bbInSlice)) {
+			if (CollectionUtils.containsAny(_nodes, _bbInSlice) 
+					|| CollectionUtils.containsAny(_nodes, _bbToBeIncludedInSlice)) {
 				_bbToBeIncludedInSlice.addAll(_nodes);
 			}
 		}
 
 		CollectionUtils.transform(_bbToBeIncludedInSlice, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-
+		
 		// include the gotos in the found basic blocks in the slice.
 		final Iterator _j = _bbToBeIncludedInSlice.iterator();
 		final int _jEnd = _bbToBeIncludedInSlice.size();
