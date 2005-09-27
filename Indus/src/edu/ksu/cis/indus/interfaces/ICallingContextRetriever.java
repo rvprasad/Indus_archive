@@ -32,6 +32,24 @@ public interface ICallingContextRetriever
 		extends IIDBasedInfoManagement {
 
 	/**
+	 * This enum type defines values used to idenfity values in the id-based info map.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	public enum Identifiers {
+		/**
+		 * This identifies the entity at the program point.
+		 */
+		SRC_ENTITY,
+		/**
+		 * This identifies the method enclosing the program point.
+		 */
+		SRC_METHOD
+	}
+
+	/**
 	 * This retrives null contexts.
 	 */
 	ICallingContextRetriever NULL_CONTEXT_RETRIEVER = new ICallingContextRetriever() {
@@ -62,17 +80,7 @@ public interface ICallingContextRetriever
 	/**
 	 * This is a collection of calling contexts that imply all call chains should be followed.
 	 */
-	Collection<Stack<CallTriple>> NULL_CONTEXTS = Collections.singleton(null);
-
-	/**
-	 * This identifies the entity at the program point.
-	 */
-	Comparable SRC_ENTITY = "Entity at the program point";
-
-	/**
-	 * This identifies the method enclosing the program point.
-	 */
-	Comparable SRC_METHOD = "Method enclosing the program point";
+	Collection<Stack<CallTriple>> NULL_CONTEXTS = Collections.singleton(null);;
 
 	/**
 	 * Retrieves the calling contexts for the program point specified in the given context.
