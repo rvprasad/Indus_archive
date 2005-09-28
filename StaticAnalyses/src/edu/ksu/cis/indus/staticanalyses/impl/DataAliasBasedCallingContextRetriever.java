@@ -98,7 +98,7 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(Context)
 	 */
-	@Override protected final boolean considerProgramPoint(final Context programPointContext) {
+	@Override protected boolean considerProgramPoint(final Context programPointContext) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("considerProgramPoint(Context programPointContext = " + programPointContext + ") - BEGIN");
 		}
@@ -111,6 +111,7 @@ public class DataAliasBasedCallingContextRetriever
 		if (_curMethod.isStatic() && _curMethod.getName().equals("<clinit>")) {
 			return true;
 		}
+		final boolean _sameMethod = _curMethod.equals(getInfoFor(Identifiers.SRC_METHOD));
 
 		ConcreteRef _curRef = null;
 		ConcreteRef _srcRef = null;
@@ -128,7 +129,6 @@ public class DataAliasBasedCallingContextRetriever
 		if (_result) {
 			final DefinitionStmt _curDefStmt = (DefinitionStmt) _curStmt;
 			final DefinitionStmt _srcDefStmt = (DefinitionStmt) _srcStmt;
-			final boolean _sameMethod = _curMethod.equals(getInfoFor(Identifiers.SRC_METHOD));
 
 			if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
 				if (_sameMethod) {
@@ -158,18 +158,18 @@ public class DataAliasBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple, Stack)
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
-			final Stack<CallTriple> calleeCallStack) {
+			@SuppressWarnings ("unused") final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
 					+ ", CallTriple callsite = " + callsite + ") - BEGIN");
 		}
 
-		final Object _result;
+		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
 
 		final SootMethod _caller = callsite.getMethod();
 		final Collection _ancestors = (Collection) token;
 
-		if (_ancestors.contains(_caller)) {
+		if (!Util.isStartMethod(callee) && _ancestors.contains(_caller)) {
 			final Collection _col = CollectionUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false),
 					_ancestors);
 			_col.remove(callee);
@@ -177,17 +177,8 @@ public class DataAliasBasedCallingContextRetriever
 			if (!_col.isEmpty()) {
 				_result = _col;
 			} else {
-				Object _t = Tokens.ACCEPT_CONTEXT_TOKEN;
-				for (final CallTriple _triple : calleeCallStack) {
-					if (Util.isStartMethod(_triple.getExpr().getMethod())) {
-						_t = Tokens.DISCARD_CONTEXT_TOKEN;
-						break;
-					}
-				}
-				_result = _t;
+				_result = Tokens.ACCEPT_CONTEXT_TOKEN;
 			}
-		} else {
-			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -271,20 +262,12 @@ public class DataAliasBasedCallingContextRetriever
 	 */
 	protected final Collection<SootMethod> retrieveAncestors(final SootMethod defMethod, final SootMethod useMethod,
 			final DefinitionStmt defStmt, final DefinitionStmt useStmt, final SootMethod curMethod) {
-		final Collection<SootMethod> _ancestors;
+		final Collection<SootMethod> _ancestors = new HashSet<SootMethod>();
 		final ICallGraphInfo _callGraph = getCallGraph();
 
 		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistsBetween(defStmt, useStmt, defMethod)) {
-			final Collection<SootMethod> _methodsReachableFrom = _callGraph.getMethodsReachableFrom(defMethod, false);
-
-			if (_methodsReachableFrom.isEmpty()) {
-				_ancestors = null;
-			} else {
-				_ancestors = new HashSet<SootMethod>(_methodsReachableFrom);
-			}
+			_ancestors.addAll(_callGraph.getMethodsReachableFrom(defMethod, false));
 		} else {
-			_ancestors = new HashSet<SootMethod>();
-
 			if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
 				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
 			}
