@@ -16,6 +16,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -152,8 +153,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
 		 */
 		public Object transform(final Object input) {
-			final Triple _t = (Triple) method2Triple.get(input);
-			return _t != null ? ((Map) _t.getThird()).get(callerTriple) : null;
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _t = method2Triple.get(input);
+			return _t != null ? _t.getThird().get(callerTriple) : null;
 		}
 	}
 
@@ -187,7 +188,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * 
 	 * @invariant class2aliasSets->forall(o | o.oclIsKindOf(AliasSet))
 	 */
-	final Map class2aliasSet;
+	final Map<SootClass, AliasSet> class2aliasSet;
 
 	/**
 	 * This provides context information pertaining to caller-callee relation across method calls. The method stored in the
@@ -198,19 +199,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This is a cache variable that holds local alias set map between method calls.
-	 * 
-	 * @invariant localASsCache.oclIsKindOf(Local, AliasSet)
 	 */
-	Map localASsCache;
+	Map<Local, AliasSet> localASsCache;
 
 	/**
 	 * This maps a method to a triple containing the method context, the alias sets for the locals in the method (key), and
 	 * the site contexts for all the call-sites (caller-side triple) in the method(key).
-	 * 
-	 * @invariant method2Triple.oclIsKindOf(Map(SootMethod, Triple(MethodContext, Map(Local, AliasSet), Map(CallTriple,
-	 *            MethodContext))))
 	 */
-	final Map method2Triple;
+	final Map<SootMethod, Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>> method2Triple;
 
 	/**
 	 * This is a cache variable that holds method context map between method calls.
@@ -219,17 +215,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This maintains a cache of query to alias set.
-	 * 
-	 * @invariant query2handle.oclIsKindOf(Map(Pair(AliasSet, String[]), AliasSet))
 	 */
-	final Map query2handle = new LRUMap();
+	final Map<Pair<AliasSet, String[]>, AliasSet> query2handle = new LRUMap();
 
 	/**
 	 * This is a cache variable that holds site context map between method calls.
-	 * 
-	 * @invariant scCache.oclIsKindOf(CallTriple, MethodContex)
 	 */
-	Map scCache;
+	Map<CallTriple, MethodContext> scCache;
 
 	/**
 	 * This is the statement processor used to analyze the methods.
@@ -245,6 +237,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This is the <code>Value</code> processor used to process Jimple pieces that make up the methods.
 	 */
 	final ValueProcessor valueProcessor;
+
+	/**
+	 * This is the object that exposes object escape info calculated by this instance.
+	 */
+	private final AliasInfo aliasInfo;
 
 	/**
 	 * This is the object that exposes object escape info calculated by this instance.
@@ -270,14 +267,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final BasicBlockGraphMgr basicBlockGraphMgr) {
 		cgi = callgraph;
 		tgi = threadgraph;
-		class2aliasSet = new HashMap();
-		method2Triple = new HashMap();
+		class2aliasSet = new HashMap<SootClass, AliasSet>();
+		method2Triple = new HashMap<SootMethod, Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>>();
 		stmtProcessor = new StmtProcessor(this);
 		valueProcessor = new ValueProcessor(this);
 		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 		escapeInfo = new EscapeInfo(this);
+		aliasInfo = new AliasInfo(this);
 		objectReadWriteInfo = new ReadWriteInfo(this);
 	}
 
@@ -297,10 +295,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * propogating the alias set information in a collective fashion. It then propogates the information top-down in the
 	 * call-graph.
 	 */
-	public void analyze() {
+	@Override public void analyze() {
 		unstable();
 		escapeInfo.unstableAdapter();
 		objectReadWriteInfo.unstableAdapter();
+		aliasInfo.unstableAdapter();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -321,6 +320,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		stable();
 		escapeInfo.stableAdapter();
 		objectReadWriteInfo.stableAdapter();
+		aliasInfo.stableAdapter();
 	}
 
 	/**
@@ -330,9 +330,21 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		// delete references to site caches as they will not be used hereon.
 		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
-			final Triple _triple = (Triple) method2Triple.get(_sm);
-			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple
+					.get(_sm);
+			method2Triple.put(_sm, new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_triple
+					.getFirst(), _triple.getSecond(), null));
 		}
+	}
+
+	/**
+	 * Retrieves aliasing info provider.
+	 * 
+	 * @return an aliasing info provider.
+	 * @post result != null
+	 */
+	public AliasInfo getAliasInfo() {
+		return aliasInfo;
 	}
 
 	/**
@@ -358,10 +370,19 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Reset internal data structures.
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 		class2aliasSet.clear();
 		method2Triple.clear();
+	}
+
+	/**
+	 * Sets the default value to be returned on unanswerable aliasing equeries.
+	 * 
+	 * @param value the new value of <code>aliasedDefaultValue</code>.
+	 */
+	public void setAliasedDefaultValue(final boolean value) {
+		aliasInfo.aliasedDefaultValue = value;
 	}
 
 	/**
@@ -394,18 +415,21 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		final StringBuffer _result = new StringBuffer("\n");
-		final Set _entrySet1 = method2Triple.entrySet();
-		final Iterator _i = _entrySet1.iterator();
+		final Set<Map.Entry<SootMethod, Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>>> _entrySet1;
+		_entrySet1 = method2Triple.entrySet();
+		final Iterator<Map.Entry<SootMethod, Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>>> _i;
+		_i = _entrySet1.iterator();
 		final int _iEnd = _entrySet1.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Map.Entry _entry1 = (Map.Entry) _i.next();
+			final Map.Entry<SootMethod, Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>> _entry1;
+			_entry1 = _i.next();
 			_result.append(_entry1.getKey());
 			_result.append(":\n");
 
-			final Map _local2AS = (Map) ((Triple) _entry1.getValue()).getSecond();
+			final Map<Local, AliasSet> _local2AS = _entry1.getValue().getSecond();
 			_result.append(_local2AS.toString());
 			_result.append("\n");
 		}
@@ -413,75 +437,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Retrieves the alias set for the given soot class.
-	 * 
-	 * @param sc is the class of interest.
-	 * @return an alias set.
-	 */
-	AliasSet getAliasSetFor(final SootClass sc) {
-		return (AliasSet) class2aliasSet.get(sc);
-	}
-
-	/**
-	 * Retrieves the alias set corresponding to the given value. This method cannot handled <code>CaughtExceptionRef</code>.
-	 * 
-	 * @param v is the value for which the alias set is requested.
-	 * @param sm is the method in which <code>v</code> occurs.
-	 * @return the alias set corresponding to <code>v</code>.
-	 * @throws IllegalArgumentException if <code>sm</code> was not analyzed.
-	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
-	 *      v.isOclKindOf(InstanceFieldRef) or v.isOclIsKindOf(ParameterRef)
-	 */
-	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
-		final Triple _trp = (Triple) method2Triple.get(sm);
-
-		if (_trp == null) { throw new IllegalArgumentException("Method " + sm + " was not analyzed."); }
-
-		final Map _local2AS = (Map) _trp.getSecond();
-		final AliasSet _result;
-
-		if (v instanceof InstanceFieldRef) {
-			final InstanceFieldRef _i = (InstanceFieldRef) v;
-			final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
-			_result = _temp.getASForField(_i.getField().getSignature());
-		} else if (v instanceof StaticFieldRef) {
-			final SootField _field = ((StaticFieldRef) v).getField();
-			final AliasSet _base = getASForClass(_field.getDeclaringClass());
-			_result = _base.getASForField(_field.getSignature());
-		} else if (v instanceof ArrayRef) {
-			final ArrayRef _a = (ArrayRef) v;
-			final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-			_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
-		} else if (v instanceof Local) {
-			_result = (AliasSet) _local2AS.get(v);
-		} else if (v instanceof ThisRef) {
-			_result = ((MethodContext) _trp.getFirst()).getThisAS();
-		} else if (v instanceof ParameterRef) {
-			_result = ((MethodContext) _trp.getFirst()).getParamAS(((ParameterRef) v).getIndex());
-		} else if (v instanceof CaughtExceptionRef) {
-			final String _msg = "CaughtExceptionRef cannot be handled.";
-			LOGGER.error(_msg);
-			throw new IllegalArgumentException(_msg);
-		} else {
-			_result = null;
-		}
-
-		return _result;
-	}
-
-	/**
-	 * Retrieves the alias set for "this" variable of the given method.
-	 * 
-	 * @param method of interest.
-	 * @return the alias set corresponding to the "this" variable of the given method.
-	 * @pre method != null and method.isStatic()
-	 */
-	AliasSet getAliasSetForThis(final SootMethod method) {
-		return ((MethodContext) ((Triple) method2Triple.get(method)).getFirst()).thisAS;
-	}
-
-	/**
-	 * Retrieves the alias set for the class. This acts like "this" variable for static fields defined in the given class.
+	 * Retrieves the alias set for the class. This will create a new alias set if none exists for the given class.
 	 * 
 	 * @param declaringClass of interest.
 	 * @return the alias set.
@@ -489,10 +445,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @post result != null
 	 */
 	AliasSet getASForClass(final SootClass declaringClass) {
-		AliasSet _result = (AliasSet) class2aliasSet.get(declaringClass);
+		AliasSet _result = class2aliasSet.get(declaringClass);
 
 		if (_result == null) {
 			_result = AliasSet.getASForType(declaringClass.getType());
+			_result.setGlobal();
 			class2aliasSet.put(declaringClass, _result);
 		}
 		return _result;
@@ -510,11 +467,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre ref != null and callee != null and site != null
 	 */
 	AliasSet getCalleeSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
-		final Triple _triple = (Triple) method2Triple.get(site.getMethod());
-		final Map _callsite2mc = (Map) _triple.getThird();
-		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
-		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
+		if (ref.isGlobal()) {
+			return ref;
+		}
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple.get(site
+				.getMethod());
+		final Map<CallTriple, MethodContext> _callsite2mc = _triple.getThird();
+		final MethodContext _callingContext = _callsite2mc.get(site);
+		final MethodContext _calleeContext = method2Triple.get(callee).getFirst();
 		return _callingContext.getImageOfRefInGivenContext(ref, _calleeContext);
+
 	}
 
 	/**
@@ -529,11 +491,94 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre ref != null and callee != null and site != null
 	 */
 	AliasSet getCallerSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
-		final Triple _triple = (Triple) method2Triple.get(site.getMethod());
-		final Map _callsite2mc = (Map) _triple.getThird();
-		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
-		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
+		if (ref.isGlobal()) {
+			return ref;
+		}
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple.get(site
+				.getMethod());
+		final Map<CallTriple, MethodContext> _callsite2mc = _triple.getThird();
+		final MethodContext _callingContext = _callsite2mc.get(site);
+		final MethodContext _calleeContext = method2Triple.get(callee).getFirst();
 		return _calleeContext.getImageOfRefInGivenContext(ref, _callingContext);
+
+	}
+
+	/**
+	 * Retrieves the alias set for the given soot class. This will not create an alias set if none exists for the given class.
+	 * 
+	 * @param sc is the class of interest.
+	 * @return an alias set.
+	 */
+	AliasSet queryAliasSetFor(final SootClass sc) {
+		return class2aliasSet.get(sc);
+	}
+
+	/**
+	 * Retrieves the alias set corresponding to the given value. This method cannot handled <code>CaughtExceptionRef</code>.
+	 * 
+	 * @param v is the value for which the alias set is requested.
+	 * @param sm is the method in which <code>v</code> occurs.
+	 * @return the alias set corresponding to <code>v</code>.
+	 * @throws IllegalArgumentException if <code>sm</code> was not analyzed.
+	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
+	 *      v.isOclKindOf(InstanceFieldRef) or v.isOclIsKindOf(ParameterRef)
+	 */
+	AliasSet queryAliasSetFor(final Value v, final SootMethod sm) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN - queryAliasSetFor(v = " + v.getClass() + ", sm = " + sm + ")");
+		}
+
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp = method2Triple.get(sm);
+
+		if (_trp == null) {
+			throw new IllegalArgumentException("Method " + sm + " was not analyzed.");
+		}
+
+		final Map<Local, AliasSet> _local2AS = _trp.getSecond();
+		final AliasSet _result;
+
+		if (v instanceof InstanceFieldRef) {
+			final InstanceFieldRef _i = (InstanceFieldRef) v;
+			final AliasSet _temp = _local2AS.get(_i.getBase());
+			_result = _temp.getASForField(_i.getField().getSignature());
+		} else if (v instanceof StaticFieldRef) {
+			final SootField _field = ((StaticFieldRef) v).getField();
+			final AliasSet _base = getASForClass(_field.getDeclaringClass());
+			_result = _base.getASForField(_field.getSignature());
+		} else if (v instanceof ArrayRef) {
+			final ArrayRef _a = (ArrayRef) v;
+			final AliasSet _temp = _local2AS.get(_a.getBase());
+			_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
+		} else if (v instanceof Local) {
+			_result = _local2AS.get(v);
+		} else if (v instanceof ThisRef) {
+			_result = _trp.getFirst().getThisAS();
+		} else if (v instanceof ParameterRef) {
+			_result = _trp.getFirst().getParamAS(((ParameterRef) v).getIndex());
+		} else if (v instanceof CaughtExceptionRef) {
+			final String _msg = "CaughtExceptionRef cannot be handled.";
+			LOGGER.error(_msg);
+			throw new IllegalArgumentException(_msg);
+		} else {
+			_result = null;
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END - queryAliasSetFor(Value, SootMethod): " + _result);
+		}
+
+		return _result;
+	}
+
+	/**
+	 * Retrieves the alias set for "this" variable of the given method.
+	 * 
+	 * @param method of interest.
+	 * @return the alias set corresponding to the "this" variable of the given method.
+	 * @pre method != null and method.isStatic()
+	 */
+	AliasSet queryAliasSetForThis(final SootMethod method) {
+		return method2Triple.get(method).getFirst().thisAS;
 	}
 
 	/**
@@ -545,8 +590,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre method != null
 	 */
 	void validate(final int paramPos, final SootMethod method) throws IllegalArgumentException {
-		if (paramPos >= method.getParameterCount()) { throw new IllegalArgumentException(method + " has "
-				+ method.getParameterCount() + " arguments, but " + paramPos + " was provided."); }
+		if (paramPos >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + paramPos
+					+ " was provided.");
+		}
 	}
 
 	/**
@@ -556,7 +603,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @throws IllegalArgumentException if the given method is static.
 	 */
 	void validate(final SootMethod method) throws IllegalArgumentException {
-		if (method.isStatic()) { throw new IllegalArgumentException("The provided method should be non-static."); }
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
 	}
 
 	/**
@@ -568,12 +617,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	private void discardReferentialAliasSets(final SootMethod method) {
 		if (localASsCache.isEmpty()) {
-			localASsCache = Collections.EMPTY_MAP;
+			localASsCache = Collections.emptyMap();
 		} else {
-			for (final Iterator _i = localASsCache.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final AliasSet _as = (AliasSet) _entry.getValue();
-				final AliasSet _equiv = (AliasSet) _as.find();
+			for (final Iterator<Map.Entry<Local, AliasSet>> _i = localASsCache.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry<Local, AliasSet> _entry = _i.next();
+				final AliasSet _as = _entry.getValue();
+				final AliasSet _equiv = _as.find();
 
 				if (_equiv != _as) {
 					_entry.setValue(_equiv);
@@ -582,12 +631,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		if (scCache.isEmpty()) {
-			scCache = Collections.EMPTY_MAP;
+			scCache = Collections.emptyMap();
 		} else {
-			for (final Iterator _i = scCache.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final MethodContext _mc = (MethodContext) _entry.getValue();
-				final MethodContext _mcRep = (MethodContext) _mc.find();
+			for (final Iterator<Map.Entry<CallTriple, MethodContext>> _i = scCache.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry<CallTriple, MethodContext> _entry = _i.next();
+				final MethodContext _mc = _entry.getValue();
+				final MethodContext _mcRep = _mc.find();
 
 				if (_mcRep != _mc) {
 					_entry.setValue(_mcRep);
@@ -596,15 +645,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 		methodCtxtCache.discardReferentialAliasSets();
-		method2Triple.put(method, new Triple(methodCtxtCache, localASsCache, scCache));
+		method2Triple.put(method, new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(
+				methodCtxtCache, localASsCache, scCache));
 	}
 
 	/**
 	 * Performs phase 2 processing as described in the paper mentioned in the documentation of this class.
 	 */
 	private void performPhase2() {
-		final Collection _processed = new HashSet();
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_processed);
+		final Collection<BasicBlock> _processed = new HashSet<BasicBlock>();
+		final IWorkBag<BasicBlock> _wb = new HistoryAwareFIFOWorkBag<BasicBlock>(_processed);
 		final Collection _sccs = cgi.getSCCs(false);
 
 		// Phase 2: The SCCs are ordered bottom up.
@@ -618,15 +668,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					LOGGER.debug("Bottom-up processing method " + _sm);
 				}
 
-				final Triple _triple;
+				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 
-				// we need to do the following even if _sm does not have a body because every 
+				// we need to do the following even if _sm does not have a body because every
 				// reachable method should have a method context.
 				if (method2Triple.containsKey(_sm)) {
-					_triple = (Triple) method2Triple.get(_sm);
+					_triple = method2Triple.get(_sm);
 				} else {
 					final MethodContext _methodContext = new MethodContext(_sm, EquivalenceClassBasedEscapeAnalysis.this);
-					_triple = new Triple(_methodContext, new HashMap(), new HashMap());
+					_triple = new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_methodContext,
+							new HashMap<Local, AliasSet>(), new HashMap<CallTriple, MethodContext>());
 					method2Triple.put(_sm, _triple);
 				}
 
@@ -638,9 +689,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				methodCtxtCache = (MethodContext) _triple.getFirst();
-				localASsCache = (Map) _triple.getSecond();
-				scCache = (Map) _triple.getThird();
+				methodCtxtCache = _triple.getFirst();
+				localASsCache = _triple.getSecond();
+				scCache = _triple.getThird();
 				context.setRootMethod(_sm);
 
 				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_sm);
@@ -649,10 +700,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_wb.addWork(_bbg.getHead());
 
 				while (_wb.hasWork()) {
-					final BasicBlock _bb = (BasicBlock) _wb.getWork();
+					final BasicBlock _bb = _wb.getWork();
 
-					for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
-						final Stmt _stmt = (Stmt) _k.next();
+					for (final Iterator<Stmt> _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
+						final Stmt _stmt = _k.next();
 						context.setStmt(_stmt);
 						stmtProcessor.process(_stmt);
 					}
@@ -687,19 +738,21 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				continue;
 			}
 
-			final Triple _callerTriple = (Triple) method2Triple.get(_caller);
-			final Map _ctrp2sc = (Map) _callerTriple.getThird();
-			final Collection _callees = cgi.getCallees(_caller);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _callerTriple = method2Triple
+					.get(_caller);
+			final Map<CallTriple, MethodContext> _ctrp2sc = _callerTriple.getThird();
+			final Collection<CallTriple> _callees = cgi.getCallees(_caller);
 
-			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = (CallTriple) _i.next();
+			for (final Iterator<CallTriple> _i = _callees.iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = _i.next();
 				final SootMethod _callee = _ctrp.getMethod();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Top-down processing : CALLEE : " + _callee);
 				}
 
-				final Triple _calleeTriple = (Triple) method2Triple.get(_callee);
+				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _calleeTriple;
+				_calleeTriple = method2Triple.get(_callee);
 
 				/*
 				 * NOTE: This is an anomaly which results from how an open system is closed. Refer to MethodVariant.java for
@@ -713,15 +766,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final MethodContext _calleeMethodContext = (MethodContext) (_calleeTriple.getFirst());
+				final MethodContext _calleeMethodContext = _calleeTriple.getFirst();
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
-				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
-				
+				final MethodContext _calleeSiteContext = _ctrp2sc.get(_callerTrp);
+
 				if (_calleeSiteContext == null) {
-					LOGGER.error("callee site context was null - (\n" + _callerTrp + "\n" + _ctrp2sc.keySet() 
-							+ "\n)");
+					LOGGER.error("callee site context was null - (\n" + _callerTrp + "\n" + _ctrp2sc.keySet() + "\n)");
 				}
-				
+
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}

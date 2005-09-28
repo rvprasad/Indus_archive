@@ -137,15 +137,16 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 */
 	@Override protected boolean considerThis(final Context methodContext) {
 		final SootMethod _method = methodContext.getCurrentMethod();
-		final boolean _result = (interferenceBased && escapesInfo.thisFieldAccessShared(_method,
-				IEscapeInfo.READ_WRITE_SHARED_ACCESS))
-				|| (readyBased && (escapesInfo.thisWaitNotifyShared(_method) || escapesInfo.thisLockUnlockShared(_method)));
+		final boolean _result1 = interferenceBased
+				&& escapesInfo.thisFieldAccessShared(_method, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+		final boolean _result2 = readyBased
+				&& (escapesInfo.thisWaitNotifyShared(_method) || escapesInfo.thisLockUnlockShared(_method));
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("considerThis() -  : _result = " + _result);
+			LOGGER.debug("considerThis() -  : _result = " + (_result1 || _result2));
 		}
 
-		return _result;
+		return _result1 || _result2;
 	}
 
 	/**
@@ -154,42 +155,42 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
 			final Stack<CallTriple> calleeCallStack) {
+
 		Object _result = super.getCallerSideToken(token, callee, callsite, calleeCallStack);
+
 		if (!(_result instanceof Tokens)) {
 			final AliasSet _callerSideToken = (AliasSet) _result;
 			final AliasSet _calleeSideToken = (AliasSet) token;
+
 			if (_callerSideToken != null && _calleeSideToken != null) {
 				final boolean _discardToken;
+
 				if (interferenceBased) {
 					final Collection _callerRWEntities = _callerSideToken.getReadWriteShareEntities();
 					final Collection _calleeRWEntities = _calleeSideToken.getReadWriteShareEntities();
 					_discardToken = _callerRWEntities == null || _calleeRWEntities == null
-							|| CollectionUtils.intersection(_callerRWEntities, _calleeRWEntities).isEmpty();
+							|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
 				} else if (readyBased) {
 					final Collection _callerReadyEntities = _callerSideToken.getReadyEntities();
 					final Collection _calleeReadyEntities = _calleeSideToken.getReadyEntities();
 					final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
-							|| CollectionUtils.intersection(_callerReadyEntities, _calleeReadyEntities).isEmpty();
+							|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
 					final Collection _callerLockEntities = _callerSideToken.getLockEntities();
 					final Collection _calleeLockEntities = _calleeSideToken.getLockEntities();
 					_discardToken = _b2
-							|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.intersection(
-									_callerLockEntities, _calleeLockEntities).isEmpty());
+							|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
+									_callerLockEntities, _calleeLockEntities));
 
 				} else {
 					_discardToken = false;
 				}
-				if (_discardToken) {
-					_result = Tokens.DISCARD_CONTEXT_TOKEN;
-					for (final CallTriple _triple : calleeCallStack) {
-						if (Util.isStartMethod(_triple.getExpr().getMethod())) {
-							_result = Tokens.ACCEPT_CONTEXT_TOKEN;
-							break;
-						}
-					}
+
+				if (_discardToken && Util.isStartMethod(callee)) {
+					_result = Tokens.ACCEPT_CONTEXT_TOKEN;
 				}
 			}
 		}
+
 		return _result;
 	}
 

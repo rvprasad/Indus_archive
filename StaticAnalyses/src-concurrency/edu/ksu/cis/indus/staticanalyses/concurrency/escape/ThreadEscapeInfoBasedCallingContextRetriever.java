@@ -14,14 +14,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import java.util.Stack;
-
 import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Context;
+
+import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,18 +136,14 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		}
 
 		final AliasSet _as = ecba.getCallerSideAliasSet((AliasSet) token, callee, callsite);
-		Object _result;
+		final Object _result;
 
 		if (_as != null && _as.escapes()) {
 			_result = _as.find();
+		} else if (Util.isStartMethod(callee)) {
+			_result = Tokens.ACCEPT_CONTEXT_TOKEN;
 		} else {
 			_result = Tokens.DISCARD_CONTEXT_TOKEN;
-			for (final CallTriple _triple : calleeCallStack) {
-				if (Util.isStartMethod(_triple.getExpr().getMethod())) {
-					_result = Tokens.ACCEPT_CONTEXT_TOKEN;
-					break;
-				}
-			}
 		}
 		return _result;
 	}
@@ -168,7 +165,15 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 			LOGGER.debug("getTokenForProgramPoint(context = " + context + ")");
 		}
 
-		final AliasSet _as = ecba.getAliasSetFor(context.getProgramPoint().getValue(), context.getCurrentMethod());
+		final Value _value = context.getProgramPoint().getValue();
+		final AliasSet _as;
+		
+		if (_value instanceof StaticFieldRef) {
+			_as = ecba.queryAliasSetFor(((StaticFieldRef) _value).getField().getDeclaringClass());
+		} else {
+			_as = ecba.queryAliasSetFor(_value, context.getCurrentMethod());
+		}
+		
 		return prepareToken(_as);
 	}
 
@@ -182,7 +187,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 			LOGGER.debug("getTokenForThis(method = " + _method + ")");
 		}
 
-		final AliasSet _as = ecba.getAliasSetForThis(_method);
+		final AliasSet _as = ecba.queryAliasSetForThis(_method);
 		return prepareToken(_as);
 	}
 
@@ -197,7 +202,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		final Object _result;
 
 		if (as != null) {
-			_result = (AliasSet) as.find();
+			_result = as.find();
 		} else {
 			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}

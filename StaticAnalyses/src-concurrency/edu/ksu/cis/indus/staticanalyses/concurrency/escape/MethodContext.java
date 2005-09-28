@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +48,7 @@ import soot.Type;
  * @version $Revision$
  */
 final class MethodContext
-		extends FastUnionFindElement
+		extends FastUnionFindElement<MethodContext>
 		implements Cloneable {
 
 	/**
@@ -86,7 +87,7 @@ final class MethodContext
 	 * @invariant method.getParameterTypes()->forall(o | not AliasSet.canHaveAliasSet(o) implies
 	 *            argAliasSets.get(method.getParameterTypes().indexOf(o)) == null)
 	 */
-	private List argAliasSets;
+	private List<AliasSet> argAliasSets;
 
 	/**
 	 * The analysis that created this instance.
@@ -125,11 +126,11 @@ final class MethodContext
 	 *            that created this instance.
 	 * @pre sm != null and argASs != null and thrownAS != null and analysis != null
 	 */
-	MethodContext(final SootMethod sm, final AliasSet thisASParam, final List argASs, final AliasSet retAS,
+	MethodContext(final SootMethod sm, final AliasSet thisASParam, final List<AliasSet> argASs, final AliasSet retAS,
 			final AliasSet thrownAS, final EquivalenceClassBasedEscapeAnalysis analysis) {
 		method = sm;
 		ecba = analysis;
-		argAliasSets = new ArrayList(argASs);
+		argAliasSets = new ArrayList<AliasSet>(argASs);
 
 		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(sm.getReturnType())) {
 			ret = retAS;
@@ -158,13 +159,13 @@ final class MethodContext
 		final int _paramCount = sm.getParameterCount();
 
 		if (_paramCount > 0) {
-			argAliasSets = new ArrayList(_paramCount);
+			argAliasSets = new ArrayList<AliasSet>(_paramCount);
 
 			for (int _i = 0; _i < _paramCount; _i++) {
 				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(_i)));
 			}
 		} else {
-			argAliasSets = Collections.EMPTY_LIST;
+			argAliasSets = Collections.emptyList();
 		}
 
 		final Type _retType = sm.getReturnType();
@@ -189,28 +190,28 @@ final class MethodContext
 	 * @throws CloneNotSupportedException
 	 *             when <code>clone()</code> fails.
 	 */
-	private static void fixUpFieldMapsOfClone(final Map src2clone) throws CloneNotSupportedException {
-		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+	private static void fixUpFieldMapsOfClone(final Map<AliasSet, AliasSet> src2clone) throws CloneNotSupportedException {
+		final IWorkBag<AliasSet> _wb = new HistoryAwareLIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
 
 		_wb.addAllWork(src2clone.keySet());
 
 		while (_wb.hasWork()) {
-			final AliasSet _src = (AliasSet) _wb.getWork();
-			final AliasSet _clone = (AliasSet) src2clone.get(_src);
-			final Map _srcASFieldMap = _src.getFieldMap();
-			final Set _srcASFields = _srcASFieldMap.keySet();
-			final Iterator _i = _srcASFields.iterator();
+			final AliasSet _src = _wb.getWork();
+			final AliasSet _clone = src2clone.get(_src);
+			final Map<String, AliasSet> _srcASFieldMap = _src.getFieldMap();
+			final Set<String> _srcASFields = _srcASFieldMap.keySet();
+			final Iterator<String> _i = _srcASFields.iterator();
 			final int _iEnd = _srcASFields.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final String _field = (String) _i.next();
+				final String _field = _i.next();
 
 				/*
 				 * We use the representative alias set as it is possible that a field may have 2 alias sets in different
 				 * contexts but the same representative alias set in both contexts. We don't do the same for clones as they
 				 * are the representatives until they are unified, which happens in the following block.
 				 */
-				final AliasSet _srcFieldAS = (AliasSet) _src.getASForField(_field).find();
+				final AliasSet _srcFieldAS = _src.getASForField(_field).find();
 				final AliasSet _cloneFieldAS;
 
 				_cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
@@ -223,15 +224,15 @@ final class MethodContext
 		}
 
 		// Unify the clones to reflect the relation between their originators.
-		for (final Iterator _i = src2clone.keySet().iterator(); _i.hasNext();) {
-			final AliasSet _k1 = (AliasSet) _i.next();
+		for (final Iterator<AliasSet> _i = src2clone.keySet().iterator(); _i.hasNext();) {
+			final AliasSet _k1 = _i.next();
 
 			for (final Iterator _j = src2clone.keySet().iterator(); _j.hasNext();) {
 				final AliasSet _k2 = (AliasSet) _j.next();
 
 				if (_k1 != _k2 && _k1.find() == _k2.find()) {
-					final AliasSet _v1 = (AliasSet) src2clone.get(_k1);
-					final AliasSet _v2 = (AliasSet) src2clone.get(_k2);
+					final AliasSet _v1 = src2clone.get(_k1);
+					final AliasSet _v2 = src2clone.get(_k2);
 					_v1.unifyAliasSetHelper(_v2, false);
 				}
 			}
@@ -255,12 +256,12 @@ final class MethodContext
 	 * @post src2clone.keySet()->forall(o | o = o.find())
 	 * @post src2clone.get(as.find()) != result and result != null
 	 */
-	private static AliasSet getCloneOf(final Map src2clone, final AliasSet as) throws CloneNotSupportedException {
-		final AliasSet _repr = (AliasSet) as.find();
-		AliasSet _result = (AliasSet) src2clone.get(_repr);
+	private static AliasSet getCloneOf(final Map<AliasSet, AliasSet> src2clone, final AliasSet as) throws CloneNotSupportedException {
+		final AliasSet _repr = as.find();
+		AliasSet _result = src2clone.get(_repr);
 
 		if (_result == null) {
-			_result = (AliasSet) _repr.clone();
+			_result = _repr.clone();
 			src2clone.put(_repr, _result);
 		}
 		return _result;
@@ -273,11 +274,11 @@ final class MethodContext
 	 * @throws CloneNotSupportedException
 	 *             if <code>java.lang.Object.clone()</code> fails.
 	 */
-	public Object clone() throws CloneNotSupportedException {
+	@Override public MethodContext clone() throws CloneNotSupportedException {
 		MethodContext _clone = null;
 
 		if (find() != this) {
-			_clone = (MethodContext) ((MethodContext) find()).clone();
+			_clone = find().clone();
 		} else {
 			_clone = (MethodContext) super.clone();
 
@@ -285,16 +286,16 @@ final class MethodContext
 			 * map from the representative to it's clone. The clone is always the representative element, but this is not true
 			 * for the clonee.
 			 */
-			final Map _clonee2clone = new HashMap();
+			final Map<AliasSet, AliasSet> _clonee2clone = new HashMap<AliasSet, AliasSet>();
 			_clone.set = null;
 
 			if (thisAS != null) {
 				_clone.thisAS = getCloneOf(_clonee2clone, thisAS);
 			}
-			_clone.argAliasSets = new ArrayList();
+			_clone.argAliasSets = new ArrayList<AliasSet>();
 
-			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
-				final AliasSet _tmp = (AliasSet) _i.next();
+			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _tmp = _i.next();
 
 				if (_tmp != null) {
 					_clone.argAliasSets.add(getCloneOf(_clonee2clone, _tmp));
@@ -316,7 +317,7 @@ final class MethodContext
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).append("thrown", this.thrown).append("argAliasSets", this.argAliasSets).append(
 				"ret", this.ret).append("thisAS", this.thisAS).append("method", this.method).toString();
 	}
@@ -326,25 +327,25 @@ final class MethodContext
 	 */
 	void discardReferentialAliasSets() {
 		if (thrown != null) {
-			thrown = (AliasSet) thrown.find();
+			thrown = thrown.find();
 		}
 
 		if (thisAS != null) {
-			thisAS = (AliasSet) thisAS.find();
+			thisAS = thisAS.find();
 		}
 
 		if (ret != null) {
-			ret = (AliasSet) ret.find();
+			ret = ret.find();
 		}
 
 		if (argAliasSets != null && !argAliasSets.isEmpty()) {
 			final int _size = argAliasSets.size();
 
 			for (int _i = 0; _i < _size; _i++) {
-				final Object _temp = argAliasSets.get(_i);
+				final AliasSet _temp = argAliasSets.get(_i);
 
 				if (_temp != null) {
-					argAliasSets.set(_i, ((AliasSet) _temp).find());
+					argAliasSets.set(_i, _temp.find());
 				}
 			}
 		}
@@ -364,7 +365,7 @@ final class MethodContext
 	AliasSet getImageOfRefInGivenContext(final AliasSet ref, final MethodContext context) {
 		AliasSet _result = null;
 
-		final Set _temp = new HashSet();
+		final Collection<Pair<AliasSet, AliasSet>> _temp = new HashSet<Pair<AliasSet, AliasSet>>();
 		final AliasSet _thisAS = getThisAS();
 		final AliasSet _thisAS2 = context.getThisAS();
 
@@ -414,7 +415,7 @@ final class MethodContext
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getParamAS(final int index) {
-		return (AliasSet) ((MethodContext) find()).argAliasSets.get(index);
+		return find().argAliasSets.get(index);
 	}
 
 	/**
@@ -423,7 +424,7 @@ final class MethodContext
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getReturnAS() {
-		return ((MethodContext) find()).ret;
+		return find().ret;
 	}
 
 	/**
@@ -432,7 +433,7 @@ final class MethodContext
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getThisAS() {
-		return ((MethodContext) find()).thisAS;
+		return find().thisAS;
 	}
 
 	/**
@@ -442,7 +443,7 @@ final class MethodContext
 	 * @post result != null
 	 */
 	AliasSet getThrownAS() {
-		return ((MethodContext) find()).thrown;
+		return find().thrown;
 	}
 
 	/**
@@ -482,7 +483,7 @@ final class MethodContext
 	 */
 	void markAsCrossingThreadBoundary() {
 		if (find() != this) {
-			((MethodContext) find()).markAsCrossingThreadBoundary();
+			find().markAsCrossingThreadBoundary();
 		} else {
 			if (ret != null) {
 				ret.markAsCrossingThreadBoundary();
@@ -496,16 +497,16 @@ final class MethodContext
 				thisAS.markAsCrossingThreadBoundary();
 			}
 
-			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
-				final AliasSet _argAS = (AliasSet) _i.next();
+			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _argAS =  _i.next();
 
 				if (_argAS != null) {
 					_argAS.markAsCrossingThreadBoundary();
 				}
 			}
 
-			for (final Iterator _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
-				final AliasSet _as = (AliasSet) _j.next();
+			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+				final AliasSet _as = _j.next();
 
 				_as.markAsCrossingThreadBoundary();
 			}
@@ -521,15 +522,15 @@ final class MethodContext
 	 * @pre to != null
 	 */
 	void propogateInfoFromTo(final MethodContext to) {
-		final MethodContext _fromRep = (MethodContext) find();
-		final MethodContext _toRep = (MethodContext) to.find();
+		final MethodContext _fromRep = find();
+		final MethodContext _toRep = to.find();
 
 		final int _paramCount = _fromRep.method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_fromRep.method.getParameterType(_i))) {
-				final AliasSet _temp1 = (AliasSet) _fromRep.argAliasSets.get(_i);
-				final AliasSet _temp2 = (AliasSet) _toRep.argAliasSets.get(_i);
+				final AliasSet _temp1 = _fromRep.argAliasSets.get(_i);
+				final AliasSet _temp2 = _toRep.argAliasSets.get(_i);
 
 				if (_temp1 != null && _temp2 != null) {
 					_temp1.propogateInfoFromTo(_temp2);
@@ -555,12 +556,12 @@ final class MethodContext
 	 * Unifies this object with itself. This is required while dealing with call-sites which may be executed multiple times.
 	 */
 	void selfUnify() {
-		final MethodContext _methodContext = (MethodContext) find();
+		final MethodContext _methodContext = find();
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-				final AliasSet _aliasSet = (AliasSet) _methodContext.argAliasSets.get(_i);
+				final AliasSet _aliasSet = _methodContext.argAliasSets.get(_i);
 
 				// it is possible that the argument at a site-context is null
 				if (_aliasSet != null) {
@@ -582,8 +583,8 @@ final class MethodContext
 			AliasSet.selfUnify(_mThis);
 		}
 
-		for (final Iterator _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
-			final AliasSet _as = (AliasSet) _j.next();
+		for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+			final AliasSet _as = _j.next();
 			AliasSet.selfUnify(_as);
 		}
 	}
@@ -607,13 +608,13 @@ final class MethodContext
 			LOGGER.error("Unification with null requested.");
 		}
 
-		final MethodContext _m = (MethodContext) find();
-		final MethodContext _n = (MethodContext) p.find();
+		final MethodContext _m = find();
+		final MethodContext _n = p.find();
 
 		if (_m != _n) {
 			_m.union(_n);
 
-			final MethodContext _representative = (MethodContext) _m.find();
+			final MethodContext _representative = _m.find();
 			final MethodContext _represented;
 
 			if (_representative == _m) {
@@ -628,8 +629,8 @@ final class MethodContext
 
 			for (int _i = 0; _i < _paramCount; _i++) {
 				if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-					final AliasSet _mAS = (AliasSet) _representative.argAliasSets.get(_i);
-					final AliasSet _nAS = (AliasSet) _represented.argAliasSets.get(_i);
+					final AliasSet _mAS = _representative.argAliasSets.get(_i);
+					final AliasSet _nAS = _represented.argAliasSets.get(_i);
 					unifyAliasSets(_mAS, _nAS);
 				}
 			}
@@ -666,6 +667,42 @@ final class MethodContext
 		} else if (representative != null) {
 			representative.unifyAliasSet(represented);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 */
+	public void eraseIntraThreadRefEntities() {
+		if (find() != this) {
+			find().eraseIntraThreadRefEntities();
+		} else {
+			if (ret != null) {
+				ret.eraseIntraThreadRefEntities();
+			}
+
+			if (thrown != null) {
+				thrown.eraseIntraThreadRefEntities();
+			}
+
+			if (thisAS != null) {
+				thisAS.eraseIntraThreadRefEntities();
+			}
+
+			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _argAS = _i.next();
+
+				if (_argAS != null) {
+					_argAS.eraseIntraThreadRefEntities();
+				}
+			}
+
+			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+				final AliasSet _as = _j.next();
+
+				_as.eraseIntraThreadRefEntities();
+			}
+		}		
 	}
 }
 
