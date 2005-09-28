@@ -438,15 +438,13 @@ public final class BasicBlockGraph
 				_throwsUncaughtException = analysis != null && analysis.doesStmtThrowUncaughtException(_stmt, method);
 
 				if (_succsSize == 1 && !_throwsUncaughtException) {
-					// check if we did not come around basic block involved in a self-loop (a->a)
-					if (!stmts.contains(_stmt)) {
-						stmts.add(_stmt);
-						_pred = _stmt;
-						_stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);
-					} else {
+					if (stmts.contains(_stmt)) {
 						// if we did come around a self-loop then the basic block cannot be extended further
 						break;
 					}
+					stmts.add(_stmt);
+					_pred = _stmt;
+					_stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);
 				} else {
 					stmts.add(_stmt);
 
