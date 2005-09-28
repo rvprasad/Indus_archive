@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
@@ -43,6 +44,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.DataAliasBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
@@ -51,7 +53,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.impl.DataAliasBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -79,15 +80,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import soot.SootMethod;
 
 /**
  * This is a facade that exposes the slicer as a tool.  This is recommended interface to interact with the slicer if the
@@ -196,23 +198,21 @@ public final class SlicerTool
 	/** 
 	 * The slicing criteria.
 	 *
-	 * @invariant criteria != null and criteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @invariant criteria != null
 	 */
-	private final Collection criteria;
+	private final Collection<ISliceCriterion> criteria;
 
 	/** 
 	 * This is used to retrieve any application-level criteria as opposed to those hand-picked by the user.
-	 *
-	 * @invariant criteriaGenerators.oclIsKindOf(Collection(ISliceCriteriaGenerator))
 	 */
-	private final Collection criteriaGenerators;
+	private final Collection<ISliceCriteriaGenerator> criteriaGenerators;
 
 	/** 
 	 * The entry point methods.
 	 *
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	private final Collection rootMethods;
+	private final Collection<SootMethod> rootMethods;
 
 	/** 
 	 * This provides <code>UnitGraph</code>s for the analyses.
@@ -317,10 +317,10 @@ public final class SlicerTool
 		theTokenMgr = tokenMgr;
 		phase = Phase.createPhase();
 
-		rootMethods = new HashSet();
-		criteria = new HashSet();
+		rootMethods = new HashSet<SootMethod>();
+		criteria = new HashSet<ISliceCriterion>();
 		info = new HashMap();
-		criteriaGenerators = new HashSet();
+		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr);
@@ -429,7 +429,7 @@ public final class SlicerTool
 	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(AbstractSlicingCriteria))
 	 * @pre theCriteria->forall(o | o != null)
 	 */
-	public void setCriteria(final Collection theCriteria) {
+	public void setCriteria(final Collection<ISliceCriterion> theCriteria) {
 		criteria.clear();
 		criteria.addAll(theCriteria);
 	}
@@ -452,8 +452,8 @@ public final class SlicerTool
 	 *
 	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
-	public Collection getDAs() {
-		final Collection _result = new LinkedHashSet();
+	public Collection<IDependencyAnalysis> getDAs() {
+		final Collection<IDependencyAnalysis> _result = new LinkedHashSet<IDependencyAnalysis>();
 		final SlicerConfiguration _config = (SlicerConfiguration) getActiveConfiguration();
 		final List _daNames = new ArrayList(_config.getIDsOfDAsToUse());
 		Collections.sort(_daNames);
@@ -512,7 +512,7 @@ public final class SlicerTool
 	 * @pre theRootMethods != null and theRootMethods.oclIsKindOf(Collection(SootMethod))
 	 * @pre theRootMethods->forall(o | o != null)
 	 */
-	public void setRootMethods(final Collection theRootMethods) {
+	public void setRootMethods(final Collection<SootMethod> theRootMethods) {
 		rootMethods.clear();
 		rootMethods.addAll(theRootMethods);
 	}
@@ -646,7 +646,7 @@ public final class SlicerTool
 	 * phase.  <code>lastPhase</code> controls the last phase to have finished execution when the tools stops.
 	 * </p>
 	 */
-	public void execute(final Phase phaseParam, final Phase lastPhase)
+	@Override public void execute(final Phase phaseParam, final Phase lastPhase)
 	  throws InterruptedException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Execution of the slicer tool");
@@ -768,7 +768,7 @@ public final class SlicerTool
 	 *
 	 * @throws IllegalStateException if forward executable slice is requested.
 	 */
-	protected void checkConfiguration() {
+	@Override protected void checkConfiguration() {
 		final IToolConfiguration _slicerConf = getActiveConfiguration();
 
 		if (((Boolean) _slicerConf.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()
@@ -826,7 +826,7 @@ public final class SlicerTool
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, _b);
 		addActivePart(daController.getActivePart());
 
-		final Collection _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
+		final Collection<IDependencyAnalysis> _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
 		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
 
 		// drive the analyses
@@ -968,13 +968,13 @@ public final class SlicerTool
 
 		fireToolProgressEvent("SLICING: adding criteria", phase);
 
-		for (final Iterator _i = criteriaGenerators.iterator(); _i.hasNext();) {
-			final ISliceCriteriaGenerator _e = (ISliceCriteriaGenerator) _i.next();
+		for (final Iterator<ISliceCriteriaGenerator> _i = criteriaGenerators.iterator(); _i.hasNext();) {
+			final ISliceCriteriaGenerator _e = _i.next();
 			criteria.addAll(_e.getCriteria(this));
 		}
 
-		for (final Iterator _j = slicerConfig.getSliceCriteriaGenerators().iterator(); _j.hasNext();) {
-			final ISliceCriteriaGenerator _generator = (ISliceCriteriaGenerator) _j.next();
+		for (final Iterator<ISliceCriteriaGenerator> _j = slicerConfig.getSliceCriteriaGenerators().iterator(); _j.hasNext();) {
+			final ISliceCriteriaGenerator _generator = _j.next();
 			criteria.addAll(_generator.getCriteria(this));
 		}
 
@@ -996,6 +996,7 @@ public final class SlicerTool
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 =
 					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, IDependencyAnalysis.READY_DA);
+					//new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
@@ -1004,16 +1005,18 @@ public final class SlicerTool
 				final ThreadEscapeInfoBasedCallingContextRetriever _t2 =
 					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, 
 							IDependencyAnalysis.INTERFERENCE_DA);
+					//new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetriever _t3 =
-					new DataAliasBasedCallingContextRetriever(_callingContextLimit);
+				final DataAliasBasedCallingContextRetrieverV2 _t3 =
+					new DataAliasBasedCallingContextRetrieverV2(_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
+				_t3.setECBA(ecba);
 				_map.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}
