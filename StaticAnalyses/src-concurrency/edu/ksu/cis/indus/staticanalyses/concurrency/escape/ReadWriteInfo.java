@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.TransformerUtils;
@@ -31,6 +32,7 @@ import org.apache.commons.collections.TransformerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Local;
 import soot.SootMethod;
 
 /**
@@ -80,7 +82,8 @@ class ReadWriteInfo
 	private final Transformer methodCtxtRetriever = new Transformer() {
 
 		public Object transform(final Object input) {
-			final Triple _t = (Triple) analysis.method2Triple.get(input);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _t = analysis.method2Triple
+					.get(input);
 			return _t != null ? _t.getFirst() : null;
 		}
 	};
@@ -192,8 +195,9 @@ class ReadWriteInfo
 	 */
 	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
 			final boolean recurse) throws IllegalArgumentException {
-		if (callerTriple.getExpr().getMethod().isStatic()) { throw new IllegalArgumentException(
-				"The invoked method should be non-static."); }
+		if (callerTriple.getExpr().getMethod().isStatic()) {
+			throw new IllegalArgumentException("The invoked method should be non-static.");
+		}
 
 		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
 				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
@@ -205,8 +209,9 @@ class ReadWriteInfo
 	 */
 	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
 			final boolean recurse) {
-		if (callerTriple.getExpr().getMethod().isStatic()) { throw new IllegalArgumentException(
-				"The invoked method should be non-static."); }
+		if (callerTriple.getExpr().getMethod().isStatic()) {
+			throw new IllegalArgumentException("The invoked method should be non-static.");
+		}
 
 		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
 				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
@@ -265,7 +270,8 @@ class ReadWriteInfo
 	 * @pre method != null and retriever != null
 	 */
 	private boolean globalDataReadWriteInfoHelper(final SootMethod method, final Transformer retriever, final boolean read) {
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = this.analysis.method2Triple
+				.get(method);
 		final boolean _result;
 
 		if (_triple != null) {
@@ -321,10 +327,10 @@ class ReadWriteInfo
 				System.arraycopy(accesspath, 0, _s, 0, _s.length);
 			}
 
-			final Pair _pair = new Pair(_aliasSet.find(), _s);
+			final Pair<AliasSet, String[]> _pair = new Pair<AliasSet, String[]>(_aliasSet.find(), _s);
 
 			if (this.analysis.query2handle.containsKey(_pair)) {
-				_endPoint = (AliasSet) this.analysis.query2handle.get(_pair);
+				_endPoint = this.analysis.query2handle.get(_pair);
 			} else {
 				_endPoint = _aliasSet.getAccessPathEndPoint(_s);
 				this.analysis.query2handle.put(_pair, _endPoint);

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -45,147 +44,142 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
- * This class calculates equivalence classes of locking statements that may acquire same locks.  In simple words, two lock
- * acquisition statements (enter-monitor or synchronized method invocation) belong to the same equivalence  class if they
- * may acquire the lock on the same object.
- *
+ * This class calculates equivalence classes of locking statements that may acquire same locks. In simple words, two lock
+ * acquisition statements (enter-monitor or synchronized method invocation) belong to the same equivalence class if they may
+ * acquire the lock on the same object.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class LockAcquisitionBasedEquivalence
-  extends AbstractProcessor {
-	/** 
-	 * This is a collection of enter monitor statements.
-	 *
-	 * @invariant monitorStmts.oclIsKindOf(Collection(EnterMonitorStmt))
-	 */
-	private final Collection enterMonitorStmts = new HashSet();
+		extends AbstractProcessor {
 
-	/** 
-	 * This is a collection of invocation statements.
-	 *
-	 * @invariant invokeStmts.oclIsKindOf(Collection(Stmt))
-	 * @invariant invokeStmts->forall(o | o.containsInvokeExpr())
-	 */
-	private final Collection invokeStmts = new HashSet();
-
-	/** 
-	 * This provides locking information.
-	 */
-	private final IEscapeInfo locking;
-
-	/** 
+	/**
 	 * This provides the call graph.
 	 */
 	private ICallGraphInfo cgi;
 
-	/** 
+	/**
+	 * This is a collection of enter monitor statements.
+	 */
+	private final Collection<Pair<EnterMonitorStmt, SootMethod>> enterMonitorStmts;
+
+	/**
+	 * This is a collection of invocation statements.
+	 */
+	private final Collection<Pair<InvokeStmt, SootMethod>> invokeStmts;
+
+	/**
+	 * This provides locking information.
+	 */
+	private final IEscapeInfo locking;
+
+	/**
 	 * This maps a lock acquisition statement to the collection of lock acquisition statements that are in the same
 	 * equivalence class as the key.
-	 *
+	 * 
 	 * @invariant locking2lockings.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 * @invariant locking2lockings.keySet()->forall(o | o.getFirst().oclIsKindOf(EnterMonitorStmt) or
-	 * 			  o.getFirst().containsInvokeExpr())
+	 *            o.getFirst().containsInvokeExpr())
 	 */
-	private final Map locking2lockings = new HashMap();
+	private final Map<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> locking2lockings;
 
 	/**
 	 * Creates a new LockAcquisitionBasedEquivalence object.
-	 *
+	 * 
 	 * @param escapeInfo to be used.
 	 * @param callgraph to be used.
-	 *
 	 * @pre escapeInfo != null and callgraph != null
 	 */
 	public LockAcquisitionBasedEquivalence(final IEscapeInfo escapeInfo, final ICallGraphInfo callgraph) {
 		locking = escapeInfo;
 		cgi = callgraph;
-	}
-
-	/**
-	 * Retrieves the lock acquisitions that belong to the same equivalence class as the given lock acquisition.
-	 *
-	 * @param pair of interest.
-	 *
-	 * @return a collection of lock acquisition.
-	 *
-	 * @pre pair.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or pair.oclIsKindOf(Pair(EnterMonitorStmt, SootMethod))
-	 * @post result != null
-	 * @post
-	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
-	 * 		 SootMethod)))
-	 */
-	public Collection getLockAcquisitionsInEquivalenceClassOf(final Pair pair) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(locking2lockings, pair,
-				Collections.EMPTY_SET));
-	}
-
-	/**
-	 * Retrieves the lock acquisitions that belong to a non-singleton equivalence class.
-	 *
-	 * @return a collection of lock acquisition.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod))  or o.oclIsKindOf(Pair(EnterMonitorStmt,
-	 * 		 SootMethod)))
-	 */
-	public Collection getLockAcquisitionsInNonSingletonEquivalenceClass() {
-        final Collection _r = new HashSet();
-        final Iterator _i = locking2lockings.entrySet().iterator();
-        final int _iEnd = locking2lockings.entrySet().size();
-        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-            final Map.Entry _e = (Map.Entry) _i.next();
-            if (((Collection) _e.getValue()).size() > 1) {
-                _r.add(_e.getKey());
-            }
-        }
-		return _r;
+		locking2lockings = new HashMap<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>();
+		enterMonitorStmts = new HashSet<Pair<EnterMonitorStmt, SootMethod>>();
+		invokeStmts = new HashSet<Pair<InvokeStmt, SootMethod>>();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(final SootMethod method) {
+	@Override public void callback(final SootMethod method) {
 		if (method.isSynchronized()) {
-			final Pair _p = new Pair(null, method);
-            enterMonitorStmts.add(_p);
-            processLocal(null, method, _p);
+			final Pair<EnterMonitorStmt, SootMethod> _p = new Pair<EnterMonitorStmt, SootMethod>(null, method);
+			enterMonitorStmts.add(_p);
+			processLocal(null, method, _p);
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
+	@Override public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
 
 		if (stmt instanceof InvokeStmt) {
 			if (Util.isWaitInvocation((InvokeStmt) stmt, _method, cgi)) {
 				final InvokeStmt _s = (InvokeStmt) stmt;
-				final Pair _p = new Pair(_s, _method);
+				final Pair<InvokeStmt, SootMethod> _p = new Pair<InvokeStmt, SootMethod>(_s, _method);
 				final Local _l = (Local) ((VirtualInvokeExpr) _s.getInvokeExpr()).getBase();
-                invokeStmts.add(_p);
+				invokeStmts.add(_p);
 				processLocal(_l, _method, _p);
 			}
 		} else {
 			final EnterMonitorStmt _n = (EnterMonitorStmt) stmt;
-			final Pair _p = new Pair(_n, _method);
+			final Pair<EnterMonitorStmt, SootMethod> _p = new Pair<EnterMonitorStmt, SootMethod>(_n, _method);
 			final Local _l = (Local) _n.getOp();
-            enterMonitorStmts.add(_p);
-            processLocal(_l, _method, _p);
+			enterMonitorStmts.add(_p);
+			processLocal(_l, _method, _p);
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
 	 */
-	public void consolidate() {
+	@Override public void consolidate() {
 		super.consolidate();
 		enterMonitorStmts.clear();
 		invokeStmts.clear();
+	}
+
+	/**
+	 * Retrieves the lock acquisitions that belong to the same equivalence class as the given lock acquisition.
+	 * 
+	 * @param pair of interest.
+	 * @return a collection of lock acquisition.
+	 * @pre pair.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or pair.oclIsKindOf(Pair(EnterMonitorStmt, SootMethod))
+	 * @post result != null
+	 * @post
+	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
+	 *       SootMethod)))
+	 */
+	public Collection<Pair<Stmt, SootMethod>> getLockAcquisitionsInEquivalenceClassOf(final Pair<Stmt, SootMethod> pair) {
+		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(locking2lockings, pair, Collections
+				.emptySet()));
+	}
+
+	/**
+	 * Retrieves the lock acquisitions that belong to a non-singleton equivalence class.
+	 * 
+	 * @return a collection of lock acquisition.
+	 * @post result != null
+	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
+	 *       SootMethod)))
+	 */
+	public Collection<Pair<? extends Stmt, SootMethod>> getLockAcquisitionsInNonSingletonEquivalenceClass() {
+		final Collection<Pair<? extends Stmt, SootMethod>> _r = new HashSet<Pair<? extends Stmt, SootMethod>>();
+		final Iterator<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _i;
+		_i = locking2lockings.entrySet().iterator();
+		final int _iEnd = locking2lockings.entrySet().size();
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> _e = _i.next();
+			if (_e.getValue().size() > 1) {
+				_r.add(_e.getKey());
+			}
+		}
+		return _r;
 	}
 
 	/**
@@ -199,10 +193,9 @@ public class LockAcquisitionBasedEquivalence
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("monitorStmts", this.enterMonitorStmts)
-										  .append("invokeStmts", this.invokeStmts)
-										  .append("locking2lockings", this.locking2lockings).toString();
+	@Override public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("monitorStmts", this.enterMonitorStmts).append(
+				"invokeStmts", this.invokeStmts).append("locking2lockings", this.locking2lockings).toString();
 	}
 
 	/**
@@ -215,23 +208,21 @@ public class LockAcquisitionBasedEquivalence
 
 	/**
 	 * Processes the given local in the given method to calculate if it is related to the given lock acquisition.
-	 *
+	 * 
 	 * @param local of interest.
 	 * @param method in which <code>local</code> occurs.
 	 * @param p is a lock acquisition.
-	 *
 	 * @pre method != null and p != null and p.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	private void processLocal(final Local local, final SootMethod method, final Pair p) {
-		final Iterator _i = invokeStmts.iterator();
+	private void processLocal(final Local local, final SootMethod method, final Pair<? extends Stmt, SootMethod> p) {
+		final Iterator<Pair<InvokeStmt, SootMethod>> _i = invokeStmts.iterator();
 		final int _iEnd = invokeStmts.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Pair _p2 = (Pair) _i.next();
-			final InvokeStmt _s = (InvokeStmt) _p2.getFirst();
-			final SootMethod _sm = (SootMethod) _p2.getSecond();
-			final Local _l2 = _s == null ? null
-										 : (Local) ((VirtualInvokeExpr) _s.getInvokeExpr()).getBase();
+			final Pair<InvokeStmt, SootMethod> _p2 = _i.next();
+			final InvokeStmt _s = _p2.getFirst();
+			final SootMethod _sm = _p2.getSecond();
+			final Local _l2 = _s == null ? null : (Local) ((VirtualInvokeExpr) _s.getInvokeExpr()).getBase();
 
 			if (locking.areCoupledViaLocking(local, method, _l2, _sm)) {
 				CollectionsUtilities.putIntoSetInMap(locking2lockings, _p2, p);
@@ -239,15 +230,14 @@ public class LockAcquisitionBasedEquivalence
 			}
 		}
 
-		final Iterator _j = enterMonitorStmts.iterator();
+		final Iterator<Pair<EnterMonitorStmt, SootMethod>> _j = enterMonitorStmts.iterator();
 		final int _jEnd = enterMonitorStmts.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Pair _p2 = (Pair) _j.next();
-			final EnterMonitorStmt _s = (EnterMonitorStmt) _p2.getFirst();
-			final SootMethod _sm = (SootMethod) _p2.getSecond();
-			final Local _l2 = _s == null ? null
-										 : (Local) _s.getOp();
+			final Pair<EnterMonitorStmt, SootMethod> _p2 = _j.next();
+			final EnterMonitorStmt _s = _p2.getFirst();
+			final SootMethod _sm = _p2.getSecond();
+			final Local _l2 = _s == null ? null : (Local) _s.getOp();
 
 			if (locking.areCoupledViaLocking(local, method, _l2, _sm)) {
 				CollectionsUtilities.putIntoSetInMap(locking2lockings, _p2, p);

@@ -16,8 +16,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import java.util.Collection;
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
-
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.MonitorStmt;
@@ -133,28 +131,34 @@ class EscapeInfo
 		if (enterMethod.isStatic() || exitMethod.isStatic()) {
 			_result = true;
 		} else {
-			final Triple _trp1 = (Triple) analysis.method2Triple.get(enterMethod);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp1 = analysis.method2Triple
+					.get(enterMethod);
 
-			if (_trp1 == null) { throw new IllegalArgumentException(enterMethod + " was not processed."); }
+			if (_trp1 == null) {
+				throw new IllegalArgumentException(enterMethod + " was not processed.");
+			}
 
-			final Triple _trp2 = (Triple) analysis.method2Triple.get(exitMethod);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp2 = analysis.method2Triple
+					.get(exitMethod);
 
-			if (_trp2 == null) { throw new IllegalArgumentException(exitMethod + " was not processed."); }
+			if (_trp2 == null) {
+				throw new IllegalArgumentException(exitMethod + " was not processed.");
+			}
 
 			final AliasSet _n;
 
 			if (enter == null) {
-				_n = ((MethodContext) _trp1.getFirst()).getThisAS();
+				_n = _trp1.getFirst().getThisAS();
 			} else {
-				_n = (AliasSet) ((Map) _trp1.getSecond()).get(enter.getOp());
+				_n = _trp1.getSecond().get(enter.getOp());
 			}
 
 			final AliasSet _x;
 
 			if (exit == null) {
-				_x = ((MethodContext) _trp2.getFirst()).getThisAS();
+				_x = _trp2.getFirst().getThisAS();
 			} else {
-				_x = (AliasSet) ((Map) _trp2.getSecond()).get(exit.getOp());
+				_x = _trp2.getSecond().get(exit.getOp());
 			}
 
 			final Collection _xLockEntities = _x.getLockEntities();
@@ -171,13 +175,19 @@ class EscapeInfo
 	 */
 	public boolean areWaitAndNotifyCoupled(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
 			final SootMethod notifyMethod) {
-		final Triple _trp1 = (Triple) analysis.method2Triple.get(waitMethod);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp1 = analysis.method2Triple
+				.get(waitMethod);
 
-		if (_trp1 == null) { throw new IllegalArgumentException(waitMethod + " was not processed."); }
+		if (_trp1 == null) {
+			throw new IllegalArgumentException(waitMethod + " was not processed.");
+		}
 
-		final Triple _trp2 = (Triple) analysis.method2Triple.get(notifyMethod);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp2 = analysis.method2Triple
+				.get(notifyMethod);
 
-		if (_trp2 == null) { throw new IllegalArgumentException(notifyMethod + " was not processed."); }
+		if (_trp2 == null) {
+			throw new IllegalArgumentException(notifyMethod + " was not processed.");
+		}
 
 		final InvokeExpr _wi = wait.getInvokeExpr();
 		final InvokeExpr _ni = notify.getInvokeExpr();
@@ -190,8 +200,8 @@ class EscapeInfo
 			final SootMethod _nSM = _nTemp.getMethod();
 
 			if (Util.isWaitMethod(_wSM) && Util.isNotifyMethod(_nSM)) {
-				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
-				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
+				final AliasSet _as1 = _trp1.getSecond().get(_wTemp.getBase());
+				final AliasSet _as2 = _trp2.getSecond().get(_nTemp.getBase());
 
 				if ((_as1.getReadyEntities() != null) && (_as2.getReadyEntities() != null)) {
 					_result = CollectionUtils.containsAny(_as1.getReadyEntities(), _as2.getReadyEntities());
@@ -221,7 +231,7 @@ class EscapeInfo
 		boolean _result = escapesDefaultValue;
 
 		try {
-			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+			final AliasSet _as = this.analysis.queryAliasSetFor(sc);
 
 			if (_as != null) {
 				_result = _as.escapes();
@@ -246,7 +256,7 @@ class EscapeInfo
 
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = this.analysis.getAliasSetFor(v, sm).escapes();
+				_result = this.analysis.queryAliasSetFor(v, sm).escapes();
 			} else {
 				_result = false;
 			}
@@ -269,9 +279,9 @@ class EscapeInfo
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
-					_result = this.analysis.getAliasSetFor(v, sm).readWriteShared();
+					_result = this.analysis.queryAliasSetFor(v, sm).readWriteShared();
 				} else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)) {
-					_result = this.analysis.getAliasSetFor(v, sm).writeWriteShared();
+					_result = this.analysis.queryAliasSetFor(v, sm).writeWriteShared();
 				} else {
 					throw new IllegalArgumentException("sharedAccessSort has to be either "
 							+ "IEscapeInfo.WRITE_WRITE_SHARED_ACCESS or IEscapeInfo.READ_WRITE_SHARED_ACCESS");
@@ -299,9 +309,9 @@ class EscapeInfo
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
-					_result = this.analysis.getAliasSetFor(v, sm).readWriteShared(fieldSignature);
+					_result = this.analysis.queryAliasSetFor(v, sm).readWriteShared(fieldSignature);
 				} else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)) {
-					_result = this.analysis.getAliasSetFor(v, sm).writeWriteShared(fieldSignature);
+					_result = this.analysis.queryAliasSetFor(v, sm).writeWriteShared(fieldSignature);
 				} else {
 					throw new IllegalArgumentException("sharedAccessSort has to be either "
 							+ "IEscapeInfo.WRITE_WRITE_SHARED_ACCESS or IEscapeInfo.READ_WRITE_SHARED_ACCESS");
@@ -329,12 +339,12 @@ class EscapeInfo
 		if (_result) {
 			try {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
-					final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getReadWriteShareEntities();
-					final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getReadWriteShareEntities();
+					final Collection _o1 = analysis.queryAliasSetFor(v1, sm1).getReadWriteShareEntities();
+					final Collection _o2 = analysis.queryAliasSetFor(v2, sm2).getReadWriteShareEntities();
 					_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 				} else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)) {
-					final Collection _o1 = analysis.getAliasSetFor(v1, sm1).getWriteWriteShareEntities();
-					final Collection _o2 = analysis.getAliasSetFor(v2, sm2).getWriteWriteShareEntities();
+					final Collection _o1 = analysis.queryAliasSetFor(v1, sm1).getWriteWriteShareEntities();
+					final Collection _o2 = analysis.queryAliasSetFor(v2, sm2).getWriteWriteShareEntities();
 					_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 				} else {
 					throw new IllegalArgumentException("sharedAccessSort has to be either "
@@ -367,13 +377,14 @@ class EscapeInfo
 		final Collection _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
-			final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+			_triple = this.analysis.method2Triple.get(method);
 
 			if (_triple != null) {
-				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+				final MethodContext _ctxt = _triple.getFirst();
 				_result = _ctxt.getParamAS(paramIndex).getReadThreads();
 			} else {
-				_result = Collections.EMPTY_SET;
+				_result = Collections.emptySet();
 
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("No recorded information for " + method
@@ -381,7 +392,7 @@ class EscapeInfo
 				}
 			}
 		} else {
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
@@ -390,12 +401,13 @@ class EscapeInfo
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(soot.Local, soot.SootMethod)
 	 */
 	public Collection getReadingThreadsOf(final Local local, final SootMethod method) {
-		Collection _result = Collections.EMPTY_SET;
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		Collection _result = Collections.emptySet();
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple != null) {
-			final Map _local2as = (Map) _triple.getSecond();
-			final AliasSet _as = (AliasSet) _local2as.get(local);
+			final Map<Local, AliasSet> _local2as = _triple.getSecond();
+			final AliasSet _as = _local2as.get(local);
 
 			if (_as != null) {
 				_result = _as.getReadThreads();
@@ -410,17 +422,18 @@ class EscapeInfo
 	public Collection getReadingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 		final Collection _result;
 
 		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final MethodContext _ctxt = _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getReadThreads());
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
@@ -434,13 +447,14 @@ class EscapeInfo
 		final Collection _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
-			final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+			_triple = this.analysis.method2Triple.get(method);
 
 			if (_triple != null) {
-				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+				final MethodContext _ctxt = _triple.getFirst();
 				_result = _ctxt.getParamAS(paramIndex).getWriteThreads();
 			} else {
-				_result = Collections.EMPTY_SET;
+				_result = Collections.emptySet();
 
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("No recorded information for " + method
@@ -448,7 +462,7 @@ class EscapeInfo
 				}
 			}
 		} else {
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
@@ -457,12 +471,13 @@ class EscapeInfo
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(soot.Local, soot.SootMethod)
 	 */
 	public Collection getWritingThreadsOf(final Local local, final SootMethod method) {
-		Collection _result = Collections.EMPTY_SET;
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		Collection _result = Collections.emptySet();
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple != null) {
-			final Map _local2as = (Map) _triple.getSecond();
-			final AliasSet _as = (AliasSet) _local2as.get(local);
+			final Map<Local, AliasSet> _local2as = _triple.getSecond();
+			final AliasSet _as = _local2as.get(local);
 
 			if (_as != null) {
 				_result = _as.getWriteThreads();
@@ -477,17 +492,18 @@ class EscapeInfo
 	public Collection getWritingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 		final Collection _result;
 
 		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final MethodContext _ctxt = _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getWriteThreads());
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
@@ -500,7 +516,7 @@ class EscapeInfo
 
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = this.analysis.getAliasSetFor(v, sm).lockUnlockShared();
+				_result = this.analysis.queryAliasSetFor(v, sm).lockUnlockShared();
 			} else {
 				_result = false;
 			}
@@ -521,7 +537,7 @@ class EscapeInfo
 		boolean _result = getDefaultValueForSharedAccessSort(sharedAccessSort);
 
 		try {
-			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+			final AliasSet _as = this.analysis.queryAliasSetFor(sc);
 
 			if (_as != null) {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
@@ -554,7 +570,7 @@ class EscapeInfo
 		boolean _result = getDefaultValueForSharedAccessSort(sharedAccessSort);
 
 		try {
-			final AliasSet _as = this.analysis.getAliasSetFor(sc);
+			final AliasSet _as = this.analysis.queryAliasSetFor(sc);
 
 			if (_as != null) {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
@@ -584,14 +600,15 @@ class EscapeInfo
 	public boolean thisEscapes(final SootMethod method) {
 		boolean _result = escapesDefaultValue;
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			if  (LOGGER.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
-			final AliasSet _as = ((MethodContext) _triple.getFirst()).getThisAS();
+			final AliasSet _as = _triple.getFirst().getThisAS();
 
 			// if non-static query the alias set of "this" variable. If static, just return true assuming that the
 			// application to decide wisely :-)
@@ -608,14 +625,15 @@ class EscapeInfo
 	public boolean thisFieldAccessShared(final SootMethod method, final Object sharedAccessSort) {
 		boolean _result = getDefaultValueForSharedAccessSort(sharedAccessSort);
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			 if (LOGGER.isDebugEnabled()) {
-				 LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
-			 }
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			}
 		} else {
-			final AliasSet _as = ((MethodContext) _triple.getFirst()).getThisAS();
+			final AliasSet _as = _triple.getFirst().getThisAS();
 
 			// if non-static query the alias set of "this" variable. If static, just return true assuming that the
 			// application to decide wisely :-)
@@ -639,12 +657,13 @@ class EscapeInfo
 	public boolean thisFieldAccessShared(final SootMethod method, final String signature, final Object sharedAccessSort) {
 		boolean _result = getDefaultValueForSharedAccessSort(sharedAccessSort);
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null && LOGGER.isDebugEnabled()) {
 			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 		} else {
-			final AliasSet _as = ((MethodContext) _triple.getFirst()).getThisAS();
+			final AliasSet _as = _triple.getFirst().getThisAS();
 
 			// if non-static query the alias set of "this" variable. If static, just return true assuming that the
 			// application to decide wisely :-)
@@ -668,14 +687,15 @@ class EscapeInfo
 	public boolean thisLockUnlockShared(final SootMethod method) {
 		boolean _result = lockunlockDefaultValue;
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
-			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+			final AliasSet _as1 = _triple.getFirst().getThisAS();
 
 			// if non-static query the alias set of "this" variable. If static, just return true assuming that the
 			// application to decide wisely :-)
@@ -691,16 +711,16 @@ class EscapeInfo
 	 */
 	public boolean thisWaitNotifyShared(final SootMethod method) {
 		boolean _result = waitnotifyDefaultValue;
-		;
 
-		final Triple _triple = (Triple) this.analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
-			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
+			final AliasSet _as1 = _triple.getFirst().getThisAS();
 
 			// if non-static query the alias set of "this" variable. If static, just return true assuming that the
 			// application to decide wisely :-)
@@ -719,7 +739,7 @@ class EscapeInfo
 
 		try {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = this.analysis.getAliasSetFor(v, sm).waitNotifyShared();
+				_result = this.analysis.queryAliasSetFor(v, sm).waitNotifyShared();
 			} else {
 				_result = false;
 			}
@@ -757,19 +777,24 @@ class EscapeInfo
 	 * @pre local != null and method != null
 	 */
 	private AliasSet getAliasSetForIn(final Local local, final SootMethod method) throws IllegalArgumentException {
-		final Triple _trp1 = (Triple) analysis.method2Triple.get(method);
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp1 = analysis.method2Triple
+				.get(method);
 
-		if (_trp1 == null) { throw new IllegalArgumentException(method + " was not processed."); }
+		if (_trp1 == null) {
+			throw new IllegalArgumentException(method + " was not processed.");
+		}
 
 		final AliasSet _a1;
 
 		if (local != null) {
-			_a1 = (AliasSet) ((Map) _trp1.getSecond()).get(local);
+			_a1 = _trp1.getSecond().get(local);
 		} else {
-			_a1 = ((MethodContext) _trp1.getFirst()).getThisAS();
+			_a1 = _trp1.getFirst().getThisAS();
 		}
 
-		if (_a1 == null) { throw new IllegalArgumentException(local + " in " + method + " was not processed."); }
+		if (_a1 == null) {
+			throw new IllegalArgumentException(local + " in " + method + " was not processed.");
+		}
 		return _a1;
 	}
 

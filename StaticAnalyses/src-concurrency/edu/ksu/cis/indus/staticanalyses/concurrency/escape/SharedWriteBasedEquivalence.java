@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -46,91 +45,60 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 
-
 /**
- * This class contains the logic to calculate equivalence classes of shared-write statements in the system.  Two shared-write
+ * This class contains the logic to calculate equivalence classes of shared-write statements in the system. Two shared-write
  * statement belong to the same equivalence class if they may write to the same field/array cell.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class SharedWriteBasedEquivalence
-  extends AbstractProcessor {
-	/** 
+		extends AbstractProcessor {
+
+	/**
 	 * This is the collection of definition statements involving array reference or field reference.
-	 *
+	 * 
 	 * @invariant defStmts.oclIsKindOf(Collection(Stmt))
 	 * @invariant defStmts->forall(o | o.containsArrayRef() or o.containsFieldRef())
 	 */
-	private final Collection defStmts = new HashSet();
+	private final Collection<Pair<AssignStmt, SootMethod>> defStmts;
 
-	/** 
+	/**
 	 * This provides escape information.
 	 */
 	private final IEscapeInfo einfo;
 
-	/** 
+	/**
 	 * This maps a shared write statement to the collection of shared write statements that are in the same equivalence class
 	 * as the key.
-	 *
-	 * @invariant locking2lockings.oclIsKindOf(Map(Pair(AssignStmt, SootMethod), Collection(Pair(AssignStmt, SootMethod))))
-	 * @invariant locking2lockings.keySet()->forall(o | o.getFirst().getLeftOp().oclIsKindOf(ArrayRef) or
-	 * 			  o.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or
-	 * 			  o.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef))
+	 * 
+	 * @invariant write2writes.keySet()->forall(o | o.getFirst().getLeftOp().oclIsKindOf(ArrayRef) or
+	 *            o.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or
+	 *            o.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef))
 	 */
-	private final Map write2writes = new HashMap();
+	private final Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> write2writes;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param escapeInfo to be used.
 	 */
 	public SharedWriteBasedEquivalence(final IEscapeInfo escapeInfo) {
 		einfo = escapeInfo;
-	}
-
-	/**
-	 * Retrieves the shared writes that belong to the same equivalence class as the given shared write.
-	 *
-	 * @param pair of interest.
-	 *
-	 * @return a collection of lock acquisition.
-	 *
-	 * @pre pair.oclIsKindOf(Pair(AssignStmt, SootMethod))
-	 * @pre pair.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef)  or
-	 * 		pair.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef)  or pair.getFirst().getLeftOp().oclIsKindOf(ArrayRef)
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(AssignStmt, SootMethod)))
-	 * @post result->forall(o |
-	 */
-	public Collection getSharedWritesInEquivalenceClassOf(final Pair pair) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(write2writes, pair, Collections.EMPTY_SET));
-	}
-
-	/**
-	 * Retrieves the shared writes that belong to a non-singleton equivalence class.
-	 *
-	 * @return a collection of lock acquisition.
-	 *
-	 * @post result.getFirst().oclIsKindOf(AssignStmt)
-	 * @post result.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef)  or
-	 * 		 result.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef)  or
-	 * 		 result.getFirst().getLeftOp().oclIsKindOf(ArrayRef)
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(AssignStmt, SootMethod)))
-	 */
-	public Collection getSharedWritesInNonSingletonEquivalenceClass() {
-		return Collections.unmodifiableCollection(write2writes.keySet());
+		write2writes = new HashMap<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>();
+		defStmts = new HashSet<Pair<AssignStmt, SootMethod>>();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, final Context context) {
 		final Stmt _stmt = context.getStmt();
 
-		if (((DefinitionStmt) _stmt).getLeftOpBox() == vBox) {
+		if (((AssignStmt) _stmt).getLeftOpBox() == vBox) {
 			final SootMethod _currentMethod = context.getCurrentMethod();
-			final Pair _pair = new Pair(_stmt, _currentMethod);
+			final Pair<AssignStmt, SootMethod> _pair = new Pair<AssignStmt, SootMethod>((AssignStmt) _stmt, _currentMethod);
 			defStmts.add(_pair);
 		}
 	}
@@ -138,20 +106,20 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * Calculates write-write based dependence.
 	 */
-	public void consolidate() {
-		final Iterator _i = defStmts.iterator();
+	@Override public void consolidate() {
+		final Iterator<Pair<AssignStmt, SootMethod>> _i = defStmts.iterator();
 		final int _iEnd = defStmts.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Pair _p1 = (Pair) _i.next();
-			final DefinitionStmt _s1 = (DefinitionStmt) _p1.getFirst();
-			final SootMethod _m1 = (SootMethod) _p1.getSecond();
-			final Iterator _j = defStmts.iterator();
+			final Pair<AssignStmt, SootMethod> _p1 = _i.next();
+			final DefinitionStmt _s1 = _p1.getFirst();
+			final SootMethod _m1 = _p1.getSecond();
+			final Iterator<Pair<AssignStmt, SootMethod>> _j = defStmts.iterator();
 
 			for (int _jIndex = 0; _jIndex < _iEnd; _jIndex++) {
-				final Pair _p2 = (Pair) _j.next();
-				final DefinitionStmt _s2 = (DefinitionStmt) _p2.getFirst();
-				final SootMethod _m2 = (SootMethod) _p2.getSecond();
+				final Pair<AssignStmt, SootMethod> _p2 = _j.next();
+				final DefinitionStmt _s2 = _p2.getFirst();
+				final SootMethod _m2 = _p2.getSecond();
 
 				if (writeWriteExecutionDependence(_s1, _m1, _s2, _m2)) {
 					CollectionsUtilities.putIntoSetInMap(write2writes, _p1, _p2);
@@ -164,6 +132,35 @@ public class SharedWriteBasedEquivalence
 	}
 
 	/**
+	 * Retrieves the shared writes that belong to the same equivalence class as the given shared write.
+	 * 
+	 * @param pair of interest.
+	 * @return a collection of lock acquisition.
+	 * @pre pair.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
+	 *      pair.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or pair.getFirst().getLeftOp().oclIsKindOf(ArrayRef)
+	 * @post result != null
+	 * @post result->forall(o |
+	 */
+	public Collection<Pair<AssignStmt, SootMethod>> getSharedWritesInEquivalenceClassOf(
+			final Pair<AssignStmt, SootMethod> pair) {
+		return Collections
+				.unmodifiableCollection((Collection) MapUtils.getObject(write2writes, pair, Collections.emptySet()));
+	}
+
+	/**
+	 * Retrieves the shared writes that belong to a non-singleton equivalence class.
+	 * 
+	 * @return a collection of lock acquisition.
+	 * @post result.getFirst().oclIsKindOf(AssignStmt)
+	 * @post result.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
+	 *       result.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or result.getFirst().getLeftOp().oclIsKindOf(ArrayRef)
+	 * @post result != null
+	 */
+	public Collection<Pair<AssignStmt, SootMethod>> getSharedWritesInNonSingletonEquivalenceClass() {
+		return Collections.unmodifiableCollection(write2writes.keySet());
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -173,7 +170,7 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).append("defStmts", defStmts).append("write2writes", write2writes).toString();
 	}
 
@@ -187,23 +184,22 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * Checks if the given definition statements are dependent based on the fact that they may update the same field on an
 	 * object or the same cell of an array.
-	 *
+	 * 
 	 * @param s1 is one statement of interest.
 	 * @param m1 is the method containing <code>s1</code>.
 	 * @param s2 is the second statement of interest.
 	 * @param m2 is the method containing <code>s2</code>.
-	 *
 	 * @return <code>true</code> if both <code>s1</code> and <code>s2</code> contain either array/field ref in the
-	 * 		   l-position; <code>false</code>, otherwise.
-	 *
+	 *         l-position; <code>false</code>, otherwise.
 	 * @pre s1 != null and m1 != null and s2 != null and m2 != null
 	 */
 	private boolean writeWriteExecutionDependence(final DefinitionStmt s1, final SootMethod m1, final DefinitionStmt s2,
-		final SootMethod m2) {
+			final SootMethod m2) {
 		boolean _result = false;
 
 		if (s1.containsArrayRef() && s2.containsArrayRef()) {
-			_result = einfo.fieldAccessShared(s1.getArrayRef().getBase(), m1, s2.getArrayRef().getBase(), m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
+			_result = einfo.fieldAccessShared(s1.getArrayRef().getBase(), m1, s2.getArrayRef().getBase(), m2,
+					IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 		} else if (s1.containsFieldRef() && s2.containsFieldRef()) {
 			final FieldRef _fieldRef2 = s2.getFieldRef();
 			final FieldRef _fieldRef1 = s1.getFieldRef();
@@ -211,13 +207,11 @@ public class SharedWriteBasedEquivalence
 
 			if (_field1.equals(_fieldRef2.getField())) {
 				if (_fieldRef1 instanceof InstanceFieldRef && _fieldRef2 instanceof InstanceFieldRef) {
-					_result =
-						einfo.fieldAccessShared(((InstanceFieldRef) _fieldRef1).getBase(), m1,
+					_result = einfo.fieldAccessShared(((InstanceFieldRef) _fieldRef1).getBase(), m1,
 							((InstanceFieldRef) _fieldRef2).getBase(), m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 				} else if (_fieldRef1 instanceof StaticFieldRef && _fieldRef2 instanceof StaticFieldRef) {
-					_result =
-						!EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_field1.getType())
-						  || einfo.fieldAccessShared(_fieldRef1, m1, _fieldRef2, m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
+					_result = !EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_field1.getType())
+							|| einfo.fieldAccessShared(_fieldRef1, m1, _fieldRef2, m2, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS);
 				}
 			}
 		}
