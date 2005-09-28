@@ -241,11 +241,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * This is the object that exposes object escape info calculated by this instance.
 	 */
-	private final AliasInfo aliasInfo;
-
-	/**
-	 * This is the object that exposes object escape info calculated by this instance.
-	 */
 	private final EscapeInfo escapeInfo;
 
 	/**
@@ -275,7 +270,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 		escapeInfo = new EscapeInfo(this);
-		aliasInfo = new AliasInfo(this);
 		objectReadWriteInfo = new ReadWriteInfo(this);
 	}
 
@@ -299,7 +293,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		unstable();
 		escapeInfo.unstableAdapter();
 		objectReadWriteInfo.unstableAdapter();
-		aliasInfo.unstableAdapter();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -320,7 +313,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		stable();
 		escapeInfo.stableAdapter();
 		objectReadWriteInfo.stableAdapter();
-		aliasInfo.stableAdapter();
 	}
 
 	/**
@@ -335,16 +327,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			method2Triple.put(_sm, new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_triple
 					.getFirst(), _triple.getSecond(), null));
 		}
-	}
-
-	/**
-	 * Retrieves aliasing info provider.
-	 * 
-	 * @return an aliasing info provider.
-	 * @post result != null
-	 */
-	public AliasInfo getAliasInfo() {
-		return aliasInfo;
 	}
 
 	/**
@@ -374,15 +356,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		super.reset();
 		class2aliasSet.clear();
 		method2Triple.clear();
-	}
-
-	/**
-	 * Sets the default value to be returned on unanswerable aliasing equeries.
-	 * 
-	 * @param value the new value of <code>aliasedDefaultValue</code>.
-	 */
-	public void setAliasedDefaultValue(final boolean value) {
-		aliasInfo.aliasedDefaultValue = value;
 	}
 
 	/**
