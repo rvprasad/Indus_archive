@@ -107,7 +107,7 @@ public abstract class AbstractStmtGraphFactory
 				final JimpleBody _body = _jimple.newBody();
 				_body.setMethod(method);
 
-				@SuppressWarnings ("unchecked") final Collection<Object> _units = _body.getUnits();
+				@SuppressWarnings("unchecked") final Collection<Object> _units = _body.getUnits();
 
 				if (method.getReturnType() instanceof VoidType) {
 					_units.add(_jimple.newReturnVoidStmt());
@@ -147,9 +147,8 @@ public abstract class AbstractStmtGraphFactory
 	 */
 	private JimpleBody getMethodBody(final SootMethod method) {
 		final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
-		@SuppressWarnings ("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
-		@SuppressWarnings ("unchecked") final ListIterator<Trap> _traps = new ArrayList<Trap>(_body.getTraps())
-				.listIterator();
+		@SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
+		@SuppressWarnings("unchecked") final ListIterator<Trap> _traps = new ArrayList<Trap>(_body.getTraps()).listIterator();
 		final List<Trap> _newTraps = new ArrayList<Trap>();
 		final Jimple _jimple = Jimple.v();
 
@@ -157,7 +156,7 @@ public abstract class AbstractStmtGraphFactory
 			final Trap _trap1 = _traps.next();
 			final SootClass _sc1 = _trap1.getException();
 			int _bIndex1 = _stmts.indexOf(_trap1.getBeginUnit());
-			int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());			
+			int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());
 			boolean _retainTrap = true;
 			for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
 				final Trap _trap2 = _i.next();
@@ -165,44 +164,52 @@ public abstract class AbstractStmtGraphFactory
 				if (_sc1.equals(_sc2) || Util.isDescendentOf(_sc1, _sc2)) {
 					final int _bIndex2 = _stmts.indexOf(_trap2.getBeginUnit());
 					final int _eIndex2 = _stmts.indexOf(_trap2.getEndUnit());
-					if (_bIndex1 <= _eIndex2 && _eIndex1 >= _bIndex2) {
+					// A trap's begin boundary is inclusive while the end boundary is exclusive
+					if (_bIndex1 < _eIndex2 && _eIndex1 > _bIndex2) {
 						if (_eIndex1 <= _eIndex2) {
 							if (_bIndex1 >= _bIndex2) {
 								// position: _bIndex2 _bIndex1 _eIndex1 _eIndex2
 								_retainTrap = false;
 							} else {
 								/*
-								 * if (_bIndex1 < _bIndex2)
-								 * position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
+								 * if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
 								 */
-								_eIndex1 = _bIndex2 - 1;
+								_eIndex1 = _bIndex2;
 							}
 						} else {
 							// if (_eIndex1 > _eIndex2)
-							if (_bIndex1 <= _eIndex2) {
+							if (_bIndex1 < _eIndex2) {
 								// position: _bIndex2 _bIndex1 _eIndex2 _eIndex1
-								_bIndex1 = _eIndex2 + 1;
+								_bIndex1 = _eIndex2;
 							} else {
 								/*
-								 *  if (_bIndex1 < _bIndex2)
-								 *  position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
+								 * if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
 								 */
-								_traps.add(_jimple.newTrap(_sc1, _stmts.get(_eIndex2 + 1), _trap1.getEndUnit(), _trap1
+								_traps.add(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
 										.getHandlerUnit()));
-								_eIndex1 = _bIndex2 - 1;
+								_eIndex1 = _bIndex2;
 							}
 						}
 					}
 				}
 			}
-			if (_retainTrap && _bIndex1 <= _eIndex1) {
+			if (_retainTrap && _bIndex1 < _eIndex1) {
 				_newTraps.add(_trap1);
+				_trap1.setBeginUnit(_stmts.get(_bIndex1));
+				_trap1.setEndUnit(_stmts.get(_eIndex1));
 			}
 		}
 
-		/*@SuppressWarnings ("unchecked") final Collection<Trap> _t = _body.getTraps();
+		for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
+			final Trap _t = _i.next();
+			if (_t.getBeginUnit() == _t.getEndUnit()) {
+				_i.remove();
+			}
+		}
+
+		@SuppressWarnings("unchecked") final Collection<Trap> _t = _body.getTraps();
 		_t.clear();
-		_t.addAll(_newTraps);*/
+		_t.addAll(_newTraps);
 		return _body;
 	}
 }

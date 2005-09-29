@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -14,7 +13,6 @@
  */
 
 package edu.ksu.cis.indus.slicer.transformations;
-
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -43,8 +41,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import java.util.Map.Entry;
 
 import org.apache.commons.collections.Factory;
 
@@ -98,157 +94,59 @@ import soot.toolkits.scalar.UnusedLocalEliminator;
 
 import soot.util.Chain;
 
-
 /**
  * This class residualizes the slice by destructively updating the system from which the slice was built.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class TagBasedDestructiveSliceResidualizer
-  extends AbstractProcessor {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	static final Logger LOGGER = LoggerFactory.getLogger(TagBasedDestructiveSliceResidualizer.class);
-
-	/** 
-	 * The collection of classes to be removed from the system after residualization.
-	 */
-	final Collection classesToKill = new HashSet();
-
-	/** 
-	 * This tracks the locals of the current method that should be deleted.
-	 */
-	final Collection localsToKeep = new HashSet();
-
-	/** 
-	 * This tracks the methods of the current class that should be deleted.
-	 *
-	 * @invariant methodsToKill.oclIsKindOf(Collection(SootMethod))
-	 */
-	final Collection methodsToKill = new HashSet();
-
-	/** 
-	 * This is a mapping from classes to it's members that should be removed.
-	 *
-	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
-	 */
-	final Map class2members = new HashMap(Constants.getNumOfClassesInApplication());
-
-	/** 
-	 * This maps statements in the system to new statements that should be included in the slice.
-	 *
-	 * @invariant oldStmt2newStmt != null
-	 * @invariant oldStmt2newStmt.oclIsKindOf(Map(Stmt, Stmt))
-	 */
-	final Map oldStmt2newStmt = new HashMap();
-
-	/** 
-	 * This maps a statement to a sequence of statements that need to be inserted before the key statement the statement
-	 * sequence of the method body.
-	 *
-	 * @invariant stmt2predecessors.oclIsKindOf(Map(Stmt, Sequence(Stmt)))
-	 */
-	final Map stmt2predecessors = new HashMap();
-
-	/** 
-	 * The system to be residualized.
-	 */
-	IEnvironment environment;
-
-	/** 
-	 * Local use-def analysis to be used during residualization.
-	 */
-	IUseDefInfo localUseDef;
-
-	/** 
-	 * The tag that identify the parts of the system that shall be residualized.
-	 */
-	NamedTag tagToResidualize;
-
-	/** 
-	 * The method being processed.
-	 */
-	SootMethod currMethod;
-
-	/** 
-	 * The name of the tag used to identify the parts of the system to be residualized.
-	 */
-	String theNameOfTagToResidualize;
-
-	/** 
-	 * This tracks the fields of the current class that should be deleted.
-	 *
-	 * @invariant fieldsToKill.oclIsKindOf(Collection(SootField))
-	 */
-	private final Collection fieldsToKill = new HashSet();
-
-	/** 
-	 * This is used to process the statements during residualization.
-	 */
-	private final StmtResidualizer stmtProcessor = new StmtResidualizer();
-
-	/** 
-	 * The basic block graph manager for the system being residualized.
-	 */
-	private BasicBlockGraphMgr bbgMgr;
-
-	/** 
-	 * This is the collection of statements which are to be replaced by NOP statements in the residue.
-	 *
-	 * @invariant stmtsToBeNOPed.oclIsKindOf(Collection(Stmt))
-	 */
-	private List stmtsToBeNOPed = new ArrayList();
-
-	/** 
-	 * The class being processed up until now.
-	 */
-	private SootClass currClass;
+		extends AbstractProcessor {
 
 	/**
 	 * This class residualizes statements.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private final class StmtResidualizer
-	  extends AbstractStmtSwitch {
-		/** 
+			extends AbstractStmtSwitch {
+
+		/**
 		 * This is the instance to be used to residualize expressions/values.
 		 */
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
 
-		/** 
+		/**
 		 * A factory to create pair to contain members of a class.
 		 */
-		private final Factory pairValueFactory =
-			new Factory() {
-				public Object create() {
-					return new Pair(new ArrayList(), new ArrayList());
-				}
-			};
+		private final Factory pairValueFactory = new Factory() {
+
+			public Object create() {
+				return new Pair<ArrayList, ArrayList>(new ArrayList(), new ArrayList());
+			}
+		};
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
-		public void caseAssignStmt(final AssignStmt stmt) {
+		@Override public void caseAssignStmt(final AssignStmt stmt) {
 			residualizeDefStmt(stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
-		public void caseIdentityStmt(final IdentityStmt stmt) {
+		@Override public void caseIdentityStmt(final IdentityStmt stmt) {
 			residualizeDefStmt(stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
-		public void caseInvokeStmt(final InvokeStmt stmt) {
+		@Override public void caseInvokeStmt(final InvokeStmt stmt) {
 			if (stmt.getInvokeExprBox().hasTag(theNameOfTagToResidualize)) {
 				valueProcessor.residualize(stmt.getInvokeExprBox());
 			} else {
@@ -259,7 +157,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 		 */
-		public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
+		@Override public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 			final ValueBox _vBox = stmt.getKeyBox();
 
 			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
@@ -270,7 +168,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
-		public void caseReturnStmt(final ReturnStmt stmt) {
+		@Override public void caseReturnStmt(final ReturnStmt stmt) {
 			final ValueBox _vBox = stmt.getOpBox();
 
 			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
@@ -281,7 +179,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 		 */
-		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
+		@Override public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 			final ValueBox _vBox = stmt.getKeyBox();
 
 			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
@@ -292,7 +190,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
-		public void caseThrowStmt(final ThrowStmt stmt) {
+		@Override public void caseThrowStmt(final ThrowStmt stmt) {
 			final ValueBox _vBox = stmt.getOpBox();
 
 			if (!((Host) _vBox).hasTag(theNameOfTagToResidualize)) {
@@ -300,13 +198,13 @@ public final class TagBasedDestructiveSliceResidualizer
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
 
-				final Collection _defs = localUseDef.getDefs(stmt, currMethod);
+				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
-				final Iterator _j = _defs.iterator();
+				final Iterator<DefinitionStmt> _j = _defs.iterator();
 				final int _jEnd = _defs.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd && _injectNewCode; _jIndex++) {
-					final DefinitionStmt _def = (DefinitionStmt) _j.next();
+					final DefinitionStmt _def = _j.next();
 					_injectNewCode = !_def.getLeftOpBox().hasTag(theNameOfTagToResidualize);
 				}
 
@@ -334,7 +232,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 					// find an <init> method on the type and prepare the argument list
 					final SootMethod _init = prepareInitIn(_clazz);
-					final List _args = new ArrayList(_init.getParameterCount());
+					final List<Value> _args = new ArrayList<Value>(_init.getParameterCount());
 
 					for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
 						_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
@@ -349,7 +247,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 					// prepare a new list of statements of predecessors to be inserted before the throw statement in the final
 					// body of the method.
-					final List _stmts = new ArrayList();
+					final List<Stmt> _stmts = new ArrayList<Stmt>();
 					_stmts.add(_astmt);
 					_stmts.add(_istmt);
 					stmt2predecessors.put(stmt, _stmts);
@@ -360,12 +258,10 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		/**
 		 * Residualizes the given statement.
-		 *
+		 * 
 		 * @param stmt to be residualized.
-		 *
 		 * @return <code>true</code> if the statement should be replaced by the result in the residue; <code>false</code>,
-		 * 		   otherwise.
-		 *
+		 *         otherwise.
 		 * @pre stmt != null
 		 */
 		boolean residualize(final Stmt stmt) {
@@ -386,13 +282,11 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
-		 * Sucks in vanilla &lt;init&gt; methods if it exists in the given class.  If not it will insert one.  It will also
+		 * Sucks in vanilla &lt;init&gt; methods if it exists in the given class. If not it will insert one. It will also
 		 * massage the class hierarchy branch to be executable.
-		 *
+		 * 
 		 * @param clazz in which we are searching for the constructor.
-		 *
 		 * @return the constructor method.
-		 *
 		 * @pre clazz != null
 		 * @post result != null
 		 */
@@ -404,15 +298,15 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 
 			SootMethod _init = clazz.getMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
-			final boolean _existsButIsNotIncluded = _init != null ? !_init.hasTag(theNameOfTagToResidualize)
-																  : false;
+			final boolean _existsButIsNotIncluded = _init != null ? !_init.hasTag(theNameOfTagToResidualize) : false;
 
 			if (_init == null || _existsButIsNotIncluded) {
 				if (_existsButIsNotIncluded) {
 					clazz.removeMethod(_init);
 
-					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, pairValueFactory);
-					final Collection _clazzMethodsToKill = (Collection) _pair.getFirst();
+					final Pair<Collection<SootMethod>, Collection<SootField>> _pair;
+					_pair = CollectionsUtilities.getFromMap(class2members, clazz, pairValueFactory);
+					final Collection<SootMethod> _clazzMethodsToKill = _pair.getFirst();
 					_clazzMethodsToKill.remove(_init);
 				}
 
@@ -457,11 +351,9 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		/**
 		 * Residualize the definition statement.
-		 *
+		 * 
 		 * @param stmt to be residualized.
-		 *
 		 * @throws IllegalStateException when the rhs is included in the slice and the lhs is not included in the slice.
-		 *
 		 * @pre stmt != null
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
@@ -472,9 +364,8 @@ public final class TagBasedDestructiveSliceResidualizer
 				 * If the definition statement is marked and the lhs is unmarked then the rhs should be a marked invoke expr.
 				 */
 				if (_rightOpBox.hasTag(theNameOfTagToResidualize) && !stmt.containsInvokeExpr()) {
-					final String _message =
-						"Incorrect slice.  "
-						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
+					final String _message = "Incorrect slice.  "
+							+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
 					LOGGER.error(_message);
 					throw new IllegalStateException(_message);
 				}
@@ -493,20 +384,20 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 	}
 
-
 	/**
 	 * This class residualizes expressions and values.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private final class ValueResidualizer
-	  extends AbstractJimpleValueSwitch {
+			extends AbstractJimpleValueSwitch {
+
 		/**
 		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 		 */
-		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
+		@Override public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 			residualize(v.getBaseBox());
 			residualizeInvokeExpr(v);
 		}
@@ -514,7 +405,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 		 */
-		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
+		@Override public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 			residualize(v.getBaseBox());
 			residualizeInvokeExpr(v);
 		}
@@ -522,14 +413,14 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 		 */
-		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
+		@Override public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
 			residualizeInvokeExpr(v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 		 */
-		public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
+		@Override public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
 			residualize(v.getBaseBox());
 			residualizeInvokeExpr(v);
 		}
@@ -537,7 +428,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/**
 		 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
 		 */
-		public void defaultCase(final Object v) {
+		@Override public void defaultCase(final Object v) {
 			final Value _v = (Value) v;
 
 			for (final Iterator _i = _v.getUseBoxes().iterator(); _i.hasNext();) {
@@ -548,9 +439,8 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		/**
 		 * Residualizes the value.
-		 *
+		 * 
 		 * @param vBox contains <code>value</code>.
-		 *
 		 * @pre value != null and vBox != null
 		 */
 		public void residualize(final ValueBox vBox) {
@@ -565,15 +455,14 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		/**
 		 * Residualizes the invocation expression in manner that is safe to the Jimple implementation.
-		 *
+		 * 
 		 * @param v is the expression to residualize.
-		 *
 		 * @pre v != null
 		 */
 		private void residualizeInvokeExpr(final InvokeExpr v) {
 			/*
-			 * HACK: This is required because in jimple the value boxes are "kinded".  You cannot stick a NullConstant into
-			 * a value box that held a local because the LocalBox cannot hold an Immediate unlike a ImmediateBox. Instead you
+			 * HACK: This is required because in jimple the value boxes are "kinded". You cannot stick a NullConstant into a
+			 * value box that held a local because the LocalBox cannot hold an Immediate unlike a ImmediateBox. Instead you
 			 * need to go through the context enclosing containing the box to fix the contents of the box.
 			 */
 			for (int _i = v.getArgCount() - 1; _i >= 0; _i--) {
@@ -587,65 +476,112 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Sets the basic block graph manager to be used.
-	 *
-	 * @param basicBlockGraphMgr to be used.
-	 *
-	 * @pre basicBlockGraphMgr != null
+	 * The logger used by instances of this class to log messages.
 	 */
-	public void setBasicBlockGraphMgr(final BasicBlockGraphMgr basicBlockGraphMgr) {
-		bbgMgr = basicBlockGraphMgr;
-	}
+	static final Logger LOGGER = LoggerFactory.getLogger(TagBasedDestructiveSliceResidualizer.class);
 
 	/**
-	 * Sets the name of that tag that identifies the parts of the system that need to be residualized.
-	 *
-	 * @param nameOfTagToResidualize is the name of the tag.
-	 *
-	 * @pre nameOfTagToResidualize != null
+	 * This is a mapping from classes to it's members that should be removed.
 	 */
-	public void setTagToResidualize(final String nameOfTagToResidualize) {
-		theNameOfTagToResidualize = nameOfTagToResidualize;
-		tagToResidualize = new NamedTag(theNameOfTagToResidualize);
-	}
+	final Map<SootClass, Pair<Collection<SootMethod>, Collection<SootField>>> class2members;
 
 	/**
-	 * Called by the processing controller to process a statement.
-	 *
-	 * @param stmt is the statement to be processed.
-	 * @param ctxt <i>ignored</i>.
-	 *
-	 * @pre stmt != null
+	 * The collection of classes to be removed from the system after residualization.
 	 */
-	public void callback(final Stmt stmt, final Context ctxt) {
-		if (currMethod != null) {
-			pruneLocals(stmt);
-
-			final boolean _flag = stmtProcessor.residualize(stmt);
-
-			if (!_flag) {
-				stmtsToBeNOPed.add(stmt);
-			}
-		}
-	}
+	final Collection<SootClass> classesToKill;
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 * The method being processed.
 	 */
-	public void callback(final SootMethod method) {
-		if (currClass != null) {
-			consolidateMethod();
-			currMethod = method;
-			methodsToKill.remove(method);
-			localsToKeep.clear();
-			localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(method));
-		}
+	SootMethod currMethod;
+
+	/**
+	 * The system to be residualized.
+	 */
+	IEnvironment environment;
+
+	/**
+	 * This tracks the locals of the current method that should be deleted.
+	 */
+	final Collection<Value> localsToKeep;
+
+	/**
+	 * Local use-def analysis to be used during residualization.
+	 */
+	IUseDefInfo localUseDef;
+
+	/**
+	 * This tracks the methods of the current class that should be deleted.
+	 */
+	final Collection<SootMethod> methodsToKill;
+
+	/**
+	 * This maps statements in the system to new statements that should be included in the slice.
+	 */
+	final Map<Stmt, Stmt> oldStmt2newStmt;
+
+	/**
+	 * This maps a statement to a sequence of statements that need to be inserted before the key statement the statement
+	 * sequence of the method body.
+	 */
+	final Map<Stmt, List<Stmt>> stmt2predecessors;
+
+	/**
+	 * The tag that identify the parts of the system that shall be residualized.
+	 */
+	NamedTag tagToResidualize;
+
+	/**
+	 * The name of the tag used to identify the parts of the system to be residualized.
+	 */
+	String theNameOfTagToResidualize;
+
+	/**
+	 * The basic block graph manager for the system being residualized.
+	 */
+	private BasicBlockGraphMgr bbgMgr;
+
+	/**
+	 * The class being processed up until now.
+	 */
+	private SootClass currClass;
+
+	/**
+	 * This tracks the fields of the current class that should be deleted.
+	 */
+	private final Collection<SootField> fieldsToKill;
+
+	/**
+	 * This is used to process the statements during residualization.
+	 */
+	private final StmtResidualizer stmtProcessor;
+
+	/**
+	 * This is the collection of statements which are to be replaced by NOP statements in the residue.
+	 */
+	private final Collection<Stmt> stmtsToBeNOPed;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public TagBasedDestructiveSliceResidualizer() {
+		super();
+		stmtsToBeNOPed = new ArrayList<Stmt>();
+		stmtProcessor = new StmtResidualizer();
+		fieldsToKill = new HashSet<SootField>();
+		stmt2predecessors = new HashMap<Stmt, List<Stmt>>();
+		oldStmt2newStmt = new HashMap<Stmt, Stmt>();
+		methodsToKill = new HashSet<SootMethod>();
+		localsToKeep = new HashSet<Value>();
+		classesToKill = new HashSet<SootClass>();
+		class2members = new HashMap<SootClass, Pair<Collection<SootMethod>, Collection<SootField>>>(Constants
+				.getNumOfClassesInApplication());
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	@Override public void callback(final SootClass clazz) {
 		consolidateClass();
 
 		if (clazz.hasTag(theNameOfTagToResidualize)) {
@@ -663,7 +599,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
-	public void callback(final SootField field) {
+	@Override public void callback(final SootField field) {
 		if (currClass != null) {
 			fieldsToKill.remove(field);
 
@@ -674,16 +610,48 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 */
+	@Override public void callback(final SootMethod method) {
+		if (currClass != null) {
+			consolidateMethod();
+			currMethod = method;
+			methodsToKill.remove(method);
+			localsToKeep.clear();
+			localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(method));
+		}
+	}
+
+	/**
+	 * Called by the processing controller to process a statement.
+	 * 
+	 * @param stmt is the statement to be processed.
+	 * @param ctxt <i>ignored</i>.
+	 * @pre stmt != null
+	 */
+	@Override public void callback(final Stmt stmt, @SuppressWarnings("unused") final Context ctxt) {
+		if (currMethod != null) {
+			pruneLocals(stmt);
+
+			final boolean _flag = stmtProcessor.residualize(stmt);
+
+			if (!_flag) {
+				stmtsToBeNOPed.add(stmt);
+			}
+		}
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
-	public void consolidate() {
+	@Override public void consolidate() {
 		consolidateClass();
 
-		for (final Iterator _i = class2members.keySet().iterator(); _i.hasNext();) {
-			final SootClass _class = (SootClass) _i.next();
-			final Pair _members = (Pair) class2members.get(_class);
-			final Collection _methods = (Collection) _members.getFirst();
-			final Collection _fields = (Collection) _members.getSecond();
+		for (final Iterator<SootClass> _i = class2members.keySet().iterator(); _i.hasNext();) {
+			final SootClass _class = _i.next();
+			final Pair<Collection<SootMethod>, Collection<SootField>> _members = class2members.get(_class);
+			final Collection<SootMethod> _methods = _members.getFirst();
+			final Collection<SootField> _fields = _members.getSecond();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("BEGIN: Finishing class " + _class);
@@ -693,16 +661,16 @@ public final class TagBasedDestructiveSliceResidualizer
 				LOGGER.debug("Erasing methods: " + _methods);
 			}
 
-			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
-				_class.removeMethod((SootMethod) _j.next());
+			for (final Iterator<SootMethod> _j = _methods.iterator(); _j.hasNext();) {
+				_class.removeMethod(_j.next());
 			}
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Erasing fields: " + _fields);
 			}
 
-			for (final Iterator _j = _fields.iterator(); _j.hasNext();) {
-				_class.removeField((SootField) _j.next());
+			for (final Iterator<SootField> _j = _fields.iterator(); _j.hasNext();) {
+				_class.removeField(_j.next());
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -727,7 +695,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	@Override public void processingBegins() {
 		currMethod = null;
 		currClass = null;
 		classesToKill.clear();
@@ -739,9 +707,8 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Residualizes the given system.
-	 *
+	 * 
 	 * @param env is the system to be residualized.
-	 *
 	 * @pre env != null
 	 */
 	public void residualizeSystem(final IEnvironment env) {
@@ -751,8 +718,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 
 		/*
-		 * We use a new factory for complete statement graph instead of the existing factory as the existing factory may 
-         * present a projection of the graph which may cause us to skip over some statements.
+		 * We use a new factory for complete statement graph instead of the existing factory as the existing factory may
+		 * present a projection of the graph which may cause us to skip over some statements.
 		 */
 		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
 
@@ -762,14 +729,35 @@ public final class TagBasedDestructiveSliceResidualizer
 		hookup(_pc);
 		_pc.process();
 		unhook(_pc);
-        
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Deleting classes: " + classesToKill);
 		}
 
-		for (final Iterator _i = classesToKill.iterator(); _i.hasNext();) {
-			env.removeClass((SootClass) _i.next());
+		for (final Iterator<SootClass> _i = classesToKill.iterator(); _i.hasNext();) {
+			env.removeClass(_i.next());
 		}
+	}
+
+	/**
+	 * Sets the basic block graph manager to be used.
+	 * 
+	 * @param basicBlockGraphMgr to be used.
+	 * @pre basicBlockGraphMgr != null
+	 */
+	public void setBasicBlockGraphMgr(final BasicBlockGraphMgr basicBlockGraphMgr) {
+		bbgMgr = basicBlockGraphMgr;
+	}
+
+	/**
+	 * Sets the name of that tag that identifies the parts of the system that need to be residualized.
+	 * 
+	 * @param nameOfTagToResidualize is the name of the tag.
+	 * @pre nameOfTagToResidualize != null
+	 */
+	public void setTagToResidualize(final String nameOfTagToResidualize) {
+		theNameOfTagToResidualize = nameOfTagToResidualize;
+		tagToResidualize = new NamedTag(theNameOfTagToResidualize);
 	}
 
 	/**
@@ -782,13 +770,14 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Consolidate the current class and method.
-	 *
+	 * 
 	 * @post currClass = null and methodsToKill.size() = 0 and fieldsToKill.size() = 0 and currMethod = null
 	 */
 	private void consolidateClass() {
 		if (currClass != null) {
 			consolidateMethod();
-			class2members.put(currClass, new Pair(new ArrayList(methodsToKill), new ArrayList(fieldsToKill)));
+			class2members.put(currClass, new Pair<Collection<SootMethod>, Collection<SootField>>(new ArrayList<SootMethod>(
+					methodsToKill), new ArrayList<SootField>(fieldsToKill)));
 			methodsToKill.clear();
 			fieldsToKill.clear();
 			currClass = null;
@@ -797,7 +786,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Consolidate the current method.
-	 *
+	 * 
 	 * @post currMethod = null
 	 */
 	private void consolidateMethod() {
@@ -815,8 +804,8 @@ public final class TagBasedDestructiveSliceResidualizer
 			final Chain _ch = _body.getUnits();
 			final Jimple _jimple = Jimple.v();
 
-			for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
+			for (final Iterator<Stmt> _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
+				final Stmt _stmt = _i.next();
 				final Object _pred = _ch.getPredOf(_stmt);
 				_ch.remove(_stmt);
 
@@ -831,19 +820,19 @@ public final class TagBasedDestructiveSliceResidualizer
 			stmtsToBeNOPed.clear();
 
 			// replace statements with new statements as recorded earlier.
-			for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
-				final Entry _entry = (Entry) _i.next();
-				final Object _oldStmt = _entry.getKey();
-				final Object _newStmt = _entry.getValue();
+			for (final Iterator<Map.Entry<Stmt, Stmt>> _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry<Stmt, Stmt> _entry = _i.next();
+				final Stmt _oldStmt = _entry.getKey();
+				final Stmt _newStmt = _entry.getValue();
 				_ch.insertAfter(_newStmt, _oldStmt);
 				_ch.remove(_oldStmt);
 			}
 
-			//inject any cooked up predecessors
-			for (final Iterator _i = stmt2predecessors.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final Object _stmt = _entry.getKey();
-				final List _preds = (List) _entry.getValue();
+			// inject any cooked up predecessors
+			for (final Iterator<Map.Entry<Stmt, List<Stmt>>> _i = stmt2predecessors.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry<Stmt, List<Stmt>> _entry = _i.next();
+				final Stmt _stmt = _entry.getKey();
+				final List<Stmt> _preds = _entry.getValue();
 				_ch.insertBefore(_preds, _stmt);
 			}
 
@@ -872,11 +861,10 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.validateUses();
 
 			/*
-			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
-			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
-			 *
-			 * If there are NOP's in the body then the following condition will fail.  For this reason, this block should
-			 * happen after the previous transformations block.
+			 * It is possible that some methods are marked but none of their statements are marked. This can happen in
+			 * executable slice with no specialization. Hence, the body needs to be fixed for the code to be executable. If
+			 * there are NOP's in the body then the following condition will fail. For this reason, this block should happen
+			 * after the previous transformations block.
 			 */
 			if (_body.getUnits().isEmpty()) {
 				pluginSignatureCorrectBody(_body, _jimple);
@@ -892,31 +880,19 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * Injects an appropriate return statement as the trailer statement of each tail basic block that contains only NOP
 	 * statements.
-	 *
+	 * 
 	 * @param stmtList to be altered.
-	 *
 	 * @pre stmtList != null and basicBlockGraph != null
 	 */
 	private void injectReturnsIntoDanglingNopBlocks(final Chain stmtList) {
 		/*
-		 * HACK:
-		 * This is a fall out of executability processing.
-		 * if () {
-		 *   throw a;
-		 * } else {
-		 *   if () {
-		 *     ret b;
-		 *   } else {
-		 *     ret c;
-		 *   }
-		 * }
-		 * Let the above snippet be the tail of method.  If none of these statements are in the slice, then an exit point is
-		 * picked randomly.  If this is "throw a" is picked, then the else block is nop-ed (refer to
+		 * HACK: This is a fall out of executability processing. if () { throw a; } else { if () { ret b; } else { ret c; } }
+		 * Let the above snippet be the tail of method. If none of these statements are in the slice, then an exit point is
+		 * picked randomly. If this is "throw a" is picked, then the else block is nop-ed (refer to
 		 * ExecutableSlicePostProcessor.pickReturnPoint()), i.e., there will be a path via which the control from the method
-		 * will fall through.  To prevent this we plugin a return statement in the tail basic blocks containing only nop
-		 * statement.  Remember that the basic block graph should be that of the untransformed method and this phase cannot
+		 * will fall through. To prevent this we plugin a return statement in the tail basic blocks containing only nop
+		 * statement. Remember that the basic block graph should be that of the untransformed method and this phase cannot
 		 * happen any earlier.
-		 *
 		 */
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEFORE - Stmts: " + stmtList);
@@ -944,14 +920,13 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Plugs in a body that satisfies the signature of the current method given by <code>currMethod</code>.
-	 *
+	 * 
 	 * @param body of <code>currMethod</code>.
 	 * @param jimpleFactory to be used create parts of the body.
-	 *
 	 * @pre body != null and jimple != null
 	 */
 	private void pluginSignatureCorrectBody(final JimpleBody body, final Jimple jimpleFactory) {
-		// remove all traps 
+		// remove all traps
 		body.getTraps().clear();
 		// remove all locals
 		body.getLocals().clear();
@@ -970,13 +945,13 @@ public final class TagBasedDestructiveSliceResidualizer
 			body.getUnits().add(_astmt);
 		}
 
-		// add the identity statements to pop out the parameters		
-		final Collection _paramType = currMethod.getParameterTypes();
+		// add the identity statements to pop out the parameters
+		@SuppressWarnings("unchecked") final Collection<Type> _paramType = currMethod.getParameterTypes();
 		final int _end = _paramType.size();
-		final Iterator _i = _paramType.iterator();
+		final Iterator<Type> _i = _paramType.iterator();
 
 		for (int _pCount = 0; _pCount < _end; _pCount++) {
-			final Type _pType = (Type) _i.next();
+			final Type _pType = _i.next();
 			final LocalCreation _lc = new LocalCreation(body.getLocals());
 			final Local _this = _lc.newLocal("_local", _pType);
 			final IdentityStmt _astmt = jimpleFactory.newIdentityStmt(_this, jimpleFactory.newParameterRef(_pType, _pCount));
@@ -1002,20 +977,20 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Prunes the locals in the given stmt.
-	 *
+	 * 
 	 * @param stmt in which to process the locals.
-	 *
 	 * @pre stmt != null
 	 */
-	private void pruneLocals(final Stmt stmt) {
+	@SuppressWarnings("unchecked") private void pruneLocals(final Stmt stmt) {
 		if (stmt.hasTag(theNameOfTagToResidualize)) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Pruning locals in " + stmt);
 			}
 
-			for (final Iterator _k = Util.getHostsWithTag(stmt.getUseAndDefBoxes(), theNameOfTagToResidualize).iterator();
-				  _k.hasNext();) {
-				final ValueBox _vBox = (ValueBox) _k.next();
+			final List _useAndDefBoxes = stmt.getUseAndDefBoxes();
+			for (final Iterator<ValueBox> _k = Util.getHostsWithTag(_useAndDefBoxes, theNameOfTagToResidualize).iterator(); _k
+					.hasNext();) {
+				final ValueBox _vBox = _k.next();
 				final Value _value = _vBox.getValue();
 
 				if (_value instanceof Local) {
@@ -1027,9 +1002,8 @@ public final class TagBasedDestructiveSliceResidualizer
 
 	/**
 	 * Removes the traps not included in the slice.
-	 *
+	 * 
 	 * @param body to be mutated.
-	 *
 	 * @pre body != null
 	 */
 	private void removeTrapsNotInSlice(final Body body) {
@@ -1038,16 +1012,16 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		final Chain _traps = body.getTraps();
-		final Iterator _i = _traps.iterator();
+		@SuppressWarnings("unchecked") final Iterator<Trap> _i = _traps.iterator();
 		final int _iEnd = _traps.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Trap _trap = (Trap) _i.next();
+			final Trap _trap = _i.next();
 			final Stmt _handlerStmt = (Stmt) _trap.getHandlerUnit();
 
 			if (!_handlerStmt.hasTag(theNameOfTagToResidualize)
-				  || !(_handlerStmt instanceof IdentityStmt
-				  && ((IdentityStmt) _handlerStmt).getRightOp() instanceof CaughtExceptionRef)) {
+					|| !(_handlerStmt instanceof IdentityStmt && ((IdentityStmt) _handlerStmt).getRightOp() instanceof CaughtExceptionRef)
+					|| _trap.getBeginUnit() == _trap.getEndUnit()) {
 				_i.remove();
 			}
 		}
