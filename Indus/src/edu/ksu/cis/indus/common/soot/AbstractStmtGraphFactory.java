@@ -14,30 +14,22 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import soot.SootClass;
 import soot.SootMethod;
-import soot.Trap;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
-import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -97,7 +89,7 @@ public abstract class AbstractStmtGraphFactory
 
 		if (_flag) {
 			if (method.isConcrete()) {
-				final JimpleBody _body = getMethodBody(method);
+				final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
 				_result = getStmtGraphForBody(_body);
 			} else if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method " + method + " is not concrete.");
@@ -141,13 +133,14 @@ public abstract class AbstractStmtGraphFactory
 	protected abstract UnitGraph getStmtGraphForBody(final JimpleBody body);
 
 	/**
-	 * Retrieves the body for the given method.
+	 * Retrieves the body for the given method.  This method split traps based on overlap and subtyping relation
+	 * between the exceptions trapped by overlapping regions.
 	 * 
 	 * @param method of interest.
 	 * @return the jimple body of the given method.
 	 * @pre method != null
 	 */
-	private JimpleBody getMethodBody(final SootMethod method) {
+	/*private JimpleBody getMethodBody(final SootMethod method) {
 		final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
 		final List<Trap> _newTraps = new ArrayList<Trap>();
 		final Jimple _jimple = Jimple.v();
@@ -210,7 +203,7 @@ public abstract class AbstractStmtGraphFactory
 		_t.clear();
 		_t.addAll(_newTraps);
 		return _body;
-	}
+	}*/
 }
 
 // End of File
