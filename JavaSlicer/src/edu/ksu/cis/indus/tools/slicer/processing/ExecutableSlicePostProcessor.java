@@ -97,14 +97,14 @@ public class ExecutableSlicePostProcessor
 	 * @invariant processedMethodCache != null
 	 * @invariant processedMethodCache.oclIsKindOf(Set(SootMethod))
 	 */
-	private final Collection processedMethodCache = new HashSet();
+	private final Collection<SootMethod> processedMethodCache = new HashSet<SootMethod>();
 
 	/** 
 	 * This is the workbag of methods to process.
 	 *
 	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
 	 */
-	private final IWorkBag methodWorkBag = new HistoryAwareFIFOWorkBag(processedMethodCache);
+	private final IWorkBag<SootMethod> methodWorkBag = new HistoryAwareFIFOWorkBag<SootMethod>(processedMethodCache);
 
 	/** 
 	 * This provides entry-based control dependency information required to include exit points.
@@ -121,6 +121,7 @@ public class ExecutableSlicePostProcessor
 	 * Creates an instance of this class.
 	 */
 	public ExecutableSlicePostProcessor() {
+		// does nothing
 	}
 
 	/**
@@ -133,7 +134,7 @@ public class ExecutableSlicePostProcessor
 	 * @pre taggedMethods != null and basicBlockMgr != null and theCollector != null
 	 * @pre taggedMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	public final void process(final Collection taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
+	public final void process(final Collection<SootMethod> taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing - " + theCollector.toString());
@@ -146,7 +147,7 @@ public class ExecutableSlicePostProcessor
 
 		// process the methods and gather the collected classes
 		while (methodWorkBag.hasWork()) {
-			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
+			final SootMethod _method = methodWorkBag.getWork();
 
 			processMethod(_method);
 
@@ -194,7 +195,7 @@ public class ExecutableSlicePostProcessor
 	 * @post result != null
 	 * @post result.getClasses()->union(result.getInterfaces())->includesAll(classes)
 	 */
-	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection classes) {
+	protected IClassHierarchy getClassHierarchyContainingClasses(final Collection<SootClass> classes) {
 		return ClassHierarchy.createClassHierarchyFrom(classes);
 	}
 
@@ -208,8 +209,8 @@ public class ExecutableSlicePostProcessor
         
 		// setup the variables for fixing the class hierarchy
 		final IClassHierarchy _ch = getClassHierarchyContainingClasses(collector.getClassesInSlice());
-		final Collection _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
-		final Map _class2abstractMethods = new HashMap();
+		final Collection<SootClass> _topologicallyOrderedClasses = _ch.getClassesInTopologicalOrder(true);
+		final Map<SootClass, Collection<SootMethod>> _class2abstractMethods = new HashMap<SootClass, Collection<SootMethod>>();
         collector.includeInSlice(_ch.getClasses());
         collector.includeInSlice(_ch.getInterfaces());
 
@@ -218,13 +219,13 @@ public class ExecutableSlicePostProcessor
 		}
 
 		// fixup methods with respect the class hierarchy  
-		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
-			final SootClass _currClass = (SootClass) _i.next();
-			final Collection _abstractMethodsAtCurrClass =
+		for (final Iterator<SootClass> _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
+			final SootClass _currClass = _i.next();
+			final Collection<SootMethod> _abstractMethodsAtCurrClass =
 				gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _currClass);
 			final List _methods = _currClass.getMethods();
-			final List _collectedMethods = collector.getCollected(_methods);
-			final Collection _unCollectedMethods = CollectionUtils.subtract(_methods, _collectedMethods);
+			final List<SootMethod> _collectedMethods = collector.getCollected(_methods);
+			final Collection<SootMethod> _unCollectedMethods = CollectionUtils.subtract(_methods, _collectedMethods);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Fixing up " + _currClass);
@@ -244,8 +245,8 @@ public class ExecutableSlicePostProcessor
 			if (_currClass.isInterface()) {
 				_abstractMethodsAtCurrClass.addAll(_collectedMethods);
 			} else if (_currClass.isAbstract()) {
-				for (final Iterator _j = _collectedMethods.iterator(); _j.hasNext();) {
-					final SootMethod _sm = (SootMethod) _j.next();
+				for (final Iterator<SootMethod> _j = _collectedMethods.iterator(); _j.hasNext();) {
+					final SootMethod _sm = _j.next();
 
 					if (_sm.isAbstract()) {
 						_abstractMethodsAtCurrClass.add(_sm);
@@ -255,7 +256,7 @@ public class ExecutableSlicePostProcessor
 
 			// record the abstract methods
 			if (!_abstractMethodsAtCurrClass.isEmpty()) {
-				_class2abstractMethods.put(_currClass, new ArrayList(_abstractMethodsAtCurrClass));
+				_class2abstractMethods.put(_currClass, new ArrayList<SootMethod>(_abstractMethodsAtCurrClass));
 			}
 		}
 
@@ -273,20 +274,20 @@ public class ExecutableSlicePostProcessor
 	 *
 	 * @return a collection of collected abstract methods belonging to the super classes.
 	 *
-	 * @pre class2abstractMethods != null and class2abstractMethods.oclIsKindOf(Map(SootClass, Collection(SootMethod)))
+	 * @pre class2abstractMethods != null
 	 * @pre clazz != null
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post result != null
 	 * @post result->forall(o | class2abstractMethods->exists(p | p.values().includes(o)))
 	 */
-	private Collection gatherCollectedAbstractMethodsInSuperClasses(final Map class2abstractMethods, final SootClass clazz) {
-		final Collection _methods = new HashSet();
+	private Collection<SootMethod> gatherCollectedAbstractMethodsInSuperClasses(final Map<SootClass, Collection<SootMethod>> class2abstractMethods, final SootClass clazz) {
+		final Collection<SootMethod> _methods = new HashSet<SootMethod>();
 
 		// gather collected abstract methods from super interfaces and classes.
-		for (final Iterator _j = clazz.getInterfaces().iterator(); _j.hasNext();) {
-			final SootClass _interface = (SootClass) _j.next();
+		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _j = clazz.getInterfaces().iterator(); _j.hasNext();) {
+			final SootClass _interface =  _j.next();
 
 			if (collector.hasBeenCollected(_interface)) {
-				final Collection _abstractMethods = (Collection) class2abstractMethods.get(_interface);
+				final Collection<SootMethod> _abstractMethods = class2abstractMethods.get(_interface);
 
 				if (_abstractMethods != null) {
 					_methods.addAll(_abstractMethods);
@@ -298,7 +299,7 @@ public class ExecutableSlicePostProcessor
 			final SootClass _superClass = clazz.getSuperclass();
 
 			if (collector.hasBeenCollected(_superClass)) {
-				final Collection _abstractMethods = (Collection) class2abstractMethods.get(_superClass);
+				final Collection<SootMethod> _abstractMethods = class2abstractMethods.get(_superClass);
 
 				if (_abstractMethods != null) {
 					_methods.addAll(_abstractMethods);
@@ -316,15 +317,15 @@ public class ExecutableSlicePostProcessor
 	 *
 	 * @pre returnPoints != null and returnPoints.oclIsKindOf(Collection(Stmt))
 	 */
-	private void pickARandomReturnPoint(final Collection returnPoints) {
+	private void pickARandomReturnPoint(final Collection<BasicBlock> returnPoints) {
 		Stmt _exitStmt = null;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("pickARandomReturnPoint(returnPoints = " + returnPoints + ")");
 		}
 
-		for (final Iterator _i = returnPoints.iterator(); _i.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _i.next();
+		for (final Iterator<BasicBlock> _i = returnPoints.iterator(); _i.hasNext();) {
+			final BasicBlock _bb = _i.next();
 			final Stmt _stmt = _bb.getTrailerStmt();
 
 			if (_stmt instanceof ReturnStmt || _stmt instanceof ReturnVoidStmt) {
@@ -357,22 +358,22 @@ public class ExecutableSlicePostProcessor
 		// pick all return/throw points in the methods.
 		final String _tagName = collector.getTagName();
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
-		final Collection _tails = new HashSet();
+		final Collection<BasicBlock> _tails = new HashSet<BasicBlock>();
 		_tails.addAll(_bbg.getTails());
 		cd.analyze(Collections.singleton(method));
 
 		if (_tails.size() == 1) {
 			// If there is only one tail then include the statement
-			final BasicBlock _bb = (BasicBlock) _tails.iterator().next();
+			final BasicBlock _bb = _tails.iterator().next();
 			processAndIncludeExitStmt(_bb.getTrailerStmt());
 		} else {
 			boolean _tailWasNotPicked = true;
 
 			// if there are more than one tail then pick only the ones that are reachable via collected statements
-			for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
-				final BasicBlock _bb = (BasicBlock) _j.next();
+			for (final Iterator<BasicBlock> _j = _tails.iterator(); _j.hasNext();) {
+				final BasicBlock _bb = _j.next();
 				final Stmt _stmt = _bb.getTrailerStmt();
-				final Collection _dependees = cd.getDependees(_stmt, method);
+				final Collection<Stmt> _dependees = cd.getDependees(_stmt, method);
 
 				if (!collector.hasBeenCollected(_stmt)
 					  && (_dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty())) {
@@ -493,7 +494,7 @@ public class ExecutableSlicePostProcessor
 	 * @pre method != null
 	 */
 	private void processMethod(final SootMethod method) {
-		final Collection _temp = new HashSet();
+		final Collection<Type> _temp = new HashSet<Type>();
 
 		for (final Iterator _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -503,8 +504,8 @@ public class ExecutableSlicePostProcessor
 			_temp.add(_sm.getReturnType());
 			_temp.addAll(_sm.getParameterTypes());
 
-			for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
-				final Type _type = (Type) _j.next();
+			for (final Iterator<Type> _j = _temp.iterator(); _j.hasNext();) {
+				final Type _type = _j.next();
 
 				if (_type instanceof RefType) {
 					collector.includeInSlice(((RefType) _type).getSootClass());

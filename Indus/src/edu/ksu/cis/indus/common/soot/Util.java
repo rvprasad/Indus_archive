@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -74,20 +73,20 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.tagkit.Host;
 
-
 /**
  * General utility class providing common chore methods.
- *
+ * 
  * @author <a href="mailto:rvprasad@cis.ksu.edu">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
 public final class Util {
-	/** 
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 
-	///CLOVER:OFF
+	// /CLOVER:OFF
 
 	/**
 	 * A private constructor to prevent the instantiation of this class.
@@ -96,15 +95,192 @@ public final class Util {
 		super();
 	}
 
-	///CLOVER:ON
+	// /CLOVER:ON
+
+	/**
+	 * Erases given classes in the given environment while trying to keep the environment type safe.
+	 * 
+	 * @param classes to be erased.
+	 * @param env to be updated.
+	 * @return the classes that were erased. It is possible that for safety reasons some classes are retained.
+	 * @pre env != null and classes != null
+	 * @post result != null and classes.containsAll(result)
+	 */
+	public static Collection<SootClass> eraseClassesFrom(final Collection<SootClass> classes, final IEnvironment env) {
+		final Collection<SootClass> _result = new ArrayList<SootClass>(classes);
+		final ProcessingController _pc = new ProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
+		_pc.setEnvironment(env);
+
+		final ClassEraser _ece = new ClassEraser(_result);
+		_ece.hookup(_pc);
+		_pc.process();
+		_ece.unhook(_pc);
+		_pc.reset();
+
+		@SuppressWarnings("unchecked") final Iterator<SootClass> _j = classes.iterator();
+		final int _jEnd = classes.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final SootClass _o = _j.next();
+
+			if (_result.contains(_o)) {
+				env.removeClass(_o);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
+	 * 
+	 * @param sc the class from which to start the search in the class hierarchy. This parameter cannot be <code>null</code>.
+	 * @param sm the method to search for in the class hierarchy. This parameter cannot be <code>null</code>.
+	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
+	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
+	 * @pre sc != null and sm != null
+	 * @post result != null
+	 */
+	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
+		final SootMethod _result;
+
+		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
+			_result = sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
+		} else if (hasSuperclass(sc)) {
+			_result = findDeclaringMethod(sc.getSuperclass(), sm);
+		} else {
+			throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
+		}
+		return _result;
+	}
+
+	/**
+	 * Finds the implementation of the given method defined in <code>accessClass</code> or its superclasses.
+	 * 
+	 * @param accessClass is the class via which the method is invoked.
+	 * @param methodName is the name of the method.
+	 * @param parameterTypes is the list of parameter types of the method.
+	 * @param returnType is the return type of the method.
+	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
+	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
+	 */
+	public static SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
+			final List parameterTypes, final Type returnType) {
+		SootMethod _result = null;
+
+		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
+			_result = accessClass.getMethod(methodName, parameterTypes, returnType);
+		} else {
+			if (accessClass.hasSuperclass()) {
+				final SootClass _superClass = accessClass.getSuperclass();
+				_result = findMethodImplementation(_superClass, methodName, parameterTypes, returnType);
+			} else {
+				if (LOGGER.isErrorEnabled()) {
+					LOGGER.error(methodName + "(" + parameterTypes + "):" + returnType + " is not accessible from "
+							+ accessClass);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Finds the method declarations that match the given method in its declaring class and the super interface/classes of the
+	 * declaring class.
+	 * 
+	 * @param method of interest.
+	 * @return a collection of methods.
+	 * @pre method != null
+	 * @post result != null
+	 */
+	public static Collection<SootMethod> findMethodInSuperClassesAndInterfaces(final SootMethod method) {
+		final IWorkBag<SootClass> _toProcess = new HistoryAwareFIFOWorkBag<SootClass>(new HashSet<SootClass>());
+		Collection<SootMethod> _result = new HashSet<SootMethod>();
+		_toProcess.addWork(method.getDeclaringClass());
+
+		final List _parameterTypes = method.getParameterTypes();
+		final Type _retType = method.getReturnType();
+		final String _methodName = method.getName();
+
+		while (_toProcess.hasWork()) {
+			final SootClass _sc = _toProcess.getWork();
+
+			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
+				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
+			}
+
+			if (hasSuperclass(_sc)) {
+				final SootClass _superClass = _sc.getSuperclass();
+
+				_toProcess.addWorkNoDuplicates(_superClass);
+			}
+
+			for (final Iterator _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
+				final SootClass _interface = (SootClass) _i.next();
+
+				_toProcess.addWorkNoDuplicates(_interface);
+			}
+		}
+
+		if (_result.isEmpty()) {
+			_result = Collections.emptyList();
+		}
+		return _result;
+	}
+
+	/**
+	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
+	 * target or self. This is required to complete the call graph. This leaves the body untouched if it is not native.
+	 * 
+	 * @param scm is the scene in which the alteration occurs.
+	 */
+	public static void fixupThreadStartBody(final Scene scm) {
+		boolean _flag = false;
+
+		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scm.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
+
+			if (Util.implementsInterface(_sc, "java.lang.Runnable")) {
+				_flag = true;
+				break;
+			}
+		}
+
+		if (_flag) {
+			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
+			final SootMethod _sm = _declClass.getMethodByName("start");
+
+			if (!_sm.isConcrete()) {
+				_declClass.setApplicationClass();
+				_declClass.setPhantom(false);
+				_sm.setModifiers(_sm.getModifiers() & ~Modifier.NATIVE);
+				_sm.setPhantom(false);
+
+				final Jimple _jimple = Jimple.v();
+				final JimpleBody _threadStartBody = _jimple.newBody(_sm);
+				final PatchingChain _sl = _threadStartBody.getUnits();
+				final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
+				_threadStartBody.getLocals().add(_thisRef);
+				// adds $this := @this;
+				_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+
+				// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
+				final VirtualInvokeExpr _ve = _jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"),
+						Collections.EMPTY_LIST);
+				_sl.addLast(_jimple.newInvokeStmt(_ve));
+				_sl.addLast(_jimple.newReturnVoidStmt());
+				_sm.setActiveBody(_threadStartBody);
+			}
+		}
+	}
 
 	/**
 	 * Retrieves all ancestors (classes/interfaces) of the given class.
-	 *
+	 * 
 	 * @param sootClass for which the ancestors are requested.
-	 *
 	 * @return a collection of classes.
-	 *
 	 * @pre sootClass != null
 	 * @post result != null
 	 */
@@ -136,20 +312,18 @@ public final class Util {
 	/**
 	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
 	 * the given class.
-	 *
+	 * 
 	 * @param sc is the class in or above which the method may be defined.
 	 * @param method is the name of the method (not the fully classified name).
 	 * @param parameterTypes list of type of the parameters of the method.
 	 * @param returnType return type of the method.
-	 *
 	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
-	 * 		   otherwise.
-	 *
+	 *         otherwise.
 	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
 	 * @pre parameterTypes->forall(o | o.oclIsKindOf(Type))
 	 */
 	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List parameterTypes,
-		final Type returnType) {
+			final Type returnType) {
 		SootClass _contains = sc;
 
 		while (!_contains.declaresMethod(method, parameterTypes, returnType)) {
@@ -166,13 +340,10 @@ public final class Util {
 
 	/**
 	 * Retrieves the default value for the given type.
-	 *
+	 * 
 	 * @param type for which the default value is requested.
-	 *
 	 * @return the default value
-	 *
 	 * @throws IllegalArgumentException when an invalid type is provided.
-	 *
 	 * @pre type != null
 	 * @post result != null
 	 */
@@ -207,88 +378,42 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if one class is the descendent of another.  It is assumed that a class cannot be it's own ancestor.
-	 *
-	 * @param child class whose ancestor is of interest.
-	 * @param ancestor fully qualified name of the ancestor class.
-	 *
-	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of <code>child</code>
-	 * 		   class; false otherwise.
-	 *
-	 * @pre child != null and ancestor != null
-	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
+	 * Retrieves the maximal subset of traps from <code>traps</code> such that each trap encloses the <code>stmt</code> in
+	 * the list of statements <code>stmtList</code>.
+	 * 
+	 * @param traps is the list of traps.
+	 * @param stmt is the statement being enclosed.
+	 * @param stmtList is the list of statements.
+	 * @return a list of traps.
+	 * @pre traps != null and stmt != null and stmtList != null
+	 * @pre stmtList.contains(stmt)
+	 * @post traps.containsAll(result)
 	 */
-	public static boolean isDescendentOf(final SootClass child, final String ancestor) {
-		boolean _retval = false;
-		SootClass _temp = child;
-
-		while (!_retval) {
-			if (_temp.getName().equals(ancestor)) {
-				_retval = true;
-			} else {
-				if (hasSuperclass(_temp)) {
-					_temp = _temp.getSuperclass();
-				} else {
-					break;
-				}
+	public static List<Trap> getEnclosingTrap(final List<Trap> traps, final Stmt stmt, final List<Stmt> stmtList) {
+		final List<Trap> _result = new ArrayList<Trap>();
+		final int _stmtIndex = stmtList.indexOf(stmt);
+		for (final Trap _trap : traps) {
+			if (stmtList.indexOf(_trap.getBeginUnit()) <= _stmtIndex && _stmtIndex <= stmtList.indexOf(_trap.getEndUnit())) {
+				_result.add(_trap);
 			}
 		}
-
-		if (!_retval) {
-			_retval = implementsInterface(child, ancestor);
-		}
-
-		return _retval;
-	}
-
-	/**
-	 * Checks if one class is the descendent of another.  It is assumed that a class cannot be it's own ancestor.
-	 *
-	 * @param child class whose ancestor is of interest.
-	 * @param ancestor the ancestor class.
-	 *
-	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class; false
-	 * 		   otherwise.
-	 *
-	 * @pre child != null and ancestor != null
-	 * @post result == child.oclIsKindOf(ancestor)
-	 */
-	public static boolean isDescendentOf(final SootClass child, final SootClass ancestor) {
-		return isDescendentOf(child, ancestor.getName());
-	}
-
-	/**
-	 * Checks if the given classes are on the same class hierarchy branch.  This means either one of the classes should be
-	 * the subclass of the other class.
-	 *
-	 * @param class1 one of the two classes to be checked for relation.
-	 * @param class2 one of the two classes to be checked for relation.
-	 *
-	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>, otherwise.
-	 *
-	 * @pre class1 != null and class2 != null
-	 * @post result == (class1.oclIsKindOf(class2) or class2.oclIsKindOf(class1))
-	 */
-	public static boolean isHierarchicallyRelated(final SootClass class1, final SootClass class2) {
-		return isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
+		return _result;
 	}
 
 	/**
 	 * Retrieves the hosts which are tagged with a tag named <code>tagName</code>.
-	 *
+	 * 
 	 * @param hosts is the collection of hosts to filter.
 	 * @param tagName is the name of the tag to filter <code>hosts</code>.
-	 *
 	 * @return a collection of hosts.
-	 *
 	 * @pre hosts != null and tagName != null
 	 * @post result != null
 	 * @post result->forall(o | hosts->contains(o) and o.hasTag(tagName))
 	 */
-	public static Collection<Host> getHostsWithTag(final Collection<Host> hosts, final String tagName) {
+	public static Collection<? extends Host> getHostsWithTag(final Collection<? extends Host> hosts, final String tagName) {
 		Collection<Host> _result = new ArrayList<Host>();
 
-		for (final Iterator<Host> _i = hosts.iterator(); _i.hasNext();) {
+		for (final Iterator<? extends Host> _i = hosts.iterator(); _i.hasNext();) {
 			final Host _host = _i.next();
 
 			if (_host.hasTag(tagName)) {
@@ -303,52 +428,12 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if the method invoked at the invocation site is one of the <code>notify</code> methods in
-	 * <code>java.lang.Object</code> class based  on the given call graph.
-	 *
-	 * @param stmt in which the invocation occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param cgi to be used in the check.
-	 *
-	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>notify</code> methods in
-	 * 		   <code>java.lang.Object</code> class; <code>false</code>, otherwise.
-	 */
-	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = isNotifyMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if the given method is one of the <code>notify</code> methods in <code>java.lang.Object</code> class.
-	 *
-	 * @param method to be checked.
-	 *
-	 * @return <code>true</code> if the method is <code>notify</code> methods in <code>java.lang.Object</code> class;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @pre method != null
-	 */
-	public static boolean isNotifyMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object")
-		  && (method.getName().equals("notify") || method.getName().equals("notifyAll"));
-	}
-
-	/**
 	 * Retrieves the type object for the given primitive (non-array) type in the given scene.
-	 *
+	 * 
 	 * @param typeName is the name of the type.
 	 * @param scene contains the classes that make up the system.
-	 *
 	 * @return the type object
-	 *
 	 * @throws MissingResourceException when the named type does not exists.
-	 *
 	 * @pre typeName != null and scene != null and typeName.indexOf("[") = -1
 	 */
 	public static Type getPrimitiveTypeFor(final String typeName, final Scene scene) {
@@ -386,24 +471,10 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if the given type is a valid reference type.
-	 *
-	 * @param t is the type to checked.
-	 *
-	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
-	 *
-	 * @pre t != null
-	 */
-	public static boolean isReferenceType(final Type t) {
-		return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
-	}
-
-	/**
 	 * Retrieves the methods that can be invoked externally (this rules out execution of super methods) on instances of the
 	 * given classes.
-	 *
+	 * 
 	 * @param newClasses is a collection of classes to be processed.
-	 *
 	 * @return the resolved methods
 	 * @pre newClasses != null and newClasses->forall(o | o != null)
 	 * @post result != null
@@ -462,70 +533,26 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.
-	 *
-	 * @param t1 is the type to be checked for equivalence or sub typing.
-	 * @param t2 is the type against which the check is conducted.
-	 * @param env in which these types exists.
-	 *
-	 * @return <code>true</code> if <code>t1</code> is same as or sub type of <code>t2</code>; <code>false</code>, otherwise.
-	 *
-	 * @post result == t1.oclIsKindOf(t2)
-	 */
-	public static boolean isSameOrSubType(final Type t1, final Type t2, final IEnvironment env) {
-		boolean _result = false;
-
-		if (t1.equals(t2)) {
-			_result = true;
-		} else if (t1 instanceof RefType && t2 instanceof RefType) {
-			_result =
-				isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
-		}
-		return _result;
-	}
-
-	/**
-	 * Retrieve the soot options to be used when using Indus modules.  These options should be used via
-	 * <code>Options.v().parse(getSootOptions())</code>.  These options are setup according to the requirement of the
+	 * Retrieve the soot options to be used when using Indus modules. These options should be used via
+	 * <code>Options.v().parse(getSootOptions())</code>. These options are setup according to the requirement of the
 	 * analyses in the project.
-	 *
+	 * 
 	 * @return the soot options.
-	 *
 	 * @post result != null.
 	 */
 	public static String[] getSootOptions() {
-		final String[] _options =
-			{
-				"-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p", "jb.a",
-				"enabled:true,only-stack-locals:true", "-p", "jb.ulp", "enabled:false",
-			};
+		final String[] _options = {"-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p",
+				"jb.a", "enabled:true,only-stack-locals:true", "-p", "jb.ulp", "enabled:false",};
 
 		return _options;
 	}
 
 	/**
-	 * Checks if the given method is <code>java.lang.Thread.start()</code> method.
-	 *
-	 * @param method to be checked.
-	 *
-	 * @return <code>true</code> if the method is <code>java.lang.Thread.start()</code> method; <code>false</code>,
-	 * 		   otherwise.
-	 *
-	 * @pre method != null
-	 */
-	public static boolean isStartMethod(final SootMethod method) {
-		return method.getName().equals("start") && method.getDeclaringClass().getName().equals("java.lang.Thread")
-		  && method.getReturnType() instanceof VoidType && method.getParameterCount() == 0;
-	}
-
-	/**
 	 * Retrieves the type object for the given type in the given scene.
-	 *
+	 * 
 	 * @param typeName is the name of the type.
 	 * @param scene contains the classes that make up the system.
-	 *
 	 * @return the type object.
-	 *
 	 * @pre typeName != null and scene != null
 	 */
 	public static Type getTypeFor(final String typeName, final Scene scene) {
@@ -541,238 +568,11 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if the method invoked at the invocation site is one of the <code>wait</code> methods in
-	 * <code>java.lang.Object</code> class based  on the given call graph.
-	 *
-	 * @param stmt in which the invocation occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param cgi to be used in the check.
-	 *
-	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>wait</code> methods in
-	 * 		   <code>java.lang.Object</code> class; <code>false</code>, otherwise.
-	 */
-	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = isWaitMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if the given method is one of the <code>wait</code> methods in <code>java.lang.Object</code> class.
-	 *
-	 * @param method to be checked.
-	 *
-	 * @return <code>true</code> if the method is <code>wait</code> methods in <code>java.lang.Object</code> class;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @pre method != null
-	 */
-	public static boolean isWaitMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
-	}
-
-	/**
-	 * Erases given classes in the given environment while trying to keep the environment type safe.
-	 *
-	 * @param classes to be erased.
-	 * @param env to be updated.
-	 *
-	 * @return the classes that were erased.  It is possible that for safety reasons some classes are retained.
-	 *
-	 * @pre env != null and classes != null
-	 * @post result != null and classes.containsAll(result)
-	 */
-	public static Collection<SootClass> eraseClassesFrom(final Collection<SootClass> classes, final IEnvironment env) {
-		final Collection<SootClass> _result = new ArrayList<SootClass>(classes);
-		final ProcessingController _pc = new ProcessingController();
-		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-		_ssr.setStmtGraphFactory(new CompleteStmtGraphFactory());
-		_pc.setStmtSequencesRetriever(_ssr);
-		_pc.setEnvironment(env);
-
-		final ClassEraser _ece = new ClassEraser(_result);
-		_ece.hookup(_pc);
-		_pc.process();
-		_ece.unhook(_pc);
-		_pc.reset();
-
-		@SuppressWarnings("unchecked") final Iterator<SootClass> _j = classes.iterator();
-		final int _jEnd = classes.size();
-
-		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final SootClass _o = _j.next();
-
-			if (_result.contains(_o)) {
-				env.removeClass(_o);
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
-	 *
-	 * @param sc the class from which to start the search in the class hierarchy.  This parameter cannot be
-	 * 		  <code>null</code>.
-	 * @param sm the method to search for in the class hierarchy.  This parameter cannot be <code>null</code>.
-	 *
-	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
-	 *
-	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
-	 *
-	 * @pre sc != null and sm != null
-	 * @post result != null
-	 */
-	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
-		final SootMethod _result;
-
-		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
-			_result = sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
-		} else if (hasSuperclass(sc)) {
-			_result = findDeclaringMethod(sc.getSuperclass(), sm);
-		} else {
-			throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
-		}
-		return _result;
-	}
-
-	/**
-	 * Finds the implementation of the given method defined in <code>accessClass</code> or its superclasses.
-	 *
-	 * @param accessClass is the class via which the method is invoked.
-	 * @param methodName is the name of the method.
-	 * @param parameterTypes is the list of parameter types of the method.
-	 * @param returnType is the return type of the method.
-	 *
-	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
-	 *
-	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
-	 */
-	public static SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
-		final List parameterTypes, final Type returnType) {
-		SootMethod _result = null;
-
-		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
-			_result = accessClass.getMethod(methodName, parameterTypes, returnType);
-		} else {
-			if (accessClass.hasSuperclass()) {
-				final SootClass _superClass = accessClass.getSuperclass();
-				_result = findMethodImplementation(_superClass, methodName, parameterTypes, returnType);
-			} else {
-				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error(methodName + "(" + parameterTypes + "):" + returnType + " is not accessible from "
-						+ accessClass);
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Finds the method declarations that match the given method in its declaring class and the super interface/classes of
-	 * the declaring class.
-	 *
-	 * @param method of interest.
-	 *
-	 * @return a collection of methods.
-	 *
-	 * @pre method != null
-	 * @post result != null
-	 */
-	public static Collection<SootMethod> findMethodInSuperClassesAndInterfaces(final SootMethod method) {
-		final IWorkBag<SootClass> _toProcess = new HistoryAwareFIFOWorkBag<SootClass>(new HashSet<SootClass>());
-		Collection<SootMethod> _result = new HashSet<SootMethod>();
-		_toProcess.addWork(method.getDeclaringClass());
-
-		final List _parameterTypes = method.getParameterTypes();
-		final Type _retType = method.getReturnType();
-		final String _methodName = method.getName();
-
-		while (_toProcess.hasWork()) {
-			final SootClass _sc = _toProcess.getWork();
-
-			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
-				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
-			}
-
-			if (hasSuperclass(_sc)) {
-				final SootClass _superClass = _sc.getSuperclass();
-
-				_toProcess.addWorkNoDuplicates(_superClass);
-			}
-
-			for (final Iterator _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
-				final SootClass _interface = (SootClass) _i.next();
-
-				_toProcess.addWorkNoDuplicates(_interface);
-			}
-		}
-
-		if (_result.isEmpty()) {
-			_result = Collections.emptyList();
-		}
-		return _result;
-	}
-
-	/**
-	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
-	 * target or self.  This is required to complete the call graph.  This leaves the body untouched if it is not native.
-	 *
-	 * @param scm is the scene in which the alteration occurs.
-	 */
-	public static void fixupThreadStartBody(final Scene scm) {
-		boolean _flag = false;
-
-		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scm.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = _i.next();
-
-			if (Util.implementsInterface(_sc, "java.lang.Runnable")) {
-				_flag = true;
-				break;
-			}
-		}
-
-		if (_flag) {
-			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
-			final SootMethod _sm = _declClass.getMethodByName("start");
-
-			if (!_sm.isConcrete()) {
-				_declClass.setApplicationClass();
-				_declClass.setPhantom(false);
-				_sm.setModifiers(_sm.getModifiers() & ~Modifier.NATIVE);
-				_sm.setPhantom(false);
-
-				final Jimple _jimple = Jimple.v();
-				final JimpleBody _threadStartBody = _jimple.newBody(_sm);
-				final PatchingChain _sl = _threadStartBody.getUnits();
-				final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
-				_threadStartBody.getLocals().add(_thisRef);
-				// adds $this := @this;
-				_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
-
-				// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
-				final VirtualInvokeExpr _ve =
-					_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
-				_sl.addLast(_jimple.newInvokeStmt(_ve));
-				_sl.addLast(_jimple.newReturnVoidStmt());
-				_sm.setActiveBody(_threadStartBody);
-			}
-		}
-	}
-
-	/**
-	 * Checks if the given class has a super class.  <code>java.lang.Object</code> will not have a super class, but others
+	 * Checks if the given class has a super class. <code>java.lang.Object</code> will not have a super class, but others
 	 * will.
-	 *
-	 * @param sc is the class to  be tested.
-	 *
+	 * 
+	 * @param sc is the class to be tested.
 	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
-	 *
 	 * @pre sc != null
 	 * @post sc.getName().equals("java.lang.Object") implies result = false
 	 * @post (not sc.getName().equals("java.lang.Object")) implies result = true
@@ -788,12 +588,10 @@ public final class Util {
 
 	/**
 	 * Checks if the given class implements the named interface.
-	 *
+	 * 
 	 * @param child is the class to be tested for implementation.
 	 * @param ancestor is the fully qualified name of the interface to be checked for implementation.
-	 *
 	 * @return <code>true</code> if <code>child</code> implements the named interface; <code>false</code>, otherwise.
-	 *
 	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
 	public static boolean implementsInterface(final SootClass child, final String ancestor) {
@@ -811,104 +609,181 @@ public final class Util {
 	}
 
 	/**
-	 * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
-	 * This is the counterpart of <code>retainMethodsWithSignature</code>.
-	 *
-	 * @param methods is the collection of methods to be modified.
-	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
-	 *
-	 * @pre methods != null and methodsToRemove != null
-
+	 * Checks if one class is the descendent of another. It is assumed that a class cannot be it's own ancestor.
+	 * 
+	 * @param child class whose ancestor is of interest.
+	 * @param ancestor the ancestor class.
+	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class;
+	 *         false otherwise.
+	 * @pre child != null and ancestor != null
+	 * @post result == child.oclIsKindOf(ancestor)
 	 */
-	public static void removeMethodsWithSameSignature(final Collection<SootMethod> methods, final Collection<SootMethod> methodsToRemove) {
-		final Collection<SootMethod> _removeSet = new HashSet<SootMethod>();
-		_removeSet.addAll(methods);
-		retainMethodsWithSameSignature(_removeSet, methodsToRemove);
-		methods.removeAll(_removeSet);
+	public static boolean isDescendentOf(final SootClass child, final SootClass ancestor) {
+		return isDescendentOf(child, ancestor.getName());
 	}
 
 	/**
-	 * Retains methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
-	 * This is the counterpart of <code>removeMethodsWithSignature</code>.
-	 *
-	 * @param methods is the collection of methods to be modified.
-	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
-	 *
-	 * @pre methods != null and methodsToRetain!= null
+	 * Checks if one class is the descendent of another. It is assumed that a class cannot be it's own ancestor.
+	 * 
+	 * @param child class whose ancestor is of interest.
+	 * @param ancestor fully qualified name of the ancestor class.
+	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of
+	 *         <code>child</code> class; false otherwise.
+	 * @pre child != null and ancestor != null
+	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
-	public static void retainMethodsWithSameSignature(final Collection<SootMethod> methods, final Collection<SootMethod> methodsToRetain) {
-		final Collection<SootMethod> _retainSet = new HashSet<SootMethod>();
+	public static boolean isDescendentOf(final SootClass child, final String ancestor) {
+		boolean _retval = false;
+		SootClass _temp = child;
 
-		for (final Iterator<SootMethod> _j = methods.iterator(); _j.hasNext();) {
-			final SootMethod _abstractMethod = _j.next();
-
-			for (final Iterator<SootMethod> _k = methodsToRetain.iterator(); _k.hasNext();) {
-				final SootMethod _method = _k.next();
-
-				if (_abstractMethod.getSubSignature().equals(_method.getSubSignature())) {
-					_retainSet.add(_abstractMethod);
+		while (!_retval) {
+			if (_temp.getName().equals(ancestor)) {
+				_retval = true;
+			} else {
+				if (hasSuperclass(_temp)) {
+					_temp = _temp.getSuperclass();
+				} else {
+					break;
 				}
 			}
 		}
-		methods.retainAll(_retainSet);
+
+		if (!_retval) {
+			_retval = implementsInterface(child, ancestor);
+		}
+
+		return _retval;
 	}
 
 	/**
-	 * Retrieves the maximal subset of traps from <code>traps</code> such that each trap encloses the <code>stmt</code> in the
-	 * list of statements <code>stmtList</code>. 
+	 * Checks if the given classes are on the same class hierarchy branch. This means either one of the classes should be the
+	 * subclass of the other class.
 	 * 
-	 * @param traps is the list of traps.
-	 * @param stmt is the statement being enclosed.
-	 * @param stmtList is the list of statements.
-	 * @return a list of traps.
-	 * @pre traps != null and stmt != null and stmtList != null
-	 * @pre stmtList.contains(stmt)
-	 * @post traps.containsAll(result)
+	 * @param class1 one of the two classes to be checked for relation.
+	 * @param class2 one of the two classes to be checked for relation.
+	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>,
+	 *         otherwise.
+	 * @pre class1 != null and class2 != null
+	 * @post result == (class1.oclIsKindOf(class2) or class2.oclIsKindOf(class1))
 	 */
-	public static List<Trap> getEnclosingTrap(final List<Trap> traps, final Stmt stmt, final List<Stmt> stmtList) {
-		final List<Trap> _result = new ArrayList<Trap>();
-		final int _stmtIndex = stmtList.indexOf(stmt);
-		for (final Trap _trap : traps) {
-			if (stmtList.indexOf(_trap.getBeginUnit()) <= _stmtIndex && _stmtIndex <= stmtList.indexOf(_trap.getEndUnit())) {
-				_result.add(_trap);
-			}
+	public static boolean isHierarchicallyRelated(final SootClass class1, final SootClass class2) {
+		return isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
+	}
+
+	/**
+	 * Checks if the method invoked at the invocation site is one of the <code>notify</code> methods in
+	 * <code>java.lang.Object</code> class based on the given call graph.
+	 * 
+	 * @param stmt in which the invocation occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param cgi to be used in the check.
+	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>notify</code> methods in
+	 *         <code>java.lang.Object</code> class; <code>false</code>, otherwise.
+	 */
+	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final SootMethod _sm = _expr.getMethod();
+		boolean _result = isNotifyMethod(_sm);
+
+		if (_result && method != null && cgi != null) {
+			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
 		}
 		return _result;
 	}
-	
-	/**
-	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement and method
-	 * in the given callgraph.
-	 *
-	 * @param invokedMethod is the target method.
-	 * @param stmt containing the invocation site.
-	 * @param method containing <code>stmt</code>.
-	 * @param cgi to be used for method resolution.
-	 *
-	 * @return <code>true</code> if <code> invokedMethod</code> is invoked; <code>false</code>, otherwise.
-	 *
-	 * @pre invokedMethod != null and stmt != null and method != null and cgi != null
-	 */
-	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
-		final SootMethod method, final ICallGraphInfo cgi) {
-		final Context _context = new Context();
-		_context.setRootMethod(method);
-		_context.setStmt(stmt);
 
+	/**
+	 * Checks if the given method is one of the <code>notify</code> methods in <code>java.lang.Object</code> class.
+	 * 
+	 * @param method to be checked.
+	 * @return <code>true</code> if the method is <code>notify</code> methods in <code>java.lang.Object</code> class;
+	 *         <code>false</code>, otherwise.
+	 * @pre method != null
+	 */
+	public static boolean isNotifyMethod(final SootMethod method) {
+		return method.getDeclaringClass().getName().equals("java.lang.Object")
+				&& (method.getName().equals("notify") || method.getName().equals("notifyAll"));
+	}
+
+	/**
+	 * Checks if the given type is a valid reference type.
+	 * 
+	 * @param t is the type to checked.
+	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
+	 * @pre t != null
+	 */
+	public static boolean isReferenceType(final Type t) {
+		return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
+	}
+
+	/**
+	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.
+	 * 
+	 * @param t1 is the type to be checked for equivalence or sub typing.
+	 * @param t2 is the type against which the check is conducted.
+	 * @param env in which these types exists.
+	 * @return <code>true</code> if <code>t1</code> is same as or sub type of <code>t2</code>; <code>false</code>,
+	 *         otherwise.
+	 * @post result == t1.oclIsKindOf(t2)
+	 */
+	public static boolean isSameOrSubType(final Type t1, final Type t2, final IEnvironment env) {
 		boolean _result = false;
-		final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
-		final Iterator _iter = _callees.iterator();
-		final int _iterEnd = _callees.size();
 
-		for (int _iterIndex = 0; _iterIndex < _iterEnd && !_result; _iterIndex++) {
-			final SootMethod _callee = (SootMethod) _iter.next();
-			_result |= _callee.equals(invokedMethod);
+		if (t1.equals(t2)) {
+			_result = true;
+		} else if (t1 instanceof RefType && t2 instanceof RefType) {
+			_result = isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
 		}
 		return _result;
 	}
 
 	/**
-	 * Prunes the given list of traps that cover atleast one common statement. 
+	 * Checks if the given method is <code>java.lang.Thread.start()</code> method.
+	 * 
+	 * @param method to be checked.
+	 * @return <code>true</code> if the method is <code>java.lang.Thread.start()</code> method; <code>false</code>,
+	 *         otherwise.
+	 * @pre method != null
+	 */
+	public static boolean isStartMethod(final SootMethod method) {
+		return method.getName().equals("start") && method.getDeclaringClass().getName().equals("java.lang.Thread")
+				&& method.getReturnType() instanceof VoidType && method.getParameterCount() == 0;
+	}
+
+	/**
+	 * Checks if the method invoked at the invocation site is one of the <code>wait</code> methods in
+	 * <code>java.lang.Object</code> class based on the given call graph.
+	 * 
+	 * @param stmt in which the invocation occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param cgi to be used in the check.
+	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>wait</code> methods in
+	 *         <code>java.lang.Object</code> class; <code>false</code>, otherwise.
+	 */
+	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final SootMethod _sm = _expr.getMethod();
+		boolean _result = isWaitMethod(_sm);
+
+		if (_result && method != null && cgi != null) {
+			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given method is one of the <code>wait</code> methods in <code>java.lang.Object</code> class.
+	 * 
+	 * @param method to be checked.
+	 * @return <code>true</code> if the method is <code>wait</code> methods in <code>java.lang.Object</code> class;
+	 *         <code>false</code>, otherwise.
+	 * @pre method != null
+	 */
+	public static boolean isWaitMethod(final SootMethod method) {
+		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
+	}
+
+	/**
+	 * Prunes the given list of traps that cover atleast one common statement.
 	 * 
 	 * @param enclosingTraps is the list of traps.
 	 * @pre enclosingTraps != null
@@ -930,7 +805,78 @@ public final class Util {
 			enclosingTraps.removeAll(_r);
 			_size -= _r.size();
 			_r.clear();
-		}		
+		}
+	}
+
+	/**
+	 * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
+	 * This is the counterpart of <code>retainMethodsWithSignature</code>.
+	 * 
+	 * @param methods is the collection of methods to be modified.
+	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
+	 * @pre methods != null and methodsToRemove != null
+	 */
+	public static void removeMethodsWithSameSignature(final Collection<SootMethod> methods,
+			final Collection<SootMethod> methodsToRemove) {
+		final Collection<SootMethod> _removeSet = new HashSet<SootMethod>();
+		_removeSet.addAll(methods);
+		retainMethodsWithSameSignature(_removeSet, methodsToRemove);
+		methods.removeAll(_removeSet);
+	}
+
+	/**
+	 * Retains methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
+	 * This is the counterpart of <code>removeMethodsWithSignature</code>.
+	 * 
+	 * @param methods is the collection of methods to be modified.
+	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
+	 * @pre methods != null and methodsToRetain!= null
+	 */
+	public static void retainMethodsWithSameSignature(final Collection<SootMethod> methods,
+			final Collection<SootMethod> methodsToRetain) {
+		final Collection<SootMethod> _retainSet = new HashSet<SootMethod>();
+
+		for (final Iterator<SootMethod> _j = methods.iterator(); _j.hasNext();) {
+			final SootMethod _abstractMethod = _j.next();
+
+			for (final Iterator<SootMethod> _k = methodsToRetain.iterator(); _k.hasNext();) {
+				final SootMethod _method = _k.next();
+
+				if (_abstractMethod.getSubSignature().equals(_method.getSubSignature())) {
+					_retainSet.add(_abstractMethod);
+				}
+			}
+		}
+		methods.retainAll(_retainSet);
+	}
+
+	/**
+	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement and
+	 * method in the given callgraph.
+	 * 
+	 * @param invokedMethod is the target method.
+	 * @param stmt containing the invocation site.
+	 * @param method containing <code>stmt</code>.
+	 * @param cgi to be used for method resolution.
+	 * @return <code>true</code> if <code> invokedMethod</code> is invoked; <code>false</code>, otherwise.
+	 * @pre invokedMethod != null and stmt != null and method != null and cgi != null
+	 */
+	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
+			final SootMethod method, final ICallGraphInfo cgi) {
+		final Context _context = new Context();
+		_context.setRootMethod(method);
+		_context.setStmt(stmt);
+
+		boolean _result = false;
+		final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
+		final Iterator _iter = _callees.iterator();
+		final int _iterEnd = _callees.size();
+
+		for (int _iterIndex = 0; _iterIndex < _iterEnd && !_result; _iterIndex++) {
+			final SootMethod _callee = (SootMethod) _iter.next();
+			_result |= _callee.equals(invokedMethod);
+		}
+		return _result;
 	}
 }
 
