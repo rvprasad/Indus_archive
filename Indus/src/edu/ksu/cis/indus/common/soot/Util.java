@@ -410,11 +410,11 @@ public final class Util {
 	 * @post result != null
 	 * @post result->forall(o | hosts->contains(o) and o.hasTag(tagName))
 	 */
-	public static Collection<? extends Host> getHostsWithTag(final Collection<? extends Host> hosts, final String tagName) {
-		Collection<Host> _result = new ArrayList<Host>();
+	public static <T extends Host> Collection<T> getHostsWithTag(final Collection<T> hosts, final String tagName) {
+		Collection<T> _result = new ArrayList<T>();
 
-		for (final Iterator<? extends Host> _i = hosts.iterator(); _i.hasNext();) {
-			final Host _host = _i.next();
+		for (final Iterator<T> _i = hosts.iterator(); _i.hasNext();) {
+			final T _host = _i.next();
 
 			if (_host.hasTag(tagName)) {
 				_result.add(_host);
