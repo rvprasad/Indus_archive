@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
@@ -22,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -147,13 +149,14 @@ public abstract class AbstractStmtGraphFactory
 	 */
 	private JimpleBody getMethodBody(final SootMethod method) {
 		final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
-		@SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
-		@SuppressWarnings("unchecked") final ListIterator<Trap> _traps = new ArrayList<Trap>(_body.getTraps()).listIterator();
 		final List<Trap> _newTraps = new ArrayList<Trap>();
 		final Jimple _jimple = Jimple.v();
+		@SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
+		final IWorkBag<Trap> _traps = new FIFOWorkBag<Trap>();
+		_traps.addAllWork(_body.getTraps());
 
-		while (_traps.hasNext()) {
-			final Trap _trap1 = _traps.next();
+		while (_traps.hasWork()) {
+			final Trap _trap1 = _traps.getWork();
 			final SootClass _sc1 = _trap1.getException();
 			int _bIndex1 = _stmts.indexOf(_trap1.getBeginUnit());
 			int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());
@@ -171,21 +174,17 @@ public abstract class AbstractStmtGraphFactory
 								// position: _bIndex2 _bIndex1 _eIndex1 _eIndex2
 								_retainTrap = false;
 							} else {
-								/*
-								 * if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
-								 */
+								 // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
 								_eIndex1 = _bIndex2;
 							}
 						} else {
 							// if (_eIndex1 > _eIndex2)
-							if (_bIndex1 < _eIndex2) {
+							if (_bIndex1 >= _bIndex2) {
 								// position: _bIndex2 _bIndex1 _eIndex2 _eIndex1
 								_bIndex1 = _eIndex2;
 							} else {
-								/*
-								 * if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
-								 */
-								_traps.add(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
+								 // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
+								_traps.addWork(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
 										.getHandlerUnit()));
 								_eIndex1 = _bIndex2;
 							}
