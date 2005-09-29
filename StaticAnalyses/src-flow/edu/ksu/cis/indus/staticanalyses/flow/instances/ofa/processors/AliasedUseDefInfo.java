@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -56,89 +55,90 @@ import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
-
 /**
  * This class provides intra-thread aliased use-def information which is based on types and points-to information. If the use
- * is reachable from the def via the control flow graph or via the CFG, then def and use site are related by use-def
- * relation.  The only exception for this case is when the def occurs in the class initializer.   In this case, the defs can
- * reach almost all methods even if they are executed in a different thread from the use site.
- *
+ * is reachable from the def via the control flow graph or via the CFG, then def and use site are related by use-def relation.
+ * The only exception for this case is when the def occurs in the class initializer. In this case, the defs can reach almost
+ * all methods even if they are executed in a different thread from the use site.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class AliasedUseDefInfo
-  extends AbstractValueAnalyzerBasedProcessor
-  implements IUseDefInfo,
-	  IIdentification {
-	/** 
+		extends AbstractValueAnalyzerBasedProcessor
+		implements IUseDefInfo, IIdentification {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AliasedUseDefInfo.class);
 
-	/** 
+	/**
 	 * The basic block graph manager to use during analysis.
 	 */
 	protected final BasicBlockGraphMgr bbgMgr;
 
-	/** 
+	/**
+	 * This provide control flow analysis.
+	 */
+	protected final CFGAnalysis cfgAnalysis;
+
+	/**
 	 * The object flow analyzer to be used to calculate the UD info.
-	 *
+	 * 
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
 	private final IValueAnalyzer analyzer;
 
-	/** 
+	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
-	 *
-	 * @invariant def2usesMap.oclIsKindOf(SootField, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
+	 * 
+	 * @invariant def2usesMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
-	private final Map def2usesMap = new HashMap(Constants.getNumOfFieldsInApplication());
+	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> def2usesMap;
 
-	/** 
+	/**
 	 * This is a map from use-sites to their corresponding to def-sites.
-	 *
-	 * @invariant use2defsMap.oclIsKindOf(SootField, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
+	 * 
+	 * @invariant use2defsMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
-	private final Map use2defsMap = new HashMap(Constants.getNumOfFieldsInApplication());
+	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> use2defsMap;
 
-	/** 
+	/**
 	 * This manages <code>Pair</code> objects.
 	 */
 	private final PairManager pairMgr;
-    
-       /**
-     * This provide control flow analysis.
-     */
-    protected final CFGAnalysis cfgAnalysis;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
-	 *
+	 * 
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param bbgManager is the basic block graph manager to use.
 	 * @param pairManager to be used.
 	 * @param analysis to be used.
-	 *
 	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager,
-            final CFGAnalysis analysis) {
-        cfgAnalysis = analysis;
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager,
+			final PairManager pairManager, final CFGAnalysis analysis) {
+		cfgAnalysis = analysis;
 		analyzer = iva;
 		bbgMgr = bbgManager;
 		pairMgr = pairManager;
+		def2usesMap = new HashMap<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>>(
+				Constants.getNumOfFieldsInApplication());
+		use2defsMap = new HashMap<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>>(
+				Constants.getNumOfFieldsInApplication());
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method in which the use occurs.
-	 *
 	 * @pre context != null
 	 */
-	public Collection getDefs(final Stmt useStmt, final SootMethod method) {
-		Collection _result = Collections.EMPTY_LIST;
+	public Collection<Pair<Stmt, SootMethod>> getDefs(final Stmt useStmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
 			final Object _key;
@@ -149,8 +149,10 @@ public class AliasedUseDefInfo
 				_key = useStmt.getFieldRef().getField();
 			}
 
-			final Map _map = (Map) MapUtils.getObject(use2defsMap, _key);
-			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair(useStmt, method), Collections.EMPTY_LIST);
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _map = (Map) MapUtils.getObject(
+					use2defsMap, _key);
+			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair((DefinitionStmt) useStmt, method), Collections
+					.emptyList());
 		}
 		return _result;
 	}
@@ -158,26 +160,26 @@ public class AliasedUseDefInfo
 	/**
 	 * {@inheritDoc}<i>This operation is unsupported in this implementation.</i>
 	 */
-	public Collection getDefs(final Local local, final Stmt useStmt, final SootMethod method) {
+	public Collection<Object> getDefs(@SuppressWarnings("unused") final Local local,
+			@SuppressWarnings("unused") final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
 		throw new UnsupportedOperationException("This opertation is not supported.");
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection getIds() {
+	public Collection<String> getIds() {
 		return Collections.singleton(IUseDefInfo.ALIASED_USE_DEF_ID);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method in which the definition occurs.
-	 *
 	 * @pre method != null
 	 */
-	public Collection getUses(final DefinitionStmt defStmt, final SootMethod method) {
-		Collection _result = Collections.EMPTY_LIST;
+	public Collection<Pair<Stmt, SootMethod>> getUses(final DefinitionStmt defStmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
 			final Object _key;
@@ -188,8 +190,9 @@ public class AliasedUseDefInfo
 				_key = defStmt.getFieldRef().getField();
 			}
 
-			final Map _map = (Map) MapUtils.getObject(def2usesMap, _key);
-			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair(defStmt, method), Collections.EMPTY_LIST);
+			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _map = (Map) MapUtils.getObject(
+					def2usesMap, _key);
+			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair(defStmt, method), Collections.emptyList());
 		}
 		return _result;
 	}
@@ -197,8 +200,8 @@ public class AliasedUseDefInfo
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt, Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
-		final AssignStmt _as = (AssignStmt) stmt;
+	@Override public void callback(final Stmt stmt, final Context context) {
+		final DefinitionStmt _as = (DefinitionStmt) stmt;
 
 		if (_as.containsArrayRef() || _as.containsFieldRef()) {
 			final Object _key;
@@ -210,52 +213,56 @@ public class AliasedUseDefInfo
 			}
 
 			final Value _ref = _as.getRightOp();
-			final Map _key2info;
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _key2info;
 
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
 				_key2info = CollectionsUtilities.getMapFromMap(use2defsMap, _key);
 			} else {
 				_key2info = CollectionsUtilities.getMapFromMap(def2usesMap, _key);
 			}
-			_key2info.put(pairMgr.getPair(stmt, context.getCurrentMethod()), null);
+			_key2info.put(pairMgr.getPair(_as, context.getCurrentMethod()), null);
 		}
 	}
 
 	/**
-	 * Records naive interprocedural data dependence.  All it does it records dependence between type conformant writes and
+	 * Records naive interprocedural data dependence. All it does it records dependence between type conformant writes and
 	 * reads.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
-	public void consolidate() {
+	@Override public void consolidate() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: consolidating");
 		}
 
-		final Collection _uses = new HashSet();
+		final Collection<Pair<DefinitionStmt, SootMethod>> _uses = new HashSet<Pair<DefinitionStmt, SootMethod>>();
 
-		for (final Iterator _i = def2usesMap.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
+		for (final Iterator<Map.Entry<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>>> _i = def2usesMap
+				.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> _entry = _i
+					.next();
 			final Object _key = _entry.getKey();
-			final Map _defsite2usesites = (Map) _entry.getValue();
-			final Map _usesite2defsites = (Map) use2defsMap.get(_key);
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _defsite2usesites = _entry
+					.getValue();
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _usesite2defsites = use2defsMap
+					.get(_key);
 
 			if (_usesite2defsites != null) {
-				final Iterator _k = _defsite2usesites.keySet().iterator();
+				final Iterator<Pair<DefinitionStmt, SootMethod>> _k = _defsite2usesites.keySet().iterator();
 				final int _kEnd = _defsite2usesites.keySet().size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final Pair _defSite = (Pair) _k.next();
-					final Iterator _l = _usesite2defsites.keySet().iterator();
+					final Pair<DefinitionStmt, SootMethod> _defSite = _k.next();
+					final Iterator<Pair<DefinitionStmt, SootMethod>> _l = _usesite2defsites.keySet().iterator();
 					final int _lEnd = _usesite2defsites.keySet().size();
 
 					for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-						final Pair _useSite = (Pair) _l.next();
+						final Pair<DefinitionStmt, SootMethod> _useSite = _l.next();
 
 						if (areDefUseRelated(_defSite, _useSite)) {
 							/*
-							 * Check if the use method and the def method are the same.  If so, use CFG reachability.
-							 * If not, use call graph reachability within the locality of a thread.
+							 * Check if the use method and the def method are the same. If so, use CFG reachability. If not,
+							 * use call graph reachability within the locality of a thread.
 							 */
 							if (doesDefReachUse(_defSite, _useSite)) {
 								CollectionsUtilities.putIntoSetInMap(_usesite2defsites, _useSite, _defSite);
@@ -288,7 +295,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Reset internal data structures.
 	 */
-	public void reset() {
+	@Override public void reset() {
 		unstable();
 		def2usesMap.clear();
 		use2defsMap.clear();
@@ -297,22 +304,26 @@ public class AliasedUseDefInfo
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		final StringBuffer _result =
-			new StringBuffer("Statistics for Aliased Use Def analysis as calculated by " + getClass().getName() + "\n");
+	@Override public String toString() {
+		final StringBuffer _result = new StringBuffer("Statistics for Aliased Use Def analysis as calculated by "
+				+ getClass().getName() + "\n");
 		int _edgeCount = 0;
 
-		final StringBuffer _temp = new StringBuffer();
+		final StringBuilder _temp = new StringBuilder();
 
-		for (final Iterator _i = use2defsMap.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
+		for (final Iterator<Map.Entry<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>>> _i = use2defsMap
+				.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> _entry = _i
+					.next();
 			final Object _entity = _entry.getKey();
 			_result.append("For " + _entity + "\n ");
 
-			for (final Iterator _k = ((Map) _entry.getValue()).entrySet().iterator(); _k.hasNext();) {
-				final Map.Entry _entry1 = (Map.Entry) _k.next();
+			for (final Iterator<Map.Entry<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> _k = _entry
+					.getValue().entrySet().iterator(); _k.hasNext();) {
+				final Map.Entry<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _entry1 = _k
+						.next();
 				final Object _use = _entry1.getKey();
-				final Collection _defs = (Collection) _entry1.getValue();
+				final Collection _defs = _entry1.getValue();
 				int _localEdgeCount = 0;
 
 				if (_defs != null) {
@@ -350,39 +361,38 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * Checks if the definition can reach the use site inter-procedurally.  This implementation assumes that the definition
+	 * Checks if the definition can reach the use site inter-procedurally. This implementation assumes that the definition
 	 * always reaches use site.
-	 *
+	 * 
 	 * @param defMethod is the context of definition. <i>ignored</i>
 	 * @param defStmt is the definition statement. <i>ignored</i>.
 	 * @param useMethod is the context of use. <i>ignored</i>.
 	 * @param useStmt is the use statement. <i>ignored</i>.
-	 *
 	 * @return <code>true</code>
 	 */
-	protected boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
-		final SootMethod useMethod, final Stmt useStmt) {
+	protected boolean isReachableViaInterProceduralControlFlow(@SuppressWarnings("unused") final SootMethod defMethod,
+			@SuppressWarnings("unused") final Stmt defStmt, @SuppressWarnings("unused") final SootMethod useMethod,
+			@SuppressWarnings("unused") final Stmt useStmt) {
 		return true;
 	}
 
 	/**
 	 * Checks if the given definition and use are related.
-	 *
+	 * 
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
-	 *
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
-	 *
 	 * @pre defSite != null and useSite != null
 	 * @pre defSite.oclIsKindOf(Pair(Stmt, SootMethod)) and useSite.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	private boolean areDefUseRelated(final Pair defSite, final Pair useSite) {
+	private boolean areDefUseRelated(final Pair<DefinitionStmt, SootMethod> defSite,
+			final Pair<DefinitionStmt, SootMethod> useSite) {
 		boolean _result = false;
 		final Context _context = new Context();
-		final DefinitionStmt _defStmt = (DefinitionStmt) defSite.getFirst();
-		final DefinitionStmt _useStmt = (DefinitionStmt) useSite.getFirst();
-		final SootMethod _defMethod = (SootMethod) defSite.getSecond();
-		final SootMethod _useMethod = (SootMethod) useSite.getSecond();
+		final DefinitionStmt _defStmt = defSite.getFirst();
+		final DefinitionStmt _useStmt = useSite.getFirst();
+		final SootMethod _defMethod = defSite.getSecond();
+		final SootMethod _useMethod = useSite.getSecond();
 
 		if (_defStmt.containsArrayRef()) {
 			final ValueBox _vBox1 = _useStmt.getArrayRef().getBaseBox();
@@ -390,7 +400,7 @@ public class AliasedUseDefInfo
 			_context.setStmt(_useStmt);
 			_context.setProgramPoint(_vBox1);
 
-			final Collection _c1 = analyzer.getValues(_vBox1.getValue(), _context);
+			@SuppressWarnings("unchecked") final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
 			final ValueBox _vBox2 = _defStmt.getArrayRef().getBaseBox();
 			_context.setRootMethod(_defMethod);
 			_context.setStmt(_defStmt);
@@ -410,7 +420,7 @@ public class AliasedUseDefInfo
 				_context.setStmt(_useStmt);
 				_context.setProgramPoint(_vBox1);
 
-				final Collection _c1 = analyzer.getValues(_vBox1.getValue(), _context);
+				@SuppressWarnings("unchecked") final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
 				final ValueBox _vBox2 = ((InstanceFieldRef) _defStmt.getFieldRef()).getBaseBox();
 				_context.setRootMethod(_defMethod);
 				_context.setStmt(_defStmt);
@@ -424,32 +434,31 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * Checks if the def reaches the use site.  If either of the methods are class initializers, <code>true</code> is
+	 * Checks if the def reaches the use site. If either of the methods are class initializers, <code>true</code> is
 	 * returned.
-	 *
+	 * 
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
-	 *
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
-	 *
 	 * @pre defSite != null and useSite != null
 	 * @pre defSite.oclIsKindOf(Pair(Stmt, SootMethod)) and useSite.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	private boolean doesDefReachUse(final Pair defSite, final Pair useSite) {
+	private boolean doesDefReachUse(final Pair<DefinitionStmt, SootMethod> defSite,
+			final Pair<DefinitionStmt, SootMethod> useSite) {
 		boolean _result;
-		final DefinitionStmt _defStmt = (DefinitionStmt) defSite.getFirst();
-		final DefinitionStmt _useStmt = (DefinitionStmt) useSite.getFirst();
-		final SootMethod _defMethod = (SootMethod) defSite.getSecond();
-		final SootMethod _useMethod = (SootMethod) useSite.getSecond();
+		final DefinitionStmt _defStmt = defSite.getFirst();
+		final DefinitionStmt _useStmt = useSite.getFirst();
+		final SootMethod _defMethod = defSite.getSecond();
+		final SootMethod _useMethod = useSite.getSecond();
 
 		if (_defMethod.getName().equals("<clinit>") || _useMethod.getName().equals("<clinit>")) {
 			_result = true;
 		} else {
+			boolean _r = false;
 			if (_useMethod.equals(_defMethod)) {
-				_result = cfgAnalysis.doesControlFlowPathExistsBetween(_defStmt, _useStmt, _useMethod);
-			} else {
-				_result = isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
+				_r = cfgAnalysis.doesControlFlowPathExistsBetween(_defStmt, _useStmt, _useMethod);
 			}
+			_result = _r || isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 		}
 		return _result;
 	}
