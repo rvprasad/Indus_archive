@@ -64,7 +64,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre useStmt != null
 	 */
-	Collection getDefs(Stmt useStmt, SootMethod method);
+	Collection<? extends Object> getDefs(Stmt useStmt, SootMethod method);
 
 	/**
 	 * Retrieves the def sites that reach the given local at the given use site in the given context.
@@ -79,7 +79,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre local != null and useStmt != null
 	 */
-	Collection getDefs(Local local, Stmt useStmt, SootMethod method)
+	Collection<? extends Object> getDefs(Local local, Stmt useStmt, SootMethod method)
 	  throws UnsupportedOperationException;
 
 	/**
@@ -92,7 +92,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre defStmt != null
 	 */
-	Collection getUses(DefinitionStmt defStmt, SootMethod method);
+	Collection<? extends Object> getUses(DefinitionStmt defStmt, SootMethod method);
 }
 
 // End of File

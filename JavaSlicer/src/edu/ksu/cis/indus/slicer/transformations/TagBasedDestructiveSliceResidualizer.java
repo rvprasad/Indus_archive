@@ -198,9 +198,9 @@ public final class TagBasedDestructiveSliceResidualizer
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
 
-				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
+				final Collection _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
-				final Iterator<DefinitionStmt> _j = _defs.iterator();
+				@SuppressWarnings("unchecked") final Iterator<DefinitionStmt> _j = _defs.iterator();
 				final int _jEnd = _defs.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd && _injectNewCode; _jIndex++) {
