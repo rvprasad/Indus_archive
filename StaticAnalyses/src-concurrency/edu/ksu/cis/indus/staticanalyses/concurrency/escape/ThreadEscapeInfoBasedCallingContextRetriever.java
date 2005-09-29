@@ -187,7 +187,12 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 			LOGGER.debug("getTokenForThis(method = " + _method + ")");
 		}
 
-		final AliasSet _as = ecba.queryAliasSetForThis(_method);
+		final AliasSet _as;
+		if (_method.isStatic()) {
+			_as = ecba.queryAliasSetFor(_method.getDeclaringClass());
+		} else {
+			_as = ecba.queryAliasSetForThis(_method);
+		}
 		return prepareToken(_as);
 	}
 
