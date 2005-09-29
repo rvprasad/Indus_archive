@@ -88,7 +88,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 				_result = !_o.isEmpty();
 			}
 		} else {
-			_result = false;
+			_result = !EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_value.getType());
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -144,7 +144,11 @@ public class DataAliasBasedCallingContextRetrieverV2
 		if (_as != null) {
 			_result = _as;
 		} else {
-			_result = Tokens.DISCARD_CONTEXT_TOKEN;
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_value.getType())) {
+				_result = Tokens.DISCARD_CONTEXT_TOKEN;
+			} else {
+				_result = Tokens.CONSIDER_ALL_CONTEXTS_TOKEN;
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
