@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import java.util.Collection;
-
-
 /**
  * This class represents the variants of entities associated with AST nodes and fields.  This class should be extended as
  * required for such entities.
