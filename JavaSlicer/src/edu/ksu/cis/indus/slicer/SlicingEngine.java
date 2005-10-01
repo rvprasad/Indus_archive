@@ -20,9 +20,9 @@ import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraphBuilder;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -200,7 +200,7 @@ public final class SlicingEngine {
 	/** 
 	 * This maps methods to call stacks considered at these method sites.
 	 */
-	private final Map method2callStacks = new HashMap();
+	private final Map<SootMethod, SimpleNodeGraph<CallTriple>> method2callStacks = new HashMap<SootMethod, SimpleNodeGraph<CallTriple>>();
 
 	/** 
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -224,7 +224,7 @@ public final class SlicingEngine {
 	 * method in which the processing is occurring.  This will NOT include the current method being processed at TOS unless
 	 * there is recursion.
 	 */
-	private Stack callStackCache;
+	private Stack<CallTriple> callStackCache;
 
 	/** 
 	 * This caches the informaiton - is interference dependence being used in this execution?
@@ -540,7 +540,7 @@ public final class SlicingEngine {
 
 		if (callStackCache != null) {
 			if (ifInsideContext()) {
-				_result = (CallTriple) callStackCache.pop();
+				_result = callStackCache.pop();
 			}
 
 			if (callStackCache.isEmpty()) {
@@ -665,7 +665,7 @@ public final class SlicingEngine {
 
 		if (!collectedAllInvocationSites.contains(method)) {
 			if (ifInsideContext()) {
-				final CallTriple _top = (CallTriple) callStackCache.pop();
+				final CallTriple _top = callStackCache.pop();
 				final SootMethod _caller = _top.getMethod();
 				final Stmt _stmt = _top.getStmt();
 				directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
@@ -1093,14 +1093,14 @@ public final class SlicingEngine {
 		boolean _result = true;
 
 		if (method2callStacks.containsKey(method)) {
-			final SimpleNodeGraph _sng = (SimpleNodeGraph) method2callStacks.get(method);
+			final SimpleNodeGraph<CallTriple> _sng = method2callStacks.get(method);
 			final int _limit = callStackCache.size() - 1;
 			final Collection _succsOfSrc = new ArrayList();
 			final Collection _reachablesFrom = new HashSet();
 
 			for (int _i = _limit; _i >= 0 && _result; _i--) {
-				final Object _o = callStackCache.get(_i);
-				INode _node = _sng.queryNode(_o);
+				final CallTriple _o = callStackCache.get(_i);
+				SimpleNode<CallTriple> _node = _sng.queryNode(_o);
 
 				if (_node == null) {
 					_node = _sng.getNode(_o);
@@ -1112,19 +1112,19 @@ public final class SlicingEngine {
 						_reachablesFrom.addAll(_sng.getReachablesFrom(_node, true));
 						_reachablesFrom.add(_node);
 
-						final Iterator _j = _reachablesFrom.iterator();
+						final Iterator<SimpleNode<CallTriple>> _j = _reachablesFrom.iterator();
 						final int _jEnd = _reachablesFrom.size();
 
 						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-							final INode _src = (INode) _j.next();
+							final SimpleNode<CallTriple> _src = _j.next();
 							_succsOfSrc.clear();
 							_succsOfSrc.addAll(_src.getSuccsOf());
 
-							final Iterator _k = _succsOfSrc.iterator();
+							final Iterator<SimpleNode<CallTriple>> _k = _succsOfSrc.iterator();
 							final int _kEnd = _succsOfSrc.size();
 
 							for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-								final INode _dest = (INode) _k.next();
+								final SimpleNode<CallTriple> _dest =  _k.next();
 								_sng.removeEdgeFromTo(_src, _dest);
 							}
 						}
@@ -1133,7 +1133,7 @@ public final class SlicingEngine {
 				}
 
 				if (_limit - _i > 0 && _result) {
-					final INode _prev = _sng.queryNode(callStackCache.get(_i + 1));
+					final SimpleNode<CallTriple> _prev = _sng.queryNode(callStackCache.get(_i + 1));
 
 					if (_prev != null) {
 						_sng.addEdgeFromTo(_prev, _node);
@@ -1141,14 +1141,14 @@ public final class SlicingEngine {
 				}
 			}
 		} else {
-			final SimpleNodeGraphBuilder _sngb = new SimpleNodeGraph.SimpleNodeGraphBuilder();
+			final SimpleNodeGraphBuilder<CallTriple> _sngb = new SimpleNodeGraphBuilder<CallTriple>();
 			_sngb.createGraph();
 
 			if (callStackCache.size() > 0) {
-				Object _s = callStackCache.peek();
+				CallTriple _s = callStackCache.peek();
 	
 				for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
-					final Object _t = callStackCache.get(_i);
+					final CallTriple _t = callStackCache.get(_i);
 					_sngb.addEdgeFromTo(_s, _t);
 					_s = _t;
 				}

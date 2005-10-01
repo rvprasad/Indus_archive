@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
-import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph.SimpleEdgeGraphBuilder;
+import edu.ksu.cis.indus.common.graph.SimpleEdgeGraphBuilder;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -85,7 +85,7 @@ public final class SystemDependenceGraphBuilder {
 	 */
 	private SystemDependenceGraphBuilder(final Collection dependences, final ICallGraphInfo cgi, final Collection classes) {
 		pairMgr = new PairManager(true, true);
-		segb = new SimpleEdgeGraph.SimpleEdgeGraphBuilder();
+		segb = new SimpleEdgeGraphBuilder();
 		deps = dependences;
 		callgraph = cgi;
 		coreClasses = classes;

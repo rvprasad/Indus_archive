@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,15 +14,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.common.Marker;
+
 /**
- * This marker interface represents the type in the type system used in the analysis.  It is possible that the user will use
- * a type system while implementing the analysis.  The types of such a type system are marked by this interface.
- *
+ * This marker interface represents the type in the type system used in the analysis. It is possible that the user will use a
+ * type system while implementing the analysis. The types of such a type system are marked by this interface.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IType {
+@Marker public interface IType {
+	// empty
 }
 
 // End of File

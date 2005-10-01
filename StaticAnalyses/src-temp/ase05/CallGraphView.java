@@ -26,8 +26,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class CallGraphView
-  implements IEdgeLabelledDirectedGraphView {
+class CallGraphView 
+  implements IEdgeLabelledDirectedGraphView<IDirectedGraphView.INode> {
 	/**
      * DOCUMENT ME!
      */

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,16 +16,18 @@ package edu.ksu.cis.indus.common.fa;
 
 import java.util.Collection;
 
-
 /**
  * This is an implementation of deterministic finite automaton.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
+ * @version $Revision$ $Date$ *
+ * @param <S> the type of the implementation of this interface.
+ * @param <L> the type of the implementation of this interface.
  */
-public class DFA
-  extends NFA {
+public class DFA<S extends IState<S>, L extends ITransitionLabel<L>>
+		extends NFA<S, L> {
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -35,16 +36,9 @@ public class DFA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
+	 * @see NFA#addLabelledTransitionFromTo(IState, ITransitionLabel, IState)
 	 */
-	public boolean isDeterministic() {
-		return true;
-	}
-
-	/**
-	 * @see NFA#addLabelledTransitionFromTo(IState, edu.ksu.cis.indus.common.fa.IAutomaton.ITransitionLabel, IState)
-	 */
-	public void addLabelledTransitionFromTo(final IState src, final ITransitionLabel label, final IState dest) {
+	@Override public void addLabelledTransitionFromTo(final S src, final L label, final S dest) {
 		final Collection _states = getResultingStates(src, label);
 
 		if (!_states.isEmpty()) {
@@ -56,6 +50,13 @@ public class DFA
 		} else {
 			super.addLabelledTransitionFromTo(src, label, dest);
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
+	 */
+	@Override public boolean isDeterministic() {
+		return true;
 	}
 }
 

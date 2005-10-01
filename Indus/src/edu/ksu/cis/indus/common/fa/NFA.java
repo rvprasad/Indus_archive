@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,10 +14,10 @@
 
 package edu.ksu.cis.indus.common.fa;
 
-import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraph.IEdgeLabelledNode;
+import edu.ksu.cis.indus.common.graph.IEdgeLabelledNode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
+import edu.ksu.cis.indus.common.graph.SimpleEdgeLabelledNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,37 +25,39 @@ import java.util.HashSet;
 
 import org.apache.commons.collections.CollectionUtils;
 
-
 /**
  * This is an implementation of non-deterministic finite automaton.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
+ * @version $Revision$ $Date$ *
+ * @param <S> the type of the implementation of this interface.
+ * @param <L> the type of the implementation of this interface.
  */
-public class NFA
-  implements IAutomaton {
-	/** 
+public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
+		implements IAutomaton<S, L> {
+
+	/**
+	 * The current state of the NFA. This is <code>null</code> if the automaton is not running.
+	 */
+	private S currentState;
+
+	/**
 	 * The final states of this automaton.
-	 *
+	 * 
 	 * @invariant finalStates.oclIsKindOf(Set(IState))
 	 */
-	private final Collection finalStates = new HashSet();
+	private final Collection<S> finalStates = new HashSet<S>();
 
-	/** 
+	/**
 	 * This graph is used to represent the shape of the automaton.
 	 */
-	private final SimpleEdgeGraph seg = new SimpleEdgeGraph();
+	private final SimpleEdgeGraph<S> seg = new SimpleEdgeGraph<S>();
 
-	/** 
-	 * The current state of the NFA.  This is <code>null</code> if the automaton is not running.
-	 */
-	private IState currentState;
-
-	/** 
+	/**
 	 * The start state of the the automaton.
 	 */
-	private IState startState;
+	private S startState;
 
 	/**
 	 * Creates an instance of this class.
@@ -66,91 +67,12 @@ public class NFA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getCurrentState()
-	 */
-	public IState getCurrentState() {
-		return currentState;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
-	 */
-	public boolean isDeterministic() {
-		return false;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getFinalStates()
-	 */
-	public Collection getFinalStates() {
-		return finalStates;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isInFinalState()
-	 */
-	public boolean isInFinalState() {
-		return finalStates.contains(currentState);
-	}
-
-	/**
-	 * Retrieves the states that can be reached by taking a transition labelled with the given label from the given state of
-	 * the automaton.
-	 *
-	 * @param state of interest.
-	 * @param label of the outgoing transitions from <code>state</code>.
-	 *
-	 * @return the collection of states.
-	 *
-	 * @pre state != null and label != null
-	 * @post result != null and result.oclIsKindOf(Collection(IState))
-	 */
-	public Collection getResultingStates(final IState state, final ITransitionLabel label) {
-		assert state != null && label != null;
-
-		final IEdgeLabelledNode _node = (IEdgeLabelledNode) seg.queryNode(state);
-		final Collection _result;
-
-		if (_node != null) {
-			final Collection _dests = _node.getSuccsViaEdgesLabelled(label);
-			_result = CollectionUtils.collect(_dests, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-		} else {
-			_result = Collections.EMPTY_SET;
-		}
-		return _result;
-	}
-
-	/**
-	 * Sets the start state of the automaton.
-	 *
-	 * @param state to be the start state.
-	 *
-	 * @pre state != null
-	 */
-	public void setStartState(final IState state) {
-		assert state != null;
-
-		seg.getNode(state);
-		startState = state;
-	}
-
-	/**
-	 * Retrieves the start state of the automaton.
-	 *
-	 * @return the start state.
-	 */
-	public IState getStartState() {
-		return startState;
-	}
-
-	/**
 	 * Adds a final state to the automaton.
-	 *
+	 * 
 	 * @param state to be added as a final state.
-	 *
 	 * @pre state != null
 	 */
-	public void addFinalState(final IState state) {
+	public void addFinalState(final S state) {
 		assert state != null;
 
 		seg.getNode(state);
@@ -159,28 +81,27 @@ public class NFA
 
 	/**
 	 * Adds a transition labelled with the given label from the given source state to the destination state.
-	 *
+	 * 
 	 * @param src is the source state.
 	 * @param label is the label of the transition.
 	 * @param dest is the destination state.
-	 *
-	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code>  has been
-	 * 		   called but <code>stop()</code> has not been called.
+	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code> has been
+	 *             called but <code>stop()</code> has not been called.
 	 */
-	public void addLabelledTransitionFromTo(final IState src, final ITransitionLabel label, final IState dest) {
+	public void addLabelledTransitionFromTo(final S src, final L label, final S dest) {
 		if (currentState != null) {
 			throw new IllegalStateException(
-				"The automata should be altered when it is not not running (prior to starting it or"
-				+ "after it is stopped).");
+					"The automata should be altered when it is not not running (prior to starting it or"
+							+ "after it is stopped).");
 		}
 		seg.addEdgeFromTo(seg.getNode(src), label, seg.getNode(dest));
 	}
 
 	/**
-	 * @see IAutomaton#canPerformTransition(IAutomaton.ITransitionLabel)
+	 * @see IAutomaton#canPerformTransition(ITransitionLabel)
 	 */
-	public boolean canPerformTransition(final ITransitionLabel label) {
-		final IEdgeLabelledNode _node = (IEdgeLabelledNode) seg.queryNode(currentState);
+	public boolean canPerformTransition(final L label) {
+		final IEdgeLabelledNode _node = seg.queryNode(currentState);
 		final boolean _result;
 
 		if (_node != null) {
@@ -194,7 +115,7 @@ public class NFA
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	public Object clone() {
+	@Override public NFA<S, L> clone() {
 		try {
 			return (NFA) super.clone();
 		} catch (final CloneNotSupportedException _e) {
@@ -203,14 +124,76 @@ public class NFA
 	}
 
 	/**
-	 * @see IAutomaton#performTransitionOn(IAutomaton.ITransitionLabel)
+	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getCurrentState()
 	 */
-	public void performTransitionOn(final ITransitionLabel label) {
-		final IEdgeLabelledNode _node = (IEdgeLabelledNode) seg.queryNode(currentState);
+	public S getCurrentState() {
+		return currentState;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getFinalStates()
+	 */
+	public Collection<S> getFinalStates() {
+		return finalStates;
+	}
+
+	/**
+	 * Retrieves the states that can be reached by taking a transition labelled with the given label from the given state of
+	 * the automaton.
+	 * 
+	 * @param state of interest.
+	 * @param label of the outgoing transitions from <code>state</code>.
+	 * @return the collection of states.
+	 * @pre state != null and label != null
+	 * @post result != null
+	 */
+	public Collection<S> getResultingStates(final S state, final L label) {
+		assert state != null && label != null;
+
+		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(state);
+		final Collection<S> _result;
 
 		if (_node != null) {
-			final Collection _dests = _node.getSuccsViaEdgesLabelled(label);
-			currentState = (IState) ((IObjectNode) _dests.iterator().next()).getObject();
+			final Collection<SimpleEdgeLabelledNode<S>> _dests = _node.getSuccsViaEdgesLabelled(label);
+			_result = CollectionUtils.collect(_dests, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+		} else {
+			_result = Collections.emptySet();
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the start state of the automaton.
+	 * 
+	 * @return the start state.
+	 */
+	public S getStartState() {
+		return startState;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
+	 */
+	public boolean isDeterministic() {
+		return false;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isInFinalState()
+	 */
+	public boolean isInFinalState() {
+		return finalStates.contains(currentState);
+	}
+
+	/**
+	 * @see IAutomaton#performTransitionOn(ITransitionLabel)
+	 */
+	public void performTransitionOn(final L label) {
+		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(currentState);
+
+		if (_node != null) {
+			final Collection<SimpleEdgeLabelledNode<S>> _dests = _node.getSuccsViaEdgesLabelled(label);
+			currentState = _dests.iterator().next().getObject();
 		} else {
 			throw new IllegalStateException("There are no transition with the label " + label + " from the current state.");
 		}
@@ -218,22 +201,33 @@ public class NFA
 
 	/**
 	 * Removes the transition labelled with the given label from the given source state to the destination state.
-	 *
+	 * 
 	 * @param src is the source state.
 	 * @param label of the transition to be removed.
 	 * @param dest is the destination state.
-	 *
 	 * @return <code>true</code> if such a transition existed and it was removed; <code>false</code>, otherwise.
-	 *
-	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code>  has been
-	 * 		   called but <code>stop()</code> has not been called.
+	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code> has been
+	 *             called but <code>stop()</code> has not been called.
 	 */
-	public boolean removeLabelledTransitionFromTo(final IState src, final ITransitionLabel label, final IState dest) {
+	public boolean removeLabelledTransitionFromTo(final S src, final L label, final S dest) {
 		if (currentState != null) {
 			throw new IllegalStateException("The automata should be altered when it is not active (prior to starting it or"
-				+ "after it is stopped).");
+					+ "after it is stopped).");
 		}
-		return seg.removeEdgeFromTo((IEdgeLabelledNode) seg.queryNode(src), label, (IEdgeLabelledNode) seg.queryNode(dest));
+		return seg.removeEdgeFromTo(seg.queryNode(src), label, seg.queryNode(dest));
+	}
+
+	/**
+	 * Sets the start state of the automaton.
+	 * 
+	 * @param state to be the start state.
+	 * @pre state != null
+	 */
+	public void setStartState(final S state) {
+		assert state != null;
+
+		seg.getNode(state);
+		startState = state;
 	}
 
 	/**

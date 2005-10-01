@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,21 +16,22 @@ package edu.ksu.cis.indus.common.fa;
 
 /**
  * This represents an object as a state in a finite state automata.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class State
-  implements IState {
-	/** 
+		implements IState<State> {
+
+	/**
 	 * The object being represented by this state.
 	 */
 	final Object object;
 
 	/**
 	 * Creates a new State object.
-	 *
+	 * 
 	 * @param obj is the object to be represented by this state.
 	 */
 	public State(final Object obj) {

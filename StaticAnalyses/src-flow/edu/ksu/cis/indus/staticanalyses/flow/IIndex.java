@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,17 +14,16 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.Marker;
+
 /**
  * A marker interface to be implemented by all classes whose instances will be used as indices in FA framework.
  * 
- * <p>
- * Created: Tue Jan 22 04:55:30 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public interface IIndex {
+@Marker public interface IIndex {
+	// empty
 }
 
 // End of File

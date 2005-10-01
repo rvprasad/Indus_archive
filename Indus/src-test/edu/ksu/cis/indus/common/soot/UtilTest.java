@@ -117,6 +117,7 @@ public class UtilTest
 		_ancestors.add("java.io.Serializable");
 		_ancestors.add("java.util.AbstractSet");
 		_ancestors.add("java.util.AbstractCollection");
+		_ancestors.add("java.lang.Iterable");
 		assertEquals(_ancestors.size(), _classes.size());
 
 		for (final Iterator _i = _classes.iterator(); _i.hasNext();) {

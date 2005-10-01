@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.fa.IAutomaton;
 import edu.ksu.cis.indus.common.fa.IState;
+import edu.ksu.cis.indus.common.fa.ITransitionLabel;
 import edu.ksu.cis.indus.common.fa.NFA;
 import edu.ksu.cis.indus.common.fa.State;
 import edu.ksu.cis.indus.common.graph.IDirectedGraphView;
@@ -153,8 +154,8 @@ public class InfluenceChecker
 	/** 
 	 * This label represents call graph based edges.
 	 */
-	final static IAutomaton.ITransitionLabel CALLS =
-		new IAutomaton.ITransitionLabel() {
+	final static ITransitionLabel CALLS =
+		new ITransitionLabel() {
 			public String toString() {
 				return "-CALLS->";
 			}
@@ -163,8 +164,8 @@ public class InfluenceChecker
 	/** 
 	 * This label represents control dependence based edges.
 	 */
-    final  static IAutomaton.ITransitionLabel CD =
-		new IAutomaton.ITransitionLabel() {
+    final  static ITransitionLabel CD =
+		new ITransitionLabel() {
 			public String toString() {
 				return "-CD->";
 			}
@@ -173,8 +174,8 @@ public class InfluenceChecker
 	/** 
 	 * This label represents data dependence based edges.
 	 */
-	final static IAutomaton.ITransitionLabel DD =
-		new IAutomaton.ITransitionLabel() {
+	final static ITransitionLabel DD =
+		new ITransitionLabel() {
 			public String toString() {
 				return "-DD->";
 			}
@@ -605,7 +606,7 @@ public class InfluenceChecker
 				_matchedPaths.add(_path);
 			} else {
 				if (_auto.canPerformTransition(IAutomaton.EPSILON)) {
-					final IAutomaton _aclone = (IAutomaton) _auto.clone();
+					final IAutomaton _aclone = _auto.clone();
 					_aclone.performTransitionOn(IAutomaton.EPSILON);
 
 					final Stack _temp = (Stack) _path.clone();
@@ -620,7 +621,7 @@ public class InfluenceChecker
 				final int _iEnd = _outgoingEdgeLabels.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final IAutomaton.ITransitionLabel _label = (IAutomaton.ITransitionLabel) _i.next();
+					final ITransitionLabel _label = (ITransitionLabel) _i.next();
 
 					if (_auto.canPerformTransition(_label)) {
 						final Collection _succsViaLabel = _graph.getSuccsViaEdgesLabelled(_src, _label);
@@ -631,7 +632,7 @@ public class InfluenceChecker
 							final INode _dest = (INode) _j.next();
 
 							if (!_path.contains(_dest)) {
-								final IAutomaton _aclone = (IAutomaton) _auto.clone();
+								final IAutomaton _aclone = _auto.clone();
 								_aclone.performTransitionOn(_label);
 
 								final Stack _t = (Stack) _path.clone();

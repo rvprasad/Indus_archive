@@ -19,9 +19,10 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.GraphReachabilityPredicate;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.Constants;
 
@@ -149,7 +150,7 @@ public final class CallGraphInfo
 	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
-	private SimpleNodeGraph graphCache;
+	private SimpleNodeGraph<SootMethod> graphCache;
 
 	/**
 	 * The collection of methods that don't have callers in the system. These typically include root methods and class
@@ -453,8 +454,8 @@ public final class CallGraphInfo
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#isCalleeReachableFromCaller(soot.SootMethod, soot.SootMethod)
 	 */
 	public boolean isCalleeReachableFromCaller(final SootMethod callee, final SootMethod caller) {
-		final INode _calleeNode = graphCache.queryNode(callee);
-		final INode _callerNode = graphCache.queryNode(caller);
+		final SimpleNode<SootMethod> _calleeNode = graphCache.queryNode(callee);
+		final SimpleNode<SootMethod> _callerNode = graphCache.queryNode(caller);
 		return _calleeNode != null && _callerNode != null && graphCache.isReachable(_callerNode, _calleeNode, true);
 	}
 
@@ -463,7 +464,8 @@ public final class CallGraphInfo
 	 */
 	public boolean isCalleeReachableFromCallSite(final SootMethod callee, final Stmt stmt, final SootMethod caller) {
 		final boolean _result;
-		final GraphReachabilityPredicate _rp = new GraphReachabilityPredicate(callee, true, graphCache);
+		final SimpleNode<SootMethod> _n = graphCache.queryNode(callee);
+		final GraphReachabilityPredicate _rp = new GraphReachabilityPredicate<SimpleNode<SootMethod>, SootMethod>(_n, true, graphCache);
 
 		if (_rp.evaluate(caller)) {
 			final InvokeExpr _ie = stmt.getInvokeExpr();
@@ -604,11 +606,11 @@ public final class CallGraphInfo
 		}
 
 		// construct call graph
-		graphCache = new SimpleNodeGraph();
+		graphCache = new SimpleNodeGraph<SootMethod>();
 
 		for (final Iterator _i = reachables.iterator(); _i.hasNext();) {
 			final SootMethod _caller = (SootMethod) _i.next();
-			final INode _callerNode = graphCache.getNode(_caller);
+			final SimpleNode<SootMethod> _callerNode = graphCache.getNode(_caller);
 			final Collection _callees = (Collection) MapUtils.getObject(caller2callees, _caller, Collections.EMPTY_SET);
 
 			if (!_callees.isEmpty()) {

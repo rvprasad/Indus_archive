@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,61 +14,59 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
-
 import java.util.Collection;
 import java.util.Collections;
 
-
 /**
  * This is an abstract non-edge-labelled implementation of INode.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> the sub type of this type.
  */
-public class Node
-  implements INode {
-	/** 
+public class Node<T extends Node<T>>
+		implements INode<T> {
+
+	/**
 	 * The collection of nodes which precede this node in the graph.
-	 *
+	 * 
 	 * @invariant predecessors != null
 	 */
-	protected final Collection predecessors;
+	protected final Collection<T> predecessors;
 
-	/** 
+	/**
 	 * The collection of nodes which succeed this node in the graph.
-	 *
+	 * 
 	 * @invariant successors != null
 	 */
-	protected final Collection successors;
+	protected final Collection<T> successors;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 *
 	 * @pre preds != null and succs != null
 	 */
-	public Node(final Collection preds, final Collection succs) {
+	public Node(final Collection<T> preds, final Collection<T> succs) {
 		super();
 		this.predecessors = preds;
 		this.successors = succs;
 	}
 
 	/**
-	 * @see IDirectedGraph.INode#getPredsOf()
+	 * @see INode#getPredsOf()
 	 */
-	public Collection getPredsOf() {
+	public Collection<T> getPredsOf() {
 		return Collections.unmodifiableCollection(predecessors);
 	}
 
 	/**
-	 * @see IDirectedGraph.INode#getSuccsNodesInDirection(boolean)
+	 * @see INode#getSuccsNodesInDirection(boolean)
 	 */
-	public final Collection getSuccsNodesInDirection(final boolean forward) {
-		Collection _result;
+	public final Collection<T> getSuccsNodesInDirection(final boolean forward) {
+		Collection<T> _result;
 
 		if (forward) {
 			_result = getSuccsOf();
@@ -80,9 +77,9 @@ public class Node
 	}
 
 	/**
-	 * @see IDirectedGraph.INode#getSuccsOf()
+	 * @see INode#getSuccsOf()
 	 */
-	public Collection getSuccsOf() {
+	public Collection<T> getSuccsOf() {
 		return Collections.unmodifiableCollection(successors);
 	}
 }

@@ -532,7 +532,7 @@ public final class NonTerminationSensitiveEntryControlDA
 		boolean _addflag = false;
 		final int _nodeIndex = nodesCache.indexOf(node);
 		final BitSet[] _nodeBitSets = tokenSets[_nodeIndex];
-		final BasicBlock _succ = (BasicBlock) node.getSuccsOf().iterator().next();
+		final BasicBlock _succ = node.getSuccsOf().iterator().next();
 		final int _succIndex = nodesCache.indexOf(_succ);
 		final BitSet[] _succBitSets = tokenSets[_succIndex];
 		final BitSet _temp = new BitSet();

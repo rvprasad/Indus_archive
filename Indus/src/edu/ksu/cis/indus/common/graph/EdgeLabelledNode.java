@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,8 +14,6 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraph.IEdgeLabelledNode;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,80 +21,76 @@ import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 
-
 /**
  * This is an implementation of edge-labelled nodes.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> the sub type of this type.
  */
-public class EdgeLabelledNode
-  extends Node
-  implements IEdgeLabelledNode {
-	/** 
-	 * This maps nodes to maps that map labels to nodes reachable from the key node via an edge with the key label.
-	 *
-	 * @pre node2inEdges.oclIsKindOf(Map(INode, Map(IEdgeLabel, Collection(INode))))
-	 */
-	final Map label2inNodes = new HashMap();
+public class EdgeLabelledNode<T extends EdgeLabelledNode<T>>
+		extends Node<T>
+		implements IEdgeLabelledNode<T> {
 
-	/** 
-	 * This maps nodes to maps that map labels to nodes that can reachable the key node via an edge with the key label.
-	 *
-	 * @pre node2inEdges.oclIsKindOf(Map(INode, Map(IEdgeLabel, Collection(INode))))
+	/**
+	 * This maps nodes to maps that map labels to nodes reachable from the key node via an edge with the key label.
 	 */
-	final Map label2outNodes = new HashMap();
+	final Map<IEdgeLabel, Collection<T>> label2inNodes = new HashMap<IEdgeLabel, Collection<T>>();
+
+	/**
+	 * This maps nodes to maps that map labels to nodes that can reachable the key node via an edge with the key label.
+	 */
+	final Map<IEdgeLabel, Collection<T>> label2outNodes = new HashMap<IEdgeLabel, Collection<T>>();
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 *
 	 * @pre preds != null and succs != null
 	 */
-	protected EdgeLabelledNode(final Collection preds, final Collection succs) {
+	protected EdgeLabelledNode(final Collection<T> preds, final Collection<T> succs) {
 		super(preds, succs);
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getIncomingEdgeLabels()
+	 * @see IEdgeLabelledNode#getIncomingEdgeLabels()
 	 */
-	public Collection getIncomingEdgeLabels() {
+	public Collection<IEdgeLabel> getIncomingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2inNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getOutGoingEdgeLabels()
+	 * @see IEdgeLabelledNode#getOutGoingEdgeLabels()
 	 */
-	public Collection getOutGoingEdgeLabels() {
+	public Collection<IEdgeLabel> getOutGoingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2outNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
 	 */
-	public Collection getPredsViaEdgesLabelled(final IEdgeLabel label) {
-		return (Collection) MapUtils.getObject(label2inNodes, label, Collections.EMPTY_SET);
+	public Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label) {
+		return (Collection) MapUtils.getObject(label2inNodes, label, Collections.emptySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
 	 */
-	public Collection getSuccsViaEdgesLabelled(final IEdgeLabel label) {
-		return (Collection) MapUtils.getObject(label2outNodes, label, Collections.EMPTY_SET);
+	public Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label) {
+		return (Collection) MapUtils.getObject(label2outNodes, label, Collections.emptySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#hasIncomingEdgeLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledNode#hasIncomingEdgeLabelled(IEdgeLabel)
 	 */
 	public boolean hasIncomingEdgeLabelled(final IEdgeLabel label) {
 		return label2inNodes.containsKey(label);
 	}
 
 	/**
-	 * @see IEdgeLabelledDirectedGraph.IEdgeLabelledNode#hasOutgoingEdgeLabelled(IEdgeLabel)
+	 * @see IEdgeLabelledNode#hasOutgoingEdgeLabelled(IEdgeLabel)
 	 */
 	public boolean hasOutgoingEdgeLabelled(final IEdgeLabel label) {
 		return label2outNodes.containsKey(label);

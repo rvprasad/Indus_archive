@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,50 +14,48 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import java.util.Collection;
+import edu.ksu.cis.indus.common.Marker;
 
+import java.util.Collection;
 
 /**
  * This interface is intended to be used to view some data as a directed graph without actually constructing the graph.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <N> the type of the nodes in this view.
  */
-public interface IDirectedGraphView {
+public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
+
 	/**
 	 * This is a marker interface for the node of the graph being navigated.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public interface INode {
+	@Marker public interface INode {
+		// does nothing
 	}
 
 	/**
 	 * Retrieves the predecessors of the given node.
-	 *
+	 * 
 	 * @param node of interest.
-	 *
 	 * @return the collection of predecessors of the given node.
-	 *
-	 * @post result->forall(o | o.oclIsKindOf(INode))
 	 * @post result->forall(o | getSuccsOf(o)->includes(node))
 	 */
-	Collection getPredsOf(final INode node);
+	Collection<N> getPredsOf(final N node);
 
 	/**
 	 * Retrieves the successors of the given node.
-	 *
+	 * 
 	 * @param node of interest.
-	 *
 	 * @return the collection of successors of the given node.
-	 *
-	 * @post result->forall(o | o.oclIsKindOf(INode))
 	 * @post result->forall(o | getPredsOf(o)->includes(node))
 	 */
-	Collection getSuccsOf(final INode node);
+	Collection<N> getSuccsOf(final N node);
 }
 
 // End of File

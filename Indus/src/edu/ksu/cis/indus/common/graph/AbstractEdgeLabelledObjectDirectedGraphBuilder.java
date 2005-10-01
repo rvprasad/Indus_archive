@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,17 +17,20 @@ package edu.ksu.cis.indus.common.graph;
 import java.util.Collection;
 import java.util.Iterator;
 
-
 /**
  * This is an abstract implementation of <code>IEdgeLabelledObjectDirectedGraphBuilder</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <N> the type of nodes in the built graph.
+ * @param <O> the type of objects stored in the build graph.
+ * @param <G> the type of the build graph.
  */
-public abstract class AbstractEdgeLabelledObjectDirectedGraphBuilder
-  extends AbstractObjectDirectedGraphBuilder
-  implements IEdgeLabelledObjectDirectedGraphBuilder {
+public abstract class AbstractEdgeLabelledObjectDirectedGraphBuilder<N extends IObjectNode<N, O>, O, G extends IObjectDirectedGraph<N, O>>
+		extends AbstractObjectDirectedGraphBuilder<N, O, G>
+		implements IEdgeLabelledObjectDirectedGraphBuilder<O> {
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -38,28 +40,28 @@ public abstract class AbstractEdgeLabelledObjectDirectedGraphBuilder
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.util.Collection,
-	 * 		java.lang.Object, java.lang.Object)
+	 *      java.lang.Object, java.lang.Object)
 	 */
-	public void addEdgeFromTo(final Collection sources, final Object label, final Object dest) {
-		final Iterator _i = sources.iterator();
+	public void addEdgeFromTo(final Collection<O> sources, final Object label, final O dest) {
+		final Iterator<O> _i = sources.iterator();
 		final int _iEnd = sources.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _src = _i.next();
+			final O _src = _i.next();
 			addEdgeFromTo(_src, label, dest);
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.lang.Object,
-	 * 		java.lang.Object, java.util.Collection)
+	 *      java.lang.Object, java.util.Collection)
 	 */
-	public void addEdgeFromTo(final Object src, final Object label, final Collection destinations) {
-		final Iterator _i = destinations.iterator();
+	public void addEdgeFromTo(final O src, final Object label, final Collection<O> destinations) {
+		final Iterator<O> _i = destinations.iterator();
 		final int _iEnd = destinations.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _dest = _i.next();
+			final O _dest = _i.next();
 			addEdgeFromTo(src, label, _dest);
 		}
 	}

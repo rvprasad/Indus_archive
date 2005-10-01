@@ -44,7 +44,7 @@ public final class ToStringBasedComparator<T>
 	// / CLOVER:ON
 
 	/**
-	 * @see java.util.Comparator#compare(T, T)
+	 * @see java.util.Comparator#compare(Object, Object)
 	 */
 	public int compare(final T o1, final T o2) {
 		return String.valueOf(o1).compareTo(String.valueOf(o2));

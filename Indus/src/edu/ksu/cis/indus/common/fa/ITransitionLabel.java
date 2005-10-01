@@ -11,26 +11,20 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
-
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common.fa;
 
 import edu.ksu.cis.indus.common.Marker;
+import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 
 /**
- * This is a marker interface to the edge labels of this graph.
+ * This is a marker interface that represents a transition.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <L> the type of the implementation of this interface.
  */
-@Marker public interface IEdgeLabel {
-
-	/**
-	 * This represents a dummy edge label.
-	 */
-	IEdgeLabel DUMMY_LABEL = new IEdgeLabel() {
-		// empty
-	};
+@Marker public interface ITransitionLabel<L extends ITransitionLabel<L>>
+		extends IEdgeLabel {
+	// empty
 }
-
-// End of File

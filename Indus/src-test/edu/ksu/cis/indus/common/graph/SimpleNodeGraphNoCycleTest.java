@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
-
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -69,18 +66,18 @@ public class SimpleNodeGraphNoCycleTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		final SimpleNodeGraph _sng = new SimpleNodeGraph();
+		final SimpleNodeGraph<String> _sng = new SimpleNodeGraph<String>();
 		name2node.put("a", _sng.getNode("a"));
 		name2node.put("b", _sng.getNode("b"));
 		name2node.put("c", _sng.getNode("c"));
 		name2node.put("d", _sng.getNode("d"));
 		name2node.put("e", _sng.getNode("e"));
 
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("d"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("e"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("c"));
+		_sng.addEdgeFromTo( name2node.get("a"),  name2node.get("b"));
+		_sng.addEdgeFromTo( name2node.get("b"),  name2node.get("c"));
+		_sng.addEdgeFromTo( name2node.get("b"),  name2node.get("d"));
+		_sng.addEdgeFromTo( name2node.get("d"),  name2node.get("e"));
+		_sng.addEdgeFromTo( name2node.get("e"),  name2node.get("c"));
 		setSNG(_sng);
 	}
 
@@ -109,20 +106,20 @@ public class SimpleNodeGraphNoCycleTest
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestIsAncestorOf()
 	 */
 	protected void localtestIsAncestorOf() {
-		assertTrue(sng.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
-		assertTrue(sng.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("e")));
-		assertFalse(sng.isAncestorOf((INode) name2node.get("e"), (INode) name2node.get("b")));
+		assertTrue(sng.isAncestorOf( name2node.get("a"),  name2node.get("a")));
+		assertTrue(sng.isAncestorOf( name2node.get("a"),  name2node.get("e")));
+		assertFalse(sng.isAncestorOf( name2node.get("e"),  name2node.get("b")));
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
-		assertFalse(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("a"), true));
-		assertTrue(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
-		assertTrue(sng.isReachable((INode) name2node.get("e"), (INode) name2node.get("a"), false));
-		assertTrue(sng.isReachable((INode) name2node.get("b"), (INode) name2node.get("e"), true));
-		assertFalse(sng.isReachable((INode) name2node.get("d"), (INode) name2node.get("c"), false));
+		assertFalse(sng.isReachable( name2node.get("a"),  name2node.get("a"), true));
+		assertTrue(sng.isReachable( name2node.get("a"),  name2node.get("e"), true));
+		assertTrue(sng.isReachable( name2node.get("e"),  name2node.get("a"), false));
+		assertTrue(sng.isReachable( name2node.get("b"),  name2node.get("e"), true));
+		assertFalse(sng.isReachable( name2node.get("d"),  name2node.get("c"), false));
 	}
 }
 

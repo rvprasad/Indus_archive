@@ -14,23 +14,22 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.Marker;
-
 /**
- * This is a marker interface to the edge labels of this graph.
+ * This interface facilitates the access to the object in a node.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <T> the subtype of this type.
+ * @param <O> the type of the objects stored in the nodes of this graph.
  */
-@Marker public interface IEdgeLabel {
+public interface IObjectNode<T extends IObjectNode<T, O>, O>
+		extends INode<T> {
 
 	/**
-	 * This represents a dummy edge label.
+	 * Retrieves the object associated with the node.
+	 * 
+	 * @return the node.
 	 */
-	IEdgeLabel DUMMY_LABEL = new IEdgeLabel() {
-		// empty
-	};
+	O getObject();
 }
-
-// End of File

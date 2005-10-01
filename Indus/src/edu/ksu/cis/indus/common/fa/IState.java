@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,14 +14,18 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.common.Marker;
+
 /**
  * This is a marker interface to be implemented by states of a FA.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <S> the type of the implementation of this interface.
  */
-public interface IState {
+@Marker public interface IState<S extends IState<S>> {
+	// empty
 }
 
 // End of File

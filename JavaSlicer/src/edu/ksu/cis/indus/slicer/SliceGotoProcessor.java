@@ -16,7 +16,7 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -136,12 +136,12 @@ public final class SliceGotoProcessor {
 			final Collection<IObjectNode> _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
 			// find basic blocks that are part of cycles (partially or completely) in the slice.
-			final Collection<Pair<IObjectNode, IObjectNode>> _backedges = bbg.getBackEdges();
-			final Iterator<Pair<IObjectNode, IObjectNode>> _k = _backedges.iterator();
+			final Collection<Pair<BasicBlock, BasicBlock>> _backedges = bbg.getBackEdges();
+			final Iterator<Pair<BasicBlock, BasicBlock>> _k = _backedges.iterator();
 			final int _kEnd = _backedges.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final Pair<IObjectNode, IObjectNode> _edge = _k.next();
+				final Pair<BasicBlock, BasicBlock> _edge = _k.next();
 				_bbInSliceInDAG.clear();
 				_bbInSliceInDAG.add(_dag.queryNode(_edge.getFirst()));
 				_bbInSliceInDAG.add(_dag.queryNode(_edge.getSecond()));

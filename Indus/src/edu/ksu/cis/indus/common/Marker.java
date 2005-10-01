@@ -12,25 +12,20 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.graph;
+package edu.ksu.cis.indus.common;
 
-import edu.ksu.cis.indus.common.Marker;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 
 /**
- * This is a marker interface to the edge labels of this graph.
+ * This annotation indicates that an interface is a marker interface.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Marker public interface IEdgeLabel {
-
-	/**
-	 * This represents a dummy edge label.
-	 */
-	IEdgeLabel DUMMY_LABEL = new IEdgeLabel() {
-		// empty
-	};
+@Target(ElementType.TYPE) public @interface Marker {
+	// empty
 }
 
 // End of File

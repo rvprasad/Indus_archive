@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +38,7 @@ public class SimpleNodeGraphTest
 	 *
 	 * @invariant name2node.oclIsKindOf(Map(String, INode))
 	 */
-	protected final Map name2node = new HashMap();
+	protected final Map<String, SimpleNode<String>> name2node = new HashMap<String, SimpleNode<String>>();
 
 	/** 
 	 * The reference to a simple node graph used for testing.  This should be the same as dg, so set this via
@@ -48,7 +46,7 @@ public class SimpleNodeGraphTest
 	 *
 	 * @invariant dg = sng
 	 */
-	protected SimpleNodeGraph sng;
+	protected SimpleNodeGraph<String> sng;
 
 	/** 
 	 * The number of cycles in the graph being tested.
@@ -59,15 +57,15 @@ public class SimpleNodeGraphTest
 	 * Tests <code>getNode</code> method.
 	 */
 	public final void testGetNode() {
-		for (final Iterator _i = name2node.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final INode _node = sng.getNode(_entry.getKey());
+		for (final Iterator<Map.Entry<String, SimpleNode<String>>> _i = name2node.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<String, SimpleNode<String>> _entry =  _i.next();
+			final SimpleNode<String> _node = sng.getNode(_entry.getKey());
 			assertTrue(_node.equals(_entry.getValue()));
-			assertTrue(((SimpleNode) _node).getObject().equals(_entry.getKey()));
+			assertTrue(_node.getObject().equals(_entry.getKey()));
 		}
 
 		try {
-			sng.getNode(null);
+			sng.getNode((String) null);
 		} catch (NullPointerException _e) {
 			fail("Shouldn't have raised an exception.");
 		}
@@ -138,7 +136,7 @@ public class SimpleNodeGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		final SimpleNodeGraph _sng = new SimpleNodeGraph();
+		final SimpleNodeGraph<String> _sng = new SimpleNodeGraph<String>();
 
 		name2node.put("a", _sng.getNode("a"));
 		name2node.put("b", _sng.getNode("b"));
@@ -149,20 +147,20 @@ public class SimpleNodeGraphTest
 		name2node.put("g", _sng.getNode("g"));
 		name2node.put("h", _sng.getNode("h"));
 		// connect them now
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("f"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("d"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("g"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("h"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("f"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("f"), (SimpleNode) name2node.get("g"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("h"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("f"));
-		_sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
+		_sng.addEdgeFromTo( name2node.get("a"),  name2node.get("b"));
+		_sng.addEdgeFromTo( name2node.get("b"),  name2node.get("c"));
+		_sng.addEdgeFromTo( name2node.get("b"),  name2node.get("f"));
+		_sng.addEdgeFromTo( name2node.get("b"),  name2node.get("e"));
+		_sng.addEdgeFromTo( name2node.get("c"),  name2node.get("d"));
+		_sng.addEdgeFromTo( name2node.get("c"),  name2node.get("g"));
+		_sng.addEdgeFromTo( name2node.get("d"),  name2node.get("c"));
+		_sng.addEdgeFromTo( name2node.get("d"),  name2node.get("h"));
+		_sng.addEdgeFromTo( name2node.get("e"),  name2node.get("f"));
+		_sng.addEdgeFromTo( name2node.get("e"),  name2node.get("a"));
+		_sng.addEdgeFromTo( name2node.get("f"),  name2node.get("g"));
+		_sng.addEdgeFromTo( name2node.get("g"),  name2node.get("h"));
+		_sng.addEdgeFromTo( name2node.get("g"),  name2node.get("f"));
+		_sng.addEdgeFromTo( name2node.get("h"),  name2node.get("h"));
 		setSNG(_sng);
 
 		numberOfCycles = 4;
@@ -177,10 +175,10 @@ public class SimpleNodeGraphTest
 		extractPredSuccCopy(dg, _preds1, _succs1);
 
 		// Add edge from c to h
-		sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("h"));
+		sng.addEdgeFromTo( name2node.get("c"),  name2node.get("h"));
 
-		assertTrue(((INode) name2node.get("c")).getSuccsOf().contains(name2node.get("h")));
-		assertTrue(((INode) name2node.get("h")).getPredsOf().contains(name2node.get("c")));
+		assertTrue(name2node.get("c").getSuccsOf().contains(name2node.get("h")));
+		assertTrue(name2node.get("h").getPredsOf().contains(name2node.get("c")));
 
 		final Map _preds2 = new HashMap();
 		final Map _succs2 = new HashMap();
@@ -199,14 +197,14 @@ public class SimpleNodeGraphTest
 		}
 
 		// Add edge from a to f
-		sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("f"));
+		sng.addEdgeFromTo( name2node.get("a"),  name2node.get("f"));
 
 		_preds1.clear();
 		_succs1.clear();
 		extractPredSuccCopy(dg, _preds1, _succs1);
 
-		assertTrue(((INode) name2node.get("a")).getSuccsOf().contains(name2node.get("f")));
-		assertTrue(((INode) name2node.get("f")).getPredsOf().contains(name2node.get("a")));
+		assertTrue(name2node.get("a").getSuccsOf().contains(name2node.get("f")));
+		assertTrue(name2node.get("f").getPredsOf().contains(name2node.get("a")));
 
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
@@ -256,20 +254,20 @@ public class SimpleNodeGraphTest
 	 * @see AbstractDirectedGraphTest#localtestIsAncestorOf
 	 */
 	protected void localtestIsAncestorOf() {
-		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
-		assertTrue(dg.isAncestorOf((INode) name2node.get("h"), (INode) name2node.get("h")));
+		assertTrue(dg.isAncestorOf(name2node.get("a"), name2node.get("a")));
+		assertTrue(dg.isAncestorOf(name2node.get("h"), name2node.get("h")));
 	}
 
 	/**
 	 * @see AbstractDirectedGraphTest#localtestIsReachable
 	 */
 	protected void localtestIsReachable() {
-		assertTrue(dg.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
-		assertFalse(dg.isReachable((INode) name2node.get("f"), (INode) name2node.get("c"), true));
-		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("a"), false));
-		assertFalse(dg.isReachable((INode) name2node.get("c"), (INode) name2node.get("h"), false));
-		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), false));
-		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), true));
+		assertTrue(dg.isReachable( name2node.get("a"), name2node.get("e"), true));
+		assertFalse(dg.isReachable( name2node.get("f"), name2node.get("c"), true));
+		assertTrue(dg.isReachable( name2node.get("h"), name2node.get("a"), false));
+		assertFalse(dg.isReachable( name2node.get("c"), name2node.get("h"), false));
+		assertTrue(dg.isReachable( name2node.get("h"), name2node.get("h"), false));
+		assertTrue(dg.isReachable( name2node.get("h"), name2node.get("h"), true));
 	}
 
 	/**

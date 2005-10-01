@@ -23,8 +23,8 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -92,8 +92,8 @@ public final class MonitorAnalysis
 	 * @version $Revision$ $Date$
 	 */
 	private class MonitorGraph
-			extends SimpleNodeGraph
-			implements IMonitorGraph {
+			extends SimpleNodeGraph<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>
+			implements IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> {
 
 		/**
 		 * The call graph on which this monitor graph is based on.
@@ -136,7 +136,7 @@ public final class MonitorAnalysis
 		public Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getInterProcedurallyEnclosingMonitorTriples(
 				final Stmt stmt, final SootMethod method, final boolean transitive) {
 			final Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _result = new HashMap<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
-			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
+			final Collection _monitors = new HashSet();
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _immediateMonitors = getEnclosingMonitorTriples(
 					stmt, method, false);
 			_result.put(method, _immediateMonitors);
@@ -152,7 +152,7 @@ public final class MonitorAnalysis
 			}
 			CollectionUtils.transform(_monitors, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 
-			final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
+			@SuppressWarnings("unchecked") final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
 			final int _iEnd = _monitors.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -564,7 +564,7 @@ public final class MonitorAnalysis
 		final Collection<CallTriple> _temp = new HashSet<CallTriple>();
 		final IWorkBag<CallTriple> _wb = new HistoryAwareFIFOWorkBag<CallTriple>(_temp);
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _considered = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
-		final Collection<INode> _dests = new HashSet<INode>();
+		final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _dests = new HashSet<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = monitorTriples.iterator();
 		final int _iEnd = monitorTriples.size();
 
@@ -857,14 +857,14 @@ public final class MonitorAnalysis
 	 * @post srcs->forall(o | dests->forall(p | graph.queryNode(o).getSuccsOf()->contains(graph.queryNode(p))))
 	 */
 	private void addEdgesFromToIn(final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> srcs,
-			final Collection<INode> dests, final MonitorGraph graph) {
+			final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> dests, final MonitorGraph graph) {
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _k = srcs.iterator();
 		final int _kEnd = srcs.size();
 
 		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 			final Triple _t = _k.next();
-			final INode _src = graph.getNode(_t);
-			final Iterator<INode> _l = dests.iterator();
+			final SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _src = graph.getNode(_t);
+			final Iterator<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _l = dests.iterator();
 			final int _lEnd = dests.size();
 
 			for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {

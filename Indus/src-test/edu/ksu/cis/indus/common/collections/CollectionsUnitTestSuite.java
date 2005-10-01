@@ -37,6 +37,7 @@ public final class CollectionsUnitTestSuite {
 	 * Creates a new DataStructuresUnitTestSuite object.
 	 */
 	private CollectionsUnitTestSuite() {
+		// empty
 	}
 
 	/**

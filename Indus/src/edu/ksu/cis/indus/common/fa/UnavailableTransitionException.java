@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -16,15 +15,16 @@
 package edu.ksu.cis.indus.common.fa;
 
 /**
- * This indicates an unavailable transition was attempted from the current state of  an automaton.
- *
+ * This indicates an unavailable transition was attempted from the current state of an automaton.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class UnavailableTransitionException
-  extends RuntimeException {
-	/** 
+		extends RuntimeException {
+
+	/**
 	 * The serial version UID.
 	 */
 	static final long serialVersionUID = 2850268151619025469L;
@@ -38,7 +38,7 @@ public final class UnavailableTransitionException
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param message of interest.
 	 */
 	public UnavailableTransitionException(final String message) {

@@ -16,6 +16,7 @@ package edu.ksu.cis.indus.interfaces;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
+import edu.ksu.cis.indus.common.graph.IObjectNode;
 
 import java.util.Collection;
 import java.util.Map;
@@ -47,9 +48,10 @@ public interface IMonitorInfo
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
+	 * @param <N> <i>refer to the type parameter of the same name in the super class.</i>
 	 */
-	public interface IMonitorGraph
-			extends IObjectDirectedGraph {
+	public interface IMonitorGraph<N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>
+			extends IObjectDirectedGraph<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 
 		/**
 		 * Retrieves the statements enclosed by the given monitor triple, both intra and interprocedurally.
@@ -189,7 +191,8 @@ public interface IMonitorInfo
 	 * @pre monitor != null
 	 * @post result != null
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesOf(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
+	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesOf(
+			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
 
 	/**
 	 * Retrieves the statements that form the given monitor.

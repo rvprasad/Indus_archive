@@ -17,9 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.impl;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.graph.IDirectedGraph.INode;
+import edu.ksu.cis.indus.common.graph.IMutableNode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
@@ -310,10 +310,10 @@ public final class ClassHierarchy
 			LOGGER.debug("callback(SootClass clazz = " + clazz + ") - BEGIN");
 		}
 
-		final INode _classNode = classHierarchy.getNode(clazz);
+		final IMutableNode _classNode = classHierarchy.getNode(clazz);
 
 		if (clazz.hasSuperclass()) {
-			final INode _superClassNode = classHierarchy.getNode(clazz.getSuperclass());
+			final IMutableNode _superClassNode = classHierarchy.getNode(clazz.getSuperclass());
 			classHierarchy.addEdgeFromTo(_superClassNode, _classNode);
 		}
 
@@ -323,7 +323,7 @@ public final class ClassHierarchy
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _interfaceClass = (SootClass) _i.next();
-			final INode _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
+			final IMutableNode _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
 			classHierarchy.addEdgeFromTo(_superinterfaceNode, _classNode);
 		}
 
@@ -363,7 +363,7 @@ public final class ClassHierarchy
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final SootClass _sc = (SootClass) _i.next();
-				final INode _node = classHierarchy.queryNode(_sc);
+				final IMutableNode _node = classHierarchy.queryNode(_sc);
 				classHierarchy.removeNode(_node);
 			}
 		}
@@ -452,19 +452,19 @@ public final class ClassHierarchy
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _sc = (SootClass) _i.next();
-			final INode _node = classHierarchy.queryNode(_sc);
+			final IMutableNode _node = classHierarchy.queryNode(_sc);
 			final Collection _succsOf = _node.getSuccsOf();
 			final Iterator _j = _succsOf.iterator();
 			final int _jEnd = _succsOf.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final INode _succ = (INode) _j.next();
+				final IMutableNode _succ = (IMutableNode) _j.next();
 				final Collection _predsOf = _node.getPredsOf();
-				final Iterator _k = _predsOf.iterator();
+				final Iterator<IMutableNode> _k = _predsOf.iterator();
 				final int _kEnd = _predsOf.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final INode _pred = (INode) _k.next();
+					final IMutableNode _pred =  _k.next();
 					classHierarchy.addEdgeFromTo(_pred, _succ);
 				}
 			}
@@ -476,7 +476,7 @@ public final class ClassHierarchy
 		final int _jEnd = classHierarchy.getNodes().size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final INode _node = (INode) _j.next();
+			final IMutableNode _node = (IMutableNode) _j.next();
 			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
 			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
 

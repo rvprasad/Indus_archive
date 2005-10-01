@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;

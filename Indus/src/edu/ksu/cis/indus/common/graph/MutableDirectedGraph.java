@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,108 +19,81 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * This class provides common implementations and methods to mutate a directed graph.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <N> the type of the nodes in this graph.
  */
-public class MutableDirectedGraph
-  extends AbstractDirectedGraph
-  implements IMutableDirectedGraph {
-	/** 
+public class MutableDirectedGraph<N extends IMutableNode<N>>
+		extends AbstractDirectedGraph<N>
+		implements IMutableDirectedGraph<N> {
+
+	/**
 	 * This maintains the graph information.
 	 */
-	protected final GraphInfo graphInfo;
+	protected final GraphInfo<N> graphInfo;
 
 	/**
 	 * Creates a new AbstractDirectedGraph object.
 	 */
 	protected MutableDirectedGraph() {
-		graphInfo = new GraphInfo();
+		graphInfo = new GraphInfo<N>();
 	}
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param info maintains the information for this graph.
-	 *
 	 * @pre info != null
 	 */
-	protected MutableDirectedGraph(final GraphInfo info) {
+	protected MutableDirectedGraph(final GraphInfo<N> info) {
 		graphInfo = info;
 	}
 
 	/**
-	 * This class extends <code>INode</code> such that the resulting node can mutated.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
+	 * @see IMutableDirectedGraph#addEdgeFromTo(INode, INode)
 	 */
-	protected static class MutableNode
-	  extends Node
-	  implements INode,
-		  IMutableNode {
-		/**
-		 * Creates a new MutableNode object.
-		 *
-		 * @param preds is the reference to the collection of predecessors.
-		 * @param succs is the reference to the collection of successors.
-		 *
-		 * @pre preds != null and succs != null
-		 */
-		protected MutableNode(final Collection preds, final Collection succs) {
-			super(preds, succs);
+	public boolean addEdgeFromTo(final N src, final N dest) {
+		boolean _result = false;
+
+		if (containsNode(src) && containsNode(dest)) {
+			src.addSuccessor(dest);
+			dest.addPredecessor(src);
+			shapeChanged();
+			_result = true;
+		} else {
+			throw new IllegalArgumentException("Either or both of the provided nodes do not exist in this graph.");
 		}
 
-		/**
-		 * @see IMutableDirectedGraph.IMutableNode#addPredecessor(IDirectedGraph.INode)
-		 */
-		public final boolean addPredecessor(final INode node) {
-			return predecessors.add(node);
-		}
+		return _result;
+	}
 
-		/**
-		 * @see IMutableDirectedGraph.IMutableNode#addSuccessor(IDirectedGraph.INode)
-		 */
-		public final boolean addSuccessor(final INode node) {
-			return successors.add(node);
-		}
-
-		/**
-		 * @see IMutableDirectedGraph.IMutableNode#removePredecessor(IDirectedGraph.INode)
-		 */
-		public boolean removePredecessor(final INode node) {
-			return predecessors.remove(node);
-		}
-
-		/**
-		 * @see IMutableDirectedGraph.IMutableNode#removeSuccessor(IDirectedGraph.INode)
-		 */
-		public boolean removeSuccessor(final INode node) {
-			return successors.remove(node);
-		}
+	/**
+	 * @see IMutableDirectedGraph#addNode(INode)
+	 */
+	public boolean addNode(final N node) {
+		return graphInfo.addNode(node);
 	}
 
 	/**
 	 * @see IDirectedGraph#getNodes()
 	 */
-	public List getNodes() {
+	public List<N> getNodes() {
 		return graphInfo.getNodes();
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addEdgeFromTo(IDirectedGraph.INode, IDirectedGraph.INode)
+	 * @see IMutableDirectedGraph#removeEdgeFromTo(INode,INode)
 	 */
-	public boolean addEdgeFromTo(final INode src, final INode dest) {
+	public boolean removeEdgeFromTo(final N src, final N dest) {
 		boolean _result = false;
 
 		if (containsNode(src) && containsNode(dest)) {
-			((IMutableNode) src).addSuccessor(dest);
-			((IMutableNode) dest).addPredecessor(src);
+			src.removeSuccessor(dest);
+			dest.removePredecessor(src);
 			shapeChanged();
 			_result = true;
 		} else {
@@ -132,77 +104,50 @@ public class MutableDirectedGraph
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(IDirectedGraph.INode,IDirectedGraph.INode)
+	 * @see IMutableDirectedGraph#removeNode(INode)
 	 */
-	public boolean removeEdgeFromTo(final INode src, final INode dest) {
-		boolean _result = false;
-
-		if (containsNode(src) && containsNode(dest)) {
-			((IMutableNode) src).removeSuccessor(dest);
-			((IMutableNode) dest).removePredecessor(src);
-			shapeChanged();
-			_result = true;
-		} else {
-			throw new IllegalArgumentException("Either or both of the provided nodes do not exist in this graph.");
-		}
-
-		return _result;
-	}
-
-	/**
-	 * @see IMutableDirectedGraph#removeNode(IDirectedGraph.INode)
-	 */
-	public final boolean removeNode(final INode node) {
-		final Collection _succsOf = new ArrayList(node.getSuccsOf());
-		final Iterator _i = _succsOf.iterator();
+	public final boolean removeNode(final N node) {
+		final Collection<N> _succsOf = new ArrayList<N>(node.getSuccsOf());
+		final Iterator<N> _i = _succsOf.iterator();
 		final int _iEnd = _succsOf.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			((IMutableNode) _i.next()).removePredecessor(node);
+			_i.next().removePredecessor(node);
 		}
 
-		final Collection _predsOf = new ArrayList(node.getPredsOf());
-		final Iterator _j = _predsOf.iterator();
+		final Collection<N> _predsOf = new ArrayList<N>(node.getPredsOf());
+		final Iterator<N> _j = _predsOf.iterator();
 		final int _jEnd = _predsOf.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			((IMutableNode) _j.next()).removeSuccessor(node);
+			_j.next().removeSuccessor(node);
 		}
 		shapeChanged();
 		return graphInfo.removeNode(node);
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addNode(IDirectedGraph.INode)
-	 */
-	public boolean addNode(final INode node) {
-		return graphInfo.addNode(node);
-	}
-
-	/**
-	 * @see AbstractDirectedGraph#getIndexOfNode(IDirectedGraph.INode)
-	 */
-	protected final int getIndexOfNode(final INode node) {
-		return graphInfo.getIndexOfNode(node);
-	}
-
-	/**
 	 * Checks if the given node exists in the graph. This implementation throws an exception.
-	 *
+	 * 
 	 * @param node to be checked for containment.
-	 *
 	 * @return <code>true</code> if <code>node</code> is contained in this graph; <code>false</code>, otherwise.
-	 *
 	 * @pre node != null
 	 */
-	protected final boolean containsNode(final INode node) {
+	protected final boolean containsNode(final N node) {
 		return getNodes().contains(node);
+	}
+
+	/**
+	 * @see AbstractDirectedGraph#getIndexOfNode(INode)
+	 */
+	@Override protected final int getIndexOfNode(final N node) {
+		return graphInfo.getIndexOfNode(node);
 	}
 
 	/**
 	 * @see AbstractDirectedGraph#shapeChanged()
 	 */
-	protected final void shapeChanged() {
+	@Override protected final void shapeChanged() {
 		super.shapeChanged();
 		graphInfo.shapeChanged();
 	}

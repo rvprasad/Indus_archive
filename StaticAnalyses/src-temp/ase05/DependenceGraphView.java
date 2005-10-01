@@ -2,6 +2,7 @@ package ase05;
 
 import ase05.InfluenceChecker.PairNode;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.IDirectedGraphView;
 import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -21,7 +22,7 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 class DependenceGraphView
-  implements IEdgeLabelledDirectedGraphView {
+  implements IEdgeLabelledDirectedGraphView<IDirectedGraphView.INode> {
 	/**
      * 
      */

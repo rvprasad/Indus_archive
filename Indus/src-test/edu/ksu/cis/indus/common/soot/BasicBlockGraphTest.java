@@ -192,7 +192,7 @@ public class BasicBlockGraphTest
 			new IStmtGraphFactory[] {
 				new CompleteStmtGraphFactory(), new TrapStmtGraphFactory(), new ExceptionFlowSensitiveStmtGraphFactory(),
 			};
-		final String[] _methodNames = { "notify", "equals", "loadOneMoreProvider" };
+		final String[] _methodNames = { "notify", "equals", "insertProviderAt" };
 		final String[] _classNames = { "java.lang.Object", "java.lang.Object", "java.security.Security" };
 
 		for (int _j = 0; _j < _methodNames.length; _j++) {

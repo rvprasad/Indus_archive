@@ -252,26 +252,33 @@ public final class Util {
 			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
 			final SootMethod _sm = _declClass.getMethodByName("start");
 
-			if (!_sm.isConcrete()) {
-				_declClass.setApplicationClass();
-				_declClass.setPhantom(false);
-				_sm.setModifiers(_sm.getModifiers() & ~Modifier.NATIVE);
-				_sm.setPhantom(false);
+			if (!_sm.hasActiveBody()) {
+				JimpleBody _threadStartBody = null;
+				try {
+					_threadStartBody = (JimpleBody) _sm.retrieveActiveBody();
+				} finally {
+					if (_threadStartBody == null) {
+						_declClass.setApplicationClass();
+						_declClass.setPhantom(false);
+						_sm.setModifiers(_sm.getModifiers() & ~Modifier.NATIVE);
+						_sm.setPhantom(false);
 
-				final Jimple _jimple = Jimple.v();
-				final JimpleBody _threadStartBody = _jimple.newBody(_sm);
-				final PatchingChain _sl = _threadStartBody.getUnits();
-				final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
-				_threadStartBody.getLocals().add(_thisRef);
-				// adds $this := @this;
-				_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+						final Jimple _jimple = Jimple.v();
+						_threadStartBody = _jimple.newBody(_sm);
+						final PatchingChain _sl = _threadStartBody.getUnits();
+						final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
+						_threadStartBody.getLocals().add(_thisRef);
+						// adds $this := @this;
+						_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
 
-				// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
-				final VirtualInvokeExpr _ve = _jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"),
-						Collections.EMPTY_LIST);
-				_sl.addLast(_jimple.newInvokeStmt(_ve));
-				_sl.addLast(_jimple.newReturnVoidStmt());
-				_sm.setActiveBody(_threadStartBody);
+						// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
+						final VirtualInvokeExpr _ve = _jimple.newVirtualInvokeExpr(_thisRef, _declClass
+								.getMethodByName("run"), Collections.EMPTY_LIST);
+						_sl.addLast(_jimple.newInvokeStmt(_ve));
+						_sl.addLast(_jimple.newReturnVoidStmt());
+						_sm.setActiveBody(_threadStartBody);
+					}
+				}
 			}
 		}
 	}

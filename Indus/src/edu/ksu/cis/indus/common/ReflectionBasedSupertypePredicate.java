@@ -44,7 +44,7 @@ public class ReflectionBasedSupertypePredicate
 		final boolean _result;
 
 		if (object instanceof Class) {
-			final Class _superClass = (Class) object;
+			final Class<?> _superClass = (Class) object;
 			_result = _superClass.isAssignableFrom(subtype);
 		} else {
 			_result = false;

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,14 +16,15 @@ package edu.ksu.cis.indus.common.fa;
 
 /**
  * This indicates a transition was attempted on a stopped automaton.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class StoppedAutomatonException
-  extends RuntimeException {
-	/** 
+		extends RuntimeException {
+
+	/**
 	 * The serial version UID.
 	 */
 	static final long serialVersionUID = -1694743911300127567L;
@@ -38,7 +38,7 @@ public final class StoppedAutomatonException
 
 	/**
 	 * Creates a new StoppedAutomatonException object.
-	 *
+	 * 
 	 * @param message of interest.
 	 */
 	public StoppedAutomatonException(final String message) {

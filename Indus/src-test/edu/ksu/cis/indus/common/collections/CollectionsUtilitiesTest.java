@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -22,56 +21,54 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * This class tests <code>CollectionsUtilities</code> class.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class CollectionsUtilitiesTest
-  extends IndusTestCase {
-	/** 
+		extends IndusTestCase {
+
+	/**
 	 * The map.
 	 */
-	private Map map;
+	private Map<String, Collection<String>> map;
 
 	/**
 	 * Tests <code>putAllIntoCollectionInMap</code>.
 	 */
 	public final void testPutAllIntoCollectionInMap() {
-		final Collection _temp = new ArrayList();
+		final Collection<String> _temp = new ArrayList<String>();
 		_temp.add("second");
 		CollectionsUtilities.putAllIntoCollectionInMap(map, "first", _temp, CollectionsUtilities.ARRAY_LIST_FACTORY);
 		assertNotNull(map.get("first"));
-		assertTrue(((Collection) map.get("first")).contains("second"));
+		assertTrue(map.get("first").contains("second"));
 	}
 
 	/**
 	 * Tests <code>putIntoCollectionInMap</code>.
 	 */
 	public final void testPutIntoCollectionInMap() {
-		final Collection _temp = new ArrayList();
+		final Collection<String> _temp = new ArrayList<String>();
 		_temp.add("second");
 		CollectionsUtilities.putIntoCollectionInMap(map, "first", "second", CollectionsUtilities.ARRAY_LIST_FACTORY);
 		assertNotNull(map.get("first"));
-		assertTrue(((Collection) map.get("first")).contains("second"));
+		assertTrue(map.get("first").contains("second"));
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void setUp()
-	  throws Exception {
-		map = new HashMap();
+	@Override protected void setUp() throws Exception {
+		map = new HashMap<String, Collection<String>>();
 	}
 
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown()
-	  throws Exception {
+	@Override protected void tearDown() throws Exception {
 		map.clear();
 		map = null;
 	}

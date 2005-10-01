@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -16,32 +15,60 @@
 package edu.ksu.cis.indus.common.graph;
 
 /**
- * This is data structure class to represent strongly connected component data.  Each node may be associated with 0 or 1
- * instance of this class.  Please refer to <code>AbstractDirectedGraph</code> to understand how this class is used.
- *
+ * This is data structure class to represent strongly connected component data. Each node may be associated with 0 or 1
+ * instance of this class. Please refer to <code>AbstractDirectedGraph</code> to understand how this class is used.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SCCRelatedData {
-	/** 
+
+	/**
 	 * The number of the component to which the associated node belongs to.
 	 */
 	private int componentNum;
 
-	/** 
+	/**
 	 * The DFS number of the node associated with this data.
 	 */
 	private int dfsNum;
 
-	/** 
+	/**
 	 * The high number of the node associated with this data.
 	 */
 	private int high;
 
 	/**
+	 * Retrieves the value in <code>componentNum</code>.
+	 * 
+	 * @return the value in <code>componentNum</code>.
+	 */
+	public int getComponentNum() {
+		return componentNum;
+	}
+
+	/**
+	 * Retrieves the value in <code>dfsNum</code>.
+	 * 
+	 * @return the value in <code>dfsNum</code>.
+	 */
+	public int getDfsNum() {
+		return dfsNum;
+	}
+
+	/**
+	 * Retrieves the value in <code>high</code>.
+	 * 
+	 * @return the value in <code>high</code>.
+	 */
+	public int getHigh() {
+		return high;
+	}
+
+	/**
 	 * Sets the value of <code>componentNum</code>.
-	 *
+	 * 
 	 * @param num the new value of <code>componentNum</code>.
 	 */
 	public void setComponentNum(final int num) {
@@ -49,48 +76,21 @@ public final class SCCRelatedData {
 	}
 
 	/**
-	 * Retrieves the value in <code>componentNum</code>.
-	 *
-	 * @return the value in <code>componentNum</code>.
-	 */
-    public int getComponentNum() {
-		return componentNum;
-	}
-
-	/**
 	 * Sets the value of <code>dfsNum</code>.
-	 *
+	 * 
 	 * @param num the new value of <code>dfsNum</code>.
 	 */
-    public void setDfsNum(final int num) {
+	public void setDfsNum(final int num) {
 		this.dfsNum = num;
 	}
 
 	/**
-	 * Retrieves the value in <code>dfsNum</code>.
-	 *
-	 * @return the value in <code>dfsNum</code>.
-	 */
-    public int getDfsNum() {
-		return dfsNum;
-	}
-
-	/**
 	 * Sets the value of <code>high</code>.
-	 *
+	 * 
 	 * @param num the new value of <code>high</code>.
 	 */
-    public void setHigh(final int num) {
+	public void setHigh(final int num) {
 		this.high = num;
-	}
-
-	/**
-	 * Retrieves the value in <code>high</code>.
-	 *
-	 * @return the value in <code>high</code>.
-	 */
-    public int getHigh() {
-		return high;
 	}
 }
 
