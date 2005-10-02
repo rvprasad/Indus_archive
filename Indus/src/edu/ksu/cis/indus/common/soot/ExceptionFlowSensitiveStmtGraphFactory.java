@@ -20,8 +20,6 @@ import java.util.Collections;
 
 import soot.jimple.JimpleBody;
 
-import soot.toolkits.graph.UnitGraph;
-
 /**
  * This class provides <code>ExceptionFlowSensitiveStmtGraph</code>s.
  * 
@@ -30,7 +28,7 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public class ExceptionFlowSensitiveStmtGraphFactory
-		extends AbstractStmtGraphFactory {
+		extends AbstractStmtGraphFactory<ExceptionFlowSensitiveStmtGraph> {
 
 	/**
 	 * The collection of exception names that are relevant while dealing with synchronization constructs.
@@ -40,7 +38,6 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	/**
 	 * The names of the exceptions via which the control flow should be ignored.
 	 * 
-	 * @invariant exceptionToIgnore.oclIsKindOf(Collection(String))
 	 */
 	private Collection<String> exceptionsToIgnore = new ArrayList<String>();
 
@@ -66,7 +63,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
 	 *            before the unit that begins the trap protected region to the handler unit should be omitted;
 	 *            <code>false</code>, otherwise.
-	 * @pre namesOfExceptionToIgnore != null and namesOfExceptionToIgnore.oclIsKindOf(Collection(String))
+	 * @pre namesOfExceptionToIgnore != null
 	 * @pre namesOfExceptionToIgnore->forall(o | ClassLoader.getSystemClassLoader().loadClass(o) != null)
 	 */
 	public ExceptionFlowSensitiveStmtGraphFactory(final Collection<String> namesOfExceptionToIgnore,
@@ -78,7 +75,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	@Override protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
+	@Override protected ExceptionFlowSensitiveStmtGraph getStmtGraphForBody(final JimpleBody body) {
 		return new ExceptionFlowSensitiveStmtGraph(body, exceptionsToIgnore, flag);
 	}
 }

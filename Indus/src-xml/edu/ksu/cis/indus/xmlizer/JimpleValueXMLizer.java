@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -75,55 +74,54 @@ import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
-
 /**
  * This class provides logic xmlize Jimple Values.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class JimpleValueXMLizer
-  extends AbstractJimpleValueSwitch {
-	/** 
+		extends AbstractJimpleValueSwitch {
+
+	/**
 	 * This is used to maintain tabbing the output xml.
-	 *
+	 * 
 	 * @invariant tabs != null
 	 */
 	final StringBuffer tabs = new StringBuffer("\t\t\t");
 
-	/** 
-	 * This is used generate ids used during xmlization.
-	 *
-	 * @pre idGenerator != null
-	 */
-	private final IJimpleIDGenerator idGenerator;
-
-	/** 
-	 * This caches the id of the current value/expression/program point being processed.
-	 */
-	private Object newId;
-
-	/** 
+	/**
 	 * The current method being processed.
 	 */
 	private SootMethod currMethod;
 
-	/** 
+	/**
 	 * The current statement being processed.
 	 */
 	private Stmt currStmt;
 
-	/** 
+	/**
+	 * This is used generate ids used during xmlization.
+	 * 
+	 * @pre idGenerator != null
+	 */
+	private final IJimpleIDGenerator idGenerator;
+
+	/**
+	 * This caches the id of the current value/expression/program point being processed.
+	 */
+	private Object newId;
+
+	/**
 	 * This is the outputter to be used to write xml data.
 	 */
 	private XMLOutputter xmlWriter;
 
 	/**
 	 * Creates a new JimpleValueXMLizer object.
-	 *
+	 * 
 	 * @param generator to be used generate ids during xmlization.
-	 *
 	 * @pre generator != null
 	 */
 	JimpleValueXMLizer(final IJimpleIDGenerator generator) {
@@ -133,21 +131,21 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
 	 */
-	public final void caseAddExpr(final AddExpr v) {
+	@Override public final void caseAddExpr(final AddExpr v) {
 		writeBinaryExpr("add", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseAndExpr(soot.jimple.AndExpr)
 	 */
-	public final void caseAndExpr(final AndExpr v) {
+	@Override public final void caseAndExpr(final AndExpr v) {
 		writeBinaryExpr("binary and", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 	 */
-	public final void caseArrayRef(final ArrayRef v) {
+	@Override public final void caseArrayRef(final ArrayRef v) {
 		try {
 			xmlWriter.startTag("array_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -164,7 +162,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
 	 */
-	public final void caseCastExpr(final CastExpr v) {
+	@Override public final void caseCastExpr(final CastExpr v) {
 		try {
 			xmlWriter.startTag("cast");
 			xmlWriter.attribute("id", newId.toString());
@@ -179,7 +177,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.RefSwitch#caseCaughtExceptionRef(soot.jimple.CaughtExceptionRef)
 	 */
-	public final void caseCaughtExceptionRef(final CaughtExceptionRef v) {
+	@Override public final void caseCaughtExceptionRef(final CaughtExceptionRef v) {
 		try {
 			xmlWriter.startTag("caught_exception_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -193,35 +191,35 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmpExpr(soot.jimple.CmpExpr)
 	 */
-	public final void caseCmpExpr(final CmpExpr v) {
+	@Override public final void caseCmpExpr(final CmpExpr v) {
 		writeBinaryExpr("compare", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmpgExpr(soot.jimple.CmpgExpr)
 	 */
-	public final void caseCmpgExpr(final CmpgExpr v) {
+	@Override public final void caseCmpgExpr(final CmpgExpr v) {
 		writeBinaryExpr("compare greater", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmplExpr(soot.jimple.CmplExpr)
 	 */
-	public final void caseCmplExpr(final CmplExpr v) {
+	@Override public final void caseCmplExpr(final CmplExpr v) {
 		writeBinaryExpr("compare lesser", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseDivExpr(soot.jimple.DivExpr)
 	 */
-	public final void caseDivExpr(final DivExpr v) {
+	@Override public final void caseDivExpr(final DivExpr v) {
 		writeBinaryExpr("divide", v);
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseDoubleConstant(soot.jimple.DoubleConstant)
 	 */
-	public final void caseDoubleConstant(final DoubleConstant v) {
+	@Override public final void caseDoubleConstant(final DoubleConstant v) {
 		try {
 			xmlWriter.startTag("double");
 			xmlWriter.attribute("id", newId.toString());
@@ -235,14 +233,14 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseEqExpr(soot.jimple.EqExpr)
 	 */
-	public final void caseEqExpr(final EqExpr v) {
+	@Override public final void caseEqExpr(final EqExpr v) {
 		writeBinaryExpr("equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseFloatConstant(soot.jimple.FloatConstant)
 	 */
-	public final void caseFloatConstant(final FloatConstant v) {
+	@Override public final void caseFloatConstant(final FloatConstant v) {
 		try {
 			xmlWriter.startTag("float");
 			xmlWriter.attribute("id", newId.toString());
@@ -256,21 +254,21 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseGeExpr(soot.jimple.GeExpr)
 	 */
-	public final void caseGeExpr(final GeExpr v) {
+	@Override public final void caseGeExpr(final GeExpr v) {
 		writeBinaryExpr("greater than or equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseGtExpr(soot.jimple.GtExpr)
 	 */
-	public final void caseGtExpr(final GtExpr v) {
+	@Override public final void caseGtExpr(final GtExpr v) {
 		writeBinaryExpr("greater than", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 	 */
-	public final void caseInstanceFieldRef(final InstanceFieldRef v) {
+	@Override public final void caseInstanceFieldRef(final InstanceFieldRef v) {
 		try {
 			xmlWriter.startTag("instance_field_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -285,7 +283,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
 	 */
-	public final void caseInstanceOfExpr(final InstanceOfExpr v) {
+	@Override public final void caseInstanceOfExpr(final InstanceOfExpr v) {
 		try {
 			xmlWriter.startTag("instanceof");
 			xmlWriter.attribute("id", newId.toString());
@@ -300,7 +298,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseIntConstant(soot.jimple.IntConstant)
 	 */
-	public final void caseIntConstant(final IntConstant v) {
+	@Override public final void caseIntConstant(final IntConstant v) {
 		try {
 			xmlWriter.startTag("integer");
 			xmlWriter.attribute("id", newId.toString());
@@ -314,28 +312,28 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 	 */
-	public final void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
+	@Override public final void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 		writeInvokeExpr(v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLeExpr(soot.jimple.LeExpr)
 	 */
-	public final void caseLeExpr(final LeExpr v) {
+	@Override public final void caseLeExpr(final LeExpr v) {
 		writeBinaryExpr("less than or equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLengthExpr(soot.jimple.LengthExpr)
 	 */
-	public final void caseLengthExpr(final LengthExpr v) {
+	@Override public final void caseLengthExpr(final LengthExpr v) {
 		writeUnaryExpr("length", v);
 	}
 
 	/**
 	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
 	 */
-	public final void caseLocal(final Local v) {
+	@Override public final void caseLocal(final Local v) {
 		try {
 			xmlWriter.startTag("local_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -349,7 +347,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseLongConstant(soot.jimple.LongConstant)
 	 */
-	public final void caseLongConstant(final LongConstant v) {
+	@Override public final void caseLongConstant(final LongConstant v) {
 		try {
 			xmlWriter.startTag("long");
 			xmlWriter.attribute("id", newId.toString());
@@ -363,35 +361,35 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLtExpr(soot.jimple.LtExpr)
 	 */
-	public final void caseLtExpr(final LtExpr v) {
+	@Override public final void caseLtExpr(final LtExpr v) {
 		writeBinaryExpr("less than", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseMulExpr(soot.jimple.MulExpr)
 	 */
-	public final void caseMulExpr(final MulExpr v) {
+	@Override public final void caseMulExpr(final MulExpr v) {
 		writeBinaryExpr("multiply", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNeExpr(soot.jimple.NeExpr)
 	 */
-	public final void caseNeExpr(final NeExpr v) {
+	@Override public final void caseNeExpr(final NeExpr v) {
 		writeBinaryExpr("not equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNegExpr(soot.jimple.NegExpr)
 	 */
-	public final void caseNegExpr(final NegExpr v) {
+	@Override public final void caseNegExpr(final NegExpr v) {
 		writeUnaryExpr("negation", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
 	 */
-	public final void caseNewArrayExpr(final NewArrayExpr v) {
+	@Override public final void caseNewArrayExpr(final NewArrayExpr v) {
 		try {
 			xmlWriter.startTag("new_array");
 			xmlWriter.attribute("id", newId.toString());
@@ -406,7 +404,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 	 */
-	public final void caseNewExpr(final NewExpr v) {
+	@Override public final void caseNewExpr(final NewExpr v) {
 		try {
 			xmlWriter.startTag("new");
 			xmlWriter.attribute("id", newId.toString());
@@ -420,7 +418,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 	 */
-	public final void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
+	@Override public final void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
 		final ArrayType _type = v.getBaseType();
 
 		try {
@@ -441,7 +439,7 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
 	 */
-	public final void caseNullConstant(final NullConstant v) {
+	@Override public final void caseNullConstant(@SuppressWarnings("unused") final NullConstant v) {
 		try {
 			xmlWriter.startTag("null");
 			xmlWriter.endTag();
@@ -453,14 +451,14 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseOrExpr(soot.jimple.OrExpr)
 	 */
-	public final void caseOrExpr(final OrExpr v) {
+	@Override public final void caseOrExpr(final OrExpr v) {
 		writeBinaryExpr("binary or", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
 	 */
-	public final void caseParameterRef(final ParameterRef v) {
+	@Override public final void caseParameterRef(final ParameterRef v) {
 		try {
 			xmlWriter.startTag("parameter_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -474,35 +472,35 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseRemExpr(soot.jimple.RemExpr)
 	 */
-	public final void caseRemExpr(final RemExpr v) {
+	@Override public final void caseRemExpr(final RemExpr v) {
 		writeBinaryExpr("reminder", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseShlExpr(soot.jimple.ShlExpr)
 	 */
-	public final void caseShlExpr(final ShlExpr v) {
+	@Override public final void caseShlExpr(final ShlExpr v) {
 		writeBinaryExpr("shift left", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseShrExpr(soot.jimple.ShrExpr)
 	 */
-	public final void caseShrExpr(final ShrExpr v) {
+	@Override public final void caseShrExpr(final ShrExpr v) {
 		writeBinaryExpr("shift right", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 	 */
-	public final void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
+	@Override public final void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 		writeInvokeExpr(v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
 	 */
-	public final void caseStaticFieldRef(final StaticFieldRef v) {
+	@Override public final void caseStaticFieldRef(final StaticFieldRef v) {
 		try {
 			xmlWriter.startTag("static_field_ref");
 			xmlWriter.attribute("id", newId.toString());
@@ -516,14 +514,14 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
-	public final void caseStaticInvokeExpr(final StaticInvokeExpr v) {
+	@Override public final void caseStaticInvokeExpr(final StaticInvokeExpr v) {
 		writeInvokeExpr(v);
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
 	 */
-	public final void caseStringConstant(final StringConstant v) {
+	@Override public final void caseStringConstant(final StringConstant v) {
 		try {
 			xmlWriter.startTag("string");
 			xmlWriter.attribute("id", newId.toString());
@@ -537,14 +535,14 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseSubExpr(soot.jimple.SubExpr)
 	 */
-	public final void caseSubExpr(final SubExpr v) {
+	@Override public final void caseSubExpr(final SubExpr v) {
 		writeBinaryExpr("subtract", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
-	public final void caseThisRef(final ThisRef v) {
+	@Override public final void caseThisRef(@SuppressWarnings("unused") final ThisRef v) {
 		try {
 			xmlWriter.startTag("this");
 			xmlWriter.attribute("id", newId.toString());
@@ -557,29 +555,43 @@ public class JimpleValueXMLizer
 	/**
 	 * @see soot.jimple.ExprSwitch#caseUshrExpr(soot.jimple.UshrExpr)
 	 */
-	public final void caseUshrExpr(final UshrExpr v) {
+	@Override public final void caseUshrExpr(final UshrExpr v) {
 		writeBinaryExpr("unsigned shift right", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 	 */
-	public final void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
+	@Override public final void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
 		writeInvokeExpr(v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseXorExpr(soot.jimple.XorExpr)
 	 */
-	public final void caseXorExpr(final XorExpr v) {
+	@Override public final void caseXorExpr(final XorExpr v) {
 		writeBinaryExpr("binary xor", v);
 	}
 
 	/**
+	 * Process the given program point.
+	 * 
+	 * @param programPoint to be processed.
+	 * @pre programPoint != null
+	 */
+	final void apply(final ValueBox programPoint) {
+		final Object _temp = newId;
+		newId = idGenerator.getIdForValueBox(programPoint, currStmt, currMethod);
+		incrementTabs();
+		programPoint.getValue().apply(this);
+		decrementTabs();
+		newId = _temp;
+	}
+
+	/**
 	 * Sets the method whose values will be processed.
-	 *
+	 * 
 	 * @param method whose values will be processed.
-	 *
 	 * @pre method != null
 	 */
 	final void setMethod(final SootMethod method) {
@@ -588,9 +600,8 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Sets the statement whose values will be processed.
-	 *
+	 * 
 	 * @param stmt whose values will be processed.
-	 *
 	 * @pre stmt != null
 	 */
 	final void setStmt(final Stmt stmt) {
@@ -599,29 +610,12 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Sets the outputter into which xml data will be written into.
-	 *
+	 * 
 	 * @param outputter via which xml data will be written into.
-	 *
 	 * @pre outputter != null
 	 */
 	final void setWriter(final XMLOutputter outputter) {
 		xmlWriter = outputter;
-	}
-
-	/**
-	 * Process the given program point.
-	 *
-	 * @param programPoint to be processed.
-	 *
-	 * @pre programPoint != null
-	 */
-	final void apply(final ValueBox programPoint) {
-		Object _temp = newId;
-		newId = idGenerator.getIdForValueBox(programPoint, currStmt, currMethod);
-		incrementTabs();
-		programPoint.getValue().apply(this);
-		decrementTabs();
-		newId = _temp;
 	}
 
 	/**
@@ -639,10 +633,9 @@ public class JimpleValueXMLizer
 	}
 
 	/**
-	 * Writes base information in XML.  Base are primaries in field access, array access, and  invocation expressions.
-	 *
+	 * Writes base information in XML. Base are primaries in field access, array access, and invocation expressions.
+	 * 
 	 * @param base to be xmlized.
-	 *
 	 * @pre base != null
 	 */
 	private void writeBase(final ValueBox base) {
@@ -657,10 +650,9 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Writes a binary expression in XML.
-	 *
+	 * 
 	 * @param operatorName is the name of the binary operator occurring in the expresssion.
 	 * @param v is the expression.
-	 *
 	 * @pre operatorName != null and v != null
 	 */
 	private void writeBinaryExpr(final String operatorName, final BinopExpr v) {
@@ -682,7 +674,7 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Writes array dimension size specification in a new array expression.
-	 *
+	 * 
 	 * @param i is the dimension being specified.
 	 * @param v is the size of the dimension.
 	 */
@@ -699,9 +691,8 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Writes the field in XML.
-	 *
+	 * 
 	 * @param field to be xmlized.
-	 *
 	 * @pre field != null
 	 */
 	private void writeField(final SootField field) {
@@ -716,12 +707,10 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Writes the invocation expression in XML.
-	 *
+	 * 
 	 * @param v is the invocation expression.
-	 *
-	 * @throws IllegalArgumentException when input argument is not of any of these types: VirtualInvokeExpr,
-	 * 		   StaticInvokeExpr, SpecialInvokeExpr, or InterfaceInvokeExpr.
-	 *
+	 * @throws IllegalArgumentException when input argument is not of any of these types: VirtualInvokeExpr, StaticInvokeExpr,
+	 *             SpecialInvokeExpr, or InterfaceInvokeExpr.
 	 * @pre name != null and v != null
 	 */
 	private void writeInvokeExpr(final InvokeExpr v) {
@@ -737,7 +726,7 @@ public class JimpleValueXMLizer
 			_name = "virtual";
 		} else {
 			throw new IllegalArgumentException(
-				"v has to be of VirtualInvokeExpr, StaticInvokeExpr, SpecialInvokeExpr, or InterfaceInvokeExpr.");
+					"v has to be of VirtualInvokeExpr, StaticInvokeExpr, SpecialInvokeExpr, or InterfaceInvokeExpr.");
 		}
 
 		try {
@@ -770,10 +759,9 @@ public class JimpleValueXMLizer
 
 	/**
 	 * Writes a unary expression as XML.
-	 *
+	 * 
 	 * @param operatorName is the name of the unary operator in the expression.
 	 * @param value is the unary expression.
-	 *
 	 * @pre operatorName != null and value != null
 	 */
 	private void writeUnaryExpr(final String operatorName, final UnopExpr value) {

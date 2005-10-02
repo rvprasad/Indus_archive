@@ -27,6 +27,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
 import soot.tagkit.Host;
 
 
@@ -63,28 +66,28 @@ public class TagBasedProcessingFilter
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("tagName", this.tagName).toString();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterClasses(java.util.Collection)
 	 */
-	protected final Collection localFilterClasses(final Collection classes) {
+	@Override protected final Collection<SootClass> localFilterClasses(final Collection<SootClass> classes) {
 		return filter(classes);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterFields(java.util.Collection)
 	 */
-	protected final Collection localFilterFields(final Collection fields) {
+	@Override protected final Collection<SootField> localFilterFields(final Collection<SootField> fields) {
 		return filter(fields);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterMethods(java.util.Collection)
 	 */
-	protected final Collection localFilterMethods(final Collection methods) {
+	@Override protected final Collection<SootMethod> localFilterMethods(final Collection<SootMethod> methods) {
 		return filter(methods);
 	}
 
@@ -103,23 +106,24 @@ public class TagBasedProcessingFilter
 
 	/**
 	 * Filters the given hosts based on the return value of <code>isFilterate</code> method.
+	 * @param <T> the type of the hosts.
 	 *
 	 * @param hosts is the collection of hosts to be filterd.
 	 *
 	 * @return a collection of hosts that passed through the filter.
 	 *
-	 * @pre hosts != null and hosts.oclIsKindOf(Collection(Host))
+	 * @pre hosts != null
 	 * @post result != null and hosts.containsAll(result)
 	 * @post result->foreach(o | isFilterate(o))
 	 */
-	private Collection filter(final Collection hosts) {
-		final List _result = new ArrayList();
+	private <T extends Host> Collection<T> filter(final Collection<T> hosts) {
+		final List<T> _result = new ArrayList<T>();
 
-		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
-			final Host _sc = (Host) _i.next();
+		for (final Iterator<T> _i = hosts.iterator(); _i.hasNext();) {
+			final T _e = _i.next();
 
-			if (isFilterate(_sc)) {
-				_result.add(_sc);
+			if (isFilterate(_e)) {
+				_result.add(_e);
 			}
 		}
 

@@ -66,7 +66,7 @@ abstract class AbstractAccessExprWork
 		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
 		caller = callerMethod;
-		context = (Context) accessContext.clone();
+		context = accessContext.clone();
 	}
 }
 

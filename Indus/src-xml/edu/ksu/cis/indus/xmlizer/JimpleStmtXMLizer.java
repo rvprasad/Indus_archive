@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -40,51 +39,50 @@ import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 
-
 /**
  * This class provides the logic to xmlize Jimple statements.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 final class JimpleStmtXMLizer
-  extends AbstractStmtSwitch {
-	/** 
+		extends AbstractStmtSwitch {
+
+	/**
 	 * The xmlizer used to xmlize jimple <code>Value</code> types.
-	 *
+	 * 
 	 * @invariant valueXMLizer != null
 	 */
 	JimpleValueXMLizer valueXMLizer;
 
-	/** 
-	 * This provides the id to be used during xmlization.
-	 *
-	 * @invariant idGenerator != null
-	 */
-	private final IJimpleIDGenerator idGenerator;
-
-	/** 
-	 * The body of the method currently being processed.
-	 */
-	private Body currMethodBody;
-
-	/** 
+	/**
 	 * This is the method whose statements are being processed.
 	 */
 	private SootMethod currMethod;
 
-	/** 
+	/**
+	 * The body of the method currently being processed.
+	 */
+	private Body currMethodBody;
+
+	/**
+	 * This provides the id to be used during xmlization.
+	 * 
+	 * @invariant idGenerator != null
+	 */
+	private final IJimpleIDGenerator idGenerator;
+
+	/**
 	 * The instance used to write xml data.
 	 */
 	private XMLOutputter xmlWriter;
 
 	/**
 	 * Creates a new JimpleStmtXMLizer object.
-	 *
+	 * 
 	 * @param theValueXMLizer to be used for value xmlization.
 	 * @param generator to be used for id generation.
-	 *
 	 * @pre theValueXMLizer != null and generator != null
 	 */
 	JimpleStmtXMLizer(final JimpleValueXMLizer theValueXMLizer, final IJimpleIDGenerator generator) {
@@ -95,7 +93,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
-	public void caseAssignStmt(final AssignStmt v) {
+	@Override public void caseAssignStmt(final AssignStmt v) {
 		try {
 			final boolean _notEmpty = !v.getBoxesPointingToThis().isEmpty();
 			xmlWriter.startTag("assign_stmt");
@@ -116,7 +114,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 	 */
-	public void caseBreakpointStmt(final BreakpointStmt v) {
+	@Override public void caseBreakpointStmt(final BreakpointStmt v) {
 		try {
 			xmlWriter.startTag("breakpoint_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -130,7 +128,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 	 */
-	public void caseEnterMonitorStmt(final EnterMonitorStmt v) {
+	@Override public void caseEnterMonitorStmt(final EnterMonitorStmt v) {
 		try {
 			xmlWriter.startTag("entermonitor_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -145,7 +143,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 	 */
-	public void caseExitMonitorStmt(final ExitMonitorStmt v) {
+	@Override public void caseExitMonitorStmt(final ExitMonitorStmt v) {
 		try {
 			xmlWriter.startTag("exitmonitor_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -160,7 +158,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 	 */
-	public void caseGotoStmt(final GotoStmt v) {
+	@Override public void caseGotoStmt(final GotoStmt v) {
 		try {
 			xmlWriter.startTag("goto_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -175,7 +173,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
-	public void caseIdentityStmt(final IdentityStmt v) {
+	@Override public void caseIdentityStmt(final IdentityStmt v) {
 		try {
 			xmlWriter.startTag("identity_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -195,14 +193,14 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 	 */
-	public void caseIfStmt(final IfStmt v) {
+	@Override public void caseIfStmt(final IfStmt v) {
 		try {
 			xmlWriter.startTag("if_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
 			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
 			xmlWriter.attribute("trueTargetId", idGenerator.getIdForStmt(v.getTarget(), currMethod));
-			xmlWriter.attribute("falseTargetId",
-				idGenerator.getIdForStmt((Stmt) currMethodBody.getUnits().getSuccOf(v), currMethod));
+			xmlWriter.attribute("falseTargetId", idGenerator.getIdForStmt((Stmt) currMethodBody.getUnits().getSuccOf(v),
+					currMethod));
 			xmlWriter.startTag("condition");
 			valueXMLizer.apply(v.getConditionBox());
 			xmlWriter.endTag();
@@ -215,7 +213,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 	 */
-	public void caseInvokeStmt(final InvokeStmt v) {
+	@Override public void caseInvokeStmt(final InvokeStmt v) {
 		try {
 			xmlWriter.startTag("invoke_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -230,7 +228,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 	 */
-	public void caseLookupSwitchStmt(final LookupSwitchStmt v) {
+	@Override public void caseLookupSwitchStmt(final LookupSwitchStmt v) {
 		try {
 			xmlWriter.startTag("lookupswitch_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -255,7 +253,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 	 */
-	public void caseNopStmt(final NopStmt v) {
+	@Override public void caseNopStmt(final NopStmt v) {
 		try {
 			xmlWriter.startTag("nop_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -269,7 +267,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 	 */
-	public void caseRetStmt(final RetStmt v) {
+	@Override public void caseRetStmt(final RetStmt v) {
 		try {
 			xmlWriter.startTag("ret_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -284,7 +282,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 	 */
-	public void caseReturnStmt(final ReturnStmt v) {
+	@Override public void caseReturnStmt(final ReturnStmt v) {
 		try {
 			xmlWriter.startTag("return_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -299,7 +297,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 	 */
-	public void caseReturnVoidStmt(final ReturnVoidStmt v) {
+	@Override public void caseReturnVoidStmt(final ReturnVoidStmt v) {
 		try {
 			xmlWriter.startTag("returnvoid_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -313,7 +311,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 	 */
-	public void caseTableSwitchStmt(final TableSwitchStmt v) {
+	@Override public void caseTableSwitchStmt(final TableSwitchStmt v) {
 		try {
 			xmlWriter.startTag("tableswitch_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -338,7 +336,7 @@ final class JimpleStmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 	 */
-	public void caseThrowStmt(final ThrowStmt v) {
+	@Override public void caseThrowStmt(final ThrowStmt v) {
 		try {
 			xmlWriter.startTag("throw_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
@@ -351,10 +349,19 @@ final class JimpleStmtXMLizer
 	}
 
 	/**
+	 * Processes the given statement.
+	 * 
+	 * @param stmt is the statement to be processed.
+	 */
+	void apply(final Stmt stmt) {
+		valueXMLizer.setStmt(stmt);
+		stmt.apply(this);
+	}
+
+	/**
 	 * Sets the method in whose statemetnts will be processed.
-	 *
+	 * 
 	 * @param method containing the statements to be processed.
-	 *
 	 * @pre method != null
 	 */
 	void setMethod(final SootMethod method) {
@@ -370,24 +377,13 @@ final class JimpleStmtXMLizer
 
 	/**
 	 * Sets the outputter into which xml data will be written into.
-	 *
+	 * 
 	 * @param outputter via which xml data will be written into.
-	 *
 	 * @pre stream != null
 	 */
 	void setWriter(final XMLOutputter outputter) {
 		xmlWriter = outputter;
 		valueXMLizer.setWriter(outputter);
-	}
-
-	/**
-	 * Processes the given statement.
-	 *
-	 * @param stmt is the statement to be processed.
-	 */
-	void apply(final Stmt stmt) {
-		valueXMLizer.setStmt(stmt);
-		stmt.apply(this);
 	}
 }
 

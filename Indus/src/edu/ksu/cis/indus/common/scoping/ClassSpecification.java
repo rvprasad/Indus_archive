@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -24,35 +23,42 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 
-
 /**
  * This class represents class-level scope specification.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class ClassSpecification
-  extends AbstractSpecification {
-	/** 
+		extends AbstractSpecification {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClassSpecification.class);
 
-	/** 
+	/**
 	 * This is the type specification.
 	 */
 	private TypeSpecification typeSpec;
 
 	/**
+	 * Retrieves the value in <code>typeSpec</code>.
+	 * 
+	 * @return the value in <code>typeSpec</code>.
+	 */
+	public TypeSpecification getTypeSpec() {
+		return typeSpec;
+	}
+
+	/**
 	 * Checks if the given class is in the scope of this specification in the given environment.
-	 *
+	 * 
 	 * @param clazz to be checked for scope constraints.
 	 * @param system in which the check the constraints.
-	 *
 	 * @return <code>true</code> if the given class lies within the scope defined by this specification; <code>false</code>,
-	 * 		   otherwise.
-	 *
+	 *         otherwise.
 	 * @pre clazz != null and system != null
 	 */
 	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
@@ -72,7 +78,7 @@ public final class ClassSpecification
 
 	/**
 	 * Sets the value of <code>typeSpec</code>.
-	 *
+	 * 
 	 * @param theTypeSpec the new value of <code>typeSpec</code>.
 	 */
 	public void setTypeSpec(final TypeSpecification theTypeSpec) {
@@ -80,18 +86,9 @@ public final class ClassSpecification
 	}
 
 	/**
-	 * Retrieves the value in <code>typeSpec</code>.
-	 *
-	 * @return the value in <code>typeSpec</code>.
-	 */
-	public TypeSpecification getTypeSpec() {
-		return typeSpec;
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("typeSpec", this.typeSpec).toString();
 	}
 }

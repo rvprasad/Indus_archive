@@ -44,7 +44,7 @@ public class Context
 	/** 
 	 * The call-stack sensitive component of the context.  This is relevant in call-site sensitive mode of analysis.
 	 */
-	protected Stack callString;
+	protected Stack<SootMethod> callString;
 
 	/** 
 	 * The statement component of the context.  This component can be used when the entity associated with the context is an
@@ -62,7 +62,7 @@ public class Context
 	 * allocation site.
 	 */
 	public Context() {
-		callString = new Stack();
+		callString = new Stack<SootMethod>();
 	}
 
 	/**
@@ -70,8 +70,8 @@ public class Context
 	 *
 	 * @return the call stack of the this context.  Any operation on this object affects the call stack of this context.
 	 */
-	public final Stack getCallString() {
-		final Stack _temp = new Stack();
+	public final Stack<SootMethod> getCallString() {
+		final Stack<SootMethod> _temp = new Stack<SootMethod>();
 		_temp.addAll(callString);
 		return _temp;
 	}
@@ -85,10 +85,10 @@ public class Context
 		SootMethod _result = null;
 
 		try {
-			_result = (SootMethod) callString.peek();
-		} catch (final EmptyStackException e) {
+			_result = callString.peek();
+		} catch (final EmptyStackException _e) {
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("There are no methods in the call stack.", e);
+				LOGGER.info("There are no methods in the call stack.", _e);
 			}
 		}
 		return _result;
@@ -168,14 +168,14 @@ public class Context
 	 *
 	 * @return the clone of the current context.
 	 */
-	public Object clone() {
+	@Override public Context clone() {
 		Context _temp = null;
 
 		try {
 			_temp = (Context) super.clone();
-			_temp.callString = (Stack) callString.clone();
-		} catch (final CloneNotSupportedException e) {
-			LOGGER.error("This should not happen.", e);
+			_temp.callString = (Stack<SootMethod>) callString.clone();
+		} catch (final CloneNotSupportedException _e) {
+			LOGGER.error("This should not happen.", _e);
 		}
 		return _temp;
 	}
@@ -187,7 +187,7 @@ public class Context
 	 *
 	 * @return <code>true</code> if <code>c</code> and this context represent the same context; <code>false</code> otherwise.
 	 */
-	public boolean equals(final Object o) {
+	@Override public boolean equals(final Object o) {
 		boolean _ret = false;
 
 		if (o != null && o instanceof Context) {
@@ -211,7 +211,7 @@ public class Context
 	 *
 	 * @return the hash code of this object.
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		int _result = 17;
 
 		if (progPoint != null) {
@@ -232,7 +232,7 @@ public class Context
 	 * @return the method returned from.
 	 */
 	public final SootMethod returnFromCurrentMethod() {
-		return (SootMethod) callString.pop();
+		return callString.pop();
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class Context
 	 *
 	 * @return the stringized representation of this context.
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return "Context:\n\tProgram Point: " + progPoint + "\n\tStmt: " + stmt + "\n\tCallStack: " + callString + "\n";
 	}
 }

@@ -75,7 +75,6 @@ public final class BasicBlockGraph
 		/**
 		 * The list of statements represented by this block.
 		 * 
-		 * @invariant stmts.oclIsKindOf(Sequence(Stmt))
 		 */
 		private final List<Stmt> stmts;
 
@@ -90,7 +89,7 @@ public final class BasicBlockGraph
 		 * @param stmtsParam is the list of statements being represented by this block.
 		 * @param isAnExitBlock indicates if the trailer statement of this basic block may cause an exception that will result
 		 *            in the control exiting the graph.
-		 * @pre stmtsParam != null and stmsParam.oclIsKindOf(Sequence(Stmt))
+		 * @pre stmtsParam != null
 		 * @pre getStmtGraph().getBody().getUnits().containsAll(stmtsParam)
 		 */
 		BasicBlock(final List<Stmt> stmtsParam, final boolean isAnExitBlock) {
@@ -129,7 +128,7 @@ public final class BasicBlockGraph
 		 * @param start is the starting statement of the requested statement list.
 		 * @param end is the ending statement of the requested statement list.
 		 * @return a modifiable list of <code>Stmt</code>s.
-		 * @post result != null and result.oclIsKindOf(Sequence(Stmt))
+		 * @post result != null
 		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
 		 *       getStmtGraph().getBody().getUnits().indexOf(end) > trailer or
 		 *       getStmtGraph().getBody().getUnits().indexOf(start) > sgetStmtGraph().getBody().getUnits().indexOf(end))
@@ -155,7 +154,6 @@ public final class BasicBlockGraph
 		 * Retrieves the statements in this block .
 		 * 
 		 * @return an unmodifiable list of statements.
-		 * @post result.oclIsKindOf(Sequence(Stmt))
 		 */
 		public List<Stmt> getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
@@ -242,7 +240,7 @@ public final class BasicBlockGraph
 			_stmts.clear();
 
 			final Stmt _stmt = _wb.getWork();
-			final boolean _isExitBlock = getBasicBlockStmtsInto(_stmt, _wb, _stmts, analysis, method);
+			final boolean _isExitBlock = getBasicBlockStmts(_stmt, _wb, _stmts, analysis, method);
 			final BasicBlock _bblock = new BasicBlock(_stmts, _isExitBlock);
 
 			for (final Iterator<Stmt> _i = _stmts.iterator(); _i.hasNext();) {
@@ -258,8 +256,8 @@ public final class BasicBlockGraph
 	 * 
 	 * @param basicBlocks of interest.
 	 * @return a collection of statements
-	 * @pre basicBlocks != null and basicBlocks.oclIsKindOf(Collection(BasicBlock))
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 * @pre basicBlocks != null
+	 * @post result != null
 	 */
 	public List<Stmt> getEnclosedStmts(final Collection<BasicBlock> basicBlocks) {
 		final List<Stmt> _result = new ArrayList<Stmt>();
@@ -278,8 +276,8 @@ public final class BasicBlockGraph
 	 * 
 	 * @param stmts of interest.
 	 * @return a collection of basic blocks
-	 * @pre stmts != null and stmts.oclIsKindOf(Collection(Stmt))
-	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 * @pre stmts != null
+	 * @post result != null
 	 */
 	public List<BasicBlock> getEnclosingBasicBlocks(final Collection<Stmt> stmts) {
 		final List<BasicBlock> _result = new ArrayList<BasicBlock>();
@@ -317,7 +315,7 @@ public final class BasicBlockGraph
 	 * Retrieves the basic blocks at which the exception handlers begin.
 	 * 
 	 * @return the exception handler basic blocks.
-	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null 
 	 */
 	public Collection<BasicBlock> getHandlerBlocks() {
 		Collection<BasicBlock> _handlerBlocks;
@@ -403,9 +401,8 @@ public final class BasicBlockGraph
 	 * @return <code>true</code> if the trailer statement of the detected basic block may cause the control to exit the
 	 *         graph; <code>false</code>, otherwise.
 	 * @pre leaderStmt != null and wb != null and stmts != null
-	 * @pre stmts.oclIsKindOf(Collection(Stmt))
 	 */
-	private boolean getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag<Stmt> wb, final List<Stmt> stmts,
+	private boolean getBasicBlockStmts(final Stmt leaderStmt, final IWorkBag<Stmt> wb, final List<Stmt> stmts,
 			final IExceptionRaisingInfo analysis, final SootMethod method) {
 		stmts.add(leaderStmt);
 

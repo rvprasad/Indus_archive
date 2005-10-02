@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -25,85 +24,94 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-
 /**
  * Abstract implementation of IProcessor.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public abstract class AbstractProcessor
-  extends AbstractStatus
-  implements IProcessor {
+		extends AbstractStatus
+		implements IProcessor {
+
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(Local, SootMethod)
 	 */
-	public void callback(final Local local, final SootMethod method) {
+	public void callback(@SuppressWarnings("unused") final Local local, @SuppressWarnings("unused") final SootMethod method) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(ValueBox, Context)
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	public void callback(@SuppressWarnings("unused") final ValueBox vBox, @SuppressWarnings("unused") final Context context) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(Stmt, Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
+	public void callback(@SuppressWarnings("unused") final Stmt stmt, @SuppressWarnings("unused") final Context context) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(SootMethod)
 	 */
-	public void callback(final SootMethod method) {
+	public void callback(@SuppressWarnings("unused") final SootMethod method) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	public void callback(@SuppressWarnings("unused") final SootClass clazz) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#callback(SootField)
 	 */
-	public void callback(final SootField field) {
+	public void callback(@SuppressWarnings("unused") final SootField field) {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see IProcessor#consolidate()
 	 */
 	public void consolidate() {
+		// does nothing
 	}
 
 	/**
 	 * Does nothing.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
 	public void processingBegins() {
+		// does nothing
 	}
 
 	/**
 	 * @see IProcessor#reset()
 	 */
 	public void reset() {
+		// does nothing
 	}
 }
 

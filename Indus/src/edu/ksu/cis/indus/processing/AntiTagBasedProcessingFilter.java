@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -23,26 +22,25 @@ import org.slf4j.LoggerFactory;
 import soot.tagkit.Host;
 import soot.tagkit.Tag;
 
-
 /**
  * This class filters out classes and methods that do have a tag of the given name.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class AntiTagBasedProcessingFilter
-  extends TagBasedProcessingFilter {
-	/** 
+		extends TagBasedProcessingFilter {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AntiTagBasedProcessingFilter.class);
 
 	/**
 	 * Creates a new TagBasedProcessingFilter object.
-	 *
+	 * 
 	 * @param theTagName is the name of the tag used during filtering.
-	 *
 	 * @pre theTagName != null
 	 */
 	public AntiTagBasedProcessingFilter(final String theTagName) {
@@ -52,15 +50,15 @@ public class AntiTagBasedProcessingFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.TagBasedProcessingFilter#isFilterate(soot.tagkit.Host)
 	 */
-	protected boolean isFilterate(final Host host) {
+	@Override protected boolean isFilterate(final Host host) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Host " + host + " is tagged:" + host.hasTag(tagName) + " [" + tagName + "]");
 
 			if (!host.getTags().isEmpty()) {
 				LOGGER.debug("Host " + host + " has the following tags: ");
 
-				for (final Iterator _i = host.getTags().iterator(); _i.hasNext();) {
-					final Tag _tag = (Tag) _i.next();
+				for (@SuppressWarnings("unchecked") final Iterator<Tag> _i = host.getTags().iterator(); _i.hasNext();) {
+					final Tag _tag = _i.next();
 
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug(_tag.getName());

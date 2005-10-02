@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -19,37 +18,36 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
-
 /**
  * This is an interim class used for the purpose of wrapping Soot entities with access control information in a manner
  * conformant with Espina's philosophy.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 final class AccessSpecifierWrapper
-  implements IAccessSpecifiers {
-	/** 
+		implements IAccessSpecifiers {
+
+	/**
 	 * The class being wrapped by this instance.
 	 */
 	private SootClass clazz;
 
-	/** 
+	/**
 	 * The field being wrapped by this instance.
 	 */
 	private SootField field;
 
-	/** 
+	/**
 	 * The method being wrapped by this instance.
 	 */
 	private SootMethod method;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theClazz being wrapped.
-	 *
 	 * @pre theClazz != null
 	 */
 	public AccessSpecifierWrapper(final SootClass theClazz) {
@@ -58,20 +56,8 @@ final class AccessSpecifierWrapper
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param theMethod being wrapped.
-	 *
-	 * @pre theMethod != null
-	 */
-	public AccessSpecifierWrapper(final SootMethod theMethod) {
-		method = theMethod;
-	}
-
-	/**
-	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theField being wrapped.
-	 *
 	 * @pre theField != null
 	 */
 	public AccessSpecifierWrapper(final SootField theField) {
@@ -79,12 +65,13 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 *
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setDefaultAccess(boolean)
+	 * Creates an instance of this class.
+	 * 
+	 * @param theMethod being wrapped.
+	 * @pre theMethod != null
 	 */
-	public void setDefaultAccess(final boolean value) {
-		// Does nothing 
+	public AccessSpecifierWrapper(final SootMethod theMethod) {
+		method = theMethod;
 	}
 
 	/**
@@ -104,15 +91,6 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 *
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPrivateAccess(boolean)
-	 */
-	public void setPrivateAccess(final boolean value) {
-		// Does nothing
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isPrivateAccess()
 	 */
 	public boolean isPrivateAccess() {
@@ -126,15 +104,6 @@ final class AccessSpecifierWrapper
 			_result = field.isPrivate();
 		}
 		return _result;
-	}
-
-	/**
-	 * <i>Does nothing.</i>
-	 *
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setProtectedAccess(boolean)
-	 */
-	public void setProtectedAccess(final boolean value) {
-		// Does nothing
 	}
 
 	/**
@@ -154,15 +123,6 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 *
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPublicAccess(boolean)
-	 */
-	public void setPublicAccess(final boolean value) {
-		// Does nothing
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isPublicAccess()
 	 */
 	public boolean isPublicAccess() {
@@ -176,6 +136,42 @@ final class AccessSpecifierWrapper
 			_result = field.isPublic();
 		}
 		return _result;
+	}
+
+	/**
+	 * <i>Does nothing.</i>
+	 * 
+	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setDefaultAccess(boolean)
+	 */
+	public void setDefaultAccess(@SuppressWarnings("unused") final boolean value) {
+		// Does nothing
+	}
+
+	/**
+	 * <i>Does nothing.</i>
+	 * 
+	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPrivateAccess(boolean)
+	 */
+	public void setPrivateAccess(@SuppressWarnings("unused") final boolean value) {
+		// Does nothing
+	}
+
+	/**
+	 * <i>Does nothing.</i>
+	 * 
+	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setProtectedAccess(boolean)
+	 */
+	public void setProtectedAccess(@SuppressWarnings("unused") final boolean value) {
+		// Does nothing
+	}
+
+	/**
+	 * <i>Does nothing.</i>
+	 * 
+	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPublicAccess(boolean)
+	 */
+	public void setPublicAccess(@SuppressWarnings("unused") final boolean value) {
+		// Does nothing
 	}
 }
 

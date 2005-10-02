@@ -18,26 +18,37 @@
 	<mapping class="edu.ksu.cis.indus.common.scoping.AbstractSpecification" abstract="true">
         <value style="attribute" name="specName" type="java.lang.String" set-method="setName" get-method="getName" />
     	<value style="attribute" name="inclusion" usage="optional" type="boolean" set-method="setInclusion" 
-    	get-method="isInclusion" default="true"/>        
+    	get-method="isInclusion" default="true"/>
+    	<structure field="accessSpec">
+	    	<collection field="access" item-type="edu.ksu.cis.indus.common.scoping.AccessSpecificationEnum"
+    			factory="edu.ksu.cis.indus.common.scoping.AccessSpecificationEnum.getContainer"/> 
+    	</structure>
+	</mapping>    	
+		<!--
 		<structure field="accessSpec" value-style="attribute" label="accessSpecStructure">
-        	<value style="attribute" name="publicAccess" type="boolean" set-method="setPublicAccess" 
-        		get-method="isPublicAccess" usage="optional" default="true" />
-        	<value style="attribute" name="protectedAccess" type="boolean" set-method="setProtectedAccess" 
-        		get-method="isProtectedAccess" usage="optional" default="true"/>
-        	<value style="attribute" name="defaultAccess" type="boolean" set-method="setDefaultAccess" 
-        		get-method="isDefaultAccess" usage="optional" default="false"/>
-        	<value style="attribute" name="privateAccess" type="boolean" set-method="setPrivateAccess" 
-	        	get-method="isPrivateAccess" usage="optional" default="false"/>	
+        	<value style="attribute" name="publicAccess" set-method="setPublicAccess" 
+	        	type="edu.ksu.cis.indus.common.scoping.IAccessSpecifiers$AccessEnum"
+        		get-method="isPublicAccess" usage="optional"  default="PUBLIC_ACCESS"
+        		deserializer="edu.ksu.cis.indus.common.scoping.IAccessSpecifiers$AccessEnum.valueOf"/>
+        	<value style="attribute" name="protectedAccess" 
+        		type="edu.ksu.cis.indus.common.scoping.IAccessSpecifiers.AccessEnum" set-method="setProtectedAccess" 
+        		get-method="isProtectedAccess" usage="required"/>
+        	<value style="attribute" name="defaultAccess" 
+        		type="edu.ksu.cis.indus.common.scoping.IAccessSpecifiers.AccessEnum" set-method="setDefaultAccess" 
+        		get-method="isDefaultAccess" usage="required"/>
+        	<value style="attribute" name="privateAccess" 
+        		type="edu.ksu.cis.indus.common.scoping.IAccessSpecifiers.AccessEnum" set-method="setPrivateAccess" 
+	        	get-method="isPrivateAccess" usage="required"/>	
 		</structure>
-	</mapping>
-
+		-->
     <mapping name="classSpec" class="edu.ksu.cis.indus.common.scoping.ClassSpecification" 
     	extends="edu.ksu.cis.indus.common.scoping.AbstractSpecification">
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
 		<structure name="typeSpec" field="typeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" 
-			label="typeSpecStructure">
-			<value style="attribute" name="scopeExtension" type="java.lang.String" set-method="setScopeExtension" 
-	    		get-method="getScopeExtension"/>
+			label="typeSpec">
+			<value style="attribute" name="scopeExtension" type="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum" 
+				set-method="setScopeExtension" get-method="getScopeExtension"
+				deserializer="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum.valueOf"/>
     		<value style="attribute" name="nameSpec" type="java.lang.String" set-method="setNamePattern" 
     			get-method="getNamePattern"/>
 		</structure>
@@ -46,9 +57,9 @@
     <mapping name="fieldSpec" class="edu.ksu.cis.indus.common.scoping.FieldSpecification" 
     	extends="edu.ksu.cis.indus.common.scoping.AbstractSpecification">
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
-		<structure name="declaringClassSpec" using="typeSpecStructure" set-method="setDeclaringClassSpec" 
+		<structure name="declaringClassSpec" using="typeSpec" set-method="setDeclaringClassSpec" 
 			get-method="getDeclaringClassSpec"/>
-		<structure name="fieldTypeSpec" using="typeSpecStructure" set-method="setFieldTypeSpec" 
+		<structure name="fieldTypeSpec" using="typeSpec" set-method="setFieldTypeSpec" 
 			get-method="getFieldTypeSpec"/>
 		<value style="attribute" name="fieldNameSpec" type="java.lang.String"  set-method="setFieldNameSpec"
 			get-method="getFieldNameSpec"/>
@@ -59,9 +70,9 @@
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
 		<value style="attribute" name="methodNameSpec" type="java.lang.String" set-method="setMethodNameSpec"
 			get-method="getMethodNameSpec" />
-		<structure name="declaringClassSpec" using="typeSpecStructure" set-method="setDeclaringClassSpec" 
+		<structure name="declaringClassSpec" using="typeSpec" set-method="setDeclaringClassSpec" 
 			get-method="getDeclaringClassSpec"/>
-		<structure name="returnTypeSpec" using="typeSpecStructure" set-method="setReturnTypeSpec" 
+		<structure name="returnTypeSpec" using="typeSpec" set-method="setReturnTypeSpec" 
 			get-method="getReturnTypeSpec"/>						
 		<collection field="parameterTypeSpecs" name="parameterSpecs" 
 			item-type="edu.ksu.cis.indus.common.scoping.TypeSpecification"
@@ -69,9 +80,10 @@
         	set-method="setParameterTypeSpecs" get-method="getParameterTypeSpecs" ordered="true"/>
     </mapping>
     
-	<mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification" label="typeSpecMapping">
-    	<value style="attribute" name="scopeExtension" type="java.lang.String" set-method="setScopeExtension" 
-    		get-method="getScopeExtension"/>
+	<mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification">
+    	<value style="attribute" name="scopeExtension" get-method="getScopeExtension"
+    		deserializer="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum.valueOf"
+    		type="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum" set-method="setScopeExtension" />
     	<value style="attribute" name="nameSpec" type="java.lang.String" set-method="setNamePattern" 
     		get-method="getNamePattern"/>
     </mapping>

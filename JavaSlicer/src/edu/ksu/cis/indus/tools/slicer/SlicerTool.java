@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
+import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -139,9 +140,9 @@ public final class SlicerTool
 	static {
 		final Phase _i = Phase.createPhase();
 		_i.nextMajorPhase();
-		DEPENDENCE_MAJOR_PHASE = (Phase) _i.clone();
+		DEPENDENCE_MAJOR_PHASE = _i.clone();
 		_i.nextMajorPhase();
-		SLICE_MAJOR_PHASE = (Phase) _i.clone();
+		SLICE_MAJOR_PHASE = _i.clone();
 	}
 
 	/** 
@@ -319,7 +320,7 @@ public final class SlicerTool
 
 		rootMethods = new HashSet<SootMethod>();
 		criteria = new HashSet<ISliceCriterion>();
-		info = new HashMap();
+		info = new HashMap<Object, Object>();
 		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
 		// create the flow analysis.
@@ -441,7 +442,7 @@ public final class SlicerTool
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriteria() {
+	public Collection<ISliceCriterion> getCriteria() {
 		return criteria;
 	}
 
@@ -524,7 +525,7 @@ public final class SlicerTool
 	 *
 	 * @post result!= null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	public Collection getRootMethods() {
+	public Collection<SootMethod> getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
 	}
 
@@ -655,7 +656,7 @@ public final class SlicerTool
 		Phase _ph = phase;
 
 		if (phaseParam != null && phaseParam.isEarlierThan(phase)) {
-			phase = (Phase) phaseParam.clone();
+			phase = phaseParam.clone();
 			_ph = phase;
 		}
 
@@ -992,7 +993,7 @@ public final class SlicerTool
 			engine.setSystem(system);
 
 			if (slicerConfig.getPropertyAware()) {
-				final Map _map = new HashMap();
+				final Map<Object, AbstractCallingContextRetriever> _map = new HashMap<Object, AbstractCallingContextRetriever>();
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 =
 					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, IDependencyAnalysis.READY_DA);

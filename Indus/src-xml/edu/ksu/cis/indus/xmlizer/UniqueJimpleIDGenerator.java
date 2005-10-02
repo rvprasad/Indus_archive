@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -27,7 +26,6 @@ import java.util.Map;
 
 import soot.ArrayType;
 import soot.Local;
-import soot.PatchingChain;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
@@ -37,45 +35,65 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-
 /**
- * This class generates unique id's for each part of the system represented as Jimple.  The most atomic parts are program
+ * This class generates unique id's for each part of the system represented as Jimple. The most atomic parts are program
  * points or <code>ValueBox</code> soot types. Given a system containing a set of classes, this generator will generate the
  * different id's for the same class, method, field, local, statement, or program point over different runs. The user should
- * use an external controller with deterministic traversal order to ensure that the id's for same entities are identical
- * over different runs.
- *
+ * use an external controller with deterministic traversal order to ensure that the id's for same entities are identical over
+ * different runs.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class UniqueJimpleIDGenerator
-  implements IJimpleIDGenerator {
-	/** 
-	 * This maps classes to a sequence of fields that occur in it.  This is used to generate unique id.
-	 *
-	 * @invariant class2fields.oclIsKindOf(Map(SootClass, Sequence(SootField)))
-	 */
-	private final Map class2fields = new HashMap();
+		implements IJimpleIDGenerator {
 
-	/** 
-	 * This maps classes to a sequence of methods that occur in it.  This is used to generate unique id.
-	 *
+	/**
+	 * This maps classes to a sequence of fields that occur in it. This is used to generate unique id.
+	 */
+	private final Map<SootClass, List<SootField>> class2fields = new HashMap<SootClass, List<SootField>>();
+
+	/**
+	 * This maps classes to a sequence of methods that occur in it. This is used to generate unique id.
+	 * 
 	 * @invariant class2methods.oclIsKindOf(Map(SootClass, Sequence(SootMethod)))
 	 */
-	private final Map class2methods = new HashMap();
+	private final Map<SootClass, List<SootMethod>> class2methods = new HashMap<SootClass, List<SootMethod>>();
 
-	/** 
-	 * This maps methods to a sequence of locals that occur in it.  This is used to generate unique id.
-	 *
+	/**
+	 * This is a sequence of classes. This is used to generate unique id.
+	 */
+	private List<SootClass> classes = new ArrayList<SootClass>();
+
+	/**
+	 * This maps methods to a sequence of locals that occur in it. This is used to generate unique id.
+	 * 
 	 * @invariant method2locals.oclIsKindOf(Map(SootMethod, Sequence(Local)))
 	 */
-	private final Map method2locals = new HashMap();
+	private final Map<SootMethod, List<Local>> method2locals = new HashMap<SootMethod, List<Local>>();
 
-	/** 
-	 * This is a sequence of classes.  This is used to generate unique id.
+	/**
+	 * Creates an instance of this class.
 	 */
-	private List classes = new ArrayList();
+	public UniqueJimpleIDGenerator() {
+		super();
+	}
+
+	/**
+	 * Sorts the given elements based on the return value of <code>toString()</code> call on them.
+	 * 
+	 * @param <T> the type of elements in the collection.
+	 * @param collection to be sorted.
+	 * @return the sorted collection.
+	 * @pre collection != null
+	 * @post result != null and result.containsAll(collection) and collection.containsAll(result)
+	 */
+	private static <T> List<T> sort(final Collection<T> collection) {
+		final List<T> _result = new ArrayList<T>(collection);
+		Collections.sort(_result, ToStringBasedComparator.SINGLETON);
+		return _result;
+	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForClass(SootClass)
@@ -92,11 +110,11 @@ public final class UniqueJimpleIDGenerator
 	 */
 	public String getIdForField(final SootField field) {
 		final SootClass _declClass = field.getDeclaringClass();
-		List _fields = (List) class2fields.get(_declClass);
+		final List<SootField> _fields = class2fields.get(_declClass);
 
-		if (_fields == null) {
-			_fields = sort(_declClass.getFields());
-			class2fields.put(_declClass, _fields);
+		if (class2fields.containsKey(_declClass)) {
+			@SuppressWarnings("unchecked") final List<SootField> _f = new ArrayList<SootField>(_declClass.getFields());
+			class2fields.put(_declClass, sort(_f));
 		}
 
 		return getIdForClass(_declClass) + "_f" + _fields.indexOf(field);
@@ -106,11 +124,11 @@ public final class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(Local, SootMethod)
 	 */
 	public String getIdForLocal(final Local v, final SootMethod method) {
-		List _locals = (List) method2locals.get(method);
+		final List<Local> _locals = method2locals.get(method);
 
 		if (_locals == null) {
-			_locals = sort(method.getActiveBody().getLocals());
-			method2locals.put(method, _locals);
+			@SuppressWarnings("unchecked") final List<Local> _l = new ArrayList<Local>(method.getActiveBody().getLocals());
+			method2locals.put(method, sort(_l));
 		}
 		return getIdForMethod(method) + "_l" + _locals.indexOf(v);
 	}
@@ -120,11 +138,11 @@ public final class UniqueJimpleIDGenerator
 	 */
 	public String getIdForMethod(final SootMethod method) {
 		final SootClass _declClass = method.getDeclaringClass();
-		List _methods = (List) class2methods.get(_declClass);
+		final List<SootMethod> _methods = class2methods.get(_declClass);
 
 		if (_methods == null) {
-			_methods = sort(_declClass.getMethods());
-			class2methods.put(method.getDeclaringClass(), _methods);
+			@SuppressWarnings("unchecked") final List<SootMethod> _c = new ArrayList<SootMethod>(_declClass.getMethods());
+			class2methods.put(method.getDeclaringClass(), sort(_c));
 		}
 
 		return getIdForClass(method.getDeclaringClass()) + "_m" + _methods.indexOf(method);
@@ -137,10 +155,10 @@ public final class UniqueJimpleIDGenerator
 		String _result = "?";
 
 		if (method.isConcrete()) {
-			final PatchingChain _c = method.getActiveBody().getUnits();
+			@SuppressWarnings("unchecked") final Collection<Stmt> _c = method.getActiveBody().getUnits();
 			int _count = 0;
 
-			for (final Iterator _i = _c.iterator(); _i.hasNext();) {
+			for (final Iterator<Stmt> _i = _c.iterator(); _i.hasNext();) {
 				if (stmt == _i.next()) {
 					break;
 				}
@@ -186,22 +204,6 @@ public final class UniqueJimpleIDGenerator
 		class2fields.clear();
 		class2methods.clear();
 		classes.clear();
-	}
-
-	/**
-	 * Sorts the given elements based on the return value of <code>toString()</code> call on them.
-	 *
-	 * @param collection to be sorted.
-	 *
-	 * @return the sorted collection.
-	 *
-	 * @pre collection != null
-	 * @post result != null and result.containsAll(collection) and collection.containsAll(result)
-	 */
-	private List sort(final Collection collection) {
-		final List _result = new ArrayList(collection);
-		Collections.sort(_result, ToStringBasedComparator.SINGLETON);
-		return _result;
 	}
 }
 

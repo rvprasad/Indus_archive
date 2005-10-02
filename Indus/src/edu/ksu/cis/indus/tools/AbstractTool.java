@@ -65,10 +65,8 @@ public abstract class AbstractTool
 
 	/** 
 	 * A collection of listeners of tools progress.
-	 *
-	 * @invariant listeners.oclIsKindOf(Collection(IToolProgressListener))
 	 */
-	final Collection listeners = Collections.synchronizedCollection(new HashSet());
+	final Collection<IToolProgressListener> listeners;
 
 	/** 
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
@@ -102,10 +100,8 @@ public abstract class AbstractTool
 
 	/** 
 	 * This is the collection of active parts.
-	 *
-	 * @invariant activeParts.oclIsKindOf(Collection(IActivePart))
 	 */
-	private Collection activeParts = new HashSet();
+	private Collection<IActivePart> activeParts = new HashSet<IActivePart>();
 
 	/** 
 	 * The current configuration.  This is the configuration that is currently being used by the tool.
@@ -117,6 +113,7 @@ public abstract class AbstractTool
 	 */
 	public AbstractTool() {
 		activeParts.add(activePart);
+		listeners = Collections.synchronizedCollection(new HashSet<IToolProgressListener>());
 	}
 
 	/**
@@ -144,8 +141,8 @@ public abstract class AbstractTool
 	 *
 	 * @see ITool#getConfigurations()
 	 */
-	public Collection getConfigurations() {
-		final Collection _result = new HashSet();
+	public Collection<IToolConfiguration> getConfigurations() {
+		final Collection<IToolConfiguration> _result = new HashSet<IToolConfiguration>();
 
 		if (configurationInfo instanceof CompositeToolConfiguration) {
 			_result.addAll(((CompositeToolConfiguration) configurationInfo).configurations);
@@ -182,11 +179,11 @@ public abstract class AbstractTool
 	 * Aborts the execution of the tool.
 	 */
 	public final void abort() {
-		final Iterator _i = activeParts.iterator();
+		final Iterator<IActivePart> _i = activeParts.iterator();
 		final int _iEnd = activeParts.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IActivePart _executor = (IActivePart) _i.next();
+			final IActivePart _executor = _i.next();
 
 			if (_executor != null) {
 				fireToolProgressEvent("Aborting " + _executor, null);
@@ -251,7 +248,7 @@ public abstract class AbstractTool
 			activateActiveParts();
 			thread =
 				new Thread() {
-						public final void run() {
+						@Override public final void run() {
 							Throwable _temp = null;
 							try {
 								// we do this to respect any pre-run pause calls. 
@@ -289,7 +286,7 @@ public abstract class AbstractTool
 			} else {
 				final Thread _temp =
 					new Thread() {
-						public void run() {
+						@Override public void run() {
 							try {
 								thread.join();
 
@@ -350,6 +347,7 @@ public abstract class AbstractTool
 	 */
 	protected void checkConfiguration()
 	  throws ToolConfigurationException {
+		// does nothing
 	}
 
 	/**
@@ -377,12 +375,12 @@ public abstract class AbstractTool
 	protected void fireToolProgressEvent(final String message, final Object info) {
 		synchronized (listeners) {
 			final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
-			final Collection _listenersList = new HashSet(listeners);
+			final Collection<IToolProgressListener> _listenersList = new HashSet<IToolProgressListener>(listeners);
 			final Thread _t =
 				new Thread() {
 					private final int msgId = messageId++;
 
-					public void run() {
+					@Override public void run() {
 						synchronized (listeners) {
 							while (token != msgId) {
 								try {
@@ -394,8 +392,8 @@ public abstract class AbstractTool
 								}
 							}
 
-							for (final Iterator _i = _listenersList.iterator(); _i.hasNext();) {
-								final IToolProgressListener _listener = (IToolProgressListener) _i.next();
+							for (final Iterator<IToolProgressListener> _i = _listenersList.iterator(); _i.hasNext();) {
+								final IToolProgressListener _listener = _i.next();
 								_listener.toolProgess(_evt);
 							}
 							token++;
@@ -439,11 +437,11 @@ public abstract class AbstractTool
 	 * Aborts the execution of the tool.
 	 */
 	private void activateActiveParts() {
-		final Iterator _i = activeParts.iterator();
+		final Iterator<IActivePart> _i = activeParts.iterator();
 		final int _iEnd = activeParts.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IActivePart _executor = (IActivePart) _i.next();
+			final IActivePart _executor = _i.next();
 
 			if (_executor != null) {
 				fireToolProgressEvent("Aborting " + _executor, null);

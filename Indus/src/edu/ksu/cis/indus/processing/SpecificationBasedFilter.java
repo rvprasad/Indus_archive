@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -29,31 +28,37 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
-
 /**
  * This class can be used to filter classes, methods, and fields guided by a specification-based matcher.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SpecificationBasedFilter
-  extends AbstractProcessingFilter {
-	/** 
-	 * The entities being filtered belong to this environment.
-	 */
-	private IEnvironment system;
+		extends AbstractProcessingFilter {
 
-	/** 
+	/**
 	 * The matcher to be used to filter.
 	 */
 	private SpecificationBasedScopeDefinition matcher;
 
 	/**
-	 * Sets the value of <code>matcher</code>.  This method should be called before using this filter.
-	 *
+	 * The entities being filtered belong to this environment.
+	 */
+	private IEnvironment system;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public SpecificationBasedFilter() {
+		super();
+	}
+
+	/**
+	 * Sets the value of <code>matcher</code>. This method should be called before using this filter.
+	 * 
 	 * @param theMatcher the new value of <code>matcher</code>.
-	 *
 	 * @pre theMatcher != null
 	 */
 	public void setMatcher(final SpecificationBasedScopeDefinition theMatcher) {
@@ -62,9 +67,8 @@ public final class SpecificationBasedFilter
 
 	/**
 	 * Sets the value of <code>system</code>. This method should be called before using this filter.
-	 *
+	 * 
 	 * @param theSystem the new value of <code>system</code>.
-	 *
 	 * @pre theSystem != null
 	 */
 	public void setSystem(final IEnvironment theSystem) {
@@ -74,21 +78,21 @@ public final class SpecificationBasedFilter
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("system", this.system)
-										  .append("matcher", this.matcher).toString();
+	@Override public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("system", this.system).append("matcher",
+				this.matcher).toString();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterClasses(java.util.Collection)
 	 */
-	protected Collection localFilterClasses(final Collection classes) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = classes.iterator();
+	@Override protected Collection<SootClass> localFilterClasses(final Collection<SootClass> classes) {
+		final Collection<SootClass> _result = new ArrayList<SootClass>();
+		final Iterator<SootClass> _i = classes.iterator();
 		final int _iEnd = classes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _clazz = (SootClass) _i.next();
+			final SootClass _clazz = _i.next();
 
 			if (matcher.isInScope(_clazz, system)) {
 				_result.add(_clazz);
@@ -100,13 +104,13 @@ public final class SpecificationBasedFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterFields(java.util.Collection)
 	 */
-	protected Collection localFilterFields(final Collection fields) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = fields.iterator();
+	@Override protected Collection<SootField> localFilterFields(final Collection<SootField> fields) {
+		final Collection<SootField> _result = new ArrayList<SootField>();
+		final Iterator<SootField> _i = fields.iterator();
 		final int _iEnd = fields.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootField _field = (SootField) _i.next();
+			final SootField _field = _i.next();
 
 			if (matcher.isInScope(_field, system)) {
 				_result.add(_field);
@@ -118,13 +122,13 @@ public final class SpecificationBasedFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterMethods(java.util.Collection)
 	 */
-	protected Collection localFilterMethods(final Collection methods) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = methods.iterator();
+	@Override protected Collection<SootMethod> localFilterMethods(final Collection<SootMethod> methods) {
+		final Collection<SootMethod> _result = new ArrayList<SootMethod>();
+		final Iterator<SootMethod> _i = methods.iterator();
 		final int _iEnd = methods.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _method = (SootMethod) _i.next();
+			final SootMethod _method = _i.next();
 
 			if (matcher.isInScope(_method, system)) {
 				_result.add(_method);

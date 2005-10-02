@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,16 +16,17 @@ package edu.ksu.cis.indus.tools;
 
 /**
  * This exception indicates an error during tool configuration.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class ToolConfigurationException
-  extends RuntimeException {
+@SuppressWarnings("serial") public final class ToolConfigurationException
+		extends RuntimeException {
+
 	/**
 	 * Creates a new ToolConfigurationException object.
-	 *
+	 * 
 	 * @param message of the exception.
 	 */
 	public ToolConfigurationException(final String message) {

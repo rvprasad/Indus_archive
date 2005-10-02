@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -44,44 +43,39 @@ import soot.ValueBox;
 
 import soot.jimple.ParameterRef;
 
-import soot.util.Chain;
-
 
 /**
- * This processor can be used to erase a collection of classes along with their references.  References to the erased class
- * are replaced by a reference to the parent class of the erased class.
- *
+ * This processor can be used to erase a collection of classes along with their references. References to the erased class are
+ * replaced by a reference to the parent class of the erased class.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 final class ClassEraser
-  extends AbstractProcessor {
-	/** 
+		extends AbstractProcessor {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClassEraser.class);
 
-	/** 
+	/**
 	 * The collection of classes to erase.
-	 *
-	 * @invariant classesToErase.oclIsKindOf(Collection(SootClass))
 	 */
-	private final Collection classesToErase;
+	private final Collection<SootClass> classesToErase;
 
-	/** 
+	/**
 	 * A work bag cache.
 	 */
-	private final IWorkBag wbCache = new LIFOWorkBag();
+	private final IWorkBag<Pair<SootClass, SootClass>> wbCache = new LIFOWorkBag<Pair<SootClass, SootClass>>();
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param classes to be erased.
-	 *
-	 * @pre classes.oclIsKindOf(Collection(SootClass))
 	 */
-	ClassEraser(final Collection classes) {
+	ClassEraser(final Collection<SootClass> classes) {
 		classesToErase = classes;
 
 		if (LOGGER.isDebugEnabled()) {
@@ -92,7 +86,7 @@ final class ClassEraser
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	@SuppressWarnings("unchecked") @Override public void callback(final SootClass clazz) {
 		super.callback(clazz);
 
 		wbCache.clear();
@@ -101,41 +95,41 @@ final class ClassEraser
 			final SootClass _superClass = clazz.getSuperclass();
 
 			if (classesToErase.contains(_superClass)) {
-				wbCache.addWork(new Pair(clazz, _superClass));
+				wbCache.addWork(new Pair<SootClass, SootClass>(clazz, _superClass));
 			}
 		}
 
-		final Iterator _i = clazz.getInterfaces().iterator();
+		final Iterator<SootClass> _i = clazz.getInterfaces().iterator();
 		final int _iEnd = clazz.getInterfaces().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _intr = (SootClass) _i.next();
+			final SootClass _intr = _i.next();
 
 			if (classesToErase.contains(_intr)) {
-				wbCache.addWork(new Pair(clazz, _intr));
+				wbCache.addWork(new Pair<SootClass, SootClass>(clazz, _intr));
 			}
 		}
 
 		while (wbCache.hasWork()) {
-			final Pair _p = (Pair) wbCache.getWork();
-			final SootClass _clazz = (SootClass) _p.getFirst();
-			final SootClass _superClass = (SootClass) _p.getSecond();
+			final Pair<SootClass, SootClass> _p = wbCache.getWork();
+			final SootClass _clazz = _p.getFirst();
+			final SootClass _superClass = _p.getSecond();
 
 			if (_superClass.isInterface()) {
-				final Collection _interfaces = _clazz.getInterfaces();
+				final Collection<SootClass> _interfaces = _clazz.getInterfaces();
 				_interfaces.remove(_superClass);
 
-				final Chain _superSuperInterfaces = _superClass.getInterfaces();
+				final Collection<SootClass> _superSuperInterfaces = _superClass.getInterfaces();
 				_interfaces.addAll(_superSuperInterfaces);
 
-				final Iterator _j = _superSuperInterfaces.iterator();
+				final Iterator<SootClass> _j = _superSuperInterfaces.iterator();
 				final int _jEnd = _superSuperInterfaces.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final SootClass _superSuperInterface = (SootClass) _j.next();
+					final SootClass _superSuperInterface = _j.next();
 
 					if (classesToErase.contains(_superSuperInterface)) {
-						wbCache.addWork(new Pair(_clazz, _superSuperInterface));
+						wbCache.addWork(new Pair<SootClass, SootClass>(_clazz, _superSuperInterface));
 					}
 				}
 			} else if (_superClass.hasSuperclass()) {
@@ -143,7 +137,7 @@ final class ClassEraser
 				_clazz.setSuperclass(_superSuperClass);
 
 				if (classesToErase.contains(_superSuperClass)) {
-					wbCache.addWork(new Pair(_clazz, _superSuperClass));
+					wbCache.addWork(new Pair<SootClass, SootClass>(_clazz, _superSuperClass));
 				}
 			}
 		}
@@ -152,7 +146,7 @@ final class ClassEraser
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootField)
 	 */
-	public void callback(final SootField field) {
+	@Override public void callback(final SootField field) {
 		super.callback(field);
 		field.setType(getType(field.getType()));
 	}
@@ -160,15 +154,15 @@ final class ClassEraser
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(final SootMethod method) {
+	@SuppressWarnings("unchecked") @Override public void callback(final SootMethod method) {
 		super.callback(method);
 
 		final List _c = new ArrayList();
-		final Iterator _i = method.getExceptions().iterator();
+		final Iterator<SootClass> _i = method.getExceptions().iterator();
 		final int _iEnd = method.getExceptions().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
+			final SootClass _sc = _i.next();
 			_i.remove();
 			_c.add(getClass(_sc));
 		}
@@ -177,11 +171,11 @@ final class ClassEraser
 
 		_c.clear();
 
-		final Iterator _j = method.getParameterTypes().iterator();
+		final Iterator<Type> _j = method.getParameterTypes().iterator();
 		final int _jEnd = method.getParameterTypes().size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Type _type = (Type) _j.next();
+			final Type _type = _j.next();
 			_j.remove();
 			_c.add(getType(_type));
 		}
@@ -189,24 +183,24 @@ final class ClassEraser
 
 		method.setReturnType(getType(method.getReturnType()));
 
-        if (method.hasActiveBody()) {
-    		_c.clear();
-    		_c.addAll(method.getActiveBody().getTraps());
-    
-    		final Iterator _k = _c.iterator();
-    		final int _kEnd = _c.size();
-    
-    		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-    			final Trap _t = (Trap) _k.next();
-    			_t.setException(getClass(_t.getException()));
-    		}
-        }
+		if (method.hasActiveBody()) {
+			_c.clear();
+			_c.addAll(method.getActiveBody().getTraps());
+
+			@SuppressWarnings("unchecked") final Iterator<Trap> _k = _c.iterator();
+			final int _kEnd = _c.size();
+
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final Trap _t = _k.next();
+				_t.setException(getClass(_t.getException()));
+			}
+		}
 	}
 
 	/**
 	 * @see AbstractProcessor#callback(ValueBox, Context)
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, final Context context) {
 		super.callback(vBox, context);
 
 		final Value _v = vBox.getValue();
@@ -238,11 +232,9 @@ final class ClassEraser
 
 	/**
 	 * Retrieves the class that can replace the given class.
-	 *
+	 * 
 	 * @param clazz that can be replaced.
-	 *
-	 * @return the replacement class.  This can be the same as <code>clazz</code>.
-	 *
+	 * @return the replacement class. This can be the same as <code>clazz</code>.
 	 * @pre clazz != null
 	 */
 	private SootClass getClass(final SootClass clazz) {
@@ -258,11 +250,9 @@ final class ClassEraser
 
 	/**
 	 * Retrieves the type that can replace the given type.
-	 *
+	 * 
 	 * @param type that can be replaced.
-	 *
-	 * @return the replacement class.  This can be the same as <code>type</code>.
-	 *
+	 * @return the replacement class. This can be the same as <code>type</code>.
 	 * @pre type != null
 	 */
 	private Type getType(final Type type) {
@@ -274,7 +264,7 @@ final class ClassEraser
 			_result = _t.getType();
 		} else if (type instanceof ArrayType) {
 			final ArrayType _aType = (ArrayType) type;
-			final Type _bType = (_aType).baseType;
+			final Type _bType = _aType.baseType;
 
 			if (_bType instanceof RefType) {
 				SootClass _t = ((RefType) _bType).getSootClass();

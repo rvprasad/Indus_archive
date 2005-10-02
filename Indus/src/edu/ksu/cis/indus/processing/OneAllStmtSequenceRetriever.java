@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.collections.IteratorUtils;
 
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 
+import soot.jimple.Stmt;
 import soot.toolkits.graph.UnitGraph;
 
 
@@ -54,25 +56,26 @@ public final class OneAllStmtSequenceRetriever
 	 * Creates an instance of this class.
 	 */
 	public OneAllStmtSequenceRetriever() {
+		// does nothing
 	}
 
 	/**
 	 * @see IStmtSequencesRetriever#retreiveStmtSequences(SootMethod)
 	 */
-	public Collection retreiveStmtSequences(final SootMethod method) {
-		final Collection _temp = new ArrayList();
-		final Collection _result = new ArrayList();
+	public Collection<List<Stmt>> retreiveStmtSequences(final SootMethod method) {
+		final List<Stmt> _temp = new ArrayList<Stmt>();
+		final Collection<List<Stmt>> _result = new ArrayList<List<Stmt>>();
 		_result.add(_temp);
 
 		final BasicBlockGraphMgr _bbgMgr = getBbgFactory();
 
 		if (_bbgMgr != null) {
 			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(method);
-			final Iterator _i = _bbg.getNodes().iterator();
+			final Iterator<BasicBlock> _i = _bbg.getNodes().iterator();
 			final int _iEnd = _bbg.getNodes().size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final BasicBlock _bb = (BasicBlock) _i.next();
+				final BasicBlock _bb = _i.next();
 				_temp.addAll(_bb.getStmtsOf());
 			}
 		} else {

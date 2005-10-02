@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common.soot;
 import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.CompleteUnitGraph;
-import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class provides <code>soot.toolkits.graph.CompleteUnitGraph</code>s.
@@ -27,12 +26,12 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public final class CompleteStmtGraphFactory
-		extends AbstractStmtGraphFactory {
+		extends AbstractStmtGraphFactory<CompleteUnitGraph> {
 
 	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	@Override protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
+	@Override protected CompleteUnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new CompleteUnitGraph(body);
 	}
 }

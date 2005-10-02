@@ -27,8 +27,9 @@ import soot.toolkits.graph.UnitGraph;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <T> the type of the manufactured graph.
  */
-public interface IStmtGraphFactory {
+public interface IStmtGraphFactory <T extends UnitGraph> {
 	/** 
 	 * The id of this interface.
 	 */
@@ -42,9 +43,9 @@ public interface IStmtGraphFactory {
 	 * @return the requested unit graph.
 	 *
 	 * @post result != null
-	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
+	 * @post method.isConcrete() implies result != null
 	 */
-	UnitGraph getStmtGraph(final SootMethod method);
+	T getStmtGraph(final SootMethod method);
 
 	/**
 	 * Resets all internal datastructures.

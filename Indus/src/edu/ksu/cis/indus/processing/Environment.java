@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,8 +16,8 @@ package edu.ksu.cis.indus.processing;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,24 +29,24 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.VoidType;
 
-
 /**
  * This class wraps Soot's <code>Scene</code> class.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class Environment
-  implements IEnvironment {
-	/** 
+		implements IEnvironment {
+
+	/**
 	 * The scene/system being represented.
 	 */
 	private final Scene system;
 
 	/**
 	 * Creates a new Environment object.
-	 *
+	 * 
 	 * @param scene to be wrapped by this object.
 	 */
 	public Environment(final Scene scene) {
@@ -64,27 +63,26 @@ public final class Environment
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClasses()
 	 */
-	public Collection getClasses() {
+	public Collection<SootClass> getClasses() {
 		return system.getClasses();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
 	 */
-	public Collection getRoots() {
-		final Collection _temp = new HashSet();
-		final List _argList = new ArrayList();
-		_argList.add(ArrayType.v(RefType.v("java.lang.String"), 1));
+	public Collection<SootMethod> getRoots() {
+		final Collection<SootMethod> _temp = new HashSet<SootMethod>();
+		final List<ArrayType> _argList = Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1));
 
-		for (final Iterator _i = system.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator<SootClass> _i = getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
 			final SootMethod _sm = _sc.getMethod("main", _argList, VoidType.v());
 
 			if (_sm != null && _sm.isStatic() && _sm.isPublic()) {
 				_temp.add(_sm);
 			}
 		}
-		return null;
+		return _temp;
 	}
 
 	/**

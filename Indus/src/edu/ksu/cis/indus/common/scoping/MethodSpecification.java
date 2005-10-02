@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -31,57 +30,54 @@ import org.slf4j.LoggerFactory;
 import soot.SootMethod;
 import soot.Type;
 
-
 /**
  * This class represents method-level scope specification.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class MethodSpecification
-  extends AbstractSpecification {
-	/** 
+		extends AbstractSpecification {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodSpecification.class);
 
-	/** 
-	 * This is the specifications of the types of the parameters.
-	 *
-	 * @invariant parameterTypeSpecs.oclIsKindOf(List(TypeSpecification))
-	 */
-	private final List parameterTypeSpecs = new ArrayList();
-
-	/** 
-	 * The pattern of the method's name.
-	 */
-	private Pattern namePattern;
-
-	/** 
+	/**
 	 * This is the specification of the type of the class that declares the method.
 	 */
 	private TypeSpecification declaringClassSpec;
 
-	/** 
+	/**
+	 * The pattern of the method's name.
+	 */
+	private Pattern namePattern;
+
+	/**
+	 * This is the specifications of the types of the parameters.
+	 */
+	private final List<TypeSpecification> parameterTypeSpecs = new ArrayList<TypeSpecification>();
+
+	/**
 	 * This is the specification of the return type of the method.
 	 */
 	private TypeSpecification returnTypeSpec;
 
 	/**
-	 * Sets the specification of the class that declares the method.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
+	 * Creates the container for parameter type specifications. This is used by java-xml binding.
+	 * 
+	 * @return a container.
+	 * @post result != null
 	 */
-	public void setDeclaringClassSpec(final TypeSpecification spec) {
-		declaringClassSpec = spec;
+	static List createParameterTypeSpecContainer() {
+		return new ArrayList();
 	}
 
 	/**
 	 * Retrieves the specification of the class that declares the method.
-	 *
+	 * 
 	 * @return the specification.
 	 */
 	public TypeSpecification getDeclaringClassSpec() {
@@ -89,14 +85,39 @@ public final class MethodSpecification
 	}
 
 	/**
+	 * Retrieves the specification of the method's name.
+	 * 
+	 * @return the specification.
+	 */
+	public String getMethodNameSpec() {
+		return namePattern.pattern();
+	}
+
+	/**
+	 * Retrieves the specification of the type of the parameters of the method.
+	 * 
+	 * @return a list of specifications.
+	 */
+	public List<TypeSpecification> getParameterTypeSpecs() {
+		return parameterTypeSpecs;
+	}
+
+	/**
+	 * Retrieves the specification of the return type of the method.
+	 * 
+	 * @return the specification.
+	 */
+	public TypeSpecification getReturnTypeSpec() {
+		return returnTypeSpec;
+	}
+
+	/**
 	 * Checks if the given method is in the scope of this specification in the given environment.
-	 *
+	 * 
 	 * @param method to be checked for scope constraints.
 	 * @param system in which the check the constraints.
-	 *
 	 * @return <code>true</code> if the given method lies within the scope defined by this specification; <code>false</code>,
-	 * 		   otherwise.
-	 *
+	 *         otherwise.
 	 * @pre method != null and system != null
 	 */
 	public boolean isInScope(final SootMethod method, final IEnvironment system) {
@@ -112,7 +133,7 @@ public final class MethodSpecification
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 				final Type _type = (Type) _i.next();
-				final TypeSpecification _pTypeSpec = (TypeSpecification) parameterTypeSpecs.get(_iIndex);
+				final TypeSpecification _pTypeSpec = parameterTypeSpecs.get(_iIndex);
 
 				if (_pTypeSpec != null) {
 					_result |= _pTypeSpec.conformant(_type, system);
@@ -132,10 +153,19 @@ public final class MethodSpecification
 	}
 
 	/**
+	 * Sets the specification of the class that declares the method.
+	 * 
+	 * @param spec the specification.
+	 * @pre spec != null
+	 */
+	public void setDeclaringClassSpec(final TypeSpecification spec) {
+		declaringClassSpec = spec;
+	}
+
+	/**
 	 * Sets the specification of the method's name.
-	 *
+	 * 
 	 * @param spec is a regular expression.
-	 *
 	 * @pre spec != null
 	 */
 	public void setMethodNameSpec(final String spec) {
@@ -143,41 +173,19 @@ public final class MethodSpecification
 	}
 
 	/**
-	 * Retrieves the specification of the method's name.
-	 *
-	 * @return the specification.
-	 */
-	public String getMethodNameSpec() {
-		return namePattern.pattern();
-	}
-
-	/**
 	 * Sets the specification of the type of the parameters of the method.
-	 *
+	 * 
 	 * @param specs the specifications.
-	 *
-	 * @pre spec != null and specs.oclIsKindOf(Sequence(TypeSpecification))
+	 * @pre spec != null
 	 */
-	public void setParameterTypeSpecs(final List specs) {
+	public void setParameterTypeSpecs(final List<TypeSpecification> specs) {
 		parameterTypeSpecs.addAll(specs);
 	}
 
 	/**
-	 * Retrieves the specification of the type of the parameters of the method.
-	 *
-	 * @return a list of specifications.
-	 *
-	 * @post result.oclIsKindOf(Sequence(TypeSpecification))
-	 */
-	public List getParameterTypeSpecs() {
-		return parameterTypeSpecs;
-	}
-
-	/**
 	 * Sets the specification of the return type of the method.
-	 *
+	 * 
 	 * @param spec the specification.
-	 *
 	 * @pre spec != null
 	 */
 	public void setReturnTypeSpec(final TypeSpecification spec) {
@@ -185,33 +193,12 @@ public final class MethodSpecification
 	}
 
 	/**
-	 * Retrieves the specification of the return type of the method.
-	 *
-	 * @return the specification.
-	 */
-	public TypeSpecification getReturnTypeSpec() {
-		return returnTypeSpec;
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
-										  .append("returnTypeSpec", this.returnTypeSpec)
-										  .append("parameterTypeSpecs", this.parameterTypeSpecs)
-										  .append("declaringClassSpec", this.declaringClassSpec).toString();
-	}
-
-	/**
-	 * Creates the container for parameter type specifications. This is used by java-xml binding.
-	 *
-	 * @return a container.
-	 *
-	 * @post result != null
-	 */
-	static List createParameterTypeSpecContainer() {
-		return new ArrayList();
+				.append("returnTypeSpec", this.returnTypeSpec).append("parameterTypeSpecs", this.parameterTypeSpecs).append(
+						"declaringClassSpec", this.declaringClassSpec).toString();
 	}
 }
 

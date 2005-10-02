@@ -3,10 +3,14 @@
     xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
     indus:specName="scope_spec">
     <indus:classSpec indus:specName="scope1" indus:inclusion="true">
-        <indus:typeSpec indus:scopeExtension="IDENTITY" indus:nameSpec="(Home|Man|Wife|Acct)"
-            indus:publicAccess="true" indus:protectedAccess="true" indus:defaultAccess="true"/>
+       	<indus:accessSpec>PUBLIC_ACCESS</indus:accessSpec>
+		<indus:accessSpec>PROTECTED_ACCESS</indus:accessSpec>
+       	<indus:accessSpec>DEFAULT_ACCESS</indus:accessSpec>			
+        <indus:typeSpec indus:scopeExtension="IDENTITY" indus:nameSpec="(Home|Man|Wife|Acct)"/>
     </indus:classSpec>
     <indus:methodSpec indus:specName="scope2" indus:methodNameSpec="run">
+       	<indus:accessSpec>PUBLIC_ACCESS</indus:accessSpec>
+		<indus:accessSpec>PROTECTED_ACCESS</indus:accessSpec>
         <indus:declaringClassSpec indus:scopeExtension="IDENTITY" 
             indus:nameSpec="Man|Wife" />
         <indus:returnTypeSpec indus:scopeExtension="PRIMITIVE" indus:nameSpec="void" />

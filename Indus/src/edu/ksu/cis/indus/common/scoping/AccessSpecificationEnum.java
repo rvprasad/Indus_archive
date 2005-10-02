@@ -11,25 +11,42 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
+package edu.ksu.cis.indus.common.scoping;
 
-package edu.ksu.cis.indus.tools;
+import java.util.EnumSet;
 
 /**
- * The factory interface to be implemented by configuration factories.
+ * The enumeration to identify various access specifiers.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IToolConfigurationFactory {
-
+public enum AccessSpecificationEnum {
 	/**
-	 * Creates a tool configuration.
+	 * This identifies default access.
+	 */
+	DEFAULT_ACCESS,
+	/**
+	 * This identifies private access.
+	 */
+	PRIVATE_ACCESS,
+	/**
+	 * This identifies protected access.
+	 */
+	PROTECTED_ACCESS,
+	/**
+	 * This identifies public access.
+	 */
+	PUBLIC_ACCESS;
+	
+	/**
+	 * Retrieves a container for this enum type.
 	 * 
-	 * @return a tool configuration.
+	 * @return the container.
 	 * @post result != null
 	 */
-	IToolConfiguration createToolConfiguration();
+	public static EnumSet<AccessSpecificationEnum> getContainer() {
+		return EnumSet.noneOf(AccessSpecificationEnum.class);
+	}
 }
-
-// End of File

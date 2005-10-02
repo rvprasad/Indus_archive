@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common.soot;
 import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.TrapUnitGraph;
-import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class provides <code>soot.toolkits.graph.TrapUnitGraph</code>s.
@@ -27,12 +26,12 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public final class TrapStmtGraphFactory
-		extends AbstractStmtGraphFactory {
+		extends AbstractStmtGraphFactory<TrapUnitGraph> {
 
 	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	@Override protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
+	@Override protected TrapUnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new TrapUnitGraph(body);
 	}
 }

@@ -113,6 +113,7 @@ public final class Constants {
 	 * <i>Prevents creation instances of this class.</i>
 	 */
 	private Constants() {
+		// does nothing
 	}
 
 	///CLOVER:ON

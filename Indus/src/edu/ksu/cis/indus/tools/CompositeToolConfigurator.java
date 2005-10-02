@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -34,65 +33,63 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
-
 /**
- * This class provides a graphical interface to configure composite tool configurations.  It typically provides the support
- * to pick each configuration and delegates the configuration of each set of configuration information to specific
- * configurators.
- *
+ * This class provides a graphical interface to configure composite tool configurations. It typically provides the support to
+ * pick each configuration and delegates the configuration of each set of configuration information to specific configurators.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class CompositeToolConfigurator
-  extends AbstractToolConfigurator {
-	/** 
-	 * This combo presents the available configurations.
-	 */
-	private Combo configCombo;
+		extends AbstractToolConfigurator {
 
-	/** 
+	/**
 	 * This is composite on which the child configurator will be displayed.
 	 */
 	private Composite childComposite;
 
-	/** 
-	 * This is the composite configuration being configured.
-	 *
-	 * @invariant compositeConfiguration != null
-	 */
-	private CompositeToolConfiguration compositeConfiguration;
-
-	/** 
-	 * The factory used to create a new configuration instance.
-	 *
-	 * @invariant toolConfigFactory != null
-	 */
-	private IToolConfigurationFactory toolConfigFactory;
-
-	/** 
+	/**
 	 * This is the child configurator to be used to configure each instance of configuration.
-	 *
+	 * 
 	 * @invariant childConfigurator != null
 	 */
 	private IToolConfigurator childConfigurator;
 
-	/** 
+	/**
+	 * This is the composite configuration being configured.
+	 * 
+	 * @invariant compositeConfiguration != null
+	 */
+	private CompositeToolConfiguration compositeConfiguration;
+
+	/**
+	 * This combo presents the available configurations.
+	 */
+	private Combo configCombo;
+
+	/**
 	 * This is the index that is selected in the combo.
 	 */
 	private int selectedIndex;
 
 	/**
+	 * The factory used to create a new configuration instance.
+	 * 
+	 * @invariant toolConfigFactory != null
+	 */
+	private IToolConfigurationFactory toolConfigFactory;
+
+	/**
 	 * Creates a new CompositeToolConfigurator object.
-	 *
+	 * 
 	 * @param compositeConfigs is the composite configuration.
 	 * @param child is the configurator to be used for each configuration instance.
 	 * @param factory is used to create tool configuration of a specific type when there exists none.
-	 *
 	 * @pre compositeConfigs != null and child != null and factory != null
 	 */
 	public CompositeToolConfigurator(final CompositeToolConfiguration compositeConfigs, final IToolConfigurator child,
-		final IToolConfigurationFactory factory) {
+			final IToolConfigurationFactory factory) {
 		compositeConfiguration = compositeConfigs;
 		childConfigurator = child;
 		toolConfigFactory = factory;
@@ -101,13 +98,14 @@ public final class CompositeToolConfigurator
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(edu.ksu.cis.indus.tools.IToolConfiguration)
 	 */
-	protected void checkConfiguration(final IToolConfiguration t) {
+	@Override protected void checkConfiguration(@SuppressWarnings("unused") final IToolConfiguration t) {
+		// does nothing
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	protected void setup() {
+	@Override protected void setup() {
 		final GridLayout _gridLayout = new GridLayout();
 		_gridLayout.numColumns = 3;
 		parent.setLayout(_gridLayout);
@@ -122,27 +120,29 @@ public final class CompositeToolConfigurator
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		configCombo.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					recordSelection();
-					displayChild();
-					parent.layout();
-					parent.pack();
-				}
 
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			});
+			public void widgetDefaultSelected(final SelectionEvent evt) {
+				widgetSelected(evt);
+			}
+
+			public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
+				recordSelection();
+				displayChild();
+				parent.layout();
+				parent.pack();
+			}
+		});
 
 		configCombo.addFocusListener(new FocusAdapter() {
-				public void focusLost(final FocusEvent evt) {
-					updateConfigName();
-				}
 
-				public void focusGained(final FocusEvent evt) {
-					recordSelection();
-				}
-			});
+			@Override public void focusGained(@SuppressWarnings("unused") final FocusEvent evt) {
+				recordSelection();
+			}
+
+			@Override public void focusLost(@SuppressWarnings("unused") final FocusEvent evt) {
+				updateConfigName();
+			}
+		});
 
 		configCombo.setVisible(true);
 
@@ -152,17 +152,18 @@ public final class CompositeToolConfigurator
 		_gridData.horizontalIndent = _newConfig.getText().length();
 		_newConfig.setLayoutData(_gridData);
 		_newConfig.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					createNewConfiguration();
-					displayChild();
-					parent.layout();
-					parent.pack();
-				}
 
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			});
+			public void widgetDefaultSelected(final SelectionEvent evt) {
+				widgetSelected(evt);
+			}
+
+			public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
+				createNewConfiguration();
+				displayChild();
+				parent.layout();
+				parent.pack();
+			}
+		});
 
 		if (compositeConfiguration.configurations.isEmpty()) {
 			compositeConfiguration.configurations.add(toolConfigFactory.createToolConfiguration());
@@ -206,7 +207,7 @@ public final class CompositeToolConfigurator
 		final int _index = configCombo.getSelectionIndex();
 
 		if (_index != -1) {
-			final IToolConfiguration _tc = (IToolConfiguration) compositeConfiguration.configurations.get(_index);
+			final IToolConfiguration _tc = compositeConfiguration.configurations.get(_index);
 			compositeConfiguration.setActiveToolConfiguration(_tc);
 			childConfigurator.setConfiguration(_tc);
 			childConfigurator.initialize(childComposite);
@@ -241,8 +242,8 @@ public final class CompositeToolConfigurator
 				if (((IToolConfiguration) _configurations.get(_i)).getConfigName().equals(_newText)) {
 					final MessageBox _msgBox = new MessageBox(parent.getShell(), SWT.OK | SWT.ICON_INFORMATION);
 					_msgBox.setMessage("A configuration with the name of \"" + _newText
-						+ "\" exists.  \nNo changes will be made.");
-                    _msgBox.open();
+							+ "\" exists.  \nNo changes will be made.");
+					_msgBox.open();
 					_noDuplicate = false;
 				}
 			}

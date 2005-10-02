@@ -28,6 +28,20 @@
       </xsd:restriction>
     </xsd:simpleType>
 
+	<xsd:simpleType id="accessSpecType" name="accessSpecType">
+      <xsd:annotation>
+        <xsd:documentation>
+          This represents access specification type.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="PRIVATE_ACCESS"/>
+        <xsd:enumeration value="PROTECTED_ACCESS"/>
+        <xsd:enumeration value="PUBLIC_ACCESS"/>
+        <xsd:enumeration value="DEFAULT_ACCESS"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
 	<xsd:complexType id="typeSpecType" name="typeSpecType">
 		<xsd:annotation>
     	    <xsd:documentation>
@@ -48,26 +62,14 @@
 		<xsd:attribute name="nameSpec" type="xsd:string" use="required" />
 	</xsd:complexType>
 
-	<xsd:element name="typeSpec" id="typeSpec" type="indus:typeSpecType" minOccurs="0" maxOccurs="unbounded"/>	
+	<xsd:element name="typeSpec" id="typeSpec" type="indus:typeSpecType"/>	
 	
 	<xsd:complexType id="typeSpecSequenceType" name="typeSpecSequenceType">
 		<xsd:sequence>
-			<xsd:element ref="indus:typeSpec"/>
+			<xsd:element ref="indus:typeSpec" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	
-	<xsd:attributeGroup id="accessSpecGroup" name="accessSpecGroup">
-		<xsd:annotation>
-    	    <xsd:documentation>
-        		This captures access specification information.
-    		</xsd:documentation>
-	    </xsd:annotation>
-		<xsd:attribute name="publicAccess" type="xsd:boolean" use="optional" default="true"/>
-		<xsd:attribute name="protectedAccess" type="xsd:boolean" use="optional" default="true"/>
-		<xsd:attribute name="defaultAccess" type="xsd:boolean" use="optional" default="false"/>		
-		<xsd:attribute name="privateAccess" type="xsd:boolean" use="optional" default="false"/>				
-	</xsd:attributeGroup>
-
     <xsd:attribute name="specName" type="xsd:string"/> 
 
 	<xsd:complexType id="abstractSpecType" name="abstractSpecType">
@@ -76,9 +78,11 @@
         		This captures attributes common to all specification types.
     		</xsd:documentation>
 	    </xsd:annotation>
+	    <xsd:sequence>
+	    	<xsd:element name="accessSpec" type="indus:accessSpecType" minOccurs="1" maxOccurs="4"/>
+	    </xsd:sequence>
 		<xsd:attribute ref="indus:specName" use="required"/>
 		<xsd:attribute name="inclusion" type="xsd:boolean" use="optional" default="true" />
-	    <xsd:attributeGroup ref="indus:accessSpecGroup"/>
 	</xsd:complexType>
 
 	<xsd:complexType id="classSpecType" name="classSpecType">
@@ -90,7 +94,7 @@
 	    <xsd:complexContent>
 		    <xsd:extension base="indus:abstractSpecType">
 				<xsd:sequence>
-					<xsd:element ref="indus:typeSpec"/>
+					<xsd:element ref="indus:typeSpec" minOccurs="1" maxOccurs="1"/>
 				</xsd:sequence>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -107,7 +111,8 @@
 				<xsd:sequence>
 					<xsd:element name="declaringClassSpec" type="indus:typeSpecType" minOccurs="1" maxOccurs="1"/>
 					<xsd:element name="returnTypeSpec" type="indus:typeSpecType" minOccurs="1" maxOccurs="1"/>
-					<xsd:element name="parameterSpecs" type="indus:typeSpecSequenceType"/>
+					<xsd:element name="parameterSpecs" type="indus:typeSpecSequenceType" minOccurs="0" 
+						maxOccurs="1"/>
 				</xsd:sequence>
 				<xsd:attribute name="methodNameSpec" type="xsd:string" use="required" />				
 			</xsd:extension>

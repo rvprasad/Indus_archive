@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,18 +16,24 @@ package edu.ksu.cis.indus.processing;
 
 import java.util.Collection;
 
+import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
+import soot.ValueBox;
+import soot.jimple.Stmt;
 
 /**
  * This is an abstract implementation of <code>IProcessingFilter</code> via which class and method filtering will occur in
  * <code>ProcessingController</code>. Default implementation returns the given methods/classes as is.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public abstract class AbstractProcessingFilter
-  implements IProcessingFilter {
-	/** 
+		implements IProcessingFilter {
+
+	/**
 	 * The successor filter, if any.
 	 */
 	private IProcessingFilter successor;
@@ -41,10 +46,10 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
-	 * {@inheritDoc}  Default implementation returns the given classes as is.
+	 * {@inheritDoc} Default implementation returns the given classes as is.
 	 */
-	public final Collection filterClasses(final Collection classes) {
-		Collection _result = localFilterClasses(classes);
+	public final Collection<SootClass> filterClasses(final Collection<SootClass> classes) {
+		Collection<SootClass> _result = localFilterClasses(classes);
 
 		if (successor != null) {
 			_result = successor.filterClasses(_result);
@@ -53,10 +58,10 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
-	 * {@inheritDoc}  Default implementation returns the given fields as is.
+	 * {@inheritDoc} Default implementation returns the given fields as is.
 	 */
-	public final Collection filterFields(final Collection fields) {
-		Collection _result = localFilterFields(fields);
+	public final Collection<SootField> filterFields(final Collection<SootField> fields) {
+		Collection<SootField> _result = localFilterFields(fields);
 
 		if (successor != null) {
 			_result = successor.filterFields(_result);
@@ -65,10 +70,10 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
-	 * {@inheritDoc}  Default implementation returns the given methods as is.
+	 * {@inheritDoc} Default implementation returns the given methods as is.
 	 */
-	public final Collection filterMethods(final Collection methods) {
-		Collection _result = localFilterMethods(methods);
+	public final Collection<SootMethod> filterMethods(final Collection<SootMethod> methods) {
+		Collection<SootMethod> _result = localFilterMethods(methods);
 
 		if (successor != null) {
 			_result = successor.filterMethods(_result);
@@ -77,10 +82,10 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
-	 * {@inheritDoc}  Default implementation returns the given stmts as is.
+	 * {@inheritDoc} Default implementation returns the given stmts as is.
 	 */
-	public final Collection filterStmts(final Collection stmts) {
-		Collection _result = localFilterStmts(stmts);
+	public final Collection<Stmt> filterStmts(final Collection<Stmt> stmts) {
+		Collection<Stmt> _result = localFilterStmts(stmts);
 
 		if (successor != null) {
 			_result = successor.filterStmts(_result);
@@ -89,10 +94,10 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
-	 * {@inheritDoc}  Default implementation returns the given value boxes as is.
+	 * {@inheritDoc} Default implementation returns the given value boxes as is.
 	 */
-	public final Collection filterValueBoxes(final Collection boxes) {
-		Collection _result = localFilterValueBoxes(boxes);
+	public final Collection<ValueBox> filterValueBoxes(final Collection<ValueBox> boxes) {
+		Collection<ValueBox> _result = localFilterValueBoxes(boxes);
 
 		if (successor != null) {
 			_result = successor.filterValueBoxes(_result);
@@ -102,76 +107,56 @@ public abstract class AbstractProcessingFilter
 
 	/**
 	 * Filter the given classes.
-	 *
+	 * 
 	 * @param classes to be filtered.
-	 *
 	 * @return the collection of filtrate classes.
-	 *
-	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post classes.containsAll(result)
 	 */
-	protected Collection localFilterClasses(final Collection classes) {
+	protected Collection<SootClass> localFilterClasses(final Collection<SootClass> classes) {
 		return classes;
 	}
 
 	/**
 	 * Filter the given fields.
-	 *
+	 * 
 	 * @param fields to be filtered.
-	 *
 	 * @return the collection of filtrate fields.
-	 *
-	 * @pre fields != null and fields.oclIsKindOf(Collection(SootClass))
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post fields.containsAll(result)
 	 */
-	protected Collection localFilterFields(final Collection fields) {
+	protected Collection<SootField> localFilterFields(final Collection<SootField> fields) {
 		return fields;
 	}
 
 	/**
 	 * Filter the given methods.
-	 *
+	 * 
 	 * @param methods to be filtered.
-	 *
 	 * @return the collection of filtrate methods.
-	 *
-	 * @pre methods != null and methods.oclIsKindOf(Collection(SootClass))
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post methods.containsAll(result)
 	 */
-	protected Collection localFilterMethods(final Collection methods) {
+	protected Collection<SootMethod> localFilterMethods(final Collection<SootMethod> methods) {
 		return methods;
 	}
 
 	/**
 	 * Filter the given statements.
-	 *
+	 * 
 	 * @param stmts to be filtered.
-	 *
 	 * @return the collection of filtrate statements.
-	 *
-	 * @pre stmts != null and stmts.oclIsKindOf(Collection(soot.jimple.Stmt))
-	 * @post result != null and result.oclIsKindOf(Collection(soot.jimple.Stmt))
 	 * @post stmts.containsAll(result)
 	 */
-	protected Collection localFilterStmts(final Collection stmts) {
+	protected Collection<Stmt> localFilterStmts(final Collection<Stmt> stmts) {
 		return stmts;
 	}
 
 	/**
 	 * Filter the given value boxes.
-	 *
+	 * 
 	 * @param boxes to be filtered.
-	 *
 	 * @return the collection of filtrate value boxes.
-	 *
-	 * @pre boxes != null and boxes.oclIsKindOf(Collection(soot.ValueBox))
-	 * @post result != null and result.oclIsKindOf(Collection(soot.ValueBox))
 	 * @post boxes.containsAll(result)
 	 */
-	protected Collection localFilterValueBoxes(final Collection boxes) {
+	protected Collection<ValueBox> localFilterValueBoxes(final Collection<ValueBox> boxes) {
 		return boxes;
 	}
 }

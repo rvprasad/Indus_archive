@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -33,41 +32,40 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.VoidType;
 
-
 /**
  * This implementation provides an environment that is static in terms of the classes it contains.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class StaticEnvironment
-  implements IEnvironment {
-	/** 
+		implements IEnvironment {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(StaticEnvironment.class);
 
-	/** 
+	/**
 	 * The scene/system being represented.
 	 */
-	private final Collection classes;
+	private final Collection<SootClass> classes;
 
 	/**
 	 * Creates a new Environment object.
-	 *
+	 * 
 	 * @param classesInThisEnv the set of classes to be exposed in this environment.
-	 *
-	 * @pre classesInThisEnv != null and classesInThisEnv.oclIsKindOf(Collection(SootClass))
+	 * @pre classesInThisEnv != null
 	 */
-	public StaticEnvironment(final Collection classesInThisEnv) {
-		classes = new HashSet(classesInThisEnv);
+	public StaticEnvironment(final Collection<SootClass> classesInThisEnv) {
+		classes = new HashSet<SootClass>(classesInThisEnv);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClass(java.lang.String)
 	 */
-	public SootClass getClass(final String className) {
+	public SootClass getClass(@SuppressWarnings("unused") final String className) {
 		final String _msg = "This operation is not supported by this implementation.";
 		LOGGER.error("getClass() -  : _msg = " + _msg, null);
 		throw new UnsupportedOperationException(_msg);
@@ -76,7 +74,7 @@ public final class StaticEnvironment
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClasses()
 	 */
-	public Collection getClasses() {
+	public Collection<SootClass> getClasses() {
 		return Collections.unmodifiableCollection(classes);
 	}
 
@@ -84,12 +82,12 @@ public final class StaticEnvironment
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
 	 */
 	public Collection getRoots() {
-		final Collection _temp = new HashSet();
-		final List _argList = new ArrayList();
+		final Collection<SootMethod> _temp = new HashSet<SootMethod>();
+		final List<ArrayType> _argList = new ArrayList<ArrayType>();
 		_argList.add(ArrayType.v(RefType.v("java.lang.String"), 1));
 
-		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator<SootClass> _i = classes.iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
 			final SootMethod _sm = _sc.getMethod("main", _argList, VoidType.v());
 
 			if (_sm != null && _sm.isStatic() && _sm.isPublic()) {
@@ -103,11 +101,11 @@ public final class StaticEnvironment
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
 	 */
 	public boolean hasClass(final String scName) {
-		final Iterator _i = classes.iterator();
+		final Iterator<SootClass> _i = classes.iterator();
 		final int _iEnd = classes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
+			final SootClass _sc = _i.next();
 
 			if (_sc.getName().equals(scName)) {
 				return true;
@@ -119,7 +117,7 @@ public final class StaticEnvironment
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
 	 */
-	public void removeClass(final SootClass clazz) {
+	public void removeClass(@SuppressWarnings("unused") final SootClass clazz) {
 		final String _msg = "This operation is not supported by this implementation.";
 		LOGGER.error("getClass() -  : _msg = " + _msg, null);
 		throw new UnsupportedOperationException(_msg);

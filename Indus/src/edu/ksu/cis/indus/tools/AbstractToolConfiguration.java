@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -23,37 +22,58 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This provides the implementation of <code>IToolConfiguration</code> which concrete implementations should extend.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public abstract class AbstractToolConfiguration
-  implements IToolConfiguration {
-	/** 
+		implements IToolConfiguration {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractToolConfiguration.class);
 
-	/** 
-	 * This is set of property ids recognized by this configurationCollection.
-	 */
-	protected final Collection propertyIds = new HashSet();
-
-	/** 
-	 * This maps properties of this configurationCollection to their values.
-	 *
+	/**
+	 * This maps properties of this configuration to their values.
+	 * 
 	 * @invariant properties != null
 	 */
-	protected final Map properties = new HashMap();
+	protected final Map<Object, Object> properties = new HashMap<Object, Object>();
 
-	/** 
+	/**
+	 * This is set of property ids recognized by this configurationCollection.
+	 */
+	protected final Collection<Object> propertyIds = new HashSet<Object>();
+
+	/**
 	 * The name of the configuration.
 	 */
 	private String configName;
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.IToolConfiguration#getConfigName()
+	 */
+	public String getConfigName() {
+		return configName;
+	}
+
+	/**
+	 * @see IToolConfiguration#getProperty(Object)
+	 */
+	public final Object getProperty(final Object id) {
+		return properties.get(id);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.IToolConfiguration#setConfigName(java.lang.String)
+	 */
+	public void setConfigName(final String string) {
+		configName = string;
+	}
 
 	/**
 	 * @see IToolConfiguration#setProperty(Object,Object)
@@ -74,35 +94,12 @@ public abstract class AbstractToolConfiguration
 	}
 
 	/**
-	 * @see IToolConfiguration#getProperty(Object)
-	 */
-	public final Object getProperty(final Object id) {
-		return properties.get(id);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.tools.IToolConfiguration#setConfigName(java.lang.String)
-	 */
-	public void setConfigName(final String string) {
-		configName = string;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.tools.IToolConfiguration#getConfigName()
-	 */
-	public String getConfigName() {
-		return configName;
-	}
-
-	/**
-	 * Processes the given property.  This should be overriden by subclasses to handle alter configuration.  Only a return
-	 * value of <code>true</code> will result in the property being added to the configuration.
-	 *
+	 * Processes the given property. This should be overriden by subclasses to handle alter configuration. Only a return value
+	 * of <code>true</code> will result in the property being added to the configuration.
+	 * 
 	 * @param propertyID is the identifier of the property.
 	 * @param value of the property.
-	 *
 	 * @return <code>true</code> if the property was successfully processed; <code>false</code>, otherwise.
-	 *
 	 * @pre propertyID != null
 	 */
 	protected abstract boolean processProperty(final Object propertyID, final Object value);

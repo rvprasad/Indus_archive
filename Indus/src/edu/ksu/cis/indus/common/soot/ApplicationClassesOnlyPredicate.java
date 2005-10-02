@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,16 +19,23 @@ import org.apache.commons.collections.Predicate;
 import soot.SootClass;
 import soot.SootMethod;
 
-
 /**
  * This predicate can be used to check if a given class is or method belongs to an application class.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ApplicationClassesOnlyPredicate
-  implements Predicate {
+		implements Predicate {
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public ApplicationClassesOnlyPredicate() {
+		super();
+	}
+
 	/**
 	 * @see Predicate#evaluate(java.lang.Object)
 	 */

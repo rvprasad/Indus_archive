@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,27 +19,32 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * This class represents a phase.  The tools/analyses/processes are expected to run in phases.  In particular, the execution
- * can proceed in major phases which consist of 0 or many minor phases.  This mode of execution can be tracked by instances
- * of this class.
- *
+ * This class represents a phase. The tools/analyses/processes are expected to run in phases. In particular, the execution can
+ * proceed in major phases which consist of 0 or many minor phases. This mode of execution can be tracked by instances of this
+ * class.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class Phase
-  implements Cloneable {
-	/** 
+		implements Cloneable {
+
+	/**
+	 * This represents the phase in which a tool/analyses/process finishes.
+	 */
+	public static final Phase FINISHED_PHASE;
+
+	/**
 	 * This represents the phase in which a tool/analyses/process starts.
 	 */
 	public static final Phase STARTING_PHASE;
 
-	/** 
-	 * This represents the phase in which a tool/analyses/process finishes.
+	/**
+	 * The logger used by instances of this class to log messages.
 	 */
-	public static final Phase FINISHED_PHASE;
+	private static final Logger LOGGER = LoggerFactory.getLogger(Phase.class);
 
 	static {
 		Phase _i = new Phase();
@@ -50,21 +54,16 @@ public final class Phase
 		FINISHED_PHASE = _i;
 	}
 
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(Phase.class);
-
-	/** 
+	/**
 	 * This is the major phase.
-	 *
+	 * 
 	 * @invariant 0 &lt;= _major
 	 */
 	private int major;
 
-	/** 
+	/**
 	 * This is the minor phase.
-	 *
+	 * 
 	 * @invariant 0 &lt;= _minor
 	 */
 	private int minor;
@@ -73,11 +72,12 @@ public final class Phase
 	 * Creates a new Phase object.
 	 */
 	private Phase() {
+		// does nothing
 	}
 
 	/**
 	 * Creates a new Phase object that represents the starting phase.
-	 *
+	 * 
 	 * @return an instance of this class.
 	 */
 	public static Phase createPhase() {
@@ -88,24 +88,11 @@ public final class Phase
 	}
 
 	/**
-	 * Checks if this object is earlier than the given object.
-	 *
-	 * @param phase to be compared with this object.
-	 *
-	 * @return <code>true</code> if this phase object is earlier than the given phase; <code>false</code>, otherwise.
-	 *
-	 * @pre phase != null
-	 */
-	public boolean isEarlierThan(final Phase phase) {
-		return (major < phase.major) || (major == phase.major && minor < phase.minor);
-	}
-
-	/**
 	 * Clones this object.
-	 *
+	 * 
 	 * @return the clone.
 	 */
-	public Object clone() {
+	@Override public Phase clone() {
 		Phase _result = null;
 
 		try {
@@ -122,12 +109,11 @@ public final class Phase
 
 	/**
 	 * Checks if the given object is equal to this object.
-	 *
+	 * 
 	 * @param o is the object to be checked for equality with this object.
-	 *
 	 * @return <code>true</code> if this object is equal to <code>o</code>; <code>false</code>, otherwise.
 	 */
-	public boolean equals(final Object o) {
+	@Override public boolean equals(final Object o) {
 		boolean _result = false;
 
 		if (o instanceof Phase) {
@@ -139,9 +125,8 @@ public final class Phase
 
 	/**
 	 * Checks if this instance and the given phase object represent the same major phase.
-	 *
+	 * 
 	 * @param p is phase with which to compare.
-	 *
 	 * @return <code>true</code> if both represent the same major phase; <code>false</code>, otherwise.
 	 */
 	public boolean equalsMajor(final Phase p) {
@@ -150,9 +135,8 @@ public final class Phase
 
 	/**
 	 * Checks if this instance and the given phase object represent the same minor phase.
-	 *
+	 * 
 	 * @param p is the phase with which to compare.
-	 *
 	 * @return <code>true</code> if both represent the same minor phase; <code>false</code>, otherwise.
 	 */
 	public boolean equalsMinor(final Phase p) {
@@ -170,8 +154,19 @@ public final class Phase
 	/**
 	 * @see Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		return major + minor;
+	}
+
+	/**
+	 * Checks if this object is earlier than the given object.
+	 * 
+	 * @param phase to be compared with this object.
+	 * @return <code>true</code> if this phase object is earlier than the given phase; <code>false</code>, otherwise.
+	 * @pre phase != null
+	 */
+	public boolean isEarlierThan(final Phase phase) {
+		return (major < phase.major) || (major == phase.major && minor < phase.minor);
 	}
 
 	/**
@@ -200,7 +195,7 @@ public final class Phase
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).append("minor", this.minor).append("major", this.major).toString();
 	}
 }

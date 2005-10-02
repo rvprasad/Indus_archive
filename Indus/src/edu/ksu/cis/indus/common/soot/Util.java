@@ -410,6 +410,7 @@ public final class Util {
 	/**
 	 * Retrieves the hosts which are tagged with a tag named <code>tagName</code>.
 	 * 
+	 * @param <T> the type of the host.
 	 * @param hosts is the collection of hosts to filter.
 	 * @param tagName is the name of the tag to filter <code>hosts</code>.
 	 * @return a collection of hosts.
@@ -738,7 +739,9 @@ public final class Util {
 		if (t1.equals(t2)) {
 			_result = true;
 		} else if (t1 instanceof RefType && t2 instanceof RefType) {
-			_result = isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
+			final SootClass _c1 = env.getClass(((RefType) t1).getClassName());
+			final SootClass _c2 = env.getClass(((RefType) t2).getClassName());
+			_result = isDescendentOf(_c1, _c2);
 		}
 		return _result;
 	}

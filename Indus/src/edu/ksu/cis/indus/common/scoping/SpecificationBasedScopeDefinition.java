@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -37,158 +36,55 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
-
 /**
- * This class represents scope definition. It can be used to filter classes, methods, and fields based on names  and
+ * This class represents scope definition. It can be used to filter classes, methods, and fields based on names and
  * hierarchical relation.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SpecificationBasedScopeDefinition {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpecificationBasedScopeDefinition.class);
 
-	/** 
+	/**
 	 * Indentation space during serialization.
 	 */
 	private static final int INDENT = 4;
 
-	/** 
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpecificationBasedScopeDefinition.class);
+
+	/**
 	 * The collection of class-level specification.
-	 *
-	 * @invariant classSpecs.oclIsKindOf(Collection(ClassSpecification))
 	 */
-	private Collection classSpecs;
+	private Collection<ClassSpecification> classSpecs;
 
-	/** 
+	/**
 	 * The collection of field-level specification.
-	 *
-	 * @invariant classSpecs.oclIsKindOf(Collection(FieldSpecification))
 	 */
-	private Collection fieldSpecs;
+	private Collection<FieldSpecification> fieldSpecs;
 
-	/** 
+	/**
 	 * The collection of method-level specification.
-	 *
-	 * @invariant classSpecs.oclIsKindOf(Collection(MethodSpecification))
 	 */
-	private Collection methodSpecs;
+	private Collection<MethodSpecification> methodSpecs;
 
-	/** 
+	/**
 	 * The name of this specification.
 	 */
 	private String name;
 
 	/**
-	 * Sets the value of <code>classSpecs</code>.
-	 *
-	 * @param theClassSpecs the new value of <code>classSpecs</code>.
-	 */
-	public void setClassSpecs(final Collection theClassSpecs) {
-		this.classSpecs = theClassSpecs;
-	}
-
-	/**
-	 * Sets the value of <code>fieldSpecs</code>.
-	 *
-	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
-	 */
-	public void setFieldSpecs(final Collection theFieldSpecs) {
-		this.fieldSpecs = theFieldSpecs;
-	}
-
-	/**
-	 * Retrieves the value in <code>fieldSpecs</code>.
-	 *
-	 * @return the value in <code>fieldSpecs</code>.
-	 */
-	public Collection getFieldSpecs() {
-		return fieldSpecs;
-	}
-
-	/**
-	 * Checks if the given class is in the scope in the given system.
-	 *
-	 * @param clazz to be checked.
-	 * @param system in which to check.
-	 *
-	 * @return <code>true</code> if the given class is in the scope in the given system; <code>false</code>, otherwise.
-	 *
-	 * @pre clazz != null and system != null
-	 */
-	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
-		final Iterator _i = classSpecs.iterator();
-		final int _iEnd = classSpecs.size();
-		boolean _result = false;
-
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-			final ClassSpecification _cs = (ClassSpecification) _i.next();
-			_result |= _cs.isInScope(clazz, system);
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if the given method is in the scope in the given system.
-	 *
-	 * @param method to be checked.
-	 * @param system in which to check.
-	 *
-	 * @return <code>true</code> if the given method is in the scope in the given system; <code>false</code>, otherwise.
-	 *
-	 * @pre method != null and system != null
-	 */
-	public boolean isInScope(final SootMethod method, final IEnvironment system) {
-		final Iterator _i = methodSpecs.iterator();
-		final int _iEnd = methodSpecs.size();
-		boolean _result = !classSpecs.isEmpty() ? isInScope(method.getDeclaringClass(), system) : false;
-
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-			final MethodSpecification _ms = (MethodSpecification) _i.next();
-			_result |= _ms.isInScope(method, system);
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if the given field is in the scope in the given system.
-	 *
-	 * @param field to be checked.
-	 * @param system in which to check.
-	 *
-	 * @return <code>true</code> if the given field is in the scope in the given system; <code>false</code>, otherwise.
-	 *
-	 * @pre field != null and system != null
-	 */
-	public boolean isInScope(final SootField field, final IEnvironment system) {
-		final Iterator _i = fieldSpecs.iterator();
-		final int _iEnd = fieldSpecs.size();
-        boolean _result = !classSpecs.isEmpty() ? isInScope(field.getDeclaringClass(), system) : false;
-
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-			final FieldSpecification _fs = (FieldSpecification) _i.next();
-			_result |= _fs.isInScope(field, system);
-		}
-		return _result;
-	}
-
-	/**
 	 * Deserializes the given content into a scope definition.
-	 *
+	 * 
 	 * @param contents to be deserialized.
-	 *
 	 * @return a scope definition.
-	 *
 	 * @throws JiBXException when the content cannot be deserialized due to IO exceptions or malformed contents.
-	 *
 	 * @pre contents != null
 	 */
-	public static SpecificationBasedScopeDefinition deserialize(final String contents)
-	  throws JiBXException {
+	public static SpecificationBasedScopeDefinition deserialize(final String contents) throws JiBXException {
 		final SpecificationBasedScopeDefinition _result;
 		IUnmarshallingContext _unmarshallingContext;
 
@@ -213,17 +109,13 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Serializes the given scope definition.
-	 *
+	 * 
 	 * @param scopeDef to be serialized.
-	 *
 	 * @return the serialized form the scope definition.
-	 *
 	 * @throws JiBXException when the content cannot be serialized.
-	 *
 	 * @pre scopeDef != null
 	 */
-	public static String serialize(final SpecificationBasedScopeDefinition scopeDef)
-	  throws JiBXException {
+	public static String serialize(final SpecificationBasedScopeDefinition scopeDef) throws JiBXException {
 		final String _result;
 		IMarshallingContext _marshallingContext;
 
@@ -249,44 +141,45 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
+	 * Creates the container for specifications. This is used by java-xml binding.
+	 * 
+	 * @return a container.
+	 * @post result != null
+	 */
+	static Collection createSpecContainer() {
+		return new ArrayList();
+	}
+
+	/**
 	 * Retrieves the value in <code>classSpecs</code>.
-	 *
+	 * 
 	 * @return the value in <code>classSpecs</code>.
 	 */
-	public Collection getClassSpecs() {
+	public Collection<ClassSpecification> getClassSpecs() {
 		return classSpecs;
 	}
 
 	/**
-	 * Sets the value of <code>methodSpecs</code>.
-	 *
-	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
+	 * Retrieves the value in <code>fieldSpecs</code>.
+	 * 
+	 * @return the value in <code>fieldSpecs</code>.
 	 */
-	public void setMethodSpecs(final Collection theMethodSpecs) {
-		this.methodSpecs = theMethodSpecs;
+	public Collection<FieldSpecification> getFieldSpecs() {
+		return fieldSpecs;
 	}
 
 	/**
 	 * Retrieves the value in <code>methodSpecs</code>.
-	 *
+	 * 
 	 * @return the value in <code>methodSpecs</code>.
 	 */
-	public Collection getMethodSpecs() {
+	public Collection<MethodSpecification> getMethodSpecs() {
 		return methodSpecs;
 	}
 
 	/**
-	 * Sets the value of <code>name</code>.
-	 *
-	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 */
-	public void setName(final String nameOfTheSpec) {
-		this.name = nameOfTheSpec;
-	}
-
-	/**
 	 * Retrieves the value in <code>name</code>.
-	 *
+	 * 
 	 * @return the value in <code>name</code>.
 	 */
 	public String getName() {
@@ -294,14 +187,99 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * Creates the container for specifications. This is used by java-xml binding.
-	 *
-	 * @return a container.
-	 *
-	 * @post result != null
+	 * Checks if the given class is in the scope in the given system.
+	 * 
+	 * @param clazz to be checked.
+	 * @param system in which to check.
+	 * @return <code>true</code> if the given class is in the scope in the given system; <code>false</code>, otherwise.
+	 * @pre clazz != null and system != null
 	 */
-	static Collection createSpecContainer() {
-		return new ArrayList();
+	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
+		final Iterator<ClassSpecification> _i = classSpecs.iterator();
+		final int _iEnd = classSpecs.size();
+		boolean _result = false;
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final ClassSpecification _cs = _i.next();
+			_result |= _cs.isInScope(clazz, system);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given field is in the scope in the given system.
+	 * 
+	 * @param field to be checked.
+	 * @param system in which to check.
+	 * @return <code>true</code> if the given field is in the scope in the given system; <code>false</code>, otherwise.
+	 * @pre field != null and system != null
+	 */
+	public boolean isInScope(final SootField field, final IEnvironment system) {
+		final Iterator<FieldSpecification> _i = fieldSpecs.iterator();
+		final int _iEnd = fieldSpecs.size();
+		boolean _result = !classSpecs.isEmpty() ? isInScope(field.getDeclaringClass(), system) : false;
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final FieldSpecification _fs = _i.next();
+			_result |= _fs.isInScope(field, system);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given method is in the scope in the given system.
+	 * 
+	 * @param method to be checked.
+	 * @param system in which to check.
+	 * @return <code>true</code> if the given method is in the scope in the given system; <code>false</code>, otherwise.
+	 * @pre method != null and system != null
+	 */
+	public boolean isInScope(final SootMethod method, final IEnvironment system) {
+		final Iterator<MethodSpecification> _i = methodSpecs.iterator();
+		final int _iEnd = methodSpecs.size();
+		boolean _result = !classSpecs.isEmpty() ? isInScope(method.getDeclaringClass(), system) : false;
+
+		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+			final MethodSpecification _ms = _i.next();
+			_result |= _ms.isInScope(method, system);
+		}
+		return _result;
+	}
+
+	/**
+	 * Sets the value of <code>classSpecs</code>.
+	 * 
+	 * @param theClassSpecs the new value of <code>classSpecs</code>.
+	 */
+	public void setClassSpecs(final Collection<ClassSpecification> theClassSpecs) {
+		this.classSpecs = theClassSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>fieldSpecs</code>.
+	 * 
+	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
+	 */
+	public void setFieldSpecs(final Collection<FieldSpecification> theFieldSpecs) {
+		this.fieldSpecs = theFieldSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>methodSpecs</code>.
+	 * 
+	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
+	 */
+	public void setMethodSpecs(final Collection<MethodSpecification> theMethodSpecs) {
+		this.methodSpecs = theMethodSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>name</code>.
+	 * 
+	 * @param nameOfTheSpec the new value of <code>name</code>.
+	 */
+	public void setName(final String nameOfTheSpec) {
+		this.name = nameOfTheSpec;
 	}
 
 	/**

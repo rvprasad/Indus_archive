@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,17 +17,14 @@ package edu.ksu.cis.indus.xmlizer;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
-import edu.ksu.cis.indus.common.soot.Util;
 
-import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import java.io.File;
-
-import java.util.Collection;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -43,46 +39,43 @@ import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SootClass;
 
-
 /**
  * This utility class can be used to xmlize jimple.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class JimpleXMLizerCLI {
-	/** 
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(JimpleXMLizerCLI.class);
 
-	///CLOVER:OFF
+	// /CLOVER:OFF
 
 	/**
 	 * <i>This constructor cannot be used.</i>
 	 */
 	private JimpleXMLizerCLI() {
+		// does nothing.
 	}
 
-	///CLOVER:ON
+	// /CLOVER:ON
 
 	/**
 	 * The entry point to execute this xmlizer from command prompt.
-	 *
+	 * 
 	 * @param s is the command-line arguments.
-	 *
 	 * @throws RuntimeException when jimple xmlization fails.
-	 *
 	 * @pre s != null
 	 */
 	public static void main(final String[] s) {
 		final Scene _scene = Scene.v();
 
 		final Options _options = new Options();
-		Option _o =
-			new Option("d", "dump directory", true,
-				"The directory in which to write the xml files.  "
+		Option _o = new Option("d", "dump directory", true, "The directory in which to write the xml files.  "
 				+ "If unspecified, the xml output will be directed standard out.");
 		_o.setArgs(1);
 		_o.setArgName("path");
@@ -117,12 +110,8 @@ public final class JimpleXMLizerCLI {
 						final SootClass _sc = _scene.loadClassAndSupport(_args[_i]);
 						_sc.addTag(_tag);
 					}
-					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(),
-						new AbstractProcessingFilter() {
-							public Collection localFilterClasses(final Collection classes) {
-								return Util.getHostsWithTag(classes, _tag.getName());
-							}
-						});
+					final IProcessingFilter _filter = new TagBasedProcessingFilter(_tag.getName());
+					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), _filter);
 				} else {
 					System.out.println("No classes were specified.");
 				}
@@ -138,17 +127,17 @@ public final class JimpleXMLizerCLI {
 
 	/**
 	 * Writes the jimple in the scene via the writer.
-	 *
+	 * 
 	 * @param scene in which the jimple to be dumped resides.
-	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad output.
-	 * @param suffix to be appended each file name.  If <code>null</code>, no suffix is appended.
+	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad
+	 *            output.
+	 * @param suffix to be appended each file name. If <code>null</code>, no suffix is appended.
 	 * @param jimpleIDGenerator is the id generator to be used during xmlization.
 	 * @param processingFilter to be used to control the parts of the system that should be jimplified.
-	 *
 	 * @pre scene != null and jimpleIDGenerator != null
 	 */
 	public static void writeJimpleAsXML(final Scene scene, final String directory, final String suffix,
-		final IJimpleIDGenerator jimpleIDGenerator, final IProcessingFilter processingFilter) {
+			final IJimpleIDGenerator jimpleIDGenerator, final IProcessingFilter processingFilter) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
@@ -172,9 +161,8 @@ public final class JimpleXMLizerCLI {
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
-	 *
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {

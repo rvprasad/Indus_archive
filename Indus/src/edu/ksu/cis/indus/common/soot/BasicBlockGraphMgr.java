@@ -56,18 +56,17 @@ public final class BasicBlockGraphMgr {
 	/**
 	 * This maps methods to basic block graphs.
 	 */
-	private final Map<SootMethod, Reference<BasicBlockGraph>> method2graph = new HashMap<SootMethod, Reference<BasicBlockGraph>>(
-			Constants.getNumOfMethodsInApplication());
-
-	/**
-	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
-	 */
-	private IStmtGraphFactory stmtGraphProvider;
+	private final Map<SootMethod, Reference<BasicBlockGraph>> method2graph;
 
 	/**
 	 * This maps methods to their statement list.
 	 */
 	private final Map<SootMethod, List<Stmt>> method2stmtlist = new HashMap<SootMethod, List<Stmt>>();
+
+	/**
+	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
+	 */
+	private IStmtGraphFactory stmtGraphProvider;
 
 	/**
 	 * Creates a new BasicBlockGraphMgr object.
@@ -85,6 +84,7 @@ public final class BasicBlockGraphMgr {
 	public BasicBlockGraphMgr(final IExceptionRaisingInfo info) {
 		super();
 		eti = info;
+		method2graph = new HashMap<SootMethod, Reference<BasicBlockGraph>>(Constants.getNumOfMethodsInApplication());
 	}
 
 	/**
@@ -146,15 +146,6 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Sets the unit graph provider.
-	 * 
-	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
-	 */
-	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
-		stmtGraphProvider = cfgProvider;
-	}
-
-	/**
 	 * Returns an unmodifiable list of statements of the given method represented in this graph.
 	 * 
 	 * @param method of interest.
@@ -188,6 +179,15 @@ public final class BasicBlockGraphMgr {
 	public void reset() {
 		method2graph.clear();
 		method2stmtlist.clear();
+	}
+
+	/**
+	 * Sets the unit graph provider.
+	 * 
+	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
+	 */
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
+		stmtGraphProvider = cfgProvider;
 	}
 }
 

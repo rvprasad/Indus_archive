@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,35 +16,43 @@ package edu.ksu.cis.indus.common.scoping;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  * This class captures attributes common all specifications.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 abstract class AbstractSpecification {
-	/** 
+
+	/**
 	 * This is the access control specification.
 	 */
 	private AccessSpecification accessSpec = new AccessSpecification();
 
-	/** 
-	 * The name of this specification.
-	 */
-	private String name;
-
-	/** 
+	/**
 	 * This indicates if the specification should be interpreted as inclusive or exclusive.
 	 */
 	private boolean inclusion = true;
 
 	/**
-	 * Sets the access specification.  If not set, default access specification is attached to this specification.
-	 *
+	 * The name of this specification.
+	 */
+	private String name;
+
+	/**
+	 * Retrieves the value in <code>name</code>.
+	 * 
+	 * @return the value in <code>name</code>.
+	 */
+	public final String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets the access specification. If not set, default access specification is attached to this specification.
+	 * 
 	 * @param accessSpecification for this specification.
-	 *
 	 * @pre accessSpecification != null
 	 */
 	public final void setAccessSpec(final AccessSpecification accessSpecification) {
@@ -54,7 +61,7 @@ abstract class AbstractSpecification {
 
 	/**
 	 * Sets the value of <code>inclusion</code>.
-	 *
+	 * 
 	 * @param value the new value of <code>inclusion</code>.
 	 */
 	public final void setInclusion(final boolean value) {
@@ -63,9 +70,8 @@ abstract class AbstractSpecification {
 
 	/**
 	 * Sets the value of <code>name</code>.
-	 *
+	 * 
 	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 *
 	 * @pre nameOfTheSpec != null
 	 */
 	public final void setName(final String nameOfTheSpec) {
@@ -73,29 +79,18 @@ abstract class AbstractSpecification {
 	}
 
 	/**
-	 * Retrieves the value in <code>name</code>.
-	 *
-	 * @return the value in <code>name</code>.
-	 */
-	public final String getName() {
-		return name;
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		return new ToStringBuilder(this).append("inclusion", this.inclusion).append("accessSpec", this.accessSpec)
-										  .append("name", this.name).toString();
+	@Override public String toString() {
+		return new ToStringBuilder(this).append("inclusion", this.inclusion).append("accessSpec", this.accessSpec).append(
+				"name", this.name).toString();
 	}
 
 	/**
 	 * Checks if the given access specifier conformant.
-	 *
+	 * 
 	 * @param accessSpecifier to be tested.
-	 *
 	 * @return <code>true</code> if it is conformant; <code>false</code>, otherwise.
-	 *
 	 * @pre accessSpecifier != null
 	 */
 	protected final boolean accessConformant(final AccessSpecifierWrapper accessSpecifier) {
@@ -104,7 +99,7 @@ abstract class AbstractSpecification {
 
 	/**
 	 * Retrieves the value in <code>inclusion</code>.
-	 *
+	 * 
 	 * @return the value in <code>inclusion</code>.
 	 */
 	boolean isInclusion() {

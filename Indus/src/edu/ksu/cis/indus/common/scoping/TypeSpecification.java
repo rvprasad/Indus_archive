@@ -45,36 +45,6 @@ public final class TypeSpecification {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecification.class);
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object EXCLUSIVE_ANCESTORS = "EXCLUSIVE_ANCESTORS";
-
-	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object EXCLUSIVE_DESCENDANTS = "EXCLUSIVE_DESCENDANTS";
-
-	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object INCLUSIVE_ANCESTORS = "INCLUSIVE_ANCESTORS";
-
-	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object INCLUSIVE_DESCENDANTS = "INCLUSIVE_DESCENDANTS";
-
-	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object IDENTITY = "IDENTITY";
-
-	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
-	 */
-	private static final Object PRIMITIVE = "PRIMITIVE";
-
-	/** 
 	 * This contains the regex pattern in case of IDENTITY type specification.
 	 */
 	private Pattern nameRegex;
@@ -88,7 +58,7 @@ public final class TypeSpecification {
 	 * One of EXCLUSIVE_ANCESTORS, EXCLUSIVE_DESCENDANTS, INCLUSIVE_ANCESTORS, INCLUSIVE_DESCENDANTS, IDENTITY, and
 	 * PRIMITIVE.
 	 */
-	private String scopeExtension;
+	private ScopeExtensionEnum scopeExtension;
 
 	/**
 	 * Sets the value of <code>namePattern</code>.
@@ -100,7 +70,7 @@ public final class TypeSpecification {
 	public void setNamePattern(final String spec) {
 		this.namePattern = spec;
 
-		if (scopeExtension != null && scopeExtension.equals(IDENTITY)) {
+		if (scopeExtension != null && scopeExtension.equals(ScopeExtensionEnum.IDENTITY)) {
 			nameRegex = Pattern.compile(spec);
 		}
 	}
@@ -119,10 +89,10 @@ public final class TypeSpecification {
 	 *
 	 * @param theScopeExtension the new value of <code>scopeExtension</code>.
 	 */
-	public void setScopeExtension(final String theScopeExtension) {
+	public void setScopeExtension(final ScopeExtensionEnum theScopeExtension) {
 		this.scopeExtension = theScopeExtension;
 
-		if (scopeExtension.equals(IDENTITY) && namePattern != null) {
+		if (scopeExtension.equals(ScopeExtensionEnum.IDENTITY) && namePattern != null) {
 			nameRegex = Pattern.compile(namePattern);
 		}
 	}
@@ -132,7 +102,7 @@ public final class TypeSpecification {
 	 *
 	 * @return the value in <code>scopeExtension</code>.
 	 */
-	public String getScopeExtension() {
+	public ScopeExtensionEnum getScopeExtension() {
 		return scopeExtension;
 	}
 
@@ -152,21 +122,21 @@ public final class TypeSpecification {
 		final String _name = type.toString();
 		boolean _result;
 
-		if (scopeExtension.equals(IDENTITY)) {
+		if (scopeExtension.equals(ScopeExtensionEnum.IDENTITY)) {
 			_result = nameRegex.matcher(_name).matches();
-		} else if (scopeExtension.equals(PRIMITIVE)) {
+		} else if (scopeExtension.equals(ScopeExtensionEnum.PRIMITIVE)) {
 			_result = namePattern.equals(_name);
 		} else {
 			final SootClass _sc = ((RefType) type).getSootClass();
 			final SootClass _basisClass = system.getClass(namePattern);
 
-			if (scopeExtension.equals(EXCLUSIVE_ANCESTORS)) {
+			if (scopeExtension.equals(ScopeExtensionEnum.EXCLUSIVE_ANCESTORS)) {
 				_result = Util.isDescendentOf(_basisClass, _sc) && !_sc.equals(_basisClass);
-			} else if (scopeExtension.equals(EXCLUSIVE_DESCENDANTS)) {
+			} else if (scopeExtension.equals(ScopeExtensionEnum.EXCLUSIVE_DESCENDANTS)) {
 				_result = Util.isDescendentOf(_sc, _basisClass) && !_sc.equals(_basisClass);
-			} else if (scopeExtension.equals(INCLUSIVE_ANCESTORS)) {
+			} else if (scopeExtension.equals(ScopeExtensionEnum.INCLUSIVE_ANCESTORS)) {
 				_result = Util.isDescendentOf(_basisClass, _sc);
-			} else if (scopeExtension.equals(INCLUSIVE_DESCENDANTS)) {
+			} else if (scopeExtension.equals(ScopeExtensionEnum.INCLUSIVE_DESCENDANTS)) {
 				_result = Util.isDescendentOf(_sc, _basisClass);
 			} else {
 				final String _msg = "Invalid scope extension [" + scopeExtension + "] for reference type " + _name;

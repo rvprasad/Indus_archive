@@ -125,7 +125,7 @@ public abstract class AbstractMethodVariant
 		method = sm;
 		astvm = astVariantManager;
 		fa = theFA;
-		context = (Context) fa.getAnalyzer().getContext().clone();
+		context = fa.getAnalyzer().getContext().clone();
 		context.callNewMethod(sm);
 
 		fa.processClass(sm.getDeclaringClass());

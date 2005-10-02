@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -24,6 +23,7 @@ import edu.ksu.cis.bandera.util.BaseObservable;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor.MetricKeys;
 
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
@@ -39,82 +39,56 @@ import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 
-
 /**
  * This tool calculates metrics of the given system.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class MetricsTool
-  extends BaseObservable
-  implements Tool {
-    /** 
-     * This identifies the scene in the input arguments.
-     */
-    public static final Object SCENE = "scene";
+		extends BaseObservable
+		implements Tool {
 
-	/** 
+	/**
+	 * This identifies the scene in the input arguments.
+	 */
+	public static final String SCENE = "scene";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTool.class);
 
-	/** 
+	/**
 	 * The map containing the statistics that is provided as the output.
 	 */
 	private Map outputMap;
 
-	/** 
+	/**
 	 * The scene being processed.
 	 */
 	private Scene scene;
 
 	/**
 	 * <i>Does not do anything.</i>
-	 *
-	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
-	 */
-	public void setConfiguration(final String arg)
-	  throws Exception {
-	}
-
-	/**
-	 * <i>Does not do anything.</i>
-	 *
+	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
-	public String getConfiguration()
-	  throws Exception {
+	public String getConfiguration() throws Exception {
 		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param inputArgs maps the input argument identifiers to the arguments.
-	 *
-	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
-	 */
-	public void setInputMap(final Map inputArgs) {
-		scene = (Scene) inputArgs.get(SCENE);
-
-		if (scene == null) {
-			LOGGER.error("A scene must be provided for slicing.");
-			throw new IllegalArgumentException("A scene must be provided for slicing.");
-		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getInputParameterList()
 	 */
-	public List getInputParameterList() {
+	public List<String> getInputParameterList() {
 		return Collections.singletonList(SCENE);
 	}
 
 	/**
-	 * {@inheritDoc}  The map will contain statistics for classes belonging to various categories. Currently, application and
-	 * library classes are supported.  The statistics for each category is itself provided as a map. Please refer to {@link
+	 * {@inheritDoc} The map will contain statistics for classes belonging to various categories. Currently, application and
+	 * library classes are supported. The statistics for each category is itself provided as a map. Please refer to {@link
 	 * edu.ksu.cis.indus.common.soot.MetricsProcessor#getStatistics() MetricsProcessor.getStatistics()} for details of the
 	 * category statistics.
 	 */
@@ -125,16 +99,16 @@ public class MetricsTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputParameterList()
 	 */
-	public List getOutputParameterList() {
-		final List _result = new ArrayList();
-		_result.add(MetricsProcessor.APPLICATION_STATISTICS);
-		_result.add(MetricsProcessor.LIBRARY_STATISTICS);
+	public List<String> getOutputParameterList() {
+		final List<String> _result = new ArrayList<String>();
+		_result.add(MetricKeys.APPLICATION_STATISTICS.toString());
+		_result.add(MetricKeys.LIBRARY_STATISTICS.toString());
 		return _result;
 	}
 
 	/**
 	 * <i>Does not do anything.</i>
-	 *
+	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolConfigurationView()
 	 */
 	public ToolConfigurationView getToolConfigurationView() {
@@ -143,7 +117,7 @@ public class MetricsTool
 
 	/**
 	 * <i>Does not do anything.</i>
-	 *
+	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolIconView()
 	 */
 	public ToolIconView getToolIconView() {
@@ -152,29 +126,52 @@ public class MetricsTool
 
 	/**
 	 * <i>Does not do anything.</i>
-	 *
+	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#quit()
 	 */
-	public void quit()
-	  throws Exception {
+	public void quit() throws Exception {
+		// does nothing
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#run()
 	 */
-	public void run()
-	  throws Exception {
+	public void run() throws Exception {
 		final ProcessingController _pc = new ProcessingController();
 		final MetricsProcessor _mp = new MetricsProcessor();
-        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
-        final IStmtGraphFactory _sgf = new CompleteStmtGraphFactory();
-        _ssr.setStmtGraphFactory(_sgf);
-        _pc.setStmtSequencesRetriever(_ssr);
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		final IStmtGraphFactory _sgf = new CompleteStmtGraphFactory();
+		_ssr.setStmtGraphFactory(_sgf);
+		_pc.setStmtSequencesRetriever(_ssr);
 		_mp.hookup(_pc);
 		_pc.setEnvironment(new Environment(scene));
 		_pc.process();
 		_mp.unhook(_pc);
 		outputMap = _mp.getStatistics();
+	}
+
+	/**
+	 * <i>Does not do anything.</i>
+	 * 
+	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
+	 */
+	public void setConfiguration(@SuppressWarnings("unused") final String arg) throws Exception {
+		// does nothing
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param inputArgs maps the input argument identifiers to the arguments.
+	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
+	 */
+	public void setInputMap(final Map inputArgs) {
+		scene = (Scene) inputArgs.get(SCENE);
+
+		if (scene == null) {
+			LOGGER.error("A scene must be provided for slicing.");
+			throw new IllegalArgumentException("A scene must be provided for slicing.");
+		}
 	}
 }
 

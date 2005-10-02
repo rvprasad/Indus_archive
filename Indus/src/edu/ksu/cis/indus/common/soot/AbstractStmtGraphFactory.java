@@ -42,9 +42,10 @@ import soot.toolkits.graph.UnitGraph;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <T> the type of the manufactored graph.
  */
-public abstract class AbstractStmtGraphFactory
-		implements IStmtGraphFactory {
+public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
+		implements IStmtGraphFactory<T> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -56,7 +57,7 @@ public abstract class AbstractStmtGraphFactory
 	 * 
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
 	 */
-	private final Map<SootMethod, Reference<UnitGraph>> method2UnitGraph = new HashMap<SootMethod, Reference<UnitGraph>>(
+	private final Map<SootMethod, Reference<T>> method2UnitGraph = new HashMap<SootMethod, Reference<T>>(
 			Constants.getNumOfMethodsInApplication());
 
 	/**
@@ -68,19 +69,19 @@ public abstract class AbstractStmtGraphFactory
 	 * @post method.isConcrete() implies result.getBody() = method.getBody()
 	 * @post 1method.isConcrete() implies result.getBody() != method.getBody()
 	 */
-	public final UnitGraph getStmtGraph(final SootMethod method) {
+	public final T getStmtGraph(final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getStmtGraph(method = " + method + ")");
 		}
 
-		final Reference _ref = method2UnitGraph.get(method);
-		UnitGraph _result = null;
+		final Reference<T> _ref = method2UnitGraph.get(method);
+		T _result = null;
 		boolean _flag = false;
 
 		if (_ref == null) {
 			_flag = true;
 		} else {
-			_result = (UnitGraph) _ref.get();
+			_result =  _ref.get();
 
 			if (_result == null) {
 				_flag = true;
@@ -110,7 +111,7 @@ public abstract class AbstractStmtGraphFactory
 				}
 				_result = getStmtGraphForBody(_body);
 			}
-			method2UnitGraph.put(method, new WeakReference<UnitGraph>(_result));
+			method2UnitGraph.put(method, new WeakReference<T>(_result));
 		}
 		return _result;
 	}
@@ -130,7 +131,7 @@ public abstract class AbstractStmtGraphFactory
 	 * @pre body != null
 	 * @post result != null
 	 */
-	protected abstract UnitGraph getStmtGraphForBody(final JimpleBody body);
+	protected abstract T getStmtGraphForBody(final JimpleBody body);
 
 	/**
 	 * Retrieves the body for the given method.  This method split traps based on overlap and subtyping relation

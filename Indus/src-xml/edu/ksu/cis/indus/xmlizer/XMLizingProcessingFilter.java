@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -27,127 +26,149 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
-
 /**
- * This is a xmlizing controller.  Two different instances of this object will process a set of classes and their methods in
+ * This is a xmlizing controller. Two different instances of this object will process a set of classes and their methods in
  * the same order.
- * 
  * <p>
  * In this implementation, the ordering in the returned collection may not respect the ordering of the given collection.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class XMLizingProcessingFilter
-  extends AbstractProcessingFilter {
-	/** 
-	 * Singleton instance of class comparator.
-	 */
-	private static final Comparator CLASS_COMPARATOR = new LexographicalClassComparator();
-
-	/** 
-	 * Singleton instance of field comparator.
-	 */
-	private static final Comparator FIELD_COMPARATOR = new LexographicalFieldComparator();
-
-	/** 
-	 * Singleton instance of method comparator.
-	 */
-	private static final Comparator METHOD_COMPARATOR = new LexographicalMethodComparator();
+		extends AbstractProcessingFilter {
 
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private static final class LexographicalClassComparator
-	  implements Comparator {
+			implements Comparator<SootClass> {
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		public LexographicalClassComparator() {
+			super();
+		}
+
 		/**
 		 * Compares the given classes based on their name.
-		 *
+		 * 
 		 * @param o1 is one of the class to be compared.
 		 * @param o2 is the other class to be compared.
-		 *
 		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
-		 * 		   <code>o2</code>.
-		 *
+		 *         <code>o2</code>.
 		 * @pre o1.oclIsKindOf(SootClass) and o2.oclIsKindOf(SootClass)
 		 */
-		public int compare(final Object o1, final Object o2) {
-			final SootClass _sc1 = (SootClass) o1;
-			final SootClass _sc2 = (SootClass) o2;
+		public int compare(final SootClass o1, final SootClass o2) {
+			final SootClass _sc1 = o1;
+			final SootClass _sc2 = o2;
 			return _sc1.getName().compareTo(_sc2.getName());
 		}
 	}
 
-
 	/**
 	 * This compares <code>SootField</code> objects lexographically based on their java signature.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private static final class LexographicalFieldComparator
-	  implements Comparator {
+			implements Comparator<SootField> {
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		public LexographicalFieldComparator() {
+			super();
+		}
+
 		/**
 		 * Compares the given fields based on their name.
-		 *
+		 * 
 		 * @param o1 is one of the method to be compared.
 		 * @param o2 is the other method to be compared.
-		 *
 		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
-		 * 		   <code>o2</code>.
-		 *
+		 *         <code>o2</code>.
 		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
 		 */
-		public int compare(final Object o1, final Object o2) {
-			final String _sig1 = ((SootField) o1).getSignature();
-			final String _sig2 = ((SootField) o2).getSignature();
+		public int compare(final SootField o1, final SootField o2) {
+			final String _sig1 = o1.getSignature();
+			final String _sig2 = o2.getSignature();
 			return _sig1.compareTo(_sig2);
 		}
 	}
 
-
 	/**
 	 * This compares <code>SootMethod</code> objects lexographically based on their java signature.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private static final class LexographicalMethodComparator
-	  implements Comparator {
+			implements Comparator<SootMethod> {
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		public LexographicalMethodComparator() {
+			super();
+		}
+
 		/**
 		 * Compares the given methods based on their name.
-		 *
+		 * 
 		 * @param o1 is one of the method to be compared.
 		 * @param o2 is the other method to be compared.
-		 *
 		 * @return -1,0,1 if the name of <code>o1</code> lexically precedes, is the same, or lexically succeeds the name of
-		 * 		   <code>o2</code>.
-		 *
+		 *         <code>o2</code>.
 		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
 		 */
-		public int compare(final Object o1, final Object o2) {
-			final String _sig1 = ((SootMethod) o1).getSignature();
-			final String _sig2 = ((SootMethod) o2).getSignature();
+		public int compare(final SootMethod o1, final SootMethod o2) {
+			final String _sig1 = o1.getSignature();
+			final String _sig2 = o2.getSignature();
 			return _sig1.compareTo(_sig2);
 		}
 	}
 
 	/**
+	 * Singleton instance of class comparator.
+	 */
+	private static final Comparator<SootClass> CLASS_COMPARATOR = new LexographicalClassComparator();
+
+	/**
+	 * Singleton instance of field comparator.
+	 */
+	private static final Comparator<SootField> FIELD_COMPARATOR = new LexographicalFieldComparator();
+
+	/**
+	 * Singleton instance of method comparator.
+	 */
+	private static final Comparator<SootMethod> METHOD_COMPARATOR = new LexographicalMethodComparator();
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	public XMLizingProcessingFilter() {
+		super();
+	}
+
+	/**
 	 * This implementation returns the classes in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterClasses(java.util.Collection)
 	 */
-	protected Collection localFilterClasses(final Collection classes) {
-		final List _result = new ArrayList(classes);
+	@Override protected Collection<SootClass> localFilterClasses(final Collection<SootClass> classes) {
+		final List<SootClass> _result = new ArrayList<SootClass>(classes);
 		Collections.sort(_result, CLASS_COMPARATOR);
 		return _result;
 	}
@@ -155,11 +176,11 @@ public final class XMLizingProcessingFilter
 	/**
 	 * This implementation returns the fields in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterFields(java.util.Collection)
 	 */
-	protected Collection localFilterFields(final Collection fields) {
-		final List _result = new ArrayList(fields);
+	@Override protected Collection<SootField> localFilterFields(final Collection<SootField> fields) {
+		final List<SootField> _result = new ArrayList<SootField>(fields);
 		Collections.sort(_result, FIELD_COMPARATOR);
 		return _result;
 	}
@@ -167,11 +188,11 @@ public final class XMLizingProcessingFilter
 	/**
 	 * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterMethods(java.util.Collection)
 	 */
-	protected Collection localFilterMethods(final Collection methods) {
-		final List _result = new ArrayList(methods);
+	@Override protected Collection<SootMethod> localFilterMethods(final Collection<SootMethod> methods) {
+		final List<SootMethod> _result = new ArrayList<SootMethod>(methods);
 		Collections.sort(_result, METHOD_COMPARATOR);
 		return _result;
 	}

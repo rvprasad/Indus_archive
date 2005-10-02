@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -26,50 +25,39 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootField;
 
-
 /**
  * This class represents field-level scope specification.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class FieldSpecification
-  extends AbstractSpecification {
-	/** 
+		extends AbstractSpecification {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FieldSpecification.class);
 
-	/** 
-	 * The pattern of the field's name.
-	 */
-	private Pattern namePattern;
-
-	/** 
+	/**
 	 * This is the specification of the type of the class that declares the field.
 	 */
 	private TypeSpecification declaringClassSpec;
 
-	/** 
+	/**
 	 * This is the specification of the type of the field.
 	 */
 	private TypeSpecification fieldTypeSpec;
 
 	/**
-	 * Sets the specification of the class that declares the field.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
+	 * The pattern of the field's name.
 	 */
-	public void setDeclaringClassSpec(final TypeSpecification spec) {
-		declaringClassSpec = spec;
-	}
+	private Pattern namePattern;
 
 	/**
 	 * Retrieves the specification of the class that declares the field.
-	 *
+	 * 
 	 * @return the specification.
 	 */
 	public TypeSpecification getDeclaringClassSpec() {
@@ -77,19 +65,8 @@ public final class FieldSpecification
 	}
 
 	/**
-	 * Sets the specification of the field's name.
-	 *
-	 * @param spec is a regular expression.
-	 *
-	 * @pre spec != null
-	 */
-	public void setFieldNameSpec(final String spec) {
-		namePattern = Pattern.compile(spec);
-	}
-
-	/**
 	 * Retrieves the specification of the field's name.
-	 *
+	 * 
 	 * @return the specification.
 	 */
 	public String getFieldNameSpec() {
@@ -97,19 +74,8 @@ public final class FieldSpecification
 	}
 
 	/**
-	 * Sets the specification of the type of the field.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
-	 */
-	public void setFieldTypeSpec(final TypeSpecification spec) {
-		fieldTypeSpec = spec;
-	}
-
-	/**
 	 * Retrieves the specification of the type of the field.
-	 *
+	 * 
 	 * @return the specification.
 	 */
 	public TypeSpecification getFieldTypeSpec() {
@@ -118,13 +84,11 @@ public final class FieldSpecification
 
 	/**
 	 * Checks if the given field is in the scope of this specification in the given environment.
-	 *
+	 * 
 	 * @param field to be checked for scope constraints.
 	 * @param system in which the check the constraints.
-	 *
 	 * @return <code>true</code> if the given field lies within the scope defined by this specification; <code>false</code>,
-	 * 		   otherwise.
-	 *
+	 *         otherwise.
 	 * @pre field != null and system != null
 	 */
 	public boolean isInScope(final SootField field, final IEnvironment system) {
@@ -145,12 +109,41 @@ public final class FieldSpecification
 	}
 
 	/**
+	 * Sets the specification of the class that declares the field.
+	 * 
+	 * @param spec the specification.
+	 * @pre spec != null
+	 */
+	public void setDeclaringClassSpec(final TypeSpecification spec) {
+		declaringClassSpec = spec;
+	}
+
+	/**
+	 * Sets the specification of the field's name.
+	 * 
+	 * @param spec is a regular expression.
+	 * @pre spec != null
+	 */
+	public void setFieldNameSpec(final String spec) {
+		namePattern = Pattern.compile(spec);
+	}
+
+	/**
+	 * Sets the specification of the type of the field.
+	 * 
+	 * @param spec the specification.
+	 * @pre spec != null
+	 */
+	public void setFieldTypeSpec(final TypeSpecification spec) {
+		fieldTypeSpec = spec;
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
-										  .append("fieldTypeSpec", this.fieldTypeSpec)
-										  .append("declaringClassSpec", this.declaringClassSpec).toString();
+				.append("fieldTypeSpec", this.fieldTypeSpec).append("declaringClassSpec", this.declaringClassSpec).toString();
 	}
 }
 

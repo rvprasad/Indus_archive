@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -32,58 +31,65 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
 
-
 /**
- * This class contains <i>jakarta commons collections</i> related predicates and transformers that are specific to Soot  AST
+ * This class contains <i>jakarta commons collections</i> related predicates and transformers that are specific to Soot AST
  * types.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SootPredicatesAndTransformers {
-	/** 
+
+	/**
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
 	public static final Predicate ENTER_MONITOR_STMT_PREDICATE = PredicateUtils.instanceofPredicate(EnterMonitorStmt.class);
 
-	/** 
+	/**
+	 * This filter is used to identify AST chunks that may represent references that can escape.
+	 */
+	public static final Predicate ESCAPABLE_EXPR_FILTER = new Predicate() {
+
+		public boolean evaluate(final Object object) {
+			final Value _v = ((ValueBox) object).getValue();
+			return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
+					|| _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
+		}
+	};
+
+	/**
+	 * A predicate used to filter statements with invoke expressions. Filter expression is
+	 * <code>((Stmt)o).containsInvokeExpr()</code>.
+	 */
+	public static final Predicate INVOKING_STMT_PREDICATE = new Predicate() {
+
+		public boolean evaluate(final Object object) {
+			return ((Stmt) object).containsInvokeExpr();
+		}
+	};
+
+	/**
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
 	public static final Predicate NEW_EXPR_PREDICATE = PredicateUtils.instanceofPredicate(NewExpr.class);
 
-	/** 
-	 * A predicate used to filter statements with invoke expressions. Filter expression is
-	 * <code>((Stmt)o).containsInvokeExpr()</code>.
-	 */
-	public static final Predicate INVOKING_STMT_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return ((Stmt) object).containsInvokeExpr();
-			}
-		};
-
-	/** 
+	/**
 	 * This predicate filters out <code>NullConstant</code> values.
 	 */
-	public static final Predicate NULL_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return object instanceof NullConstant;
-			}
-		};
+	public static final Predicate NULL_PREDICATE = new Predicate() {
 
-	/** 
-	 * This filter is used to identify AST chunks that may represent references that can escape.
+		public boolean evaluate(final Object object) {
+			return object instanceof NullConstant;
+		}
+	};
+
+	/**
+	 * Creates an instance of this class.
 	 */
-	public static final Predicate ESCAPABLE_EXPR_FILTER =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				final Value _v = ((ValueBox) object).getValue();
-				return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
-				  || _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
-			}
-		};
+	public SootPredicatesAndTransformers() {
+		super();
+	}
 }
 
 // End of File

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -47,141 +46,149 @@ import soot.jimple.internal.InvokeExprBox;
 import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
-
 /**
  * This class counts the instances of various types of AST chunks that occur in a system.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class MetricsProcessor
-  extends AbstractProcessor {
-	/** 
-	 * This constant identifies the number of classes of a sort in the system.
-	 */
-	public static final Object NUM_OF_CLASSES = "The number of classes";
+		extends AbstractProcessor {
 
-	/** 
-	 * This constant identifies the number of fields that belong to application/library classes of the system.
+	/**
+	 * This enumeration provides the keys to the metrics calculated by the enclosing processor.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
 	 */
-	public static final Object NUM_OF_FIELDS = "The number of fields";
+	public enum MetricKeys {
+		/**
+		 * The key to identify the stats for application classes.
+		 */
+		APPLICATION_STATISTICS,
 
-	/** 
-	 * This constant identifies the number of methods that belong to application/library classes of the system.
-	 */
-	public static final Object NUM_OF_METHODS = "The number of methods";
+		/**
+		 * The key to identify the stats for library classes.
+		 */
+		LIBRARY_STATISTICS,
 
-	/** 
-	 * This constant identifies the number of methods of a sortin the system with multiple exit points.
-	 */
-	public static final Object NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS = "The number of methods with multiple exit points";
+		/**
+		 * The key to identify number of catch blocks.
+		 */
+		NUM_OF_CATCH_BLOCKS,
 
-	/** 
-	 * This constant identifies the number of methods of a sortin the system with zero exit points.
-	 */
-	public static final Object NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS = "The number of methods with zero points";
+		/**
+		 * The key to identify the number of classes metrics.
+		 */
+		NUM_OF_CLASSES,
 
-	/** 
-	 * This constant identifies the statistics pertaining to the application classes of the system.
-	 */
-	public static final Object APPLICATION_STATISTICS = "The statistics of application classes";
+		/**
+		 * The key to identify the number of constant method arguments.
+		 */
+		NUM_OF_CONSTANT_METHOD_ARGUMENTS,
 
-	/** 
-	 * This constant identifies the statistics pertaining to the library classes of the system.
-	 */
-	public static final Object LIBRARY_STATISTICS = "The statistics of library classes";
+		/**
+		 * The key to identify the number of exceptional exit points in methods.
+		 */
+		NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS,
 
-	/** 
-	 * This constant identifies the number of catch blocks that belong to application/library classes of the system.
-	 */
-	public static final Object NUM_OF_CATCH_BLOCKS = "The number of catch blocks";
+		/**
+		 * The key to identify the number of fields metrics.
+		 */
+		NUM_OF_FIELDS,
 
-	/** 
-	 * This constant identifies the number of local variables in methods application/library classes of the system.
-	 */
-	public static final Object NUM_OF_LOCALS = "The number of local variables";
+		/**
+		 * The key to identify final fields.
+		 */
+		NUM_OF_FINAL_FIELDS,
 
-	/** 
-	 * This constant identifies the number of exceptional exit points in methods application/library classes of the system.
-	 */
-	public static final Object NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS = "The number of exceptional exit points in methods";
+		/**
+		 * The key to identify number of local variables.
+		 */
+		NUM_OF_LOCALS,
 
-	/** 
-	 * This constant identifies the number of normal exit points in methods application/library classes of the system.
-	 */
-	public static final Object NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS = "The number of normal exit points in methods";
+		/**
+		 * The key to identify the number of methods metrics.
+		 */
+		NUM_OF_METHODS,
 
-	/** 
-	 * This constant identifies the number of constant arguments in methods invocations in the methods application/library
-	 * classes of the system.
-	 */
-	public static final Object NUM_OF_CONSTANT_METHOD_ARGUMENTS = "The number of constant method arguments";
+		/**
+		 * The key to identify the number of methods with multiple exit points metrics.
+		 */
+		NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS,
 
-	/** 
+		/**
+		 * The key to identify the number of methods with zero points metrics.
+		 */
+		NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS,
+		/**
+		 * The key to identify the number of normal exit points in methods.
+		 */
+		NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS;
+	}
+
+	/**
 	 * This records the statistics for application classes. It maps the above constants or the name of the class of the AST
 	 * objects to the number of occurrences of the corresponding entities.
 	 */
 	private final TObjectIntHashMap applicationStatistics = new TObjectIntHashMap();
 
-	/** 
+	/**
 	 * This records the statistics for library classes. It maps the above constants or the name of the class of the AST
 	 * objects to the number of occurrences of the corresponding entities.
 	 */
 	private final TObjectIntHashMap libraryStatistics = new TObjectIntHashMap();
 
-	/** 
-	 * This serves as a reference to statistics collection.  This will be varied depending on the class that is being
+	/**
+	 * This serves as a reference to statistics collection. This will be varied depending on the class that is being
 	 * processed.
 	 */
 	private TObjectIntHashMap statistics;
 
 	/**
-	 * Returns a map from constants (defined in this class or the names of the class of the AST objects) to the
-	 * <code>Integer</code> representing the number of occurrences of entities of the corresponding kind.
-	 *
-	 * @return a map.
-	 *
-	 * @post result != null and result.oclIsKindOf(Map(Object, Map(Object, Integer)))
-	 * @post result.keySet()->foreach(o | o = APPLICATION_STATISTICS or o = LIBRARY_STATISTICS)
+	 * Creates an instance of this class.
 	 */
-	public Map getStatistics() {
-		final Map _result = new HashMap();
-        _result.put(APPLICATION_STATISTICS, new TreeMap(new TObjectIntHashMapDecorator(applicationStatistics)));
-		_result.put(LIBRARY_STATISTICS, new TreeMap(new TObjectIntHashMapDecorator(libraryStatistics)));
-		return _result;
+	public MetricsProcessor() {
+		super();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	@Override public void callback(final SootClass clazz) {
 		if (clazz.isApplicationClass()) {
 			statistics = applicationStatistics;
 		} else {
 			statistics = libraryStatistics;
 		}
 
-		if (!statistics.increment(NUM_OF_CLASSES)) {
-			statistics.put(NUM_OF_CLASSES, 1);
+		if (!statistics.increment(MetricKeys.NUM_OF_CLASSES)) {
+			statistics.put(MetricKeys.NUM_OF_CLASSES, 1);
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
-	public void callback(final SootField field) {
-		if (!statistics.increment(NUM_OF_FIELDS)) {
-			statistics.put(NUM_OF_FIELDS, 1);
+	@Override public void callback(final SootField field) {
+		if (!statistics.increment(MetricKeys.NUM_OF_FIELDS)) {
+			statistics.put(MetricKeys.NUM_OF_FIELDS, 1);
+		}
+		if (field.isFinal()) {
+			if (!statistics.increment(MetricKeys.NUM_OF_FINAL_FIELDS)) {
+				statistics.put(MetricKeys.NUM_OF_FINAL_FIELDS, 1);
+			}
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(final SootMethod method) {
-		if (!statistics.increment(NUM_OF_METHODS)) {
-			statistics.put(NUM_OF_METHODS, 1);
+	@Override public void callback(final SootMethod method) {
+		if (!statistics.increment(MetricKeys.NUM_OF_METHODS)) {
+			statistics.put(MetricKeys.NUM_OF_METHODS, 1);
 		}
 
 		if (method.hasActiveBody()) {
@@ -190,15 +197,15 @@ public final class MetricsProcessor
 			// gather data about catch blocks in the current method.
 			final int _trapCount = _body.getTraps().size();
 
-			if (!statistics.adjustValue(NUM_OF_CATCH_BLOCKS, _trapCount)) {
-				statistics.put(NUM_OF_CATCH_BLOCKS, _trapCount);
+			if (!statistics.adjustValue(MetricKeys.NUM_OF_CATCH_BLOCKS, _trapCount)) {
+				statistics.put(MetricKeys.NUM_OF_CATCH_BLOCKS, _trapCount);
 			}
 
 			// gather data about locals in the current method.
 			final int _localCount = _body.getLocalCount();
 
-			if (!statistics.adjustValue(NUM_OF_LOCALS, _localCount)) {
-				statistics.put(NUM_OF_LOCALS, _localCount);
+			if (!statistics.adjustValue(MetricKeys.NUM_OF_LOCALS, _localCount)) {
+				statistics.put(MetricKeys.NUM_OF_LOCALS, _localCount);
 			}
 
 			calculateReturnPointStats(_body);
@@ -208,7 +215,7 @@ public final class MetricsProcessor
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
+	@Override public void callback(final Stmt stmt, @SuppressWarnings("unused") final Context context) {
 		if (!statistics.increment(stmt.getClass().getName())) {
 			statistics.put(stmt.getClass().getName(), 1);
 		}
@@ -217,7 +224,7 @@ public final class MetricsProcessor
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, @SuppressWarnings("unused") final Context context) {
 		if (!statistics.increment(vBox.getValue().getClass().getName())) {
 			statistics.put(vBox.getValue().getClass().getName(), 1);
 		}
@@ -236,10 +243,27 @@ public final class MetricsProcessor
 				}
 			}
 
-			if (!statistics.adjustValue(NUM_OF_CONSTANT_METHOD_ARGUMENTS, _constArgs)) {
-				statistics.put(NUM_OF_CONSTANT_METHOD_ARGUMENTS, _constArgs);
+			if (!statistics.adjustValue(MetricKeys.NUM_OF_CONSTANT_METHOD_ARGUMENTS, _constArgs)) {
+				statistics.put(MetricKeys.NUM_OF_CONSTANT_METHOD_ARGUMENTS, _constArgs);
 			}
 		}
+	}
+
+	/**
+	 * Returns a map from constants (defined in this class or the names of the class of the AST objects) to the
+	 * <code>Integer</code> representing the number of occurrences of entities of the corresponding kind.
+	 * 
+	 * @return a map.
+	 * @post result != null and result.oclIsKindOf(Map(Object, Map(Object, Integer)))
+	 * @post result.keySet()->foreach(o | o = APPLICATION_STATISTICS or o = LIBRARY_STATISTICS)
+	 */
+	@SuppressWarnings("unchecked") public Map<MetricKeys, Map<MetricKeys, Integer>> getStatistics() {
+		final Map<MetricKeys, Map<MetricKeys, Integer>> _result = new HashMap<MetricKeys, Map<MetricKeys, Integer>>();
+		final Map<MetricKeys, Integer> _map1 = new TObjectIntHashMapDecorator(applicationStatistics);
+		_result.put(MetricKeys.APPLICATION_STATISTICS, new TreeMap<MetricKeys, Integer>(_map1));
+		final Map<MetricKeys, Integer> _map2 = new TObjectIntHashMapDecorator(libraryStatistics);
+		_result.put(MetricKeys.LIBRARY_STATISTICS, new TreeMap<MetricKeys, Integer>(_map2));
+		return _result;
 	}
 
 	/**
@@ -254,7 +278,7 @@ public final class MetricsProcessor
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	@Override public void processingBegins() {
 		applicationStatistics.clear();
 		libraryStatistics.clear();
 	}
@@ -270,9 +294,8 @@ public final class MetricsProcessor
 
 	/**
 	 * Calculates the return point statistics for the given method body.
-	 *
+	 * 
 	 * @param body of the method to be processed.
-	 *
 	 * @pre body != null
 	 */
 	private void calculateReturnPointStats(final Body body) {
@@ -293,23 +316,23 @@ public final class MetricsProcessor
 			}
 		}
 
-		if (!statistics.adjustValue(NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS, _returnPoints)) {
-			statistics.put(NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS, _returnPoints);
+		if (!statistics.adjustValue(MetricKeys.NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS, _returnPoints)) {
+			statistics.put(MetricKeys.NUM_OF_NORMAL_EXIT_POINTS_IN_METHODS, _returnPoints);
 		}
 
-		if (!statistics.adjustValue(NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS, _throwPoints)) {
-			statistics.put(NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS, _throwPoints);
+		if (!statistics.adjustValue(MetricKeys.NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS, _throwPoints)) {
+			statistics.put(MetricKeys.NUM_OF_EXCEPTIONAL_EXIT_POINTS_IN_METHODS, _throwPoints);
 		}
 
 		final int _exitPoints = _returnPoints + _throwPoints;
 
 		if (_exitPoints > 1) {
-			if (!statistics.increment(NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS)) {
-				statistics.put(NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS, 1);
+			if (!statistics.increment(MetricKeys.NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS)) {
+				statistics.put(MetricKeys.NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS, 1);
 			}
 		} else if (_exitPoints == 0) {
-			if (!statistics.increment(NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS)) {
-				statistics.put(NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS, 1);
+			if (!statistics.increment(MetricKeys.NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS)) {
+				statistics.put(MetricKeys.NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS, 1);
 			}
 		}
 	}

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,18 +16,18 @@ package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
 
 import edu.ksu.cis.indus.processing.Context;
 
-
 /**
  * This class adds support allocation site sensitive information to be captured in a context.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class AllocationContext
-  extends Context {
-	/** 
-	 * The allocation-site component of the context.  This is relevant in the allocation-site sensitive mode of analysis.  In
+		extends Context {
+
+	/**
+	 * The allocation-site component of the context. This is relevant in the allocation-site sensitive mode of analysis. In
 	 * particular, when dealing with instance fields and arrays.
 	 */
 	protected Object allocationSite;
@@ -41,22 +40,32 @@ public class AllocationContext
 	}
 
 	/**
-	 * Sets the allocation site in this context.
-	 *
-	 * @param site the allocation site in this context.
-	 *
-	 * @return the allocation site previously represented by this context.
+	 * @see edu.ksu.cis.indus.processing.Context#clone()
 	 */
-	public Object setAllocationSite(final Object site) {
-		final Object _temp = allocationSite;
-		allocationSite = site;
+	@Override public AllocationContext clone() {
+		return (AllocationContext) super.clone();
+	}
 
-		return _temp;
+	/**
+	 * Checks if <code>o</code> is equal to this object.
+	 * 
+	 * @param o to be checked for equality.
+	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
+	 */
+	@Override public boolean equals(final Object o) {
+		boolean _result = false;
+
+		if (o != null && o instanceof AllocationContext) {
+			final AllocationContext _c = (AllocationContext) o;
+			_result = (this == o) || (allocationSite == _c.allocationSite)
+					|| ((allocationSite != null) && allocationSite.equals(_c.allocationSite));
+		}
+		return _result && super.equals(o);
 	}
 
 	/**
 	 * Returns the allocation site in this context.
-	 *
+	 * 
 	 * @return the allocation site in this context.
 	 */
 	public Object getAllocationSite() {
@@ -64,37 +73,11 @@ public class AllocationContext
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.Context#clone()
-	 */
-	public Object clone() {
-		return super.clone();
-	}
-
-	/**
-	 * Checks if <code>o</code> is equal to this object.
-	 *
-	 * @param o to be checked for equality.
-	 *
-	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
-	 */
-	public boolean equals(final Object o) {
-		boolean _result = false;
-
-		if (o != null && o instanceof AllocationContext) {
-			final AllocationContext _c = (AllocationContext) o;
-			_result =
-				(this == o) || (allocationSite == _c.allocationSite)
-				  || ((allocationSite != null) && allocationSite.equals(_c.allocationSite));
-		}
-		return _result && super.equals(o);
-	}
-
-	/**
 	 * Returns the hash code of this object based on the allocation site and other context constituents.
-	 *
+	 * 
 	 * @return the hash code.
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		int _result = 17;
 
 		if (allocationSite != null) {
@@ -105,9 +88,22 @@ public class AllocationContext
 	}
 
 	/**
+	 * Sets the allocation site in this context.
+	 * 
+	 * @param site the allocation site in this context.
+	 * @return the allocation site previously represented by this context.
+	 */
+	public Object setAllocationSite(final Object site) {
+		final Object _temp = allocationSite;
+		allocationSite = site;
+
+		return _temp;
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return super.toString() + "\tAllocation Site: " + allocationSite;
 	}
 }
