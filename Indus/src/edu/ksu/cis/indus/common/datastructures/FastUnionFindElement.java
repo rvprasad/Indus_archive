@@ -44,6 +44,13 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	protected Object type;
 
 	/**
+	 * Creates an instance of this class.
+	 */
+	public FastUnionFindElement() {
+		// does nothing
+	}
+
+	/**
 	 * Adds a new child to this element.
 	 * 
 	 * @param child to be added.
