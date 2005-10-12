@@ -24,10 +24,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 /**
  * This class extends the flow graph node by associating a work peice with it.
  * 
- * <p>
- * Created: Tue Jan 22 04:30:32 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
@@ -62,7 +58,7 @@ class FGAccessNode
 	 *
 	 * @pre newTokens != null
 	 */
-	protected void onNewTokens(final ITokens newTokens) {
+	@Override protected void onNewTokens(final ITokens newTokens) {
 		super.onNewTokens(newTokens);
 		work.addTokens(newTokens);
 		workbagProvider.getWorkBag().addWork(work);

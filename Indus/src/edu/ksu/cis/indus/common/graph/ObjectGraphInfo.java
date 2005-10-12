@@ -14,11 +14,11 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.collections.ITransformer;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.collections.Transformer;
 
 /**
  * This maintains information pertaining to an object graph.
@@ -35,7 +35,7 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 	/**
 	 * This transforms objects to nodes.
 	 */
-	private final Transformer obj2nodeTransformer;
+	private final ITransformer<O, N> obj2nodeTransformer;
 
 	/**
 	 * This maps objects to their representative nodes.
@@ -48,7 +48,7 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 	 * @param object2nodeTransformer to be used by this object.
 	 * @pre object2nodeTransformer != null
 	 */
-	public ObjectGraphInfo(final Transformer object2nodeTransformer) {
+	public ObjectGraphInfo(final ITransformer<O, N> object2nodeTransformer) {
 		obj2nodeTransformer = object2nodeTransformer;
 	}
 
@@ -63,7 +63,7 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 		N _result = queryNode(object);
 
 		if (_result == null) {
-			_result = (N) obj2nodeTransformer.transform(object);
+			_result = obj2nodeTransformer.transform(object);
 			object2nodes.put(object, _result);
 			addNode(_result);
 		}

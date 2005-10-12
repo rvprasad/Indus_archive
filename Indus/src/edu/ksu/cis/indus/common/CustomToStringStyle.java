@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
@@ -42,7 +44,7 @@ public final class CustomToStringStyle
 	/**
 	 * Creates an instance of this class.
 	 */
-	private CustomToStringStyle() {
+	@AEmpty private CustomToStringStyle() {
 		// does nothing
 	}
 

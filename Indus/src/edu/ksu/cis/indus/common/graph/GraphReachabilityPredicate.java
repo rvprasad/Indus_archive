@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import org.apache.commons.collections.Predicate;
+import edu.ksu.cis.indus.common.collections.IPredicate;
 
 /**
  * This implementation checks if there is a path from the node representing the given object to the node representing an
@@ -28,7 +28,7 @@ import org.apache.commons.collections.Predicate;
  * @param <O> the type of object being represented by the object graph.
  */
 public final class GraphReachabilityPredicate<N extends IObjectNode<N, O>, O>
-		implements Predicate {
+		implements IPredicate<O> {
 
 	/**
 	 * The node to which the path leads to.
@@ -61,11 +61,11 @@ public final class GraphReachabilityPredicate<N extends IObjectNode<N, O>, O>
 		graph = theGraph;
 	}
 
-	/**
-	 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
+	/** 
+	 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(Object)
 	 */
-	public boolean evaluate(final Object srcObject) {
-		final N _srcNode = graph.queryNode((O) srcObject);
+	public boolean evaluate(final O srcObject) {
+		final N _srcNode = graph.queryNode(srcObject);
 		return destNode != null && _srcNode != null && graph.isReachable(_srcNode, destNode, forward);
 	}
 }

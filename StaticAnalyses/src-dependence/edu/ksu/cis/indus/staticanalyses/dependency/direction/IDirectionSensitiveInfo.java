@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,26 +17,23 @@ package edu.ksu.cis.indus.staticanalyses.dependency.direction;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.Collection;
-import java.util.List;
 
 import soot.jimple.Stmt;
 
-
 /**
  * This is the interface that can be used to access direction-sensitive information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IDirectionSensitiveInfo {
+
 	/**
 	 * Retrieve the first statement in the given basic block depending on the direction of the analysis.
-	 *
+	 * 
 	 * @param bb is the basic block of interest.
-	 *
 	 * @return the first statement.
-	 *
 	 * @pre bb != null
 	 * @post result != null and bb.getStmtsOf().contains(result)
 	 */
@@ -45,28 +41,24 @@ public interface IDirectionSensitiveInfo {
 
 	/**
 	 * Retrieves the basic blocks that follow the given basic block in a direction.
-	 *
+	 * 
 	 * @param bb is the basic block of interest.
-	 *
 	 * @return a collection of basic blocks.
-	 *
 	 * @pre bb != null
-	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null
 	 */
-	Collection getFollowersOfBB(BasicBlock bb);
+	Collection<BasicBlock> getFollowersOfBB(BasicBlock bb);
 
 	/**
 	 * Retrieves the dependents of the given statement in the given basic block.
-	 *
+	 * 
 	 * @param bb is the basic block containing <code>stmt</code>.
 	 * @param stmt is the divergence point.
-	 *
 	 * @return the collection of statements.
-	 *
 	 * @pre bb != null and stmt != null
 	 * @pre bb.getStmtsOf().contains(stmt)
 	 */
-	List getIntraBBDependents(final BasicBlock bb, final Stmt stmt);
+	Collection<Stmt> getIntraBBDependents(final BasicBlock bb, final Stmt stmt);
 }
 
 // End of File

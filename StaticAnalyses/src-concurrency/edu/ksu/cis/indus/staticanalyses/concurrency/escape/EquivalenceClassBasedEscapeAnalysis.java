@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -41,8 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.collections.map.LRUMap;
 
@@ -95,7 +94,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @version $Revision$
 	 */
 	class ArgParamAliasSetRetriever
-			implements Transformer {
+			implements ITransformer<MethodContext, AliasSet> {
 
 		/**
 		 * This is the position of the param/arg.
@@ -111,11 +110,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			this.position = pos;
 		}
 
-		/**
-		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		/** 
+		 * @see edu.ksu.cis.indus.common.collections.ITransformer#transform(I)
 		 */
-		public Object transform(final Object input) {
-			return ((MethodContext) input).getParamAS(position);
+		public AliasSet transform(final MethodContext input) {
+			return input.getParamAS(position);
 		}
 	}
 
@@ -132,7 +131,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @version $Revision$
 	 */
 	class SiteContextRetriever
-			implements Transformer {
+			implements ITransformer<SootMethod, MethodContext> {
 
 		/**
 		 * This is the call-site.
@@ -149,10 +148,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			callerTriple = triple;
 		}
 
-		/**
-		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		/** 
+		 * @see edu.ksu.cis.indus.common.collections.ITransformer#transform(Object)
 		 */
-		public Object transform(final Object input) {
+		public MethodContext transform(final SootMethod input) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _t = method2Triple.get(input);
 			return _t != null ? _t.getThird().get(callerTriple) : null;
 		}
@@ -161,7 +160,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * The id of this analysis.
 	 */
-	public static final Object ID = "equivalence class based escape analysis";
+	public static final Comparable ID = "equivalence class based escape analysis";
 
 	/**
 	 * The logger used by instances of this class to log messages.

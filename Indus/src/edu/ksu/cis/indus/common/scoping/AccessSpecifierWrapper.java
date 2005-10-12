@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -139,38 +140,30 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 * 
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setDefaultAccess(boolean)
 	 */
-	public void setDefaultAccess(@SuppressWarnings("unused") final boolean value) {
+	@AEmpty public void setDefaultAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 * 
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPrivateAccess(boolean)
 	 */
-	public void setPrivateAccess(@SuppressWarnings("unused") final boolean value) {
+	@AEmpty public void setPrivateAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 * 
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setProtectedAccess(boolean)
 	 */
-	public void setProtectedAccess(@SuppressWarnings("unused") final boolean value) {
+	@AEmpty public void setProtectedAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * <i>Does nothing.</i>
-	 * 
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPublicAccess(boolean)
 	 */
-	public void setPublicAccess(@SuppressWarnings("unused") final boolean value) {
+	@AEmpty public void setPublicAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 }

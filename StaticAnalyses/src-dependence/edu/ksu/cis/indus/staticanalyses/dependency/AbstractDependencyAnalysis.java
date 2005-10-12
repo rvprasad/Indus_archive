@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -26,35 +25,43 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-
 /**
- * This class provides generic framework and support required by analyses (DA) to calculate dependence information.  It is
+ * This class provides generic framework and support required by analyses (DA) to calculate dependence information. It is
  * adviced that specific analyses extend this class.
- * 
  * <p>
  * It is an abstract class as it does not implement the method that actually does the analysis. Also, it contains member data
  * that are necessary to store any sort dependency information. However, it is the responsibility of the subclasses to store
- * the data and provide the same via concrete implementation of abstract methods.  It is required to call
+ * the data and provide the same via concrete implementation of abstract methods. It is required to call
  * <code>initialize()</code> before any processing is triggered on the analysis.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- *
+ * @param <E1> DOCUMENT ME!
+ * @param <C1> DOCUMENT ME!
+ * @param <T1> DOCUMENT ME!
+ * @param <KE> DOCUMENT ME!
+ * @param <VT> DOCUMENT ME!
+ * @param <T2> DOCUMENT ME!
+ * @param <C2> DOCUMENT ME!
+ * @param <E2> DOCUMENT ME!
+ * @param <KT> DOCUMENT ME!
+ * @param <VE> DOCUMENT ME!
  * @invariant doesPreProcessing() implies getPreProcessor() != null
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
-public abstract class AbstractDependencyAnalysis
-  extends AbstractAnalysis
-  implements IDependencyAnalysis {
-	/** 
+public abstract class AbstractDependencyAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
+		extends AbstractAnalysis
+		implements IDependencyAnalysis<T1, C1, E1, E2, C2, T2> {
+
+	/**
 	 * The collection of dependence analysis identifiers.
 	 */
-	public static final Collection IDENTIFIERS;
+	public static final Collection<Comparable> IDENTIFIERS;
 
 	static {
-		IDENTIFIERS = new HashSet();
+		IDENTIFIERS = new HashSet<Comparable>();
 		IDENTIFIERS.add(CONTROL_DA);
 		IDENTIFIERS.add(IDENTIFIER_BASED_DATA_DA);
 		IDENTIFIERS.add(REFERENCE_BASED_DATA_DA);
@@ -64,75 +71,82 @@ public abstract class AbstractDependencyAnalysis
 		IDENTIFIERS.add(READY_DA);
 	}
 
-	/** 
+	/**
 	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is
 	 * recommended that the subclass use this store dependence information.
-	 *
+	 * 
 	 * @invariant dependee2dependent != null
 	 */
-	protected final Map dependee2dependent = new HashMap(Constants.getNumOfMethodsInApplication());
+	protected final Map<KE, VT> dependee2dependent = new HashMap<KE, VT>(Constants.getNumOfMethodsInApplication());
 
-	/** 
-	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
+	/**
+	 * This can used to store dependent->dependee direction of dependence information. Hence, it is recommended that the
 	 * subclass use this store dependence information.
-	 *
+	 * 
 	 * @invariant dependent2dependee != null
 	 */
-	protected final Map dependent2dependee = new HashMap(Constants.getNumOfMethodsInApplication());
+	protected final Map<KT, VE> dependent2dependee = new HashMap<KT, VE>(Constants.getNumOfMethodsInApplication());
 
-	/** 
+	/**
 	 * This manages pair objects.
 	 */
 	private PairManager pairMgr;
 
 	/**
-	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
-	 *
-	 * @param dependent of interest.
-	 * @param context in which the dependency information is requested.
-	 *
-	 * @return a collection of objects.
-	 *
-	 * @pre dependent != null
-	 * @post result != null
+	 * The direction of the analysis.
 	 */
-	public abstract Collection getDependees(final Object dependent, final Object context);
+	private final Direction theDirection;
 
 	/**
-	 * Returns the entities which depend on the <code>dependee</code> in the given <code>context</code>.
-	 *
-	 * @param dependee of interest.
-	 * @param context in which the dependency information is requested.
-	 *
-	 * @return a collection of objects.  The subclasses will further specify the  types of these entities.
-	 *
-	 * @pre dependee != null
-	 * @post result != null
+	 * Creates an instance of this class.
+	 * 
+	 * @param direction of the analysis.
 	 */
-	public abstract Collection getDependents(final Object dependee, final Object context);
+	public AbstractDependencyAnalysis(final Direction direction) {
+		super();
+		theDirection = direction;
+	}
 
 	/**
-	 * Resets all internal data structures.  General protocol is that data acquired via setup is not reset or forgotten.
-	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 */
+	public final Direction getDirection() {
+		return theDirection;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis<T1, C1, E1, E2, C2, T2> getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>(this, getDependenceRetriever());
+	}
+
+	/**
+	 * Resets all internal data structures. General protocol is that data acquired via setup is not reset or forgotten.
+	 * 
 	 * @post dependent2dependee.size() == 0 and dependee2dependent.size() == 0
 	 */
-	public void reset() {
+	@Override public void reset() {
 		dependent2dependee.clear();
 		dependee2dependent.clear();
 		super.reset();
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
+	 */
+	protected abstract IDependenceRetriever<T1, C1, E1, E2, C2, T2> getDependenceRetriever();
+
+	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @throws InitializationException when pair manager is not provided.
-	 *
 	 * @pre info.get(PairManager.ID) != null and info.get(PairManager.ID).oclIsTypeOf(PairManager)
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
-	protected void setup()
-	  throws InitializationException {
+	@Override protected void setup() throws InitializationException {
 		super.setup();
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
@@ -144,12 +158,10 @@ public abstract class AbstractDependencyAnalysis
 	/**
 	 * Retrieves an object that can be used key that represents the combination of <code>entity</code> and
 	 * <code>method</code>.
-	 *
+	 * 
 	 * @param entity to be represented.
 	 * @param method to be represented.
-	 *
 	 * @return a key object.
-	 *
 	 * @post result != null
 	 */
 	Object getKeyFor(final Object entity, final Object method) {

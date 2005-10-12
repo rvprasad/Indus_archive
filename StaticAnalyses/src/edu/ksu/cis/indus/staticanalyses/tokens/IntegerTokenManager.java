@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
@@ -26,7 +27,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -36,9 +36,10 @@ import org.apache.commons.collections.CollectionUtils;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <V> DOCUMENT ME!
  */
-public class IntegerTokenManager
-  extends AbstractTokenManager {
+public class IntegerTokenManager<V>
+  extends AbstractTokenManager<IntegerTokenManager<V>.IntegerTokens, V> {
 	/** 
 	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
@@ -47,10 +48,9 @@ public class IntegerTokenManager
 	/** 
 	 * The list used to canonicalize bit position for values.
 	 *
-	 * @invariant valueList.oclIsKindOf(Sequence(Object))
 	 * @invariant valueList->forall( o | valueList->remove(o)->forall(p | p != o))
 	 */
-	final List valueList = new ArrayList();
+	final List<V> valueList = new ArrayList<V>();
 
 	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
@@ -76,9 +76,9 @@ public class IntegerTokenManager
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	class IntegerTokens
+	private class IntegerTokens
 	  extends AbstractPrototype
-	  implements ITokens {
+	  implements ITokens<IntegerTokens, V> {
 		/** 
 		 * The integer used to capture the representation of the tokens.
 		 */
@@ -89,23 +89,23 @@ public class IntegerTokenManager
 		 *
 		 * @invariant tokenMgr != null
 		 */
-		private IntegerTokenManager tokenMgr;
+		private IntegerTokenManager<V> tokenMgr;
 
 		/**
-		 * Creates a new BitSetTokens object.
+		 * Creates a new IntegerTokens object.
 		 *
 		 * @param tokenManager associated with this instance.
 		 *
 		 * @pre tokenManager != null
 		 */
-		IntegerTokens(final IntegerTokenManager tokenManager) {
+		IntegerTokens(final IntegerTokenManager<V> tokenManager) {
 			tokenMgr = tokenManager;
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
 		 */
-		public Object getClone() {
+		@Override public IntegerTokens getClone(@SuppressWarnings("unused") final Object...o) {
 			final IntegerTokens _result = new IntegerTokens(tokenMgr);
 			_result.integer = integer;
 			return _result;
@@ -121,8 +121,8 @@ public class IntegerTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#getValues()
 		 */
-		public Collection getValues() {
-			final Collection _result = new ArrayList();
+		public Collection<V> getValues() {
+			final Collection<V> _result = new ArrayList<V>();
 
 			for (int _i = 0; _i < IntegerTokenManager.NO_OF_BITS_IN_AN_INTEGER; _i++) {
 				if ((integer & (1 << _i)) > 0) {
@@ -135,8 +135,8 @@ public class IntegerTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#addTokens(ITokens)
 		 */
-		public void addTokens(final ITokens newTokens) {
-			integer |= ((IntegerTokens) newTokens).integer;
+		public void addTokens(final IntegerTokens newTokens) {
+			integer |= newTokens.integer;
 		}
 
 		/**
@@ -149,9 +149,9 @@ public class IntegerTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
 		 */
-		public ITokens diffTokens(final ITokens tokens) {
+		public IntegerTokens diffTokens(final IntegerTokens tokens) {
 			final IntegerTokens _result = new IntegerTokens(tokenMgr);
-			_result.integer = integer & ~((IntegerTokens) tokens).integer;
+			_result.integer = integer & ~tokens.integer;
 			return _result;
 		}
 	}
@@ -163,7 +163,7 @@ public class IntegerTokenManager
 	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
 	 */
 	private class IntegerTokenFilter
-	  implements ITokenFilter {
+	  implements ITokenFilter<IntegerTokenManager<V>.IntegerTokens, V> {
 		/** 
 		 * The type of values to let through the filter.
 		 *
@@ -185,9 +185,10 @@ public class IntegerTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
-		public ITokens filter(final ITokens tokens) {
-			final IntegerTokens _result = new IntegerTokens(IntegerTokenManager.this);
-			_result.integer |= ((IntegerTokens) tokens).integer;
+		public IntegerTokenManager<V>.IntegerTokens filter(final IntegerTokenManager<V>.IntegerTokens tokens) {
+			final IntegerTokenManager<V> _l = IntegerTokenManager.this;
+			final IntegerTokenManager<V>.IntegerTokens _result = new IntegerTokens(_l);
+			_result.integer |= tokens.integer;
 			_result.integer &= type2tokens.get(filterType);
 			return _result;
 		}
@@ -196,39 +197,39 @@ public class IntegerTokenManager
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
 	 */
-	public ITokens getNewTokenSet() {
+	public IntegerTokens getNewTokenSet() {
 		return new IntegerTokens(this);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
 	 */
-	public ITokens getTokens(final Collection values) {
+	public IntegerTokens getTokens(final Collection<V> values) {
 		final IntegerTokens _result = new IntegerTokens(this);
 
 		if (!values.isEmpty()) {
-			final Collection _commons = CollectionUtils.intersection(valueList, values);
+			final Collection<V> _commons = SetUtils.intersection(valueList, values);
 
-			for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
+			for (final Iterator<V> _i = _commons.iterator(); _i.hasNext();) {
 				_result.integer |= 1 << valueList.indexOf(_i.next());
 			}
 
-			final Collection _diff = CollectionUtils.subtract(values, _commons);
+			final Collection<V> _diff = SetUtils.difference(values, _commons);
 			int _index = 1 << valueList.size();
 
-			for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
+			for (final Iterator<V> _i = _diff.iterator(); _i.hasNext();) {
 				if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
 					throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
 						+ NO_OF_BITS_IN_AN_INTEGER + " values.");
 				}
 
-				final Object _value = _i.next();
+				final V _value = _i.next();
 				valueList.add(_value);
 				_result.integer |= _index;
 
-				final Collection _types = typeMgr.getAllTypes(_value);
+				final Collection<IType> _types = typeMgr.getAllTypes(_value);
 
-				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
+				for (final Iterator<IType> _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
 					final int _t = type2tokens.get(_type);
 					type2tokens.put(_type, _t | _index);
@@ -243,7 +244,7 @@ public class IntegerTokenManager
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 		type2tokens.clear();
 		valueList.clear();
@@ -252,23 +253,23 @@ public class IntegerTokenManager
 	/**
 	 * @see AbstractTokenManager#getNewFilterForType(IType)
 	 */
-	protected ITokenFilter getNewFilterForType(final IType type) {
+	@Override protected ITokenFilter<IntegerTokens, V> getNewFilterForType(final IType type) {
 		return new IntegerTokenFilter(type);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
 	 */
-	protected Collection getValues() {
+	@Override protected Collection<V> getValues() {
 		return valueList;
 	}
 
 	/**
 	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
 	 */
-	protected void recordNewTokenTypeRelations(final Collection values, final IType type) {
+	@Override protected void recordNewTokenTypeRelations(final Collection<V> values, final IType type) {
 		int _t = type2tokens.get(type);
-		final Iterator _i = values.iterator();
+		final Iterator<V> _i = values.iterator();
 		final int _iEnd = values.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {

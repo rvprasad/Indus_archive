@@ -14,12 +14,12 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.collections.MapUtils;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.collections.MapUtils;
 
 /**
  * This is an implementation of edge-labelled nodes.
@@ -71,15 +71,15 @@ public class EdgeLabelledNode<T extends EdgeLabelledNode<T>>
 	/**
 	 * @see IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
 	 */
-	public Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label) {
-		return (Collection) MapUtils.getObject(label2inNodes, label, Collections.emptySet());
+	@SuppressWarnings("unchecked") public Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label) {
+		return MapUtils.queryObject(label2inNodes, label, Collections.EMPTY_SET);
 	}
 
 	/**
 	 * @see IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
 	 */
-	public Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label) {
-		return (Collection) MapUtils.getObject(label2outNodes, label, Collections.emptySet());
+	@SuppressWarnings("unchecked") public Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label) {
+		return MapUtils.queryObject(label2outNodes, label, Collections.EMPTY_SET);
 	}
 
 	/**

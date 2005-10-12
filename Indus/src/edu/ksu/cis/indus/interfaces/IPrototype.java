@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,35 +16,23 @@ package edu.ksu.cis.indus.interfaces;
 
 /**
  * This interface helps realize the <i>IPrototype</i> design pattern as defined in the Gang of Four book. It provides the
- * methods via which concrete object can be created from a prototype object.  The default implementation for these methods
+ * methods via which concrete object can be created from a prototype object. The default implementation for these methods
  * should raise <code>UnsupportedOperationException</code>.
  * 
- * <p>
- * Created: Sun Jan 27 18:04:58 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <P> DOCUMENT ME!
  */
-public interface IPrototype {
+public interface IPrototype<P> {
 	/**
-	 * Creates a concrete object from this prototype object.
-	 *
-	 * @return concrete object based on this prototype object.
-	 */
-	Object getClone();
-
-	/**
-	 * Creates a concrete object from this prototype object.  The concrete object can be parameterized by the information in
+	 * Creates a concrete object from this prototype object. The concrete object can be parameterized by the information in
 	 * <code>o</code>.
-	 *
+	 * 
 	 * @param o object containing the information to parameterize the concrete object.
-	 *
 	 * @return concrete object based on this prototype object.
-	 *
 	 * @pre o != null
 	 */
-	Object getClone(Object o);
+	P getClone(Object... o);
 }
 
 // End of File

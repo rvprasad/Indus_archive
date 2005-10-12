@@ -14,17 +14,17 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.IClosure;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import java.util.BitSet;
@@ -35,10 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +43,6 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
@@ -59,9 +54,7 @@ import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
-
 import soot.toolkits.graph.CompleteUnitGraph;
-
 import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.UnitValueBoxPair;
@@ -84,17 +77,14 @@ public class BackwardSlicingPart
 	 * @version $Revision$ $Date$
 	 */
 	private class ReturnValueInclusionClosure
-			implements Closure {
+			implements IClosure<Pair<Stmt, SootMethod>> {
 
 		/**
-		 * {@inheritDoc}
-		 * 
-		 * @pre input.oclIsKindOf(Pair(Stmt, SootMethod))
+		 * @see edu.ksu.cis.indus.common.collections.IClosure#execute(Object)
 		 */
-		public void execute(final Object input) {
-			final Pair _pair = (Pair) input;
-			final Stmt _trailer = (Stmt) _pair.getFirst();
-			final SootMethod _callee = (SootMethod) _pair.getSecond();
+		public void execute(final Pair<Stmt, SootMethod> input) {
+			final Stmt _trailer = input.getFirst();
+			final SootMethod _callee = input.getSecond();
 
 			if (_trailer instanceof ReturnStmt) {
 				// TODO: we are considering both throws and returns as return points. This should change when we
@@ -112,15 +102,14 @@ public class BackwardSlicingPart
 	 * @version $Revision$ $Date$
 	 */
 	private class TailStmtInclusionClosure
-			implements Closure {
+			implements IClosure<Pair<Stmt, SootMethod>> {
 
 		/**
-		 * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
+		 * @see edu.ksu.cis.indus.common.collections.IClosure#execute(Object)
 		 */
-		public void execute(final Object input) {
-			final Pair _pair = (Pair) input;
-			final Stmt _stmt = (Stmt) _pair.getFirst();
-			final SootMethod _callee = (SootMethod) _pair.getSecond();
+		public void execute(final Pair<Stmt, SootMethod> input) {
+			final Stmt _stmt = input.getFirst();
+			final SootMethod _callee = input.getSecond();
 			engine.generateStmtLevelSliceCriterion(_stmt, _callee, false);
 		}
 	}
@@ -137,16 +126,13 @@ public class BackwardSlicingPart
 
 	/**
 	 * this maps methods to their call sites.
-	 * 
-	 * @invariant callee2callsites.oclIsKindOf(Map(SootMethod, Collection(Pair(Stmt, SootMethod))))
-	 * @invariant callee2callsites.values()->forAll(o | o->forall(p | p.getFirst().containsInvokeExpr()))
 	 */
-	private final Map callee2callsites = new HashMap();
+	private final Map<SootMethod, Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>>> callee2callsites = new HashMap<SootMethod, Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>>>();
 
 	/**
 	 * This is a map from methods to transformed return statements.
 	 */
-	private final Map exitTransformedMethods = new HashMap();
+	private final Map<SootMethod, Collection<Stmt>> exitTransformedMethods2exitpoints = new HashMap<SootMethod, Collection<Stmt>>();
 
 	/**
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the slice.
@@ -154,17 +140,17 @@ public class BackwardSlicingPart
 	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
 	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
 	 */
-	private final Map method2params = new HashMap();
+	private final Map<SootMethod, BitSet> method2params = new HashMap<SootMethod, BitSet>();
 
 	/**
 	 * This closure is used generate criteria to include the value in return statements.
 	 */
-	private final Closure returnValueInclClosure = new ReturnValueInclusionClosure();
+	private final IClosure<Pair<Stmt, SootMethod>> returnValueInclClosure = new ReturnValueInclusionClosure();
 
 	/**
 	 * This closure is used generate criteria to include return statements.
 	 */
-	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
+	private final IClosure<Pair<Stmt, SootMethod>> tailStmtInclusionClosure = new TailStmtInclusionClosure();
 
 	/**
 	 * Creates an instance of this class.
@@ -207,7 +193,8 @@ public class BackwardSlicingPart
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#generateCriteriaToIncludeCallees(soot.jimple.Stmt,
 	 *      soot.SootMethod, java.util.Collection)
 	 */
-	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
+	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller,
+			final Collection<SootMethod> callees) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaToIncludeCallees(Stmt stmt = " + stmt + ", Collection callees = " + callees
 					+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
@@ -215,11 +202,11 @@ public class BackwardSlicingPart
 
 		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
 
-		final Iterator _i = callees.iterator();
+		final Iterator<SootMethod> _i = callees.iterator();
 		final int _iEnd = callees.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _callee = (SootMethod) _i.next();
+			final SootMethod _callee = _i.next();
 			recordCallInfoForProcessingArgsTo(stmt, caller, _callee);
 		}
 
@@ -231,12 +218,13 @@ public class BackwardSlicingPart
 	/**
 	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection _result = new HashSet();
-		final Object _direction = analysis.getDirection();
+	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection<Object> _result = new HashSet<Object>();
+		final IDependencyAnalysis.Direction _direction = analysis.getDirection();
 
-		if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION) || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)
-				|| _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+		if (_direction.equals(IDependencyAnalysis.Direction.BACKWARD_DIRECTION)
+				|| _direction.equals(IDependencyAnalysis.Direction.DIRECTIONLESS)
+				|| _direction.equals(IDependencyAnalysis.Direction.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependees(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
@@ -259,11 +247,11 @@ public class BackwardSlicingPart
 		engine.generateStmtLevelSliceCriterion(stmt, method, true);
 
 		if (stmt.containsInvokeExpr()) {
-			final Iterator _i = stmt.getDefBoxes().iterator();
+			final Iterator<ValueBox> _i = stmt.getDefBoxes().iterator();
 			final int _iEnd = stmt.getDefBoxes().size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final ValueBox _vb = (ValueBox) _i.next();
+				final ValueBox _vb = _i.next();
 				final Value _v = _vb.getValue();
 
 				if (_v.equals(local)) {
@@ -340,7 +328,7 @@ public class BackwardSlicingPart
 		final ParameterRef _param = (ParameterRef) stmt.getRightOp();
 		final int _index = _param.getIndex();
 
-		BitSet _params = (BitSet) method2params.get(callee);
+		BitSet _params = method2params.get(callee);
 
 		if (_params == null) {
 			// we size the bitset on a maximum sane value for arguments to improve efficiency.
@@ -364,8 +352,8 @@ public class BackwardSlicingPart
 			engine.enterMethod(_temp);
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
-			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = (CallTriple) _i.next();
+			for (final Iterator<CallTriple> _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = _i.next();
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _stmt = _ctrp.getStmt();
 				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
@@ -389,8 +377,8 @@ public class BackwardSlicingPart
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
-		final Collection _valueBoxes = new HashSet();
+	public Collection<ValueBox> retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
+		final Collection<ValueBox> _valueBoxes = new HashSet<ValueBox>();
 		_valueBoxes.add(valueBox);
 
 		final Value _value = valueBox.getValue();
@@ -420,8 +408,8 @@ public class BackwardSlicingPart
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformStmt(final Stmt stmt) {
-		final Collection _valueBoxes = new HashSet(stmt.getUseAndDefBoxes());
+	public Collection<ValueBox> retrieveValueBoxesToTransformStmt(final Stmt stmt) {
+		final Collection<ValueBox> _valueBoxes = new HashSet<ValueBox>(stmt.getUseAndDefBoxes());
 
 		// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
 		if (stmt.containsInvokeExpr()) {
@@ -451,16 +439,17 @@ public class BackwardSlicingPart
 	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee, final boolean expr) {
 		boolean _result = false;
 
-		if (!exitTransformedMethods.containsKey(callee)) {
-			exitTransformedMethods.put(callee, null);
+		if (!exitTransformedMethods2exitpoints.containsKey(callee)) {
+			exitTransformedMethods2exitpoints.put(callee, null);
 			_result = true;
 		} else if (expr) {
-			final Collection _temp = (Collection) MapUtils.getObject(exitTransformedMethods, callee, Collections.EMPTY_SET);
-			final Iterator _i = _temp.iterator();
+			final Collection<Stmt> _temp = MapUtils.queryObject(exitTransformedMethods2exitpoints, callee,
+					Collections.EMPTY_SET);
+			final Iterator<Stmt> _i = _temp.iterator();
 			final int _iEnd = _temp.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-				final Stmt _tail = (Stmt) _i.next();
+				final Stmt _tail = _i.next();
 
 				if (_tail instanceof ReturnStmt) {
 					_result |= !engine.collector.hasBeenCollected(((ReturnStmt) _tail).getOpBox());
@@ -494,15 +483,16 @@ public class BackwardSlicingPart
 					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		final Collection _temp = (Collection) MapUtils.getObject(callee2callsites, callee, Collections.EMPTY_SET);
-		final Iterator _i = _temp.iterator();
+		final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = MapUtils.queryObject(callee2callsites, callee,
+				Collections.EMPTY_SET);
+		final Iterator<Triple<Stmt, SootMethod, Stack<CallTriple>>> _i = _temp.iterator();
 		final int _iEnd = _temp.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Triple _triple = (Triple) _i.next();
-			final Stmt _stmt = (Stmt) _triple.getFirst();
-			final SootMethod _caller = (SootMethod) _triple.getSecond();
-			final Stack _stack = (Stack) _triple.getThird();
+			final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = _i.next();
+			final Stmt _stmt = _triple.getFirst();
+			final SootMethod _caller = _triple.getSecond();
+			final Stack _stack = _triple.getThird();
 			final InvokeExpr _expr = _stmt.getInvokeExpr();
 			engine.generateExprLevelSliceCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
 		}
@@ -598,10 +588,11 @@ public class BackwardSlicingPart
 	 * @param closure to be executed.
 	 * @pre stmt != null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
 	 */
-	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller, final Closure closure) {
+	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller,
+			final IClosure<Pair<Stmt, SootMethod>> closure) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
-					+ ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = "
+					+ ", SootMethod caller = " + caller + ", IClosure closure = " + closure + ", stack = "
 					+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
@@ -619,15 +610,15 @@ public class BackwardSlicingPart
 					engine.enterMethod(_callTriple);
 					processSuperInitInInit(_callee, _calleeBasicBlockGraph);
 
-					final Collection _temp = new HashSet();
+					final Collection<Stmt> _temp = new HashSet<Stmt>();
 
 					for (final Iterator _j = _calleeBasicBlockGraph.getSinks().iterator(); _j.hasNext();) {
 						final BasicBlock _bb = (BasicBlock) _j.next();
 						final Stmt _trailer = _bb.getTrailerStmt();
-						closure.execute(new Pair(_trailer, _callee));
+						closure.execute(new Pair<Stmt, SootMethod>(_trailer, _callee));
 						_temp.add(_trailer);
 					}
-					exitTransformedMethods.put(_callee, _temp);
+					exitTransformedMethods2exitpoints.put(_callee, _temp);
 					engine.returnFromMethod();
 				} else {
 					final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
@@ -644,7 +635,7 @@ public class BackwardSlicingPart
 				 * _params will be null again. In the latter case, we postpone for callee-caller propogation to generate
 				 * criteria to consider suitable argument expressions.
 				 */
-				final BitSet _params = (BitSet) method2params.get(_callee);
+				final BitSet _params = method2params.get(_callee);
 				final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
 
 				if (_params != null && _callee.getParameterCount() > 0) {
@@ -680,9 +671,11 @@ public class BackwardSlicingPart
 					+ ", SootMethod callee = " + callee + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		final Stack _stackClone = engine.getCopyOfCallStackCache();
-		final Triple _triple = new Triple(stmt, caller, _stackClone);
-		CollectionsUtilities.putIntoSetInMap(callee2callsites, callee, _triple);
+		final Stack<CallTriple> _stackClone = engine.getCopyOfCallStackCache();
+		final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = new Triple<Stmt, SootMethod, Stack<CallTriple>>(stmt,
+				caller, _stackClone);
+		MapUtils.putIntoCollectionInMapUsingFactory(callee2callsites, callee, _triple, SetUtils
+				.<Triple<Stmt, SootMethod, Stack<CallTriple>>> getFactory());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing() - END");

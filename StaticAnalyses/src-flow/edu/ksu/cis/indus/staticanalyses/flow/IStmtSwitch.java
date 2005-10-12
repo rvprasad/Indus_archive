@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,22 +14,24 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.IPrototype;
 import soot.jimple.Stmt;
-
 
 /**
  * This interface is provided by flow analysis statement walkers/visitors.
  * 
- * @version $Revision$ 
+ * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @param <S> DOCUMENT ME!
  */
-public interface IStmtSwitch {
+public interface IStmtSwitch<S extends IStmtSwitch<S>>
+		extends IPrototype<S> {
+	
 	/**
-	 * Process the given statement.  The usual implementation would be visit the expressions in the statement.
-	 *
+	 * Process the given statement. The usual implementation would be visit the expressions in the statement.
+	 * 
 	 * @param stmtToProcess the statement being visited or to be processed.
-	 *
 	 * @pre stmtToProcess != null
 	 */
 	void process(final Stmt stmtToProcess);

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,17 +16,17 @@ package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
-
 /**
  * This is an abstract implementation of slice criteria filter.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSliceCriteriaPredicate
-  implements ISliceCriteriaPredicate {
-	/** 
+public abstract class AbstractSliceCriteriaPredicate<T>
+		implements ISliceCriteriaPredicate<T> {
+
+	/**
 	 * This is the slicer tool provides the context in which filtering occurs.
 	 */
 	private SlicerTool slicerTool;
@@ -41,7 +40,7 @@ public abstract class AbstractSliceCriteriaPredicate
 
 	/**
 	 * Retrieves the value in <code>slicerTool</code>.
-	 *
+	 * 
 	 * @return the value in <code>slicerTool</code>.
 	 */
 	protected final SlicerTool getSlicerTool() {

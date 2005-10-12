@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import java.lang.ref.Reference;
@@ -23,8 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.IteratorUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +163,8 @@ public final class BasicBlockGraphMgr {
 			final UnitGraph _stmtGraph = getStmtGraph(method);
 
 			if (_stmtGraph != null) {
-				_result = Collections.unmodifiableList(IteratorUtils.toList(_stmtGraph.iterator()));
+				final List<Stmt> _toList = IteratorUtils.toList(_stmtGraph.iterator());
+				_result = Collections.unmodifiableList(_toList);
 			} else {
 				_result = Collections.emptyList();
 			}

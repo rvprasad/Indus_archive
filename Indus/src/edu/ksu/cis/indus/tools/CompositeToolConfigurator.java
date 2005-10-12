@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -98,7 +100,7 @@ public final class CompositeToolConfigurator
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(edu.ksu.cis.indus.tools.IToolConfiguration)
 	 */
-	@Override protected void checkConfiguration(@SuppressWarnings("unused") final IToolConfiguration t) {
+	@AEmpty @Override protected void checkConfiguration(@SuppressWarnings("unused") final IToolConfiguration t) {
 		// does nothing
 	}
 

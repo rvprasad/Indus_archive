@@ -14,12 +14,12 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Stack;
 
 /**
  * This is the interface to retrieve calling contexts based on program points.

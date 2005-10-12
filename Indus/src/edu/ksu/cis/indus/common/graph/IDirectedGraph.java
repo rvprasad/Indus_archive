@@ -94,11 +94,12 @@ public interface IDirectedGraph<N extends INode<N>> {
 	 * Returns the directed-acyclic graph of this graph. The objects in the nodes in the returned graph are nodes in this
 	 * graph. For each edge in the returned graph, there will be an edges between the nodes corresponding to the source and
 	 * destination nodes in this graph.
+	 * @param <T> DOCUMENT ME!
 	 * 
 	 * @return a DAG.
 	 * @post result != null
 	 */
-	IObjectDirectedGraph<?, N> getDAG();
+	 IObjectDirectedGraph<? extends IObjectNode<?, N>, N> getDAG();
 
 	/**
 	 * Retrieves the nodes in the graph. The order of the nodes should be the same across calls to this method, if no nodes

@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -129,7 +129,7 @@ public class TagBasedProcessingFilter
 
 		if (LOGGER.isDebugEnabled()) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(hosts, _result));
+				LOGGER.debug("Filtered out: " + SetUtils.difference(hosts, _result));
 				LOGGER.debug("Filtrate : " + _result);
 			}
 		}

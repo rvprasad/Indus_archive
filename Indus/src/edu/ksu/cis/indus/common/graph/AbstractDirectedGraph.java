@@ -14,7 +14,16 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.FactoryBasedLazyMap;
+import edu.ksu.cis.indus.common.collections.IFactory;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.ITransformer;
+import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.collections.MembershipPredicate;
+import edu.ksu.cis.indus.common.collections.SetUtils;
+import edu.ksu.cis.indus.common.collections.Stack;
+import edu.ksu.cis.indus.common.collections.TransformerBasedLazyMap;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
@@ -33,16 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-
-import org.apache.commons.collections.ArrayStack;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
-
-import org.apache.commons.collections.map.LazyMap;
 
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code>. The subclasses are responsible for
@@ -54,7 +53,7 @@ import org.apache.commons.collections.map.LazyMap;
  * @param <N> the node type of this graph.
  */
 public abstract class AbstractDirectedGraph<N extends INode<N>>
-		implements IDirectedGraph<N> {
+		implements IDirectedGraph<N>, Iterable<N> {
 
 	/**
 	 * This is used in the calculation of SCCs.
@@ -224,17 +223,17 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public static <T extends INode<T>> Collection<List<T>> findSCCs(final Collection<T> nodes) {
 		final Collection<List<T>> _result = new ArrayList<List<T>>();
-		@SuppressWarnings("unchecked") final Map<T, SCCRelatedData> _node2srd = LazyMap.decorate(
-				new HashMap<T, SCCRelatedData>(), new Factory() {
+		@SuppressWarnings("unchecked") final Map<T, SCCRelatedData> _node2srd = new FactoryBasedLazyMap(
+				new HashMap<T, SCCRelatedData>(), new IFactory<SCCRelatedData>() {
 
-					public Object create() {
+					public SCCRelatedData create() {
 						return new SCCRelatedData();
 					}
 				});
 		currCompNum = 0;
 		dfsNum = 0;
 
-		final ArrayStack _stack = new ArrayStack();
+		final Stack<T> _stack = new Stack<T>();
 		final Iterator<T> _i = nodes.iterator();
 
 		while (_i.hasNext()) {
@@ -264,7 +263,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @param <T> the type of nodes being processed.
 	 */
 	private static <T extends INode<T>> void calculateSCCs(final Collection<T> nodes, final Map<T, SCCRelatedData> node2srd,
-			final T node, final ArrayStack stack, final Collection<List<T>> sccs) {
+			final T node, final Stack<T> stack, final Collection<List<T>> sccs) {
 		final SCCRelatedData _nodeSRD = node2srd.get(node);
 		_nodeSRD.setDfsNum(dfsNum);
 		_nodeSRD.setHigh(dfsNum);
@@ -272,7 +271,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		dfsNum--;
 
 		@SuppressWarnings("unchecked") final Iterator<T> _j = IteratorUtils.filteredIterator(node.getSuccsOf().iterator(),
-				new Predicate() {
+				new IPredicate<Object>() {
 
 					public boolean evaluate(final Object o) {
 						return nodes.contains(o);
@@ -299,7 +298,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 			final List<T> _scc = new ArrayList<T>();
 
 			do {
-				_o = (T) stack.pop();
+				_o = stack.pop();
 				node2srd.put(_o, _nodeSRD);
 				_scc.add(_o);
 			} while (_o != node);
@@ -339,6 +338,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Finds cycles containing only the given SCC.
 	 * 
+	 * @param <T> DOCUMENT ME!
 	 * @param scc in which the cycles should be detected.
 	 * @param backedges is the back edges only between the given set of nodes.
 	 * @return a collection of cycles.
@@ -353,8 +353,8 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		final IWorkBag<Object> _wb = new LIFOWorkBag<Object>();
 		final Stack<T> _dfsPath = new Stack<T>();
 		final Collection<List<T>> _result = new HashSet<List<T>>();
-		final Predicate _cyclePredicate = new MembershipPredicate(true, _dfsPath);
-		final Predicate _noncyclePredicate = new MembershipPredicate(false, _dfsPath);
+		final IPredicate<T> _cyclePredicate = new MembershipPredicate<T>(true, _dfsPath);
+		final IPredicate<T> _noncyclePredicate = new MembershipPredicate<T>(false, _dfsPath);
 		final Collection<Pair<T, T>> _backEdgesNotToUse = new HashSet<Pair<T, T>>(backedges);
 		final Iterator<Pair<T, T>> _k = backedges.iterator();
 		final int _kEnd = backedges.size();
@@ -460,7 +460,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @post nodes.containsAll(result)
 	 * @post edgesNotToUse->forall(o | o.getFirst().equals(node) implies !result.contains(o.getSecond()))
 	 */
-	private static <T extends INode<T>> Collection getLimitedSuccsOf(final T node,
+	private static <T extends INode<T>> Collection<T> getLimitedSuccsOf(final T node,
 			final Collection<Pair<T, T>> edgesNotToUse, final Collection<T> nodes) {
 		final Collection<T> _result = new HashSet<T>(node.getSuccsOf());
 
@@ -570,13 +570,13 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public final IObjectDirectedGraph<? extends IObjectNode<?, N>, N> getDAG() {
 		if (!dagExists) {
-			setupGraphBuilder();
+			builder = new SimpleNodeGraphBuilder<N>();
 			builder.createGraph();
 
 			if (!hasSpanningForest) {
 				createSpanningForest();
 			}
-			
+
 			final List<N> _nodes = getNodes();
 			for (final N _node : _nodes) {
 				final int _nodeIndex = _nodes.indexOf(_node);
@@ -603,11 +603,11 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public Collection<N> getNodesOnPathBetween(final Collection<N> nodes) {
 		final Collection<N> _result = new HashSet<N>();
-		@SuppressWarnings("unchecked") final Map<N, Collection<N>> _node2ancestorsMap = LazyMap.decorate(
-				new HashMap<N, Collection<N>>(), new Transformer() {
+		final Map<N, Collection<N>> _node2ancestorsMap = new TransformerBasedLazyMap(
+				new HashMap<N, Collection<N>>(), new ITransformer<N, Collection<N>>() {
 
-					public Object transform(final Object key) {
-						return getReachablesFrom((N) key, false);
+					public Collection<N> transform(final N key) {
+						return getReachablesFrom(key, false);
 					}
 				});
 
@@ -617,16 +617,14 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final N _node1 = _i.next();
 			final Collection<N> _descendants = getReachablesFrom(_node1, true);
-			@SuppressWarnings("unchecked") final Collection<N> _intersection = CollectionUtils.intersection(nodes,
-					_descendants);
+			final Collection<N> _intersection = SetUtils.intersection(nodes, _descendants);
 			final Iterator<N> _j = _intersection.iterator();
 			final int _jEnd = _intersection.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final N _node2 = _j.next();
 				final Collection<N> _ancestors = _node2ancestorsMap.get(_node2);
-				@SuppressWarnings("unchecked") final Collection<N> _ancestorsInGivenNodes = CollectionUtils.intersection(
-						_ancestors, _descendants);
+				final Collection<N> _ancestorsInGivenNodes = SetUtils.intersection(_ancestors, _descendants);
 				_result.addAll(_ancestorsInGivenNodes);
 				_result.add(_node2);
 			}
@@ -685,13 +683,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		final List<N> _topologicallyOrdered = performTopologicalSort(false);
 		final List<List<N>> _result = new ArrayList<List<N>>();
 		final Collection<N> _keySet = _node2scc.keySet();
-		@SuppressWarnings("unchecked") final Iterator<N> _i = IteratorUtils.filteredIterator(
-				_topologicallyOrdered.iterator(), new Predicate() {
+		final Iterator<N> _i = IteratorUtils.filteredIterator(_topologicallyOrdered.iterator(), new IPredicate<N>() {
 
-					public boolean evaluate(final Object o) {
-						return _node2scc.containsKey(o);
-					}
-				});
+			public boolean evaluate(final N o) {
+				return _node2scc.containsKey(o);
+			}
+		});
 
 		for (; _i.hasNext();) {
 			final N _o = _i.next();
@@ -767,18 +764,19 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	public final Collection<N> getTails() {
 		if (!pseudoTailsCalculated) {
 			// get the tails of the DAG into dtails
-			final IDirectedGraph _graph = getDAG();
-			final Collection<N> _dtails = new HashSet<N>(_graph.getSinks());
-			CollectionUtils.transform(_dtails, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			final SimpleNodeGraph<N> _graph = (SimpleNodeGraph<N>) getDAG();
+			final Collection<SimpleNode<N>> _dtails1 = new HashSet<SimpleNode<N>>(_graph.getSinks());
+			final Collection<N> _dtails2 = new HashSet<N>();
+			CollectionUtils.transform(_dtails1, _graph.getObjectExtractor(), _dtails2);
 
 			// get the tails of the graph into _tails
 			final Collection<N> _tails = getSinks();
 
 			// for each dtail that is not a tail, check if tail is reachable from it.
 			// If so, dtail is not a pseudo tail. If not, it is a pseudo tail.
-			_dtails.removeAll(_tails);
+			_dtails2.removeAll(_tails);
 
-			final Collection<N> _temp = getDestUnreachableSources(_dtails, _tails, true, false);
+			final Collection<N> _temp = getDestUnreachableSources(_dtails2, _tails, true, false);
 			final Collection<N> _result = getDestUnreachableSources(_temp, _temp, true, false);
 
 			/*
@@ -793,7 +791,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 			}
 			pseudoTailsCalculated = true;
 		}
-		@SuppressWarnings("unchecked") final Collection<N> _tails = CollectionUtils.union(pseudoTails, getSinks());
+		@SuppressWarnings("unchecked") final Collection<N> _tails = SetUtils.union(pseudoTails, getSinks());
 		return _tails;
 	}
 
@@ -829,10 +827,17 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
+	 * @see java.lang.Iterable#iterator()
+	 */
+	public Iterator<N> iterator() {
+		return getNodes().iterator();
+	}
+
+	/**
 	 * @see IDirectedGraph#performTopologicalSort(boolean)
 	 */
 	public final List<N> performTopologicalSort(final boolean topdown) {
-		final IObjectDirectedGraph<SimpleNode<N>, N> _dag = (IObjectDirectedGraph<SimpleNode<N>, N>) getDAG();
+		final SimpleNodeGraph<N> _dag = (SimpleNodeGraph<N>) getDAG();
 		final List<SimpleNode<N>> _nodes = _dag.getNodes();
 		final TIntObjectHashMap _finishTime2node = new TIntObjectHashMap();
 		final Collection<SimpleNode<N>> _processed = new HashSet<SimpleNode<N>>();
@@ -860,7 +865,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		}
 
 		final List<N> _result = new ArrayList<N>();
-		CollectionUtils.collect(_result1, IObjectDirectedGraph.OBJECT_EXTRACTOR, _result);
+		CollectionUtils.transform(_result1, _dag.getObjectExtractor(), _result);
 		return _result;
 	}
 
@@ -876,15 +881,15 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 			final int _nodePos = getIndexOfNode(_node);
 			final String _str = "[" + _node.toString() + "]";
 
-			for (final Iterator _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
-				final Object _succ = _j.next();
-				_sb.append(_nodePos).append(_str).append(" -> ").append(getIndexOfNode((N) _succ)).append("[").append(_succ)
+			for (final Iterator<N> _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
+				final N _succ = _j.next();
+				_sb.append(_nodePos).append(_str).append(" -> ").append(getIndexOfNode(_succ)).append("[").append(_succ)
 						.append("]").append("\n");
 			}
 
-			for (final Iterator _j = _node.getPredsOf().iterator(); _j.hasNext();) {
-				final Object _pred = _j.next();
-				_sb.append(_nodePos).append(_str).append(" <- ").append(getIndexOfNode((N) _pred)).append("[").append(_pred)
+			for (final Iterator<N> _j = _node.getPredsOf().iterator(); _j.hasNext();) {
+				final N _pred = _j.next();
+				_sb.append(_nodePos).append(_str).append(" <- ").append(getIndexOfNode(_pred)).append("[").append(_pred)
 						.append("]").append("\n");
 			}
 		}
@@ -901,17 +906,6 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	protected int getIndexOfNode(final N node) {
 		return getNodes().indexOf(node);
-	}
-
-	/**
-	 * Sets up the graph builder required by this graph. This method will be called before the builder will be used. This
-	 * enables us to delay the creation of the builder until it is required. This implementation will use
-	 * <code>SimpleNodeGraphBuilder</code>.
-	 * 
-	 * @post builder != null
-	 */
-	protected void setupGraphBuilder() {
-		builder = new SimpleNodeGraphBuilder<N>();
 	}
 
 	/**

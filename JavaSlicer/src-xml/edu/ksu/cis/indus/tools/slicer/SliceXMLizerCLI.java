@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
@@ -47,7 +48,6 @@ import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,7 +55,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import java.net.URL;
@@ -75,7 +74,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -759,9 +757,8 @@ public class SliceXMLizerCLI
 			_pc.process();
 			_processor.unhook(_pc);
 
-			final ByteArrayOutputStream _stream1 = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream1), "PRE SLICING STATISTICS:", _processor.getStatistics());
-			LOGGER.info(_stream1.toString());
+
+			LOGGER.info(MapUtils.verbosePrint("PRE SLICING STATISTICS:", _processor.getStatistics()));
 
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
 			_processor.hookup(_pc);
@@ -769,9 +766,7 @@ public class SliceXMLizerCLI
 			_pc.process();
 			_processor.unhook(_pc);
 
-			final ByteArrayOutputStream _stream2 = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:", _processor.getStatistics());
-			LOGGER.info(_stream2.toString());
+			LOGGER.info(MapUtils.verbosePrint("POST SLICING STATISTICS:", _processor.getStatistics()));
 		}
 	}
 

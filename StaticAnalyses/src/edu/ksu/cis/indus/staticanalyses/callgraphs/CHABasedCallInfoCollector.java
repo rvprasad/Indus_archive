@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,8 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
-
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
 
@@ -24,6 +23,7 @@ import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,50 +46,48 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * This implementation calculates call information based on class-hierarchy information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class CHABasedCallInfoCollector
-  extends AbstractProcessor
-  implements ICallInfoCollector {
-	/** 
+		extends AbstractProcessor
+		implements ICallInfoCollector {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CHABasedCallInfoCollector.class);
 
-	/** 
+	/**
 	 * This holds call information.
 	 */
 	private final CallInfo callInfoHolder = new CallInfo();
 
-	/** 
+	/**
 	 * The class hierarchy analysis to be used.
 	 */
 	private IClassHierarchy cha;
 
-	/** 
+	/**
 	 * This maps invoked methods (not resolved) to caller-site triple.
-	 *
-	 * @invariant invokedMethod2callerTriple.oclIsKindOf(Map(SootMethod, CallTriple))
 	 */
-	private final Map invokedMethod2callerTriple = new HashMap();
+	private final Map<SootMethod, Collection<CallTriple>> invokedMethod2callerTriple = new HashMap<SootMethod, Collection<CallTriple>>();
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(final SootMethod method) {
+	@Override public void callback(final SootMethod method) {
 		callInfoHolder.addReachable(method);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, final Context context) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("callback(ValueBox vBox = " + vBox + ", Context context = " + context + ") - BEGIN");
 		}
@@ -99,16 +97,19 @@ public final class CHABasedCallInfoCollector
 		final SootMethod _caller = context.getCurrentMethod();
 		final InvokeExpr _expr = (InvokeExpr) _val;
 		final SootMethod _callee = _expr.getMethod();
-		final Collection _callees = CollectionsUtilities.getSetFromMap(callInfoHolder.caller2callees, _caller);
+		final Collection<CallTriple> _callees = MapUtils.getFromMap(callInfoHolder.caller2callees, _caller,
+				new ArrayList<CallTriple>());
 		final CallTriple _callerTriple = new CallTriple(_caller, _stmt, _expr);
 
 		if (_expr instanceof StaticInvokeExpr
-			  || (_expr instanceof SpecialInvokeExpr && (_callee.getName().equals("<init>") || _callee.isPrivate()))) {
-			final Collection _callers = CollectionsUtilities.getSetFromMap(callInfoHolder.callee2callers, _callee);
+				|| (_expr instanceof SpecialInvokeExpr && (_callee.getName().equals("<init>") || _callee.isPrivate()))) {
+			final Collection<CallTriple> _callers = MapUtils.getFromMap(callInfoHolder.callee2callers, _callee,
+					new ArrayList<CallTriple>());
 			_callers.add(_callerTriple);
 			_callees.add(new CallTriple(_callee, _stmt, _expr));
 		} else {
-			CollectionsUtilities.putIntoSetInMap(invokedMethod2callerTriple, _callee, _callerTriple);
+			MapUtils.putIntoCollectionInMapUsingFactory(invokedMethod2callerTriple, _callee, _callerTriple, SetUtils
+					.<CallTriple> getFactory());
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -119,35 +120,36 @@ public final class CHABasedCallInfoCollector
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
 	 */
-	public void consolidate() {
-		final Collection _temp = new HashSet();
-		final Collection _implClasses = new HashSet();
-		final Set _entrySet = invokedMethod2callerTriple.entrySet();
-		final Iterator _j = _entrySet.iterator();
+	@Override public void consolidate() {
+		final Collection<SootMethod> _temp = new HashSet<SootMethod>();
+		final Collection<SootClass> _implClasses = new HashSet<SootClass>();
+		final Set<Map.Entry<SootMethod, Collection<CallTriple>>> _entrySet = invokedMethod2callerTriple.entrySet();
+		final Iterator<Map.Entry<SootMethod, Collection<CallTriple>>> _j = _entrySet.iterator();
 		final int _jEnd = _entrySet.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Map.Entry _entry = (Map.Entry) _j.next();
-			final SootMethod _invokedMethod = (SootMethod) _entry.getKey();
-			final Collection _callerTriples = (Collection) _entry.getValue();
+			final Map.Entry<SootMethod, Collection<CallTriple>> _entry = _j.next();
+			final SootMethod _invokedMethod = _entry.getKey();
+			final Collection<CallTriple> _callerTriples = _entry.getValue();
 			final String _invokedMethodSubSignature = _invokedMethod.getSubSignature();
 			final SootClass _declInterface = _invokedMethod.getDeclaringClass();
 			_implClasses.clear();
 			_implClasses.addAll(cha.getProperSubclassesOf(_declInterface));
 			_implClasses.add(_declInterface);
 
-			final Iterator _i = _implClasses.iterator();
+			final Iterator<SootClass> _i = _implClasses.iterator();
 			final int _iEnd = _implClasses.size();
 
 			_temp.clear();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootClass _impl = (SootClass) _i.next();
+				final SootClass _impl = _i.next();
 
 				if (_impl.declaresMethod(_invokedMethodSubSignature)
-					  && !_impl.getMethod(_invokedMethodSubSignature).isAbstract()) {
+						&& !_impl.getMethod(_invokedMethodSubSignature).isAbstract()) {
 					final SootMethod _implMethod = _impl.getMethod(_invokedMethodSubSignature);
-					CollectionsUtilities.putAllIntoSetInMap(callInfoHolder.callee2callers, _implMethod, _callerTriples);
+					MapUtils.putAllIntoCollectionInMapUsingFactory(callInfoHolder.callee2callers, _implMethod, _callerTriples,
+							SetUtils.<CallTriple>getFactory());
 					_temp.add(_implMethod);
 				}
 			}
@@ -160,12 +162,13 @@ public final class CHABasedCallInfoCollector
 				final SootMethod _caller = _callerTriple.getMethod();
 				final Stmt _stmt = _callerTriple.getStmt();
 				final InvokeExpr _expr = _callerTriple.getExpr();
-				final Collection _callees = CollectionsUtilities.getSetFromMap(callInfoHolder.caller2callees, _caller);
-				final Iterator _l = _temp.iterator();
+				final Collection<CallTriple> _callees = MapUtils.getFromMap(callInfoHolder.caller2callees, _caller,
+						new ArrayList<CallTriple>());
+				final Iterator<SootMethod> _l = _temp.iterator();
 				final int _lEnd = _temp.size();
 
 				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final SootMethod _callee = (SootMethod) _l.next();
+					final SootMethod _callee = _l.next();
 					_callees.add(new CallTriple(_callee, _stmt, _expr));
 				}
 			}
@@ -174,7 +177,7 @@ public final class CHABasedCallInfoCollector
 		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
 		invokedMethod2callerTriple.clear();
-		
+
 		stable();
 	}
 
@@ -198,7 +201,7 @@ public final class CHABasedCallInfoCollector
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param analysis to be used.
 	 */
 	public void initialize(final IClassHierarchy analysis) {
@@ -208,14 +211,14 @@ public final class CHABasedCallInfoCollector
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	@Override public void processingBegins() {
 		unstable();
 	}
-	
+
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 		callInfoHolder.reset();
 		cha = null;

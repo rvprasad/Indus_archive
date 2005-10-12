@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -77,8 +78,8 @@ public class ForwardSlicingPart
 	/**
 	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection _result = new HashSet();
+	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection<Object> _result = new HashSet<Object>();
 		final Object _dir = analysis.getDirection();
 
 		if (_dir.equals(IDependencyAnalysis.FORWARD_DIRECTION) || _dir.equals(IDependencyAnalysis.DIRECTIONLESS)) {
@@ -124,17 +125,17 @@ public class ForwardSlicingPart
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#generateCriteriaToIncludeCallees(soot.jimple.Stmt,
 	 * 		soot.SootMethod, java.util.Collection)
 	 */
-	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
+	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection<SootMethod> callees) {
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 
 		if (_expr instanceof InstanceInvokeExpr) {
-			final Iterator _i = callees.iterator();
+			final Iterator<SootMethod> _i = callees.iterator();
 			final int _iEnd = callees.size();
 
 			engine.enterMethod(new CallTriple(caller, stmt, _expr));
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootMethod _callee = (SootMethod) _i.next();
+				final SootMethod _callee = _i.next();
 				final Collection _units = engine.getBasicBlockGraphManager().getStmtList(_callee);
 
 				for (final Iterator _j = _units.iterator(); _j.hasNext();) {
@@ -162,12 +163,12 @@ public class ForwardSlicingPart
 		engine.generateStmtLevelSliceCriterion(stmt, method, false);
 
 		if (stmt.containsInvokeExpr()) {
-			final Collection _useBoxes = stmt.getInvokeExpr().getUseBoxes();
-			final Iterator _j = _useBoxes.iterator();
+			final Collection<ValueBox> _useBoxes = stmt.getInvokeExpr().getUseBoxes();
+			final Iterator<ValueBox> _j = _useBoxes.iterator();
 			final int _jEnd = _useBoxes.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final ValueBox _vb = (ValueBox) _j.next();
+				final ValueBox _vb = _j.next();
 
 				if (_vb.getValue().equals(local)) {
 					engine.generateExprLevelSliceCriterion(_vb, stmt, method, true);
@@ -183,7 +184,7 @@ public class ForwardSlicingPart
 				_ctxt.setRootMethod(method);
 				_ctxt.setStmt(stmt);
 
-				final Collection _callees = engine.getCgi().getCallees(_invokeExpr, _ctxt);
+				final Collection<SootMethod> _callees = engine.getCgi().getCallees(_invokeExpr, _ctxt);
 
 				engine.enterMethod(new CallTriple(method, stmt, stmt.getInvokeExpr()));
 				generateCriteriaToIncludeArgumentReadStmts(_argIndex, _callees);
@@ -212,15 +213,15 @@ public class ForwardSlicingPart
 	/**
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
 	 */
-	public void reset() {
+	@AEmpty public void reset() {
 		// DOES NOTHING.
 	}
 
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
-		final Collection _valueBoxes = new HashSet();
+	public Collection<ValueBox> retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
+		final Collection<ValueBox> _valueBoxes = new HashSet<ValueBox>();
 		_valueBoxes.add(valueBox);
 
 		final Value _value = valueBox.getValue();
@@ -252,8 +253,8 @@ public class ForwardSlicingPart
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformStmt(final Stmt stmt) {
-		return new HashSet(stmt.getUseBoxes());
+	public Collection<ValueBox> retrieveValueBoxesToTransformStmt(final Stmt stmt) {
+		return new HashSet<ValueBox>(stmt.getUseBoxes());
 	}
 
 	/**
@@ -266,16 +267,16 @@ public class ForwardSlicingPart
 	 * @pre callees.oclIsKindOf(Collection(SootMethod))
 	 * @pre callees->forall(o | o.getParameterCount() > argIndex)
 	 */
-	private void generateCriteriaToIncludeArgumentReadStmts(final int argIndex, final Collection callees) {
-		final Iterator _i = callees.iterator();
+	private void generateCriteriaToIncludeArgumentReadStmts(final int argIndex, final Collection<SootMethod> callees) {
+		final Iterator<SootMethod> _i = callees.iterator();
 		final int _iEnd = callees.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _callee = (SootMethod) _i.next();
-			final Collection _units = engine.getBasicBlockGraphManager().getStmtList(_callee);
+			final SootMethod _callee = _i.next();
+			final Collection<Stmt> _units = engine.getBasicBlockGraphManager().getStmtList(_callee);
 
-			for (final Iterator _j = _units.iterator(); _j.hasNext();) {
-				final Stmt _stmt = (Stmt) _j.next();
+			for (final Iterator<Stmt> _j = _units.iterator(); _j.hasNext();) {
+				final Stmt _stmt = _j.next();
 
 				if (_stmt instanceof IdentityStmt) {
 					final IdentityStmt _idStmt = (IdentityStmt) _stmt;

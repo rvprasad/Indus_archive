@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -38,9 +38,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +87,9 @@ import soot.jimple.Stmt;
  * 			  SootMethodMethod)))))
  */
 public class InterferenceDAv1
-  extends AbstractDependencyAnalysis {
+  extends AbstractDependencyAnalysis<Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, 
+  Collection<Pair<Stmt, SootMethod>>>, Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, 
+  Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -120,6 +119,7 @@ public class InterferenceDAv1
 	 * Creates a new InterferenceDAv1 object.
 	 */
 	public InterferenceDAv1() {
+		super(Direction.BI_DIRECTIONAL);
 		preprocessor = new PreProcessor();
 	}
 
@@ -144,14 +144,14 @@ public class InterferenceDAv1
 		 *
 		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
-		public void callback(final Stmt stmt, final Context context) {
+		@Override public void callback(final Stmt stmt, final Context context) {
 			final AssignStmt _as = (AssignStmt) stmt;
-			Map _temp = null;
+			Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _temp = null;
 
 			if (_as.containsFieldRef()) {
 				if (_as.getLeftOp() instanceof FieldRef) {
 					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
-					_temp = CollectionsUtilities.getMapFromMap(dependee2dependent, _sf);
+					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _sf, MapUtils.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>getFactory());
 				} else {
 					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
 					_temp = CollectionsUtilities.getMapFromMap(dependent2dependee, _sf);
@@ -208,15 +208,12 @@ public class InterferenceDAv1
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
-	 *
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection getDependees(final Object stmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final Stmt _temp = (Stmt) stmt;
-		Map _pair2set = null;
+	public Collection<Pair<Stmt, SootMethod>> getDependees(final Stmt stmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.<Pair<Stmt, SootMethod>>emptySet();
+		final Stmt _temp = stmt;
+		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
 		Object _dependent = null;
 
 		if (_temp.containsArrayRef()) {
@@ -226,10 +223,10 @@ public class InterferenceDAv1
 		}
 
 		if (_dependent != null) {
-			_pair2set = (Map) MapUtils.getObject(dependent2dependee, _dependent, Collections.EMPTY_MAP);
+			_pair2set = MapUtils.queryObject(dependent2dependee, _dependent, Collections.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>emptyMap());
 
 			if (_pair2set != null) {
-				final Collection _set = (Collection) _pair2set.get(pairMgr.getPair(stmt, method));
+				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -247,15 +244,13 @@ public class InterferenceDAv1
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection getDependents(final Object stmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final Stmt _temp = (Stmt) stmt;
-		Map _pair2set = null;
+	public Collection<Pair<Stmt, SootMethod>> getDependents(final Stmt stmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
+		final Stmt _temp = stmt;
+		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
 		Object _dependee = null;
 
 		if (_temp.containsArrayRef()) {
@@ -265,10 +260,10 @@ public class InterferenceDAv1
 		}
 
 		if (_dependee != null) {
-			_pair2set = (Map) MapUtils.getObject(dependee2dependent, _dependee, Collections.EMPTY_MAP);
+			_pair2set = MapUtils.queryObject(dependee2dependent, _dependee, Collections.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>emptyMap());
 
 			if (_pair2set != null) {
-				final Collection _set = (Collection) _pair2set.get(pairMgr.getPair(stmt, method));
+				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -279,24 +274,17 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * {@inheritDoc}  This implementation is bi-directional.
-	 */
-	public Object getDirection() {
-		return BI_DIRECTIONAL;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection getIds() {
+	public Collection<Comparable> getIds() {
 		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	/** 
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	public IDependencyAnalysis getIndirectVersionOfDependence() {
-		return new IndirectDependenceAnalysis(this, IDependenceRetriever.PAIR_DEP_RETRIEVER);
+	@Override protected IDependenceRetriever<Stmt, SootMethod, Pair<Stmt, SootMethod>, Stmt, SootMethod, Pair<Stmt, SootMethod>> getDependenceRetriever() {
+		return new PairRetriever<Stmt, SootMethod, Stmt, SootMethod>();
 	}
 
 	/**
@@ -311,7 +299,7 @@ public class InterferenceDAv1
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public void analyze() {
+	@Override public void analyze() {
 		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -331,8 +319,8 @@ public class InterferenceDAv1
 				continue;
 			}
 
-			final Map _dtMap = (Map) dependent2dependee.get(_o);
-			final Map _deMap = (Map) dependee2dependent.get(_o);
+			final Map _dtMap = dependent2dependee.get(_o);
+			final Map _deMap = dependee2dependent.get(_o);
 
 			for (final Iterator _j = _dtMap.keySet().iterator(); _j.hasNext();) {
 				final Pair _dt = (Pair) _j.next();

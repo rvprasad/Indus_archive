@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -84,7 +86,7 @@ public class SimpleNodeGraphNoCycleTest
 	/**
 	 * Does nothing.
 	 */
-	protected final void localtestAddEdgeFromTo() {
+	@AEmpty protected final void localtestAddEdgeFromTo() {
 	}
 
 	/**

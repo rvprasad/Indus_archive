@@ -21,24 +21,16 @@ package edu.ksu.cis.indus.interfaces;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <P> DOCUMENT ME!
  */
-public abstract class AbstractPrototype
-  implements IPrototype {
+public abstract class AbstractPrototype<P>
+  implements IPrototype<P> {
 	/**
 	 * This implementation throws <code>UnsupportedOperationException</code>.
 	 *
-	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
+	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object[])
 	 */
-	public Object getClone() {
-		throw new UnsupportedOperationException("getClone(Object) is not supported.");
-	}
-
-	/**
-	 * This implementation throws <code>UnsupportedOperationException</code>.
-	 *
-	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object)
-	 */
-	public Object getClone(final Object o) {
+	public P getClone(@SuppressWarnings("unused") final Object ... o) {
 		throw new UnsupportedOperationException("getClone(Object) is not supported.");
 	}
 }

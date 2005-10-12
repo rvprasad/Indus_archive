@@ -26,13 +26,15 @@ import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStr
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <I> DOCUMENT ME!
+ * @param <O> DOCUMENT ME!
  */
-public abstract class AbstractIndexManager
-  implements IIndexManager {
+public abstract class AbstractIndexManager<I extends IIndex<I>, O>
+  implements IIndexManager<I, O> {
 	/** 
 	 * The strategy used to manage indices.
 	 */
-	private final IIndexManagementStrategy strategizedIndexMgr;
+	private final IIndexManagementStrategy<I> strategizedIndexMgr;
 
 	/**
 	 * Creates a new AbstractIndexManager object.
@@ -44,24 +46,13 @@ public abstract class AbstractIndexManager
 	/**
 	 * This operation is unsupported.
 	 *
-	 * @return (This method will raise an exception.)
-	 *
-	 * @throws UnsupportedOperationException if the operation is not supported.
-	 */
-	public Object getClone() {
-		throw new UnsupportedOperationException("prototype() is not supported.");
-	}
-
-	/**
-	 * This operation is unsupported.
-	 *
 	 * @param o is ignored.
 	 *
 	 * @return (This method will raise an exception.)
 	 *
 	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
-	public Object getClone(final Object o) {
+	public Object getClone(@SuppressWarnings("unused") final Object...o) {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
@@ -77,8 +68,8 @@ public abstract class AbstractIndexManager
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	public final IIndex getIndex(final Object o, final Context c) {
-		final IIndex _temp = createIndex(o, c);
+	public final I getIndex(final O o, final Context c) {
+		final I _temp = createIndex(o, c);
 		return strategizedIndexMgr.getEquivalentIndex(_temp);
 	}
 
@@ -100,7 +91,7 @@ public abstract class AbstractIndexManager
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	protected abstract IIndex createIndex(final Object o, final Context c);
+	protected abstract I createIndex(final O o, final Context c);
 }
 
 // End of File

@@ -49,7 +49,7 @@ public class ClassManager {
 	/** 
 	 * The collection of classes for which the information has been processed.
 	 */
-	final Collection classes;
+	final Collection<SootClass> classes;
 
 	/** 
 	 * Describe variable <code>context</code> here.
@@ -73,7 +73,7 @@ public class ClassManager {
 	 * @pre theAnalysis != null
 	 */
 	ClassManager(final FA theAnalysis) {
-		classes = new HashSet();
+		classes = new HashSet<SootClass>();
 		this.fa = theAnalysis;
 		context = new Context();
 	}
@@ -99,8 +99,8 @@ public class ClassManager {
 
 			includeClassInitializer(sc);
 
-			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(classes);
-			final Collection _temp = new HashSet();
+			final IWorkBag<SootClass> _wb = new HistoryAwareFIFOWorkBag<SootClass>(classes);
+			final Collection<SootClass> _temp = new HashSet<SootClass>();
 
 			if (Util.hasSuperclass(sc)) {
 				_temp.add(sc.getSuperclass());
@@ -109,7 +109,7 @@ public class ClassManager {
 			_wb.addAllWorkNoDuplicates(_temp);
 
 			while (_wb.hasWork()) {
-				final SootClass _sc = (SootClass) _wb.getWork();
+				final SootClass _sc = _wb.getWork();
 				_sc.addTag(_theTag);
 
 				if (LOGGER.isDebugEnabled()) {

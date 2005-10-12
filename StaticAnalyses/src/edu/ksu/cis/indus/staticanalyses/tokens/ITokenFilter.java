@@ -21,8 +21,10 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
-public interface ITokenFilter {
+public interface ITokenFilter<T extends ITokens<T, V>, V> {
 	/**
 	 * Filters the given values.
 	 *
@@ -30,7 +32,7 @@ public interface ITokenFilter {
 	 *
 	 * @return a collection of values without the values that were filtered.
 	 */
-	ITokens filter(final ITokens tokens);
+	T filter(final T tokens);
 }
 
 // End of File

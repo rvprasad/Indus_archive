@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.IWork;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 
@@ -31,7 +32,7 @@ public interface IWorkBagProvider {
 	 *
 	 * @return the work bag.
 	 */
-	IWorkBag getWorkBag();
+	IWorkBag<IWork> getWorkBag();
 }
 
 // End of File

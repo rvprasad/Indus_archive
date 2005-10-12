@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.interfaces;
 
 import soot.SootMethod;
 
+import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 
 
@@ -36,9 +37,9 @@ public interface INewExpr2InitMapper {
 	 *
 	 * @return the statement in which the corresponding init invocation expression occurring statement
 	 *
-	 * @post result != null and result.contains(InvokeExpr) and result.getInvokeExpr().oclIsKindOf(SpecialInvokeExpr)
+	 * @post result != null and result.getInvokeExpr().oclIsKindOf(SpecialInvokeExpr)
 	 */
-	Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method);
+	InvokeStmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method);
 }
 
 // End of File

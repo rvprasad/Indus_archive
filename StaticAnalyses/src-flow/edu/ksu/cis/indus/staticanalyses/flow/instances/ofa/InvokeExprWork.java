@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,14 +19,12 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,49 +41,47 @@ import soot.ValueBox;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.NullConstant;
 
-
 /**
  * This class represents a peice of work that plugin new fragments of flow graph as new types which provide new
  * implementations flow into the receiver at the associated call-site.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
 class InvokeExprWork
-  extends AbstractAccessExprWork {
-	/** 
+		extends AbstractAccessExprWork<OFAFGNode> {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(InvokeExprWork.class);
 
-	/** 
+	/**
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
-	 *
+	 * 
 	 * @invariant returnsRefLikeType != null
 	 */
 	protected final boolean returnsRefLikeType;
 
-	/** 
-	 * The collection of variants already processed/installed at the given access expression.  We do not want to process
+	/**
+	 * The collection of variants already processed/installed at the given access expression. We do not want to process
 	 * variants again and again.
-	 *
+	 * 
 	 * @invariant installedVariants != null
 	 */
-	private final Set installedVariants = new HashSet();
+	private final Collection<IMethodVariant> installedVariants = new HashSet<IMethodVariant>();
 
 	/**
 	 * Creates a new <code>InvokeExprWork</code> instance.
-	 *
+	 * 
 	 * @param callerMethod the method in which the call occurs.
 	 * @param callContext the context in which the invocation occurs.
 	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
-	 *
 	 * @throws IllegalArgumentException when <code>accessExprBox</code> does not wrap an <code>InstanceInvokeExpr</code>
-	 * 		   object.
-	 *
+	 *             object.
 	 * @pre callerMethod != null and callContext != null and tokenSet != null
 	 */
-	public InvokeExprWork(final IMethodVariant callerMethod, final Context callContext, final ITokens tokenSet) {
+	public InvokeExprWork(final IMethodVariant<OFAFGNode, ?, ?, ?> callerMethod, final Context callContext, final ITokens tokenSet) {
 		super(callerMethod, callContext, tokenSet);
 
 		final ValueBox _invocationExpr = callContext.getProgramPoint();
@@ -100,21 +95,21 @@ class InvokeExprWork
 	}
 
 	/**
-	 * Checks if any of the <code>values</code> provide a new method implementation.  If so, plugs in the flow graph for the
-	 * new implementation at the method invocation site connecting the nodes suitably.  It plugs in call-backs resulting
-	 * from native method calls.
+	 * Checks if any of the <code>values</code> provide a new method implementation. If so, plugs in the flow graph for the
+	 * new implementation at the method invocation site connecting the nodes suitably. It plugs in call-backs resulting from
+	 * native method calls.
 	 */
 	public synchronized void execute() {
 		final InstanceInvokeExpr _e = (InstanceInvokeExpr) accessExprBox.getValue();
 		final ValueBox _vb = context.getProgramPoint();
-		final Collection _values = tokens.getValues();
+		final Collection<Value> _values = tokens.getValues();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(_values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
-			final Value _v = (Value) _i.next();
+		for (final Iterator<Value> _i = _values.iterator(); _i.hasNext();) {
+			final Value _v = _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Value: " + _v);
@@ -136,35 +131,33 @@ class InvokeExprWork
 
 	/**
 	 * Returns a stringized representation of this object.
-	 *
+	 * 
 	 * @return the stringized representation of this object.
-	 *
 	 * @post result != null
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return "InvokeExprWork: " + caller.getMethod() + "@" + accessExprBox.getValue();
 	}
 
 	/**
 	 * Processes the given invoke expression for the given receiver object.
-	 *
+	 * 
 	 * @param expr is the invoke expr.
 	 * @param receiver is the receiver object.
-	 *
 	 * @pre expr != null and receiver != null
 	 */
 	private void processExprAgainstReceiver(final InstanceInvokeExpr expr, final Value receiver) {
 		final Type _t = receiver.getType();
 		final SootClass _sc;
-		final FA _fa = caller.getFA();
+		final FA<OFAFGNode, ?, ?, ?, ?, ?, ?, ?, ?, ?> _fa = caller.getFA();
 
 		if (_t instanceof RefType) {
 			_sc = _fa.getClass(((RefType) receiver.getType()).getClassName());
 		} else if (_t instanceof ArrayType) {
 			_sc = _fa.getClass("java.lang.Object");
 		} else {
-			final IllegalStateException _excp =
-				new IllegalStateException("Non-reference/array type flowing into invocation site.");
+			final IllegalStateException _excp = new IllegalStateException(
+					"Non-reference/array type flowing into invocation site.");
 
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error(expr.toString());
@@ -181,31 +174,31 @@ class InvokeExprWork
 			throw _excp;
 		}
 
-		final IMethodVariant _mv = _fa.getMethodVariant(_sm, context);
+		final IMethodVariant<OFAFGNode, ?, ?, ?> _mv = _fa.getMethodVariant(_sm, context);
 
 		if (!installedVariants.contains(_mv)) {
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
 				if (_sm.getParameterType(_j) instanceof RefLikeType) {
-					final IFGNode _param = _mv.queryParameterNode(_j);
+					final OFAFGNode _param = _mv.queryParameterNode(_j);
 					context.setProgramPoint(expr.getArgBox(_j));
-					final IFGNode _arg = caller.queryASTNode(expr.getArg(_j), context);
+					final OFAFGNode _arg = caller.queryASTNode(expr.getArg(_j), context);
 					_arg.addSucc(_param);
 				}
 			}
-            
-			final IFGNode _thisNode = _mv.queryThisNode();
+
+			final OFAFGNode _thisNode = _mv.queryThisNode();
 			context.setProgramPoint(expr.getBaseBox());
-			final IFGNode _receiverNode = caller.queryASTNode(expr.getBase(), context);
+			final OFAFGNode _receiverNode = caller.queryASTNode(expr.getBase(), context);
 			_receiverNode.addSucc(_thisNode);
 
-            final IFGNode _thrownNode = _mv.queryThrownNode();
-            context.setProgramPoint(accessExprBox);
-            final IFGNode _receivingNode = caller.queryThrowNode(expr, context);
-            _thrownNode.addSucc(_receivingNode);
-            
+			final OFAFGNode _thrownNode = _mv.queryThrownNode();
+			context.setProgramPoint(accessExprBox);
+			final OFAFGNode _receivingNode = caller.queryThrowNode(expr, context);
+			_thrownNode.addSucc(_receivingNode);
+
 			if (returnsRefLikeType) {
-				final IFGNode _returnNode = _mv.queryReturnNode();
-				final IFGNode _returnValueNode = caller.queryASTNode(expr, context);
+				final OFAFGNode _returnNode = _mv.queryReturnNode();
+				final OFAFGNode _returnValueNode = caller.queryASTNode(expr, context);
 				_returnNode.addSucc(_returnValueNode);
 			}
 			installedVariants.add(_mv);

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.processing;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -37,8 +39,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +120,7 @@ public class ExecutableSlicePostProcessor
 	/**
 	 * Creates an instance of this class.
 	 */
-	public ExecutableSlicePostProcessor() {
+	@AEmpty public ExecutableSlicePostProcessor() {
 		// does nothing
 	}
 
@@ -223,9 +223,9 @@ public class ExecutableSlicePostProcessor
 			final SootClass _currClass = _i.next();
 			final Collection<SootMethod> _abstractMethodsAtCurrClass =
 				gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _currClass);
-			final List _methods = _currClass.getMethods();
-			final List<SootMethod> _collectedMethods = collector.getCollected(_methods);
-			final Collection<SootMethod> _unCollectedMethods = CollectionUtils.subtract(_methods, _collectedMethods);
+			final List<SootMethod> _methods = _currClass.getMethods();
+			final Collection<SootMethod> _collectedMethods =  collector.getCollected(_methods);
+			final Collection<SootMethod> _unCollectedMethods = SetUtils.difference(_methods, _collectedMethods);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Fixing up " + _currClass);

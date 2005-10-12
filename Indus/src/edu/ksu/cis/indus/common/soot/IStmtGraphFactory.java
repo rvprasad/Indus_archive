@@ -33,7 +33,7 @@ public interface IStmtGraphFactory <T extends UnitGraph> {
 	/** 
 	 * The id of this interface.
 	 */
-	Object ID = "Statement Graph Factory";
+	Object ID = "Statement Graph IFactory";
 
 	/**
 	 * Retrieves the unit graph of the given method.

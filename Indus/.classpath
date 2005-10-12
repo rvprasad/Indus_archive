@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry sourcepath="/JAVACLASSES/swt/src.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
-	<classpathentry sourcepath="/JAVACLASSES/src/commons-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>

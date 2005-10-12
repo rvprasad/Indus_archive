@@ -14,7 +14,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -36,9 +38,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,16 +98,16 @@ public class AliasedUseDefInfo
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> def2usesMap;
 
 	/**
+	 * This manages <code>Pair</code> objects.
+	 */
+	private final PairManager pairMgr;
+
+	/**
 	 * This is a map from use-sites to their corresponding to def-sites.
 	 * 
 	 * @invariant use2defsMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> use2defsMap;
-
-	/**
-	 * This manages <code>Pair</code> objects.
-	 */
-	private final PairManager pairMgr;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
@@ -119,8 +118,8 @@ public class AliasedUseDefInfo
 	 * @param analysis to be used.
 	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager,
-			final PairManager pairManager, final CFGAnalysis analysis) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager,
+			final CFGAnalysis analysis) {
 		cfgAnalysis = analysis;
 		analyzer = iva;
 		bbgMgr = bbgManager;
@@ -129,72 +128,6 @@ public class AliasedUseDefInfo
 				Constants.getNumOfFieldsInApplication());
 		use2defsMap = new HashMap<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>>(
 				Constants.getNumOfFieldsInApplication());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @param method in which the use occurs.
-	 * @pre context != null
-	 */
-	public Collection<Pair<Stmt, SootMethod>> getDefs(final Stmt useStmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
-
-		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
-			final Object _key;
-
-			if (useStmt.containsArrayRef()) {
-				_key = useStmt.getArrayRef().getBase().getType();
-			} else {
-				_key = useStmt.getFieldRef().getField();
-			}
-
-			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _map = (Map) MapUtils.getObject(
-					use2defsMap, _key);
-			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair((DefinitionStmt) useStmt, method), Collections
-					.emptyList());
-		}
-		return _result;
-	}
-
-	/**
-	 * {@inheritDoc}<i>This operation is unsupported in this implementation.</i>
-	 */
-	public Collection<Object> getDefs(@SuppressWarnings("unused") final Local local,
-			@SuppressWarnings("unused") final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
-		throw new UnsupportedOperationException("This opertation is not supported.");
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
-	 */
-	public Collection<String> getIds() {
-		return Collections.singleton(IUseDefInfo.ALIASED_USE_DEF_ID);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @param method in which the definition occurs.
-	 * @pre method != null
-	 */
-	public Collection<Pair<Stmt, SootMethod>> getUses(final DefinitionStmt defStmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
-
-		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
-			final Object _key;
-
-			if (defStmt.containsArrayRef()) {
-				_key = defStmt.getArrayRef().getBase().getType();
-			} else {
-				_key = defStmt.getFieldRef().getField();
-			}
-
-			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _map = (Map) MapUtils.getObject(
-					def2usesMap, _key);
-			_result = (Collection) MapUtils.getObject(_map, pairMgr.getPair(defStmt, method), Collections.emptyList());
-		}
-		return _result;
 	}
 
 	/**
@@ -213,13 +146,14 @@ public class AliasedUseDefInfo
 			}
 
 			final Value _ref = _as.getRightOp();
-			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _key2info;
-
+			final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> _map;
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
-				_key2info = CollectionsUtilities.getMapFromMap(use2defsMap, _key);
+				_map = use2defsMap;
 			} else {
-				_key2info = CollectionsUtilities.getMapFromMap(def2usesMap, _key);
+				_map = def2usesMap;
 			}
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _key2info = MapUtils
+					.getFromMapUsingFactory(_map, _key, MapUtils.MAP_FACTORY);
 			_key2info.put(pairMgr.getPair(_as, context.getCurrentMethod()), null);
 		}
 	}
@@ -265,14 +199,14 @@ public class AliasedUseDefInfo
 							 * use call graph reachability within the locality of a thread.
 							 */
 							if (doesDefReachUse(_defSite, _useSite)) {
-								CollectionsUtilities.putIntoSetInMap(_usesite2defsites, _useSite, _defSite);
+								MapUtils.putIntoCollectionInMapUsingFactory(_usesite2defsites, _useSite, _defSite, SetUtils.<Pair<DefinitionStmt, SootMethod>>getFactory());
 								_uses.add(_useSite);
 							}
 						}
 					}
 
 					if (!_uses.isEmpty()) {
-						CollectionsUtilities.putAllIntoSetInMap(_defsite2usesites, _defSite, _uses);
+						MapUtils.putAllIntoCollectionInMapUsingFactory(_defsite2usesites, _defSite, _uses, SetUtils.<Pair<DefinitionStmt, SootMethod>>getFactory());
 						_uses.clear();
 					}
 				}
@@ -282,6 +216,71 @@ public class AliasedUseDefInfo
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: consolidating");
 		}
+	}
+
+	/**
+	 * {@inheritDoc}<i>This operation is unsupported in this implementation.</i>
+	 */
+	public Collection<Object> getDefs(@SuppressWarnings("unused") final Local local,
+			@SuppressWarnings("unused") final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
+		throw new UnsupportedOperationException("This opertation is not supported.");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param method in which the use occurs.
+	 * @pre context != null
+	 */
+	public Collection<Pair<DefinitionStmt, SootMethod>> getDefs(final Stmt useStmt, final SootMethod method) {
+		Collection<Pair<DefinitionStmt, SootMethod>> _result = Collections.emptyList();
+
+		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
+			final Object _key;
+
+			if (useStmt.containsArrayRef()) {
+				_key = useStmt.getArrayRef().getBase().getType();
+			} else {
+				_key = useStmt.getFieldRef().getField();
+			}
+
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _map = MapUtils
+					.queryObject(use2defsMap, _key);
+			_result = MapUtils.queryObject(_map, pairMgr.getPair((DefinitionStmt) useStmt, method), Collections.<Pair<DefinitionStmt, SootMethod>>emptySet());
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection<Comparable> getIds() {
+		return Collections.singleton(IUseDefInfo.ALIASED_USE_DEF_ID);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param method in which the definition occurs.
+	 * @pre method != null
+	 */
+	public Collection<Pair<DefinitionStmt, SootMethod>> getUses(final DefinitionStmt defStmt, final SootMethod method) {
+		Collection<Pair<DefinitionStmt, SootMethod>> _result = Collections.emptyList();
+
+		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
+			final Object _key;
+
+			if (defStmt.containsArrayRef()) {
+				_key = defStmt.getArrayRef().getBase().getType();
+			} else {
+				_key = defStmt.getFieldRef().getField();
+			}
+
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _map = MapUtils
+					.queryObject(def2usesMap, _key);
+			_result = MapUtils.queryObject(_map, pairMgr.getPair(defStmt, method), Collections.<Pair<DefinitionStmt, SootMethod>>emptySet());
+		}
+		return _result;
 	}
 
 	/**
@@ -400,7 +399,7 @@ public class AliasedUseDefInfo
 			_context.setStmt(_useStmt);
 			_context.setProgramPoint(_vBox1);
 
-			@SuppressWarnings("unchecked") final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
+			final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
 			final ValueBox _vBox2 = _defStmt.getArrayRef().getBaseBox();
 			_context.setRootMethod(_defMethod);
 			_context.setStmt(_defStmt);
@@ -420,7 +419,7 @@ public class AliasedUseDefInfo
 				_context.setStmt(_useStmt);
 				_context.setProgramPoint(_vBox1);
 
-				@SuppressWarnings("unchecked") final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
+				final Collection<Value> _c1 = analyzer.getValues(_vBox1.getValue(), _context);
 				final ValueBox _vBox2 = ((InstanceFieldRef) _defStmt.getFieldRef()).getBaseBox();
 				_context.setRootMethod(_defMethod);
 				_context.setStmt(_defStmt);

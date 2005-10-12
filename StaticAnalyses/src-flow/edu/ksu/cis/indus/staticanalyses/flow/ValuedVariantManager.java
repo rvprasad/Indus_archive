@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,36 +17,33 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 /**
  * This class manages variants corresponding to entities that have values.
  * 
- * <p>
- * Created: Fri Jan 25 13:50:16 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
-public class ValuedVariantManager
-  extends AbstractVariantManager {
+class ValuedVariantManager<N extends IFGNode<N, ?>, V>
+		extends AbstractVariantManager<ValuedVariant<N>, V, N> {
+
 	/**
 	 * Creates a new <code>ValuedVariantManager</code> instance.
-	 *
-	 * @param theAnalysis the instance of the framework in which this object is used.  This cannot be <code>null</code>.
-	 * @param indexManager the manager of indices which map array variants to arrays.  This cannot be <code>null</code>.
-	 *
+	 * 
+	 * @param theAnalysis the instance of the framework in which this object is used.
+	 * @param indexManager the manager of indices which map array variants to arrays.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ValuedVariantManager(final FA theAnalysis, final IIndexManager indexManager) {
+	ValuedVariantManager(final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> theAnalysis, final IIndexManager<?, V> indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
 	/**
-	 * Returns a new array variant corresponding to the given array type.
-	 *
-	 * @param o the <code>ArrayType</code> whose variant is to be returned.
-	 *
-	 * @return a new <code>ArrayVariant</code> corresponding to <code>o</code>.
+	 * Returns a new valued variant corresponding to the given ast object.  
+	 * 
+	 * @param o the ast object whose variant is to be returned.
+	 * @return a new variant corresponding to <code>o</code>.
 	 */
-	protected IVariant getNewVariant(final Object o) {
-		return new ValuedVariant(fa.getNewFGNode());
+	@Override protected ValuedVariant<N> getNewVariant(@SuppressWarnings("unused") final V o) {
+		return new ValuedVariant<N>(fa.getNewFGNode());
 	}
 }
 

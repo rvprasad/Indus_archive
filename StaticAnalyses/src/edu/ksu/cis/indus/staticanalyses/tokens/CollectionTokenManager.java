@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
 import java.util.ArrayList;
@@ -22,8 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +34,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <V> DOCUMENT ME!
  */
-public final class CollectionTokenManager
-  extends AbstractTokenManager {
+public final class CollectionTokenManager<V>
+  extends AbstractTokenManager<CollectionTokenManager<V>.CollectionTokens, V> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -62,7 +62,7 @@ public final class CollectionTokenManager
 	 * @version $Revision$ $Date$
 	 */
 	private class CollectionTokenFilter
-	  implements ITokenFilter {
+	  implements ITokenFilter<CollectionTokenManager<V>.CollectionTokens, V> {
 		/** 
 		 * The type associated with the filter.
 		 */
@@ -82,11 +82,11 @@ public final class CollectionTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
-		public ITokens filter(final ITokens tokens) {
-			final Collection _filterate = new ArrayList();
+		public CollectionTokenManager<V>.CollectionTokens filter(final CollectionTokenManager<V>.CollectionTokens  tokens) {
+			final Collection<V> _filterate = new ArrayList<V>();
 
-			for (final Iterator _i = tokens.getValues().iterator(); _i.hasNext();) {
-				final Object _value = _i.next();
+			for (final Iterator<V> _i = tokens.getValues().iterator(); _i.hasNext();) {
+				final V _value = _i.next();
 
 				if (typeMgr.getAllTypes(_value).contains(filterType)) {
 					_filterate.add(_value);
@@ -106,13 +106,13 @@ public final class CollectionTokenManager
 	 */
 	private class CollectionTokens
 	  extends AbstractPrototype
-	  implements ITokens {
+	  implements ITokens<CollectionTokens, V> {
 		/** 
 		 * The collection of values.
 		 *
 		 * @invariant values != null
 		 */
-		private Collection values;
+		private Collection<V> values;
 
 		/**
 		 * Creates a new instance of this class.
@@ -121,14 +121,22 @@ public final class CollectionTokenManager
 		 *
 		 * @pre initValues != null
 		 */
-		CollectionTokens(final Collection initValues) {
-			values = new HashSet(initValues);
+		CollectionTokens(final Collection<V> initValues) {
+			values = new HashSet<V>(initValues);
+		}
+		
+		/**
+		 * Creates an instance of this class.
+		 * 
+		 */
+		CollectionTokens() {
+			values = new HashSet<V>();
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
 		 */
-		public Object getClone() {
+		@Override public CollectionTokens getClone(@SuppressWarnings("unused") final Object...o) {
 			return new CollectionTokens(values);
 		}
 
@@ -142,15 +150,15 @@ public final class CollectionTokenManager
 		/**
 		 * @see ITokens#getValues()
 		 */
-		public Collection getValues() {
+		public Collection<V> getValues() {
 			return Collections.unmodifiableCollection(values);
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#addTokens(ITokens)
 		 */
-		public void addTokens(final ITokens newTokens) {
-			values.addAll(((CollectionTokens) newTokens).values);
+		public void addTokens(final CollectionTokens newTokens) {
+			values.addAll(newTokens.values);
 		}
 
 		/**
@@ -163,29 +171,29 @@ public final class CollectionTokenManager
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
 		 */
-		public ITokens diffTokens(final ITokens tokens) {
-			return new CollectionTokens(CollectionUtils.subtract(values, ((CollectionTokens) tokens).values));
+		public CollectionTokens diffTokens(final CollectionTokens  tokens) {
+			return new CollectionTokens(SetUtils.difference(values, tokens.values));
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
 	 */
-	public ITokens getNewTokenSet() {
-		return new CollectionTokens(Collections.EMPTY_LIST);
+	public CollectionTokens getNewTokenSet() {
+		return new CollectionTokens();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
 	 */
-	public ITokens getTokens(final Collection values) {
+	public CollectionTokens getTokens(final Collection<V> values) {
 		return new CollectionTokens(values);
 	}
 
 	/**
 	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
 	 */
-	protected ITokenFilter getNewFilterForType(final IType type) {
+	@Override protected CollectionTokenFilter getNewFilterForType(final IType type) {
 		return new CollectionTokenFilter(type);
 	}
 }

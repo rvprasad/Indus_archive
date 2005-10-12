@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,48 +14,46 @@
 
 package edu.ksu.cis.indus.common;
 
-import org.apache.commons.collections.Predicate;
-
+import edu.ksu.cis.indus.common.collections.IPredicate;
 
 /**
  * This class can be used to check if a given class object is the super type of a sub type.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ReflectionBasedSupertypePredicate
-  implements Predicate {
-	/** 
+		implements IPredicate<Class> {
+
+	/**
 	 * The sub type against which the check will occur.
 	 */
 	private Class subtype;
 
 	/**
-	 * Checks if the given object is a super type of the subtype set on this object.
-	 *
-	 * @param object to be checked.
-	 *
-	 * @return <code>true</code> if <code>object</code> is a class object and it is a super type of the subtype set on this
-	 * 		   object; <code>false</code>, otherwise.
+	 * Creates an instance of this class.
+	 * 
 	 */
-	public boolean evaluate(final Object object) {
-		final boolean _result;
+	public ReflectionBasedSupertypePredicate() {
+		super();
+	}
 
-		if (object instanceof Class) {
-			final Class<?> _superClass = (Class) object;
-			_result = _superClass.isAssignableFrom(subtype);
-		} else {
-			_result = false;
-		}
-		return _result;
+	/**
+	 * Checks if the given object is a super type of the subtype set on this object.
+	 * 
+	 * @param object to be checked.
+	 * @return <code>true</code> if <code>object</code> is a class object and it is a super type of the subtype set on
+	 *         this object; <code>false</code>, otherwise.
+	 */
+	@SuppressWarnings("unchecked") public boolean evaluate(final Class object) {
+		return object.isAssignableFrom(subtype);
 	}
 
 	/**
 	 * Sets the subtype for the check to be performed by this object.
-	 *
+	 * 
 	 * @param clazz is the subtype.
-	 *
 	 * @pre class != null
 	 */
 	public void setsubType(final Class clazz) {

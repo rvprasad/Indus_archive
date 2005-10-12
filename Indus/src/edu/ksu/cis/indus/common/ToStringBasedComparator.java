@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.Comparator;
 
 /**
@@ -37,7 +39,7 @@ public final class ToStringBasedComparator<T>
 	/**
 	 * Creates an instance of this class.
 	 */
-	private ToStringBasedComparator() {
+	@AEmpty private ToStringBasedComparator() {
 		// does nothing.
 	}
 

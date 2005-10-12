@@ -27,9 +27,11 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
-public interface ITokens
-  extends IPrototype {
+public interface ITokens<T extends ITokens<T, V>, V>
+  extends IPrototype, Cloneable {
 	/**
 	 * Checks if there are no tokens in the collection.
 	 *
@@ -44,7 +46,7 @@ public interface ITokens
 	 *
 	 * @post result != null
 	 */
-	Collection getValues();
+	Collection<V> getValues();
 
 	/**
 	 * Adds the given tokens into this collection of tokens.  Implementation dictates properties such as duplication.
@@ -53,7 +55,7 @@ public interface ITokens
 	 *
 	 * @pre newTokens != null
 	 */
-	void addTokens(ITokens newTokens);
+	void addTokens(T newTokens);
 
 	/**
 	 * Empties this collection.
@@ -71,7 +73,7 @@ public interface ITokens
 	 * @pre tokens != null
 	 * @post result != null
 	 */
-	ITokens diffTokens(ITokens tokens);
+	T diffTokens(T tokens);
 }
 
 // End of File

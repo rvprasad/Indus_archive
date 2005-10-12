@@ -31,7 +31,7 @@ public class Marker {
 	private final Object content;
 
 	/**
-	 * Creates a new Marker object.
+	 * Creates a new AMarker object.
 	 *
 	 * @param o is any content to be stored in the marker.
 	 */

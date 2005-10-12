@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,34 +14,34 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 
 import java.util.Collection;
 
-import org.apache.commons.collections.CollectionUtils;
-
+import soot.SootMethod;
 
 /**
- * Call-Graph-based processing filter.  This filters out unreachable methods.
- *
+ * Call-Graph-based processing filter. This filters out unreachable methods.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class CGBasedProcessingFilter
-  extends AbstractProcessingFilter {
-	/** 
+		extends AbstractProcessingFilter {
+
+	/**
 	 * Provides the call graph information to drive the processing.
 	 */
 	private ICallGraphInfo cgi;
 
 	/**
 	 * Creates a new CGBasedProcessingFilter object.
-	 *
+	 * 
 	 * @param cgiPrm provides the call graph information to drive the processing.
-	 *
 	 * @pre cgiPrm != null
 	 */
 	public CGBasedProcessingFilter(final ICallGraphInfo cgiPrm) {
@@ -51,11 +50,11 @@ public class CGBasedProcessingFilter
 
 	/**
 	 * Filters out methods that unreachable in the call graph provided at construction.
-	 *
+	 * 
 	 * @see AbstractProcessingFilter#localFilterMethods(Collection)
 	 */
-	protected final Collection localFilterMethods(final Collection methods) {
-		return CollectionUtils.intersection(methods, cgi.getReachableMethods());
+	@Override protected final Collection<SootMethod> localFilterMethods(final Collection<SootMethod> methods) {
+		return SetUtils.intersection(methods, cgi.getReachableMethods());
 	}
 }
 

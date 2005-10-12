@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,36 +14,48 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.Collection;
 
+import soot.SootMethod;
 import soot.jimple.Stmt;
-
 
 /**
  * This implementation of <code>IDependenceRetriever</code> is used in instance when the dependence information is provided
- * in terms of statements and the context does not change from the orignal context.  Use this in cases such as control
+ * in terms of statements and the context does not change from the orignal context. Use this in cases such as control
  * dependence.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <C1> DOCUMENT ME!
+ * @param <C2> DOCUMENT ME!
  */
 final class StmtRetriever
-  implements IDependenceRetriever {
+		implements IDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> {
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@AEmpty public StmtRetriever() {
+		// does nothing
+	}
+
 	/**
 	 * @see IDependenceRetriever#getDependees(IDependencyAnalysis, Object, Object)
 	 */
-	public Collection getDependees(final IDependencyAnalysis da, final Object dependent, final Object origContext) {
-		final Stmt _stmt = (Stmt) dependent;
-		return da.getDependees(_stmt, origContext);
+	public Collection<Stmt> getDependees(final IDependencyAnalysis<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> da,
+			final Stmt dependent, final SootMethod origContext) {
+		return da.getDependees(dependent, origContext);
 	}
 
 	/**
 	 * @see IDependenceRetriever#getDependents(IDependencyAnalysis, Object, Object)
 	 */
-	public Collection getDependents(final IDependencyAnalysis da, final Object dependee, final Object origContext) {
-		final Stmt _stmt = (Stmt) dependee;
-		return da.getDependents(_stmt, origContext);
+	public Collection<Stmt> getDependents(final IDependencyAnalysis<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> da,
+			final Stmt dependee, final SootMethod origContext) {
+		return da.getDependents(dependee, origContext);
 	}
 }
 

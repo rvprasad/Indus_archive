@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,11 +14,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.graph.IMutableNode;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
@@ -28,6 +27,7 @@ import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.StaticEnvironment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -48,103 +45,87 @@ import soot.SootClass;
 
 import soot.util.Chain;
 
-
 /**
  * This is an implementation of class hierarchy analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class ClassHierarchy
-  extends AbstractProcessor
-  implements IClassHierarchy {
-	/** 
+		extends AbstractProcessor
+		implements IClassHierarchy {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClassHierarchy.class);
 
-	/** 
-	 * This stores the classes in the system.
-	 *
-	 * @invariant classes.oclIsKindOf(Set(SootClass))
-	 */
-	private final Collection classes = new HashSet();
-
-	/** 
-	 * This stores the interfaces in the system.
-	 *
-	 * @invariant interfaces.oclIsKindOf(Set(SootClass))
-	 */
-	private final Collection interfaces = new HashSet();
-
-	/** 
+	/**
 	 * This maintains class to proper ancestor classes relation.
-	 *
-	 * @invariant class2properAncestorClasses.oclIsKindOf(Map(SootClass, Collection(SootClass)))
 	 */
-	private final Map class2properAncestorClasses = new HashMap();
-
-	/** 
-	 * This maintains class to proper ancestor interfaces relation.
-	 *
-	 * @invariant class2properAncestorInterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
-	 */
-	private final Map class2properAncestorInterfaces = new HashMap();
-
-	/** 
-	 * This maintains class to proper immediate subclass relation.
-	 *
-	 * @invariant class2properChildren.oclIsKindOf(Map(SootClass, Collection(SootClass)))
-	 */
-	private final Map class2properChildren = new HashMap();
-
-	/** 
-	 * This maintains class to proper subclass relation.
-	 *
-	 * @invariant class2properDescendants.oclIsKindOf(Map(SootClass, Collection(SootClass)))
-	 */
-	private final Map class2properDescendants = new HashMap();
-
-	/** 
-	 * This maintains class to proper parent class relation.
-	 *
-	 * @invariant class2properParent.oclIsKindOf(Map(SootClass, SootClass))
-	 */
-	private final Map class2properParentClass = new HashMap();
-
-	/** 
-	 * This maintains class to proper parent interfaces relation.
-	 *
-	 * @invariant class2properParentInterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
-	 */
-	private final Map class2properParentInterfaces = new HashMap();
-
-	/** 
-	 * This maintains class hierarchy as a graph.
-	 */
-	private SimpleNodeGraph classHierarchy;
+	private final Map<SootClass, Collection<SootClass>> class2properAncestorClasses = new HashMap<SootClass, Collection<SootClass>>();
 
 	/**
-	 * Creates a class hierarchy from the given classes.  Any classes required to complete the hierarchy (upwards) will be
+	 * This maintains class to proper ancestor interfaces relation.
+	 */
+	private final Map<SootClass, Collection<SootClass>> class2properAncestorInterfaces = new HashMap<SootClass, Collection<SootClass>>();
+
+	/**
+	 * This maintains class to proper immediate subclass relation.
+	 */
+	private final Map<SootClass, Collection<SootClass>> class2properChildren = new HashMap<SootClass, Collection<SootClass>>();
+
+	/**
+	 * This maintains class to proper subclass relation.
+	 */
+	private final Map<SootClass, Collection<SootClass>> class2properDescendants = new HashMap<SootClass, Collection<SootClass>>();
+
+	/**
+	 * This maintains class to proper parent class relation.
+	 */
+	private final Map<SootClass, SootClass> class2properParentClass = new HashMap<SootClass, SootClass>();
+
+	/**
+	 * This maintains class to proper parent interfaces relation.
+	 * 
+	 * @invariant class2properParentInterfaces.oclIsKindOf(Map(SootClass, Collection(SootClass)))
+	 */
+	private final Map<SootClass, Collection<SootClass>> class2properParentInterfaces = new HashMap<SootClass, Collection<SootClass>>();
+
+	/**
+	 * This stores the classes in the system.
+	 */
+	private final Collection<SootClass> classes = new HashSet<SootClass>();
+
+	/**
+	 * This maintains class hierarchy as a graph.
+	 */
+	private SimpleNodeGraph<SootClass> classHierarchy;
+
+	/**
+	 * This stores the interfaces in the system.
+	 */
+	private final Collection<SootClass> interfaces = new HashSet<SootClass>();
+
+	/**
+	 * Creates a class hierarchy from the given classes. Any classes required to complete the hierarchy (upwards) will be
 	 * included.
-	 *
+	 * 
 	 * @param classes of interest
-	 *
 	 * @return the class hierarchy.
-	 *
 	 * @post result.getClasses().union(result.getInterfaces())->includesAll(classes)
 	 */
-	public static ClassHierarchy createClassHierarchyFrom(final Collection classes) {
+	public static ClassHierarchy createClassHierarchyFrom(final Collection<SootClass> classes) {
 		final ClassHierarchy _result = new ClassHierarchy();
 		final ProcessingController _pc = new ProcessingController();
-		final Collection _temp = new HashSet();
+		final Collection<SootClass> _temp = new HashSet<SootClass>();
 
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+		final IWorkBag<SootClass> _wb = new HistoryAwareFIFOWorkBag<SootClass>(_temp);
 		_wb.addAllWork(classes);
 
 		while (_wb.hasWork()) {
-			final SootClass _sc = (SootClass) _wb.getWork();
+			final SootClass _sc = _wb.getWork();
 			_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
 
 			if (_sc.hasSuperclass()) {
@@ -161,169 +142,27 @@ public final class ClassHierarchy
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClasses()
-	 */
-	public Collection getClasses() {
-		return Collections.unmodifiableCollection(classes);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClassesInTopologicalOrder(boolean)
-	 */
-	public List getClassesInTopologicalOrder(final boolean topDown) {
-		return (List) CollectionUtils.collect(classHierarchy.performTopologicalSort(topDown),
-			IObjectDirectedGraph.OBJECT_EXTRACTOR);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
-	 */
-	public Collection getIds() {
-		return Collections.singleton(ID);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getInterfaces()
-	 */
-	public Collection getInterfaces() {
-		return Collections.unmodifiableCollection(interfaces);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorClassesOf(soot.SootClass)
-	 */
-	public Collection getProperAncestorClassesOf(final SootClass clazz) {
-		Collection _result = (Collection) MapUtils.getObject(class2properAncestorClasses, clazz);
-
-		if (_result == null) {
-			_result =
-				CollectionUtils.intersection(classes,
-					CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), false),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR));
-
-			if (_result.isEmpty()) {
-				_result = Collections.EMPTY_SET;
-			}
-			class2properAncestorClasses.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorInterfacesOf(soot.SootClass)
-	 */
-	public Collection getProperAncestorInterfacesOf(final SootClass clazz) {
-		Collection _result = (Collection) MapUtils.getObject(class2properAncestorInterfaces, clazz);
-
-		if (_result == null) {
-			_result =
-				CollectionUtils.intersection(interfaces,
-					CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), false),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR));
-
-			if (_result.isEmpty()) {
-				_result = Collections.EMPTY_SET;
-			}
-			class2properAncestorInterfaces.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperImmediateSubClassesOf(soot.SootClass)
-	 */
-	public Collection getProperImmediateSubClassesOf(final SootClass clazz) {
-		Collection _result = (Collection) MapUtils.getObject(class2properChildren, clazz);
-
-		if (_result == null) {
-			_result =
-				CollectionUtils.collect(classHierarchy.queryNode(clazz).getSuccsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
-
-			if (_result.isEmpty()) {
-				_result = Collections.EMPTY_SET;
-			}
-			class2properChildren.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
-	 * @see IClassHierarchy#getProperParentClassOf(SootClass)
-	 */
-	public SootClass getProperParentClassOf(final SootClass clazz) {
-		SootClass _result = (SootClass) MapUtils.getObject(class2properParentClass, clazz);
-
-		if (_result == null) {
-			_result =
-				(SootClass) CollectionUtils.intersection(classes,
-					CollectionUtils.collect(classHierarchy.queryNode(clazz).getPredsOf(),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR)).iterator().next();
-			class2properParentClass.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
-	 * @see IClassHierarchy#getProperParentInterfacesOf(SootClass)
-	 */
-	public Collection getProperParentInterfacesOf(final SootClass clazz) {
-		Collection _result = (Collection) MapUtils.getObject(class2properParentInterfaces, clazz);
-
-		if (_result == null) {
-			_result =
-				CollectionUtils.intersection(interfaces,
-					CollectionUtils.collect(classHierarchy.queryNode(clazz).getPredsOf(),
-						IObjectDirectedGraph.OBJECT_EXTRACTOR));
-
-			if (_result.isEmpty()) {
-				_result = Collections.EMPTY_SET;
-			}
-			class2properParentInterfaces.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperSubclassesOf(soot.SootClass)
-	 */
-	public Collection getProperSubclassesOf(final SootClass clazz) {
-		Collection _result = (Collection) MapUtils.getObject(class2properDescendants, clazz);
-
-		if (_result == null) {
-			_result =
-				CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), true),
-					IObjectDirectedGraph.OBJECT_EXTRACTOR);
-
-			if (_result.isEmpty()) {
-				_result = Collections.EMPTY_SET;
-			}
-			class2properDescendants.put(clazz, _result);
-		}
-		return _result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	@Override public void callback(final SootClass clazz) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("callback(SootClass clazz = " + clazz + ") - BEGIN");
 		}
 
-		final IMutableNode _classNode = classHierarchy.getNode(clazz);
+		final SimpleNode<SootClass> _classNode = classHierarchy.getNode(clazz);
 
 		if (clazz.hasSuperclass()) {
-			final IMutableNode _superClassNode = classHierarchy.getNode(clazz.getSuperclass());
+			final SimpleNode<SootClass> _superClassNode = classHierarchy.getNode(clazz.getSuperclass());
 			classHierarchy.addEdgeFromTo(_superClassNode, _classNode);
 		}
 
 		final Chain _interfaces = clazz.getInterfaces();
-		final Iterator _i = _interfaces.iterator();
+		final Iterator<SootClass> _i = _interfaces.iterator();
 		final int _iEnd = _interfaces.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _interfaceClass = (SootClass) _i.next();
-			final IMutableNode _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
+			final SootClass _interfaceClass = _i.next();
+			final SimpleNode<SootClass> _superinterfaceNode = classHierarchy.getNode(_interfaceClass);
 			classHierarchy.addEdgeFromTo(_superinterfaceNode, _classNode);
 		}
 
@@ -339,18 +178,17 @@ public final class ClassHierarchy
 	}
 
 	/**
-	 * Prunes the class hierarchy to only include the given classes.  The transitive inheritance relationship between the
+	 * Prunes the class hierarchy to only include the given classes. The transitive inheritance relationship between the
 	 * retained classes can be preserved via <code>retainTransitiveInheritanceRelation</code>.
-	 *
+	 * 
 	 * @param confineToClasses is the collection of classes to confine the hierarchy to.
 	 * @param retainTransitiveInheritanceRelation <code>true</code> indicates that the transitive inheritance relationship
-	 * 		  between classes via classes not mentined in <code>confiningClasses</code> should be retained;
-	 * 		  <code>false</code>, otherwise.
-	 *
+	 *            between classes via classes not mentined in <code>confiningClasses</code> should be retained;
+	 *            <code>false</code>, otherwise.
 	 * @pre confineToClasses != null and confineToClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	public void confine(final Collection confineToClasses, final boolean retainTransitiveInheritanceRelation) {
-		final Collection _classesToRemove = new HashSet();
+		final Collection<SootClass> _classesToRemove = new HashSet<SootClass>();
 		_classesToRemove.addAll(classes);
 		_classesToRemove.addAll(interfaces);
 		_classesToRemove.removeAll(confineToClasses);
@@ -358,17 +196,155 @@ public final class ClassHierarchy
 		if (retainTransitiveInheritanceRelation) {
 			removeClassesAndRetainInheritanceRelation(_classesToRemove);
 		} else {
-			final Iterator _i = _classesToRemove.iterator();
+			final Iterator<SootClass> _i = _classesToRemove.iterator();
 			final int _iEnd = _classesToRemove.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootClass _sc = (SootClass) _i.next();
-				final IMutableNode _node = classHierarchy.queryNode(_sc);
+				final SootClass _sc = _i.next();
+				final SimpleNode<SootClass> _node = classHierarchy.queryNode(_sc);
 				classHierarchy.removeNode(_node);
 			}
 		}
 		classes.retainAll(confineToClasses);
 		interfaces.retainAll(confineToClasses);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClasses()
+	 */
+	public Collection<SootClass> getClasses() {
+		return Collections.unmodifiableCollection(classes);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getClassesInTopologicalOrder(boolean)
+	 */
+	public List<SootClass> getClassesInTopologicalOrder(final boolean topDown) {
+		final List<SootClass> _result = new ArrayList<SootClass>();
+		CollectionUtils.transform(classHierarchy.performTopologicalSort(topDown), classHierarchy.getObjectExtractor(),
+				_result);
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection<Comparable> getIds() {
+		return Collections.singleton(ID);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getInterfaces()
+	 */
+	public Collection<SootClass> getInterfaces() {
+		return Collections.unmodifiableCollection(interfaces);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorClassesOf(soot.SootClass)
+	 */
+	public Collection<SootClass> getProperAncestorClassesOf(final SootClass clazz) {
+		Collection<SootClass> _result = class2properAncestorClasses.get(clazz);
+
+		if (_result == null) {
+			_result = SetUtils.intersection(classes, CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy
+					.queryNode(clazz), false), classHierarchy.getObjectExtractor()));
+
+			if (_result.isEmpty()) {
+				_result = Collections.emptySet();
+			}
+			class2properAncestorClasses.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperAncestorInterfacesOf(soot.SootClass)
+	 */
+	public Collection<SootClass> getProperAncestorInterfacesOf(final SootClass clazz) {
+		Collection<SootClass> _result = class2properAncestorInterfaces.get(clazz);
+
+		if (_result == null) {
+			_result = SetUtils.intersection(interfaces, CollectionUtils.collect(classHierarchy.getReachablesFrom(
+					classHierarchy.queryNode(clazz), false), classHierarchy.getObjectExtractor()));
+
+			if (_result.isEmpty()) {
+				_result = Collections.emptySet();
+			}
+			class2properAncestorInterfaces.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperImmediateSubClassesOf(soot.SootClass)
+	 */
+	public Collection<SootClass> getProperImmediateSubClassesOf(final SootClass clazz) {
+		Collection<SootClass> _result = class2properChildren.get(clazz);
+
+		if (_result == null) {
+			_result = CollectionUtils.collect(classHierarchy.queryNode(clazz).getSuccsOf(), classHierarchy
+					.getObjectExtractor());
+
+			if (_result.isEmpty()) {
+				_result = Collections.emptySet();
+			}
+			class2properChildren.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IClassHierarchy#getProperParentClassOf(SootClass)
+	 */
+	public SootClass getProperParentClassOf(final SootClass clazz) {
+		SootClass _result = class2properParentClass.get(clazz);
+
+		if (_result == null) {
+			_result = SetUtils.intersection(
+					classes,
+					CollectionUtils
+							.collect(classHierarchy.queryNode(clazz).getPredsOf(), classHierarchy.getObjectExtractor()))
+					.iterator().next();
+			class2properParentClass.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IClassHierarchy#getProperParentInterfacesOf(SootClass)
+	 */
+	public Collection<SootClass> getProperParentInterfacesOf(final SootClass clazz) {
+		Collection<SootClass> _result = class2properParentInterfaces.get(clazz);
+
+		if (_result == null) {
+			_result = SetUtils.intersection(interfaces, CollectionUtils.collect(classHierarchy.queryNode(clazz).getPredsOf(),
+					classHierarchy.getObjectExtractor()));
+
+			if (_result.isEmpty()) {
+				_result = Collections.emptySet();
+			}
+			class2properParentInterfaces.put(clazz, _result);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IClassHierarchy#getProperSubclassesOf(soot.SootClass)
+	 */
+	public Collection<SootClass> getProperSubclassesOf(final SootClass clazz) {
+		Collection<SootClass> _result = class2properDescendants.get(clazz);
+
+		if (_result == null) {
+			_result = CollectionUtils.collect(classHierarchy.getReachablesFrom(classHierarchy.queryNode(clazz), true),
+					classHierarchy.getObjectExtractor());
+
+			if (_result.isEmpty()) {
+				_result = Collections.emptySet();
+			}
+			class2properDescendants.put(clazz, _result);
+		}
+		return _result;
 	}
 
 	/**
@@ -381,15 +357,15 @@ public final class ClassHierarchy
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	@Override public void processingBegins() {
 		unstable();
-		classHierarchy = new SimpleNodeGraph();
+		classHierarchy = new SimpleNodeGraph<SootClass>();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		classes.clear();
 		interfaces.clear();
 		class2properChildren.clear();
@@ -403,7 +379,7 @@ public final class ClassHierarchy
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this).append("classHierarchy", classHierarchy).toString();
 	}
 
@@ -418,53 +394,53 @@ public final class ClassHierarchy
 	 * Updates the classes captured by this hierarchy to reflect the relations captured by this hierarchy.
 	 */
 	public void updateEnvironment() {
-		final List _nodes = classHierarchy.getNodes();
-		final Iterator _i = _nodes.iterator();
+		final List<SimpleNode<SootClass>> _nodes = classHierarchy.getNodes();
+		final Iterator<SimpleNode<SootClass>> _i = _nodes.iterator();
 		final int _iEnd = _nodes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IObjectNode _node = (IObjectNode) _i.next();
-			final SootClass _sc = (SootClass) _node.getObject();
-			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
-			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
+			final SimpleNode<SootClass> _node = _i.next();
+			final SootClass _sc = _node.getObject();
+			final Collection<SootClass> _parents = CollectionUtils.collect(_node.getPredsOf(), classHierarchy
+					.getObjectExtractor());
+			final Collection<SootClass> _superClasses = SetUtils.intersection(classes, _parents);
 
 			if (!_superClasses.isEmpty()) {
 				assert _superClasses.size() == 1 : "More than one super class on " + _sc;
 
-				final SootClass _superClass = (SootClass) _superClasses.iterator().next();
+				final SootClass _superClass = _superClasses.iterator().next();
 				_sc.setSuperclass(_superClass);
 			}
-			_sc.getInterfaces().retainAll(CollectionUtils.intersection(interfaces, _parents));
+			_sc.getInterfaces().retainAll(SetUtils.intersection(interfaces, _parents));
 		}
 	}
 
 	/**
 	 * Removes the given classes from the hierarchy while inserting new the inheritance relationship that span across the
 	 * deleted classes.
-	 *
+	 * 
 	 * @param classesToRemove a collection of classes to remove.
-	 *
-	 * @pre classesToRemove != null and classesToRemove.oclIsKindOf(Collection(SootClass))
+	 * @pre classesToRemove != null
 	 */
-	private void removeClassesAndRetainInheritanceRelation(final Collection classesToRemove) {
-		final Iterator _i = classesToRemove.iterator();
+	private void removeClassesAndRetainInheritanceRelation(final Collection<SootClass> classesToRemove) {
+		final Iterator<SootClass> _i = classesToRemove.iterator();
 		final int _iEnd = classesToRemove.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
-			final IMutableNode _node = classHierarchy.queryNode(_sc);
-			final Collection _succsOf = _node.getSuccsOf();
-			final Iterator _j = _succsOf.iterator();
+			final SootClass _sc = _i.next();
+			final SimpleNode<SootClass> _node = classHierarchy.queryNode(_sc);
+			final Collection<SimpleNode<SootClass>> _succsOf = _node.getSuccsOf();
+			final Iterator<SimpleNode<SootClass>> _j = _succsOf.iterator();
 			final int _jEnd = _succsOf.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final IMutableNode _succ = (IMutableNode) _j.next();
-				final Collection _predsOf = _node.getPredsOf();
-				final Iterator<IMutableNode> _k = _predsOf.iterator();
+				final SimpleNode<SootClass> _succ = _j.next();
+				final Collection<SimpleNode<SootClass>> _predsOf = _node.getPredsOf();
+				final Iterator<SimpleNode<SootClass>> _k = _predsOf.iterator();
 				final int _kEnd = _predsOf.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final IMutableNode _pred =  _k.next();
+					final SimpleNode<SootClass> _pred = _k.next();
 					classHierarchy.addEdgeFromTo(_pred, _succ);
 				}
 			}
@@ -472,20 +448,21 @@ public final class ClassHierarchy
 			classHierarchy.removeNode(_node);
 		}
 
-		final Iterator _j = classHierarchy.getNodes().iterator();
+		final Iterator<SimpleNode<SootClass>> _j = classHierarchy.getNodes().iterator();
 		final int _jEnd = classHierarchy.getNodes().size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final IMutableNode _node = (IMutableNode) _j.next();
-			final Collection _parents = CollectionUtils.collect(_node.getPredsOf(), IObjectDirectedGraph.OBJECT_EXTRACTOR);
-			final Collection _superClasses = CollectionUtils.intersection(classes, _parents);
+			final SimpleNode<SootClass> _node = _j.next();
+			final Collection<SootClass> _parents = CollectionUtils.collect(_node.getPredsOf(), classHierarchy
+					.getObjectExtractor());
+			final Collection<SootClass> _superClasses = SetUtils.intersection(classes, _parents);
 
 			if (_superClasses.size() > 1) {
-				final Iterator _k = _superClasses.iterator();
+				final Iterator<SootClass> _k = _superClasses.iterator();
 				final int _kEnd = _superClasses.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final SootClass _superClass = (SootClass) _k.next();
+					final SootClass _superClass = _k.next();
 
 					if (_superClass.getName().equals("java.lang.Object")) {
 						classHierarchy.removeEdgeFromTo(classHierarchy.queryNode(_superClass), _node);

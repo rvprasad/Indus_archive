@@ -23,8 +23,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <I> DOCUMENT ME!
  */
-public interface IIndexManagementStrategy {
+public interface IIndexManagementStrategy <I extends IIndex<I>> {
 	/**
 	 * Retrieves an index equivalent to the given index.
 	 *
@@ -34,7 +35,7 @@ public interface IIndexManagementStrategy {
 	 *
 	 * @pre index != null
 	 */
-	IIndex getEquivalentIndex(IIndex index);
+	I getEquivalentIndex(I index);
 
 	/**
 	 * Resets internal data structures.

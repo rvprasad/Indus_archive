@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,49 +14,36 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-
 /**
- * This is a helper class to generate criteria specicfication.  This is intended for internal use.
- *
+ * This is a helper class to generate criteria specicfication. This is intended for internal use.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class CriteriaSpecHelper {
-	///CLOVER:OFF
+
+	// /CLOVER:OFF
 
 	/**
 	 * Creates a new CriteriaSpecHelper object.
 	 */
-	private CriteriaSpecHelper() {
+	@AEmpty private CriteriaSpecHelper() {
+		// does nothing
 	}
 
-	///CLOVER:ON
-
-	/**
-	 * Checks if the criterion's execution is considered during slicing.
-	 *
-	 * @param criterion of interest.
-	 *
-	 * @return <code>true</code> if the criterion's execution is considered during slicing; <code>false</code>, otherwise.
-	 *
-	 * @pre criterion != null
-	 */
-	public static boolean isConsiderExecution(final ISliceCriterion criterion) {
-		return ((AbstractSliceCriterion) criterion).isConsiderExecution();
-	}
+	// /CLOVER:ON
 
 	/**
 	 * Retrieves the criterion expression.
-	 *
+	 * 
 	 * @param criterion of interest.
-	 *
 	 * @return the criterion expression, if available; <code>null</code>, otherwise.
-	 *
 	 * @pre criterion != null
 	 */
 	public static ValueBox getOccurringExpr(final ISliceCriterion criterion) {
@@ -73,13 +59,10 @@ public final class CriteriaSpecHelper {
 
 	/**
 	 * Retrieves the statement in which the criterion occurs.
-	 *
+	 * 
 	 * @param criterion of interest.
-	 *
 	 * @return the statement in which the criterion occurs.
-	 *
 	 * @throws IllegalArgumentException if the criterion is not a valid criterion type.
-	 *
 	 * @pre criterion != null
 	 * @post result != null
 	 */
@@ -92,9 +75,21 @@ public final class CriteriaSpecHelper {
 			_result = (Stmt) ((StmtLevelSliceCriterion) criterion).getCriterion();
 		} else {
 			throw new IllegalArgumentException(
-				"The type of \"criterion\" has to be one of StmtLevelSliceCriterion or ExprLevelSliceCriterion.");
+					"The type of \"criterion\" has to be one of StmtLevelSliceCriterion or ExprLevelSliceCriterion.");
 		}
 		return _result;
+	}
+
+	/**
+	 * Checks if the criterion's execution is considered during slicing.
+	 * 
+	 * @param criterion of interest.
+	 * @return <code>true</code> if the criterion's execution is considered during slicing; <code>false</code>,
+	 *         otherwise.
+	 * @pre criterion != null
+	 */
+	public static boolean isConsiderExecution(final ISliceCriterion criterion) {
+		return ((AbstractSliceCriterion) criterion).isConsiderExecution();
 	}
 }
 

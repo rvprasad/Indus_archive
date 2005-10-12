@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,7 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -33,8 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
-
 import soot.Body;
 import soot.Local;
 import soot.PatchingChain;
@@ -47,57 +45,50 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
-
 /**
- * This class provides use-def information for local variables in a method.
- *
+ * This class provides use-def information for local variables in a method.  The analysis is performed at statement level.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class LocalUseDefAnalysis
-  implements IUseDefInfo {
-	/** 
+		implements IUseDefInfo<DefinitionStmt, Stmt> {
+
+	/**
 	 * A map from local and statement pair to a collection of def statement.
-	 *
-	 * @invariant defInfo.oclIsKindOf(Map(Pair(Local, Stmt), Collection(DefinitionStmt))
 	 */
-	private final Map defInfo = new HashMap();
+	private final Map<Pair<Local, Stmt>, Collection<DefinitionStmt>> defInfo = new HashMap<Pair<Local, Stmt>, Collection<DefinitionStmt>>();
 
-	/** 
-	 * A map from definition statement to a collection of statements.
-	 *
-	 * @invariant defInfo.oclIsKindOf(Map(DefinitionStmt, Collection(Stmt))
-	 */
-	private final Map useInfo = new HashMap();
-
-	/** 
+	/**
 	 * A list of statements in the given method.
-	 *
-	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
-	private List stmtList;
+	private List<Stmt> stmtList;
 
-	/** 
+	/**
 	 * The control flow graph used to calculate the use-def info.
 	 */
 	private UnitGraph unitGraph;
 
 	/**
+	 * A map from definition statement to a collection of statements.
+	 */
+	private final Map<DefinitionStmt, Collection<Stmt>> useInfo = new HashMap<DefinitionStmt, Collection<Stmt>>();
+
+	/**
 	 * Creates a new LocalDefsAnalysis object.
-	 *
+	 * 
 	 * @param graph is the control flow graph used to calculate the use-def info.
-	 *
 	 * @pre graph != null
 	 */
 	public LocalUseDefAnalysis(final UnitGraph graph) {
 		final Body _body = graph.getBody();
 		final PatchingChain _stmts = _body.getUnits();
 		final BitSet[][] _l2defs = new BitSet[_stmts.size()][_body.getLocalCount()];
-		stmtList = new ArrayList();
+		stmtList = new ArrayList<Stmt>();
 		stmtList.addAll(_stmts);
 
-		final List _listOfLocals = new ArrayList();
+		final List<Local> _listOfLocals = new ArrayList<Local>();
 		_listOfLocals.addAll(_body.getLocals());
 		unitGraph = graph;
 		analyze(_l2defs, _listOfLocals);
@@ -108,28 +99,26 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
-	 *
+	 * 
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
 	 * @param method <i>ignored</i>.
-	 *
 	 * @return a collection of def statements.
-	 *
 	 * @pre local != null and stmt != null
-	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
+	 * @post result != null
 	 */
-	public Collection getDefs(final Local local, final Stmt stmt, final SootMethod method) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, new Pair(local, stmt),
-				Collections.EMPTY_LIST));
+	public Collection<DefinitionStmt> getDefs(final Local local, final Stmt stmt, @SuppressWarnings("unused") final SootMethod method) {
+		return Collections.unmodifiableCollection(MapUtils.queryObject(defInfo, new Pair<Local, Stmt>(local, stmt),
+				Collections.<DefinitionStmt>emptyList()));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method <i>ignored</i>.
 	 */
-	public Collection getDefs(final Stmt useStmt, final SootMethod method) {
-		final Collection _result = new HashSet();
+	public Collection<DefinitionStmt> getDefs(final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
+		final Collection<DefinitionStmt> _result = new HashSet<DefinitionStmt>();
 
 		for (final Iterator _i = useStmt.getUseBoxes().iterator(); _i.hasNext();) {
 			final ValueBox _vb = (ValueBox) _i.next();
@@ -145,8 +134,21 @@ public final class LocalUseDefAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection getIds() {
+	public Collection<Comparable> getIds() {
 		return Collections.singleton(IUseDefInfo.LOCAL_USE_DEF_ID);
+	}
+
+	/**
+	 * Retrieves the uses of definitions at <code>stmt</code>.
+	 * 
+	 * @param stmt in which a definition occurs.
+	 * @param method <i>ignored</i>.
+	 * @return a collection of statements.
+	 * @pre stmt != null
+	 * @post result != null
+	 */
+	public Collection<Stmt> getUses(final DefinitionStmt stmt, @SuppressWarnings("unused") final SootMethod method) {
+		return MapUtils.queryObject(useInfo, stmt, Collections.<Stmt>emptyList());
 	}
 
 	/**
@@ -157,42 +159,26 @@ public final class LocalUseDefAnalysis
 	}
 
 	/**
-	 * Retrieves the uses of definitions at <code>stmt</code>.
-	 *
-	 * @param stmt in which a definition occurs.
-	 * @param method <i>ignored</i>.
-	 *
-	 * @return a collection of statements.
-	 *
-	 * @pre stmt != null
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
-	 */
-	public Collection getUses(final DefinitionStmt stmt, final SootMethod method) {
-		return (Collection) MapUtils.getObject(useInfo, stmt, Collections.EMPTY_LIST);
-	}
-
-	/**
 	 * Performs the analysis to calculate the info.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
-	 *
 	 * @pre local2defs != null and listOfLocals != null
 	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 */
-	private void analyze(final BitSet[][] local2defs, final List listOfLocals) {
-		final IWorkBag _wb = new FIFOWorkBag();
+	private void analyze(final BitSet[][] local2defs, final List<Local> listOfLocals) {
+		final IWorkBag<Stmt> _wb = new FIFOWorkBag<Stmt>();
 		final BitSet _temp = new BitSet();
-		final Map _stmt2localIndices = new HashMap();
+		final Map<Stmt, Collection<Integer>> _stmt2localIndices = new HashMap<Stmt, Collection<Integer>>();
 
 		_wb.addAllWork(seedDefInfo(local2defs, listOfLocals, _stmt2localIndices));
 
 		while (_wb.hasWork()) {
-			final Stmt _stmt = (Stmt) _wb.getWork();
+			final Stmt _stmt = _wb.getWork();
 			final BitSet[] _defsAtStmt = local2defs[stmtList.indexOf(_stmt)];
-			final Collection _localIndices = (Collection) _stmt2localIndices.get(_stmt);
+			final Collection _localIndices = _stmt2localIndices.get(_stmt);
 
-			// if the current statement is a def stmt then remove the index of the local being killed via definition 
+			// if the current statement is a def stmt then remove the index of the local being killed via definition
 			if (_stmt instanceof DefinitionStmt) {
 				final Value _leftOp = ((DefinitionStmt) _stmt).getLeftOp();
 
@@ -207,8 +193,8 @@ public final class LocalUseDefAnalysis
 				final int _localIndex = _localIndexValue.intValue();
 				final BitSet _defsOfLocalAtStmt = _defsAtStmt[_localIndex];
 
-				for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
-					final Stmt _succ = (Stmt) _j.next();
+				for (final Iterator<Stmt> _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+					final Stmt _succ = _j.next();
 					final int _succIndex = stmtList.indexOf(_succ);
 					final BitSet[] _defsAtSucc = local2defs[_succIndex];
 
@@ -223,7 +209,7 @@ public final class LocalUseDefAnalysis
 					if (_temp.cardinality() > 0) {
 						_defsAtSucc[_localIndex].or(_defsOfLocalAtStmt);
 						_wb.addWorkNoDuplicates(_succ);
-						((Collection) _stmt2localIndices.get(_succ)).add(_localIndexValue);
+						_stmt2localIndices.get(_succ).add(_localIndexValue);
 					}
 				}
 			}
@@ -233,19 +219,18 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Extracts the info encoded in bits and captures as occurring between entities.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param localList is a list of the locals.
-	 *
 	 * @pre local2defs != null and listOfLocals != null
 	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 */
-	private void extract(final BitSet[][] local2defs, final List localList) {
-		final Collection _cache = new ArrayList();
+	private void extract(final BitSet[][] local2defs, final List<Local> localList) {
+		final Collection<DefinitionStmt> _cache = new ArrayList<DefinitionStmt>();
 		final PairManager _pairMgr = new PairManager(false, true);
 
-		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
+		for (final Iterator<Stmt> _i = unitGraph.iterator(); _i.hasNext();) {
+			final Stmt _stmt = _i.next();
 			final int _stmtIndex = stmtList.indexOf(_stmt);
 			final BitSet[] _stmtDefSet = local2defs[_stmtIndex];
 
@@ -261,11 +246,12 @@ public final class LocalUseDefAnalysis
 						_cache.clear();
 
 						for (int _k = _defs.nextSetBit(0); _k >= 0; _k = _defs.nextSetBit(_k + 1)) {
-							final Object _defStmt = stmtList.get(_k);
+							final DefinitionStmt _defStmt = (DefinitionStmt) stmtList.get(_k);
 							_cache.add(_defStmt);
-							CollectionsUtilities.getListFromMap(useInfo, _defStmt).add(_stmt);
+							MapUtils.getFromMapUsingFactory(useInfo, _defStmt, SetUtils.SET_FACTORY).add(_stmt);
 						}
-						CollectionsUtilities.putAllIntoSetInMap(defInfo, _pairMgr.getPair(_local, _stmt), _cache);
+						MapUtils.putAllIntoCollectionInMapUsingFactory(defInfo, _pairMgr.getPair(_local, _stmt), _cache,
+								SetUtils.<DefinitionStmt> getFactory());
 					}
 				}
 			}
@@ -274,41 +260,39 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Captures definition info into <code>local2defs</code>.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
 	 * @param stmt2localIndices maps a stmt to the set of local indices
-	 *
 	 * @return a collection of definition statements.
-	 *
 	 * @pre local2defs != null and listOfLocals != null and stmt2localIndices != null
 	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
-	 * @post stmt2localIndices.oclIsKindOf(Stmt, Collection(Integer))
 	 */
-	private Collection seedDefInfo(final BitSet[][] local2defs, final List listOfLocals, final Map stmt2localIndices) {
-		final Collection _result = new ArrayList();
-		final Collection _defStmts = new ArrayList();
+	private Collection<Stmt> seedDefInfo(final BitSet[][] local2defs, final List<Local> listOfLocals,
+			final Map<Stmt, Collection<Integer>> stmt2localIndices) {
+		final Collection<Stmt> _result = new ArrayList<Stmt>();
+		final Collection<DefinitionStmt> _defStmts = new ArrayList<DefinitionStmt>();
 
-		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
-			stmt2localIndices.put(_stmt, new HashSet());
+		for (final Iterator<Stmt> _i = unitGraph.iterator(); _i.hasNext();) {
+			final Stmt _stmt = _i.next();
+			stmt2localIndices.put(_stmt, new HashSet<Integer>());
 
 			if (_stmt instanceof DefinitionStmt) {
-				_defStmts.add(_stmt);
+				_defStmts.add((DefinitionStmt) _stmt);
 			}
 		}
 
-		for (final Iterator _i = _defStmts.iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
-			final Value _value = ((DefinitionStmt) _stmt).getLeftOp();
+		for (final Iterator<DefinitionStmt> _i = _defStmts.iterator(); _i.hasNext();) {
+			final DefinitionStmt _stmt = _i.next();
+			final Value _value = _stmt.getLeftOp();
 
 			if (_value instanceof Local) {
 				final int _localIndex = listOfLocals.indexOf(_value);
 				final int _stmtIndex = stmtList.indexOf(_stmt);
 
-				for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
-					final Stmt _succ = (Stmt) _j.next();
+				for (final Iterator<Stmt> _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+					final Stmt _succ = _j.next();
 					final int _succIndex = stmtList.indexOf(_succ);
 					BitSet _temp = local2defs[_succIndex][_localIndex];
 
@@ -318,7 +302,7 @@ public final class LocalUseDefAnalysis
 					}
 					_temp.set(_stmtIndex, true);
 					_result.add(_succ);
-					((Collection) stmt2localIndices.get(_succ)).add(new Integer(_localIndex));
+					stmt2localIndices.get(_succ).add(new Integer(_localIndex));
 				}
 			}
 		}

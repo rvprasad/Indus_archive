@@ -62,9 +62,9 @@ public abstract class AbstractToolConfiguration
 	}
 
 	/**
-	 * @see IToolConfiguration#getProperty(Object)
+	 * @see IToolConfiguration#getProperty(Comparable)
 	 */
-	public final Object getProperty(final Object id) {
+	public final Object getProperty(final Comparable id) {
 		return properties.get(id);
 	}
 
@@ -76,9 +76,9 @@ public abstract class AbstractToolConfiguration
 	}
 
 	/**
-	 * @see IToolConfiguration#setProperty(Object,Object)
+	 * @see IToolConfiguration#setProperty(Comparable,Object)
 	 */
-	public final boolean setProperty(final Object propertyID, final Object value) {
+	public final boolean setProperty(final Comparable propertyID, final Object value) {
 		if (!propertyIds.contains(propertyID)) {
 			final String _message = "Invalid property identifier specified: " + propertyID;
 			LOGGER.error(_message);
@@ -102,7 +102,7 @@ public abstract class AbstractToolConfiguration
 	 * @return <code>true</code> if the property was successfully processed; <code>false</code>, otherwise.
 	 * @pre propertyID != null
 	 */
-	protected abstract boolean processProperty(final Object propertyID, final Object value);
+	protected abstract boolean processProperty(final Comparable propertyID, final Object value);
 }
 
 // End of File

@@ -15,25 +15,24 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 /**
  * This class represents the variants of entities associated with AST nodes and fields.  This class should be extended as
  * required for such entities.
- * 
- * <p>
- * Created: Tue Jan 22 15:44:48 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-public class ValuedVariant
+public class ValuedVariant <N extends IFGNode<N, ?>>
   implements IVariant {
 	/** 
 	 * <p>
 	 * The flow graph node associated with this variant.
 	 * </p>
 	 */
-	protected final IFGNode node;
+	protected final N node;
 
 	/**
 	 * Creates a new <code>ValuedVariant</code> instance.
@@ -42,7 +41,7 @@ public class ValuedVariant
 	 *
 	 * @pre flowNode != null
 	 */
-	ValuedVariant(final IFGNode flowNode) {
+	ValuedVariant(final N flowNode) {
 		this.node = flowNode;
 	}
 
@@ -53,14 +52,15 @@ public class ValuedVariant
 	 *
 	 * @post result != null
 	 */
-	public IFGNode getFGNode() {
+	public N getFGNode() {
 		return node;
 	}
 
 	/**
 	 * Performs nothing.  This will be called after a variant is created and should be implemented by subclasses.
 	 */
-	public void process() {
+	@AEmpty public void process() {
+		// does nothing
 	}
 }
 

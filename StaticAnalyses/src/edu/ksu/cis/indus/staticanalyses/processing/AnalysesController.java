@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
@@ -36,116 +35,85 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class is provides the control class for the analyses suite. The analyses progress in phases. It may be so that some
  * application require a particular sequence in which each analysis should progress. Hence, the applications provide an
  * implementation of controller interface to drive the analyses in a particular sequence of phases.
- * 
  * <p>
- * This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates
- * that all it's prerequesites have been fulfilled.
+ * This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates that
+ * all it's prerequesites have been fulfilled.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class AnalysesController {
-	/** 
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AnalysesController.class);
 
-	/** 
+	/**
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
-	 *
+	 * 
 	 * @invariant participatingAnalyses != null
 	 * @invariant participatingAnalyses.oclIsTypeOf(Map(Object, AbstractAnalysis)
 	 */
-	protected final Map participatingAnalyses;
+	protected final Map<Comparable, Collection<IAnalysis>> participatingAnalyses;
 
-	/** 
+	/**
 	 * This is the preprocessing controlling agent.
-	 *
+	 * 
 	 * @invariant preprocessController != null;
 	 */
 	protected final ProcessingController preprocessController;
 
-	/** 
+	/**
 	 * The object used to realize the "active" part of this object.
 	 */
 	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
-	/** 
+	/**
 	 * This provides basic block graphs for the analyses.
 	 */
 	private BasicBlockGraphMgr basicBlockGraphMgr;
 
-	/** 
+	/**
 	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
 	 * controller.
 	 */
-	private Map info;
+	private Map<Comparable, Object> info;
 
 	/**
 	 * Creates a new AbstractAnalysesController object.
-	 *
+	 * 
 	 * @param infoPrm is a map of name to objects which provide information that maybe used by analyses, but is of no use to
-	 * 		  the controller.
+	 *            the controller.
 	 * @param pc is the preprocessing controller.
-	 * @param bbgMgr provides basic blocks graphs for methods.  If this is non-null then the analyses are initialized with
-	 * 		  this graph manager.  If not, the graph managers of the analyses will not be initialized.  Hence, it should be
-	 * 		  done by the application.
-	 *
+	 * @param bbgMgr provides basic blocks graphs for methods. If this is non-null then the analyses are initialized with this
+	 *            graph manager. If not, the graph managers of the analyses will not be initialized. Hence, it should be done
+	 *            by the application.
 	 * @pre pc != null
 	 */
-	public AnalysesController(final Map infoPrm, final ProcessingController pc, final BasicBlockGraphMgr bbgMgr) {
-		participatingAnalyses = new HashMap();
+	public AnalysesController(final Map<Comparable, Object> infoPrm, final ProcessingController pc,
+			final BasicBlockGraphMgr bbgMgr) {
+		participatingAnalyses = new HashMap<Comparable, Collection<IAnalysis>>();
 		info = infoPrm;
 		preprocessController = pc;
 		basicBlockGraphMgr = bbgMgr;
 	}
 
 	/**
-	 * Provides the implementation registered for the given analysis purpose.
-	 *
-	 * @param id of the requested analyses.  This has to be one of the names(XXX_DA) defined in this class.
-	 *
-	 * @return the implementation registered for the given purpose.  Changes to this collection is visible to the controller.
-	 *
-	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
-	 */
-	public final Collection getAnalyses(final Object id) {
-		final Collection _result;
-
-		if (participatingAnalyses != null) {
-			_result = (Collection) participatingAnalyses.get(id);
-		} else {
-			_result = null;
-		}
-		return _result;
-	}
-
-	/**
 	 * Adds the implementations to be used for analysis.
-	 *
+	 * 
 	 * @param id of the analysis.
 	 * @param analyses are the implementations of the named analysis.
-	 *
-	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(IAnalysis))
+	 * @pre id != null and analyses != null and analysis->forall(o | o != null)
 	 */
-	public final void addAnalyses(final Object id, final Collection analyses) {
-		CollectionsUtilities.putAllIntoListInMap(participatingAnalyses, id, analyses);
-	}
-
-	/**
-	 * Returns the active part of this object.
-	 *
-	 * @return the active part.
-	 */
-	public IActivePart getActivePart() {
-		return activePart;
+	public final void addAnalyses(final Comparable id, final Collection<? extends IAnalysis> analyses) {
+		MapUtils.putAllIntoCollectionInMap(participatingAnalyses, id, analyses, new ArrayList<IAnalysis>());
 	}
 
 	/**
@@ -153,17 +121,18 @@ public class AnalysesController {
 	 */
 	public void execute() {
 		boolean _analyzing;
-		final Collection _done = new ArrayList();
+		final Collection<IAnalysis> _done = new ArrayList<IAnalysis>();
 
 		do {
 			_analyzing = false;
 
-			for (final Iterator _i = participatingAnalyses.keySet().iterator(); _i.hasNext() && activePart.canProceed();) {
-				final String _daName = (String) _i.next();
-				final Collection _c = (Collection) participatingAnalyses.get(_daName);
+			for (final Iterator<Comparable> _i = participatingAnalyses.keySet().iterator(); _i.hasNext()
+					&& activePart.canProceed();) {
+				final Comparable _daName = _i.next();
+				final Collection<IAnalysis> _c = participatingAnalyses.get(_daName);
 
-				for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-					final IAnalysis _analysis = (IAnalysis) _j.next();
+				for (final Iterator<IAnalysis> _j = _c.iterator(); _j.hasNext();) {
+					final IAnalysis _analysis = _j.next();
 
 					if (_analysis != null && !_done.contains(_analysis)) {
 						_analysis.analyze();
@@ -181,18 +150,46 @@ public class AnalysesController {
 	}
 
 	/**
+	 * Returns the active part of this object.
+	 * 
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
+	}
+
+	/**
+	 * Provides the implementation registered for the given analysis purpose.
+	 * 
+	 * @param id of the requested analyses. This has to be one of the names(XXX_DA) defined in this class.
+	 * @return the implementation registered for the given purpose. Changes to this collection is visible to the controller.
+	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
+	 */
+	public final Collection<IAnalysis> getAnalyses(final Comparable id) {
+		final Collection<IAnalysis> _result;
+
+		if (participatingAnalyses != null) {
+			_result = participatingAnalyses.get(id);
+		} else {
+			_result = null;
+		}
+		return _result;
+	}
+
+	/**
 	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system (in that order only).
 	 */
 	public void initialize() {
-		final Collection _failed = new ArrayList();
-		final Collection _preprocessors = new HashSet();
+		final Collection<Comparable> _failed = new ArrayList<Comparable>();
+		final Collection<IProcessor> _preprocessors = new HashSet<IProcessor>();
 
-		for (final Iterator _k = participatingAnalyses.keySet().iterator(); _k.hasNext() && activePart.canProceed();) {
-			final Object _key = _k.next();
-			final Collection _c = (Collection) participatingAnalyses.get(_key);
+		for (final Iterator<Comparable> _k = participatingAnalyses.keySet().iterator(); _k.hasNext()
+				&& activePart.canProceed();) {
+			final Comparable _key = _k.next();
+			final Collection<IAnalysis> _c = participatingAnalyses.get(_key);
 
-			for (final Iterator _j = _c.iterator(); _j.hasNext() && activePart.canProceed();) {
-				final IAnalysis _analysis = (IAnalysis) _j.next();
+			for (final Iterator<IAnalysis> _j = _c.iterator(); _j.hasNext() && activePart.canProceed();) {
+				final IAnalysis _analysis = _j.next();
 
 				try {
 					_analysis.initialize(info);
@@ -218,7 +215,7 @@ public class AnalysesController {
 				}
 			}
 
-			for (final Iterator _i = _failed.iterator(); _i.hasNext();) {
+			for (final Iterator<Comparable> _i = _failed.iterator(); _i.hasNext();) {
 				_c.remove(_i.next());
 			}
 		}
@@ -227,21 +224,21 @@ public class AnalysesController {
 			preprocessController.process();
 		}
 
-		for (final Iterator _i = _preprocessors.iterator(); _i.hasNext();) {
-			((IProcessor) _i.next()).unhook(preprocessController);
+		for (final Iterator<IProcessor> _i = _preprocessors.iterator(); _i.hasNext();) {
+			_i.next().unhook(preprocessController);
 		}
 	}
 
 	/**
-	 * Resets the internal data structures of the controller.  This resets the participating analyses.  This does not reset
-	 * the Object Flow Analysis instance.
+	 * Resets the internal data structures of the controller. This resets the participating analyses. This does not reset the
+	 * Object Flow Analysis instance.
 	 */
 	public void reset() {
-		for (final Iterator _i = participatingAnalyses.values().iterator(); _i.hasNext();) {
-			final Collection _c = (Collection) _i.next();
+		for (final Iterator<Collection<IAnalysis>> _i = participatingAnalyses.values().iterator(); _i.hasNext();) {
+			final Collection<IAnalysis> _c = _i.next();
 
-			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-				final IAnalysis _analysis = (IAnalysis) _j.next();
+			for (final Iterator<IAnalysis> _j = _c.iterator(); _j.hasNext();) {
+				final IAnalysis _analysis = _j.next();
 				_analysis.reset();
 			}
 		}

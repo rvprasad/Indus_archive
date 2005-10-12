@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.common.collections;
 
 import java.util.AbstractSet;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,20 +31,21 @@ import java.util.NoSuchElementException;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <E> DOCUMENT ME!
  */
-public final class RetrievableSet
-  extends AbstractSet {
+public final class RetrievableSet<E>
+  extends AbstractSet<E> {
 	/** 
 	 * This contains the elements in the set.
 	 *
 	 * @invariant map->entrySet()->forall(o | o.getKey() == o.getValue())
 	 */
-	private final Map map = new HashMap();
+	private final Map<E, E> map = new IdentityHashMap<E, E>();
 
 	/**
 	 * @see java.util.Collection#add(java.lang.Object)
 	 */
-	public boolean add(final Object o) {
+	@Override public boolean add(final E o) {
 		final boolean _result = !map.containsKey(o);
 
 		if (_result) {
@@ -56,14 +57,14 @@ public final class RetrievableSet
 	/**
 	 * @see java.util.Collection#clear()
 	 */
-	public void clear() {
+	@Override public void clear() {
 		map.clear();
 	}
 
 	/**
 	 * @see java.util.Collection#contains(java.lang.Object)
 	 */
-	public boolean contains(final Object o) {
+	@Override public boolean contains(final Object o) {
 		return map.containsKey(o);
 	}
 
@@ -79,8 +80,8 @@ public final class RetrievableSet
 	 * @pre o != null
 	 * @post result != null and result.equals(o)
 	 */
-	public Object get(final Object o) {
-		final Object _result;
+	public E get(final E o) {
+		final E _result;
 
 		if (map.containsKey(o)) {
 			_result = map.get(o);
@@ -93,14 +94,14 @@ public final class RetrievableSet
 	/**
 	 * @see java.util.Collection#iterator()
 	 */
-	public Iterator iterator() {
+	@Override public Iterator<E> iterator() {
 		return map.keySet().iterator();
 	}
 
 	/**
 	 * @see java.util.Collection#remove(java.lang.Object)
 	 */
-	public boolean remove(final Object o) {
+	@Override public boolean remove(final Object o) {
 		final boolean _result = map.containsKey(o);
 
 		if (_result) {
@@ -112,7 +113,7 @@ public final class RetrievableSet
 	/**
 	 * @see java.util.Collection#size()
 	 */
-	public int size() {
+	@Override public int size() {
 		return map.size();
 	}
 }

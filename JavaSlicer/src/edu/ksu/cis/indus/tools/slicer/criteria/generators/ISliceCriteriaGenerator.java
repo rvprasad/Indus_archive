@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,32 +14,29 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 import edu.ksu.cis.indus.tools.slicer.contextualizers.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.util.Collection;
 
-import org.apache.commons.collections.Predicate;
-
-
 /**
- * This interface is used by the slicer tool to generate slicing criteria.  An implementation of this interface can be used
- * to generate criteria that is based on property of the program points rather than hand-picked by the user. The user can
- * control the criteria via the filter and make them context-sensitive via contextualizer.
- *
+ * This interface is used by the slicer tool to generate slicing criteria. An implementation of this interface can be used to
+ * generate criteria that is based on property of the program points rather than hand-picked by the user. The user can control
+ * the criteria via the filter and make them context-sensitive via contextualizer.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface ISliceCriteriaGenerator {
+
 	/**
 	 * Retrieves the slicing criteria.
-	 *
+	 * 
 	 * @param slicer that uses the criteria.
-	 *
 	 * @return a collection of criteria.
-	 *
 	 * @pre slicer != null
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
@@ -48,30 +44,27 @@ public interface ISliceCriteriaGenerator {
 
 	/**
 	 * Sets the criteria contextualizer.
-	 *
+	 * 
 	 * @param contextualizer to used.
-	 *
 	 * @pre contextualizer != null
 	 */
 	void setCriteriaContextualizer(ISliceCriteriaContextualizer contextualizer);
 
 	/**
 	 * Sets the predicate to filter criteria.
-	 *
+	 * 
 	 * @param predicate to be used.
-	 *
 	 * @pre predicate != null
 	 */
 	void setCriteriaFilterPredicate(ISliceCriteriaPredicate predicate);
 
 	/**
 	 * Sets the predicate to filter out criteria sites.
-	 *
+	 * 
 	 * @param predicate to be used.
-	 *
 	 * @pre predicate != null
 	 */
-	void setSiteSelectionPredicate(Predicate predicate);
+	void setSiteSelectionPredicate(IPredicate predicate);
 }
 
 // End of File

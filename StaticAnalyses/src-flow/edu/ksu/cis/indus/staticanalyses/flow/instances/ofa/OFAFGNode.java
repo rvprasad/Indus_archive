@@ -22,21 +22,19 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collections;
 
+import soot.Value;
+
 
 /**
  * This class represents the flow graph node that accumulates objects as their entities would refer to objects at run-time.
  * This is an Object-flow analysis specific implementation.
  * 
- * <p>
- * Created: Thu Jan 31 00:42:34 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 class OFAFGNode
-  extends AbstractFGNode {
+  extends AbstractFGNode<OFAFGNode, Value> {
 	/** 
 	 * The token manager that manages the tokens whose flow is being instrumented.
 	 *
@@ -64,17 +62,17 @@ class OFAFGNode
 	 *
 	 * @return a new instance of this class parameterized by <code>o</code>.
 	 *
-	 * @pre o != null and o.oclIsKindOf(IWorkBagProvider)
-	 * @post result != null and result.oclIsKindOf(OFAFGNode)
+	 * @pre o != null and o[0].oclIsKindOf(IWorkBagProvider)
+	 * @post result != null
 	 */
-	public Object getClone(final Object o) {
-		return new OFAFGNode((IWorkBagProvider) o, tokenMgr);
+	public OFAFGNode getClone(final Object... o) {
+		return new OFAFGNode((IWorkBagProvider) o[0], tokenMgr);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#injectValue(java.lang.Object)
 	 */
-	public void injectValue(final Object value) {
+	public void injectValue(final Value value) {
 		final ITokens _tokens = tokenMgr.getTokens(Collections.singleton(value));
 		injectTokens(_tokens);
 	}

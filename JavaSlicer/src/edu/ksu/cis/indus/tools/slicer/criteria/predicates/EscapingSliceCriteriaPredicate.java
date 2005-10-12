@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,47 +17,41 @@ package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
-import edu.ksu.cis.indus.staticanalyses.concurrency.ConcurrencyHelper;
-
 import soot.SootMethod;
 
 import soot.jimple.EnterMonitorStmt;
-
+import soot.jimple.ExitMonitorStmt;
 
 /**
- * This class allows only criteria based on synchronization statements involving escaping lock objects.  If escape
- * information is not available, then it's verdict is to generate the criteria from the given entity.
- *
+ * This class allows only criteria based on synchronization statements involving escaping lock objects. If escape information
+ * is not available, then it's verdict is to generate the criteria from the given entity.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class EscapingSliceCriteriaPredicate
-  extends AbstractSliceCriteriaPredicate {
+		extends AbstractSliceCriteriaPredicate<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
+
 	/**
-	 * @see org.apache.commons.collections.Predicate#evaluate(Object)
+	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#evaluate(T)
 	 */
-	public boolean evaluate(final Object entity) {
+	public boolean evaluate(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple) {
 		final boolean _result;
 
-		if (ConcurrencyHelper.isMonitorTriple(entity)) {
-			final Triple _monitorTriple = (Triple) entity;
-			final IEscapeInfo _escapes = getSlicerTool().getEscapeInfo();
+		final IEscapeInfo _escapes = getSlicerTool().getEscapeInfo();
 
-			if (_escapes != null) {
-				final EnterMonitorStmt _enterMonitor = (EnterMonitorStmt) _monitorTriple.getFirst();
-				final SootMethod _method = (SootMethod) _monitorTriple.getThird();
+		if (_escapes != null) {
+			final EnterMonitorStmt _enterMonitor = monitorTriple.getFirst();
+			final SootMethod _method = monitorTriple.getThird();
 
-				if (_enterMonitor == null) {
-					_result = _method.isStatic() || _escapes.thisEscapes(_method);
-				} else {
-					_result = _escapes.escapes(_enterMonitor.getOp(), _method);
-				}
+			if (_enterMonitor == null) {
+				_result = _method.isStatic() || _escapes.thisEscapes(_method);
 			} else {
-				_result = true;
+				_result = _escapes.escapes(_enterMonitor.getOp(), _method);
 			}
 		} else {
-			_result = false;
+			_result = true;
 		}
 
 		return _result;

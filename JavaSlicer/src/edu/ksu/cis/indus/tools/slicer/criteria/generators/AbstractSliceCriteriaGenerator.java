@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -23,7 +24,6 @@ import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicat
 
 import java.util.Collection;
 
-import org.apache.commons.collections.Predicate;
 
 import soot.SootMethod;
 
@@ -50,7 +50,7 @@ public abstract class AbstractSliceCriteriaGenerator
 	/** 
 	 * The predicate to select sites in which the criteria may occur. 
 	 */
-	private Predicate siteSelectionPredicate;
+	private IPredicate<Object> siteSelectionPredicate;
 
 	/** 
 	 * The slicer that defines the context in which generator functions.
@@ -88,9 +88,9 @@ public abstract class AbstractSliceCriteriaGenerator
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setSiteSelectionPredicate(Predicate)
+	 * @see ISliceCriteriaGenerator#setSiteSelectionPredicate(IPredicate)
 	 */
-	public final void setSiteSelectionPredicate(final Predicate thePredicate) {
+	public final void setSiteSelectionPredicate(final IPredicate thePredicate) {
 		siteSelectionPredicate = thePredicate;
 	}
 

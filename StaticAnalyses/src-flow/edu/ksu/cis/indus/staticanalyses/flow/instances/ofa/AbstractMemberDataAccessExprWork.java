@@ -41,9 +41,10 @@ import soot.jimple.NullConstant;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <N> DOCUMENT ME!
  */
-abstract class AbstractMemberDataAccessExprWork
-  extends AbstractAccessExprWork {
+abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
+  extends AbstractAccessExprWork<N> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -55,14 +56,14 @@ abstract class AbstractMemberDataAccessExprWork
 	 *
 	 * @invariant ast != null
 	 */
-	protected final IFGNode ast;
+	protected final N ast;
 
 	/** 
 	 * The connector to be used to connect the ast and non-ast node.
 	 *
 	 * @invariant connector != null
 	 */
-	protected final IFGNodeConnector connector;
+	protected final IFGNodeConnector<N> connector;
 
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
@@ -76,8 +77,8 @@ abstract class AbstractMemberDataAccessExprWork
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null and tokenSet != null
 	 */
-	public AbstractMemberDataAccessExprWork(final IMethodVariant callerMethod, final Context accessContext,
-		final IFGNode accessNode, final IFGNodeConnector connectorToUse, final ITokens tokenSet) {
+	public AbstractMemberDataAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext,
+		final N accessNode, final IFGNodeConnector<N> connectorToUse, final ITokens tokenSet) {
 		super(callerMethod, accessContext, tokenSet);
 		this.ast = accessNode;
 		this.connector = connectorToUse;
@@ -104,7 +105,7 @@ abstract class AbstractMemberDataAccessExprWork
 				((AllocationContext) context).setAllocationSite(_v);
 			}
 
-			final IFGNode _nonast = getFGNodeForMemberData();
+			final N _nonast = getFGNodeForMemberData();
 			connector.connect(ast, _nonast);
 		}
 	}
@@ -116,7 +117,7 @@ abstract class AbstractMemberDataAccessExprWork
 	 *
 	 * @post result != null
 	 */
-	protected abstract IFGNode getFGNodeForMemberData();
+	protected abstract N getFGNodeForMemberData();
 }
 
 // End of File

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,7 +14,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.ListUtils;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
@@ -37,58 +38,50 @@ import soot.SootMethod;
 
 import soot.jimple.Stmt;
 
-
 /**
- * This class provides intraprocedural forward control dependence information.  The "direct-ness" and the "non-termination
- * sensitivity" of the analysis depends on the flavor backward control dependence used to calculate forward control
- * dependence (provided via <code>setup</code>).  For more information about the dependence calculated in  this
- * implementation, please refer to  <a href="FILL ME">FILL ME</a>.
- *
+ * This class provides intraprocedural forward control dependence information. The "direct-ness" and the "non-termination
+ * sensitivity" of the analysis depends on the flavor backward control dependence used to calculate forward control dependence
+ * (provided via <code>setup</code>). For more information about the dependence calculated in this implementation, please
+ * refer to <a href="FILL ME">FILL ME</a>.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ExitControlDA
-  extends AbstractControlDA {
-	/** 
+		extends AbstractControlDA {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExitControlDA.class);
 
-	/** 
+	/**
 	 * The instance of analysis that provides backward control dependence information.
 	 */
-	private IDependencyAnalysis entryControlDA;
+	private IDependencyAnalysis<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> entryControlDA;
 
 	/**
-	 * {@inheritDoc} This implementation will return <code>FORWARD_DIRECTION</code>.
+	 * Creates an instance of this class.
 	 */
-	public Object getDirection() {
-		return FORWARD_DIRECTION;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
-	 */
-	public IDependencyAnalysis getIndirectVersionOfDependence() {
-		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
+	public ExitControlDA() {
+		super(Direction.FORWARD_DIRECTION);
 	}
 
 	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public final void analyze() {
+	@Override public final void analyze() {
 		analyze(callgraph.getReachableMethods());
 	}
 
 	/**
-	 * Calculates the control dependency information for the provided methods.  The use of this method does not require a
-	 * prior call to <code>setup</code>.
-	 *
+	 * Calculates the control dependency information for the provided methods. The use of this method does not require a prior
+	 * call to <code>setup</code>.
+	 * 
 	 * @param methods to be analyzed.
-	 *
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
 	 */
 	public final void analyze(final Collection methods) {
@@ -127,65 +120,60 @@ public class ExitControlDA
 
 	/**
 	 * Sets up internal data structures.
-	 *
+	 * 
 	 * @throws InitializationException when call graph service is not provided.
-	 *
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
-	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)  or
-	 * 		info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL)
-	 *
+	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION) or
+	 *      info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
-	protected void setup()
-	  throws InitializationException {
+	@Override protected void setup() throws InitializationException {
 		super.setup();
 
 		final Collection _temp = (Collection) info.get(IDependencyAnalysis.CONTROL_DA);
 
 		if (_temp == null) {
 			throw new InitializationException(IDependencyAnalysis.CONTROL_DA
-				+ " was not provided or none of the provided control dependences were backward in direction.");
+					+ " was not provided or none of the provided control dependences were backward in direction.");
 		}
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 
 			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
-				  && (_da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)
-				  || _da.getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL))) {
+					&& (_da.getDirection().equals(Direction.BACKWARD_DIRECTION) || _da.getDirection().equals(
+							Direction.BI_DIRECTIONAL))) {
 				entryControlDA = _da;
 			}
 		}
 
 		if (entryControlDA == null) {
 			throw new InitializationException(IDependencyAnalysis.CONTROL_DA + " with direction "
-				+ IDependencyAnalysis.BACKWARD_DIRECTION
-				+ " was not provided or none of the provided control dependences were backward in direction.");
+					+ Direction.BACKWARD_DIRECTION
+					+ " was not provided or none of the provided control dependences were backward in direction.");
 		}
 	}
 
 	/**
 	 * Calculates the dependence information at the level of basic blocks.
-	 *
+	 * 
 	 * @param bbg is the basic block graph for which dependence need to be calculated.
 	 * @param dependeeBBs is the set of forward control dependees in <code>bbg</code>.
-	 *
 	 * @return a map from dependee basic block to collection of dependents basic block.
-	 *
 	 * @pre bbg != null and dependeeBBs != null
-	 * @post result != null and result.oclIsKindOf(Map(BasicBlock, Collection(BasicBlock)))
+	 * @post result != null
 	 * @post bbg.getNodes().containsAll(result.keySet())
 	 * @post result.values()->forall(o | bbg.getNodes().containsAll(o))
 	 */
-	private Map calculateDependenceForBBs(final BasicBlockGraph bbg, final Collection dependeeBBs) {
-		final Map _dependence = new HashMap();
-		final Iterator _i = dependeeBBs.iterator();
+	private Map calculateDependenceForBBs(final BasicBlockGraph bbg, final Collection<BasicBlock> dependeeBBs) {
+		final Map<BasicBlock, Collection<BasicBlock>> _dependence = new HashMap<BasicBlock, Collection<BasicBlock>>();
+		final Iterator<BasicBlock> _i = dependeeBBs.iterator();
 		final int _iEnd = dependeeBBs.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final BasicBlock _dependeeBB = (BasicBlock) _i.next();
-			final Collection _dependents = bbg.getReachablesFrom(_dependeeBB, false);
+			final BasicBlock _dependeeBB = _i.next();
+			final Collection<BasicBlock> _dependents = bbg.getReachablesFrom(_dependeeBB, false);
 			_dependence.put(_dependeeBB, _dependents);
 		}
 		return _dependence;
@@ -193,30 +181,30 @@ public class ExitControlDA
 
 	/**
 	 * Calculates dependence information for statements from the dependence information for basic blocks.
-	 *
+	 * 
 	 * @param dependeeBB2dependentBBs maps dependee basic blocks to collection of dependent basic blocks.
 	 * @param method for which the dependence is being recorded.
-	 *
 	 * @pre dependeeBB2dependentBBs != null and method != null
-	 * @pre dependeeBB2dependentBBs.oclIsKindOf(Map(BasicBlock, Collection(BasicBlock)))
 	 */
-	private void calculateDependenceForStmts(final Map dependeeBB2dependentBBs, final SootMethod method) {
-		final List _methodLocalDee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
-		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
-		final List _stmtList = getStmtList(method);
+	private void calculateDependenceForStmts(final Map<BasicBlock, Collection<BasicBlock>> dependeeBB2dependentBBs, final SootMethod method) {
+		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getFromMapUsingFactory(dependee2dependent, method,
+				ListUtils.<Collection<Stmt>> getFactory());
+		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getFromMapUsingFactory(dependent2dependee, method,
+				ListUtils.<Collection<Stmt>> getFactory());
+		final List<Stmt> _stmtList = getStmtList(method);
 		final int _noOfStmtsInMethod = _stmtList.size();
-		final List _dependeeBBStmts = new ArrayList();
-		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _noOfStmtsInMethod, null);
-		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _noOfStmtsInMethod, null);
+		final List<Stmt> _dependeeBBStmts = new ArrayList<Stmt>();
+		ListUtils.ensureSize(_methodLocalDee2Dent, _noOfStmtsInMethod, null);
+		ListUtils.ensureSize(_methodLocalDent2Dee, _noOfStmtsInMethod, null);
 
-		for (final Iterator _i = dependeeBB2dependentBBs.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final BasicBlock _dependeeBB = (BasicBlock) _entry.getKey();
+		for (final Iterator<Map.Entry<BasicBlock, Collection<BasicBlock>>> _i = dependeeBB2dependentBBs.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<BasicBlock, Collection<BasicBlock>> _entry = _i.next();
+			final BasicBlock _dependeeBB = _entry.getKey();
 			final Stmt _dependee = _dependeeBB.getTrailerStmt();
 
-			//record dependence within dependee block
-			final Collection _dependents =
-				(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDee2Dent, _stmtList.indexOf(_dependee));
+			// record dependence within dependee block
+			final Collection<Stmt> _dependents = ListUtils.getAtIndexFromListUsingFactory(_methodLocalDee2Dent, _stmtList
+					.indexOf(_dependee), SetUtils.<Stmt>getFactory());
 			_dependeeBBStmts.clear();
 			_dependeeBBStmts.addAll(_dependeeBB.getStmtsOf());
 			_dependeeBBStmts.remove(_dependee);
@@ -224,13 +212,13 @@ public class ExitControlDA
 			recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependeeBBStmts);
 
 			// record dependence for dependent blocks
-			final Collection _dependentBBs = (Collection) _entry.getValue();
+			final Collection<BasicBlock> _dependentBBs = _entry.getValue();
 			final Iterator _j = _dependentBBs.iterator();
 			final int _jEnd = _dependentBBs.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final BasicBlock _dependentBB = (BasicBlock) _j.next();
-				final List _dependentBBStmts = _dependentBB.getStmtsOf();
+				final List<Stmt> _dependentBBStmts = _dependentBB.getStmtsOf();
 				_dependents.addAll(_dependentBBStmts);
 				recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependentBBStmts);
 			}
@@ -241,65 +229,60 @@ public class ExitControlDA
 
 	/**
 	 * Calculates the dependees of the control sinks.
-	 *
+	 * 
 	 * @param bbg is the basic block graph in which control sink dependees need to be calculated.
 	 * @param method of <code>bbg</code>.
-	 *
 	 * @return the collection of basic blocks that are backward control dependees of the control sinks in <code>bbg</code>.
-	 *
 	 * @pre bbg != null and method != null
 	 * @post result != null;
-	 * @post result.oclIsKindOf(Collection(BasicBlock))
 	 * @post bbg.getNodes().containsAll(result)
 	 */
-	private Collection calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
-		final Collection _result;
-		final Collection _sinks = new ArrayList();
+	private Collection<BasicBlock> calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
+		final Collection<BasicBlock> _result;
+		final Collection<BasicBlock> _sinks = new ArrayList<BasicBlock>();
 		_sinks.addAll(bbg.getTails());
 
 		if (_sinks.size() > 1) {
-			_result = new HashSet();
+			_result = new HashSet<BasicBlock>();
 
-			for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
-				final BasicBlock _sink = (BasicBlock) _i.next();
+			for (final Iterator<BasicBlock> _i = _sinks.iterator(); _i.hasNext();) {
+				final BasicBlock _sink = _i.next();
 				final Stmt _stmt = _sink.getLeaderStmt();
-				final Collection _dependees = entryControlDA.getDependees(_stmt, method);
+				final Collection<Stmt> _dependees = entryControlDA.getDependees(_stmt, method);
 
-				for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
-					final Stmt _dependee = (Stmt) _j.next();
+				for (final Iterator<Stmt> _j = _dependees.iterator(); _j.hasNext();) {
+					final Stmt _dependee =  _j.next();
 					final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
 					_result.add(_dependeeBB);
 				}
 			}
 		} else {
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
 
 	/**
 	 * Record dependent to dependee direction of dependence.
-	 *
+	 * 
 	 * @param methodDependent2Dependee maps dependent to collection of dependees.
 	 * @param stmts is the list of statements in the method.
 	 * @param dependee obviously.
 	 * @param dependents obviously.
-	 *
 	 * @pre methodDependent2Dependee != null
-	 * @pre methodDependent2Dependee.oclIsKindOf(Map(Stmt, Collection(Stmt)))
-	 * @pre stmts != null and stmts.oclIsKindOf(Sequence(Stmt))
+	 * @pre stmts != null
 	 * @pre dependee != null
-	 * @pre dependents != null and dependents.oclIsKindOf(Sequence(Stmt))
+	 * @pre dependents != null
 	 */
-	private void recordDependence(final List methodDependent2Dependee, final List stmts, final Stmt dependee,
-		final List dependents) {
-		final Iterator _k = dependents.iterator();
+	private void recordDependence(final List<Collection<Stmt>> methodDependent2Dependee, final List<Stmt> stmts, final Stmt dependee,
+			final List<Stmt> dependents) {
+		final Iterator<Stmt> _k = dependents.iterator();
 		final int _kEnd = dependents.size();
 
 		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Stmt _dependent = (Stmt) _k.next();
-			final Collection _dependees =
-				(Collection) CollectionsUtilities.getSetAtIndexFromList(methodDependent2Dependee, stmts.indexOf(_dependent));
+			final Stmt _dependent = _k.next();
+			final Collection<Stmt> _dependees = ListUtils.getAtIndexFromListUsingFactory(methodDependent2Dependee,
+					stmts.indexOf(_dependent), SetUtils.<Stmt>getFactory());
 			_dependees.add(dependee);
 		}
 	}

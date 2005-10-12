@@ -14,7 +14,8 @@
 
 package edu.ksu.cis.indus.slicer.transformations;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.IFactory;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
@@ -41,8 +42,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.Factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +104,17 @@ public final class TagBasedDestructiveSliceResidualizer
 		extends AbstractProcessor {
 
 	/**
+	 * A factory to create pair to contain members of a class.
+	 */
+	static final IFactory<Pair<Collection<SootMethod>, Collection<SootField>>> pairValueFactory = new IFactory<Pair<Collection<SootMethod>, Collection<SootField>>>() {
+
+		public Pair<Collection<SootMethod>, Collection<SootField>> create() {
+			return new Pair<Collection<SootMethod>, Collection<SootField>>(new ArrayList<SootMethod>(), new ArrayList<SootField>());
+		}
+	};
+
+	
+	/**
 	 * This class residualizes statements.
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -119,16 +129,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		 */
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
 
-		/**
-		 * A factory to create pair to contain members of a class.
-		 */
-		private final Factory pairValueFactory = new Factory() {
-
-			public Object create() {
-				return new Pair<ArrayList, ArrayList>(new ArrayList(), new ArrayList());
-			}
-		};
-
+	
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -305,7 +306,7 @@ public final class TagBasedDestructiveSliceResidualizer
 					clazz.removeMethod(_init);
 
 					final Pair<Collection<SootMethod>, Collection<SootField>> _pair;
-					_pair = CollectionsUtilities.getFromMap(class2members, clazz, pairValueFactory);
+					_pair = MapUtils.getFromMapUsingFactory(class2members, clazz, pairValueFactory);
 					final Collection<SootMethod> _clazzMethodsToKill = _pair.getFirst();
 					_clazzMethodsToKill.remove(_init);
 				}
@@ -987,7 +988,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				LOGGER.debug("Pruning locals in " + stmt);
 			}
 
-			final List _useAndDefBoxes = stmt.getUseAndDefBoxes();
+			final List<ValueBox> _useAndDefBoxes = stmt.getUseAndDefBoxes();
 			for (final Iterator<ValueBox> _k = Util.getHostsWithTag(_useAndDefBoxes, theNameOfTagToResidualize).iterator(); _k
 					.hasNext();) {
 				final ValueBox _vBox = _k.next();

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,6 +16,8 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
@@ -30,8 +31,6 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import soot.G;
 import soot.Scene;
 import soot.SootClass;
@@ -41,40 +40,99 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
-
 /**
  * This class tests the basic block graphs.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class BasicBlockGraphTest
-  extends AbstractDirectedGraphTest {
-	/** 
+		extends AbstractDirectedGraphTest {
+
+	/**
 	 * The factory used to extract statement graphs.
 	 */
 	IStmtGraphFactory factory;
 
-	/** 
+	/**
 	 * The scene to extract the method bodies from.
 	 */
 	Scene scene;
 
-	/** 
+	/**
 	 * The basic block graph to test with.
 	 */
 	private BasicBlockGraph bbGraph;
 
-	/** 
+	/**
 	 * The name of the class containing the method to be used for testing.
 	 */
 	private String className;
 
-	/** 
+	/**
 	 * The name of the method used for testing.
 	 */
 	private String methodName;
+
+	/**
+	 * Retrieves the basic block graphs tests that test the basic block graph implementation against various method bodies.
+	 * For test purposes, use this method and do not populate a test suite by using the main class.
+	 * 
+	 * @return the test that tests basic block graph implementation.
+	 * @post result != null
+	 */
+	static Test getTests() {
+		final TestSuite _result = new TestSuite();
+		_result.setName("BasicBlockGraphTest");
+
+		final IStmtGraphFactory[] _factories = new IStmtGraphFactory[]{new CompleteStmtGraphFactory(),
+				new TrapStmtGraphFactory(), new ExceptionFlowSensitiveStmtGraphFactory(),};
+		final String[] _methodNames = {"notify", "equals", "insertProviderAt"};
+		final String[] _classNames = {"java.lang.Object", "java.lang.Object", "java.security.Security"};
+
+		for (int _j = 0; _j < _methodNames.length; _j++) {
+			for (int _i = 0; _i < _factories.length; _i++) {
+				final IStmtGraphFactory _factory = _factories[_i];
+				final TestSuite _temp = new TestSuite(BasicBlockGraphTest.class);
+				final String _prefix = _factory.getClass().getName() + ":BasicBlockGraphTest";
+
+				for (final Enumeration _enum = _temp.tests(); _enum.hasMoreElements();) {
+					final BasicBlockGraphTest _test = (BasicBlockGraphTest) _enum.nextElement();
+					_test.setTestName(_prefix + ":" + _methodNames[_j] + ":" + _classNames[_j] + ":"
+							+ _test.getTestMethodName());
+					_test.factory = _factory;
+					_test.methodName = _methodNames[_j];
+					_test.className = _classNames[_j];
+				}
+				_result.addTest(_temp);
+			}
+		}
+
+		return new TestSetup(_result) {
+
+			private Scene scene;
+
+			public void setUp() {
+				scene = Scene.v();
+
+				for (int _i = 0; _i < _classNames.length; _i++) {
+					scene.loadClassAndSupport(_classNames[_i]).getMethodByName(_methodNames[_i]);
+				}
+
+				for (final Iterator _i = TestHelper.getTestCasesReachableFromSuite(_result, BasicBlockGraphTest.class)
+						.iterator(); _i.hasNext();) {
+					final BasicBlockGraphTest _element = (BasicBlockGraphTest) _i.next();
+					_element.scene = scene;
+				}
+			}
+
+			public void tearDown() {
+				scene = null;
+				G.reset();
+			}
+		};
+	}
 
 	/**
 	 * Tests if the basic block graph is minimal.
@@ -92,9 +150,9 @@ public class BasicBlockGraphTest
 		}
 
 		assertTrue(_unitGraph.getClass().getName() + ":" + _unitGraph.getBody().getMethod() + " - "
-			+ CollectionUtils.subtract(_unitsInBB, _unitsInGraph).toString(), _unitsInGraph.containsAll(_unitsInBB));
+				+ SetUtils.difference(_unitsInBB, _unitsInGraph).toString(), _unitsInGraph.containsAll(_unitsInBB));
 		assertTrue(_unitGraph.getClass().getName() + ":" + _unitGraph.getBody().getMethod() + " - "
-			+ CollectionUtils.subtract(_unitsInGraph, _unitsInBB).toString(), _unitsInBB.containsAll(_unitsInGraph));
+				+ SetUtils.difference(_unitsInGraph, _unitsInBB).toString(), _unitsInBB.containsAll(_unitsInGraph));
 	}
 
 	/**
@@ -165,8 +223,7 @@ public class BasicBlockGraphTest
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown()
-	  throws Exception {
+	protected void tearDown() throws Exception {
 		factory.reset();
 		methodName = null;
 		className = null;
@@ -174,68 +231,6 @@ public class BasicBlockGraphTest
 		bbGraph = null;
 		dg = null;
 		scene = null;
-	}
-
-	/**
-	 * Retrieves the basic block graphs tests that test the basic block graph implementation against various method bodies.
-	 * For test purposes, use this method and do not populate a test suite by using the main class.
-	 *
-	 * @return the test that tests basic block graph implementation.
-	 *
-	 * @post result != null
-	 */
-	static Test getTests() {
-		final TestSuite _result = new TestSuite();
-		_result.setName("BasicBlockGraphTest");
-
-		final IStmtGraphFactory[] _factories =
-			new IStmtGraphFactory[] {
-				new CompleteStmtGraphFactory(), new TrapStmtGraphFactory(), new ExceptionFlowSensitiveStmtGraphFactory(),
-			};
-		final String[] _methodNames = { "notify", "equals", "insertProviderAt" };
-		final String[] _classNames = { "java.lang.Object", "java.lang.Object", "java.security.Security" };
-
-		for (int _j = 0; _j < _methodNames.length; _j++) {
-			for (int _i = 0; _i < _factories.length; _i++) {
-				final IStmtGraphFactory _factory = _factories[_i];
-				final TestSuite _temp = new TestSuite(BasicBlockGraphTest.class);
-				final String _prefix = _factory.getClass().getName() + ":BasicBlockGraphTest";
-
-				for (final Enumeration _enum = _temp.tests(); _enum.hasMoreElements();) {
-					final BasicBlockGraphTest _test = (BasicBlockGraphTest) _enum.nextElement();
-					_test.setTestName(_prefix + ":" + _methodNames[_j] + ":" + _classNames[_j] + ":"
-						+ _test.getTestMethodName());
-					_test.factory = _factory;
-					_test.methodName = _methodNames[_j];
-					_test.className = _classNames[_j];
-				}
-				_result.addTest(_temp);
-			}
-		}
-
-		return new TestSetup(_result) {
-				private Scene scene;
-
-				public void setUp() {
-					scene = Scene.v();
-
-					for (int _i = 0; _i < _classNames.length; _i++) {
-						scene.loadClassAndSupport(_classNames[_i]).getMethodByName(_methodNames[_i]);
-					}
-
-					for (final Iterator _i =
-							TestHelper.getTestCasesReachableFromSuite(_result, BasicBlockGraphTest.class).iterator();
-						  _i.hasNext();) {
-						final BasicBlockGraphTest _element = (BasicBlockGraphTest) _i.next();
-						_element.scene = scene;
-					}
-				}
-
-				public void tearDown() {
-					scene = null;
-					G.reset();
-				}
-			};
 	}
 }
 

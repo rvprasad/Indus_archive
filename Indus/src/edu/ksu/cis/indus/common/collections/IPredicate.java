@@ -12,20 +12,27 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+package edu.ksu.cis.indus.common.collections;
 
 /**
- * This annotation indicates that an interface is a marker interface.
+ * DOCUMENT ME!
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <T> DOCUMENT ME!
  */
-@Target(ElementType.TYPE) public @interface Marker {
-	// empty
+public interface IPredicate<T> {
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param t DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public <T1 extends T> boolean evaluate(T1 t);
+
 }
 
 // End of File

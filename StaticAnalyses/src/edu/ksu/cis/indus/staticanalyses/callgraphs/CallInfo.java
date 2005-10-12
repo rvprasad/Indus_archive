@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,30 +39,23 @@ final class CallInfo
 
 	/**
 	 * This maps callees to callers.
-	 * 
-	 * @invariant callee2callers.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
-	final Map callee2callers = new HashMap();
+	final Map<SootMethod, Collection<CallTriple>> callee2callers = new HashMap<SootMethod, Collection<CallTriple>>();
 
 	/**
 	 * This maps callers to callees.
-	 * 
-	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
-	final Map caller2callees = new HashMap();
+	final Map<SootMethod, Collection<CallTriple>> caller2callees = new HashMap<SootMethod, Collection<CallTriple>>();
 
 	/**
 	 * The collection of methods that are reachble in the system.
-	 * 
-	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
 	 */
-	private final Set reachables = new HashSet();
+	private final Set<SootMethod> reachables = new HashSet<SootMethod>();
 
 	/**
 	 * Records the given method as reachable.
 	 * 
-	 * @param method
-	 *            to be recorded.
+	 * @param method to be recorded.
 	 * @pre method != null
 	 */
 	public void addReachable(final SootMethod method) {
@@ -72,22 +65,22 @@ final class CallInfo
 	/**
 	 * @see CallGraphInfo.ICallInfo#getCallee2CallersMap()
 	 */
-	public Map getCallee2CallersMap() {
+	public Map<SootMethod, Collection<CallTriple>> getCallee2CallersMap() {
 		return Collections.unmodifiableMap(callee2callers);
 	}
 
 	/**
 	 * @see CallGraphInfo.ICallInfo#getCaller2CalleesMap()
 	 */
-	public Map getCaller2CalleesMap() {
+	public Map<SootMethod, Collection<CallTriple>> getCaller2CalleesMap() {
 		return Collections.unmodifiableMap(caller2callees);
 	}
 
 	/**
 	 * @see CallGraphInfo.ICallInfo#getReachableMethods()
 	 */
-	public Collection getReachableMethods() {
-		final Collection _r = new HashSet();
+	public Collection<SootMethod> getReachableMethods() {
+		final Collection<SootMethod> _r = new HashSet<SootMethod>();
 		_r.addAll(reachables);
 		_r.addAll(callee2callers.keySet());
 		_r.addAll(caller2callees.keySet());
@@ -107,18 +100,18 @@ final class CallInfo
 	 * Injects empty sets for caller and callee information of methods with no callees and callers.
 	 */
 	void fixupMethodsHavingZeroCallersAndCallees() {
-		final Iterator _i = reachables.iterator();
+		final Iterator<SootMethod> _i = reachables.iterator();
 		final int _iEnd = reachables.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _o = _i.next();
+			final SootMethod _o = _i.next();
 
 			if (callee2callers.get(_o) == null) {
-				callee2callers.put(_o, Collections.EMPTY_SET);
+				callee2callers.put(_o, Collections.<CallTriple>emptySet());
 			}
 
 			if (caller2callees.get(_o) == null) {
-				caller2callees.put(_o, Collections.EMPTY_SET);
+				caller2callees.put(_o, Collections.<CallTriple>emptySet());
 			}
 		}
 
@@ -131,20 +124,20 @@ final class CallInfo
 	 * @return <code>true</code> if the info is valid. An assertion violation is raised otherwise.
 	 */
 	private boolean validate() {
-		final Collection _k1 = caller2callees.keySet();
-		for (final Iterator _i = callee2callers.values().iterator(); _i.hasNext();) {
-			final Collection _c = (Collection) _i.next();
-			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _j.next();
+		final Collection<SootMethod> _k1 = caller2callees.keySet();
+		for (final Iterator<Collection<CallTriple>> _i = callee2callers.values().iterator(); _i.hasNext();) {
+			final Collection<CallTriple> _c = _i.next();
+			for (final Iterator<CallTriple> _j = _c.iterator(); _j.hasNext();) {
+				final CallTriple _ctrp = _j.next();
 				assert _k1.contains(_ctrp.getMethod());
 			}
 		}
 
-		final Collection _k2 = callee2callers.keySet();
-		for (final Iterator _i = caller2callees.values().iterator(); _i.hasNext();) {
-			final Collection _c = (Collection) _i.next();
-			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _j.next();
+		final Collection<SootMethod> _k2 = callee2callers.keySet();
+		for (final Iterator<Collection<CallTriple>> _i = caller2callees.values().iterator(); _i.hasNext();) {
+			final Collection<CallTriple> _c = _i.next();
+			for (final Iterator<CallTriple> _j = _c.iterator(); _j.hasNext();) {
+				final CallTriple _ctrp = _j.next();
 				assert _k2.contains(_ctrp.getMethod());
 			}
 		}

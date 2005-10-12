@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -26,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +191,7 @@ public abstract class AbstractCallingContextRetriever
 	 * @pre token != null and callee != null and callsite != null and calleeCallStack != null
 	 */
 	protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
-			final Stack<CallTriple> calleeCallStack) {
+			@SuppressWarnings("unused") final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("getCallerSideToken(token = " + token + ", callee = " + callee + ", callsite = " + callsite + ")");
 		}

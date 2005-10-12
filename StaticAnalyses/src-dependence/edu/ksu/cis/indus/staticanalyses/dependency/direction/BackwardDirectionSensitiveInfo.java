@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -22,16 +21,16 @@ import java.util.List;
 
 import soot.jimple.Stmt;
 
-
 /**
  * This class provides information to drive the analysis to generate information that is backward in direction.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class BackwardDirectionSensitiveInfo
-  implements IDirectionSensitiveInfo {
+		implements IDirectionSensitiveInfo {
+
 	/**
 	 * @see IDirectionSensitiveInfo#getFirstStmtInBB(edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock)
 	 */
@@ -42,15 +41,15 @@ public final class BackwardDirectionSensitiveInfo
 	/**
 	 * @see IDirectionSensitiveInfo#getFollowersOfBB(edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock)
 	 */
-	public Collection getFollowersOfBB(final BasicBlock bb) {
+	public Collection<BasicBlock> getFollowersOfBB(final BasicBlock bb) {
 		return bb.getSuccsOf();
 	}
 
 	/**
-	 * {@inheritDoc}  This provides information for backward direciton.
+	 * {@inheritDoc} This provides information for backward direciton.
 	 */
-	public List getIntraBBDependents(final BasicBlock bb, final Stmt stmt) {
-		final List _stmtsFrom = bb.getStmtsFrom(stmt);
+	public List<Stmt> getIntraBBDependents(final BasicBlock bb, final Stmt stmt) {
+		final List<Stmt> _stmtsFrom = bb.getStmtsFrom(stmt);
 		_stmtsFrom.remove(stmt);
 		return _stmtsFrom;
 	}

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -26,37 +25,41 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-
 /**
  * This filter can be used to identify code that are involved in <code>assert</code> statements <b>as compiled by Sun's java
  * compiler</b>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class AssertionSliceCriteriaPredicate
-  extends AbstractSliceCriteriaPredicate {
-	/** 
+		extends AbstractSliceCriteriaPredicate<Stmt> {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AssertionSliceCriteriaPredicate.class);
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @pre entity.oclIsKindOf(Stmt)
+	 * Creates an instance of this class.
 	 */
-	public boolean evaluate(final Object entity) {
+	public AssertionSliceCriteriaPredicate() {
+		super();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean evaluate(final Stmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("evaluate(entity = " + entity + ":" + entity.getClass() + ")");
+			LOGGER.debug("evaluate(entity = " + stmt + ":" + stmt.getClass() + ")");
 		}
 
-		final Stmt _stmt = (Stmt) entity;
 		boolean _result = false;
 
-		for (final Iterator _i = _stmt.getUseAndDefBoxes().iterator(); _i.hasNext() && !_result;) {
-			final ValueBox _vb = (ValueBox) _i.next();
+		for (final Iterator<ValueBox> _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext() && !_result;) {
+			final ValueBox _vb = _i.next();
 			final Value _v = _vb.getValue();
 
 			if (_v.getType() instanceof RefType) {

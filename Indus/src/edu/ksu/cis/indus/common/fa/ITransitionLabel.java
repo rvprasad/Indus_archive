@@ -13,7 +13,7 @@
  */
 package edu.ksu.cis.indus.common.fa;
 
-import edu.ksu.cis.indus.common.Marker;
+import edu.ksu.cis.indus.annotations.AMarker;
 import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 
 /**
@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.common.graph.IEdgeLabel;
  * @version $Revision$
  * @param <L> the type of the implementation of this interface.
  */
-@Marker public interface ITransitionLabel<L extends ITransitionLabel<L>>
+@AMarker public interface ITransitionLabel<L extends ITransitionLabel<L>>
 		extends IEdgeLabel {
 	// empty
 }

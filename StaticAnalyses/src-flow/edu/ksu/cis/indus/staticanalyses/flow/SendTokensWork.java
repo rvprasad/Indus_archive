@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -115,7 +116,8 @@ public class SendTokensWork
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.IPoolable#setPool(org.apache.commons.pool.ObjectPool)
 	 */
-	public void setPool(final ObjectPool pool) {
+	@AEmpty public void setPool(final ObjectPool pool) {
+		// does nothing
 	}
 
 	/**

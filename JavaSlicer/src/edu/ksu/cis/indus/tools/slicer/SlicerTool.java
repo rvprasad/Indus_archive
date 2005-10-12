@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,16 +14,16 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
-import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
@@ -81,6 +80,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
@@ -93,50 +93,45 @@ import org.slf4j.LoggerFactory;
 import soot.SootMethod;
 
 /**
- * This is a facade that exposes the slicer as a tool.  This is recommended interface to interact with the slicer if the
- * slicer is being used as a tool in a tool chain.
- * 
+ * This is a facade that exposes the slicer as a tool. This is recommended interface to interact with the slicer if the slicer
+ * is being used as a tool in a tool chain.
  * <p>
  * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given term
  * depends on, not the transitive closure.
  * </p>
- * 
  * <p>
- * There are 3 types of slices: forward, backward, and complete(forward and backward).  Also, there are 2  flavours of
- * slices: executable and non-executable.
+ * There are 3 types of slices: forward, backward, and complete(forward and backward). Also, there are 2 flavours of slices:
+ * executable and non-executable.
  * </p>
- * 
  * <p>
- * Backward slicing is inclusion of anything that leads to the slice criterion from the given entry points to the system.
- * This can provide a executable system which will  simulate the given system along all paths from the entry points leading
- * to the slice criterion independent of the input. In case the input causes a divergence in this path then the simulation
- * ends there.
+ * Backward slicing is inclusion of anything that leads to the slice criterion from the given entry points to the system. This
+ * can provide a executable system which will simulate the given system along all paths from the entry points leading to the
+ * slice criterion independent of the input. In case the input causes a divergence in this path then the simulation ends
+ * there.
  * </p>
- * 
  * <p>
- * However, in case of forward slicing, one would include everything that is affected by the slice criterion.  This  will
- * never lead to an semantically meaningful executable slice as the part of the system that leads to the slice criterion is
- * not captured. Rather a more meaningful notion is that of a complete slice. This includes everything that affects the
- * given slice criterion and  everything affected by the slice criterion.
+ * However, in case of forward slicing, one would include everything that is affected by the slice criterion. This will never
+ * lead to an semantically meaningful executable slice as the part of the system that leads to the slice criterion is not
+ * captured. Rather a more meaningful notion is that of a complete slice. This includes everything that affects the given
+ * slice criterion and everything affected by the slice criterion.
  * </p>
- * 
  * <p>
  * Due to the above view we only support non-executable slices of all types and only executable slices of backward and
  * complete type.
  * </p>
- * 
  * <p>
  * If slice for deadlock option is true in the slicer configuration, then criteria to preserve deadlocking are generated.
- * However, these are generated on behalf of the application/driver (as a convenience) and not for internal use.  Hence, the
+ * However, these are generated on behalf of the application/driver (as a convenience) and not for internal use. Hence, the
  * application/driver is responsible for the disposal of these criteria.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SlicerTool
-  extends AbstractTool {
+		extends AbstractTool {
+
 	static {
 		final Phase _i = Phase.createPhase();
 		_i.nextMajorPhase();
@@ -145,173 +140,172 @@ public final class SlicerTool
 		SLICE_MAJOR_PHASE = _i.clone();
 	}
 
-	/** 
+	/**
 	 * This represents the phase in which dependence analysis happens.
 	 */
 	public static final Object DEPENDENCE_MAJOR_PHASE;
 
-	/** 
+	/**
 	 * This represents the phase in which slicing happens.
 	 */
 	public static final Object SLICE_MAJOR_PHASE;
 
-	/** 
+	/**
 	 * The tag used to identify the parts touched by flow analysis.
 	 */
 	public static final String FLOW_ANALYSIS_TAG_NAME = "indus.tools.slicer.SlicerTool:FA";
 
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerTool.class);
 
-	/** 
+	/**
 	 * This is the indentation step to be used during stringization of the configuration.
 	 */
 	private static final int INDENT = 4;
 
-	/** 
+	/**
 	 * The object used to realize the "active" part of this object.
 	 */
 	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
-	/** 
+	/**
 	 * This controls dependency analysis.
-	 *
+	 * 
 	 * @invariant daController != null
 	 */
 	private AnalysesController daController;
 
-	/** 
+	/**
 	 * This manages the basic block graphs for the methods being transformed.
-	 *
+	 * 
 	 * @invariant bbgMgr != null
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
-	/** 
+	/**
 	 * This provides the call graph.
-	 *
+	 * 
 	 * @invariant callGraph != null
 	 */
 	private final CallGraphInfo callGraph;
 
-	/** 
+	/**
 	 * The slicing criteria.
-	 *
+	 * 
 	 * @invariant criteria != null
 	 */
 	private final Collection<ISliceCriterion> criteria;
 
-	/** 
+	/**
 	 * This is used to retrieve any application-level criteria as opposed to those hand-picked by the user.
 	 */
 	private final Collection<ISliceCriteriaGenerator> criteriaGenerators;
 
-	/** 
+	/**
 	 * The entry point methods.
-	 *
+	 * 
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	private final Collection<SootMethod> rootMethods;
 
-	/** 
+	/**
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
 	private final IStmtGraphFactory stmtGraphFactory;
 
-	/** 
+	/**
 	 * This manages the tokens used in flow analysis.
 	 */
 	private final ITokenManager theTokenMgr;
 
-	/** 
+	/**
 	 * This is the information map used to initialized analyses.
 	 */
-	private final Map info;
+	private final Map<Comparable, Object> info;
 
-	/** 
+	/**
 	 * This provides monitor information.
 	 */
 	private final MonitorAnalysis monitorInfo;
 
-	/** 
+	/**
 	 * This provides object flow anlaysis.
 	 */
 	private final OFAnalyzer ofa;
 
-	/** 
+	/**
 	 * The phase in which the tool's execution is in.
 	 */
 	private Phase phase;
 
-	/** 
+	/**
 	 * This is the slicing engine that identifies the slice.
 	 */
 	private final SlicingEngine engine;
 
-	/** 
+	/**
 	 * This provides thread graph.
 	 */
 	private final ThreadGraph threadGraph;
 
-	/** 
+	/**
 	 * This is a call-graph based pre processing controller.
 	 */
 	private final ValueAnalyzerBasedProcessingController cgBasedPreProcessCtrl;
 
-	/** 
+	/**
 	 * This controls the processing of callgraph.
 	 */
 	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
 
-	/** 
+	/**
 	 * This provides use-def information based on aliasing.
 	 */
 	private AliasedUseDefInfov2 aliasUD;
 
-	/** 
+	/**
 	 * This is the instance of equivalence class based escape analysis used by this object.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
-	/** 
+	/**
 	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
 	private NewExpr2InitMapper initMapper;
 
-	/** 
+	/**
 	 * This provides pair management.
 	 */
 	private final PairManager pairMgr;
 
-	/** 
+	/**
 	 * The system to be sliced.
 	 */
 	private IEnvironment system;
 
-	/** 
+	/**
 	 * This provides safe lock information.
 	 */
 	private final SafeLockAnalysis safelockAnalysis;
 
-	/** 
-	 * This defines the scope of slicing.  If this undefined, then the entire reachbable system is the scope.
+	/**
+	 * This defines the scope of slicing. If this undefined, then the entire reachbable system is the scope.
 	 */
 	private SpecificationBasedScopeDefinition sliceScopeDefinition;
 
-	/** 
+	/**
 	 * This provides use def information for static fields.
 	 */
 	private final StaticFieldUseDefInfo staticFieldUD;
 
 	/**
-	 * Creates a new SlicerTool object.  The client should relinquish control/ownership of the arguments as they are provided
+	 * Creates a new SlicerTool object. The client should relinquish control/ownership of the arguments as they are provided
 	 * to configure the tool.
-	 *
+	 * 
 	 * @param tokenMgr is the token manager to be used with this instance of slicer tool.
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
-	 *
 	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
 	 */
 	public SlicerTool(final ITokenManager tokenMgr, final IStmtGraphFactory stmtGraphFactoryToUse) {
@@ -320,7 +314,7 @@ public final class SlicerTool
 
 		rootMethods = new HashSet<SootMethod>();
 		criteria = new HashSet<ISliceCriterion>();
-		info = new HashMap<Object, Object>();
+		info = new HashMap<Comparable, Object>();
 		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
 		// create the flow analysis.
@@ -393,9 +387,8 @@ public final class SlicerTool
 
 	/**
 	 * Sets configuration named by <code>configName</code> as the active configuration.
-	 *
+	 * 
 	 * @param configID is id of the configuration to activate.
-	 *
 	 * @pre configID != null
 	 */
 	public void setActiveConfiguration(final String configID) {
@@ -406,7 +399,7 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the basic block graph manager used by this tool.
-	 *
+	 * 
 	 * @return the basic block graph manager.
 	 */
 	public BasicBlockGraphMgr getBasicBlockGraphManager() {
@@ -415,7 +408,7 @@ public final class SlicerTool
 
 	/**
 	 * Returns the call graph used by the slicer.
-	 *
+	 * 
 	 * @return the call graph used by the slicer.
 	 */
 	public ICallGraphInfo getCallGraph() {
@@ -424,9 +417,8 @@ public final class SlicerTool
 
 	/**
 	 * Set the slicing criteria.
-	 *
+	 * 
 	 * @param theCriteria is a collection of slicing criteria.
-	 *
 	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(AbstractSlicingCriteria))
 	 * @pre theCriteria->forall(o | o != null)
 	 */
@@ -437,9 +429,8 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the slicing criteria.
-	 *
+	 * 
 	 * @return returns the criteria.
-	 *
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public Collection<ISliceCriterion> getCriteria() {
@@ -448,18 +439,17 @@ public final class SlicerTool
 
 	/**
 	 * Returns the dependency analyses used by this object.
-	 *
+	 * 
 	 * @return the collection of dependency analyses.
-	 *
 	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
 	public Collection<IDependencyAnalysis> getDAs() {
 		final Collection<IDependencyAnalysis> _result = new LinkedHashSet<IDependencyAnalysis>();
 		final SlicerConfiguration _config = (SlicerConfiguration) getActiveConfiguration();
-		final List _daNames = new ArrayList(_config.getIDsOfDAsToUse());
+		final List<Comparable> _daNames = new ArrayList<Comparable>(_config.getIDsOfDAsToUse());
 		Collections.sort(_daNames);
 
-		for (final Iterator _i = _daNames.iterator(); _i.hasNext();) {
+		for (final Iterator<Comparable> _i = _daNames.iterator(); _i.hasNext();) {
 			_result.addAll(_config.getDependenceAnalyses(_i.next()));
 		}
 		return _result;
@@ -467,9 +457,8 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the equivalance class based escape analysis implementation.
-	 *
+	 * 
 	 * @return the escape analysis implementation.
-	 *
 	 * @post result != null
 	 */
 	public EquivalenceClassBasedEscapeAnalysis getECBA() {
@@ -478,9 +467,8 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves escape info provider.
-	 *
+	 * 
 	 * @return an escape info provider.
-	 *
 	 * @post result != null
 	 */
 	public IEscapeInfo getEscapeInfo() {
@@ -489,7 +477,7 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the value in <code>monitorInfo</code>.
-	 *
+	 * 
 	 * @return the value in <code>monitorInfo</code>.
 	 */
 	public MonitorAnalysis getMonitorInfo() {
@@ -498,7 +486,7 @@ public final class SlicerTool
 
 	/**
 	 * Returns the phase in which the tool's execution.
-	 *
+	 * 
 	 * @return an object that represents the phase of the tool's execution.
 	 */
 	public Object getPhase() {
@@ -507,9 +495,8 @@ public final class SlicerTool
 
 	/**
 	 * Set the methods which serve as the entry point into the system to be sliced.
-	 *
+	 * 
 	 * @param theRootMethods is a collection of methods.
-	 *
 	 * @pre theRootMethods != null and theRootMethods.oclIsKindOf(Collection(SootMethod))
 	 * @pre theRootMethods->forall(o | o != null)
 	 */
@@ -520,9 +507,8 @@ public final class SlicerTool
 
 	/**
 	 * Returns the methods which serve as the entry point into the system to be sliced.
-	 *
+	 * 
 	 * @return Returns the root methods of the system.
-	 *
 	 * @post result!= null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	public Collection<SootMethod> getRootMethods() {
@@ -531,7 +517,7 @@ public final class SlicerTool
 
 	/**
 	 * Sets the scope of the slicing.
-	 *
+	 * 
 	 * @param scope to be used.
 	 */
 	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
@@ -540,7 +526,7 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the statement graph (CFG) provider/factory used by the tool.
-	 *
+	 * 
 	 * @return the factory object.
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
@@ -549,9 +535,8 @@ public final class SlicerTool
 
 	/**
 	 * Set the system to be sliced.
-	 *
+	 * 
 	 * @param theEnvironment contains the class of the system to be sliced.
-	 *
 	 * @pre theEnvironment != null
 	 */
 	public void setSystem(final IEnvironment theEnvironment) {
@@ -560,9 +545,8 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the system being sliced.
-	 *
+	 * 
 	 * @return the system being sliced.
-	 *
 	 * @post result != null
 	 */
 	public IEnvironment getSystem() {
@@ -571,9 +555,8 @@ public final class SlicerTool
 
 	/**
 	 * Set the tag name to identify the slice.
-	 *
+	 * 
 	 * @param tagName of the slice.
-	 *
 	 * @pre tagName != null
 	 */
 	public void setTagName(final String tagName) {
@@ -582,11 +565,9 @@ public final class SlicerTool
 
 	/**
 	 * Adds <code>criteriaGenerator</code> to the collection of criteria generator.
-	 *
+	 * 
 	 * @param theCriteriaGenerator anothre criteria generator.
-	 *
 	 * @return <code>true</code> if the given generator was added; <code>false</code>, otherwise.
-	 *
 	 * @pre theCriteriaGenerator != null
 	 */
 	public boolean addCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
@@ -595,7 +576,6 @@ public final class SlicerTool
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 * <p>
 	 * This implimentation will load a default configuration if the the given configuration cannot be loaded.
 	 * </p>
@@ -622,7 +602,7 @@ public final class SlicerTool
 				_result = true;
 			} catch (final JiBXException _e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
-					+ " configuration.", _e);
+						+ " configuration.", _e);
 				configurationInfo = null;
 			}
 		}
@@ -631,24 +611,21 @@ public final class SlicerTool
 			initialize();
 		}
 
-		configurator =
-			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
-				SlicerConfiguration.getFactory());
+		configurator = new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo,
+				new SlicerConfigurator(), SlicerConfiguration.getFactory());
 		return _result;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 * <p>
-	 * This implementation of the tool remembers the last phase in which it was stopped.  This saved phase is used when the
-	 * tool is executed again with a <code>null</code> valued <code>phaseParam</code>.  If a non-null
-	 * <code>phaseParam</code>  is provided, the tool starts executing from the earliest of the saved phase or the given
-	 * phase.  <code>lastPhase</code> controls the last phase to have finished execution when the tools stops.
+	 * This implementation of the tool remembers the last phase in which it was stopped. This saved phase is used when the
+	 * tool is executed again with a <code>null</code> valued <code>phaseParam</code>. If a non-null
+	 * <code>phaseParam</code> is provided, the tool starts executing from the earliest of the saved phase or the given
+	 * phase. <code>lastPhase</code> controls the last phase to have finished execution when the tools stops.
 	 * </p>
 	 */
-	@Override public void execute(final Phase phaseParam, final Phase lastPhase)
-	  throws InterruptedException {
+	@Override public void execute(final Phase phaseParam, final Phase lastPhase) throws InterruptedException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Execution of the slicer tool");
 		}
@@ -710,11 +687,9 @@ public final class SlicerTool
 
 	/**
 	 * Removes <code>criteriaGenerator</code> to the collection of criteria generator.
-	 *
+	 * 
 	 * @param theCriteriaGenerator anothre criteria generator.
-	 *
 	 * @return <code>true</code> if the given generator was removed; <code>false</code>, otherwise.
-	 *
 	 * @pre theCriteriaGenerator != null
 	 */
 	public boolean removeCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
@@ -766,14 +741,14 @@ public final class SlicerTool
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @throws IllegalStateException if forward executable slice is requested.
 	 */
 	@Override protected void checkConfiguration() {
 		final IToolConfiguration _slicerConf = getActiveConfiguration();
 
 		if (((Boolean) _slicerConf.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()
-			  && _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE)) {
+				&& _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE)) {
 			LOGGER.error("Forward Executable slice is unsupported.");
 			throw new IllegalStateException("Forward Executable slice is unsupported.");
 		}
@@ -785,7 +760,7 @@ public final class SlicerTool
 
 	/**
 	 * Retrieves the slice collector used by this tool.
-	 *
+	 * 
 	 * @return the slice collector.
 	 */
 	SliceCollector getSliceCollector() {
@@ -794,9 +769,8 @@ public final class SlicerTool
 
 	/**
 	 * Executes dependency analyses and monitor analysis.
-	 *
+	 * 
 	 * @param slicerConfig provides the configuration.
-	 *
 	 * @pre slicerConfig != null
 	 */
 	private void dependencyAnalysisPhase(final SlicerConfiguration slicerConfig) {
@@ -805,12 +779,12 @@ public final class SlicerTool
 		}
 
 		// perform dependency analyses
-		// create dependency analyses controller 
+		// create dependency analyses controller
 		final BasicBlockGraphMgr _b;
 
 		if (slicerConfig.isExplicitExceptionalExitSensitiveControlDependenceUsed()) {
-			final ExceptionRaisingAnalysis _e =
-				new ExceptionRaisingAnalysis(getStmtGraphFactory(), getCallGraph(), getSystem());
+			final ExceptionRaisingAnalysis _e = new ExceptionRaisingAnalysis(getStmtGraphFactory(), getCallGraph(),
+					getSystem());
 
 			if (slicerConfig.areCommonUncheckedExceptionsConsidered()) {
 				_e.setupForCommonUncheckedExceptions();
@@ -818,7 +792,7 @@ public final class SlicerTool
 			_e.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			_e.unhook(cgBasedPreProcessCtrl);
-			
+
 			_b = new BasicBlockGraphMgr(_e);
 			_b.setStmtGraphFactory(getStmtGraphFactory());
 		} else {
@@ -827,12 +801,15 @@ public final class SlicerTool
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, _b);
 		addActivePart(daController.getActivePart());
 
-		final Collection<IDependencyAnalysis> _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
-		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
+		final Collection<IDependencyAnalysis> _controlDAs = slicerConfig
+				.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
+		final Collection<IDependencyAnalysis> _deps = (Collection<IDependencyAnalysis>) MapUtils.getFromMap(info,
+				IDependencyAnalysis.CONTROL_DA, new ArrayList<IDependencyAnalysis>());
+		_deps.addAll(_controlDAs);
 
 		// drive the analyses
-		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
-			final Object _id = _i.next();
+		for (final Iterator<Comparable>_i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
+			final Comparable _id = _i.next();
 			final Collection _c = slicerConfig.getDependenceAnalyses(_id);
 			daController.addAnalyses(_id, _c);
 		}
@@ -849,7 +826,7 @@ public final class SlicerTool
 		final String _deadlockCriteriaSelectionStrategy = slicerConfig.getDeadlockCriteriaSelectionStrategy();
 
 		if (!slicerConfig.getPropertyAware()
-			  && !_deadlockCriteriaSelectionStrategy.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
+				&& !_deadlockCriteriaSelectionStrategy.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
 			ecba.flushSiteContexts();
 		}
 
@@ -862,11 +839,10 @@ public final class SlicerTool
 
 	/**
 	 * Executes low level analyses.
-	 *
+	 * 
 	 * @throws InterruptedException when the tool is interrupted when moving between phases.
 	 */
-	private void lowLevelAnalysisPhase()
-	  throws InterruptedException {
+	private void lowLevelAnalysisPhase() throws InterruptedException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: low level static analyses phase");
 		}
@@ -904,7 +880,7 @@ public final class SlicerTool
 
 		fireToolProgressEvent("LOW LEVEL ANALYSES: Constructing thread graph and misc.", phase);
 
-		// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
+		// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression
 		// mapper.
 		threadGraph.reset();
 		cgBasedPreProcessCtrl.reset();
@@ -954,9 +930,8 @@ public final class SlicerTool
 
 	/**
 	 * Executes the slicer.
-	 *
+	 * 
 	 * @param slicerConfig provides the configuration.
-	 *
 	 * @pre slicerConfig != null
 	 */
 	private void slicingPhase(final SlicerConfiguration slicerConfig) {
@@ -993,27 +968,26 @@ public final class SlicerTool
 			engine.setSystem(system);
 
 			if (slicerConfig.getPropertyAware()) {
-				final Map<Object, AbstractCallingContextRetriever> _map = new HashMap<Object, AbstractCallingContextRetriever>();
+				final Map<Comparable, ICallingContextRetriever> _map = new HashMap<Comparable, ICallingContextRetriever>();
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
-				final ThreadEscapeInfoBasedCallingContextRetriever _t1 =
-					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, IDependencyAnalysis.READY_DA);
-					//new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
+				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
+						_callingContextLimit, IDependencyAnalysis.READY_DA);
+				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.READY_DA, _t1);
 
-				final ThreadEscapeInfoBasedCallingContextRetriever _t2 =
-					new ThreadEscapeInfoBasedCallingContextRetrieverV2(_callingContextLimit, 
-							IDependencyAnalysis.INTERFERENCE_DA);
-					//new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
+				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
+						_callingContextLimit, IDependencyAnalysis.INTERFERENCE_DA);
+				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetrieverV2 _t3 =
-					new DataAliasBasedCallingContextRetrieverV2(_callingContextLimit);
+				final DataAliasBasedCallingContextRetrieverV2 _t3 = new DataAliasBasedCallingContextRetrieverV2(
+						_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
@@ -1033,7 +1007,7 @@ public final class SlicerTool
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
-					+ "selected then the system did not have any synchronized methods or synchronized blocks.");
+						+ "selected then the system did not have any synchronized methods or synchronized blocks.");
 			}
 		}
 

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.IPrototype;
 import soot.ValueBox;
 
 import soot.jimple.JimpleValueSwitch;
@@ -26,15 +27,24 @@ import soot.jimple.JimpleValueSwitch;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <E> DOCUMENT ME!
+ * @param <N> DOCUMENT ME!
  */
-public interface IExprSwitch
-  extends JimpleValueSwitch {
+public interface IExprSwitch <E extends IExprSwitch<E, N>, N extends IFGNode<N, ?>>
+  extends JimpleValueSwitch, IPrototype<E> {
 	/**
 	 * Retreives the result of visiting the object.
 	 *
 	 * @return the result of visiting the object.
 	 */
-	Object getResult();
+	N getFlowNode();
+	
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param node DOCUMENT ME!
+	 */
+	void setFlowNode(N node);
 
 	/**
 	 * Processes the expression at the given program point, <code>v</code>.

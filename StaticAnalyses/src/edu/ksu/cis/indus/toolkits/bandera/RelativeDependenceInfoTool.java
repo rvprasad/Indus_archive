@@ -32,6 +32,7 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
@@ -139,18 +140,18 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * This identifies the root methods/entry point methods in the input arguments.
 	 */
-	public static final Object ROOT_METHODS = "entryPoints";
+	public static final Comparable<String> ROOT_METHODS = "entryPoints";
 
 	/**
 	 * This identifies the scene in the input arguments.
 	 */
-	public static final Object SCENE = "scene";
+	public static final Comparable<String> SCENE = "scene";
 
 	/**
 	 * This identifies the output map that contains the data that needs to be serialized. The map maps one of the above keys
 	 * to an object.
 	 */
-	public static final Object SERIALIZE_DATA_OUTPUT = "SerializedDataMap";
+	public static final Comparable<String> SERIALIZE_DATA_OUTPUT = "SerializedDataMap";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -199,7 +200,7 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The collection of input argument identifiers.
 	 */
-	private static final List IN_ARGUMENTS_IDS;
+	private static final List<Comparable> IN_ARGUMENTS_IDS;
 
 	/**
 	 * This is the method name prefix in bir model from j2b.
@@ -214,12 +215,12 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The collection of output argument identifiers.
 	 */
-	private static final List OUT_ARGUMENTS_IDS;
+	private static final List<Comparable> OUT_ARGUMENTS_IDS;
 	static {
-		IN_ARGUMENTS_IDS = new ArrayList();
+		IN_ARGUMENTS_IDS = new ArrayList<Comparable>();
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
-		OUT_ARGUMENTS_IDS = new ArrayList();
+		OUT_ARGUMENTS_IDS = new ArrayList<Comparable>();
 		OUT_ARGUMENTS_IDS.add(SERIALIZE_DATA_OUTPUT);
 	}
 
@@ -231,14 +232,12 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The collection of array referring bir locations.
 	 */
-	final Collection arrayRefs = new HashSet();
+	final Collection<String> arrayRefs = new HashSet<String>();
 
 	/**
 	 * This is dependence info in terms of bir locations.
-	 * 
-	 * @invariant dependence.oclIsKindOf(Map(Stmt, Collection(Stmt)))
 	 */
-	final Map dependence = new HashMap();
+	final Map<String, Collection<String>> dependence = new HashMap<String, Collection<String>>();
 
 	/**
 	 * This indicates if only the field refs in application class should be analyzed.
@@ -248,7 +247,7 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The collection of array referring bir locations.
 	 */
-	final Collection fieldRefs = new HashSet();
+	final Collection<String> fieldRefs = new HashSet<String>();
 
 	/**
 	 * This indicates if only the lock acquisitions in application class should be analyzed.
@@ -258,21 +257,17 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * The collection of array referring bir locations.
 	 */
-	final Collection lockAcquisitions = new HashSet();
+	final Collection<String> lockAcquisitions = new HashSet<String>();
 
 	/**
 	 * This is may-follow info in terms of bir locations.
-	 * 
-	 * @invariant dependence.oclIsKindOf(Map(Stmt, Collection(Stmt)))
 	 */
-	final Map mayFollow = new HashMap();
+	final Map<String, Collection<String>> mayFollow = new HashMap<String, Collection<String>>();
 
 	/**
 	 * This is the collection of bir location corresponding to the statements seen by the processor.
-	 * 
-	 * @invariant seenStmts.oclIsKindOf(Collection(Stmt))
 	 */
-	final Collection seenStmts = new HashSet();
+	final Collection<String> seenStmts = new HashSet<String>();
 
 	/**
 	 * This captures the signal from the tool framework to abort at the next suitable time.
@@ -289,14 +284,12 @@ public final class RelativeDependenceInfoTool
 	 * 
 	 * @invariant method2birsig.oclIsKindOf(Map(SootMethod, String))
 	 */
-	private final Map method2birsig = new HashMap();
+	private final Map<SootMethod, String> method2birsig = new HashMap<SootMethod, String>();
 
 	/**
 	 * This is entry points to the system.
-	 * 
-	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	private Collection rootMethods;
+	private Collection<SootMethod> rootMethods;
 
 	/**
 	 * This method constructs the BIR representation of the name of a method.
@@ -357,15 +350,15 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getInputParameterList()
 	 */
-	public List getInputParameterList() {
+	public List<Comparable> getInputParameterList() {
 		return Collections.unmodifiableList(IN_ARGUMENTS_IDS);
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputMap()
 	 */
-	public Map getOutputMap() {
-		final Map _map = new HashMap();
+	public Map<Comparable<String>, Map<Object, Object>> getOutputMap() {
+		final Map<Object, Object> _map = new HashMap<Object, Object>();
 		_map.put(Constants.DEPENDENCE, dependence);
 		_map.put(Constants.KNOWN_TRANSITIONS, seenStmts);
 		_map.put(Constants.MAY_FOLLOW_RELATION, mayFollow);
@@ -378,7 +371,7 @@ public final class RelativeDependenceInfoTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputParameterList()
 	 */
-	public List getOutputParameterList() {
+	public List<Comparable> getOutputParameterList() {
 		return Collections.unmodifiableList(OUT_ARGUMENTS_IDS);
 	}
 
@@ -437,14 +430,14 @@ public final class RelativeDependenceInfoTool
 		}
 		env = new Environment(_scene);
 
-		final Collection _rootMethods = (Collection) arg.get(ROOT_METHODS);
+		final Collection<SootMethod> _rootMethods = (Collection<SootMethod>) arg.get(ROOT_METHODS);
 
 		if (_rootMethods == null || _rootMethods.isEmpty()) {
 			final String _msg = "Atleast one method should be specified as the entry-point into the system.";
 			LOGGER.error(_msg);
 			throw new IllegalArgumentException(_msg);
 		}
-		rootMethods = new ArrayList();
+		rootMethods = new ArrayList<SootMethod>();
 		rootMethods.addAll(_rootMethods);
 	}
 
@@ -457,24 +450,24 @@ public final class RelativeDependenceInfoTool
 	 *            is applicable only to entry-exit synchronization of sychronized methods.
 	 * @return the bir location.
 	 * @throws IllegalStateException when the given statement does not occur in the system.
-	 * @pre p != null and p.oclIsKindOf(Pair(Stmt, SootMethod)) and p.getSecond() != null
-	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 * @pre p != null and p.getSecond() != null
+	 * @post result != null
 	 */
-	Collection generateBIRRep(final Pair p, final boolean getUnlocking) {
-		final Stmt _stmt = (Stmt) p.getFirst();
-		final SootMethod _method = (SootMethod) p.getSecond();
+	Collection<String> generateBIRRep(final Pair<Stmt, SootMethod> p, final boolean getUnlocking) {
+		final Stmt _stmt = p.getFirst();
+		final SootMethod _method = p.getSecond();
 		final String _sig;
 
 		if (method2birsig.containsKey(_method)) {
-			_sig = (String) method2birsig.get(_method);
+			_sig = method2birsig.get(_method);
 		} else {
 			_sig = RelativeDependenceInfoTool.constructMethodName(_method);
 			method2birsig.put(_method, _sig);
 		}
 
-		final List _sl = new ArrayList(_method.retrieveActiveBody().getUnits());
+		final List<Stmt> _sl = new ArrayList<Stmt>(_method.retrieveActiveBody().getUnits());
 		final int _index = _sl.indexOf(_stmt);
-		final Collection _result = new ArrayList();
+		final Collection<String> _result = new ArrayList<String>();
 
 		if (_index != -1) {
 			_result.add(_sig + " loc" + _index);
@@ -498,18 +491,20 @@ public final class RelativeDependenceInfoTool
 	 * @param environment to be analyzed.
 	 * @param entryPointMethods are the entry points to the environment.
 	 */
-	void run(final IEnvironment environment, final Collection entryPointMethods) {
+	void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
 		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IValueAnalyzer _aa = OFAnalyzer
 				.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 		_aa.analyze(environment, entryPointMethods);
 
 		final IStmtGraphFactory _stmtGraphFactory = new CompleteStmtGraphFactory();
 		final BasicBlockGraphMgr _bbm = new BasicBlockGraphMgr();
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
+		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final CFGAnalysis _cfgAnalysis = new CFGAnalysis(_cgi, _bbm);
@@ -528,14 +523,16 @@ public final class RelativeDependenceInfoTool
 		_cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
 		_cgipc.setStmtSequencesRetriever(_ssr);
 
-		final Map _info = new HashMap();
+		final Map<Comparable, Object> _info = new HashMap<Comparable, Object>();
 		_info.put(ICallGraphInfo.ID, _cgi);
 		_info.put(IThreadGraphInfo.ID, _tgi);
 		_info.put(PairManager.ID, _pairManager);
 		_info.put(IEnvironment.ID, _aa.getEnvironment());
 		_info.put(IValueAnalyzer.ID, _aa);
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, _bbm);
 		_info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
@@ -546,18 +543,22 @@ public final class RelativeDependenceInfoTool
 		_pc.driveProcessors(_processors);
 		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
-		_processors.add(_tgi);
+		_processors.add((ThreadGraph) _tgi);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, _bbm);
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 
 		final InterferenceDAv3 _iDA = new InterferenceDAv3();
 		_iDA.setUseOFA(true);
@@ -570,14 +571,18 @@ public final class RelativeDependenceInfoTool
 		_pc2.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 		_pc2.setStmtSequencesRetriever(_ssr);
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 
 		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_ecba.getEscapeInfo(), _cgi);
 		_lbe.hookup(_pc2);
 		_pc2.process();
 		_lbe.unhook(_pc2);
 
-		if (abort) { return; }
+		if (abort) {
+			return;
+		}
 
 		final DependenceAndMayFollowInfoCalculator _proc;
 		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);

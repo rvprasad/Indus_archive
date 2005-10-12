@@ -45,7 +45,7 @@ import soot.jimple.ThrowStmt;
  * @version $Revision$
  */
 class StmtSwitch
-  extends AbstractStmtSwitch {
+  extends AbstractStmtSwitch<StmtSwitch, OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -69,11 +69,11 @@ class StmtSwitch
 	 *
 	 * @return the new instance of this class.
 	 *
-	 * @pre o != null and o.oclIsKindOf(MethodVariant)
-	 * @post result != null and result.oclIsKindOf(StmtSwitch)
+	 * @pre o != null and o[0].oclIsKindOf(MethodVariant)
+	 * @post result != null
 	 */
-	public Object getClone(final Object o) {
-		return new StmtSwitch((MethodVariant) o);
+	public StmtSwitch getClone(final Object...o) {
+		return new StmtSwitch((MethodVariant) o[0]);
 	}
 
 	/**
@@ -182,7 +182,7 @@ class StmtSwitch
 		if (Util.isReferenceType(stmt.getOp().getType())) {
 			rexpr.process(stmt.getOpBox());
 
-			final IFGNode _retNode = (IFGNode) rexpr.getResult();
+			final OFAFGNode _retNode =  rexpr.getFlowNode();
 			_retNode.addSucc(method.queryReturnNode());
 		}
 

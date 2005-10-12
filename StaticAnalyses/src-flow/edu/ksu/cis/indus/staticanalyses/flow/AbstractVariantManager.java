@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -24,95 +23,100 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * This class manages variants.  An variant manager classes should extend this class.  This class embodies the logic to
- * manage the variants.
+ * This class manages variants. An variant manager classes should extend this class. This class embodies the logic to manage
+ * the variants.
  * 
- * <p>
- * Created: Tue Jan 22 05:21:42 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <V> DOCUMENT ME!
+ * @param <A> DOCUMENT ME!
+ * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractVariantManager
-  implements IVariantManager {
-	/** 
+public abstract class AbstractVariantManager<V extends IVariant, A, N extends IFGNode<N, ?>>
+		implements IVariantManager<V, A> {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractVariantManager.class);
 
-	/** 
+	/**
 	 * The instance of the framework in which this object is used.
-	 *
+	 * 
 	 * @invariant fa != null
 	 */
-	protected final FA fa;
+	protected final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> fa;
 
-	/** 
+	/**
 	 * A manager of indices that map entities to variants.
-	 *
+	 * 
 	 * @invariant indexManager != null
 	 */
-	private final IIndexManager idxManager;
+	private final IIndexManager<? extends IIndex, A> idxManager;
 
-	/** 
+	/**
 	 * A map from indices to variants.
-	 *
-	 * @invariant index2variant != null and index2variant.oclIsKindOf(Map(IIndex, IVariant))
+	 * 
+	 * @invariant index2variant != null
 	 */
-	private final Map index2variant = new HashMap();
+	private final Map<IIndex, V> index2variant = new HashMap<IIndex, V>();
 
 	/**
 	 * Creates a new <code>AbstractVariantManager</code> instance.
-	 *
+	 * 
 	 * @param theAnalysis the instance of the framework in which this object is used.
 	 * @param indexManager the manager of indices that map the entities to variants.
-	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	AbstractVariantManager(final FA theAnalysis, final IIndexManager indexManager) {
+	AbstractVariantManager(final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> theAnalysis, final IIndexManager<? extends IIndex, A> indexManager) {
 		this.fa = theAnalysis;
 		this.idxManager = indexManager;
 	}
 
 	/**
 	 * Returns the variant corresponding to the given entity in the given context, if one exists.
-	 *
+	 * 
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
-	 *
-	 * @return the variant correponding to the entity in the given context, if one exists.  <code>null</code> if none exist.
-	 *
+	 * @return the variant correponding to the entity in the given context, if one exists. <code>null</code> if none exist.
 	 * @pre o != null and context != null
 	 */
-	public final IVariant query(final Object o, final Context context) {
-		return (IVariant) index2variant.get(idxManager.getIndex(o, context));
+	public final V query(final A o, final Context context) {
+		return index2variant.get(idxManager.getIndex(o, context));
 	}
 
 	/**
-	 * Returns the variant corresponding to the given entity in the given context.  If a variant does not exist, a new one is
-	 * created.  If one exists, it shall be returned.
-	 *
+	 * Resets the manager. All internal data structures are reset to enable a new session of usage.
+	 */
+	public void reset() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("IVariant manager being reset.");
+		}
+		index2variant.clear();
+		idxManager.reset();
+	}
+
+	/**
+	 * Returns the variant corresponding to the given entity in the given context. If a variant does not exist, a new one is
+	 * created. If one exists, it shall be returned.
+	 * 
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
-	 *
 	 * @return the variant correponding to the entity in the given context.
-	 *
 	 * @pre o != null and context != null
 	 * @post result != null
 	 */
-	public final IVariant select(final Object o, final Context context) {
+	public final V select(final A o, final Context context) {
 		final IIndex _index = idxManager.getIndex(o, context);
-		IVariant _temp = null;
+		V _temp = null;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Entering - IIndex: " + _index + "\n" + o + "\n" + context);
 		}
 
 		if (index2variant.containsKey(_index)) {
-			_temp = (IVariant) index2variant.get(_index);
+			_temp = index2variant.get(_index);
 		} else if (!fa.getAnalyzer().isStable()) {
 			_temp = getNewVariant(o);
 			index2variant.put(_index, _temp);
@@ -127,32 +131,19 @@ public abstract class AbstractVariantManager
 	}
 
 	/**
-	 * Resets the manager.  All internal data structures are reset to enable a new session of usage.
-	 */
-	public void reset() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("IVariant manager being reset.");
-		}
-		index2variant.clear();
-		idxManager.reset();
-	}
-
-	/**
 	 * Returns the new variant correponding to the given object. This is a template method to be provided by concrete
 	 * implementations.
-	 *
+	 * 
 	 * @param o the object whose corresponding variant is to be returned.
-	 *
 	 * @return the new variant corresponding to the given object.
-	 *
 	 * @pre o != null
 	 * @post result != null
 	 */
-	protected abstract IVariant getNewVariant(final Object o);
+	protected abstract V getNewVariant(final A o);
 
 	/**
 	 * Returns the total variants managed by this manager.
-	 *
+	 * 
 	 * @return number of variants managed.
 	 */
 	protected int getVariantCount() {
@@ -161,12 +152,11 @@ public abstract class AbstractVariantManager
 
 	/**
 	 * Retrieves the variants managed by this object.
-	 *
+	 * 
 	 * @return the variants.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(IVariant))
+	 * @post result != null
 	 */
-	Collection getVariants() {
+	Collection<V> getVariants() {
 		return index2variant.values();
 	}
 }

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -24,51 +23,48 @@ import java.util.Collection;
 
 import soot.SootMethod;
 
-
 /**
  * This interface is provided by the flow-analyzers.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IAnalyzer
-  extends IStatus {
+		extends IStatus {
+
 	/**
-	 * Retrieves the current context of the  analysis.
-	 *
+	 * Analyzes the system represented by the given classes and and scene.
+	 * 
+	 * @param env is the environment of classes to be analyzed.
+	 * @param methods that serve a entry points into the system.
+	 * @pre env != null and methods != null
+	 */
+	void analyze(IEnvironment env, Collection<SootMethod> methods);
+
+	/**
+	 * Analyzes the system represented by the given classes starting at the given entry point.
+	 * 
+	 * @param env is the environment of classes to be analyzed.
+	 * @param entry point into the system being analyzed.
+	 * @pre env != null and entry != null
+	 */
+	void analyze(IEnvironment env, SootMethod entry);
+
+	/**
+	 * Retrieves the current context of the analysis.
+	 * 
 	 * @return the current context.
-	 *
 	 * @post result !=null
 	 */
 	Context getContext();
 
 	/**
 	 * Retrieves the enviroment in which the analysis operates.
-	 *
+	 * 
 	 * @return the enviroment.
 	 */
 	IEnvironment getEnvironment();
-
-	/**
-	 * Analyzes the system represented by the given classes and and scene.
-	 *
-	 * @param env is the environment of classes to be analyzed.
-	 * @param methods that serve a entry points into the system.
-	 *
-	 * @pre env != null and methods != null and methods.oclIsKindOf(Collection(SootMethod))
-	 */
-	void analyze(IEnvironment env, Collection methods);
-
-	/**
-	 * Analyzes the system represented by the given classes starting at the given entry point.
-	 *
-	 * @param env is the environment of classes to be analyzed.
-	 * @param entry point into the system being analyzed.
-	 *
-	 * @pre env != null and entry != null
-	 */
-	void analyze(IEnvironment env, SootMethod entry);
 
 	/**
 	 * Resets the analyzer.

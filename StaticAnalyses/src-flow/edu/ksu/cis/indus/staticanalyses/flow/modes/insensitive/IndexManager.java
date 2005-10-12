@@ -26,31 +26,29 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * differentiated solely on their credentials and not on any other auxiliary information such as program point or call
  * stack.
  * 
- * <p>
- * Created: Fri Jan 25 13:11:19 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <O> DOCUMENT ME!
  */
-public class IndexManager
-  extends AbstractIndexManager {
+public class IndexManager<O>
+  extends AbstractIndexManager<IndexManager.DummyIndex<O>, O> {
 	/**
 	 * This class represents an index that identifies an entity independent of any context information..
 	 */
-	private static class DummyIndex
-	  implements IIndex {
+	private static class DummyIndex<O>
+	  implements IIndex<DummyIndex<O>> {
 		/** 
 		 * The entity that this index identifies.
 		 */
-		Object object;
+		O object;
 
 		/**
 		 * Creates a new <code>DummyIndex</code> instance.
 		 *
 		 * @param o the entity being identified by this index.
 		 */
-		DummyIndex(final Object o) {
+		DummyIndex(final O o) {
 			this.object = o;
 		}
 
@@ -61,7 +59,7 @@ public class IndexManager
 		 *
 		 * @return <code>true</code> if <code>object</code> is the same as this object; <code>false</code> otherwise.
 		 */
-		public boolean equals(final Object o) {
+		@Override public boolean equals(final Object o) {
 			boolean _result = o == this;
 
 			if (!_result && o != null && o instanceof DummyIndex) {
@@ -76,7 +74,7 @@ public class IndexManager
 		 *
 		 * @return returns the hash code for this object.
 		 */
-		public int hashCode() {
+		@Override public int hashCode() {
 			int _result = 17;
 
 			if (object != null) {
@@ -90,18 +88,9 @@ public class IndexManager
 		 *
 		 * @return the stringized representation of this object.
 		 */
-		public String toString() {
+		@Override public String toString() {
 			return object.toString();
 		}
-	}
-
-	/**
-	 * Returns a new instance of this class.
-	 *
-	 * @return a new instance of this class.
-	 */
-	public Object getClone() {
-		return new IndexManager();
 	}
 
 	/**
@@ -113,7 +102,7 @@ public class IndexManager
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public Object getClone(final Object o) {
+	@Override public IndexManager getClone(final Object... o) {
 		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
 	}
 
@@ -125,8 +114,8 @@ public class IndexManager
 	 *
 	 * @return the index that uniquely identifies <code>o</code>.
 	 */
-	protected IIndex createIndex(final Object o, final Context c) {
-		return new DummyIndex(o);
+	@Override protected DummyIndex<O> createIndex(final O o, final Context c) {
+		return new DummyIndex<O>(o);
 	}
 }
 

@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common.collections;
 
 import java.util.Collection;
 
-import org.apache.commons.collections.Predicate;
 
 
 /**
@@ -26,9 +25,10 @@ import org.apache.commons.collections.Predicate;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
  */
-public final class MembershipPredicate
-  implements Predicate {
+public final class MembershipPredicate<T>
+  implements IPredicate<T> {
 	/** 
 	 * The collection being tracked.
 	 */
@@ -45,7 +45,7 @@ public final class MembershipPredicate
 	 * @param theMembership controls the membership test direction.
 	 * @param theCollection tracks the path used in membership test.
 	 */
-	public MembershipPredicate(final boolean theMembership, final Collection theCollection) {
+	public MembershipPredicate(final boolean theMembership, final Collection<T> theCollection) {
 		super();
 		membership = theMembership;
 		collection = theCollection;
@@ -53,6 +53,7 @@ public final class MembershipPredicate
 
 	/**
 	 * The membership test.
+	 * @param <T1> DOCUMENT ME!
 	 *
 	 * @param object to be tested.
 	 *
@@ -60,7 +61,7 @@ public final class MembershipPredicate
 	 * 		   <code>true</code> or if <code>object</code> does not belong to <code>collection</code> and membership is
 	 * 		   <code>false</code>; <code>false</code>, otherwise.
 	 */
-	public boolean evaluate(final Object object) {
+	public <T1 extends T> boolean evaluate(final T1 object) {
         return membership == collection.contains(object);
 	}
 }

@@ -37,9 +37,13 @@ import soot.jimple.JimpleBody;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <N> DOCUMENT ME!
+ * @param <LE> DOCUMENT ME!
+ * @param <RE> DOCUMENT ME!
+ * @param <SS> DOCUMENT ME!
  */
-public abstract class AbstractMethodVariant
-  implements IMethodVariant {
+public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>>
+  implements IMethodVariant<N, LE, RE, SS> {
 	/** 
 	 * The context which resulted in the creation of this variant.
 	 *
@@ -52,7 +56,7 @@ public abstract class AbstractMethodVariant
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA fa;
+	protected final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> fa;
 
 	/** 
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
@@ -61,7 +65,7 @@ public abstract class AbstractMethodVariant
 	 * @invariant _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar != null
 	 * @invariant not _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar == null
 	 */
-	protected final IFGNode returnVar;
+	protected final N returnVar;
 
 	/** 
 	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
@@ -70,12 +74,12 @@ public abstract class AbstractMethodVariant
 	 * @invariant _method.isStatic() implies thisVar == null
 	 * @invariant not _method.isStatic() implies thisVar != null
 	 */
-	protected final IFGNode thisVar;
+	protected final N thisVar;
 
 	/** 
 	 * The flow graph node associated with an abstract single exceptional return point of the corresponding method.
 	 */
-	protected final IFGNode thrownNode;
+	protected final N thrownNode;
 
 	/** 
 	 * The statement visitor used to process in the statement in the correpsonding method.
@@ -90,7 +94,7 @@ public abstract class AbstractMethodVariant
 	 *
 	 * @invariant astvm != null
 	 */
-	protected final IVariantManager astvm;
+	protected final IVariantManager<ValuedVariant<N>, Value> astvm;
 
 	/** 
 	 * The method represented by this variant.
@@ -109,7 +113,7 @@ public abstract class AbstractMethodVariant
 	 * @invariant _method.getParameterTypes()->forall(p | not p.oclIsKindOf(RefLikeType) implies
 	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) == null)
 	 */
-	protected final IFGNode[] parameters;
+	protected final N[] parameters;
 
 	/**
 	 * Creates an instance of this class.
@@ -120,7 +124,7 @@ public abstract class AbstractMethodVariant
 	 *
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
-	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager astVariantManager, final FA theFA) {
+	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> theFA) {
 		super();
 		method = sm;
 		astvm = astVariantManager;
@@ -131,7 +135,7 @@ public abstract class AbstractMethodVariant
 		fa.processClass(sm.getDeclaringClass());
 		sm.addTag(fa.getTag());
 
-		final Collection _typesToProcess = new HashSet();
+		final Collection<Type> _typesToProcess = new HashSet<Type>();
 		final RefType _sootType = sm.getDeclaringClass().getType();
 
 		if (!sm.isStatic() && shouldConsider(_sootType)) {
@@ -142,7 +146,7 @@ public abstract class AbstractMethodVariant
 		}
 
 		final int _pCount = sm.getParameterCount();
-		parameters = new IFGNode[_pCount];
+		parameters = (N[]) new IFGNode[_pCount];
 
 		for (int _i = 0; _i < _pCount; _i++) {
 			if (shouldConsider(sm.getParameterType(_i))) {
@@ -165,8 +169,8 @@ public abstract class AbstractMethodVariant
 		if (method.isConcrete()) {
 			final JimpleBody _jb = (JimpleBody) method.retrieveActiveBody();
 
-			for (final Iterator _i = _jb.getLocals().iterator(); _i.hasNext();) {
-				final Type _localType = ((Local) _i.next()).getType();
+			for (final Iterator<Local> _i = _jb.getLocals().iterator(); _i.hasNext();) {
+				final Type _localType = _i.next().getType();
 
 				if (shouldConsider(_localType)) {
 					fa.processType(_localType);
@@ -174,30 +178,30 @@ public abstract class AbstractMethodVariant
 			}
 		}
 
-		for (final Iterator _i = _typesToProcess.iterator(); _i.hasNext();) {
-			fa.processType((Type) _i.next());
+		for (final Iterator<Type> _i = _typesToProcess.iterator(); _i.hasNext();) {
+			fa.processType(_i.next());
 		}
 	}
 
 	/**
 	 * @see IMethodVariant#getASTNode(Value)
 	 */
-	public final IFGNode getASTNode(final Value v) {
+	public final N getASTNode(final Value v) {
 		return getASTVariant(v, context).getFGNode();
 	}
 
 	/**
 	 * @see IMethodVariant#getASTNode(Value, Context)
 	 */
-	public final IFGNode getASTNode(final Value v, final Context c) {
+	public final N getASTNode(final Value v, final Context c) {
 		return getASTVariant(v, c).getFGNode();
 	}
 
 	/**
 	 * @see IMethodVariant#getASTVariant(Value, Context)
 	 */
-	public final ValuedVariant getASTVariant(final Value v, final Context ctxt) {
-		return (ValuedVariant) astvm.select(v, ctxt);
+	public final ValuedVariant<N> getASTVariant(final Value v, final Context ctxt) {
+		return astvm.select(v, ctxt);
 	}
 
 	/**
@@ -210,7 +214,7 @@ public abstract class AbstractMethodVariant
 	/**
 	 * @see IMethodVariant#getFA()
 	 */
-	public final FA getFA() {
+	public final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> getFA() {
 		return fa;
 	}
 
@@ -224,16 +228,16 @@ public abstract class AbstractMethodVariant
 	/**
 	 * @see IMethodVariant#queryASTNode(Value)
 	 */
-	public final IFGNode queryASTNode(final Value v) {
+	public final N queryASTNode(final Value v) {
 		return queryASTNode(v, context);
 	}
 
 	/**
 	 * @see IMethodVariant#queryASTNode(Value, Context)
 	 */
-	public final IFGNode queryASTNode(final Value v, final Context c) {
-		final ValuedVariant _var = queryASTVariant(v, c);
-		IFGNode _temp = null;
+	public final N queryASTNode(final Value v, final Context c) {
+		final ValuedVariant<N> _var = queryASTVariant(v, c);
+		N _temp = null;
 
 		if (_var != null) {
 			_temp = _var.getFGNode();
@@ -244,15 +248,15 @@ public abstract class AbstractMethodVariant
 	/**
 	 * @see IMethodVariant#queryASTVariant(Value, Context)
 	 */
-	public final ValuedVariant queryASTVariant(final Value v, final Context c) {
-		return (ValuedVariant) astvm.query(v, c);
+	public final ValuedVariant<N> queryASTVariant(final Value v, final Context c) {
+		return astvm.query(v, c);
 	}
 
 	/**
 	 * @see IMethodVariant#queryParameterNode(int)
 	 */
-	public final IFGNode queryParameterNode(final int index) {
-		IFGNode _temp = null;
+	public final N queryParameterNode(final int index) {
+		N _temp = null;
 
 		if (index >= 0 && index <= method.getParameterCount()) {
 			_temp = parameters[index];
@@ -264,23 +268,23 @@ public abstract class AbstractMethodVariant
 	/**
 	 * @see IMethodVariant#queryReturnNode()
 	 */
-	public final IFGNode queryReturnNode() {
+	public final N queryReturnNode() {
 		return returnVar;
 	}
 
 	/**
 	 * @see IMethodVariant#queryThisNode()
 	 */
-	public final IFGNode queryThisNode() {
+	public final N queryThisNode() {
 		return thisVar;
 	}
 
 	/**
 	 * @see IMethodVariant#queryThrowNode(InvokeExpr, Context)
 	 */
-	public final IFGNode queryThrowNode(final InvokeExpr e, final Context c) {
-		final InvocationVariant _var = (InvocationVariant) queryASTVariant(e, c);
-		IFGNode _temp = null;
+	public final N queryThrowNode(final InvokeExpr e, final Context c) {
+		final InvocationVariant<N> _var = (InvocationVariant) queryASTVariant(e, c);
+		N _temp = null;
 
 		if (_var != null) {
 			_temp = _var.getThrowNode();
@@ -295,7 +299,7 @@ public abstract class AbstractMethodVariant
 	 *
 	 * @post result != null
 	 */
-	public final IFGNode queryThrownNode() {
+	public final N queryThrownNode() {
 		return thrownNode;
 	}
 

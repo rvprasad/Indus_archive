@@ -14,7 +14,8 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.IFactory;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
 
 import java.util.ArrayList;
@@ -60,8 +61,19 @@ public final class Pair<T1, T2> {
 		/**
 		 * This is the id of this service.
 		 */
-		public static final Object ID = "Pair management service";
+		public static final Comparable ID = "Pair management service";
 
+		/**
+		 * DOCUMENT ME!
+		 */
+		private static final IFactory<Map<Object, Pair>> factory = new IFactory<Map<Object, Pair>>() {
+
+			public Map<Object, Pair> create() {
+				return new HashMap<Object, Pair>();
+			}
+
+		};
+		
 		/**
 		 * This indicates if the generated pairs should be optimized for hash code.
 		 */
@@ -105,9 +117,8 @@ public final class Pair<T1, T2> {
 		 * @post result != null
 		 */
 		public <T1, T2> Pair<T1, T2> getPair(final T1 firstParam, final T2 secondParam) {
-			final Map<Object, Pair> _values = CollectionsUtilities.getMapFromMap(pairs, secondParam);
-
-			@SuppressWarnings ("unchecked") Pair<T1, T2> _result = _values.get(firstParam);
+			final Map<Object, Pair> _values = MapUtils.getFromMapUsingFactory(pairs, secondParam, factory);
+			@SuppressWarnings("unchecked") Pair<T1, T2> _result = _values.get(firstParam);
 
 			if (_result == null) {
 				_result = new Pair<T1, T2>(firstParam, secondParam, hashcodeOptimized, stringOptimized);

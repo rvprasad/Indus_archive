@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,8 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -25,8 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.IteratorUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,19 +34,19 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.toolkits.graph.UnitGraph;
 
-
 /**
  * This implementation provides one sequence containing statements of the method as captured by either the basic block or the
- * statement graph (in that order of preference).  Hence, the user must call <code>setStmtGraphFactory()</code> or
+ * statement graph (in that order of preference). Hence, the user must call <code>setStmtGraphFactory()</code> or
  * <code>setBasicBlockGraphMgr()</code> before using this object.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class OneAllStmtSequenceRetriever
-  extends AbstractStmtSequenceRetriever {
-	/** 
+		extends AbstractStmtSequenceRetriever {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(OneAllStmtSequenceRetriever.class);
@@ -55,7 +54,7 @@ public final class OneAllStmtSequenceRetriever
 	/**
 	 * Creates an instance of this class.
 	 */
-	public OneAllStmtSequenceRetriever() {
+	@AEmpty public OneAllStmtSequenceRetriever() {
 		// does nothing
 	}
 

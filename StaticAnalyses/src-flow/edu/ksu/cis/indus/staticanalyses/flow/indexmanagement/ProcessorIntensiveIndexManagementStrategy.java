@@ -19,30 +19,31 @@ import edu.ksu.cis.indus.common.collections.RetrievableSet;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
- * This strategy tries to reuse indices.  It returns the same object for identical indices passed as arguments to
+ * This strategy tries to reuse indices. It returns the same object for identical indices passed as arguments to
  * <code>getEquivalentIndex</code>. There by, it will be processor-intensive while trying to being memory non-intensive.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <I> DOCUMENT ME!
  */
-public class ProcessorIntensiveIndexManagementStrategy
-  implements IIndexManagementStrategy {
-	/** 
+public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
+  implements IIndexManagementStrategy<I> {
+	/**
 	 * The collection of indices managed by this object.
-	 *
-	 * @invariant indices != null and indices.oclIsKindOf(Set(IIndex))
+	 * 
+	 * @invariant indices != null
 	 */
-	private final RetrievableSet indices = new RetrievableSet();
+	private final RetrievableSet<I> indices = new RetrievableSet<I>();
 
 	/**
 	 * @see IIndexManagementStrategy#getEquivalentIndex(edu.ksu.cis.indus.staticanalyses.flow.IIndex)
 	 */
-	public IIndex getEquivalentIndex(final IIndex index) {
-		final IIndex _result;
+	public I getEquivalentIndex(final I index) {
+		final I _result;
 
 		if (indices.contains(index)) {
-			_result = (IIndex) indices.get(index);
+			_result = indices.get(index);
 		} else {
 			_result = index;
 			indices.add(index);

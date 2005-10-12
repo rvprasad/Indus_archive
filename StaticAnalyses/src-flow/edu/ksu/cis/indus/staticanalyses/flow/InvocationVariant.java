@@ -22,15 +22,16 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-public class InvocationVariant
-  extends ValuedVariant {
+public class InvocationVariant <N extends IFGNode<N, ?>>
+  extends ValuedVariant<N> {
 	/** 
 	 * This is the node corresponding to exception thrown by the invocation.
 	 *
 	 * @invariant thrownExceptionNode != null
 	 */
-	private final IFGNode thrownExceptionNode;
+	private final N thrownExceptionNode;
 
 	/**
 	 * Creates a new InvocationVariant object.
@@ -40,7 +41,7 @@ public class InvocationVariant
 	 *
 	 * @pre returnNode != null and thrownNode != null
 	 */
-	protected InvocationVariant(final IFGNode returnNode, final IFGNode thrownNode) {
+	protected InvocationVariant(final N returnNode, final N thrownNode) {
 		super(returnNode);
 		thrownExceptionNode = thrownNode;
 	}
@@ -52,7 +53,7 @@ public class InvocationVariant
 	 *
 	 * @pre exception != null
 	 */
-	public IFGNode getThrowNode() {
+	public N getThrowNode() {
 		return thrownExceptionNode;
 	}
 }

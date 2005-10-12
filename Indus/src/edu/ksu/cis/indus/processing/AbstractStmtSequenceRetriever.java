@@ -38,7 +38,7 @@ public abstract class AbstractStmtSequenceRetriever
 	/**
 	 * The statement graph factory to use.
 	 */
-	private IStmtGraphFactory stmtGraphFactory;
+	private IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * Sets the value of <code>bbgMgr</code>.
@@ -54,7 +54,7 @@ public abstract class AbstractStmtSequenceRetriever
 	 * 
 	 * @param factory the new value of <code>stmtGraphFactory</code>.
 	 */
-	public final void setStmtGraphFactory(final IStmtGraphFactory factory) {
+	public final void setStmtGraphFactory(final IStmtGraphFactory<?> factory) {
 		this.stmtGraphFactory = factory;
 	}
 
@@ -72,7 +72,7 @@ public abstract class AbstractStmtSequenceRetriever
 	 * 
 	 * @return statement graph factory.
 	 */
-	protected final IStmtGraphFactory getStmtGraphFactory() {
+	protected final IStmtGraphFactory<?> getStmtGraphFactory() {
 		return stmtGraphFactory;
 	}
 }

@@ -34,14 +34,15 @@ import soot.jimple.InvokeExpr;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <V> DOCUMENT ME!
  */
-public interface IValueAnalyzer
+public interface IValueAnalyzer<V>
   extends IStatus,
 	  IAnalyzer {
 	/** 
 	 * The id of this interface.
 	 */
-	Object ID = "value flow analyzer";
+	Comparable ID = "value flow analyzer";
 
 	/** 
 	 * The id of the tag used by the underlying flow analysis.
@@ -60,7 +61,7 @@ public interface IValueAnalyzer
 	 * @pre e != null and context != null
 	 * @post result != null
 	 */
-	Collection getThrownValues(InvokeExpr e, Context context);
+	Collection<V> getThrownValues(InvokeExpr e, Context context);
 
 	/**
 	 * Returns the values associated with exceptions thrown by the given method in the given context..
@@ -73,7 +74,7 @@ public interface IValueAnalyzer
 	 * @pre method != null and context != null
 	 * @post result != null
 	 */
-	Collection getThrownValues(SootMethod method, Context context);
+	Collection<V> getThrownValues(SootMethod method, Context context);
 
 	/**
 	 * Retrieves the values associated with the given value expression in the given context.
@@ -87,7 +88,7 @@ public interface IValueAnalyzer
 	 * @pre value != null
 	 * @post result != null
 	 */
-	Collection getValues(Value value, Context context);
+	Collection<V> getValues(Value value, Context context);
 
 	/**
 	 * Retrieves the values associated with the given parameter position in the given context.
@@ -101,7 +102,7 @@ public interface IValueAnalyzer
 	 * @pre context.getCurrentMethod() != null
 	 * @post result != null
 	 */
-	Collection getValuesForParameter(int paramIndex, Context context);
+	Collection<V> getValuesForParameter(int paramIndex, Context context);
 
 	/**
 	 * Retrieves the values associated with <code>this</code> variable in the given context.
@@ -114,7 +115,7 @@ public interface IValueAnalyzer
 	 * @pre context.getCurrentMethod() != null
 	 * @post result != null
 	 */
-	Collection getValuesForThis(Context context);
+	Collection<V> getValuesForThis(Context context);
 }
 
 // End of File

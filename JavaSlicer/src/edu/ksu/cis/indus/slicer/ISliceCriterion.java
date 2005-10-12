@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.collections.Stack;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IPoolable;
-
-import java.util.Stack;
 
 import soot.SootMethod;
 
@@ -54,22 +54,13 @@ import soot.SootMethod;
 public interface ISliceCriterion
   extends IPoolable {
 	/**
-	 * Sets the call stack of call triples leading upto the method containing the criteria.
-	 *
-	 * @param theCallStack obviously.
-	 *
-	 * @pre theCallStack != null
-	 */
-	void setCallStack(final Stack theCallStack);
-
-	/**
 	 * Retrieves the call stack.
 	 *
 	 * @return the call stack.
 	 *
 	 * @post result != null
 	 */
-	Stack getCallStack();
+	Stack<CallTriple> getCallStack();
 
 	/**
 	 * Provides the method in which criterion occurs.
@@ -79,6 +70,15 @@ public interface ISliceCriterion
 	 * @post result != null
 	 */
 	SootMethod getOccurringMethod();
+
+	/**
+	 * Sets the call stack of call triples leading upto the method containing the criteria.
+	 *
+	 * @param theCallStack obviously.
+	 *
+	 * @pre theCallStack != null
+	 */
+	void setCallStack(final Stack<CallTriple> theCallStack);
 }
 
 // End of File

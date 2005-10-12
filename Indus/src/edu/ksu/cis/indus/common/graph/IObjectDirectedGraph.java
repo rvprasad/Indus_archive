@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import org.apache.commons.collections.Transformer;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
  * This interface extends directed graph interface to query for an object associated a node of the graph.
@@ -23,24 +23,17 @@ import org.apache.commons.collections.Transformer;
  * @author $Author$
  * @version $Revision$
  * @param <N> the type of the nodes of this graph.
- * @param <O1> the type of the objects stored in the nodes of this graph.
+ * @param <O> the type of the objects stored in the nodes of this graph.
  */
-public interface IObjectDirectedGraph<N extends IObjectNode<N, O1>, O1>
+public interface IObjectDirectedGraph<N extends IObjectNode<N, O>, O>
 		extends IDirectedGraph<N> {
 
 	/**
-	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes. If the
-	 * collection has objects of other type then the transformation will insert null into the collection being operated.
+	 * DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
 	 */
-	Transformer OBJECT_EXTRACTOR = new Transformer() {
-
-		/**
-		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
-		 */
-		public Object transform(final Object input) {
-			return ((IObjectNode) input).getObject();
-		}
-	};
+	ITransformer<N, O> getObjectExtractor();
 
 	/**
 	 * Returns a node that represents <code>o</code> in this graph.
@@ -49,7 +42,7 @@ public interface IObjectDirectedGraph<N extends IObjectNode<N, O1>, O1>
 	 * @return the node representing <code>o</code>.
 	 * @pre o != null
 	 */
-	N queryNode(O1 o);
+	N queryNode(O o);
 }
 
 // End of File

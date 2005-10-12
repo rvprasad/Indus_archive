@@ -16,10 +16,10 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.CustomToStringStyle;
+import edu.ksu.cis.indus.common.collections.Stack;
 
 import edu.ksu.cis.indus.interfaces.AbstractPoolable;
-
-import java.util.Stack;
+import static edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -48,7 +48,7 @@ abstract class AbstractSliceCriterion
 	 * non-null, we only will return to the call-site instead of all possible call-sites (which is what happend if this
 	 * field is null).
 	 */
-	private Stack callStack;
+	private Stack<CallTriple> callStack;
 
 	/** 
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
@@ -59,14 +59,14 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see ISliceCriterion#setCallStack(Stack)
 	 */
-	public final void setCallStack(final Stack theCallStack) {
+	public final void setCallStack(final Stack<CallTriple> theCallStack) {
 		callStack = theCallStack;
 	}
 
 	/**
 	 * @see ISliceCriterion#getCallStack()
 	 */
-	public final Stack getCallStack() {
+	public final Stack<CallTriple> getCallStack() {
 		return callStack;
 	}
 
@@ -80,7 +80,7 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(final Object object) {
+	@Override public boolean equals(final Object object) {
 		if (object == this) {
 			return true;
 		}
@@ -97,7 +97,7 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		return new HashCodeBuilder(17, 37).append(this.considerExecution).append(this.callStack).append(this.method)
 											.toHashCode();
 	}
@@ -105,7 +105,7 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
 	 */
-	public void returnToPool() {
+	@Override public void returnToPool() {
 		setCallStack(null);
 		super.returnToPool();
 	}
@@ -113,7 +113,7 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
 																					 .append("considerExecution",
 			  this.considerExecution).append("callStack", this.callStack).append("method", this.method).toString();

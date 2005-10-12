@@ -77,7 +77,7 @@ public class SafeLockAnalysis
 	/** 
 	 * This is the id of safe lock related analysis.
 	 */
-	public static final Object ID = "Safe Lock Analysis";
+	public static final Comparable ID = "Safe Lock Analysis";
 
 	/** 
 	 * The logger used to log messages.

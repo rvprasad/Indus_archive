@@ -31,7 +31,7 @@ public interface IAutomaton<S extends IState<S>, L extends ITransitionLabel>
 	/**
 	 * This represents the epsilon label.
 	 */
-	ITransitionLabel EPSILON = new ITransitionLabel() {
+	ITransitionLabel<?> EPSILON = new ITransitionLabel() {
 
 		@Override public String toString() {
 			return "-Epsilon->";

@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -56,7 +58,7 @@ public abstract class AbstractToolConfigurator
 		/**
 		 * The id of the property which can be changed via <code>button</code>.
 		 */
-		protected final Object id;
+		protected final Comparable id;
 
 		/**
 		 * Creates a new BooleanSelectionListener object.
@@ -66,7 +68,7 @@ public abstract class AbstractToolConfigurator
 		 * @param config is the confifugration that houses the given property.
 		 * @pre propID != null and sender != null and config != null
 		 */
-		public BooleanPropertySelectionListener(final Object propID, final Button sender, final IToolConfiguration config) {
+		public BooleanPropertySelectionListener(final Comparable propID, final Button sender, final IToolConfiguration config) {
 			id = propID;
 			button = sender;
 			containingConfiguration = config;
@@ -118,7 +120,7 @@ public abstract class AbstractToolConfigurator
 	/**
 	 * @see IToolConfigurator#widgetDisposed(DisposeEvent)
 	 */
-	public void widgetDisposed(@SuppressWarnings("unused") final DisposeEvent evt) {
+	@AEmpty public void widgetDisposed(@SuppressWarnings("unused") final DisposeEvent evt) {
 		// does nothing
 	}
 

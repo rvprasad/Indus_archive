@@ -64,10 +64,6 @@ public final class CollectionsUnitTestSuite {
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(CollectionsUtilitiesTest.class);
-		_suite.addTestSuite(FilteredMapTest.class);
-		_suite.addTestSuite(FilteredCollectionTestCase.class);
-		_suite.addTestSuite(FilteredListTestCase.class);
-		_suite.addTestSuite(FilteredListIteratorTestCase.class);
         _suite.addTestSuite(RetrievableSetTestCase.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);

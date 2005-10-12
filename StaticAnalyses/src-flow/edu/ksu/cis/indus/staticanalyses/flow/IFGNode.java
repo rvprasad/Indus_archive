@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
@@ -37,15 +38,86 @@ import java.util.Collection;
  * or values will require other specific processing which is unknown at this level of abstraction.
  * </p>
  * 
- * <p>
- * Created: Sun Feb 24 08:36:51 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
+ * @param <S> DOCUMENT ME!
  */
-public interface IFGNode
-  extends IPrototype {
+public interface IFGNode<N extends IFGNode<N, S>, S>
+  extends IPrototype<N> {	
+
+	/**
+	 * Absorbs the tokens lazily.  The laziness is defined by the implementation.
+	 *
+	 * @param tokens to be absorbed.
+	 *
+	 * @pre tokens != null
+	 */
+	void absorbTokensLazily(ITokens tokens);
+
+	/**
+	 * Adds a successor node to this node.
+	 *
+	 * @param node the node to be added as a successor node.
+	 *
+	 * @pre node != null
+	 */
+	void addSucc(N node);
+
+	/**
+	 * Retrieves SCC related data of this node.
+	 * 
+	 * @return SCC related data.
+	 * @post result != null
+	 */
+	SCCRelatedData getSCCRelatedData();
+
+	/**
+	 * Retrieves the successors of this node.
+	 *
+	 * @return the successor nodes.
+	 *
+	 * @post result != null
+	 */
+	Collection<N> getSuccs();
+	
+	/**
+	 * Retrieves the tokens accumulated at this node.
+	 *
+	 * @return the accumulated tokens.
+	 *
+	 * @post result != null
+	 */
+	ITokens getTokens();
+
+	/**
+	 * Returns the values in this node.
+	 *
+	 * @return the values in this node.
+	 *
+	 * @post result != null
+	 */
+	Collection<S> getValues();
+
+	/**
+	 * Injects the given tokens into this node.
+	 *
+	 * @param tokens to be injected into this node.
+	 *
+	 * @pre tokens != null
+	 */
+	void injectTokens(ITokens tokens);
+
+	/**
+	 * Injects a value into this node.
+	 *
+	 * @param value to be injected into this node.
+	 *
+	 * @pre value !- null
+	 */
+	void injectValue(S value);
+
 	/**
 	 * Sets a filter object which will filter the values flowing into this node.
 	 *
@@ -65,67 +137,28 @@ public interface IFGNode
 	void setOutFilter(ITokenFilter filter);
 
 	/**
-	 * Retrieves the successors of this node.
-	 *
-	 * @return the successor nodes.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(IFGNode))
+	 * Sets the given data as the SCC related data of this node.
+	 * 
+	 * @param data to be used.
+	 * @pre data != null
 	 */
-	Collection getSuccs();
+	void setSCCRelatedData(SCCRelatedData data);
 
 	/**
-	 * Retrieves the tokens accumulated at this node.
-	 *
-	 * @return the accumulated tokens.
-	 *
-	 * @post result != null
+	 * Sets the successor collection to be used to store successors.
+	 * 
+	 * @param successors the new collection.
+	 * @pre successors != null
 	 */
-	ITokens getTokens();
+	void setSuccessorSet(final Collection<N> successors);
 
 	/**
-	 * Returns the values in this node.
-	 *
-	 * @return the values in this node.
-	 *
-	 * @post result != null
+	 * Sets the token set to be used.
+	 * 
+	 * @param newTokenSet to be used.
+	 * @pre newTokenSet != null
 	 */
-	Collection getValues();
-
-	/**
-	 * Absorbs the tokens lazily.  The laziness is defined by the implementation.
-	 *
-	 * @param tokens to be absorbed.
-	 *
-	 * @pre tokens != null
-	 */
-	void absorbTokensLazily(ITokens tokens);
-
-	/**
-	 * Adds a successor node to this node.
-	 *
-	 * @param node the node to be added as a successor node.
-	 *
-	 * @pre node != null
-	 */
-	void addSucc(IFGNode node);
-
-	/**
-	 * Injects the given tokens into this node.
-	 *
-	 * @param tokens to be injected into this node.
-	 *
-	 * @pre tokens != null
-	 */
-	void injectTokens(ITokens tokens);
-
-	/**
-	 * Injects a value into this node.
-	 *
-	 * @param value to be injected into this node.
-	 *
-	 * @pre value !- null
-	 */
-	void injectValue(Object value);
+	void setTokenSet(final ITokens newTokenSet);
 }
 
 // End of File

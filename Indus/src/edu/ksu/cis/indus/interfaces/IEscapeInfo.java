@@ -37,7 +37,7 @@ public interface IEscapeInfo
 	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Object ID = "Escape Information";
+	Comparable ID = "Escape Information";
 
 	/**
 	 * This identifies shared access due to write by different threads.

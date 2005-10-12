@@ -35,24 +35,26 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <D> DOCUMENT ME!
+ * @param <U> DOCUMENT ME!
  */
-public interface IUseDefInfo
+public interface IUseDefInfo<D, U>
   extends IStatus,
 	  IIdentification {
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with instance-based reference use-def info.
 	 */
-	String ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
+	Comparable  ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
 
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with class-based reference use-def info.
 	 */
-	String GLOBAL_USE_DEF_ID = "Global Use-Def Information";
+	Comparable  GLOBAL_USE_DEF_ID = "Global Use-Def Information";
 
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with method local variable use-def info.
 	 */
-	String LOCAL_USE_DEF_ID = "Local Use-Def Information";
+	Comparable LOCAL_USE_DEF_ID = "Local Use-Def Information";
 
 	/**
 	 * Retrieves the def sites that reach the given use site in the given context.
@@ -64,7 +66,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre useStmt != null
 	 */
-	Collection<? extends Object> getDefs(Stmt useStmt, SootMethod method);
+	Collection<D> getDefs(Stmt useStmt, SootMethod method);
 
 	/**
 	 * Retrieves the def sites that reach the given local at the given use site in the given context.
@@ -79,7 +81,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre local != null and useStmt != null
 	 */
-	Collection<? extends Object> getDefs(Local local, Stmt useStmt, SootMethod method)
+	Collection<D> getDefs(Local local, Stmt useStmt, SootMethod method)
 	  throws UnsupportedOperationException;
 
 	/**
@@ -92,7 +94,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre defStmt != null
 	 */
-	Collection<? extends Object> getUses(DefinitionStmt defStmt, SootMethod method);
+	Collection<U> getUses(DefinitionStmt defStmt, SootMethod method);
 }
 
 // End of File

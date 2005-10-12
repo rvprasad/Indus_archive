@@ -15,10 +15,11 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
-import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IVariantManager;
+import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 
 import soot.SootMethod;
+import soot.Value;
 
 /**
  * This variant implementation acts as a stub that does not capture all of the flow within the body of the method.
@@ -29,8 +30,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class StubMethodVariant
-		extends MethodVariant
-		implements IMethodVariant {
+		extends MethodVariant {
 
 	/**
 	 * Creates an instance of this class.
@@ -43,7 +43,7 @@ public class StubMethodVariant
 	 *            the flow analysis with which this variant is associated.
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
-	public StubMethodVariant(final SootMethod sm, final IVariantManager astVariantManager, final FA theFA) {
+	public StubMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode>, Value> astVariantManager, final FA theFA) {
 		super(sm, astVariantManager, theFA);
 	}
 

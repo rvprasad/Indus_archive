@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -100,7 +102,7 @@ public final class CompositeToolConfiguration
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
-	public void initialize() {
+	@AEmpty public void initialize() {
 		// Does nothing
 	}
 
@@ -163,9 +165,9 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(Object, Object)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(Comparable, Object)
 	 */
-	@Override protected boolean processProperty(final Object propertyID, final Object value) {
+	@Override protected boolean processProperty(final Comparable propertyID, final Object value) {
 		final IToolConfiguration _ac = getActiveToolConfiguration();
 		return ((AbstractToolConfiguration) _ac).processProperty(propertyID, value);
 	}

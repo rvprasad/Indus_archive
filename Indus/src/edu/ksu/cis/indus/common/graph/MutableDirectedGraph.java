@@ -54,7 +54,7 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addEdgeFromTo(INode, INode)
+	 * @see IMutableDirectedGraph#addEdgeFromTo(IMutableNode, IMutableNode)
 	 */
 	public boolean addEdgeFromTo(final N src, final N dest) {
 		boolean _result = false;
@@ -72,7 +72,7 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addNode(INode)
+	 * @see IMutableDirectedGraph#addNode(IMutableNode)
 	 */
 	public boolean addNode(final N node) {
 		return graphInfo.addNode(node);
@@ -86,7 +86,7 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(INode,INode)
+	 * @see IMutableDirectedGraph#removeEdgeFromTo(IMutableNode,IMutableNode)
 	 */
 	public boolean removeEdgeFromTo(final N src, final N dest) {
 		boolean _result = false;
@@ -104,7 +104,7 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeNode(INode)
+	 * @see IMutableDirectedGraph#removeNode(IMutableNode)
 	 */
 	public final boolean removeNode(final N node) {
 		final Collection<N> _succsOf = new ArrayList<N>(node.getSuccsOf());

@@ -14,7 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -22,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
@@ -37,9 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,12 +81,12 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The name of an java exception/error class.
 	 */
-	private static final String JAVA_LANG_ARRAY_STORE_EXCEPTION = "java.lang.ArrayStoreException";
+	private static final String JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.ArrayIndexOutOfBoundsException";
 
 	/**
 	 * The name of an java exception/error class.
 	 */
-	private static final String JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.ArrayIndexOutOfBoundsException";
+	private static final String JAVA_LANG_ARRAY_STORE_EXCEPTION = "java.lang.ArrayStoreException";
 
 	/**
 	 * The name of an java exception/error class.
@@ -97,7 +96,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The name of an java exception/error class.
 	 */
-	private static final String JAVA_LANG_NEGATIVE_ARRAY_SIZE_EXCEPTION = "java.lang.NegativeArraySizeException";
+	private static final String JAVA_LANG_ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
 
 	/**
 	 * The name of an java exception/error class.
@@ -107,7 +106,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The name of an java exception/error class.
 	 */
-	private static final String JAVA_LANG_NULL_POINTER_EXCEPTION = "java.lang.NullPointerException";
+	private static final String JAVA_LANG_NEGATIVE_ARRAY_SIZE_EXCEPTION = "java.lang.NegativeArraySizeException";
 
 	/**
 	 * The name of an java exception/error class.
@@ -117,12 +116,17 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The name of an java exception/error class.
 	 */
-	private static final String JAVA_LANG_ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
+	private static final String JAVA_LANG_NULL_POINTER_EXCEPTION = "java.lang.NullPointerException";
 
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionRaisingAnalysis.class);
+
+	/**
+	 * This maps ast node type to a collection of FQN of thrown exception types.
+	 */
+	private final Map<Class, Collection<String>> astNodeType2thrownTypeNames = new HashMap<Class, Collection<String>>();
 
 	/**
 	 * The call graph to be used.
@@ -136,17 +140,13 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * This maps methods to statements to thrown exception types.
-	 * 
-	 * @invariant method22stmt2exceptions.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
 	 */
-	private final Map method2stmt2exceptions = new HashMap();
+	private final Map<SootMethod, Map<Stmt, Collection<SootClass>>> method2stmt2exceptions = new HashMap<SootMethod, Map<Stmt, Collection<SootClass>>>();
 
 	/**
 	 * This maps methods to the statements to a collection of uncaught exception types.
-	 * 
-	 * @invariant method2stmt2thrownTypes.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(SootClass))))
 	 */
-	private final Map method2stmt2uncaughtExceptions = new HashMap();
+	private final Map<SootMethod, Map<Stmt, Collection<SootClass>>> method2stmt2uncaughtExceptions = new HashMap<SootMethod, Map<Stmt, Collection<SootClass>>>();
 
 	/**
 	 * The statement graph factory to use.
@@ -156,77 +156,45 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * A workbag.
 	 */
-	private final IWorkBag workbagCache;
-
-	/**
-	 * This maps ast node type to a collection of FQN of thrown exception types.
-	 * 
-	 * @invariant astNodeType2thrownTypeNames.oclIsKindOf(Map(Class, Collection(String)))
-	 */
-	private final Map astNodeType2thrownTypeNames = new HashMap();
+	private final IWorkBag<Triple<Stmt, SootMethod, SootClass>> workbagCache;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param factory
-	 *            to retrieve the statement graphs.
-	 * @param callgraph
-	 *            to be used.
-	 * @param environment
-	 *            to be analyzed.
+	 * @param factory to retrieve the statement graphs.
+	 * @param callgraph to be used.
+	 * @param environment to be analyzed.
 	 * @pre factory != null and callgraph != null and env != null
 	 */
 	public ExceptionRaisingAnalysis(final IStmtGraphFactory factory, final ICallGraphInfo callgraph,
 			final IEnvironment environment) {
 		stmtGraphFactory = factory;
 		cgi = callgraph;
-		workbagCache = new HistoryAwareFIFOWorkBag(new ArrayList());
+		workbagCache = new HistoryAwareFIFOWorkBag<Triple<Stmt, SootMethod, SootClass>>(
+				new ArrayList<Triple<Stmt, SootMethod, SootClass>>());
 		env = environment;
-	}
-
-	/**
-	 * @see IExceptionRaisingInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
-	 */
-	public Collection getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
-		final Map _map = (Map) MapUtils.getObject(method2stmt2exceptions, method, Collections.EMPTY_MAP);
-		final Collection _col1 = (Collection) MapUtils.getObject(_map, stmt, Collections.EMPTY_SET);
-		final Collection _col2 = getUncaughtExceptionsThrownBy(stmt, method);
-		return CollectionUtils.union(_col1, _col2);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
-	 */
-	public Collection getIds() {
-		return Collections.singleton(ID);
-	}
-
-	/**
-	 * @see IExceptionRaisingInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
-	 */
-	public Collection getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
-		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
-		return (Collection) MapUtils.getObject(_map, stmt, Collections.EMPTY_SET);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, Context)
 	 */
-	public void callback(final Stmt stmt, final Context context) {
+	@Override public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
-		final Map _stmt2exceptions = CollectionsUtilities.getMapFromMap(method2stmt2exceptions, _method);
-		final Collection _thrownTypes = CollectionsUtilities.getSetFromMap(_stmt2exceptions, stmt);
+		final Map<Stmt, Collection<SootClass>> _stmt2exceptions = MapUtils.getFromMapUsingFactory(method2stmt2exceptions,
+				_method, MapUtils.MAP_FACTORY);
+		final Collection<SootClass> _thrownTypes = MapUtils.getFromMapUsingFactory(_stmt2exceptions, stmt,
+				SetUtils.SET_FACTORY);
 
 		if (stmt instanceof ThrowStmt) {
 			final SootClass _thrownType = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
 			processStmt(stmt, _method, _thrownTypes, _thrownType);
 		} else if (stmt.containsInvokeExpr()) {
-			final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), context);
-			final Iterator _i = _callees.iterator();
+			final Collection<SootMethod> _callees = cgi.getCallees(stmt.getInvokeExpr(), context);
+			final Iterator<SootMethod> _i = _callees.iterator();
 			final int _iEnd = _callees.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final SootMethod _callee = (SootMethod) _i.next();
+				final SootMethod _callee = _i.next();
 				final Iterator _j = _callee.getExceptions().iterator();
 				final int _jEnd = _callee.getExceptions().size();
 
@@ -241,20 +209,20 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, Context)
 	 */
-	public void callback(final ValueBox vb, final Context context) {
+	@Override public void callback(final ValueBox vb, final Context context) {
 		final Value _v = vb.getValue();
 		final Stmt _stmt = context.getStmt();
 		final SootMethod _method = context.getCurrentMethod();
-		final Collection _c = getExceptionTypeNamesFor(_v.getClass());
-		final Iterator _i = _c.iterator();
+		final Collection<String> _c = getExceptionTypeNamesFor(_v.getClass());
+		final Iterator<String> _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final String _typeName = (String) _i.next();
+			final String _typeName = _i.next();
 			final SootClass _sc = env.getClass(_typeName);
 
 			if (isThrownExceptionNotCaught(_stmt, _method, _sc)) {
-				workbagCache.addWorkNoDuplicates(new Triple(_stmt, _method, _sc));
+				workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_stmt, _method, _sc));
 			}
 		}
 	}
@@ -262,7 +230,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
 	 */
-	public void consolidate() {
+	@Override public void consolidate() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("consolidate() - BEGIN");
 		}
@@ -270,32 +238,32 @@ public class ExceptionRaisingAnalysis
 		super.consolidate();
 
 		while (workbagCache.hasWork()) {
-			final Triple _triple = (Triple) workbagCache.getWork();
-			final Stmt _stmt = (Stmt) _triple.getFirst();
-			final SootMethod _method = (SootMethod) _triple.getSecond();
-			final SootClass _thrownType = (SootClass) _triple.getThird();
-			final Collection _callers = cgi.getCallers(_method);
-			final Iterator _j = _callers.iterator();
+			final Triple<Stmt, SootMethod, SootClass> _triple = workbagCache.getWork();
+			final Stmt _stmt = _triple.getFirst();
+			final SootMethod _method = _triple.getSecond();
+			final SootClass _thrownType = _triple.getThird();
+			final Collection<CallTriple> _callers = cgi.getCallers(_method);
+			final Iterator<CallTriple> _j = _callers.iterator();
 			final int _jEnd = _callers.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final ICallGraphInfo.CallTriple _ctrp = (ICallGraphInfo.CallTriple) _j.next();
+				final CallTriple _ctrp = _j.next();
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _callingStmt = _ctrp.getStmt();
 
 				if (isThrownExceptionNotCaught(_callingStmt, _caller, _thrownType)) {
-					workbagCache.addWorkNoDuplicates(new Triple(_callingStmt, _caller, _thrownType));
+					workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_callingStmt, _caller, _thrownType));
 				}
 			}
-			CollectionsUtilities.putIntoSetInMap(CollectionsUtilities.getMapFromMap(method2stmt2uncaughtExceptions, _method),
-					_stmt, _thrownType);
+			MapUtils.putIntoCollectionInMapUsingFactory(MapUtils.getFromMapUsingFactory(method2stmt2uncaughtExceptions, _method,
+					MapUtils.MAP_FACTORY), _stmt, _thrownType, SetUtils.<SootClass>getFactory());
 		}
 
 		workbagCache.clear();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("consolidate() - END - "
-					+ CollectionsUtilities.prettyPrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
+					+ MapUtils.verbosePrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
 		}
 	}
 
@@ -303,8 +271,36 @@ public class ExceptionRaisingAnalysis
 	 * @see IExceptionRaisingInfo#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public boolean doesStmtThrowUncaughtException(final Stmt stmt, final SootMethod method) {
-		final Map _map = (Map) MapUtils.getObject(method2stmt2uncaughtExceptions, method, Collections.EMPTY_MAP);
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2uncaughtExceptions, method,
+				Collections.<Stmt, Collection<SootClass>>emptyMap());
 		return _map.containsKey(stmt);
+	}
+
+	/**
+	 * @see IExceptionRaisingInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public Collection<SootClass> getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2exceptions, method,
+				Collections.<Stmt, Collection<SootClass>>emptyMap());
+		final Collection<SootClass> _col1 = MapUtils.queryObject(_map, stmt, Collections.<SootClass>emptySet());
+		final Collection<SootClass> _col2 = getUncaughtExceptionsThrownBy(stmt, method);
+		return SetUtils.union(_col1, _col2);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection<Comparable> getIds() {
+		return Collections.singleton(ID);
+	}
+
+	/**
+	 * @see IExceptionRaisingInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public Collection<SootClass> getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2uncaughtExceptions, method,
+				Collections.<Stmt, Collection<SootClass>>emptyMap());
+		return MapUtils.queryObject(_map, stmt, Collections.<SootClass>emptySet());
 	}
 
 	/**
@@ -313,19 +309,19 @@ public class ExceptionRaisingAnalysis
 	public void hookup(final ProcessingController ppc) {
 		ppc.registerForAllStmts(this);
 
-		final Collection _c = astNodeType2thrownTypeNames.keySet();
-		final Iterator _i = _c.iterator();
+		final Collection<Class> _c = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class> _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			ppc.register((Class) _i.next(), this);
+			ppc.register(_i.next(), this);
 		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 		method2stmt2uncaughtExceptions.clear();
 		method2stmt2exceptions.clear();
@@ -362,35 +358,32 @@ public class ExceptionRaisingAnalysis
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		final StringBuffer _sb = new StringBuffer();
-		_sb.append(CollectionsUtilities.prettyPrint("Caught+Uncaught Exception info", method2stmt2exceptions));
-		_sb.append(CollectionsUtilities.prettyPrint("Uncaught exception info", method2stmt2uncaughtExceptions));
-		return _sb.toString();
-	}
-
-	/**
 	 * Toggles the tracking of the named exception type for the given ast node type.
 	 * 
-	 * @param astNodeType
-	 *            is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
-	 * @param exceptionName
-	 *            is the name of the exception that needs to be tracked at the given ast node.
-	 * @param consider
-	 *            <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates that
-	 *            the exception should not be tracked.
+	 * @param astNodeType is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
+	 * @param exceptionName is the name of the exception that needs to be tracked at the given ast node.
+	 * @param consider <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates
+	 *            that the exception should not be tracked.
 	 * @pre astNodeType != null and exceptionName != null
 	 */
 	public void toggleExceptionsToTrack(final Class astNodeType, final String exceptionName, final boolean consider) {
 		if (consider) {
-			CollectionsUtilities.putIntoSetInMap(astNodeType2thrownTypeNames, astNodeType, exceptionName);
+			MapUtils.putIntoCollectionInMapUsingFactory(astNodeType2thrownTypeNames, astNodeType, exceptionName, SetUtils.<String>getFactory());
 		} else {
-			final Collection _typeNames = (Collection) MapUtils.getObject(astNodeType2thrownTypeNames, astNodeType,
-					Collections.EMPTY_SET);
+			final Collection<String> _typeNames = MapUtils.queryObject(astNodeType2thrownTypeNames, astNodeType,
+					Collections.<String>emptySet());
 			_typeNames.remove(exceptionName);
 		}
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override public String toString() {
+		final StringBuffer _sb = new StringBuffer();
+		_sb.append(MapUtils.verbosePrint("Caught+Uncaught Exception info", method2stmt2exceptions));
+		_sb.append(MapUtils.verbosePrint("Uncaught exception info", method2stmt2uncaughtExceptions));
+		return _sb.toString();
 	}
 
 	/**
@@ -399,35 +392,34 @@ public class ExceptionRaisingAnalysis
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllStmts(this);
 
-		final Collection _c = astNodeType2thrownTypeNames.keySet();
-		final Iterator _i = _c.iterator();
+		final Collection<Class> _c = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class> _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			ppc.unregister((Class) _i.next(), this);
+			ppc.unregister(_i.next(), this);
 		}
 	}
 
 	/**
 	 * Retrieves the exception type names for the given ast node type.
 	 * 
-	 * @param c
-	 *            is the ast node type.
+	 * @param c is the ast node type.
 	 * @return a collection of exception type names.
 	 * @pre c != null
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
-	private Collection getExceptionTypeNamesFor(final Class c) {
-		Collection _result = Collections.EMPTY_SET;
-		final Set _keySet = astNodeType2thrownTypeNames.keySet();
-		final Iterator _i = _keySet.iterator();
+	private Collection<String> getExceptionTypeNamesFor(final Class<? extends Value> c) {
+		Collection<String> _result = Collections.emptySet();
+		final Set<Class> _keySet = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class> _i = _keySet.iterator();
 		final int _iEnd = _keySet.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Class _nodeType = (Class) _i.next();
+			final Class<?> _nodeType = _i.next();
 
 			if (_nodeType.isAssignableFrom(c)) {
-				_result = (Collection) astNodeType2thrownTypeNames.get(_nodeType);
+				_result = astNodeType2thrownTypeNames.get(_nodeType);
 				break;
 			}
 		}
@@ -438,33 +430,30 @@ public class ExceptionRaisingAnalysis
 	 * Checks if the given exception type thrown from the given statement in the given method is not caught in the given
 	 * method.
 	 * 
-	 * @param stmt
-	 *            at which the exception occurs.
-	 * @param method
-	 *            in which <code>stmt</code> occurs.
-	 * @param thrownType
-	 *            is the type of the exception that is thrown.
+	 * @param stmt at which the exception occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param thrownType is the type of the exception that is thrown.
 	 * @return <code>true</code> if the thrown exception is caught; <code>false</code>, otherwise.
 	 * @pre stmt != null and method != null and thrownType != null
 	 */
 	private boolean isThrownExceptionNotCaught(final Stmt stmt, final SootMethod method, final SootClass thrownType) {
 		final UnitGraph _graph = stmtGraphFactory.getStmtGraph(method);
-		final List _succs = _graph.getSuccsOf(stmt);
+		final List<Stmt> _succs = _graph.getSuccsOf(stmt);
 		boolean _result = true;
 
 		if (!_succs.isEmpty()) {
 			boolean _isCaught = false;
 			final Body _body = _graph.getBody();
-			final Iterator _i = _succs.iterator();
+			final Iterator<Stmt> _i = _succs.iterator();
 			final int _iEnd = _succs.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_isCaught; _iIndex++) {
-				final Stmt _handler = (Stmt) _i.next();
-				final Iterator _j = TrapManager.getExceptionTypesOf(_handler, _body).iterator();
+				final Stmt _handler = _i.next();
+				final Iterator<RefType> _j = TrapManager.getExceptionTypesOf(_handler, _body).iterator();
 				final int _jEnd = TrapManager.getExceptionTypesOf(_handler, _body).size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd && !_isCaught; _jIndex++) {
-					final RefType _caughtType = (RefType) _j.next();
+					final RefType _caughtType = _j.next();
 					_isCaught |= Util.isDescendentOf(thrownType, _caughtType.getSootClass());
 				}
 			}
@@ -476,20 +465,16 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * Process the given statement and method against the given exception type and updates the given collection.
 	 * 
-	 * @param stmt
-	 *            that may cause the exception.
-	 * @param method
-	 *            contains <code>stmt</code>.
-	 * @param thrownTypes
-	 *            is the collection to which <code>thrownType</code> should be added if it is caught.
-	 * @param thrownType
-	 *            is the exception to be checked for at <code>stmt</code>.
+	 * @param stmt that may cause the exception.
+	 * @param method contains <code>stmt</code>.
+	 * @param thrownTypes is the collection to which <code>thrownType</code> should be added if it is caught.
+	 * @param thrownType is the exception to be checked for at <code>stmt</code>.
 	 * @pre stmt != null and method != null and thrownTypes != null and thrownType != null
 	 */
-	private void processStmt(final Stmt stmt, final SootMethod method, final Collection thrownTypes,
+	private void processStmt(final Stmt stmt, final SootMethod method, final Collection<SootClass> thrownTypes,
 			final SootClass thrownType) {
 		if (isThrownExceptionNotCaught(stmt, method, thrownType)) {
-			workbagCache.addWorkNoDuplicates(new Triple(stmt, method, thrownType));
+			workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(stmt, method, thrownType));
 		} else {
 			thrownTypes.add(thrownType);
 		}

@@ -14,16 +14,15 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.graph.IEdgeLabelledNode;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeLabelledNode;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-
-import org.apache.commons.collections.CollectionUtils;
 
 /**
  * This is an implementation of non-deterministic finite automaton.
@@ -48,6 +47,16 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * @invariant finalStates.oclIsKindOf(Set(IState))
 	 */
 	private final Collection<S> finalStates = new HashSet<S>();
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final ITransformer<SimpleEdgeLabelledNode<S>, S> OBJECT_EXTRACTOR = new ITransformer<SimpleEdgeLabelledNode<S>, S>() {
+
+		public S transform(final SimpleEdgeLabelledNode<S> input) {
+			return input.getObject();
+		}
+	};
 
 	/**
 	 * This graph is used to represent the shape of the automaton.
@@ -155,7 +164,7 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 
 		if (_node != null) {
 			final Collection<SimpleEdgeLabelledNode<S>> _dests = _node.getSuccsViaEdgesLabelled(label);
-			_result = CollectionUtils.collect(_dests, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			_result = CollectionUtils.collect(_dests, OBJECT_EXTRACTOR);
 		} else {
 			_result = Collections.emptySet();
 		}

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,11 +14,9 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
-
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -35,13 +32,13 @@ import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
-
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 import edu.ksu.cis.indus.tools.slicer.contextualizers.DeadlockPreservingCriteriaCallStackContextualizer;
 import edu.ksu.cis.indus.tools.slicer.contextualizers.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AssertionSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
@@ -49,7 +46,6 @@ import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicat
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,278 +56,270 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.jimple.ThrowStmt;
 
-
 /**
- * This represents a configurationCollection of the slicer.  The slicer tool should be configured via an object of this class
- * obtained from the slicer tool.  The type of the propoerty values are documented with the property identifiers.
- *
+ * This represents a configurationCollection of the slicer. The slicer tool should be configured via an object of this class
+ * obtained from the slicer tool. The type of the propoerty values are documented with the property identifiers.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SlicerConfiguration
-  extends AbstractToolConfiguration
-  implements Cloneable,
-	  IToolConfigurationFactory {
-	/** 
-	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
-	 * of naive type-based interference dependence. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>
-	 * attribute in <code>slicerConfig_JiBXBinding.xml</code>.
-	 */
-	static final Object EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
+		extends AbstractToolConfiguration
+		implements Cloneable, IToolConfigurationFactory {
 
-	/** 
-	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
-	 * used  instead of naive type-based interference dependence. This is tied to values of
-	 * <i>slicer:natureOfInterThreadAnalysis</i>  attribute in <code>slicerConfig_JiBXBinding.xml</code>.
-	 */
-	static final Object SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
-
-	/** 
-	 * This indicates type based information. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>  attribute
-	 * in <code>slicerConfig_JiBXBinding.xml</code>.
-	 */
-	static final Object TYPE_BASED_INFO = "TYPE_BASED_INFO";
-
-	/** 
-	 * This identifies the property that indicates the nature of interference dependence, i.e., type based, etc.
-	 */
-	static final Object NATURE_OF_INTERFERENCE_DA = "nature of interference dependence";
-
-	/** 
-	 * This identifies the property that indicates the nature of ready dependence, i.e., type based, etc.
-	 */
-	static final Object NATURE_OF_READY_DA = "nature of ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if interference dependence should be considered for slicing.
-	 */
-	static final Object USE_INTERFERENCEDA = "use interference dependence";
-
-	/** 
-	 * This identifies the property that indicates if ready dependence should be considered for slicing.
-	 */
-	static final Object USE_READYDA = "use ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if rule1 of ready dependence be used.  Rule 1:  m is dependent on n if m
-	 * and n occur in the same thread and n is an enter monitor statement.
-	 */
-	static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if ready dependence should be considered for slicing.
-	 */
-	static final Object USE_SYNCHRONIZATIONDA = "use synchronization dependences";
-
-	/** 
-	 * This identifies the property that indicates if rule2 of ready dependence be used.  Rule 2: m is dependent on n if m
-	 * and n occur in different threads and m and n are is exit monitor and enter monitor statements, respectively.
-	 */
-	static final Object USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if rule3 of ready dependence be used.  Rule 3: m is dependent on n if m
-	 * and n occur in the same thread and m has a call to java.lang.Object.wait.
-	 */
-	static final Object USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if rule4 of ready dependence be used.  Rule 4: m is dependent on n if m
-	 * and n occur in the different thread and m and n have calls to java.lang.Object.wait(XXX) and
-	 * java.lang.Object.notifyXXX(), respectively..
-	 */
-	static final Object USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
-
-	/** 
-	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
-	 */
-	static final Object USE_DIVERGENCEDA = "use divergence dependence";
-
-	/** 
-	 * This identifies the property that indicates the nature of divergence dependence, i.e., intra, inter, and intra-inter.
-	 */
-	static final Object NATURE_OF_DIVERGENCE_DA = "nature of divergence dependence";
-
-	/** 
-	 * This indicates pure intra-procedural setting.
-	 */
-	static final Object INTRA_PROCEDURAL_ONLY = "INTRA_PROCEDURAL_ONLY";
-
-	/** 
-	 * This indicates pure inter-procedural setting.
-	 */
-	static final Object INTER_PROCEDURAL_ONLY = "INTER_PROCEDURAL_ONLY";
-
-	/** 
-	 * This indicates intra- and inter-procedural setting.
-	 */
-	static final Object INTRA_AND_INTER_PROCEDURAL = "INTRA_AND_INTER_PROCEDURAL";
-
-	/** 
-	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve the
-	 * deadlocking property of the program.
-	 */
-	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
-
-	/** 
-	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve assertions in
-	 * the program.
-	 */
-	static final Object SLICE_TO_PRESERVE_ASSERTIONS = "slice to preserve assertions";
-
-	/** 
+	/**
 	 * This indicates all-synchronization-constructs-should-be-considered deadlock criteria selection strategy.
 	 */
-	static final Object ALL_SYNC_CONSTRUCTS = "ALL_SYNC_CONSTRUCTS";
+	static final Comparable<String> ALL_SYNC_CONSTRUCTS = "ALL_SYNC_CONSTRUCTS";
 
-	/** 
-	 * This indicates all-synchronization-constructs-with-escaping-monitors-should-be-considered deadlock criteria selection
-	 * strategy.
+	/**
+	 * This identifies the property that governs which assertions will be selected.
 	 */
-	static final Object ESCAPING_SYNC_CONSTRUCTS = "ESCAPING_SYNC_CONSTRUCTS";
+	static final Comparable<String> ASSERTIONS_IN_APPLICATION_CLASSES_ONLY = "consider assertions in application classes only";
 
-	/** 
-	 * This indicates
-	 * all-synchronization-constructs-with-escaping-monitors-should-be-considered-in-a-context-sensitive-manner deadlock
-	 * criteria selection strategy.
+	/**
+	 * This identifies the property that determines if call site sensitive ready dependence is used.
 	 */
-	static final Object CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS = "CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS";
+	static final Comparable<String> CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
 
-	/** 
-	 * This identifies the option to create executable slice.
+	/**
+	 * This identifies the property that control the limit on the length of the calling context.
 	 */
-	static final Object EXECUTABLE_SLICE = "executable slice";
+	static final Comparable<String> CALLING_CONTEXT_LENGTH = "calling context length";
 
-	/** 
-	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
-	 */
-	static final Object SLICE_TYPE = "slice type";
-
-	/** 
-	 * This identifies the property that indicates if object flow information should be used in the context of interference
-	 * dependence.
-	 */
-	static final Object USE_OFA_FOR_INTERFERENCE_DA = "use ofa for interference";
-
-	/** 
-	 * This identifies the property that indicates if object flow information should be used in the context of ready
-	 * dependence.
-	 */
-	static final Object USE_OFA_FOR_READY_DA = "use ofa for ready";
-
-	/** 
-	 * This identifies the property that indicates if safe lock analysis should be used in the context of ready dependence.
-	 */
-	static final Object USE_SLA_FOR_READY_DA = "use sla for ready";
-
-	/** 
-	 * This identifies the property that determines the strategy used to select criteria to preserve deadlock.
-	 */
-	static final Object DEADLOCK_CRITERIA_SELECTION_STRATEGY = "deadlock criteria selection strategy";
-
-	/** 
-	 * This identifies the property that determines if property aware slicing is required.
-	 */
-	static final Object PROPERTY_AWARE = "property aware slicing";
-
-	/** 
-	 * This identifies the property that determines if non-termination sensitive control dependence should be used to create
-	 * the slice.
-	 */
-	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive control dependence";
-
-	/** 
-	 * This identifies the property that determines if explicit exceptional exit sensitive control dependence should be used
-	 * to create the slice.
-	 */
-	static final Object EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE =
-		"explicit exceptional exit sensitive control dependence";
-
-	/** 
+	/**
 	 * This identifies the property that determines if exceptional exit sensitive control dependence (based on implicit
 	 * unchecked exceptions) should be used to create the slice.
 	 */
-	static final Object COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD =
-		"common unchecked exceptional exit sensitive control dependence";
+	static final Comparable<String> COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD = "common unchecked exceptional exit sensitive control dependence";
 
-	/** 
-	 * This identifies the property that determines if call site sensitive ready dependence is used.
+	/**
+	 * This indicates all-synchronization-constructs-with-escaping-monitors-should-be-considered-in-a-context-sensitive-manner
+	 * deadlock criteria selection strategy.
 	 */
-	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
+	static final Comparable<String> CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS = "CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS";
 
-	/** 
-	 * This identifies the property that governs which assertions will be selected.
+	/**
+	 * This identifies the property that determines the strategy used to select criteria to preserve deadlock.
 	 */
-	static final Object ASSERTIONS_IN_APPLICATION_CLASSES_ONLY = "consider assertions in application classes only";
+	static final Comparable<String> DEADLOCK_CRITERIA_SELECTION_STRATEGY = "deadlock criteria selection strategy";
 
-	/** 
+	/**
+	 * This is the default limit on the length of the calling contexts.
+	 */
+	static final Integer DEFAULT_CALLING_CONTEXT_LIMIT = new Integer(10);
+
+	/**
+	 * This identifies the property that indicates if equivalence class based interference dependence should be used instead
+	 * of naive type-based interference dependence. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>
+	 * attribute in <code>slicerConfig_JiBXBinding.xml</code>.
+	 */
+	static final Comparable<String> EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
+
+	/**
+	 * This indicates all-synchronization-constructs-with-escaping-monitors-should-be-considered deadlock criteria selection
+	 * strategy.
+	 */
+	static final Comparable<String> ESCAPING_SYNC_CONSTRUCTS = "ESCAPING_SYNC_CONSTRUCTS";
+
+	/**
+	 * This identifies the option to create executable slice.
+	 */
+	static final Comparable<String> EXECUTABLE_SLICE = "executable slice";
+
+	/**
+	 * This identifies the property that determines if explicit exceptional exit sensitive control dependence should be used
+	 * to create the slice.
+	 */
+	static final Comparable<String> EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE = "explicit exceptional exit sensitive control dependence";
+
+	/**
+	 * This indicates pure inter-procedural setting.
+	 */
+	static final Comparable<String> INTER_PROCEDURAL_ONLY = "INTER_PROCEDURAL_ONLY";
+
+	/**
+	 * This indicates intra- and inter-procedural setting.
+	 */
+	static final Comparable<String> INTRA_AND_INTER_PROCEDURAL = "INTRA_AND_INTER_PROCEDURAL";
+
+	/**
+	 * This indicates pure intra-procedural setting.
+	 */
+	static final Comparable<String> INTRA_PROCEDURAL_ONLY = "INTRA_PROCEDURAL_ONLY";
+
+	/**
+	 * This identifies the property that indicates the nature of divergence dependence, i.e., intra, inter, and intra-inter.
+	 */
+	static final Comparable<String> NATURE_OF_DIVERGENCE_DA = "nature of divergence dependence";
+
+	/**
+	 * This identifies the property that indicates the nature of interference dependence, i.e., type based, etc.
+	 */
+	static final Comparable<String> NATURE_OF_INTERFERENCE_DA = "nature of interference dependence";
+
+	/**
+	 * This identifies the property that indicates the nature of ready dependence, i.e., type based, etc.
+	 */
+	static final Comparable<String> NATURE_OF_READY_DA = "nature of ready dependence";
+
+	/**
+	 * This identifies the property that determines if non-termination sensitive control dependence should be used to create
+	 * the slice.
+	 */
+	static final Comparable<String> NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive control dependence";
+
+	/**
+	 * This identifies the property that determines if property aware slicing is required.
+	 */
+	static final Comparable<String> PROPERTY_AWARE = "property aware slicing";
+
+	/**
+	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve the
+	 * deadlocking property of the program.
+	 */
+	static final Comparable<String> SLICE_FOR_DEADLOCK = "slice for deadlock";
+
+	/**
+	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve assertions in
+	 * the program.
+	 */
+	static final Comparable<String> SLICE_TO_PRESERVE_ASSERTIONS = "slice to preserve assertions";
+
+	/**
+	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
+	 */
+	static final Comparable<String> SLICE_TYPE = "slice type";
+
+	/**
+	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
+	 * used instead of naive type-based interference dependence. This is tied to values of
+	 * <i>slicer:natureOfInterThreadAnalysis</i> attribute in <code>slicerConfig_JiBXBinding.xml</code>.
+	 */
+	static final Comparable<String> SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
+
+	/**
 	 * This identifies the property that governs which synchronization constructs will be selected to preserve deadlocking
 	 * property.
 	 */
-	static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
+	static final Comparable<String> SYNCS_IN_APPLICATION_CLASSES_ONLY = "consider synchronization constructs in application classes only";
 
-    /**
-     * This is the default limit on the length of the calling contexts.
-     */
-    static final Integer DEFAULT_CALLING_CONTEXT_LIMIT = new Integer(10);
-    
-    /**
-     * This identifies the property that control the limit on the length of the calling context. 
-     */
-    static final Object CALLING_CONTEXT_LENGTH = "calling context length";
-    
-	/** 
-	 * The logger used by instances of this class to log messages.
+	/**
+	 * This indicates type based information. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i> attribute
+	 * in <code>slicerConfig_JiBXBinding.xml</code>.
 	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerConfiguration.class);
+	static final Comparable<String> TYPE_BASED_INFO = "TYPE_BASED_INFO";
 
-	/** 
+	/**
+	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
+	 */
+	static final Comparable<String> USE_DIVERGENCEDA = "use divergence dependence";
+
+	/**
+	 * This identifies the property that indicates if interference dependence should be considered for slicing.
+	 */
+	static final Comparable<String> USE_INTERFERENCEDA = "use interference dependence";
+
+	/**
+	 * This identifies the property that indicates if object flow information should be used in the context of interference
+	 * dependence.
+	 */
+	static final Comparable<String> USE_OFA_FOR_INTERFERENCE_DA = "use ofa for interference";
+
+	/**
+	 * This identifies the property that indicates if object flow information should be used in the context of ready
+	 * dependence.
+	 */
+	static final Comparable<String> USE_OFA_FOR_READY_DA = "use ofa for ready";
+
+	/**
+	 * This identifies the property that indicates if ready dependence should be considered for slicing.
+	 */
+	static final Comparable<String> USE_READYDA = "use ready dependence";
+
+	/**
+	 * This identifies the property that indicates if rule1 of ready dependence be used. Rule 1: m is dependent on n if m and
+	 * n occur in the same thread and n is an enter monitor statement.
+	 */
+	static final Comparable<String> USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
+
+	/**
+	 * This identifies the property that indicates if rule2 of ready dependence be used. Rule 2: m is dependent on n if m and
+	 * n occur in different threads and m and n are is exit monitor and enter monitor statements, respectively.
+	 */
+	static final Comparable<String> USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
+
+	/**
+	 * This identifies the property that indicates if rule3 of ready dependence be used. Rule 3: m is dependent on n if m and
+	 * n occur in the same thread and m has a call to java.lang.Object.wait.
+	 */
+	static final Comparable<String> USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
+
+	/**
+	 * This identifies the property that indicates if rule4 of ready dependence be used. Rule 4: m is dependent on n if m and
+	 * n occur in the different thread and m and n have calls to java.lang.Object.wait(XXX) and java.lang.Object.notifyXXX(),
+	 * respectively..
+	 */
+	static final Comparable<String> USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
+
+	/**
+	 * This identifies the property that indicates if safe lock analysis should be used in the context of ready dependence.
+	 */
+	static final Comparable<String> USE_SLA_FOR_READY_DA = "use sla for ready";
+
+	/**
+	 * This identifies the property that indicates if ready dependence should be considered for slicing.
+	 */
+	static final Comparable<String> USE_SYNCHRONIZATIONDA = "use synchronization dependences";
+
+	/**
+	 * This is the id for the assertion preserving criteria generator.
+	 */
+	private static final Comparable<String> ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID = "assertion preserving criteria generator id";
+
+	/**
+	 * This is the id for the deadlock preserving criteria generator.
+	 */
+	private static final Comparable<String> DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID = "deadlock preserving criteria generator id";
+
+	/**
 	 * This is the factory object to create configurations.
 	 */
 	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
 
-	/** 
-	 * This is the id for the deadlock preserving criteria generator.
+	/**
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Object DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID = "deadlock preserving criteria generator id";
+	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerConfiguration.class);
 
-	/** 
-	 * This is the id for the assertion preserving criteria generator.
-	 */
-	private static final Object ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID = "assertion preserving criteria generator id";
-
-	/** 
+	/**
 	 * The collection of ids of the dependences to be considered for slicing.
-	 *
-	 * @invariant dependencesToUse.oclIsKindOf(String)
 	 */
-	private final Collection dependencesToUse = new HashSet();
+	private final Collection<Comparable> dependencesToUse;
 
-	/** 
+	/**
 	 * This maps identifiers to criteria generators.
-	 *
-	 * @invariant id2critGenerators.oclIsKindOf(Map(Object, ISliceCriteriaGenerator))
 	 */
-	private final Map id2critGenerators = new HashMap();
+	private final Map<Comparable, ISliceCriteriaGenerator> id2critGenerators;
 
-	/** 
+	/**
 	 * This maps IDs to dependency analyses.
-	 *
-	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(AbstractDependencyAnalysis)))
 	 */
-	private final Map id2dependencyAnalyses = new HashMap();
+	private final Map<Comparable, Collection<? extends IDependencyAnalysis>> id2dependencyAnalyses;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
+		id2critGenerators = new HashMap<Comparable, ISliceCriteriaGenerator>();
+		id2dependencyAnalyses = new HashMap<Comparable, Collection<? extends IDependencyAnalysis>>();
+		dependencesToUse = new HashSet<Comparable>();
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
 		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
 		propertyIds.add(USE_INTERFERENCEDA);
@@ -361,377 +349,38 @@ public final class SlicerConfiguration
 		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
 		propertyIds.add(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
 		propertyIds.add(SYNCS_IN_APPLICATION_CLASSES_ONLY);
-        propertyIds.add(CALLING_CONTEXT_LENGTH);
+		propertyIds.add(CALLING_CONTEXT_LENGTH);
 	}
 
 	/**
-	 * Checks if call-site sensitive ready dependence is used.
-	 *
-	 * @return <code>true</code> if call-site based ready dependence is used; <code>false</code>, otherwise.
-	 */
-	public boolean isCallSiteSensitiveReadyUsed() {
-		return getBooleanProperty(CALL_SITE_SENSITIVE_READY_DA);
-	}
-
-	/**
-	 * Sets the strategy to be used to select deadlock preserving criteria.
-	 *
-	 * @param dc specifies the strategy.  It has to be one of <code>ALL_SYNC_CONSTRUCTS</code> or
-	 * 		  <code>ESCAPING_SYNC_CONSTRUCTS</code>.
-	 */
-	public void setDeadlockCriteriaSelectionStrategy(final String dc) {
-		super.setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, dc);
-	}
-
-	/**
-	 * Retrieves the strategy used to select deadlock perserving criteria.
-	 *
-	 * @return the selection strategy used.
-	 */
-	public String getDeadlockCriteriaSelectionStrategy() {
-		String _result = (String) getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
-
-		if (_result == null) {
-			_result = CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.toString();
-		}
-		return _result;
-	}
-
-	/**
-	 * Provides the dependency analysis corresponding to the given id.
-	 *
-	 * @param id of the requested dependence analyses.
-	 *
-	 * @return the dependency analyses identified by <code>id</code>.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
-	 */
-	public Collection getDependenceAnalyses(final Object id) {
-		Collection _result = (Collection) id2dependencyAnalyses.get(id);
-
-		if (_result == null) {
-			_result = Collections.EMPTY_LIST;
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if divergence dependence analysis is enabled in this configuration.
-	 *
-	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isDivergenceDepAnalysisUsed() {
-		return getBooleanProperty(USE_DIVERGENCEDA);
-	}
-
-	/**
-	 * Sets the executability of the generated slice.
-	 *
-	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
-	 *
-	 * @throws IllegalStateException when executability is set on forward slices.
-	 */
-	public void setExecutableSlice(final boolean value) {
-		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
-		} else if (value) {
-			throw new IllegalStateException("Forward Executable Slices are not supported.");
-		}
-	}
-
-	/**
-	 * Retrieves the executability of the generated slice.
-	 *
-	 * @return <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
-	 */
-	public boolean getExecutableSlice() {
-		return getBooleanProperty(EXECUTABLE_SLICE);
-	}
-
-	/**
-	 * Checks if explicit exceptional exit sensitive control dependence should be used.
-	 *
-	 * @return <code>true</code> if explicit exceptional exit control dependence should be used; <code>false</code>,
-	 * 		   otherwise.
-	 */
-	public boolean isExplicitExceptionalExitSensitiveControlDependenceUsed() {
-		return getBooleanProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE);
-	}
-
-	/**
-	 * Checks if interference dependence analysis is enabled in this configuration.
-	 *
-	 * @return <code>true</code> if the use of interference dependence analysis is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isInterferenceDepAnalysisUsed() {
-		return getBooleanProperty(USE_INTERFERENCEDA);
-	}
-
-	/**
-	 * Sets the nature of divergence dependence analysis to be used.
-	 *
-	 * @param use specifies the nature of analysis.  It has to be one of values defined by
-	 * 		  <code>INTRA_PROCEDURAL_DIVERGENCE</code>,  <code>INTER_PROCEDURAL_DIVERGENCE</code>, and
-	 * 		  <code>INTRA_AND_INTER_PROCEDURAL_DIVERGENCE</code>.
-	 *
-	 * @pre use != null
-	 */
-	public void setNatureOfDivergenceDepAnalysis(final String use) {
-		super.setProperty(NATURE_OF_DIVERGENCE_DA, use);
-	}
-
-	/**
-	 * Retrieves the nature of divergence dependence analysis specified by this configuration.
-	 *
-	 * @return the nature of divergence dependence analysis.
-	 *
+	 * Retrieves the configuration factory object.
+	 * 
+	 * @return the configuration factory.
 	 * @post result != null
 	 */
-	public String getNatureOfDivergenceDepAnalysis() {
-		String _result = (String) getProperty(NATURE_OF_DIVERGENCE_DA);
-
-		if (_result == null) {
-			_result = INTRA_PROCEDURAL_ONLY.toString();
-		}
-		return _result;
+	static IToolConfigurationFactory getFactory() {
+		return FACTORY_SINGLETON;
 	}
 
 	/**
-	 * Sets the nature of interference dependence analysis to be used.
-	 *
-	 * @param use specifies the nature of analysis.  It has to be one of values defined by
-	 * 		  <code>EQUIVALENCE_CLASS_BASED_INFO</code>,  <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
-	 * 		  <code>TYPE_BASED_INFO</code>.
-	 *
-	 * @pre use != null
-	 */
-	public void setNatureOfInterferenceDepAnalysis(final String use) {
-		super.setProperty(NATURE_OF_INTERFERENCE_DA, use);
-	}
-
-	/**
-	 * Retrieves the nature of interference dependence analysis specified by this configuration.
-	 *
-	 * @return <code>true</code> if the use of interference dependence analysis enabled; <code>false</code>, otherwise.
-	 *
+	 * IFactory method to create a configuration. This is used by the factory and in java-2-xml binding. It is adviced to use
+	 * the factory object rather than using this method.
+	 * 
+	 * @return a new instance of a configuration.
 	 * @post result != null
 	 */
-	public String getNatureOfInterferenceDepAnalysis() {
-		String _result = (String) getProperty(NATURE_OF_INTERFERENCE_DA);
-
-		if (_result == null) {
-			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
-		}
+	static SlicerConfiguration makeToolConfiguration() {
+		final SlicerConfiguration _result = new SlicerConfiguration();
+		_result.setConfigName("tool_configuration_" + System.currentTimeMillis());
+		_result.initialize();
 		return _result;
-	}
-
-	/**
-	 * Sets the nature of ready dependence analysis to be used.
-	 *
-	 * @param use specifies the nature of analysis.  It has to be one of values defined by
-	 * 		  <code>EQUIVALENCE_CLASS_BASED_INFO</code>,  <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
-	 * 		  <code>TYPE_BASED_INFO</code>.
-	 *
-	 * @pre use != null
-	 */
-	public void setNatureOfReadyDepAnalysis(final String use) {
-		super.setProperty(NATURE_OF_READY_DA, use);
-	}
-
-	/**
-	 * Retrieves the nature of ready dependence analysis specified by this configuration.
-	 *
-	 * @return the nature of ready dependence analysis.
-	 *
-	 * @post result != null
-	 */
-	public String getNatureOfReadyDepAnalysis() {
-		String _result = (String) getProperty(NATURE_OF_READY_DA);
-
-		if (_result == null) {
-			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if non-termination sensitive control dependence should be used.
-	 *
-	 * @return <code>true</code> if non-termination sensitive control dependence should be used; <code>false</code>,
-	 * 		   otherwise.
-	 */
-	public boolean isNonTerminationSensitiveControlDependenceUsed() {
-		return getBooleanProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
-	}
-
-	/**
-	 * Checks if OFA is being used for interference dependence calculation.
-	 *
-	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
-	 */
-	public boolean isOFAUsedForInterference() {
-		return getBooleanProperty(USE_OFA_FOR_INTERFERENCE_DA);
-	}
-
-	/**
-	 * Checks if OFA is being used for ready dependence calculation.
-	 *
-	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
-	 */
-	public boolean isOFAUsedForReady() {
-		return getBooleanProperty(USE_OFA_FOR_READY_DA);
-	}
-
-	/**
-	 * Sets the property that governs if property aware slices will be generated.
-	 *
-	 * @param value <code>true</code> indicates property aware slices should be generated; <code>false</code>, otherwise.
-	 */
-	public void setPropertyAware(final boolean value) {
-		setProperty(PROPERTY_AWARE, Boolean.valueOf(value));
-	}
-
-	/**
-	 * Checks if property aware slices will be generated.
-	 *
-	 * @return <code>true</code> if the property aware slices will be generated; <code>false</code>, otherwise.
-	 */
-	public boolean getPropertyAware() {
-		return getBooleanProperty(PROPERTY_AWARE);
-	}
-
-	/**
-	 * Checks if ready dependence analysis is enabled in this configuration.
-	 *
-	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isReadyDepAnalysisUsed() {
-		return getBooleanProperty(USE_READYDA);
-	}
-
-	/**
-	 * Checks if ready dependence condition/rule 1 is enabled.  Rule 1 being the intraprocedural ready dependence induced by
-	 * enter monitor statements.
-	 *
-	 * @return <code>true</code> if ready dependence analysis rule 1 is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isReadyRule1Used() {
-		return getBooleanProperty(USE_RULE1_IN_READYDA);
-	}
-
-	/**
-	 * Checks if ready dependence condition/rule 2 is enabled.  Rule 2 being the interprocedural ready dependence induced by
-	 * enter/exit monitor statements.
-	 *
-	 * @return <code>true</code> if ready dependence analysis rule 2 is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isReadyRule2Used() {
-		return getBooleanProperty(USE_RULE2_IN_READYDA);
-	}
-
-	/**
-	 * Checks if ready dependence condition/rule 3 is enabled.  Rule 3 being the intraprocedural ready dependence induced by
-	 * wait statements.
-	 *
-	 * @return <code>true</code> if ready dependence analysis rule 3 is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isReadyRule3Used() {
-		return getBooleanProperty(USE_RULE3_IN_READYDA);
-	}
-
-	/**
-	 * Checks if ready dependence condition/rule 4 is enabled.  Rule 4 being the interprocedural ready dependence induced by
-	 * wait/notify statements.
-	 *
-	 * @return <code>true</code> if ready dependence analysis rule 4 is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isReadyRule4Used() {
-		return getBooleanProperty(USE_RULE4_IN_READYDA);
-	}
-
-	/**
-	 * Checks if Safe Lock Analysis is being used for ready dependence calculation.
-	 *
-	 * @return <code>true</code> if SLA is used for ready dependence; <code>false</code>, otherwise.
-	 */
-	public boolean isSafeLockAnalysisUsedForReady() {
-		return getBooleanProperty(USE_SLA_FOR_READY_DA);
-	}
-
-	/**
-	 * Sets the preservation of deadlocking in the slice.
-	 *
-	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
-	 */
-	public void setSliceForDeadlock(final boolean value) {
-		setProperty(SLICE_FOR_DEADLOCK, Boolean.valueOf(value));
-	}
-
-	/**
-	 * Checks if the slice was done to preserve deadlocking properties.
-	 *
-	 * @return <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
-	 */
-	public boolean getSliceForDeadlock() {
-		return getBooleanProperty(SLICE_FOR_DEADLOCK);
-	}
-
-	/**
-	 * Sets the preservation of assertions in the slice.
-	 *
-	 * @param value <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
-	 */
-	public void setSliceToPreserveAssertions(final boolean value) {
-		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.valueOf(value));
-	}
-
-	/**
-	 * Checks if the slice was done to preserve assertions.
-	 *
-	 * @return <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
-	 */
-	public boolean getSliceToPreserveAssertions() {
-		return getBooleanProperty(SLICE_TO_PRESERVE_ASSERTIONS);
-	}
-
-	/**
-	 * Sets the type of slice to be generated.
-	 *
-	 * @param type specifies the type of slice.  It has to be one of values defined by
-	 * 		  <code>SlicingEngine.BACKWARD_SLICE</code>,  <code>SlicingEngine.FORWARD_SLICE</code>, and
-	 * 		  <code>SlicingEngine.COMPLETE_SLICE</code>.
-	 *
-	 * @pre use != null
-	 */
-	public void setSliceType(final String type) {
-		setProperty(SLICE_TYPE, type);
-	}
-
-	/**
-	 * Retrieves the type of slice that will be generated.
-	 *
-	 * @return the type of slice.
-	 *
-	 * @post result != null
-	 */
-	public String getSliceType() {
-		return getProperty(SLICE_TYPE).toString();
-	}
-
-	/**
-	 * Checks if synchronization dependence analysis is enabled in this configuration.
-	 *
-	 * @return <code>true</code> if the use of synchronization dependence analysis is enabled; <code>false</code>, otherwise.
-	 */
-	public boolean isSynchronizationDepAnalysisUsed() {
-		return getBooleanProperty(USE_SYNCHRONIZATIONDA);
 	}
 
 	/**
 	 * Checks if assertions only in application classes will be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if assertions only in application classes will be considered.; <code>false</code>,
-	 * 		   otherwise.
+	 *         otherwise.
 	 */
 	public boolean areAssertionsOnlyInAppClassesConsidered() {
 		return getBooleanProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
@@ -739,9 +388,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if common unchecked exception based exit sensitive control dependence should be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if common unchecked exception based exit control dependence should be considered;
-	 * 		   <code>false</code>, otherwise.
+	 *         <code>false</code>, otherwise.
 	 */
 	public boolean areCommonUncheckedExceptionsConsidered() {
 		return getBooleanProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD);
@@ -749,9 +398,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if synchronization constructs only in application classes will be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if synchronization constructs only in application classes will be considered.;
-	 * 		   <code>false</code>, otherwise.
+	 *         <code>false</code>, otherwise.
 	 */
 	public boolean areSynchronizationsOnlyInAppClassesConsidered() {
 		return getBooleanProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY);
@@ -759,9 +408,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the propery the governs if only assertions in application classes are considered.
-	 *
+	 * 
 	 * @param value <code>true</code> if only assertions in application classes should be considered; <code>false</code>,
-	 * 		  otherwise.
+	 *            otherwise.
 	 */
 	public void considerAssertionsInAppClassesOnly(final boolean value) {
 		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.valueOf(value));
@@ -769,9 +418,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if implicit common unchecked exception based exit sensitive control dependence should be considered.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates implicit common unchecked exception based exit sensitive control dependence
-	 * 		  should be considered; <code>false</code>, otherwise.
+	 *            should be considered; <code>false</code>, otherwise.
 	 */
 	public void considerCommonUncheckedExceptions(final boolean value) {
 		setProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD, Boolean.valueOf(value));
@@ -779,9 +428,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the propery the governs if only synchronization constructs in application classes are considered.
-	 *
+	 * 
 	 * @param value <code>true</code> if only synchronization constructs in application classes should be considered;
-	 * 		  <code>false</code>, otherwise.
+	 *            <code>false</code>, otherwise.
 	 */
 	public void considerSynchronizationsInAppClassesOnly(final boolean value) {
 		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.valueOf(value));
@@ -797,33 +446,161 @@ public final class SlicerConfiguration
 	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(final Object object) {
+	@Override public boolean equals(final Object object) {
 		boolean _result = false;
 
 		if (object instanceof SlicerConfiguration) {
 			final SlicerConfiguration _config = (SlicerConfiguration) object;
-			_result =
-				new EqualsBuilder().appendSuper(super.equals(object)).append(this.propertyIds, _config.propertyIds)
-									 .append(this.id2dependencyAnalyses, _config.id2dependencyAnalyses)
-									 .append(this.dependencesToUse, _config.dependencesToUse)
-									 .append(this.properties, _config.properties).isEquals();
+			_result = new EqualsBuilder().appendSuper(super.equals(object)).append(this.propertyIds, _config.propertyIds)
+					.append(this.id2dependencyAnalyses, _config.id2dependencyAnalyses).append(this.dependencesToUse,
+							_config.dependencesToUse).append(this.properties, _config.properties).isEquals();
 		}
 		return _result;
 	}
 
 	/**
+	 * Retrieves the limit on the length of the calling context.
+	 * 
+	 * @return the limit.
+	 */
+	public int getCallingContextLimit() {
+		return ((Integer) getProperty(CALLING_CONTEXT_LENGTH)).intValue();
+	}
+
+	/**
+	 * Retrieves the strategy used to select deadlock perserving criteria.
+	 * 
+	 * @return the selection strategy used.
+	 */
+	public String getDeadlockCriteriaSelectionStrategy() {
+		String _result = (String) getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
+
+		if (_result == null) {
+			_result = CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.toString();
+		}
+		return _result;
+	}
+
+	/**
+	 * Provides the dependency analysis corresponding to the given id.
+	 * 
+	 * @param id of the requested dependence analyses.
+	 * @return the dependency analyses identified by <code>id</code>.
+	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
+	 */
+	public Collection<IDependencyAnalysis> getDependenceAnalyses(final Comparable id) {
+		Collection<IDependencyAnalysis> _result = (Collection<IDependencyAnalysis>) id2dependencyAnalyses.get(id);
+
+		if (_result == null) {
+			_result = Collections.emptyList();
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the executability of the generated slice.
+	 * 
+	 * @return <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
+	 */
+	public boolean getExecutableSlice() {
+		return getBooleanProperty(EXECUTABLE_SLICE);
+	}
+
+	/**
+	 * Retrieves the nature of divergence dependence analysis specified by this configuration.
+	 * 
+	 * @return the nature of divergence dependence analysis.
+	 * @post result != null
+	 */
+	public String getNatureOfDivergenceDepAnalysis() {
+		String _result = (String) getProperty(NATURE_OF_DIVERGENCE_DA);
+
+		if (_result == null) {
+			_result = INTRA_PROCEDURAL_ONLY.toString();
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the nature of interference dependence analysis specified by this configuration.
+	 * 
+	 * @return <code>true</code> if the use of interference dependence analysis enabled; <code>false</code>, otherwise.
+	 * @post result != null
+	 */
+	public String getNatureOfInterferenceDepAnalysis() {
+		String _result = (String) getProperty(NATURE_OF_INTERFERENCE_DA);
+
+		if (_result == null) {
+			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the nature of ready dependence analysis specified by this configuration.
+	 * 
+	 * @return the nature of ready dependence analysis.
+	 * @post result != null
+	 */
+	public String getNatureOfReadyDepAnalysis() {
+		String _result = (String) getProperty(NATURE_OF_READY_DA);
+
+		if (_result == null) {
+			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if property aware slices will be generated.
+	 * 
+	 * @return <code>true</code> if the property aware slices will be generated; <code>false</code>, otherwise.
+	 */
+	public boolean getPropertyAware() {
+		return getBooleanProperty(PROPERTY_AWARE);
+	}
+
+	/**
+	 * Checks if the slice was done to preserve deadlocking properties.
+	 * 
+	 * @return <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
+	 */
+	public boolean getSliceForDeadlock() {
+		return getBooleanProperty(SLICE_FOR_DEADLOCK);
+	}
+
+	/**
+	 * Checks if the slice was done to preserve assertions.
+	 * 
+	 * @return <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
+	 */
+	public boolean getSliceToPreserveAssertions() {
+		return getBooleanProperty(SLICE_TO_PRESERVE_ASSERTIONS);
+	}
+
+	/**
+	 * Retrieves the type of slice that will be generated.
+	 * 
+	 * @return the type of slice.
+	 * @post result != null
+	 */
+	public String getSliceType() {
+		return getProperty(SLICE_TYPE).toString();
+	}
+
+	/**
 	 * @see java.lang.Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(propertyIds).append(id2dependencyAnalyses)
-											.append(dependencesToUse).append(properties).toHashCode();
+				.append(dependencesToUse).append(properties).toHashCode();
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
-		// set default values for certain properties.  The ordering is important.
+		// set default values for certain properties. The ordering is important.
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_INTERFERENCEDA, Boolean.FALSE);
@@ -846,7 +623,7 @@ public final class SlicerConfiguration
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
 		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
-        setProperty(CALLING_CONTEXT_LENGTH, DEFAULT_CALLING_CONTEXT_LIMIT);
+		setProperty(CALLING_CONTEXT_LENGTH, DEFAULT_CALLING_CONTEXT_LIMIT);
 
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
@@ -854,8 +631,257 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if call-site sensitive ready dependence is used.
+	 * 
+	 * @return <code>true</code> if call-site based ready dependence is used; <code>false</code>, otherwise.
+	 */
+	public boolean isCallSiteSensitiveReadyUsed() {
+		return getBooleanProperty(CALL_SITE_SENSITIVE_READY_DA);
+	}
+
+	/**
+	 * Checks if divergence dependence analysis is enabled in this configuration.
+	 * 
+	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isDivergenceDepAnalysisUsed() {
+		return getBooleanProperty(USE_DIVERGENCEDA);
+	}
+
+	/**
+	 * Checks if explicit exceptional exit sensitive control dependence should be used.
+	 * 
+	 * @return <code>true</code> if explicit exceptional exit control dependence should be used; <code>false</code>,
+	 *         otherwise.
+	 */
+	public boolean isExplicitExceptionalExitSensitiveControlDependenceUsed() {
+		return getBooleanProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE);
+	}
+
+	/**
+	 * Checks if interference dependence analysis is enabled in this configuration.
+	 * 
+	 * @return <code>true</code> if the use of interference dependence analysis is enabled; <code>false</code>,
+	 *         otherwise.
+	 */
+	public boolean isInterferenceDepAnalysisUsed() {
+		return getBooleanProperty(USE_INTERFERENCEDA);
+	}
+
+	/**
+	 * Checks if non-termination sensitive control dependence should be used.
+	 * 
+	 * @return <code>true</code> if non-termination sensitive control dependence should be used; <code>false</code>,
+	 *         otherwise.
+	 */
+	public boolean isNonTerminationSensitiveControlDependenceUsed() {
+		return getBooleanProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
+	}
+
+	/**
+	 * Checks if OFA is being used for interference dependence calculation.
+	 * 
+	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isOFAUsedForInterference() {
+		return getBooleanProperty(USE_OFA_FOR_INTERFERENCE_DA);
+	}
+
+	/**
+	 * Checks if OFA is being used for ready dependence calculation.
+	 * 
+	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isOFAUsedForReady() {
+		return getBooleanProperty(USE_OFA_FOR_READY_DA);
+	}
+
+	/**
+	 * Checks if ready dependence analysis is enabled in this configuration.
+	 * 
+	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyDepAnalysisUsed() {
+		return getBooleanProperty(USE_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 1 is enabled. Rule 1 being the intraprocedural ready dependence induced by
+	 * enter monitor statements.
+	 * 
+	 * @return <code>true</code> if ready dependence analysis rule 1 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule1Used() {
+		return getBooleanProperty(USE_RULE1_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 2 is enabled. Rule 2 being the interprocedural ready dependence induced by
+	 * enter/exit monitor statements.
+	 * 
+	 * @return <code>true</code> if ready dependence analysis rule 2 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule2Used() {
+		return getBooleanProperty(USE_RULE2_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 3 is enabled. Rule 3 being the intraprocedural ready dependence induced by
+	 * wait statements.
+	 * 
+	 * @return <code>true</code> if ready dependence analysis rule 3 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule3Used() {
+		return getBooleanProperty(USE_RULE3_IN_READYDA);
+	}
+
+	/**
+	 * Checks if ready dependence condition/rule 4 is enabled. Rule 4 being the interprocedural ready dependence induced by
+	 * wait/notify statements.
+	 * 
+	 * @return <code>true</code> if ready dependence analysis rule 4 is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isReadyRule4Used() {
+		return getBooleanProperty(USE_RULE4_IN_READYDA);
+	}
+
+	/**
+	 * Checks if Safe Lock Analysis is being used for ready dependence calculation.
+	 * 
+	 * @return <code>true</code> if SLA is used for ready dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isSafeLockAnalysisUsedForReady() {
+		return getBooleanProperty(USE_SLA_FOR_READY_DA);
+	}
+
+	/**
+	 * Checks if synchronization dependence analysis is enabled in this configuration.
+	 * 
+	 * @return <code>true</code> if the use of synchronization dependence analysis is enabled; <code>false</code>,
+	 *         otherwise.
+	 */
+	public boolean isSynchronizationDepAnalysisUsed() {
+		return getBooleanProperty(USE_SYNCHRONIZATIONDA);
+	}
+
+	/**
+	 * sets the limit of calling context length.
+	 * 
+	 * @param limit obviously. If this is <= 0 then it will be set to 10.
+	 */
+	public void setCallingContextLimit(final int limit) {
+		final Integer _i;
+		if (limit < 0) {
+			_i = DEFAULT_CALLING_CONTEXT_LIMIT;
+		} else {
+			_i = new Integer(limit);
+		}
+		setProperty(CALLING_CONTEXT_LENGTH, _i);
+	}
+
+	/**
+	 * Sets the strategy to be used to select deadlock preserving criteria.
+	 * 
+	 * @param dc specifies the strategy. It has to be one of <code>ALL_SYNC_CONSTRUCTS</code> or
+	 *            <code>ESCAPING_SYNC_CONSTRUCTS</code>.
+	 */
+	public void setDeadlockCriteriaSelectionStrategy(final String dc) {
+		super.setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, dc);
+	}
+
+	/**
+	 * Sets the executability of the generated slice.
+	 * 
+	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
+	 * @throws IllegalStateException when executability is set on forward slices.
+	 */
+	public void setExecutableSlice(final boolean value) {
+		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
+		} else if (value) {
+			throw new IllegalStateException("Forward Executable Slices are not supported.");
+		}
+	}
+
+	/**
+	 * Sets the nature of divergence dependence analysis to be used.
+	 * 
+	 * @param use specifies the nature of analysis. It has to be one of values defined by
+	 *            <code>INTRA_PROCEDURAL_DIVERGENCE</code>, <code>INTER_PROCEDURAL_DIVERGENCE</code>, and
+	 *            <code>INTRA_AND_INTER_PROCEDURAL_DIVERGENCE</code>.
+	 * @pre use != null
+	 */
+	public void setNatureOfDivergenceDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_DIVERGENCE_DA, use);
+	}
+
+	/**
+	 * Sets the nature of interference dependence analysis to be used.
+	 * 
+	 * @param use specifies the nature of analysis. It has to be one of values defined by
+	 *            <code>EQUIVALENCE_CLASS_BASED_INFO</code>, <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
+	 *            <code>TYPE_BASED_INFO</code>.
+	 * @pre use != null
+	 */
+	public void setNatureOfInterferenceDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * Sets the nature of ready dependence analysis to be used.
+	 * 
+	 * @param use specifies the nature of analysis. It has to be one of values defined by
+	 *            <code>EQUIVALENCE_CLASS_BASED_INFO</code>, <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
+	 *            <code>TYPE_BASED_INFO</code>.
+	 * @pre use != null
+	 */
+	public void setNatureOfReadyDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_READY_DA, use);
+	}
+
+	/**
+	 * Sets the property that governs if property aware slices will be generated.
+	 * 
+	 * @param value <code>true</code> indicates property aware slices should be generated; <code>false</code>, otherwise.
+	 */
+	public void setPropertyAware(final boolean value) {
+		setProperty(PROPERTY_AWARE, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets the preservation of deadlocking in the slice.
+	 * 
+	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>,
+	 *            otherwise.
+	 */
+	public void setSliceForDeadlock(final boolean value) {
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets the preservation of assertions in the slice.
+	 * 
+	 * @param value <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
+	 */
+	public void setSliceToPreserveAssertions(final boolean value) {
+		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets the type of slice to be generated.
+	 * 
+	 * @param type specifies the type of slice. It has to be one of values defined by
+	 *            <code>SlicingEngine.BACKWARD_SLICE</code>, <code>SlicingEngine.FORWARD_SLICE</code>, and
+	 *            <code>SlicingEngine.COMPLETE_SLICE</code>.
+	 * @pre use != null
+	 */
+	public void setSliceType(final String type) {
+		setProperty(SLICE_TYPE, type);
+	}
+
+	/**
 	 * Sets if call-site sensitive ready dependence is used.
-	 *
+	 * 
 	 * @param use <code>true</code> if call-site based ready dependence should be used; <code>false</code>, otherwise.
 	 */
 	public void useCallSiteSensitiveReady(final boolean use) {
@@ -864,7 +890,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if divergence dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useDivergenceDepAnalysis(final boolean use) {
@@ -873,9 +899,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if explicit exceptional exit sensitive control dependence should be used.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates explicit exceptional exit sensitive control dependence should be used;
-	 * 		  <code>false</code>, otherwise.
+	 *            <code>false</code>, otherwise.
 	 */
 	public void useExplicitExceptionalExitSensitiveControlDependence(final boolean value) {
 		setProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE, Boolean.valueOf(value));
@@ -883,7 +909,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if interference dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useInterferenceDepAnalysis(final boolean use) {
@@ -892,9 +918,9 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if non-termination sensitive control dependence should be used.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates non-termination sensitive control dependence should be used;
-	 * 		  <code>false</code>, otherwise.
+	 *            <code>false</code>, otherwise.
 	 */
 	public void useNonTerminationSensitiveControlDependence(final boolean value) {
 		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.valueOf(value));
@@ -902,7 +928,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if OFA should be used during interference dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
 	 */
 	public void useOFAForInterference(final boolean use) {
@@ -911,7 +937,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if OFA should be used during ready dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
 	 */
 	public void useOFAForReady(final boolean use) {
@@ -920,7 +946,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyDepAnalysis(final boolean use) {
@@ -929,7 +955,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule1(final boolean use) {
@@ -938,7 +964,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule2(final boolean use) {
@@ -947,7 +973,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule3(final boolean use) {
@@ -956,7 +982,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule4(final boolean use) {
@@ -965,7 +991,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if Safe Lock Analysis should be used during ready dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if SLA should be used; <code>false</code>, otherwise.
 	 */
 	public void useSafeLockAnalysisForReady(final boolean use) {
@@ -974,7 +1000,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if synchronization dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useSynchronizationDepAnalysis(final boolean use) {
@@ -982,58 +1008,30 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * {@inheritDoc}  This implementation will always return <code>true</code>.
+	 * {@inheritDoc} This implementation will always return <code>true</code>.
 	 */
-	protected boolean processProperty(final Object propertyID, final Object value) {
+	@Override protected boolean processProperty(@SuppressWarnings("unused") final Comparable propertyID, @SuppressWarnings("unused") final Object value) {
 		return true;
 	}
 
 	/**
-	 * Retrieves the configuration factory object.
-	 *
-	 * @return the configuration factory.
-	 *
-	 * @post result != null
-	 */
-	static IToolConfigurationFactory getFactory() {
-		return FACTORY_SINGLETON;
-	}
-
-	/**
 	 * Provides the id of the dependences to use for slicing.
-	 *
+	 * 
 	 * @return a collection of id of the dependence analyses.
-	 *
 	 * @post result != null and result.oclIsKindOf(Collection(Object))
 	 */
-	Collection getIDsOfDAsToUse() {
+	Collection<Comparable> getIDsOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
 	}
 
 	/**
 	 * Retrieves slicing criteria generators.
-	 *
+	 * 
 	 * @return the slice criteria generators.
-	 *
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriteriaGenerator))
 	 */
-	Collection getSliceCriteriaGenerators() {
+	Collection<ISliceCriteriaGenerator> getSliceCriteriaGenerators() {
 		return id2critGenerators.values();
-	}
-
-	/**
-	 * Factory method to create a configuration. This is used by the factory and in java-2-xml binding.  It is adviced to use
-	 * the factory object rather than using this method.
-	 *
-	 * @return a new instance of a configuration.
-	 *
-	 * @post result != null
-	 */
-	static SlicerConfiguration makeToolConfiguration() {
-		final SlicerConfiguration _result = new SlicerConfiguration();
-		_result.setConfigName("tool_configuration_" + System.currentTimeMillis());
-		_result.initialize();
-		return _result;
 	}
 
 	/**
@@ -1051,12 +1049,11 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the boolean value of the given property.
-	 *
+	 * 
 	 * @param propertyId identifies the property for which the value is required.
-	 *
-	 * @return the value associated with <code>propertyId</code>.  Default value is <code>false</code>.
+	 * @return the value associated with <code>propertyId</code>. Default value is <code>false</code>.
 	 */
-	private boolean getBooleanProperty(final Object propertyId) {
+	private boolean getBooleanProperty(final Comparable<String> propertyId) {
 		final Boolean _value = (Boolean) getProperty(propertyId);
 		boolean _result = false;
 
@@ -1069,14 +1066,12 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the direction of divergence dependence that needs to be calculated.
-	 *
+	 * 
 	 * @return the direction.
-	 *
 	 * @throws IllegalStateException if the direction cannot be decided due to illegal slice type.
 	 */
-	private Object getDivergenceDirection()
-	  throws IllegalStateException {
-		final Object _result;
+	private Comparable getDivergenceDirection() throws IllegalStateException {
+		final Comparable _result;
 
 		if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
 			_result = IDependencyAnalysis.FORWARD_DIRECTION;
@@ -1094,15 +1089,12 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the class of ready dependence analysis to be used.
-	 *
+	 * 
 	 * @param nature of ready dependence.
-	 *
 	 * @return the ready dependence analysis class.
-	 *
 	 * @throws IllegalStateException when the given nature is not supported.
 	 */
-	private Class getReadyDAClass(final Object nature)
-	  throws IllegalStateException {
+	private Class getReadyDAClass(final Comparable nature) throws IllegalStateException {
 		final Class _result;
 
 		if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(nature)) {
@@ -1127,7 +1119,7 @@ public final class SlicerConfiguration
 
 		if (_b.booleanValue()) {
 			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
-			final Collection _stmtTypes = Collections.singleton(ThrowStmt.class);
+			final Collection<Class> _stmtTypes = (Collection<Class>) Collections.singleton(ThrowStmt.class);
 			_t.setStmtTypes(_stmtTypes);
 			_t.setCriteriaFilterPredicate(new AssertionSliceCriteriaPredicate());
 
@@ -1142,7 +1134,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the deadlock preserving part of the slicer.
-	 *
+	 * 
 	 * @throws IllegalStateException when the deadlock preserving part of the slicer cannot be setup.
 	 */
 	private void setupDeadlockPreservation() {
@@ -1161,9 +1153,8 @@ public final class SlicerConfiguration
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(getCallingContextLimit()));
 			} else {
-				final String _msg =
-					"Deadlock preservation criteria generation could not be configured due to illegal "
-					+ "criteria selection strategy.";
+				final String _msg = "Deadlock preservation criteria generation could not be configured due to illegal "
+						+ "criteria selection strategy.";
 
 				LOGGER.error("setupDeadlockPreservation() -  : " + _msg);
 				throw new IllegalStateException(_msg);
@@ -1176,41 +1167,17 @@ public final class SlicerConfiguration
 	}
 
 	/**
-     * Retrieves the limit on the length of the calling context. 
-     * 
-     * @return the limit.
-     */
-    public int getCallingContextLimit() {
-        return ((Integer) getProperty(CALLING_CONTEXT_LENGTH)).intValue();
-    }
-    
-    /**
-     * sets the limit of calling context length.
-     * 
-     * @param limit obviously. If this is <= 0 then it will be set to 10.
-     */
-    public void setCallingContextLimit(final int limit) {
-        final Integer _i;
-        if (limit < 0) {
-            _i = DEFAULT_CALLING_CONTEXT_LIMIT;
-        } else {
-            _i = new Integer(limit);
-        }
-        setProperty(CALLING_CONTEXT_LENGTH, _i);
-    }
-   
-    /**
 	 * Sets up divergence dependence.
-	 *
+	 * 
 	 * @throws IllegalStateException when divergence dependence cannot be setup due to invalid nature or illegal slice type.
 	 */
 	private void setupDivergenceDependence() {
 		if (isDivergenceDepAnalysisUsed()) {
 			final String _property = getNatureOfDivergenceDepAnalysis();
-			final Object _direction = getDivergenceDirection();
+			final Comparable _direction = getDivergenceDirection();
 
 			final boolean _interProcedural = INTRA_AND_INTER_PROCEDURAL.equals(_property);
-			final Collection _das = new ArrayList();
+			final Collection<IDependencyAnalysis> _das = new ArrayList<IDependencyAnalysis>();
 
 			if (_direction != null) {
 				if (INTER_PROCEDURAL_ONLY.equals(_property)) {
@@ -1225,10 +1192,10 @@ public final class SlicerConfiguration
 					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
 					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
 				} else if (INTRA_PROCEDURAL_ONLY.equals(_property) || _interProcedural) {
-					final DivergenceDA _forwardDivergenceDA =
-						DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
-					final DivergenceDA _backwardDivergenceDA =
-						DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
+					final DivergenceDA _forwardDivergenceDA = DivergenceDA
+							.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
+					final DivergenceDA _backwardDivergenceDA = DivergenceDA
+							.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
 					_das.add(_forwardDivergenceDA);
 					_das.add(_backwardDivergenceDA);
 					_forwardDivergenceDA.setConsiderCallSites(_interProcedural);
@@ -1240,9 +1207,8 @@ public final class SlicerConfiguration
 				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA, _das);
 				dependencesToUse.add(IDependencyAnalysis.DIVERGENCE_DA);
 			} else {
-				final String _msg =
-					"Divergence dependence could not be configured due to illegal slice type or"
-					+ "divergence dependence nature.";
+				final String _msg = "Divergence dependence could not be configured due to illegal slice type or"
+						+ "divergence dependence nature.";
 				LOGGER.error("setupDivergenceDependence() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
@@ -1254,16 +1220,16 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up interference dependence.
-	 *
+	 * 
 	 * @throws IllegalStateException when interference dependence cannot be setup.
 	 */
 	private void setupInterferenceDependence() {
-		final Object _id = IDependencyAnalysis.INTERFERENCE_DA;
+		final Comparable _id = IDependencyAnalysis.INTERFERENCE_DA;
 
 		if (isInterferenceDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
 
-			final Object _property = getNatureOfInterferenceDepAnalysis();
+			final Comparable _property = getNatureOfInterferenceDepAnalysis();
 			final Class _clazz;
 
 			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(_property)) {
@@ -1273,8 +1239,8 @@ public final class SlicerConfiguration
 			} else if (TYPE_BASED_INFO.equals(_property)) {
 				_clazz = InterferenceDAv1.class;
 			} else {
-				final String _msg =
-					"Interference dependence could not be configured due to illegal " + "interference dependence nature.";
+				final String _msg = "Interference dependence could not be configured due to illegal "
+						+ "interference dependence nature.";
 				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
@@ -1282,9 +1248,9 @@ public final class SlicerConfiguration
 			final Constructor _instance;
 
 			try {
-				_instance = _clazz.getConstructor(null);
-				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA,
-					Collections.singleton(_instance.newInstance(null)));
+				_instance = _clazz.getConstructor((Class[]) null);
+				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections
+						.singleton((IDependencyAnalysis) _instance.newInstance((Object[]) null)));
 			} catch (final NoSuchMethodException _e) {
 				final String _msg = "Dependence analysis does not provide zero parameter constructor :" + _clazz;
 				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
@@ -1326,8 +1292,7 @@ public final class SlicerConfiguration
 				throw _runtimeException;
 			}
 
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
-				  _i.hasNext();) {
+			for (final Iterator _i = id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA).iterator(); _i.hasNext();) {
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
 				_ida.setUseOFA(isOFAUsedForInterference());
 			}
@@ -1339,22 +1304,23 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the nature of ready dependence.
-	 *
+	 * 
 	 * @param nature of ready dependence.
 	 */
-	private void setupNatureOfReadyDep(final Object nature) {
+	private void setupNatureOfReadyDep(final Comparable nature) {
 		final Class _clazz = getReadyDAClass(nature);
 
 		try {
-			final Collection _temp = new HashSet();
+			final Collection<IDependencyAnalysis> _temp = new HashSet<IDependencyAnalysis>();
 
 			if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
-				_temp.add(_clazz.getMethod("getForwardReadyDA", null).invoke(null, null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class[]) null).invoke(null,
+						(Object[]) null));
 			} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
-				_temp.add(_clazz.getMethod("getBackwardReadyDA", null).invoke(null, null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
 			} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
-				_temp.add(_clazz.getMethod("getBackwardReadyDA", null).invoke(null, null));
-				_temp.add(_clazz.getMethod("getForwardReadyDA", null).invoke(null, null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class []) null).invoke(null, (Object []) null));
 			} else {
 				final String _msg = "Illegal slice type :" + _clazz.toString() + " : " + getSliceType();
 				LOGGER.error("setupNatureOfReadyDep" + "() -  : " + _msg);
@@ -1362,17 +1328,16 @@ public final class SlicerConfiguration
 			}
 			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} catch (final NoSuchMethodException _e) {
-			final String _msg =
-				"Dependence analysis does not provide getForwardReadyDA() and/or getBackwardReadyDA() :" + _clazz;
+			final String _msg = "Dependence analysis does not provide getForwardReadyDA() and/or getBackwardReadyDA() :"
+					+ _clazz;
 			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
 			final RuntimeException _runtimeException = new RuntimeException(_msg);
 			_runtimeException.initCause(_e);
 			throw _runtimeException;
 		} catch (final IllegalArgumentException _e) {
-			final String _msg =
-				"Dependence analysis does not provide static zero-parameter versions of "
-				+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
+			final String _msg = "Dependence analysis does not provide static zero-parameter versions of "
+					+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
 			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 			throw _e;
 		} catch (final SecurityException _e) {
@@ -1383,9 +1348,8 @@ public final class SlicerConfiguration
 			_runtimeException.initCause(_e);
 			throw _runtimeException;
 		} catch (final IllegalAccessException _e) {
-			final String _msg =
-				"Dependence analysis does not provide publicly accessible versions of  "
-				+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
+			final String _msg = "Dependence analysis does not provide publicly accessible versions of  "
+					+ "getForwardReadyDA() and/or getBackwardReadyDA() : " + _clazz;
 			LOGGER.error("setupNatureOfReadyDep() -  : " + _msg);
 
 			final RuntimeException _runtimeException = new RuntimeException(_msg);
@@ -1423,7 +1387,7 @@ public final class SlicerConfiguration
 			_rule = ReadyDAv1.RULE_4;
 		}
 
-		final Collection _c = (Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA);
+		final Collection _c = id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA);
 
 		for (final Iterator _iter = _c.iterator(); _iter.hasNext();) {
 			final ReadyDAv1 _rd = (ReadyDAv1) _iter.next();
@@ -1436,7 +1400,7 @@ public final class SlicerConfiguration
 	 * Sets up the ready dependence.
 	 */
 	private void setupReadyDependence() {
-		final Object _id = IDependencyAnalysis.READY_DA;
+		final Comparable _id = IDependencyAnalysis.READY_DA;
 
 		if (isReadyDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
@@ -1444,21 +1408,21 @@ public final class SlicerConfiguration
 
 			final boolean _usedForReady = isOFAUsedForReady();
 
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(_id)).iterator(); _i.hasNext();) {
+			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseOFA(_usedForReady);
 			}
 
 			final boolean _safeLockAnalysisUsedForReady = isSafeLockAnalysisUsedForReady();
 
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(_id)).iterator(); _i.hasNext();) {
+			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseSafeLockAnalysis(_safeLockAnalysisUsedForReady);
 			}
 
 			final boolean _callSiteSensitiveReadyUsed = isCallSiteSensitiveReadyUsed();
 
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(_id)).iterator(); _i.hasNext();) {
+			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setConsiderCallSites(_callSiteSensitiveReadyUsed);
 			}
@@ -1471,19 +1435,20 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the part of the slicer dependent on the direction of the slice.
-	 *
+	 * 
 	 * @throws IllegalStateException when direction dependent part of the slicer cannot be setup.
 	 */
 	private void setupSliceTypeRelatedData() {
 		final String _sliceType = getSliceType();
 
 		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
-			id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
-				Collections.singleton(new IdentifierBasedDataDAv3()));
-			id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
-				Collections.singleton(new ReferenceBasedDataDA()));
+			id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, Collections
+					.singleton(new IdentifierBasedDataDAv3()));
+			id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,  Collections
+					.singleton(new ReferenceBasedDataDA()));
 
-			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
+			final Collection<IDependencyAnalysis> _c = (Collection<IDependencyAnalysis>) MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
+					IDependencyAnalysis.CONTROL_DA, IDependencyAnalysis.SET_FACTORY);
 
 			if (isNonTerminationSensitiveControlDependenceUsed()) {
 				_c.add(new NonTerminationSensitiveEntryControlDA());
@@ -1498,7 +1463,7 @@ public final class SlicerConfiguration
 				_c.add(new ExitControlDA());
 			} else if (!_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
 				throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, "
-					+ "or COMPLETE_SLICE.");
+						+ "or COMPLETE_SLICE.");
 			}
 		} else {
 			final String _msg = "slice type could not be configured due to illegal slice type.";
@@ -1511,7 +1476,7 @@ public final class SlicerConfiguration
 	 * Sets up synchronization dependence.
 	 */
 	private void setupSynchronizationDependence() {
-		final Object _id = IDependencyAnalysis.SYNCHRONIZATION_DA;
+		final Comparable _id = IDependencyAnalysis.SYNCHRONIZATION_DA;
 
 		if (isSynchronizationDepAnalysisUsed()) {
 			dependencesToUse.add(_id);

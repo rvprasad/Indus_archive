@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStrategy;
 import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.MemoryIntensiveIndexManagementStrategy;
 import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.ProcessorIntensiveIndexManagementStrategy;
@@ -125,7 +126,8 @@ public final class Constants {
 	/**
 	 * Creates an instance of this class.
 	 */
-	private Constants() {
+	@AEmpty private Constants() {
+		// empty
 	}
 
 	///CLOVER:ON

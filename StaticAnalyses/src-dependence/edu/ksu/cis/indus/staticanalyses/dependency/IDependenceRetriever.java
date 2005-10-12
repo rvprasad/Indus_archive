@@ -23,50 +23,48 @@ import java.util.Collection;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
+ * @version $Revision$ 
+ * $Date$
+ * @param <E1> DOCUMENT ME!
+ * @param <C1> DOCUMENT ME!
+ * @param <T1> DOCUMENT ME!
+ * @param <T2> DOCUMENT ME!
+ * @param <C2> DOCUMENT ME!
+ * @param <E2> DOCUMENT ME!
  */
-public interface IDependenceRetriever {
-	/** 
-	 * This retriever can be used to retrieve dependence from analysis that return pairs of statement and method when
-	 * dependence info is retrieved.
-	 */
-	IDependenceRetriever PAIR_DEP_RETRIEVER = new PairRetriever();
-
-	/** 
-	 * This retriever can be used to retrieve dependence from analysis that return statements when dependence info is
-	 * retrieved.
-	 */
-	IDependenceRetriever STMT_DEP_RETRIEVER = new StmtRetriever();
+public interface IDependenceRetriever <T1, C1, E1, E2, C2, T2> {
 
 	/**
 	 * Retrieves the dependees based on <code>dependence</code> from <code>da</code>.
+	 * @param <T1> DOCUMENT ME!
+	 * @param <E2> DOCUMENT ME!
 	 *
 	 * @param da to be used retrieve dependence info
-	 * @param dependence that serves as the basis for retrieval.
-	 * @param origContext the original context in which retrieval started.  This is required in instances when the context of
-	 * 		  dependence information does not change.  For example, control dependence.
+	 * @param base that serves as the basis for retrieval.
+	 * @param context attached with the base. 
 	 *
 	 * @return a collection of dependence.
 	 *
 	 * @pre da != null and dependence != null
 	 * @post result != null
 	 */
-	Collection getDependees(final IDependencyAnalysis da, final Object dependence, final Object origContext);
+	Collection<E1> getDependees(final IDependencyAnalysis<T1, C1, E1, E2, C2, T2> da, final E1 base, final C1 context);
 
 	/**
 	 * Retrieves the dependents based on <code>dependence</code> from <code>da</code>.
+	 * @param <T1> DOCUMENT ME!
+	 * @param <E2> DOCUMENT ME!
 	 *
 	 * @param da to be used retrieve dependence info.
-	 * @param dependence that serves as the basis for retrieval.
-	 * @param origContext the original context in which retrieval started.  This is required in instances when the context of
-	 * 		  dependence information does not change.  For example, control dependence.
+	 * @param base that serves as the basis for retrieval.
+	 * @param context attached with the base. 
 	 *
 	 * @return a collection of dependence.
 	 *
 	 * @pre da != null and dependence != null
 	 * @post result != null
 	 */
-	Collection getDependents(final IDependencyAnalysis da, final Object dependence, final Object origContext);
+	Collection<T2> getDependents(final IDependencyAnalysis<T1, C1, E1, E2, C2, T2> da, final T2 base, final C2 context);
 }
 
 // End of File

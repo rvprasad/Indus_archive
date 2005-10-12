@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import org.apache.commons.collections.Predicate;
+import edu.ksu.cis.indus.common.collections.IPredicate;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -27,7 +27,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class ApplicationClassesOnlyPredicate
-		implements Predicate {
+		implements IPredicate<Object> {
 
 	/**
 	 * Creates an instance of this class.
@@ -37,7 +37,7 @@ public class ApplicationClassesOnlyPredicate
 	}
 
 	/**
-	 * @see Predicate#evaluate(java.lang.Object)
+	 * @see IPredicate#evaluate(java.lang.Object)
 	 */
 	public boolean evaluate(final Object object) {
 		final boolean _result;

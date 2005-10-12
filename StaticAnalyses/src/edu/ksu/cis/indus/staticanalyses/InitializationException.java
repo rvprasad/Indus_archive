@@ -25,6 +25,11 @@ package edu.ksu.cis.indus.staticanalyses;
 public class InitializationException
   extends Exception {
 	/**
+	 * Serialization version id.
+	 */
+	private static final long serialVersionUID = -1718070913188121533L;
+
+	/**
 	 * Creates a new InitializationException object.
 	 *
 	 * @param message the detailed message.

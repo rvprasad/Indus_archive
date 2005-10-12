@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
@@ -34,8 +33,8 @@ import soot.jimple.FieldRef;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-class FieldAccessExprWork
-  extends AbstractMemberDataAccessExprWork {
+class FieldAccessExprWork<N extends IFGNode<N, ?>>
+  extends AbstractMemberDataAccessExprWork<N> {
 	/**
 	 * Creates a new <code>FieldAccessExprWork</code> instance.
 	 *
@@ -48,18 +47,17 @@ class FieldAccessExprWork
 	 * @pre callerMethod != null and accessContext != null and accessNode != null and     connectorToBeUsed != null and
 	 * 		tokenSet != null
 	 */
-	public FieldAccessExprWork(final IMethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
-		final IFGNodeConnector connectorToBeUsed, final ITokens tokenSet) {
+	public FieldAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final N accessNode,
+		final IFGNodeConnector<N> connectorToBeUsed, final ITokens tokenSet) {
 		super(callerMethod, accessContext, accessNode, connectorToBeUsed, tokenSet);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNodeForMemberData()
 	 */
-	protected IFGNode getFGNodeForMemberData() {
+	@Override protected N getFGNodeForMemberData() {
 		final SootField _sf = ((FieldRef) accessExprBox.getValue()).getField();
-		final FA _fa = caller.getFA();
-		return _fa.getFieldVariant(_sf, context).getFGNode();
+		return caller.getFA().getFieldVariant(_sf, context).getFGNode();
 	}
 }
 

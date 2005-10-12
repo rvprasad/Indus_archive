@@ -21,14 +21,10 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * r-value or l-value expression when constructing the flow graph.  This helps realize something similar to the
  * <i>Strategy</i> pattern as given in "Gang of Four" book.
  * 
- * <p>
- * Created: Wed Jan 30 15:18:24 2002
- * </p>
- *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public interface IFGNodeConnector {
+public interface IFGNodeConnector<N> {
 	/**
 	 * Connects the given AST node to the Non-AST node.
 	 *
@@ -37,7 +33,7 @@ public interface IFGNodeConnector {
 	 *
 	 * @pre ast != null and nonast != null
 	 */
-	void connect(IFGNode ast, IFGNode nonast);
+	void connect(N ast, N nonast);
 }
 
 // End of File

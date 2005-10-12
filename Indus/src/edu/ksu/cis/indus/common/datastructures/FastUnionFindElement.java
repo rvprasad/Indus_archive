@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,7 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	/**
 	 * Creates an instance of this class.
 	 */
-	public FastUnionFindElement() {
+	@AEmpty public FastUnionFindElement() {
 		// does nothing
 	}
 

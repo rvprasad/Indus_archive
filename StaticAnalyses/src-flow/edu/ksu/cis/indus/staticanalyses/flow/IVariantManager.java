@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,45 +16,43 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
-
 /**
  * This interface is used to manage variants corresponding to entities.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <V> DOCUMENT ME!
+ * @param <O> DOCUMENT ME!
  */
-public interface IVariantManager {
-	/**
-	 * Returns the variant corresponding to the given entity in the given context, if one exists.
-	 *
-	 * @param o the entity whose variant is to be returned.
-	 * @param context the context corresponding to which the variant is requested.
-	 *
-	 * @return the variant correponding to the entity in the given context, if one exists.  <code>null</code> if none exist.
-	 *
-	 * @pre o != null and context != null
-	 */
-	IVariant query(final Object o, final Context context);
+public interface IVariantManager<V extends IVariant, O> {
 
 	/**
-	 * Resets the manager.  All internal data structures are reset to enable a new session of usage.
+	 * Returns the variant corresponding to the given entity in the given context, if one exists.
+	 * 
+	 * @param o the entity whose variant is to be returned.
+	 * @param context the context corresponding to which the variant is requested.
+	 * @return the variant correponding to the entity in the given context, if one exists. <code>null</code> if none exist.
+	 * @pre o != null and context != null
+	 */
+	V query(final O o, final Context context);
+
+	/**
+	 * Resets the manager. All internal data structures are reset to enable a new session of usage.
 	 */
 	void reset();
 
 	/**
-	 * Returns the variant corresponding to the given entity in the given context.  If a variant does not exist, a new one is
-	 * created.  If one exists, it shall be returned.
-	 *
+	 * Returns the variant corresponding to the given entity in the given context. If a variant does not exist, a new one is
+	 * created. If one exists, it shall be returned.
+	 * 
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
-	 *
 	 * @return the variant correponding to the entity in the given context.
-	 *
 	 * @pre o != null and context != null
 	 * @post result != null
 	 */
-	IVariant select(final Object o, final Context context);
+	V select(final O o, final Context context);
 }
 
 // End of File

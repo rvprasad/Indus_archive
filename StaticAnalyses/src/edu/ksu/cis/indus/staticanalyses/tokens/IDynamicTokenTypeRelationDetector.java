@@ -25,8 +25,9 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <V> DOCUMENT ME!
  */
-public interface IDynamicTokenTypeRelationDetector {
+public interface IDynamicTokenTypeRelationDetector<V> {
 	/**
 	 * Retrieves values conforming to the given type.
 	 *
@@ -36,10 +37,10 @@ public interface IDynamicTokenTypeRelationDetector {
 	 * @return a collection of values that conform to the given type.
 	 *
 	 * @pre values != null and type != null
-	 * @post result != null and result.oclIsKindOfCollection(Object))
+	 * @post result != null
 	 * @post values.containsAll(result)
 	 */
-	Collection getValuesConformingTo(Collection values, IType type);
+	Collection<V> getValuesConformingTo(Collection<V> values, IType type);
 
 	/**
 	 * Reset the token manager.

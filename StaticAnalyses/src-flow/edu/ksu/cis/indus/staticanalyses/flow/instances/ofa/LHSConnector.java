@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 
 
@@ -31,7 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
  * @version $Revision$
  */
 class LHSConnector
-  implements IFGNodeConnector {
+  implements IFGNodeConnector<OFAFGNode> {
 	/**
 	 * Connects the given ast flow graph node to the non-ast flow graph node.  This is used to connect flow nodes
 	 * corresponding to LHS expressions.
@@ -41,7 +40,7 @@ class LHSConnector
 	 *
 	 * @pre ast != null and nonast != null
 	 */
-	public void connect(final IFGNode ast, final IFGNode nonast) {
+	public void connect(final OFAFGNode ast, final OFAFGNode nonast) {
 		ast.addSucc(nonast);
 	}
 }

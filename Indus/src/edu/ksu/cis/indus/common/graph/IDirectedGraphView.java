@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.Marker;
+import edu.ksu.cis.indus.annotations.AMarker;
 
 import java.util.Collection;
 
@@ -35,7 +35,7 @@ public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	@Marker public interface INode {
+	@AMarker public interface INode {
 		// does nothing
 	}
 

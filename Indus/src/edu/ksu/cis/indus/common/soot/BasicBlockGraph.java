@@ -407,7 +407,7 @@ public final class BasicBlockGraph
 		stmts.add(leaderStmt);
 
 		@SuppressWarnings("unchecked") final Collection<Stmt> _t = stmtGraph.getSuccsOf(leaderStmt);
-		final int _size = _t.size();
+		int _size = _t.size();
 		boolean _throwsUncaughtException = analysis != null && analysis.doesStmtThrowUncaughtException(leaderStmt, method);
 
 		if (_size == 1 && !_throwsUncaughtException) {
@@ -424,10 +424,10 @@ public final class BasicBlockGraph
 				}
 
 				@SuppressWarnings("unchecked") final Collection<Stmt> _succs = stmtGraph.getSuccsOf(_stmt);
-				final int _succsSize = _succs.size();
+				_size = _succs.size();
 				_throwsUncaughtException = analysis != null && analysis.doesStmtThrowUncaughtException(_stmt, method);
 
-				if (_succsSize == 1 && !_throwsUncaughtException) {
+				if (_size == 1 && !_throwsUncaughtException) {
 					if (stmts.contains(_stmt)) {
 						// if we did come around a self-loop then the basic block cannot be extended further
 						break;
@@ -439,7 +439,7 @@ public final class BasicBlockGraph
 					stmts.add(_stmt);
 
 					// if there are multiple successors then it marks the boundary of a basic block.
-					if (_succsSize > 1 || _throwsUncaughtException) {
+					if (_size > 1 || _throwsUncaughtException) {
 						wb.addAllWorkNoDuplicates(_succs);
 					}
 					break;

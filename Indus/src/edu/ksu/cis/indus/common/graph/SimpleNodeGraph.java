@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import org.apache.commons.collections.Transformer;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
  * This is a simple concrete implementation of <code>DirectedGraph</code> interface.
@@ -28,25 +28,25 @@ public class SimpleNodeGraph<O>
 		extends MutableDirectedGraph<SimpleNode<O>>
 		implements IObjectDirectedGraph<SimpleNode<O>, O> {
 
-	private static class ObjectToNodeTransformer<T>
-			implements Transformer {
-
-		public Object transform(final Object input) {
-			return new SimpleNode<T>((T) input);
-		}
-
-	}
-
-	/**
-	 * This transforms an object to a <code>SimpleNode</code>.
-	 */
-	private static final Transformer OBJECT_TO_NODE_TRANSFORMER = new ObjectToNodeTransformer<Object>();
+	private final ITransformer<SimpleNode<O>, O> objectExtractor;
 
 	/**
 	 * Creates an instance of this class.
 	 */
 	public SimpleNodeGraph() {
-		super(new ObjectGraphInfo<SimpleNode<O>, O>(OBJECT_TO_NODE_TRANSFORMER));
+		super(new ObjectGraphInfo<SimpleNode<O>, O>(new ITransformer<O, SimpleNode<O>>() {
+
+			public SimpleNode<O> transform(final O input) {
+				return new SimpleNode<O>(input);
+			}
+		}));
+		objectExtractor = new ITransformer<SimpleNode<O>, O>() {
+
+			public O transform(final SimpleNode<O> input) {
+				return input.getObject();
+			}
+		};
+
 	}
 
 	/**
@@ -65,6 +65,13 @@ public class SimpleNodeGraph<O>
 		final SimpleNode<O> _result = _objectGraphInfo.getNode(o);
 		shapeChanged();
 		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#getObjectExtractor()
+	 */
+	public ITransformer<SimpleNode<O>, O> getObjectExtractor() {
+		return objectExtractor;
 	}
 
 	/**

@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -29,8 +30,9 @@ import soot.ValueBox;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> 
  */
-abstract class AbstractAccessExprWork
+abstract class AbstractAccessExprWork<N extends IFGNode<N, ?>>
   extends AbstractTokenProcessingWork {
 	/** 
 	 * The context in which the access occurs.
@@ -44,7 +46,7 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @invariant caller != null
 	 */
-	protected final IMethodVariant caller;
+	protected final IMethodVariant<N, ?, ?, ?> caller;
 
 	/** 
 	 * The program point at which the entity occurs.
@@ -62,7 +64,7 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @pre callerMethod != null and accessContext != null and tokenSet != null
 	 */
-	protected AbstractAccessExprWork(final IMethodVariant callerMethod, final Context accessContext, final ITokens tokenSet) {
+	protected AbstractAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final ITokens tokenSet) {
 		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
 		caller = callerMethod;

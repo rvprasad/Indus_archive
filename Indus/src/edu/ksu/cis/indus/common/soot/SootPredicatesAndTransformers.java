@@ -14,8 +14,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 
 import soot.Local;
 import soot.Value;
@@ -44,15 +44,16 @@ public final class SootPredicatesAndTransformers {
 	/**
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
-	public static final Predicate ENTER_MONITOR_STMT_PREDICATE = PredicateUtils.instanceofPredicate(EnterMonitorStmt.class);
+	public static final IPredicate<Stmt> ENTER_MONITOR_STMT_PREDICATE = new InstanceOfPredicate<EnterMonitorStmt, Stmt>(
+			EnterMonitorStmt.class);
 
 	/**
 	 * This filter is used to identify AST chunks that may represent references that can escape.
 	 */
-	public static final Predicate ESCAPABLE_EXPR_FILTER = new Predicate() {
+	public static final IPredicate<ValueBox> ESCAPABLE_EXPR_FILTER = new IPredicate<ValueBox>() {
 
-		public boolean evaluate(final Object object) {
-			final Value _v = ((ValueBox) object).getValue();
+		public boolean evaluate(final ValueBox object) {
+			final Value _v = object.getValue();
 			return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
 					|| _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
 		}
@@ -62,27 +63,22 @@ public final class SootPredicatesAndTransformers {
 	 * A predicate used to filter statements with invoke expressions. Filter expression is
 	 * <code>((Stmt)o).containsInvokeExpr()</code>.
 	 */
-	public static final Predicate INVOKING_STMT_PREDICATE = new Predicate() {
+	public static final IPredicate<Stmt> INVOKING_STMT_PREDICATE = new IPredicate<Stmt>() {
 
-		public boolean evaluate(final Object object) {
-			return ((Stmt) object).containsInvokeExpr();
+		public boolean evaluate(final Stmt object) {
+			return object.containsInvokeExpr();
 		}
 	};
 
 	/**
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
-	public static final Predicate NEW_EXPR_PREDICATE = PredicateUtils.instanceofPredicate(NewExpr.class);
+	public static final IPredicate<Value> NEW_EXPR_PREDICATE = new InstanceOfPredicate<NewExpr, Value>(NewExpr.class);
 
 	/**
 	 * This predicate filters out <code>NullConstant</code> values.
 	 */
-	public static final Predicate NULL_PREDICATE = new Predicate() {
-
-		public boolean evaluate(final Object object) {
-			return object instanceof NullConstant;
-		}
-	};
+	public static final IPredicate<Value> NULL_PREDICATE = new InstanceOfPredicate<NullConstant, Value>(NullConstant.class);
 
 	/**
 	 * Creates an instance of this class.

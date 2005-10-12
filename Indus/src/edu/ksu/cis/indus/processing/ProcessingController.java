@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -26,8 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1010,8 +1010,8 @@ public class ProcessingController {
 			_i.next().processingBegins();
 		}
 
-		processStmts = !CollectionUtils.intersection(class2processors.keySet(), STMT_CLASSES).isEmpty();
-		processValues = !CollectionUtils.intersection(class2processors.keySet(), VALUE_CLASSES).isEmpty();
+		processStmts = !SetUtils.intersection(class2processors.keySet(), STMT_CLASSES).isEmpty();
+		processValues = !SetUtils.intersection(class2processors.keySet(), VALUE_CLASSES).isEmpty();
 		processClasses(env.getClasses());
 
 		if (LOGGER.isInfoEnabled()) {
@@ -1202,7 +1202,7 @@ public class ProcessingController {
 	/**
 	 * Initializes the processors before processing the system.
 	 */
-	protected void initializeProcessors() {
+	@AEmpty protected void initializeProcessors() {
 		// does nothing.
 	}
 
@@ -1253,7 +1253,7 @@ public class ProcessingController {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Classes NOT to be processed:\n" + CollectionUtils.subtract(theClasses, _classes));
+			LOGGER.debug("Classes NOT to be processed:\n" + SetUtils.difference(theClasses, _classes));
 			LOGGER.debug("Classes to be processed:\n" + _classes);
 		}
 
@@ -1276,7 +1276,7 @@ public class ProcessingController {
 					_fields = processingFilter.filterFields(_sc.getFields());
 				}
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Fields NOT to be processed:\n" + CollectionUtils.subtract(_sc.getFields(), _fields));
+					LOGGER.debug("Fields NOT to be processed:\n" + SetUtils.difference(_sc.getFields(), _fields));
 					LOGGER.debug("Fields to be processed:\n" + _fields);
 				}
 
@@ -1390,7 +1390,7 @@ public class ProcessingController {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Methods NOT to be processed:\n" + CollectionUtils.subtract(theMethods, _methods));
+			LOGGER.debug("Methods NOT to be processed:\n" + SetUtils.difference(theMethods, _methods));
 			LOGGER.debug("Methods to be processed:\n" + _methods);
 		}
 

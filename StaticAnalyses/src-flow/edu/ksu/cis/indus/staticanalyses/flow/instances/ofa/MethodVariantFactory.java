@@ -34,7 +34,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 class MethodVariantFactory
-  implements IMethodVariantFactory {
+  implements IMethodVariantFactory<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> {
 	/** 
 	 * The pattern used to decide if a stub variant or a complete variant needs to be returned during <code>create()</code>
 	 * call. 
@@ -58,8 +58,8 @@ class MethodVariantFactory
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IMethodVariantFactory#create(soot.SootMethod,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager, edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
-	public IMethodVariant create(final SootMethod sootMethod, final ASTVariantManager astVM, final FA fa) {
-		final IMethodVariant _result;
+	public IMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> create(final SootMethod sootMethod, final ASTVariantManager<OFAFGNode> astVM, final FA fa) {
+		final IMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> _result;
 
 		if (pattern == null || pattern.matcher(sootMethod.getDeclaringClass().getName()).matches()) {
 			_result = new MethodVariant(sootMethod, astVM, fa);

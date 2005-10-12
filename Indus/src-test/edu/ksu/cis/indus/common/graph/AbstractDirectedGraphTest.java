@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.IndusTestCase;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
@@ -27,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -111,8 +111,8 @@ public abstract class AbstractDirectedGraphTest
 					for (int _l = 0; _l <= 1; _l++) {
 						final Collection _c2 = dg.getReachablesFrom(_n2, _flags[_l]);
 						final Collection _c3 = dg.getCommonReachablesFrom(_n1, _flags[_k], _n2, _flags[_l]);
-						assertTrue(_c3.containsAll(CollectionUtils.intersection(_c2, _c1)));
-						assertTrue(CollectionUtils.intersection(_c2, _c1).containsAll(_c3));
+						assertTrue(_c3.containsAll(SetUtils.intersection(_c2, _c1)));
+						assertTrue(SetUtils.intersection(_c2, _c1).containsAll(_c3));
 					}
 				}
 			}
@@ -178,7 +178,7 @@ public abstract class AbstractDirectedGraphTest
 		// ensure none of the nodes have a tail node as a predecessor
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.intersection(_node.getPredsOf(), _sinks).isEmpty());
+			assertTrue(SetUtils.intersection(_node.getPredsOf(), _sinks).isEmpty());
 		}
 	}
 
@@ -197,7 +197,7 @@ public abstract class AbstractDirectedGraphTest
 		// ensure none of the nodes have a head node as their successor
 		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.intersection(_node.getSuccsOf(), _sources).isEmpty());
+			assertTrue(SetUtils.intersection(_node.getSuccsOf(), _sources).isEmpty());
 		}
 	}
 

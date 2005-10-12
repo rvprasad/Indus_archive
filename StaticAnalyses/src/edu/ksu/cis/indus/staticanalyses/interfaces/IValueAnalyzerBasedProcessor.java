@@ -30,8 +30,9 @@ import edu.ksu.cis.indus.processing.IProcessor;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <V> DOCUMENT ME!
  */
-public interface IValueAnalyzerBasedProcessor
+public interface IValueAnalyzerBasedProcessor<V>
   extends IProcessor {
 	/**
 	 * Sets the analyzer that provides the low-level information to be processed..
@@ -40,7 +41,7 @@ public interface IValueAnalyzerBasedProcessor
 	 *
 	 * @pre analyzer != null
 	 */
-	void setAnalyzer(IValueAnalyzer analyzer);
+	void setAnalyzer(IValueAnalyzer<V> analyzer);
 }
 
 // End of File

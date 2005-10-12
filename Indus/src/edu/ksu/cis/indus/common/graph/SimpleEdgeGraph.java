@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import org.apache.commons.collections.Transformer;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
  * This implementation caters edge labelled graphs. Edges added vai <code>addEdgeFromTo(INode, INode)</code> will be added
@@ -70,20 +70,15 @@ public class SimpleEdgeGraph<O>
 	public static final IEdgeLabel NULL_LABEL = new SimpleLabel(null);
 
 	/**
-	 * This transforms an object to a <code>SimpleEdgeLabelledNode</code>.
-	 */
-	private static final Transformer OBJECT_TO_NODE_TRANSFORMER = new Transformer() {
-
-		public Object transform(final Object input) {
-			return new SimpleEdgeLabelledNode(input);
-		}
-	};
-
-	/**
 	 * Creates an instance of this class.
 	 */
 	public SimpleEdgeGraph() {
-		super(new ObjectGraphInfo(OBJECT_TO_NODE_TRANSFORMER));
+		super(new ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O>(new ITransformer<O, SimpleEdgeLabelledNode<O>>() {
+
+			public SimpleEdgeLabelledNode<O> transform(final O input) {
+				return new SimpleEdgeLabelledNode<O>(input);
+			}
+		}));
 	}
 
 	/**
@@ -98,7 +93,7 @@ public class SimpleEdgeGraph<O>
 	 * @post result != null
 	 */
 	public SimpleEdgeLabelledNode<O> getNode(final O o) {
-		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
+		final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		final SimpleEdgeLabelledNode<O> _result = _objectGraphInfo.getNode(o);
 		shapeChanged();
 		return _result;
@@ -108,7 +103,7 @@ public class SimpleEdgeGraph<O>
 	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
 	 */
 	public SimpleEdgeLabelledNode<O> queryNode(final O o) {
-		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
+		final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		return _objectGraphInfo.queryNode(o);
 	}
 
@@ -121,6 +116,18 @@ public class SimpleEdgeGraph<O>
 	 */
 	protected IEdgeLabel getLabel(final Object obj) {
 		return new SimpleLabel(obj);
+	}
+
+	/** 
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#getObjectExtractor()
+	 */
+	public ITransformer<SimpleEdgeLabelledNode<O>, O> getObjectExtractor() {
+		return new ITransformer<SimpleEdgeLabelledNode<O>, O>() {
+
+			public O transform(final SimpleEdgeLabelledNode<O> input) {
+				return input.getObject();
+			}
+		};
 	}
 }
 

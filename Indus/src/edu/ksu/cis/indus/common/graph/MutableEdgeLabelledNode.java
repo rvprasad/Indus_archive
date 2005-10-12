@@ -13,15 +13,13 @@
  */
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.collection.CompositeCollection;
 
 /**
  * This is an implementation of the node in mutable edge-labelled directed graphs.
@@ -93,17 +91,17 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 * @pre col != null and collections != null
 	 */
 	private static <T1> void retainAllIn(final Collection<T1> col, final Collection<Collection<T1>> collections) {
-		final CompositeCollection _c = new CompositeCollection();
-		_c.addComposited((Collection[]) collections.toArray());
-		col.retainAll(_c);
+		for (final Collection<T1> _c : collections) {
+			col.retainAll(_c);			
+		}
 	}
-
+	
 	/**
 	 * @see IMutableEdgeLabelledNode#addIncomingEdgeLabelledFrom(IEdgeLabel, IMutableEdgeLabelledNode)
 	 */
 	public boolean addIncomingEdgeLabelledFrom(final IEdgeLabel label, final T node) {
 		predecessors.add(node);
-		return CollectionsUtilities.putIntoSetInMap(label2inNodes, label, node);
+		return MapUtils.putIntoCollectionInMapUsingFactory(label2inNodes, label, node, SetUtils.<T>getFactory());
 	}
 
 	/**
@@ -111,7 +109,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	public boolean addOutgoingEdgeLabelledTo(final IEdgeLabel label, final T node) {
 		successors.add(node);
-		return CollectionsUtilities.putIntoSetInMap(label2outNodes, label, node);
+		return MapUtils.putIntoCollectionInMapUsingFactory(label2outNodes, label, node, SetUtils.<T>getFactory());
 	}
 
 	/**
@@ -183,8 +181,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	private boolean removeEdgesLabelledForViaUpdate(final IEdgeLabel label, final T node,
 			final Map<IEdgeLabel, Collection<T>> map, final Collection<T> col) {
-		@SuppressWarnings("unchecked") final Collection<T> _t = (Collection) MapUtils.getObject(map, label, Collections
-				.emptySet());
+		final Collection<T> _t = MapUtils.queryObject(map, label, Collections.EMPTY_SET);
 		final boolean _result;
 
 		if (_t.isEmpty()) {

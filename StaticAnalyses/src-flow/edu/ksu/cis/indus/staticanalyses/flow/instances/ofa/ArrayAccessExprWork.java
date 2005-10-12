@@ -34,9 +34,10 @@ import soot.jimple.ArrayRef;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-class ArrayAccessExprWork
-  extends AbstractMemberDataAccessExprWork {
+class ArrayAccessExprWork<N extends IFGNode<N, ?>>
+  extends AbstractMemberDataAccessExprWork<N> {
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
 	 *
@@ -49,17 +50,17 @@ class ArrayAccessExprWork
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null and tokenSet != null
 	 */
-	public ArrayAccessExprWork(final IMethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
-		final IFGNodeConnector connectorToUse, final ITokens tokenSet) {
+	public ArrayAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final N accessNode,
+		final IFGNodeConnector<N> connectorToUse, final ITokens tokenSet) {
 		super(callerMethod, accessContext, accessNode, connectorToUse, tokenSet);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNodeForMemberData()
 	 */
-	protected IFGNode getFGNodeForMemberData() {
+	@Override protected N getFGNodeForMemberData() {
 		final ArrayType _atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		final FA _fa = caller.getFA();
+		final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> _fa = caller.getFA();
 		return _fa.getArrayVariant(_atype, context).getFGNode();
 	}
 }

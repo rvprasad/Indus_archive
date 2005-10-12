@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -28,9 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Stack;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +157,7 @@ public class DataAliasBasedCallingContextRetriever
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod, ICallGraphInfo.CallTriple, Stack)
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
-			@SuppressWarnings ("unused") final Stack<CallTriple> calleeCallStack) {
+			@SuppressWarnings("unused") final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
 					+ ", CallTriple callsite = " + callsite + ") - BEGIN");
@@ -167,10 +166,10 @@ public class DataAliasBasedCallingContextRetriever
 		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
 
 		final SootMethod _caller = callsite.getMethod();
-		final Collection _ancestors = (Collection) token;
+		final Collection<SootMethod> _ancestors = (Collection) token;
 
 		if (!Util.isStartMethod(callee) && _ancestors.contains(_caller)) {
-			final Collection _col = CollectionUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false),
+			final Collection<SootMethod> _col = SetUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false),
 					_ancestors);
 			_col.remove(callee);
 
@@ -284,7 +283,7 @@ public class DataAliasBasedCallingContextRetriever
 				for (final Iterator<SootMethod> _i = _commonAncestors.iterator(); _i.hasNext();) {
 					final SootMethod _sm = _i.next();
 					final Collection<SootMethod> _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
-					_ancestors.addAll(CollectionUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
+					_ancestors.addAll(SetUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
 				}
 				_ancestors.addAll(_commonAncestors);
 			}

@@ -24,8 +24,10 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
-public interface ITokenManager {
+public interface ITokenManager<T extends ITokens<T, V>, V> {
 	/**
 	 * Retrieves a new empty token set.
 	 *
@@ -33,7 +35,7 @@ public interface ITokenManager {
 	 *
 	 * @post result != null and result.getValues().isEmpty()
 	 */
-	ITokens getNewTokenSet();
+	T getNewTokenSet();
 
 	/**
 	 * Retrieves a collection of tokens that represents the given values.
@@ -45,7 +47,7 @@ public interface ITokenManager {
 	 * @pre values != null
 	 * @post result != null
 	 */
-	ITokens getTokens(Collection values);
+	T getTokens(Collection<V> values);
 
 	/**
 	 * Retrieves a token filter that can be used to filter out values that are not of the given type.
@@ -57,7 +59,7 @@ public interface ITokenManager {
 	 * @pre type != null
 	 * @post result != null
 	 */
-	ITokenFilter getTypeBasedFilter(final IType type);
+	ITokenFilter<T,V> getTypeBasedFilter(final IType type);
 
 	/**
 	 * Retrieves the type manager used in conjunction with this token manager.

@@ -16,6 +16,9 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -30,6 +33,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 import edu.ksu.cis.indus.interfaces.IPoolable;
@@ -37,6 +41,7 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 
 import java.util.ArrayList;
@@ -47,10 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +107,7 @@ public final class SlicingEngine {
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
 	 * 			  (COMPLETE_SLICE)
 	 */
-	public static final Collection SLICE_TYPES;
+	public static final Collection<Object> SLICE_TYPES;
 
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -113,7 +115,7 @@ public final class SlicingEngine {
 	static final Logger LOGGER = LoggerFactory.getLogger(SlicingEngine.class);
 
 	static {
-		final Collection _c = new HashSet();
+		final Collection<Object> _c = new HashSet<Object>();
 		_c.add(BACKWARD_SLICE);
 		_c.add(FORWARD_SLICE);
 		_c.add(COMPLETE_SLICE);
@@ -143,9 +145,8 @@ public final class SlicingEngine {
 	/** 
 	 * A collection of methods for which all call-sites have been collected.
 	 *
-	 * @invariant collectedAllInvocationSites.oclIsKindOf(Collection(SootMethod))
 	 */
-	private final Collection collectedAllInvocationSites = new HashSet();
+	private final Collection<SootMethod> collectedAllInvocationSites = new HashSet<SootMethod>();
 
 	/** 
 	 * The closure used to extract dependence information based on slice direction.  See <code>setSliceType()</code> for
@@ -156,19 +157,15 @@ public final class SlicingEngine {
 	/** 
 	 * The work bag used during slicing.
 	 *
-	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
-	 * @invariant workbag->forall(o | o.oclIsKindOf(ISliceCriterion))
+	 * @invariant workbag != null
 	 */
-	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
+	private final IWorkBag<ISliceCriterion> workbag = new PoolAwareWorkBag<ISliceCriterion>(new FIFOWorkBag<ISliceCriterion>());
 
 	/** 
 	 * The collection of control based Dependence analysis to be used during slicing.  Synchronization, Divergence, and
 	 * Control dependences are such dependences.
-	 *
-	 * @invariant controlflowBasedDAs->forall(o | o.oclIsKindOf(AbstractDependencyAnalysis) and
-	 * 			  o.getId().equals(AbstractDependencyAnalysis.CONTROL_DA))
 	 */
-	private Collection controlflowBasedDAs = new ArrayList();
+	private Collection<IDependencyAnalysis> controlflowBasedDAs = new ArrayList<IDependencyAnalysis>();
 
 	/** 
 	 * This provides the call graph information in the system being sliced.
@@ -193,9 +190,9 @@ public final class SlicingEngine {
 	/** 
 	 * The list of slice criteria.
 	 *
-	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(ISliceCriterion))
+	 * @invariant criteria != null
 	 */
-	private List criteria = new ArrayList();
+	private List<ISliceCriterion> criteria = new ArrayList<ISliceCriterion>();
 
 	/** 
 	 * This maps methods to call stacks considered at these method sites.
@@ -212,7 +209,7 @@ public final class SlicingEngine {
 	/** 
 	 * This predicate is used to filter out java.lang.Thread.start methods from a set of methods.
 	 */
-	private Predicate nonStartMethodPredicate = new NonStartMethodPredicate();
+	private IPredicate<SootMethod> nonStartMethodPredicate = new NonStartMethodPredicate();
 
 	/** 
 	 * This defines the scope of slicing.  If this is <code>null</code>, then the entire system is considered as the scope.
@@ -246,12 +243,13 @@ public final class SlicingEngine {
 	 * @version $Revision$
 	 */
 	private static class NonStartMethodPredicate
-	  implements Predicate {
-		/**
-		 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
+	  implements IPredicate<SootMethod> {
+		
+		/** 
+		 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(T1)
 		 */
-		public boolean evaluate(final Object object) {
-			return !Util.isStartMethod((SootMethod) object);
+		public boolean evaluate(final SootMethod object) {
+			return !Util.isStartMethod( object);
 		}
 	}
 
@@ -274,18 +272,18 @@ public final class SlicingEngine {
 	 * @pre ctrl != null and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
-	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection dependenciesToUse) {
+	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection<Comparable> dependenciesToUse) {
 		controller = ctrl;
 		controlflowBasedDAs.clear();
 
-		for (final Iterator _i = dependenciesToUse.iterator(); _i.hasNext();) {
-			final Object _id = _i.next();
+		for (final Iterator<Comparable> _i = dependenciesToUse.iterator(); _i.hasNext();) {
+			final Comparable _id = _i.next();
 
 			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
 				  || _id.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
 				  || _id.equals(IDependencyAnalysis.DIVERGENCE_DA)
 				  || _id.equals(IDependencyAnalysis.READY_DA)) {
-				controlflowBasedDAs.addAll(controller.getAnalyses(_id));
+				controlflowBasedDAs.addAll((Collection) controller.getAnalyses(_id));
 			}
 		}
 	}
@@ -334,7 +332,7 @@ public final class SlicingEngine {
 	 * 		o.equals(IDependencyAnalysis.READY_DA) or o.equals(IDependencyAnalysis.CONTROL_DA) or
 	 * 		o.equals(IDependencyAnalysis.DIVERGENCE_DA) or o.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
 	 */
-	public void setDepID2ContextRetrieverMapping(final Map map) {
+	public void setDepID2ContextRetrieverMapping(final Map<Comparable, ICallingContextRetriever> map) {
 		dependenceExtractor.setDepID2ContextRetrieverMapping(map);
 	}
 
@@ -627,11 +625,11 @@ public final class SlicingEngine {
 	 *
 	 * @return a copy of <code>callStackCache</code>.
 	 */
-	Stack getCopyOfCallStackCache() {
+	Stack<CallTriple> getCopyOfCallStackCache() {
 		final Stack _result;
 
 		if (callStackCache != null) {
-			_result = (Stack) callStackCache.clone();
+			_result = callStackCache.clone();
 		} else {
 			_result = null;
 		}
@@ -855,7 +853,7 @@ public final class SlicingEngine {
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
 
-				_criterion.setCallStack((Stack) callStackCache.clone());
+				_criterion.setCallStack(callStackCache.clone());
 			}
 		}
 	}
@@ -882,10 +880,9 @@ public final class SlicingEngine {
 	 * @param das is a collection of dependency analyses.
 	 *
 	 * @pre stmt != null and method != null and das != null
-	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
-	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
+	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection<IDependencyAnalysis> das) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("generateCriteriaBasedOnDependences(Stmt stmt=" + stmt + ", SootMethod method=" + method
                     + ", Collection das) - BEGIN");
@@ -896,14 +893,14 @@ public final class SlicingEngine {
 
 		for (final Iterator _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
-			final Collection _contexts = dependenceExtractor.getContextsFor(_o);
+			final Collection<Stack<CallTriple>> _contexts = dependenceExtractor.getContextsFor(_o);
 			final Stmt _stmtToBeIncluded;
 			final SootMethod _methodToBeIncluded;
 
 			if (_o instanceof Pair) {
-				final Pair _pair = (Pair) _o;
-				_stmtToBeIncluded = (Stmt) _pair.getFirst();
-				_methodToBeIncluded = (SootMethod) _pair.getSecond();
+				final Pair<Stmt, SootMethod> _pair = (Pair) _o;
+				_stmtToBeIncluded = _pair.getFirst();
+				_methodToBeIncluded = _pair.getSecond();
 			} else {
 				_stmtToBeIncluded = (Stmt) _o;
 				_methodToBeIncluded = method;
@@ -914,12 +911,12 @@ public final class SlicingEngine {
 					+ ", _stmtToBeIncluded=" + _stmtToBeIncluded + ", _methodToBeIncluded=" + _methodToBeIncluded);
 			}
 
-			final Stack _temp = getCopyOfCallStackCache();
-			final Iterator _i1 = _contexts.iterator();
+			final Stack<CallTriple> _temp = getCopyOfCallStackCache();
+			final Iterator<Stack<CallTriple>> _i1 = _contexts.iterator();
 			final int _iEnd = _contexts.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stack _context = (Stack) _i1.next();
+				final Stack<CallTriple> _context =  _i1.next();
 				setCallStackCache(_context);
 
 				if (_stmtToBeIncluded != null) {
@@ -957,7 +954,7 @@ public final class SlicingEngine {
 
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 		final SootMethod _sm = _expr.getMethod();
-		final Collection _callees = new HashSet();
+		final Collection<SootMethod> _callees = new HashSet<SootMethod>();
 
 		if (_sm.isStatic()) {
 			_callees.add(_sm);
@@ -986,34 +983,34 @@ public final class SlicingEngine {
 	 * @param stmt in which <code>locals</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
-	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
+	 * @pre locals != null 
 	 * @pre stmt != null and method != null
 	 */
-	private void generateCriteriaForLocals(final Collection locals, final Stmt stmt, final SootMethod method) {
+	private void generateCriteriaForLocals(final Collection<ValueBox> locals, final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForLocals(Collection locals = " + locals + ", Stmt stmt = " + stmt
 				+ ", SootMethod method = " + method + ", stack =" + callStackCache + ") - BEGIN");
 		}
 
-		final Collection _analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+		final Collection<IAnalysis>_analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 
 		if (_analyses.size() > 0) {
-			final Iterator _k = locals.iterator();
+			final Iterator<ValueBox> _k = locals.iterator();
 			final int _kEnd = locals.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final ValueBox _vBox = (ValueBox) _k.next();
+				final ValueBox _vBox = _k.next();
 				final Local _local = (Local) _vBox.getValue();
-				final Pair _pair = new Pair(stmt, _local);
+				final Pair<Stmt, Local> _pair = new Pair<Stmt, Local>(stmt, _local);
 				dependenceExtractor.setTrigger(_pair, method);
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
 				final Collection _dependences = dependenceExtractor.getDependences();
-				final Iterator _l = _dependences.iterator();
+				final Iterator<Stmt> _l = _dependences.iterator();
 				final int _lEnd = _dependences.size();
 
 				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final Stmt _depStmt = (Stmt) _l.next();
+					final Stmt _depStmt = _l.next();
 
 					directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
 				}
@@ -1038,10 +1035,10 @@ public final class SlicingEngine {
 		final boolean _generateCriteria = shouldMethodLevelCriteriaBeGenerated(method);
 
 		if (_generateCriteria) {
-			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
+			final Collection<MethodLevelSliceCriterion> _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
 			setContext(_sliceCriteria);
 
-			final Collection _c = workbag.addAllWorkNoDuplicates(_sliceCriteria);
+			final Collection<ISliceCriterion> _c = workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled() && !_c.isEmpty()) {
 				LOGGER.debug("Adding " + method.getSignature() + " @ " + callStackCache + " to workbag.");
@@ -1066,11 +1063,11 @@ public final class SlicingEngine {
 	 *
 	 * @param types to be included in the slice.
 	 *
-	 * @pre types != null and types.oclIsKindOf(Collection(Type))
+	 * @pre types != null 
 	 */
-	private void includeTypesInSlice(final Collection types) {
-		for (final Iterator _i = types.iterator(); _i.hasNext();) {
-			final Type _type = (Type) _i.next();
+	private void includeTypesInSlice(final Collection<Type> types) {
+		for (final Iterator<Type> _i = types.iterator(); _i.hasNext();) {
+			final Type _type = _i.next();
 
 			if (_type instanceof RefType) {
 				includeInSlice(((RefType) _type).getSootClass());
@@ -1095,8 +1092,8 @@ public final class SlicingEngine {
 		if (method2callStacks.containsKey(method)) {
 			final SimpleNodeGraph<CallTriple> _sng = method2callStacks.get(method);
 			final int _limit = callStackCache.size() - 1;
-			final Collection _succsOfSrc = new ArrayList();
-			final Collection _reachablesFrom = new HashSet();
+			final Collection<SimpleNode<CallTriple>> _succsOfSrc = new ArrayList<SimpleNode<CallTriple>>();
+			final Collection<SimpleNode<CallTriple>> _reachablesFrom = new HashSet<SimpleNode<CallTriple>>();
 
 			for (int _i = _limit; _i >= 0 && _result; _i--) {
 				final CallTriple _o = callStackCache.get(_i);
@@ -1214,7 +1211,7 @@ public final class SlicingEngine {
 		if (sliceType.equals(COMPLETE_SLICE)
 			  || (_considerExecution && sliceType.equals(BACKWARD_SLICE))
 			  || (!_considerExecution && sliceType.equals(FORWARD_SLICE))) {
-			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox, _stmt);
+			final Collection<ValueBox> _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox, _stmt);
 
 			// include any sub expressions and generate criteria from them
 			transformAndGenerateToConsiderExecution(_stmt, _method, _valueBoxes);
@@ -1281,7 +1278,7 @@ public final class SlicingEngine {
 			  || (!considerExecution && sliceType.equals(FORWARD_SLICE))) {
 			directionSensitiveInfo.processNewExpr(stmt, method);
 
-			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformStmt(stmt);
+			final Collection<ValueBox> _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformStmt(stmt);
 			transformAndGenerateToConsiderExecution(stmt, method, _valueBoxes);
 
 			if (stmt.containsInvokeExpr()) {
@@ -1316,13 +1313,13 @@ public final class SlicingEngine {
 	 * @pre vBoxes.oclIsKindOf(Collection(ValueBox))
 	 * @pre stmt.getUseAndDefBoxes().containsAll(valueBoxes)
 	 */
-	private void transformAndGenerateToConsiderExecution(final Stmt stmt, final SootMethod method, final Collection vBoxes) {
+	private void transformAndGenerateToConsiderExecution(final Stmt stmt, final SootMethod method, final Collection<ValueBox> vBoxes) {
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
 			_sb.append("BEGIN: Transforming value boxes [");
 
-			for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
-				final ValueBox _vBox = (ValueBox) _i.next();
+			for (final Iterator<ValueBox> _i = vBoxes.iterator(); _i.hasNext();) {
+				final ValueBox _vBox = _i.next();
 				_sb.append(_vBox.getValue());
 				_sb.append("[" + _vBox + "]");
 				_sb.append(", ");
@@ -1331,12 +1328,12 @@ public final class SlicingEngine {
 			LOGGER.debug(_sb.toString());
 		}
 
-		final Collection _types = new HashSet();
-		final Collection _das = new ArrayList();
-		final Collection _locals = new HashSet();
+		final Collection<Type> _types = new HashSet();
+		final Collection<IDependencyAnalysis> _das = new ArrayList();
+		final Collection<ValueBox> _locals = new HashSet();
 
-		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
-			final ValueBox _vBox = (ValueBox) _i.next();
+		for (final Iterator<ValueBox> _i = vBoxes.iterator(); _i.hasNext();) {
+			final ValueBox _vBox = _i.next();
 
 			if (isNotIncludedInSlice(_vBox)) {
 				includeInSlice(_vBox);
@@ -1346,10 +1343,10 @@ public final class SlicingEngine {
 				if (_value instanceof ParameterRef) {
 					directionSensitiveInfo.processParameterRef((IdentityStmt) stmt, method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
-					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
+					_das.addAll((Collection) controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
 
 					if (useInterferenceDACache) {
-						_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
+						_das.addAll((Collection) controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
 					}
 
 					if (_value instanceof FieldRef) {

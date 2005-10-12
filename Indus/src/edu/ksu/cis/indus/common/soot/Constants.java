@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -112,7 +114,7 @@ public final class Constants {
 	/**
 	 * <i>Prevents creation instances of this class.</i>
 	 */
-	private Constants() {
+	@AEmpty private Constants() {
 		// does nothing
 	}
 

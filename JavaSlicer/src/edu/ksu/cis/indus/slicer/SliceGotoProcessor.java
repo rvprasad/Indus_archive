@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.PredicateUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectNode;
@@ -26,10 +29,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public final class SliceGotoProcessor {
 	/**
 	 * This filter out statements that are not of type <code>GotoStmt</code>.
 	 */
-	public static final Predicate GOTO_STMT_PREDICATE = PredicateUtils.instanceofPredicate(GotoStmt.class);
+	public static final IPredicate<Object> GOTO_STMT_PREDICATE = PredicateUtils.instanceofPredicate(GotoStmt.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -154,11 +153,11 @@ public final class SliceGotoProcessor {
 				}
 			}
 
-			CollectionUtils.transform(_bbToBeIncludedInSlice, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			final Collection<BasicBlock> _t = CollectionUtils.collect(_bbToBeIncludedInSlice, _dag.getObjectExtractor());
 
 			// include the gotos in the found basic blocks in the slice.
-			final Iterator _j = _bbToBeIncludedInSlice.iterator();
-			final int _jEnd = _bbToBeIncludedInSlice.size();
+			final Iterator _j = _t.iterator();
+			final int _jEnd = _t.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final BasicBlock _bb = (BasicBlock) _j.next();

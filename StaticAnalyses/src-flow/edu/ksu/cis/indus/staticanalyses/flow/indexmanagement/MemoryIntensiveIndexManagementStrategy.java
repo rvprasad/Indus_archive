@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,29 +14,33 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
- * This strategy does not reuse indices.  It returns the incoming argument passed to  <code>getEquivalentIndex</code>. There
+ * This strategy does not reuse indices. It returns the incoming argument passed to <code>getEquivalentIndex</code>. There
  * by, it will be memory-intensive while trying to being processor non-intensive.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <I> DOCUMENT ME!
  */
-public final class MemoryIntensiveIndexManagementStrategy
-  implements IIndexManagementStrategy {
+public final class MemoryIntensiveIndexManagementStrategy<I extends IIndex<I>>
+		implements IIndexManagementStrategy<I> {
+
 	/**
 	 * @see IIndexManagementStrategy#getEquivalentIndex(IIndex)
 	 */
-	public IIndex getEquivalentIndex(final IIndex index) {
+	public I getEquivalentIndex(final I index) {
 		return index;
 	}
 
 	/**
-	 * {@inheritDoc}  Dummy method.
+	 * {@inheritDoc} AEmpty method.
 	 */
-	public void reset() {
+	@AEmpty public void reset() {
+		// does nothing
 	}
 }
 

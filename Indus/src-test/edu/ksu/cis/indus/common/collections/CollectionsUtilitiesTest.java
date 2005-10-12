@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.IndusTestCase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +33,17 @@ public class CollectionsUtilitiesTest
 		extends IndusTestCase {
 
 	/**
+	 * A factory for list of strings. 
+	 */
+	static final IFactory<List<String>> factory = new IFactory<List<String>>() {
+
+		public List<String> create() {
+			return new ArrayList<String>();
+		}
+
+	};
+
+	/**
 	 * The map.
 	 */
 	private Map<String, Collection<String>> map;
@@ -42,7 +54,7 @@ public class CollectionsUtilitiesTest
 	public final void testPutAllIntoCollectionInMap() {
 		final Collection<String> _temp = new ArrayList<String>();
 		_temp.add("second");
-		CollectionsUtilities.putAllIntoCollectionInMap(map, "first", _temp, CollectionsUtilities.ARRAY_LIST_FACTORY);
+		MapUtils.putAllIntoCollectionInMapUsingFactory(map, "first", _temp, factory);
 		assertNotNull(map.get("first"));
 		assertTrue(map.get("first").contains("second"));
 	}
@@ -53,7 +65,7 @@ public class CollectionsUtilitiesTest
 	public final void testPutIntoCollectionInMap() {
 		final Collection<String> _temp = new ArrayList<String>();
 		_temp.add("second");
-		CollectionsUtilities.putIntoCollectionInMap(map, "first", "second", CollectionsUtilities.ARRAY_LIST_FACTORY);
+		MapUtils.putIntoCollectionInMapUsingFactory(map, "first", "second", factory);
 		assertNotNull(map.get("first"));
 		assertTrue(map.get("first").contains("second"));
 	}
