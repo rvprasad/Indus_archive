@@ -43,7 +43,9 @@ import soot.ValueBox;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
+import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
@@ -226,7 +228,7 @@ public class OFABasedCallInfoCollector
 			for (final Iterator _i = _values.iterator(); _i.hasNext();) {
 				final Object _t = _i.next();
 
-				if (!(_t instanceof NewExpr || _t instanceof StringConstant)) {
+				if (!(_t instanceof NewExpr || _t instanceof StringConstant || _t instanceof NewArrayExpr || _t instanceof NewMultiArrayExpr)) {
 					continue;
 				}
 
@@ -237,6 +239,8 @@ public class OFABasedCallInfoCollector
 					_accessClass = analyzer.getEnvironment().getClass(_newExpr.getBaseType().getClassName());
 				} else if (_t instanceof StringConstant) {
 					_accessClass = analyzer.getEnvironment().getClass("java.lang.String");
+				} else if (_t instanceof NewArrayExpr || _t instanceof NewMultiArrayExpr) {
+					_accessClass = analyzer.getEnvironment().getClass("java.lang.Object");
 				}
 
 				final String _methodName = _calleeMethod.getName();
