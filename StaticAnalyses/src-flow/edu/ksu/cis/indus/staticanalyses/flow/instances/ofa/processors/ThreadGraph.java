@@ -270,7 +270,7 @@ public class ThreadGraph
 		considerMultipleExecutions();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: thread graph consolidation");
+			LOGGER.info("END: thread graph consolidation - " + toString());
 		}
 	}
 
@@ -550,11 +550,12 @@ public class ThreadGraph
 				final Collection<SootMethod> _methods = _class2runCallees.get(_sc);
 				final Triple<Stmt, SootMethod, SootClass> _thread = new Triple<Stmt, SootMethod, SootClass>(_callStmt,
 						_caller, _sc);
-				thread2methods.put(_thread, _methods);
+				MapUtils.putAllIntoCollectionInMapUsingFactory(thread2methods, _thread, _methods, SetUtils
+						.<SootMethod> getFactory());
 
 				for (final Iterator _k = _methods.iterator(); _k.hasNext();) {
 					final SootMethod _sm = (SootMethod) _k.next();
-					MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple>getFactory());
+					MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple> getFactory());
 				}
 			}
 		}
@@ -697,7 +698,7 @@ public class ThreadGraph
 
 			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
-				MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple>getFactory());
+				MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple> getFactory());
 			}
 		}
 	}

@@ -32,6 +32,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
@@ -46,6 +49,12 @@ import soot.jimple.Stmt;
 public final class CFGAnalysis {
 
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(CFGAnalysis.class);
+
+	/** 
+
 	 * This manages the basic block graphs of the methods being analyzed.
 	 */
 	private final BasicBlockGraphMgr bbm;
@@ -109,6 +118,12 @@ public final class CFGAnalysis {
 	 */
 	public boolean doesControlFlowPathExistsBetween(final SootMethod method, final Stmt stmt, final SootMethod targetMethod,
 			final boolean forward, final boolean exclusive) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("doesControlFlowPathExistsBetween(SootMethod method = " + method + ", Stmt stmt = " + stmt
+					+ ", SootMethod targetMethod = " + targetMethod + ", boolean forward = " + forward
+					+ ", boolean exclusive = " + exclusive + ") - BEGIN");
+		}
+		
 		boolean _result = false;
 		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
 		final BasicBlock _bbDef = _bbg.getEnclosingBlock(stmt);
@@ -143,6 +158,12 @@ public final class CFGAnalysis {
 				_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 			}
 		}
+		
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("doesControlFlowPathExistsBetween() - END - return value" + _result);
+		}
+		
 		return _result;
 	}
 
@@ -182,6 +203,11 @@ public final class CFGAnalysis {
 	 * @pre srcMethod != null and destMethod != null
 	 */
 	public boolean doesControlPathExistsFromTo(final SootMethod srcMethod, final SootMethod destMethod) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("doesControlPathExistsFromTo(SootMethod srcMethod = " + srcMethod + ", SootMethod destMethod = "
+					+ destMethod + ") - BEGIN");
+		}
+
 		boolean _result = false;
 		final Collection<SootMethod> _commonAncestors = cgi
 				.getCommonMethodsReachableFrom(srcMethod, false, destMethod, false);
@@ -189,6 +215,10 @@ public final class CFGAnalysis {
 		for (final Iterator<SootMethod> _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = _i.next();
 			_result = doesMethodLiesOnTheDataFlowPathBetween(_sm, srcMethod, destMethod);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("doesControlPathExistsFromTo() - END - return value" + _result);
 		}
 		return _result;
 	}

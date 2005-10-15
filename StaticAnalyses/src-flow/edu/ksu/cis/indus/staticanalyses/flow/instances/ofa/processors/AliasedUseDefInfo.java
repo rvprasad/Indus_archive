@@ -214,7 +214,7 @@ public class AliasedUseDefInfo
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: consolidating");
+			LOGGER.debug("END: consolidating - " + toString());
 		}
 	}
 
@@ -428,6 +428,10 @@ public class AliasedUseDefInfo
 				// if the primaries of the access expression alias atleast one object.
 				_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), _context));
 			}
+		}		
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Def: " + defSite + " / Use: " + useSite + " --> related:" + _result);
 		}
 		return _result;
 	}
@@ -458,6 +462,10 @@ public class AliasedUseDefInfo
 				_r = cfgAnalysis.doesControlFlowPathExistsBetween(_defStmt, _useStmt, _useMethod);
 			}
 			_result = _r || isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
+		}
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Def: " + defSite + " / Use: " + useSite + " --> related:" + _result);
 		}
 		return _result;
 	}

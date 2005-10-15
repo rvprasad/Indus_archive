@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import soot.SootMethod;
 
 /**
@@ -51,6 +53,12 @@ final class CallInfo
 	 * The collection of methods that are reachble in the system.
 	 */
 	private final Set<SootMethod> reachables = new HashSet<SootMethod>();
+
+
+	/**
+	 * Optimization cache.
+	 */
+	private transient String toString;
 
 	/**
 	 * Records the given method as reachable.
@@ -80,11 +88,7 @@ final class CallInfo
 	 * @see CallGraphInfo.ICallInfo#getReachableMethods()
 	 */
 	public Collection<SootMethod> getReachableMethods() {
-		final Collection<SootMethod> _r = new HashSet<SootMethod>();
-		_r.addAll(reachables);
-		_r.addAll(callee2callers.keySet());
-		_r.addAll(caller2callees.keySet());
-		return _r;
+		return Collections.unmodifiableCollection(reachables);
 	}
 
 	/**
@@ -96,6 +100,20 @@ final class CallInfo
 		reachables.clear();
 	}
 
+	/**
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override public String toString() {
+		if (toString == null) {
+			toString = new ToStringBuilder(this).appendSuper(super.toString()).append("reachables", reachables).append("\n")
+					.append("caller2callees", caller2callees).append("\n").append("callee2callers", callee2callers)
+					.toString();
+		}
+		return toString;
+	}
+	
 	/**
 	 * Injects empty sets for caller and callee information of methods with no callees and callers.
 	 */
@@ -144,6 +162,8 @@ final class CallInfo
 
 		assert _k1.containsAll(reachables);
 		assert _k2.containsAll(reachables);
+		assert reachables.containsAll(_k1);
+		assert reachables.containsAll(_k2);
 
 		return true;
 	}

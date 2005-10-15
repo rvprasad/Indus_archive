@@ -139,6 +139,10 @@ public class OFABasedCallInfoCollector
 
 		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: call graph consolidation - " + callInfoHolder.toString());
+		}
+
 		stable();
 	}
 
@@ -227,11 +231,6 @@ public class OFABasedCallInfoCollector
 
 			for (final Iterator _i = _values.iterator(); _i.hasNext();) {
 				final Object _t = _i.next();
-
-				if (!(_t instanceof NewExpr || _t instanceof StringConstant || _t instanceof NewArrayExpr || _t instanceof NewMultiArrayExpr)) {
-					continue;
-				}
-
 				SootClass _accessClass = null;
 
 				if (_t instanceof NewExpr) {
@@ -241,6 +240,8 @@ public class OFABasedCallInfoCollector
 					_accessClass = analyzer.getEnvironment().getClass("java.lang.String");
 				} else if (_t instanceof NewArrayExpr || _t instanceof NewMultiArrayExpr) {
 					_accessClass = analyzer.getEnvironment().getClass("java.lang.Object");
+				} else {
+					continue;
 				}
 
 				final String _methodName = _calleeMethod.getName();
