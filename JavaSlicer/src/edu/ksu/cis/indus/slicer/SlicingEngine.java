@@ -1238,16 +1238,16 @@ public final class SlicingEngine {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod(SootMethod method = " + method + ") - BEGIN");
 		}
 
+		generateCriteriaForTheCallToMethod(method);
+		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
+
 		if (callStackCache == null) {
 			collectedAllInvocationSites.add(method);
 			method2callStacks.remove(method);
 		} else {
 			recordCallStackForMethod(method);
 		}
-
-		generateCriteriaForTheCallToMethod(method);
-		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
-
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("transformAndGenerateNewCriteriaForMethod() - END");
 		}
