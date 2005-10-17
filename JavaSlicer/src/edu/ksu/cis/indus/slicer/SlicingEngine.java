@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraphBuilder;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -47,7 +46,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -143,12 +141,6 @@ public final class SlicingEngine {
 	private BasicBlockGraphMgr bbgMgr;
 
 	/** 
-	 * A collection of methods for which all call-sites have been collected.
-	 *
-	 */
-	private final Collection<SootMethod> collectedAllInvocationSites = new HashSet<SootMethod>();
-
-	/** 
 	 * The closure used to extract dependence information based on slice direction.  See <code>setSliceType()</code> for
 	 * details.
 	 */
@@ -193,11 +185,6 @@ public final class SlicingEngine {
 	 * @invariant criteria != null
 	 */
 	private List<ISliceCriterion> criteria = new ArrayList<ISliceCriterion>();
-
-	/** 
-	 * This maps methods to call stacks considered at these method sites.
-	 */
-	private final Map<SootMethod, SimpleNodeGraph<CallTriple>> method2callStacks = new HashMap<SootMethod, SimpleNodeGraph<CallTriple>>();
 
 	/** 
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -513,8 +500,6 @@ public final class SlicingEngine {
 		collector.reset();
 		callStackCache = null;
 		criteria.clear();
-		collectedAllInvocationSites.clear();
-		method2callStacks.clear();
 		activePart.activate();
 
 		if (directionSensitiveInfo != null) {
@@ -661,15 +646,19 @@ public final class SlicingEngine {
 			includeMethodAndDeclaringClassInSlice(method);
 		}
 
-		if (!collectedAllInvocationSites.contains(method)) {
+		//if (!collectedAllInvocationSites.contains(method)) {
+		if (!haveCollectedAllInvocationSites(method)) {
 			if (ifInsideContext()) {
-				final CallTriple _top = callStackCache.pop();
-				final SootMethod _caller = _top.getMethod();
-				final Stmt _stmt = _top.getStmt();
-				directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
-				callStackCache.push(_top);
+				if (callStackCache.peek() != null) {
+					final CallTriple _top = callStackCache.pop();
+					final SootMethod _caller = _top.getMethod();
+					final Stmt _stmt = _top.getStmt();
+					directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
+					callStackCache.push(_top);
+				}
 			} else {
-				collectedAllInvocationSites.add(method);
+				//collectedAllInvocationSites.add(method);
+				markAsCollectedAllInvocationSites(method);
 
 				for (final Iterator _i = cgi.getCallers(method).iterator(); _i.hasNext();) {
 					final CallTriple _ctrp = (CallTriple) _i.next();
@@ -1082,6 +1071,11 @@ public final class SlicingEngine {
 	 *
 	 * @param method of interest
 	 *
+		/**
+	 * Tries to record the current call stack against the given method and returns the status of the recording.
+	 *
+	 * @param method of interest
+	 *
 	 * @return <code>true</code> if the call stack was recored; <code>false</code> if another call stack subsumed this.
 	 *
 	 * @pre method != null
@@ -1089,73 +1083,115 @@ public final class SlicingEngine {
 	private boolean recordCallStackForMethod(final SootMethod method) {
 		boolean _result = true;
 
-		if (method2callStacks.containsKey(method)) {
-			final SimpleNodeGraph<CallTriple> _sng = method2callStacks.get(method);
-			final int _limit = callStackCache.size() - 1;
-			final Collection<SimpleNode<CallTriple>> _succsOfSrc = new ArrayList<SimpleNode<CallTriple>>();
-			final Collection<SimpleNode<CallTriple>> _reachablesFrom = new HashSet<SimpleNode<CallTriple>>();
-
-			for (int _i = _limit; _i >= 0 && _result; _i--) {
-				final CallTriple _o = callStackCache.get(_i);
-				SimpleNode<CallTriple> _node = _sng.queryNode(_o);
-
-				if (_node == null) {
-					_node = _sng.getNode(_o);
-				} else {
-					if (_node.getSuccsOf().isEmpty()) {
-						_result = false;
-					} else if (_i == 0) {
-						_reachablesFrom.clear();
-						_reachablesFrom.addAll(_sng.getReachablesFrom(_node, true));
-						_reachablesFrom.add(_node);
-
-						final Iterator<SimpleNode<CallTriple>> _j = _reachablesFrom.iterator();
-						final int _jEnd = _reachablesFrom.size();
-
-						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-							final SimpleNode<CallTriple> _src = _j.next();
-							_succsOfSrc.clear();
-							_succsOfSrc.addAll(_src.getSuccsOf());
-
-							final Iterator<SimpleNode<CallTriple>> _k = _succsOfSrc.iterator();
-							final int _kEnd = _succsOfSrc.size();
-
-							for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-								final SimpleNode<CallTriple> _dest =  _k.next();
-								_sng.removeEdgeFromTo(_src, _dest);
-							}
+		final SimpleNode<Object> _methodNode = callStringGraph.getNode(method);
+		if (callStringGraph.queryNode(method) == null) {
+			if (!callStackCache.isEmpty()) {
+				Object _s = callStackCache.peek();
+				if (_s != null) {
+					callStringGraph.addEdgeFromTo(_methodNode, callStringGraph.getNode(_s));
+					
+					for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
+						final Object _t = callStackCache.get(_i);
+						if (_t != null) {
+							callStringGraph.addEdgeFromTo(callStringGraph.queryNode(_s), callStringGraph.getNode(_t));
+							_s = _t;
+						} else {
+							break;
 						}
-						_result = false;
-					}
-				}
-
-				if (_limit - _i > 0 && _result) {
-					final SimpleNode<CallTriple> _prev = _sng.queryNode(callStackCache.get(_i + 1));
-
-					if (_prev != null) {
-						_sng.addEdgeFromTo(_prev, _node);
 					}
 				}
 			}
-		} else {
-			final SimpleNodeGraphBuilder<CallTriple> _sngb = new SimpleNodeGraphBuilder<CallTriple>();
-			_sngb.createGraph();
-
-			if (callStackCache.size() > 0) {
-				CallTriple _s = callStackCache.peek();
-	
-				for (int _i = callStackCache.size() - 2; _i >= 0; _i--) {
-					final CallTriple _t = callStackCache.get(_i);
-					_sngb.addEdgeFromTo(_s, _t);
-					_s = _t;
-				}
-			}
-			_sngb.finishBuilding();
-			method2callStacks.put(method, _sngb.getBuiltGraph());
-		}
-
+		} else if (!callStackCache.isEmpty()) {			
+			_result = recordCallStackForVisitedMethod(_methodNode);
+		} 
 		return _result;
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param methodNode DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private boolean recordCallStackForVisitedMethod(final SimpleNode<Object> methodNode) {
+		final int _limit = callStackCache.size() - 1;
+		final Collection<SimpleNode<Object>> _succsOfSrc = new ArrayList<SimpleNode<Object>>();
+		final Collection<SimpleNode<Object>> _reachablesFrom = new HashSet<SimpleNode<Object>>();
+		boolean _result = true;
+		
+		for (int _i = _limit; _i >= 0 && _result; _i--) {
+			final CallTriple _o = callStackCache.get(_i);
+			SimpleNode<Object> _node = callStringGraph.queryNode(_o);
+
+			if (_node == null) {
+				_node = callStringGraph.getNode(_o);
+			} else {
+				if (_node.getSuccsOf().isEmpty()) {
+					_result = false;
+				} else if (_i == 0) {
+					_reachablesFrom.clear();
+					_reachablesFrom.addAll(callStringGraph.getReachablesFrom(_node, true));
+					_reachablesFrom.add(_node);
+
+					final Iterator<SimpleNode<Object>> _j = _reachablesFrom.iterator();
+					final int _jEnd = _reachablesFrom.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final SimpleNode<Object> _src = _j.next();
+						_succsOfSrc.clear();
+						_succsOfSrc.addAll(_src.getSuccsOf());
+
+						final Iterator<SimpleNode<Object>> _k = _succsOfSrc.iterator();
+						final int _kEnd = _succsOfSrc.size();
+
+						for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+							final SimpleNode<Object> _dest = _k.next();
+							callStringGraph.removeEdgeFromTo(_src, _dest);
+						}
+					}
+					_result = false;
+				}
+			}
+
+			if (_limit - _i > 0 && _result) {
+				final SimpleNode<Object> _prev = callStringGraph.queryNode(callStackCache.get(_i + 1));
+
+				if (_prev != null) {
+					callStringGraph.addEdgeFromTo(_prev, _node);
+				}
+			}
+		}
+		
+		callStringGraph.addEdgeFromTo(methodNode, callStringGraph.getNode(callStackCache.peek()));
+		return _result;
+	}
+	
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private boolean haveCollectedAllInvocationSites(final SootMethod method) {
+		return callStringGraph.queryNode(method) != null && callStringGraph.queryNode(method).getSuccsOf().isEmpty(); 
+	}
+	
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final SimpleNodeGraph<Object> callStringGraph = new SimpleNodeGraph<Object>();
+	
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 */
+	private void markAsCollectedAllInvocationSites(final SootMethod method) {
+		final SimpleNode<Object> _n =  callStringGraph.getNode(method);
+		for (final Iterator<SimpleNode<Object>> _i = new ArrayList<SimpleNode<Object>>(_n.getSuccsOf()).iterator(); _i.hasNext();) {
+			_n.removeSuccessor(_i.next());
+		}
+	}	
 
 	/**
 	 * Checks if method level criteria should be generated for the given method.
@@ -1171,8 +1207,8 @@ public final class SlicingEngine {
 
 		if (!_result) {
 			if (callStackCache == null) {
-				_result = !collectedAllInvocationSites.contains(method);
-			} else if (!collectedAllInvocationSites.contains(method)) {
+				_result = !haveCollectedAllInvocationSites(method);
+			} else if (!haveCollectedAllInvocationSites(method)) {
 				_result = recordCallStackForMethod(method);
 			}
 		}
@@ -1242,8 +1278,7 @@ public final class SlicingEngine {
 		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
 
 		if (callStackCache == null) {
-			collectedAllInvocationSites.add(method);
-			method2callStacks.remove(method);
+			markAsCollectedAllInvocationSites(method);
 		} else {
 			recordCallStackForMethod(method);
 		}

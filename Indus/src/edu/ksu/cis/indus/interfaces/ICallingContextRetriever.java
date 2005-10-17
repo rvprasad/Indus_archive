@@ -23,6 +23,11 @@ import java.util.Collections;
 
 /**
  * This is the interface to retrieve calling contexts based on program points.
+ * <ul>
+ * <li>A <code>null</code> calling context means all call chains from the method should be considered.</li>
+ * <li>A <code>null</code> value in the calling context indicates that the context should be considered as terminating.
+ * Also, a <code>null</code> value may only occur at the bottom of the stack.</li>
+ * <ul>
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -58,21 +63,20 @@ public interface ICallingContextRetriever
 		}
 
 		public Collection<Stack<CallTriple>> getCallingContextsForProgramPoint(
-				@SuppressWarnings ("unused") final Context programPointContext) {
+				@SuppressWarnings("unused") final Context programPointContext) {
 			return NULL_CONTEXTS;
 		}
 
-		public Collection<Stack<CallTriple>> getCallingContextsForThis(
-				@SuppressWarnings ("unused") final Context methodContext) {
+		public Collection<Stack<CallTriple>> getCallingContextsForThis(@SuppressWarnings("unused") final Context methodContext) {
 			return NULL_CONTEXTS;
 		}
 
-		public Object removeInfo(@SuppressWarnings ("unused") final Comparable infoID) {
+		public Object removeInfo(@SuppressWarnings("unused") final Comparable infoID) {
 			return null;
 		}
 
-		public Object setInfoFor(@SuppressWarnings ("unused") final Comparable infoID,
-				@SuppressWarnings ("unused") final Object info) {
+		public Object setInfoFor(@SuppressWarnings("unused") final Comparable infoID,
+				@SuppressWarnings("unused") final Object info) {
 			return null;
 		}
 	};

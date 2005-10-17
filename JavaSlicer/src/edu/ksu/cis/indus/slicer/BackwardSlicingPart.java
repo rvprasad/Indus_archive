@@ -344,12 +344,14 @@ public class BackwardSlicingPart
 
 		if (engine.ifInsideContext()) {
 			final CallTriple _temp = engine.returnFromMethod();
-			final SootMethod _caller = _temp.getMethod();
-			final Stmt _stmt = _temp.getStmt();
-			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
-			engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
-			generateCriteriaForReceiverOfAt(_stmt, _caller);
-			engine.enterMethod(_temp);
+			if (_temp != null) {
+				final SootMethod _caller = _temp.getMethod();
+				final Stmt _stmt = _temp.getStmt();
+				final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
+				engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
+				generateCriteriaForReceiverOfAt(_stmt, _caller);
+				engine.enterMethod(_temp);
+			}				
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
 			for (final Iterator<CallTriple> _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {

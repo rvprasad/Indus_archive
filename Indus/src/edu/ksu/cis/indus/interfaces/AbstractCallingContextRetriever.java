@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.interfaces;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -54,9 +55,15 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected enum Tokens {
 		/**
-		 * This value indicates that the current context should be accepted without further extensions.
+		 * This value indicates that the current context should be accepted as a terminal 
+		 * context
 		 */
-		ACCEPT_CONTEXT_TOKEN,
+		ACCEPT_TERMINAL_CONTEXT_TOKEN,
+		/**
+		 * This value indicates that the current context should be accepted as a non-terminal 
+		 * context. 
+		 */
+		ACCEPT_NON_TERMINAL_CONTEXT_TOKEN,
 		/**
 		 * This value indicates that all context should be considered.
 		 */
@@ -81,6 +88,11 @@ public abstract class AbstractCallingContextRetriever
 	 * The call graph to be used.
 	 */
 	private ICallGraphInfo callGraph;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final Collection<Pair<CallTriple, Object>> exploredCallSites = new HashSet<Pair<CallTriple, Object>>();
 
 	/**
 	 * Creates an instance of this class.
@@ -246,6 +258,7 @@ public abstract class AbstractCallingContextRetriever
 		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
+
 	/**
 	 * Retrieves the contexts based on the given token and method in which it occurs.
 	 * 
@@ -274,45 +287,7 @@ public abstract class AbstractCallingContextRetriever
 				final SootMethod _callee = _triple.getFirst();
 				final Object _calleeToken = _triple.getSecond();
 				final Stack<CallTriple> _calleeCallStack = _triple.getThird();
-
-				if (_calleeCallStack.size() == callContextLenLimit) {
-					_result.add(_calleeCallStack);
-				} else {
-					final Collection<CallTriple> _callers = callGraph.getCallers(_callee);
-					final int _jEnd = _callers.size();
-
-					if (_jEnd == 0 && _calleeCallStack.size() < callContextLenLimit) {
-						_result.add(_calleeCallStack);
-					} else {
-						final Iterator<CallTriple> _j = _callers.iterator();
-
-						// For collection of call stacks associated to _currToken
-						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-							final CallTriple _callSite = _j.next();
-							final Object _callerToken = getCallerSideToken(_calleeToken, _callee, _callSite, _calleeCallStack);
-
-							// if there was a corresponding token on the caller side
-							if (_callerToken == Tokens.DISCARD_CONTEXT_TOKEN) {
-								if (LOGGER.isDebugEnabled()) {
-									LOGGER.debug("Discarding context " + _calleeToken + "   " + this.getClass());
-								}
-							} else if (_callerToken == Tokens.ACCEPT_CONTEXT_TOKEN) {
-								// if we have reached the property-based "pivotal" point in the call chain then we decide
-								// to extend all call chains and add it to the resulting contexts.
-								final Stack<CallTriple> _callerStack = new Stack<CallTriple>();
-								_callerStack.addAll(_calleeCallStack);
-								_callerStack.push(_callSite);
-								_result.add(_callerStack);
-							} else {
-								final Stack<CallTriple> _callerStack = new Stack<CallTriple>();
-								_callerStack.addAll(_calleeCallStack);
-								_callerStack.push(_callSite);
-								_wb.addWorkNoDuplicates(new Triple<SootMethod, Object, Stack<CallTriple>>(_callSite
-										.getMethod(), _callerToken, _callerStack));
-							}
-						}
-					}
-				}
+				calculateCallStack(_callee, _calleeToken, _calleeCallStack, _wb, _result);
 			}
 
 			// Reverse the call stacks as they have been constructed bottom-up.
@@ -335,6 +310,89 @@ public abstract class AbstractCallingContextRetriever
 		}
 
 		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param callee DOCUMENT ME!
+	 * @param calleeToken DOCUMENT ME!
+	 * @param calleeCallStack DOCUMENT ME!
+	 * @param wb DOCUMENT ME!
+	 * @param result DOCUMENT ME!
+	 */
+	private void calculateCallStack(final SootMethod callee, final Object calleeToken,
+			final Stack<CallTriple> calleeCallStack, final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> wb,
+			final Collection<Stack<CallTriple>> result) {
+		if (calleeCallStack.size() == callContextLenLimit) {
+			result.add(calleeCallStack);
+		} else {
+			final Collection<CallTriple> _callers = callGraph.getCallers(callee);
+			final int _jEnd = _callers.size();
+
+			if (_jEnd == 0 && calleeCallStack.size() < callContextLenLimit) {
+				result.add(calleeCallStack);
+			} else {
+				final Iterator<CallTriple> _j = _callers.iterator();
+
+				// For collection of call stacks associated to _currToken
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final CallTriple _callSite = _j.next();
+
+					if (shouldConsiderCallSite(_callSite, calleeToken)) {
+
+						final Object _callerToken = getCallerSideToken(calleeToken, callee, _callSite, calleeCallStack);
+
+						// if there was a corresponding token on the caller side
+						if (_callerToken == Tokens.DISCARD_CONTEXT_TOKEN) {
+							if (LOGGER.isDebugEnabled()) {
+								LOGGER.debug("Discarding context " + calleeToken + "   " + this.getClass());
+							}
+						} else if (_callerToken == Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN ||
+								_callerToken == Tokens.ACCEPT_NON_TERMINAL_CONTEXT_TOKEN) {
+							/*
+							 * if we have reached the property-based "pivotal" point in the call chain then we decide to
+							 * extend all call chains and add it to the resulting contexts.
+							 */
+							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack
+									.clone();
+							_callerStack.push(_callSite);
+							if (_callerToken == Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN) {
+								_callerStack.push(null);
+							}
+							result.add(_callerStack);
+						} else {
+							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack
+									.clone();
+							_callerStack.push(_callSite);
+							wb.addWorkNoDuplicates(new Triple<SootMethod, Object, Stack<CallTriple>>(_callSite.getMethod(),
+									_callerToken, _callerStack));
+						}
+					} else {
+						/*
+						 * We have come to a site from which we have already considered paths up the call chain. So, we mark
+						 * this call chain as terminating by inserting a null token.
+						 */
+						@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack.clone();
+						_callerStack.push(_callSite);
+						_callerStack.push(null);
+						result.add(_callerStack);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param callSite DOCUMENT ME!
+	 * @param calleeToken DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private boolean shouldConsiderCallSite(final CallTriple callSite, final Object calleeToken) {
+		final Pair<CallTriple, Object> _pair = new Pair<CallTriple, Object>(callSite, calleeToken, true, false);
+		return exploredCallSites.add(_pair);
 	}
 }
 

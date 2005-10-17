@@ -176,7 +176,7 @@ public class DataAliasBasedCallingContextRetriever
 			if (!_col.isEmpty()) {
 				_result = _col;
 			} else {
-				_result = Tokens.ACCEPT_CONTEXT_TOKEN;
+				_result = Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN;
 			}
 		}
 

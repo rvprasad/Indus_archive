@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
@@ -21,8 +22,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Context;
-
-import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +140,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 		if (_as != null && _as.escapes()) {
 			_result = _as.find();
 		} else if (Util.isStartMethod(callee)) {
-			_result = Tokens.ACCEPT_CONTEXT_TOKEN;
+			_result = Tokens.ACCEPT_NON_TERMINAL_CONTEXT_TOKEN;
 		} else {
 			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		}

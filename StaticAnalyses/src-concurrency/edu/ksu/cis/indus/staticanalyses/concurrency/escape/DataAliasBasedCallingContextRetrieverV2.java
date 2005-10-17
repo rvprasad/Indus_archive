@@ -119,7 +119,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 					_result = _as;
 				}
 			} else {
-				_result = Tokens.ACCEPT_CONTEXT_TOKEN;
+				_result = Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN;
 			}
 		}
 
