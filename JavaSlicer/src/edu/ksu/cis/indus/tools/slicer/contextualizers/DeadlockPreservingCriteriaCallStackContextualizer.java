@@ -41,17 +41,17 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 	private final ThreadEscapeInfoBasedCallingContextRetriever ecr;
 
 	/**
-	 * Creates a new DeadlockPreservingCriteriaCallStackContextualizer object.
-	 * @param limit <i>refer to the constructor in the super class</i>.
+	  * @param retriever to be used.
+	 * @pre retriever != null
 	 */
-	public DeadlockPreservingCriteriaCallStackContextualizer(final int limit) {
-		ecr = new ThreadEscapeInfoBasedCallingContextRetriever(limit);
+	public DeadlockPreservingCriteriaCallStackContextualizer(final ThreadEscapeInfoBasedCallingContextRetriever retriever) {
+		ecr = retriever;
 	}
 
 	/**
 	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForProgramPoint(Context)
 	 */
-	protected Collection getCallingContextsForProgramPoint(final Context context) {
+	@Override protected Collection getCallingContextsForProgramPoint(final Context context) {
 		final EquivalenceClassBasedEscapeAnalysis _ecba = getSlicerTool().getECBA();
 		final Collection _result;
 
@@ -69,7 +69,7 @@ public final class DeadlockPreservingCriteriaCallStackContextualizer
 	/**
 	 * @see AbstractSliceCriteriaCallStackContextualizer#getCallingContextsForThis(SootMethod)
 	 */
-	protected Collection getCallingContextsForThis(final SootMethod method) {
+	@Override protected Collection getCallingContextsForThis(final SootMethod method) {
 		final EquivalenceClassBasedEscapeAnalysis _ecba = getSlicerTool().getECBA();
 		final Collection _result;
 

@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -1151,7 +1153,8 @@ public final class SlicerConfiguration
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
-				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(getCallingContextLimit()));
+				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(getCallingContextLimit(), IDependencyAnalysis.INTERFERENCE_DA);
+				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(_retriever));
 			} else {
 				final String _msg = "Deadlock preservation criteria generation could not be configured due to illegal "
 						+ "criteria selection strategy.";

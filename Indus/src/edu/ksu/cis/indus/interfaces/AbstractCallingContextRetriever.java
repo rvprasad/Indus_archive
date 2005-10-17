@@ -339,7 +339,7 @@ public abstract class AbstractCallingContextRetriever
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 					final CallTriple _callSite = _j.next();
 
-					if (shouldConsiderCallSite(_callSite, calleeToken)) {
+					if (isCallSiteExplored(_callSite, calleeToken)) {
 
 						final Object _callerToken = getCallerSideToken(calleeToken, callee, _callSite, calleeCallStack);
 
@@ -390,7 +390,7 @@ public abstract class AbstractCallingContextRetriever
 	 * @param calleeToken DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	private boolean shouldConsiderCallSite(final CallTriple callSite, final Object calleeToken) {
+	private boolean isCallSiteExplored(final CallTriple callSite, final Object calleeToken) {
 		final Pair<CallTriple, Object> _pair = new Pair<CallTriple, Object>(callSite, calleeToken, true, false);
 		return exploredCallSites.add(_pair);
 	}
