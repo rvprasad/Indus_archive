@@ -239,8 +239,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + sc + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -261,8 +261,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + v + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -290,8 +290,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + v + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -320,8 +320,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + v + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -351,8 +351,8 @@ class EscapeInfo
 							+ "IEscapeInfo.WRITE_WRITE_SHARED_ACCESS or IEscapeInfo.READ_WRITE_SHARED_ACCESS");
 				}
 			} catch (final NullPointerException _e) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
 							+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
@@ -521,8 +521,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + v + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -552,8 +552,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + sc + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -585,8 +585,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + sc + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + sc + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}
@@ -604,8 +604,8 @@ class EscapeInfo
 		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
 			final AliasSet _as = _triple.getFirst().getThisAS();
@@ -629,8 +629,8 @@ class EscapeInfo
 		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
 			final AliasSet _as = _triple.getFirst().getThisAS();
@@ -660,8 +660,10 @@ class EscapeInfo
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+		if (_triple == null) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + method + ".  So, providing default value - " + _result);
+			}
 		} else {
 			final AliasSet _as = _triple.getFirst().getThisAS();
 
@@ -691,8 +693,8 @@ class EscapeInfo
 		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
 			final AliasSet _as1 = _triple.getFirst().getThisAS();
@@ -716,8 +718,8 @@ class EscapeInfo
 		_triple = this.analysis.method2Triple.get(method);
 
 		if (_triple == null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + method + ".  So, providing default value - " + _result);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + method + ".  So, providing default value - " + _result);
 			}
 		} else {
 			final AliasSet _as1 = _triple.getFirst().getThisAS();
@@ -744,8 +746,8 @@ class EscapeInfo
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("There is no information about " + v + " occurring in " + sm
 						+ ".  So, providing default value - " + _result, _e);
 			}
 		}

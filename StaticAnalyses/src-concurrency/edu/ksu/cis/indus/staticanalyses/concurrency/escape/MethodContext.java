@@ -504,12 +504,6 @@ final class MethodContext
 					_argAS.markAsCrossingThreadBoundary();
 				}
 			}
-
-			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
-				final AliasSet _as = _j.next();
-
-				_as.markAsCrossingThreadBoundary();
-			}
 		}
 	}
 

@@ -361,13 +361,14 @@ final class AliasSet
 				stringifying = true;
 				_result = new ToStringBuilder(this).append("global", this.global).append("multiThreadAccess",
 						this.multiThreadAccessibility).append("accessed", this.accessed).append("notifies", this.notifies)
-						.append("waits", this.waits).append("writtenFields", this.writtenFields).append("readFields",
-								this.readFields).append("readyEntities", this.readyEntities).append("lockEntities",
-								this.lockEntities).append("rwEntities", this.readwriteEntities).append("wwEntities",
-								this.writewriteEntities).append("intraProcRefEntities", this.intraProcRefEntities).append(
-								"sigsOfSharedFields", sigsOfRWSharedFields).append("sigsOfWriteWriteSharedFields",
-								sigsOfWWSharedFields).append("readThreads", readThreads).append("writeThreads", writeThreads)
-						.append("fieldMap", this.fieldMap).toString();
+						.append("waits", this.waits).append("locked", this.locked)
+						.append("writtenFields", this.writtenFields).append("readFields", this.readFields).append(
+								"readyEntities", this.readyEntities).append("lockEntities", this.lockEntities).append(
+								"rwEntities", this.readwriteEntities).append("wwEntities", this.writewriteEntities).append(
+								"intraProcRefEntities", this.intraProcRefEntities).append("sigsOfSharedFields",
+								sigsOfRWSharedFields).append("sigsOfWriteWriteSharedFields", sigsOfWWSharedFields).append(
+								"readThreads", readThreads).append("writeThreads", writeThreads).append("fieldMap",
+								this.fieldMap).toString();
 				stringifying = false;
 			}
 		}
@@ -835,8 +836,8 @@ final class AliasSet
 	/**
 	 * Records that the object associated with this alias set is accessible globally via static fields.
 	 * 
-	 * @post isGlobal() == true and isShared() == true
-	 * @post fieldMap.values()->forall(o | o.isGlobal() == true and o.isShared() == true)
+	 * @post isGlobal() == true
+	 * @post fieldMap.values()->forall(o | o.isGlobal() == true)
 	 */
 	void setGlobal() {
 		final AliasSet _rep = find();
@@ -1201,7 +1202,11 @@ final class AliasSet
 			}
 
 			if (readyEntities.isEmpty()) {
-				readyEntities.add(getNewReadyEntity());
+				if (represented.readyEntities != null && !represented.readyEntities.isEmpty()) {
+					readyEntities.addAll(represented.readyEntities);
+				} else {
+					readyEntities.add(getNewReadyEntity());
+				}
 			}
 		}
 
@@ -1211,7 +1216,12 @@ final class AliasSet
 			}
 
 			if (lockEntities.isEmpty()) {
-				lockEntities.add(getNewLockEntity());
+				if (represented.lockEntities != null && !represented.lockEntities.isEmpty()) {
+					lockEntities.addAll(represented.lockEntities);
+				} else {
+					lockEntities.add(getNewLockEntity());
+				}
+
 			}
 		}
 
@@ -1223,7 +1233,11 @@ final class AliasSet
 			}
 
 			if (readwriteEntities.isEmpty()) {
-				readwriteEntities.add(getNewShareEntity());
+				if (represented.readwriteEntities != null && !represented.readwriteEntities.isEmpty()) {
+					readwriteEntities.addAll(represented.readwriteEntities);
+				} else {
+					readwriteEntities.add(getNewShareEntity());
+				}
 			}
 			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(readFields, represented.writtenFields));
 			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.readFields));
@@ -1236,12 +1250,15 @@ final class AliasSet
 			}
 
 			if (writewriteEntities.isEmpty()) {
-				writewriteEntities.add(getNewShareEntity());
+				if (represented.writewriteEntities != null && !represented.writewriteEntities.isEmpty()) {
+					writewriteEntities.addAll(represented.writewriteEntities);
+				} else {
+					writewriteEntities.add(getNewShareEntity());
+				}
 			}
 			sigsOfWWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.writtenFields));
 		}
 	}
-
 }
 
 // End of File

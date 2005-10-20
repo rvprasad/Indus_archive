@@ -248,6 +248,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final ReadWriteInfo objectReadWriteInfo;
 
 	/**
+	 * This is to remember that global alias sets should be marked as being multi thread accessed.  
+	 */
+	private boolean markGlobalsAsMultiThreadAccessed;
+
+	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object. The default value for escapes, reads, and writes is set to
 	 * <code>true</code>, <code>false</code>, and <code>false</code>, respectively.
 	 * 
@@ -297,6 +302,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
 
+		markGlobalsAsMultiThreadAccessed = false;
+		
 		performPhase2();
 
 		performPhase3();
@@ -686,6 +693,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				discardReferentialAliasSets(_sm);
 			}
 		}
+
+		if (markGlobalsAsMultiThreadAccessed) {
+			for (final Iterator<AliasSet> _i = class2aliasSet.values().iterator(); _i.hasNext();) {
+				final AliasSet _as = _i.next();
+				_as.markAsCrossingThreadBoundary();
+			}
+		}
 	}
 
 	/**
@@ -749,6 +763,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
+	}
+	
+
+	/**
+	 * Indicates that globals should be marked as multi thread accessed. 
+	 * 
+	 */
+	void needToMarkGlobalsAsMultiThreadAccessed() {
+		markGlobalsAsMultiThreadAccessed = true;
+		
 	}
 }
 
