@@ -195,10 +195,10 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection<MethodLevelSliceCriterion> getCriteria(final SootMethod method) {
+	public Collection<ISliceCriterion> getCriteria(final SootMethod method) {
 		final MethodLevelSliceCriterion _criterion = new MethodLevelSliceCriterion();
 		_criterion.initialize(method);
-		return Collections.singleton(_criterion);
+		return Collections.singleton((ISliceCriterion) _criterion);
 	}
 
 	/**
