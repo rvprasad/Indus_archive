@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import soot.SootMethod;
 
@@ -51,8 +50,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  */
-public interface ISliceCriterion
-  extends IPoolable {
+public interface ISliceCriterion {
 	/**
 	 * Retrieves the call stack.
 	 *

@@ -14,14 +14,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-
-import org.apache.commons.pool.impl.SoftReferenceObjectPool;
-
 /**
  * This class represents method-level slice criterion. This class has support builtin for object pooling.
  * 
@@ -31,29 +23,6 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  */
 class MethodLevelSliceCriterion
 		extends AbstractSliceCriterion {
-
-	/**
-	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
-	 * 
-	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(StmtLevelSliceCriterion)
-	 */
-	static final ObjectPool METHOD_POOL = new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-
-		/**
-		 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-		 */
-		public final Object makeObject() {
-			final MethodLevelSliceCriterion _result = new MethodLevelSliceCriterion();
-			_result.setPool(METHOD_POOL);
-			return _result;
-		}
-	});
-
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodLevelSliceCriterion.class);
-
 	/**
 	 * @see edu.ksu.cis.indus.slicer.AbstractSliceCriterion#equals(java.lang.Object)
 	 */
@@ -67,27 +36,6 @@ class MethodLevelSliceCriterion
 		}
 
 		return super.equals(object);
-	}
-
-	/**
-	 * Retrieves a method-level slicing criterion object.
-	 * 
-	 * @return a method-level slicing criterion object.
-	 * @throws RuntimeException if an object could not be retrieved from the pool.
-	 * @post result != null
-	 */
-	static MethodLevelSliceCriterion getMethodLevelSliceCriterion() {
-		MethodLevelSliceCriterion _result;
-
-		try {
-			_result = (MethodLevelSliceCriterion) METHOD_POOL.borrowObject();
-		} catch (final Exception _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", _e);
-			}
-			throw new RuntimeException(_e);
-		}
-		return _result;
 	}
 }
 

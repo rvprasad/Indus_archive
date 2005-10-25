@@ -196,7 +196,7 @@ public final class SliceCriteriaFactory {
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public Collection<MethodLevelSliceCriterion> getCriteria(final SootMethod method) {
-		final MethodLevelSliceCriterion _criterion = MethodLevelSliceCriterion.getMethodLevelSliceCriterion();
+		final MethodLevelSliceCriterion _criterion = new MethodLevelSliceCriterion();
 		_criterion.initialize(method);
 		return Collections.singleton(_criterion);
 	}
@@ -311,7 +311,7 @@ public final class SliceCriteriaFactory {
 	 */
 	private ExprLevelSliceCriterion getExprCriteria(final SootMethod method, final Stmt stmt, final ValueBox valueBox,
 			final boolean considerExecution) {
-		final ExprLevelSliceCriterion _temp = ExprLevelSliceCriterion.getExprLevelSliceCriterion();
+		final ExprLevelSliceCriterion _temp = new ExprLevelSliceCriterion();
 		_temp.initialize(method, stmt, valueBox);
 		_temp.setConsiderExecution(considerExecution);
 		return _temp;
@@ -329,7 +329,7 @@ public final class SliceCriteriaFactory {
 	 * @post result != null
 	 */
 	private StmtLevelSliceCriterion getStmtCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
-		final StmtLevelSliceCriterion _stmtCriterion = StmtLevelSliceCriterion.getStmtLevelSliceCriterion();
+		final StmtLevelSliceCriterion _stmtCriterion = new StmtLevelSliceCriterion();
 		_stmtCriterion.initialize(method, stmt);
 		_stmtCriterion.setConsiderExecution(considerExecution);
 		return _stmtCriterion;

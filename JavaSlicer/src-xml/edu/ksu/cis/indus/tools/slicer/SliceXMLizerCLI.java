@@ -304,13 +304,6 @@ public class SliceXMLizerCLI
 				LOGGER.info("JiBX failed during serialization.", _e);
 			}
 		}
-
-		// We use default slicer configuration in which criteria to preserve deadlock properties are created on behalf the CLI
-		// Hence, the CLI should return these criteria to the pool.
-		for (final Iterator _i = slicer.getCriteria().iterator(); _i.hasNext();) {
-			final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
-			_criterion.returnToPool();
-		}
 	}
 
 	/**

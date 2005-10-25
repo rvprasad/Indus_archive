@@ -21,14 +21,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-
-import org.apache.commons.pool.impl.SoftReferenceObjectPool;
-
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
@@ -43,28 +35,6 @@ import soot.jimple.Stmt;
  */
 class StmtLevelSliceCriterion
   extends AbstractSliceCriterion {
-	/** 
-	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
-	 *
-	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(StmtLevelSliceCriterion)
-	 */
-	static final ObjectPool STMT_POOL =
-		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-				/**
-				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-				 */
-				public final Object makeObject() {
-					final StmtLevelSliceCriterion _result = new StmtLevelSliceCriterion();
-					_result.setPool(STMT_POOL);
-					return _result;
-				}
-			});
-
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(StmtLevelSliceCriterion.class);
-
 	/** 
 	 * The statement associated with this criterion.
 	 */
@@ -113,30 +83,6 @@ class StmtLevelSliceCriterion
 	protected Object getCriterion() {
 		return stmt;
 	}
-
-	/**
-	 * Retrieves a statement-level slicing criterion object.
-	 *
-	 * @return a statement-level slicing criterion object.
-	 *
-	 * @throws RuntimeException if an object could not be retrieved from the pool.
-	 *
-	 * @post result != null
-	 */
-	static StmtLevelSliceCriterion getStmtLevelSliceCriterion() {
-		StmtLevelSliceCriterion _result;
-
-		try {
-			_result = (StmtLevelSliceCriterion) STMT_POOL.borrowObject();
-		} catch (final Exception _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", _e);
-			}
-			throw new RuntimeException(_e);
-		}
-		return _result;
-	}
-
 	/**
 	 * Initializes this object.
 	 *

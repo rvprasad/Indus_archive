@@ -21,14 +21,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-
-import org.apache.commons.pool.impl.SoftReferenceObjectPool;
-
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -44,28 +36,6 @@ import soot.jimple.Stmt;
  */
 class ExprLevelSliceCriterion
   extends AbstractSliceCriterion {
-	/** 
-	 * A pool of <code>ExprLevelSliceCriterion</code> criterion objects.
-	 *
-	 * @invariant EXPR_POOL.borrowObject().oclIsKindOf(ExprLevelSliceCriterion)
-	 */
-	static final ObjectPool EXPR_POOL =
-		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-				/**
-				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-				 */
-				public final Object makeObject() {
-					final ExprLevelSliceCriterion _result = new ExprLevelSliceCriterion();
-					_result.setPool(EXPR_POOL);
-					return _result;
-				}
-			});
-
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExprLevelSliceCriterion.class);
-
 	/** 
 	 * The statement associated with this criterion.
 	 */
@@ -132,26 +102,6 @@ class ExprLevelSliceCriterion
 	protected final Stmt getOccurringStmt() {
 		return stmt;
 	}
-
-	/**
-	 * Retrieves an expression-level slicing criterion object.
-	 *
-	 * @return an expression-level slicing criterion object.
-	 *
-	 * @throws RuntimeException if an object could not be retrieved from the pool.
-	 *
-	 * @post result != null
-	 */
-	static ExprLevelSliceCriterion getExprLevelSliceCriterion() {
-		try {
-			final ExprLevelSliceCriterion _result = (ExprLevelSliceCriterion) EXPR_POOL.borrowObject();
-			return _result;
-		} catch (final Exception _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", _e);
-			}
-			throw new RuntimeException(_e);
-		}
 	}
 
 	/**

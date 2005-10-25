@@ -350,8 +350,8 @@ public class BackwardSlicingPart
 				final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 				engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
 				generateCriteriaForReceiverOfAt(_stmt, _caller);
-				engine.enterMethod(_temp);
-			}				
+			}
+			engine.enterMethod(_temp);
 			generateCriteriaForMissedParameters(callee, _index);
 		} else {
 			for (final Iterator<CallTriple> _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
@@ -485,18 +485,19 @@ public class BackwardSlicingPart
 					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = MapUtils.queryObject(callee2callsites, callee,
-				Collections.EMPTY_SET);
-		final Iterator<Triple<Stmt, SootMethod, Stack<CallTriple>>> _i = _temp.iterator();
-		final int _iEnd = _temp.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = _i.next();
-			final Stmt _stmt = _triple.getFirst();
-			final SootMethod _caller = _triple.getSecond();
-			final Stack _stack = _triple.getThird();
-			final InvokeExpr _expr = _stmt.getInvokeExpr();
-			engine.generateExprLevelSliceCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
+		if (callee2callsites.containsKey(callee)) {
+			final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = callee2callsites.remove(callee);
+			final Iterator<Triple<Stmt, SootMethod, Stack<CallTriple>>> _i = _temp.iterator();
+			final int _iEnd = _temp.size();
+	
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = _i.next();
+				final Stmt _stmt = _triple.getFirst();
+				final SootMethod _caller = _triple.getSecond();
+				final Stack _stack = _triple.getThird();
+				final InvokeExpr _expr = _stmt.getInvokeExpr();
+				engine.generateExprLevelSliceCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -668,12 +669,21 @@ public class BackwardSlicingPart
 	 * @pre stmt != null and caller != null and callee != null
 	 */
 	private void recordCallInfoForProcessingArgsTo(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
+		final Stack<CallTriple> _stackClone = engine.getCopyOfCallStackCache();
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
-					+ ", SootMethod callee = " + callee + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+					+ ", SootMethod callee = " + callee + ", stack = " + _stackClone + ") - BEGIN");
 		}
 
-		final Stack<CallTriple> _stackClone = engine.getCopyOfCallStackCache();
+		if (method2params.containsKey(callee)) {
+			final BitSet _params = method2params.get(callee);
+			final InvokeExpr _expr = stmt.getInvokeExpr();
+			for (int _i = _params.nextSetBit(0); _i >= 0; _i = _params.nextSetBit(_i + 1)) {
+				engine.generateExprLevelSliceCriterion(_expr.getArgBox(_i), stmt, caller, true, _stackClone);
+			}
+		}
+		
 		final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = new Triple<Stmt, SootMethod, Stack<CallTriple>>(stmt,
 				caller, _stackClone);
 		MapUtils.putIntoCollectionInMapUsingFactory(callee2callsites, callee, _triple, SetUtils

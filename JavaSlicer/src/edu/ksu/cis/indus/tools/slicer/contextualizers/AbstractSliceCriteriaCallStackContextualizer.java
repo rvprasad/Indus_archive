@@ -157,7 +157,6 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
                     addCriteriaWithGivenCallStackToResult(_temp, _callStack.clone(), _result);
                 }
 			}
-			_criterion.returnToPool();
 			_j.remove();
 		}
 		baseCriteria.addAll(_result);

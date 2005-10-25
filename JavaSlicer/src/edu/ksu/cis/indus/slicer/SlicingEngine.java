@@ -220,6 +220,8 @@ public final class SlicingEngine {
 	 */
 	public SlicingEngine() {
 		collector = new SliceCollector(this);
+		callStringGraph = new SimpleNodeGraph<Object>();
+		callStringGraph.getNode(null);
 	}
 
 	/**
@@ -501,16 +503,15 @@ public final class SlicingEngine {
 		callStackCache = null;
 		criteria.clear();
 		activePart.activate();
-
+		
+		callStringGraph = new SimpleNodeGraph<Object>();
+		callStringGraph.getNode(null);
+		
 		if (directionSensitiveInfo != null) {
 			directionSensitiveInfo.reset();
 		}
-
-		// clear the work bag of slice criterion
-		while (workbag.hasWork()) {
-			final Object _work = workbag.getWork();
-			((IPoolable) _work).returnToPool();
-		}
+		
+		workbag.clear();
 	}
 
 	/**
@@ -576,8 +577,6 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("END - Processing criterion - " + _work);
 			}
-
-			((IPoolable) _work).returnToPool();
 		}
 
 		if (activePart.canProceed()) {
@@ -646,7 +645,6 @@ public final class SlicingEngine {
 			includeMethodAndDeclaringClassInSlice(method);
 		}
 
-		//if (!collectedAllInvocationSites.contains(method)) {
 		if (!haveCollectedAllInvocationSites(method)) {
 			if (ifInsideContext()) {
 				if (callStackCache.peek() != null) {
@@ -657,7 +655,6 @@ public final class SlicingEngine {
 					callStackCache.push(_top);
 				}
 			} else {
-				//collectedAllInvocationSites.add(method);
 				markAsCollectedAllInvocationSites(method);
 
 				for (final Iterator _i = cgi.getCallers(method).iterator(); _i.hasNext();) {
@@ -1115,22 +1112,22 @@ public final class SlicingEngine {
 	 */
 	private boolean recordCallStackForVisitedMethod(final SimpleNode<Object> methodNode) {
 		final int _limit = callStackCache.size() - 1;
-		final Collection<SimpleNode<Object>> _succsOfSrc = new ArrayList<SimpleNode<Object>>();
-		final Collection<SimpleNode<Object>> _reachablesFrom = new HashSet<SimpleNode<Object>>();
-		boolean _result = true;
+		boolean _considerCallStack = callStackCache.peek() != null;
+		boolean _createdNewNodes = false;
 		
-		for (int _i = _limit; _i >= 0 && _result; _i--) {
-			final CallTriple _o = callStackCache.get(_i);
-			SimpleNode<Object> _node = callStringGraph.queryNode(_o);
-
+		for (int _i = _limit; _i >= 0 && _considerCallStack; _i--) {
+			final Object _o = callStackCache.get(_i);
+			
+			SimpleNode<Object> _node = callStringGraph.queryNode(_o);		
+			
 			if (_node == null) {
 				_node = callStringGraph.getNode(_o);
-			} else {
+				_createdNewNodes = true;
+			} else if (_o != null) {
 				if (_node.getSuccsOf().isEmpty()) {
-					_result = false;
+					_considerCallStack = false;
 				} else if (_i == 0) {
-					_reachablesFrom.clear();
-					_reachablesFrom.addAll(callStringGraph.getReachablesFrom(_node, true));
+					final Collection<SimpleNode<Object>> _reachablesFrom = callStringGraph.getReachablesFrom(_node, true);
 					_reachablesFrom.add(_node);
 
 					final Iterator<SimpleNode<Object>> _j = _reachablesFrom.iterator();
@@ -1138,8 +1135,7 @@ public final class SlicingEngine {
 
 					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final SimpleNode<Object> _src = _j.next();
-						_succsOfSrc.clear();
-						_succsOfSrc.addAll(_src.getSuccsOf());
+						final Collection<SimpleNode<Object>> _succsOfSrc = new ArrayList<SimpleNode<Object>>(_src.getSuccsOf());
 
 						final Iterator<SimpleNode<Object>> _k = _succsOfSrc.iterator();
 						final int _kEnd = _succsOfSrc.size();
@@ -1149,21 +1145,23 @@ public final class SlicingEngine {
 							callStringGraph.removeEdgeFromTo(_src, _dest);
 						}
 					}
-					_result = false;
+					_considerCallStack = false;
 				}
+			} else {
+				_considerCallStack = false;
 			}
 
-			if (_limit - _i > 0 && _result) {
+			if (_limit - _i > 0 && (_considerCallStack || _createdNewNodes)) {
 				final SimpleNode<Object> _prev = callStringGraph.queryNode(callStackCache.get(_i + 1));
 
 				if (_prev != null) {
 					callStringGraph.addEdgeFromTo(_prev, _node);
 				}
-			}
+			}			
 		}
 		
 		callStringGraph.addEdgeFromTo(methodNode, callStringGraph.getNode(callStackCache.peek()));
-		return _result;
+		return _considerCallStack || _createdNewNodes;
 	}
 	
 	/**
@@ -1179,7 +1177,7 @@ public final class SlicingEngine {
 	/**
 	 * DOCUMENT ME!
 	 */
-	private final SimpleNodeGraph<Object> callStringGraph = new SimpleNodeGraph<Object>();
+	private SimpleNodeGraph<Object> callStringGraph;
 	
 	/**
 	 * DOCUMENT ME!

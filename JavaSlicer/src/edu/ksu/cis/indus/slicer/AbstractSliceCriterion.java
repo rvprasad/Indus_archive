@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.slicer;
 import edu.ksu.cis.indus.common.CustomToStringStyle;
 import edu.ksu.cis.indus.common.collections.Stack;
 
-import edu.ksu.cis.indus.interfaces.AbstractPoolable;
 import static edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -36,7 +35,6 @@ import soot.SootMethod;
  * @version $Revision$
  */
 abstract class AbstractSliceCriterion
-  extends AbstractPoolable
   implements ISliceCriterion {
 	/** 
 	 * The method which is syntactically part of the slice criteria interest..
@@ -100,14 +98,6 @@ abstract class AbstractSliceCriterion
 	@Override public int hashCode() {
 		return new HashCodeBuilder(17, 37).append(this.considerExecution).append(this.callStack).append(this.method)
 											.toHashCode();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
-	 */
-	@Override public void returnToPool() {
-		setCallStack(null);
-		super.returnToPool();
 	}
 
 	/**
