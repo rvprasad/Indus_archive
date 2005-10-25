@@ -102,7 +102,6 @@ class ExprLevelSliceCriterion
 	protected final Stmt getOccurringStmt() {
 		return stmt;
 	}
-	}
 
 	/**
 	 * Initializes this object.
