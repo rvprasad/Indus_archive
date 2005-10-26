@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="/home/ganeshan/Desktop/peq-jars/peq.jar"/>
-    <options overwrite="false" compress="true" exportErrors="true" saveDescription="false" exportWarnings="true"  useSourceFolders="false" buildIfNeeded="false"/>
-    <manifest manifestVersion="1.0" usesManifest="false" reuseManifest="false" saveManifest="false" generateManifest="true" manifestLocation="">
-        <sealing sealJar="false">
-            <packagesToSeal/>
-            <packagesToUnSeal/>
-        </sealing>
-    </manifest>
-    <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
-        <javaElement handleIdentifier="=PEQ/src"/>        
-    </selectedElements>
+<jar path="peq.jar"/>
+<options buildIfNeeded="true" compress="true" descriptionLocation="/PEQ/peq.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" useSourceFolders="false"/>
+<manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="false">
+<sealing sealJar="false">
+<packagesToSeal/>
+<packagesToUnSeal/>
+</sealing>
+</manifest>
+<selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="true">
+<javaElement handleIdentifier="=PEQ/src"/>
+</selectedElements>
 </jardesc>
