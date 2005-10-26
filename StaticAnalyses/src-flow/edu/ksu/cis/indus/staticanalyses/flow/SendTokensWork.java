@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,128 +14,55 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
-import edu.ksu.cis.indus.interfaces.IPoolable;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-
-import org.apache.commons.pool.impl.SoftReferenceObjectPool;
-
-
 /**
  * This class represents a peice of work to inject a set of tokens into a flow graph node.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <N> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
-public class SendTokensWork
-  extends AbstractTokenProcessingWork
-  implements IPoolable {
-	/** 
-	 * This is the work pool of work peices that will be reused upon request.
-	 *
-	 * @invariant POOL.borrowObject().oclIsKindOf(SendTokensWork)
-	 */
-	private static final ObjectPool POOL =
-		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-				/**
-				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-				 */
-				public Object makeObject() {
-					return new SendTokensWork(null);
-				}
-			});
+public class SendTokensWork<N extends IFGNode<N, V>, V>
+		extends AbstractTokenProcessingWork {
 
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendTokensWork.class);
 
-	/** 
+	/**
 	 * The flow graph node associated with this work.
 	 */
-	private IFGNode node;
+	private N node;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * @param associatedNode DOCUMENT ME!
+	 * @param <T> DOCUMENT ME!
+	 * 
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
-	SendTokensWork(final ITokens tokenSet) {
+	SendTokensWork(final N associatedNode, final ITokens tokenSet) {
 		super(tokenSet);
-	}
-
-	/**
-	 * Creates a new <code>SendTokensWork</code> instance.
-	 *
-	 * @param toNode the node into which the tokens need to be injected.
-	 * @param tokensToBeSent a collection containing the tokens to be injected.
-	 *
-	 * @return a work peice with the given data embedded in it.
-	 *
-	 * @throws RuntimeException occurs when pooling fails.  This is beyond our control.
-	 *
-	 * @pre toNode != null and tokensToBeSent != null
-	 * @post result != null
-	 */
-	public static final SendTokensWork getWork(final IFGNode toNode, final ITokens tokensToBeSent) {
-		try {
-			final SendTokensWork _result = (SendTokensWork) POOL.borrowObject();
-			_result.node = toNode;
-			_result.tokens = (ITokens) tokensToBeSent.getClone();
-			return _result;
-		} catch (final Exception _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", _e);
-			}
-			throw new RuntimeException(_e);
-		}
+		node = associatedNode;
 	}
 
 	/**
 	 * Injects the tokens into the associated node.
 	 */
 	public final void execute() {
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("execute() - Propagating tokens - " + tokens.getValues() + " into node " + node);
 		}
 
 		node.injectTokens(tokens);
-	}
-
-	/**
-	 * Ignored.
-	 *
-	 * @see edu.ksu.cis.indus.interfaces.IPoolable#setPool(org.apache.commons.pool.ObjectPool)
-	 */
-	@AEmpty public void setPool(final ObjectPool pool) {
-		// does nothing
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
-	 */
-	public void returnToPool() {
-		try {
-			if (node instanceof AbstractFGNode) {
-				((AbstractFGNode) node).forgetSendTokensWork();
-			}
-			node = null;
-			tokens = null;
-			POOL.returnObject(this);
-		} catch (final Exception _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", _e);
-			}
-			throw new RuntimeException(_e);
-		}
 	}
 }
 

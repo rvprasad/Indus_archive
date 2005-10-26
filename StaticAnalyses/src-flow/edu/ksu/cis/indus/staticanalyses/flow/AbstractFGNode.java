@@ -137,7 +137,7 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 
 		if (!_diff.isEmpty()) {
 			if (sendTokensWork == null) {
-				sendTokensWork = SendTokensWork.getWork(this, _diff);
+				sendTokensWork = new SendTokensWork<N, S>((N) this, _diff);
 				_workBag.addWork(sendTokensWork);
 			} else {
 				sendTokensWork.addTokens(_diff);

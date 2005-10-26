@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/nlog4j.jar"/>
 	<classpathentry sourcepath="/JAVACLASSES/swt/src.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
