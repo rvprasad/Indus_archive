@@ -34,6 +34,7 @@ import java.util.Iterator;
 import soot.ArrayType;
 import soot.Modifier;
 import soot.SootField;
+import soot.Value;
 
 
 /**
@@ -51,7 +52,7 @@ import soot.SootField;
  * @version $Revision$
  */
 public final class OFAnalyzer
-  extends AbstractAnalyzer {
+  extends AbstractAnalyzer<Value> {
 	/**
 	 * Creates a new <code>OFAnalyzer</code> instance.
 	 *
@@ -169,15 +170,15 @@ public final class OFAnalyzer
 	 * @pre f != null and sites != null
 	 * @pre sites.oclIsKindOf(Collection(Object))
 	 */
-	public Collection getValues(final SootField f, final Collection sites) {
+	public Collection<Value> getValues(final SootField f, final Collection sites) {
 		Object _temp = null;
-		Collection _retValues;
+		Collection<Value> _retValues;
 		final AllocationContext _ctxt = (AllocationContext) context;
 
 		if (Modifier.isStatic(f.getModifiers())) {
 			_retValues = getValues(f);
 		} else {
-			_retValues = new HashSet();
+			_retValues = new HashSet<Value>();
 			_temp = _ctxt.getAllocationSite();
 
 			for (final Iterator _i = sites.iterator(); _i.hasNext();) {
@@ -186,7 +187,7 @@ public final class OFAnalyzer
 			}
 			_ctxt.setAllocationSite(_temp);
 		}
-		return _retValues.isEmpty() ? Collections.EMPTY_SET
+		return _retValues.isEmpty() ? Collections.<Value>emptySet()
 									: _retValues;
 	}
     
@@ -202,12 +203,12 @@ public final class OFAnalyzer
      * @pre t != null and sites != null
      * @pre sites.oclIsKindOf(Collection(Object))
      */
-    public Collection getValues(final ArrayType t, final Collection sites) {
+    public Collection<Value> getValues(final ArrayType t, final Collection sites) {
         Object _temp = null;
-        Collection _retValues;
+        Collection<Value> _retValues;
         final AllocationContext _ctxt = (AllocationContext) context;
 
-            _retValues = new HashSet();
+            _retValues = new HashSet<Value>();
             _temp = _ctxt.getAllocationSite();
 
             for (final Iterator _i = sites.iterator(); _i.hasNext();) {
@@ -216,7 +217,7 @@ public final class OFAnalyzer
             }
             _ctxt.setAllocationSite(_temp);
 
-        return _retValues.isEmpty() ? Collections.EMPTY_SET
+        return _retValues.isEmpty() ? Collections.<Value>emptySet()
                                     : _retValues;
     }
 }
