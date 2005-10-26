@@ -15,7 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.ListUtils;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -89,31 +91,9 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * 		  results based on the indirect non-termination sensitive backward dependence will be  complete.</i>
 	 */
 	NonTerminationInsensitiveEntryControlDA(final boolean indirect) {
-		super();
+		super(Direction.BI_DIRECTIONAL);
 		entryControlDA = new NonTerminationSensitiveEntryControlDA();
 		this.useIndirectBackwardDependence = indirect;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setBasicBlockGraphManager(BasicBlockGraphMgr)
-	 */
-	public void setBasicBlockGraphManager(final BasicBlockGraphMgr bbm) {
-		super.setBasicBlockGraphManager(bbm);
-		entryControlDA.setBasicBlockGraphManager(bbm);
-	}
-
-	/**
-	 * {@inheritDoc} This implementation will return <code>BI_DIRECTIONAL</code>.
-	 */
-	public Object getDirection() {
-		return BI_DIRECTIONAL;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
-	 */
-	public IDependencyAnalysis getIndirectVersionOfDependence() {
-		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -121,9 +101,11 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public void analyze() {
+	@Override public void analyze() {
 		analyze(callgraph.getReachableMethods());
 	}
+
+
 
 	/**
 	 * Calculates the control dependency information for the provided methods.  The use of this method does not require a
@@ -131,9 +113,9 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 *
 	 * @param methods to be analyzed.
 	 *
-	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
+	 * @pre methods != null and not method->includes(null)
 	 */
-	public void analyze(final Collection methods) {
+	public void analyze(final Collection<SootMethod> methods) {
 		unstable();
 
 		entryControlDA.analyze(methods);
@@ -150,8 +132,8 @@ public final class NonTerminationInsensitiveEntryControlDA
 			_nda = entryControlDA;
 		}
 
-		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _method = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _method = _i.next();
 			processMethod(_method, _nda);
 		}
 
@@ -172,6 +154,14 @@ public final class NonTerminationInsensitiveEntryControlDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setBasicBlockGraphManager(BasicBlockGraphMgr)
+	 */
+	@Override public void setBasicBlockGraphManager(final BasicBlockGraphMgr bbm) {
+		super.setBasicBlockGraphManager(bbm);
+		entryControlDA.setBasicBlockGraphManager(bbm);
+	}
+
+	/**
 	 * Sets up internal data structures.
 	 *
 	 * @throws InitializationException when call graph service is not provided.
@@ -180,7 +170,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
-	protected void setup()
+	@Override protected void setup()
 	  throws InitializationException {
 		super.setup();
 
@@ -201,29 +191,29 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @return a collection of control sinks.
 	 *
 	 * @pre graph != null
-	 * @post result != null and result.oclIsKindOf(Collection(Collection(INode)))
+	 * @post result != null
 	 * @post result->forall(o | o->forall(p | graph.getNodes().contains(p)))
 	 */
-	private Collection getControlSinksOf(final BasicBlockGraph graph) {
-		final Collection _result = new ArrayList();
-		final Collection _sccs = graph.getSCCs(true);
-		final Iterator _i = _sccs.iterator();
+	private Collection<Collection<BasicBlock>> getControlSinksOf(final BasicBlockGraph graph) {
+		final Collection<Collection<BasicBlock>> _result = new ArrayList<Collection<BasicBlock>>();
+		final List<List<BasicBlock>> _sccs = graph.getSCCs(true);
+		final Iterator<List<BasicBlock>> _i = _sccs.iterator();
 		final int _iEnd = _sccs.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			boolean _isAControlSink = true;
-			final Collection _scc = (Collection) _i.next();
+			final List<BasicBlock> _scc =  _i.next();
             final int _sccSize = _scc.size();
 
             if (_scc.size() > 1) {
-            final Iterator _j = _scc.iterator();
+            final Iterator<BasicBlock> _j = _scc.iterator();
 
 			for (int _jIndex = 0; _jIndex < _sccSize && _isAControlSink; _jIndex++) {
-				final BasicBlock _node = (BasicBlock) _j.next();
+				final BasicBlock _node = _j.next();
                 _isAControlSink &= _scc.containsAll(_node.getSuccsOf()) && !_node.isAnExitBlock();
 			}
             } else {
-                final BasicBlock _node = (BasicBlock) _scc.iterator().next();
+                final BasicBlock _node = _scc.iterator().next();
                 _isAControlSink &= _node.getSuccsOf().contains(_node) || _node.isAnExitBlock();
             }
 
@@ -243,17 +233,16 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @return a collection of nodes.
 	 *
 	 * @pre node != null and sinks != null
-	 * @pre sinks.oclIsKindOf(Collection(Collection(INode)))
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post result != null 
 	 * @post result->foreach(o | sinks->exists(p | p.contains(o) and not p.contains(node)))
 	 */
-	private Collection getNodesOfSinksNotContainingNode(final INode node, final Collection sinks) {
-		final Collection _result = new ArrayList();
-		final Iterator _i = sinks.iterator();
+	private Collection<BasicBlock> getNodesOfSinksNotContainingNode(final INode node, final Collection<Collection<BasicBlock>> sinks) {
+		final Collection<BasicBlock> _result = new ArrayList<BasicBlock>();
+		final Iterator<Collection<BasicBlock>> _i = sinks.iterator();
 		final int _iEnd = sinks.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Collection _sinkNodes = (Collection) _i.next();
+			final Collection<BasicBlock> _sinkNodes = _i.next();
 
 			if (!_sinkNodes.contains(node)) {
 				_result.addAll(_sinkNodes);
@@ -271,31 +260,31 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @pre method != null
 	 */
 	private void processMethod(final SootMethod method, final IDependencyAnalysis da) {
-		final List _methodLocalDee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
-		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
-		final List _stmtList = getStmtList(method);
+		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getFromMapUsingFactory(dependee2dependent, method, ListUtils.<Collection<Stmt>>getFactory());
+		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getFromMapUsingFactory(dependent2dependee, method, ListUtils.<Collection<Stmt>>getFactory());
+		final List<Stmt> _stmtList = getStmtList(method);
 		final int _size = _stmtList.size();
-		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _size, null);
-		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _size, null);
+		ListUtils.ensureSize(_methodLocalDent2Dee, _size, null);
+		ListUtils.ensureSize(_methodLocalDee2Dent, _size, null);
 
 		final BasicBlockGraph _bbg = getBasicBlockGraph(method);
-		final Collection _sinks = getControlSinksOf(_bbg);
-		final Collection _dependees = new ArrayList();
-		final List _nodes = _bbg.getNodes();
-		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_dependees);
-		final Iterator _i = _nodes.iterator();
+		final Collection<Collection<BasicBlock>> _sinks = getControlSinksOf(_bbg);
+		final Collection<Stmt> _dependees = new ArrayList<Stmt>();
+		final List<BasicBlock> _nodes = _bbg.getNodes();
+		final IWorkBag<Stmt> _wb = new HistoryAwareLIFOWorkBag<Stmt>(_dependees);
+		final Iterator<BasicBlock> _i = _nodes.iterator();
 		final int _iEnd = _nodes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final BasicBlock _dependentBB = (BasicBlock) _i.next();
-			final Collection _sinkNodes = getNodesOfSinksNotContainingNode(_dependentBB, _sinks);
+			final BasicBlock _dependentBB = _i.next();
+			final Collection<BasicBlock> _sinkNodes = getNodesOfSinksNotContainingNode(_dependentBB, _sinks);
 
 			// we use a temporary copy of dependees as we will be updating the orginal collection.
 			_dependees.clear();
 			_wb.addAllWork(da.getDependees(_dependentBB.getLeaderStmt(), method));
 
 			while (_wb.hasWork()) {
-				final Stmt _dependeeStmt = (Stmt) _wb.getWork();
+				final Stmt _dependeeStmt = _wb.getWork();
 				final BasicBlock _dependeeBB = _bbg.getEnclosingBlock(_dependeeStmt);
 
 				if (shouldRemoveDependenceBetween(_dependeeBB, _dependentBB, _sinkNodes)) {
@@ -318,18 +307,17 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @return <code>true</code> if the dependence relation should be removed; <code>false</code>, otherwise.
 	 *
 	 * @pre dependeeBB != null and dependentBB != null and sinkNodes != null
-	 * @pre sinkNodes.oclIsKindOf(Collection(BasicBlock))
 	 */
 	private boolean shouldRemoveDependenceBetween(final BasicBlock dependeeBB, final BasicBlock dependentBB,
-		final Collection sinkNodes) {
-		final Collection _visited = new HashSet();
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_visited);
+		final Collection<BasicBlock> sinkNodes) {
+		final Collection<BasicBlock> _visited = new HashSet<BasicBlock>();
+		final IWorkBag<BasicBlock> _wb = new HistoryAwareFIFOWorkBag<BasicBlock>(_visited);
 		boolean _notcd = true;
 		_visited.add(dependentBB);
 		_wb.addWork(dependeeBB);
 
 		while (_wb.hasWork() && _notcd) {
-			final BasicBlock _bb = (BasicBlock) _wb.getWork();
+			final BasicBlock _bb = _wb.getWork();
 
 			if (sinkNodes.contains(_bb)) {
 				_notcd = false;
@@ -355,12 +343,12 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @pre dependentBB != null and dependeeBB != null and methodLocalDee2Dent != null and methodLocalDent2Dee != null and
 	 * 		stmtList != null
 	 */
-	private void updateDependence(final BasicBlock dependentBB, final BasicBlock dependeeBB, final List methodLocalDee2Dent,
-		final List methodLocalDent2Dee, final List stmtList, final boolean remove) {
+	private void updateDependence(final BasicBlock dependentBB, final BasicBlock dependeeBB, final List<Collection<Stmt>> methodLocalDee2Dent,
+		final List<Collection<Stmt>> methodLocalDent2Dee, final List<Stmt> stmtList, final boolean remove) {
 		final Stmt _deeStmt = dependeeBB.getTrailerStmt();
-		final Collection _stmtLevelDependentSet =
-			(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDee2Dent, stmtList.indexOf(_deeStmt));
-		final List _dents = dependentBB.getStmtsOf();
+		final Collection<Stmt> _stmtLevelDependentSet =
+			ListUtils.getAtIndexFromListUsingFactory(methodLocalDee2Dent, stmtList.indexOf(_deeStmt), SetUtils.<Stmt>getFactory());
+		final List<Stmt> _dents = dependentBB.getStmtsOf();
 
 		if (remove) {
 			_stmtLevelDependentSet.removeAll(_dents);
@@ -368,13 +356,13 @@ public final class NonTerminationInsensitiveEntryControlDA
 			_stmtLevelDependentSet.addAll(_dents);
 		}
 
-		final Iterator _i = _dents.iterator();
+		final Iterator<Stmt> _i = _dents.iterator();
 		final int _iEnd = _dents.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stmt _dentStmt = (Stmt) _i.next();
-			final Collection _stmtLevelDependeeSet =
-				(Collection) CollectionsUtilities.getSetAtIndexFromList(methodLocalDent2Dee, stmtList.indexOf(_dentStmt));
+			final Stmt _dentStmt = _i.next();
+			final Collection<Stmt> _stmtLevelDependeeSet =
+				ListUtils.getAtIndexFromListUsingFactory(methodLocalDent2Dee, stmtList.indexOf(_dentStmt), SetUtils.<Stmt>getFactory());
 
 			if (remove) {
 				_stmtLevelDependeeSet.remove(_deeStmt);

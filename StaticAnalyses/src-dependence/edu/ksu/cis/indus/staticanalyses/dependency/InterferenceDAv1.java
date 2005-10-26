@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,6 +16,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -57,91 +57,52 @@ import soot.jimple.NullConstant;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 
-
 /**
- * This class provides interference dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
- * with JVM Concurrency Primitives"</a>.
- * 
+ * This class provides interference dependency information. This implementation refers to the technical report <a
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal Study of Slicing for Multi-threaded Program with
+ * JVM Concurrency Primitives"</a>.
  * <p>
- * The calculated information is very pessimistic.  This analysis uses points-to analysis to check if the primaries of two
+ * The calculated information is very pessimistic. This analysis uses points-to analysis to check if the primaries of two
  * field references may be aliased.
  * </p>
- * 
  * <p>
- * This analysis assumes that there can be no interference between field references in class initializers.  This is true for
+ * This analysis assumes that there can be no interference between field references in class initializers. This is true for
  * good programs.
  * </p>
- * 
  * <p>
  * This analysis should be <code>setup</code> before preprocessing.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- *
  * @invariant dependent2dependee.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
- * 			  SootMethodMethod)))))
+ *            SootMethodMethod)))))
  * @invariant dependee2dependent.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
- * 			  SootMethodMethod)))))
+ *            SootMethodMethod)))))
  */
 public class InterferenceDAv1
-  extends AbstractDependencyAnalysis<Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, 
-  Collection<Pair<Stmt, SootMethod>>>, Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, 
-  Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(InterferenceDAv1.class);
-
-	/** 
-	 * This provides threading information pertaining to the system being analyzed.
-	 */
-	protected IThreadGraphInfo tgi;
-
-	/** 
-	 * This manages pairs.
-	 */
-	protected PairManager pairMgr;
-
-	/** 
-	 * The object flow analysis to be used.
-	 */
-	private IValueAnalyzer ofa;
-
-	/** 
-	 * This indicates if object flow analysis should be used.
-	 */
-	private boolean useOFA;
-
-	/**
-	 * Creates a new InterferenceDAv1 object.
-	 */
-	public InterferenceDAv1() {
-		super(Direction.BI_DIRECTIONAL);
-		preprocessor = new PreProcessor();
-	}
+		extends
+		AbstractDependencyAnalysis<Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>, Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> {
 
 	/**
 	 * A preprocessor which captures all the array and field access locations in the analyzed system.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractProcessor {
+			extends AbstractProcessor {
+
 		/**
-		 * Called by the controller when it encounters an assignment statement.  This records array access and field access
+		 * Called by the controller when it encounters an assignment statement. This records array access and field access
 		 * expressions.
-		 *
+		 * 
 		 * @param stmt in which the access expression occurs.
 		 * @param context in which <code>stmt</code> occurs.
-		 *
 		 * @pre stmt.isOclKindOf(AssignStmt)
 		 * @pre context.getCurrentMethod() != null
-		 *
 		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
 		@Override public void callback(final Stmt stmt, final Context context) {
@@ -151,18 +112,22 @@ public class InterferenceDAv1
 			if (_as.containsFieldRef()) {
 				if (_as.getLeftOp() instanceof FieldRef) {
 					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
-					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _sf, MapUtils.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>getFactory());
+					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _sf, MapUtils
+							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
 				} else {
 					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
-					_temp = CollectionsUtilities.getMapFromMap(dependent2dependee, _sf);
+					_temp = MapUtils.getFromMapUsingFactory(dependent2dependee, _sf, MapUtils
+							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
 				}
 			} else if (_as.containsArrayRef()) {
 				if (_as.getLeftOp() instanceof ArrayRef) {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getLeftOp()).getBase().getType();
-					_temp = CollectionsUtilities.getMapFromMap(dependee2dependent, _at);
+					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _at, MapUtils
+							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
 				} else {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getRightOp()).getBase().getType();
-					_temp = CollectionsUtilities.getMapFromMap(dependent2dependee, _at);
+					_temp = MapUtils.getFromMapUsingFactory(dependent2dependee, _at, MapUtils
+							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
 				}
 			}
 
@@ -201,99 +166,36 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Returns the statements on which the field/array reference at the given statement and method depends on.
-	 *
-	 * @param stmt is the statement in which the array/field reference occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @return a colleciton of pairs comprising of a statement and a method.
-	 *
-	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * The logger used by instances of this class to log messages.
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getDependees(final Stmt stmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.<Pair<Stmt, SootMethod>>emptySet();
-		final Stmt _temp = stmt;
-		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
-		Object _dependent = null;
-
-		if (_temp.containsArrayRef()) {
-			_dependent = _temp.getArrayRef().getBase().getType();
-		} else if (_temp.containsFieldRef()) {
-			_dependent = _temp.getFieldRef().getField();
-		}
-
-		if (_dependent != null) {
-			_pair2set = MapUtils.queryObject(dependent2dependee, _dependent, Collections.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>emptyMap());
-
-			if (_pair2set != null) {
-				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
-
-				if (_set != null) {
-					_result = Collections.unmodifiableCollection(_set);
-				}
-			}
-		}
-		return _result;
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(InterferenceDAv1.class);
 
 	/**
-	 * Returns the statements which depend on the field/array reference at the given statement and method.
-	 *
-	 * @param stmt is the statement in which the array/field reference occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @return a colleciton of pairs comprising of a statement and a method.
-	 *
-	 *
-	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * This manages pairs.
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getDependents(final Stmt stmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
-		final Stmt _temp = stmt;
-		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
-		Object _dependee = null;
-
-		if (_temp.containsArrayRef()) {
-			_dependee = _temp.getArrayRef().getBase().getType();
-		} else if (_temp.containsFieldRef()) {
-			_dependee = _temp.getFieldRef().getField();
-		}
-
-		if (_dependee != null) {
-			_pair2set = MapUtils.queryObject(dependee2dependent, _dependee, Collections.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>emptyMap());
-
-			if (_pair2set != null) {
-				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
-
-				if (_set != null) {
-					_result = Collections.unmodifiableCollection(_set);
-				}
-			}
-		}
-		return _result;
-	}
+	protected PairManager pairMgr;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
+	 * This provides threading information pertaining to the system being analyzed.
 	 */
-	public Collection<Comparable> getIds() {
-		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
-	}
-
-	/** 
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
-	 */
-	@Override protected IDependenceRetriever<Stmt, SootMethod, Pair<Stmt, SootMethod>, Stmt, SootMethod, Pair<Stmt, SootMethod>> getDependenceRetriever() {
-		return new PairRetriever<Stmt, SootMethod, Stmt, SootMethod>();
-	}
+	protected IThreadGraphInfo tgi;
 
 	/**
-	 * Sets if object flow analysis should be used or not.
-	 *
-	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
+	 * The object flow analysis to be used.
 	 */
-	public final void setUseOFA(final boolean flag) {
-		useOFA = flag;
+	private IValueAnalyzer<Value> ofa;
+
+	/**
+	 * This indicates if object flow analysis should be used.
+	 */
+	private boolean useOFA;
+
+	/**
+	 * Creates a new InterferenceDAv1 object.
+	 */
+	public InterferenceDAv1() {
+		super(Direction.BI_DIRECTIONAL);
+		preprocessor = new PreProcessor();
 	}
 
 	/**
@@ -319,18 +221,20 @@ public class InterferenceDAv1
 				continue;
 			}
 
-			final Map _dtMap = dependent2dependee.get(_o);
-			final Map _deMap = dependee2dependent.get(_o);
+			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _dtMap = dependent2dependee.get(_o);
+			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _deMap = dependee2dependent.get(_o);
 
-			for (final Iterator _j = _dtMap.keySet().iterator(); _j.hasNext();) {
-				final Pair _dt = (Pair) _j.next();
+			for (final Iterator<Pair<Stmt, SootMethod>> _j = _dtMap.keySet().iterator(); _j.hasNext();) {
+				final Pair<Stmt, SootMethod> _dt = _j.next();
 
-				for (final Iterator _k = _deMap.keySet().iterator(); _k.hasNext();) {
-					final Pair _de = (Pair) _k.next();
+				for (final Iterator<Pair<Stmt, SootMethod>> _k = _deMap.keySet().iterator(); _k.hasNext();) {
+					final Pair<Stmt, SootMethod> _de = _k.next();
 
 					if (considerEffectOfClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
-						CollectionsUtilities.putIntoSetInMap(_dtMap, _dt, _de);
-						CollectionsUtilities.putIntoSetInMap(_deMap, _de, _dt);
+						MapUtils.putIntoCollectionInMapUsingFactory(_dtMap, _dt, _de, SetUtils
+								.<Pair<Stmt, SootMethod>> getFactory());
+						MapUtils.putIntoCollectionInMapUsingFactory(_deMap, _de, _dt, SetUtils
+								.<Pair<Stmt, SootMethod>> getFactory());
 					}
 				}
 			}
@@ -348,43 +252,130 @@ public class InterferenceDAv1
 	}
 
 	/**
+	 * Returns the statements on which the field/array reference at the given statement and method depends on.
+	 * 
+	 * @param stmt is the statement in which the array/field reference occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @return a colleciton of pairs comprising of a statement and a method.
+	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 */
+	public Collection<Pair<Stmt, SootMethod>> getDependees(final Stmt stmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.<Pair<Stmt, SootMethod>> emptySet();
+		final Stmt _temp = stmt;
+		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
+		Object _dependent = null;
+
+		if (_temp.containsArrayRef()) {
+			_dependent = _temp.getArrayRef().getBase().getType();
+		} else if (_temp.containsFieldRef()) {
+			_dependent = _temp.getFieldRef().getField();
+		}
+
+		if (_dependent != null) {
+			_pair2set = MapUtils.queryObject(dependent2dependee, _dependent, Collections
+					.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> emptyMap());
+
+			if (_pair2set != null) {
+				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
+
+				if (_set != null) {
+					_result = Collections.unmodifiableCollection(_set);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns the statements which depend on the field/array reference at the given statement and method.
+	 * 
+	 * @param stmt is the statement in which the array/field reference occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @return a colleciton of pairs comprising of a statement and a method.
+	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 */
+	public Collection<Pair<Stmt, SootMethod>> getDependents(final Stmt stmt, final SootMethod method) {
+		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
+		final Stmt _temp = stmt;
+		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
+		Object _dependee = null;
+
+		if (_temp.containsArrayRef()) {
+			_dependee = _temp.getArrayRef().getBase().getType();
+		} else if (_temp.containsFieldRef()) {
+			_dependee = _temp.getFieldRef().getField();
+		}
+
+		if (_dependee != null) {
+			_pair2set = MapUtils.queryObject(dependee2dependent, _dependee, Collections
+					.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> emptyMap());
+
+			if (_pair2set != null) {
+				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
+
+				if (_set != null) {
+					_result = Collections.unmodifiableCollection(_set);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
+	 */
+	public Collection<Comparable> getIds() {
+		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
+	}
+
+	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
-	public void reset() {
+	@Override public void reset() {
 		super.reset();
 	}
 
-	///CLOVER:OFF
+	/**
+	 * Sets if object flow analysis should be used or not.
+	 * 
+	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
+	 */
+	public final void setUseOFA(final boolean flag) {
+		useOFA = flag;
+	}
 
 	/**
-	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
-	 *
+	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
+	 * 
 	 * @return a stringized representation of this object.
 	 */
-	public String toString() {
-		final StringBuffer _result =
-			new StringBuffer("Statistics for Interference dependence as calculated by " + getClass().getName() + "\n");
+	@Override public String toString() {
+		final StringBuffer _result = new StringBuffer("Statistics for Interference dependence as calculated by "
+				+ getClass().getName() + "\n");
 		int _lEdgeCount = 0;
 		int _edgeCount = 0;
 
 		final StringBuffer _temp = new StringBuffer();
 
-		final List _entrySet = new ArrayList(dependent2dependee.entrySet());
+		final List<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>> _entrySet = new ArrayList<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>>(
+				dependent2dependee.entrySet());
 		Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator _i = _entrySet.iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
+		for (final Iterator<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>> _i = _entrySet
+				.iterator(); _i.hasNext();) {
+			final Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _entry = _i.next();
 			_lEdgeCount = 0;
 
-			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
-				final Map.Entry _entry2 = (Map.Entry) _j.next();
+			for (final Iterator<Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _j = _entry.getValue()
+					.entrySet().iterator(); _j.hasNext();) {
+				final Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _entry2 = _j.next();
 
-				final Collection _collection = (Collection) _entry2.getValue();
+				final Collection<Pair<Stmt, SootMethod>> _collection = _entry2.getValue();
 
 				if (_collection != null) {
-					for (final Iterator _k = _collection.iterator(); _k.hasNext();) {
+					for (final Iterator<Pair<Stmt, SootMethod>> _k = _collection.iterator(); _k.hasNext();) {
 						_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
 					}
 					_lEdgeCount += _collection.size();
@@ -399,23 +390,30 @@ public class InterferenceDAv1
 		return _result.toString();
 	}
 
-	///CLOVER:ON
+	// /CLOVER:OFF
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
+	 */
+	@Override protected IDependenceRetriever<Stmt, SootMethod, Pair<Stmt, SootMethod>, Stmt, SootMethod, Pair<Stmt, SootMethod>> getDependenceRetriever() {
+		return new PairRetriever<Stmt, SootMethod, Stmt, SootMethod>();
+	}
+
+	// /CLOVER:ON
 
 	/**
 	 * Checks if the given array accesses are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent array access expression.
 	 * @param dependee is location of the dependee array access expression.
 	 * @param dependentArrayRef is the dependent array access expression.
 	 * @param dependeeArrayRef is the dependee array access expression.
-	 *
 	 * @return <code>true</code> if an interference dependence exists; <code>false</code> otherwise.
-	 *
 	 * @pre dependent != null and dependee != null and dependentArrayRef != null and dependeeArrayRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isArrayDependentOn(final Pair dependent, final Pair dependee, final ArrayRef dependentArrayRef,
-		final ArrayRef dependeeArrayRef) {
+	protected boolean isArrayDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee,
+			final ArrayRef dependentArrayRef, final ArrayRef dependeeArrayRef) {
 		boolean _result;
 		final Type _t1 = dependeeArrayRef.getBase().getType();
 		final Type _t2 = dependentArrayRef.getBase().getType();
@@ -429,19 +427,18 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
 	 * @param dependeeFieldRef is the dependee field access expression.
-	 *
 	 * @return <code>true</code> if an interference dependence exists; <code>false</code> otherwise.
-	 *
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isInstanceFieldDependentOn(final Pair dependent, final Pair dependee,
-		final InstanceFieldRef dependentFieldRef, final InstanceFieldRef dependeeFieldRef) {
+	protected boolean isInstanceFieldDependentOn(final Pair<Stmt, SootMethod> dependent,
+			final Pair<Stmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
+			final InstanceFieldRef dependeeFieldRef) {
 		boolean _result;
 		final SootField _ifr1 = dependeeFieldRef.getField();
 		final SootField _ifr2 = dependentFieldRef.getField();
@@ -455,45 +452,40 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
 	 * @param dependeeFieldRef is the dependee field access expression.
-	 *
 	 * @return <code>true</code> if an interference dependence exists; <code>false</code> otherwise.
-	 *
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isStaticFieldDependentOn(final Pair dependent, final Pair dependee,
-		final StaticFieldRef dependentFieldRef, final StaticFieldRef dependeeFieldRef) {
+	protected boolean isStaticFieldDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee,
+			final StaticFieldRef dependentFieldRef, final StaticFieldRef dependeeFieldRef) {
 		boolean _result;
 		final SootField _field = dependeeFieldRef.getField();
 		_result = dependentFieldRef.getField().equals(_field) && !_field.isFinal();
 
 		if (_result) {
-			final SootMethod dentMethod = ((SootMethod) dependent.getSecond());
-			final SootMethod deeMethod = ((SootMethod) dependee.getSecond());
-			final String _name = dentMethod.getName();
-			_result =
-				!(dentMethod.isStatic() && deeMethod.isStatic() && _name.equals(deeMethod.getName())
-				  && _name.equals("<clinit>"));
+			final SootMethod _dentMethod = dependent.getSecond();
+			final SootMethod _deeMethod = dependee.getSecond();
+			final String _name = _dentMethod.getName();
+			_result = !(_dentMethod.isStatic() && _deeMethod.isStatic() && _name.equals(_deeMethod.getName()) && _name
+					.equals("<clinit>"));
 		}
 		return _result;
 	}
 
 	/**
 	 * Extracts information as provided by environment at initialization time.
-	 *
+	 * 
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
-	 * 		   <code>info</code> member.
-	 *
+	 *             <code>info</code> member.
 	 * @pre info.get(PairManager.ID) != null and info.get(IThreadGraphInfo.ID) != null
-	 * @pre useOFA implies info.get(IValueAnalyzer.ID) != null  and info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
+	 * @pre useOFA implies info.get(IValueAnalyzer.ID) != null and info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
 	 */
-	protected void setup()
-	  throws InitializationException {
+	@Override protected void setup() throws InitializationException {
 		super.setup();
 
 		ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
@@ -516,122 +508,12 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
-	 * base of the expression array access expression.
-	 *
-	 * @param dependent is the array read access site.
-	 * @param dependee is the array write access site.
-	 *
-	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
-	 *
-	 * @pre dependent != null and dependee != null
-	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsArrayRef()
-	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsArrayRef()
-	 */
-	private boolean isArrayDependentOnByOFA(final Pair dependent, final Pair dependee) {
-		boolean _result;
-		final ArrayRef _ifr1 = (ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
-		final ArrayRef _ifr2 = (ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp();
-
-		final Context _context = new AllocationContext();
-		_context.setProgramPoint(_ifr1.getBaseBox());
-		_context.setStmt((Stmt) dependee.getFirst());
-		_context.setRootMethod((SootMethod) dependee.getSecond());
-
-		final Collection _c1 = ofa.getValues(_ifr1.getBase(), _context);
-		_context.setProgramPoint(_ifr2.getBaseBox());
-		_context.setStmt((Stmt) dependent.getFirst());
-		_context.setRootMethod((SootMethod) dependent.getSecond());
-
-		final Collection _c2 = ofa.getValues(_ifr2.getBase(), _context);
-		final Collection _temp = CollectionUtils.intersection(_c1, _c2);
-
-		while (_temp.remove(NullConstant.v())) {
-			;
-		}
-		_result = !_temp.isEmpty();
-		return _result;
-	}
-
-	/**
-	 * Checks if the given array/field access expression is dependent on the given array/field definition expression.
-	 *
-	 * @param dependent is the array/field read access site.
-	 * @param dependee is the array/field write access site.
-	 *
-	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
-	 *
-	 * @pre dependent != null and dependee != null
-	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
-	 */
-	private boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		final SootMethod _deMethod = (SootMethod) dependee.getSecond();
-		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
-		boolean _result = !tgi.mustOccurInSameThread(_deMethod, _dtMethod);
-
-		if (_result) {
-			final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-			final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-
-			if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
-				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
-			} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
-				_result = isInstanceFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
-			} else if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
-				_result = isStaticFieldDependentOn(dependent, dependee, (StaticFieldRef) _dt, (StaticFieldRef) _de);
-			}
-		}
-
-		return _result;
-	}
-
-	/**
-	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
-	 * base of the expression field access expression.
-	 *
-	 * @param dependent is the field read access site.
-	 * @param dependee is the field write access site.
-	 *
-	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
-	 *
-	 * @pre dependent != null and dependee != null
-	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsFieldRef()
-	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsFieldRef()
-	 */
-	private boolean isFieldDependentOnByOFA(final Pair dependent, final Pair dependee) {
-		boolean _result;
-		final InstanceFieldRef _ifr1 = (InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
-		final InstanceFieldRef _ifr2 = (InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp();
-
-		final Context _context = new AllocationContext();
-		_context.setProgramPoint(_ifr1.getBaseBox());
-		_context.setStmt((Stmt) dependee.getFirst());
-		_context.setRootMethod((SootMethod) dependee.getSecond());
-
-		final Collection _c1 = ofa.getValues(_ifr1.getBase(), _context);
-		_context.setProgramPoint(_ifr2.getBaseBox());
-		_context.setStmt((Stmt) dependent.getFirst());
-		_context.setRootMethod((SootMethod) dependent.getSecond());
-
-		final Collection _c2 = ofa.getValues(_ifr2.getBase(), _context);
-		final Collection _temp = CollectionUtils.intersection(_c1, _c2);
-
-		while (_temp.remove(NullConstant.v())) {
-			;
-		}
-		_result = !_temp.isEmpty();
-		return _result;
-	}
-
-	/**
 	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the dependence based on
 	 * this information.
-	 *
+	 * 
 	 * @param dependent is the array/field read access site.
 	 * @param dependee is the array/field write access site.
-	 *
 	 * @return <code>true</code> if the dependence should be considered; <code>false</code>, otherwise.
-	 *
 	 * @pre dependent != null and dependee != null
 	 */
 	private boolean considerEffectOfClassInitializers(final Pair dependent, final Pair dependee) {
@@ -659,18 +541,117 @@ public class InterferenceDAv1
 					final SootField _f2 = ((FieldRef) _dt).getField();
 
 					/*
-					 * if f1 and f2 are the same fields and
-					 *   if deMethod is clinit and f1 was declared in deClass or
-					 *      dtMethod is clinit and f2 was declared in dtClass then
-					 *      the dependence is invalid and it should not be considered.
+					 * if f1 and f2 are the same fields and if deMethod is clinit and f1 was declared in deClass or dtMethod
+					 * is clinit and f2 was declared in dtClass then the dependence is invalid and it should not be
+					 * considered.
 					 */
-					_result =
-						!((_f1.equals(_f2)
-						  && ((_deci && _f1.getDeclaringClass().equals(_deClass))
-						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass)))));
+					_result = !((_f1.equals(_f2) && ((_deci && _f1.getDeclaringClass().equals(_deClass)) || (_dtci && _f1
+							.getDeclaringClass().equals(_dtClass)))));
 				}
 			}
 		}
+		return _result;
+	}
+
+	/**
+	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
+	 * base of the expression array access expression.
+	 * 
+	 * @param dependent is the array read access site.
+	 * @param dependee is the array write access site.
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsArrayRef()
+	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsArrayRef()
+	 */
+	private boolean isArrayDependentOnByOFA(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+		boolean _result;
+		final ArrayRef _ifr1 = (ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
+		final ArrayRef _ifr2 = (ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp();
+
+		final Context _context = new AllocationContext();
+		_context.setProgramPoint(_ifr1.getBaseBox());
+		_context.setStmt(dependee.getFirst());
+		_context.setRootMethod(dependee.getSecond());
+
+		final Collection<Value> _c1 = ofa.getValues(_ifr1.getBase(), _context);
+		_context.setProgramPoint(_ifr2.getBaseBox());
+		_context.setStmt(dependent.getFirst());
+		_context.setRootMethod(dependent.getSecond());
+
+		final Collection<Value> _c2 = ofa.getValues(_ifr2.getBase(), _context);
+		final Collection<Value> _temp = SetUtils.intersection(_c1, _c2);
+
+		while (_temp.remove(NullConstant.v())) {
+			; // does nothing
+		}
+		_result = !_temp.isEmpty();
+		return _result;
+	}
+
+	/**
+	 * Checks if the given array/field access expression is dependent on the given array/field definition expression.
+	 * 
+	 * @param dependent is the array/field read access site.
+	 * @param dependee is the array/field write access site.
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
+	 */
+	private boolean isDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+		final SootMethod _deMethod = dependee.getSecond();
+		final SootMethod _dtMethod = dependent.getSecond();
+		boolean _result = !tgi.mustOccurInSameThread(_deMethod, _dtMethod);
+
+		if (_result) {
+			final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+			final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+
+			if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
+				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
+			} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
+				_result = isInstanceFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
+			} else if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
+				_result = isStaticFieldDependentOn(dependent, dependee, (StaticFieldRef) _dt, (StaticFieldRef) _de);
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
+	 * base of the expression field access expression.
+	 * 
+	 * @param dependent is the field read access site.
+	 * @param dependee is the field write access site.
+	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
+	 * @pre dependent != null and dependee != null
+	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsFieldRef()
+	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsFieldRef()
+	 */
+	private boolean isFieldDependentOnByOFA(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+		boolean _result;
+		final InstanceFieldRef _ifr1 = (InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
+		final InstanceFieldRef _ifr2 = (InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp();
+
+		final Context _context = new AllocationContext();
+		_context.setProgramPoint(_ifr1.getBaseBox());
+		_context.setStmt(dependee.getFirst());
+		_context.setRootMethod(dependee.getSecond());
+
+		final Collection<Value> _c1 = ofa.getValues(_ifr1.getBase(), _context);
+		_context.setProgramPoint(_ifr2.getBaseBox());
+		_context.setStmt(dependent.getFirst());
+		_context.setRootMethod(dependent.getSecond());
+
+		final Collection<Value> _c2 = ofa.getValues(_ifr2.getBase(), _context);
+		final Collection<Value> _temp = SetUtils.intersection(_c1, _c2);
+
+		while (_temp.remove(NullConstant.v())) {
+			; // does nothing
+		}
+		_result = !_temp.isEmpty();
 		return _result;
 	}
 }
