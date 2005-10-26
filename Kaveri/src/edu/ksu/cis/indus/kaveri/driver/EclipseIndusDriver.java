@@ -49,8 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.eclipse.core.runtime.Path;
 import org.jibx.runtime.JiBXException;
 
@@ -77,8 +78,8 @@ public class EclipseIndusDriver extends SootBasedDriver {
      * Logger to log the activities of the run.
      * </p>
      */
-    private static final Log LOGGER = LogFactory
-            .getLog(EclipseIndusDriver.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(EclipseIndusDriver.class);
 
     /**
      * The set of criteria.
@@ -455,6 +456,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
     public void execute() {
         slicer.setTagName(nameOfSliceTag);
         slicer.setSystem(new Environment(scene));
+        
         slicer.setRootMethods(rootMethods);
         final String _scopeStr = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getScopeSpecification();
@@ -624,7 +626,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
             }
             _configReader.close();
         } catch (IOException _ioe) {
-            LOGGER.fatal(Messages.getString("EclipseIndusDriver.3")); //$NON-NLS-1$
+            LOGGER.error(Messages.getString("EclipseIndusDriver.3")); //$NON-NLS-1$
             KaveriErrorLog.logException("Error reading configuration", _ioe);
             throw new IOException("IO error, unable to parse configuration");
         }

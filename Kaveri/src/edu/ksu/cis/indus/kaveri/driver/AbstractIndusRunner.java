@@ -596,7 +596,6 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                 
                 
             }
-            _crt.returnToPool();
         }
     }
 

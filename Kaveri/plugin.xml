@@ -3,7 +3,7 @@
 <plugin
    id="edu.ksu.cis.indus.kaveri"
    name="Kaveri Java Slicer Plug-in"
-   version="0.6.0"
+   version="0.7.2"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.indus.kaveri.KaveriPlugin">
 
@@ -40,7 +40,7 @@
       <import plugin="org.eclipse.jdt.launching"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="edu.ksu.cis.indus" version="0.5.0" match="greaterOrEqual"/>
+      <import plugin="edu.ksu.cis.indus" version="0.7.2" match="greaterOrEqual"/>
       <import plugin="org.antlr" optional="true"/>
       <import plugin="edu.ksu.cis.peq" optional="true"/>
    </requires>

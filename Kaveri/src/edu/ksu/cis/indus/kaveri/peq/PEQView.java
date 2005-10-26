@@ -1,4 +1,4 @@
-/*
+/**
  *
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
