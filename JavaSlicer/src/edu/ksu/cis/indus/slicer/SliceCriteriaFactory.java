@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.common.collections.Stack;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -132,7 +131,7 @@ public final class SliceCriteriaFactory {
 			final StmtLevelSliceCriterion _t = (StmtLevelSliceCriterion) criterion;
 			_result = getStmtCriteria(_t.getOccurringMethod(), (Stmt) _t.getCriterion(), _t.isConsiderExecution());
 
-			final Stack<CallTriple> _callStack = _t.getCallStack();
+			final Stack<?> _callStack = _t.getCallStack();
 
 			if (_callStack != null) {
 				_result.setCallStack(_callStack.clone());
@@ -142,7 +141,15 @@ public final class SliceCriteriaFactory {
 			_result = getExprCriteria(_t.getOccurringMethod(), _t.getOccurringStmt(), (ValueBox) _t.getCriterion(), _t
 					.isConsiderExecution());
 
-			final Stack<CallTriple> _callStack = _t.getCallStack();
+			final Stack<?> _callStack = _t.getCallStack();
+
+			if (_callStack != null) {
+				_result.setCallStack(_callStack.clone());
+			}
+		} else if (criterion instanceof MethodLevelSliceCriterion) {
+			final MethodLevelSliceCriterion _m = (MethodLevelSliceCriterion) criterion;
+			_result = getMethodCriteria(_m.getOccurringMethod(), _m.isConsiderExecution());
+			final Stack<?> _callStack = _m.getCallStack();
 
 			if (_callStack != null) {
 				_result.setCallStack(_callStack.clone());
@@ -313,6 +320,22 @@ public final class SliceCriteriaFactory {
 			final boolean considerExecution) {
 		final ExprLevelSliceCriterion _temp = new ExprLevelSliceCriterion();
 		_temp.initialize(method, stmt, valueBox);
+		_temp.setConsiderExecution(considerExecution);
+		return _temp;
+	}
+
+	/**
+	 * Retrieves a slice criterion for the given method.
+	 * 
+	 * @param method of interest.
+	 * @param considerExecution <i>place holder for future use</i>.
+	 * @return a slice criterion.
+	 * @pre method != null
+	 * @post result != null
+	 */
+	private MethodLevelSliceCriterion getMethodCriteria(final SootMethod method, final boolean considerExecution) {
+		final MethodLevelSliceCriterion _temp = new MethodLevelSliceCriterion();
+		_temp.initialize(method);
 		_temp.setConsiderExecution(considerExecution);
 		return _temp;
 	}
