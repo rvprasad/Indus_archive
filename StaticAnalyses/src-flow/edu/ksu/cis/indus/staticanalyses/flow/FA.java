@@ -65,7 +65,6 @@ import soot.tagkit.Tag;
  * @param <SYM> DOCUMENT ME!
  * @param <ARI> DOCUMENT ME!
  * @param <AI> DOCUMENT ME!
- * @param <AST> DOCUMENT ME!
  * @param <IFI> DOCUMENT ME!
  * @param <LE> DOCUMENT ME!
  * @param <MI> DOCUMENT ME!
