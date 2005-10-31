@@ -594,7 +594,7 @@ public class InfluenceChecker
 	 * @pre sm != null
 	 */
 	private Stmt getStmt(final SootMethod sm, final int index) {
-		final List<Stmt> _units = new ArrayList<Stmt>(sm.retrieveActiveBody().getUnits());
+		final List<Stmt> _units = new ArrayList<Stmt>(getBbm().getStmtGraph(sm).getBody().getUnits());
 		return _units.get(index);
 	}
 

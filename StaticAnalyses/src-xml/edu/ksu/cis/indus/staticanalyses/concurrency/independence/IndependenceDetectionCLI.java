@@ -204,7 +204,7 @@ public final class IndependenceDetectionCLI
 			final SootMethod _sm = (SootMethod) _i.next();
 
 			if (_sm.isConcrete()) {
-				final Body _body = _sm.retrieveActiveBody();
+				final Body _body = getBbm().getStmtGraph(_sm).getBody();
 				final Collection _sl = _body.getUnits();
 
 				final Iterator _j = _sl.iterator();
