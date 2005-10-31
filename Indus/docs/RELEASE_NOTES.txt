@@ -33,7 +33,7 @@ Required software:
 
 Version 0.7.2
 -----------------
-	- bug fixes: 694
+	- bug fixes: 694, 675
 
 Version 0.7.1
 -----------------
