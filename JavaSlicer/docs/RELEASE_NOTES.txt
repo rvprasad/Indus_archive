@@ -7,8 +7,6 @@ Required software:
         (commons-io.jar) [http://jakarta.apache.org/commons/io/]
     Jakarta Commons Lang 2.1 
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Pool 1.2 
-        (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     JiBX: Binding XML to Java Code (RC1)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
@@ -34,6 +32,7 @@ Required software:
 Version 0.7.2
 -----------------
 	- bug fixes: 558, 680, 681, 694, 696.
+	- removed dependence on commons-pool.jar
 
 Version 0.7.1
 -----------------
