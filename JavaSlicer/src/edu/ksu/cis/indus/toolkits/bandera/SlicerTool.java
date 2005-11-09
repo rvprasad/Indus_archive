@@ -81,11 +81,6 @@ public final class SlicerTool
 	 * This identifies the root methods/entry point methods in the input arguments.
 	 */
 	public static final Object ROOT_METHODS = "entryPoints";
-
-	/**
-	 * This identifies the property that forces the tool to output a non-empty scene.
-	 */
-	private static Object OUTPUT_NON_EMPTY_SCENE = "outputNonEmptyScene";
 	
 	/** 
 	 * This identifies the scene in the input arguments.
@@ -118,7 +113,6 @@ public final class SlicerTool
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
 		IN_ARGUMENTS_IDS.add(CRITERIA_SPECIFICATION);
-		IN_ARGUMENTS_IDS.add(OUTPUT_NON_EMPTY_SCENE);
 		OUT_ARGUMENTS_IDS = new ArrayList<Object>();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -358,10 +352,8 @@ public final class SlicerTool
 			tool.setActiveConfiguration(_activeConfID);
 		}
 		
-		if (inputArgs.containsKey(OUTPUT_NON_EMPTY_SCENE)) {
-			for (final Iterator _i = _rootMethods.iterator(); _i.hasNext();) {
-				tool.setCriteria(SliceCriteriaFactory.getFactory().getCriteria((SootMethod) _i.next()));
-			}
+		for (final Iterator _i = _rootMethods.iterator(); _i.hasNext();) {
+			tool.setCriteria(SliceCriteriaFactory.getFactory().getCriteria((SootMethod) _i.next()));
 		}
 	}
 }
