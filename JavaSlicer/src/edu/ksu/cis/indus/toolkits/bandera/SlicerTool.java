@@ -304,7 +304,7 @@ public final class SlicerTool
 		if (_criteria == null || _criteria.isEmpty()) {
 			LOGGER.warn("Deadlock criteria will be used.");
 		} else {
-			tool.setCriteria(_criteria);
+			tool.addCriteria(_criteria);
 
 			for (final Iterator _i = _criteria.iterator(); _i.hasNext();) {
 				final Object _o = _i.next();
@@ -324,7 +324,7 @@ public final class SlicerTool
 			LOGGER.info("No criteria specification provided.");
 		} else {
 			try {
-				tool.setCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
+				tool.addCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
 			} catch (final JiBXException _e) {
 				final String _msg = "Error occurred while deserializing the provided criteria specification.";
 				LOGGER.error(_msg);
@@ -353,7 +353,7 @@ public final class SlicerTool
 		}
 		
 		for (final Iterator _i = _rootMethods.iterator(); _i.hasNext();) {
-			tool.setCriteria(SliceCriteriaFactory.getFactory().getCriteria((SootMethod) _i.next()));
+			tool.addCriteria(SliceCriteriaFactory.getFactory().getCriteria((SootMethod) _i.next()));
 		}
 	}
 }

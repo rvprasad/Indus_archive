@@ -293,7 +293,7 @@ public class SliceXMLizerCLI
 
 		final Collection _criteria = processCriteriaSpecFile();
 		slicer.setSliceScopeDefinition(processSliceScopeSpecFile());
-		slicer.setCriteria(_criteria);
+		slicer.addCriteria(_criteria);
 		slicer.addToolProgressListener(this);
 		slicer.run(Phase.STARTING_PHASE, null, true);
 
