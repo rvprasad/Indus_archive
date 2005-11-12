@@ -83,11 +83,9 @@ public final class NonTerminationSensitiveEntryControlDA
 
 	/**
 	 * Creates an instance of this class.
-	 * 
-	 * @param direction DOCUMENT ME!
 	 */
-	public NonTerminationSensitiveEntryControlDA(final Direction direction) {
-		super(direction);
+	public NonTerminationSensitiveEntryControlDA() {
+		super(Direction.BI_DIRECTIONAL);
 	}
 
 	/**

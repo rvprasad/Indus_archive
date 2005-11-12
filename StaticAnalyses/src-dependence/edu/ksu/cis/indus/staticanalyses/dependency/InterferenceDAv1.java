@@ -76,10 +76,6 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @invariant dependent2dependee.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
- *            SootMethodMethod)))))
- * @invariant dependee2dependent.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
- *            SootMethodMethod)))))
  */
 public class InterferenceDAv1
 		extends
