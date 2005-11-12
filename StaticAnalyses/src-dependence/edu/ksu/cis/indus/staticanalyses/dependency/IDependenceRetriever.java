@@ -36,8 +36,6 @@ public interface IDependenceRetriever <T1, C1, E1, E2, C2, T2> {
 
 	/**
 	 * Retrieves the dependees based on <code>dependence</code> from <code>da</code>.
-	 * @param <T1> DOCUMENT ME!
-	 * @param <E2> DOCUMENT ME!
 	 *
 	 * @param da to be used retrieve dependence info
 	 * @param base that serves as the basis for retrieval.
@@ -52,8 +50,6 @@ public interface IDependenceRetriever <T1, C1, E1, E2, C2, T2> {
 
 	/**
 	 * Retrieves the dependents based on <code>dependence</code> from <code>da</code>.
-	 * @param <T1> DOCUMENT ME!
-	 * @param <E2> DOCUMENT ME!
 	 *
 	 * @param da to be used retrieve dependence info.
 	 * @param base that serves as the basis for retrieval.
