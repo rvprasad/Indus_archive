@@ -92,7 +92,7 @@ class FlowSensitiveExprSwitch
 				final DefinitionStmt _defStmt = _i.next();
 				context.setProgramPoint(_defStmt.getLeftOpBox());
 
-				final OFAFGNode _defNode = method.getASTNode(_defStmt.getLeftOp());
+				final OFAFGNode _defNode = method.getASTNode(_defStmt.getLeftOp(), context);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);

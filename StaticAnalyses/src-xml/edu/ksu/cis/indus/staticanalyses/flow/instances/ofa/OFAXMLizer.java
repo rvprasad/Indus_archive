@@ -129,8 +129,6 @@ public final class OFAXMLizer
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 		 */
 		public void callback(final ValueBox vBox, final Context context) {
-			context.setProgramPoint(vBox);
-
 			final List _temp = new ArrayList();
 
 			for (final Iterator _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
@@ -146,7 +144,7 @@ public final class OFAXMLizer
 					xmlWriter.startTag("program_point");
 					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
 
-					for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
+					for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 						xmlWriter.startTag("object");
 						xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
 						xmlWriter.endTag();
@@ -171,11 +169,82 @@ public final class OFAXMLizer
 				xmlWriter.startTag("method");
 				xmlWriter.attribute("id", idGenerator.getIdForMethod(method));
 				xmlWriter.attribute("name", method.getSignature());
+				
+				xmlizeParameterValues(method);
+				xmlizeThrownValues(method);
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
 		}
 
+		/**
+		 * Xmlize information about the exceptions thrown by this method. 
+		 * 
+		 * @param method of interest.
+		 * @pre method != null
+		 */
+		private void xmlizeThrownValues(final SootMethod method) {
+			final List _temp = new ArrayList();
+			final Context _context = new Context();
+			_context.setRootMethod(method);
+
+			for (final Iterator _i = ofa.getThrownValues(method, _context).iterator(); _i.hasNext();) {
+				_temp.add(_i.next().toString());
+			}
+
+			if (!_temp.isEmpty()) {
+				Collections.sort(_temp);
+				try {
+					xmlWriter.startTag("thrown");
+
+					for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+						xmlWriter.startTag("object");
+						xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+						xmlWriter.endTag();
+					}
+					xmlWriter.endTag();
+				} catch (final IOException _e) {
+					LOGGER.error("Error while xmlizing OFA information ", _e);
+				}
+			}
+		}
+		
+		/**
+		 * Xmlize information about the arguments provided for the given method.
+		 * 
+		 * @param method of interest
+		 * @pre method != null
+		 */
+		private void xmlizeParameterValues(final SootMethod method) throws IllegalStateException, IllegalArgumentException {
+			final List _temp = new ArrayList();
+			final Context _context = new Context();
+			_context.setRootMethod(method);
+			for (int _j = 0; _j < method.getParameterCount(); _j++) {
+				_temp.clear();
+
+				for (final Iterator _i = ofa.getValuesForParameter(_j, _context).iterator(); _i.hasNext();) {
+					_temp.add(_i.next().toString());
+				}
+	
+				if (!_temp.isEmpty()) {
+					Collections.sort(_temp);
+					try {
+						xmlWriter.startTag("parameter");
+						xmlWriter.attribute("id", Integer.toString(_j));
+						
+						for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+							xmlWriter.startTag("object");
+							xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+							xmlWriter.endTag();
+						}
+						xmlWriter.endTag();
+					} catch (final IOException _e) {
+						LOGGER.error("Error while xmlizing OFA information ", _e);
+					}
+				}
+			}
+		}
+		
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 		 */

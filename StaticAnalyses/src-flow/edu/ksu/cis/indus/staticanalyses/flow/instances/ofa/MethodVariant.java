@@ -181,25 +181,28 @@ class MethodVariant
 	 * @pre body != null
 	 */
 	private void connectThrowNodesToThrownNode(final JimpleBody body) {
+		final Context _ctxt = new Context();
+		_ctxt.setRootMethod(method);
+		
 		final Collection<Stmt> _units = body.getUnits();
 		final Iterator<Stmt> _j = _units.iterator();
 		final int _jEnd = _units.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final Stmt _stmt = _j.next();
-			context.setStmt(_stmt);
+			_ctxt.setStmt(_stmt);
 
 			if (_stmt instanceof ThrowStmt) {
 				final Collection _t = TrapManager.getTrapsAt(_stmt, body);
 
 				if (_t.isEmpty()) {
 					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
-					context.setProgramPoint(_throwStmt.getOpBox());
-					queryASTNode(_throwStmt.getOp(), context).addSucc(thrownNode);
+					_ctxt.setProgramPoint(_throwStmt.getOpBox());
+					queryASTNode(_throwStmt.getOp(), _ctxt).addSucc(thrownNode);
 				}
 			} else if (_stmt.containsInvokeExpr()) {
-				context.setProgramPoint(_stmt.getInvokeExprBox());
-				queryThrowNode(_stmt.getInvokeExpr(), context).addSucc(thrownNode);
+				_ctxt.setProgramPoint(_stmt.getInvokeExprBox());
+				queryThrowNode(_stmt.getInvokeExpr(), _ctxt).addSucc(thrownNode);
 			}
 		}
 	}
@@ -213,8 +216,11 @@ class MethodVariant
 	 */
 	private void processBody(final JimpleBody body, final List<Stmt> stmtList) {
 		final Collection<Stmt> _caught = new HashSet<Stmt>();
-		boolean _flag = false;
-		InvokeExpr _expr = null;
+		final Context _exprCtxt = new Context();
+		final Context _catchCtxt = new Context();
+		
+		_exprCtxt.setRootMethod(method);
+		_catchCtxt.setRootMethod(method);
 
 		for (final Iterator<Trap> _i = body.getTraps().iterator(); _i.hasNext();) {
 			final Trap _trap = _i.next();
@@ -223,43 +229,40 @@ class MethodVariant
 
 			// we assume that the first statement in the handling block will be the identity statement that retrieves the
 			// caught expression.
-			final CaughtExceptionRef _catchRef = (CaughtExceptionRef) ((IdentityStmt) _trap.getHandlerUnit()).getRightOp();
+			final IdentityStmt _handlerStmt = (IdentityStmt) _trap.getHandlerUnit();
+			final CaughtExceptionRef _catchRef = (CaughtExceptionRef) _handlerStmt.getRightOp();
 			final SootClass _exception = _trap.getException();
+
+			_catchCtxt.setStmt(_handlerStmt);
+			_catchCtxt.setProgramPoint(_handlerStmt.getRightOpBox());
 
 			final int _k = stmtList.indexOf(_end);
 
 			for (int _j = stmtList.indexOf(_begin); _j < _k; _j++) {
 				final Stmt _tmp = stmtList.get(_j);
 
-				if (_tmp instanceof ThrowStmt) {
-					final ThrowStmt _ts = (ThrowStmt) _tmp;
+				if (!_caught.contains(_tmp)) {					
+					_exprCtxt.setStmt(_tmp);
 
-					if (!_caught.contains(_ts)) {
+					if (_tmp instanceof ThrowStmt) {
+						final ThrowStmt _ts = (ThrowStmt) _tmp;
+	
 						final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
 
 						if (Util.isDescendentOf(_scTemp, _exception)) {
-							context.setStmt(_ts);
+							_exprCtxt.setStmt(_ts);
 
-							final IFGNode _throwNode = getASTNode(_ts.getOp(), context);
-							_throwNode.addSucc(getASTNode(_catchRef));
+							final IFGNode _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
+							_throwNode.addSucc(queryASTNode(_catchRef, _catchCtxt));
 							_caught.add(_ts);
 						}
-					}
-				} else if (_tmp.containsInvokeExpr()) {
-					_expr = _tmp.getInvokeExpr();
-					_flag = true;
-				}
-
-				if (_flag) {
-					_flag = false;
-
-					if (!_caught.contains(_tmp)) {
-						context.setStmt(_tmp);
-
-						final OFAFGNode _tempNode = queryThrowNode(_expr, context);
+					} else if (_tmp.containsInvokeExpr()) {
+						_exprCtxt.setStmt(_tmp);
+	
+						final OFAFGNode _tempNode = queryThrowNode(_tmp.getInvokeExpr(), _exprCtxt);
 
 						if (_tempNode != null) {
-							_tempNode.addSucc(getASTNode(_catchRef));
+							_tempNode.addSucc(queryASTNode(_catchRef, _catchCtxt));
 						}
 					}
 				}

@@ -36,15 +36,6 @@ public interface IMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<
 		extends IVariant {
 
 	/**
-	 * Returns the flow graph node associated with the given AST node in the context defined by <code>this.context</code>.
-	 * 
-	 * @param v the AST node whose associted flow graph node is to be returned.
-	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.
-	 * @pre v != null
-	 */
-	N getASTNode(final Value v);
-
-	/**
 	 * Returns the flow graph node associated with the given AST node in the given context. Creates a new one if none exists.
 	 * 
 	 * @param v the AST node whose associted flow graph node is to be returned.
@@ -87,16 +78,6 @@ public interface IMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<
 	 * @post result != null
 	 */
 	SootMethod getMethod();
-
-	/**
-	 * Same as <code>getASTNode</code>, except <code>null</code> is returned if none exists.
-	 * 
-	 * @param v the AST node whose associted variant is to be returned.
-	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>. If none exists,
-	 *         <code>null</code> is returned.
-	 * @pre v != null
-	 */
-	N queryASTNode(final Value v);
 
 	/**
 	 * Same as <code>getASTNode</code>, except <code>null</code> is returned if none exists.

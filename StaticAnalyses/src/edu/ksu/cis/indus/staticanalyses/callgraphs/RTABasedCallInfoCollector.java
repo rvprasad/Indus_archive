@@ -197,11 +197,12 @@ public final class RTABasedCallInfoCollector
 			LOGGER.debug("consolidate() - BEGIN");
 		}
 
-		final IWorkBag<SootMethod> _wb = new HistoryAwareFIFOWorkBag<SootMethod>(callInfoHolder.getReachableMethods());
+		final IWorkBag<SootMethod> _wb = new HistoryAwareFIFOWorkBag<SootMethod>(new HashSet());
 		_wb.addAllWorkNoDuplicates(roots);
 
 		while (_wb.hasWork()) {
 			final SootMethod _sootMethod = _wb.getWork();
+			callInfoHolder.addReachable(_sootMethod);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("consolidate() - Processed method:  : " + _sootMethod);

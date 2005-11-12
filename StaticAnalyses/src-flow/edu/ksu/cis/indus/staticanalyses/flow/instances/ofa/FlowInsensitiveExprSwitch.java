@@ -123,7 +123,7 @@ class FlowInsensitiveExprSwitch
 		process(e.getBaseBox());
 
 		final OFAFGNode _baseNode = getFlowNode();
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 
 		final ITokenProcessingWork _work =
@@ -148,7 +148,7 @@ class FlowInsensitiveExprSwitch
 			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
 			// run-time.
 			final OFAFGNode _base =  getFlowNode();
-			final OFAFGNode _cast = method.getASTNode(e);
+			final OFAFGNode _cast = method.getASTNode(e, context);
 			MethodVariant.setOutFilterOfBasedOn(_cast, e.getType(), tokenMgr);
 			_base.addSucc(_cast);
 			setFlowNode(_cast);
@@ -163,7 +163,7 @@ class FlowInsensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseCaughtExceptionRef(final CaughtExceptionRef e) {
-		final OFAFGNode _node = method.getASTNode(e);
+		final OFAFGNode _node = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_node, e.getType(), tokenMgr);
 		setFlowNode(_node);
 	}
@@ -179,7 +179,7 @@ class FlowInsensitiveExprSwitch
 		process(e.getBaseBox());
 
 		final OFAFGNode _baseNode =  getFlowNode();
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 
 		final ITokenProcessingWork _work =
@@ -219,7 +219,7 @@ class FlowInsensitiveExprSwitch
 	 * @pre != null
 	 */
 	@Override public void caseLocal(final Local e) {
-		final OFAFGNode _node = method.getASTNode(e);
+		final OFAFGNode _node = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_node, e.getType(), tokenMgr);
 		setFlowNode(_node);
 	}
@@ -242,7 +242,7 @@ class FlowInsensitiveExprSwitch
 			_temp = ((AllocationContext) context).setAllocationSite(e);
 		}
 
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
 		_ast.injectValue(e);
@@ -261,7 +261,7 @@ class FlowInsensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseNewExpr(final NewExpr e) {
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		_ast.injectValue(e);
 		setFlowNode(_ast);
 	}
@@ -297,7 +297,7 @@ class FlowInsensitiveExprSwitch
 			((AllocationContext) context).setAllocationSite(_temp);
 		}
 
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		_ast.injectValue(e);
 		setFlowNode(_ast);
 	}
@@ -310,7 +310,7 @@ class FlowInsensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseNullConstant(final NullConstant e) {
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		_ast.injectValue(e);
 		setFlowNode(_ast);
 	}
@@ -344,7 +344,7 @@ class FlowInsensitiveExprSwitch
 	 */
 	@Override public void caseStaticFieldRef(final StaticFieldRef e) {
 		final SootField _field = e.getField();
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 
 		final OFAFGNode _nonast = fa.getFieldVariant(_field).getFGNode();
@@ -371,7 +371,7 @@ class FlowInsensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseStringConstant(final StringConstant e) {
-		final OFAFGNode _ast = method.getASTNode(e);
+		final OFAFGNode _ast = method.getASTNode(e, context);
 		_ast.injectValue(e);
 		setFlowNode(_ast);
 	}

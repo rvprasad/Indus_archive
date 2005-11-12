@@ -149,6 +149,7 @@ public final class OFAXMLizerCLI
 		_option.setArgs(1);
 		_option.setArgName("type");
 		_option.setOptionalArg(false);
+		_option.setRequired(true);
 		_options.addOption(_option);
 		_option = new Option("l", "preload", false, "Preload method bodies.");
 		_options.addOption(_option);

@@ -117,7 +117,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, N>, N e
 	 * @param o the expression which is not handled by the visitor.
 	 */
 	@Override public void defaultCase(final Object o) {
-		setResult(method.getASTNode((Value) o));
+		setResult(method.getASTNode((Value) o, context));
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(o + "(" + o.getClass() + ") is not handled.");

@@ -45,13 +45,6 @@ import soot.jimple.JimpleBody;
 public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>>
   implements IMethodVariant<N, LE, RE, SS> {
 	/** 
-	 * The context which resulted in the creation of this variant.
-	 *
-	 * @invariant context != null
-	 */
-	protected final Context context;
-
-	/** 
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
 	 * @invariant fa != null
@@ -114,6 +107,13 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends 
 	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) == null)
 	 */
 	protected final N[] parameters;
+	
+	/** 
+	 * The context which resulted in the creation of this variant.
+	 *
+	 * @invariant context != null
+	 */
+	private final Context context;
 
 	/**
 	 * Creates an instance of this class.
@@ -184,13 +184,6 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends 
 	}
 
 	/**
-	 * @see IMethodVariant#getASTNode(Value)
-	 */
-	public final N getASTNode(final Value v) {
-		return getASTVariant(v, context).getFGNode();
-	}
-
-	/**
 	 * @see IMethodVariant#getASTNode(Value, Context)
 	 */
 	public final N getASTNode(final Value v, final Context c) {
@@ -223,13 +216,6 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends 
 	 */
 	public final SootMethod getMethod() {
 		return method;
-	}
-
-	/**
-	 * @see IMethodVariant#queryASTNode(Value)
-	 */
-	public final N queryASTNode(final Value v) {
-		return queryASTNode(v, context);
 	}
 
 	/**
