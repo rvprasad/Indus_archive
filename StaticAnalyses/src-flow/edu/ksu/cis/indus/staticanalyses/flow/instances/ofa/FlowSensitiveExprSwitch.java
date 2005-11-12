@@ -81,7 +81,7 @@ class FlowSensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseLocal(final Local e) {
-		final OFAFGNode _localNode = method.getASTNode(e);
+		final OFAFGNode _localNode = method.getASTNode(e, context);
 		final Stmt _stmt = context.getStmt();
 		final ValueBox _backup = context.setProgramPoint(null);
 
