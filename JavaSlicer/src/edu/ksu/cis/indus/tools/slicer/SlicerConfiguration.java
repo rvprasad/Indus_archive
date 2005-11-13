@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -313,14 +314,14 @@ public final class SlicerConfiguration
 	/**
 	 * This maps IDs to dependency analyses.
 	 */
-	private final Map<Comparable, Collection<? extends IDependencyAnalysis>> id2dependencyAnalyses;
+	private final Map<Comparable, Set<? extends IDependencyAnalysis>> id2dependencyAnalyses;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
 		id2critGenerators = new HashMap<Comparable, ISliceCriteriaGenerator>();
-		id2dependencyAnalyses = new HashMap<Comparable, Collection<? extends IDependencyAnalysis>>();
+		id2dependencyAnalyses = new HashMap<Comparable, Set<? extends IDependencyAnalysis>>();
 		dependencesToUse = new HashSet<Comparable>();
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
 		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
@@ -1450,7 +1451,7 @@ public final class SlicerConfiguration
 			id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,  Collections
 					.singleton(new ReferenceBasedDataDA()));
 
-			final Collection<IDependencyAnalysis> _c = (Collection<IDependencyAnalysis>) MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
+			final Collection<IDependencyAnalysis> _c = MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
 					IDependencyAnalysis.CONTROL_DA, IDependencyAnalysis.SET_FACTORY);
 
 			if (isNonTerminationSensitiveControlDependenceUsed()) {

@@ -686,8 +686,7 @@ public class BackwardSlicingPart
 		
 		final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = new Triple<Stmt, SootMethod, Stack<CallTriple>>(stmt,
 				caller, _stackClone);
-		MapUtils.putIntoCollectionInMapUsingFactory(callee2callsites, callee, _triple, SetUtils
-				.<Triple<Stmt, SootMethod, Stack<CallTriple>>> getFactory());
+		MapUtils.putIntoCollectionInMap(callee2callsites, callee, _triple);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing() - END");
