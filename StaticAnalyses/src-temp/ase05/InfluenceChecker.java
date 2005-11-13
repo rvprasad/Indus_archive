@@ -379,8 +379,7 @@ public class InfluenceChecker
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()),
-				getStmtGraphFactory());
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();

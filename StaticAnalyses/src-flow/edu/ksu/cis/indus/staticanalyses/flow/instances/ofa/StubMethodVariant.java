@@ -14,11 +14,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IVariantManager;
 import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 /**
@@ -30,7 +32,7 @@ import soot.Value;
  * @version $Revision$ $Date$
  */
 public class StubMethodVariant
-		extends MethodVariant {
+		extends AbstractMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch, Value> {
 
 	/**
 	 * Creates an instance of this class.
@@ -52,6 +54,14 @@ public class StubMethodVariant
 	 */
 	public void process() {
 		// TODO: add code that can plug in flow summary depending on the configuration.
+	}
+
+	/** 
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant#shouldConsider(soot.Type)
+	 */
+	@Override protected boolean shouldConsider(final Type type) {
+		// TODO: Auto-generated method stub
+		return false;
 	}
 }
 

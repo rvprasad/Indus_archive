@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
@@ -73,7 +74,7 @@ public final class OFAnalyzer
 	private OFAnalyzer(final String tagName, final AbstractIndexManager astim, final AbstractIndexManager allocationim,
 		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt,
 		final ITokenManager<?, Value> tokenMgr, final IStmtGraphFactory<?> stmtGrphFctry) {
-		super(new AllocationContext(), tagName, tokenMgr, stmtGrphFctry);
+		super(new AllocationContext(), tagName, tokenMgr);
 
 		final ModeFactory _mf = new ModeFactory();
 		_mf.setASTIndexManagerPrototype(astim);
@@ -85,7 +86,7 @@ public final class OFAnalyzer
 		_mf.setStmtVisitorPrototype(stmt);
 		_mf.setLHSExprVisitorPrototype(lexpr);
 		_mf.setRHSExprVisitorPrototype(rexpr);
-		setFactories(_mf, new MethodVariantFactory());
+		setFactories(_mf, new MethodVariantFactory(Constants.getFAScopePattern(), stmtGrphFctry));
 	}
 
 	/**

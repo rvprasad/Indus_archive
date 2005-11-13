@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.datastructures.WorkList;
-import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
@@ -53,7 +52,6 @@ import soot.Type;
 import soot.Value;
 
 import soot.tagkit.Tag;
-import soot.toolkits.graph.UnitGraph;
 
 /**
  * The instance of the framework which controls and manages the analysis on execution. It acts the central repository for
@@ -152,11 +150,6 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	private ValuedVariantManager<N, SootField> staticFieldVariantManager;
 
 	/**
-	 * DOCUMENT ME!
-	 */
-	private final IStmtGraphFactory<? extends UnitGraph> stmtGraphFactory;
-
-	/**
 	 * The tag used to identify the elements of the AST touched by this framework instance.
 	 */
 	private NamedTag tag;
@@ -181,11 +174,9 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 *            The guarantee is that all elements so tagged were processed by the framework instance. The inverse need not
 	 *            be true.
 	 * @param tokenMgr manages the tokens whose flow is instrumented by this instance of flow analysis.
-	 * @param stmtGrphFctry the statement graph factory to use.
 	 * @pre analyzer != null and tagName != null and tokenMgr != null and stmtGraphFactory != null
 	 */
-	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<?, SYM> tokenMgr,
-			final IStmtGraphFactory<?> stmtGrphFctry) {
+	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<?, SYM> tokenMgr) {
 		workBags = new IWorkBag[2];
 		workBags[0] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
 		workBags[1] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
@@ -194,7 +185,6 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 		tag = new NamedTag(tagName);
 		tokenManager = tokenMgr;
 		sccOptimizationInterval = Constants.getSCCOptimizationIntervalForFA();
-		stmtGraphFactory = stmtGrphFctry;
 	}
 
 	/**
@@ -394,16 +384,6 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 */
 	public final SS getStmt(final IMethodVariant e) {
 		return modeFactory.getStmtVisitor(e);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param method DOCUMENT ME!
-	 * @return DOCUMENT ME!
-	 */
-	public UnitGraph getStmtGraph(final SootMethod method) {
-		return stmtGraphFactory.getStmtGraph(method);
 	}
 
 	/**

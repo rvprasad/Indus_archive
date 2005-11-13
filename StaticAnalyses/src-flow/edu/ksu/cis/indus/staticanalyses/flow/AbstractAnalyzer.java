@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
-import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -78,13 +77,11 @@ public abstract class AbstractAnalyzer<V>
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenMgr manages the tokens that participate in the analysis.
-	 * @param stmtGrphFctry the statement graph factory to use.
-	 * @pre theContext != null and tagName != null and tokenMgr != null and stmtGrphFctry
+	 * @pre theContext != null and tagName != null and tokenMgr != null
 	 */
-	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager<?, V> tokenMgr, 
-			final IStmtGraphFactory<?> stmtGrphFctry) {
+	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager<?, V> tokenMgr) {
 		this.context = theContext;
-		fa = new FA(this, tagName, tokenMgr, stmtGrphFctry);
+		fa = new FA(this, tagName, tokenMgr);
 	}
 
 	/**

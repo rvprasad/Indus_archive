@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.staticanalyses.Constants;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
@@ -42,16 +42,24 @@ class MethodVariantFactory
 	private final Pattern pattern;
 
 	/**
-	 * Creates an instance of this class.
+	 * The statement graph to use to retrieve method bodies. 
 	 */
-	public MethodVariantFactory() {
-		final String _p = Constants.getFAScopePattern();
+	private final IStmtGraphFactory<?> stmtGraphFactory;
 
-		if (_p != null) {
-			pattern = Pattern.compile(_p);
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param actualBodyScopePattern the scope in which the variants are based on actual body.
+	 * @param factory provides the statement graphs to be used construct method variants.
+	 * @pre factory != null
+	 */
+	public MethodVariantFactory(final String actualBodyScopePattern, final IStmtGraphFactory<?> factory) {
+		if (actualBodyScopePattern != null) {
+			pattern = Pattern.compile(actualBodyScopePattern);
 		} else {
 			pattern = null;
 		}
+		stmtGraphFactory = factory;
 	}
 
 	/**
@@ -62,7 +70,7 @@ class MethodVariantFactory
 		final IMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> _result;
 
 		if (pattern == null || pattern.matcher(sootMethod.getDeclaringClass().getName()).matches()) {
-			_result = new MethodVariant(sootMethod, astVM, fa);
+			_result = new MethodVariant(sootMethod, astVM, fa, stmtGraphFactory);
 		} else {
 			_result = new StubMethodVariant(sootMethod, astVM, fa);
 		}

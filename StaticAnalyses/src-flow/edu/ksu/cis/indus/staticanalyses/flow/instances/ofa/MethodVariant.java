@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -64,6 +65,11 @@ class MethodVariant
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodVariant.class);
+	
+	/**
+	 * The statement graph to use to retrieve method bodies. 
+	 */
+	private IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance. This will not process the statements of this method. That is
@@ -77,7 +83,8 @@ class MethodVariant
 	 * @pre sm != null and astvm != null and theFA != null
 	 */
 	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode>, Value> astVariantManager,
-			final FA<OFAFGNode, Value, ?, ?, ?, FlowInsensitiveExprSwitch, ?, FlowInsensitiveExprSwitch, StmtSwitch, ?> theFA) {
+			final FA<OFAFGNode, Value, ?, ?, ?, FlowInsensitiveExprSwitch, ?, FlowInsensitiveExprSwitch, StmtSwitch, ?> theFA,
+			final IStmtGraphFactory<?> factory) {
 		super(sm, astVariantManager, theFA);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -116,6 +123,8 @@ class MethodVariant
 
 		setOutFilterOfBasedOn(thrownNode, this.fa.getClass("java.lang.Throwable").getType(), _tokenMgr);
 
+		stmtGraphFactory = factory;
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed " + sm);
 		}
@@ -147,7 +156,7 @@ class MethodVariant
 
 		// We assume the user has closed the system.
 		if (method.isConcrete()) {
-			final JimpleBody _jb = (JimpleBody) fa.getStmtGraph(method).getBody();
+			final JimpleBody _jb = (JimpleBody) stmtGraphFactory.getStmtGraph(method).getBody();
 			final List<Stmt> _stmtList = new ArrayList<Stmt>(_jb.getUnits());
 
 			for (final Iterator<Stmt> _i = _stmtList.iterator(); _i.hasNext();) {
@@ -161,6 +170,8 @@ class MethodVariant
 			}
 		}
 
+		stmtGraphFactory = null;
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processing of " + method);
 		}
