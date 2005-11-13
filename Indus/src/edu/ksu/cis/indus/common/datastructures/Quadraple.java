@@ -94,7 +94,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * @return a cloned copy of this quadraple.
 	 * @throws CloneNotSupportedException if <code>super.clone()</code> fails.
 	 */
-	@Override public Object clone() throws CloneNotSupportedException {
+	@Override public Quadraple clone() throws CloneNotSupportedException {
 		return (Quadraple) super.clone();
 	}
 
