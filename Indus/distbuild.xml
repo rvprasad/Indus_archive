@@ -76,14 +76,17 @@
         </move>
 	</target>
 	
-	<target name="package">
+    <target name="package-doc">
         <mkdir dir="${dist.doc.dir}"/>
 		<foreach list="${cvs.modules}" target="prepare-docs" param="module" delimiter=" " inheritall="true"/>		
         <zip destfile="${docs.zip.filename}">
 			<zipfileset dir="${dist.doc.dir}" prefix=""/>
 		</zip>
         <delete dir="${dist.doc.dir}"/> 
-	
+    </target>
+        
+	<target name="package">
+		<antcall target="package-doc"/>
 		<antcall target="package-bin"/>
 		
         <zip destfile="${examples.src.zip.filename}">
