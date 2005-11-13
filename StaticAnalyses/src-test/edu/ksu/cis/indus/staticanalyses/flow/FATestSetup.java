@@ -81,7 +81,6 @@ public class FATestSetup
 	 */
 	protected FATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test);
-		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager(new SootValueTypeManager()));
 		sootClassPath = classpath;
 		classNames = theNameOfClasses;
 	}
@@ -97,6 +96,7 @@ public class FATestSetup
 		_driver.addToSootClassPath(sootClassPath);
 		_driver.setClassNames(Arrays.asList(classNames.split(" ")));
 		_driver.initialize();
+		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager(new SootValueTypeManager()), _driver.getStmtGraphFactory());
 		valueAnalyzer.analyze(new Environment(_driver.getScene()), _driver.getRootMethods());
 
 		final Collection _temp1 = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
