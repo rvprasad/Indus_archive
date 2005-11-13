@@ -380,7 +380,7 @@ public class ReadyDAv1
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<Comparable> getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.READY_DA);
 	}
 

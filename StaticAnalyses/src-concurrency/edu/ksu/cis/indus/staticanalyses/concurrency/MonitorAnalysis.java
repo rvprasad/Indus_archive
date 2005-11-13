@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Type;
+import soot.Value;
 
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
@@ -78,7 +79,7 @@ import soot.jimple.Stmt;
  */
 public final class MonitorAnalysis
 		extends AbstractAnalysis
-		implements IMonitorInfo {
+		implements IMonitorInfo<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> {
 
 	/**
 	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that the
@@ -90,7 +91,7 @@ public final class MonitorAnalysis
 	 */
 	private class MonitorGraph
 			extends SimpleNodeGraph<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>
-			implements IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> {
+			implements IMonitorInfo.IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> {
 
 		/**
 		 * The call graph on which this monitor graph is based on.
@@ -133,17 +134,17 @@ public final class MonitorAnalysis
 		public Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getInterProcedurallyEnclosingMonitorTriples(
 				final Stmt stmt, final SootMethod method, final boolean transitive) {
 			final Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _result = new HashMap<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
-			final Collection _monitorNodes = new HashSet();
+			final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _monitorNodes = new HashSet<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _immediateMonitors = getEnclosingMonitorTriples(
 					stmt, method, false);
 			_result.put(method, _immediateMonitors);
 
 			if (transitive && !_immediateMonitors.isEmpty()) {
-				final Iterator _i = _immediateMonitors.iterator();
+				final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _immediateMonitors.iterator();
 				final int _iEnd = _immediateMonitors.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Triple _monitor = (Triple) _i.next();
+					final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor = _i.next();
 					_monitorNodes.addAll(getReachablesFrom(queryNode(_monitor), false));
 				}
 			}
@@ -174,13 +175,13 @@ public final class MonitorAnalysis
 		 * @post method2stmts.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 		 */
 		private void calculateInterprocedurallyEnclosedStmts(final SootMethod method, final boolean transitive,
-				final Map<SootMethod, Collection<Stmt>> method2stmts, final Iterator stmtsWithInvokeExpr) {
+				final Map<SootMethod, Collection<Stmt>> method2stmts, final Iterator<Stmt> stmtsWithInvokeExpr) {
 			final Context _context = new Context();
 			final IWorkBag<Pair<Stmt, SootMethod>> _wb = new HistoryAwareLIFOWorkBag<Pair<Stmt, SootMethod>>(
 					new HashSet<Pair<Stmt, SootMethod>>());
 
-			for (final Iterator _i = stmtsWithInvokeExpr; _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
+			for (final Iterator<Stmt> _i = stmtsWithInvokeExpr; _i.hasNext();) {
+				final Stmt _stmt = _i.next();
 				_wb.addWork(pairMgr.getPair(_stmt, method));
 			}
 
@@ -382,7 +383,7 @@ public final class MonitorAnalysis
 	/**
 	 * This provides object flow information.
 	 */
-	private IValueAnalyzer ofa;
+	private IValueAnalyzer<Value> ofa;
 
 	/**
 	 * This maps synchronized methods to the collection of statements in them that are synchronization dependent on the entry
@@ -547,14 +548,14 @@ public final class MonitorAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IMonitorInfo.ID);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorGraph(edu.ksu.cis.indus.interfaces.ICallGraphInfo)
 	 */
-	public IMonitorGraph getMonitorGraph(final ICallGraphInfo callgraphInfo) {
+	public IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getMonitorGraph(final ICallGraphInfo callgraphInfo) {
 		final MonitorGraph _result = new MonitorGraph(callgraphInfo);
 		final Collection<CallTriple> _temp = new HashSet<CallTriple>();
 		final IWorkBag<CallTriple> _wb = new HistoryAwareFIFOWorkBag<CallTriple>(_temp);
@@ -856,7 +857,7 @@ public final class MonitorAnalysis
 		final int _kEnd = srcs.size();
 
 		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Triple _t = _k.next();
+			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _t = _k.next();
 			final SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _src = graph.getNode(_t);
 			final Iterator<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _l = dests.iterator();
 			final int _lEnd = dests.size();
@@ -1194,11 +1195,11 @@ public final class MonitorAnalysis
 			_context.setProgramPoint(enter.getOpBox());
 			_context.setStmt(enter);
 
-			final Collection _nValues = ofa.getValues(enter.getOp(), _context);
+			final Collection<Value> _nValues = ofa.getValues(enter.getOp(), _context);
 			_context.setProgramPoint(exit.getOpBox());
 			_context.setStmt(exit);
 
-			final Collection _xValues = ofa.getValues(exit.getOp(), _context);
+			final Collection<Value> _xValues = ofa.getValues(exit.getOp(), _context);
 
 			if (!(_xValues.isEmpty() || _nValues.isEmpty())) {
 				_result = !SetUtils.intersection(_xValues, _nValues).isEmpty();

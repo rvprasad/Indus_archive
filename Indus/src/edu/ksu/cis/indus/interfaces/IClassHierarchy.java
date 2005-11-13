@@ -32,7 +32,7 @@ public interface IClassHierarchy
 	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable ID = "Class Hierarchy Analysis";
+	Comparable <? extends Object> ID = "Class Hierarchy Analysis";
 
 	/**
 	 * Retrieves the classes in the hierarchy.

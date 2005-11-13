@@ -33,7 +33,7 @@ public interface IIdentification {
 	 *
 	 * @post result != null
 	 */
-	Collection<Comparable> getIds();
+	Collection<? extends Comparable<? extends Object>> getIds();
 }
 
 // End of File

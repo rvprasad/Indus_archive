@@ -186,7 +186,7 @@ public final class SynchronizationDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<Comparable> getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.SYNCHRONIZATION_DA);
 	}
 

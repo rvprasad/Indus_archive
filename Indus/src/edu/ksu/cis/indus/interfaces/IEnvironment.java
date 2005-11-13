@@ -32,7 +32,7 @@ public interface IEnvironment {
 	/**
 	 * The id of this interface.
 	 */
-	Comparable ID = "The Environment";
+	Comparable <? extends Object> ID = "The Environment";
 
 	/**
 	 * Returns the Jimple representation of the given class.

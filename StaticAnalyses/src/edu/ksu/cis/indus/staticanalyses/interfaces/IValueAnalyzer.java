@@ -42,7 +42,7 @@ public interface IValueAnalyzer<V>
 	/** 
 	 * The id of this interface.
 	 */
-	Comparable ID = "value flow analyzer";
+	Comparable <? extends Object> ID = "value flow analyzer";
 
 	/** 
 	 * The id of the tag used by the underlying flow analysis.

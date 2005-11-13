@@ -58,7 +58,7 @@ public abstract class AbstractToolConfigurator
 		/**
 		 * The id of the property which can be changed via <code>button</code>.
 		 */
-		protected final Comparable id;
+		protected final Comparable<? extends Object> id;
 
 		/**
 		 * Creates a new BooleanSelectionListener object.
@@ -68,7 +68,7 @@ public abstract class AbstractToolConfigurator
 		 * @param config is the confifugration that houses the given property.
 		 * @pre propID != null and sender != null and config != null
 		 */
-		public BooleanPropertySelectionListener(final Comparable propID, final Button sender, final IToolConfiguration config) {
+		public BooleanPropertySelectionListener(final Comparable<? extends Object> propID, final Button sender, final IToolConfiguration config) {
 			id = propID;
 			button = sender;
 			containingConfiguration = config;

@@ -129,7 +129,7 @@ public interface ICallGraphInfo
 	/**
 	 * The id of this interface.
 	 */
-	Comparable ID = "Callgraph Information";
+	Comparable<? extends Object> ID = "Callgraph Information";
 
 	/**
 	 * Checks if any of the given methods are reachable from the given caller.

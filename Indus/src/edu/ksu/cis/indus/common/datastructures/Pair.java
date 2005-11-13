@@ -61,7 +61,7 @@ public final class Pair<T1, T2> {
 		/**
 		 * This is the id of this service.
 		 */
-		public static final Comparable ID = "Pair management service";
+		public static final Comparable <? extends Object> ID = "Pair management service";
 
 		/**
 		 * DOCUMENT ME!

@@ -133,7 +133,7 @@ class ReadWriteInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IReadWriteInfo.ID);
 	}
 

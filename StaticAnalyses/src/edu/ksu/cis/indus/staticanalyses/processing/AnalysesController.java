@@ -112,7 +112,7 @@ public class AnalysesController {
 	 * @param analyses are the implementations of the named analysis.
 	 * @pre id != null and analyses != null and analysis->forall(o | o != null)
 	 */
-	public final void addAnalyses(final Comparable id, final Collection<? extends IAnalysis> analyses) {
+	public final void addAnalyses(final Comparable<? extends Object> id, final Collection<? extends IAnalysis> analyses) {
 		MapUtils.putAllIntoCollectionInMap(participatingAnalyses, id, analyses);
 	}
 
@@ -165,7 +165,7 @@ public class AnalysesController {
 	 * @return the implementation registered for the given purpose. Changes to this collection is visible to the controller.
 	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
-	public final Collection<IAnalysis> getAnalyses(final Comparable id) {
+	public final Collection<IAnalysis> getAnalyses(final Comparable<? extends Object> id) {
 		final Collection<IAnalysis> _result;
 
 		if (participatingAnalyses != null) {

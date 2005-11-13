@@ -76,37 +76,37 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	/**
 	 * This identifies control dependency analysis.
 	 */
-	Comparable CONTROL_DA = "CONTROL_DA";
+	Comparable<? extends Object> CONTROL_DA = "CONTROL_DA";
 
 	/**
 	 * This identifies divergence dependency analysis.
 	 */
-	Comparable DIVERGENCE_DA = "DIVERGENCE_DA";
+	Comparable<? extends Object> DIVERGENCE_DA = "DIVERGENCE_DA";
 
 	/**
 	 * This identifies identifier based data dependency analysis.
 	 */
-	Comparable IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
+	Comparable <? extends Object> IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
 
 	/**
 	 * This identifies inteference dependency analysis.
 	 */
-	Comparable INTERFERENCE_DA = "INTERFERENCE_DA";
+	Comparable<? extends Object> INTERFERENCE_DA = "INTERFERENCE_DA";
 
 	/**
 	 * This identifies ready dependency analysis.
 	 */
-	Comparable READY_DA = "READY_DA";
+	Comparable<? extends Object> READY_DA = "READY_DA";
 
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
-	Comparable REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
+	Comparable<? extends Object> REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
 
 	/**
 	 * This identifies synchronization dependency analysis.
 	 */
-	Comparable SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
+	Comparable<? extends Object> SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
 
 	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.

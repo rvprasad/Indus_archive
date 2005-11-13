@@ -314,7 +314,7 @@ public class InterferenceDAv1
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<Comparable> getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
 	}
 

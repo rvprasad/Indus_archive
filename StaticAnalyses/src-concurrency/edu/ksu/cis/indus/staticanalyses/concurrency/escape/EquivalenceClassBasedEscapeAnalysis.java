@@ -160,7 +160,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * The id of this analysis.
 	 */
-	public static final Comparable ID = "equivalence class based escape analysis";
+	public static final Comparable<? extends Object> ID = "equivalence class based escape analysis";
 
 	/**
 	 * The logger used by instances of this class to log messages.

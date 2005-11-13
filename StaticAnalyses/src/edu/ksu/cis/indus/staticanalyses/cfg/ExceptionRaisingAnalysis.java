@@ -126,7 +126,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * This maps ast node type to a collection of FQN of thrown exception types.
 	 */
-	private final Map<Class, Collection<String>> astNodeType2thrownTypeNames = new HashMap<Class, Collection<String>>();
+	private final Map<Class<?>, Collection<String>> astNodeType2thrownTypeNames = new HashMap<Class<?>, Collection<String>>();
 
 	/**
 	 * The call graph to be used.
@@ -151,7 +151,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * The statement graph factory to use.
 	 */
-	private IStmtGraphFactory stmtGraphFactory;
+	private IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * A workbag.
@@ -289,7 +289,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection<Comparable> getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(ID);
 	}
 
@@ -308,8 +308,8 @@ public class ExceptionRaisingAnalysis
 	public void hookup(final ProcessingController ppc) {
 		ppc.registerForAllStmts(this);
 
-		final Collection<Class> _c = astNodeType2thrownTypeNames.keySet();
-		final Iterator<Class> _i = _c.iterator();
+		final Collection<Class<?>> _c = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class<?>> _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -391,8 +391,8 @@ public class ExceptionRaisingAnalysis
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllStmts(this);
 
-		final Collection<Class> _c = astNodeType2thrownTypeNames.keySet();
-		final Iterator<Class> _i = _c.iterator();
+		final Collection<Class<?>> _c = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class<?>> _i = _c.iterator();
 		final int _iEnd = _c.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -410,8 +410,8 @@ public class ExceptionRaisingAnalysis
 	 */
 	private Collection<String> getExceptionTypeNamesFor(final Class<? extends Value> c) {
 		Collection<String> _result = Collections.emptySet();
-		final Set<Class> _keySet = astNodeType2thrownTypeNames.keySet();
-		final Iterator<Class> _i = _keySet.iterator();
+		final Set<Class<?>> _keySet = astNodeType2thrownTypeNames.keySet();
+		final Iterator<Class<?>> _i = _keySet.iterator();
 		final int _iEnd = _keySet.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {

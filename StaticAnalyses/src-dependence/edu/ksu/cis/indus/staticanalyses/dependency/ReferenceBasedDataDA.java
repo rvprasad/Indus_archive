@@ -146,7 +146,7 @@ public class ReferenceBasedDataDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIds()
 	 */
-	public Collection<Comparable> getIds() {
+	public Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 	}
 

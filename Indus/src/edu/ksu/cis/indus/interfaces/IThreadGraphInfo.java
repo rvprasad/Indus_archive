@@ -42,7 +42,7 @@ public interface IThreadGraphInfo
 	/**
 	 * The id of this interface.
 	 */
-	Comparable ID = "Threadgraph Information";
+	Comparable <? extends Object> ID = "Threadgraph Information";
 
 	/**
 	 * Checks if there is a class initializing thread in the given collection of threads.

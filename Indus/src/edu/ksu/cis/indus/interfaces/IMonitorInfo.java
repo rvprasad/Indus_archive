@@ -38,8 +38,9 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-public interface IMonitorInfo
+public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>
 		extends IStatus, IIdentification {
 
 	/**
@@ -85,7 +86,7 @@ public interface IMonitorInfo
 	/**
 	 * The id of this interface.
 	 */
-	Comparable ID = "Monitor Information";
+	Comparable<? extends Object> ID = "Monitor Information";
 
 	/**
 	 * Retrieves the statements enclosed by the given monitor triple. Only the statements occurring in the method in which the
@@ -133,12 +134,13 @@ public interface IMonitorInfo
 	 * from within the monitor (it is directly nested or nested in a method reachable via a call in the monitor) in the source
 	 * node.
 	 * 
+	 * @param <N> DOCUMENT ME!
 	 * @param callgraphInfo to be used to generate an interprocedural graph. If this parameter is <code>null</code>,
 	 *            intraprocedural monitor graph is generated.
 	 * @return a graph
 	 * @post result != null
 	 */
-	IMonitorGraph getMonitorGraph(final ICallGraphInfo callgraphInfo);
+	IMonitorGraph<N> getMonitorGraph(final ICallGraphInfo callgraphInfo);
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>,
