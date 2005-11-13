@@ -27,7 +27,8 @@ Required software:
 
 Version 0.7.2
 -----------------
-	- bug fixes: 618, 675, 680, 694, 696, 742.
+	- bug fixes: 618, 675, 680, 694, 696, 742. 
+	- feature request 717.
 	- removed dependence on commons-pool.jar.
 
 
