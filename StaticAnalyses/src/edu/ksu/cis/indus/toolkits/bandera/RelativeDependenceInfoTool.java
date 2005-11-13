@@ -74,6 +74,7 @@ import soot.SootClass;
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
+import soot.toolkits.graph.CompleteUnitGraph;
 
 /**
  * This class provides run-time dependence information and may-follow information required schedule instructions correctly for
@@ -493,15 +494,15 @@ public final class RelativeDependenceInfoTool
 	 */
 	void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
 		final String _tagName = "RelativeDependenceInfoTool:FA";
-		final IValueAnalyzer _aa = OFAnalyzer
-				.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IStmtGraphFactory<CompleteUnitGraph> _stmtGraphFactory = new CompleteStmtGraphFactory();
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+				TokenUtil.getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
 
 		if (abort) {
 			return;
 		}
 		_aa.analyze(environment, entryPointMethods);
 
-		final IStmtGraphFactory _stmtGraphFactory = new CompleteStmtGraphFactory();
 		final BasicBlockGraphMgr _bbm = new BasicBlockGraphMgr();
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();

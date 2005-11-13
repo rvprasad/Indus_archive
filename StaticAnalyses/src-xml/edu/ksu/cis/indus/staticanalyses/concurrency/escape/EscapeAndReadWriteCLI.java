@@ -139,7 +139,7 @@ public class EscapeAndReadWriteCLI
 
 		final String _tagName = "SideEffect:FA";
 		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);

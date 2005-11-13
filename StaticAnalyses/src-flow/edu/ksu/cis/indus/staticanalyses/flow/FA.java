@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.datastructures.WorkList;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
@@ -52,6 +53,7 @@ import soot.Type;
 import soot.Value;
 
 import soot.tagkit.Tag;
+import soot.toolkits.graph.UnitGraph;
 
 /**
  * The instance of the framework which controls and manages the analysis on execution. It acts the central repository for
@@ -72,11 +74,7 @@ import soot.tagkit.Tag;
  * @param <SS> DOCUMENT ME!
  * @param <SFI> DOCUMENT ME!
  */
-public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? extends IIndex, ArrayType>, 
-AI extends IIndexManager<? extends IIndex, Value>, IFI extends IIndexManager<? extends IIndex, SootField>, 
-LE extends IExprSwitch<LE, N>, MI extends IIndexManager<? extends IIndex, SootMethod>, 
-RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>, 
-SFI extends IIndexManager<? extends IIndex, SootField>>
+public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? extends IIndex, ArrayType>, AI extends IIndexManager<? extends IIndex, Value>, IFI extends IIndexManager<? extends IIndex, SootField>, LE extends IExprSwitch<LE, N>, MI extends IIndexManager<? extends IIndex, SootMethod>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>, SFI extends IIndexManager<? extends IIndex, SootField>>
 		implements IEnvironment, IWorkBagProvider {
 
 	/**
@@ -154,6 +152,11 @@ SFI extends IIndexManager<? extends IIndex, SootField>>
 	private ValuedVariantManager<N, SootField> staticFieldVariantManager;
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	private final IStmtGraphFactory<? extends UnitGraph> stmtGraphFactory;
+
+	/**
 	 * The tag used to identify the elements of the AST touched by this framework instance.
 	 */
 	private NamedTag tag;
@@ -163,7 +166,7 @@ SFI extends IIndexManager<? extends IIndex, SootField>>
 	 * 
 	 * @invariant tokenManager != null
 	 */
-	private final ITokenManager tokenManager;
+	private final ITokenManager<?, SYM> tokenManager;
 
 	/**
 	 * The collection of workbags used in tandem during analysis.
@@ -178,9 +181,11 @@ SFI extends IIndexManager<? extends IIndex, SootField>>
 	 *            The guarantee is that all elements so tagged were processed by the framework instance. The inverse need not
 	 *            be true.
 	 * @param tokenMgr manages the tokens whose flow is instrumented by this instance of flow analysis.
-	 * @pre analyzer != null and tagName != null and tokenMgr != null
+	 * @param stmtGrphFctry the statement graph factory to use.
+	 * @pre analyzer != null and tagName != null and tokenMgr != null and stmtGraphFactory != null
 	 */
-	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager tokenMgr) {
+	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<?, SYM> tokenMgr,
+			final IStmtGraphFactory<?> stmtGrphFctry) {
 		workBags = new IWorkBag[2];
 		workBags[0] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
 		workBags[1] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
@@ -189,6 +194,7 @@ SFI extends IIndexManager<? extends IIndex, SootField>>
 		tag = new NamedTag(tagName);
 		tokenManager = tokenMgr;
 		sccOptimizationInterval = Constants.getSCCOptimizationIntervalForFA();
+		stmtGraphFactory = stmtGrphFctry;
 	}
 
 	/**
@@ -391,12 +397,22 @@ SFI extends IIndexManager<? extends IIndex, SootField>>
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public UnitGraph getStmtGraph(final SootMethod method) {
+		return stmtGraphFactory.getStmtGraph(method);
+	}
+
+	/**
 	 * Retrieves the token manager that manages the tokens whose flow is being instrumented.
 	 * 
 	 * @return the token manager.
 	 * @post tokenManager != null
 	 */
-	public final ITokenManager getTokenManager() {
+	public final ITokenManager<?, SYM> getTokenManager() {
 		return tokenManager;
 	}
 

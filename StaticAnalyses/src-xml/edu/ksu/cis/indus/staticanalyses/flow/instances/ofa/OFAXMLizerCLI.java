@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
@@ -38,7 +39,7 @@ import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,8 +57,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,13 +236,13 @@ public final class OFAXMLizerCLI
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer _aa;
 		if (type.equals("fioi")) {
-			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fios")) {
-			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fsoi")) {
-			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fsos")) {
-			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else {
 			throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");
 		}
@@ -313,7 +312,7 @@ public final class OFAXMLizerCLI
 			_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
+			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor.getStatistics())));
 			writeInfo(_stream.toString());
 
 			_info.put(AbstractXMLizer.FILE_NAME_ID, _fileBaseName);

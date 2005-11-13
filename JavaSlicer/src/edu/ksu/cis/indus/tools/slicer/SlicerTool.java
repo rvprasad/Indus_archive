@@ -317,7 +317,7 @@ public final class SlicerTool
 		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
 		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr);
+		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr, getStmtGraphFactory());
 		addActivePart(ofa.getActivePart());
 
 		stmtGraphFactory = stmtGraphFactoryToUse;

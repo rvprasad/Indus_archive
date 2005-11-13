@@ -55,6 +55,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
+import soot.toolkits.graph.CompleteUnitGraph;
 import soot.util.Chain;
 
 /**
@@ -254,11 +255,11 @@ public final class OFATool
 		}
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer
-				.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IStmtGraphFactory<CompleteUnitGraph> _factory = new CompleteStmtGraphFactory();
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+				TokenUtil.getTokenManager(new SootValueTypeManager()), _factory);
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
-		final IStmtGraphFactory _factory = new CompleteStmtGraphFactory();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		basicBlockGraphMgr.setStmtGraphFactory(_factory);
 		_ssr.setBbgFactory(basicBlockGraphMgr);

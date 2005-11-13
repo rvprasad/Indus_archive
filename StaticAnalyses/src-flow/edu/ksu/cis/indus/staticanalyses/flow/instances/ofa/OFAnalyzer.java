@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
@@ -65,13 +66,14 @@ public final class OFAnalyzer
 	 * @param rexpr the RHS expression visitor prototype.
 	 * @param stmt the statement visitor prototype.
 	 * @param tokenMgr manages the tokens for the objects in OFA.
+	 * @param stmtGrphFctry the statement graph factory to use.
 	 *
 	 * @pre astim != null and allocationim != null and lexpr != null and rexpr != null and stmt != null and tokenMgr != null
 	 */
 	private OFAnalyzer(final String tagName, final AbstractIndexManager astim, final AbstractIndexManager allocationim,
 		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt,
-		final ITokenManager tokenMgr) {
-		super(new AllocationContext(), tagName, tokenMgr);
+		final ITokenManager<?, Value> tokenMgr, final IStmtGraphFactory<?> stmtGrphFctry) {
+		super(new AllocationContext(), tagName, tokenMgr, stmtGrphFctry);
 
 		final ModeFactory _mf = new ModeFactory();
 		_mf.setASTIndexManagerPrototype(astim);
@@ -98,10 +100,11 @@ public final class OFAnalyzer
 	 *
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFIOIAnalyzer(final String tagName, final ITokenManager tokenManager) {
+	public static OFAnalyzer getFIOIAnalyzer(final String tagName, final ITokenManager<?, Value> tokenManager, 
+			final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer(tagName, new IndexManager(), new IndexManager(),
 			new FlowInsensitiveExprSwitch(null, new LHSConnector()), new FlowInsensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -116,10 +119,11 @@ public final class OFAnalyzer
 	 *
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFIOSAnalyzer(final String tagName, final ITokenManager tokenManager) {
+	public static OFAnalyzer getFIOSAnalyzer(final String tagName, final ITokenManager<?, Value> tokenManager,
+			final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
 			new FlowInsensitiveExprSwitch(null, new LHSConnector()), new FlowInsensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -134,10 +138,11 @@ public final class OFAnalyzer
 	 *
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFSOIAnalyzer(final String tagName, final ITokenManager tokenManager) {
+	public static OFAnalyzer getFSOIAnalyzer(final String tagName, final ITokenManager<?, Value> tokenManager, 
+			final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
 			new FlowSensitiveExprSwitch(null, new LHSConnector()), new FlowSensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -152,10 +157,11 @@ public final class OFAnalyzer
 	 *
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFSOSAnalyzer(final String tagName, final ITokenManager tokenManager) {
+	public static OFAnalyzer getFSOSAnalyzer(final String tagName, final ITokenManager<?, Value> tokenManager, 
+			final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
 			new FlowSensitiveExprSwitch(null, new LHSConnector()), new FlowSensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -170,7 +176,7 @@ public final class OFAnalyzer
 	 * @pre f != null and sites != null
 	 * @pre sites.oclIsKindOf(Collection(Object))
 	 */
-	public Collection<Value> getValues(final SootField f, final Collection sites) {
+	public Collection<Value> getValues(final SootField f, final Collection<Value> sites) {
 		Object _temp = null;
 		Collection<Value> _retValues;
 		final AllocationContext _ctxt = (AllocationContext) context;
@@ -181,7 +187,7 @@ public final class OFAnalyzer
 			_retValues = new HashSet<Value>();
 			_temp = _ctxt.getAllocationSite();
 
-			for (final Iterator _i = sites.iterator(); _i.hasNext();) {
+			for (final Iterator<Value> _i = sites.iterator(); _i.hasNext();) {
 				_ctxt.setAllocationSite(_i.next());
 				_retValues.addAll(getValues(f));
 			}
@@ -203,7 +209,7 @@ public final class OFAnalyzer
      * @pre t != null and sites != null
      * @pre sites.oclIsKindOf(Collection(Object))
      */
-    public Collection<Value> getValues(final ArrayType t, final Collection sites) {
+    public Collection<Value> getValues(final ArrayType t, final Collection<Value> sites) {
         Object _temp = null;
         Collection<Value> _retValues;
         final AllocationContext _ctxt = (AllocationContext) context;
@@ -211,7 +217,7 @@ public final class OFAnalyzer
             _retValues = new HashSet<Value>();
             _temp = _ctxt.getAllocationSite();
 
-            for (final Iterator _i = sites.iterator(); _i.hasNext();) {
+            for (final Iterator<Value> _i = sites.iterator(); _i.hasNext();) {
                 _ctxt.setAllocationSite(_i.next());
                 _retValues.addAll(getValues(t));
             }

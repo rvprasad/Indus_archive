@@ -91,7 +91,7 @@ abstract class AbstractControlDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public final Collection<Comparable> getIds() {
+	public final Collection<? extends Comparable<? extends Object>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.CONTROL_DA);
 	}
 

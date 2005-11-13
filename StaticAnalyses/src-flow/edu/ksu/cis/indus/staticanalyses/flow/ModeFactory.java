@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import soot.ArrayType;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 /**

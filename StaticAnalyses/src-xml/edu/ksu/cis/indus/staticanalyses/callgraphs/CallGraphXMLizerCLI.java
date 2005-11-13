@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
@@ -42,7 +43,7 @@ import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,8 +61,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-
-import org.apache.commons.collections.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,7 +274,7 @@ public final class CallGraphXMLizerCLI
 	private void executeOFA(final boolean dumpJimple) {
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
@@ -328,7 +327,7 @@ public final class CallGraphXMLizerCLI
 			_cgi.createCallGraphInfo(_ofaci.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
+			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor.getStatistics())));
 			writeInfo(_stream.toString());
 
 			dumpInfo(dumpJimple, _cgi, _fileBaseName, _aa.getEnvironment());

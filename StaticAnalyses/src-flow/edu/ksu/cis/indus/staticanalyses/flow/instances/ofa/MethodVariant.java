@@ -19,11 +19,12 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IVariantManager;
+import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,10 +41,10 @@ import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
 import soot.Type;
+import soot.Value;
 
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.IdentityStmt;
-import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
@@ -57,7 +58,7 @@ import soot.jimple.ThrowStmt;
  * @version $Revision$ $Name$
  */
 class MethodVariant
-		extends AbstractMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> {
+		extends AbstractMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch, Value> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -75,8 +76,8 @@ class MethodVariant
 	 *            cannot be <code>null</code>.
 	 * @pre sm != null and astvm != null and theFA != null
 	 */
-	protected MethodVariant(final SootMethod sm, final IVariantManager astVariantManager,
-			final FA<OFAFGNode, ?, ?, ?, ?, FlowInsensitiveExprSwitch, ?, FlowInsensitiveExprSwitch, StmtSwitch, ?> theFA) {
+	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode>, Value> astVariantManager,
+			final FA<OFAFGNode, Value, ?, ?, ?, FlowInsensitiveExprSwitch, ?, FlowInsensitiveExprSwitch, StmtSwitch, ?> theFA) {
 		super(sm, astVariantManager, theFA);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -89,12 +90,13 @@ class MethodVariant
 		 * to assume that all such objects can be considered as receivers for all run() implementations plugged into the run()
 		 * site.
 		 */
-		final ITokenManager _tokenMgr = fa.getTokenManager();
+		final ITokenManager<?, Value> _tokenMgr = fa.getTokenManager();
 
 		if (thisVar != null) {
 			final RefType _sootType = sm.getDeclaringClass().getType();
-			final IType _tokenTypeForRepType = _tokenMgr.getTypeManager().getTokenTypeForRepType(_sootType);
-			final ITokenFilter _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
+			final ITypeManager<Type, Value> _typeManager = _tokenMgr.getTypeManager();
+			final IType _tokenTypeForRepType = _typeManager.getTokenTypeForRepType(_sootType);
+			final ITokenFilter<?, Value> _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
 			thisVar.setInFilter(_typeBasedFilter);
 			thisVar.setOutFilter(_typeBasedFilter);
 		}
@@ -127,10 +129,10 @@ class MethodVariant
 	 * @param tokenMgr used in the creation of the type-based filter.
 	 * @pre node != null and type != null and tokenMgr != null
 	 */
-	static void setOutFilterOfBasedOn(final OFAFGNode node, final Type type, final ITokenManager tokenMgr) {
+	static void setOutFilterOfBasedOn(final OFAFGNode node, final Type type, final ITokenManager<?, Value> tokenMgr) {
 		if (node != null) {
 			final IType _baseType = tokenMgr.getTypeManager().getTokenTypeForRepType(type);
-			final ITokenFilter _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+			final ITokenFilter<?, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
 			node.setOutFilter(_baseFilter);
 		}
 	}
@@ -143,12 +145,9 @@ class MethodVariant
 			LOGGER.debug("BEGIN: processing of " + method);
 		}
 
-		JimpleBody _jb = null;
-
 		// We assume the user has closed the system.
 		if (method.isConcrete()) {
-			_jb = (JimpleBody) method.retrieveActiveBody();
-
+			final JimpleBody _jb = (JimpleBody) fa.getStmtGraph(method).getBody();
 			final List<Stmt> _stmtList = new ArrayList<Stmt>(_jb.getUnits());
 
 			for (final Iterator<Stmt> _i = _stmtList.iterator(); _i.hasNext();) {
@@ -179,22 +178,22 @@ class MethodVariant
 	 * corresponding to the expression thrown by the method.
 	 * 
 	 * @param body of the method.
-	 * @pre body != null
+	 * @param stmtList is the list of statements that make up the body.
+	 * @pre body != null and stmtList != null
 	 */
-	private void connectThrowNodesToThrownNode(final JimpleBody body) {
+	private void connectThrowNodesToThrownNode(final JimpleBody body, final List<Stmt> stmtList) {
 		final Context _ctxt = new Context();
 		_ctxt.setRootMethod(method);
 		
-		final Collection<Stmt> _units = body.getUnits();
-		final Iterator<Stmt> _j = _units.iterator();
-		final int _jEnd = _units.size();
+		final Iterator<Stmt> _j = stmtList.iterator();
+		final int _jEnd = stmtList.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final Stmt _stmt = _j.next();
 			_ctxt.setStmt(_stmt);
 
 			if (_stmt instanceof ThrowStmt) {
-				final Collection _t = TrapManager.getTrapsAt(_stmt, body);
+				final Collection<Trap> _t = TrapManager.getTrapsAt(_stmt, body);
 
 				if (_t.isEmpty()) {
 					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
@@ -253,7 +252,7 @@ class MethodVariant
 						if (Util.isDescendentOf(_scTemp, _exception)) {
 							_exprCtxt.setStmt(_ts);
 
-							final IFGNode _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
+							final OFAFGNode _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
 							_throwNode.addSucc(queryASTNode(_catchRef, _catchCtxt));
 							_caught.add(_ts);
 						}
@@ -270,7 +269,7 @@ class MethodVariant
 			}
 		}
 
-		connectThrowNodesToThrownNode(body);
+		connectThrowNodesToThrownNode(body, stmtList);
 	}
 }
 

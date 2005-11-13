@@ -41,15 +41,16 @@ import soot.jimple.JimpleBody;
  * @param <LE> DOCUMENT ME!
  * @param <RE> DOCUMENT ME!
  * @param <SS> DOCUMENT ME!
+ * @param <SYM> DOCUMENT ME!
  */
-public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>>
+public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>, SYM>
   implements IMethodVariant<N, LE, RE, SS> {
 	/** 
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> fa;
+	protected final FA<N, SYM, ?, ?, ?, LE, ?, RE, SS, ?> fa;
 
 	/** 
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
@@ -124,7 +125,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, ?>, LE extends 
 	 *
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
-	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> theFA) {
+	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<N, SYM, ?, ?, ?, LE, ?, RE, SS, ?> theFA) {
 		super();
 		method = sm;
 		astvm = astVariantManager;

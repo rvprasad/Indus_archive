@@ -379,7 +379,8 @@ public class InfluenceChecker
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()),
+				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
@@ -463,7 +464,7 @@ public class InfluenceChecker
 				.hasNext();) {
 			final IDependencyAnalysis _da = _i1.next();
 
-			for (final Iterator<Comparable> _i2 = _da.getIds().iterator(); _i2.hasNext();) {
+			for (final Iterator<? extends Comparable<? extends Object>> _i2 = _da.getIds().iterator(); _i2.hasNext();) {
 				final Comparable _id = _i2.next();
 				_ac.addAnalyses(_id, Collections.singleton(_da));
 			}

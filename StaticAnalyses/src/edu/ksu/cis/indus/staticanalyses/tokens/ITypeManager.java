@@ -23,10 +23,10 @@ import java.util.Observer;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  * @param <V> DOCUMENT ME!
  */
-public interface ITypeManager<T, V> {
+public interface ITypeManager<R, V> {
 
 	/**
 	 * This is a wrapper class that is used in conjunction with observer pattern. Instances of this class indicate the
@@ -96,7 +96,7 @@ public interface ITypeManager<T, V> {
 	 * 
 	 * @return dynamic token-type relation evaluating implementation.
 	 */
-	IDynamicTokenTypeRelationDetector getDynamicTokenTypeRelationEvaluator();
+	IDynamicTokenTypeRelationDetector<V> getDynamicTokenTypeRelationEvaluator();
 
 	/**
 	 * Retrieves the specific type of the value. It may be that the value is of type T1, T2, .. Tn of which Tn is it's
@@ -120,7 +120,7 @@ public interface ITypeManager<T, V> {
 	 * @pre type != null
 	 * @post result != null
 	 */
-	IType getTokenTypeForRepType(T type);
+	IType getTokenTypeForRepType(R type);
 
 	/**
 	 * Resets the type manager.
