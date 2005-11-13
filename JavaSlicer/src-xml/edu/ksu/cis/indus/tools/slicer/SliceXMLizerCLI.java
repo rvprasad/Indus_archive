@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
