@@ -307,7 +307,7 @@ public final class CollectionUtils {
 	 * @param col2 DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	static int maxSize(final Collection col1, final Collection col2) {
+	static int maxSize(final Collection<?> col1, final Collection<?> col2) {
 		final int _size;
 		final int _col1Size = col1.size();
 		final int _col2Size = col2.size();
@@ -322,14 +322,21 @@ public final class CollectionUtils {
 	/**
 	 * DOCUMENT ME!
 	 * 
-	 * @param temp2
-	 * @return
+	 * @param col DOCUMENT ME!
+	 * @return DOCUMENT ME!
 	 */
-	public static String verbosePrint(final Collection col) {
-		// TODO: Auto-generated method stub
-		return null;
+	public static String verbosePrint(final Collection<?> col) {
+		final StringBuilder _ret = new StringBuilder();
+		_ret.append("Collection : (hashcode :");
+		_ret.append(col.hashCode());
+		_ret.append(")\n");
+		for (final Object _o : col) {
+			_ret.append(_o.toString());
+			_ret.append("\n");
+		}
+		_ret.append("\n");
+		return _ret.toString();
 	}
-
 }
 
 // End of File

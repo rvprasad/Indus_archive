@@ -14,7 +14,6 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +100,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	public boolean addIncomingEdgeLabelledFrom(final IEdgeLabel label, final T node) {
 		predecessors.add(node);
-		return MapUtils.putIntoCollectionInMapUsingFactory(label2inNodes, label, node, SetUtils.<T>getFactory());
+		return MapUtils.putIntoCollectionInMap(label2inNodes, label, node);
 	}
 
 	/**
@@ -109,7 +108,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	public boolean addOutgoingEdgeLabelledTo(final IEdgeLabel label, final T node) {
 		successors.add(node);
-		return MapUtils.putIntoCollectionInMapUsingFactory(label2outNodes, label, node, SetUtils.<T>getFactory());
+		return MapUtils.putIntoCollectionInMap(label2outNodes, label, node);
 	}
 
 	/**

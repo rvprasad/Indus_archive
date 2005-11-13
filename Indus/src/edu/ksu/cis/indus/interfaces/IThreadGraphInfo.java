@@ -22,6 +22,7 @@ import java.util.Collection;
 import soot.SootMethod;
 
 import soot.jimple.InvokeStmt;
+import soot.jimple.Stmt;
 
 /**
  * This interface provides thread graph information pertaining to the analyzed system. It is adviced that any post processor
@@ -51,7 +52,7 @@ public interface IThreadGraphInfo
 	 *         <code>false</code>, otherwise.
 	 * @pre executionThreads != null
 	 */
-	boolean containsClassInitThread(Collection<Triple> executionThreads);
+	boolean containsClassInitThread(Collection<Triple<? extends Object, ? extends Object, ? extends Object>> executionThreads);
 
 	/**
 	 * Returns a collection of thread allocation sites in the system.
@@ -61,7 +62,7 @@ public interface IThreadGraphInfo
 	 *         objects. So, the caller is adviced to check for the types of the Pair before using them.
 	 * @post result != null
 	 */
-	Collection<Pair> getAllocationSites();
+	Collection<Pair<? extends Object, ? extends Object>> getAllocationSites();
 
 	/**
 	 * Returns the sites which create new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
@@ -71,7 +72,7 @@ public interface IThreadGraphInfo
 	 *         simple objects. So, the caller is adviced to check for the types of the Pair before using them.
 	 * @post result != null
 	 */
-	Collection<Pair> getCreationSites();
+	Collection<Pair<Stmt, SootMethod>> getCreationSites();
 
 	/**
 	 * Returns the methods executed in the <code>Thread</code> created at the given <code>startStmt</code> in the given
@@ -95,7 +96,7 @@ public interface IThreadGraphInfo
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	Collection<Triple> getExecutionThreads(SootMethod sm);
+	Collection<Triple<? extends Object, ? extends Object, ? extends Object>> getExecutionThreads(SootMethod sm);
 
 	/**
 	 * Returns the methods that act as the entry points in to the threads. These are implementations of

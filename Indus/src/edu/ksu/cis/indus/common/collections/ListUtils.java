@@ -31,8 +31,8 @@ public final class ListUtils {
 	 */
 	public static final IFactory<List> LIST_FACTORY = new IFactory<List>() {
 
-		public List create() {
-			return new ArrayList();
+		public List<Object> create() {
+			return new ArrayList<Object>();
 		}
 	};
 
@@ -126,6 +126,7 @@ public final class ListUtils {
 
 	/**
 	 * DOCUMENT ME!
+	 * @param <T> DOCUMENT ME!
 	 * 
 	 * @return DOCUMENT ME!
 	 */

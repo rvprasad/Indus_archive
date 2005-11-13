@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.common.collections;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -89,6 +90,24 @@ public final class IteratorUtils {
 
 			public void remove() {
 				curr.remove();
+			}
+		};
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param c DOCUMENT ME!
+	 * @param p DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T2 extends T1> Iterable<T2> filteredIterable(final Collection<T2> c, final IPredicate<T1> p) {
+		return new Iterable<T2>() {
+
+			public Iterator<T2> iterator() {
+				return filteredIterator(c.iterator(), p);
 			}
 		};
 	}

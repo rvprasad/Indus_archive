@@ -14,8 +14,6 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import java.util.Comparator;
-
 /**
  * This class represents a triplet of objects. The hashcode/stringized rep. of this object is derived from it's constituents.
  * <p>
@@ -40,25 +38,6 @@ import java.util.Comparator;
  * @param <T3> The type of the first element of this triple.
  */
 public class Triple<T1, T2, T3> {
-
-	/**
-	 * This compares two triples based on their stringized form.
-	 * 
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static final class TripleComparator
-			implements Comparator {
-
-		/**
-		 * @see Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
-		public int compare(final Object o1, final Object o2) {
-			return o1.toString().compareTo(o2.toString());
-		}
-	}
-
 	/**
 	 * The first object in this triple.
 	 */

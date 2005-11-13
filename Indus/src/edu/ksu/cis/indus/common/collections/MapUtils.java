@@ -14,9 +14,11 @@
 package edu.ksu.cis.indus.common.collections;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +50,61 @@ public final class MapUtils {
 		super();
 	}
 
+	// / CLOVER:ON
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> Collection<V> getEmptyCollectionFromMap(final Map<K, Collection<V>> map, final K key) {
+		return getFromMap(map, key, Collections.<V>emptyList());
+	}
+	
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> List<V> getEmptyListFromMap(final Map<K, List<V>> map, final K key) {
+		return getFromMap(map, key, Collections.<V>emptyList());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <K2> DOCUMENT ME!
+	 * @param <V2> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, K2, V2> Map<K2, V2> getEmptyMapFromMap(final Map<K, Map<K2, V2>> map, final K key) {
+		return getFromMap(map, key, Collections.<K2, V2>emptyMap());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> Set<V> getEmptySetFromMap(final Map<K, Set<V>> map, final K key) {
+		return getFromMap(map, key, Collections.<V>emptySet());
+	}
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -56,9 +113,7 @@ public final class MapUtils {
 	public static <K, V> IFactory<Map<K, V>> getFactory() {
 		return (IFactory<Map<K, V>>) MAP_FACTORY;
 	}
-
-	// / CLOVER:ON
-
+	
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -103,6 +158,62 @@ public final class MapUtils {
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> List<V> getListFromMap(final Map<K, List<V>> map, final K key) {
+		return getFromMapUsingFactory(map, key, ListUtils.<V> getFactory());
+	}
+
+
+	/**
+	 * DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <K1> DOCUMENT ME!
+	 * @param <K2> DOCUMENT ME!
+	 * @param <V2> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 * 
+	 */
+	public static <K, K1 extends K, K2, V2> Map<K2, V2> getMapFromMap(final Map<K, Map<K2, V2>> map, final K1 key) {
+		return getFromMapUsingFactory(map, key, MapUtils.<K2, V2>getFactory());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> Set<V> getSetFromMap(Map<K, Set<V>> map, K key) {
+		return getFromMapUsingFactory(map, key, SetUtils.<V> getFactory());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> Collection<V> getCollectionFromMap(Map<K, Collection<V>> map, K key) {
+		return getFromMapUsingFactory(map, key, SetUtils.<V> getFactory());
+	}
+
+	
+	/**
 	 * Inverts the given map. In the returned map, each key is mapped to a collection. This is to address situation where
 	 * multiple keys may map to the same value in the given map.
 	 * 
@@ -143,21 +254,17 @@ public final class MapUtils {
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T4> DOCUMENT ME!
+	 * @param <T5> DOCUMENT ME!
+	 * @param <T6> DOCUMENT ME!
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param values DOCUMENT ME!
 	 * @param col DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoCollectionInMap(final Map<T1, Collection<T2>> map,
-			final T3 key, final Collection<T4> values, final Collection<T2> col) {
-		Collection<T2> _temp = map.get(key);
-
-		if (_temp == null) {
-			_temp = col;
-			map.put(key, _temp);
-		}
-		return _temp.addAll(values);
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoCollectionInMap(
+			final Map<T1, Collection<T2>> map, final T3 key, final Collection<T4> values) {
+		return putAllIntoCollectionInMapUsingFactory(map, key, values, SetUtils.<T2> getFactory());
 	}
 
 	/**
@@ -169,6 +276,8 @@ public final class MapUtils {
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T4> DOCUMENT ME!
+	 * @param <T5> DOCUMENT ME!
+	 * @param <T6> DOCUMENT ME!
 	 * @param map to be altered.
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param values to be added into the collection mapped to <code>key</code>.
@@ -176,15 +285,49 @@ public final class MapUtils {
 	 * @return <code>true</code> if all values were added; <code>false</code>, otherwise.
 	 * @pre map != null and key != null and values != null and factory != null
 	 */
-	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoCollectionInMapUsingFactory(final Map<T1, Collection<T2>> map,
-			final T3 key, final Collection<T4> values, final IFactory<? extends Collection<T2>> factory) {
-		Collection<T2> _temp = map.get(key);
+	public static <T1, T3 extends T1, T2, T4 extends T2, T5 extends Collection<T2>, T6 extends T5> boolean putAllIntoCollectionInMapUsingFactory(
+			final Map<T1, T5> map, final T3 key, final Collection<T4> values, final IFactory<T6> factory) {
+		T5 _temp = map.get(key);
 
 		if (_temp == null) {
 			_temp = factory.create();
 			map.put(key, _temp);
 		}
 		return _temp.addAll(values);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T4> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param values DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoListInMap(final Map<T1, List<T2>> map,
+			final T3 key, final Collection<T4> values) {
+		return putAllIntoCollectionInMapUsingFactory(map, key, values, ListUtils.<T2> getFactory());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T4> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param values DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoSetInMap(final Map<T1, Set<T2>> map, final T3 key,
+			final Collection<T4> values) {
+		return putAllIntoCollectionInMapUsingFactory(map, key, values, SetUtils.<T2> getFactory());
 	}
 
 	/**
@@ -201,14 +344,8 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <T1, T2, T3 extends T1, T4 extends T2> boolean putIntoCollectionInMap(final Map<T1, Collection<T2>> map,
-			final T3 key, final T4 value, final Collection<T2> col) {
-		Collection<T2> _temp = map.get(key);
-
-		if (_temp == null) {
-			_temp = col;
-			map.put(key, _temp);
-		}
-		return _temp.add(value);
+			final T3 key, final T4 value) {
+		return putIntoCollectionInMapUsingFactory(map, key, value, SetUtils.<T2> getFactory());
 	}
 
 	/**
@@ -219,6 +356,8 @@ public final class MapUtils {
 	 * @param <T2> The type of the values in collection stored as values in the given map.
 	 * @param <T3> The type of the given key.
 	 * @param <T4> The type of the given value.
+	 * @param <T5> DOCUMENT ME!
+	 * @param <T6> DOCUMENT ME!
 	 * @param map to be altered.
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param value to be added into the collection mapped to <code>key</code>.
@@ -226,15 +365,49 @@ public final class MapUtils {
 	 * @return <code>true</code> if the value was added; <code>false</code>, otherwise.
 	 * @pre map != null and key != null and values != null and factory != null
 	 */
-	public static <T1, T2, T3 extends T1, T4 extends T2> boolean putIntoCollectionInMapUsingFactory(
-			final Map<T1, Collection<T2>> map, final T3 key, final T4 value, final IFactory<? extends Collection<T2>> factory) {
-		Collection<T2> _temp = map.get(key);
+	public static <T1, T2, T3 extends T1, T4 extends T2, T5 extends Collection<T2>, T6 extends T5> boolean putIntoCollectionInMapUsingFactory(
+			final Map<T1, T5> map, final T3 key, final T4 value, final IFactory<T6> factory) {
+		T5 _temp = map.get(key);
 
 		if (_temp == null) {
 			_temp = factory.create();
 			map.put(key, _temp);
 		}
 		return _temp.add(value);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T4> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param values DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoListInMap(final Map<T1, Collection<T2>> map, final T3 key,
+			final T4 value) {
+		return putIntoCollectionInMapUsingFactory(map, key, value, ListUtils.<T2> getFactory());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T4> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param values DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoSetInMap(final Map<T1, Collection<T2>> map, final T3 key,
+			final T4 value) {
+		return putIntoCollectionInMapUsingFactory(map, key, value, SetUtils.<T2> getFactory());
 	}
 
 	/**

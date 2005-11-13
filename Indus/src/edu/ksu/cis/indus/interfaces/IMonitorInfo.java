@@ -50,7 +50,7 @@ public interface IMonitorInfo
 	 * @version $Revision$
 	 * @param <N> <i>refer to the type parameter of the same name in the super class.</i>
 	 */
-	public interface IMonitorGraph<N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>
+	interface IMonitorGraph<N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>
 			extends IObjectDirectedGraph<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 
 		/**
@@ -110,9 +110,8 @@ public interface IMonitorInfo
 	 * @return a collection of statements
 	 * @pre stmt != null and method != null
 	 * @post result != null
-	 * @post result->forall(o | o.oclIsKindOf(EnterMonitorStmt) or o.oclIsKindOf(ExitMonitorStmt)
 	 */
-	Collection<Stmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive);
+	Collection<MonitorStmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive);
 
 	/**
 	 * Retrieves the monitor triples for monitors enclosing the given statement in the given method. Only the monitors
