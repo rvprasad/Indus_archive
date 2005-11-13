@@ -12,7 +12,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import soot.SootMethod;
+import soot.Value;
 import soot.jimple.Stmt;
 
 /**
@@ -59,7 +60,7 @@ public final class AliasedUseDefInfov2
 	 * @param pairManager is the pair object manager to use.
 	 * @pre iva != null and cg != null and bbgManager != null and pairManager != null
 	 */
-	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
+	public AliasedUseDefInfov2(final IValueAnalyzer<Value> iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
 			final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
 		super(iva, bbgManager, pairManager, new CFGAnalysis(cg, bbgManager));
 		cgi = cg;

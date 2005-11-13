@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -155,9 +154,8 @@ public class LockAcquisitionBasedEquivalence
 	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
 	 *       SootMethod)))
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getLockAcquisitionsInEquivalenceClassOf(final Pair<Stmt, SootMethod> pair) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(locking2lockings, pair, Collections
-				.emptySet()));
+	public Collection<Pair<? extends Stmt, SootMethod>> getLockAcquisitionsInEquivalenceClassOf(final Pair<Stmt, SootMethod> pair) {
+		return Collections.unmodifiableCollection(MapUtils.getEmptyCollectionFromMap(locking2lockings, pair));
 	}
 
 	/**
@@ -225,8 +223,8 @@ public class LockAcquisitionBasedEquivalence
 			final Local _l2 = _s == null ? null : (Local) ((VirtualInvokeExpr) _s.getInvokeExpr()).getBase();
 
 			if (locking.areCoupledViaLocking(local, method, _l2, _sm)) {
-				CollectionsUtilities.putIntoSetInMap(locking2lockings, _p2, p);
-				CollectionsUtilities.putIntoSetInMap(locking2lockings, p, _p2);
+				MapUtils.putIntoSetInMap(locking2lockings, _p2, p);
+				MapUtils.putIntoSetInMap(locking2lockings, p, _p2);
 			}
 		}
 
@@ -240,8 +238,8 @@ public class LockAcquisitionBasedEquivalence
 			final Local _l2 = _s == null ? null : (Local) _s.getOp();
 
 			if (locking.areCoupledViaLocking(local, method, _l2, _sm)) {
-				CollectionsUtilities.putIntoSetInMap(locking2lockings, _p2, p);
-				CollectionsUtilities.putIntoSetInMap(locking2lockings, p, _p2);
+				MapUtils.putIntoSetInMap(locking2lockings, _p2, p);
+				MapUtils.putIntoSetInMap(locking2lockings, p, _p2);
 			}
 		}
 	}

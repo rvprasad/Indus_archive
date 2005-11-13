@@ -14,7 +14,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
@@ -225,13 +224,6 @@ public final class DivergenceDA
 		return Collections.singleton(IDependencyAnalysis.DIVERGENCE_DA);
 	}
 
-	/** 
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
-	 */
-	@Override protected StmtRetriever getDependenceRetriever() {
-		return new StmtRetriever();
-	}
-
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
@@ -250,8 +242,6 @@ public final class DivergenceDA
 	public void setConsiderCallSites(final boolean consider) {
 		considerCallSites = consider;
 	}
-
-	// /CLOVER:OFF
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
@@ -291,6 +281,15 @@ public final class DivergenceDA
 		_result.append("A total of " + _edgeCount + " divergence dependence edges exist.");
 
 		return _result.toString();
+	}
+
+	// /CLOVER:OFF
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
+	 */
+	@Override protected IDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> getDependenceRetriever() {
+		return new StmtRetriever();
 	}
 
 	// /CLOVER:ON
@@ -500,10 +499,8 @@ public final class DivergenceDA
 				for (final Iterator<CallTriple> _j = callgraph.getCallers(_callee).iterator(); _j.hasNext();) {
 					final CallTriple _ctrp = _j.next();
 					final SootMethod _caller = _ctrp.getMethod();
-					final Collection<Stmt> _c = MapUtils.getFromMapUsingFactory(method2preDivPoints, _caller,
-							ListUtils.LIST_FACTORY);
-					final Collection<Stmt> _d = MapUtils.getFromMapUsingFactory(method2interProcDivPoints, _caller,
-							ListUtils.LIST_FACTORY);
+					final Collection<Stmt> _c = MapUtils.getCollectionFromMap(method2preDivPoints, _caller);
+					final Collection<Stmt> _d = MapUtils.getCollectionFromMap(method2interProcDivPoints, _caller);
 					final Stmt _stmt = _ctrp.getStmt();
 					_c.add(_stmt);
 					_d.add(_stmt);
@@ -531,8 +528,7 @@ public final class DivergenceDA
 			final SootMethod method) {
 		final Collection<BasicBlock> _result = new HashSet<BasicBlock>(directionSensInfo.getFollowersOfBB(bb));
 
-		if (!MapUtils.getFromMap(method2interProcDivPoints, method, Collections.<Stmt>emptyList()).contains(
-				divPoint)) {
+		if (!MapUtils.getEmptyCollectionFromMap(method2interProcDivPoints, method).contains(divPoint)) {
 			final List<List<BasicBlock>> _sccs = bbg.getSCCs(true);
 
 			for (final Iterator<List<BasicBlock>> _i = _sccs.iterator(); _i.hasNext();) {
@@ -593,16 +589,15 @@ public final class DivergenceDA
 
 		for (final Iterator<Stmt> _i = dependents.iterator(); _i.hasNext();) {
 			final Stmt _dependent = _i.next();
-			final Collection<Stmt> _dees = MapUtils.getFromMapUsingFactory(_de, _dependent, ListUtils.LIST_FACTORY);
+			final Collection<Stmt> _dees = MapUtils.getCollectionFromMap(_de, _dependent);
 			_dees.addAll(dependees);
 		}
 
-		final Map<Stmt, Collection<Stmt>> _dt = MapUtils.getFromMapUsingFactory(dependee2dependent, method,
-				MapUtils.MAP_FACTORY);
+		final Map<Stmt, Collection<Stmt>> _dt = MapUtils.getMapFromMap(dependee2dependent, method);
 
 		for (final Iterator<Stmt> _i = dependees.iterator(); _i.hasNext();) {
 			final Stmt _dependee = _i.next();
-			final Collection<Stmt> _dents = MapUtils.getFromMapUsingFactory(_dt, _dependee, ListUtils.LIST_FACTORY);
+			final Collection<Stmt> _dents = MapUtils.getCollectionFromMap(_dt, _dependee);
 			_dents.addAll(dependents);
 		}
 	}

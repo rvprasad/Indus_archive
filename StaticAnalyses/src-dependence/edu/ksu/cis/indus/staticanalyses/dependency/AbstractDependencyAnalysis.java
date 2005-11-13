@@ -51,7 +51,7 @@ import java.util.Map;
  * @invariant doesPreProcessing() implies getPreProcessor() != null
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
-public abstract class AbstractDependencyAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
+public abstract class AbstractDependencyAnalysis<T1, C1, E1, KT, VE, E2, C2, T2, KE, VT>
 		extends AbstractAnalysis
 		implements IDependencyAnalysis<T1, C1, E1, E2, C2, T2> {
 
@@ -118,7 +118,7 @@ public abstract class AbstractDependencyAnalysis<T1, C1, E1, KE, VT, E2, C2, T2,
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
 	 */
 	public IDependencyAnalysis<T1, C1, E1, E2, C2, T2> getIndirectVersionOfDependence() {
-		return new IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>(this, getDependenceRetriever());
+		return new IndirectDependenceAnalysis<T1, C1, E1, KT, VE, E2, C2, T2, KE, VT>(this, getDependenceRetriever());
 	}
 
 	/**

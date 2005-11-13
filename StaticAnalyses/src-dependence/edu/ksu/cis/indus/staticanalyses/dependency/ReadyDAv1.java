@@ -138,8 +138,7 @@ public class ReadyDAv1
 				}
 
 				if (_method2stmts != null) {
-					MapUtils.putIntoCollectionInMapUsingFactory(_method2stmts, _method, (InvokeStmt) stmt, SetUtils
-							.<InvokeStmt> getFactory());
+					MapUtils.putIntoCollectionInMap(_method2stmts, _method, (InvokeStmt) stmt);
 				}
 			}
 		}
@@ -503,7 +502,7 @@ public class ReadyDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
 	@Override protected IDependenceRetriever<Stmt, SootMethod, Pair<Stmt, SootMethod>, Stmt, SootMethod, Pair<Stmt, SootMethod>> getDependenceRetriever() {
-		return new PairRetriever<Stmt, SootMethod, Stmt, SootMethod>();
+		return new PairRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt>();
 	}
 
 	// /CLOVER:ON
@@ -545,7 +544,7 @@ public class ReadyDAv1
 		final Collection _temp = SetUtils.intersection(_col1, _col2);
 
 		while (_temp.remove(_n)) {
-			//does nothing
+			// does nothing
 		}
 		_result = !_temp.isEmpty();
 
@@ -762,8 +761,7 @@ public class ReadyDAv1
 		if ((rules & RULE_3) != 0) {
 			for (final Iterator<SootMethod> _i = waits.keySet().iterator(); _i.hasNext();) {
 				final SootMethod _method = _i.next();
-				MapUtils.putAllIntoCollectionInMapUsingFactory(_method2dependeeMap, _method, waits.get(_method), SetUtils
-						.<Stmt> getFactory());
+				MapUtils.putAllIntoCollectionInMap(_method2dependeeMap, _method, waits.get(_method));
 			}
 		}
 		return _method2dependeeMap;
@@ -933,15 +931,11 @@ public class ReadyDAv1
 				final EnterMonitorStmt _enter = _monitor.getFirst();
 
 				if (_enter == null) {
-					MapUtils.putIntoCollectionInMapUsingFactory(enterMonitors, _method, (EnterMonitorStmt) null, SetUtils
-							.<EnterMonitorStmt> getFactory());
-					MapUtils.putIntoCollectionInMapUsingFactory(exitMonitors, _method, (ExitMonitorStmt) null, SetUtils
-							.<ExitMonitorStmt> getFactory());
+					MapUtils.putIntoCollectionInMap(enterMonitors, _method, (EnterMonitorStmt) null);
+					MapUtils.putIntoCollectionInMap(exitMonitors, _method, (ExitMonitorStmt) null);
 				} else {
-					MapUtils.putIntoCollectionInMapUsingFactory(enterMonitors, _method, _enter, SetUtils
-							.<EnterMonitorStmt> getFactory());
-					MapUtils.putIntoCollectionInMapUsingFactory(exitMonitors, _method, _monitor.getSecond(), SetUtils
-							.<ExitMonitorStmt> getFactory());
+					MapUtils.putIntoCollectionInMap(enterMonitors, _method, _enter);
+					MapUtils.putIntoCollectionInMap(exitMonitors, _method, _monitor.getSecond());
 				}
 			}
 
@@ -973,8 +967,8 @@ public class ReadyDAv1
 			final SootMethod _method = _i.next();
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection<Stmt> _dependees = _method2dependeeMap.get(_method);
-			final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getFromMapUsingFactory(dependent2dependee, _method, MapUtils
-					.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
+			final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
+					dependent2dependee, _method);
 
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Object _o = _j.next();
@@ -1007,10 +1001,9 @@ public class ReadyDAv1
 					}
 
 					// add dependee to dependent direction information.
-					final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getFromMapUsingFactory(
-							dependee2dependent, _method, MapUtils.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
-					MapUtils.putAllIntoCollectionInMapUsingFactory(_dees2dents, _dependee, _dependents, SetUtils
-							.<Pair<Stmt, SootMethod>> getFactory());
+					final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getMapFromMap(
+							dependee2dependent, _method);
+					MapUtils.putAllIntoCollectionInMap(_dees2dents, _dependee, _dependents);
 				}
 			}
 		}
@@ -1046,24 +1039,21 @@ public class ReadyDAv1
 					final Pair<EnterMonitorStmt, SootMethod> _enterPair = pairMgr.getPair(_enter, _enterMethod);
 
 					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
-						final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getFromMapUsingFactory(
-								dependent2dependee, _enterMethod, MapUtils
-										.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
+						final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
+								dependent2dependee, _enterMethod);
 						final Pair<Stmt, SootMethod> _nPair = pairMgr.getPair((Stmt) _enter, _enterMethod);
 						final Pair<Stmt, SootMethod> _xPair = pairMgr.getPair((Stmt) _exit, _enterMethod);
 
-						MapUtils.putIntoCollectionInMapUsingFactory(_dents2dees, _enter, _xPair, SetUtils
-								.<Pair<Stmt, SootMethod>> getFactory());
+						MapUtils.putIntoCollectionInMap(_dents2dees, _enter, _xPair);
 						_dependents.add(_nPair);
 					}
 				}
 			}
 
 			if (!_dependents.isEmpty()) {
-				final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getFromMapUsingFactory(
-						dependee2dependent, _exitMethod, MapUtils.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
-				MapUtils.putAllIntoCollectionInMapUsingFactory(_dees2dents, _exit, _dependents, SetUtils
-						.<Pair<Stmt, SootMethod>> getFactory());
+				final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getMapFromMap(
+						dependee2dependent, _exitMethod);
+				MapUtils.putAllIntoCollectionInMap(_dees2dents, _exit, _dependents);
 			}
 		}
 	}
@@ -1100,11 +1090,9 @@ public class ReadyDAv1
 
 						if (ifDependentOnByRule4(_waitPair, _notifyPair)) {
 							final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils
-									.getFromMapUsingFactory(dependent2dependee, _wMethod, MapUtils
-											.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
+									.getMapFromMap(dependent2dependee, _wMethod);
 							final Pair<Stmt, SootMethod> _wPair = pairMgr.getPair((Stmt) _wait, _wMethod);
-							MapUtils.putIntoCollectionInMapUsingFactory(_dents2dees, _wait, _nPair, SetUtils
-									.<Pair<Stmt, SootMethod>> getFactory());
+							MapUtils.putIntoCollectionInMap(_dents2dees, _wait, _nPair);
 							_dependents.add(_wPair);
 						}
 					}
@@ -1112,10 +1100,9 @@ public class ReadyDAv1
 
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
-					final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getFromMapUsingFactory(
-							dependee2dependent, _nMethod, MapUtils.<Stmt, Collection<Pair<Stmt, SootMethod>>> getFactory());
-					MapUtils.putAllIntoCollectionInMapUsingFactory(_dees2dents, _notify, _dependents, SetUtils
-							.<Pair<Stmt, SootMethod>> getFactory());
+					final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getMapFromMap(
+							dependee2dependent, _nMethod);
+					MapUtils.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents);
 				}
 			}
 		}
@@ -1174,8 +1161,7 @@ public class ReadyDAv1
 		for (final Iterator<Stmt> _k = stmts.iterator(); _k.hasNext() && _shouldContinue;) {
 			final Stmt _stmt = _k.next();
 
-			MapUtils.putIntoCollectionInMapUsingFactory(dents2dees, _stmt, pair, SetUtils
-					.<Pair<Stmt, SootMethod>> getFactory());
+			MapUtils.putIntoCollectionInMap(dents2dees, _stmt, pair);
 
 			// record dependee to dependent direction information
 			dependents.add(pairMgr.getPair(_stmt, method));

@@ -79,7 +79,7 @@ import soot.jimple.Stmt;
  */
 public class InterferenceDAv1
 		extends
-		AbstractDependencyAnalysis<Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>, Stmt, SootMethod, Pair<Stmt, SootMethod>, Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> {
+		AbstractDependencyAnalysis<AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>, Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>, AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>, Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>> {
 
 	/**
 	 * A preprocessor which captures all the array and field access locations in the analyzed system.
@@ -103,32 +103,28 @@ public class InterferenceDAv1
 		 */
 		@Override public void callback(final Stmt stmt, final Context context) {
 			final AssignStmt _as = (AssignStmt) stmt;
-			Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _temp = null;
+			Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _temp = null;
 
 			if (_as.containsFieldRef()) {
 				if (_as.getLeftOp() instanceof FieldRef) {
 					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
-					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _sf, MapUtils
-							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
+					_temp = MapUtils.getMapFromMap(dependee2dependent, _sf);
 				} else {
 					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
-					_temp = MapUtils.getFromMapUsingFactory(dependent2dependee, _sf, MapUtils
-							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
+					_temp = MapUtils.getMapFromMap(dependent2dependee, _sf);
 				}
 			} else if (_as.containsArrayRef()) {
 				if (_as.getLeftOp() instanceof ArrayRef) {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getLeftOp()).getBase().getType();
-					_temp = MapUtils.getFromMapUsingFactory(dependee2dependent, _at, MapUtils
-							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
+					_temp = MapUtils.getMapFromMap(dependee2dependent, _at);
 				} else {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getRightOp()).getBase().getType();
-					_temp = MapUtils.getFromMapUsingFactory(dependent2dependee, _at, MapUtils
-							.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> getFactory());
+					_temp = MapUtils.getMapFromMap(dependent2dependee, _at);
 				}
 			}
 
 			if (_temp != null) {
-				_temp.put(pairMgr.getPair(stmt, context.getCurrentMethod()), null);
+				_temp.put(pairMgr.getPair(_as, context.getCurrentMethod()), null);
 			}
 		}
 
@@ -217,20 +213,20 @@ public class InterferenceDAv1
 				continue;
 			}
 
-			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _dtMap = dependent2dependee.get(_o);
-			final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _deMap = dependee2dependent.get(_o);
+			final Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _dtMap = dependent2dependee
+					.get(_o);
+			final Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _deMap = dependee2dependent
+					.get(_o);
 
-			for (final Iterator<Pair<Stmt, SootMethod>> _j = _dtMap.keySet().iterator(); _j.hasNext();) {
-				final Pair<Stmt, SootMethod> _dt = _j.next();
+			for (final Iterator<Pair<AssignStmt, SootMethod>> _j = _dtMap.keySet().iterator(); _j.hasNext();) {
+				final Pair<AssignStmt, SootMethod> _dt = _j.next();
 
-				for (final Iterator<Pair<Stmt, SootMethod>> _k = _deMap.keySet().iterator(); _k.hasNext();) {
-					final Pair<Stmt, SootMethod> _de = _k.next();
+				for (final Iterator<Pair<AssignStmt, SootMethod>> _k = _deMap.keySet().iterator(); _k.hasNext();) {
+					final Pair<AssignStmt, SootMethod> _de = _k.next();
 
 					if (considerEffectOfClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
-						MapUtils.putIntoCollectionInMapUsingFactory(_dtMap, _dt, _de, SetUtils
-								.<Pair<Stmt, SootMethod>> getFactory());
-						MapUtils.putIntoCollectionInMapUsingFactory(_deMap, _de, _dt, SetUtils
-								.<Pair<Stmt, SootMethod>> getFactory());
+						MapUtils.putIntoCollectionInMap(_dtMap, _dt, _de);
+						MapUtils.putIntoCollectionInMap(_deMap, _de, _dt);
 					}
 				}
 			}
@@ -255,24 +251,23 @@ public class InterferenceDAv1
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getDependees(final Stmt stmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.<Pair<Stmt, SootMethod>> emptySet();
-		final Stmt _temp = stmt;
-		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
+	public Collection<Pair<AssignStmt, SootMethod>> getDependees(final AssignStmt stmt, final SootMethod method) {
+		Collection<Pair<AssignStmt, SootMethod>> _result = Collections.<Pair<AssignStmt, SootMethod>> emptySet();
+		Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _pair2set = null;
 		Object _dependent = null;
 
-		if (_temp.containsArrayRef()) {
-			_dependent = _temp.getArrayRef().getBase().getType();
-		} else if (_temp.containsFieldRef()) {
-			_dependent = _temp.getFieldRef().getField();
+		if (stmt.containsArrayRef()) {
+			_dependent = stmt.getArrayRef().getBase().getType();
+		} else if (stmt.containsFieldRef()) {
+			_dependent = stmt.getFieldRef().getField();
 		}
 
 		if (_dependent != null) {
 			_pair2set = MapUtils.queryObject(dependent2dependee, _dependent, Collections
-					.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> emptyMap());
+					.<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> emptyMap());
 
 			if (_pair2set != null) {
-				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
+				final Collection<Pair<AssignStmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -290,24 +285,23 @@ public class InterferenceDAv1
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getDependents(final Stmt stmt, final SootMethod method) {
-		Collection<Pair<Stmt, SootMethod>> _result = Collections.emptyList();
-		final Stmt _temp = stmt;
-		Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _pair2set = null;
+	public Collection<Pair<AssignStmt, SootMethod>> getDependents(final AssignStmt stmt, final SootMethod method) {
+		Collection<Pair<AssignStmt, SootMethod>> _result = Collections.emptyList();
+		Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _pair2set = null;
 		Object _dependee = null;
 
-		if (_temp.containsArrayRef()) {
-			_dependee = _temp.getArrayRef().getBase().getType();
-		} else if (_temp.containsFieldRef()) {
-			_dependee = _temp.getFieldRef().getField();
+		if (stmt.containsArrayRef()) {
+			_dependee = stmt.getArrayRef().getBase().getType();
+		} else if (stmt.containsFieldRef()) {
+			_dependee = stmt.getFieldRef().getField();
 		}
 
 		if (_dependee != null) {
 			_pair2set = MapUtils.queryObject(dependee2dependent, _dependee, Collections
-					.<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> emptyMap());
+					.<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> emptyMap());
 
 			if (_pair2set != null) {
-				final Collection<Pair<Stmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
+				final Collection<Pair<AssignStmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
 
 				if (_set != null) {
 					_result = Collections.unmodifiableCollection(_set);
@@ -355,23 +349,24 @@ public class InterferenceDAv1
 
 		final StringBuffer _temp = new StringBuffer();
 
-		final List<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>> _entrySet = new ArrayList<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>>(
+		final List<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>> _entrySet = new ArrayList<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>>(
 				dependent2dependee.entrySet());
 		Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator<Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>>> _i = _entrySet
+		for (final Iterator<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>> _i = _entrySet
 				.iterator(); _i.hasNext();) {
-			final Map.Entry<Object, Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _entry = _i.next();
+			final Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>> _entry = _i
+					.next();
 			_lEdgeCount = 0;
 
-			for (final Iterator<Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _j = _entry.getValue()
-					.entrySet().iterator(); _j.hasNext();) {
-				final Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _entry2 = _j.next();
+			for (final Iterator<Map.Entry<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>> _j = _entry
+					.getValue().entrySet().iterator(); _j.hasNext();) {
+				final Map.Entry<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> _entry2 = _j.next();
 
-				final Collection<Pair<Stmt, SootMethod>> _collection = _entry2.getValue();
+				final Collection<Pair<AssignStmt, SootMethod>> _collection = _entry2.getValue();
 
 				if (_collection != null) {
-					for (final Iterator<Pair<Stmt, SootMethod>> _k = _collection.iterator(); _k.hasNext();) {
+					for (final Iterator<Pair<AssignStmt, SootMethod>> _k = _collection.iterator(); _k.hasNext();) {
 						_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
 					}
 					_lEdgeCount += _collection.size();
@@ -391,8 +386,8 @@ public class InterferenceDAv1
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected IDependenceRetriever<Stmt, SootMethod, Pair<Stmt, SootMethod>, Stmt, SootMethod, Pair<Stmt, SootMethod>> getDependenceRetriever() {
-		return new PairRetriever<Stmt, SootMethod, Stmt, SootMethod>();
+	@Override protected IDependenceRetriever<AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>, AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>> getDependenceRetriever() {
+		return new PairRetriever<AssignStmt, SootMethod, AssignStmt, AssignStmt, SootMethod, AssignStmt>();
 	}
 
 	// /CLOVER:ON
@@ -408,8 +403,8 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null and dependentArrayRef != null and dependeeArrayRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isArrayDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee,
-			final ArrayRef dependentArrayRef, final ArrayRef dependeeArrayRef) {
+	protected boolean isArrayDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final ArrayRef dependentArrayRef, final ArrayRef dependeeArrayRef) {
 		boolean _result;
 		final Type _t1 = dependeeArrayRef.getBase().getType();
 		final Type _t2 = dependentArrayRef.getBase().getType();
@@ -432,8 +427,8 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isInstanceFieldDependentOn(final Pair<Stmt, SootMethod> dependent,
-			final Pair<Stmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
+	protected boolean isInstanceFieldDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
 			final InstanceFieldRef dependeeFieldRef) {
 		boolean _result;
 		final SootField _ifr1 = dependeeFieldRef.getField();
@@ -457,8 +452,9 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	protected boolean isStaticFieldDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee,
-			final StaticFieldRef dependentFieldRef, final StaticFieldRef dependeeFieldRef) {
+	protected boolean isStaticFieldDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final StaticFieldRef dependentFieldRef,
+			final StaticFieldRef dependeeFieldRef) {
 		boolean _result;
 		final SootField _field = dependeeFieldRef.getField();
 		_result = dependentFieldRef.getField().equals(_field) && !_field.isFinal();
@@ -560,10 +556,11 @@ public class InterferenceDAv1
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsArrayRef()
 	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsArrayRef()
 	 */
-	private boolean isArrayDependentOnByOFA(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+	private boolean isArrayDependentOnByOFA(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee) {
 		boolean _result;
-		final ArrayRef _ifr1 = (ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
-		final ArrayRef _ifr2 = (ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp();
+		final ArrayRef _ifr1 = (ArrayRef) (dependee.getFirst()).getLeftOp();
+		final ArrayRef _ifr2 = (ArrayRef) (dependent.getFirst()).getRightOp();
 
 		final Context _context = new AllocationContext();
 		_context.setProgramPoint(_ifr1.getBaseBox());
@@ -594,14 +591,14 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
-	private boolean isDependentOn(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+	private boolean isDependentOn(final Pair<AssignStmt, SootMethod> dependent, final Pair<AssignStmt, SootMethod> dependee) {
 		final SootMethod _deMethod = dependee.getSecond();
 		final SootMethod _dtMethod = dependent.getSecond();
 		boolean _result = !tgi.mustOccurInSameThread(_deMethod, _dtMethod);
 
 		if (_result) {
-			final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-			final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+			final Value _de = dependee.getFirst().getLeftOp();
+			final Value _dt = dependent.getFirst().getRightOp();
 
 			if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
 				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
@@ -626,10 +623,11 @@ public class InterferenceDAv1
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependent.getFirst().containsFieldRef()
 	 * @pre dependee.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.getFirst().containsFieldRef()
 	 */
-	private boolean isFieldDependentOnByOFA(final Pair<Stmt, SootMethod> dependent, final Pair<Stmt, SootMethod> dependee) {
+	private boolean isFieldDependentOnByOFA(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee) {
 		boolean _result;
-		final InstanceFieldRef _ifr1 = (InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
-		final InstanceFieldRef _ifr2 = (InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp();
+		final InstanceFieldRef _ifr1 = (InstanceFieldRef) (dependee.getFirst()).getLeftOp();
+		final InstanceFieldRef _ifr2 = (InstanceFieldRef) (dependent.getFirst()).getRightOp();
 
 		final Context _context = new AllocationContext();
 		_context.setProgramPoint(_ifr1.getBaseBox());

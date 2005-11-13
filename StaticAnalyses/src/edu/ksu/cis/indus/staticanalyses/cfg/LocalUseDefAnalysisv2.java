@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.cfg;
 import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
-import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
@@ -205,7 +204,7 @@ public final class LocalUseDefAnalysisv2
 		while (_wb.hasWork()) {
 			final BasicBlock _bb = _wb.getWork();
 			_defsExitingBB.clear();
-			_defsExitingBB.addAll(MapUtils.getFromMapUsingFactory(_bb2reachingDefStmts, _bb, SetUtils.SET_FACTORY));
+			_defsExitingBB.addAll(MapUtils.getCollectionFromMap(_bb2reachingDefStmts, _bb));
 
 			final Map<Local, DefinitionStmt> _intraBBLocal2defStmt = _intrabb2local2defStmt.get(_bb);
 
@@ -226,8 +225,8 @@ public final class LocalUseDefAnalysisv2
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final BasicBlock _succBB = _i.next();
-				final Collection<DefinitionStmt> _defsReachingSuccBB = MapUtils.getFromMapUsingFactory(_bb2reachingDefStmts,
-						_succBB, SetUtils.SET_FACTORY);
+				final Collection<DefinitionStmt> _defsReachingSuccBB = MapUtils.getCollectionFromMap(_bb2reachingDefStmts,
+						_succBB);
 
 				if (!SetUtils.isSubCollection(_defsExitingBB, _defsReachingSuccBB)) {
 					_defsReachingSuccBB.addAll(_defsExitingBB);
@@ -294,7 +293,7 @@ public final class LocalUseDefAnalysisv2
 
 				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
 					final DefinitionStmt _defStmt = _l.next();
-					MapUtils.putIntoCollectionInMapUsingFactory(useInfo, _defStmt, _stmt, ListUtils.<Stmt> getFactory());
+					MapUtils.putIntoCollectionInMap(useInfo, _defStmt, _stmt);
 				}
 
 				// prune reaching def for further intra basic block processing

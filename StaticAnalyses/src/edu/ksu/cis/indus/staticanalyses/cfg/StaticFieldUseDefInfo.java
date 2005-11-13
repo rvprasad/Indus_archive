@@ -117,9 +117,9 @@ public class StaticFieldUseDefInfo
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootField _field = _i.next();
 			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _defsite2uses = MapUtils
-					.getFromMapUsingFactory(def2usesMap, _field, MapUtils.MAP_FACTORY);
+					.getMapFromMap(def2usesMap, _field);
 			final Map<Pair<Stmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _usesite2defs = MapUtils
-					.getFromMapUsingFactory(use2defsMap, _field, MapUtils.MAP_FACTORY);
+					.getMapFromMap(use2defsMap, _field);
 			final Set<Pair<Stmt, SootMethod>> _usesiteKeySet = _usesite2defs.keySet();
 			final Set<Pair<DefinitionStmt, SootMethod>> _defsiteKeySet = _defsite2uses.keySet();
 

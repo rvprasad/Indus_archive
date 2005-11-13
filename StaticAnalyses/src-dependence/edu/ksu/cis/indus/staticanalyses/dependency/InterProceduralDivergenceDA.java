@@ -62,7 +62,7 @@ import soot.jimple.Stmt;
  */
 public final class InterProceduralDivergenceDA
 		extends
-		AbstractDependencyAnalysis<Stmt, SootMethod, Stmt, SootMethod, Map<Stmt, Collection<Stmt>>, Stmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>> {
+		AbstractDependencyAnalysis<Stmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>, Stmt, SootMethod, Stmt, SootMethod, Map<Stmt, Collection<Stmt>>> {
 
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
@@ -202,9 +202,8 @@ public final class InterProceduralDivergenceDA
 	 *      java.lang.Object)
 	 */
 	public Collection<Stmt> getDependents(final Stmt dependeeStmt, final SootMethod method) {
-		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.getFromMap(dependee2dependent, method, Collections
-				.<Stmt, Collection<Stmt>> emptyMap());
-		final Collection<Stmt> _result = MapUtils.getFromMap(_stmt2List, dependeeStmt, Collections.<Stmt> emptyList());
+		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.getEmptyMapFromMap(dependee2dependent, method);
+		final Collection<Stmt> _result = MapUtils.getEmptyCollectionFromMap(_stmt2List, dependeeStmt);
 		return Collections.unmodifiableCollection(_result);
 	}
 
@@ -271,7 +270,7 @@ public final class InterProceduralDivergenceDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected StmtRetriever getDependenceRetriever() {
+	@Override protected IDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> getDependenceRetriever() {
 		return new StmtRetriever();
 	}
 
@@ -367,8 +366,7 @@ public final class InterProceduralDivergenceDA
 		final List<Stmt> _sl = getStmtList(method);
 		final Collection<Stmt> _dependents = new HashSet<Stmt>();
 		final BasicBlockGraph _bbg = getBasicBlockGraph(method);
-		final List<Collection<Stmt>> _dees = MapUtils.getFromMapUsingFactory(dependent2dependee, method, ListUtils
-				.<Collection<Stmt>> getFactory());
+		final List<Collection<Stmt>> _dees = MapUtils.getListFromMap(dependent2dependee, method);
 		ListUtils.ensureSize(_dees, _sl.size(), null);
 
 		for (final Iterator<Stmt> _i = divergencePoints.iterator(); _i.hasNext();) {
@@ -430,8 +428,7 @@ public final class InterProceduralDivergenceDA
 			for (final Iterator<CallTriple> _j = callgraph.getCallers(_callee).iterator(); _j.hasNext();) {
 				final CallTriple _ctrp = _j.next();
 				final SootMethod _caller = _ctrp.getMethod();
-				final Collection<Stmt> _c = MapUtils.getFromMapUsingFactory(method2divPoints, _caller, ListUtils
-						.<Stmt> getFactory());
+				final Collection<Stmt> _c = MapUtils.getCollectionFromMap(method2divPoints, _caller);
 				final Stmt _stmt = _ctrp.getStmt();
 				_c.add(_stmt);
 				_divMethods.addWork(_caller);
@@ -523,13 +520,11 @@ public final class InterProceduralDivergenceDA
 			_dees.addAll(dependees);
 		}
 
-		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.getFromMapUsingFactory(dependee2dependent, method, MapUtils
-				.<Stmt, Collection<Stmt>> getFactory());
+		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.getMapFromMap(dependee2dependent, method);
 
 		for (final Iterator<Stmt> _i = dependees.iterator(); _i.hasNext();) {
 			final Stmt _dependee = _i.next();
-			final Collection<Stmt> _dents = MapUtils.getFromMapUsingFactory(_stmt2List, _dependee, ListUtils
-					.<Stmt> getFactory());
+			final Collection<Stmt> _dents = MapUtils.getCollectionFromMap(_stmt2List, _dependee);
 			_dents.addAll(dependents);
 		}
 	}

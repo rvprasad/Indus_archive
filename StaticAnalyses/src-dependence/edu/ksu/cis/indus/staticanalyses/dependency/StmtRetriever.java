@@ -15,8 +15,10 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
@@ -29,11 +31,9 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <C1> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
  */
 final class StmtRetriever
-		implements IDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> {
+		extends AbstractDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> {
 
 	/**
 	 * Creates an instance of this class.
@@ -43,20 +43,29 @@ final class StmtRetriever
 	}
 
 	/**
-	 * @see IDependenceRetriever#getDependees(IDependencyAnalysis, Object, Object)
+	 * @see IDependenceRetriever#convertToConformantDependees(java.util.Collection, java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Stmt> getDependees(final IDependencyAnalysis<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> da,
-			final Stmt dependent, final SootMethod origContext) {
-		return da.getDependees(dependent, origContext);
+	public Collection<Pair<Stmt, SootMethod>> convertToConformantDependees(final Collection<Stmt> dependents, final Stmt base,
+			final SootMethod context) {
+		final Collection<Pair<Stmt, SootMethod>> _result = new HashSet<Pair<Stmt, SootMethod>>();
+		for (final Stmt _t2 : dependents) {
+			_result.add(new Pair<Stmt, SootMethod>(_t2, context));
+		}
+		return _result;
 	}
 
 	/**
-	 * @see IDependenceRetriever#getDependents(IDependencyAnalysis, Object, Object)
+	 * @see IDependenceRetriever#convertToConformantDependents(java.util.Collection, java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Stmt> getDependents(final IDependencyAnalysis<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> da,
-			final Stmt dependee, final SootMethod origContext) {
-		return da.getDependents(dependee, origContext);
+	public Collection<Pair<Stmt, SootMethod>> convertToConformantDependents(final Collection<Stmt> dependees, final Stmt base,
+			final SootMethod context) {
+		final Collection<Pair<Stmt, SootMethod>> _result = new HashSet<Pair<Stmt, SootMethod>>();
+		for (final Stmt _e1 : dependees) {
+			_result.add(new Pair<Stmt, SootMethod>(_e1, context));
+		}
+		return _result;
 	}
+
 }
 
 // End of File

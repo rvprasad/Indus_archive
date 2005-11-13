@@ -52,11 +52,6 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 		implements IDependencyAnalysis<T1, C1, E1, E2, C2, T2> {
 
 	/**
-	 * This retrieves dependence from the given analysis.
-	 */
-	private final IDependenceRetriever<T1, C1, E1, E2, C2, T2> retriever;
-
-	/**
 	 * This analysis provides seed dependence information.
 	 */
 	private final IDependencyAnalysis<T1, C1, E1, E2, C2, T2> da;
@@ -80,6 +75,11 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 			.getNumOfMethodsInApplication());
 
 	/**
+	 * This retrieves dependence from the given analysis.
+	 */
+	private final IDependenceRetriever<T1, C1, E1, E2, C2, T2> retriever;
+
+	/**
 	 * Creates an instance of this class.
 	 * 
 	 * @param dependenceAnalysis for which indirect dependence info (or dependence closure) is to be provided.
@@ -93,6 +93,20 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#analyze()
+	 */
+	@AEmpty public void analyze() {
+		// does nothing
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#doesPreProcessing()
+	 */
+	@AEmpty("false") public boolean doesPreProcessing() {
+		return false;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDependees(Object, Object)
 	 */
 	public Collection<E1> getDependees(final T1 dependent, final C1 context) {
@@ -100,14 +114,19 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 		Collection<E1> _result = dependent2dependee.get(_key);
 
 		if (_result == null) {
-			final Collection<E1> _processed = new ArrayList<E1>();
-			final IWorkBag<E1> _wb = new HistoryAwareFIFOWorkBag<E1>(_processed);
-			_wb.addAllWork(da.getDependees(dependent, context));
+			_result = new ArrayList<E1>();
+			final Collection<Pair<T1, C1>> _processed = new ArrayList<Pair<T1, C1>>();
+			final IWorkBag<Pair<T1, C1>> _wb = new HistoryAwareFIFOWorkBag<Pair<T1, C1>>(_processed);
+			final Collection<E1> _dependees = da.getDependees(dependent, context);
+			_result.addAll(_dependees);
+			_wb.addAllWork(retriever.convertToConformantDependents(_dependees, dependent, context));
 
 			while (_wb.hasWork()) {
-				_wb.addAllWorkNoDuplicates(retriever.getDependees(da, _wb.getWork(), context));
+				final Pair<T1, C1> _work = _wb.getWork();
+				final Collection<E1> _dependees2 = retriever.getDependees(da, _work.getFirst(), _work.getSecond());
+				_result.addAll(_dependees);
+				_wb.addAllWork(retriever.convertToConformantDependents(_dependees2, _work.getFirst(), _work.getSecond()));
 			}
-			_result = new ArrayList<E1>(_processed);
 			dependent2dependee.put(_key, _result);
 		}
 		return Collections.unmodifiableCollection(_result);
@@ -121,15 +140,20 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 		Collection<T2> _result = dependee2dependent.get(_key);
 
 		if (_result == null) {
-			final Collection<T2> _processed = new ArrayList<T2>();
-			final IWorkBag<T2> _wb = new HistoryAwareFIFOWorkBag<T2>(_processed);
-			_wb.addAllWork(da.getDependents(dependee, context));
+			_result = new ArrayList<T2>();
+			final Collection<Pair<E2, C2>> _processed = new ArrayList<Pair<E2, C2>>();
+			final IWorkBag<Pair<E2, C2>> _wb = new HistoryAwareFIFOWorkBag<Pair<E2, C2>>(_processed);
+			final Collection<T2> _dependents = da.getDependents(dependee, context);
+			_result.addAll(_dependents);
+			_wb.addAllWork(retriever.convertToConformantDependees(_dependents, dependee, context));
 
 			while (_wb.hasWork()) {
-				final T2 _dependence = _wb.getWork();
-				_wb.addAllWorkNoDuplicates(retriever.getDependents(da, _dependence, context));
+				final Pair<E2, C2> _work = _wb.getWork();
+				final Collection<T2> _dependents2 = retriever.getDependents(da, _work.getFirst(), _work.getSecond());
+				_result.addAll(_dependents2);
+				_wb.addAllWork(retriever.convertToConformantDependees(_dependents2, _work.getFirst(), _work.getSecond()));
 			}
-			_result = new ArrayList<T2>(_processed);
+
 			dependee2dependent.put(_key, _result);
 		}
 		return Collections.unmodifiableCollection(_result);
@@ -157,6 +181,21 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#getPreProcessor()
+	 */
+	@AEmpty("null") public IProcessor getPreProcessor() {
+		return null;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#initialize(java.util.Map)
+	 */
+	@SuppressWarnings("unused") @AEmpty public void initialize(final Map<Comparable, Object> infoParam)
+			throws InitializationException {
+		// does nothing
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#isStable()
 	 */
 	public boolean isStable() {
@@ -172,6 +211,13 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#setBasicBlockGraphManager(edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr)
+	 */
+	@AEmpty public void setBasicBlockGraphManager(@SuppressWarnings("unused") final BasicBlockGraphMgr bbm) {
+		// does nothing
+	}
+
+	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
 	 * 
 	 * @param methods for which the information needs to be stringized.
@@ -182,42 +228,6 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	public String toString(final Collection methods) {
 		return MapUtils.verbosePrint("Statistics for indirect dependence as calculated by " + getClass().getName() + "\n",
 				dependee2dependent);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#analyze()
-	 */
-	@AEmpty public void analyze() {
-		// does nothing
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#setBasicBlockGraphManager(edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr)
-	 */
-	@AEmpty public void setBasicBlockGraphManager(@SuppressWarnings("unused") final BasicBlockGraphMgr bbm) {
-		// does nothing
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#getPreProcessor()
-	 */
-	@AEmpty("null") public IProcessor getPreProcessor() {
-		return null;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#doesPreProcessing()
-	 */
-	@AEmpty("false") public boolean doesPreProcessing() {
-		return false;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#initialize(java.util.Map)
-	 */
-	@SuppressWarnings("unused") @AEmpty public void initialize(final Map<Comparable, Object> infoParam)
-			throws InitializationException {
-		// does nothing
 	}
 
 }

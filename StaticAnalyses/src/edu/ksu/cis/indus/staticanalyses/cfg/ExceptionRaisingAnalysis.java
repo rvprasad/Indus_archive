@@ -180,10 +180,9 @@ public class ExceptionRaisingAnalysis
 	 */
 	@Override public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
-		final Map<Stmt, Collection<SootClass>> _stmt2exceptions = MapUtils.getFromMapUsingFactory(method2stmt2exceptions,
-				_method, MapUtils.MAP_FACTORY);
-		final Collection<SootClass> _thrownTypes = MapUtils.getFromMapUsingFactory(_stmt2exceptions, stmt,
-				SetUtils.SET_FACTORY);
+		final Map<Stmt, Collection<SootClass>> _stmt2exceptions = MapUtils.getMapFromMap(method2stmt2exceptions,
+				_method);
+		final Collection<SootClass> _thrownTypes = MapUtils.getCollectionFromMap(_stmt2exceptions, stmt);
 
 		if (stmt instanceof ThrowStmt) {
 			final SootClass _thrownType = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
@@ -255,8 +254,8 @@ public class ExceptionRaisingAnalysis
 					workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_callingStmt, _caller, _thrownType));
 				}
 			}
-			MapUtils.putIntoCollectionInMapUsingFactory(MapUtils.getFromMapUsingFactory(method2stmt2uncaughtExceptions, _method,
-					MapUtils.MAP_FACTORY), _stmt, _thrownType, SetUtils.<SootClass>getFactory());
+			MapUtils.putIntoCollectionInMap(MapUtils.getMapFromMap(method2stmt2uncaughtExceptions, _method), 
+					_stmt, _thrownType);
 		}
 
 		workbagCache.clear();
@@ -368,7 +367,7 @@ public class ExceptionRaisingAnalysis
 	 */
 	public void toggleExceptionsToTrack(final Class astNodeType, final String exceptionName, final boolean consider) {
 		if (consider) {
-			MapUtils.putIntoCollectionInMapUsingFactory(astNodeType2thrownTypeNames, astNodeType, exceptionName, SetUtils.<String>getFactory());
+			MapUtils.putIntoCollectionInMap(astNodeType2thrownTypeNames, astNodeType, exceptionName);
 		} else {
 			final Collection<String> _typeNames = MapUtils.queryObject(astNodeType2thrownTypeNames, astNodeType,
 					Collections.<String>emptySet());

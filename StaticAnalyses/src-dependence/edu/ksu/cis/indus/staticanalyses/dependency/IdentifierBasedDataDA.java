@@ -56,7 +56,7 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  */
 public class IdentifierBasedDataDA
 		extends
-		AbstractDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, SootMethod, List<Collection<Stmt>>, DefinitionStmt, SootMethod, Stmt, SootMethod, List<Map<Local, Collection<DefinitionStmt>>>> {
+		AbstractDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, SootMethod, List<Map<Local, Collection<DefinitionStmt>>>, DefinitionStmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>> {
 
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
@@ -273,7 +273,7 @@ public class IdentifierBasedDataDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected LocalStmtPairRetriever getDependenceRetriever() {
+	@Override protected IDependenceRetriever<Pair<Stmt, Local>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Stmt> getDependenceRetriever() {
 		return new LocalStmtPairRetriever();
 	}
 

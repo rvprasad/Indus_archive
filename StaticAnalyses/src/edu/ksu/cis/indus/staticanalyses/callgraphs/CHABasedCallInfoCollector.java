@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
 
@@ -23,7 +22,6 @@ import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,19 +95,16 @@ public final class CHABasedCallInfoCollector
 		final SootMethod _caller = context.getCurrentMethod();
 		final InvokeExpr _expr = (InvokeExpr) _val;
 		final SootMethod _callee = _expr.getMethod();
-		final Collection<CallTriple> _callees = MapUtils.getFromMap(callInfoHolder.caller2callees, _caller,
-				new ArrayList<CallTriple>());
+		final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(callInfoHolder.caller2callees, _caller);
 		final CallTriple _callerTriple = new CallTriple(_caller, _stmt, _expr);
 
 		if (_expr instanceof StaticInvokeExpr
 				|| (_expr instanceof SpecialInvokeExpr && (_callee.getName().equals("<init>") || _callee.isPrivate()))) {
-			final Collection<CallTriple> _callers = MapUtils.getFromMap(callInfoHolder.callee2callers, _callee,
-					new ArrayList<CallTriple>());
+			final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(callInfoHolder.callee2callers, _callee);
 			_callers.add(_callerTriple);
 			_callees.add(new CallTriple(_callee, _stmt, _expr));
 		} else {
-			MapUtils.putIntoCollectionInMapUsingFactory(invokedMethod2callerTriple, _callee, _callerTriple, SetUtils
-					.<CallTriple> getFactory());
+			MapUtils.putIntoCollectionInMap(invokedMethod2callerTriple, _callee, _callerTriple);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -148,8 +143,7 @@ public final class CHABasedCallInfoCollector
 				if (_impl.declaresMethod(_invokedMethodSubSignature)
 						&& !_impl.getMethod(_invokedMethodSubSignature).isAbstract()) {
 					final SootMethod _implMethod = _impl.getMethod(_invokedMethodSubSignature);
-					MapUtils.putAllIntoCollectionInMapUsingFactory(callInfoHolder.callee2callers, _implMethod, _callerTriples,
-							SetUtils.<CallTriple>getFactory());
+					MapUtils.putAllIntoCollectionInMap(callInfoHolder.callee2callers, _implMethod, _callerTriples);
 					_temp.add(_implMethod);
 				}
 			}
@@ -162,8 +156,7 @@ public final class CHABasedCallInfoCollector
 				final SootMethod _caller = _callerTriple.getMethod();
 				final Stmt _stmt = _callerTriple.getStmt();
 				final InvokeExpr _expr = _callerTriple.getExpr();
-				final Collection<CallTriple> _callees = MapUtils.getFromMap(callInfoHolder.caller2callees, _caller,
-						new ArrayList<CallTriple>());
+				final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(callInfoHolder.caller2callees, _caller);
 				final Iterator<SootMethod> _l = _temp.iterator();
 				final int _lEnd = _temp.size();
 

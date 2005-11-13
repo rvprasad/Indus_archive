@@ -36,7 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentRegi
 import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetector;
 import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetectorv2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;

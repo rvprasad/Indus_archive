@@ -14,7 +14,6 @@
 
 package edu.ksu.cis.indus.toolkits.bandera;
 
-import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -330,8 +329,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Collection<String> _pString = tool.generateBIRRep(_i.next(), false);
 			for (final String _birLoc : _pString) {
-				MapUtils.putAllIntoCollectionInMapUsingFactory(tool.mayFollow, _birLoc, _birLocs, ListUtils
-						.<String> getFactory());
+				MapUtils.putAllIntoCollectionInMap(tool.mayFollow, _birLoc, _birLocs);
 			}
 		}
 		col.clear();

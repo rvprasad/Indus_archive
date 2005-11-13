@@ -12,7 +12,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
@@ -88,8 +88,7 @@ public class NewExpr2InitMapper
 			final Stmt _stmt = context.getStmt();
 			final SootMethod _method = context.getCurrentMethod();
 
-			final Map<NewExpr, Stmt> _ne2init = MapUtils.getFromMapUsingFactory(method2newExprStmt, _method,
-					MapUtils.MAP_FACTORY);
+			final Map<NewExpr, Stmt> _ne2init = MapUtils.getMapFromMap(method2newExprStmt, _method);
 			_ne2init.put((NewExpr) _value, _stmt);
 		} else if (_value instanceof SpecialInvokeExpr) {
 			final InvokeStmt _stmt = (InvokeStmt) context.getStmt();
@@ -98,10 +97,8 @@ public class NewExpr2InitMapper
 			final SootMethod _sm = _expr.getMethod();
 
 			if (_sm.getName().equals("<init>")) {
-				final Map<Stmt, InvokeStmt> _ne2initStmt = MapUtils.getFromMapUsingFactory(method2initStmt, _method,
-						MapUtils.MAP_FACTORY);
-				final Map<NewExpr, Stmt> _ne2newStmt = MapUtils.getFromMapUsingFactory(method2newExprStmt, _method,
-						MapUtils.MAP_FACTORY);
+				final Map<Stmt, InvokeStmt> _ne2initStmt = MapUtils.getMapFromMap(method2initStmt, _method);
+				final Map<NewExpr, Stmt> _ne2newStmt = MapUtils.getMapFromMap(method2newExprStmt, _method);
 				contextCache.setRootMethod(_method);
 				contextCache.setStmt(_stmt);
 				contextCache.setProgramPoint(_expr.getBaseBox());

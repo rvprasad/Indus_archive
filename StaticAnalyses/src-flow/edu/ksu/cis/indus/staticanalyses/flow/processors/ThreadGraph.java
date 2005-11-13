@@ -12,12 +12,12 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -36,7 +36,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
@@ -97,7 +96,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$
  */
 public class ThreadGraph
-		extends AbstractValueAnalyzerBasedProcessor
+		extends AbstractValueAnalyzerBasedProcessor<Value>
 		implements IThreadGraphInfo {
 
 	/**
@@ -158,7 +157,7 @@ public class ThreadGraph
 	/**
 	 * This provides object flow information required by this analysis.
 	 */
-	private OFAnalyzer analyzer;
+	private IValueAnalyzer<Value> analyzer;
 
 	/**
 	 * This provides call graph information pertaining to the system.
@@ -170,13 +169,13 @@ public class ThreadGraph
 	/**
 	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
 	 */
-	private final Map<SootMethod, Collection<Triple>> method2threads = new HashMap<SootMethod, Collection<Triple>>(Constants
+	private final Map<SootMethod, Collection<Triple<? extends Object, ? extends Object, ? extends Object>>> method2threads = new HashMap<SootMethod, Collection<Triple<? extends Object, ? extends Object, ? extends Object>>>(Constants
 			.getNumOfMethodsInApplication());
 
 	/**
 	 * The collection of thread allocation sites.
 	 */
-	private final Collection<Pair> newThreadExprs = new HashSet<Pair>();
+	private final Collection<Pair<? extends Object, ? extends Object>> newThreadExprs = new HashSet<Pair<? extends Object, ? extends Object>>();
 
 	/**
 	 * This manages pair objects.
@@ -186,25 +185,25 @@ public class ThreadGraph
 	/**
 	 * The collection of method invocation sites at which <code>java.lang.Thread.start()</code> is invoked.
 	 */
-	private final Collection<Pair> startSites = new HashSet<Pair>();
+	private final Collection<Pair<Stmt, SootMethod>> startSites = new HashSet<Pair<Stmt, SootMethod>>();
 
 	/**
 	 * This maps threads allocation sites to the methods which are executed in the created threads.
 	 */
-	private final Map<Triple, Collection<SootMethod>> thread2methods = new HashMap<Triple, Collection<SootMethod>>();
+	private final Map<Triple<? extends Object, ? extends Object, ? extends Object>, Collection<SootMethod>> thread2methods = new HashMap<Triple<? extends Object, ? extends Object, ? extends Object>, Collection<SootMethod>>();
 
 	/**
 	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph. This also
 	 * includes any allocation sites reachable from a method executed in a loop.
 	 */
-	private final Collection<Pair> threadCreationSitesMulti;
+	private final Collection<Pair<? extends Object, ? extends Object>> threadCreationSitesMulti;
 
 	/**
 	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph. This also
 	 * includes any allocation sites reachable from a method executed in a loop. This is the dual of
 	 * <code>threadAllocSitesMulti.</code>
 	 */
-	private final Collection<Pair> threadCreationSitesSingle;
+	private final Collection<Pair<? extends Object, ? extends Object>> threadCreationSitesSingle;
 
 	/**
 	 * This is the collection of thread entry point methods.
@@ -222,8 +221,8 @@ public class ThreadGraph
 	public ThreadGraph(final ICallGraphInfo callGraph, final CFGAnalysis cfa, final PairManager pairManager) {
 		cgi = callGraph;
 		pairMgr = pairManager;
-		threadCreationSitesSingle = new HashSet<Pair>();
-		threadCreationSitesMulti = new HashSet<Pair>();
+		threadCreationSitesSingle = new HashSet<Pair<? extends Object, ? extends Object>>();
+		threadCreationSitesMulti = new HashSet<Pair<? extends Object, ? extends Object>>();
 		cfgAnalysis = cfa;
 	}
 
@@ -277,21 +276,21 @@ public class ThreadGraph
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#containsClassInitThread(java.util.Collection)
 	 */
-	public boolean containsClassInitThread(final Collection executionThreads) {
+	public boolean containsClassInitThread(final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> executionThreads) {
 		return executionThreads.contains(CLASS_INIT_THREAD);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
 	 */
-	public Collection<Pair> getAllocationSites() {
+	public Collection<Pair<? extends Object, ? extends Object>> getAllocationSites() {
 		return Collections.unmodifiableCollection(newThreadExprs);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getCreationSites()
 	 */
-	public Collection<Pair> getCreationSites() {
+	public Collection<Pair<Stmt, SootMethod>> getCreationSites() {
 		return Collections.unmodifiableCollection(startSites);
 	}
 
@@ -305,15 +304,15 @@ public class ThreadGraph
 		_ctxt.setStmt(startStmt);
 		_ctxt.setRootMethod(method);
 		final IEnvironment _env = analyzer.getEnvironment();
-		final Collection _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
+		final Collection<Value> _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
 		final Collection<SootMethod> _result = new HashSet<SootMethod>();
-		for (final Iterator<NewExpr> _j = IteratorUtils.filteredIterator(_baseValues.iterator(),
+		for (final Iterator<Value> _j = IteratorUtils.filteredIterator(_baseValues.iterator(),
 				SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
-			final NewExpr _value = _j.next();
+			final NewExpr _value = (NewExpr) _j.next();
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			final Triple<Stmt, SootMethod, SootClass> _thread = new Triple<Stmt, SootMethod, SootClass>(startStmt, method,
 					_sc);
-			_result.addAll(MapUtils.queryObject(thread2methods, _thread, Collections.EMPTY_SET));
+			_result.addAll(MapUtils.queryObject(thread2methods, _thread, Collections.<SootMethod>emptySet()));
 		}
 		return Collections.unmodifiableCollection(_result);
 	}
@@ -321,8 +320,8 @@ public class ThreadGraph
 	/**
 	 * @see IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
-	public Collection<Triple> getExecutionThreads(final SootMethod sm) {
-		final Collection<Triple> _result = MapUtils.queryObject(method2threads, sm, Collections.EMPTY_SET);
+	public Collection<Triple<? extends Object,? extends  Object,? extends  Object>> getExecutionThreads(final SootMethod sm) {
+		final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> _result = MapUtils.queryObject(method2threads, sm, Collections.<Triple<? extends Object, ? extends Object, ? extends Object>>emptySet());
 		return Collections.unmodifiableCollection(_result);
 	}
 
@@ -353,8 +352,8 @@ public class ThreadGraph
 	 * @see IThreadGraphInfo#mustOccurInDifferentThread(SootMethod, SootMethod)
 	 */
 	public boolean mustOccurInDifferentThread(final SootMethod methodOne, final SootMethod methodTwo) {
-		final Collection<Triple> _t1 = getExecutionThreads(methodOne);
-		final Collection<Triple> _t2 = getExecutionThreads(methodTwo);
+		final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> _t1 = getExecutionThreads(methodOne);
+		final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> _t2 = getExecutionThreads(methodTwo);
 		return _t1.isEmpty() || _t2.isEmpty() || !CollectionUtils.containsAny(_t1, _t2);
 	}
 
@@ -362,8 +361,8 @@ public class ThreadGraph
 	 * @see IThreadGraphInfo#mustOccurInSameThread(SootMethod, SootMethod)
 	 */
 	public boolean mustOccurInSameThread(final SootMethod methodOne, final SootMethod methodTwo) {
-		final Collection<Triple> _t1 = getExecutionThreads(methodOne);
-		final Collection<Triple> _t2 = getExecutionThreads(methodTwo);
+		final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> _t1 = getExecutionThreads(methodOne);
+		final Collection<Triple<? extends Object, ? extends Object, ? extends Object>> _t2 = getExecutionThreads(methodTwo);
 		return _t1.size() == 1 && _t1.size() == _t2.size() && _t1.containsAll(_t2)
 				&& threadCreationSitesSingle.containsAll(_t1);
 	}
@@ -387,10 +386,10 @@ public class ThreadGraph
 	 * Sets the object flow analyzer to be used for analysis.
 	 * 
 	 * @param objFlowAnalyzer is the object flow analyzer.
-	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
+	 * @pre objFlowAnalyzer != null
 	 */
-	@Override public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
-		analyzer = (OFAnalyzer) objFlowAnalyzer;
+	@Override public void setAnalyzer(final IValueAnalyzer<Value> objFlowAnalyzer) {
+		analyzer = objFlowAnalyzer;
 	}
 
 	/**
@@ -402,17 +401,17 @@ public class ThreadGraph
 
 		_result.append("Total number of threads: " + thread2methods.size() + "\n");
 
-		final List<Triple> _temp1 = new ArrayList<Triple>();
+		final List<Triple<? extends Object, ? extends Object, ? extends Object>> _temp1 = new ArrayList<Triple<? extends Object, ? extends Object, ? extends Object>>();
 		_temp1.addAll(thread2methods.keySet());
-		Collections.sort(_temp1, new Triple.TripleComparator());
+		Collections.<Triple<? extends Object, ? extends Object, ? extends Object>>sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator<Triple> _i = _temp1.iterator(); _i.hasNext();) {
-			final Triple _triple = _i.next();
+		for (final Iterator<Triple<? extends Object, ? extends Object, ? extends Object>> _i = _temp1.iterator(); _i.hasNext();) {
+			final Triple<? extends Object, ? extends Object, ? extends Object> _triple = _i.next();
 			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + "\n");
 			_l.clear();
 
-			for (final Iterator _j = thread2methods.get(_triple).iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
+			for (final Iterator<SootMethod> _j = thread2methods.get(_triple).iterator(); _j.hasNext();) {
+				final SootMethod _sm = _j.next();
 				_l.add(_sm.getSignature());
 			}
 			Collections.sort(_l);
@@ -425,8 +424,8 @@ public class ThreadGraph
 		int _count = 1;
 		_result.append("\nThread mapping:\n");
 
-		for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
-			final Pair _element = (Pair) _j.next();
+		for (final Iterator<Pair<? extends Object, ? extends Object>> _j = getAllocationSites().iterator(); _j.hasNext();) {
+			final Pair<? extends Object, ? extends Object> _element = _j.next();
 			final String _tid = "T" + _count++;
 
 			_result.append(_tid + " -> " + _element.getFirst() + "@" + _element.getSecond() + "\n");
@@ -454,12 +453,12 @@ public class ThreadGraph
 	 * @return DOCUMENT ME!
 	 */
 	Collection<SootMethod> getRunnableMethods(final SootClass clazz) {
-		final Collection _runnables = getRunnables(clazz);
+		final Collection<Value> _runnables = getRunnables(clazz);
 		final IEnvironment _env = analyzer.getEnvironment();
 		final Collection<SootMethod> _result = new HashSet<SootMethod>(_runnables.size());
-		for (final Iterator<NewExpr> _j = IteratorUtils.filteredIterator(_runnables.iterator(),
+		for (final Iterator<Value> _j = IteratorUtils.filteredIterator(_runnables.iterator(),
 				SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
-			final NewExpr _temp = _j.next();
+			final NewExpr _temp = (NewExpr) _j.next();
 			final SootClass _runnable = _env.getClass((_temp.getBaseType()).getClassName());
 			final SootMethod _entryPoint = getRunMethod(_runnable);
 			_result.add(_entryPoint);
@@ -480,8 +479,8 @@ public class ThreadGraph
 		final Context _ctxt = new Context();
 		_ctxt.setRootMethod(_startMethod);
 
-		final Collection _values = analyzer.getValuesForThis(_ctxt);
-		final Map<SootClass, Collection<SootMethod>> _class2runCallees = new HashMap();
+		final Collection<Value> _values = analyzer.getValuesForThis(_ctxt);
+		final Map<SootClass, Collection<SootMethod>> _class2runCallees = new HashMap<SootClass, Collection<SootMethod>>();
 		final Collection<SootMethod> _runnables = getRunnableMethods(_threadClass);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -489,9 +488,9 @@ public class ThreadGraph
 			LOGGER.debug("New runnables are: " + _runnables);
 		}
 
-		for (final Iterator<NewExpr> _i = IteratorUtils.filteredIterator(_values.iterator(),
+		for (final Iterator<Value> _i = IteratorUtils.filteredIterator(_values.iterator(),
 				SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _i.hasNext();) {
-			final NewExpr _value = _i.next();
+			final NewExpr _value = (NewExpr) _i.next();
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			Collection<SootMethod> _methods;
 
@@ -541,21 +540,20 @@ public class ThreadGraph
 			final VirtualInvokeExpr _virtualInvokeExpr = (VirtualInvokeExpr) _callStmt.getInvokeExpr();
 			_ctxt.setProgramPoint(_virtualInvokeExpr.getBaseBox());
 
-			final Collection _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
+			final Collection<Value> _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
 
-			for (final Iterator<NewExpr> _j = IteratorUtils.filteredIterator(_baseValues.iterator(),
+			for (final Iterator<Value> _j = IteratorUtils.filteredIterator(_baseValues.iterator(),
 					SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
-				final NewExpr _value = _j.next();
+				final NewExpr _value = (NewExpr) _j.next();
 				final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 				final Collection<SootMethod> _methods = _class2runCallees.get(_sc);
 				final Triple<Stmt, SootMethod, SootClass> _thread = new Triple<Stmt, SootMethod, SootClass>(_callStmt,
 						_caller, _sc);
-				MapUtils.putAllIntoCollectionInMapUsingFactory(thread2methods, _thread, _methods, SetUtils
-						.<SootMethod> getFactory());
+				MapUtils.putAllIntoCollectionInMap(thread2methods, _thread, _methods);
 
-				for (final Iterator _k = _methods.iterator(); _k.hasNext();) {
-					final SootMethod _sm = (SootMethod) _k.next();
-					MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple> getFactory());
+				for (final Iterator<SootMethod> _k = _methods.iterator(); _k.hasNext();) {
+					final SootMethod _sm = _k.next();
+					MapUtils.putIntoCollectionInMap(method2threads, _sm, _thread);
 				}
 			}
 		}
@@ -565,12 +563,12 @@ public class ThreadGraph
 	 * Considers the property that a thread allocation site may be executed multiple times.
 	 */
 	private void considerMultipleExecutions() {
-		final Collection<Pair> _tassBak = new HashSet<Pair>(threadCreationSitesSingle);
+		final Collection<Pair<? extends Object, ? extends Object>> _tassBak = new HashSet<Pair<? extends Object, ? extends Object>>(threadCreationSitesSingle);
 
 		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC
 		// as creating multiple threads. The execution considers entire call chain to the entry method.
-		for (final Iterator<Pair> _i = _tassBak.iterator(); _i.hasNext();) {
-			final Pair _pair = _i.next();
+		for (final Iterator<Pair<? extends Object, ? extends Object>> _i = _tassBak.iterator(); _i.hasNext();) {
+			final Pair<? extends Object, ? extends Object> _pair = _i.next();
 			final Object _o = _pair.getSecond();
 
 			if (_o instanceof SootMethod) {
@@ -583,12 +581,12 @@ public class ThreadGraph
 			}
 		}
 
-		final Collection _multiExecMethods = new HashSet();
+		final Collection<SootMethod> _multiExecMethods = new HashSet<SootMethod>();
 
 		// Collect methods executed in threads which are created at sites that create more than one thread. These methods
 		// will be executed multiple times.
-		for (final Iterator<Pair> _i = threadCreationSitesMulti.iterator(); _i.hasNext();) {
-			final Pair _pair = _i.next();
+		for (final Iterator<Pair<? extends Object, ? extends Object>> _i = threadCreationSitesMulti.iterator(); _i.hasNext();) {
+			final Pair<? extends Object, ? extends Object> _pair = _i.next();
 			final Object _o = _pair.getSecond();
 
 			if (_o instanceof SootMethod) {
@@ -599,8 +597,8 @@ public class ThreadGraph
 		_tassBak.addAll(threadCreationSitesSingle);
 
 		// filter the thread allocation site sets based on multiExecMethods.
-		for (final Iterator<Pair> _i = _tassBak.iterator(); _i.hasNext();) {
-			final Pair _pair = _i.next();
+		for (final Iterator<Pair<? extends Object, ? extends Object>> _i = _tassBak.iterator(); _i.hasNext();) {
+			final Pair<? extends Object, ? extends Object> _pair = _i.next();
 			final Object _encloser = _pair.getSecond();
 
 			if (_multiExecMethods.contains(_encloser)) {
@@ -631,7 +629,7 @@ public class ThreadGraph
 	 * @post result != null
 	 */
 	private Collection<Value> getRunnables(final SootClass threadClass) {
-		Collection _result = Collections.EMPTY_SET;
+		Collection<Value> _result = Collections.emptySet();
 		final SootMethod _threadRunMethod = getRunMethod(threadClass);
 
 		final Iterator<Stmt> _units = _threadRunMethod.retrieveActiveBody().getUnits().iterator();
@@ -672,11 +670,11 @@ public class ThreadGraph
 		 * the type name prefix. We adapt the first approach of one dedicated thread executes all intializers in the VM.
 		 * Hence, all <clinit> methods are associated with an "ClassInitThread:".
 		 */
-		for (final Iterator _i = cgi.getEntryMethods().iterator(); _i.hasNext();) {
-			final SootMethod _head = (SootMethod) _i.next();
-			final Pair _threadCreationSite;
-			final Pair _threadAllocationSite;
-			final Triple _thread;
+		for (final Iterator<SootMethod> _i = cgi.getEntryMethods().iterator(); _i.hasNext();) {
+			final SootMethod _head = _i.next();
+			final Pair<Object, Object> _threadCreationSite;
+			final Pair<Object, Object> _threadAllocationSite;
+			final Triple<Object, Object, Object> _thread;
 
 			if (_head.getName().equals("<clinit>")) {
 				_threadCreationSite = CLASS_INIT_THREAD_CREATION_SITE;
@@ -684,21 +682,21 @@ public class ThreadGraph
 				_thread = CLASS_INIT_THREAD;
 			} else {
 				final SootClass _mainClass = _head.getDeclaringClass();
-				_threadCreationSite = new Pair("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
-				_threadAllocationSite = new Pair("MAIN_THREAD_ALLOCATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
-				_thread = new Triple("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD, _mainClass);
+				_threadCreationSite = new Pair<Object, Object>("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
+				_threadAllocationSite = new Pair<Object, Object>("MAIN_THREAD_ALLOCATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
+				_thread = new Triple<Object, Object, Object>("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD, _mainClass);
 			}
 
 			newThreadExprs.add(_threadAllocationSite);
 			threadCreationSitesSingle.add(_threadCreationSite);
 
-			final Collection _methods = transitiveThreadCallClosure(_head);
+			final Collection<SootMethod> _methods = transitiveThreadCallClosure(_head);
 			thread2methods.put(_thread, _methods);
 			threadEntryPoints.add(_head);
 
-			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-				MapUtils.putIntoCollectionInMapUsingFactory(method2threads, _sm, _thread, SetUtils.<Triple> getFactory());
+			for (final Iterator<SootMethod> _j = _methods.iterator(); _j.hasNext();) {
+				final SootMethod _sm = _j.next();
+				MapUtils.putIntoCollectionInMap(method2threads, _sm, _thread);
 			}
 		}
 	}
@@ -751,12 +749,12 @@ public class ThreadGraph
 			if (Util.isStartMethod(_method)) {
 				final SootMethod _caller = context.getCurrentMethod();
 				final Stmt _callStmt = context.getStmt();
-				final Collection _callees = cgi.getCallees(invokeExpr, context);
-				final Iterator _i = _callees.iterator();
+				final Collection<SootMethod> _callees = cgi.getCallees(invokeExpr, context);
+				final Iterator<SootMethod> _i = _callees.iterator();
 				final int _iEnd = _callees.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final SootMethod _callee = (SootMethod) _i.next();
+					final SootMethod _callee = _i.next();
 
 					if (Util.isStartMethod(_callee)) {
 						final Pair<Stmt, SootMethod> _callPair = pairMgr.getPair(_callStmt, _caller);
@@ -779,11 +777,11 @@ public class ThreadGraph
 	 */
 	private void pruneUnreachableStartSites() {
 		// prune the startSites such that it only contains reachable start sites.
-		final Collection<Pair> _temp = new HashSet<Pair>();
-		final Collection _reachables = cgi.getReachableMethods();
+		final Collection<Pair<Stmt, SootMethod>> _temp = new HashSet<Pair<Stmt, SootMethod>>();
+		final Collection<SootMethod> _reachables = cgi.getReachableMethods();
 
-		for (final Iterator<Pair> _i = startSites.iterator(); _i.hasNext();) {
-			final Pair _callPair = _i.next();
+		for (final Iterator<Pair<Stmt, SootMethod>> _i = startSites.iterator(); _i.hasNext();) {
+			final Pair<Stmt, SootMethod> _callPair = _i.next();
 
 			if (!_reachables.contains(_callPair.getSecond())) {
 				_temp.add(_callPair);

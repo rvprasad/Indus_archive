@@ -113,7 +113,7 @@ public class AnalysesController {
 	 * @pre id != null and analyses != null and analysis->forall(o | o != null)
 	 */
 	public final void addAnalyses(final Comparable id, final Collection<? extends IAnalysis> analyses) {
-		MapUtils.putAllIntoCollectionInMap(participatingAnalyses, id, analyses, new ArrayList<IAnalysis>());
+		MapUtils.putAllIntoCollectionInMap(participatingAnalyses, id, analyses);
 	}
 
 	/**

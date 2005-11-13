@@ -166,8 +166,8 @@ public final class RTABasedCallInfoCollector
 		} else if (_value instanceof InstanceFieldRef || _value instanceof StaticFieldRef) {
 			final FieldRef _f = (FieldRef) _value;
 			_type = _f.getType();
-			MapUtils.putIntoCollectionInMapUsingFactory(method2instantiatedClasses, context.getCurrentMethod(), _f.getField()
-					.getDeclaringClass(), SetUtils.<SootClass> getFactory());
+			MapUtils.putIntoCollectionInMap(method2instantiatedClasses, context.getCurrentMethod(), _f.getField()
+					.getDeclaringClass());
 		} else if (_value instanceof ArrayRef) {
 			final ArrayRef _a = (ArrayRef) _value;
 			_type = _a.getType();
@@ -184,8 +184,8 @@ public final class RTABasedCallInfoCollector
 		}
 
 		if (_type != null && _type instanceof RefType) {
-			MapUtils.putIntoCollectionInMapUsingFactory(method2instantiatedClasses, context.getCurrentMethod(),
-					((RefType) _type).getSootClass(), SetUtils.<SootClass> getFactory());
+			MapUtils.putIntoCollectionInMap(method2instantiatedClasses, context.getCurrentMethod(),
+					((RefType) _type).getSootClass());
 		}
 	}
 
@@ -210,8 +210,7 @@ public final class RTABasedCallInfoCollector
 
 			processCallerAndAlreadyInstantiatedClasses(_sootMethod, _wb);
 
-			final Collection<SootClass> _t = MapUtils.getFromMapUsingFactory(method2instantiatedClasses, _sootMethod,
-					SetUtils.SET_FACTORY);
+			final Collection<SootClass> _t = MapUtils.getCollectionFromMap(method2instantiatedClasses, _sootMethod);
 
 			if (!instantiatedClasses.containsAll(_t)) {
 				_t.removeAll(instantiatedClasses);
@@ -223,8 +222,8 @@ public final class RTABasedCallInfoCollector
 				}
 			}
 
-			final Collection<SootMethod> _requiredClassInitializers = MapUtils.getFromMapUsingFactory(method2requiredCLInits,
-					_sootMethod, SetUtils.SET_FACTORY);
+			final Collection<SootMethod> _requiredClassInitializers = MapUtils.getCollectionFromMap(method2requiredCLInits,
+					_sootMethod);
 			_wb.addAllWorkNoDuplicates(_requiredClassInitializers);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -333,8 +332,7 @@ public final class RTABasedCallInfoCollector
 		_classes.addAll(cha.getProperAncestorClassesOf(sootClass));
 		_classes.addAll(cha.getProperAncestorInterfacesOf(sootClass));
 
-		final Collection<SootMethod> _reqMethods = MapUtils.getFromMapUsingFactory(method2requiredCLInits, method,
-				SetUtils.SET_FACTORY);
+		final Collection<SootMethod> _reqMethods = MapUtils.getCollectionFromMap(method2requiredCLInits, method);
 		final Iterator<SootClass> _i = _classes.iterator();
 		final int _iEnd = _classes.size();
 
@@ -377,10 +375,9 @@ public final class RTABasedCallInfoCollector
 
 			if (instantiatedClasses.contains(_calleeDeclaringClass)
 					|| CollectionUtils.containsAny(instantiatedClasses, cha.getProperSubclassesOf(_calleeDeclaringClass))) {
-				MapUtils.putIntoCollectionInMapUsingFactory(callInfoHolder.callee2callers, _callee, new CallTriple(caller,
-						_calleeTriple.getStmt(), _calleeTriple.getExpr()), SetUtils.<CallTriple> getFactory());
-				MapUtils.putIntoCollectionInMapUsingFactory(callInfoHolder.caller2callees, caller, _calleeTriple, SetUtils
-						.<CallTriple> getFactory());
+				MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _callee, new CallTriple(caller,
+						_calleeTriple.getStmt(), _calleeTriple.getExpr()));
+				MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, caller, _calleeTriple);
 				wb.addWorkNoDuplicates(_callee);
 			}
 		}
@@ -424,10 +421,9 @@ public final class RTABasedCallInfoCollector
 
 				if (_reachables.contains(_caller)) {
 					_flag |= true;
-					MapUtils.putIntoCollectionInMapUsingFactory(callInfoHolder.callee2callers, _callee, _callerTriple,
-							SetUtils.<CallTriple> getFactory());
-					MapUtils.putIntoCollectionInMapUsingFactory(callInfoHolder.caller2callees, _caller, new CallTriple(
-							_callee, _callerTriple.getStmt(), _callerTriple.getExpr()), SetUtils.<CallTriple> getFactory());
+					MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _callee, _callerTriple);
+					MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, _caller, new CallTriple(
+							_callee, _callerTriple.getStmt(), _callerTriple.getExpr()));
 				}
 			}
 

@@ -46,7 +46,7 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedE
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -453,7 +453,7 @@ public final class RelativeDependenceInfoTool
 	 * @pre p != null and p.getSecond() != null
 	 * @post result != null
 	 */
-	Collection<String> generateBIRRep(final Pair<Stmt, SootMethod> p, final boolean getUnlocking) {
+	Collection<String> generateBIRRep(final Pair<? extends Stmt, SootMethod> p, final boolean getUnlocking) {
 		final Stmt _stmt = p.getFirst();
 		final SootMethod _method = p.getSecond();
 		final String _sig;

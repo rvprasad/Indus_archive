@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.toolkits.bandera;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -53,6 +52,7 @@ import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
+import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InvokeStmt;
@@ -125,7 +125,7 @@ class DependenceAndMayFollowInfoCalculator
 	 * 
 	 * @invariant dependenceCache.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 */
-	private final Map<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> dependenceCache = new HashMap<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>();
+	private final Map<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> dependenceCache = new HashMap<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>();
 
 	/**
 	 * This indicates if only field reference operation in application classes should be considered.
@@ -167,7 +167,7 @@ class DependenceAndMayFollowInfoCalculator
 		if (method.isSynchronized()) {
 			final Pair<Stmt, SootMethod> _p = new Pair<Stmt, SootMethod>(null, method);
 			final Collection<String> _birLocs = tool.generateBIRRep(_p, false);
-			final Collection<Pair<Stmt, SootMethod>> _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
+			final Collection<Pair<? extends Stmt, SootMethod>> _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
 			addToDependenceCache(_p, _c, tool.lockAcquisitions, _birLocs, lockAcqInApplicationClassesOnly);
 			tool.seenStmts.addAll(tool.generateBIRRep(_p, true));
 		}
@@ -184,7 +184,7 @@ class DependenceAndMayFollowInfoCalculator
 
 		if (stmt instanceof EnterMonitorStmt
 				|| (stmt instanceof InvokeStmt && Util.isWaitInvocation((InvokeStmt) stmt, _currentMethod, cgi))) {
-			final Collection<Pair<Stmt, SootMethod>> _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
+			final Collection<Pair<? extends Stmt, SootMethod>> _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
 			addToDependenceCache(_p, _c, tool.lockAcquisitions, _birLocs, lockAcqInApplicationClassesOnly);
 		}
 	}
@@ -212,10 +212,10 @@ class DependenceAndMayFollowInfoCalculator
 
 		if (_c != null) {
 			final Collection<String> _birLocs = tool.generateBIRRep(_pair, false);
-			final Collection<Pair<Stmt, SootMethod>> _dependees = interferenceDA.getDependees(_stmt, _currentMethod);
+			final Collection<Pair<AssignStmt,SootMethod>> _dependees = interferenceDA.getDependees((AssignStmt) _stmt, _currentMethod);
 			addToDependenceCache(_pair, _dependees, _c, _birLocs, _flag);
 
-			final Collection<Pair<Stmt, SootMethod>> _dependents = interferenceDA.getDependents(_stmt, _currentMethod);
+			final Collection<Pair<AssignStmt, SootMethod>> _dependents = interferenceDA.getDependents((AssignStmt) _stmt, _currentMethod);
 			addToDependenceCache(_pair, _dependents, _c, _birLocs, _flag);
 			_c.addAll(_birLocs);
 		}
@@ -281,19 +281,19 @@ class DependenceAndMayFollowInfoCalculator
 		final Map<String, Collection<String>> _result = tool.mayFollow;
 		_result.clear();
 
-		final Set<Pair<Stmt, SootMethod>> _keys = dependenceCache.keySet();
-		final Iterator<Pair<Stmt, SootMethod>> _i = _keys.iterator();
+		final Set<? extends Pair<? extends Stmt, SootMethod>> _keys = dependenceCache.keySet();
+		final Iterator<? extends Pair<? extends Stmt, SootMethod>> _i = _keys.iterator();
 		final int _iEnd = _keys.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Pair<Stmt, SootMethod> _pSrc = _i.next();
+			final Pair<? extends Stmt, SootMethod> _pSrc = _i.next();
 			final Stmt _sSrc = _pSrc.getFirst();
 			final SootMethod _mSrc = _pSrc.getSecond();
 			final Collection<String> _pSrcInBIR = tool.generateBIRRep(_pSrc, false);
-			final Iterator<Pair<Stmt, SootMethod>> _j = _keys.iterator();
+			final Iterator<? extends Pair<? extends Stmt, SootMethod>> _j = _keys.iterator();
 
 			for (int _jIndex = 0; _jIndex < _iEnd; _jIndex++) {
-				final Pair<Stmt, SootMethod> _pDest = _j.next();
+				final Pair<? extends Stmt, SootMethod> _pDest = _j.next();
 				final Stmt _sDest = _pDest.getFirst();
 				final SootMethod _mDest = _pDest.getSecond();
 
@@ -315,8 +315,7 @@ class DependenceAndMayFollowInfoCalculator
 					final int _kEnd = _pSrcInBIR.size();
 
 					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-						MapUtils.putAllIntoCollectionInMapUsingFactory(_result, _k.next(), _birLocs, SetUtils
-								.<String> getFactory());
+						MapUtils.putAllIntoCollectionInMap(_result, _k.next(), _birLocs);
 					}
 				}
 			}
@@ -417,17 +416,16 @@ class DependenceAndMayFollowInfoCalculator
 	 * @pre p.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post equivalents.containsAll(equivalents$pre)
 	 */
-	private void addToDependenceCache(final Pair<Stmt, SootMethod> p, final Collection<Pair<Stmt, SootMethod>> dependence,
+	private void addToDependenceCache(final Pair<? extends Stmt, SootMethod> p, final Collection<? extends Pair<? extends Stmt, SootMethod>> dependence,
 			final Collection<String> equivalents, final Collection<String> birLocs, final boolean applicationClassesOnly) {
 		if (!applicationClassesOnly || p.getSecond().getDeclaringClass().isApplicationClass()) {
 			if (!dependence.isEmpty()) {
-				final Collection<Pair<Stmt, SootMethod>> _t = new ArrayList<Pair<Stmt, SootMethod>>(dependence);
+				final Collection<Pair<? extends Stmt, SootMethod>> _t = new ArrayList<Pair<? extends Stmt, SootMethod>>(dependence);
 
 				if (applicationClassesOnly) {
 					CollectionUtils.filter(dependence, APPLICATION_CLASS_ONLY_PREDICATE);
 				}
-				MapUtils.putAllIntoCollectionInMapUsingFactory(dependenceCache, p, _t, SetUtils
-						.<Pair<Stmt, SootMethod>>getFactory());
+				MapUtils.putAllIntoCollectionInMap(dependenceCache, p, _t);
 				equivalents.addAll(birLocs);
 			}
 		}
@@ -440,27 +438,27 @@ class DependenceAndMayFollowInfoCalculator
 		final Map<String, Collection<String>> _result = tool.dependence;
 		_result.clear();
 
-		final Set<Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _entrySet = dependenceCache
+		final Set<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _entrySet = dependenceCache
 				.entrySet();
-		final Iterator<Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>>> _i = _entrySet.iterator();
+		final Iterator<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _i = _entrySet.iterator();
 		final int _iEnd = _entrySet.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Map.Entry<Pair<Stmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _entry = _i.next();
-			final Pair<Stmt, SootMethod> _pair = _entry.getKey();
-			final Collection<Pair<Stmt, SootMethod>> _depends = _entry.getValue();
+			final Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> _entry = _i.next();
+			final Pair<? extends Stmt, SootMethod> _pair = _entry.getKey();
+			final Collection<Pair<? extends Stmt, SootMethod>> _depends = _entry.getValue();
 			final Collection<String> _t = tool.generateBIRRep(_pair, false);
-			final Iterator<Pair<Stmt, SootMethod>> _j = _depends.iterator();
+			final Iterator<Pair<? extends Stmt, SootMethod>> _j = _depends.iterator();
 			final int _jEnd = _depends.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Pair<Stmt, SootMethod> _p = _j.next();
+				final Pair<? extends Stmt, SootMethod> _p = _j.next();
 				final Collection<String> _t2 = tool.generateBIRRep(_p, false);
 				final Iterator<String> _k = _t.iterator();
 				final int _kEnd = _t.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					MapUtils.putAllIntoCollectionInMapUsingFactory(_result, _k.next(), _t2, SetUtils.<String> getFactory());
+					MapUtils.putAllIntoCollectionInMap(_result, _k.next(), _t2);
 				}
 			}
 		}

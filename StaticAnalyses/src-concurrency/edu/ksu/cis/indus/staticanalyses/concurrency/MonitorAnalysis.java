@@ -14,7 +14,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.IteratorUtils;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -23,7 +27,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -52,13 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +133,7 @@ public final class MonitorAnalysis
 		public Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getInterProcedurallyEnclosingMonitorTriples(
 				final Stmt stmt, final SootMethod method, final boolean transitive) {
 			final Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _result = new HashMap<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
-			final Collection _monitors = new HashSet();
+			final Collection _monitorNodes = new HashSet();
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _immediateMonitors = getEnclosingMonitorTriples(
 					stmt, method, false);
 			_result.put(method, _immediateMonitors);
@@ -147,17 +144,18 @@ public final class MonitorAnalysis
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 					final Triple _monitor = (Triple) _i.next();
-					_monitors.addAll(getReachablesFrom(queryNode(_monitor), false));
+					_monitorNodes.addAll(getReachablesFrom(queryNode(_monitor), false));
 				}
 			}
-			CollectionUtils.transform(_monitors, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
+			CollectionUtils.transform(_monitorNodes, getObjectExtractor(), _monitors);
 
 			@SuppressWarnings("unchecked") final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
 			final int _iEnd = _monitors.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor = _i.next();
-				CollectionsUtilities.putIntoSetInMap(_result, _monitor.getThird(), _monitor);
+				MapUtils.putIntoSetInMap(_result, _monitor.getThird(), _monitor);
 			}
 
 			return _result;
@@ -202,11 +200,9 @@ public final class MonitorAnalysis
 
 					if (!_callee.isSynchronized() || (_callee.isSynchronized() && transitive)) {
 						final Collection<Stmt> _stmts = getUnenclosedStmtsOf(_callee);
-						CollectionsUtilities.putAllIntoSetInMap(method2stmts, _callee, _stmts);
+						MapUtils.putAllIntoCollectionInMap(method2stmts, _callee, _stmts);
 
-						for (final Iterator<Stmt> _j = IteratorUtils.filteredIterator(_stmts.iterator(),
-								SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE); _j.hasNext();) {
-							final Stmt _s = _j.next();
+						for (final Stmt _s : IteratorUtils.filteredIterable(_stmts,	SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE)) {
 							_wb.addWork(pairMgr.getPair(_s, _callee));
 						}
 					}
@@ -308,7 +304,7 @@ public final class MonitorAnalysis
 		 */
 		@Override public void callback(final Stmt stmt, final Context context) {
 			if (stmt instanceof EnterMonitorStmt) {
-				CollectionsUtilities.putIntoSetInMap(method2enterMonitors, context.getCurrentMethod(),
+				MapUtils.putIntoSetInMap(method2enterMonitors, context.getCurrentMethod(),
 						(EnterMonitorStmt) stmt);
 			}
 		}
@@ -414,7 +410,7 @@ public final class MonitorAnalysis
 			LOGGER.info("BEGIN: Monitor Analysis processing");
 		}
 
-		final Map<EnterMonitorStmt, Set<ExitMonitorStmt>> _enter2exits = new HashMap<EnterMonitorStmt, Set<ExitMonitorStmt>>();
+		final Map<EnterMonitorStmt, Collection<ExitMonitorStmt>> _enter2exits = new HashMap<EnterMonitorStmt, Collection<ExitMonitorStmt>>();
 		final Collection<EnterMonitorStmt> _processedMonitors = new HashSet<EnterMonitorStmt>();
 
 		/*
@@ -431,7 +427,7 @@ public final class MonitorAnalysis
 
 			for (final Iterator<EnterMonitorStmt> _j = _entry.getValue().iterator(); _j.hasNext();) {
 				final EnterMonitorStmt _enterMonitor = _j.next();
-				final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _monitor2enclosedStmts = CollectionsUtilities
+				final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _monitor2enclosedStmts = MapUtils
 						.getMapFromMap(method2monitor2enclosedStmts, _method);
 
 				if (!_processedMonitors.contains(_enterMonitor) && _monitor2enclosedStmts.get(_enterMonitor) == null) {
@@ -467,7 +463,7 @@ public final class MonitorAnalysis
 				processSyncedMethods();
 			}
 
-			_result.addAll((Collection) MapUtils.getObject(syncedMethod2enclosedStmts, _sm, Collections.emptyList()));
+			_result.addAll(MapUtils.getEmptyCollectionFromMap(syncedMethod2enclosedStmts, _sm));
 
 			if (transitive && !_result.isEmpty()) {
 				final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _monitor2enclosedStmts = method2monitor2enclosedStmts
@@ -493,15 +489,15 @@ public final class MonitorAnalysis
 				}
 			}
 		} else {
-			final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _monitor2enclosedStmts = (Map) MapUtils
-					.getObject(method2monitor2enclosedStmts, _sm, Collections.emptyMap());
+			final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _monitor2enclosedStmts = MapUtils
+					.getEmptyMapFromMap(method2monitor2enclosedStmts, _sm);
 
 			if (!_monitor2enclosedStmts.isEmpty()) {
 				if (transitive) {
 					_result.addAll(calculateTransitiveClosureOfEnclosedStmts(_monitor2enclosedStmts, monitorTriple, _sm));
 				} else {
-					_result.addAll((Collection) MapUtils.getObject(_monitor2enclosedStmts, monitorTriple, Collections
-							.emptyList()));
+					_result.addAll(MapUtils.getFromMap(_monitor2enclosedStmts, monitorTriple, Collections
+							.<Stmt>emptyList()));
 				}
 			}
 		}
@@ -511,8 +507,8 @@ public final class MonitorAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorStmts(soot.jimple.Stmt, soot.SootMethod, boolean)
 	 */
-	public Collection<Stmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive) {
-		final Collection<Stmt> _result = new HashSet<Stmt>();
+	public Collection<MonitorStmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive) {
+		final Collection<MonitorStmt> _result = new HashSet<MonitorStmt>();
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _temp = getEnclosingMonitorTriples(stmt,
 				method, transitive);
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _temp.iterator();
@@ -536,14 +532,13 @@ public final class MonitorAnalysis
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getEnclosingMonitorTriples(final Stmt stmt,
 			final SootMethod method, final boolean transitive) {
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _result = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
-		final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosedStmt2monitors = (Map) MapUtils.getObject(method2enclosedStmts2monitors, method, Collections
-				.emptyMap());
+		final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosedStmt2monitors = MapUtils.getEmptyMapFromMap(method2enclosedStmts2monitors, method);
 
 		if (_enclosedStmt2monitors.size() > 0) {
 			if (transitive) {
 				_result.addAll(calculateTransitiveClosureOfEnclosingMonitor(_enclosedStmt2monitors, stmt));
 			} else {
-				_result.addAll((Collection) MapUtils.getObject(_enclosedStmt2monitors, stmt, Collections.emptyList()));
+				_result.addAll(MapUtils.getEmptyCollectionFromMap(_enclosedStmt2monitors, stmt));
 			}
 		}
 		return _result;
@@ -728,11 +723,10 @@ public final class MonitorAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getUnenclosedStmtsOf(soot.SootMethod)
 	 */
 	public Collection<Stmt> getUnenclosedStmtsOf(final SootMethod method) {
-		final Collection<Stmt> _enclosedStmts = ((Map) MapUtils.getObject(method2enclosedStmts2monitors, method, Collections
-				.emptyMap())).keySet();
-		final Predicate _predicate = new Predicate() {
+		final Collection<Stmt> _enclosedStmts = MapUtils.getEmptyMapFromMap(method2enclosedStmts2monitors, method).keySet();
+		final IPredicate<Stmt> _predicate = new IPredicate<Stmt>() {
 
-			public boolean evaluate(final Object o) {
+			public boolean evaluate(final Stmt o) {
 				return !_enclosedStmts.contains(o);
 			}
 		};
@@ -894,7 +888,7 @@ public final class MonitorAnalysis
 		while (_wb.hasWork()) {
 			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor = _wb.getWork();
 			_temp.clear();
-			_temp.addAll(CollectionsUtilities.getFromMap(monitor2stmts, _monitor, CollectionsUtilities.EMPTY_LIST_FACTORY));
+			_temp.addAll(MapUtils.getEmptyCollectionFromMap(monitor2stmts, _monitor));
 			_result.addAll(_temp);
 			CollectionUtils.filter(_temp, SootPredicatesAndTransformers.ENTER_MONITOR_STMT_PREDICATE);
 
@@ -926,8 +920,8 @@ public final class MonitorAnalysis
 
 		while (_wb.hasWork()) {
 			final Stmt _s = _wb.getWork();
-			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = CollectionsUtilities
-					.getFromMap(stmt2monitors, _s, CollectionsUtilities.EMPTY_LIST_FACTORY);
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = MapUtils
+					.getEmptyCollectionFromMap(stmt2monitors, _s);
 			_result.addAll(_monitors);
 
 			final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
@@ -1027,7 +1021,7 @@ public final class MonitorAnalysis
 	 * @pre method != null and enter2exits != null and enterStack != null and currStmts!= null and exitMonitor != null
 	 */
 	private Collection<Stmt> processExitMonitor(final SootMethod method,
-			final Map<EnterMonitorStmt, Set<ExitMonitorStmt>> enter2exits,
+			final Map<EnterMonitorStmt, Collection<ExitMonitorStmt>> enter2exits,
 			final Stack<Pair<EnterMonitorStmt, Collection<Stmt>>> enterStack, final Collection<Stmt> currStmts,
 			final ExitMonitorStmt exitMonitor) {
 		final Pair<EnterMonitorStmt, Collection<Stmt>> _pair = enterStack.pop();
@@ -1037,9 +1031,9 @@ public final class MonitorAnalysis
 
 		if (shouldCollectInfo(method, _enter, _exit)) {
 			// add dependee information.
-			final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _dent2ddees = CollectionsUtilities
+			final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _dent2ddees = MapUtils
 					.getMapFromMap(method2enclosedStmts2monitors, method);
-			final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _ddee2ddents = CollectionsUtilities
+			final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Stmt>> _ddee2ddents = MapUtils
 					.getMapFromMap(method2monitor2enclosedStmts, method);
 
 			// collect monitor triples
@@ -1049,13 +1043,13 @@ public final class MonitorAnalysis
 
 			for (final Iterator<Stmt> _k = currStmts.iterator(); _k.hasNext();) {
 				final Stmt _curr = _k.next();
-				CollectionsUtilities.putIntoSetInMap(_dent2ddees, _curr, _dependee);
+				MapUtils.putIntoCollectionInMap(_dent2ddees, _curr, _dependee);
 			}
 
 			// add enclosure information for enter and exit monitor
-			CollectionsUtilities.putAllIntoSetInMap(_ddee2ddents, _dependee, currStmts);
-
-			CollectionsUtilities.putIntoSetInMap(enter2exits, _enter, _exit);
+			MapUtils.putAllIntoCollectionInMap(_ddee2ddents, _dependee, currStmts);
+			MapUtils.putIntoCollectionInMap(enter2exits, _enter, _exit);
+			
 			// load up the statements in the enclosing critical region for processing
 			_result = _pair.getSecond();
 			_result.add(_exit);
@@ -1077,7 +1071,7 @@ public final class MonitorAnalysis
 	 */
 	private Collection<EnterMonitorStmt> processMonitor(final Collection<EnterMonitorStmt> processedMonitors,
 			final EnterMonitorStmt enterMonitor, final SootMethod method,
-			final Map<EnterMonitorStmt, Set<ExitMonitorStmt>> enter2exits) {
+			final Map<EnterMonitorStmt, Collection<ExitMonitorStmt>> enter2exits) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing stmt " + enterMonitor + " in method " + method);
 		}
@@ -1119,7 +1113,7 @@ public final class MonitorAnalysis
 						_currStmts = new HashSet<Stmt>();
 						_enterMonitors.add(_enter);
 					} else {
-						final Collection<ExitMonitorStmt> _exits = CollectionsUtilities.getSetFromMap(enter2exits, _enter);
+						final Collection<ExitMonitorStmt> _exits = MapUtils.getCollectionFromMap(enter2exits, _enter);
 
 						// add the current monitor to the list of current statements
 						_currStmts.add(_stmt);
@@ -1207,7 +1201,7 @@ public final class MonitorAnalysis
 			final Collection _xValues = ofa.getValues(exit.getOp(), _context);
 
 			if (!(_xValues.isEmpty() || _nValues.isEmpty())) {
-				_result = !CollectionUtils.intersection(_xValues, _nValues).isEmpty();
+				_result = !SetUtils.intersection(_xValues, _nValues).isEmpty();
 			}
 		}
 		return _result;

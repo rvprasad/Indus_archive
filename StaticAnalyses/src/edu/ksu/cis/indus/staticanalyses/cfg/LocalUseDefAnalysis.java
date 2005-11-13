@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -248,10 +247,9 @@ public final class LocalUseDefAnalysis
 						for (int _k = _defs.nextSetBit(0); _k >= 0; _k = _defs.nextSetBit(_k + 1)) {
 							final DefinitionStmt _defStmt = (DefinitionStmt) stmtList.get(_k);
 							_cache.add(_defStmt);
-							MapUtils.getFromMapUsingFactory(useInfo, _defStmt, SetUtils.SET_FACTORY).add(_stmt);
+							MapUtils.getCollectionFromMap(useInfo, _defStmt).add(_stmt);
 						}
-						MapUtils.putAllIntoCollectionInMapUsingFactory(defInfo, _pairMgr.getPair(_local, _stmt), _cache,
-								SetUtils.<DefinitionStmt> getFactory());
+						MapUtils.putAllIntoCollectionInMap(defInfo, _pairMgr.getPair(_local, _stmt), _cache);
 					}
 				}
 			}

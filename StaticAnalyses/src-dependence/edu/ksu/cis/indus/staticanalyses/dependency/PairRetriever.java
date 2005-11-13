@@ -14,9 +14,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * This implementation of <code>IDependenceRetriever</code> is used in instance when the dependence information is provided
@@ -27,26 +29,43 @@ import java.util.Collection;
  * @version $Revision$ $Date$
  * @param <T1> DOCUMENT ME!
  * @param <C1> DOCUMENT ME!
+ * @param <E1> DOCUMENT ME!
  * @param <E2> DOCUMENT ME!
  * @param <C2> DOCUMENT ME!
+ * @param <T2> DOCUMENT ME!
  */
-final class PairRetriever<T1, C1, E2, C2>
-		implements IDependenceRetriever<T1, C1, Pair<T1, C1>, E2, C2, Pair<E2, C2>> {
+final class PairRetriever<T1, C1, E1, E2, C2, T2>
+		extends AbstractDependenceRetriever<T1, C1, Pair<E1, C1>, E2, C2, Pair<T2, C2>> {
 
 	/**
-	 * @see IDependenceRetriever#getDependees(IDependencyAnalysis, Object, Object)
+	 * Creates an instance of this class.
 	 */
-	public Collection<Pair<T1, C1>> getDependees(final IDependencyAnalysis<T1, C1, Pair<T1, C1>, E2, C2, Pair<E2, C2>> da,
-			final Pair<T1, C1> dependence, @SuppressWarnings("unused") final C1 origContext) {
-		return da.getDependees(dependence.getFirst(), dependence.getSecond());
+	@AEmpty public PairRetriever() {
+		// does nothing
 	}
 
 	/**
-	 * @see IDependenceRetriever#getDependents(IDependencyAnalysis, Object, Object)
+	 * @see IDependenceRetriever#convertToConformantDependees(java.util.Collection, java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Pair<E2, C2>> getDependents(final IDependencyAnalysis<T1, C1, Pair<T1, C1>, E2, C2, Pair<E2, C2>> da,
-			final Pair<E2, C2> dependence, @SuppressWarnings("unused") final C2 origContext) {
-		return da.getDependents(dependence.getFirst(), dependence.getSecond());
+	public Collection<Pair<E2, C2>> convertToConformantDependees(Collection<Pair<T2, C2>> dependents, final E2 base,
+			final C2 context) {
+		final Collection<Pair<E2, C2>> _result = new HashSet<Pair<E2, C2>>();
+		for (final Pair<T2, C2> _pair : dependents) {
+			_result.add((Pair<E2, C2>) _pair);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IDependenceRetriever#convertToConformantDependents(java.util.Collection, java.lang.Object, java.lang.Object)
+	 */
+	public Collection<Pair<T1, C1>> convertToConformantDependents(final Collection<Pair<E1, C1>> dependees, final T1 base,
+			final C1 context) {
+		final Collection<Pair<T1, C1>> _result = new HashSet<Pair<T1, C1>>();
+		for (final Pair<E1, C1> _pair : dependees) {
+			_result.add((Pair<T1, C1>) _pair);
+		}
+		return _result;
 	}
 }
 

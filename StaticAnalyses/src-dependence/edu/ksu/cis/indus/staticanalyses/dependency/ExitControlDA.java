@@ -187,10 +187,8 @@ public class ExitControlDA
 	 * @pre dependeeBB2dependentBBs != null and method != null
 	 */
 	private void calculateDependenceForStmts(final Map<BasicBlock, Collection<BasicBlock>> dependeeBB2dependentBBs, final SootMethod method) {
-		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getFromMapUsingFactory(dependee2dependent, method,
-				ListUtils.<Collection<Stmt>> getFactory());
-		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getFromMapUsingFactory(dependent2dependee, method,
-				ListUtils.<Collection<Stmt>> getFactory());
+		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getListFromMap(dependee2dependent, method);
+		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getListFromMap(dependent2dependee, method);
 		final List<Stmt> _stmtList = getStmtList(method);
 		final int _noOfStmtsInMethod = _stmtList.size();
 		final List<Stmt> _dependeeBBStmts = new ArrayList<Stmt>();

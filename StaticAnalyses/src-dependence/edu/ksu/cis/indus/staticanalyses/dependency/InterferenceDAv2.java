@@ -24,9 +24,9 @@ import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.ArrayRef;
+import soot.jimple.AssignStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.StaticFieldRef;
-import soot.jimple.Stmt;
 
 /**
  * This class uses escape-analysis information as calculated by {@link
@@ -49,7 +49,6 @@ public class InterferenceDAv2
 
 	/**
 	 * Creates an instance of this class.
-	 * 
 	 */
 	public InterferenceDAv2() {
 		super();
@@ -69,8 +68,8 @@ public class InterferenceDAv2
 	/**
 	 * @see InterferenceDAv1#isArrayDependentOn(Pair, Pair, ArrayRef, ArrayRef)
 	 */
-	@Override protected boolean isArrayDependentOn(final Pair<Stmt, SootMethod> dependent,
-			final Pair<Stmt, SootMethod> dependee, final ArrayRef dependentArrayRef, final ArrayRef dependeeArrayRef) {
+	@Override protected boolean isArrayDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final ArrayRef dependentArrayRef, final ArrayRef dependeeArrayRef) {
 		boolean _result = super.isArrayDependentOn(dependent, dependee, dependentArrayRef, dependeeArrayRef);
 
 		if (_result) {
@@ -86,8 +85,8 @@ public class InterferenceDAv2
 	/**
 	 * @see InterferenceDAv1#isInstanceFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
 	 */
-	@Override protected boolean isInstanceFieldDependentOn(final Pair<Stmt, SootMethod> dependent,
-			final Pair<Stmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
+	@Override protected boolean isInstanceFieldDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
 			final InstanceFieldRef dependeeFieldRef) {
 		boolean _result = super.isInstanceFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
 
@@ -104,8 +103,8 @@ public class InterferenceDAv2
 	/**
 	 * @see InterferenceDAv1#isStaticFieldDependentOn(Pair, Pair, StaticFieldRef, StaticFieldRef)
 	 */
-	@Override protected boolean isStaticFieldDependentOn(final Pair<Stmt, SootMethod> dependent,
-			final Pair<Stmt, SootMethod> dependee, final StaticFieldRef dependentFieldRef,
+	@Override protected boolean isStaticFieldDependentOn(final Pair<AssignStmt, SootMethod> dependent,
+			final Pair<AssignStmt, SootMethod> dependee, final StaticFieldRef dependentFieldRef,
 			final StaticFieldRef dependeeFieldRef) {
 		final boolean _result = super.isStaticFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
 

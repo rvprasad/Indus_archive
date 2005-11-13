@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -109,13 +108,11 @@ public class OFABasedCallInfoCollector
 		final SootMethod _callee = _invokeExpr.getMethod();
 
 		if (_value instanceof StaticInvokeExpr || _value instanceof SpecialInvokeExpr) {
-			final Collection<CallTriple> _callees = MapUtils.getFromMapUsingFactory(callInfoHolder.caller2callees, _caller,
-					SetUtils.SET_FACTORY);
+			final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(callInfoHolder.caller2callees, _caller);
 			final CallTriple _triple1 = new CallTriple(_callee, _stmt, _invokeExpr);
 			_callees.add(_triple1);
 
-			final Collection<CallTriple> _callers = MapUtils.getFromMapUsingFactory(callInfoHolder.callee2callers, _callee,
-					SetUtils.SET_FACTORY);
+			final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(callInfoHolder.callee2callers, _callee);
 			final CallTriple _triple2 = new CallTriple(_caller, _stmt, _invokeExpr);
 			_callers.add(_triple2);
 		} else {
@@ -225,8 +222,7 @@ public class OFABasedCallInfoCollector
 		if (!_values.isEmpty()) {
 			final Map<SootMethod, Collection<CallTriple>> _callee2callers = callInfoHolder.callee2callers;
 			final Map<SootMethod, Collection<CallTriple>> _caller2callees = callInfoHolder.caller2callees;
-			final Collection<CallTriple> _callees = MapUtils.getFromMapUsingFactory(_caller2callees, _caller,
-					SetUtils.SET_FACTORY);
+			final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(_caller2callees, _caller);
 			final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
 
 			for (final Iterator _i = _values.iterator(); _i.hasNext();) {
@@ -252,8 +248,7 @@ public class OFABasedCallInfoCollector
 				final CallTriple _triple = new CallTriple(_callee, _stmt, expr);
 				_callees.add(_triple);
 
-				final Collection<CallTriple> _callers = MapUtils.getFromMapUsingFactory(_callee2callers, _callee,
-						SetUtils.SET_FACTORY);
+				final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(_callee2callers, _callee);
 				_callers.add(_ctrp);
 			}
 		}

@@ -151,7 +151,7 @@ abstract class AbstractControlDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected StmtRetriever getDependenceRetriever() {
+	@Override protected IDependenceRetriever<Stmt, SootMethod, Stmt, Stmt, SootMethod, Stmt> getDependenceRetriever() {
 		return new StmtRetriever();
 	}
 

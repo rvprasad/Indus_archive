@@ -35,7 +35,7 @@ public abstract class AbstractValueAnalyzerBasedProcessor<V>
 	/**
 	 * @see IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
-	@AEmpty 	public void setAnalyzer(@SuppressWarnings("unused") final IValueAnalyzer<V> analyzer) {
+	@AEmpty public void setAnalyzer(@SuppressWarnings("unused") final IValueAnalyzer<V> analyzer) {
 		// does nothing
 	}
 }

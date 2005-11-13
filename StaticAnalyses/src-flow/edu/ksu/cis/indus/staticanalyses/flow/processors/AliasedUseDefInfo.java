@@ -12,11 +12,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -85,10 +84,8 @@ public class AliasedUseDefInfo
 
 	/**
 	 * The object flow analyzer to be used to calculate the UD info.
-	 * 
-	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
-	private final IValueAnalyzer analyzer;
+	private final IValueAnalyzer<Value> analyzer;
 
 	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
@@ -153,7 +150,7 @@ public class AliasedUseDefInfo
 				_map = def2usesMap;
 			}
 			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _key2info = MapUtils
-					.getFromMapUsingFactory(_map, _key, MapUtils.MAP_FACTORY);
+					.getMapFromMap(_map, _key);
 			_key2info.put(pairMgr.getPair(_as, context.getCurrentMethod()), null);
 		}
 	}
@@ -199,14 +196,14 @@ public class AliasedUseDefInfo
 							 * use call graph reachability within the locality of a thread.
 							 */
 							if (doesDefReachUse(_defSite, _useSite)) {
-								MapUtils.putIntoCollectionInMapUsingFactory(_usesite2defsites, _useSite, _defSite, SetUtils.<Pair<DefinitionStmt, SootMethod>>getFactory());
+								MapUtils.putIntoCollectionInMap(_usesite2defsites, _useSite, _defSite);
 								_uses.add(_useSite);
 							}
 						}
 					}
 
 					if (!_uses.isEmpty()) {
-						MapUtils.putAllIntoCollectionInMapUsingFactory(_defsite2usesites, _defSite, _uses, SetUtils.<Pair<DefinitionStmt, SootMethod>>getFactory());
+						MapUtils.putAllIntoCollectionInMap(_defsite2usesites, _defSite, _uses);
 						_uses.clear();
 					}
 				}

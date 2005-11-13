@@ -260,8 +260,8 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * @pre method != null
 	 */
 	private void processMethod(final SootMethod method, final IDependencyAnalysis da) {
-		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getFromMapUsingFactory(dependee2dependent, method, ListUtils.<Collection<Stmt>>getFactory());
-		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getFromMapUsingFactory(dependent2dependee, method, ListUtils.<Collection<Stmt>>getFactory());
+		final List<Collection<Stmt>> _methodLocalDee2Dent = MapUtils.getListFromMap(dependee2dependent, method);
+		final List<Collection<Stmt>> _methodLocalDent2Dee = MapUtils.getListFromMap(dependent2dependee, method);
 		final List<Stmt> _stmtList = getStmtList(method);
 		final int _size = _stmtList.size();
 		ListUtils.ensureSize(_methodLocalDent2Dee, _size, null);
