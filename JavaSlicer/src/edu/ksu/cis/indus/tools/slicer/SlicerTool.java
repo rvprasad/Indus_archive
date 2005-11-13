@@ -316,11 +316,11 @@ public final class SlicerTool
 		info = new HashMap<Comparable, Object>();
 		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
+		stmtGraphFactory = stmtGraphFactoryToUse;
+k
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr, getStmtGraphFactory());
 		addActivePart(ofa.getActivePart());
-
-		stmtGraphFactory = stmtGraphFactoryToUse;
 
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
