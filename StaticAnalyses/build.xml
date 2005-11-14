@@ -125,7 +125,7 @@
 		         header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
 		         doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
 		         overview="src/overview.html"
-				source="1.4"
+				source="1.5"
 		>
 			<classpath refid="${ant.project.name}.classpath" />
 			<sourcepath refid="${srcpath}" />
