@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -72,13 +73,12 @@ public class CompleteSlicingPart
 		final Collection _result = new HashSet();
 		final Object _direction = analysis.getDirection();
 
-		if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
-			_result.addAll(analysis.getDependees(entity, method));
-		} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
-			  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-			_result.addAll(analysis.getDependees(entity, method));
-		} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependees(entity, method));
+		/*
+		 * We need getDependees() for forward, backward, and bidirectional.
+		 */ 
+		_result.addAll(analysis.getDependees(entity, method));
+
+		if (_direction.equals(Direction.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependents(entity, method));
 		}
 		return _result;

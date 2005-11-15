@@ -58,8 +58,6 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Map(ExitMonitorStmt, Collection(EnterMonitorStmt))))
- * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Map(EnterMonitortmt, Collection(ExitMonitorStmt))))
  */
 public final class SynchronizationDA
 		extends
@@ -73,13 +71,13 @@ public final class SynchronizationDA
 	/**
 	 * This provides monitor information.
 	 */
-	private IMonitorInfo monitorInfo;
+	private IMonitorInfo<?> monitorInfo;
 
 	/**
 	 * Creates an instance of this class.
 	 */
 	public SynchronizationDA() {
-		super(Direction.DIRECTIONLESS);
+		super(Direction.BI_DIRECTIONAL);
 	}
 
 	/**
@@ -186,7 +184,7 @@ public final class SynchronizationDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<? extends Object>> getIds() {
+	public Collection<? extends Comparable<?>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.SYNCHRONIZATION_DA);
 	}
 
@@ -218,7 +216,7 @@ public final class SynchronizationDA
 		return new AbstractDependenceRetriever<Stmt, SootMethod, MonitorStmt, MonitorStmt, SootMethod, Stmt>() {
 
 			public Collection<Pair<MonitorStmt, SootMethod>> convertToConformantDependees(final Collection<Stmt> dependents,
-					final MonitorStmt base, final SootMethod context) {
+					@SuppressWarnings("unused") final MonitorStmt base, final SootMethod context) {
 				final Collection<Pair<MonitorStmt, SootMethod>> _result = new HashSet<Pair<MonitorStmt, SootMethod>>();
 				for (final Stmt _t2 : dependents) {
 					if (_t2 instanceof MonitorStmt) {
@@ -229,7 +227,7 @@ public final class SynchronizationDA
 			}
 
 			public Collection<Pair<Stmt, SootMethod>> convertToConformantDependents(final Collection<MonitorStmt> dependees,
-					final Stmt base, final SootMethod context) {
+					@SuppressWarnings("unused") final Stmt base, final SootMethod context) {
 				final Collection<Pair<Stmt, SootMethod>> _result = new HashSet<Pair<Stmt, SootMethod>>();
 				for (final Stmt _e1 : dependees) {
 					_result.add(new Pair<Stmt, SootMethod>(_e1, context));

@@ -60,12 +60,6 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 		 * <code>getDependents()</code>.
 		 */
 		BI_DIRECTIONAL,
-		/**
-		 * This identifies directionless dependence analysis. This means that the dependence information is directionless.
-		 * That is, <code>getDependees</code> and <code>getDependents</code> will return the same values independent of
-		 * the direction.
-		 */
-		DIRECTIONLESS,
 
 		/**
 		 * This identifies forward directional analaysis.
@@ -76,32 +70,32 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	/**
 	 * This identifies control dependency analysis.
 	 */
-	Comparable<? extends Object> CONTROL_DA = "CONTROL_DA";
+	Comparable<?> CONTROL_DA = "CONTROL_DA";
 
 	/**
 	 * This identifies divergence dependency analysis.
 	 */
-	Comparable<? extends Object> DIVERGENCE_DA = "DIVERGENCE_DA";
+	Comparable<?> DIVERGENCE_DA = "DIVERGENCE_DA";
 
 	/**
 	 * This identifies identifier based data dependency analysis.
 	 */
-	Comparable <? extends Object> IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
+	Comparable <?> IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
 
 	/**
 	 * This identifies inteference dependency analysis.
 	 */
-	Comparable<? extends Object> INTERFERENCE_DA = "INTERFERENCE_DA";
+	Comparable<?> INTERFERENCE_DA = "INTERFERENCE_DA";
 
 	/**
 	 * This identifies ready dependency analysis.
 	 */
-	Comparable<? extends Object> READY_DA = "READY_DA";
+	Comparable<?> READY_DA = "READY_DA";
 
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
-	Comparable<? extends Object> REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
+	Comparable<?> REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
 
 	/**
 	 * This identifies synchronization dependency analysis.

@@ -338,7 +338,7 @@ public final class CallGraphInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection<? extends Comparable<? extends Object>> getIds() {
+	public Collection<? extends Comparable<?>> getIds() {
 		return Collections.singleton(ICallGraphInfo.ID);
 	}
 

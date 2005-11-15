@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.collections.IClosure;
 import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -26,6 +25,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -222,9 +222,8 @@ public class BackwardSlicingPart
 		final Collection<Object> _result = new HashSet<Object>();
 		final IDependencyAnalysis.Direction _direction = analysis.getDirection();
 
-		if (_direction.equals(IDependencyAnalysis.Direction.BACKWARD_DIRECTION)
-				|| _direction.equals(IDependencyAnalysis.Direction.DIRECTIONLESS)
-				|| _direction.equals(IDependencyAnalysis.Direction.BI_DIRECTIONAL)) {
+		if (_direction.equals(Direction.BACKWARD_DIRECTION)
+				|| _direction.equals(Direction.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependees(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "

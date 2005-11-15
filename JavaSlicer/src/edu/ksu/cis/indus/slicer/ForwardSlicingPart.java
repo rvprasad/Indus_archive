@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -82,9 +83,9 @@ public class ForwardSlicingPart
 		final Collection<Object> _result = new HashSet<Object>();
 		final Object _dir = analysis.getDirection();
 
-		if (_dir.equals(IDependencyAnalysis.FORWARD_DIRECTION) || _dir.equals(IDependencyAnalysis.DIRECTIONLESS)) {
+		if (_dir.equals(Direction.FORWARD_DIRECTION)) {
 			_result.addAll(analysis.getDependees(entity, method));
-		} else if (_dir.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+		} else if (_dir.equals(Direction.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependents(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction. -- "

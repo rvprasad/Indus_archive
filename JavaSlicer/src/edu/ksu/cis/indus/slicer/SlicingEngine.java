@@ -35,7 +35,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
-import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -261,11 +260,11 @@ public final class SlicingEngine {
 	 * @pre ctrl != null and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
-	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection<Comparable> dependenciesToUse) {
+	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection<? extends Comparable> dependenciesToUse) {
 		controller = ctrl;
 		controlflowBasedDAs.clear();
 
-		for (final Iterator<Comparable> _i = dependenciesToUse.iterator(); _i.hasNext();) {
+		for (final Iterator<? extends Comparable> _i = dependenciesToUse.iterator(); _i.hasNext();) {
 			final Comparable _id = _i.next();
 
 			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
@@ -462,7 +461,7 @@ public final class SlicingEngine {
 	public void enterMethod(final CallTriple callsite) {
 		if (callsite != null) {
 			if (callStackCache == null) {
-				callStackCache = new Stack();
+				callStackCache = new Stack<CallTriple>();
 			}
 			callStackCache.push(callsite);
 		}
@@ -525,10 +524,6 @@ public final class SlicingEngine {
 		if (callStackCache != null) {
 			if (ifInsideContext()) {
 				_result = callStackCache.pop();
-			}
-
-			if (callStackCache.isEmpty()) {
-				callStackCache = null;
 			}
 		}
 
@@ -1021,7 +1016,7 @@ public final class SlicingEngine {
 		final boolean _generateCriteria = shouldMethodLevelCriteriaBeGenerated(method);
 
 		if (_generateCriteria) {
-			final Collection<MethodLevelSliceCriterion> _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
+			final Collection<ISliceCriterion> _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
 			setContext(_sliceCriteria);
 
 			final Collection<ISliceCriterion> _c = workbag.addAllWorkNoDuplicates(_sliceCriteria);

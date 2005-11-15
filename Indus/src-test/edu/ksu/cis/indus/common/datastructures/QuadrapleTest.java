@@ -45,7 +45,7 @@ public class QuadrapleTest
 	 */
 	public final void testClone() {
 		try {
-			final Quadraple _q1 = (Quadraple) quad1.clone();
+			final Quadraple _q1 = quad1.clone();
 			assertTrue(_q1 != quad1);
 			assertTrue(_q1.getFirst() == quad1.getFirst());
 			assertTrue(_q1.getSecond() == quad1.getSecond());

@@ -86,7 +86,7 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	/**
 	 * The id of this interface.
 	 */
-	Comparable<? extends Object> ID = "Monitor Information";
+	Comparable<?> ID = "Monitor Information";
 
 	/**
 	 * Retrieves the statements enclosed by the given monitor triple. Only the statements occurring in the method in which the

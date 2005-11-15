@@ -154,7 +154,7 @@ public class IndependentStmtDetector
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public final Collection<? extends Comparable<? extends Object>> getIds() {
+	public final Collection<? extends Comparable<?>> getIds() {
 		return Collections.singleton(ID);
 	}
 

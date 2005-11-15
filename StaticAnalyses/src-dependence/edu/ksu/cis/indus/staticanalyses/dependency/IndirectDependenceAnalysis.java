@@ -169,7 +169,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection<? extends Comparable<? extends Object>> getIds() {
+	public Collection<? extends Comparable<?>> getIds() {
 		return da.getIds();
 	}
 

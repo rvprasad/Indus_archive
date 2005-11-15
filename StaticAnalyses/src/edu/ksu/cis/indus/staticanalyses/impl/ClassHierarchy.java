@@ -229,7 +229,7 @@ public final class ClassHierarchy
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection<? extends Comparable<? extends Object>> getIds() {
+	public Collection<? extends Comparable<?>> getIds() {
 		return Collections.singleton(ID);
 	}
 

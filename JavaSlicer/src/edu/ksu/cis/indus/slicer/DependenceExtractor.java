@@ -389,7 +389,7 @@ final class DependenceExtractor
 					+ ", Collection criteriaBases=" + criteriaBases + ") - BEGIN");
 		}
 
-		final Collection<Comparable> _ids = da.getIds();
+		final Collection<? extends Comparable<?>> _ids = da.getIds();
 
 		if (_ids.contains(IDependencyAnalysis.CONTROL_DA) || _ids.contains(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)) {
 			for (final Iterator<Object> _i = criteriaBases.iterator(); _i.hasNext();) {

@@ -58,10 +58,10 @@ public abstract class AbstractDependencyAnalysis<T1, C1, E1, KT, VE, E2, C2, T2,
 	/**
 	 * The collection of dependence analysis identifiers.
 	 */
-	public static final Collection<Comparable> IDENTIFIERS;
+	public static final Collection<Comparable<?>> IDENTIFIERS;
 
 	static {
-		IDENTIFIERS = new HashSet<Comparable>();
+		IDENTIFIERS = new HashSet<Comparable<?>>();
 		IDENTIFIERS.add(CONTROL_DA);
 		IDENTIFIERS.add(IDENTIFIER_BASED_DATA_DA);
 		IDENTIFIERS.add(REFERENCE_BASED_DATA_DA);

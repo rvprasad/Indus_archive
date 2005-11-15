@@ -30,7 +30,7 @@ public interface IConcurrentIndependenceInfo
 	/** 
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable<? extends Object> ID = "Concurrent Independence Analysis";
+	Comparable<?> ID = "Concurrent Independence Analysis";
 
 	/**
 	 * Checks if the statement is independent.

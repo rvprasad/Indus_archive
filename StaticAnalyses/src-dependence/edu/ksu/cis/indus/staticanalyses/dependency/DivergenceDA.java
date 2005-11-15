@@ -220,7 +220,7 @@ public final class DivergenceDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<? extends Object>> getIds() {
+	public Collection<? extends Comparable<?>> getIds() {
 		return Collections.singleton(IDependencyAnalysis.DIVERGENCE_DA);
 	}
 
