@@ -29,6 +29,10 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.7.2.1
+-------------------
+	- bug fixes: 743 (Thanks to Barthelmy Dagenais for reporting  the bug)
+
 Version 0.7.2
 -----------------
 	- bug fixes: 558, 680, 681, 694, 696, 707, 723.
