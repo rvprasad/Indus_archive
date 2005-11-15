@@ -24,8 +24,7 @@
 
     <path id="indus.indus.classpath">
         <pathelement location="${jars.dir}/sootclasses.jar"/>
-        <pathelement location="${jars.dir}/commons-logging-api.jar"/>        
-        <pathelement location="${jars.dir}/commons-logging.jar"/>
+        <pathelement location="${jars.dir}/nlog4j.jar"/>
         <pathelement location="${jars.dir}/commons-collections.jar"/>
         <pathelement location="${jars.dir}/commons-lang.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
