@@ -3,7 +3,7 @@
 <plugin
    id="edu.ksu.cis.indus.kaveri"
    name="Kaveri Java Slicer Plug-in"
-   version="0.7.2"
+   version="0.7.2.1"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.indus.kaveri.KaveriPlugin">
 

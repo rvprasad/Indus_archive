@@ -57,7 +57,7 @@ import soot.util.Chain;
 /**
  * This class is responsible for performing the conversion from a specified Java
  * statement to its equivalent Jimple statements.
- * 
+ *
  * @author Ganeshan
  */
 public final class SootConvertor {
@@ -71,7 +71,7 @@ public final class SootConvertor {
     /**
      * Returns the set of jimple statemetns corresponding to the given java
      * statement.
-     * 
+     *
      * @param thefile
      *            The Java file in which the statement is present
      * @param theclass
@@ -80,13 +80,13 @@ public final class SootConvertor {
      *            The JDT method in which the statement is present
      * @param theline
      *            The line number of the chosen Java statement
-     * 
+     *
      * @return List The list of SootClass, SootMethod and the equivalent Jimple
      *         Stmts <br>
      *         <b>Postcondition: </b> result.firstElement.oclIsKindOf(SootClass)
      *         result.secondElement.oclIsKindOf(SootMethod)
      *         result.remainingElements.oclIsKindOf(Stmt)
-     * 
+     *
      * @throws NullPointerException
      *             Throws NullPointerException on null parameters
      */
@@ -116,12 +116,12 @@ public final class SootConvertor {
      * Returns the SootMethod corresponding to a given IMethod. Postcondition:
      * result = null if a corresponding SootMethod could be found, else the Soot
      * Method
-     * 
+     *
      * @param themethod
      *            The JDT method
      * @param sootclass
      *            The SootClass in which the coressponding SootMethod lies.
-     * 
+     *
      * @return SootMethod The SootMethod coressponding to the IMethod
      */
     private static SootMethod getCorrSootMethod(final IMethod themethod,
@@ -175,10 +175,10 @@ public final class SootConvertor {
     /**
      * Returns a search pattern for the IMethod corressponding to the given
      * SootMethod.
-     * 
+     *
      * @param selectedSootMethod
      *            The SootMethod from which to generate the search pattern
-     * 
+     *
      * @return The string pattern of the type function-name(type-arg1,
      *         type-arg2...)
      */
@@ -228,14 +228,14 @@ public final class SootConvertor {
 
     /**
      * Returns a list of of corresponding jimple statements.
-     * 
+     *
      * @param sootclass
      *            The coressponding SootClass
      * @param themethod
      *            The JDT method
      * @param theline
      *            The chosen Java line
-     * 
+     *
      * @return List The list of SootClass, SootMethod and Jimple Stmts
      *         Postcondition: result.firstElement.kindOf(SootClass),
      *         result.secondElement.kindOf(SootMethod),
@@ -291,28 +291,27 @@ public final class SootConvertor {
 
     /**
      * Returns the list of Stmts with the given line number.
-     * 
+     *
      * @param body
      *            The Jimple Body
      * @param theline
      *            The selected Java line.
-     * 
+     *
      * @return List The list of Jimple Stmts
      */
     public static List getStmts(final Body body, final int theline) {
         final List _stmt = new ArrayList();
         final Chain _unitchain = body.getUnits();
         final Iterator _iterator = _unitchain.snapshotIterator();
-        int _nLine;
+        boolean _found = false;
+        int _nLine = -1;
 
         while (_iterator.hasNext()) {
             final Stmt _tempStmt = (Stmt) _iterator.next();
-            _nLine = -1;
-
             final LineNumberTag _lntag = (LineNumberTag) _tempStmt
                     .getTag(Messages.getString("EclipseIndusDriver.4")); //$NON-NLS-1$
             final SourceLnPosTag _stag = (SourceLnPosTag) _tempStmt
-                    .getTag(Messages.getString("EclipseIndusDriver.5")); //$NON-NLS-1$		
+                    .getTag(Messages.getString("EclipseIndusDriver.5")); //$NON-NLS-1$
 
             if (_stag != null) {
                 _nLine = _stag.startLn();
@@ -322,9 +321,12 @@ public final class SootConvertor {
                     _nLine = _lntag.getLineNumber();
                 }
             }
-
-            if (_nLine != -1 && _nLine == theline) {
+            boolean _t = (_nLine != -1 && _nLine == theline) || (_found && _nLine == -1);
+            if (_t) {
+            	_found = _t;
                 _stmt.add(_tempStmt);
+            } else if (_found) {
+            	break;
             }
         }
         return _stmt;
@@ -332,7 +334,7 @@ public final class SootConvertor {
 
     /**
      * Returns the java line number for the given statement;
-     * 
+     *
      * @param stmt
      * @return
      */
@@ -341,7 +343,7 @@ public final class SootConvertor {
         final LineNumberTag _lntag = (LineNumberTag) stmt.getTag(Messages
                 .getString("EclipseIndusDriver.4")); //$NON-NLS-1$
         final SourceLnPosTag _stag = (SourceLnPosTag) stmt.getTag(Messages
-                .getString("EclipseIndusDriver.5")); //$NON-NLS-1$		
+                .getString("EclipseIndusDriver.5")); //$NON-NLS-1$
 
         if (_stag != null) {
             _nLine = _stag.startLn();
@@ -356,7 +358,7 @@ public final class SootConvertor {
 
     /**
      * Get the soot method for the given JDT Method.
-     * 
+     *
      * @param method
      *            The JDT method.
      * @return
@@ -380,7 +382,7 @@ public final class SootConvertor {
 
     /**
      * Load the given JDT class.
-     * 
+     *
      * @param javaClass
      * @return
      */
