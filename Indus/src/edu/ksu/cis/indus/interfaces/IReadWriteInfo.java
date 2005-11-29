@@ -31,12 +31,12 @@ import soot.SootMethod;
 public interface IReadWriteInfo
   extends IIdentification,
 	  IStatus {
-	/** 
+	/**
 	 * This indentifies the interface.
 	 */
-	Object ID = "Object read-write Information";
+	Comparable<? extends Object> ID = "Object read-write Information";
 
-	/** 
+	/**
 	 * This constant identifies the cells of an array in the field map of it's alias set.
 	 */
 	String ARRAY_FIELD = "$ELT";

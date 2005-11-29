@@ -40,71 +40,71 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractTool
   extends AbstractStatus
   implements ITool {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(AbstractTool.class);
 
-	/** 
+	/**
 	 * This an object used to control the execution of the tool.
 	 */
 	protected final Object control = new Object();
 
-	/** 
+	/**
 	 * This is the configuration information associated with this tool instance. Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurationInfo != null
 	 */
 	protected IToolConfiguration configurationInfo;
 
-	/** 
+	/**
 	 * This is the configurator associated with this tool instance. Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurator != null
 	 */
 	protected IToolConfigurator configurator;
 
-	/** 
+	/**
 	 * A collection of listeners of tools progress.
 	 */
 	final Collection<IToolProgressListener> listeners;
 
-	/** 
+	/**
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
 	 */
 	Throwable childException;
 
-	/** 
+	/**
 	 * The thread in which the tools is running or ran previously.
 	 */
 	Thread thread;
 
-	/** 
+	/**
 	 * This indicates if the tool should pause execution.
 	 */
 	boolean pause;
 
-	/** 
+	/**
 	 * This is the number of messages that have been accepted for delivery.
 	 */
 	int messageId;
 
-	/** 
+	/**
 	 * This is the number of the message to be delivered next.
 	 */
 	int token;
 
-	/** 
+	/**
 	 * The object used to realize the "active" part of this object.
 	 */
 	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
-	/** 
+	/**
 	 * This is the collection of active parts.
 	 */
 	private Collection<IActivePart> activeParts = new HashSet<IActivePart>();
 
-	/** 
+	/**
 	 * The current configuration.  This is the configuration that is currently being used by the tool.
 	 */
 	private IToolConfiguration currentConfiguration;
@@ -252,7 +252,7 @@ public abstract class AbstractTool
 						@Override public final void run() {
 							Throwable _temp = null;
 							try {
-								// we do this to respect any pre-run pause calls. 
+								// we do this to respect any pre-run pause calls.
 								movingToNextPhase();
 
 								execute(phase, lastPhase);
@@ -445,7 +445,7 @@ public abstract class AbstractTool
 			final IActivePart _executor = _i.next();
 
 			if (_executor != null) {
-				fireToolProgressEvent("Aborting " + _executor, null);
+				fireToolProgressEvent("Activating " + _executor, null);
 				_executor.activate();
 			}
 		}

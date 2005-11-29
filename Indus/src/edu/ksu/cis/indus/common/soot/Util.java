@@ -75,7 +75,7 @@ import soot.tagkit.Host;
 
 /**
  * General utility class providing common chore methods.
- * 
+ *
  * @author <a href="mailto:rvprasad@cis.ksu.edu">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
@@ -99,7 +99,7 @@ public final class Util {
 
 	/**
 	 * Erases given classes in the given environment while trying to keep the environment type safe.
-	 * 
+	 *
 	 * @param classes to be erased.
 	 * @param env to be updated.
 	 * @return the classes that were erased. It is possible that for safety reasons some classes are retained.
@@ -135,7 +135,7 @@ public final class Util {
 
 	/**
 	 * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
-	 * 
+	 *
 	 * @param sc the class from which to start the search in the class hierarchy. This parameter cannot be <code>null</code>.
 	 * @param sm the method to search for in the class hierarchy. This parameter cannot be <code>null</code>.
 	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
@@ -158,7 +158,7 @@ public final class Util {
 
 	/**
 	 * Finds the implementation of the given method defined in <code>accessClass</code> or its superclasses.
-	 * 
+	 *
 	 * @param accessClass is the class via which the method is invoked.
 	 * @param methodName is the name of the method.
 	 * @param parameterTypes is the list of parameter types of the method.
@@ -167,7 +167,7 @@ public final class Util {
 	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
 	 */
 	public static SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
-			final List parameterTypes, final Type returnType) {
+			final List<Type> parameterTypes, final Type returnType) {
 		SootMethod _result = null;
 
 		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
@@ -189,7 +189,7 @@ public final class Util {
 	/**
 	 * Finds the method declarations that match the given method in its declaring class and the super interface/classes of the
 	 * declaring class.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return a collection of methods.
 	 * @pre method != null
@@ -200,7 +200,7 @@ public final class Util {
 		Collection<SootMethod> _result = new HashSet<SootMethod>();
 		_toProcess.addWork(method.getDeclaringClass());
 
-		final List _parameterTypes = method.getParameterTypes();
+		final List<Type> _parameterTypes = method.getParameterTypes();
 		final Type _retType = method.getReturnType();
 		final String _methodName = method.getName();
 
@@ -217,8 +217,8 @@ public final class Util {
 				_toProcess.addWorkNoDuplicates(_superClass);
 			}
 
-			for (final Iterator _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
-				final SootClass _interface = (SootClass) _i.next();
+			for (final Iterator<SootClass> _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
+				final SootClass _interface = _i.next();
 
 				_toProcess.addWorkNoDuplicates(_interface);
 			}
@@ -233,7 +233,7 @@ public final class Util {
 	/**
 	 * Fixes the body of <code>java.lang.Thread.start()</code> (only if it is native) to call <code>run()</code> on the
 	 * target or self. This is required to complete the call graph. This leaves the body untouched if it is not native.
-	 * 
+	 *
 	 * @param scm is the scene in which the alteration occurs.
 	 */
 	public static void fixupThreadStartBody(final Scene scm) {
@@ -285,7 +285,7 @@ public final class Util {
 
 	/**
 	 * Retrieves all ancestors (classes/interfaces) of the given class.
-	 * 
+	 *
 	 * @param sootClass for which the ancestors are requested.
 	 * @return a collection of classes.
 	 * @pre sootClass != null
@@ -319,7 +319,7 @@ public final class Util {
 	/**
 	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
 	 * the given class.
-	 * 
+	 *
 	 * @param sc is the class in or above which the method may be defined.
 	 * @param method is the name of the method (not the fully classified name).
 	 * @param parameterTypes list of type of the parameters of the method.
@@ -327,9 +327,8 @@ public final class Util {
 	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
 	 *         otherwise.
 	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
-	 * @pre parameterTypes->forall(o | o.oclIsKindOf(Type))
 	 */
-	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List parameterTypes,
+	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List<Type> parameterTypes,
 			final Type returnType) {
 		SootClass _contains = sc;
 
@@ -347,7 +346,7 @@ public final class Util {
 
 	/**
 	 * Retrieves the default value for the given type.
-	 * 
+	 *
 	 * @param type for which the default value is requested.
 	 * @return the default value
 	 * @throws IllegalArgumentException when an invalid type is provided.
@@ -387,7 +386,7 @@ public final class Util {
 	/**
 	 * Retrieves the maximal subset of traps from <code>traps</code> such that each trap encloses the <code>stmt</code> in
 	 * the list of statements <code>stmtList</code>.
-	 * 
+	 *
 	 * @param traps is the list of traps.
 	 * @param stmt is the statement being enclosed.
 	 * @param stmtList is the list of statements.
@@ -409,7 +408,7 @@ public final class Util {
 
 	/**
 	 * Retrieves the hosts which are tagged with a tag named <code>tagName</code>.
-	 * 
+	 *
 	 * @param <T> the type of the host.
 	 * @param hosts is the collection of hosts to filter.
 	 * @param tagName is the name of the tag to filter <code>hosts</code>.
@@ -437,7 +436,7 @@ public final class Util {
 
 	/**
 	 * Retrieves the type object for the given primitive (non-array) type in the given scene.
-	 * 
+	 *
 	 * @param typeName is the name of the type.
 	 * @param scene contains the classes that make up the system.
 	 * @return the type object
@@ -481,7 +480,7 @@ public final class Util {
 	/**
 	 * Retrieves the methods that can be invoked externally (this rules out execution of super methods) on instances of the
 	 * given classes.
-	 * 
+	 *
 	 * @param newClasses is a collection of classes to be processed.
 	 * @return the resolved methods
 	 * @pre newClasses != null and newClasses->forall(o | o != null)
@@ -544,7 +543,7 @@ public final class Util {
 	 * Retrieve the soot options to be used when using Indus modules. These options should be used via
 	 * <code>Options.v().parse(getSootOptions())</code>. These options are setup according to the requirement of the
 	 * analyses in the project.
-	 * 
+	 *
 	 * @return the soot options.
 	 * @post result != null.
 	 */
@@ -557,7 +556,7 @@ public final class Util {
 
 	/**
 	 * Retrieves the type object for the given type in the given scene.
-	 * 
+	 *
 	 * @param typeName is the name of the type.
 	 * @param scene contains the classes that make up the system.
 	 * @return the type object.
@@ -578,7 +577,7 @@ public final class Util {
 	/**
 	 * Checks if the given class has a super class. <code>java.lang.Object</code> will not have a super class, but others
 	 * will.
-	 * 
+	 *
 	 * @param sc is the class to be tested.
 	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
 	 * @pre sc != null
@@ -596,7 +595,7 @@ public final class Util {
 
 	/**
 	 * Checks if the given class implements the named interface.
-	 * 
+	 *
 	 * @param child is the class to be tested for implementation.
 	 * @param ancestor is the fully qualified name of the interface to be checked for implementation.
 	 * @return <code>true</code> if <code>child</code> implements the named interface; <code>false</code>, otherwise.
@@ -618,7 +617,7 @@ public final class Util {
 
 	/**
 	 * Checks if one class is the descendent of another. It is assumed that a class cannot be it's own ancestor.
-	 * 
+	 *
 	 * @param child class whose ancestor is of interest.
 	 * @param ancestor the ancestor class.
 	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class;
@@ -632,7 +631,7 @@ public final class Util {
 
 	/**
 	 * Checks if one class is the descendent of another. It is assumed that a class cannot be it's own ancestor.
-	 * 
+	 *
 	 * @param child class whose ancestor is of interest.
 	 * @param ancestor fully qualified name of the ancestor class.
 	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of
@@ -666,7 +665,7 @@ public final class Util {
 	/**
 	 * Checks if the given classes are on the same class hierarchy branch. This means either one of the classes should be the
 	 * subclass of the other class.
-	 * 
+	 *
 	 * @param class1 one of the two classes to be checked for relation.
 	 * @param class2 one of the two classes to be checked for relation.
 	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>,
@@ -681,7 +680,7 @@ public final class Util {
 	/**
 	 * Checks if the method invoked at the invocation site is one of the <code>notify</code> methods in
 	 * <code>java.lang.Object</code> class based on the given call graph.
-	 * 
+	 *
 	 * @param stmt in which the invocation occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param cgi to be used in the check.
@@ -701,7 +700,7 @@ public final class Util {
 
 	/**
 	 * Checks if the given method is one of the <code>notify</code> methods in <code>java.lang.Object</code> class.
-	 * 
+	 *
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>notify</code> methods in <code>java.lang.Object</code> class;
 	 *         <code>false</code>, otherwise.
@@ -714,7 +713,7 @@ public final class Util {
 
 	/**
 	 * Checks if the given type is a valid reference type.
-	 * 
+	 *
 	 * @param t is the type to checked.
 	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
 	 * @pre t != null
@@ -725,7 +724,7 @@ public final class Util {
 
 	/**
 	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.
-	 * 
+	 *
 	 * @param t1 is the type to be checked for equivalence or sub typing.
 	 * @param t2 is the type against which the check is conducted.
 	 * @param env in which these types exists.
@@ -748,7 +747,7 @@ public final class Util {
 
 	/**
 	 * Checks if the given method is <code>java.lang.Thread.start()</code> method.
-	 * 
+	 *
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>java.lang.Thread.start()</code> method; <code>false</code>,
 	 *         otherwise.
@@ -762,7 +761,7 @@ public final class Util {
 	/**
 	 * Checks if the method invoked at the invocation site is one of the <code>wait</code> methods in
 	 * <code>java.lang.Object</code> class based on the given call graph.
-	 * 
+	 *
 	 * @param stmt in which the invocation occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param cgi to be used in the check.
@@ -782,7 +781,7 @@ public final class Util {
 
 	/**
 	 * Checks if the given method is one of the <code>wait</code> methods in <code>java.lang.Object</code> class.
-	 * 
+	 *
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>wait</code> methods in <code>java.lang.Object</code> class;
 	 *         <code>false</code>, otherwise.
@@ -794,7 +793,7 @@ public final class Util {
 
 	/**
 	 * Prunes the given list of traps that cover atleast one common statement.
-	 * 
+	 *
 	 * @param enclosingTraps is the list of traps.
 	 * @pre enclosingTraps != null
 	 * @post enclosingTraps.containsAll(enclosingTraps$pre)
@@ -821,7 +820,7 @@ public final class Util {
 	/**
 	 * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
 	 * This is the counterpart of <code>retainMethodsWithSignature</code>.
-	 * 
+	 *
 	 * @param methods is the collection of methods to be modified.
 	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
 	 * @pre methods != null and methodsToRemove != null
@@ -837,7 +836,7 @@ public final class Util {
 	/**
 	 * Retains methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
 	 * This is the counterpart of <code>removeMethodsWithSignature</code>.
-	 * 
+	 *
 	 * @param methods is the collection of methods to be modified.
 	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
 	 * @pre methods != null and methodsToRetain!= null
@@ -863,7 +862,7 @@ public final class Util {
 	/**
 	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement and
 	 * method in the given callgraph.
-	 * 
+	 *
 	 * @param invokedMethod is the target method.
 	 * @param stmt containing the invocation site.
 	 * @param method containing <code>stmt</code>.
@@ -878,12 +877,12 @@ public final class Util {
 		_context.setStmt(stmt);
 
 		boolean _result = false;
-		final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
-		final Iterator _iter = _callees.iterator();
+		final Collection<SootMethod> _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
+		final Iterator<SootMethod> _iter = _callees.iterator();
 		final int _iterEnd = _callees.size();
 
 		for (int _iterIndex = 0; _iterIndex < _iterEnd && !_result; _iterIndex++) {
-			final SootMethod _callee = (SootMethod) _iter.next();
+			final SootMethod _callee = _iter.next();
 			_result |= _callee.equals(invokedMethod);
 		}
 		return _result;
