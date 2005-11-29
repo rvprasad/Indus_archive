@@ -14,15 +14,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.impl.DataAliasBasedCallingContextRetriever;
 
 import java.util.Collection;
-import java.util.Stack;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ import soot.Value;
 /**
  * This implementation provides program-point-relative intra-thread calling contexts based on equivalence-class based
  * information.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -52,7 +52,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 
 	/**
 	 * Creates an instance of this instance.
-	 * 
+	 *
 	 * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
 	 */
 	public DataAliasBasedCallingContextRetrieverV2(final int callingContextLengthLimit) {
@@ -61,7 +61,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 
 	/**
 	 * Sets the object that guides calling context construction.
-	 * 
+	 *
 	 * @param oracle to be used.
 	 * @pre oracle != null
 	 */
@@ -99,7 +99,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 
 	/**
 	 * @see DataAliasBasedCallingContextRetriever#getCallerSideToken(java.lang.Object, soot.SootMethod,
-	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, java.util.Stack)
+	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, edu.ksu.cis.indus.common.collections.Stack)
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
 			@SuppressWarnings ("unused") final Stack<CallTriple> calleeCallStack) {

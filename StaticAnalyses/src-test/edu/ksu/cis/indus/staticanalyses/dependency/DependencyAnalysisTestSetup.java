@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
@@ -66,37 +66,37 @@ import junit.framework.TestSuite;
  */
 public class DependencyAnalysisTestSetup
   extends ValueAnalysisTestSetup {
-	/** 
+	/**
 	 * The instance of aliased use-def info to use.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
-	/** 
+	/**
 	 * The instance of basic block graph manager to use.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
-	/** 
+	/**
 	 * The collection of dependency analyses being tested.
 	 */
 	private Collection das;
 
-	/** 
+	/**
 	 * The instance of equivalence class based escape analysis to use.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
-	/** 
+	/**
 	 * A map used to communicate arguments to various analyses.
 	 */
 	private Map info;
 
-	/** 
+	/**
 	 * This provides monitor information.
 	 */
 	private MonitorAnalysis monitorInfo;
 
-	/** 
+	/**
 	 * The thread graph to be used.
 	 */
 	private ThreadGraph tgiImpl;
@@ -135,7 +135,7 @@ public class DependencyAnalysisTestSetup
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, null, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
 
-		//setup info        
+		//setup info
 		info = new HashMap();
 		info.put(ICallGraphInfo.ID, cgiImpl);
 		info.put(IThreadGraphInfo.ID, tgiImpl);
@@ -159,9 +159,9 @@ public class DependencyAnalysisTestSetup
 			das.add(_da);
 
 			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
-				  && (_da.getDirection().equals(IDependencyAnalysis.BI_DIRECTIONAL)
-				  || _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION))) {
-				CollectionsUtilities.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
+				  && (_da.getDirection().equals(IDependencyAnalysis.Direction.BI_DIRECTIONAL)
+				  || _da.getDirection().equals(IDependencyAnalysis.Direction.BACKWARD_DIRECTION))) {
+				MapUtils.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
 			}
 		}
 
@@ -187,8 +187,8 @@ public class DependencyAnalysisTestSetup
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
 			_da1.reset();
 
-			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
-				final Object _id = _i2.next();
+			for (final Iterator<? extends Comparable<?>> _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
+				final Comparable<?> _id = _i2.next();
 				_ac.addAnalyses(_id, Collections.singleton(_da1));
 			}
 		}

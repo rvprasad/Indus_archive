@@ -129,7 +129,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, Stack)
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
-			final Stack<CallTriple> calleeCallStack) {
+			@SuppressWarnings("unused") final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(callee = " + callee + ", callsite = " + callsite + ")");
 		}
@@ -166,13 +166,13 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 
 		final Value _value = context.getProgramPoint().getValue();
 		final AliasSet _as;
-		
+
 		if (_value instanceof StaticFieldRef) {
 			_as = ecba.queryAliasSetFor(((StaticFieldRef) _value).getField().getDeclaringClass());
 		} else {
 			_as = ecba.queryAliasSetFor(_value, context.getCurrentMethod());
 		}
-		
+
 		return prepareToken(_as);
 	}
 

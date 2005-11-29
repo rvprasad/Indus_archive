@@ -42,8 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.map.LRUMap;
+import java.util.WeakHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +109,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			this.position = pos;
 		}
 
-		/** 
+		/**
 		 * @see edu.ksu.cis.indus.common.collections.ITransformer#transform(I)
 		 */
 		public AliasSet transform(final MethodContext input) {
@@ -136,7 +135,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		/**
 		 * This is the call-site.
 		 */
-		final Triple callerTriple;
+		final CallTriple callerTriple;
 
 		/**
 		 * Creates an instance of this class.
@@ -144,11 +143,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @param triple of interest.
 		 * @pre triple != null
 		 */
-		SiteContextRetriever(final Triple triple) {
+		SiteContextRetriever(final CallTriple triple) {
 			callerTriple = triple;
 		}
 
-		/** 
+		/**
 		 * @see edu.ksu.cis.indus.common.collections.ITransformer#transform(Object)
 		 */
 		public MethodContext transform(final SootMethod input) {
@@ -215,7 +214,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * This maintains a cache of query to alias set.
 	 */
-	final Map<Pair<AliasSet, String[]>, AliasSet> query2handle = new LRUMap();
+	final Map<Pair<AliasSet, String[]>, AliasSet> query2handle = new WeakHashMap<Pair<AliasSet, String[]>, AliasSet>();
 
 	/**
 	 * This is a cache variable that holds site context map between method calls.
@@ -243,14 +242,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final EscapeInfo escapeInfo;
 
 	/**
+	 * This is to remember that global alias sets should be marked as being multi thread accessed.
+	 */
+	private boolean markGlobalsAsMultiThreadAccessed;
+
+	/**
 	 * This is the object that exposes object read-write info calculated by this instance.
 	 */
 	private final ReadWriteInfo objectReadWriteInfo;
-
-	/**
-	 * This is to remember that global alias sets should be marked as being multi thread accessed.  
-	 */
-	private boolean markGlobalsAsMultiThreadAccessed;
 
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object. The default value for escapes, reads, and writes is set to
@@ -303,7 +302,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		markGlobalsAsMultiThreadAccessed = false;
-		
+
 		performPhase2();
 
 		performPhase3();
@@ -326,8 +325,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public void flushSiteContexts() {
 		// delete references to site caches as they will not be used hereon.
-		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _sm = _i.next();
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple
 					.get(_sm);
 			method2Triple.put(_sm, new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_triple
@@ -483,6 +482,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Indicates that globals should be marked as multi thread accessed.
+	 */
+	void needToMarkGlobalsAsMultiThreadAccessed() {
+		markGlobalsAsMultiThreadAccessed = true;
+	}
+
+	/**
 	 * Retrieves the alias set for the given soot class. This will not create an alias set if none exists for the given class.
 	 * 
 	 * @param sc is the class of interest.
@@ -634,14 +640,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private void performPhase2() {
 		final Collection<BasicBlock> _processed = new HashSet<BasicBlock>();
 		final IWorkBag<BasicBlock> _wb = new HistoryAwareFIFOWorkBag<BasicBlock>(_processed);
-		final Collection _sccs = cgi.getSCCs(false);
+		final Collection<List<SootMethod>> _sccs = cgi.getSCCs(false);
 
 		// Phase 2: The SCCs are ordered bottom up.
-		for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
-			final List _nodes = (List) _i.next();
+		for (final Iterator<List<SootMethod>> _i = _sccs.iterator(); _i.hasNext();) {
+			final List<SootMethod> _nodes = _i.next();
 
-			for (final Iterator _j = _nodes.iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
+			for (final Iterator<SootMethod> _j = _nodes.iterator(); _j.hasNext();) {
+				final SootMethod _sm = _j.next();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Bottom-up processing method " + _sm);
@@ -707,10 +713,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	private void performPhase3() {
 		// Phase 3
-		final List _methodsInTopologicalOrder = cgi.getMethodsInTopologicalOrder(true);
+		final List<SootMethod> _methodsInTopologicalOrder = cgi.getMethodsInTopologicalOrder(true);
 
-		for (final Iterator _cgiIterator = _methodsInTopologicalOrder.iterator(); _cgiIterator.hasNext();) {
-			final SootMethod _caller = (SootMethod) _cgiIterator.next();
+		for (final Iterator<SootMethod> _cgiIterator = _methodsInTopologicalOrder.iterator(); _cgiIterator.hasNext();) {
+			final SootMethod _caller = _cgiIterator.next();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Top-down processing method : CALLER : " + _caller);
@@ -763,16 +769,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
-	}
-	
-
-	/**
-	 * Indicates that globals should be marked as multi thread accessed. 
-	 * 
-	 */
-	void needToMarkGlobalsAsMultiThreadAccessed() {
-		markGlobalsAsMultiThreadAccessed = true;
-		
 	}
 }
 

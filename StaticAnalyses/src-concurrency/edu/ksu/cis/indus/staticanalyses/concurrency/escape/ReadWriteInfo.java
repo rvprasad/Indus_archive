@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.ChainedTransformer;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
@@ -25,9 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.TransformerUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +53,10 @@ class ReadWriteInfo
 	/**
 	 * This is used to retrieve the alias set for "this" from a given method context.
 	 */
-	private static final Transformer THIS_ALIAS_SET_RETRIEVER = new Transformer() {
+	private static final ITransformer<MethodContext, AliasSet> THIS_ALIAS_SET_RETRIEVER = new ITransformer<MethodContext, AliasSet>() {
 
-		public Object transform(final Object input) {
-			return ((MethodContext) input).thisAS;
+		public AliasSet transform(final MethodContext input) {
+			return input.thisAS;
 		}
 	};
 
@@ -79,9 +78,9 @@ class ReadWriteInfo
 	/**
 	 * This retrieves the method context of a method.
 	 */
-	private final Transformer methodCtxtRetriever = new Transformer() {
+	private final ITransformer<SootMethod, MethodContext> methodCtxtRetriever = new ITransformer<SootMethod, MethodContext>() {
 
-		public Object transform(final Object input) {
+		public MethodContext transform(final SootMethod input) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _t = analysis.method2Triple
 					.get(input);
 			return _t != null ? _t.getFirst() : null;
@@ -120,14 +119,14 @@ class ReadWriteInfo
 	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
 	 */
 	public boolean doesMethodReadGlobalData(final SootMethod method) {
-		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, true);
+		return globalDataReadWriteInfoHelper(method, methodCtxtRetriever, true);
 	}
 
 	/**
 	 * @see IReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
 	 */
 	public boolean doesMethodWriteGlobalData(final SootMethod method) {
-		return globalDataReadWriteInfoHelper(method, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER, false);
+		return globalDataReadWriteInfoHelper(method, methodCtxtRetriever, false);
 	}
 
 	/**
@@ -147,8 +146,8 @@ class ReadWriteInfo
 
 		this.analysis.validate(argPos, _callee);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
-				callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				this.analysis.new SiteContextRetriever(callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
 	}
 
@@ -161,8 +160,8 @@ class ReadWriteInfo
 
 		this.analysis.validate(argPos, _callee);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
-				callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
+				this.analysis.new ArgParamAliasSetRetriever(argPos));
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
@@ -173,7 +172,7 @@ class ReadWriteInfo
 			final boolean recurse) throws IllegalArgumentException {
 		this.analysis.validate(paramPos, method);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
 				this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
@@ -185,7 +184,7 @@ class ReadWriteInfo
 			final boolean recurse) {
 		this.analysis.validate(paramPos, method);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
 				this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
@@ -199,8 +198,8 @@ class ReadWriteInfo
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
-				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
 	}
 
@@ -213,8 +212,8 @@ class ReadWriteInfo
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(this.analysis.new SiteContextRetriever(
-				callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
@@ -226,8 +225,7 @@ class ReadWriteInfo
 			throws IllegalArgumentException {
 		this.analysis.validate(method);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
@@ -237,8 +235,7 @@ class ReadWriteInfo
 	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
 		this.analysis.validate(method);
 
-		final Transformer _transformer = TransformerUtils.chainedTransformer(methodCtxtRetriever,
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
@@ -269,14 +266,12 @@ class ReadWriteInfo
 	 *         was not written when <code>read</code> was <code> false</code>.
 	 * @pre method != null and retriever != null
 	 */
-	private boolean globalDataReadWriteInfoHelper(final SootMethod method, final Transformer retriever, final boolean read) {
-		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = this.analysis.method2Triple
-				.get(method);
+	private boolean globalDataReadWriteInfoHelper(final SootMethod method,
+			final ITransformer<SootMethod, MethodContext> retriever, final boolean read) {
 		final boolean _result;
+		final MethodContext _ctxt = retriever.transform(method);
 
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) retriever.transform(_triple);
-
+		if (_ctxt != null) {
 			if (read) {
 				_result = _ctxt.isGlobalDataRead();
 			} else {
@@ -309,8 +304,8 @@ class ReadWriteInfo
 	 * @pre method != null and accesspath != null and retriever != null
 	 */
 	private boolean instanceDataReadWriteHelper(final SootMethod method, final String[] accesspath, final boolean recurse,
-			final Transformer retriever, final boolean read) {
-		final AliasSet _aliasSet = (AliasSet) retriever.transform(method);
+			final ITransformer<SootMethod, AliasSet> retriever, final boolean read) {
+		final AliasSet _aliasSet = retriever.transform(method);
 		final int _pathLength = accesspath.length;
 		final boolean _zeroLenghtPath = _pathLength == 0;
 		final AliasSet _endPoint;

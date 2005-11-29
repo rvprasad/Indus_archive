@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -29,7 +28,6 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * This is a specialized version of <code>IndependentStmtDetector</code> that uses sharing information calculated by
  * <code>EquivalenceClassBasedEscapeAnalysis</code> to detect independent statements.
@@ -39,12 +37,13 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$ $Date$
  */
 public class IndependentStmtDetectorv2
-  extends IndependentStmtDetector {
+		extends IndependentStmtDetector {
+
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetector#isIndependent(soot.jimple.Stmt,
-	 * 		soot.SootMethod)
+	 *      soot.SootMethod)
 	 */
-	protected boolean isIndependent(final Stmt stmt, final SootMethod method) {
+	@Override protected boolean isIndependent(final Stmt stmt, final SootMethod method) {
 		boolean _result = super.isIndependent(stmt, method);
 
 		if (!_result) {
@@ -54,14 +53,13 @@ public class IndependentStmtDetectorv2
 			} else if (stmt.containsFieldRef()) {
 				final FieldRef _fieldRef = stmt.getFieldRef();
 				final SootField _field = _fieldRef.getField();
-                _result = _field.isFinal();
+				_result = _field.isFinal();
 
 				if (!_result) {
-                    final String _signature = _field.getSignature();
+					final String _signature = _field.getSignature();
 					if (_fieldRef instanceof InstanceFieldRef) {
-                        _result =
-							!escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method,
-								_signature, IEscapeInfo.READ_WRITE_SHARED_ACCESS);
+						_result = !escapeInfo.fieldAccessShared(((InstanceFieldRef) _fieldRef).getBase(), method, _signature,
+								IEscapeInfo.READ_WRITE_SHARED_ACCESS);
 					} else {
 						_result = !escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), method, _signature,
 								IEscapeInfo.READ_WRITE_SHARED_ACCESS);
@@ -75,9 +73,8 @@ public class IndependentStmtDetectorv2
 				if (_invokeExpr instanceof VirtualInvokeExpr) {
 					final VirtualInvokeExpr _vExpr = (VirtualInvokeExpr) _invokeExpr;
 					final SootMethod _sm = _invokeExpr.getMethod();
-					_result =
-						Util.isNotifyMethod(_sm)
-						  || (Util.isWaitMethod(_sm) && !escapeInfo.waitNotifyShared(_vExpr.getBase(), method));
+					_result = Util.isNotifyMethod(_sm)
+							|| (Util.isWaitMethod(_sm) && !escapeInfo.waitNotifyShared(_vExpr.getBase(), method));
 				}
 			}
 		}

@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.ITransformer;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
@@ -21,7 +24,6 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,9 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -72,10 +71,10 @@ final class AliasSet
 	/**
 	 * This is used to retrieve the representative of the alias set.
 	 */
-	private static final Transformer REPRESENTATIVE_ALIAS_SET_RETRIEVER = new Transformer() {
+	private static final ITransformer<AliasSet, AliasSet> REPRESENTATIVE_ALIAS_SET_RETRIEVER = new ITransformer<AliasSet, AliasSet>() {
 
-		public Object transform(final Object input) {
-			return ((AliasSet) input).find();
+		public AliasSet transform(final AliasSet input) {
+			return input.find();
 		}
 	};
 
@@ -92,8 +91,6 @@ final class AliasSet
 
 	/**
 	 * This maps field signatures to their alias sets.
-	 * 
-	 * @invariant fieldMap.oclIsKindOf(Map(String, AliasSet))
 	 */
 	private Map<String, AliasSet> fieldMap;
 
@@ -133,7 +130,7 @@ final class AliasSet
 	/**
 	 * This is the signatures of the fields of the objects associated with this alias set that are read.
 	 */
-	private Collection<String> readFields = new ArrayList<String>();
+	private Collection<String> readFields;
 
 	/**
 	 * The threads that read fields of the associated object.
@@ -185,7 +182,7 @@ final class AliasSet
 	/**
 	 * This is the signatures of the fields of the objects associated with this alias set that are written.
 	 */
-	private Collection<String> writtenFields = new ArrayList<String>();
+	private Collection<String> writtenFields;
 
 	/**
 	 * Creates a new instance of this class.
@@ -329,7 +326,7 @@ final class AliasSet
 				_clone.writewriteEntities = (Collection) ((HashSet<Object>) writewriteEntities).clone();
 			}
 
-			final Collection _emptySet = Collections.EMPTY_SET;
+			final Collection<String> _emptySet = Collections.emptySet();
 			if (readFields != _emptySet) {
 				_clone.readFields = (Collection) ((HashSet<String>) readFields).clone();
 			}
@@ -450,10 +447,8 @@ final class AliasSet
 	 */
 	AliasSet getAccessPathEndPoint(final String[] accesspath) {
 		AliasSet _result = this;
-		final int _length = accesspath.length;
-
-		for (int _i = 0; _i < _length; _i++) {
-			final AliasSet _as = _result.getFieldMap().get(accesspath[_i]);
+		for (final String _pathElement : accesspath) {
+			final AliasSet _as = _result.getFieldMap().get(_pathElement);
 
 			if (_as != null) {
 				_result = _as.find();
@@ -507,12 +502,12 @@ final class AliasSet
 		} else {
 			processed.add(new Pair<AliasSet, AliasSet>(find(), root.find()));
 
-			final Set _keySet = getFieldMap().keySet();
-			final Iterator _i = _keySet.iterator();
+			final Set<String> _keySet = getFieldMap().keySet();
+			final Iterator<String> _i = _keySet.iterator();
 			final int _iEnd = _keySet.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd && _result == null; _iIndex++) {
-				final String _key = (String) _i.next();
+				final String _key = _i.next();
 				final AliasSet _as1 = getASForField(_key);
 				final AliasSet _as2 = root.getASForField(_key);
 
@@ -845,8 +840,8 @@ final class AliasSet
 		_rep.global = true;
 
 		if (_rep.fieldMap != null) {
-			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
-				final AliasSet _as = (AliasSet) _i.next();
+			for (final Iterator<AliasSet> _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
+				final AliasSet _as = _i.next();
 
 				if (!_as.isGlobal()) {
 					_as.setGlobal();
@@ -994,10 +989,10 @@ final class AliasSet
 		boolean _result = wasFieldRead(fieldSig);
 
 		if (!_result && recurse) {
-			_result = recursiveBooleanPropertyDiscovery(fieldSig, new Transformer() {
+			_result = recursiveBooleanPropertyDiscovery(fieldSig, new ITransformer<AliasSet, Boolean>() {
 
-				public Object transform(final Object input) {
-					return Boolean.valueOf(((AliasSet) input).wasAnyFieldRead());
+				public Boolean transform(final AliasSet input) {
+					return Boolean.valueOf(input.wasAnyFieldRead());
 				}
 			});
 		}
@@ -1027,10 +1022,10 @@ final class AliasSet
 		boolean _result = wasFieldWritten(fieldSig);
 
 		if (!_result && recurse) {
-			_result = recursiveBooleanPropertyDiscovery(fieldSig, new Transformer() {
+			_result = recursiveBooleanPropertyDiscovery(fieldSig, new ITransformer<AliasSet, Boolean>() {
 
-				public Object transform(final Object input) {
-					return Boolean.valueOf(((AliasSet) input).wasAnyFieldWritten());
+				public Boolean transform(final AliasSet input) {
+					return Boolean.valueOf(input.wasAnyFieldWritten());
 				}
 			});
 		}
@@ -1145,7 +1140,7 @@ final class AliasSet
 	 *         otherwise.
 	 * @pre transformer != null and fieldSig != null
 	 */
-	private boolean recursiveBooleanPropertyDiscovery(final String fieldSig, final Transformer transformer) {
+	private boolean recursiveBooleanPropertyDiscovery(final String fieldSig, final ITransformer<AliasSet, Boolean> transformer) {
 		boolean _result = false;
 		final Object _fieldAS = find().fieldMap.get(fieldSig);
 
@@ -1155,10 +1150,10 @@ final class AliasSet
 
 			while (_wb.hasWork() && !_result) {
 				final AliasSet _rep = _wb.getWork();
-				_result |= ((Boolean) transformer.transform(_rep)).booleanValue();
+				_result |= (transformer.transform(_rep)).booleanValue();
 
 				if (!_result) {
-					final Collection _values = _rep.getFieldMap().values();
+					final Collection<AliasSet> _values = _rep.getFieldMap().values();
 					_wb.addAllWorkNoDuplicates(CollectionUtils.collect(_values, REPRESENTATIVE_ALIAS_SET_RETRIEVER));
 				}
 			}
@@ -1239,8 +1234,8 @@ final class AliasSet
 					readwriteEntities.add(getNewShareEntity());
 				}
 			}
-			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(readFields, represented.writtenFields));
-			sigsOfRWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.readFields));
+			sigsOfRWSharedFields.addAll(SetUtils.intersection(readFields, represented.writtenFields));
+			sigsOfRWSharedFields.addAll(SetUtils.intersection(writtenFields, represented.readFields));
 		}
 
 		if (CollectionUtils.containsAny(writtenFields, represented.writtenFields)) {
@@ -1256,7 +1251,7 @@ final class AliasSet
 					writewriteEntities.add(getNewShareEntity());
 				}
 			}
-			sigsOfWWSharedFields.addAll(CollectionUtils.intersection(writtenFields, represented.writtenFields));
+			sigsOfWWSharedFields.addAll(SetUtils.intersection(writtenFields, represented.writtenFields));
 		}
 	}
 }

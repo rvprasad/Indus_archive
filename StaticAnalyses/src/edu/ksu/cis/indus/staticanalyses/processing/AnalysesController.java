@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates that
  * all it's prerequesites have been fulfilled.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -57,7 +57,7 @@ public class AnalysesController {
 
 	/**
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
-	 * 
+	 *
 	 * @invariant participatingAnalyses != null
 	 * @invariant participatingAnalyses.oclIsTypeOf(Map(Object, AbstractAnalysis)
 	 */
@@ -65,7 +65,7 @@ public class AnalysesController {
 
 	/**
 	 * This is the preprocessing controlling agent.
-	 * 
+	 *
 	 * @invariant preprocessController != null;
 	 */
 	protected final ProcessingController preprocessController;
@@ -88,7 +88,7 @@ public class AnalysesController {
 
 	/**
 	 * Creates a new AbstractAnalysesController object.
-	 * 
+	 *
 	 * @param infoPrm is a map of name to objects which provide information that maybe used by analyses, but is of no use to
 	 *            the controller.
 	 * @param pc is the preprocessing controller.
@@ -107,12 +107,12 @@ public class AnalysesController {
 
 	/**
 	 * Adds the implementations to be used for analysis.
-	 * 
+	 *
 	 * @param id of the analysis.
 	 * @param analyses are the implementations of the named analysis.
 	 * @pre id != null and analyses != null and analysis->forall(o | o != null)
 	 */
-	public final void addAnalyses(final Comparable<?> id, final Collection<? extends IAnalysis> analyses) {
+	public final void addAnalyses(final Comparable<? extends Object> id, final Collection<? extends IAnalysis> analyses) {
 		MapUtils.putAllIntoCollectionInMap(participatingAnalyses, id, analyses);
 	}
 
@@ -151,7 +151,7 @@ public class AnalysesController {
 
 	/**
 	 * Returns the active part of this object.
-	 * 
+	 *
 	 * @return the active part.
 	 */
 	public IActivePart getActivePart() {
@@ -160,7 +160,7 @@ public class AnalysesController {
 
 	/**
 	 * Provides the implementation registered for the given analysis purpose.
-	 * 
+	 *
 	 * @param id of the requested analyses. This has to be one of the names(XXX_DA) defined in this class.
 	 * @return the implementation registered for the given purpose. Changes to this collection is visible to the controller.
 	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))

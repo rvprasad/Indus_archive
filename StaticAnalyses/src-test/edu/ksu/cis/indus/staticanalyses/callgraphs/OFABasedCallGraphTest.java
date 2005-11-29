@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
@@ -26,47 +26,26 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import soot.SootClass;
 import soot.SootMethod;
-
 
 /**
  * This class tests information calculated by
  * <code>edu.ksu.cis.indus.staticanalyses.flow.instances.valueAnalyzer.processors.CallGraph</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class OFABasedCallGraphTest
-  extends CallGraphTest
-  implements IFATest {
-	/** 
+		extends CallGraphTest
+		implements IFATest {
+
+	/**
 	 * The object flow analysis used to construct the call graph.
 	 */
 	private OFAnalyzer ofa;
 
-	/**
-	 * Sets the instance of OFAnalyzer to be used during testing.
-	 *
-	 * @param valueAnalyzer to be used by the test.
-	 *
-	 * @pre valueAnalyzer != null
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
-	 */
-	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
-		ofa = (OFAnalyzer) valueAnalyzer;
-	}
-
-    /**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
-	 */
-	public void setFATagName(final String tagName) {
-	}
-    
 	/**
 	 * Tests <code>isReachable</code>.
 	 */
@@ -94,6 +73,24 @@ public final class OFABasedCallGraphTest
 	}
 
 	/**
+	 * Sets the instance of OFAnalyzer to be used during testing.
+	 * 
+	 * @param valueAnalyzer to be used by the test.
+	 * @pre valueAnalyzer != null
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
+	 */
+	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
+		ofa = (OFAnalyzer) valueAnalyzer;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
+	 */
+	public void setFATagName(final String tagName) {
+		// does nothing
+	}
+
+	/**
 	 * Tests the tags on the reachable methods based on tags used during object flow analysis.
 	 */
 	public void testTagsOnReachableMethods() {
@@ -117,7 +114,7 @@ public final class OFABasedCallGraphTest
 		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
 			_methods.addAll(((SootClass) _i.next()).getMethods());
 		}
-		_methods = CollectionUtils.subtract(_methods, _reachables);
+		_methods = SetUtils.difference(_methods, _reachables);
 
 		for (final Iterator _i = _methods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -131,8 +128,7 @@ public final class OFABasedCallGraphTest
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown()
-	  throws Exception {
+	protected void tearDown() throws Exception {
 		ofa = null;
 		super.tearDown();
 	}

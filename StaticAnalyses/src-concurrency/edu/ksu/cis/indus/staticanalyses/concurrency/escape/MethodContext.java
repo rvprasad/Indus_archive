@@ -42,7 +42,7 @@ import soot.Type;
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and
  * Ready Dependence for Slicing Concurrent Java Programs.</a> This serves more as a container for the various alias
  * sets/equivalence classes that occur at the method interface.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -58,7 +58,7 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the return value of the associated method.
-	 * 
+	 *
 	 * @invariant AliasSet.canHaveAliasSet(method.getReturnType()) implies ret != null
 	 * @invariant not AliasSet.canHaveAliasSet(method.getReturnType()) implies ret == null
 	 */
@@ -66,7 +66,7 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the <code>this</code> variable of the associated method.
-	 * 
+	 *
 	 * @invariant method.isStatic() implies thisAS == null
 	 * @invariant not method.isStatic() implies thisAS != null
 	 */
@@ -74,14 +74,14 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the exceptions thrown by the associated method.
-	 * 
+	 *
 	 * @invariant thrown != null
 	 */
 	AliasSet thrown;
 
 	/**
 	 * The alias sets associated with the arguments to the associated method.
-	 * 
+	 *
 	 * @invariant method.getParameterTypes()->forall(o | AliasSet.canHaveAliasSet(o) implies
 	 *            argAliasSets.get(method.getParameterTypes().indexOf(o)) != null)
 	 * @invariant method.getParameterTypes()->forall(o | not AliasSet.canHaveAliasSet(o) implies
@@ -111,19 +111,13 @@ final class MethodContext
 
 	/**
 	 * Creates a new MethodContext object.
-	 * 
-	 * @param sm
-	 *            is the method being represented by this object.
-	 * @param thisASParam
-	 *            is the alias set corresponding to "this" variable.
-	 * @param argASs
-	 *            is the alias sets corresponding to the arguments/parameters of the method.
-	 * @param retAS
-	 *            is the alias set corresponding to the return value of the method.
-	 * @param thrownAS
-	 *            is the alias set corresponding to the exceptions thrown by the method.
-	 * @param analysis
-	 *            that created this instance.
+	 *
+	 * @param sm is the method being represented by this object.
+	 * @param thisASParam is the alias set corresponding to "this" variable.
+	 * @param argASs is the alias sets corresponding to the arguments/parameters of the method.
+	 * @param retAS is the alias set corresponding to the return value of the method.
+	 * @param thrownAS is the alias set corresponding to the exceptions thrown by the method.
+	 * @param analysis that created this instance.
 	 * @pre sm != null and argASs != null and thrownAS != null and analysis != null
 	 */
 	MethodContext(final SootMethod sm, final AliasSet thisASParam, final List<AliasSet> argASs, final AliasSet retAS,
@@ -145,11 +139,9 @@ final class MethodContext
 	/**
 	 * Creates a new MethodContext object. The alias sets for the various parts of the method interface is created as
 	 * required.
-	 * 
-	 * @param sm
-	 *            is the method being represented by this object.
-	 * @param analysis
-	 *            that created this instance.
+	 *
+	 * @param sm is the method being represented by this object.
+	 * @param analysis that created this instance.
 	 * @pre sm != null and analysis != null
 	 */
 	MethodContext(final SootMethod sm, final EquivalenceClassBasedEscapeAnalysis analysis) {
@@ -183,12 +175,10 @@ final class MethodContext
 	/**
 	 * Fixes up the field maps of the alias sets in the given map. When alias sets are cloned, the field maps are cloned.
 	 * Hence, they are shallow copied. This method clones the relation between the alias sets among their clones.
-	 * 
-	 * @param src2clone
-	 *            maps an representative alias set to it's clone. This is also an out parameter that will contain new
+	 *
+	 * @param src2clone maps an representative alias set to it's clone. This is also an out parameter that will contain new
 	 *            mappings.
-	 * @throws CloneNotSupportedException
-	 *             when <code>clone()</code> fails.
+	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
 	 */
 	private static void fixUpFieldMapsOfClone(final Map<AliasSet, AliasSet> src2clone) throws CloneNotSupportedException {
 		final IWorkBag<AliasSet> _wb = new HistoryAwareLIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
@@ -227,8 +217,8 @@ final class MethodContext
 		for (final Iterator<AliasSet> _i = src2clone.keySet().iterator(); _i.hasNext();) {
 			final AliasSet _k1 = _i.next();
 
-			for (final Iterator _j = src2clone.keySet().iterator(); _j.hasNext();) {
-				final AliasSet _k2 = (AliasSet) _j.next();
+			for (final Iterator<AliasSet> _j = src2clone.keySet().iterator(); _j.hasNext();) {
+				final AliasSet _k2 = _j.next();
 
 				if (_k1 != _k2 && _k1.find() == _k2.find()) {
 					final AliasSet _v1 = src2clone.get(_k1);
@@ -242,21 +232,19 @@ final class MethodContext
 
 	/**
 	 * Retrieves the clone corresponding to the equivalence class of the given alias set.
-	 * 
-	 * @param src2clone
-	 *            maps alias set to alias set.
-	 * @param as
-	 *            for which the clone is required.
+	 *
+	 * @param src2clone maps alias set to alias set.
+	 * @param as for which the clone is required.
 	 * @return an alias set.
-	 * @throws CloneNotSupportedException
-	 *             <i>this should not occur.</i>
+	 * @throws CloneNotSupportedException <i>this should not occur.</i>
 	 * @pre as != null and src2clone != null
 	 * @pre src2clone.oclIsKindOf(Map(AliasSet, AliasSet))
 	 * @pre src2clone.keySet()->forall(o | o = o.find())
 	 * @post src2clone.keySet()->forall(o | o = o.find())
 	 * @post src2clone.get(as.find()) != result and result != null
 	 */
-	private static AliasSet getCloneOf(final Map<AliasSet, AliasSet> src2clone, final AliasSet as) throws CloneNotSupportedException {
+	private static AliasSet getCloneOf(final Map<AliasSet, AliasSet> src2clone, final AliasSet as)
+			throws CloneNotSupportedException {
 		final AliasSet _repr = as.find();
 		AliasSet _result = src2clone.get(_repr);
 
@@ -269,10 +257,9 @@ final class MethodContext
 
 	/**
 	 * Clones this object.
-	 * 
+	 *
 	 * @return clone of this object.
-	 * @throws CloneNotSupportedException
-	 *             if <code>java.lang.Object.clone()</code> fails.
+	 * @throws CloneNotSupportedException if <code>java.lang.Object.clone()</code> fails.
 	 */
 	@Override public MethodContext clone() throws CloneNotSupportedException {
 		MethodContext _clone = null;
@@ -315,6 +302,41 @@ final class MethodContext
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	public void eraseIntraThreadRefEntities() {
+		if (find() != this) {
+			find().eraseIntraThreadRefEntities();
+		} else {
+			if (ret != null) {
+				ret.eraseIntraThreadRefEntities();
+			}
+
+			if (thrown != null) {
+				thrown.eraseIntraThreadRefEntities();
+			}
+
+			if (thisAS != null) {
+				thisAS.eraseIntraThreadRefEntities();
+			}
+
+			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _argAS = _i.next();
+
+				if (_argAS != null) {
+					_argAS.eraseIntraThreadRefEntities();
+				}
+			}
+
+			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
+				final AliasSet _as = _j.next();
+
+				_as.eraseIntraThreadRefEntities();
+			}
+		}
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override public String toString() {
@@ -353,11 +375,9 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set in the given method context that corresponds to the given alias set in this method context.
-	 * 
-	 * @param ref
-	 *            the reference alias set that occurs in this context.
-	 * @param context
-	 *            the context in which <code>ref</code> occurs.
+	 *
+	 * @param ref the reference alias set that occurs in this context.
+	 * @param context the context in which <code>ref</code> occurs.
 	 * @return the alias set in this context and that corresponds to <code>ref</code>. This will be <code>null</code> if
 	 *         there is no such alias set.
 	 * @pre ref != null and context != null
@@ -409,9 +429,8 @@ final class MethodContext
 	/**
 	 * Retrieves the alias set corresponding to the parameter occuring at position <code>index</code> in the method
 	 * interface.
-	 * 
-	 * @param index
-	 *            is the position of the parameter.
+	 *
+	 * @param index is the position of the parameter.
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getParamAS(final int index) {
@@ -420,7 +439,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to the return value of the method.
-	 * 
+	 *
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getReturnAS() {
@@ -429,7 +448,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to "this" variable of the method.
-	 * 
+	 *
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getThisAS() {
@@ -438,7 +457,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to the exceptions thrown by the method.
-	 * 
+	 *
 	 * @return the corresponding alias set.
 	 * @post result != null
 	 */
@@ -462,7 +481,7 @@ final class MethodContext
 
 	/**
 	 * Provides information if this method reads global data.
-	 * 
+	 *
 	 * @return <code>true</code> if global data is read by this method; <code>false</code>, otherwise.
 	 */
 	boolean isGlobalDataRead() {
@@ -471,7 +490,7 @@ final class MethodContext
 
 	/**
 	 * Provides information if this method writes global data.
-	 * 
+	 *
 	 * @return <code>true</code> if global data is written by this method; <code>false</code>, otherwise.
 	 */
 	boolean isGlobalDataWritten() {
@@ -498,7 +517,7 @@ final class MethodContext
 			}
 
 			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
-				final AliasSet _argAS =  _i.next();
+				final AliasSet _argAS = _i.next();
 
 				if (_argAS != null) {
 					_argAS.markAsCrossingThreadBoundary();
@@ -510,9 +529,8 @@ final class MethodContext
 	/**
 	 * Propogates the information from the source (this) context to the destination context. Please refer to the {@link
 	 * #unifyMethodContext(MethodContext) unify(MethodContext)} for important information.
-	 * 
-	 * @param to
-	 *            is the destination of the information transfer.
+	 *
+	 * @param to is the destination of the information transfer.
 	 * @pre to != null
 	 */
 	void propogateInfoFromTo(final MethodContext to) {
@@ -593,9 +611,8 @@ final class MethodContext
 	 * non-null argument may be provided. In such cases, we safely warn and continue. However, this cannot happen for thrown
 	 * exception, this, or return references. associated with call sites and methods.
 	 * </p>
-	 * 
-	 * @param p
-	 *            is the context with which the unification should occur.
+	 *
+	 * @param p is the context with which the unification should occur.
 	 */
 	void unifyMethodContext(final MethodContext p) {
 		if (p == null) {
@@ -645,11 +662,9 @@ final class MethodContext
 
 	/**
 	 * Unifies the given alias sets.
-	 * 
-	 * @param representative
-	 *            is one of the alias set to be unified.
-	 * @param represented
-	 *            is the other alias set to be unified.
+	 *
+	 * @param representative is one of the alias set to be unified.
+	 * @param represented is the other alias set to be unified.
 	 * @pre representative != null and represented != null
 	 */
 	private void unifyAliasSets(final AliasSet representative, final AliasSet represented) {
@@ -661,42 +676,6 @@ final class MethodContext
 		} else if (representative != null) {
 			representative.unifyAliasSet(represented);
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 */
-	public void eraseIntraThreadRefEntities() {
-		if (find() != this) {
-			find().eraseIntraThreadRefEntities();
-		} else {
-			if (ret != null) {
-				ret.eraseIntraThreadRefEntities();
-			}
-
-			if (thrown != null) {
-				thrown.eraseIntraThreadRefEntities();
-			}
-
-			if (thisAS != null) {
-				thisAS.eraseIntraThreadRefEntities();
-			}
-
-			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
-				final AliasSet _argAS = _i.next();
-
-				if (_argAS != null) {
-					_argAS.eraseIntraThreadRefEntities();
-				}
-			}
-
-			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
-				final AliasSet _as = _j.next();
-
-				_as.eraseIntraThreadRefEntities();
-			}
-		}		
 	}
 }
 

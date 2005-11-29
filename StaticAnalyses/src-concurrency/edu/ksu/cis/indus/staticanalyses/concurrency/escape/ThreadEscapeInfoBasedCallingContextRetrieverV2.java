@@ -166,17 +166,17 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 				final boolean _discardToken;
 
 				if (interferenceBased) {
-					final Collection _callerRWEntities = _callerSideToken.getReadWriteShareEntities();
-					final Collection _calleeRWEntities = _calleeSideToken.getReadWriteShareEntities();
+					final Collection<?> _callerRWEntities = _callerSideToken.getReadWriteShareEntities();
+					final Collection<?> _calleeRWEntities = _calleeSideToken.getReadWriteShareEntities();
 					_discardToken = _callerRWEntities == null || _calleeRWEntities == null
 							|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
 				} else if (readyBased) {
-					final Collection _callerReadyEntities = _callerSideToken.getReadyEntities();
-					final Collection _calleeReadyEntities = _calleeSideToken.getReadyEntities();
+					final Collection<?> _callerReadyEntities = _callerSideToken.getReadyEntities();
+					final Collection<?> _calleeReadyEntities = _calleeSideToken.getReadyEntities();
 					final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
 							|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
-					final Collection _callerLockEntities = _callerSideToken.getLockEntities();
-					final Collection _calleeLockEntities = _calleeSideToken.getLockEntities();
+					final Collection<?> _callerLockEntities = _callerSideToken.getLockEntities();
+					final Collection<?> _calleeLockEntities = _calleeSideToken.getLockEntities();
 					_discardToken = _b2
 							|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
 									_callerLockEntities, _calleeLockEntities));

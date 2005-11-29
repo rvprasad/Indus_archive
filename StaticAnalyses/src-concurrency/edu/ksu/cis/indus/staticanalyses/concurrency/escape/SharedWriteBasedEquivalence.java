@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -48,7 +46,7 @@ import soot.jimple.Stmt;
 /**
  * This class contains the logic to calculate equivalence classes of shared-write statements in the system. Two shared-write
  * statement belong to the same equivalence class if they may write to the same field/array cell.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -58,8 +56,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * This is the collection of definition statements involving array reference or field reference.
-	 * 
-	 * @invariant defStmts.oclIsKindOf(Collection(Stmt))
+	 *
 	 * @invariant defStmts->forall(o | o.containsArrayRef() or o.containsFieldRef())
 	 */
 	private final Collection<Pair<AssignStmt, SootMethod>> defStmts;
@@ -72,7 +69,7 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * This maps a shared write statement to the collection of shared write statements that are in the same equivalence class
 	 * as the key.
-	 * 
+	 *
 	 * @invariant write2writes.keySet()->forall(o | o.getFirst().getLeftOp().oclIsKindOf(ArrayRef) or
 	 *            o.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or
 	 *            o.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef))
@@ -81,7 +78,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param escapeInfo to be used.
 	 */
 	public SharedWriteBasedEquivalence(final IEscapeInfo escapeInfo) {
@@ -122,8 +119,8 @@ public class SharedWriteBasedEquivalence
 				final SootMethod _m2 = _p2.getSecond();
 
 				if (writeWriteExecutionDependence(_s1, _m1, _s2, _m2)) {
-					CollectionsUtilities.putIntoSetInMap(write2writes, _p1, _p2);
-					CollectionsUtilities.putIntoSetInMap(write2writes, _p2, _p1);
+					MapUtils.putIntoSetInMap(write2writes, _p1, _p2);
+					MapUtils.putIntoSetInMap(write2writes, _p2, _p1);
 				}
 			}
 		}
@@ -133,7 +130,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * Retrieves the shared writes that belong to the same equivalence class as the given shared write.
-	 * 
+	 *
 	 * @param pair of interest.
 	 * @return a collection of lock acquisition.
 	 * @pre pair.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
@@ -143,13 +140,13 @@ public class SharedWriteBasedEquivalence
 	 */
 	public Collection<Pair<AssignStmt, SootMethod>> getSharedWritesInEquivalenceClassOf(
 			final Pair<AssignStmt, SootMethod> pair) {
-		return Collections
-				.unmodifiableCollection((Collection) MapUtils.getObject(write2writes, pair, Collections.emptySet()));
+		return Collections.unmodifiableCollection(MapUtils.queryObject(write2writes, pair, Collections
+				.<Pair<AssignStmt, SootMethod>> emptySet()));
 	}
 
 	/**
 	 * Retrieves the shared writes that belong to a non-singleton equivalence class.
-	 * 
+	 *
 	 * @return a collection of lock acquisition.
 	 * @post result.getFirst().oclIsKindOf(AssignStmt)
 	 * @post result.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
@@ -184,7 +181,7 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * Checks if the given definition statements are dependent based on the fact that they may update the same field on an
 	 * object or the same cell of an array.
-	 * 
+	 *
 	 * @param s1 is one statement of interest.
 	 * @param m1 is the method containing <code>s1</code>.
 	 * @param s2 is the second statement of interest.

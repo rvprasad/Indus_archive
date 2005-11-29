@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import soot.Local;
@@ -47,7 +46,7 @@ import soot.jimple.VirtualInvokeExpr;
  * This class calculates equivalence classes of locking statements that may acquire same locks. In simple words, two lock
  * acquisition statements (enter-monitor or synchronized method invocation) belong to the same equivalence class if they may
  * acquire the lock on the same object.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -78,7 +77,7 @@ public class LockAcquisitionBasedEquivalence
 	/**
 	 * This maps a lock acquisition statement to the collection of lock acquisition statements that are in the same
 	 * equivalence class as the key.
-	 * 
+	 *
 	 * @invariant locking2lockings.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 * @invariant locking2lockings.keySet()->forall(o | o.getFirst().oclIsKindOf(EnterMonitorStmt) or
 	 *            o.getFirst().containsInvokeExpr())
@@ -87,7 +86,7 @@ public class LockAcquisitionBasedEquivalence
 
 	/**
 	 * Creates a new LockAcquisitionBasedEquivalence object.
-	 * 
+	 *
 	 * @param escapeInfo to be used.
 	 * @param callgraph to be used.
 	 * @pre escapeInfo != null and callgraph != null
@@ -145,7 +144,7 @@ public class LockAcquisitionBasedEquivalence
 
 	/**
 	 * Retrieves the lock acquisitions that belong to the same equivalence class as the given lock acquisition.
-	 * 
+	 *
 	 * @param pair of interest.
 	 * @return a collection of lock acquisition.
 	 * @pre pair.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or pair.oclIsKindOf(Pair(EnterMonitorStmt, SootMethod))
@@ -154,13 +153,14 @@ public class LockAcquisitionBasedEquivalence
 	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
 	 *       SootMethod)))
 	 */
-	public Collection<Pair<? extends Stmt, SootMethod>> getLockAcquisitionsInEquivalenceClassOf(final Pair<Stmt, SootMethod> pair) {
+	public Collection<Pair<? extends Stmt, SootMethod>> getLockAcquisitionsInEquivalenceClassOf(
+			final Pair<Stmt, SootMethod> pair) {
 		return Collections.unmodifiableCollection(MapUtils.getEmptyCollectionFromMap(locking2lockings, pair));
 	}
 
 	/**
 	 * Retrieves the lock acquisitions that belong to a non-singleton equivalence class.
-	 * 
+	 *
 	 * @return a collection of lock acquisition.
 	 * @post result != null
 	 * @post result->forall(o | o.oclIsKindOf(Pair(InvokeStmt, SootMethod)) or o.oclIsKindOf(Pair(EnterMonitorStmt,
@@ -206,7 +206,7 @@ public class LockAcquisitionBasedEquivalence
 
 	/**
 	 * Processes the given local in the given method to calculate if it is related to the given lock acquisition.
-	 * 
+	 *
 	 * @param local of interest.
 	 * @param method in which <code>local</code> occurs.
 	 * @param p is a lock acquisition.

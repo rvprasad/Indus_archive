@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,7 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
@@ -57,9 +57,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,13 +75,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.collections.MapUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides a command-line interface to xmlize dependence information.  Refer to <code>SootBasedDriver</code> for
+ * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -92,74 +87,71 @@ import org.slf4j.LoggerFactory;
  * @version $Revision$ $Date$
  */
 public class DependencyXMLizerCLI
-  extends SootBasedDriver {
-	/** 
+		extends SootBasedDriver {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DependencyXMLizerCLI.class);
 
-	/** 
+	/**
 	 * This is the flow analyser used by the analyses being tested.
 	 */
 	protected IValueAnalyzer aa;
 
-	/** 
+	/**
 	 * A collection of dependence analyses.
 	 *
-	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
-	protected List das = new ArrayList();
+	protected List<IDependencyAnalysis> das = new ArrayList<IDependencyAnalysis>();
 
-	/** 
+	/**
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
 	 *
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
 	protected final Map info = new HashMap();
 
-	/** 
-	 * The xmlizer used to xmlize dependence information.
+	/**
+	 * This indicates if common unchecked exceptions should be considered.
 	 */
-	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
+	private boolean commonUncheckedException;
 
-	/** 
+	/**
 	 * This flag indicates if jimple should be dumped.
 	 */
 	private boolean dumpJimple;
 
-	/** 
+	/**
+	 * This indicates if exceptional exits should be considered.
+	 */
+	private boolean exceptionalExits;
+
+	/**
 	 * This flag indicates if the simple version of aliased use-def information should be used.
 	 */
 	private boolean useAliasedUseDefv1;
 
-	/** 
+	/**
 	 * This indicates if safe lock should be used.
 	 */
 	private boolean useSafeLockAnalysis;
 
-    /**
-     * This indicates if exceptional exits should be considered.
-     */
-    private boolean exceptionalExits;
-
-    /**
-     * This indicates if common unchecked exceptions should be considered.
-     */
-    private boolean commonUncheckedException;
+	/**
+	 * The xmlizer used to xmlize dependence information.
+	 */
+	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
 
 	/**
 	 * This is the entry point via command-line.
 	 *
 	 * @param args is the command line arguments.
-	 *
 	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
-	 *
 	 * @pre args != null
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option =
-			new Option("o", "output", true,
+		Option _option = new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
 		_option.setArgName("output-directory");
@@ -167,54 +159,42 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
-		final DivergenceDA _fidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
+		final DivergenceDA _fidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION);
 		_fidda.setConsiderCallSites(true);
 
-		final DivergenceDA _bidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
+		final DivergenceDA _bidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION);
 		_bidda.setConsiderCallSites(true);
 
 		final NonTerminationSensitiveEntryControlDA _ncda = new NonTerminationSensitiveEntryControlDA();
-		final Object[][] _dasOptions =
-			{
-				{ "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
-				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
-				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
-				{ "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "nscda", "Non-termination sensitive Entry control dependence", _ncda },
-				{
-					"nicda", "Non-termination insensitive Entry control dependence",
-					new NonTerminationInsensitiveEntryControlDA(),
-				},
-				{ "xcda", "Exit control dependence", new ExitControlDA() },
-				{ "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "frda1", "Forward Ready dependence v1", ReadyDAv1.getForwardReadyDA() },
-				{ "brda1", "Backward Ready dependence v1", ReadyDAv1.getBackwardReadyDA() },
-				{ "frda2", "Forward Ready dependence v2", ReadyDAv2.getForwardReadyDA() },
-				{ "brda2", "Backward Ready dependence v2", ReadyDAv2.getBackwardReadyDA() },
-				{ "frda3", "Forward Ready dependence v3", ReadyDAv3.getForwardReadyDA() },
-				{ "brda3", "Backward Ready dependence v3", ReadyDAv3.getBackwardReadyDA() },
-				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{
-					"fdda", "Forward Intraprocedural Divergence dependence",
-					DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION),
-				},
-				{
-					"bdda", "Backward Intraprocedural Divergence dependence",
-					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION),
-				},
-				{ "fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda },
-				{ "bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda },
-				{
-					"fpidda", "Forward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION),
-				},
-				{
-					"bpidda", "Backward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION),
-				},
-			};
+		final Object[][] _dasOptions = {
+				{"ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA()},
+				{"ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2()},
+				{"ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3()},
+				{"rbdda", "Reference based data dependence", new ReferenceBasedDataDA()},
+				{"nscda", "Non-termination sensitive Entry control dependence", _ncda},
+				{"nicda", "Non-termination insensitive Entry control dependence",
+						new NonTerminationInsensitiveEntryControlDA(),},
+				{"xcda", "Exit control dependence", new ExitControlDA()},
+				{"sda", "Synchronization dependence", new SynchronizationDA()},
+				{"frda1", "Forward Ready dependence v1", ReadyDAv1.getForwardReadyDA()},
+				{"brda1", "Backward Ready dependence v1", ReadyDAv1.getBackwardReadyDA()},
+				{"frda2", "Forward Ready dependence v2", ReadyDAv2.getForwardReadyDA()},
+				{"brda2", "Backward Ready dependence v2", ReadyDAv2.getBackwardReadyDA()},
+				{"frda3", "Forward Ready dependence v3", ReadyDAv3.getForwardReadyDA()},
+				{"brda3", "Backward Ready dependence v3", ReadyDAv3.getBackwardReadyDA()},
+				{"ida1", "Interference dependence v1", new InterferenceDAv1()},
+				{"ida2", "Interference dependence v2", new InterferenceDAv2()},
+				{"ida3", "Interference dependence v3", new InterferenceDAv3()},
+				{"fdda", "Forward Intraprocedural Divergence dependence",
+						DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION),},
+				{"bdda", "Backward Intraprocedural Divergence dependence",
+						DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION),},
+				{"fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda},
+				{"bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda},
+				{"fpidda", "Forward Interprocedural Divergence dependence",
+						InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION),},
+				{"bpidda", "Backward Interprocedural Divergence dependence",
+						InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION),},};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
@@ -231,10 +211,10 @@ public class DependencyXMLizerCLI
 		_options.addOption(_option);
 		_option = new Option("ofaforready", false, "Use OFA for ready dependence.");
 		_options.addOption(_option);
-        _option = new Option("exceptionalexits", false, "Consider exceptional exits for control dependence.");
-        _options.addOption(_option);
-        _option = new Option("commonuncheckedexceptions", false, "Consider common unchecked exceptions.");
-        _options.addOption(_option);
+		_option = new Option("exceptionalexits", false, "Consider exceptional exits for control dependence.");
+		_options.addOption(_option);
+		_option = new Option("commonuncheckedexceptions", false, "Consider common unchecked exceptions.");
+		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
@@ -271,8 +251,8 @@ public class DependencyXMLizerCLI
 			_xmlizerCLI.dumpJimple = _cl.hasOption('j');
 			_xmlizerCLI.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
 			_xmlizerCLI.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
-            _xmlizerCLI.exceptionalExits = _cl.hasOption("exceptionalexits");
-            _xmlizerCLI.commonUncheckedException = _cl.hasOption("commonuncheckedexceptions");
+			_xmlizerCLI.exceptionalExits = _cl.hasOption("exceptionalexits");
+			_xmlizerCLI.commonUncheckedException = _cl.hasOption("commonuncheckedexceptions");
 
 			final List _classNames = _cl.getArgList();
 
@@ -288,8 +268,7 @@ public class DependencyXMLizerCLI
 
 				for (final Iterator _i = _ncda.getIds().iterator(); _i.hasNext();) {
 					final Object _id = _i.next();
-					CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _id, _ncda,
-						CollectionsUtilities.HASH_SET_FACTORY);
+					MapUtils.putIntoCollectionInMapUsingFactory(_xmlizerCLI.info, _id, _ncda, SetUtils.getFactory());
 				}
 			}
 
@@ -313,16 +292,15 @@ public class DependencyXMLizerCLI
 	 * @param dependenceOptions supported by this CLI.
 	 * @param cmdLine provided by the user.
 	 * @param xmlizerCLI that will be influenced by the provided dependence analysis options.
-	 *
 	 * @return <code>false</code> if no dependence options were parsed; <code>true</code>, otherwise.
 	 */
 	private static boolean parseForDependenceOptions(final Object[][] dependenceOptions, final CommandLine cmdLine,
-		final DependencyXMLizerCLI xmlizerCLI) {
+			final DependencyXMLizerCLI xmlizerCLI) {
 		boolean _flag = false;
 
 		for (int _i = 0; _i < dependenceOptions.length; _i++) {
 			if (cmdLine.hasOption(dependenceOptions[_i][0].toString())) {
-				final Object _da = dependenceOptions[_i][2];
+				final IDependencyAnalysis _da = (IDependencyAnalysis) dependenceOptions[_i][2];
 				xmlizerCLI.das.add(_da);
 				_flag = true;
 
@@ -343,7 +321,6 @@ public class DependencyXMLizerCLI
 	 * Prints the help/usage info for this class.
 	 *
 	 * @param options is the command line option.
-	 *
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
@@ -356,16 +333,17 @@ public class DependencyXMLizerCLI
 	 */
 	private void execute() {
 		setInfoLogger(LOGGER);
-        
+
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()),
+				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
-        final IExceptionRaisingInfo _eti = new ExceptionRaisingAnalysis(getStmtGraphFactory(), _cgi, aa.getEnvironment());
+		final IExceptionRaisingInfo _eti = new ExceptionRaisingAnalysis(getStmtGraphFactory(), _cgi, aa.getEnvironment());
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
@@ -399,7 +377,7 @@ public class DependencyXMLizerCLI
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
-        info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
+		info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
@@ -427,24 +405,21 @@ public class DependencyXMLizerCLI
 		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
-        if (commonUncheckedException) {
-            final ExceptionRaisingAnalysis _t = (ExceptionRaisingAnalysis) _eti;
-            _t.setupForCommonUncheckedExceptions();
-        }
-        
+		if (commonUncheckedException) {
+			final ExceptionRaisingAnalysis _t = (ExceptionRaisingAnalysis) _eti;
+			_t.setupForCommonUncheckedExceptions();
+		}
+
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
 		_processors.add(_tgi);
-        _processors.add(_eti);
+		_processors.add(_eti);
 		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
-        writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionRaisingAnalysis) _eti).toString());
-
-		final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-		MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
-		writeInfo(_stream.toString());
+		writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionRaisingAnalysis) _eti).toString());
+		writeInfo(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor.getStatistics())));
 
 		_aliasUD.hookup(_cgipc);
 		_staticFieldUD.hookup(_cgipc);
@@ -455,12 +430,12 @@ public class DependencyXMLizerCLI
 		writeInfo("BEGIN: dependency analyses");
 
 		if (exceptionalExits) {
-            bbm = new BasicBlockGraphMgr(_eti);
-            bbm.setStmtGraphFactory(getStmtGraphFactory());
-        }
-        
-        final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());        
-		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
+			bbm = new BasicBlockGraphMgr(_eti);
+			bbm.setStmtGraphFactory(getStmtGraphFactory());
+		}
+
+		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
+		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton((MonitorAnalysis) _monitorInfo));
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
 		if (useSafeLockAnalysis) {
@@ -470,8 +445,8 @@ public class DependencyXMLizerCLI
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
 
-			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
-				final Object _id = _i2.next();
+			for (final Iterator<? extends Comparable<? extends Object>> _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
+				final Comparable<? extends Object> _id = _i2.next();
 				_ac.addAnalyses(_id, Collections.singleton(_da1));
 			}
 		}
@@ -485,7 +460,7 @@ public class DependencyXMLizerCLI
 
 			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
 				final Object _id = _i2.next();
-				CollectionsUtilities.putIntoListInMap(info, _id, _da1);
+				MapUtils.putIntoListInMap(info, _id, _da1);
 			}
 		}
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());

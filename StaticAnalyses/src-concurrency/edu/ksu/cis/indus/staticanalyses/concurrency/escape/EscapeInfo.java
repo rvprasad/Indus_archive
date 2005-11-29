@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
@@ -24,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,8 +113,8 @@ class EscapeInfo
 		} else {
 			final AliasSet _a1 = getAliasSetForIn(local1, method1);
 			final AliasSet _a2 = getAliasSetForIn(local2, method2);
-			final Collection _a1LockEntities = _a1.getLockEntities();
-			final Collection _a2LockEntities = _a2.getLockEntities();
+			final Collection<?> _a1LockEntities = _a1.getLockEntities();
+			final Collection<?> _a2LockEntities = _a2.getLockEntities();
 			_result = _a1LockEntities != null && _a2LockEntities != null
 					&& CollectionUtils.containsAny(_a1LockEntities, _a2LockEntities);
 		}
@@ -161,8 +161,8 @@ class EscapeInfo
 				_x = _trp2.getSecond().get(exit.getOp());
 			}
 
-			final Collection _xLockEntities = _x.getLockEntities();
-			final Collection _nLockEntities = _n.getLockEntities();
+			final Collection<?> _xLockEntities = _x.getLockEntities();
+			final Collection<?> _nLockEntities = _n.getLockEntities();
 			_result = _xLockEntities != null && _nLockEntities != null
 					&& CollectionUtils.containsAny(_nLockEntities, _xLockEntities);
 		}
@@ -339,12 +339,12 @@ class EscapeInfo
 		if (_result) {
 			try {
 				if (sharedAccessSort.equals(IEscapeInfo.READ_WRITE_SHARED_ACCESS)) {
-					final Collection _o1 = analysis.queryAliasSetFor(v1, sm1).getReadWriteShareEntities();
-					final Collection _o2 = analysis.queryAliasSetFor(v2, sm2).getReadWriteShareEntities();
+					final Collection<?> _o1 = analysis.queryAliasSetFor(v1, sm1).getReadWriteShareEntities();
+					final Collection<?> _o2 = analysis.queryAliasSetFor(v2, sm2).getReadWriteShareEntities();
 					_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 				} else if (sharedAccessSort.equals(IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)) {
-					final Collection _o1 = analysis.queryAliasSetFor(v1, sm1).getWriteWriteShareEntities();
-					final Collection _o2 = analysis.queryAliasSetFor(v2, sm2).getWriteWriteShareEntities();
+					final Collection<?> _o1 = analysis.queryAliasSetFor(v1, sm1).getWriteWriteShareEntities();
+					final Collection<?> _o2 = analysis.queryAliasSetFor(v2, sm2).getWriteWriteShareEntities();
 					_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 				} else {
 					throw new IllegalArgumentException("sharedAccessSort has to be either "
@@ -371,10 +371,10 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection getReadingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<?> getReadingThreadsOf(final int paramIndex, final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
-		final Collection _result;
+		final Collection<?> _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
@@ -400,8 +400,8 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection getReadingThreadsOf(final Local local, final SootMethod method) {
-		Collection _result = Collections.emptySet();
+	public Collection<?> getReadingThreadsOf(final Local local, final SootMethod method) {
+		Collection<?> _result = Collections.emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
@@ -419,12 +419,12 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOfThis(soot.SootMethod)
 	 */
-	public Collection getReadingThreadsOfThis(final SootMethod method) {
+	public Collection<?> getReadingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
-		final Collection _result;
+		final Collection<?> _result;
 
 		if (_triple != null) {
 			final MethodContext _ctxt = _triple.getFirst();
@@ -441,10 +441,10 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection getWritingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<?> getWritingThreadsOf(final int paramIndex, final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
-		final Collection _result;
+		final Collection<?> _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
@@ -470,8 +470,8 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection getWritingThreadsOf(final Local local, final SootMethod method) {
-		Collection _result = Collections.emptySet();
+	public Collection<?> getWritingThreadsOf(final Local local, final SootMethod method) {
+		Collection<?> _result = Collections.emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
@@ -489,12 +489,12 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOfThis(soot.SootMethod)
 	 */
-	public Collection getWritingThreadsOfThis(final SootMethod method) {
+	public Collection<?> getWritingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
-		final Collection _result;
+		final Collection<?> _result;
 
 		if (_triple != null) {
 			final MethodContext _ctxt = _triple.getFirst();

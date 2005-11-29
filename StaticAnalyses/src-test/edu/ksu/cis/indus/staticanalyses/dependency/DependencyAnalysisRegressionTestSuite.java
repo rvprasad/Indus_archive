@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -50,28 +49,27 @@ import junit.textui.TestRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This is the test suite used to run dependency analyses related tests using JUnit's text interface to the runner.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class DependencyAnalysisRegressionTestSuite
-  extends TestCase {
-	/** 
-	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
-	 */
-	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE =
-		"indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
+		extends TestCase {
 
-	/** 
+	/**
+	 * This is the property via which the ofa test accepts input. Refer to DepedencyAnalysisTest.properties for format.
+	 */
+	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE = "indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DependencyAnalysisRegressionTestSuite.class);
 
-	/** 
+	/**
 	 * The property that maps a dependency class to the class that should be used to test its output.
 	 */
 	private static final Properties TEST_CLASSES_PROPERTIES = new Properties();
@@ -93,28 +91,27 @@ public class DependencyAnalysisRegressionTestSuite
 		}
 	}
 
-	///CLOVER:OFF
+	// /CLOVER:OFF
 
 	/**
 	 * This is the entry point via command-line.
-	 *
+	 * 
 	 * @param args are ignored.
 	 */
 	public static void main(final String[] args) {
-		final String[] _suiteName = { DependencyAnalysisRegressionTestSuite.class.getName() };
+		final String[] _suiteName = {DependencyAnalysisRegressionTestSuite.class.getName()};
 		TestRunner.main(_suiteName);
 	}
 
-	///CLOVER:ON
+	// /CLOVER:ON
 
 	/**
-	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-	 * <code>DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE</code> system property.  Refer to
+	 * Provides the suite of tests in junit-style. This sets up the tests based on the file specified via
+	 * <code>DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE</code> system property. Refer to
 	 * <code>edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysisTest.properties</code> for the format of the
 	 * file.
-	 *
+	 * 
 	 * @return the suite of tests.
-	 *
 	 * @throws RuntimeException when <code>DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE</code> property is unspecified.
 	 */
 	public static Test suite() {
@@ -123,7 +120,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyAnalysisTest.properties via " + "-D"
-				+ DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE);
+					+ DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE);
 		}
 		setupTests(_propFileName, _suite);
 		return _suite;
@@ -131,11 +128,9 @@ public class DependencyAnalysisRegressionTestSuite
 
 	/**
 	 * Retrieves the test instance to test the given analysis instance.
-	 *
+	 * 
 	 * @param analysis is the instance whose output should be tested.
-	 *
 	 * @return the test instance.
-	 *
 	 * @pre analysis != null
 	 */
 	private static Test getDATestFor(final IDependencyAnalysis analysis) {
@@ -167,12 +162,10 @@ public class DependencyAnalysisRegressionTestSuite
 
 	/**
 	 * Sets up the test fixture.
-	 *
+	 * 
 	 * @param propFileName is the name of the file with the data to setup the test fixture.
 	 * @param suite will contain new tests based on the fixture data (upon return).
-	 *
 	 * @throws IllegalArgumentException when the fixture data is invalid.
-	 *
 	 * @pre propFileName != null and suite != null
 	 */
 	private static void setupTests(final String propFileName, final TestSuite suite) {
@@ -203,10 +196,13 @@ public class DependencyAnalysisRegressionTestSuite
 						suite.addTest(_temp);
 					} else {
 						_das.clear();
-						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
-						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
-						_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
-						_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
+						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION));
+						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION));
+						_das
+								.add(InterProceduralDivergenceDA
+										.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION));
+						_das.add(InterProceduralDivergenceDA
+								.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION));
 						_das.add(new NonTerminationSensitiveEntryControlDA());
 						_das.add(new NonTerminationInsensitiveEntryControlDA());
 						_das.add(new ExitControlDA());
@@ -247,8 +243,8 @@ public class DependencyAnalysisRegressionTestSuite
 							final Object _da = _j.next();
 
 							if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
-								final XMLBasedDependencyAnalysisTest _xmlTest =
-									new XMLBasedDependencyAnalysisTest((IDependencyAnalysis) _da, _xmlizer);
+								final XMLBasedDependencyAnalysisTest _xmlTest = new XMLBasedDependencyAnalysisTest(
+										(IDependencyAnalysis) _da, _xmlizer);
 								_temp.addTest(_xmlTest);
 							}
 						}
@@ -258,8 +254,8 @@ public class DependencyAnalysisRegressionTestSuite
 						_temp.addTestSuite(FATest.class);
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-						final DependencyAnalysisTestSetup _test =
-							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
+						final DependencyAnalysisTestSetup _test = new DependencyAnalysisTestSetup(_temp, _classNames,
+								_classpath);
 						_test.setIdGenerator(new UniqueJimpleIDGenerator());
 						_test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 						_test.setStmtGraphFactory(_stmtGraphFactory);

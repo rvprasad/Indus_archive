@@ -41,7 +41,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class performs generic control flow analysis.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -53,7 +53,7 @@ public final class CFGAnalysis {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CFGAnalysis.class);
 
-	/** 
+	/**
 
 	 * This manages the basic block graphs of the methods being analyzed.
 	 */
@@ -66,14 +66,14 @@ public final class CFGAnalysis {
 
 	/**
 	 * This is a cache of the collection of method invocation statements in methods.
-	 * 
+	 *
 	 * @invariant method2EnclosingInvokingStmtsCache.oclIsKindOf.values()->forall(o | o->forall(p | p.containsInvokeExpr()))
 	 */
 	private Map<SootMethod, List<Stmt>> method2EnclosingInvokingStmtsCache = new HashMap<SootMethod, List<Stmt>>();
 
 	/**
 	 * Creates a new CFGAnalysis object.
-	 * 
+	 *
 	 * @param cgiParam provides the call-graph information.
 	 * @param bbmParam manages the basic block graphs of the methods being analyzed.
 	 * @pre cgiParam != null and bbmParam != null
@@ -85,7 +85,7 @@ public final class CFGAnalysis {
 
 	/**
 	 * Checks if the given new expression is enclosed in a loop.
-	 * 
+	 *
 	 * @param newStmt is the statement of the allocation site.
 	 * @param method in which<code>newStmt</code> occurs.
 	 * @return <code>true</code> if the given allocation site is loop enclosed; <code>false</code>, otherwise.
@@ -105,7 +105,7 @@ public final class CFGAnalysis {
 	/**
 	 * Checks if there is path for control between <code>targetmethod</code> and <code>stmt</code> in <code>method</code>
 	 * via intra-procedural control flow and call chains.
-	 * 
+	 *
 	 * @param method in which control starts.
 	 * @param stmt at which control starts.
 	 * @param targetMethod which the control should reach.
@@ -123,7 +123,7 @@ public final class CFGAnalysis {
 					+ ", SootMethod targetMethod = " + targetMethod + ", boolean forward = " + forward
 					+ ", boolean exclusive = " + exclusive + ") - BEGIN");
 		}
-		
+
 		boolean _result = false;
 		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
 		final BasicBlock _bbDef = _bbg.getEnclosingBlock(stmt);
@@ -158,18 +158,18 @@ public final class CFGAnalysis {
 				_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 			}
 		}
-		
-		
+
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("doesControlFlowPathExistsBetween() - END - return value" + _result);
 		}
-		
+
 		return _result;
 	}
 
 	/**
 	 * Checks if the given destination statement is reachable from the given source statement in the given method.
-	 * 
+	 *
 	 * @param srcStmt of interest.
 	 * @param destStmt of interest.
 	 * @param method in which <code>defStmt</code> and <code>useStmt</code> occur.
@@ -184,7 +184,7 @@ public final class CFGAnalysis {
 		final BasicBlock _bbSrc = _bbg.getEnclosingBlock(srcStmt);
 
 		if (_bbDest == _bbSrc) {
-			final List _sl = _bbDest.getStmtsOf();
+			final List<Stmt> _sl = _bbDest.getStmtsOf();
 			_result = _sl.indexOf(srcStmt) < _sl.indexOf(destStmt);
 		} else {
 			_result = _bbg.isReachable(_bbSrc, _bbDest, true);
@@ -196,7 +196,7 @@ public final class CFGAnalysis {
 	 * Checks if there is a control path between the <code>srcMethod</code> and <code>destMethod</code> through control
 	 * flow path from src-method invoking site to dest-method invoking site in a method that is ancestor of both src and dest
 	 * methods.
-	 * 
+	 *
 	 * @param srcMethod is the source method.
 	 * @param destMethod is the destination method.
 	 * @return <code>true</code> if there is a control path; <code>false</code>, otherwise.
@@ -227,7 +227,7 @@ public final class CFGAnalysis {
 	 * Checks if <code>method</code> has calls to <code>srcMethod</code> and <code>destMethod</code> and that the
 	 * callsite to the dest site is reachable from the call site to the src method. We shall refer to such methods as
 	 * interprocedural data flow join points.
-	 * 
+	 *
 	 * @param method that connects the interprocedural data flow paths.
 	 * @param srcMethod is the source method.
 	 * @param destMethod is the destination method.
@@ -238,10 +238,10 @@ public final class CFGAnalysis {
 	public boolean doesMethodLiesOnTheDataFlowPathBetween(final SootMethod method, final SootMethod srcMethod,
 			final SootMethod destMethod) {
 		boolean _result = false;
-		final Iterator _invokingStmtIterator = getInvokingStmtIteratorFor(method);
+		final Iterator<Stmt> _invokingStmtIterator = getInvokingStmtIteratorFor(method);
 
-		for (final Iterator _j = _invokingStmtIterator; _j.hasNext() && !_result;) {
-			final Stmt _stmt = (Stmt) _j.next();
+		for (final Iterator<Stmt> _j = _invokingStmtIterator; _j.hasNext() && !_result;) {
+			final Stmt _stmt = _j.next();
 
 			if (cgi.isCalleeReachableFromCallSite(srcMethod, _stmt, method)) {
 				_result = doesControlFlowPathExistsBetween(method, _stmt, destMethod, true, true);
@@ -253,7 +253,7 @@ public final class CFGAnalysis {
 	/**
 	 * Checks if the given soot method is executed multiple times in the system. It may be due to loop enclosed call-sites,
 	 * multiple call sites, or call-sites in call graph SCCs (with more than one element).
-	 * 
+	 *
 	 * @param method is the method.
 	 * @return <code>true</code> if the given method or any of it's ancestors in the call tree have multiple or
 	 *         multiply-executed call sites; <code>false</code>, otherwise.
@@ -261,13 +261,13 @@ public final class CFGAnalysis {
 	 */
 	public boolean executedMultipleTimes(final SootMethod method) {
 		boolean _result = false;
-		final Collection _callers = cgi.getCallers(method);
+		final Collection<CallTriple> _callers = cgi.getCallers(method);
 
 		if (_callers.size() > 1) {
 			_result = true;
 		} else if (_callers.size() == 1) {
-			for (final Iterator _i = cgi.getSCCs(true).iterator(); _i.hasNext() && !_result;) {
-				final Collection _scc = (Collection) _i.next();
+			for (final Iterator<List<SootMethod>> _i = cgi.getSCCs(true).iterator(); _i.hasNext() && !_result;) {
+				final Collection<SootMethod> _scc =  _i.next();
 
 				if (_scc.contains(method) && _scc.size() > 1) {
 					_result = true;
@@ -275,7 +275,7 @@ public final class CFGAnalysis {
 			}
 
 			if (!_result) {
-				final CallTriple _ctrp = (CallTriple) _callers.iterator().next();
+				final CallTriple _ctrp = _callers.iterator().next();
 				final SootMethod _caller = _ctrp.getMethod();
 				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_caller);
 
@@ -292,7 +292,7 @@ public final class CFGAnalysis {
 	/**
 	 * Checks if the given statement is executed multiple times as a result of being loop-enclosed or occuring in a method
 	 * that is executed multiple times.
-	 * 
+	 *
 	 * @param stmt is the statement.
 	 * @param caller is the method in which <code>stmt</code> occurs.
 	 * @return <code>true</code> if <code>stmt</code> is executed multiple times; <code>false</code>, otherwise.
@@ -305,7 +305,7 @@ public final class CFGAnalysis {
 
 	/**
 	 * Checks if the destination site is reachable from the source site via an interprocedural control flow path.
-	 * 
+	 *
 	 * @param srcMethod contains the def site.
 	 * @param srcStmt is the def site.
 	 * @param destMethod contains the use site.
@@ -354,7 +354,7 @@ public final class CFGAnalysis {
 
 	/**
 	 * Checks if the given methods occur in the same SCC in the call graph of the system.
-	 * 
+	 *
 	 * @param m is one of the methods.
 	 * @param p is another method.
 	 * @return <code>true</code> if the given methods occur in the same SCC; <code>false</code>, otherwise.
@@ -363,8 +363,8 @@ public final class CFGAnalysis {
 	public boolean notInSameSCC(final SootMethod m, final SootMethod p) {
 		boolean _result = true;
 
-		for (final Iterator _i = cgi.getSCCs(true).iterator(); _i.hasNext() && _result;) {
-			final Collection _scc = (Collection) _i.next();
+		for (final Iterator<List<SootMethod>> _i = cgi.getSCCs(true).iterator(); _i.hasNext() && _result;) {
+			final Collection<SootMethod> _scc =  _i.next();
 
 			if (_scc.contains(m)) {
 				_result = !_scc.contains(p);
@@ -376,7 +376,7 @@ public final class CFGAnalysis {
 	/**
 	 * Checks if the given node occurs in a cycle in the graph. This may be sufficient in some cases rather than capturing the
 	 * cycle itself.
-	 * 
+	 *
 	 * @param graph in which <code>node</code> occurs.
 	 * @param node which may occur in a cycle.
 	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
@@ -394,7 +394,7 @@ public final class CFGAnalysis {
 
 	/**
 	 * Retrieves the iterator on the collection of statements in the method that invoke methods.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return an iterator.
 	 * @pre method != null

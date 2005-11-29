@@ -56,7 +56,7 @@ import soot.jimple.VirtualInvokeExpr;
  * <p>
  * The arguments to any of the overridden methods cannot be <code>null</code>.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -90,7 +90,7 @@ final class ValueProcessor
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param analysis associated with this instance.
 	 * @pre analysis != null
 	 */
@@ -101,7 +101,7 @@ final class ValueProcessor
 	/**
 	 * Provides the alias set associated with the array element being referred. All elements in a dimension of an array are
 	 * abstracted by a single alias set.
-	 * 
+	 *
 	 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 	 */
 	@Override public void caseArrayRef(final ArrayRef v) {
@@ -209,7 +209,7 @@ final class ValueProcessor
 	/**
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
-	@Override public void caseThisRef(@SuppressWarnings ("unused") final ThisRef v) {
+	@Override public void caseThisRef(@SuppressWarnings("unused") final ThisRef v) {
 		final AliasSet _as = ecba.methodCtxtCache.getThisAS();
 		setResult(_as);
 	}
@@ -225,16 +225,16 @@ final class ValueProcessor
 	 * Creates an alias set if <code>o</code> is of type <code>Value</code>. It uses <code>AliasSet</code> to decide if
 	 * the given type requires an alias set. If not, <code>null</code> is provided as the alias set. This is also the case
 	 * when <code>o</code> is not of type <code>Value</code>.
-	 * 
+	 *
 	 * @param o is a piece of IR to be processed.
 	 */
-	@Override public void defaultCase(@SuppressWarnings ("unused") final Object o) {
+	@Override public void defaultCase(@SuppressWarnings("unused") final Object o) {
 		setResult(null);
 	}
 
 	/**
 	 * Process the given value/expression.
-	 * 
+	 *
 	 * @param value to be processed.
 	 * @pre value != null
 	 */
@@ -247,7 +247,7 @@ final class ValueProcessor
 
 	/**
 	 * Sets the value of <code>markLocals</code>.
-	 * 
+	 *
 	 * @param value the new value of <code>markLocals</code>.
 	 * @return the previous value of markLocals.
 	 */
@@ -259,7 +259,7 @@ final class ValueProcessor
 
 	/**
 	 * Sets the value of <code>rhs</code>.
-	 * 
+	 *
 	 * @param b the new value of <code>rhs</code>.
 	 * @return the previous value of rhs.
 	 */
@@ -271,7 +271,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the arguments of the invoke expression.
-	 * 
+	 *
 	 * @param v is the invoke expressions containing the arguments to be processed.
 	 * @return the list of alias sets corresponding to the arguments.
 	 * @pre v != null
@@ -304,7 +304,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the callees in a caller.
-	 * 
+	 *
 	 * @param callees is the collection of methods called.
 	 * @param caller is the calling method.
 	 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
@@ -312,8 +312,8 @@ final class ValueProcessor
 	 * @throws RuntimeException when cloning fails.
 	 * @pre callees != null and caller != null and primaryAliasSet != null and MethodContext != null
 	 */
-	private void processCallees(final Collection<SootMethod> callees, final SootMethod caller, final AliasSet primaryAliasSet,
-			final MethodContext siteContext) {
+	private void processCallees(final Collection<SootMethod> callees, final SootMethod caller,
+			final AliasSet primaryAliasSet, final MethodContext siteContext) {
 		for (final Iterator<SootMethod> _i = callees.iterator(); _i.hasNext();) {
 			final SootMethod _callee = _i.next();
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = ecba.method2Triple
@@ -374,7 +374,7 @@ final class ValueProcessor
 
 	/**
 	 * Processes the fields.
-	 * 
+	 *
 	 * @param t type of the access expression.
 	 * @param base is the alias set of the primary.
 	 * @param fieldSig is the signature of the accessed field.
@@ -405,7 +405,7 @@ final class ValueProcessor
 
 	/**
 	 * Processes invoke expressions/call-sites.
-	 * 
+	 *
 	 * @param expr invocation expresison to be processed.
 	 */
 	private void processInvokeExpr(final InvokeExpr expr) {
@@ -446,7 +446,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the called method for <code>notify(), nofityAll(),</code>, and variants of <code>wait</code> methods.
-	 * 
+	 *
 	 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
 	 * @param callee being called.
 	 * @pre primaryAliasSet != null and callee != null
@@ -462,7 +462,7 @@ final class ValueProcessor
 
 	/**
 	 * Helper method to record threads in which alias is accessed.
-	 * 
+	 *
 	 * @param as is the alias set to be marked.
 	 * @pre as != null
 	 */

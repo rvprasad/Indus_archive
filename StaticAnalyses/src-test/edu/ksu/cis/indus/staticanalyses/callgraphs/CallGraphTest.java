@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -28,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import soot.SootMethod;
 
@@ -249,7 +248,7 @@ public class CallGraphTest
 				final Collection _scc2 = (Collection) _j.next();
 
 				if (_scc1 != _scc2) {
-					assertTrue(CollectionUtils.intersection(_scc1, _scc2).isEmpty());
+					assertTrue(SetUtils.intersection(_scc1, _scc2).isEmpty());
 				}
 			}
 		}
