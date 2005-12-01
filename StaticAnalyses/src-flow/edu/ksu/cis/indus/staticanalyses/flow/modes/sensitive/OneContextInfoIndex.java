@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * information which can be used to divide summary sets, as context information. So, a context can be made up of many such
  * peices of information. This class can encapsulate only one such peice of context information. For example, an instance can
  * encapsulate either the calling stack or the program point as the context information, but not both.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <C> DOCUMENT ME!
@@ -43,7 +43,7 @@ public class OneContextInfoIndex<V, C>
 
 	/**
 	 * Creates a new <code>OneContextInfoIndex</code> instance.
-	 * 
+	 *
 	 * @param v the value whose variant is identified by this index.
 	 * @param c the context in which <code>value</code>'s variant is identified by this index.
 	 */
@@ -55,7 +55,7 @@ public class OneContextInfoIndex<V, C>
 	/**
 	 * Compares this index with a given index. The objects are equal when the <code>value</code> and <code>context</code>
 	 * are equal.
-	 * 
+	 *
 	 * @param index the index to be compared with.
 	 * @return <code>true</code> if this index is equal to <code>index</code>; <code>false</code> otherwise.
 	 */
@@ -63,7 +63,7 @@ public class OneContextInfoIndex<V, C>
 		boolean _result = false;
 
 		if (index != null && index instanceof OneContextInfoIndex) {
-			final OneContextInfoIndex _d = (OneContextInfoIndex) index;
+			final OneContextInfoIndex<?, ?> _d = (OneContextInfoIndex) index;
 			_result = (this == index) || ((value == _d.value) || ((value != null) && value.equals(_d.value)))
 					&& ((contextInfo == _d.contextInfo) || ((contextInfo != null) && contextInfo.equals(_d.contextInfo)));
 		}
@@ -72,7 +72,7 @@ public class OneContextInfoIndex<V, C>
 
 	/**
 	 * Generates a hash code for this object.
-	 * 
+	 *
 	 * @return the hash code for this object.
 	 */
 	@Override public int hashCode() {
@@ -90,7 +90,7 @@ public class OneContextInfoIndex<V, C>
 
 	/**
 	 * Returns the stringized form of this object.
-	 * 
+	 *
 	 * @return returns the stringized form of this object.
 	 */
 	@Override public String toString() {

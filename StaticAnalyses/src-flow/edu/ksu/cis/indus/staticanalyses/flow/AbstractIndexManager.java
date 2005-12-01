@@ -31,7 +31,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStr
  */
 public abstract class AbstractIndexManager<I extends IIndex<I>, O>
   implements IIndexManager<I, O> {
-	/** 
+	/**
 	 * The strategy used to manage indices.
 	 */
 	private final IIndexManagementStrategy<I> strategizedIndexMgr;
@@ -41,19 +41,6 @@ public abstract class AbstractIndexManager<I extends IIndex<I>, O>
 	 */
 	public AbstractIndexManager() {
 		strategizedIndexMgr = Constants.getIndexManagementStrategy();
-	}
-
-	/**
-	 * This operation is unsupported.
-	 *
-	 * @param o is ignored.
-	 *
-	 * @return (This method will raise an exception.)
-	 *
-	 * @throws UnsupportedOperationException if the operation is not supported.
-	 */
-	public Object getClone(@SuppressWarnings("unused") final Object...o) {
-		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
 	/**

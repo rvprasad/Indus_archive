@@ -33,7 +33,7 @@ import soot.Value;
  * @param <RE> DOCUMENT ME!
  * @param <SS> DOCUMENT ME!
  */
-class MethodVariantManager<N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>>
+class MethodVariantManager<N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch>
 		extends AbstractVariantManager<IMethodVariant<N, LE, RE, SS>, SootMethod, N> {
 
 	/**

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -60,7 +59,6 @@ import soot.jimple.ThisRef;
 import soot.jimple.UnopExpr;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * The expression visitor used in flow insensitive mode of object flow analysis.
  *
@@ -68,23 +66,23 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$
  */
 class FlowInsensitiveExprSwitch
-  extends AbstractExprSwitch<FlowInsensitiveExprSwitch, OFAFGNode> {
-	/** 
+		extends AbstractExprSwitch<FlowInsensitiveExprSwitch, Value, OFAFGNode> {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlowInsensitiveExprSwitch.class);
 
-	/** 
+	/**
 	 * The token manager to be used.
 	 */
-	protected final ITokenManager tokenMgr;
+	protected final ITokenManager<?, Value> tokenMgr;
 
 	/**
 	 * Creates a new <code>FlowInsensitiveExprSwitch</code> instance.
 	 *
 	 * @param statementSwitch the statement visitor which uses this object.
 	 * @param nodeConnector the connector to be used to connect ast and non-ast flow graph node.
-	 *
 	 * @pre statementSwitch != null and nodeConnector != null
 	 */
 	public FlowInsensitiveExprSwitch(final IStmtSwitch statementSwitch, final IFGNodeConnector<OFAFGNode> nodeConnector) {
@@ -98,25 +96,10 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Returns a new instance of the this class.
-	 *
-	 * @param o the statement visitor which uses the new instance.
-	 *
-	 * @return the new instance of this class.
-	 *
-	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
-	 * @post result != null
-	 */
-	@Override public FlowInsensitiveExprSwitch getClone(final Object... o) {
-		return new FlowInsensitiveExprSwitch((IStmtSwitch) o[0], connector);
-	}
-
-	/**
-	 * Processes array access expressions.  Current implementation processes the primary and connects a node associated with
+	 * Processes array access expressions. Current implementation processes the primary and connects a node associated with
 	 * the primary to a <code>FGAccessNode</code> which monitors this access expressions for new values in the primary.
 	 *
 	 * @param e the array access expressions.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseArrayRef(final ArrayRef e) {
@@ -126,8 +109,8 @@ class FlowInsensitiveExprSwitch
 		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 
-		final ITokenProcessingWork _work =
-			new ArrayAccessExprWork(method, context, _ast, connector, tokenMgr.getNewTokenSet());
+		final ITokenProcessingWork _work = new ArrayAccessExprWork<OFAFGNode>(method, context, _ast, connector, tokenMgr
+				.getNewTokenSet());
 		final OFAFGNode _temp = new FGAccessNode(_work, fa, tokenMgr);
 		_baseNode.addSucc(_temp);
 		process(e.getIndexBox());
@@ -138,16 +121,15 @@ class FlowInsensitiveExprSwitch
 	 * Processes the cast expression. Current implementation processes the expression being cast.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseCastExpr(final CastExpr e) {
 		process(e.getOpBox());
 
 		if (Util.isReferenceType(e.getCastType())) {
-			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
+			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at
 			// run-time.
-			final OFAFGNode _base =  getFlowNode();
+			final OFAFGNode _base = getFlowNode();
 			final OFAFGNode _cast = method.getASTNode(e, context);
 			MethodVariant.setOutFilterOfBasedOn(_cast, e.getType(), tokenMgr);
 			_base.addSucc(_cast);
@@ -156,10 +138,9 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the given exception reference expression.  This is required to thread the flow of exception in the system.
+	 * Processes the given exception reference expression. This is required to thread the flow of exception in the system.
 	 *
 	 * @param e is the caught exception reference.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseCaughtExceptionRef(final CaughtExceptionRef e) {
@@ -172,18 +153,17 @@ class FlowInsensitiveExprSwitch
 	 * Processes the field expression in a fashion similar to array access expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseInstanceFieldRef(final InstanceFieldRef e) {
 		process(e.getBaseBox());
 
-		final OFAFGNode _baseNode =  getFlowNode();
+		final OFAFGNode _baseNode = getFlowNode();
 		final OFAFGNode _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 
-		final ITokenProcessingWork _work =
-			new FieldAccessExprWork(method, context, _ast, connector, tokenMgr.getNewTokenSet());
+		final ITokenProcessingWork _work = new FieldAccessExprWork<OFAFGNode>(method, context, _ast, connector, tokenMgr
+				.getNewTokenSet());
 		final FGAccessNode _temp = new FGAccessNode(_work, fa, tokenMgr);
 		_baseNode.addSucc(_temp);
 		setFlowNode(_ast);
@@ -193,7 +173,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseInstanceOfExpr(final InstanceOfExpr e) {
@@ -204,7 +183,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr e) {
@@ -215,7 +193,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the local expression.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre != null
 	 */
 	@Override public void caseLocal(final Local e) {
@@ -225,10 +202,9 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the new array expression.  This injects a value into the flow graph.
+	 * Processes the new array expression. This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseNewArrayExpr(final NewArrayExpr e) {
@@ -254,10 +230,9 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the new expression.  This injects a value into the flow graph.
+	 * Processes the new expression. This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseNewExpr(final NewExpr e) {
@@ -267,11 +242,10 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the new array expression.  This injects values into the flow graph for each dimension for which the size is
+	 * Processes the new array expression. This injects values into the flow graph for each dimension for which the size is
 	 * specified.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
@@ -288,7 +262,7 @@ class FlowInsensitiveExprSwitch
 
 		for (int _i = _arrayType.numDimensions, _sizes = e.getSizeCount(); _i > 0 && _sizes > 0; _i--, _sizes--) {
 			final ArrayType _aType = ArrayType.v(_baseType, _i);
-			final ValuedVariant _array = fa.getArrayVariant(_aType, context);
+			final ValuedVariant<OFAFGNode> _array = fa.getArrayVariant(_aType, context);
 			process(e.getSizeBox(_sizes - 1));
 			_array.getFGNode().injectValue(e);
 		}
@@ -303,10 +277,9 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes <code>null</code>.  This injects a value into the flow graph.
+	 * Processes <code>null</code>. This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseNullConstant(final NullConstant e) {
@@ -319,7 +292,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes parameter reference expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseParameterRef(final ParameterRef e) {
@@ -339,7 +311,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseStaticFieldRef(final StaticFieldRef e) {
@@ -356,7 +327,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseStaticInvokeExpr(final StaticInvokeExpr e) {
@@ -364,10 +334,9 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes a string constant.  This injects a value into the flow graph.
+	 * Processes a string constant. This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseStringConstant(final StringConstant e) {
@@ -377,14 +346,13 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the <code>this</code> variable.  Current implementation returns the node associated with the enclosing
+	 * Processes the <code>this</code> variable. Current implementation returns the node associated with the enclosing
 	 * method.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
-	@Override public void caseThisRef(final ThisRef e) {
+	@Override public void caseThisRef(@SuppressWarnings("unused") final ThisRef e) {
 		setFlowNode(method.queryThisNode());
 	}
 
@@ -392,7 +360,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void caseVirtualInvokeExpr(final VirtualInvokeExpr e) {
@@ -403,7 +370,6 @@ class FlowInsensitiveExprSwitch
 	 * Processes cases which are not dealt by this visitor methods or delegates to suitable methods depending on the type.
 	 *
 	 * @param o the expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	@Override public void defaultCase(final Object o) {
@@ -422,11 +388,22 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
+	 * Returns a new instance of the this class.
+	 *
+	 * @param o the statement visitor which uses the new instance.
+	 * @return the new instance of this class.
+	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
+	 * @post result != null
+	 */
+	@Override public FlowInsensitiveExprSwitch getClone(final Object... o) {
+		return new FlowInsensitiveExprSwitch((IStmtSwitch) o[0], connector);
+	}
+
+	/**
 	 * Processes the invoke expressions that require resolution by creating nodes to various data components present at the
 	 * call-site and making them available to be connected when new method implementations are plugged in.
 	 *
 	 * @param e the invoke expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	protected void processInstanceInvokeExpr(final InstanceInvokeExpr e) {
@@ -436,7 +413,7 @@ class FlowInsensitiveExprSwitch
 		fa.processClass(e.getMethod().getDeclaringClass());
 		process(e.getBaseBox());
 
-		final OFAFGNode _receiverNode =  getFlowNode();
+		final OFAFGNode _receiverNode = getFlowNode();
 		MethodVariant.setOutFilterOfBasedOn(_receiverNode, e.getBase().getType(), tokenMgr);
 
 		for (int _i = 0; _i < e.getArgCount(); _i++) {
@@ -445,9 +422,9 @@ class FlowInsensitiveExprSwitch
 
 		final InvocationVariant<OFAFGNode> _iv = (InvocationVariant) method.getASTVariant(e, context);
 		final OFAFGNode _ast = _iv.getFGNode();
-		final IType _baseType =
-			tokenMgr.getTypeManager().getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
-		final ITokenFilter _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+		final IType _baseType = tokenMgr.getTypeManager()
+				.getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
+		final ITokenFilter<?, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
 		_ast.setOutFilter(_baseFilter);
 
 		if (Util.isReferenceType(e.getMethod().getReturnType())) {
@@ -457,7 +434,7 @@ class FlowInsensitiveExprSwitch
 		}
 
 		final IType _tokenTypeForRepType = tokenMgr.getTypeManager().getTokenTypeForRepType(e.getBase().getType());
-		final ITokenFilter _typeBasedFilter = tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
+		final ITokenFilter<?, Value> _typeBasedFilter = tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
 		final ITokenProcessingWork _work = new InvokeExprWork(method, context, tokenMgr.getNewTokenSet());
 		final FGAccessNode _baseNode = new FGAccessNode(_work, fa, tokenMgr);
 		_baseNode.setInFilter(_typeBasedFilter);
@@ -469,11 +446,10 @@ class FlowInsensitiveExprSwitch
 	}
 
 	/**
-	 * Processes the invoke expressions that do not require resolution by creating nodes to various data components present
-	 * at the call-site and making them available to be connected when new method implementations are plugged in.
+	 * Processes the invoke expressions that do not require resolution by creating nodes to various data components present at
+	 * the call-site and making them available to be connected when new method implementations are plugged in.
 	 *
 	 * @param e the invoke expression to be processed.
-	 *
 	 * @pre e != null
 	 */
 	private void processInvokedMethod(final InvokeExpr e) {
@@ -488,7 +464,7 @@ class FlowInsensitiveExprSwitch
 			final OFAFGNode _thisNode = _callee.queryThisNode();
 			process(_expr.getBaseBox());
 
-			final OFAFGNode _thisArgNode =  getFlowNode();
+			final OFAFGNode _thisArgNode = getFlowNode();
 			MethodVariant.setOutFilterOfBasedOn(_thisArgNode, _expr.getBase().getType(), tokenMgr);
 
 			_thisArgNode.addSucc(_thisNode);
@@ -498,23 +474,23 @@ class FlowInsensitiveExprSwitch
 			if (Util.isReferenceType(e.getArg(_i).getType())) {
 				process(e.getArgBox(_i));
 
-				final OFAFGNode _argNode =  getFlowNode();
+				final OFAFGNode _argNode = getFlowNode();
 				MethodVariant.setOutFilterOfBasedOn(_argNode, e.getArg(_i).getType(), tokenMgr);
 
 				_argNode.addSucc(_callee.queryParameterNode(_i));
 			}
 		}
 
-		final InvocationVariant<OFAFGNode> _iv =  (InvocationVariant) method.getASTVariant(e, context);
-        final OFAFGNode _throwNode = _iv.getThrowNode();		 
-		final IType _baseType =
-			tokenMgr.getTypeManager().getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
-		final ITokenFilter _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+		final InvocationVariant<OFAFGNode> _iv = (InvocationVariant) method.getASTVariant(e, context);
+		final OFAFGNode _throwNode = _iv.getThrowNode();
+		final IType _baseType = tokenMgr.getTypeManager()
+				.getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
+		final ITokenFilter<?, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
 		_throwNode.setOutFilter(_baseFilter);
-        _callee.queryThrownNode().addSucc(_throwNode);
+		_callee.queryThrownNode().addSucc(_throwNode);
 
 		if (Util.isReferenceType(e.getMethod().getReturnType())) {
-            final OFAFGNode _ast = _iv.getFGNode();
+			final OFAFGNode _ast = _iv.getFGNode();
 			MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 			_callee.queryReturnNode().addSucc(_ast);
 			setFlowNode(_ast);

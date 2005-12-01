@@ -57,7 +57,7 @@ import soot.tagkit.Tag;
  * The instance of the framework which controls and manages the analysis on execution. It acts the central repository for
  * information pertaining to various components of the framework when the analysis is in progress. It also serves as the
  * central repository for various instances of the framework at a given time.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -72,7 +72,7 @@ import soot.tagkit.Tag;
  * @param <SS> DOCUMENT ME!
  * @param <SFI> DOCUMENT ME!
  */
-public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? extends IIndex, ArrayType>, AI extends IIndexManager<? extends IIndex, Value>, IFI extends IIndexManager<? extends IIndex, SootField>, LE extends IExprSwitch<LE, N>, MI extends IIndexManager<? extends IIndex, SootMethod>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>, SFI extends IIndexManager<? extends IIndex, SootField>>
+public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? extends IIndex, ArrayType>, AI extends IIndexManager<? extends IIndex, Value>, IFI extends IIndexManager<? extends IIndex, SootField>, LE extends IExprSwitch<N>, MI extends IIndexManager<? extends IIndex, SootMethod>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, SFI extends IIndexManager<? extends IIndex, SootField>>
 		implements IEnvironment, IWorkBagProvider {
 
 	/**
@@ -82,7 +82,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * This is the collection of methods that serve as entry points into the system being analyzed.
-	 * 
+	 *
 	 * @invariant rootMethods != null
 	 */
 	protected final Collection<SootMethod> rootMethods = new HashSet<SootMethod>();
@@ -94,7 +94,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * The analyzer associated with this instance of the framework.
-	 * 
+	 *
 	 * @invariant analyzer != null
 	 */
 	private final IAnalyzer analyzer;
@@ -156,7 +156,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * The token manager that manages the tokens whose flow is instrumented by the flow analysis.
-	 * 
+	 *
 	 * @invariant tokenManager != null
 	 */
 	private final ITokenManager<?, SYM> tokenManager;
@@ -168,7 +168,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Creates a new <code>FA</code> instance.
-	 * 
+	 *
 	 * @param theAnalyzer to be associated with this instance of the framework.
 	 * @param tagName is the name of the tag that will be tacked onto parts of the AST processed by this framework instance.
 	 *            The guarantee is that all elements so tagged were processed by the framework instance. The inverse need not
@@ -189,7 +189,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the active part of this object.
-	 * 
+	 *
 	 * @return the active part.
 	 */
 	public IActivePart getActivePart() {
@@ -198,7 +198,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Retrieves the analyzer in whose context this flow analysis instance is functioning.
-	 * 
+	 *
 	 * @return the associated analysis.
 	 * @post result != null
 	 */
@@ -209,7 +209,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * Returns the variant associated with the given array type in the context captured by <code>analyzer</code>. If none
 	 * exists, a new variant is created.
-	 * 
+	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
 	 * @pre a != null
@@ -222,7 +222,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * Returns the variant associated with the given array type in the given context. If none exists, a new variant is
 	 * created.
-	 * 
+	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant corresponding to <code>a</code> in context <code>context</code>.
@@ -236,7 +236,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the Jimple representation of the given class.
-	 * 
+	 *
 	 * @param className the name of the class whose Jimple representation is to be returned.
 	 * @return the requested class.
 	 * @pre className != null
@@ -247,7 +247,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the classes of the system that were analyzed/accessed by this analysis.
-	 * 
+	 *
 	 * @return a collection of classes.
 	 * @post result != null
 	 */
@@ -258,7 +258,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * Returns the variant associated with the given field in the context captured by <code>analyzer</code>. If none
 	 * exists, a new variant is created.
-	 * 
+	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.
 	 * @pre sf != null
@@ -270,7 +270,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the variant associated with the given field in the given context. If none exists, a new variant is created.
-	 * 
+	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant associated with the given field in the given context.
@@ -293,19 +293,19 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns an LHS expression visitor as created by the factory.
-	 * 
+	 *
 	 * @param e the statement visitor which parameterizes the expression visitor.
 	 * @return a new LHS expression visitor.
 	 * @pre e != null
 	 */
-	public final LE getLHSExpr(final IStmtSwitch e) {
+	public final LE getLHSExpr(final SS e) {
 		return modeFactory.getLHSExprVisitor(e);
 	}
 
 	/**
 	 * Returns a method variant correpsoding to the given method in the context <code>analyzer.context</code>. If none
 	 * exists, a new variant is created.
-	 * 
+	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>.
 	 * @pre sm != null
@@ -318,7 +318,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * Returns a method variant corresponding to the given method in the given context. If none exists, a new variant is
 	 * created.
-	 * 
+	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @param context the context of the requested variant.
 	 * @return the variant corresonding to <code>sm</code> in the given context.
@@ -331,7 +331,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the flow graph node as created by the factory.
-	 * 
+	 *
 	 * @return a new flow graph node.
 	 */
 	public final N getNewFGNode() {
@@ -340,12 +340,12 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns a RHS expression visitor as created by the factory.
-	 * 
+	 *
 	 * @param e the statement visitor which parameterizes the expression visitor.
 	 * @return a new RHS expression visitor.
 	 * @pre e != null
 	 */
-	public final RE getRHSExpr(final IStmtSwitch e) {
+	public final RE getRHSExpr(final SS e) {
 		return modeFactory.getRHSExprVisitor(e);
 	}
 
@@ -358,7 +358,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Retrieves the value in <code>sccOptimizationInterval</code>.
-	 * 
+	 *
 	 * @return the value in <code>sccOptimizationInterval</code>.
 	 */
 	public final int getSccOptimizationInterval() {
@@ -367,7 +367,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the associated environment.
-	 * 
+	 *
 	 * @return the associated environment.
 	 * @post result != null
 	 */
@@ -377,7 +377,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns a statement visitor as created by the factory.
-	 * 
+	 *
 	 * @param e the method variant which parameterizes the statement visitor.
 	 * @return a new statement visitor.
 	 * @pre e != null
@@ -388,7 +388,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Retrieves the token manager that manages the tokens whose flow is being instrumented.
-	 * 
+	 *
 	 * @return the token manager.
 	 * @post tokenManager != null
 	 */
@@ -412,7 +412,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Performs type-based processing of the given class.
-	 * 
+	 *
 	 * @param clazz is the class to be processed.
 	 * @pre clazz != null
 	 */
@@ -447,7 +447,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Sets the value of <code>sccOptimizationInterval</code>.
-	 * 
+	 *
 	 * @param interval the new value of <code>sccOptimizationInterval</code>. Zero and negative values will turn off the
 	 *            optimization.
 	 */
@@ -457,7 +457,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Analyzes the given classes starting with <code>root</code> method.
-	 * 
+	 *
 	 * @param env which contains the classes to be analyzed.
 	 * @param root the method to start the analysis from.
 	 * @pre environment != null and root != null
@@ -502,7 +502,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Retrieves the tag associated with the framework instance.
-	 * 
+	 *
 	 * @return the tag associated with the framework instance.
 	 * @post result != null
 	 */
@@ -512,7 +512,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Performs type-based processing.
-	 * 
+	 *
 	 * @param type to be processed.
 	 * @pre type != null
 	 */
@@ -526,7 +526,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.
-	 * 
+	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
 	 *         <code>null</code> if none exist.
@@ -539,7 +539,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the variant associated with the given array type in the given context.
-	 * 
+	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant corresponding to <code>a</code> in context <code>context</code>. <code>null</code> if none
@@ -553,7 +553,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the variant associated with the given field in the context captured by <code>analyzer</code>.
-	 * 
+	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.<code>null</code>
 	 *         if none exists.
@@ -566,7 +566,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns the variant associated with the given field in the given context.
-	 * 
+	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant associated with the given field in the given context. <code>null</code> if none exists.
@@ -586,7 +586,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns a method variant correpsoding to the given method in the context <code>analyzer.context</code>.
-	 * 
+	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>. <code>null</code> if none
 	 *         exist.
@@ -599,7 +599,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Returns a method variant corresponding to the given method in the given context.
-	 * 
+	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @param context the context of the requested variant.
 	 * @return the variant corresonding to <code>sm</code> in the given context. <code>null</code> if none exist.
@@ -612,18 +612,19 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Sets the factories to be used in this instance of the framework.
-	 * 
+	 *
 	 * @param mf is the factory object that provides the objects that dictate the mode of analysis.
 	 * @param mvf is the factory object the provides method variants.
 	 * @pre mf != null and mvf != null
 	 */
-	void setFactories(final ModeFactory<ARI, AI, IFI, LE, MI, N, RE, SS, SFI> mf, final IMethodVariantFactory mvf) {
+	void setFactories(final ModeFactory<ARI, AI, IFI, LE, MI, N, RE, SS, SFI> mf,
+			final IMethodVariantFactory<N, LE, RE, SS> mvf) {
 		modeFactory = mf;
 		classManager = new ClassManager(this);
 		arrayVariantManager = new ValuedVariantManager<N, ArrayType>(this, mf.getArrayIndexManager());
 		instanceFieldVariantManager = new ValuedVariantManager<N, SootField>(this, mf.getInstanceFieldIndexManager());
 		methodVariantManager = new MethodVariantManager<N, LE, RE, SS>(this, mf.getMethodIndexManager(), mf
-				.getASTIndexManagerPrototypeCreator(), mvf);
+				.getASTIndexManagerPrototype(), mvf);
 		staticFieldVariantManager = new ValuedVariantManager<N, SootField>(this, mf.getStaticFieldIndexManager());
 	}
 
@@ -641,7 +642,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 
 	/**
 	 * Retrieves the variants at the method interfaces.
-	 * 
+	 *
 	 * @return the variants
 	 * @post result != null and result.oclIsKindOf(Collection(IVariant))
 	 */

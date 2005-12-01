@@ -18,7 +18,7 @@ import soot.SootMethod;
 
 /**
  * This is factory interface to create method variants in the flow analysis framework.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -27,11 +27,11 @@ import soot.SootMethod;
  * @param <RE> DOCUMENT ME!
  * @param <SS> DOCUMENT ME!
  */
-public interface IMethodVariantFactory<N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>> {
+public interface IMethodVariantFactory<N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch> {
 
 	/**
 	 * Creates a method variant.
-	 * 
+	 *
 	 * @param sootMethod for which the method variant needs to be created.
 	 * @param astVM to be used by the created method variant.
 	 * @param fa is the flow analysis framework instance in which the created variant operates.

@@ -39,7 +39,7 @@ import soot.toolkits.scalar.SimpleLocalDefs;
 
 /**
  * The expression visitor used in flow sensitive mode of object flow analysis.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Date$
  */
@@ -64,7 +64,7 @@ class FlowSensitiveExprSwitch
 
 	/**
 	 * Creates a new <code>FlowSensitiveExprSwitch</code> instance.
-	 * 
+	 *
 	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
 	 * @pre stmtSwitchParam != null and nodeConnector != null
@@ -76,7 +76,7 @@ class FlowSensitiveExprSwitch
 	/**
 	 * Processes the local expression. This implementation connects the nodes at the def sites to the nodes at the use site of
 	 * the local.
-	 * 
+	 *
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -108,7 +108,7 @@ class FlowSensitiveExprSwitch
 
 	/**
 	 * Returns a new instance of this class.
-	 * 
+	 *
 	 * @param o the statement visitor which shall use the created visitor instance.
 	 * @return the new visitor instance.
 	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
@@ -120,7 +120,7 @@ class FlowSensitiveExprSwitch
 
 	/**
 	 * Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.
-	 * 
+	 *
 	 * @param l the local for which the definitions are requested.
 	 * @param s the statement at which the definitions are requested.
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.

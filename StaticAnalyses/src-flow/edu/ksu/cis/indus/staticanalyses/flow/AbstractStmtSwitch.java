@@ -23,9 +23,9 @@ import soot.jimple.Stmt;
 
 /**
  * The statement visitor class. This class provides the default implementation for all the statements that need to be dealt at
- * Jimple level in Bandera framework. The class is tagged as <code>abstract</code> to force the users to extend the class as
- * required. It extends <code>AbstractJimpleStmtSwitch</code>.
- * 
+ * Jimple level. The class is tagged as <code>abstract</code> to force the users to extend the class as required. It extends
+ * <code>AbstractJimpleStmtSwitch</code>.
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <S> DOCUMENT ME!
@@ -33,9 +33,9 @@ import soot.jimple.Stmt;
  * @param <LE> DOCUMENT ME!
  * @param <RE> DOCUMENT ME!
  */
-public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, RE>, N extends IFGNode<N, ?>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>>
+public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, RE>, N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>>
 		extends soot.jimple.AbstractStmtSwitch
-		implements IStmtSwitch<S> {
+		implements IStmtSwitch {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -56,7 +56,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, 
 	/**
 	 * The method variant in which this visitor is used.
 	 */
-	protected final IMethodVariant<N, ?, ?, S> method;
+	protected final IMethodVariant<N, LE, RE, S> method;
 
 	/**
 	 * The RHS expression visitor used to this object to process RHS expressions.
@@ -66,7 +66,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, 
 	/**
 	 * Creates a new <code>AbstractStmtSwitch</code> instance. In non-prototype mode, all of the fields (declared in this
 	 * class) will be non-null after returning from the constructor.
-	 * 
+	 *
 	 * @param m the method variant in which this visitor is used.
 	 */
 	protected AbstractStmtSwitch(final IMethodVariant<N, LE, RE, S> m) {
@@ -86,7 +86,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, 
 	/**
 	 * Handles situations when alien statement types are visited, i.e., there are no instructions available on how to handle a
 	 * particular statement type.
-	 * 
+	 *
 	 * @param o the statement to be visited.
 	 * @pre o != null
 	 */
@@ -98,7 +98,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, 
 
 	/**
 	 * This method is not supproted. To be implemented by subclasses.
-	 * 
+	 *
 	 * @param o is ignored.
 	 * @return (This method will raise an exception.)
 	 * @throws UnsupportedOperationException as the operation is not supported.
@@ -109,7 +109,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N, LE, 
 
 	/**
 	 * Process the given statement. The usual implementation would be visit the expressions in the statement.
-	 * 
+	 *
 	 * @param stmtToProcess the statement being visited or to be processed.
 	 * @pre stmtToProcess != null
 	 */

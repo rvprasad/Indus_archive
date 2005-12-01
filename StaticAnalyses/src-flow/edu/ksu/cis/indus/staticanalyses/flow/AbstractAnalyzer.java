@@ -44,7 +44,7 @@ import soot.jimple.ParameterRef;
  * extend this class with methods to access various information about the implmented analysis. This class by itself provides
  * the interface to query generic, low-level analysis information. These interfaces should be used by implemented components
  * of the framework to extract information during the analysis.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <V> DOCUMENT ME!
@@ -65,14 +65,14 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
-	 * 
+	 *
 	 * @invariant fa != null
 	 */
-	protected FA<?, Value, ?, ?, ?, ?, ?, ?, ?, ?> fa;
+	protected FA<?, V, ?, ?, ?, ?, ?, ?, ?, ?> fa;
 
 	/**
 	 * Creates a new <code>AbstractAnalyzer</code> instance.
-	 * 
+	 *
 	 * @param theContext the context to be used by this analysis instance.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
@@ -88,7 +88,7 @@ public abstract class AbstractAnalyzer<V>
 	 * Analyzes the given set of classes repeatedly by considering the given set of methods as the starting point. The
 	 * collected information is the union of the information calculated by considering the same set of classes but starting
 	 * from each of the given methods.
-	 * 
+	 *
 	 * @param env is the environment of classes to be analyzed.
 	 * @param roots a collection of <code>SootMethod</code>s representing the various possible starting points for the
 	 *            analysis.
@@ -111,7 +111,7 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * Analyzes the given set of classes starting from the given method.
-	 * 
+	 *
 	 * @param env is the environment of classes to be analyzed.
 	 * @param root the analysis is started from this method.
 	 * @throws IllegalStateException when root == <code>null</code>
@@ -127,9 +127,7 @@ public abstract class AbstractAnalyzer<V>
 	}
 
 	/**
-	 * Returns the active part of this object.
-	 * 
-	 * @return the active part.
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer#getActivePart()
 	 */
 	public IActivePart getActivePart() {
 		return fa.getActivePart();
@@ -144,7 +142,7 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * Returns the environment in which the analysis occurred.
-	 * 
+	 *
 	 * @return the environment in which the analysis occurred.
 	 * @post result != null
 	 */
@@ -159,11 +157,11 @@ public abstract class AbstractAnalyzer<V>
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_mv != null) {
-			final InvocationVariant _iv = (InvocationVariant) _mv.getASTVariant(e, context);
+			final InvocationVariant<? extends IFGNode<?, V>> _iv = (InvocationVariant) _mv.getASTVariant(e, context);
 
 			if (_iv != null) {
 				_temp = _iv.getThrowNode().getValues();
@@ -180,11 +178,11 @@ public abstract class AbstractAnalyzer<V>
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		final IMethodVariant _mv = fa.queryMethodVariant(method);
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(method);
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_mv != null) {
-			final IFGNode _tv = _mv.queryThrownNode();
+			final IFGNode<?, V> _tv = _mv.queryThrownNode();
 
 			if (_tv != null) {
 				_temp = _tv.getValues();
@@ -220,11 +218,11 @@ public abstract class AbstractAnalyzer<V>
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_mv != null) {
-			final IFGNode _queryParameterNode = _mv.queryParameterNode(paramIndex);
+			final IFGNode<?, V> _queryParameterNode = _mv.queryParameterNode(paramIndex);
 
 			if (_queryParameterNode != null) {
 				_temp = _queryParameterNode.getValues();
@@ -241,7 +239,7 @@ public abstract class AbstractAnalyzer<V>
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_mv != null) {
@@ -263,18 +261,18 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * Returns the set of values associated with the given array type in the context given by <code>this.context</code>.
-	 * 
+	 *
 	 * @param a the array type for which the values are requested.
 	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
 	 * @pre a != null
 	 * @post result != null
 	 */
 	protected final Collection<V> getValues(final ArrayType a) {
-		final ValuedVariant<?> _v = fa.queryArrayVariant(a);
+		final ValuedVariant<? extends IFGNode<?, V>> _v = fa.queryArrayVariant(a);
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_v != null) {
-			final IFGNode _n = _v.getFGNode();
+			final IFGNode<?, V> _n = _v.getFGNode();
 			if (_n != null) {
 				_temp = _n.getValues();
 			}
@@ -289,19 +287,19 @@ public abstract class AbstractAnalyzer<V>
 	/**
 	 * Returns the set of values associated with the given parameter reference in the context given by
 	 * <code>this.context</code>.
-	 * 
+	 *
 	 * @param p the parameter reference for which the values are requested.
 	 * @return the collection of values associated with <code>p</code> in <code>this.context</code>.
 	 * @pre p != null
 	 * @post result != null
 	 */
 	protected final Collection<V> getValues(final ParameterRef p) {
-		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
-		Collection<V> _temp = Collections.EMPTY_SET;
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection<V> _temp = Collections.<V>emptySet();
 
 		if (_mv != null) {
 			final int _index = p.getIndex();
-			final IFGNode _queryParameterNode = _mv.queryParameterNode(_index);
+			final IFGNode<?, V> _queryParameterNode = _mv.queryParameterNode(_index);
 			if (_queryParameterNode != null) {
 				_temp = _queryParameterNode.getValues();
 			}
@@ -315,14 +313,14 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * Returns the set of values associated with the given field in the context given by <code>this.context</code>.
-	 * 
+	 *
 	 * @param sf the field for which the values are requested.
 	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
 	 * @pre sf != null
 	 * @post result != null
 	 */
 	protected final Collection<V> getValues(final SootField sf) {
-		final ValuedVariant _fv = fa.queryFieldVariant(sf);
+		final ValuedVariant<? extends IFGNode<?, V>> _fv = fa.queryFieldVariant(sf);
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_fv != null) {
@@ -337,18 +335,18 @@ public abstract class AbstractAnalyzer<V>
 
 	/**
 	 * Returns the set of values associated with the given AST node in the context given by <code>this.context</code>.
-	 * 
+	 *
 	 * @param v the AST node for which the values are requested.
 	 * @return the collection of values associted with <code>v</code> in <code>this.context</code>.
 	 * @pre v != null
 	 * @post result != null
 	 */
 	protected final Collection<V> getValues(final Value v) {
-		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant<? extends IFGNode<?, V>, ?, ?, ?> _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection<V> _temp = Collections.emptySet();
 
 		if (_mv != null) {
-			final ValuedVariant _astv = _mv.queryASTVariant(v, context);
+			final ValuedVariant<? extends IFGNode<?, V>> _astv = _mv.queryASTVariant(v, context);
 
 			if (_astv != null) {
 				_temp = _astv.getFGNode().getValues();
@@ -372,7 +370,7 @@ public abstract class AbstractAnalyzer<V>
 	/**
 	 * Sets the factory on the underlaying framework instance. Refer to <code>ModeFactory</code> and
 	 * <code>IMethodVariantFactory</code> for more details.
-	 * 
+	 *
 	 * @param mf is the mode factory that provides objects that dictate the mode of the analysis.
 	 * @param mvf is the factory object the provides method variants.
 	 * @pre mf != null and mvf != null

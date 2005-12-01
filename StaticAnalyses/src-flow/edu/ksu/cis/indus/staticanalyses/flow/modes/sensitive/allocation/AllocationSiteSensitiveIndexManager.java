@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
-import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
 
 import java.util.regex.Pattern;
@@ -39,20 +38,21 @@ import soot.Value;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <O> DOCUMENT ME!
  */
-public class AllocationSiteSensitiveIndexManager
-  extends AbstractIndexManager {
-	/** 
+public class AllocationSiteSensitiveIndexManager <O>
+  extends AbstractIndexManager<OneContextInfoIndex<O, Object>, O> {
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AllocationSiteSensitiveIndexManager.class);
 
-	/** 
+	/**
 	 * The pattern that defines an object-based scope in which value flow through fields is object sensitive.
 	 */
 	private final Pattern pattern;
 
-	/** 
+	/**
 	 * This indicates if value flow through arrays should be object sensitive.
 	 */
 	private final boolean objectSensitiveArrayTracking;
@@ -73,15 +73,6 @@ public class AllocationSiteSensitiveIndexManager
 	}
 
 	/**
-	 * Returns a new instance of this class.
-	 *
-	 * @return a new instance of this class.
-	 */
-	public Object getClone() {
-		return new AllocationSiteSensitiveIndexManager();
-	}
-
-	/**
 	 * Returns an index corresponding to the given entity and context.
 	 *
 	 * @param o the entity for which the index in required.  Although it is not enforced, this should be of type
@@ -93,7 +84,7 @@ public class AllocationSiteSensitiveIndexManager
 	 * @pre o != null and c != null and
 	 * 		c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
 	 */
-	protected IIndex createIndex(final Object o, final Context c) {
+	@Override protected OneContextInfoIndex<O, Object> createIndex(final O o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
@@ -102,9 +93,9 @@ public class AllocationSiteSensitiveIndexManager
 		final Type _type = ((Value) _ctxt.allocationSite).getType();
 		if ((_type instanceof RefType && pattern != null && pattern.matcher(((RefType) _type).getClassName()).matches())
 			  || (objectSensitiveArrayTracking && _type instanceof ArrayType)) {
-			return new OneContextInfoIndex(o, _ctxt.getAllocationSite());
+			return new OneContextInfoIndex<O, Object>(o, _ctxt.getAllocationSite());
 		}
-		return new OneContextInfoIndex(o, null);
+		return new OneContextInfoIndex<O, Object>(o, null);
 	}
 }
 

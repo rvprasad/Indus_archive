@@ -43,7 +43,7 @@ import soot.jimple.JimpleBody;
  * @param <SS> DOCUMENT ME!
  * @param <SYM> DOCUMENT ME!
  */
-public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extends IExprSwitch<LE, N>, RE extends IExprSwitch<RE, N>, SS extends IStmtSwitch<SS>, SYM>
+public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, SYM>
   implements IMethodVariant<N, LE, RE, SS> {
 	/** 
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
@@ -80,7 +80,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 *
 	 * @invariant stmt != null
 	 */
-	protected final IStmtSwitch stmt;
+	protected final SS stmt;
 
 	/** 
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different

@@ -27,21 +27,20 @@ import soot.jimple.JimpleValueSwitch;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <E> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public interface IExprSwitch <E extends IExprSwitch<E, N>, N extends IFGNode<N, ?>>
-  extends JimpleValueSwitch, IPrototype<E> {
+public interface IExprSwitch <N extends IFGNode<N, ?>>
+  extends IPrototype<IExprSwitch<N>>, JimpleValueSwitch {
 	/**
 	 * Retreives the result of visiting the object.
 	 *
 	 * @return the result of visiting the object.
 	 */
 	N getFlowNode();
-	
+
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param node DOCUMENT ME!
 	 */
 	void setFlowNode(N node);

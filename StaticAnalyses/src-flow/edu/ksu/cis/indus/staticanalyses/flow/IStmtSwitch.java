@@ -19,18 +19,17 @@ import soot.jimple.Stmt;
 
 /**
  * This interface is provided by flow analysis statement walkers/visitors.
- * 
+ *
  * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @param <S> DOCUMENT ME!
  */
-public interface IStmtSwitch<S extends IStmtSwitch<S>>
-		extends IPrototype<S> {
-	
+public interface IStmtSwitch
+		extends IPrototype<IStmtSwitch> {
+
 	/**
 	 * Process the given statement. The usual implementation would be visit the expressions in the statement.
-	 * 
+	 *
 	 * @param stmtToProcess the statement being visited or to be processed.
 	 * @pre stmtToProcess != null
 	 */

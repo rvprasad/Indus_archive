@@ -29,26 +29,18 @@ import soot.ValueBox;
 /**
  * This class manages indices associated with entities in flow sensitive mode.  In reality, it provides the implementation to
  * create new indices.
- * 
+ *
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <O> DOCUMENT ME!
+ * @param <V> DOCUMENT ME!
  */
 public class FlowSensitiveIndexManager<V>
   extends AbstractIndexManager<OneContextInfoIndex<V, ValueBox>, V> {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlowSensitiveIndexManager.class);
-
-	
-	/** 
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager#getClone(java.lang.Object[])
-	 */
-	@Override public FlowSensitiveIndexManager<V> getClone(final Object...o) {
-		return new FlowSensitiveIndexManager<V>();
-	}
 
 	/**
 	 * Returns an index corresponding to the given entity and context.  The index is dependent on the program point stored in
