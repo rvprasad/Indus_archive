@@ -124,12 +124,11 @@ public final class UniqueJimpleIDGenerator
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(Local, SootMethod)
 	 */
 	public String getIdForLocal(final Local v, final SootMethod method) {
-		final List<Local> _locals = method2locals.get(method);
-
-		if (_locals == null) {
+		if (!method2locals.containsKey(method)) {
 			@SuppressWarnings("unchecked") final List<Local> _l = new ArrayList<Local>(method.getActiveBody().getLocals());
 			method2locals.put(method, sort(_l));
 		}
+		final List<Local> _locals = method2locals.get(method);
 		return getIdForMethod(method) + "_l" + _locals.indexOf(v);
 	}
 
@@ -138,13 +137,13 @@ public final class UniqueJimpleIDGenerator
 	 */
 	public String getIdForMethod(final SootMethod method) {
 		final SootClass _declClass = method.getDeclaringClass();
-		final List<SootMethod> _methods = class2methods.get(_declClass);
 
-		if (_methods == null) {
+		if (!class2methods.containsKey(_declClass)) {
 			@SuppressWarnings("unchecked") final List<SootMethod> _c = new ArrayList<SootMethod>(_declClass.getMethods());
-			class2methods.put(method.getDeclaringClass(), sort(_c));
+			class2methods.put(_declClass, sort(_c));
 		}
-
+		
+		final List<SootMethod> _methods = class2methods.get(_declClass);
 		return getIdForClass(method.getDeclaringClass()) + "_m" + _methods.indexOf(method);
 	}
 

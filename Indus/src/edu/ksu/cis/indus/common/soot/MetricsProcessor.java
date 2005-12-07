@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -254,15 +255,16 @@ public final class MetricsProcessor
 	 * <code>Integer</code> representing the number of occurrences of entities of the corresponding kind.
 	 * 
 	 * @return a map.
-	 * @post result != null and result.oclIsKindOf(Map(Object, Map(Object, Integer)))
-	 * @post result.keySet()->foreach(o | o = APPLICATION_STATISTICS or o = LIBRARY_STATISTICS)
+	 * @post result != null 
 	 */
-	@SuppressWarnings("unchecked") public Map<MetricKeys, Map<MetricKeys, Integer>> getStatistics() {
-		final Map<MetricKeys, Map<MetricKeys, Integer>> _result = new HashMap<MetricKeys, Map<MetricKeys, Integer>>();
-		final Map<MetricKeys, Integer> _map1 = new TObjectIntHashMapDecorator(applicationStatistics);
-		_result.put(MetricKeys.APPLICATION_STATISTICS, new TreeMap<MetricKeys, Integer>(_map1));
-		final Map<MetricKeys, Integer> _map2 = new TObjectIntHashMapDecorator(libraryStatistics);
-		_result.put(MetricKeys.LIBRARY_STATISTICS, new TreeMap<MetricKeys, Integer>(_map2));
+	@SuppressWarnings("unchecked") public Map<MetricKeys, Map<Object, Integer>> getStatistics() {
+		final Map<MetricKeys, Map<Object, Integer>> _result = new HashMap<MetricKeys, Map<Object, Integer>>();
+		final Map<Object, Integer> _map1 = new TreeMap<Object, Integer>(ToStringBasedComparator.SINGLETON);
+		_map1.putAll(new TObjectIntHashMapDecorator(applicationStatistics));
+		_result.put(MetricKeys.APPLICATION_STATISTICS, _map1);
+		final Map<Object, Integer> _map2 = new TreeMap<Object, Integer>(ToStringBasedComparator.SINGLETON);
+		_map2.putAll(new TObjectIntHashMapDecorator(libraryStatistics));
+		_result.put(MetricKeys.LIBRARY_STATISTICS, _map2);
 		return _result;
 	}
 
