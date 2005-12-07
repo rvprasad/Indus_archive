@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IVariantManager;
 import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 
@@ -54,37 +55,38 @@ import soot.jimple.ThrowStmt;
  * The variant that represents a method implementation. It maintains variant specific information about local variables and
  * the AST nodes in associated method. It also maintains information about the parameters, this variable, and return values,
  * if any are present.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
+ * @param <T> DOCUMENT ME!
  */
-class MethodVariant
-		extends AbstractMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch, Value> {
+class MethodVariant<T extends ITokens<T, Value>>
+		extends AbstractMethodVariant<Value, T, OFAFGNode<T>> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodVariant.class);
-	
+
 	/**
-	 * The statement graph to use to retrieve method bodies. 
+	 * The statement graph to use to retrieve method bodies.
 	 */
 	private IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance. This will not process the statements of this method. That is
 	 * accomplished via call to <code>process()</code>. This will also mark the field with the flow analysis tag.
-	 * 
+	 *
 	 * @param sm the method represented by this variant. This parameter cannot be <code>null</code>.
 	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>. This
 	 *            parameter cannot be <code>null</code>.
 	 * @param theFA the instance of <code>FA</code> which was responsible for the creation of this variant. This parameter
 	 *            cannot be <code>null</code>.
-	 * @pre sm != null and astvm != null and theFA != null
+	 * @param factory DOCUMENT ME!
+	 * @pre sm != null and astVariantManager != null and theFA != null and factory != null
 	 */
-	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode>, Value> astVariantManager,
-			final FA<OFAFGNode, Value, ?, ?, ?, FlowInsensitiveExprSwitch, ?, FlowInsensitiveExprSwitch, StmtSwitch, ?> theFA,
-			final IStmtGraphFactory<?> factory) {
+	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode<T>>, Value> astVariantManager,
+			final FA<Value, T, OFAFGNode<T>> theFA, final IStmtGraphFactory<?> factory) {
 		super(sm, astVariantManager, theFA);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -97,13 +99,13 @@ class MethodVariant
 		 * to assume that all such objects can be considered as receivers for all run() implementations plugged into the run()
 		 * site.
 		 */
-		final ITokenManager<?, Value> _tokenMgr = fa.getTokenManager();
+		final ITokenManager<T, Value> _tokenMgr = fa.getTokenManager();
 
 		if (thisVar != null) {
 			final RefType _sootType = sm.getDeclaringClass().getType();
 			final ITypeManager<Type, Value> _typeManager = _tokenMgr.getTypeManager();
 			final IType _tokenTypeForRepType = _typeManager.getTokenTypeForRepType(_sootType);
-			final ITokenFilter<?, Value> _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
+			final ITokenFilter<T, Value> _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
 			thisVar.setInFilter(_typeBasedFilter);
 			thisVar.setOutFilter(_typeBasedFilter);
 		}
@@ -113,8 +115,8 @@ class MethodVariant
 			setOutFilterOfBasedOn(returnVar, sm.getReturnType(), _tokenMgr);
 		}
 
-		for (int _i = parameters.length - 1; _i >= 0; _i--) {
-			final OFAFGNode _pNode = parameters[_i];
+		for (int _i = parameters.size() - 1; _i >= 0; _i--) {
+			final OFAFGNode<T> _pNode = parameters.get(_i);
 
 			if (_pNode != null) {
 				setOutFilterOfBasedOn(_pNode, sm.getParameterType(_i), _tokenMgr);
@@ -124,7 +126,7 @@ class MethodVariant
 		setOutFilterOfBasedOn(thrownNode, this.fa.getClass("java.lang.Throwable").getType(), _tokenMgr);
 
 		stmtGraphFactory = factory;
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed " + sm);
 		}
@@ -132,16 +134,18 @@ class MethodVariant
 
 	/**
 	 * Sets the out filter based on the given type for the given node.
-	 * 
+	 * @param <T> DOCUMENT ME!
+	 *
 	 * @param node of interest.
 	 * @param type for the filter.
 	 * @param tokenMgr used in the creation of the type-based filter.
 	 * @pre node != null and type != null and tokenMgr != null
 	 */
-	static void setOutFilterOfBasedOn(final OFAFGNode node, final Type type, final ITokenManager<?, Value> tokenMgr) {
+	static <T extends ITokens<T, Value>> void setOutFilterOfBasedOn(final OFAFGNode<T> node, final Type type,
+			final ITokenManager<T, Value> tokenMgr) {
 		if (node != null) {
 			final IType _baseType = tokenMgr.getTypeManager().getTokenTypeForRepType(type);
-			final ITokenFilter<?, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+			final ITokenFilter<T, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
 			node.setOutFilter(_baseFilter);
 		}
 	}
@@ -171,7 +175,7 @@ class MethodVariant
 		}
 
 		stmtGraphFactory = null;
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processing of " + method);
 		}
@@ -187,7 +191,7 @@ class MethodVariant
 	/**
 	 * Connects the nodes corresponding the exceptions thrown (throw and method invocations) in the body to the nodd
 	 * corresponding to the expression thrown by the method.
-	 * 
+	 *
 	 * @param body of the method.
 	 * @param stmtList is the list of statements that make up the body.
 	 * @pre body != null and stmtList != null
@@ -195,7 +199,7 @@ class MethodVariant
 	private void connectThrowNodesToThrownNode(final JimpleBody body, final List<Stmt> stmtList) {
 		final Context _ctxt = new Context();
 		_ctxt.setRootMethod(method);
-		
+
 		final Iterator<Stmt> _j = stmtList.iterator();
 		final int _jEnd = stmtList.size();
 
@@ -220,7 +224,7 @@ class MethodVariant
 
 	/**
 	 * Process the body.
-	 * 
+	 *
 	 * @param body to be processed.
 	 * @param stmtList is the list of statements that make up the body.
 	 * @pre body != null and stmtList != null
@@ -229,7 +233,7 @@ class MethodVariant
 		final Collection<Stmt> _caught = new HashSet<Stmt>();
 		final Context _exprCtxt = new Context();
 		final Context _catchCtxt = new Context();
-		
+
 		_exprCtxt.setRootMethod(method);
 		_catchCtxt.setRootMethod(method);
 
@@ -252,25 +256,25 @@ class MethodVariant
 			for (int _j = stmtList.indexOf(_begin); _j < _k; _j++) {
 				final Stmt _tmp = stmtList.get(_j);
 
-				if (!_caught.contains(_tmp)) {					
+				if (!_caught.contains(_tmp)) {
 					_exprCtxt.setStmt(_tmp);
 
 					if (_tmp instanceof ThrowStmt) {
 						final ThrowStmt _ts = (ThrowStmt) _tmp;
-	
+
 						final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
 
 						if (Util.isDescendentOf(_scTemp, _exception)) {
 							_exprCtxt.setStmt(_ts);
 
-							final OFAFGNode _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
+							final OFAFGNode<T> _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
 							_throwNode.addSucc(queryASTNode(_catchRef, _catchCtxt));
 							_caught.add(_ts);
 						}
 					} else if (_tmp.containsInvokeExpr()) {
 						_exprCtxt.setStmt(_tmp);
-	
-						final OFAFGNode _tempNode = queryThrowNode(_tmp.getInvokeExpr(), _exprCtxt);
+
+						final OFAFGNode<T> _tempNode = queryThrowNode(_tmp.getInvokeExpr(), _exprCtxt);
 
 						if (_tempNode != null) {
 							_tempNode.addSucc(queryASTNode(_catchRef, _catchCtxt));

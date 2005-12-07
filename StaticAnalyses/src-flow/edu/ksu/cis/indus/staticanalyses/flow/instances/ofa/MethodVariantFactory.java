@@ -20,10 +20,12 @@ import edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariantFactory;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.regex.Pattern;
 
 import soot.SootMethod;
+import soot.Value;
 
 
 /**
@@ -32,23 +34,24 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
  */
-class MethodVariantFactory
-  implements IMethodVariantFactory<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> {
-	/** 
+class MethodVariantFactory<T extends ITokens<T, Value>>
+  implements IMethodVariantFactory<Value, T, OFAFGNode<T>> {
+	/**
 	 * The pattern used to decide if a stub variant or a complete variant needs to be returned during <code>create()</code>
-	 * call. 
+	 * call.
 	 */
 	private final Pattern pattern;
 
 	/**
-	 * The statement graph to use to retrieve method bodies. 
+	 * The statement graph to use to retrieve method bodies.
 	 */
 	private final IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param actualBodyScopePattern the scope in which the variants are based on actual body.
 	 * @param factory provides the statement graphs to be used construct method variants.
 	 * @pre factory != null
@@ -66,13 +69,14 @@ class MethodVariantFactory
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IMethodVariantFactory#create(soot.SootMethod,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager, edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
-	public IMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> create(final SootMethod sootMethod, final ASTVariantManager<OFAFGNode> astVM, final FA fa) {
-		final IMethodVariant<OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch, StmtSwitch> _result;
+	public IMethodVariant<OFAFGNode<T>> create(final SootMethod sootMethod,
+			final ASTVariantManager<Value, T, OFAFGNode<T>> astVM, final FA<Value, T, OFAFGNode<T>> fa) {
+		final IMethodVariant<OFAFGNode<T>> _result;
 
 		if (pattern == null || pattern.matcher(sootMethod.getDeclaringClass().getName()).matches()) {
-			_result = new MethodVariant(sootMethod, astVM, fa, stmtGraphFactory);
+			_result = new MethodVariant<T>(sootMethod, astVM, fa, stmtGraphFactory);
 		} else {
-			_result = new StubMethodVariant(sootMethod, astVM, fa);
+			_result = new StubMethodVariant<T>(sootMethod, astVM, fa);
 		}
 		return _result;
 	}

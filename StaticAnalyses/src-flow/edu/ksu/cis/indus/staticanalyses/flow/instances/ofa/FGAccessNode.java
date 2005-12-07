@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,26 +14,28 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import soot.Value;
 import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
-
 /**
  * This class extends the flow graph node by associating a work peice with it.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <T> DOCUMENT ME!
  */
-class FGAccessNode
-  extends OFAFGNode {
-	/** 
+class FGAccessNode<T extends ITokens<T, Value>>
+		extends OFAFGNode<T> {
+
+	/**
 	 * The work associated with this node.
 	 *
 	 * @invariant work != null
 	 */
-	private final ITokenProcessingWork work;
+	private final ITokenProcessingWork<T> work;
 
 	/**
 	 * Creates a new <code>FGAccessNode</code> instance.
@@ -42,11 +43,10 @@ class FGAccessNode
 	 * @param workPeice the work peice associated with this node.
 	 * @param provider provides the workbag into which <code>work</code> will be added.
 	 * @param tokenManager that manages the tokens used in the enclosing flow analysis.
-	 *
 	 * @pre workPeice != null and provider != null and tokenManager != null
 	 */
-	public FGAccessNode(final ITokenProcessingWork workPeice, final IWorkBagProvider provider,
-		final ITokenManager tokenManager) {
+	public FGAccessNode(final ITokenProcessingWork<T> workPeice, final IWorkBagProvider provider,
+			final ITokenManager<T, Value> tokenManager) {
 		super(provider, tokenManager);
 		this.work = workPeice;
 	}
@@ -55,10 +55,9 @@ class FGAccessNode
 	 * Adds the given tokens to the work peice for processing.
 	 *
 	 * @param newTokens the collection of values that need to be processed at the given node.
-	 *
 	 * @pre newTokens != null
 	 */
-	@Override protected void onNewTokens(final ITokens newTokens) {
+	@Override protected void onNewTokens(final T newTokens) {
 		super.onNewTokens(newTokens);
 		work.addTokens(newTokens);
 		workbagProvider.getWorkBag().addWork(work);

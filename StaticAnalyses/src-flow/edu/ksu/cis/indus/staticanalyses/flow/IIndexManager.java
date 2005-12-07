@@ -18,26 +18,26 @@ import edu.ksu.cis.indus.processing.Context;
 
 /**
  * This interface is used to manage indices.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  * @param <I> DOCUMENT ME!
- * @param <O> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public interface IIndexManager<I extends IIndex<I>, O> {
+public interface IIndexManager<I extends IIndex<I>, E> {
 
 	/**
 	 * Returns the index corresponding to the given entity in the given context, if one exists. If none exist, a new index is
 	 * created and returned.
-	 * 
+	 *
 	 * @param o the entity whose index is to be returned.
 	 * @param c the context in which the entity's index is requested.
 	 * @return the index corresponding to the entity in the given context.
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	I getIndex(final O o, final Context c);
+	I getIndex(final E o, final Context c);
 
 	/**
 	 * Reset the manager. Flush all the internal data structures.

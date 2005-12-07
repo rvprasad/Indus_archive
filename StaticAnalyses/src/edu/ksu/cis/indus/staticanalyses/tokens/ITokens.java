@@ -31,7 +31,7 @@ import java.util.Collection;
  * @param <V> DOCUMENT ME!
  */
 public interface ITokens<T extends ITokens<T, V>, V>
-  extends IPrototype, Cloneable {
+  extends IPrototype<T>, Cloneable {
 	/**
 	 * Checks if there are no tokens in the collection.
 	 *

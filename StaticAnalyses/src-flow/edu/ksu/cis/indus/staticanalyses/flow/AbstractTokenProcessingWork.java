@@ -23,13 +23,14 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <T> DOCUMENT ME!
  */
-public abstract class AbstractTokenProcessingWork
-  implements ITokenProcessingWork {
-	/** 
+public abstract class AbstractTokenProcessingWork<T extends ITokens<T, ?>>
+  implements ITokenProcessingWork<T> {
+	/**
 	 * The collection of values to be processed.
 	 */
-	protected ITokens tokens;
+	protected T tokens;
 
 	/**
 	 * Creates a new AbstractTokenProcessingWork object.
@@ -38,7 +39,7 @@ public abstract class AbstractTokenProcessingWork
 	 *
 	 * @pre tokenSet != null
 	 */
-	protected AbstractTokenProcessingWork(final ITokens tokenSet) {
+	protected AbstractTokenProcessingWork(final T tokenSet) {
 		tokens = tokenSet;
 	}
 
@@ -49,7 +50,7 @@ public abstract class AbstractTokenProcessingWork
 	 *
 	 * @pre valuesToBeProcessed != null
 	 */
-	public final void addTokens(final ITokens tokensToBeProcessed) {
+	public final void addTokens(final T tokensToBeProcessed) {
 		tokens.addTokens(tokensToBeProcessed);
 	}
 }

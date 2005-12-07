@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,24 +16,25 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.SootField;
+import soot.Value;
 
 import soot.jimple.FieldRef;
-
 
 /**
  * This class encapsulates the logic to instrument the flow of values corresponding to fields.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <T> DOCUMENT ME!
  */
-class FieldAccessExprWork<N extends IFGNode<N, ?>>
-  extends AbstractMemberDataAccessExprWork<N> {
+class FieldAccessExprWork<T extends ITokens<T, Value>>
+		extends AbstractMemberDataAccessExprWork<T> {
+
 	/**
 	 * Creates a new <code>FieldAccessExprWork</code> instance.
 	 *
@@ -43,19 +43,18 @@ class FieldAccessExprWork<N extends IFGNode<N, ?>>
 	 * @param accessNode the flow graph node associated with the access expression.
 	 * @param connectorToBeUsed the connector to use to connect the ast node to the non-ast node.
 	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
-	 *
-	 * @pre callerMethod != null and accessContext != null and accessNode != null and     connectorToBeUsed != null and
-	 * 		tokenSet != null
+	 * @pre callerMethod != null and accessContext != null and accessNode != null and connectorToBeUsed != null and tokenSet !=
+	 *      null
 	 */
-	public FieldAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final N accessNode,
-		final IFGNodeConnector<N> connectorToBeUsed, final ITokens tokenSet) {
+	public FieldAccessExprWork(final IMethodVariant<OFAFGNode<T>> callerMethod, final Context accessContext,
+			final OFAFGNode<T> accessNode, final IFGNodeConnector<OFAFGNode<T>> connectorToBeUsed, final T tokenSet) {
 		super(callerMethod, accessContext, accessNode, connectorToBeUsed, tokenSet);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNodeForMemberData()
 	 */
-	@Override protected N getFGNodeForMemberData() {
+	@Override protected OFAFGNode<T> getFGNodeForMemberData() {
 		final SootField _sf = ((FieldRef) accessExprBox.getValue()).getField();
 		return caller.getFA().getFieldVariant(_sf, context).getFGNode();
 	}

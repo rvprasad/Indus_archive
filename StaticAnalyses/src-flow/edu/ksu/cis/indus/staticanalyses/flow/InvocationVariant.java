@@ -24,7 +24,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @version $Revision$
  * @param <N> DOCUMENT ME!
  */
-public class InvocationVariant <N extends IFGNode<N, ?>>
+public class InvocationVariant <N extends IFGNode<?, ?, N>>
   extends ValuedVariant<N> {
 	/** 
 	 * This is the node corresponding to exception thrown by the invocation.

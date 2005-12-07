@@ -14,35 +14,39 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 /**
  * This class manages variants corresponding to entities that have values.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <E> DOCUMENT ME!
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
  */
-class ValuedVariantManager<N extends IFGNode<N, ?>, V>
-		extends AbstractVariantManager<ValuedVariant<N>, V, N> {
+class ValuedVariantManager<E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+		extends AbstractVariantManager<ValuedVariant<N>, E, SYM, T, N> {
 
 	/**
 	 * Creates a new <code>ValuedVariantManager</code> instance.
-	 * 
+	 *
 	 * @param theAnalysis the instance of the framework in which this object is used.
 	 * @param indexManager the manager of indices which map array variants to arrays.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ValuedVariantManager(final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> theAnalysis, final IIndexManager<?, V> indexManager) {
+	ValuedVariantManager(final FA<SYM, T, N> theAnalysis, final IIndexManager<? extends IIndex<?>, E> indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
 	/**
-	 * Returns a new valued variant corresponding to the given ast object.  
-	 * 
+	 * Returns a new valued variant corresponding to the given ast object.
+	 *
 	 * @param o the ast object whose variant is to be returned.
 	 * @return a new variant corresponding to <code>o</code>.
 	 */
-	@Override protected ValuedVariant<N> getNewVariant(@SuppressWarnings("unused") final V o) {
+	@Override protected ValuedVariant<N> getNewVariant(@SuppressWarnings("unused") final E o) {
 		return new ValuedVariant<N>(fa.getNewFGNode());
 	}
 }

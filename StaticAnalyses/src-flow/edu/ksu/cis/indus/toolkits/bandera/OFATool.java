@@ -39,6 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -55,6 +56,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Value;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 import soot.util.Chain;
@@ -65,8 +67,9 @@ import soot.util.Chain;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author Todd Wallentine tcw AT cis ksu edu
  * @version $Revision$ - $Date$
+ * @param <T> dummy type parameter.
  */
-public final class OFATool
+public final class OFATool <T extends ITokens<T, Value>>
 		extends BaseObservable
 		implements Tool {
 
@@ -260,8 +263,8 @@ public final class OFATool
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _factory = new CompleteStmtGraphFactory();
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
-				TokenUtil.getTokenManager(new SootValueTypeManager()), _factory);
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+				TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), _factory);
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();

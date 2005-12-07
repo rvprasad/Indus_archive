@@ -18,24 +18,10 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import soot.jimple.AssignStmt;
+import soot.Value;
 import soot.jimple.DefinitionStmt;
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
-import soot.jimple.IdentityStmt;
-import soot.jimple.IfStmt;
-import soot.jimple.InvokeStmt;
-import soot.jimple.LookupSwitchStmt;
-import soot.jimple.RetStmt;
-import soot.jimple.ReturnStmt;
-import soot.jimple.TableSwitchStmt;
-import soot.jimple.ThrowStmt;
-
 
 /**
  * This is used to process statements in object flow analysis. This class in turn uses a expression visitor to process
@@ -44,13 +30,8 @@ import soot.jimple.ThrowStmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-class StmtSwitch
-  extends AbstractStmtSwitch<StmtSwitch, OFAFGNode, FlowInsensitiveExprSwitch, FlowInsensitiveExprSwitch> {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(StmtSwitch.class);
-
+class StmtSwitch<T extends ITokens<T, Value>>
+  extends AbstractStmtSwitch<StmtSwitch<T>, OFAFGNode<T>> {
 	/**
 	 * Creates a new <code>StmtSwitch</code> instance.
 	 *
@@ -58,7 +39,7 @@ class StmtSwitch
 	 *
 	 * @pre m != null
 	 */
-	public StmtSwitch(final MethodVariant m) {
+	public StmtSwitch(final MethodVariant<T> m) {
 		super(m);
 	}
 
@@ -72,171 +53,20 @@ class StmtSwitch
 	 * @pre o != null and o[0].oclIsKindOf(MethodVariant)
 	 * @post result != null
 	 */
-	public StmtSwitch getClone(final Object...o) {
-		return new StmtSwitch((MethodVariant) o[0]);
+	@Override public StmtSwitch<T> getClone(final Object...o) {
+		return new StmtSwitch<T>((MethodVariant) o[0]);
 	}
 
-	/**
-	 * Processes the assignment statement.  It processes the rhs expression and the lhs expression and connects the flow
-	 * graph nodes corresponding to these expressions.
-	 *
-	 * @param stmt the assignment statement to be processed.
-	 *
-	 * @pre stmt != null
+	/** AbstractStmtSwitch#processDefinitionStmt(DefinitionStmt)
 	 */
-	public void caseAssignStmt(final AssignStmt stmt) {
-		processDefinitionStmt(stmt);
-	}
-
-	/**
-	 * Processes the enter monitor statement.  Current implementation visits the monitor expression.
-	 *
-	 * @param stmt the enter monitor statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-		rexpr.process(stmt.getOpBox());
-	}
-
-	/**
-	 * Processes the exit monitor statement.  Current implementation visits the monitor expression.
-	 *
-	 * @param stmt the exit monitor statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-		rexpr.process(stmt.getOpBox());
-	}
-
-	/**
-	 * Processes the identity statement.  It processes the rhs expression and the lhs expression and connects the flow graph
-	 * nodes corresponding to these expressions.
-	 *
-	 * @param stmt the identity statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseIdentityStmt(final IdentityStmt stmt) {
-		processDefinitionStmt(stmt);
-	}
-
-	/**
-	 * Processes the if statement.  Current implementation visits the condition expression.
-	 *
-	 * @param stmt the if statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseIfStmt(final IfStmt stmt) {
-		rexpr.process(stmt.getConditionBox());
-	}
-
-	/**
-	 * Processes the invoke statement.  Current implementation visits the invoke expression.
-	 *
-	 * @param stmt the invoke statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseInvokeStmt(final InvokeStmt stmt) {
-		rexpr.process(stmt.getInvokeExprBox());
-	}
-
-	/**
-	 * Processes the lookup switch statement.  Current implementation visits the switch expression.
-	 *
-	 * @param stmt the lookup switch  statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
-		rexpr.process(stmt.getKeyBox());
-	}
-
-	/**
-	 * Processes the return statement.  Current implementation visits the address expression.
-	 *
-	 * @param stmt the return statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseRetStmt(final RetStmt stmt) {
-		rexpr.process(stmt.getStmtAddressBox());
-	}
-
-	/**
-	 * Processes the return statement.  Current implementation visits the return value expression and connects it to node
-	 * corresponding to the return node of the enclosing method variant.
-	 *
-	 * @param stmt the return statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseReturnStmt(final ReturnStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing " + stmt);
-		}
-
-		if (Util.isReferenceType(stmt.getOp().getType())) {
-			rexpr.process(stmt.getOpBox());
-
-			final OFAFGNode _retNode =  rexpr.getFlowNode();
-			_retNode.addSucc(method.queryReturnNode());
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processed " + stmt);
-		}
-	}
-
-	/**
-	 * Processes the table switch statement.  Current implementation visits the switch expression.
-	 *
-	 * @param stmt the table switch  statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
-		rexpr.process(stmt.getKeyBox());
-	}
-
-	/**
-	 * Processes the throw statement.  Current implementation visits the throw expression.
-	 *
-	 * @param stmt the throw statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	public void caseThrowStmt(final ThrowStmt stmt) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processing statement: " + stmt);
-		}
-
-		rexpr.process(stmt.getOpBox());
-	}
-
-	/**
-	 * Processes the definition statements.  It processes the rhs expression and the lhs expression and connects the flow
-	 * graph nodes corresponding to these expressions.
-	 *
-	 * @param stmt the defintion statement to be processed.
-	 *
-	 * @pre stmt != null
-	 */
-	private void processDefinitionStmt(final DefinitionStmt stmt) {
+	@Override protected void processDefinitionStmt(final DefinitionStmt stmt) {
 		lexpr.process(stmt.getLeftOpBox());
 
-		final IFGNode _left = (IFGNode) lexpr.getResult();
+		final OFAFGNode<T> _left = lexpr.getFlowNode();
 
 		rexpr.process(stmt.getRightOpBox());
 
-		final IFGNode _right = (IFGNode) rexpr.getResult();
+		final OFAFGNode<T> _right = rexpr.getFlowNode();
 
 		if (Util.isReferenceType(stmt.getRightOp().getType())) {
 			_right.addSucc(_left);

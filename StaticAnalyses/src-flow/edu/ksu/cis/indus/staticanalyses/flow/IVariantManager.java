@@ -18,24 +18,24 @@ import edu.ksu.cis.indus.processing.Context;
 
 /**
  * This interface is used to manage variants corresponding to entities.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  * @param <V> DOCUMENT ME!
- * @param <O> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public interface IVariantManager<V extends IVariant, O> {
+public interface IVariantManager<V extends IVariant, E> {
 
 	/**
 	 * Returns the variant corresponding to the given entity in the given context, if one exists.
-	 * 
+	 *
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant correponding to the entity in the given context, if one exists. <code>null</code> if none exist.
 	 * @pre o != null and context != null
 	 */
-	V query(final O o, final Context context);
+	V query(final E o, final Context context);
 
 	/**
 	 * Resets the manager. All internal data structures are reset to enable a new session of usage.
@@ -45,14 +45,14 @@ public interface IVariantManager<V extends IVariant, O> {
 	/**
 	 * Returns the variant corresponding to the given entity in the given context. If a variant does not exist, a new one is
 	 * created. If one exists, it shall be returned.
-	 * 
+	 *
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant correponding to the entity in the given context.
 	 * @pre o != null and context != null
 	 * @post result != null
 	 */
-	V select(final O o, final Context context);
+	V select(final E o, final Context context);
 }
 
 // End of File

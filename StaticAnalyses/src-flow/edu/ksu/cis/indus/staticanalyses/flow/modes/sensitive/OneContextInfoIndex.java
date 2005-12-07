@@ -25,10 +25,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <C> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public class OneContextInfoIndex<V, C>
-		implements IIndex<OneContextInfoIndex<V, C>> {
+public class OneContextInfoIndex<E, C>
+		implements IIndex<OneContextInfoIndex<E, C>> {
 
 	/**
 	 * The context in which <code>value</code> needs to be differentiated.
@@ -39,7 +39,7 @@ public class OneContextInfoIndex<V, C>
 	 * This index is used in association with <code>value</code>. This value is not available for retrieval, but rather
 	 * adds to improve the performance of <code>hashCode()</code> and <code>equals(Object)</code>.
 	 */
-	private final V value;
+	private final E value;
 
 	/**
 	 * Creates a new <code>OneContextInfoIndex</code> instance.
@@ -47,7 +47,7 @@ public class OneContextInfoIndex<V, C>
 	 * @param v the value whose variant is identified by this index.
 	 * @param c the context in which <code>value</code>'s variant is identified by this index.
 	 */
-	public OneContextInfoIndex(final V v, final C c) {
+	public OneContextInfoIndex(final E v, final C c) {
 		this.value = v;
 		this.contextInfo = c;
 	}

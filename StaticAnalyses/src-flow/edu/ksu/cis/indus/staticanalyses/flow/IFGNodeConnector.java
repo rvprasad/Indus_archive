@@ -20,11 +20,12 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * interface separates the logic of connecting AST and Non-AST nodes depending on whether the AST node corresponds to  a
  * r-value or l-value expression when constructing the flow graph.  This helps realize something similar to the
  * <i>Strategy</i> pattern as given in "Gang of Four" book.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-public interface IFGNodeConnector<N> {
+public interface IFGNodeConnector<N extends IFGNode<?, ?, N>> {
 	/**
 	 * Connects the given AST node to the Non-AST node.
 	 *

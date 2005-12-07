@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.annotations.AEmpty;
  * @version $Revision$
  * @param <N> DOCUMENT ME!
  */
-public class ValuedVariant <N extends IFGNode<N, ?>>
+public class ValuedVariant <N extends IFGNode<?, ?, N>>
   implements IVariant {
 	/** 
 	 * <p>

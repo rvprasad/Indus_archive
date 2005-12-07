@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import soot.SootMethod;
 
 /**
@@ -22,12 +23,11 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
- * @param <SS> DOCUMENT ME!
  */
-public interface IMethodVariantFactory<N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch> {
+public interface IMethodVariantFactory<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>> {
 
 	/**
 	 * Creates a method variant.
@@ -38,7 +38,7 @@ public interface IMethodVariantFactory<N extends IFGNode<N, ?>, LE extends IExpr
 	 * @return a method variant
 	 * @pre sootMethod != null and fa != null
 	 */
-	IMethodVariant<N, LE, RE, SS> create(SootMethod sootMethod, ASTVariantManager<N> astVM, FA fa);
+	IMethodVariant<N> create(SootMethod sootMethod, ASTVariantManager<SYM, T, N> astVM, FA<SYM, T, N> fa);
 }
 
 // End of File

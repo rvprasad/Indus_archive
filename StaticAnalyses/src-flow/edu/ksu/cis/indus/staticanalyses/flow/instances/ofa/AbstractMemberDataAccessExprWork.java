@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
@@ -30,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.Value;
-
 import soot.jimple.NullConstant;
 
 
@@ -41,29 +39,29 @@ import soot.jimple.NullConstant;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <N> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  */
-abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
-  extends AbstractAccessExprWork<N> {
-	/** 
+abstract class AbstractMemberDataAccessExprWork<T extends ITokens<T, Value>>
+  extends AbstractAccessExprWork<T> {
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMemberDataAccessExprWork.class);
 
-	/** 
+	/**
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
 	 *
 	 * @invariant ast != null
 	 */
-	protected final N ast;
+	protected final OFAFGNode<T> ast;
 
-	/** 
+	/**
 	 * The connector to be used to connect the ast and non-ast node.
 	 *
 	 * @invariant connector != null
 	 */
-	protected final IFGNodeConnector<N> connector;
+	protected final IFGNodeConnector<OFAFGNode<T>> connector;
 
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
@@ -77,8 +75,8 @@ abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null and tokenSet != null
 	 */
-	public AbstractMemberDataAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext,
-		final N accessNode, final IFGNodeConnector<N> connectorToUse, final ITokens tokenSet) {
+	public AbstractMemberDataAccessExprWork(final IMethodVariant<OFAFGNode<T>> callerMethod, final Context accessContext,
+		final OFAFGNode<T> accessNode, final IFGNodeConnector<OFAFGNode<T>> connectorToUse, final T tokenSet) {
 		super(callerMethod, accessContext, tokenSet);
 		this.ast = accessNode;
 		this.connector = connectorToUse;
@@ -88,14 +86,14 @@ abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
 	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the array access expression.
 	 */
 	public synchronized void execute() {
-		final Collection _values = tokens.getValues();
+		final Collection<Value> _values = tokens.getValues();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(_values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
-			final Value _v = (Value) _i.next();
+		for (final Iterator<Value> _i = _values.iterator(); _i.hasNext();) {
+			final Value _v = _i.next();
 
 			if (_v instanceof NullConstant) {
 				continue;
@@ -105,7 +103,7 @@ abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
 				((AllocationContext) context).setAllocationSite(_v);
 			}
 
-			final N _nonast = getFGNodeForMemberData();
+			final OFAFGNode<T> _nonast = getFGNodeForMemberData();
 			connector.connect(ast, _nonast);
 		}
 	}
@@ -117,7 +115,7 @@ abstract class AbstractMemberDataAccessExprWork<N extends IFGNode<N, ?>>
 	 *
 	 * @post result != null
 	 */
-	protected abstract N getFGNodeForMemberData();
+	protected abstract OFAFGNode<T> getFGNodeForMemberData();
 }
 
 // End of File

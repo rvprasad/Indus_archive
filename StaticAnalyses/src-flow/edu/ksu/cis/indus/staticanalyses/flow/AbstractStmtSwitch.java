@@ -14,12 +14,25 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.processing.Context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
+import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.InvokeStmt;
+import soot.jimple.LookupSwitchStmt;
+import soot.jimple.RetStmt;
+import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
+import soot.jimple.ThrowStmt;
 
 /**
  * The statement visitor class. This class provides the default implementation for all the statements that need to be dealt at
@@ -30,10 +43,8 @@ import soot.jimple.Stmt;
  * @version $Revision$
  * @param <S> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
  */
-public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, RE>, N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>>
+public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N>, N extends IFGNode<?, ?, N>>
 		extends soot.jimple.AbstractStmtSwitch
 		implements IStmtSwitch {
 
@@ -51,17 +62,17 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, 
 	/**
 	 * The LHS expression visitor used to this object to process LHS expressions.
 	 */
-	protected final LE lexpr;
+	protected final IExprSwitch<N> lexpr;
 
 	/**
 	 * The method variant in which this visitor is used.
 	 */
-	protected final IMethodVariant<N, LE, RE, S> method;
+	protected final IMethodVariant<N> method;
 
 	/**
 	 * The RHS expression visitor used to this object to process RHS expressions.
 	 */
-	protected final RE rexpr;
+	protected final IExprSwitch<N> rexpr;
 
 	/**
 	 * Creates a new <code>AbstractStmtSwitch</code> instance. In non-prototype mode, all of the fields (declared in this
@@ -69,7 +80,7 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, 
 	 *
 	 * @param m the method variant in which this visitor is used.
 	 */
-	protected AbstractStmtSwitch(final IMethodVariant<N, LE, RE, S> m) {
+	protected AbstractStmtSwitch(final IMethodVariant<N> m) {
 		method = m;
 
 		if (m != null) {
@@ -81,6 +92,140 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, 
 			lexpr = null;
 			rexpr = null;
 		}
+	}
+
+	/**
+	 * Processes the assignment statement. It processes the rhs expression and the lhs expression and connects the flow graph
+	 * nodes corresponding to these expressions.
+	 *
+	 * @param stmt the assignment statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseAssignStmt(final AssignStmt stmt) {
+		processDefinitionStmt(stmt);
+	}
+
+	/**
+	 * Processes the enter monitor statement. Current implementation visits the monitor expression.
+	 *
+	 * @param stmt the enter monitor statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
+		rexpr.process(stmt.getOpBox());
+	}
+
+	/**
+	 * Processes the exit monitor statement. Current implementation visits the monitor expression.
+	 *
+	 * @param stmt the exit monitor statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
+		rexpr.process(stmt.getOpBox());
+	}
+
+	/**
+	 * Processes the identity statement. It processes the rhs expression and the lhs expression and connects the flow graph
+	 * nodes corresponding to these expressions.
+	 *
+	 * @param stmt the identity statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseIdentityStmt(final IdentityStmt stmt) {
+		processDefinitionStmt(stmt);
+	}
+
+	/**
+	 * Processes the if statement. Current implementation visits the condition expression.
+	 *
+	 * @param stmt the if statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseIfStmt(final IfStmt stmt) {
+		rexpr.process(stmt.getConditionBox());
+	}
+
+	/**
+	 * Processes the invoke statement. Current implementation visits the invoke expression.
+	 *
+	 * @param stmt the invoke statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseInvokeStmt(final InvokeStmt stmt) {
+		rexpr.process(stmt.getInvokeExprBox());
+	}
+
+	/**
+	 * Processes the lookup switch statement. Current implementation visits the switch expression.
+	 *
+	 * @param stmt the lookup switch statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
+		rexpr.process(stmt.getKeyBox());
+	}
+
+	/**
+	 * Processes the return statement. Current implementation visits the address expression.
+	 *
+	 * @param stmt the return statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseRetStmt(final RetStmt stmt) {
+		rexpr.process(stmt.getStmtAddressBox());
+	}
+
+	/**
+	 * Processes the return statement. Current implementation visits the return value expression and connects it to node
+	 * corresponding to the return node of the enclosing method variant.
+	 *
+	 * @param stmt the return statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseReturnStmt(final ReturnStmt stmt) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + stmt);
+		}
+
+		if (Util.isReferenceType(stmt.getOp().getType())) {
+			rexpr.process(stmt.getOpBox());
+
+			final N _retNode = rexpr.getFlowNode();
+			_retNode.addSucc(method.queryReturnNode());
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + stmt);
+		}
+	}
+
+	/**
+	 * Processes the table switch statement. Current implementation visits the switch expression.
+	 *
+	 * @param stmt the table switch statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
+		rexpr.process(stmt.getKeyBox());
+	}
+
+	/**
+	 * Processes the throw statement. Current implementation visits the throw expression.
+	 *
+	 * @param stmt the throw statement to be processed.
+	 * @pre stmt != null
+	 */
+	@Override public void caseThrowStmt(final ThrowStmt stmt) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing statement: " + stmt);
+		}
+
+		rexpr.process(stmt.getOpBox());
 	}
 
 	/**
@@ -126,6 +271,16 @@ public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<?, N, LE, 
 			LOGGER.debug("END: processed " + stmtToProcess);
 		}
 	}
+
+	/**
+	 * Processes the definition statements. It processes the rhs expression and the lhs expression and connects the flow graph
+	 * nodes corresponding to these expressions.
+	 *
+	 * @param stmt the defintion statement to be processed.
+	 * @pre stmt != null
+	 */
+	protected abstract void processDefinitionStmt(final DefinitionStmt stmt);
+
 }
 
 // End of File

@@ -21,15 +21,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a peice of work to inject a set of tokens into a flow graph node.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
  */
-public class SendTokensWork<N extends IFGNode<N, V>, V>
-		extends AbstractTokenProcessingWork {
+public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+		extends AbstractTokenProcessingWork<T> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -44,11 +45,10 @@ public class SendTokensWork<N extends IFGNode<N, V>, V>
 	/**
 	 * Creates an instance of this class.
 	 * @param associatedNode DOCUMENT ME!
-	 * @param <T> DOCUMENT ME!
-	 * 
+	 *
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
-	SendTokensWork(final N associatedNode, final ITokens tokenSet) {
+	SendTokensWork(final N associatedNode, final T tokenSet) {
 		super(tokenSet);
 		node = associatedNode;
 	}

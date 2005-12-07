@@ -28,11 +28,8 @@ import soot.jimple.InvokeExpr;
  * @author $Author$
  * @version $Revision$
  * @param <N> DOCUMENT ME!
- * @param <S> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
  */
-public interface IMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, S extends IStmtSwitch>
+public interface IMethodVariant<N extends IFGNode<?, ?, N>>
 		extends IVariant {
 
 	/**
@@ -69,7 +66,7 @@ public interface IMethodVariant<N extends IFGNode<N, ?>, LE extends IExprSwitch<
 	 * @return the flow analysis instance used by this method.
 	 * @post result != null
 	 */
-	FA<N, ?, ?, ?, ?, LE, ?, RE, S, ?> getFA();
+	FA<?, ?, N> getFA();
 
 	/**
 	 * Retrieves the method used by this method variant.

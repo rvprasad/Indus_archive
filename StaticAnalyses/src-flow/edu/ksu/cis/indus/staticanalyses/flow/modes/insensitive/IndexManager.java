@@ -26,29 +26,30 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <O> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public class IndexManager<O>
-		extends AbstractIndexManager<IndexManager.DummyIndex<O>, O>
-		implements IPrototype<IndexManager<O>> {
+public class IndexManager<E>
+		extends AbstractIndexManager<IndexManager.DummyIndex<E>, E>
+		implements IPrototype<IndexManager<E>> {
 
 	/**
 	 * This class represents an index that identifies an entity independent of any context information..
+	 * @param <E> DOCUMENT ME!
 	 */
-	private static class DummyIndex<O>
-			implements IIndex<DummyIndex<O>> {
+	private static class DummyIndex<E>
+			implements IIndex<DummyIndex<E>> {
 
 		/**
 		 * The entity that this index identifies.
 		 */
-		O object;
+		E object;
 
 		/**
 		 * Creates a new <code>DummyIndex</code> instance.
 		 *
 		 * @param o the entity being identified by this index.
 		 */
-		DummyIndex(final O o) {
+		DummyIndex(final E o) {
 			this.object = o;
 		}
 
@@ -95,8 +96,8 @@ public class IndexManager<O>
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object[])
 	 */
-	public IndexManager<O> getClone(@SuppressWarnings("unused") Object... o) {
-		return new IndexManager<O>();
+	public IndexManager<E> getClone(@SuppressWarnings("unused") Object... o) {
+		return new IndexManager<E>();
 	}
 
 	/**
@@ -106,8 +107,8 @@ public class IndexManager<O>
 	 * @param c <i>ignored</i>..
 	 * @return the index that uniquely identifies <code>o</code>.
 	 */
-	@Override protected DummyIndex<O> createIndex(final O o, @SuppressWarnings("unused") final Context c) {
-		return new DummyIndex<O>(o);
+	@Override protected DummyIndex<E> createIndex(final E o, @SuppressWarnings("unused") final Context c) {
+		return new DummyIndex<E>(o);
 	}
 }
 

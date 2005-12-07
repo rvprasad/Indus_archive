@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.IWork;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 
@@ -33,14 +34,15 @@ import org.slf4j.LoggerFactory;
  * an implementation may transform the existing values as new values arrive, or change successors as new successors are added.
  * Hence, all imlementing classes are required to implement <code>IFGNode.onNewSucc</code> and
  * <code>IFGNode.onNewTokens</code> methods.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <N> DOCUMENT ME!
- * @param <S> DOCUMENT ME!
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  */
-public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
-		implements IFGNode<N, S> {
+public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
+		implements IFGNode<SYM, T, N> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -50,7 +52,7 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * The work bag provided associated with the enclosing instance of the framework. This is required if subclasses want to
 	 * generate new work depending on the new values or new successors that may occur.
-	 * 
+	 *
 	 * @invariant workbagProvider != null
 	 */
 	protected final IWorkBagProvider workbagProvider;
@@ -58,12 +60,12 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * A filter that controls the inflow of values to this node.
 	 */
-	private ITokenFilter inFilter;
+	private ITokenFilter<T, SYM> inFilter;
 
 	/**
 	 * A filter that controls the outflow of values from this node.
 	 */
-	private ITokenFilter outFilter;
+	private ITokenFilter<T, SYM> outFilter;
 
 	/**
 	 * The piece of data required to perform strongly connected component-based optimization.
@@ -77,38 +79,40 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	 * can be added to the work referred to by this work piece rather than creating and adding a new work piece to the work
 	 * list.
 	 */
-	private SendTokensWork sendTokensWork;
+	private SendTokensWork<SYM, T, N> sendTokensWork;
 
 	/**
 	 * The set of immediate successor nodes, i.e., there is direct edge from this node to the successor nodes, of this node.
 	 * The elements in the set are of type <code>IFGNode</code>.
-	 * 
+	 *
 	 * @invariant succs != null
 	 */
 	private Collection<N> succs = new HashSet<N>();
 
 	/**
 	 * The set of tokens that will be used to store tokens at this node.
-	 * 
+	 *
 	 * @invariant tokens != null
 	 */
-	private ITokens tokens;
+	private T tokens;
 
 	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
-	 * 
+	 *
 	 * @param provider provides the work bag instance associated with the enclosing instance of the framework.
 	 * @param tokenSet to be used to store the tokens at this node.
 	 * @pre worklistToUse != null and tokenSet != null
 	 */
-	protected AbstractFGNode(final IWorkBagProvider provider, final ITokens tokenSet) {
+	protected AbstractFGNode(final IWorkBagProvider provider, final T tokenSet) {
 		workbagProvider = provider;
 		tokens = tokenSet;
 	}
 
 	/**
 	 * Provides the tokens that go through the given filter.
-	 * 
+	 *
+	 * @param <T> DOCUMENT ME!
+	 * @param <S> DOCUMENT ME!
 	 * @param filter to be used.
 	 * @param tokenSet to be filtered.
 	 * @return the filterate tokens.
@@ -116,8 +120,8 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	 * @post result != null
 	 * @post filter == null implies result.equals(tokenSet)
 	 */
-	private static ITokens filterTokens(final ITokenFilter filter, final ITokens tokenSet) {
-		final ITokens _result;
+	private static <T extends ITokens<T, S>, S> T filterTokens(final ITokenFilter<T, S> filter, final T tokenSet) {
+		final T _result;
 
 		if (filter != null) {
 			_result = filter.filter(tokenSet);
@@ -131,13 +135,13 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * @see IFGNode#absorbTokensLazily(ITokens)
 	 */
-	public void absorbTokensLazily(final ITokens tokensToBeInjected) {
-		final IWorkBag _workBag = workbagProvider.getWorkBag();
-		final ITokens _diff = tokensToBeInjected.diffTokens(tokens);
+	public void absorbTokensLazily(final T tokensToBeInjected) {
+		final IWorkBag<IWork> _workBag = workbagProvider.getWorkBag();
+		final T _diff = tokensToBeInjected.diffTokens(tokens);
 
 		if (!_diff.isEmpty()) {
 			if (sendTokensWork == null) {
-				sendTokensWork = new SendTokensWork<N, S>((N) this, _diff);
+				sendTokensWork = new SendTokensWork<SYM, T, N>((N) this, _diff);
 				_workBag.addWork(sendTokensWork);
 			} else {
 				sendTokensWork.addTokens(_diff);
@@ -161,7 +165,7 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IMutableFGNode#getSCCRelatedData()
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#getSCCRelatedData()
 	 */
 	public final SCCRelatedData getSCCRelatedData() {
 		if (sccData == null) {
@@ -180,22 +184,22 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * @see IFGNode#getTokens()
 	 */
-	public final ITokens getTokens() {
+	public final T getTokens() {
 		return filterTokens(outFilter, tokens);
 	}
 
 	/**
 	 * @see IFGNode#getValues()
 	 */
-	public final Collection<S> getValues() {
+	public final Collection<SYM> getValues() {
 		return getTokens().getValues();
 	}
 
 	/**
 	 * @see IFGNode#injectTokens(ITokens)
 	 */
-	public final void injectTokens(final ITokens newTokens) {
-		final ITokens _diffTokens = filterTokens(inFilter, newTokens.diffTokens(tokens));
+	public final void injectTokens(final T newTokens) {
+		final T _diffTokens = filterTokens(inFilter, newTokens.diffTokens(tokens));
 
 		if (!_diffTokens.isEmpty()) {
 			tokens.addTokens(_diffTokens);
@@ -206,41 +210,41 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * @see IFGNode#setInFilter(ITokenFilter)
 	 */
-	public final void setInFilter(final ITokenFilter filterToUse) {
+	public final void setInFilter(final ITokenFilter<T, SYM> filterToUse) {
 		inFilter = filterToUse;
 	}
 
 	/**
 	 * @see IFGNode#setOutFilter(ITokenFilter)
 	 */
-	public final void setOutFilter(final ITokenFilter filterToUse) {
+	public final void setOutFilter(final ITokenFilter<T, SYM> filterToUse) {
 		outFilter = filterToUse;
 	}
 
 	/**
-	 * @see IMutableFGNode#setSCCRelatedData(SCCRelatedData)
+	 * @see IFGNode#setSCCRelatedData(SCCRelatedData)
 	 */
 	public final void setSCCRelatedData(final SCCRelatedData data) {
 		sccData = data;
 	}
 
 	/**
-	 * @see IMutableFGNode#setSuccessorSet(Collection)
+	 * @see IFGNode#setSuccessorSet(Collection)
 	 */
 	public final void setSuccessorSet(final Collection<N> successors) {
 		succs = successors;
 	}
 
 	/**
-	 * @see IMutableFGNode#setTokenSet(ITokens)
+	 * @see IFGNode#setTokenSet(ITokens)
 	 */
-	public final void setTokenSet(final ITokens newTokenSet) {
+	public final void setTokenSet(final T newTokenSet) {
 		tokens = newTokenSet;
 	}
 
 	/**
 	 * Returns a stringized representation of this object.
-	 * 
+	 *
 	 * @return the stringized representation of this object.
 	 * @post result != null
 	 */
@@ -251,26 +255,27 @@ public abstract class AbstractFGNode<N extends AbstractFGNode<N, S>, S>
 	/**
 	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>. Only the difference
 	 * values are propogated.
-	 * 
+	 *
 	 * @param succ the successor node that was added to this node.
 	 * @pre succ != null
 	 */
-	protected void onNewSucc(final IFGNode succ) {
+	protected void onNewSucc(final N succ) {
 		succ.absorbTokensLazily(tokens);
 	}
 
 	/**
 	 * Processing to be done on receiving new acceptable tokens. This implementation adds a new work to the worklist to
 	 * propogate the new values to it's successor nodes.
-	 * 
-	 * @param newTokens the values to be propogated to the successor node. The collection contains object of type<code>Object</code>.
+	 *
+	 * @param newTokens the values to be propogated to the successor node. The collection contains object of type
+	 *            <code>Object</code>.
 	 * @pre newTokens != null
 	 */
-	protected void onNewTokens(final ITokens newTokens) {
+	protected void onNewTokens(final T newTokens) {
 		if (!succs.isEmpty()) {
 
-			for (final Iterator _i = succs.iterator(); _i.hasNext();) {
-				final IFGNode _succ = (IFGNode) _i.next();
+			for (final Iterator<N> _i = succs.iterator(); _i.hasNext();) {
+				final N _succ = _i.next();
 				_succ.absorbTokensLazily(newTokens);
 			}
 		}

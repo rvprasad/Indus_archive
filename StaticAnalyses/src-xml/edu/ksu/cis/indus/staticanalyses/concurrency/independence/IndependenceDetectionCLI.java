@@ -41,6 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -65,6 +66,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.SootMethod;
+import soot.Value;
 
 import soot.jimple.Stmt;
 
@@ -76,20 +78,22 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
+ *
  */
-public final class IndependenceDetectionCLI
+public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
   extends SootBasedDriver {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndependenceDetectionCLI.class);
 
-	/** 
+	/**
 	 * The detector to be used.
 	 */
 	private final IndependentStmtDetector detector;
 
-	/** 
+	/**
 	 * The directory in which to dump jimple.
 	 */
 	private String outputDir;
@@ -233,7 +237,7 @@ public final class IndependenceDetectionCLI
 
 		final String _tagName = "AtomicityDetection:FA";
 		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);

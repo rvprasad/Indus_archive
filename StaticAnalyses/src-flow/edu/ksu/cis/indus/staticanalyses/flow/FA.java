@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -33,6 +34,7 @@ import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCBasedOptimizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -61,18 +63,11 @@ import soot.tagkit.Tag;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <N> DOCUMENT ME!
  * @param <SYM> DOCUMENT ME!
- * @param <ARI> DOCUMENT ME!
- * @param <AI> DOCUMENT ME!
- * @param <IFI> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <MI> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
- * @param <SS> DOCUMENT ME!
- * @param <SFI> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
+ * @param <N> DOCUMENT ME!
  */
-public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? extends IIndex, ArrayType>, AI extends IIndexManager<? extends IIndex, Value>, IFI extends IIndexManager<? extends IIndex, SootField>, LE extends IExprSwitch<N>, MI extends IIndexManager<? extends IIndex, SootMethod>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, SFI extends IIndexManager<? extends IIndex, SootField>>
+public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		implements IEnvironment, IWorkBagProvider {
 
 	/**
@@ -102,12 +97,12 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * The manager of array variants.
 	 */
-	private ValuedVariantManager<N, ArrayType> arrayVariantManager;
+	private ValuedVariantManager<ArrayType, SYM, T, N> arrayVariantManager;
 
 	/**
 	 * The manager of class related primitive information and processing.
 	 */
-	private ClassManager classManager;
+	private final ClassManager classManager;
 
 	/**
 	 * The current work bag among the collection of work bags being used.
@@ -122,22 +117,32 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * The manager of instance field variants.
 	 */
-	private ValuedVariantManager<N, SootField> instanceFieldVariantManager;
+	private ValuedVariantManager<SootField, SYM, T, N> instanceFieldVariantManager;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private IPrototype<? extends IExprSwitch<N>> lhsVisitorPrototype;
 
 	/**
 	 * The manager of method variants.
 	 */
-	private MethodVariantManager<N, LE, RE, SS> methodVariantManager;
+	private MethodVariantManager<SYM, T, N> methodVariantManager;
 
 	/**
-	 * The factory that provides the components during the analysis performed by this instance of the framework.
+	 * DOCUMENT ME!
 	 */
-	private ModeFactory<ARI, AI, IFI, LE, MI, N, RE, SS, SFI> modeFactory;
+	private IPrototype<N> nodePrototype;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private IPrototype<? extends IExprSwitch<N>> rhsVisitorPrototype;
 
 	/**
 	 * This optimizes flow graph based on SCC.
 	 */
-	private final SCCBasedOptimizer<N> sccBasedOptimizer = new SCCBasedOptimizer<N>();
+	private final SCCBasedOptimizer<SYM, T, N> sccBasedOptimizer = new SCCBasedOptimizer<SYM, T, N>();
 
 	/**
 	 * This is the interval between which SCC-based optimization is applied.
@@ -147,7 +152,12 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	/**
 	 * The manager of static field variants.
 	 */
-	private ValuedVariantManager<N, SootField> staticFieldVariantManager;
+	private ValuedVariantManager<SootField, SYM, T, N> staticFieldVariantManager;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private IPrototype<? extends IStmtSwitch> stmtVisitorPrototype;
 
 	/**
 	 * The tag used to identify the elements of the AST touched by this framework instance.
@@ -159,7 +169,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 *
 	 * @invariant tokenManager != null
 	 */
-	private final ITokenManager<?, SYM> tokenManager;
+	private final ITokenManager<T, SYM> tokenManager;
 
 	/**
 	 * The collection of workbags used in tandem during analysis.
@@ -176,7 +186,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @param tokenMgr manages the tokens whose flow is instrumented by this instance of flow analysis.
 	 * @pre analyzer != null and tagName != null and tokenMgr != null and stmtGraphFactory != null
 	 */
-	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<?, SYM> tokenMgr) {
+	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<T, SYM> tokenMgr) {
 		workBags = new IWorkBag[2];
 		workBags[0] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
 		workBags[1] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
@@ -185,6 +195,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 		tag = new NamedTag(tagName);
 		tokenManager = tokenMgr;
 		sccOptimizationInterval = Constants.getSCCOptimizationIntervalForFA();
+		classManager = new ClassManager(this);
 	}
 
 	/**
@@ -298,8 +309,8 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @return a new LHS expression visitor.
 	 * @pre e != null
 	 */
-	public final LE getLHSExpr(final SS e) {
-		return modeFactory.getLHSExprVisitor(e);
+	public final IExprSwitch<N> getLHSExpr(final IStmtSwitch e) {
+		return lhsVisitorPrototype.getClone(e);
 	}
 
 	/**
@@ -311,7 +322,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	public final IMethodVariant<N, LE, RE, SS> getMethodVariant(final SootMethod sm) {
+	public final IMethodVariant<N> getMethodVariant(final SootMethod sm) {
 		return getMethodVariant(sm, analyzer.getContext());
 	}
 
@@ -325,7 +336,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @pre sm != null and context != null
 	 * @post result != null
 	 */
-	public final IMethodVariant<N, LE, RE, SS> getMethodVariant(final SootMethod sm, final Context context) {
+	public final IMethodVariant<N> getMethodVariant(final SootMethod sm, final Context context) {
 		return methodVariantManager.select(sm, context);
 	}
 
@@ -335,7 +346,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @return a new flow graph node.
 	 */
 	public final N getNewFGNode() {
-		return modeFactory.getFGNode(this);
+		return nodePrototype.getClone(this);
 	}
 
 	/**
@@ -345,8 +356,8 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @return a new RHS expression visitor.
 	 * @pre e != null
 	 */
-	public final RE getRHSExpr(final SS e) {
-		return modeFactory.getRHSExprVisitor(e);
+	public final IExprSwitch<N> getRHSExpr(final IStmtSwitch e) {
+		return rhsVisitorPrototype.getClone(e);
 	}
 
 	/**
@@ -382,8 +393,8 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @return a new statement visitor.
 	 * @pre e != null
 	 */
-	public final SS getStmt(final IMethodVariant e) {
-		return modeFactory.getStmtVisitor(e);
+	public final IStmtSwitch getStmt(final IMethodVariant<N> e) {
+		return stmtVisitorPrototype.getClone(e);
 	}
 
 	/**
@@ -392,7 +403,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @return the token manager.
 	 * @post tokenManager != null
 	 */
-	public final ITokenManager<?, SYM> getTokenManager() {
+	public final ITokenManager<T, SYM> getTokenManager() {
 		return tokenManager;
 	}
 
@@ -446,6 +457,34 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	}
 
 	/**
+	 * Sets the prototype of the LHS expression visitor.
+	 *
+	 * @param prototype obviously.
+	 * @pre lhsVisitorPrototype != null
+	 */
+	public final void setLhsVisitorPrototype(final IPrototype<? extends IExprSwitch<N>> prototype) {
+		this.lhsVisitorPrototype = prototype;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param node DOCUMENT ME!
+	 */
+	public void setNodePrototype(N node) {
+		nodePrototype = node;
+	}
+
+	/**
+	 * Sets the prototype of the RHS expression visitor.
+	 *
+	 * @param prototype obviously.
+	 */
+	public final void setRhsVisitorPrototype(final IPrototype<? extends IExprSwitch<N>> prototype) {
+		this.rhsVisitorPrototype = prototype;
+	}
+
+	/**
 	 * Sets the value of <code>sccOptimizationInterval</code>.
 	 *
 	 * @param interval the new value of <code>sccOptimizationInterval</code>. Zero and negative values will turn off the
@@ -453,6 +492,55 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 */
 	public final void setSccOptimizationInterval(final int interval) {
 		this.sccOptimizationInterval = interval;
+	}
+
+	/**
+	 * Sets the prototype of the statement visitor.
+	 *
+	 * @param prototype obviously.
+	 */
+	public final void setStmtVisitorPrototype(final IPrototype<? extends IStmtSwitch> prototype) {
+		this.stmtVisitorPrototype = prototype;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param arrayIM DOCUMENT ME!
+	 */
+	public void setupArrayVariantManager(IIndexManager<? extends IIndex<?>, ArrayType> arrayIM) {
+		arrayVariantManager = new ValuedVariantManager<ArrayType, SYM, T, N>(this, arrayIM);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param instancefieldIM DOCUMENT ME!
+	 */
+	public void setupInstanceFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> instancefieldIM) {
+		instanceFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N>(this, instancefieldIM);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param mi DOCUMENT ME!
+	 * @param astIMPrototype DOCUMENT ME!
+	 * @param mvf DOCUMENT ME!
+	 */
+	public void setupMethodVariantManager(final IIndexManager<? extends IIndex<?>, SootMethod> mi,
+			final IPrototype<? extends IIndexManager<? extends IIndex<?>, Value>> astIMPrototype,
+			final IMethodVariantFactory<SYM, T, N> mvf) {
+		methodVariantManager = new MethodVariantManager<SYM, T, N>(this, mi, astIMPrototype, mvf);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param staticfieldIM DOCUMENT ME!
+	 */
+	public void setupStaticFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> staticfieldIM) {
+		staticFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N>(this, staticfieldIM);
 	}
 
 	/**
@@ -593,7 +681,7 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	final IMethodVariant<N, LE, RE, SS> queryMethodVariant(final SootMethod sm) {
+	final IMethodVariant<N> queryMethodVariant(final SootMethod sm) {
 		return queryMethodVariant(sm, analyzer.getContext());
 	}
 
@@ -606,26 +694,8 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 * @pre sm != null and context != null
 	 * @post result != null
 	 */
-	final IMethodVariant<N, LE, RE, SS> queryMethodVariant(final SootMethod sm, final Context context) {
+	final IMethodVariant<N> queryMethodVariant(final SootMethod sm, final Context context) {
 		return methodVariantManager.query(sm, context);
-	}
-
-	/**
-	 * Sets the factories to be used in this instance of the framework.
-	 *
-	 * @param mf is the factory object that provides the objects that dictate the mode of analysis.
-	 * @param mvf is the factory object the provides method variants.
-	 * @pre mf != null and mvf != null
-	 */
-	void setFactories(final ModeFactory<ARI, AI, IFI, LE, MI, N, RE, SS, SFI> mf,
-			final IMethodVariantFactory<N, LE, RE, SS> mvf) {
-		modeFactory = mf;
-		classManager = new ClassManager(this);
-		arrayVariantManager = new ValuedVariantManager<N, ArrayType>(this, mf.getArrayIndexManager());
-		instanceFieldVariantManager = new ValuedVariantManager<N, SootField>(this, mf.getInstanceFieldIndexManager());
-		methodVariantManager = new MethodVariantManager<N, LE, RE, SS>(this, mf.getMethodIndexManager(), mf
-				.getASTIndexManagerPrototype(), mvf);
-		staticFieldVariantManager = new ValuedVariantManager<N, SootField>(this, mf.getStaticFieldIndexManager());
 	}
 
 	/**
@@ -648,11 +718,11 @@ public class FA<N extends IFGNode<N, SYM>, SYM, ARI extends IIndexManager<? exte
 	 */
 	private Collection<N> getVariantsAtMethodInterfaces() {
 		final Collection<N> _result = new HashSet<N>();
-		final Iterator<IMethodVariant<N, LE, RE, SS>> _i = methodVariantManager.getVariants().iterator();
+		final Iterator<IMethodVariant<N>> _i = methodVariantManager.getVariants().iterator();
 		final int _iEnd = methodVariantManager.getVariants().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IMethodVariant<N, LE, RE, SS> _mv = _i.next();
+			final IMethodVariant<N> _mv = _i.next();
 			_result.add(_mv.queryReturnNode());
 			_result.add(_mv.queryThisNode());
 

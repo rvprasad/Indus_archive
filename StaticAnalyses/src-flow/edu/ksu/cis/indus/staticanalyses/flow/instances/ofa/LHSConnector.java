@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,32 +14,32 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
-
 
 /**
  * This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
  * correspond to l-values.
- * 
  * <p>
  * Created: Wed Jan 30 15:19:44 2002
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-class LHSConnector
-  implements IFGNodeConnector<OFAFGNode> {
+class LHSConnector<N extends IFGNode<?, ?, N>>
+		implements IFGNodeConnector<N> {
+
 	/**
-	 * Connects the given ast flow graph node to the non-ast flow graph node.  This is used to connect flow nodes
-	 * corresponding to LHS expressions.
+	 * Connects the given ast flow graph node to the non-ast flow graph node. This is used to connect flow nodes corresponding
+	 * to LHS expressions.
 	 *
 	 * @param ast the ast flow graph node to be connected.
 	 * @param nonast the non-ast flow graph node to be connnected.
-	 *
 	 * @pre ast != null and nonast != null
 	 */
-	public void connect(final OFAFGNode ast, final OFAFGNode nonast) {
+	public void connect(final N ast, final N nonast) {
 		ast.addSucc(nonast);
 	}
 }

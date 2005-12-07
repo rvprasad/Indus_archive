@@ -18,12 +18,12 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.ArrayType;
+import soot.Value;
 
 import soot.jimple.ArrayRef;
 
@@ -34,10 +34,10 @@ import soot.jimple.ArrayRef;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  */
-class ArrayAccessExprWork<N extends IFGNode<N, ?>>
-  extends AbstractMemberDataAccessExprWork<N> {
+class ArrayAccessExprWork<T extends ITokens<T, Value>>
+  extends AbstractMemberDataAccessExprWork<T> {
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
 	 *
@@ -50,17 +50,17 @@ class ArrayAccessExprWork<N extends IFGNode<N, ?>>
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null and tokenSet != null
 	 */
-	public ArrayAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final N accessNode,
-		final IFGNodeConnector<N> connectorToUse, final ITokens tokenSet) {
+	public ArrayAccessExprWork(final IMethodVariant<OFAFGNode<T>> callerMethod, final Context accessContext, final OFAFGNode<T> accessNode,
+		final IFGNodeConnector<OFAFGNode<T>> connectorToUse, final T tokenSet) {
 		super(callerMethod, accessContext, accessNode, connectorToUse, tokenSet);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNodeForMemberData()
 	 */
-	@Override protected N getFGNodeForMemberData() {
+	@Override protected  OFAFGNode<T> getFGNodeForMemberData() {
 		final ArrayType _atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> _fa = caller.getFA();
+		final FA<?, ?, OFAFGNode<T>> _fa = caller.getFA();
 		return _fa.getArrayVariant(_atype, context).getFGNode();
 	}
 }

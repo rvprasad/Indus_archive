@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.flow;
 
+import edu.ksu.cis.indus.interfaces.IPrototype;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
@@ -25,40 +25,45 @@ import org.slf4j.LoggerFactory;
 
 import soot.ValueBox;
 
-
 /**
- * This class manages indices associated with entities in flow sensitive mode.  In reality, it provides the implementation to
+ * This class manages indices associated with entities in flow sensitive mode. In reality, it provides the implementation to
  * create new indices.
- *
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <V> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public class FlowSensitiveIndexManager<V>
-  extends AbstractIndexManager<OneContextInfoIndex<V, ValueBox>, V> {
+public class FlowSensitiveIndexManager<E>
+		extends AbstractIndexManager<OneContextInfoIndex<E, ValueBox>, E>
+		implements IPrototype<FlowSensitiveIndexManager<E>> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlowSensitiveIndexManager.class);
 
 	/**
-	 * Returns an index corresponding to the given entity and context.  The index is dependent on the program point stored in
+	 * Returns an index corresponding to the given entity and context. The index is dependent on the program point stored in
 	 * the context.
 	 *
 	 * @param o the entity for which the index in required.
 	 * @param c the context which captures program point needed to generate the index.
-	 *
 	 * @return the index that uniquely identifies <code>o</code> at the program point captured in <code>c</code>.
-	 *
 	 * @pre o != null and c != null
 	 */
-	@Override protected OneContextInfoIndex<V, ValueBox> createIndex(final V o, final Context c) {
+	@Override protected OneContextInfoIndex<E, ValueBox> createIndex(final E o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
 
-		return new OneContextInfoIndex<V, ValueBox>(o, c.getProgramPoint());
+		return new OneContextInfoIndex<E, ValueBox>(o, c.getProgramPoint());
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object[])
+	 */
+	public FlowSensitiveIndexManager<E> getClone(Object... o) {
+		return new FlowSensitiveIndexManager<E>();
 	}
 }
 

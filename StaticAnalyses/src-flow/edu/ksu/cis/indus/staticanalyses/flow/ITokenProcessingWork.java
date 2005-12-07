@@ -19,21 +19,22 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 /**
  * This interface is provided by a work piece that processes tokens.
- * 
+ *
  * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @param <T> DOCUMENT ME!
  */
-public interface ITokenProcessingWork
+public interface ITokenProcessingWork<T extends ITokens<T, ?>>
 		extends IWork {
 
 	/**
 	 * Adds a collection of values to the collection of values associated with this work.
-	 * 
+	 *
 	 * @param tokensToBeProcessed the collection of values to be added for processing.
 	 * @pre valuesToBeProcessed != null
 	 */
-	void addTokens(final ITokens tokensToBeProcessed);
+	void addTokens(final T tokensToBeProcessed);
 }
 
 // End of File

@@ -16,10 +16,13 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import soot.Local;
 import soot.RefType;
@@ -37,22 +40,20 @@ import soot.jimple.JimpleBody;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <N> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
- * @param <SS> DOCUMENT ME!
  * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
+ * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, SYM>
-  implements IMethodVariant<N, LE, RE, SS> {
-	/** 
+public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+  implements IMethodVariant<N> {
+	/**
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA<N, SYM, ?, ?, ?, LE, ?, RE, SS, ?> fa;
+	protected final FA<SYM, T, N> fa;
 
-	/** 
+	/**
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
 	 * <code>null</code>, if the associated method's return type is any non-ref type.
 	 *
@@ -61,7 +62,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 */
 	protected final N returnVar;
 
-	/** 
+	/**
 	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
 	 *
@@ -70,19 +71,19 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 */
 	protected final N thisVar;
 
-	/** 
+	/**
 	 * The flow graph node associated with an abstract single exceptional return point of the corresponding method.
 	 */
 	protected final N thrownNode;
 
-	/** 
+	/**
 	 * The statement visitor used to process in the statement in the correpsonding method.
 	 *
 	 * @invariant stmt != null
 	 */
-	protected final SS stmt;
+	protected final IStmtSwitch stmt;
 
-	/** 
+	/**
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
 	 *
@@ -90,14 +91,14 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 */
 	protected final IVariantManager<ValuedVariant<N>, Value> astvm;
 
-	/** 
+	/**
 	 * The method represented by this variant.
 	 *
 	 * @invariant method != null
 	 */
 	protected final SootMethod method;
 
-	/** 
+	/**
 	 * The array of flow graph nodes associated with the parameters of thec corresponding method.
 	 *
 	 * @invariant parameters.oclIsKindOf(Sequence(IFGNode))
@@ -107,9 +108,9 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 * @invariant _method.getParameterTypes()->forall(p | not p.oclIsKindOf(RefLikeType) implies
 	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) == null)
 	 */
-	protected final N[] parameters;
-	
-	/** 
+	protected final List<N> parameters;
+
+	/**
 	 * The context which resulted in the creation of this variant.
 	 *
 	 * @invariant context != null
@@ -125,7 +126,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	 *
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
-	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<N, SYM, ?, ?, ?, LE, ?, RE, SS, ?> theFA) {
+	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<SYM, T, N> theFA) {
 		super();
 		method = sm;
 		astvm = astVariantManager;
@@ -147,11 +148,11 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 		}
 
 		final int _pCount = sm.getParameterCount();
-		parameters = (N[]) new IFGNode[_pCount];
+		parameters = new ArrayList<N>(_pCount);
 
 		for (int _i = 0; _i < _pCount; _i++) {
 			if (shouldConsider(sm.getParameterType(_i))) {
-				parameters[_i] = fa.getNewFGNode();
+				parameters.add(fa.getNewFGNode());
 				_typesToProcess.add(sm.getParameterType(_i));
 			}
 		}
@@ -208,7 +209,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 	/**
 	 * @see IMethodVariant#getFA()
 	 */
-	public final FA<N, ?, ?, ?, ?, LE, ?, RE, SS, ?> getFA() {
+	public final FA<?, ?, N> getFA() {
 		return fa;
 	}
 
@@ -246,7 +247,7 @@ public abstract class AbstractMethodVariant<N extends IFGNode<N, SYM>, LE extend
 		N _temp = null;
 
 		if (index >= 0 && index <= method.getParameterCount()) {
-			_temp = parameters[index];
+			_temp = parameters.get(index);
 		}
 
 		return _temp;

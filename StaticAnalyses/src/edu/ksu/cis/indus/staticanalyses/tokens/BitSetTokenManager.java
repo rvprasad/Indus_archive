@@ -44,19 +44,19 @@ import org.slf4j.LoggerFactory;
  */
 public final class BitSetTokenManager<V>
   extends AbstractTokenManager<BitSetTokenManager<V>.BitSetTokens, V> {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(BitSetTokenManager.class);
 
-	/** 
+	/**
 	 * The list used to canonicalize bit position for values.
 	 *
 	 * @invariant valueList.oclIsKindOf(Sequence(Object))
 	 */
 	final ListOrderedSet<V> valueList = new ListOrderedSet<V>();
 
-	/** 
+	/**
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
 	 * @invariant type2tokens.values()->forall( o | o.size() &lt;= valueList.size())
@@ -82,7 +82,7 @@ public final class BitSetTokenManager<V>
 	 */
 	private class BitSetTokenFilter
 	  implements ITokenFilter<BitSetTokenManager<V>.BitSetTokens, V> {
-		/** 
+		/**
 		 * The filter mask.
 		 */
 		private final BitSet bitmask;
@@ -118,9 +118,9 @@ public final class BitSetTokenManager<V>
 	 * @version $Revision$ $Date$
 	 */
 	private class BitSetTokens
-	  extends AbstractPrototype
+	  extends AbstractPrototype<BitSetTokens>
 	  implements ITokens<BitSetTokens, V> {
-		/** 
+		/**
 		 * The bitset used to capture the representation of the tokens.
 		 */
 		final BitSet bitset;
@@ -256,11 +256,11 @@ public final class BitSetTokenManager<V>
         final Iterator<V> _i = values.iterator();
         final int _iEnd = values.size();
         for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-            _b.set(valueList.indexOf(_i.next()));            
+            _b.set(valueList.indexOf(_i.next()));
         }
 	}
 
-    /** 
+    /**
      * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
      */
     @Override protected Collection<V> getValues() {

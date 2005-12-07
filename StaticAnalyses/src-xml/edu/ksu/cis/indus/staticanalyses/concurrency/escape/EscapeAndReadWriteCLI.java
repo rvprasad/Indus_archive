@@ -37,6 +37,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -63,6 +64,7 @@ import soot.Body;
 import soot.Local;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Value;
 
 
 /**
@@ -71,8 +73,9 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
  */
-public class EscapeAndReadWriteCLI
+public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
   extends SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -139,7 +142,7 @@ public class EscapeAndReadWriteCLI
 
 		final String _tagName = "SideEffect:FA";
 		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);

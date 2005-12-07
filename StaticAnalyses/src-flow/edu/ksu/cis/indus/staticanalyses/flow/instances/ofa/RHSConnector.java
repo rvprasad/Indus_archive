@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 
 
@@ -24,9 +25,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <N> DOCUMENT ME!
  */
-class RHSConnector
-  implements IFGNodeConnector<OFAFGNode> {
+class RHSConnector<N extends IFGNode<?, ?, N>>
+  implements IFGNodeConnector<N> {
 	/**
 	 * Connects the given non-ast flow graph node to the ast flow graph node.  This is used to connect flow nodes
 	 * corresponding to RHS expressions.
@@ -36,7 +38,7 @@ class RHSConnector
 	 *
 	 * @pre ast != null and nonast != null
 	 */
-	public void connect(final OFAFGNode ast, final OFAFGNode nonast) {
+	public void connect(final N ast, final N nonast) {
 		nonast.addSucc(ast);
 	}
 }

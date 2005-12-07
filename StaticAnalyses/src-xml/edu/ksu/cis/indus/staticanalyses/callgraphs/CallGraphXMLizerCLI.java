@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -36,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.impl.ClassHierarchy;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -65,6 +65,7 @@ import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Value;
 
 /**
  * This class provides the command line interface to xmlize call graphs.
@@ -72,20 +73,22 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
  */
-public final class CallGraphXMLizerCLI
-  extends SootBasedDriver {
-	/** 
+public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
+		extends SootBasedDriver {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphXMLizerCLI.class);
 
-	/** 
+	/**
 	 * The xmlizer to be used.
 	 */
 	private final CallGraphXMLizer xmlizer = new CallGraphXMLizer();
 
-	/** 
+	/**
 	 * This indicates if cumulative or separate call graphs should be generated when there are more than one root methods.
 	 */
 	private boolean cumulative;
@@ -94,15 +97,13 @@ public final class CallGraphXMLizerCLI
 	 * The entry point to the program via command line.
 	 *
 	 * @param args is the command line arguments.
-	 *
 	 * @throws RuntimeException when the analyses fail.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
 		Option _option = new Option("c", "cumulative", false, "Builds one call graph that includes all root methods.");
 		_options.addOption(_option);
-		_option =
-			new Option("o", "output", true,
+		_option = new Option("o", "output", true,
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
 		_option.setArgName("output-dir");
@@ -169,7 +170,6 @@ public final class CallGraphXMLizerCLI
 	 * Prints the help/usage info for this class.
 	 *
 	 * @param options is the command line option.
-	 *
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
@@ -180,8 +180,8 @@ public final class CallGraphXMLizerCLI
 	/**
 	 * Sets cumulative mode.
 	 *
-	 * @param option <code>true</code> indicates one cumulative call graph for all root methods; <code>false</code> indicates
-	 * 		  separate call graphs for each root method.
+	 * @param option <code>true</code> indicates one cumulative call graph for all root methods; <code>false</code>
+	 *            indicates separate call graphs for each root method.
 	 */
 	private void setCumulative(final boolean option) {
 		cumulative = option;
@@ -194,11 +194,10 @@ public final class CallGraphXMLizerCLI
 	 * @param cgi to be dumped.
 	 * @param fileBaseName provides the base for the name of the file.
 	 * @param env for which call graph was generated.
-	 *
 	 * @pre cgi != null and fileBaseName != null and env != null
 	 */
 	private void dumpInfo(final boolean dumpJimple, final ICallGraphInfo cgi, final String fileBaseName,
-		final IEnvironment env) {
+			final IEnvironment env) {
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, cgi);
 
@@ -273,8 +272,8 @@ public final class CallGraphXMLizerCLI
 	 */
 	private void executeOFA(final boolean dumpJimple) {
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
+				.<T, Value> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
@@ -327,7 +326,8 @@ public final class CallGraphXMLizerCLI
 			_cgi.createCallGraphInfo(_ofaci.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor.getStatistics())));
+			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor
+					.getStatistics())));
 			writeInfo(_stream.toString());
 
 			dumpInfo(dumpJimple, _cgi, _fileBaseName, _aa.getEnvironment());

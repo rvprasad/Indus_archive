@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.staticanalyses.Constants;
 
 import java.lang.reflect.Constructor;
@@ -42,7 +43,8 @@ public final class TokenUtil {
 	/**
 	 * <i>Prevents creation instances of this class.</i>
 	 */
-	private TokenUtil() {
+	@AEmpty private TokenUtil() {
+		//does nothing
 	}
 
 	///CLOVER:ON
@@ -50,6 +52,8 @@ public final class TokenUtil {
 	/**
 	 * Retrieves a token manager based on the value of returned by
 	 * <code>edu.ksu.cis.indus.staticanalyses.Constants.getTokenMgrType()</code>.
+	 * @param <T> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
 	 *
 	 * @param typeManager being used by the user.
 	 *
@@ -60,8 +64,8 @@ public final class TokenUtil {
 	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
 	 * 		 result.oclIsKindOf(IntegerTokenManager)
 	 */
-	public static ITokenManager getTokenManager(final ITypeManager typeManager) {
-		ITokenManager _tokenMgr = null;
+	public static <T extends ITokens<T, V>, V> ITokenManager<T, V> getTokenManager(final ITypeManager<?, V> typeManager) {
+		ITokenManager<T, V> _tokenMgr = null;
 		final String _tmType = Constants.getTokenManagerType();
 
 		try {

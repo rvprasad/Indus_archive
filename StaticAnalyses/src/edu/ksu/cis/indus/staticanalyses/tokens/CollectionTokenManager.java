@@ -105,7 +105,7 @@ public final class CollectionTokenManager<V>
 	 * @version $Revision$ $Date$
 	 */
 	private class CollectionTokens
-	  extends AbstractPrototype
+	  extends AbstractPrototype<CollectionTokens>
 	  implements ITokens<CollectionTokens, V> {
 		/** 
 		 * The collection of values.

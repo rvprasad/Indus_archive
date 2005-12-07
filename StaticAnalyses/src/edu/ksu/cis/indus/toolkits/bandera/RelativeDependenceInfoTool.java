@@ -51,6 +51,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -72,6 +73,7 @@ import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Value;
 
 import soot.jimple.Stmt;
 import soot.toolkits.graph.CompleteUnitGraph;
@@ -82,18 +84,19 @@ import soot.toolkits.graph.CompleteUnitGraph;
  * <p>
  * PUT A LINK TO THE TECH REPORT FIX_ME
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
  */
-public final class RelativeDependenceInfoTool
+public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 		extends BaseObservable
 		implements Tool {
 
 	/**
 	 * A class that houses constants use by other tools.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -282,7 +285,7 @@ public final class RelativeDependenceInfoTool
 
 	/**
 	 * This maps methods to their bir signature.
-	 * 
+	 *
 	 * @invariant method2birsig.oclIsKindOf(Map(SootMethod, String))
 	 */
 	private final Map<SootMethod, String> method2birsig = new HashMap<SootMethod, String>();
@@ -294,7 +297,7 @@ public final class RelativeDependenceInfoTool
 
 	/**
 	 * This method constructs the BIR representation of the name of a method.
-	 * 
+	 *
 	 * @param sm The soot method whose name will be compiled here.
 	 * @return the BIR representation of the name of sm.
 	 */
@@ -444,7 +447,7 @@ public final class RelativeDependenceInfoTool
 
 	/**
 	 * Generates the bir locations for the given statement-method pair.
-	 * 
+	 *
 	 * @param p of interest.
 	 * @param getUnlocking <code>true</code> indicates that locations names of unlocking transitions are also required if
 	 *            the method is synchronized and the statement is <code>null</code>; <code>false</code>, otherwise. This
@@ -488,15 +491,15 @@ public final class RelativeDependenceInfoTool
 
 	/**
 	 * Executes the tool.
-	 * 
+	 *
 	 * @param environment to be analyzed.
 	 * @param entryPointMethods are the entry points to the environment.
 	 */
 	void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
 		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _stmtGraphFactory = new CompleteStmtGraphFactory();
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
-				TokenUtil.getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+				TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
 
 		if (abort) {
 			return;

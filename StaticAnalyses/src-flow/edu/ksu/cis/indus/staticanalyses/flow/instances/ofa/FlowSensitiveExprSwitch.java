@@ -16,6 +16,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IStmtSwitch;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.lang.ref.WeakReference;
 
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.Local;
 import soot.SootMethod;
+import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.DefinitionStmt;
@@ -42,9 +44,10 @@ import soot.toolkits.scalar.SimpleLocalDefs;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
  */
-class FlowSensitiveExprSwitch
-		extends FlowInsensitiveExprSwitch {
+class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
+		extends FlowInsensitiveExprSwitch <T>{
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -69,7 +72,7 @@ class FlowSensitiveExprSwitch
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
 	 * @pre stmtSwitchParam != null and nodeConnector != null
 	 */
-	public FlowSensitiveExprSwitch(final IStmtSwitch stmtSwitchParam, final IFGNodeConnector<OFAFGNode> nodeConnector) {
+	public FlowSensitiveExprSwitch(final IStmtSwitch stmtSwitchParam, final IFGNodeConnector<OFAFGNode<T>> nodeConnector) {
 		super(stmtSwitchParam, nodeConnector);
 	}
 
@@ -81,7 +84,7 @@ class FlowSensitiveExprSwitch
 	 * @pre e != null
 	 */
 	@Override public void caseLocal(final Local e) {
-		final OFAFGNode _localNode = method.getASTNode(e, context);
+		final OFAFGNode<T> _localNode = method.getASTNode(e, context);
 		final Stmt _stmt = context.getStmt();
 		final ValueBox _backup = context.setProgramPoint(null);
 
@@ -92,7 +95,7 @@ class FlowSensitiveExprSwitch
 				final DefinitionStmt _defStmt = _i.next();
 				context.setProgramPoint(_defStmt.getLeftOpBox());
 
-				final OFAFGNode _defNode = method.getASTNode(_defStmt.getLeftOp(), context);
+				final OFAFGNode<T> _defNode = method.getASTNode(_defStmt.getLeftOp(), context);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);
@@ -103,7 +106,7 @@ class FlowSensitiveExprSwitch
 		}
 
 		context.setProgramPoint(_backup);
-		setResult(_localNode);
+		setFlowNode(_localNode);
 	}
 
 	/**
@@ -114,8 +117,8 @@ class FlowSensitiveExprSwitch
 	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
 	 * @post result != null
 	 */
-	@Override public FlowSensitiveExprSwitch getClone(final Object... o) {
-		return new FlowSensitiveExprSwitch((IStmtSwitch) o[0], connector);
+	@Override public FlowSensitiveExprSwitch<T> getClone(final Object... o) {
+		return new FlowSensitiveExprSwitch<T>((IStmtSwitch) o[0], connector);
 	}
 
 	/**

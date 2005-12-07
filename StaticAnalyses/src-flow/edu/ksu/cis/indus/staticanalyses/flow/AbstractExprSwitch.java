@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +34,11 @@ import soot.jimple.AbstractJimpleValueSwitch;
  * @author $Author$
  * @version $Revision$
  * @param <E> DOCUMENT ME!
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<?, V, N>, V, N extends IFGNode<N, V>>
+public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T, N>, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends AbstractJimpleValueSwitch
 		implements IExprSwitch<N> {
 
@@ -58,12 +61,12 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<?, V, N>, 
 	/**
 	 * The instance of the underlying flow analysis framework.
 	 */
-	protected final FA<N, V, ?, ?, ?, ?, ?, ?, ?, ?> fa;
+	protected final FA<SYM, T, N> fa;
 
 	/**
 	 * This visitor is used to visit the expressions in the <code>method</code> variant.
 	 */
-	protected final IMethodVariant<N, ?, ?, ?> method;
+	protected final IMethodVariant<N> method;
 
 	/**
 	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.

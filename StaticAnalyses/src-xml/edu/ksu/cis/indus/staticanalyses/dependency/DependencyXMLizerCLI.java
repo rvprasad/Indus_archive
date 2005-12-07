@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
@@ -52,6 +53,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -78,6 +80,8 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Value;
+
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
@@ -85,8 +89,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
  */
-public class DependencyXMLizerCLI
+public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		extends SootBasedDriver {
 
 	/**
@@ -97,7 +102,7 @@ public class DependencyXMLizerCLI
 	/**
 	 * This is the flow analyser used by the analyses being tested.
 	 */
-	protected IValueAnalyzer aa;
+	protected IValueAnalyzer<Value> aa;
 
 	/**
 	 * A collection of dependence analyses.
@@ -335,11 +340,11 @@ public class DependencyXMLizerCLI
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()),
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()),
 				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
+		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
@@ -412,8 +417,8 @@ public class DependencyXMLizerCLI
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
-		_processors.add(_tgi);
-		_processors.add(_eti);
+		_processors.add((IProcessor)_tgi);
+		_processors.add((IProcessor)_eti);
 		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);

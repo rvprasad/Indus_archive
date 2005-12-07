@@ -29,7 +29,7 @@ import soot.jimple.JimpleValueSwitch;
  * @version $Revision$
  * @param <N> DOCUMENT ME!
  */
-public interface IExprSwitch <N extends IFGNode<N, ?>>
+public interface IExprSwitch <N extends IFGNode<?, ?, N>>
   extends IPrototype<IExprSwitch<N>>, JimpleValueSwitch {
 	/**
 	 * Retreives the result of visiting the object.

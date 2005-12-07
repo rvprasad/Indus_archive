@@ -77,7 +77,7 @@ public class IntegerTokenManager<V>
 	 * @version $Revision$ $Date$
 	 */
 	private class IntegerTokens
-	  extends AbstractPrototype
+	  extends AbstractPrototype<IntegerTokens>
 	  implements ITokens<IntegerTokens, V> {
 		/** 
 		 * The integer used to capture the representation of the tokens.

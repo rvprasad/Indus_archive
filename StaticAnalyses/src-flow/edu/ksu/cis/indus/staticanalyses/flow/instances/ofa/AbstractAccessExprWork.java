@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -18,37 +17,37 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
+import soot.Value;
 import soot.ValueBox;
-
 
 /**
  * This class encapsulates the logic and data related to work to be done in correspondence to access expressions.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> 
+ * @param <T> DOCUMENT ME!
  */
-abstract class AbstractAccessExprWork<N extends IFGNode<N, ?>>
-  extends AbstractTokenProcessingWork {
-	/** 
+abstract class AbstractAccessExprWork<T extends ITokens<T, Value>>
+		extends AbstractTokenProcessingWork<T> {
+
+	/**
 	 * The context in which the access occurs.
 	 *
 	 * @invariant context != null
 	 */
 	protected final Context context;
 
-	/** 
+	/**
 	 * The method in which the access occurs.
 	 *
 	 * @invariant caller != null
 	 */
-	protected final IMethodVariant<N, ?, ?, ?> caller;
+	protected final IMethodVariant<OFAFGNode<T>> caller;
 
-	/** 
+	/**
 	 * The program point at which the entity occurs.
 	 *
 	 * @invariant accessExprBox != null
@@ -61,10 +60,10 @@ abstract class AbstractAccessExprWork<N extends IFGNode<N, ?>>
 	 * @param callerMethod the method in which the access expression occurs.
 	 * @param accessContext the context in which the access occurs.
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
-	 *
 	 * @pre callerMethod != null and accessContext != null and tokenSet != null
 	 */
-	protected AbstractAccessExprWork(final IMethodVariant<N, ?, ?, ?> callerMethod, final Context accessContext, final ITokens tokenSet) {
+	protected AbstractAccessExprWork(final IMethodVariant<OFAFGNode<T>> callerMethod, final Context accessContext,
+			final T tokenSet) {
 		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
 		caller = callerMethod;

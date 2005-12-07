@@ -14,34 +14,37 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import soot.Value;
 import soot.jimple.InvokeExpr;
 
 /**
  * This class provides the logic to create new variants of AST nodes.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
+ * @param <SYM> DOCUMENT ME!
+ * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public class ASTVariantManager<N extends IFGNode<N, ?>>
-		extends AbstractVariantManager<ValuedVariant<N>, Value, N> {
+public class ASTVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+		extends AbstractVariantManager<ValuedVariant<N>, Value, SYM, T, N> {
 
 	/**
 	 * Creates a new <code>ASTVariantManager</code> instance.
-	 * 
+	 *
 	 * @param theAnalysis the instance of the framework in which this instance exists.
 	 * @param indexManager the manager that shall provide the indices to lookup the variants.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ASTVariantManager(final FA<N, ?, ?, ?, ?, ?, ?, ?, ?, ?> theAnalysis,
-			final IIndexManager<? extends IIndex, Value> indexManager) {
+	ASTVariantManager(final FA<SYM, T, N> theAnalysis,
+			final IIndexManager<? extends IIndex<?>, Value> indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
 	/**
 	 * Returns a new variant representing the given AST node.
-	 * 
+	 *
 	 * @param o the AST node to be represented by the returned variant.
 	 * @return the variant representing the AST node, <code>o</code>.
 	 * @pre o != null

@@ -27,10 +27,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStr
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <I> DOCUMENT ME!
- * @param <O> DOCUMENT ME!
+ * @param <E> DOCUMENT ME!
  */
-public abstract class AbstractIndexManager<I extends IIndex<I>, O>
-  implements IIndexManager<I, O> {
+public abstract class AbstractIndexManager<I extends IIndex<I>, E>
+  implements IIndexManager<I, E> {
 	/**
 	 * The strategy used to manage indices.
 	 */
@@ -55,7 +55,7 @@ public abstract class AbstractIndexManager<I extends IIndex<I>, O>
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	public final I getIndex(final O o, final Context c) {
+	public final I getIndex(final E o, final Context c) {
 		final I _temp = createIndex(o, c);
 		return strategizedIndexMgr.getEquivalentIndex(_temp);
 	}
@@ -78,7 +78,7 @@ public abstract class AbstractIndexManager<I extends IIndex<I>, O>
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	protected abstract I createIndex(final O o, final Context c);
+	protected abstract I createIndex(final E o, final Context c);
 }
 
 // End of File
