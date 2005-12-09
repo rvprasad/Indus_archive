@@ -204,18 +204,18 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 	private void annotateAtomicStmts(final ICallGraphInfo cgi) {
 		final NamedTag _atomicTag = new NamedTag("AtomicTag");
 
-		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _sm = _i.next();
 
 			if (_sm.isConcrete()) {
 				final Body _body = getBbm().getStmtGraph(_sm).getBody();
-				final Collection _sl = _body.getUnits();
+				final Collection<Stmt> _sl = _body.getUnits();
 
-				final Iterator _j = _sl.iterator();
+				final Iterator<Stmt> _j = _sl.iterator();
 				final int _jEnd = _sl.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final Stmt _stmt = (Stmt) _j.next();
+					final Stmt _stmt = _j.next();
 
 					if (detector.isIndependent(_stmt)) {
 						_stmt.addTag(_atomicTag);
