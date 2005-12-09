@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.SliceType;
 
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
@@ -883,7 +883,7 @@ public final class SlicerConfigurator
         executableSliceButton.addSelectionListener(new BooleanPropertySelectionListener(
                 SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg));
         
-		if (_cfg.getSliceType().equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
+		if (_cfg.getSliceType().equals(SliceType.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
 		executableSliceButton.setSelection(_cfg.getExecutableSlice());
@@ -921,15 +921,15 @@ public final class SlicerConfigurator
 					Object _value = null;
 
 					if (evt.widget == _forwardSlice) {
-						_value = SlicingEngine.SliceType.FORWARD_SLICE;
+						_value = SliceType.FORWARD_SLICE;
 						executableSliceButton.setSelection(false);
 						executableSliceButton.notifyListeners(SWT.Selection, null);
 						executableSliceButton.setEnabled(false);
 					} else {
 						if (evt.widget == _backwardSlice) {
-							_value = SlicingEngine.SliceType.BACKWARD_SLICE;
+							_value = SliceType.BACKWARD_SLICE;
 						} else if (evt.widget == _completeSlice) {
-							_value = SlicingEngine.SliceType.COMPLETE_SLICE;
+							_value = SliceType.COMPLETE_SLICE;
 						}
 						executableSliceButton.setEnabled(true);
 					}
@@ -949,11 +949,11 @@ public final class SlicerConfigurator
 
 		final Object _sliceType = _cfg.getSliceType();
 
-		if (_sliceType.equals(SlicingEngine.SliceType.BACKWARD_SLICE)) {
+		if (_sliceType.equals(SliceType.BACKWARD_SLICE)) {
 			_backwardSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.SliceType.COMPLETE_SLICE)) {
+		} else if (_sliceType.equals(SliceType.COMPLETE_SLICE)) {
 			_completeSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
+		} else if (_sliceType.equals(SliceType.FORWARD_SLICE)) {
 			_forwardSlice.setSelection(true);
 		}
 	}

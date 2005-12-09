@@ -11,10 +11,10 @@
 	<xsd:simpleType id="scopeExtensionType" name="scopeExtensionType">
       <xsd:annotation>
         <xsd:documentation>
-          This represents the scope around the specified type.  
-          EXCLUSIVE_ values indicate the all relatives of the specified type except the specified type. 
-          INCLUSIVE_ values indicate the all relatives of the specified type including the specified type.  
-          IDENTITY indicates that only the specified type is considered. 
+          This represents the scope around the specified type.
+          EXCLUSIVE_ values indicate the all relatives of the specified type except the specified type.
+          INCLUSIVE_ values indicate the all relatives of the specified type including the specified type.
+          IDENTITY indicates that only the specified type is considered.
           PRIMITIVE should only be used for java primitive types, void, and array types.
         </xsd:documentation>
       </xsd:annotation>
@@ -48,12 +48,12 @@
     	    This represents the the name specification of the type along with the scope rooted at the matching types.
 			Depending on the value of "scopeExtension" either the type or it's relatives are considered.
 			"nameSpec" is a regex pattern that specifies the type name.
-			If "scopeExtension" is PRIMITIVE then "nameSpec" should be one of the primitive types, void, or the array 
-			type such as java.lang.String[. 
-			For all values of "scopeExtension" other than IDENTITY, "nameSpec" will be treated as a string. Hence, in 
-			these cases, "nameSpec" value should be the FQN of the classes specified as types or the names of java 
-			primitive types.  
-			"nameSpec" can be treated as regex in case of EXCLUSIVE_ and INCLUSIVE_ scope, however, it would 
+			If "scopeExtension" is PRIMITIVE then "nameSpec" should be one of the primitive types, void, or the array
+			type such as java.lang.String[.
+			For all values of "scopeExtension" other than IDENTITY, "nameSpec" will be treated as a string. Hence, in
+			these cases, "nameSpec" value should be the FQN of the classes specified as types or the names of java
+			primitive types.
+			"nameSpec" can be treated as regex in case of EXCLUSIVE_ and INCLUSIVE_ scope, however, it would
 			costly to evaluate the scope.
 			In the case where "scopeExtension" is IDENTITY, "nameSpec" is treated as a regex pattern.
     	    </xsd:documentation>
@@ -62,15 +62,15 @@
 		<xsd:attribute name="nameSpec" type="xsd:string" use="required" />
 	</xsd:complexType>
 
-	<xsd:element name="typeSpec" id="typeSpec" type="indus:typeSpecType"/>	
-	
+	<xsd:element name="typeSpec" id="typeSpec" type="indus:typeSpecType"/>
+
 	<xsd:complexType id="typeSpecSequenceType" name="typeSpecSequenceType">
 		<xsd:sequence>
 			<xsd:element ref="indus:typeSpec" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	
-    <xsd:attribute name="specName" type="xsd:string"/> 
+
+    <xsd:attribute name="specName" type="xsd:string"/>
 
 	<xsd:complexType id="abstractSpecType" name="abstractSpecType">
 		<xsd:annotation>
@@ -82,7 +82,13 @@
 	    	<xsd:element name="accessSpec" type="indus:accessSpecType" minOccurs="1" maxOccurs="4"/>
 	    </xsd:sequence>
 		<xsd:attribute ref="indus:specName" use="required"/>
-		<xsd:attribute name="inclusion" type="xsd:boolean" use="optional" default="true" />
+		<xsd:attribute name="inclusion" type="xsd:boolean" use="optional" default="true">
+			<xsd:annotation>
+				<xsd:documentation>
+				This indicates if this scope should be interpreted as inclusive or exclusive.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:complexType id="classSpecType" name="classSpecType">
@@ -99,7 +105,7 @@
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
-	
+
 	<xsd:complexType id="methodSpecType" name="methodSpecType">
 		<xsd:annotation>
     	    <xsd:documentation>
@@ -111,10 +117,10 @@
 				<xsd:sequence>
 					<xsd:element name="declaringClassSpec" type="indus:typeSpecType" minOccurs="1" maxOccurs="1"/>
 					<xsd:element name="returnTypeSpec" type="indus:typeSpecType" minOccurs="1" maxOccurs="1"/>
-					<xsd:element name="parameterSpecs" type="indus:typeSpecSequenceType" minOccurs="0" 
+					<xsd:element name="parameterSpecs" type="indus:typeSpecSequenceType" minOccurs="0"
 						maxOccurs="1"/>
 				</xsd:sequence>
-				<xsd:attribute name="methodNameSpec" type="xsd:string" use="required" />				
+				<xsd:attribute name="methodNameSpec" type="xsd:string" use="required" />
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
@@ -135,16 +141,16 @@
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
-    
+
     <xsd:element name="scopeSpec">
     	<xsd:complexType>
 	    	<xsd:sequence>
     			<xsd:element name="classSpec" type="indus:classSpecType" minOccurs="0" maxOccurs="unbounded"/>
     			<xsd:element name="methodSpec" type="indus:methodSpecType" minOccurs="0" maxOccurs="unbounded"/>
-    			<xsd:element name="fieldSpec" type="indus:fieldSpecType" minOccurs="0" maxOccurs="unbounded"/>    		    		
+    			<xsd:element name="fieldSpec" type="indus:fieldSpecType" minOccurs="0" maxOccurs="unbounded"/>
 	    	</xsd:sequence>
     		<xsd:attribute ref="indus:specName" use="required"/>
     	</xsd:complexType>
     </xsd:element>
-    
+
 </xsd:schema>

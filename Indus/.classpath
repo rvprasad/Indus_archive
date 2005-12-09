@@ -13,7 +13,7 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
+	<classpathentry sourcepath="/USRLOCALSRC/xml/jibx/core" kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,10 +14,11 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
-
 
 /**
  * This is the interface via which the user can plugin various sorts of unit graphs into the analyses and also reuse the same
@@ -29,23 +29,31 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  * @param <T> the type of the manufactured graph.
  */
-public interface IStmtGraphFactory <T extends UnitGraph> {
-	/** 
+public interface IStmtGraphFactory<T extends UnitGraph> {
+
+	/**
 	 * The id of this interface.
 	 */
-	Object ID = "Statement Graph IFactory";
+	Comparable<?> ID = "Statement Graph IFactory";
 
 	/**
 	 * Retrieves the unit graph of the given method.
 	 *
 	 * @param method for which the unit graph is requested.
-	 *
 	 * @return the requested unit graph.
-	 *
 	 * @post result != null
 	 * @post method.isConcrete() implies result != null
 	 */
 	T getStmtGraph(final SootMethod method);
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param scopeDef DOCUMENT ME!
+	 * @param env DOCUMENT ME!
+	 * @pre scopeDef != null implies env != null
+	 */
+	public void setScope(final SpecificationBasedScopeDefinition scopeDef, final IEnvironment env);
 
 	/**
 	 * Resets all internal datastructures.

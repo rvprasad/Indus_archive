@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
@@ -129,7 +130,7 @@ public class SliceXMLizerCLI
 	/** 
 	 * The instance of the slicer tool.
 	 */
-	SlicerTool slicer;
+	SlicerTool<?> slicer;
 
 	/** 
 	 * This directory into which jimple should be dumped.
@@ -196,7 +197,7 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
+		slicer = new SlicerTool<T>(TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -292,7 +293,7 @@ public class SliceXMLizerCLI
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
 
-		final Collection _criteria = processCriteriaSpecFile();
+		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
 		slicer.setSliceScopeDefinition(processSliceScopeSpecFile());
 		slicer.addCriteria(_criteria);
 		slicer.addToolProgressListener(this);
@@ -771,12 +772,10 @@ public class SliceXMLizerCLI
 	 *
 	 * @throws IllegalArgumentException when the errors occur while accessing the specified file.
 	 * @throws IllegalStateException when the parsing of the specified file fails.
-	 *
-	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	private Collection processCriteriaSpecFile()
+	private Collection<ISliceCriterion> processCriteriaSpecFile()
 	  throws IllegalArgumentException, IllegalStateException {
-		final Collection _criteria = new HashSet();
+		final Collection<ISliceCriterion> _criteria = new HashSet<ISliceCriterion>();
 
 		if (criteriaSpecFileName != null) {
 			try {

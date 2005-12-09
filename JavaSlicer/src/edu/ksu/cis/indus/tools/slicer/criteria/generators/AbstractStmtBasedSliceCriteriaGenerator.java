@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
-import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.SliceType;
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -66,10 +66,10 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 		}
 
 		final SlicerTool<?> _slicer = getSlicerTool();
-		final String _sliceType = ((SlicerConfiguration) _slicer.getActiveConfiguration()).getSliceType();
+		final SliceType _sliceType = ((SlicerConfiguration) _slicer.getActiveConfiguration()).getSliceType();
 		final boolean _considerExecution;
 
-		if (_sliceType.equals(SlicingEngine.SliceType.FORWARD_SLICE.name())) {
+		if (_sliceType.equals(SliceType.FORWARD_SLICE)) {
 			_considerExecution = false;
 		} else {
 			_considerExecution = true;
@@ -104,7 +104,7 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 
 						if (shouldConsiderStmt(_stmt)
 							  && shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt, _sm))) {
-							if (_sliceType.equals(SlicingEngine.SliceType.COMPLETE_SLICE)) {
+							if (_sliceType.equals(SliceType.COMPLETE_SLICE)) {
 								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
 								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
 							} else {

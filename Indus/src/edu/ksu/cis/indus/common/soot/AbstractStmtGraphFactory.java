@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -38,7 +40,7 @@ import soot.toolkits.graph.UnitGraph;
  * retrieved. The subclasses should provide suitable unit graph implementation. The control flow edges in the provided unit
  * graphs are pruned by matching the thrown exceptions to the enclosing catch blocks. Refer to
  * <code>Util.pruneExceptionBasedControlFlow()</code> for more information.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -53,16 +55,24 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtGraphFactory.class);
 
 	/**
-	 * This maps methods to unit graphs.
-	 * 
-	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
+	 * DOCUMENT ME!
 	 */
-	private final Map<SootMethod, Reference<T>> method2UnitGraph = new HashMap<SootMethod, Reference<T>>(
-			Constants.getNumOfMethodsInApplication());
+	private IEnvironment environment;
+
+	/**
+	 * This maps methods to unit graphs.
+	 */
+	private final Map<SootMethod, Reference<T>> method2UnitGraph = new HashMap<SootMethod, Reference<T>>(Constants
+			.getNumOfMethodsInApplication());
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private SpecificationBasedScopeDefinition scope;
 
 	/**
 	 * Retrieves the unit graph of the given method.
-	 * 
+	 *
 	 * @param method for which the unit graph is requested.
 	 * @return the requested unit graph.
 	 * @post result != null
@@ -81,7 +91,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 		if (_ref == null) {
 			_flag = true;
 		} else {
-			_result =  _ref.get();
+			_result = _ref.get();
 
 			if (_result == null) {
 				_flag = true;
@@ -89,11 +99,11 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 		}
 
 		if (_flag) {
-			if (method.isConcrete()) {
+			if ((scope == null || scope.isInScope(method, environment)) && method.isConcrete()) {
 				final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
 				_result = getStmtGraphForBody(_body);
 			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Method " + method + " is not concrete.");
+				LOGGER.debug("Method " + method + " is out of scope or is not concrete.");
 			}
 
 			if (_result == null) {
@@ -124,8 +134,20 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param scopeDef DOCUMENT ME!
+	 * @param env DOCUMENT ME!
+	 * @pre scopeDef != null implies env != null
+	 */
+	public void setScope(final SpecificationBasedScopeDefinition scopeDef, final IEnvironment env) {
+		scope = scopeDef;
+		environment = env;
+	}
+
+	/**
 	 * Retreives the unit graph (of a particular implementation) for the given body.
-	 * 
+	 *
 	 * @param body to be represented as a graph.
 	 * @return a unit graph.
 	 * @pre body != null
@@ -134,77 +156,71 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	protected abstract T getStmtGraphForBody(final JimpleBody body);
 
 	/**
-	 * Retrieves the body for the given method.  This method split traps based on overlap and subtyping relation
-	 * between the exceptions trapped by overlapping regions.
-	 * 
+	 * Retrieves the body for the given method. This method split traps based on overlap and subtyping relation between the
+	 * exceptions trapped by overlapping regions.
+	 *
 	 * @param method of interest.
 	 * @return the jimple body of the given method.
 	 * @pre method != null
 	 */
-	/*private JimpleBody getMethodBody(final SootMethod method) {
-		final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
-		final List<Trap> _newTraps = new ArrayList<Trap>();
-		final Jimple _jimple = Jimple.v();
-		@SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
-		final IWorkBag<Trap> _traps = new FIFOWorkBag<Trap>();
-		_traps.addAllWork(_body.getTraps());
-
-		while (_traps.hasWork()) {
-			final Trap _trap1 = _traps.getWork();
-			final SootClass _sc1 = _trap1.getException();
-			int _bIndex1 = _stmts.indexOf(_trap1.getBeginUnit());
-			int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());
-			boolean _retainTrap = true;
-			for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
-				final Trap _trap2 = _i.next();
-				final SootClass _sc2 = _trap2.getException();
-				if (_sc1.equals(_sc2) || Util.isDescendentOf(_sc1, _sc2)) {
-					final int _bIndex2 = _stmts.indexOf(_trap2.getBeginUnit());
-					final int _eIndex2 = _stmts.indexOf(_trap2.getEndUnit());
-					// A trap's begin boundary is inclusive while the end boundary is exclusive
-					if (_bIndex1 < _eIndex2 && _eIndex1 > _bIndex2) {
-						if (_eIndex1 <= _eIndex2) {
-							if (_bIndex1 >= _bIndex2) {
-								// position: _bIndex2 _bIndex1 _eIndex1 _eIndex2
-								_retainTrap = false;
-							} else {
-								 // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
-								_eIndex1 = _bIndex2;
-							}
-						} else {
-							// if (_eIndex1 > _eIndex2)
-							if (_bIndex1 >= _bIndex2) {
-								// position: _bIndex2 _bIndex1 _eIndex2 _eIndex1
-								_bIndex1 = _eIndex2;
-							} else {
-								 // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
-								_traps.addWork(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
-										.getHandlerUnit()));
-								_eIndex1 = _bIndex2;
-							}
-						}
-					}
-				}
-			}
-			if (_retainTrap && _bIndex1 < _eIndex1) {
-				_newTraps.add(_trap1);
-				_trap1.setBeginUnit(_stmts.get(_bIndex1));
-				_trap1.setEndUnit(_stmts.get(_eIndex1));
-			}
-		}
-
-		for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
-			final Trap _t = _i.next();
-			if (_t.getBeginUnit() == _t.getEndUnit()) {
-				_i.remove();
-			}
-		}
-
-		@SuppressWarnings("unchecked") final Collection<Trap> _t = _body.getTraps();
-		_t.clear();
-		_t.addAll(_newTraps);
-		return _body;
-	}*/
+	// private JimpleBody getMethodBody(final SootMethod method) {
+	// final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
+	// final List<Trap> _newTraps = new ArrayList<Trap>();
+	// final Jimple _jimple = Jimple.v();
+	// @SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
+	// final IWorkBag<Trap> _traps = new FIFOWorkBag<Trap>();
+	// _traps.addAllWork(_body.getTraps());
+	// while (_traps.hasWork()) {
+	// final Trap _trap1 = _traps.getWork();
+	// final SootClass _sc1 = _trap1.getException();
+	// int _bIndex1 = _stmts.indexOf(_trap1.getBeginUnit());
+	// int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());
+	// boolean _retainTrap = true;
+	// for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
+	// final Trap _trap2 = _i.next();
+	// final SootClass _sc2 = _trap2.getException();
+	// if (_sc1.equals(_sc2) || Util.isDescendentOf(_sc1, _sc2)) {
+	// final int _bIndex2 = _stmts.indexOf(_trap2.getBeginUnit());
+	// final int _eIndex2 = _stmts.indexOf(_trap2.getEndUnit()); // A trap's begin boundary is inclusive while
+	// // the end boundary is exclusive
+	// if (_bIndex1 < _eIndex2 && _eIndex1 > _bIndex2) {
+	// if (_eIndex1 <= _eIndex2) {
+	// if (_bIndex1 >= _bIndex2) { // position: _bIndex2 _bIndex1 _eIndex1 _eIndex2
+	// _retainTrap = false;
+	//
+	// } else { // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
+	// _eIndex1 = _bIndex2;
+	// }
+	// } else {
+	// // if (_eIndex1 > _eIndex2)
+	// if (_bIndex1 >= _bIndex2) { // position: _bIndex2 _bIndex1 _eIndex2 _eIndex1
+	// _bIndex1 = _eIndex2;
+	// } else { // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
+	// _traps.addWork(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
+	// .getHandlerUnit()));
+	// _eIndex1 = _bIndex2;
+	// }
+	// }
+	// }
+	// }
+	// }
+	// if (_retainTrap && _bIndex1 < _eIndex1) {
+	// _newTraps.add(_trap1);
+	// _trap1.setBeginUnit(_stmts.get(_bIndex1));
+	// _trap1.setEndUnit(_stmts.get(_eIndex1));
+	// }
+	// }
+	// for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
+	// final Trap _t = _i.next();
+	// if (_t.getBeginUnit() == _t.getEndUnit()) {
+	// _i.remove();
+	// }
+	// }
+	// @SuppressWarnings("unchecked") final Collection<Trap> _t = _body.getTraps();
+	// _t.clear();
+	//		_t.addAll(_newTraps);
+	//		return _body;
+	//	}
 }
 
 // End of File

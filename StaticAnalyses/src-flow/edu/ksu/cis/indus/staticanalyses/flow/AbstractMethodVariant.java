@@ -154,6 +154,8 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 			if (shouldConsider(sm.getParameterType(_i))) {
 				parameters.add(fa.getNewFGNode());
 				_typesToProcess.add(sm.getParameterType(_i));
+			} else {
+				parameters.add(null);
 			}
 		}
 

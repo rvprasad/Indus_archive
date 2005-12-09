@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
+import edu.ksu.cis.indus.slicer.SliceType;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
@@ -125,7 +126,7 @@ import soot.Value;
  * However, these are generated on behalf of the application/driver (as a convenience) and not for internal use. Hence, the
  * application/driver is responsible for the disposal of these criteria.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -179,14 +180,14 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * This manages the basic block graphs for the methods being transformed.
-	 * 
+	 *
 	 * @invariant bbgMgr != null
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * This provides the call graph.
-	 * 
+	 *
 	 * @invariant callGraph != null
 	 */
 	private final CallGraphInfo callGraph;
@@ -203,7 +204,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * The slicing criteria.
-	 * 
+	 *
 	 * @invariant criteria != null
 	 */
 	private final Collection<ISliceCriterion> criteria;
@@ -211,11 +212,11 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * This is used to retrieve any application-level criteria as opposed to those hand-picked by the user.
 	 */
-	private final Collection<ISliceCriteriaGenerator> criteriaGenerators;
+	private final Collection<ISliceCriteriaGenerator<?, ?>> criteriaGenerators;
 
 	/**
 	 * This controls dependency analysis.
-	 * 
+	 *
 	 * @invariant daController != null
 	 */
 	private AnalysesController daController;
@@ -262,7 +263,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point methods.
-	 * 
+	 *
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	private final Collection<SootMethod> rootMethods;
@@ -305,7 +306,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * Creates a new SlicerTool object. The client should relinquish control/ownership of the arguments as they are provided
 	 * to configure the tool.
-	 * 
+	 *
 	 * @param tokenMgr is the token manager to be used with this instance of slicer tool.
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
 	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
@@ -317,7 +318,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		rootMethods = new HashSet<SootMethod>();
 		criteria = new HashSet<ISliceCriterion>();
 		info = new HashMap<Comparable<?>, Object>();
-		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
+		criteriaGenerators = new HashSet<ISliceCriteriaGenerator<?, ?>>();
 
 		stmtGraphFactory = stmtGraphFactoryToUse;
 
@@ -389,7 +390,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Adds the given slicing criteria to the existing set of criteria.
-	 * 
+	 *
 	 * @param theCriteria is a collection of slicing criteria.
 	 * @pre theCriteria != null
 	 * @pre theCriteria->forall(o | o != null)
@@ -400,12 +401,12 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Adds <code>criteriaGenerator</code> to the collection of criteria generator.
-	 * 
+	 *
 	 * @param theCriteriaGenerator anothre criteria generator.
 	 * @return <code>true</code> if the given generator was added; <code>false</code>, otherwise.
 	 * @pre theCriteriaGenerator != null
 	 */
-	public boolean addCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
+	public boolean addCriteriaGenerator(final ISliceCriteriaGenerator<?, ?> theCriteriaGenerator) {
 		return criteriaGenerators.add(theCriteriaGenerator);
 	}
 
@@ -463,7 +464,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	 * <p>
 	 * This implementation of the tool remembers the last phase in which it was stopped. This saved phase is used when the
 	 * tool is executed again with a <code>null</code> valued <code>phaseParam</code>. If a non-null
-	 * <code>phaseParam</code> is provided, the tool starts executing from the earliest of the saved phase or the given
+	 * <code>phaseParam</code> is provided, the tool starts executing from the earliest of the saved phase and the given
 	 * phase. <code>lastPhase</code> controls the last phase to have finished execution when the tools stops.
 	 * </p>
 	 */
@@ -518,7 +519,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the basic block graph manager used by this tool.
-	 * 
+	 *
 	 * @return the basic block graph manager.
 	 */
 	public BasicBlockGraphMgr getBasicBlockGraphManager() {
@@ -527,7 +528,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the call graph used by the slicer.
-	 * 
+	 *
 	 * @return the call graph used by the slicer.
 	 */
 	public ICallGraphInfo getCallGraph() {
@@ -536,7 +537,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the slicing criteria.
-	 * 
+	 *
 	 * @return returns the criteria.
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
@@ -546,7 +547,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the dependency analyses used by this object.
-	 * 
+	 *
 	 * @return the collection of dependency analyses.
 	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
@@ -565,7 +566,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the equivalance class based escape analysis implementation.
-	 * 
+	 *
 	 * @return the escape analysis implementation.
 	 * @post result != null
 	 */
@@ -575,7 +576,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves escape info provider.
-	 * 
+	 *
 	 * @return an escape info provider.
 	 * @post result != null
 	 */
@@ -585,7 +586,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the value in <code>monitorInfo</code>.
-	 * 
+	 *
 	 * @return the value in <code>monitorInfo</code>.
 	 */
 	public MonitorAnalysis getMonitorInfo() {
@@ -594,7 +595,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the phase in which the tool's execution.
-	 * 
+	 *
 	 * @return an object that represents the phase of the tool's execution.
 	 */
 	public Object getPhase() {
@@ -603,7 +604,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the methods which serve as the entry point into the system to be sliced.
-	 * 
+	 *
 	 * @return Returns the root methods of the system.
 	 * @post result!= null and result.oclIsKindOf(Collection(SootMethod))
 	 */
@@ -613,7 +614,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the statement graph (CFG) provider/factory used by the tool.
-	 * 
+	 *
 	 * @return the factory object.
 	 */
 	public IStmtGraphFactory<?> getStmtGraphFactory() {
@@ -622,7 +623,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the system being sliced.
-	 * 
+	 *
 	 * @return the system being sliced.
 	 * @post result != null
 	 */
@@ -643,12 +644,12 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Removes <code>criteriaGenerator</code> to the collection of criteria generator.
-	 * 
+	 *
 	 * @param theCriteriaGenerator anothre criteria generator.
 	 * @return <code>true</code> if the given generator was removed; <code>false</code>, otherwise.
 	 * @pre theCriteriaGenerator != null
 	 */
-	public boolean removeCriteriaGenerator(final ISliceCriteriaGenerator theCriteriaGenerator) {
+	public boolean removeCriteriaGenerator(final ISliceCriteriaGenerator<?, ?> theCriteriaGenerator) {
 		return criteriaGenerators.remove(theCriteriaGenerator);
 	}
 
@@ -679,7 +680,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets configuration named by <code>configName</code> as the active configuration.
-	 * 
+	 *
 	 * @param configID is id of the configuration to activate.
 	 * @pre configID != null
 	 */
@@ -691,9 +692,9 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Set the methods which serve as the entry point into the system to be sliced.
-	 * 
+	 *
 	 * @param theRootMethods is a collection of methods.
-	 * @pre theRootMethods != null and theRootMethods.oclIsKindOf(Collection(SootMethod))
+	 * @pre theRootMethods != null
 	 * @pre theRootMethods->forall(o | o != null)
 	 */
 	public void setRootMethods(final Collection<SootMethod> theRootMethods) {
@@ -703,16 +704,18 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets the scope of the slicing.
-	 * 
+	 * <i>This needs to be called after <code>setSystem()</code> has been called with a non-null argument.</i>
+	 *
 	 * @param scope to be used.
 	 */
 	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
 		sliceScopeDefinition = scope;
+		stmtGraphFactory.setScope(scope, getSystem());
 	}
 
 	/**
 	 * Set the system to be sliced.
-	 * 
+	 *
 	 * @param theEnvironment contains the class of the system to be sliced.
 	 * @pre theEnvironment != null
 	 */
@@ -722,7 +725,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Set the tag name to identify the slice.
-	 * 
+	 *
 	 * @param tagName of the slice.
 	 * @pre tagName != null
 	 */
@@ -750,14 +753,14 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @throws IllegalStateException if forward executable slice is requested.
 	 */
 	@Override protected void checkConfiguration() {
 		final IToolConfiguration _slicerConf = getActiveConfiguration();
 
 		if (((Boolean) _slicerConf.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()
-				&& _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
+				&& _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SliceType.FORWARD_SLICE)) {
 			LOGGER.error("Forward Executable slice is unsupported.");
 			throw new IllegalStateException("Forward Executable slice is unsupported.");
 		}
@@ -769,7 +772,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the slice collector used by this tool.
-	 * 
+	 *
 	 * @return the slice collector.
 	 */
 	SliceCollector getSliceCollector() {
@@ -778,7 +781,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes dependency analyses and monitor analysis.
-	 * 
+	 *
 	 * @param slicerConfig provides the configuration.
 	 * @pre slicerConfig != null
 	 */
@@ -849,7 +852,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes low level analyses.
-	 * 
+	 *
 	 * @throws InterruptedException when the tool is interrupted when moving between phases.
 	 */
 	private void lowLevelAnalysisPhase() throws InterruptedException {
@@ -940,7 +943,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes the slicer.
-	 * 
+	 *
 	 * @param slicerConfig provides the configuration.
 	 * @pre slicerConfig != null
 	 */
@@ -954,13 +957,14 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 		fireToolProgressEvent("SLICING: adding criteria", phase);
 
-		for (final Iterator<ISliceCriteriaGenerator> _i = criteriaGenerators.iterator(); _i.hasNext();) {
-			final ISliceCriteriaGenerator _e = _i.next();
+		for (final Iterator<ISliceCriteriaGenerator<?, ?>> _i = criteriaGenerators.iterator(); _i.hasNext();) {
+			final ISliceCriteriaGenerator<?, ?> _e = _i.next();
 			criteria.addAll(_e.getCriteria(this));
 		}
 
-		for (final Iterator<ISliceCriteriaGenerator> _j = slicerConfig.getSliceCriteriaGenerators().iterator(); _j.hasNext();) {
-			final ISliceCriteriaGenerator _generator = _j.next();
+		for (final Iterator<ISliceCriteriaGenerator<?, ?>> _j = slicerConfig.getSliceCriteriaGenerators().iterator(); _j
+				.hasNext();) {
+			final ISliceCriteriaGenerator<?, ?> _generator = _j.next();
 			criteria.addAll(_generator.getCriteria(this));
 		}
 
@@ -969,7 +973,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 			// setup the slicing engine and slice
 			engine.setCgi(callGraph);
-			engine.setSliceType((SlicingEngine.SliceType) slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+			engine.setSliceType((SliceType) slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 			engine.setInitMapper(initMapper);
 			engine.setBasicBlockGraphManager(bbgMgr);
 			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getIDsOfDAsToUse());

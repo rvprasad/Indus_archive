@@ -82,30 +82,6 @@ import soot.tagkit.Host;
 public final class SlicingEngine {
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	public enum SliceType {
-		/**
-		 * Backward slice request.
-		 */
-		BACKWARD_SLICE,
-
-		/**
-		 * Complete slice request.
-		 */
-		COMPLETE_SLICE,
-
-		/**
-		 * Forward slice request.
-		 */
-		FORWARD_SLICE
-	};
-
-	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(SlicingEngine.class);
