@@ -1,29 +1,35 @@
 Required software:
     Jakarta Commons CLI (1.0)
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
-    Jakarta Commons Collection 3.1 
-        (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
-    Jakarta Commons Lang 2.1 
+    Jakarta Commons Lang 2.1
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Pool 1.2 
+    Jakarta Commons Pool 1.2
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
 		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
-        - Polyglot 1.1.0	
-          	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
-    xmlenc (0.48)
+        - Polyglot 1.1.0
+          	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
+    xmlenc (0.50)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
-    XMLUnit (1.0)	
+    XMLUnit (1.0)
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
     GNU Trove (1.1b4)
     	(trove.jar) [http://trove4j.sourceforge.net/]
     Simple Logging Facade For Java (>=1.0b7)
-    	[http://http://www.slf4j.org/]    	
+    	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
+Version 0.8
+--------------
+	- Feature request:
+		- 717 - used scoping framework to perform scoped analyses
+		- 676 - Java 5 adoption
+		- 701 - refactorings.
+	- Removed dependence on commons-collections and commons-pool.
 
 Version 0.7.2.1
 -------------------
@@ -31,7 +37,7 @@ Version 0.7.2.1
 
 Version 0.7.2
 -----------------
-	- bug fixes: 618, 675, 680, 694, 696, 742. 
+	- bug fixes: 618, 675, 680, 694, 696, 742.
 	- feature request 717.
 	- removed dependence on commons-pool.jar.
 
@@ -49,7 +55,7 @@ Version 0.7
 	- added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.
 	- refactored concurrency.atomicity package to concurrency.independence
 	- renamed AtomicXXXX classes as IndependentXXXX.
-	- Bug fixes in DataAliasBasedCallingContextRetriever.	
+	- Bug fixes in DataAliasBasedCallingContextRetriever.
 	- Incorrect escape information for static fields due to recent refactorings was fixed.
 	- Improved precision of escape information pertaining to static fields.
 	- Improved precision of atomicity information as well.
@@ -83,14 +89,14 @@ Version 0.6
 	- Interprocedural-exception-flow-sensitive exception occurrence analysis - ExceptionRaisingAnalysis.
     - New interface to query object-level read/write information.
 	- Refactored call graph calculation logic.
-	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph 
+	- Added implementations of Class Hierarchy Analysis (CHA) based and Rapid Type Analysis (RTA) based call graph
 	  construction. [API BREAKING CHANGE]
 	- Added support to retrieve field reading/writing thread information from EquivalenceClassBasedEscapeAnalysis.
 	- Feature request #590, #613, #614.
-	- Added new program point-relative inter-thread context retriever that is sensitive to data-equivalence 
+	- Added new program point-relative inter-thread context retriever that is sensitive to data-equivalence
 		(ThreadEscapeInfoBasedCallingContextRetrieverV2)
 	- Added new program point-relative intra-thread alias-based context retriever (DataAliasBasedCallingContextRetriever)
-	
+
 
 Version 0.5
 ------------
@@ -99,7 +105,7 @@ Version 0.5
 	- Added support to dynamically update relation between types and tokens in the token management framework.
 	- Incorporated SCC-based optimizations into flow analysis framework.
 	- Optimized certain graph algorithms.
-	- Added a side-effect analysis. 
+	- Added a side-effect analysis.
 	- Added an atomicity analysis.  This supports detection of atomic regions and "independent"/atomic statements.
 	- Support for tracking thread "escape" information across method boundaries.
 	- Fixed bugs in Reference-based DA and OFAXMLizer.
@@ -136,30 +142,30 @@ Version 0.2
 	- Added a new implementation of Use-Def Analysis for method locals.
 	- Implemented Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
 	- Implemented Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
-	
+
 
 Version 0.1
 ------------
 This is (hopefully) a stable release of version 0.1a.  One notable change is that we have decided to use Soot 2.1.0 for
-Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at 
-the time of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use 
+Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at
+the time of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use
 Soot 2.1.0 only.
 
-We have switched over to a new module to manage values in the flow analyses.  This module is available in Indus 
+We have switched over to a new module to manage values in the flow analyses.  This module is available in Indus
 module.
 
 
 Version 0.1a
 --------------
 This is the first release of StaticAnalyses subproject of Indus.  This module provides implementation of a flow analysis
-framework, object flow anlaysis, escape analysis, and a slew of dependence analyses.  Please refer to the user guide 
-and java docs for more information.  
+framework, object flow anlaysis, escape analysis, and a slew of dependence analyses.  Please refer to the user guide
+and java docs for more information.
 
 In this release, the following implementations do not work.
 	Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
 	Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
 	Safe Lock Analysis (edu.ksu.cis.indus.staticanalyses.concurence.SafeLockAnalysis)
-	
+
 Ruf's escape analysis will not be supported in the future, so, please refrain from using it or use it at your own risk.
 Likewise, please refrain from using Driver classes as these are not intended for the users and also it is planned to delete
-them by v1.0. 
+them by v1.0.

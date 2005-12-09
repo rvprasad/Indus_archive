@@ -1,11 +1,9 @@
 Required software:
     Jakarta Commons CLI (1.0)
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
-    Jakarta Commons Collection 3.1 
-        (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
-    Jakarta Commons Lang 2.1 
+    Jakarta Commons Lang 2.1
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Pool 1.2 
+    Jakarta Commons Pool 1.2
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     JiBX: Binding XML to Java Code (bleeding edge >= RC1)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
@@ -14,13 +12,13 @@ Required software:
     Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
 		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
-        - Polyglot 1.1.0	
-          	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
+        - Polyglot 1.1.0
+          	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
     SWT (3.1)
         (swt.jar, swt-pi.jar) [http://www.eclipse.org]
     xmlenc (0.48)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
-    XMLUnit (1.0)	
+    XMLUnit (1.0)
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
@@ -30,6 +28,12 @@ Required software:
     	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
+Version 0.8
+--------------
+	- Feature request:
+		- 676 - Java 5 adoption
+	- Removed dependence on commons-collectionsl.
 
 Version 0.7.2
 -----------------
@@ -64,7 +68,7 @@ Version 0.6
 	- Added support to represent edge-labelled graphs.
 	- Added support for fine grained control on execution of analyses and processors.
 	- Added support to filter program points and visit locals via the ProcessingController.
-	- Added support in the ProcessingController to control the order in which the statements of a method are 
+	- Added support in the ProcessingController to control the order in which the statements of a method are
 		visited. [API BREAKING CHANGE]
 	- Added a Class Hierarchy implementation.
 	- Added support to retrieve field reading/writing thread information from IEscapeInfo.
@@ -86,7 +90,7 @@ Version 0.4
 	- Added support in basic block graph manager to cache statement list of methods.
 	- Class file and Sources are now v1.4 compatible.
 	- Depends on GNU Trove library from here on.
-	
+
 
 Verion 0.3
 -----------
