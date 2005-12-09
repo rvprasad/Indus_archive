@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -26,22 +25,22 @@ import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
-
 /**
- * This class represents expression-level slice criterion.  This class supports object pooling.
+ * This class represents expression-level slice criterion. This class supports object pooling.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 class ExprLevelSliceCriterion
-  extends AbstractSliceCriterion {
-	/** 
+		extends AbstractSliceCriterion {
+
+	/**
 	 * The statement associated with this criterion.
 	 */
 	protected Stmt stmt;
 
-	/** 
+	/**
 	 * The expression associated with this criterion.
 	 */
 	protected ValueBox expr;
@@ -49,7 +48,7 @@ class ExprLevelSliceCriterion
 	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(final Object object) {
+	@Override public boolean equals(final Object object) {
 		if (object == this) {
 			return true;
 		}
@@ -59,36 +58,33 @@ class ExprLevelSliceCriterion
 		}
 
 		final ExprLevelSliceCriterion _rhs = (ExprLevelSliceCriterion) object;
-		return new EqualsBuilder().appendSuper(super.equals(object)).append(this.expr, _rhs.expr).append(this.stmt, _rhs.stmt)
-									.isEquals();
+		return new EqualsBuilder().appendSuper(super.equals(object)).append(this.expr, _rhs.expr)
+				.append(this.stmt, _rhs.stmt).isEquals();
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(stmt).append(expr).toHashCode();
 	}
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
-																					 .append("stmt", this.stmt)
-																					 .append("expr", this.expr).toString();
+	@Override public String toString() {
+		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString()).append(
+				"stmt", this.stmt).append("expr", this.expr).toString();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * @return the expression(<code>ValueBox</code>) associated with criterion.
-	 *
 	 * @post result != null and result.oclIsKindOf(ValueBox)
-	 *
 	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	protected Object getCriterion() {
+	@Override protected Object getCriterion() {
 		return expr;
 	}
 
@@ -96,7 +92,6 @@ class ExprLevelSliceCriterion
 	 * Provides the statement in which the slice expression occurs.
 	 *
 	 * @return the statement in which the slice expression occurs.
-	 *
 	 * @post result != null
 	 */
 	protected final Stmt getOccurringStmt() {
@@ -109,7 +104,6 @@ class ExprLevelSliceCriterion
 	 * @param occurringMethod in which the criterion containing statement occurs.
 	 * @param occurringStmt in which the criterion containing expression occurs.
 	 * @param criterion is the slicing criterion.
-	 *
 	 * @pre expr != null and stmt != null and method != null
 	 */
 	void initialize(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion) {

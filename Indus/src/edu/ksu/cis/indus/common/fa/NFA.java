@@ -16,7 +16,7 @@ package edu.ksu.cis.indus.common.fa;
 
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.ITransformer;
-import edu.ksu.cis.indus.common.graph.IEdgeLabelledNode;
+import edu.ksu.cis.indus.common.fa.ITransitionLabel.IEpsilonLabelFactory;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleEdgeLabelledNode;
 
@@ -35,6 +35,11 @@ import java.util.HashSet;
  */
 public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 		implements IAutomaton<S, L> {
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	protected final IEpsilonLabelFactory<L> epsilonFactory;
 
 	/**
 	 * The current state of the NFA. This is <code>null</code> if the automaton is not running.
@@ -70,9 +75,13 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 
 	/**
 	 * Creates an instance of this class.
+	 * 
+	 * @param eFactory DOCUMENT ME!
+	 * @pre eFactory != null
 	 */
-	public NFA() {
+	public NFA(final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
 		super();
+		epsilonFactory = eFactory;
 	}
 
 	/**
@@ -110,7 +119,7 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * @see IAutomaton#canPerformTransition(ITransitionLabel)
 	 */
 	public boolean canPerformTransition(final L label) {
-		final IEdgeLabelledNode _node = seg.queryNode(currentState);
+		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(currentState);
 		final boolean _result;
 
 		if (_node != null) {

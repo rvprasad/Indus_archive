@@ -40,7 +40,7 @@ import soot.jimple.VirtualInvokeExpr;
 
 /**
  * This class provides implementation of <code>IEscapeInfo</code>.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -86,7 +86,7 @@ class EscapeInfo
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param instance that creates this instance.
 	 * @pre instance != null
 	 */
@@ -364,17 +364,17 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
+	public Collection<Comparable<String>> getIds() {
 		return Collections.singleton(IEscapeInfo.ID);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection<?> getReadingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final int paramIndex, final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
-		final Collection<?> _result;
+		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
@@ -400,8 +400,8 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection<?> getReadingThreadsOf(final Local local, final SootMethod method) {
-		Collection<?> _result = Collections.emptySet();
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final Local local, final SootMethod method) {
+		Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = Collections.<Triple<InvokeStmt, SootMethod, SootClass>>emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
@@ -419,12 +419,12 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOfThis(soot.SootMethod)
 	 */
-	public Collection<?> getReadingThreadsOfThis(final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
-		final Collection<?> _result;
+		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
 
 		if (_triple != null) {
 			final MethodContext _ctxt = _triple.getFirst();
@@ -441,10 +441,10 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection<?> getWritingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final int paramIndex, final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
-		final Collection<?> _result;
+		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
 
 		if (method.getParameterType(paramIndex) instanceof RefType) {
 			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
@@ -470,8 +470,8 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection<?> getWritingThreadsOf(final Local local, final SootMethod method) {
-		Collection<?> _result = Collections.emptySet();
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final Local local, final SootMethod method) {
+		Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = Collections.emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
@@ -489,12 +489,12 @@ class EscapeInfo
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOfThis(soot.SootMethod)
 	 */
-	public Collection<?> getWritingThreadsOfThis(final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOfThis(final SootMethod method) {
 		this.analysis.validate(method);
 
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
-		final Collection<?> _result;
+		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
 
 		if (_triple != null) {
 			final MethodContext _ctxt = _triple.getFirst();
@@ -771,7 +771,7 @@ class EscapeInfo
 
 	/**
 	 * Retrieves the alias set for the given local in the given method.
-	 * 
+	 *
 	 * @param local of interest.
 	 * @param method in which <code>local</code> occurs.
 	 * @return the alias set if it exists.
@@ -802,7 +802,7 @@ class EscapeInfo
 
 	/**
 	 * Retrieves the default value for the given sort of shared access.
-	 * 
+	 *
 	 * @param sharedAccessSort of interest.
 	 * @return the default value.
 	 * @pre shareadAccessSort != null

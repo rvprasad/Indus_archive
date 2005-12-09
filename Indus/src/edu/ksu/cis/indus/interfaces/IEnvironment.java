@@ -22,7 +22,7 @@ import soot.SootMethod;
 /**
  * This interface exposes the information pertaining to the environment in which the analyses function. It provides the
  * non-functional information about the system.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -32,11 +32,11 @@ public interface IEnvironment {
 	/**
 	 * The id of this interface.
 	 */
-	Comparable <? extends Object> ID = "The Environment";
+	Comparable<String> ID = "The Environment";
 
 	/**
 	 * Returns the Jimple representation of the given class.
-	 * 
+	 *
 	 * @param className is the name of the class whose Jimple representation is to be returned.
 	 * @return the requested class.
 	 * @post result.oclType = SootClass
@@ -45,14 +45,14 @@ public interface IEnvironment {
 
 	/**
 	 * Returns the classes that form the system.
-	 * 
+	 *
 	 * @return the classes the form the system.
 	 */
 	Collection<SootClass> getClasses();
 
 	/**
 	 * Retrieves the methods that serve as the entry points or as "roots" of the system being analyzed.
-	 * 
+	 *
 	 * @return a collection of methods that are the "roots".
 	 * @post result != null
 	 */
@@ -60,7 +60,7 @@ public interface IEnvironment {
 
 	/**
 	 * Checks if a class by the givne name exists in the environment.
-	 * 
+	 *
 	 * @param scName if the FQN of the class of interest.
 	 * @return <code>true</code> if it exists; <code>false</code>, otherwise.
 	 */
@@ -68,7 +68,7 @@ public interface IEnvironment {
 
 	/**
 	 * Removes the given class from the environment.
-	 * 
+	 *
 	 * @param clazz to be removed from the system.
 	 * @pre clazz != null
 	 */

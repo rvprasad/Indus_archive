@@ -15,9 +15,9 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
@@ -44,7 +44,6 @@ import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerato
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AssertionSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
-import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -304,25 +303,25 @@ public final class SlicerConfiguration
 	/**
 	 * The collection of ids of the dependences to be considered for slicing.
 	 */
-	private final Collection<Comparable> dependencesToUse;
+	private final Collection<IDependencyAnalysis.DependenceSort> dependencesToUse;
 
 	/**
 	 * This maps identifiers to criteria generators.
 	 */
-	private final Map<Comparable, ISliceCriteriaGenerator> id2critGenerators;
+	private final Map<Object, ISliceCriteriaGenerator> id2critGenerators;
 
 	/**
 	 * This maps IDs to dependency analyses.
 	 */
-	private final Map<Comparable, Set<? extends IDependencyAnalysis>> id2dependencyAnalyses;
+	private final Map<IDependencyAnalysis.DependenceSort, Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>> id2dependencyAnalyses;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
-		id2critGenerators = new HashMap<Comparable, ISliceCriteriaGenerator>();
-		id2dependencyAnalyses = new HashMap<Comparable, Set<? extends IDependencyAnalysis>>();
-		dependencesToUse = new HashSet<Comparable>();
+		id2critGenerators = new HashMap<Object, ISliceCriteriaGenerator>();
+		id2dependencyAnalyses = new HashMap<IDependencyAnalysis.DependenceSort, Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>>();
+		dependencesToUse = new HashSet<IDependencyAnalysis.DependenceSort>();
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
 		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
 		propertyIds.add(USE_INTERFERENCEDA);
@@ -491,8 +490,8 @@ public final class SlicerConfiguration
 	 * @return the dependency analyses identified by <code>id</code>.
 	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
 	 */
-	public Collection<IDependencyAnalysis> getDependenceAnalyses(final Comparable id) {
-		Collection<IDependencyAnalysis> _result = (Collection<IDependencyAnalysis>) id2dependencyAnalyses.get(id);
+	public Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> getDependenceAnalyses(final IDependencyAnalysis.DependenceSort id) {
+		Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _result = id2dependencyAnalyses.get(id);
 
 		if (_result == null) {
 			_result = Collections.emptyList();
@@ -611,7 +610,7 @@ public final class SlicerConfiguration
 		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.FALSE);
 		setProperty(EXPLICIT_EXCEPTIONAL_EXIT_SENSITIVE_CONTROL_DEPENDENCE, Boolean.FALSE);
 		setProperty(COMMON_UNCHECKED_EXCEPTIONAL_EXIT_SENSITIVE_CD, Boolean.FALSE);
-		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+		setProperty(SLICE_TYPE, SlicingEngine.SliceType.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.FALSE);
 		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.FALSE);
@@ -628,9 +627,9 @@ public final class SlicerConfiguration
 		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 		setProperty(CALLING_CONTEXT_LENGTH, DEFAULT_CALLING_CONTEXT_LIMIT);
 
-		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
-		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
-		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
+		dependencesToUse.add(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
+		dependencesToUse.add(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA);
+		dependencesToUse.add(IDependencyAnalysis.DependenceSort.CONTROL_DA);
 	}
 
 	/**
@@ -799,7 +798,7 @@ public final class SlicerConfiguration
 	 * @throws IllegalStateException when executability is set on forward slices.
 	 */
 	public void setExecutableSlice(final boolean value) {
-		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+		if (!getSliceType().equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
 			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
 		} else if (value) {
 			throw new IllegalStateException("Forward Executable Slices are not supported.");
@@ -1013,7 +1012,7 @@ public final class SlicerConfiguration
 	/**
 	 * {@inheritDoc} This implementation will always return <code>true</code>.
 	 */
-	@Override protected boolean processProperty(@SuppressWarnings("unused") final Comparable propertyID, @SuppressWarnings("unused") final Object value) {
+	@Override protected boolean processProperty(@SuppressWarnings("unused") final Comparable<?> propertyID, @SuppressWarnings("unused") final Object value) {
 		return true;
 	}
 
@@ -1021,9 +1020,9 @@ public final class SlicerConfiguration
 	 * Provides the id of the dependences to use for slicing.
 	 * 
 	 * @return a collection of id of the dependence analyses.
-	 * @post result != null and result.oclIsKindOf(Collection(Object))
+	 * @post result != null
 	 */
-	Collection<Comparable> getIDsOfDAsToUse() {
+	Collection<IDependencyAnalysis.DependenceSort> getIDsOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
 	}
 
@@ -1056,7 +1055,7 @@ public final class SlicerConfiguration
 	 * @param propertyId identifies the property for which the value is required.
 	 * @return the value associated with <code>propertyId</code>. Default value is <code>false</code>.
 	 */
-	private boolean getBooleanProperty(final Comparable<String> propertyId) {
+	private boolean getBooleanProperty(final Comparable<?> propertyId) {
 		final Boolean _value = (Boolean) getProperty(propertyId);
 		boolean _result = false;
 
@@ -1073,14 +1072,14 @@ public final class SlicerConfiguration
 	 * @return the direction.
 	 * @throws IllegalStateException if the direction cannot be decided due to illegal slice type.
 	 */
-	private Comparable getDivergenceDirection() throws IllegalStateException {
-		final Comparable _result;
+	private IDependencyAnalysis.Direction getDivergenceDirection() throws IllegalStateException {
+		final IDependencyAnalysis.Direction _result;
 
-		if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
-			_result = IDependencyAnalysis.FORWARD_DIRECTION;
-		} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
-			_result = IDependencyAnalysis.BACKWARD_DIRECTION;
-		} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
+		if (SlicingEngine.SliceType.FORWARD_SLICE.equals(getSliceType())) {
+			_result = IDependencyAnalysis.Direction.FORWARD_DIRECTION;
+		} else if (SlicingEngine.SliceType.BACKWARD_SLICE.equals(getSliceType())) {
+			_result = IDependencyAnalysis.Direction.BACKWARD_DIRECTION;
+		} else if (SlicingEngine.SliceType.COMPLETE_SLICE.equals(getSliceType())) {
 			_result = null;
 		} else {
 			final String _msg = "Illegal slice type :" + "" + " : " + getSliceType();
@@ -1097,8 +1096,8 @@ public final class SlicerConfiguration
 	 * @return the ready dependence analysis class.
 	 * @throws IllegalStateException when the given nature is not supported.
 	 */
-	private Class getReadyDAClass(final Comparable nature) throws IllegalStateException {
-		final Class _result;
+	private Class<? extends  ReadyDAv1> getReadyDAClass(final Comparable<?> nature) throws IllegalStateException {
+		final Class<? extends  ReadyDAv1> _result;
 
 		if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(nature)) {
 			_result = ReadyDAv3.class;
@@ -1122,7 +1121,7 @@ public final class SlicerConfiguration
 
 		if (_b.booleanValue()) {
 			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
-			final Collection<Class> _stmtTypes = (Collection<Class>) Collections.singleton(ThrowStmt.class);
+			final Collection<Class<ThrowStmt>> _stmtTypes = Collections.singleton(ThrowStmt.class);
 			_t.setStmtTypes(_stmtTypes);
 			_t.setCriteriaFilterPredicate(new AssertionSliceCriteriaPredicate());
 
@@ -1147,14 +1146,13 @@ public final class SlicerConfiguration
 			id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, _t);
 
 			if (ALL_SYNC_CONSTRUCTS.equals(_property)) {
-				_t.setCriteriaFilterPredicate(ISliceCriteriaPredicate.DUMMY_FILTER);
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
-				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(getCallingContextLimit(), IDependencyAnalysis.INTERFERENCE_DA);
+				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(getCallingContextLimit(), IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(_retriever));
 			} else {
 				final String _msg = "Deadlock preservation criteria generation could not be configured due to illegal "
@@ -1178,10 +1176,10 @@ public final class SlicerConfiguration
 	private void setupDivergenceDependence() {
 		if (isDivergenceDepAnalysisUsed()) {
 			final String _property = getNatureOfDivergenceDepAnalysis();
-			final Comparable _direction = getDivergenceDirection();
+			final IDependencyAnalysis.Direction _direction = getDivergenceDirection();
 
 			final boolean _interProcedural = INTRA_AND_INTER_PROCEDURAL.equals(_property);
-			final Collection<IDependencyAnalysis> _das = new ArrayList<IDependencyAnalysis>();
+			final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _das = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 			if (_direction != null) {
 				if (INTER_PROCEDURAL_ONLY.equals(_property)) {
@@ -1191,15 +1189,15 @@ public final class SlicerConfiguration
 					_das.add(_divergenceDA);
 					_divergenceDA.setConsiderCallSites(_interProcedural);
 				}
-			} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
+			} else if (SlicingEngine.SliceType.COMPLETE_SLICE.equals(getSliceType())) {
 				if (INTER_PROCEDURAL_ONLY.equals(_property)) {
-					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
-					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
+					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION));
+					_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION));
 				} else if (INTRA_PROCEDURAL_ONLY.equals(_property) || _interProcedural) {
 					final DivergenceDA _forwardDivergenceDA = DivergenceDA
-							.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
+							.getDivergenceDA(IDependencyAnalysis.Direction.FORWARD_DIRECTION);
 					final DivergenceDA _backwardDivergenceDA = DivergenceDA
-							.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
+							.getDivergenceDA(IDependencyAnalysis.Direction.BACKWARD_DIRECTION);
 					_das.add(_forwardDivergenceDA);
 					_das.add(_backwardDivergenceDA);
 					_forwardDivergenceDA.setConsiderCallSites(_interProcedural);
@@ -1208,8 +1206,8 @@ public final class SlicerConfiguration
 			}
 
 			if (!_das.isEmpty()) {
-				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA, _das);
-				dependencesToUse.add(IDependencyAnalysis.DIVERGENCE_DA);
+				id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA, _das);
+				dependencesToUse.add(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA);
 			} else {
 				final String _msg = "Divergence dependence could not be configured due to illegal slice type or"
 						+ "divergence dependence nature.";
@@ -1217,8 +1215,8 @@ public final class SlicerConfiguration
 				throw new IllegalStateException(_msg);
 			}
 		} else {
-			dependencesToUse.remove(IDependencyAnalysis.DIVERGENCE_DA);
-			id2dependencyAnalyses.remove(IDependencyAnalysis.DIVERGENCE_DA);
+			dependencesToUse.remove(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA);
+			id2dependencyAnalyses.remove(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA);
 		}
 	}
 
@@ -1228,13 +1226,13 @@ public final class SlicerConfiguration
 	 * @throws IllegalStateException when interference dependence cannot be setup.
 	 */
 	private void setupInterferenceDependence() {
-		final Comparable _id = IDependencyAnalysis.INTERFERENCE_DA;
+		final IDependencyAnalysis.DependenceSort _id = IDependencyAnalysis.DependenceSort.INTERFERENCE_DA;
 
 		if (isInterferenceDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
 
-			final Comparable _property = getNatureOfInterferenceDepAnalysis();
-			final Class _clazz;
+			final Comparable<?> _property = getNatureOfInterferenceDepAnalysis();
+			final Class<? extends InterferenceDAv1> _clazz;
 
 			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(_property)) {
 				_clazz = InterferenceDAv3.class;
@@ -1249,12 +1247,13 @@ public final class SlicerConfiguration
 				throw new IllegalStateException(_msg);
 			}
 
-			final Constructor _instance;
+			final Constructor<? extends InterferenceDAv1> _constructor;
 
 			try {
-				_instance = _clazz.getConstructor((Class[]) null);
-				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections
-						.singleton((IDependencyAnalysis) _instance.newInstance((Object[]) null)));
+				_constructor = _clazz.getConstructor((Class[]) null);
+				final InterferenceDAv1 _newInstance =  _constructor.newInstance((Object[]) null);
+				id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, Collections
+						.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(_newInstance));
 			} catch (final NoSuchMethodException _e) {
 				final String _msg = "Dependence analysis does not provide zero parameter constructor :" + _clazz;
 				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
@@ -1296,7 +1295,7 @@ public final class SlicerConfiguration
 				throw _runtimeException;
 			}
 
-			for (final Iterator _i = id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA).iterator(); _i.hasNext();) {
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
 				_ida.setUseOFA(isOFAUsedForInterference());
 			}
@@ -1311,18 +1310,18 @@ public final class SlicerConfiguration
 	 * 
 	 * @param nature of ready dependence.
 	 */
-	private void setupNatureOfReadyDep(final Comparable nature) {
-		final Class _clazz = getReadyDAClass(nature);
+	private void setupNatureOfReadyDep(final Comparable<?> nature) {
+		final Class<? extends ReadyDAv1> _clazz = getReadyDAClass(nature);
 
 		try {
-			final Collection<IDependencyAnalysis> _temp = new HashSet<IDependencyAnalysis>();
+			final Set<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _temp = new HashSet<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
-			if (SlicingEngine.FORWARD_SLICE.equals(getSliceType())) {
+			if (SlicingEngine.SliceType.FORWARD_SLICE.equals(getSliceType())) {
 				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class[]) null).invoke(null,
 						(Object[]) null));
-			} else if (SlicingEngine.BACKWARD_SLICE.equals(getSliceType())) {
+			} else if (SlicingEngine.SliceType.BACKWARD_SLICE.equals(getSliceType())) {
 				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
-			} else if (SlicingEngine.COMPLETE_SLICE.equals(getSliceType())) {
+			} else if (SlicingEngine.SliceType.COMPLETE_SLICE.equals(getSliceType())) {
 				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
 				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class []) null).invoke(null, (Object []) null));
 			} else {
@@ -1330,7 +1329,7 @@ public final class SlicerConfiguration
 				LOGGER.error("setupNatureOfReadyDep" + "() -  : " + _msg);
 				throw new IllegalStateException(_msg);
 			}
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
+			id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.READY_DA, _temp);
 		} catch (final NoSuchMethodException _e) {
 			final String _msg = "Dependence analysis does not provide getForwardReadyDA() and/or getBackwardReadyDA() :"
 					+ _clazz;
@@ -1391,9 +1390,9 @@ public final class SlicerConfiguration
 			_rule = ReadyDAv1.RULE_4;
 		}
 
-		final Collection _c = id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA);
+		final Collection<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = id2dependencyAnalyses.get(IDependencyAnalysis.DependenceSort.READY_DA);
 
-		for (final Iterator _iter = _c.iterator(); _iter.hasNext();) {
+		for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _iter = _c.iterator(); _iter.hasNext();) {
 			final ReadyDAv1 _rd = (ReadyDAv1) _iter.next();
 			final int _rules = _rd.getRules();
 			_rd.setRules(_rules | _rule);
@@ -1404,7 +1403,7 @@ public final class SlicerConfiguration
 	 * Sets up the ready dependence.
 	 */
 	private void setupReadyDependence() {
-		final Comparable _id = IDependencyAnalysis.READY_DA;
+		final IDependencyAnalysis.DependenceSort _id = IDependencyAnalysis.DependenceSort.READY_DA;
 
 		if (isReadyDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
@@ -1412,21 +1411,21 @@ public final class SlicerConfiguration
 
 			final boolean _usedForReady = isOFAUsedForReady();
 
-			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseOFA(_usedForReady);
 			}
 
 			final boolean _safeLockAnalysisUsedForReady = isSafeLockAnalysisUsedForReady();
 
-			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseSafeLockAnalysis(_safeLockAnalysisUsedForReady);
 			}
 
 			final boolean _callSiteSensitiveReadyUsed = isCallSiteSensitiveReadyUsed();
 
-			for (final Iterator _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setConsiderCallSites(_callSiteSensitiveReadyUsed);
 			}
@@ -1445,14 +1444,14 @@ public final class SlicerConfiguration
 	private void setupSliceTypeRelatedData() {
 		final String _sliceType = getSliceType();
 
-		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
-			id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, Collections
-					.singleton(new IdentifierBasedDataDAv3()));
-			id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,  Collections
-					.singleton(new ReferenceBasedDataDA()));
+		if (SlicingEngine.SliceType.valueOf(_sliceType) != null) {
+			id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA, Collections
+					.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new IdentifierBasedDataDAv3()));
+			id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA,  Collections
+					.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new ReferenceBasedDataDA()));
 
-			final Collection<IDependencyAnalysis> _c = MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
-					IDependencyAnalysis.CONTROL_DA, IDependencyAnalysis.SET_FACTORY);
+			final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
+					IDependencyAnalysis.DependenceSort.CONTROL_DA, SetUtils.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>getFactory());
 
 			if (isNonTerminationSensitiveControlDependenceUsed()) {
 				_c.add(new NonTerminationSensitiveEntryControlDA());
@@ -1460,12 +1459,12 @@ public final class SlicerConfiguration
 				_c.add(new NonTerminationInsensitiveEntryControlDA());
 			}
 
-			if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+			if (_sliceType.equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
 				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
-			} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+			} else if (_sliceType.equals(SlicingEngine.SliceType.COMPLETE_SLICE)) {
 				_c.add(new ExitControlDA());
-			} else if (!_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			} else if (!_sliceType.equals(SlicingEngine.SliceType.BACKWARD_SLICE)) {
 				throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, "
 						+ "or COMPLETE_SLICE.");
 			}
@@ -1480,11 +1479,11 @@ public final class SlicerConfiguration
 	 * Sets up synchronization dependence.
 	 */
 	private void setupSynchronizationDependence() {
-		final Comparable _id = IDependencyAnalysis.SYNCHRONIZATION_DA;
+		final IDependencyAnalysis.DependenceSort _id = IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA;
 
 		if (isSynchronizationDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
-			id2dependencyAnalyses.put(_id, Collections.singleton(new SynchronizationDA()));
+			id2dependencyAnalyses.put(_id, Collections.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new SynchronizationDA()));
 		} else {
 			dependencesToUse.remove(_id);
 			id2dependencyAnalyses.remove(_id);

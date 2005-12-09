@@ -35,7 +35,7 @@ import soot.jimple.AssignStmt;
  * This class provides data dependence information which considers references. Hence, it considers the effects of aliasing. It
  * is an adapter for an interprocedural use-def analysis which considers the effects of aliasing. It can be configured to
  * provide dependence based on static field references.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -91,7 +91,7 @@ public class ReferenceBasedDataDA
 
 	/**
 	 * Return the statements on which field/array access in <code>stmt</code> in <code>method</code> depends on.
-	 * 
+	 *
 	 * @param stmt in which aliased data is read.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a collection of statements which affect the data being read in <code>stmt</code>.
@@ -118,7 +118,7 @@ public class ReferenceBasedDataDA
 
 	/**
 	 * Return the statements which depend on the field/array access in <code>stmt</code> in <code>method</code>.
-	 * 
+	 *
 	 * @param stmt in which aliased data is written.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
@@ -146,15 +146,15 @@ public class ReferenceBasedDataDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA);
 	}
 
 	// /CLOVER:OFF
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -174,7 +174,7 @@ public class ReferenceBasedDataDA
 	 * Extracts information provided by environment at initialization time. The user can configure this analysis to include
 	 * static field reference based dependence information by passing in an implementation of <code>IUseDefInfo</code>
 	 * implementation mapped to <code>IUseDefInfo.GLOBAL_USE_DEF_ID</code> constant in the information map.
-	 * 
+	 *
 	 * @throws InitializationException if an implementation that provides aliased interprocedural use-def information is not
 	 *             provided.
 	 * @pre info.get(IUseDefInfo.ALIASED_USE_DEF_ID) != null

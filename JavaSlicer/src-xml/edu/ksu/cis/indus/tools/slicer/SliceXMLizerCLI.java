@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
@@ -97,6 +98,7 @@ import org.jibx.runtime.JiBXException;
 import soot.Printer;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Value;
 
 
 /**
@@ -137,7 +139,7 @@ public class SliceXMLizerCLI
 	/** 
 	 * This is the names of the classes that need to be retained when optimizing the slice for space.
 	 */
-	private Collection retentionList;
+	private Collection<String> retentionList;
 
 	/** 
 	 * The id generator used during xmlization.
@@ -193,8 +195,8 @@ public class SliceXMLizerCLI
 	/**
 	 * Creates an instance of this class.
 	 */
-	protected SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
+	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
+		slicer = new SlicerTool(TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 

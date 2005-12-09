@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -25,12 +24,12 @@ import java.util.Collection;
  * @version $Revision$
  */
 public interface IIdentification {
+
 	/**
-	 * Returns the IDs of the implementation.  Note that it is possible that an implementation can cater many interfaces,
+	 * Returns the IDs of the implementation. Note that it is possible that an implementation can cater many interfaces,
 	 * hence, have many ids.
 	 *
 	 * @return the ids of the implementation.
-	 *
 	 * @post result != null
 	 */
 	Collection<? extends Comparable<?>> getIds();

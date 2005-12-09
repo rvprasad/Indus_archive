@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-
 import soot.SootField;
 
 /**

@@ -137,10 +137,10 @@ public class ForwardSlicingPart
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final SootMethod _callee = _i.next();
-				final Collection _units = engine.getBasicBlockGraphManager().getStmtList(_callee);
+				final Collection<Stmt> _units = engine.getBasicBlockGraphManager().getStmtList(_callee);
 
-				for (final Iterator _j = _units.iterator(); _j.hasNext();) {
-					final Stmt _stmt = (Stmt) _j.next();
+				for (final Iterator<Stmt> _j = _units.iterator(); _j.hasNext();) {
+					final Stmt _stmt = _j.next();
 
 					if (_stmt instanceof IdentityStmt) {
 						final IdentityStmt _idStmt = (IdentityStmt) _stmt;
@@ -177,7 +177,7 @@ public class ForwardSlicingPart
 			}
 
 			final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
-			final List _args = _invokeExpr.getArgs();
+			final List<Value> _args = _invokeExpr.getArgs();
 			final int _argIndex = _args.indexOf(local);
 
 			if (_argIndex > -1) {

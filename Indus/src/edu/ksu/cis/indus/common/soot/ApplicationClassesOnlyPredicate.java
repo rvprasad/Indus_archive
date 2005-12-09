@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.common.collections.IPredicate;
 
-import soot.SootClass;
 import soot.SootMethod;
 
 /**
@@ -27,7 +26,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class ApplicationClassesOnlyPredicate
-		implements IPredicate<Object> {
+		implements IPredicate<SootMethod> {
 
 	/**
 	 * Creates an instance of this class.
@@ -39,19 +38,8 @@ public class ApplicationClassesOnlyPredicate
 	/**
 	 * @see IPredicate#evaluate(java.lang.Object)
 	 */
-	public boolean evaluate(final Object object) {
-		final boolean _result;
-
-		if (object instanceof SootMethod) {
-			final SootMethod _sm = (SootMethod) object;
-			_result = _sm.getDeclaringClass().isApplicationClass();
-		} else if (object instanceof SootClass) {
-			final SootClass _sc = (SootClass) object;
-			_result = _sc.isApplicationClass();
-		} else {
-			_result = true;
-		}
-		return _result;
+	public boolean evaluate(final SootMethod object) {
+		return object.getDeclaringClass().isApplicationClass();
 	}
 }
 

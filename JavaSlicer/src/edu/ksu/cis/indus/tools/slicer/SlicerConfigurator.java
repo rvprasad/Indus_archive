@@ -68,7 +68,7 @@ public final class SlicerConfigurator
 	/**
 	 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
 	 */
-	public void widgetDisposed(final DisposeEvent evt) {
+	@Override public void widgetDisposed(final DisposeEvent evt) {
 		super.widgetDisposed(evt);
 		executableSliceButton = null;
 	}
@@ -82,7 +82,7 @@ public final class SlicerConfigurator
 	 *
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(IToolConfiguration)
 	 */
-	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
+	@Override protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
 		if (!(toolConfiguration instanceof SlicerConfiguration)) {
 			throw new RuntimeException(
 				"The toolConfiguration has to be of type edu.ksu.cis.indus.tools.slicer.SlicerConfiguration.");
@@ -92,7 +92,7 @@ public final class SlicerConfigurator
 	/**
 	 * {@inheritDoc} This method should be called after <code>setConfiguration</code> has been invoked on this object.
 	 */
-	protected void setup() {
+	@Override protected void setup() {
 		final TabFolder _tabFolder = new TabFolder(parent, SWT.TOP | SWT.BORDER);
 
 		final TabItem _sliceInfoTab = new TabItem(_tabFolder, SWT.NONE);
@@ -182,7 +182,7 @@ public final class SlicerConfigurator
 		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
 				_assertionPreservingSliceButton, cfg) {
-				public void widgetSelected(final SelectionEvent evt) {
+				@Override public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 					final boolean _value = button.getSelection();
 					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
 					_applclasses.setEnabled(_value);
@@ -283,7 +283,7 @@ public final class SlicerConfigurator
 
 		final SelectionListener _sl5 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, cfg) {
-				public void widgetSelected(final SelectionEvent evt) {
+				@Override public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 					final boolean _value = button.getSelection();
 					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
 					_group1.setEnabled(_value);
@@ -341,7 +341,7 @@ public final class SlicerConfigurator
 				_cfg));
 
 		_useExplicitExceptionalExitSensitiveCDAButton.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent e) {
+				public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent e) {
 					final boolean _t = _useExplicitExceptionalExitSensitiveCDAButton.getSelection();
 					_useCommonUncheckedExceptionsCDAButton.setEnabled(_t);
 				}
@@ -442,7 +442,7 @@ public final class SlicerConfigurator
 		//Links up the buttons via selection listener to control toggling based on the user's decision 
 		// to use interference DA.
 		_useDDAButton.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
+				public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 					boolean _val = false;
 
 					if (_useDDAButton.getSelection()) {
@@ -576,7 +576,7 @@ public final class SlicerConfigurator
 		// Links up the buttons via selection listener to control toggling based on the user's decision 
 		// to use interference DA.
 		_useIDAButton.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
+				public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 					boolean _val = false;
 
 					if (_useIDAButton.getSelection()) {
@@ -636,7 +636,7 @@ public final class SlicerConfigurator
 
 		final FocusListener _sl4 =
 			new FocusAdapter() {
-				public void focusLost(final FocusEvent e) {
+				@Override public void focusLost(@SuppressWarnings("unused") final FocusEvent e) {
 					try {
 						final int _i = Integer.parseInt(_callingContextLimit.getText());
 
@@ -658,7 +658,7 @@ public final class SlicerConfigurator
 
 		final SelectionListener _sl5 =
 			new SelectionListener() {
-				public void widgetSelected(final SelectionEvent e) {
+				public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent e) {
 					final boolean _b = _propertyAwareSlicingButton.getSelection();
                     _callingContextLimit.setEnabled(_b);
                     _l.setEnabled(_b);
@@ -832,7 +832,7 @@ public final class SlicerConfigurator
 
 		// Links up the buttons via selection listener to control toggling based on the user's decision to use ready DA.
 		_useRDAButton.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
+				public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 					boolean _val = false;
 
 					if (_useRDAButton.getSelection()) {
@@ -883,7 +883,7 @@ public final class SlicerConfigurator
         executableSliceButton.addSelectionListener(new BooleanPropertySelectionListener(
                 SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg));
         
-		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+		if (_cfg.getSliceType().equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
 		}
 		executableSliceButton.setSelection(_cfg.getExecutableSlice());
@@ -921,15 +921,15 @@ public final class SlicerConfigurator
 					Object _value = null;
 
 					if (evt.widget == _forwardSlice) {
-						_value = SlicingEngine.FORWARD_SLICE;
+						_value = SlicingEngine.SliceType.FORWARD_SLICE;
 						executableSliceButton.setSelection(false);
 						executableSliceButton.notifyListeners(SWT.Selection, null);
 						executableSliceButton.setEnabled(false);
 					} else {
 						if (evt.widget == _backwardSlice) {
-							_value = SlicingEngine.BACKWARD_SLICE;
+							_value = SlicingEngine.SliceType.BACKWARD_SLICE;
 						} else if (evt.widget == _completeSlice) {
-							_value = SlicingEngine.COMPLETE_SLICE;
+							_value = SlicingEngine.SliceType.COMPLETE_SLICE;
 						}
 						executableSliceButton.setEnabled(true);
 					}
@@ -949,11 +949,11 @@ public final class SlicerConfigurator
 
 		final Object _sliceType = _cfg.getSliceType();
 
-		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+		if (_sliceType.equals(SlicingEngine.SliceType.BACKWARD_SLICE)) {
 			_backwardSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+		} else if (_sliceType.equals(SlicingEngine.SliceType.COMPLETE_SLICE)) {
 			_completeSlice.setSelection(true);
-		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+		} else if (_sliceType.equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
 			_forwardSlice.setSelection(true);
 		}
 	}

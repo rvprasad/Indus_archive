@@ -14,15 +14,12 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.collections.IFactory;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import soot.SootMethod;
 
@@ -40,7 +37,7 @@ import soot.jimple.Stmt;
  * A method <i>a</i> is reachable from method <i>b</i> if there is an explicit call from <i>a</i> to <i>b</i>. This is
  * also holds when <i>a=b</i>.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -52,7 +49,7 @@ public interface ICallGraphInfo
 	 * This class captures in the information pertaining to a call relation. It provides the expression, statement, and the
 	 * method in which the call occurs. However, depending on the call relation context, the method may indicate the method
 	 * called at an expression and a statement.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -61,20 +58,9 @@ public interface ICallGraphInfo
 			extends Triple<InvokeExpr, Stmt, SootMethod> {
 
 		/**
-		 * DOCUMENT ME!
-		 */
-		public static final IFactory<Set<CallTriple>> SET_FACTORY = new IFactory<Set<CallTriple>>() {
-
-			public Set<CallTriple> create() {
-				return new HashSet<CallTriple>();
-			}
-
-		};
-
-		/**
 		 * Creates a new CallTriple object. It is assumed that none of the components of this triple will not change their
 		 * state in ways that will affect equality test or hash code value of the component.
-		 * 
+		 *
 		 * @param method is the caller or the callee in the relation.
 		 * @param stmt in which the call occurs.
 		 * @param expr is the call.
@@ -87,7 +73,7 @@ public interface ICallGraphInfo
 
 		/**
 		 * Returns the call expression.
-		 * 
+		 *
 		 * @return the call expression.
 		 * @post result != null
 		 */
@@ -97,7 +83,7 @@ public interface ICallGraphInfo
 
 		/**
 		 * Returns the caller or the callee.
-		 * 
+		 *
 		 * @return the caller/callee.
 		 * @post result != null
 		 */
@@ -107,7 +93,7 @@ public interface ICallGraphInfo
 
 		/**
 		 * Returns the statement in which the call occurs.
-		 * 
+		 *
 		 * @return the statement containing the call.
 		 * @post result != null
 		 */
@@ -117,7 +103,7 @@ public interface ICallGraphInfo
 
 		/**
 		 * Provides a stringized representation of this object.
-		 * 
+		 *
 		 * @return stringized representation of this object.
 		 * @post result != null
 		 */
@@ -133,7 +119,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Checks if any of the given methods are reachable from the given caller.
-	 * 
+	 *
 	 * @param methods that should be reached.
 	 * @param caller containing the call-site.
 	 * @return <code>true</code> if any of the <code>methods</code> are reachable from <code>caller</code>;
@@ -145,7 +131,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Checks if any of the given methods are reachable from the given call-site.
-	 * 
+	 *
 	 * @param methods that should be reached.
 	 * @param stmt containing the call-site.
 	 * @param caller containing the call-site.
@@ -158,7 +144,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the set of methods called in the given <code>expr</code> in the given <code>context</code>.
-	 * 
+	 *
 	 * @param expr that is the call.
 	 * @param context in which the expr occurs. The calling method should occurs in the call string of the context as the
 	 *            current method.
@@ -170,7 +156,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the set of methods called in <code>caller</code>.
-	 * 
+	 *
 	 * @param caller of interest.
 	 * @return a collection of call-sites.
 	 * @pre caller != null
@@ -180,7 +166,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the set of methods that call <code>callee</code>.
-	 * 
+	 *
 	 * @param callee is the method invoked.
 	 * @return a colleciton of call-sites.
 	 * @pre callee != null
@@ -192,7 +178,7 @@ public interface ICallGraphInfo
 	 * Returns the intersection of the methods reachable from the given methods in the given direction. This is equivalent to
 	 * <code>CollectionUtils.intersection(getMethodsReachableFrom(method1, forward1), getMethodsReachableFrom(method2,
 	 * forward2))</code>.
-	 * 
+	 *
 	 * @param method1 of interest.
 	 * @param forward1 direction of reachability from <code>method1</code>.
 	 * @param method2 of interest.
@@ -210,7 +196,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Retrieves the minimum set of callees that ensure the given methods reach common callees.
-	 * 
+	 *
 	 * @param method1 is one method of interest.
 	 * @param method2 is another method of interest.
 	 * @return a collection of methods.
@@ -224,7 +210,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Retrieves the minimum set of callers that ensure the common callers can reach the given methods.
-	 * 
+	 *
 	 * @param method1 is one method of interest.
 	 * @param method2 is another method of interest.
 	 * @return a collection of methods.
@@ -238,7 +224,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the methods from which the system starts.
-	 * 
+	 *
 	 * @return a colleciton of <code>SootMethod</code>s.
 	 * @post result != null
 	 */
@@ -246,7 +232,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Retrieves the methods in the call graph in topological order.
-	 * 
+	 *
 	 * @param topdown <code>true</code> indicates in top-down order; <code>false</code> indicates bottom-up order.
 	 * @return the methods in the call graph.
 	 * @post result != null
@@ -255,7 +241,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the methods that are reachable from withing the given method via a call chain.
-	 * 
+	 *
 	 * @param root in which the method invocation occurs.
 	 * @param forward <code>true</code> indicates that methods reachable by following a call chain from <code>root</code>
 	 *            are required. <code>false</code> indicates that methods that can reach <code>root</code> by following a
@@ -268,7 +254,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns the methods that are reachable from the given invocation point via a call chain.
-	 * 
+	 *
 	 * @param stmt in which the method invocation occurs.
 	 * @param root in which the method invocation occurs.
 	 * @return a collection of reachable methods.
@@ -279,7 +265,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns a collection of methods that can be reached in the analyzed system.
-	 * 
+	 *
 	 * @return a collection of methods.
 	 * @post result != null
 	 */
@@ -287,7 +273,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Returns a sequence of strongly connected components in the given call graph.
-	 * 
+	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
 	 *            indicates bottom-up.
 	 * @return a sequence of sequence of methods.
@@ -297,7 +283,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Checks if the <code>callee</code> is reachable <code>caller</code>.
-	 * 
+	 *
 	 * @param callee is the method that needs to be reached.
 	 * @param caller is the method to start the search from.
 	 * @return <code>true</code> if <code>callee</code> can be reached from <code>caller</code>; <code>false</code>,
@@ -309,7 +295,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Checks if the <code>callee</code> is reachable <code>caller</code>.
-	 * 
+	 *
 	 * @param callee is the method that needs to be reached.
 	 * @param stmt in the <code>caller</code> at which invocation occurs.
 	 * @param caller is the method to start the search from.
@@ -323,7 +309,7 @@ public interface ICallGraphInfo
 
 	/**
 	 * Checks if the <code>method</code> is reachable in the analyzed system.
-	 * 
+	 *
 	 * @param method to be checked for reachability.
 	 * @return <code>true</code> if <code>method</code> can be reached in the analyzed system; <code>false</code>,
 	 *         otherwise.

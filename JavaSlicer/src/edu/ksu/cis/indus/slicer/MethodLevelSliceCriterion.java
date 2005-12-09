@@ -26,7 +26,7 @@ class MethodLevelSliceCriterion
 	/**
 	 * @see edu.ksu.cis.indus.slicer.AbstractSliceCriterion#equals(java.lang.Object)
 	 */
-	public boolean equals(Object object) {
+	@Override public boolean equals(Object object) {
 		if (object == this) {
 			return true;
 		}

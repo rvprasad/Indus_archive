@@ -35,7 +35,7 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class StmtTypeBasedSliceCriteriaGenerator
-		extends AbstractStmtBasedSliceCriteriaGenerator {
+		extends AbstractStmtBasedSliceCriteriaGenerator<Stmt> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -45,20 +45,21 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	/**
 	 * The types of the statements to be considered as slice criteria.
 	 */
-	private final Collection<Class> stmtTypes = new HashSet<Class>();
+	private final Collection<Class<? extends Stmt>> stmtTypes = new HashSet<Class<? extends Stmt>>();
 
 	/**
 	 * This is used to check type conformance.
 	 */
-	private final IPredicate<Class> subClassPredicate = new ReflectionBasedSupertypePredicate();
+	private final IPredicate<Class<? extends Stmt>> subClassPredicate = new ReflectionBasedSupertypePredicate<Stmt>();
 
 	/**
 	 * Sets the types of the statements to be considered as slice criteria.
 	 * 
+	 * @param <T> DOCUMENT ME!
 	 * @param types of the statements.
 	 * @pre types != null
 	 */
-	public void setStmtTypes(final Collection<Class> types) {
+	public <T extends Stmt> void setStmtTypes(final Collection<Class<T>> types) {
 		stmtTypes.clear();
 		stmtTypes.addAll(types);
 	}

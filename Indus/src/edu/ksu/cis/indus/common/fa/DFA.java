@@ -30,21 +30,24 @@ public class DFA<S extends IState<S>, L extends ITransitionLabel<L>>
 
 	/**
 	 * Creates an instance of this class.
+	 * 
+	 * @param eFactory <i>refer to documentation in super class constructor</i>
+	 * @pre eFactory != null
 	 */
-	public DFA() {
-		super();
+	public DFA(final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
+		super(eFactory);
 	}
 
 	/**
 	 * @see NFA#addLabelledTransitionFromTo(IState, ITransitionLabel, IState)
 	 */
 	@Override public void addLabelledTransitionFromTo(final S src, final L label, final S dest) {
-		final Collection _states = getResultingStates(src, label);
+		final Collection<S> _states = getResultingStates(src, label);
 
 		if (!_states.isEmpty()) {
 			final String _msg = "A transition labelled '" + label + "' already exists from the given source (" + src + ")";
 			throw new IllegalStateException(_msg);
-		} else if (label.equals(EPSILON)) {
+		} else if (label.equals(epsilonFactory.getEpsilonTransitionLabel())) {
 			final String _msg = "Epsilon transitions are not allowed in Deterministic automata.";
 			throw new IllegalArgumentException(_msg);
 		} else {

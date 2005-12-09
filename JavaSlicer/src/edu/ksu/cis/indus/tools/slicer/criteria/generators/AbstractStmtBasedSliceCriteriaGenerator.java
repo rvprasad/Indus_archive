@@ -16,14 +16,12 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -36,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 
 
@@ -47,10 +44,11 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T1> DOCUMENT ME!
  */
-public abstract class AbstractStmtBasedSliceCriteriaGenerator
-  extends AbstractSliceCriteriaGenerator {
-	/** 
+public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
+  extends AbstractSliceCriteriaGenerator<SootMethod, T1> {
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtBasedSliceCriteriaGenerator.class);
@@ -62,51 +60,51 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	protected final Collection getCriteriaTemplateMethod() {
+	@Override protected final Collection<ISliceCriterion> getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: creating field criteria.");
 		}
 
-		final SlicerTool _slicer = getSlicerTool();
-		final Object _sliceType = ((SlicerConfiguration) _slicer.getActiveConfiguration()).getSliceType();
+		final SlicerTool<?> _slicer = getSlicerTool();
+		final String _sliceType = ((SlicerConfiguration) _slicer.getActiveConfiguration()).getSliceType();
 		final boolean _considerExecution;
 
-		if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+		if (_sliceType.equals(SlicingEngine.SliceType.FORWARD_SLICE.name())) {
 			_considerExecution = false;
 		} else {
 			_considerExecution = true;
 		}
 
-		final Collection _result = new HashSet();
+		final Collection<ISliceCriterion> _result = new HashSet<ISliceCriterion>();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 		final BasicBlockGraphMgr _bbgMgr = _slicer.getBasicBlockGraphManager();
 		final ICallGraphInfo _cgi = _slicer.getCallGraph();
-		final Collection _reachableMethods = _cgi.getReachableMethods();
-		final Iterator _i = _reachableMethods.iterator();
+		final Collection<SootMethod> _reachableMethods = _cgi.getReachableMethods();
+		final Iterator<SootMethod> _i = _reachableMethods.iterator();
 		final int _iEnd = _reachableMethods.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _sm = (SootMethod) _i.next();
+			final SootMethod _sm = _i.next();
 
 			if (shouldConsiderSite(_sm)) {
 				final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
-				final List _nodeList = _bbg.getNodes();
-				final Iterator _j = _nodeList.iterator();
+				final List<BasicBlock> _nodeList = _bbg.getNodes();
+				final Iterator<BasicBlock> _j = _nodeList.iterator();
 				final int _jEnd = _nodeList.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final BasicBlock _bb = (BasicBlock) _j.next();
+					final BasicBlock _bb = _j.next();
 
-					final List _stmtsOf = _bb.getStmtsOf();
-					final Iterator _k = _stmtsOf.iterator();
+					final List<Stmt> _stmtsOf = _bb.getStmtsOf();
+					final Iterator<Stmt> _k = _stmtsOf.iterator();
 					final int _kEnd = _stmtsOf.size();
 
 					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-						final Stmt _stmt = (Stmt) _k.next();
+						final Stmt _stmt = _k.next();
 
 						if (shouldConsiderStmt(_stmt)
 							  && shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt, _sm))) {
-							if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+							if (_sliceType.equals(SlicingEngine.SliceType.COMPLETE_SLICE)) {
 								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
 								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
 							} else {
@@ -132,8 +130,8 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator
 	 *
 	 * @pre stmt != null and sm != null
 	 */
-	protected Object getEntityForCriteriaFiltering(final Stmt stmt, final SootMethod sm) {
-		return stmt;
+	protected T1 getEntityForCriteriaFiltering(final Stmt stmt, @SuppressWarnings("unused") final SootMethod sm) {
+		return (T1) stmt;
 	}
 
 	/**
@@ -147,7 +145,7 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator
 	 *
 	 * @pre stmt != null
 	 */
-	protected boolean shouldConsiderStmt(final Stmt stmt) {
+	protected boolean shouldConsiderStmt(@SuppressWarnings("unused") final Stmt stmt) {
 		return true;
 	}
 }

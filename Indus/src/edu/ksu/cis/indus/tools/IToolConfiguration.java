@@ -37,7 +37,7 @@ public interface IToolConfiguration {
 	 * @return the value of the property if it exists; <code>null</code>, otherwise.
 	 * @pre id != null
 	 */
-	Object getProperty(final Comparable id);
+	Object getProperty(final Comparable<?> id);
 
 	/**
 	 * Initialize the configuration. This is required if the configuration is created programmatically rather than via
@@ -63,7 +63,7 @@ public interface IToolConfiguration {
 	 * @return <code>true</code> if the property was added; <code>false</code>, otherwise.
 	 * @pre propertyID != null and value != null
 	 */
-	boolean setProperty(final Comparable propertyID, final Object value);
+	boolean setProperty(final Comparable<?> propertyID, final Object value);
 }
 
 // End of File

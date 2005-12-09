@@ -44,17 +44,17 @@ public interface IUseDefInfo<D, U>
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with instance-based reference use-def info.
 	 */
-	Comparable  ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
+	Comparable<String>  ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
 
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with class-based reference use-def info.
 	 */
-	Comparable  GLOBAL_USE_DEF_ID = "Global Use-Def Information";
+	Comparable<String>  GLOBAL_USE_DEF_ID = "Global Use-Def Information";
 
 	/** 
 	 * This is an ID of this interface. This is used in conjuction with method local variable use-def info.
 	 */
-	Comparable LOCAL_USE_DEF_ID = "Local Use-Def Information";
+	Comparable<String> LOCAL_USE_DEF_ID = "Local Use-Def Information";
 
 	/**
 	 * Retrieves the def sites that reach the given use site in the given context.

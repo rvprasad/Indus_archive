@@ -34,7 +34,7 @@ public interface IExceptionRaisingInfo
 	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable <? extends Object> ID = "exception throw Information";
+	Comparable<String> ID = "exception throw Information";
 
 	/**
 	 * Checks if the given statement throws an uncaught exception in the given method.

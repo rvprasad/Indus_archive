@@ -28,7 +28,7 @@ import java.util.Collection;
  * dependee and dependent info, respectively, in backward direction while <code>getDependents</code> and
  * <code>getDependees</code> provide dependee and dependent info, respectively, in forward direction.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -44,7 +44,51 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	enum DependenceSort {
+		/**
+		 * This identifies control dependency analysis.
+		 */
+		CONTROL_DA,
+
+		/**
+		 * This identifies divergence dependency analysis.
+		 */
+		DIVERGENCE_DA,
+
+		/**
+		 * This identifies identifier based data dependency analysis.
+		 */
+		IDENTIFIER_BASED_DATA_DA,
+
+		/**
+		 * This identifies inteference dependency analysis.
+		 */
+		INTERFERENCE_DA,
+
+		/**
+		 * This identifies ready dependency analysis.
+		 */
+		READY_DA,
+
+		/**
+		 * This identifies class-level data dependency analysis.
+		 */
+		REFERENCE_BASED_DATA_DA,
+
+		/**
+		 * This identifies synchronization dependency analysis.
+		 */
+		SYNCHRONIZATION_DA
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -68,43 +112,8 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	};
 
 	/**
-	 * This identifies control dependency analysis.
-	 */
-	Comparable<?> CONTROL_DA = "CONTROL_DA";
-
-	/**
-	 * This identifies divergence dependency analysis.
-	 */
-	Comparable<?> DIVERGENCE_DA = "DIVERGENCE_DA";
-
-	/**
-	 * This identifies identifier based data dependency analysis.
-	 */
-	Comparable <?> IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
-
-	/**
-	 * This identifies inteference dependency analysis.
-	 */
-	Comparable<?> INTERFERENCE_DA = "INTERFERENCE_DA";
-
-	/**
-	 * This identifies ready dependency analysis.
-	 */
-	Comparable<?> READY_DA = "READY_DA";
-
-	/**
-	 * This identifies class-level data dependency analysis.
-	 */
-	Comparable<?> REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
-
-	/**
-	 * This identifies synchronization dependency analysis.
-	 */
-	Comparable<? extends Object> SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
-
-	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
-	 * 
+	 *
 	 * @param <E3> DOCUMENT ME!
 	 * @param dependent of interest.
 	 * @param context in which the dependency information is requested.
@@ -116,7 +125,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * Returns the entities which depend on the <code>dependee</code> in the given <code>context</code>.
-	 * 
+	 *
 	 * @param <T4> DOCUMENT ME!
 	 * @param dependee of interest.
 	 * @param context in which the dependency information is requested.
@@ -131,7 +140,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	 * is related to the dependee via the dependence against the flow of control. In analysis that are
 	 * <code>FORWARD_DIRECTION</code> oriented, the dependent is related to the dependee via the dependence along the flow
 	 * of control. Analysis that are direction independent should return <code>BI_DIRECTIONAL</code>.
-	 * 
+	 *
 	 * @return the direction of the implementation.
 	 * @post result != null
 	 */
@@ -139,7 +148,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * Retrieves dependence analysis that provides indirect dependence information corresponding to this dependence analysis.
-	 * 
+	 *
 	 * @return a dependence analysis.
 	 * @post result != null
 	 */
@@ -154,6 +163,11 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	 * Resets all internal data structures. General protocol is that data acquired via setup is not reset or forgotten.
 	 */
 	void reset();
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	Collection<IDependencyAnalysis.DependenceSort> getIds();
 }
 
 // End of File

@@ -18,18 +18,18 @@ import edu.ksu.cis.indus.common.collections.IPredicate;
 
 /**
  * This class can be used to check if a given class object is the super type of a sub type.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ReflectionBasedSupertypePredicate
-		implements IPredicate<Class> {
+public class ReflectionBasedSupertypePredicate<T>
+		implements IPredicate<Class<? extends T>> {
 
 	/**
 	 * The sub type against which the check will occur.
 	 */
-	private Class subtype;
+	private Class<? extends T> subtype;
 
 	/**
 	 * Creates an instance of this class.
@@ -46,7 +46,7 @@ public class ReflectionBasedSupertypePredicate
 	 * @return <code>true</code> if <code>object</code> is a class object and it is a super type of the subtype set on
 	 *         this object; <code>false</code>, otherwise.
 	 */
-	@SuppressWarnings("unchecked") public boolean evaluate(final Class object) {
+	public boolean evaluate(final Class<? extends T> object) {
 		return object.isAssignableFrom(subtype);
 	}
 
@@ -56,7 +56,7 @@ public class ReflectionBasedSupertypePredicate
 	 * @param clazz is the subtype.
 	 * @pre class != null
 	 */
-	public void setsubType(final Class clazz) {
+	public  void setsubType(final Class<? extends T> clazz) {
 		subtype = clazz;
 	}
 }

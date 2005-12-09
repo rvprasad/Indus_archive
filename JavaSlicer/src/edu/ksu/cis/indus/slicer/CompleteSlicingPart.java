@@ -69,8 +69,8 @@ public class CompleteSlicingPart
 	/**
 	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod)
 	 */
-	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection _result = new HashSet();
+	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection<Object> _result = new HashSet<Object>();
 		final Object _direction = analysis.getDirection();
 
 		/*
@@ -137,8 +137,8 @@ public class CompleteSlicingPart
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
-		final Collection _result = new HashSet();
+	public Collection<ValueBox> retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
+		final Collection<ValueBox> _result = new HashSet<ValueBox>();
 		_result.addAll(backwardPart.retrieveValueBoxesToTransformExpr(valueBox, stmt));
 		_result.addAll(forwardPart.retrieveValueBoxesToTransformExpr(valueBox, stmt));
 		return _result;
@@ -147,8 +147,8 @@ public class CompleteSlicingPart
 	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
-	public Collection retrieveValueBoxesToTransformStmt(final Stmt stmt) {
-		final Collection _result = new HashSet();
+	public Collection<ValueBox> retrieveValueBoxesToTransformStmt(final Stmt stmt) {
+		final Collection<ValueBox> _result = new HashSet<ValueBox>();
 		_result.addAll(backwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		_result.addAll(forwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		return _result;

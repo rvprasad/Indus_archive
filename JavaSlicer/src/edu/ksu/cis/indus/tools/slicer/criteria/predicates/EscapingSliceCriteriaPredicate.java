@@ -16,9 +16,7 @@ package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-
 import soot.SootMethod;
-
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 
@@ -34,7 +32,7 @@ public final class EscapingSliceCriteriaPredicate
 		extends AbstractSliceCriteriaPredicate<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#evaluate(T)
+	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#evaluate(Object)
 	 */
 	public boolean evaluate(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple) {
 		final boolean _result;

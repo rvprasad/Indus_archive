@@ -37,7 +37,7 @@ import soot.jimple.Stmt;
 
 /**
  * This constructs system dependence graphs.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -57,7 +57,7 @@ public final class SystemDependenceGraphBuilder {
 	/**
 	 * This is collection of dependence analyses from which dependences need to be captured.
 	 */
-	private final Collection<IDependencyAnalysis> deps;
+	private final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> deps;
 
 	/**
 	 * This is the call graph. If this is <code>null</code> then dependences such as control dependence that are based on
@@ -77,15 +77,15 @@ public final class SystemDependenceGraphBuilder {
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param dependences is collection of dependence analyses from which dependences need to be captured.
 	 * @param cgi is the call graph. If this is <code>null</code> then dependences such as control dependence that are based
 	 *            on call-site will not be captured.
 	 * @param classes to be considered while building the graph.
 	 * @pre dependences != null and cgi != null and classes != null
 	 */
-	private SystemDependenceGraphBuilder(final Collection<IDependencyAnalysis> dependences, final ICallGraphInfo cgi,
-			final Collection<SootClass> classes) {
+	private SystemDependenceGraphBuilder(final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> dependences,
+			final ICallGraphInfo cgi, final Collection<SootClass> classes) {
 		pairMgr = new PairManager(true, true);
 		segb = new SimpleEdgeGraphBuilder<Pair<Stmt, SootMethod>>();
 		deps = dependences;
@@ -95,7 +95,7 @@ public final class SystemDependenceGraphBuilder {
 
 	/**
 	 * Creates a system dependence graph.
-	 * 
+	 *
 	 * @param dependences is collection of dependence analyses from which dependences need to be captured.
 	 * @param cgi is the call graph. If this is <code>null</code> then dependences such as control dependence that are based
 	 *            on call-site will not be captured.
@@ -109,7 +109,8 @@ public final class SystemDependenceGraphBuilder {
 	 *       q.getIds().contains(p)) or p.equals(INTER_PROCEDURAL_DATA_DEPENDENCE)))
 	 */
 	public static SimpleEdgeGraph<Pair<Stmt, SootMethod>> getSystemDependenceGraph(
-			final Collection<IDependencyAnalysis> dependences, final ICallGraphInfo cgi, final Collection<SootClass> classes) {
+			final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> dependences, final ICallGraphInfo cgi,
+			final Collection<SootClass> classes) {
 		final SystemDependenceGraphBuilder _builder = new SystemDependenceGraphBuilder(dependences, cgi, classes);
 		return _builder.createGraph();
 	}
@@ -117,7 +118,7 @@ public final class SystemDependenceGraphBuilder {
 	/**
 	 * Adds edges to the given graph builder that capture the dependences edges available from the provided analyses onto the
 	 * given statment in the given method.
-	 * 
+	 *
 	 * @param stmt that serves as the destination.
 	 * @param method that contains <code>stmt</code>.
 	 * @pre stmt != null and method != null
@@ -125,14 +126,14 @@ public final class SystemDependenceGraphBuilder {
 	private void addEdgesFor(final Stmt stmt, final SootMethod method) {
 		final Pair<Stmt, SootMethod> _dest = pairMgr.getPair(stmt, method);
 		final Collection<Pair<Stmt, SootMethod>> _sources = new ArrayList<Pair<Stmt, SootMethod>>();
-		final Iterator<IDependencyAnalysis> _i = deps.iterator();
+		final Iterator<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> _i = deps.iterator();
 		final int _iEnd = deps.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IDependencyAnalysis _da = _i.next();
-			final Collection _ids = _da.getIds();
-			final Collection _dees = _da.getDependees(stmt, method);
-			final Iterator _j = _dees.iterator();
+			final IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?> _da = _i.next();
+			final Collection<? extends Comparable<?>> _ids = _da.getIds();
+			final Collection<?> _dees = _da.getDependees(stmt, method);
+			final Iterator<?> _j = _dees.iterator();
 			final int _jEnd = _dees.size();
 			_sources.clear();
 
@@ -159,28 +160,28 @@ public final class SystemDependenceGraphBuilder {
 				}
 			}
 
-			if (_ids.contains(IDependencyAnalysis.SYNCHRONIZATION_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.SYNCHRONIZATION_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA, _dest);
 			}
 
-			if (_ids.contains(IDependencyAnalysis.READY_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.READY_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.READY_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.READY_DA, _dest);
 			}
 
-			if (_ids.contains(IDependencyAnalysis.INTERFERENCE_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.INTERFERENCE_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, _dest);
 			}
 
-			if (_ids.contains(IDependencyAnalysis.REFERENCE_BASED_DATA_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA, _dest);
 			}
 
-			if (_ids.contains(IDependencyAnalysis.CONTROL_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.CONTROL_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.CONTROL_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.CONTROL_DA, _dest);
 			}
 
-			if (_ids.contains(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)) {
-				segb.addEdgeFromTo(_sources, IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, _dest);
+			if (_ids.contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
+				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA, _dest);
 			}
 		}
 
@@ -189,7 +190,7 @@ public final class SystemDependenceGraphBuilder {
 
 	/**
 	 * Creates the system dependence graph.
-	 * 
+	 *
 	 * @return the SDG
 	 * @post result != null
 	 */
@@ -226,7 +227,7 @@ public final class SystemDependenceGraphBuilder {
 
 	/**
 	 * Adds data dependence edges across procedure boundaries.
-	 * 
+	 *
 	 * @param node that needs to be processed.
 	 * @pre node != null
 	 */

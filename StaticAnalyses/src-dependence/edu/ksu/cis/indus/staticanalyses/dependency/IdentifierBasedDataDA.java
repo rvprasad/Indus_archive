@@ -223,8 +223,8 @@ public class IdentifierBasedDataDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
 	}
 
 	// /CLOVER:OFF
@@ -242,18 +242,19 @@ public class IdentifierBasedDataDA
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
+		for (final Iterator<Map.Entry<SootMethod, List<Collection<Stmt>>>> _i = dependee2dependent.entrySet().iterator(); _i
+				.hasNext();) {
+			final Map.Entry<SootMethod, List<Collection<Stmt>>> _entry = _i.next();
 			_localEdgeCount = 0;
 
-			final List _stmts = getStmtList((SootMethod) _entry.getKey());
+			final List<Stmt> _stmts = getStmtList(_entry.getKey());
 			int _count = 0;
 
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Collection _c = (Collection) _j.next();
-				final Stmt _stmt = (Stmt) _stmts.get(_count++);
+			for (final Iterator<Collection<Stmt>> _j = _entry.getValue().iterator(); _j.hasNext();) {
+				final Collection<Stmt> _c = _j.next();
+				final Stmt _stmt = _stmts.get(_count++);
 
-				for (final Iterator _k = _c.iterator(); _k.hasNext();) {
+				for (final Iterator<?> _k = _c.iterator(); _k.hasNext();) {
 					_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
 				}
 				_localEdgeCount += _c.size();
@@ -331,8 +332,8 @@ public class IdentifierBasedDataDA
 			if (_currStmt.getUseBoxes().size() > 0) {
 				_currDefs = new HashMap<Local, Collection<DefinitionStmt>>();
 
-				for (final Iterator _k = _currStmt.getUseBoxes().iterator(); _k.hasNext();) {
-					final ValueBox _currValueBox = (ValueBox) _k.next();
+				for (final Iterator<ValueBox> _k = _currStmt.getUseBoxes().iterator(); _k.hasNext();) {
+					final ValueBox _currValueBox = _k.next();
 					final Value _value = _currValueBox.getValue();
 
 					if (_value instanceof Local && !_currDefs.containsKey(_value)) {

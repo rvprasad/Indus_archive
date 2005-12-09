@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 /**

@@ -74,7 +74,7 @@ public interface IAnalysis
 	 *
 	 * @pre infoParam != null
 	 */
-	void initialize(final Map<Comparable, Object> infoParam)
+	void initialize(final Map<Comparable<?>, Object> infoParam)
 	  throws InitializationException;
 
 	/**

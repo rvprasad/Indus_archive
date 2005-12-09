@@ -39,17 +39,15 @@ import soot.Scene;
  * @version $Revision$ $Date$
  */
 public final class SliceCriteriaSpec {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SliceCriteriaSpec.class);
 
-	/** 
+	/**
 	 * The collection of criterion specification.
-	 *
-	 * @invariant criteria.oclIsKindOf(Sequence(SliceCriterionSpec))
 	 */
-	private List criteria;
+	private List<SliceCriterionSpec> criteria;
 
 	/**
 	 * Creates an instance of this class.
@@ -66,13 +64,13 @@ public final class SliceCriteriaSpec {
 	 * @return the collection of slice criteria.
 	 *
 	 * @pre scene != null
-	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
+	 * @post result != null
 	 */
-	public Collection getCriteria(final Scene scene) {
-		final Collection _result = new HashSet();
+	public Collection<ISliceCriterion> getCriteria(final Scene scene) {
+		final Collection<ISliceCriterion> _result = new HashSet<ISliceCriterion>();
 
-		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
-			final SliceCriterionSpec _critSpec = (SliceCriterionSpec) _i.next();
+		for (final Iterator<SliceCriterionSpec> _i = criteria.iterator(); _i.hasNext();) {
+			final SliceCriterionSpec _critSpec = _i.next();
 
 			try {
 				_result.addAll(_critSpec.getCriteria(scene));
@@ -91,14 +89,13 @@ public final class SliceCriteriaSpec {
 	 * @return the criteria specification.
 	 *
 	 * @pre criteria != null
-	 * @pre criteria.oclIsKindOf(Collection(ISliceCriterion))
 	 * @post result != null
 	 */
-	static SliceCriteriaSpec getSliceCriteriaSpec(final Collection criteria) {
-		final List _temp = new ArrayList();
+	static SliceCriteriaSpec getSliceCriteriaSpec(final Collection<ISliceCriterion> criteria) {
+		final List<SliceCriterionSpec> _temp = new ArrayList<SliceCriterionSpec>();
 
-		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
-			final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+		for (final Iterator<ISliceCriterion> _i = criteria.iterator(); _i.hasNext();) {
+			final ISliceCriterion _criterion = _i.next();
 			_temp.addAll(SliceCriterionSpec.getCriterionSpec(_criterion));
 		}
 
@@ -114,8 +111,8 @@ public final class SliceCriteriaSpec {
 	 *
 	 * @post result != null
 	 */
-	private static List createCriteriaContainer() {
-		return new ArrayList();
+	private static List<SliceCriterionSpec> createCriteriaContainer() {
+		return new ArrayList<SliceCriterionSpec>();
 	}
 }
 

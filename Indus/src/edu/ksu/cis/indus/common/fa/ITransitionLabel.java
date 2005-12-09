@@ -26,5 +26,23 @@ import edu.ksu.cis.indus.common.graph.IEdgeLabel;
  */
 @AMarker public interface ITransitionLabel<L extends ITransitionLabel<L>>
 		extends IEdgeLabel {
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 * @param <L> DOCUMENT ME!
+	 */
+	interface IEpsilonLabelFactory<L> {
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * @return DOCUMENT ME!
+		 */
+		L getEpsilonTransitionLabel();
+	}
 	// empty
 }

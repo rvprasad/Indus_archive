@@ -42,7 +42,7 @@ public abstract class AbstractToolConfiguration
 	 * 
 	 * @invariant properties != null
 	 */
-	protected final Map<Object, Object> properties = new HashMap<Object, Object>();
+	protected final Map<Comparable<?>, Object> properties = new HashMap<Comparable<?>, Object>();
 
 	/**
 	 * This is set of property ids recognized by this configurationCollection.
@@ -64,7 +64,7 @@ public abstract class AbstractToolConfiguration
 	/**
 	 * @see IToolConfiguration#getProperty(Comparable)
 	 */
-	public final Object getProperty(final Comparable id) {
+	public final Object getProperty(final Comparable<?> id) {
 		return properties.get(id);
 	}
 
@@ -78,7 +78,7 @@ public abstract class AbstractToolConfiguration
 	/**
 	 * @see IToolConfiguration#setProperty(Comparable,Object)
 	 */
-	public final boolean setProperty(final Comparable propertyID, final Object value) {
+	public final boolean setProperty(final Comparable<?> propertyID, final Object value) {
 		if (!propertyIds.contains(propertyID)) {
 			final String _message = "Invalid property identifier specified: " + propertyID;
 			LOGGER.error(_message);
@@ -102,7 +102,7 @@ public abstract class AbstractToolConfiguration
 	 * @return <code>true</code> if the property was successfully processed; <code>false</code>, otherwise.
 	 * @pre propertyID != null
 	 */
-	protected abstract boolean processProperty(final Comparable propertyID, final Object value);
+	protected abstract boolean processProperty(final Comparable<?> propertyID, final Object value);
 }
 
 // End of File

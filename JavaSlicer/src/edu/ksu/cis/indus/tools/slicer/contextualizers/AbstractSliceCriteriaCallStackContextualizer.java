@@ -45,14 +45,14 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
 	/** 
 	 * This is the slicer tool provides the context in which filtering occurs.
 	 */
-	private SlicerTool slicerTool;
+	private SlicerTool<?> slicerTool;
 
 	/**
 	 * Sets the value of <code>slicerTool</code>.
 	 *
 	 * @param slicer the new value of <code>slicerTool</code>.
 	 */
-	public void setSlicerTool(final SlicerTool slicer) {
+	public void setSlicerTool(final SlicerTool<?> slicer) {
 		slicerTool = slicer;
 	}
 
@@ -77,7 +77,7 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
 	 *
 	 * @return the value in <code>slicerTool</code>.
 	 */
-	protected final SlicerTool getSlicerTool() {
+	protected final SlicerTool<?> getSlicerTool() {
 		return slicerTool;
 	}
 

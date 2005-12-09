@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysisv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
@@ -33,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -54,10 +54,6 @@ import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
-import soot.toolkits.graph.CompleteUnitGraph;
-import soot.toolkits.scalar.SimpleLocalDefs;
-import soot.toolkits.scalar.SimpleLocalUses;
-import soot.toolkits.scalar.UnitValueBoxPair;
 
 /**
  * This class provides the logic to detect parts of a backward slice.
@@ -222,8 +218,7 @@ public class BackwardSlicingPart
 		final Collection<Object> _result = new HashSet<Object>();
 		final IDependencyAnalysis.Direction _direction = analysis.getDirection();
 
-		if (_direction.equals(Direction.BACKWARD_DIRECTION)
-				|| _direction.equals(Direction.BI_DIRECTIONAL)) {
+		if (_direction.equals(Direction.BACKWARD_DIRECTION) || _direction.equals(Direction.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependees(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
@@ -444,8 +439,8 @@ public class BackwardSlicingPart
 			exitTransformedMethods2exitpoints.put(callee, null);
 			_result = true;
 		} else if (expr) {
-			final Collection<Stmt> _temp = MapUtils.queryObject(exitTransformedMethods2exitpoints, callee,
-					Collections.EMPTY_SET);
+			final Collection<Stmt> _temp = MapUtils.queryObject(exitTransformedMethods2exitpoints, callee, Collections
+					.<Stmt> emptySet());
 			final Iterator<Stmt> _i = _temp.iterator();
 			final int _iEnd = _temp.size();
 
@@ -488,12 +483,12 @@ public class BackwardSlicingPart
 			final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = callee2callsites.remove(callee);
 			final Iterator<Triple<Stmt, SootMethod, Stack<CallTriple>>> _i = _temp.iterator();
 			final int _iEnd = _temp.size();
-	
+
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = _i.next();
 				final Stmt _stmt = _triple.getFirst();
 				final SootMethod _caller = _triple.getSecond();
-				final Stack _stack = _triple.getThird();
+				final Stack<CallTriple> _stack = _triple.getThird();
 				final InvokeExpr _expr = _stmt.getInvokeExpr();
 				engine.generateExprLevelSliceCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
 			}
@@ -552,13 +547,12 @@ public class BackwardSlicingPart
 		 * <init>'s from other higher super classes.
 		 */
 		if (initMethod.getName().equals("<init>") && initMethod.getDeclaringClass().hasSuperclass()) {
-			final CompleteUnitGraph _ug = new CompleteUnitGraph(initMethod.getActiveBody());
-			final SimpleLocalUses _sul = new SimpleLocalUses(_ug, new SimpleLocalDefs(_ug));
-			final List _uses = _sul.getUsesOf(bbg.getHead().getLeaderStmt());
+			final LocalUseDefAnalysisv2 _udl = new LocalUseDefAnalysisv2(engine.getBasicBlockGraphManager()
+					.getBasicBlockGraph(initMethod));
+			final Collection<Stmt> _uses = _udl.getUses((DefinitionStmt) bbg.getHead().getLeaderStmt(), initMethod);
 
-			for (final Iterator _i = _uses.iterator(); _i.hasNext();) {
-				final UnitValueBoxPair _ubp = (UnitValueBoxPair) _i.next();
-				final Stmt _stmt = (Stmt) _ubp.getUnit();
+			for (final Iterator<Stmt> _i = _uses.iterator(); _i.hasNext();) {
+				final Stmt _stmt = _i.next();
 
 				if (_stmt instanceof InvokeStmt) {
 					final SootMethod _called = _stmt.getInvokeExpr().getMethod();
@@ -588,9 +582,9 @@ public class BackwardSlicingPart
 	 * @param stmt is the statment containing the invocation.
 	 * @param caller is the method in which <code>invocationStmt</code> occurs.
 	 * @param closure to be executed.
-	 * @pre stmt != null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
+	 * @pre stmt != null and caller != null and callees != null
 	 */
-	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller,
+	private void processTailsOf(final Collection<SootMethod> callees, final Stmt stmt, final SootMethod caller,
 			final IClosure<Pair<Stmt, SootMethod>> closure) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
@@ -600,8 +594,8 @@ public class BackwardSlicingPart
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
 
-		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-			final SootMethod _callee = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = callees.iterator(); _i.hasNext();) {
+			final SootMethod _callee = _i.next();
 
 			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
 				engine.collector.includeInSlice(_callee);
@@ -614,8 +608,8 @@ public class BackwardSlicingPart
 
 					final Collection<Stmt> _temp = new HashSet<Stmt>();
 
-					for (final Iterator _j = _calleeBasicBlockGraph.getSinks().iterator(); _j.hasNext();) {
-						final BasicBlock _bb = (BasicBlock) _j.next();
+					for (final Iterator<BasicBlock> _j = _calleeBasicBlockGraph.getSinks().iterator(); _j.hasNext();) {
+						final BasicBlock _bb = _j.next();
 						final Stmt _trailer = _bb.getTrailerStmt();
 						closure.execute(new Pair<Stmt, SootMethod>(_trailer, _callee));
 						_temp.add(_trailer);
@@ -669,7 +663,7 @@ public class BackwardSlicingPart
 	 */
 	private void recordCallInfoForProcessingArgsTo(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
 		final Stack<CallTriple> _stackClone = engine.getCopyOfCallStackCache();
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
 					+ ", SootMethod callee = " + callee + ", stack = " + _stackClone + ") - BEGIN");
@@ -682,7 +676,7 @@ public class BackwardSlicingPart
 				engine.generateExprLevelSliceCriterion(_expr.getArgBox(_i), stmt, caller, true, _stackClone);
 			}
 		}
-		
+
 		final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple = new Triple<Stmt, SootMethod, Stack<CallTriple>>(stmt,
 				caller, _stackClone);
 		MapUtils.putIntoCollectionInMap(callee2callsites, callee, _triple);

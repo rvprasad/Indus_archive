@@ -106,6 +106,7 @@ public final class SliceCollector {
 	/**
 	 * Retrieves <code>Host</code> objects from hosts which are collected by the tag used by this collector.
 	 * 
+	 * @param <T> DOCUMENT ME!
 	 * @param hosts is the collection of hosts
 	 * @return a collection of collected hosts.
 	 * @pre hosts != null

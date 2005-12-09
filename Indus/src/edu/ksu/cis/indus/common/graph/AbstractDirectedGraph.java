@@ -46,7 +46,7 @@ import java.util.Set;
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code>. The subclasses are responsible for
  * maintaining the collection of nodes that make up this graph.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -72,7 +72,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed discover time of the nodes in this graph.
-	 * 
+	 *
 	 * @invariant discoverTimes.size = getNodes().size()
 	 * @invariant discoverTimes->forall(o | o > 0)
 	 */
@@ -92,7 +92,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * The graph builder to use to build graphs that represent views of this graph.
 	 */
-	private IObjectDirectedGraphBuilder<SimpleNode<N>, N> builder;
+	private SimpleNodeGraphBuilder<N> builder;
 
 	/**
 	 * This is the collection of cross edges in this graph corresponding to the minimum spanning calculated for this instance
@@ -107,7 +107,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed finish time of the nodes in this graph.
-	 * 
+	 *
 	 * @invariant finishTimes.size = getNodes().size()
 	 * @invariant finishTimes->forall(o | o > 0)
 	 */
@@ -135,7 +135,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of sink nodes in the graph.
-	 * 
+	 *
 	 * @invariant sinks->forall(o | o.getSuccsOf().size() = 0)
 	 */
 	private final Collection<N> sinks = new HashSet<N>();
@@ -147,7 +147,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of source nodes in the graph.
-	 * 
+	 *
 	 * @invariant sinks->forall(o | o.getPredsOf().size() = 0)
 	 */
 	private final Collection<N> sources = new HashSet<N>();
@@ -159,7 +159,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This maps a node to it's spanning successor nodes.
-	 * 
+	 *
 	 * @invariant getNodes().containsAll(spanningSuccs.keySet())
 	 * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
@@ -168,7 +168,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Finds cycles in the given set of nodes. This implementation is <i>exponential</i> in the number of cycles in the the
 	 * nodes.
-	 * 
+	 *
 	 * @param <T> the type of the given nodes.
 	 * @param nodes in which to search for cycles.
 	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
@@ -212,7 +212,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds SCCs in the given nodes.
-	 * 
+	 *
 	 * @param <T> the type of the given nodes.
 	 * @param nodes of interest.
 	 * @return a collection of sccs
@@ -223,7 +223,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public static <T extends INode<T>> Collection<List<T>> findSCCs(final Collection<T> nodes) {
 		final Collection<List<T>> _result = new ArrayList<List<T>>();
-		@SuppressWarnings("unchecked") final Map<T, SCCRelatedData> _node2srd = new FactoryBasedLazyMap(
+		final Map<T, SCCRelatedData> _node2srd = new FactoryBasedLazyMap<T, SCCRelatedData>(
 				new HashMap<T, SCCRelatedData>(), new IFactory<SCCRelatedData>() {
 
 					public SCCRelatedData create() {
@@ -249,7 +249,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates SCC according to the algorithm in Udi Manber's book.
-	 * 
+	 *
 	 * @param nodes of interest.
 	 * @param node2srd maps nodes to an instance of <code>SCCRelatedData</code>.
 	 * @param node to be explored.
@@ -270,7 +270,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		stack.push(node);
 		dfsNum--;
 
-		@SuppressWarnings("unchecked") final Iterator<T> _j = IteratorUtils.filteredIterator(node.getSuccsOf().iterator(),
+		final Iterator<T> _j = IteratorUtils.filteredIterator(node.getSuccsOf().iterator(),
 				new IPredicate<Object>() {
 
 					public boolean evaluate(final Object o) {
@@ -308,7 +308,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Checks if the given cycle has been recorded.
-	 * 
+	 *
 	 * @param <T> the type of nodes being processed.
 	 * @param newCycle is the cycle being checked for if it is recorded.
 	 * @param cycles is the collection of recorded cycles.
@@ -337,7 +337,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds cycles containing only the given SCC.
-	 * 
+	 *
 	 * @param <T> DOCUMENT ME!
 	 * @param scc in which the cycles should be detected.
 	 * @param backedges is the back edges only between the given set of nodes.
@@ -418,7 +418,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates the finish times for the nodes of this graph.
-	 * 
+	 *
 	 * @param <T> the type of the node.
 	 * @param node to start dfs from.
 	 * @param processed are the nodes processed during dfs.
@@ -448,7 +448,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Gets immediate successors that occur in nodes and are not reachable via the given edges.
-	 * 
+	 *
 	 * @param node whose successors are required.
 	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result when the source node is
 	 *            same as <code>node</code>.
@@ -568,7 +568,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * @see IDirectedGraph#getDAG()
 	 */
-	public final IObjectDirectedGraph<? extends IObjectNode<?, N>, N> getDAG() {
+	public final SimpleNodeGraph<N> getDAG() {
 		if (!dagExists) {
 			builder = new SimpleNodeGraphBuilder<N>();
 			builder.createGraph();
@@ -603,7 +603,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public Collection<N> getNodesOnPathBetween(final Collection<N> nodes) {
 		final Collection<N> _result = new HashSet<N>();
-		final Map<N, Collection<N>> _node2ancestorsMap = new TransformerBasedLazyMap(
+		final Map<N, Collection<N>> _node2ancestorsMap = new TransformerBasedLazyMap<N, Collection<N>>(
 				new HashMap<N, Collection<N>>(), new ITransformer<N, Collection<N>>() {
 
 					public Collection<N> transform(final N key) {
@@ -764,7 +764,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	public final Collection<N> getTails() {
 		if (!pseudoTailsCalculated) {
 			// get the tails of the DAG into dtails
-			final SimpleNodeGraph<N> _graph = (SimpleNodeGraph<N>) getDAG();
+			final SimpleNodeGraph<N> _graph = getDAG();
 			final Collection<SimpleNode<N>> _dtails1 = new HashSet<SimpleNode<N>>(_graph.getSinks());
 			final Collection<N> _dtails2 = new HashSet<N>();
 			CollectionUtils.transform(_dtails1, _graph.getObjectExtractor(), _dtails2);
@@ -837,7 +837,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#performTopologicalSort(boolean)
 	 */
 	public final List<N> performTopologicalSort(final boolean topdown) {
-		final SimpleNodeGraph<N> _dag = (SimpleNodeGraph<N>) getDAG();
+		final SimpleNodeGraph<N> _dag = getDAG();
 		final List<SimpleNode<N>> _nodes = _dag.getNodes();
 		final TIntObjectHashMap _finishTime2node = new TIntObjectHashMap();
 		final Collection<SimpleNode<N>> _processed = new HashSet<SimpleNode<N>>();
@@ -899,7 +899,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the index of the given node in the list of nodes of this graph. This implementation will return the value of
 	 * <code>getNodes().indexOf(node)</code>. However, subclasses are free to implement this in an optimal manner.
-	 * 
+	 *
 	 * @param node for which the index is requested.
 	 * @return the index of the node in the list of nodes.
 	 * @post result = getNodes().indexOf(node)
@@ -959,7 +959,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Creates the spanning forest of the graph.
-	 * 
+	 *
 	 * @post hasSpanningForest = true
 	 */
 	private void createSpanningForest() {
@@ -1012,7 +1012,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the source nodes which cannot reach any of the given destinations. If there are no destination nodes then all
 	 * source nodes are returned.
-	 * 
+	 *
 	 * @param sourceNodes is the collection of source nodes.
 	 * @param destinations is the collection of destination nodes.
 	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following
@@ -1060,7 +1060,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Processes the given node while creating a spanning tree.
-	 * 
+	 *
 	 * @param grayNodes is the collection of nodes already visited or reached but not processed.
 	 * @param workBag is the work bag that needs to be updates during processing.
 	 * @param nodeToProcess is the node to be processed.

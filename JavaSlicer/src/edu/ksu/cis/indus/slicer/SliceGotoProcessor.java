@@ -16,10 +16,10 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
-import edu.ksu.cis.indus.common.collections.PredicateUtils;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
-import edu.ksu.cis.indus.common.graph.IObjectNode;
+import edu.ksu.cis.indus.common.graph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -45,7 +45,7 @@ import soot.jimple.ThrowStmt;
 /**
  * This class provides the logic required to process the given slice in order to include goto statements such that it realizes
  * the control as in the original program but as required in the slice.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -55,7 +55,7 @@ public final class SliceGotoProcessor {
 	/**
 	 * This filter out statements that are not of type <code>GotoStmt</code>.
 	 */
-	public static final IPredicate<Object> GOTO_STMT_PREDICATE = PredicateUtils.instanceofPredicate(GotoStmt.class);
+	public static final IPredicate<Stmt> GOTO_STMT_PREDICATE = new InstanceOfPredicate<GotoStmt, Stmt>(GotoStmt.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -74,7 +74,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Creates a new AbstractSliceGotoProcessor object.
-	 * 
+	 *
 	 * @param collector collects the slice.
 	 * @pre collector != null
 	 */
@@ -84,7 +84,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the given methods.
-	 * 
+	 *
 	 * @param methods to be processed.
 	 * @param bbgMgr provides the basic block required to process the methods.
 	 * @pre methods != null and bbgMgr != null
@@ -104,7 +104,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the current method's body for goto-based control flow retention.
-	 * 
+	 *
 	 * @param theMethod to be processed.
 	 * @param bbg is the basic block graph of <code>theMethod</code>.
 	 * @pre theMethod != null
@@ -121,8 +121,8 @@ public final class SliceGotoProcessor {
 		final Collection<BasicBlock> _bbInSlice = processForIntraBasicBlockGotos(bbg);
 
 		if (methodBodyContainsNonTrivialSlice(_bbInSlice)) {
-			final IObjectDirectedGraph _dag = bbg.getDAG();
-			final Collection<IObjectNode> _bbInSliceInDAG = new ArrayList<IObjectNode>();
+			final SimpleNodeGraph<BasicBlock> _dag = bbg.getDAG();
+			final Collection<SimpleNode<BasicBlock>> _bbInSliceInDAG = new ArrayList<SimpleNode<BasicBlock>>();
 			final Iterator<BasicBlock> _i = _bbInSlice.iterator();
 			final int _iEnd = _bbInSlice.size();
 
@@ -132,7 +132,7 @@ public final class SliceGotoProcessor {
 			}
 
 			// find basic blocks between slice basic blocks to include the gotos in them into the slice.
-			final Collection<IObjectNode> _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
+			final Collection<SimpleNode<BasicBlock>> _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
 			// find basic blocks that are part of cycles (partially or completely) in the slice.
 			final Collection<Pair<BasicBlock, BasicBlock>> _backedges = bbg.getBackEdges();
@@ -145,7 +145,7 @@ public final class SliceGotoProcessor {
 				_bbInSliceInDAG.add(_dag.queryNode(_edge.getFirst()));
 				_bbInSliceInDAG.add(_dag.queryNode(_edge.getSecond()));
 
-				final Collection<IObjectNode> _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
+				final Collection<SimpleNode<BasicBlock>> _nodes = _dag.getNodesOnPathBetween(_bbInSliceInDAG);
 
 				if (CollectionUtils.containsAny(_nodes, _bbInSlice)
 						|| CollectionUtils.containsAny(_nodes, _bbToBeIncludedInSlice)) {
@@ -174,7 +174,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param bbInSlice DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -194,7 +194,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the basic block to consider intra basic block gotos to reconstruct the control flow.
-	 * 
+	 *
 	 * @param bb is the basic block to be processed.
 	 * @param bbInSlice is the collection of basic blocks containing atleast one statement in the slice. This is an out param.
 	 * @pre bb != null and bbInSlice != null
@@ -217,7 +217,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the basic block graph to consider intra basic block gotos to reconstruct the control flow.
-	 * 
+	 *
 	 * @param bbg is the basic block graph containing the basic blocks to be processed.
 	 * @return the basic blocks containing atleast one statement in the slice.
 	 * @pre bbg != null

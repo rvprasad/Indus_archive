@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.common.datastructures.Triple;
+
 import java.util.Collection;
 
 import soot.Local;
@@ -26,7 +28,7 @@ import soot.jimple.MonitorStmt;
 
 /**
  * The interface to access escape analysis information.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -37,7 +39,7 @@ public interface IEscapeInfo
 	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable <? extends Object> ID = "Escape Information";
+	Comparable<String> ID = "Escape Information";
 
 	/**
 	 * This identifies shared access due to write by different threads.
@@ -51,7 +53,7 @@ public interface IEscapeInfo
 
 	/**
 	 * Retrieves abstract threads which read the given local to read the fields of the referred object.
-	 * 
+	 *
 	 * @param local of interest.
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
@@ -59,11 +61,11 @@ public interface IEscapeInfo
 	 * @pre sm != null and local != null
 	 * @post result != null
 	 */
-	Collection getReadingThreadsOf(Local local, SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(Local local, SootMethod sm);
 
 	/**
 	 * Retrieves abstract threads which read the given parameter to read the fields of the referred object.
-	 * 
+	 *
 	 * @param paramIndex of interest.
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
@@ -71,24 +73,24 @@ public interface IEscapeInfo
 	 * @pre sm != null and paramIndex >= 0
 	 * @post result != null
 	 */
-	Collection getReadingThreadsOf(int paramIndex, SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(int paramIndex, SootMethod sm);
 
 	/**
 	 * Retrieves abstract threads which read the "this" variable of the given method to read the fields of the referred
 	 * object.
-	 * 
+	 *
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
 	 *         objects.
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	Collection getReadingThreadsOfThis(SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOfThis(SootMethod sm);
 
 	/**
 	 * Retrieves abstract threads which read the given local in the given method to write to the fields of the referred
 	 * object.
-	 * 
+	 *
 	 * @param local of interest.
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
@@ -96,12 +98,12 @@ public interface IEscapeInfo
 	 * @pre sm != null and local != null
 	 * @post result != null
 	 */
-	Collection getWritingThreadsOf(Local local, SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(Local local, SootMethod sm);
 
 	/**
 	 * Retrieves abstract threads which read the given parameter of the given method to write to the fields of the referred
 	 * object.
-	 * 
+	 *
 	 * @param paramIndex of interest.
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
@@ -109,23 +111,23 @@ public interface IEscapeInfo
 	 * @pre sm != null and paramIndex >= 0
 	 * @post result != null
 	 */
-	Collection getWritingThreadsOf(int paramIndex, SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(int paramIndex, SootMethod sm);
 
 	/**
 	 * Retrieves abstract threads which read the "this" variable of the given method to write to the fields of the referred
 	 * object.
-	 * 
+	 *
 	 * @param sm of interest.
 	 * @return a collection of abstract thread objects. The implementation will have to explicitly specify the domain of these
 	 *         objects.
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	Collection getWritingThreadsOfThis(SootMethod sm);
+	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOfThis(SootMethod sm);
 
 	/**
 	 * Checks if the given locals may point to some common object and that object may be locked.
-	 * 
+	 *
 	 * @param local1 is a variable whose object is used to realize a monitor. This should be <code>null</code> when querying
 	 *            about the lock acquired/released while entering/exiting a synchronized method.
 	 * @param method1 contains <code>local1</code>.
@@ -139,7 +141,7 @@ public interface IEscapeInfo
 
 	/**
 	 * Checks if the given monitor statements are coupled (if they will operate on the same object).
-	 * 
+	 *
 	 * @param stmt1 is a monitor statement. This should be <code>null</code> when querying about the lock acquired/released
 	 *            while entering/exiting a synchronized method.
 	 * @param method1 contains <code>stmt1</code>.
@@ -155,7 +157,7 @@ public interface IEscapeInfo
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing
 	 * <code>notify/All</code> invocation. By coupling we mean that the notification via the given notify invocation may
 	 * reach the given wait invocation.
-	 * 
+	 *
 	 * @param wait is the statement containing <code>wait</code> invocation.
 	 * @param waitMethod is the method in which <code>wait</code> occurs.
 	 * @param notify is the statement containing <code>notify/All</code> invocation.
@@ -169,7 +171,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given program point in the given method escapes. This suggests mere multithread
 	 * visibility and not multithread access.
-	 * 
+	 *
 	 * @param v is the program point being checked for escaping.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @return <code>true</code> if <code>v</code> is escapes; <code>false</code>, otherwise.
@@ -181,7 +183,7 @@ public interface IEscapeInfo
 	 * Checks if the given class in the given method escapes. This suggests mere multithread visibility and not multithread
 	 * access. Although a class is accessible in all location it is visible at, it does not imply that it is accessed in
 	 * multiple threads.
-	 * 
+	 *
 	 * @param sc is the class being checked for escaping.
 	 * @param sm is the method in which <code>sc</code> occurs.
 	 * @return <code>true</code> if <code>sc</code> is escapes; <code>false</code>, otherwise.
@@ -192,7 +194,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given program point in the given method is shared. This suggests multithread field
 	 * access.
-	 * 
+	 *
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
@@ -204,7 +206,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given program points are shared. This is more stricter than escape-ness. This
 	 * requires that the values be escaping and be involved in a inter-thread field access operation.
-	 * 
+	 *
 	 * @param v1 is one of the program point in the check.
 	 * @param sm1 is the method in which <code>v1</code> occurs.
 	 * @param v2 is the other program point in the check.
@@ -218,7 +220,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given program point in the given method is shared via access to the specified field.
 	 * This suggests multithread field access.
-	 * 
+	 *
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @param signature is the field signature of interest.
@@ -232,7 +234,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given program point in the given method shared. This suggests multithread lock-unlock
 	 * access.
-	 * 
+	 *
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
@@ -243,7 +245,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the given class is shared in the given method via an access to a static field. This suggests multithread
 	 * field access.
-	 * 
+	 *
 	 * @param sc is the class being checked for static field sharing.
 	 * @param sm is the method in which <code>sc</code> is accessed for static field access.
 	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
@@ -256,7 +258,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the given class is shared in the given method via an access to the static field with the given signature.
 	 * This suggests multithread field access.
-	 * 
+	 *
 	 * @param sc is the class being checked for static field sharing.
 	 * @param sm is the method in which <code>sc</code> is accessed for static field access.
 	 * @param signature is the field signature of interest.
@@ -270,7 +272,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if "this" variable of the given method escapes. If the method is static then the result is pessimistic, hence,
 	 * <code>true</code> is returned.
-	 * 
+	 *
 	 * @param method in which "this" occurs.
 	 * @return <code>true</code> if "this" escapes; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -280,7 +282,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if "this" variable of the given method is shared via field access. If the method is static then the result is
 	 * pessimistic, hence, <code>true</code> is returned.
-	 * 
+	 *
 	 * @param method in which "this" occurs.
 	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
 	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
@@ -291,7 +293,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if "this" variable of the given method is shared via field access. If the method is static then the result is
 	 * pessimistic, hence, <code>true</code> is returned.
-	 * 
+	 *
 	 * @param method in which "this" occurs. *
 	 * @param signature is the field signature of interest.
 	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
@@ -303,7 +305,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if "this" variable of the given method is lock-unlock shared. If the method is static then the result is
 	 * pessimistic, hence, <code>true</code> is returned.
-	 * 
+	 *
 	 * @param method in which "this" occurs.
 	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -313,7 +315,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if "this" variable of the given method is wait-notify shared. If the method is static then the result is
 	 * pessimistic, hence, <code>true</code> is returned.
-	 * 
+	 *
 	 * @param method in which "this" occurs.
 	 * @return <code>true</code> if "this" is shared; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -323,7 +325,7 @@ public interface IEscapeInfo
 	/**
 	 * Checks if the object bound to the given variable in the given method shared. This suggests multithread wait-notify
 	 * access.
-	 * 
+	 *
 	 * @param v is the object value being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.

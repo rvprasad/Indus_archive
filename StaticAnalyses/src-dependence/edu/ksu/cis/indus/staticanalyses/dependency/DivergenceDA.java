@@ -220,8 +220,8 @@ public final class DivergenceDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.DIVERGENCE_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA);
 	}
 
 	/**
@@ -267,7 +267,7 @@ public final class DivergenceDA
 			final Map<Stmt, Collection<Stmt>> _dependees = _entry.getValue();
 
 			for (final Stmt _dt : _dependees.keySet()) {
-				final Collection _c = _dependees.get(_dt);
+				final Collection<?> _c = _dependees.get(_dt);
 				_temp.append("\t\t" + _dt + " --> " + _c + "\n");
 				_localEdgeCount += _c.size();
 			}

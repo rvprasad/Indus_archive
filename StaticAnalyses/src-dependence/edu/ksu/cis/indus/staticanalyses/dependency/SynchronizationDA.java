@@ -54,7 +54,7 @@ import soot.jimple.Stmt;
  * monitor pair as there are many return points, hence, not all statements in the method may be dependent on the same monitor
  * pair.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -82,7 +82,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
-	 * 
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
@@ -111,7 +111,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns the enter and exit monitor statements on which the given statement is dependent on in the given method.
-	 * 
+	 *
 	 * @param dependentStmt is a statement in the method.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of enter and exit monitor statements.
@@ -126,9 +126,11 @@ public final class SynchronizationDA
 			_result = new HashSet<MonitorStmt>(monitorInfo.getEnclosingMonitorStmts(dependentStmt, method, false));
 
 			if (dependentStmt instanceof ExitMonitorStmt || dependentStmt instanceof EnterMonitorStmt) {
-				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = monitorInfo.getMonitorTriplesFor(dependentStmt, method);
+				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = monitorInfo
+						.getMonitorTriplesFor(dependentStmt, method);
 
-				for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriples.iterator(); _i.hasNext();) {
+				for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriples.iterator(); _i
+						.hasNext();) {
 					final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _triple = _i.next();
 					final EnterMonitorStmt _enter = _triple.getFirst();
 					final ExitMonitorStmt _exit = _triple.getSecond();
@@ -146,7 +148,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns the statements which depend on the given enter or exit monitor statement in the given method.
-	 * 
+	 *
 	 * @param dependeeStmt is the enter or exit monitor statement.
 	 * @param method in which<code>dependeeStmt</code> occurs.
 	 * @return a collection of statements.
@@ -158,7 +160,8 @@ public final class SynchronizationDA
 		Collection<Stmt> _result = _temp.get(dependeeStmt);
 
 		if (_result == null) {
-			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = monitorInfo.getMonitorTriplesFor(dependeeStmt, method);
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = monitorInfo
+					.getMonitorTriplesFor(dependeeStmt, method);
 			_result = new HashSet<Stmt>();
 
 			final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
@@ -184,8 +187,8 @@ public final class SynchronizationDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.SYNCHRONIZATION_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA);
 	}
 
 	/**
@@ -199,7 +202,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -240,7 +243,7 @@ public final class SynchronizationDA
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @throws InitializationException when monitor analysis is not provided.
 	 * @pre info.get(IMonitorInfo.ID) != null and info.get(IMonitorInfo.ID).oclIsTypeOf(IMonitorInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()

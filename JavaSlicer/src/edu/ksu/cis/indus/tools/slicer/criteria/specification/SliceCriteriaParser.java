@@ -16,20 +16,19 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.specification;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-
 import java.util.Collection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 
@@ -74,11 +73,11 @@ public final class SliceCriteriaParser {
 	 * @throws JiBXException when either JiBX cannot be setup or error occurs during deserialization.
 	 *
 	 * @pre criteriaSpec != null and scene != null
-	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriteria))
+	 * @post result != null
 	 */
-	public static Collection deserialize(final String criteriaSpec, final Scene scene)
+	public static Collection<ISliceCriterion> deserialize(final String criteriaSpec, final Scene scene)
 	  throws JiBXException {
-		final Collection _result;
+		final Collection<ISliceCriterion>_result;
 		IBindingFactory _bindingFactory;
 		IUnmarshallingContext _unmarshallingContext;
 
@@ -116,7 +115,7 @@ public final class SliceCriteriaParser {
 	 * @pre criteria.oclIsKindOf(ISliceCriterion)
 	 * @post result != null
 	 */
-	public static String serialize(final Collection criteria)
+	public static String serialize(final Collection<ISliceCriterion> criteria)
 	  throws JiBXException {
 		final String _result;
 		IBindingFactory _bindingFactory;

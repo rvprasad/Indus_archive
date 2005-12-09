@@ -46,7 +46,7 @@ import soot.toolkits.graph.UnitGraph;
  * <p>
  * This implementation is based on <code>edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis</code> class.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -74,7 +74,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Calculates the dependency information for locals in the methods provided during initialization.
-	 * 
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public final void analyze() {
@@ -115,7 +115,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Returns the statements on which <code>o</code>, depends in the given <code>method</code>.
-	 * 
+	 *
 	 * @param programPoint is the program point at which a local occurs in the statement. If it is a statement, then
 	 *            information about all the locals in the statement is provided. If it is a pair of statement and program
 	 *            point in it, then only information about the local at that program point is provided.
@@ -143,7 +143,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Returns the statements on which the locals in <code>stmt</code> depends in the given <code>method</code>.
-	 * 
+	 *
 	 * @param stmt in which the locals occur.
 	 * @param method in which <code>programPoint</code> occurs.
 	 * @return a collection of statements on which <code>programPoint</code> depends.
@@ -166,7 +166,7 @@ public class IdentifierBasedDataDAv2
 	/**
 	 * Returns the statement and the program point in it which depends on statement provided via <code>programPoint</code>
 	 * occurring in the given <code>method</code>.
-	 * 
+	 *
 	 * @param programPoint is the definition statement or a pair containing the definition statement as the first element.
 	 *            Although, only one variable can be defined in a Jimple statement, we allow for a pair in this query to make
 	 *            <code>getDependees</code> and <code>getDependents</code> symmetrical for ease of usage.
@@ -187,15 +187,15 @@ public class IdentifierBasedDataDAv2
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
 	}
 
 	// /CLOVER:OFF
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 */
 	@Override public final String toString() {
@@ -206,22 +206,22 @@ public class IdentifierBasedDataDAv2
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
+		for (final Iterator<Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Stmt>>> _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Stmt>> _entry = _i.next();
 			_localEdgeCount = 0;
 
-			final IUseDefInfo _useDef = (IUseDefInfo) _entry.getValue();
+			final IUseDefInfo<DefinitionStmt, Stmt> _useDef = _entry.getValue();
 
-			final SootMethod _sm = (SootMethod) _entry.getKey();
+			final SootMethod _sm = _entry.getKey();
 
 			if (_sm.hasActiveBody()) {
-				for (final Iterator _j = getStmtList(_sm).iterator(); _j.hasNext();) {
-					final Stmt _stmt = (Stmt) _j.next();
+				for (final Iterator<Stmt> _j = getStmtList(_sm).iterator(); _j.hasNext();) {
+					final Stmt _stmt = _j.next();
 
 					if (_stmt instanceof DefinitionStmt) {
-						final Collection _uses = _useDef.getUses((DefinitionStmt) _stmt, _sm);
+						final Collection<?> _uses = _useDef.getUses((DefinitionStmt) _stmt, _sm);
 
-						for (final Iterator _k = _uses.iterator(); _k.hasNext();) {
+						for (final Iterator<?> _k = _uses.iterator(); _k.hasNext();) {
 							_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
 						}
 						_localEdgeCount += _uses.size();
@@ -248,7 +248,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Retrieves the local use def analysis for the given method.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return local use-def analysis.
 	 * @pre method != null
@@ -259,7 +259,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Sets up internal data structures.
-	 * 
+	 *
 	 * @throws InitializationException when call graph service is not provided.
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()

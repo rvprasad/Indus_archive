@@ -44,7 +44,7 @@ import soot.jimple.VirtualInvokeExpr;
 /**
  * This implementation facilitates the extraction of calling-contexts based on multithread data sharing (more precise than
  * escape information).
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -69,16 +69,17 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 
 	/**
 	 * Creates an instance of this instance.
-	 * 
+	 *
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
 	 * @param dependenceID id of the dependence type for which this retriever is used.
 	 * @pre depenenceID != null
-	 * @pre dependenceId.equals(IDependencyAnalysis.READY_DA) or dependenceId.equals(IDependencyAnalysis.INTERFERENCE_DA)
+	 * @pre dependenceId.equals(IDependencyAnalysis.DependenceSort.READY_DA) or
+	 *      dependenceId.equals(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA)
 	 */
 	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final Object dependenceID) {
 		super(callContextLenLimit);
-		readyBased = dependenceID.equals(IDependencyAnalysis.READY_DA);
-		interferenceBased = dependenceID.equals(IDependencyAnalysis.INTERFERENCE_DA);
+		readyBased = dependenceID.equals(IDependencyAnalysis.DependenceSort.READY_DA);
+		interferenceBased = dependenceID.equals(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
 	}
 
 	/**

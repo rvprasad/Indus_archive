@@ -32,7 +32,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class contains implementation that can be used by various control dependence implementation.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -53,7 +53,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param direction of the analysis.
 	 */
 	public AbstractControlDA(final Direction direction) {
@@ -62,7 +62,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
-	 * 
+	 *
 	 * @param dependentStmt is the dependent of interest.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of statements.
@@ -76,7 +76,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * Returns the statements which depend on <code>dependeeStmt</code> in the given <code>method</code>.
-	 * 
+	 *
 	 * @param dependeeStmt is the dependee of interest.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of statements.
@@ -91,15 +91,15 @@ abstract class AbstractControlDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public final Collection<? extends Comparable<? extends Object>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.CONTROL_DA);
+	public final Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.CONTROL_DA);
 	}
 
 	// /CLOVER:OFF
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 * @post result != null
 	 */
@@ -157,7 +157,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * Retrieves the fan out number of the given basic block.
-	 * 
+	 *
 	 * @param basicblock of interest.
 	 * @return the fan out number.
 	 * @pre basicblock != null
@@ -178,7 +178,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * Sets up internal data structures.
-	 * 
+	 *
 	 * @throws InitializationException when call graph service is not provided.
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
@@ -197,7 +197,7 @@ abstract class AbstractControlDA
 
 	/**
 	 * A helper method to extract dependence.
-	 * 
+	 *
 	 * @param stmt for which dependence is requested.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param list from which to extract dependence.

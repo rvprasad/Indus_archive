@@ -527,7 +527,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 		_cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
 		_cgipc.setStmtSequencesRetriever(_ssr);
 
-		final Map<Comparable, Object> _info = new HashMap<Comparable, Object>();
+		final Map<Comparable<?>, Object> _info = new HashMap<Comparable<?>, Object>();
 		_info.put(ICallGraphInfo.ID, _cgi);
 		_info.put(IThreadGraphInfo.ID, _tgi);
 		_info.put(PairManager.ID, _pairManager);
@@ -566,7 +566,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 
 		final InterferenceDAv3 _iDA = new InterferenceDAv3();
 		_iDA.setUseOFA(true);
-		_ac.addAnalyses(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(_iDA));
+		_ac.addAnalyses(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, Collections.singleton(_iDA));
 		_ac.initialize();
 		_ac.execute();
 

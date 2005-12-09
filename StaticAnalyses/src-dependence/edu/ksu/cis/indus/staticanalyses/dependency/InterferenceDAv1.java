@@ -72,7 +72,7 @@ import soot.jimple.Stmt;
  * <p>
  * This analysis should be <code>setup</code> before preprocessing.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -83,7 +83,7 @@ public class InterferenceDAv1
 
 	/**
 	 * A preprocessor which captures all the array and field access locations in the analyzed system.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -94,7 +94,7 @@ public class InterferenceDAv1
 		/**
 		 * Called by the controller when it encounters an assignment statement. This records array access and field access
 		 * expressions.
-		 * 
+		 *
 		 * @param stmt in which the access expression occurs.
 		 * @param context in which <code>stmt</code> occurs.
 		 * @pre stmt.isOclKindOf(AssignStmt)
@@ -206,7 +206,7 @@ public class InterferenceDAv1
 			return;
 		}
 
-		for (final Iterator _i = dependent2dependee.keySet().iterator(); _i.hasNext();) {
+		for (final Iterator<Object> _i = dependent2dependee.keySet().iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
 
 			if (dependee2dependent.get(_o) == null) {
@@ -245,7 +245,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns the statements on which the field/array reference at the given statement and method depends on.
-	 * 
+	 *
 	 * @param stmt is the statement in which the array/field reference occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a colleciton of pairs comprising of a statement and a method.
@@ -279,7 +279,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns the statements which depend on the field/array reference at the given statement and method.
-	 * 
+	 *
 	 * @param stmt is the statement in which the array/field reference occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a colleciton of pairs comprising of a statement and a method.
@@ -314,13 +314,13 @@ public class InterferenceDAv1
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Collection<? extends Comparable<?>> getIds() {
-		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
+	public Collection<IDependencyAnalysis.DependenceSort> getIds() {
+		return Collections.singleton(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	@Override public void reset() {
@@ -329,7 +329,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Sets if object flow analysis should be used or not.
-	 * 
+	 *
 	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
 	 */
 	public final void setUseOFA(final boolean flag) {
@@ -338,7 +338,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -394,7 +394,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given array accesses are interference dependent on each other.
-	 * 
+	 *
 	 * @param dependent is location of the dependent array access expression.
 	 * @param dependee is location of the dependee array access expression.
 	 * @param dependentArrayRef is the dependent array access expression.
@@ -418,7 +418,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 * 
+	 *
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
@@ -443,7 +443,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 * 
+	 *
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
@@ -471,7 +471,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Extracts information as provided by environment at initialization time.
-	 * 
+	 *
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 *             <code>info</code> member.
 	 * @pre info.get(PairManager.ID) != null and info.get(IThreadGraphInfo.ID) != null
@@ -502,15 +502,15 @@ public class InterferenceDAv1
 	/**
 	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the dependence based on
 	 * this information.
-	 * 
+	 *
 	 * @param dependent is the array/field read access site.
 	 * @param dependee is the array/field write access site.
 	 * @return <code>true</code> if the dependence should be considered; <code>false</code>, otherwise.
 	 * @pre dependent != null and dependee != null
 	 */
-	private boolean considerEffectOfClassInitializers(final Pair dependent, final Pair dependee) {
-		final SootMethod _deMethod = (SootMethod) dependee.getSecond();
-		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
+	private boolean considerEffectOfClassInitializers(final Pair<?, SootMethod> dependent, final Pair<?, SootMethod> dependee) {
+		final SootMethod _deMethod = dependee.getSecond();
+		final SootMethod _dtMethod = dependent.getSecond();
 		boolean _result = true;
 
 		// If either one of the methods is a class initialization method then we can optimize.
@@ -548,7 +548,7 @@ public class InterferenceDAv1
 	/**
 	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
 	 * base of the expression array access expression.
-	 * 
+	 *
 	 * @param dependent is the array read access site.
 	 * @param dependee is the array write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
@@ -584,7 +584,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given array/field access expression is dependent on the given array/field definition expression.
-	 * 
+	 *
 	 * @param dependent is the array/field read access site.
 	 * @param dependee is the array/field write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
@@ -615,7 +615,7 @@ public class InterferenceDAv1
 	/**
 	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
 	 * base of the expression field access expression.
-	 * 
+	 *
 	 * @param dependent is the field read access site.
 	 * @param dependee is the field write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.

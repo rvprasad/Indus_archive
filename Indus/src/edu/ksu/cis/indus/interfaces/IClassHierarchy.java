@@ -21,7 +21,7 @@ import soot.SootClass;
 
 /**
  * This is the interface to class hierarchy information.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -32,11 +32,11 @@ public interface IClassHierarchy
 	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable <? extends Object> ID = "Class Hierarchy Analysis";
+	Comparable<String> ID = "Class Hierarchy Analysis";
 
 	/**
 	 * Retrieves the classes in the hierarchy.
-	 * 
+	 *
 	 * @return the classes in the hierarchy.
 	 * @post result != null
 	 * @post result->forall(o | not o.isInterface())
@@ -45,7 +45,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the classes in this hierarchy in topological order.
-	 * 
+	 *
 	 * @param topDown indicates if the sorting needs to be done top down(<code>true</code>)or bottom up(<code>false</code>).
 	 * @return the classes in topological order
 	 * @post result != null
@@ -55,7 +55,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the interfaces in the hierarchy.
-	 * 
+	 *
 	 * @return the interfaces in the hierarchy.
 	 * @post result != null
 	 * @post result->forall(o | o.isInterface())
@@ -64,7 +64,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the classes that are the proper ancestors of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the proper ancestor classes.
 	 * @post result != null
@@ -74,7 +74,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the interfaces that are the proper ancestors of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the proper ancestor classes.
 	 * @post result != null
@@ -84,7 +84,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the immediate subclasses of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the immediate subclasses.
 	 * @post result != null
@@ -95,7 +95,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the proper parent class of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the proper ancestor class.
 	 * @post not result.isInterface()
@@ -104,7 +104,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the interfaces that are the proper parents of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the proper parent interfaces.
 	 * @post result != null
@@ -114,7 +114,7 @@ public interface IClassHierarchy
 
 	/**
 	 * Retrieves the subclasses of the given class.
-	 * 
+	 *
 	 * @param clazz of interest.
 	 * @return the subclasses.
 	 * @post result != null

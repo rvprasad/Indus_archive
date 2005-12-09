@@ -199,7 +199,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
 
-				final Collection _defs = localUseDef.getDefs(stmt, currMethod);
+				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
 				@SuppressWarnings("unchecked") final Iterator<DefinitionStmt> _j = _defs.iterator();
 				final int _jEnd = _defs.size();
@@ -432,8 +432,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		@Override public void defaultCase(final Object v) {
 			final Value _v = (Value) v;
 
-			for (final Iterator _i = _v.getUseBoxes().iterator(); _i.hasNext();) {
-				final ValueBox _vBox = (ValueBox) _i.next();
+			for (final Iterator<ValueBox> _i = _v.getUseBoxes().iterator(); _i.hasNext();) {
+				final ValueBox _vBox = _i.next();
 				residualize(_vBox);
 			}
 		}

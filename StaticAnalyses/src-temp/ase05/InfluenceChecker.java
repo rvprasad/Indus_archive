@@ -18,17 +18,17 @@ import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.fa.IAutomaton;
 import edu.ksu.cis.indus.common.fa.ITransitionLabel;
 import edu.ksu.cis.indus.common.fa.NFA;
 import edu.ksu.cis.indus.common.fa.State;
 import edu.ksu.cis.indus.common.graph.IDirectedGraphView;
+import edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode;
 import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 import edu.ksu.cis.indus.common.graph.IEdgeLabelledDirectedGraphView;
-import edu.ksu.cis.indus.common.graph.IDirectedGraphView.INode;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -102,18 +102,17 @@ import soot.jimple.Stmt;
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public class InfluenceChecker <T extends ITokens<T, Value>>
+public class InfluenceChecker
 		extends SootBasedDriver {
 
 	/**
 	 * A node that represents a pair.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -133,7 +132,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 		/**
 		 * Creates a new PairNode object.
-		 *
+		 * 
 		 * @param f first element of the pair.
 		 * @param s second element of the pair.
 		 */
@@ -175,7 +174,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -190,10 +189,10 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 		/**
 		 * Creates an instance of this class.
-		 *
+		 * 
 		 * @param theLabel DOCUMENT ME!
 		 */
-		public TransitionLabel(final String theLabel) {
+		TransitionLabel(final String theLabel) {
 			super();
 			this.label = theLabel;
 		}
@@ -204,7 +203,13 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 		@Override public String toString() {
 			return label;
 		}
+
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	static final TransitionLabel EPSILON = new TransitionLabel("-Epsilon->");
 
 	/**
 	 * This label represents call graph based edges.
@@ -229,17 +234,17 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 	/**
 	 * This is the flow analyser used by the analyses being tested.
 	 */
-	protected IValueAnalyzer aa;
+	protected IValueAnalyzer<Value> aa;
 
 	/**
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
 	 */
-	protected final Map<Comparable, Object> info = new HashMap<Comparable, Object>();
+	protected final Map<Comparable<?>, Object> info = new HashMap<Comparable<?>, Object>();
 
 	/**
 	 * The collection of data dependence analyses.
 	 */
-	final Collection<IDependencyAnalysis> cdas = new ArrayList<IDependencyAnalysis>();
+	final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> cdas = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 	/**
 	 * The call graph.
@@ -248,15 +253,15 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * A collection of dependence analyses.
-	 *
+	 * 
 	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
-	List das = new ArrayList();
+	List<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 	/**
 	 * The collection of control dependence analyses.
 	 */
-	final Collection<IDependencyAnalysis> ddas = new ArrayList<IDependencyAnalysis>();
+	final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> ddas = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 	/**
 	 * DOCUMENT ME!
@@ -265,7 +270,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param b DOCUMENT ME!
 	 */
 	public InfluenceChecker(final boolean b) {
@@ -274,7 +279,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * This is the entry point via command-line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 * @pre args != null
@@ -364,7 +369,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
@@ -375,12 +380,15 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Drives the analyses.
+	 * 
+	 * @param <T> dummy type parameter.
 	 */
-	private void execute() {
+	private <T extends ITokens<T, Value>> void execute() {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
@@ -459,12 +467,12 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
 		_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));
 
-		for (final Iterator<IDependencyAnalysis> _i1 = IteratorUtils.chainedIterator(cdas.iterator(), ddas.iterator()); _i1
-				.hasNext();) {
-			final IDependencyAnalysis _da = _i1.next();
+		for (final Iterator<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i1 = IteratorUtils.chainedIterator(cdas.iterator(), ddas
+				.iterator()); _i1.hasNext();) {
+			final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da = _i1.next();
 
 			for (final Iterator<? extends Comparable<?>> _i2 = _da.getIds().iterator(); _i2.hasNext();) {
-				final Comparable _id = _i2.next();
+				final Comparable<?> _id = _i2.next();
 				_ac.addAnalyses(_id, Collections.singleton(_da));
 			}
 		}
@@ -475,14 +483,20 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieve the automaton based on the type of influence check.
-	 *
+	 * 
 	 * @param type of influence check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @return an automaton.
 	 * @throws IllegalArgumentException if the type is not one of the specified values.
 	 */
 	private IAutomaton<State, TransitionLabel> getAutomaton(final String type) {
-		final NFA<State, TransitionLabel> _result = new NFA<State, TransitionLabel>();
-		final TransitionLabel _epsilon = (TransitionLabel) IAutomaton.EPSILON;
+		final NFA<State, TransitionLabel> _result = new NFA<State, TransitionLabel>(
+				new ITransitionLabel.IEpsilonLabelFactory<TransitionLabel>() {
+
+					public TransitionLabel getEpsilonTransitionLabel() {
+						return EPSILON;
+					}
+
+				});
 		if (type.equals("di")) {
 			final State _s1 = new State("s1");
 			final State _s2 = new State("s2");
@@ -490,9 +504,9 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 			_result.addFinalState(_s3);
 			_result.setStartState(_s1);
 			_result.addLabelledTransitionFromTo(_s1, DD, _s1);
-			_result.addLabelledTransitionFromTo(_s1, _epsilon, _s2);
+			_result.addLabelledTransitionFromTo(_s1, EPSILON, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, _epsilon, _s3);
+			_result.addLabelledTransitionFromTo(_s2, EPSILON, _s3);
 			_result.addLabelledTransitionFromTo(_s3, DD, _s3);
 
 		} else if (type.equals("ci")) {
@@ -504,11 +518,11 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 			_result.addFinalState(_s5);
 			_result.setStartState(_s1);
 			_result.addLabelledTransitionFromTo(_s1, DD, _s1);
-			_result.addLabelledTransitionFromTo(_s1, _epsilon, _s2);
+			_result.addLabelledTransitionFromTo(_s1, EPSILON, _s2);
 			_result.addLabelledTransitionFromTo(_s2, CD, _s2);
-			_result.addLabelledTransitionFromTo(_s2, _epsilon, _s3);
+			_result.addLabelledTransitionFromTo(_s2, EPSILON, _s3);
 			_result.addLabelledTransitionFromTo(_s3, DD, _s3);
-			_result.addLabelledTransitionFromTo(_s3, _epsilon, _s4);
+			_result.addLabelledTransitionFromTo(_s3, EPSILON, _s4);
 			_result.addLabelledTransitionFromTo(_s4, CD, _s5);
 			_result.addLabelledTransitionFromTo(_s5, CD, _s5);
 		} else if (type.equals("ai")) {
@@ -528,7 +542,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the graph based on the type of influence check.
-	 *
+	 * 
 	 * @param type of influence check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @return an automaton.
 	 * @throws IllegalArgumentException if the type is not one of the specified values.
@@ -548,7 +562,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the method from the class based on it's signature.
-	 *
+	 * 
 	 * @param clazz that contains the method.
 	 * @param methodSignature obviously.
 	 * @return the method of the given signature in the named class.
@@ -563,22 +577,22 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param args DOCUMENT ME!
 	 * @param type DOCUMENT ME!
 	 * @param targets DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	private PairNode getSourceAndTargets(final List args, final String type, final Collection<PairNode> targets) {
-		final Iterator _i = args.iterator();
-		final SootMethod _sm = getMethod((String) _i.next(), (String) _i.next());
-		final Stmt _ss = type.equals("ai") ? null : getStmt(_sm, Integer.parseInt((String) _i.next()));
+	private PairNode getSourceAndTargets(final List<String> args, final String type, final Collection<PairNode> targets) {
+		final Iterator<String> _i = args.iterator();
+		final SootMethod _sm = getMethod(_i.next(), _i.next());
+		final Stmt _ss = type.equals("ai") ? null : getStmt(_sm, Integer.parseInt(_i.next()));
 
 		for (; _i.hasNext();) {
-			final String _ecName = (String) _i.next();
-			final String _emSig = (String) _i.next();
+			final String _ecName = _i.next();
+			final String _emSig = _i.next();
 			final SootMethod _em = getMethod(_ecName, _emSig);
-			final Stmt _es = type.equals("ai") ? null : getStmt(_em, Integer.parseInt((String) _i.next()));
+			final Stmt _es = type.equals("ai") ? null : getStmt(_em, Integer.parseInt(_i.next()));
 			targets.add(new PairNode(_es, _em));
 		}
 
@@ -587,7 +601,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the statement at the given index in the method.
-	 *
+	 * 
 	 * @param sm containing the statement.
 	 * @param index at which the statement occurs.
 	 * @return the statement.
@@ -600,42 +614,43 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 
 	/**
 	 * Does the check.
-	 *
+	 * 
 	 * @param args DOCUMENT ME!
 	 * @param type of check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @pre cl != null and type != null
 	 */
-	private void performCheck(final List args, final String type) {
+	private void performCheck(final List<String> args, final String type) {
 		final IEdgeLabelledDirectedGraphView<INode> _graph = getGraph(type);
-		final IWorkBag<Triple<INode, Stack<Object>, IAutomaton>> _wb = new LIFOWorkBag<Triple<INode, Stack<Object>, IAutomaton>>();
+		final IWorkBag<Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>> _wb = new LIFOWorkBag<Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>>();
 		final Collection<PairNode> _targets = new HashSet<PairNode>();
 		final PairNode _source = getSourceAndTargets(args, type, _targets);
 		final Collection<Stack<Object>> _matchedPaths = new HashSet<Stack<Object>>();
-		_wb.addWork(new Triple<INode, Stack<Object>, IAutomaton>(_source, new Stack<Object>(), getAutomaton(type)));
+		_wb.addWork(new Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>(_source, new Stack<Object>(),
+				getAutomaton(type)));
 
 		int _missedPaths = 0;
 
 		while (_wb.hasWork()) {
-			final Triple<INode, Stack<Object>, IAutomaton> _triple = _wb.getWork();
+			final Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>> _triple = _wb.getWork();
 			final INode _src = _triple.getFirst();
 			final Stack<Object> _path = _triple.getSecond();
-			final IAutomaton<State, ITransitionLabel> _auto = _triple.getThird();
+			final IAutomaton<State, TransitionLabel> _auto = _triple.getThird();
 
 			_path.push(_src);
 
 			if (_auto.isInFinalState() && _targets.contains(_src)) {
 				_matchedPaths.add(_path);
 			} else {
-				if (_auto.canPerformTransition(IAutomaton.EPSILON)) {
-					final IAutomaton _aclone = _auto.clone();
-					_aclone.performTransitionOn(IAutomaton.EPSILON);
+				if (_auto.canPerformTransition(EPSILON)) {
+					final IAutomaton<State, TransitionLabel> _aclone = _auto.clone();
+					_aclone.performTransitionOn(EPSILON);
 
 					final Stack<Object> _temp = _path.clone();
-					_temp.push(IAutomaton.EPSILON);
-					_wb.addWork(new Triple<INode, Stack<Object>, IAutomaton>(_src, _temp, _aclone));
+					_temp.push(EPSILON);
+					_wb.addWork(new Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>(_src, _temp, _aclone));
 				}
 
-				final Collection<Triple<INode, Stack<Object>, IAutomaton>> _temp = new HashSet<Triple<INode, Stack<Object>, IAutomaton>>();
+				final Collection<Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>> _temp = new HashSet<Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>>();
 				final Collection<Collection<INode>> _succs = new ArrayList<Collection<INode>>();
 				final Collection<IEdgeLabel> _outgoingEdgeLabels = _graph.getOutgoingEdgeLabels(_src);
 				final Iterator<IEdgeLabel> _i = _outgoingEdgeLabels.iterator();
@@ -653,12 +668,13 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 							final INode _dest = _j.next();
 
 							if (!_path.contains(_dest)) {
-								final IAutomaton _aclone = _auto.clone();
+								final IAutomaton<State, TransitionLabel> _aclone = _auto.clone();
 								_aclone.performTransitionOn(_label);
 
 								final Stack<Object> _t = _path.clone();
 								_t.push(_label);
-								_temp.add(new Triple<INode, Stack<Object>, IAutomaton>(_dest, _t, _aclone));
+								_temp.add(new Triple<INode, Stack<Object>, IAutomaton<State, TransitionLabel>>(_dest, _t,
+										_aclone));
 							}
 						}
 						_succs.add(_succsViaLabel);
@@ -687,7 +703,7 @@ public class InfluenceChecker <T extends ITokens<T, Value>>
 		final Iterator<Stack<Object>> _j = _matchedPaths.iterator();
 		final int _jEnd = _matchedPaths.size();
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Stack _path = _j.next();
+			final Stack<Object> _path = _j.next();
 			System.out.println(_path + "\n");
 		}
 	}

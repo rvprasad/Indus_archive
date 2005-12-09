@@ -16,6 +16,7 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.common.collections.Stack;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +69,7 @@ import soot.jimple.Stmt;
  * created should be returned to the pool. Hence, the user is responsible to call <code>returnToPool()</code> on all the
  * criterion created via <code>getCriterion()</code> methods in this class.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -93,7 +94,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Retrieves the factory object.
-	 * 
+	 *
 	 * @return the factory object.
 	 * @post result != null
 	 */
@@ -103,7 +104,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Checks if the given object is a slicing criterion.
-	 * 
+	 *
 	 * @param o to be checked.
 	 * @return <code>true</code> if <code>o</code> is a slicing criterion; <code>false</code>, otherwise.
 	 */
@@ -118,7 +119,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Clones the given criterion.
-	 * 
+	 *
 	 * @param criterion to be cloned.
 	 * @return the clone.
 	 * @throws IllegalArgumentException if criterion is not of type <code>ISliceCriterion</code>.
@@ -131,7 +132,7 @@ public final class SliceCriteriaFactory {
 			final StmtLevelSliceCriterion _t = (StmtLevelSliceCriterion) criterion;
 			_result = getStmtCriteria(_t.getOccurringMethod(), (Stmt) _t.getCriterion(), _t.isConsiderExecution());
 
-			final Stack<?> _callStack = _t.getCallStack();
+			final Stack<CallTriple> _callStack = _t.getCallStack();
 
 			if (_callStack != null) {
 				_result.setCallStack(_callStack.clone());
@@ -141,7 +142,7 @@ public final class SliceCriteriaFactory {
 			_result = getExprCriteria(_t.getOccurringMethod(), _t.getOccurringStmt(), (ValueBox) _t.getCriterion(), _t
 					.isConsiderExecution());
 
-			final Stack<?> _callStack = _t.getCallStack();
+			final Stack<CallTriple> _callStack = _t.getCallStack();
 
 			if (_callStack != null) {
 				_result.setCallStack(_callStack.clone());
@@ -149,7 +150,7 @@ public final class SliceCriteriaFactory {
 		} else if (criterion instanceof MethodLevelSliceCriterion) {
 			final MethodLevelSliceCriterion _m = (MethodLevelSliceCriterion) criterion;
 			_result = getMethodCriteria(_m.getOccurringMethod(), _m.isConsiderExecution());
-			final Stack<?> _callStack = _m.getCallStack();
+			final Stack<CallTriple> _callStack = _m.getCallStack();
 
 			if (_callStack != null) {
 				_result.setCallStack(_callStack.clone());
@@ -163,7 +164,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Returns a collection of criteria which include all occurrences of the given local in the given collection of
 	 * statements.
-	 * 
+	 *
 	 * @param local is the local variable whose all occurrences in <code>method</code> should be captured as slice criterion
 	 * @param stmts in which the occurrences of the <code>local</code> should be captured.
 	 * @param method in which the given statements occur.
@@ -181,8 +182,8 @@ public final class SliceCriteriaFactory {
 		for (final Iterator<Stmt> _i = stmts.iterator(); _i.hasNext();) {
 			final Stmt _stmt = _i.next();
 
-			for (final Iterator _j = _stmt.getUseAndDefBoxes().iterator(); _j.hasNext();) {
-				final ValueBox _vBox = (ValueBox) _j.next();
+			for (final Iterator<ValueBox> _j = _stmt.getUseAndDefBoxes().iterator(); _j.hasNext();) {
+				final ValueBox _vBox = _j.next();
 
 				if (_vBox.getValue().equals(local)) {
 					final ExprLevelSliceCriterion _exprCriterion = getExprCriteria(method, _stmt, _vBox, considerExecution);
@@ -196,7 +197,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Retrieves a slice criterion for the given method.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return a slice criterion.
 	 * @pre method != null
@@ -211,7 +212,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Creates slice criteria from the given statement only. This is equivalent to <code>getCriterion(method, stmt, false,
 	 * considerExecution)</code>.
-	 * 
+	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
 	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching
@@ -227,7 +228,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Creates slice criteria from the given statement. If <code>descend</code> is <code>true</code>, then a criterion is
 	 * created for each use/def site in the given excpression.
-	 * 
+	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
 	 * @param descend <code>true</code> indicates if a criterion should be generated for each def/use site in the statement;
@@ -245,8 +246,8 @@ public final class SliceCriteriaFactory {
 		_result.add(_stmtCriterion);
 
 		if (descend) {
-			for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
-				final ValueBox _vBox = (ValueBox) _i.next();
+			for (final Iterator<ValueBox> _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
+				final ValueBox _vBox = _i.next();
 				final ExprLevelSliceCriterion _temp = getExprCriteria(method, stmt, _vBox, considerExecution);
 				_result.add(_temp);
 			}
@@ -258,7 +259,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Creates slice criteria from the given value. This is equivalent to <code>getCriterion(method, stmt, expression,
 	 * false, considerExecution)</code>.
-	 * 
+	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param expression is the criterion.
@@ -276,7 +277,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Creates slice criteria from the given value. If <code>descend</code> is <code>true</code>, then a criterion is
 	 * created for each use site in the given excpression.
-	 * 
+	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param expr is the criterion.
@@ -295,8 +296,8 @@ public final class SliceCriteriaFactory {
 		_result.add(_exprCriterion);
 
 		if (descend) {
-			for (final Iterator _i = expr.getValue().getUseBoxes().iterator(); _i.hasNext();) {
-				final ValueBox _useBox = (ValueBox) _i.next();
+			for (final Iterator<ValueBox> _i = expr.getValue().getUseBoxes().iterator(); _i.hasNext();) {
+				final ValueBox _useBox = _i.next();
 				final ExprLevelSliceCriterion _temp = getExprCriteria(method, stmt, _useBox, considerExecution);
 				_result.add(_temp);
 			}
@@ -306,7 +307,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Retrieves a slice criterion for the given program point.
-	 * 
+	 *
 	 * @param method containing <code>stmt</code>.
 	 * @param stmt containing <code>valueBox</code>.
 	 * @param valueBox is the slice criterion.
@@ -326,7 +327,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Retrieves a slice criterion for the given method.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @param considerExecution <i>place holder for future use</i>.
 	 * @return a slice criterion.
@@ -342,7 +343,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Retrieves a slice criterion for the given statement.
-	 * 
+	 *
 	 * @param method containing <code>stmt</code>.
 	 * @param stmt is the slice criterion.
 	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching

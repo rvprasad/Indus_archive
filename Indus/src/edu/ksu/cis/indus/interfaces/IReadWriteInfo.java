@@ -34,7 +34,7 @@ public interface IReadWriteInfo
 	/**
 	 * This indentifies the interface.
 	 */
-	Comparable<? extends Object> ID = "Object read-write Information";
+	Comparable<String> ID = "Object read-write Information";
 
 	/**
 	 * This constant identifies the cells of an array in the field map of it's alias set.

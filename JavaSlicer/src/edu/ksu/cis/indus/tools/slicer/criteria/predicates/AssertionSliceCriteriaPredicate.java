@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import soot.RefType;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 /**

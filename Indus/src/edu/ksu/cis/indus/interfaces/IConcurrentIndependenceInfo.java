@@ -27,10 +27,10 @@ import soot.jimple.Stmt;
  */
 public interface IConcurrentIndependenceInfo
   extends IIdentification {
-	/** 
+	/**
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
-	Comparable<?> ID = "Concurrent Independence Analysis";
+	Comparable<String> ID = "Concurrent Independence Analysis";
 
 	/**
 	 * Checks if the statement is independent.

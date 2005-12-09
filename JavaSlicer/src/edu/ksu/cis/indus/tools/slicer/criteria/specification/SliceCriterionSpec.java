@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.specification;
 
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.slicer.CriteriaSpecHelper;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
@@ -30,7 +29,6 @@ import java.util.ListIterator;
 import java.util.MissingResourceException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 
@@ -70,7 +67,7 @@ public final class SliceCriterionSpec
 	 *
 	 * @invariant parameterTypeNames.oclIsKindOf(Sequence(String))
 	 */
-	private List parameterTypeNames;
+	private List<String> parameterTypeNames;
 
 	/** 
 	 * The name of the class immediately enclosing the criterion.
@@ -125,7 +122,7 @@ public final class SliceCriterionSpec
 	 * @throws IllegalStateException when the method in the spec does not have a body or the specified statment/expr does not
 	 * 		   exists.
 	 */
-	public Collection getCriteria(final Scene scene) {
+	public Collection<ISliceCriterion> getCriteria(final Scene scene) {
 		trim();
 
 		final SootClass _sc = scene.getSootClass(className);
@@ -136,10 +133,10 @@ public final class SliceCriterionSpec
 			throw new MissingResourceException("Given class not available in the System.", className, null);
 		}
 
-		final List _parameterTypes = new ArrayList();
+		final List<Type> _parameterTypes = new ArrayList<Type>();
 
-		for (final Iterator _i = parameterTypeNames.iterator(); _i.hasNext();) {
-			final String _name = (String) _i.next();
+		for (final Iterator<String> _i = parameterTypeNames.iterator(); _i.hasNext();) {
+			final String _name =  _i.next();
 			_parameterTypes.add(Util.getTypeFor(_name, scene));
 		}
 
@@ -154,7 +151,7 @@ public final class SliceCriterionSpec
 			throw new IllegalStateException(_msg);
 		}
 
-		final List _stmts = Collections.list(Collections.enumeration(_body.getUnits()));
+		final List<Stmt> _stmts = Collections.list(Collections.<Stmt>enumeration(_body.getUnits()));
 
 		if (_stmts.size() < stmtIndex + 1) {
 			final String _msg =
@@ -164,12 +161,12 @@ public final class SliceCriterionSpec
 			throw new IllegalStateException(_msg);
 		}
 
-		final Collection _result;
+		final Collection<ISliceCriterion> _result;
 
 		if (stmtIndex == -1) {
 			_result = CRITERIA_FACTORY.getCriteria(_sm);
 		} else {
-			final Stmt _stmt = (Stmt) _stmts.get(stmtIndex);
+			final Stmt _stmt = _stmts.get(stmtIndex);
 
 			if (exprIndex == -1) {
 				_result = CRITERIA_FACTORY.getCriteria(_sm, _stmt, considerEntireStmt, considerExecution);
@@ -190,14 +187,14 @@ public final class SliceCriterionSpec
 	 *
 	 * @return the names of the type.
 	 *
-	 * @pre paramterTypes != null and parameterTypes.oclIsKindOf(Sequence(Type))
-	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 * @pre paramterTypes != null
+	 * @post result != null
 	 */
-	public static List getNamesOfTypes(final List parameterTypes) {
-		final List _result = new ArrayList();
+	public static List<String> getNamesOfTypes(final List<Type> parameterTypes) {
+		final List<String> _result = new ArrayList<String>();
 
-		for (final Iterator _i = parameterTypes.iterator(); _i.hasNext();) {
-			_result.add(((Type) _i.next()).toString().replace(']', ' ').trim());
+		for (final Iterator <Type>_i = parameterTypes.iterator(); _i.hasNext();) {
+			_result.add( _i.next().toString().replace(']', ' ').trim());
 		}
 		return _result;
 	}
@@ -205,7 +202,7 @@ public final class SliceCriterionSpec
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		trim();
 		return new ToStringBuilder(this).append("className", this.className).append("returnTypeName", this.returnTypeName)
 										  .append("methodName", this.methodName)
@@ -227,7 +224,7 @@ public final class SliceCriterionSpec
 	 * @pre criterion != null and scene != null
 	 * @post result != null
 	 */
-	static Collection getCriterionSpec(final ISliceCriterion criterion) {
+	static Collection<SliceCriterionSpec> getCriterionSpec(final ISliceCriterion criterion) {
 		final SootMethod _method = criterion.getOccurringMethod();
 		final SootClass _declaringClass = _method.getDeclaringClass();
 		final String _prefix = _declaringClass.getPackageName();
@@ -241,7 +238,7 @@ public final class SliceCriterionSpec
 		}
 
 		final String _methodName = _method.getName();
-		final Collection _result;
+		final Collection<SliceCriterionSpec> _result;
 		if (!_method.isAbstract() && !_method.isNative()) {
 			final Body _body  = _method.retrieveActiveBody();
 
@@ -251,7 +248,7 @@ public final class SliceCriterionSpec
 				throw new IllegalStateException(_msg);
 			}
 	
-			final List _stmts = Collections.list(Collections.enumeration(_body.getUnits()));
+			final List<Stmt> _stmts = Collections.list(Collections.<Stmt>enumeration(_body.getUnits()));
 			final Stmt _occurringStmt = CriteriaSpecHelper.getOccurringStmt(criterion);
 			final int _stmtIndex = _stmts.indexOf(_occurringStmt);
 			final boolean _considerExecution = CriteriaSpecHelper.isConsiderExecution(criterion);
@@ -266,7 +263,7 @@ public final class SliceCriterionSpec
 			_spec.considerExecution = _considerExecution;
 			_spec.considerEntireStmt = false;
 	
-			_result = new ArrayList();
+			_result = new ArrayList<SliceCriterionSpec>();
 			final ValueBox _occurringExprBox = CriteriaSpecHelper.getOccurringExpr(criterion);
 	
 			if (_occurringExprBox != null) {
@@ -293,7 +290,7 @@ public final class SliceCriterionSpec
 				_result.add(_spec);
 			}
 		} else {
-			_result = Collections.EMPTY_SET;
+			_result = Collections.emptySet();
 		}
 
 		return _result;
@@ -306,8 +303,8 @@ public final class SliceCriterionSpec
 	 *
 	 * @post result != null
 	 */
-	private static List createParameterTypeNamesContainer() {
-		return new ArrayList();
+	private static List<String> createParameterTypeNamesContainer() {
+		return new ArrayList<String>();
 	}
 	
 	/**
@@ -326,8 +323,8 @@ public final class SliceCriterionSpec
 			returnTypeName = returnTypeName.trim();
 		}
 
-		for (final ListIterator _i = parameterTypeNames.listIterator(); _i.hasNext();) {
-			final String _str = (String) _i.next();
+		for (final ListIterator<String> _i = parameterTypeNames.listIterator(); _i.hasNext();) {
+			final String _str = _i.next();
 
 			if (_str != null) {
 				_i.remove();

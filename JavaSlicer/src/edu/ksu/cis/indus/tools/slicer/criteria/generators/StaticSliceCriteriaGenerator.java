@@ -26,11 +26,11 @@ import java.util.Iterator;
 
 /**
  * This implementation can be used to cater a set of statically determined criteria.
- * 
+ *
  * <p>
  * This implementation is intended to be used with <code>StaticSliceCriteriaCallStackContextualizer</code>.
  * </p>
- * 
+ *
  * <p>
  * As the generator is unaware of the entity that each criterion is based on, the contextualization will be based on the
  * method in which the criterion occurs.
@@ -41,24 +41,22 @@ import java.util.Iterator;
  * @version $Revision$ $Date$
  */
 public class StaticSliceCriteriaGenerator
-  extends AbstractSliceCriteriaGenerator {
-	/** 
+  extends AbstractSliceCriteriaGenerator<Object, Object> {
+	/**
 	 * The collection of statically provided criteria.
-	 *
-	 * @invariant staticCriteria.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	private final Collection staticCriteria;
+	private final Collection<ISliceCriterion> staticCriteria;
 
 	/**
 	 * Creates an instance of this class.
 	 *
 	 * @param criteria is the collection of statically provided criteria.
 	 *
-	 * @pre criteria != null and criteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @pre criteria != null
 	 */
-	public StaticSliceCriteriaGenerator(final Collection criteria) {
+	public StaticSliceCriteriaGenerator(final Collection<ISliceCriterion> criteria) {
 		super();
-		staticCriteria = Collections.unmodifiableCollection(new ArrayList(criteria));
+		staticCriteria = Collections.unmodifiableCollection(new ArrayList<ISliceCriterion>(criteria));
 	}
 
 	/**
@@ -70,14 +68,14 @@ public class StaticSliceCriteriaGenerator
 	 *
 	 * @see AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()
 	 */
-	protected Collection getCriteriaTemplateMethod() {
-		final Collection _result = new HashSet();
-		final Collection _subResult = new ArrayList();
+	@Override protected Collection<ISliceCriterion> getCriteriaTemplateMethod() {
+		final Collection<ISliceCriterion> _result = new HashSet<ISliceCriterion>();
+		final Collection<ISliceCriterion> _subResult = new ArrayList<ISliceCriterion>();
 
-		for (final Iterator _i = staticCriteria.iterator(); _i.hasNext();) {
+		for (final Iterator<ISliceCriterion> _i = staticCriteria.iterator(); _i.hasNext();) {
 			_subResult.clear();
 
-			final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+			final ISliceCriterion _criterion = _i.next();
 			_subResult.add(_criterion);
 			contextualizeCriteriaBasedOnThis(_criterion.getOccurringMethod(), _subResult);
 			_result.addAll(_subResult);

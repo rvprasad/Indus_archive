@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -53,10 +52,9 @@ import java.util.Map;
 
 import junit.framework.TestSuite;
 
-
 /**
- * This is the setup in which various tests of dependence analyses are run.  The classes to be processed during the test can
- * be configured via the command line or via specifying
+ * This is the setup in which various tests of dependence analyses are run. The classes to be processed during the test can be
+ * configured via the command line or via specifying
  * <code>DepedencyAnalysisRegressionTestSuite.DEPENDENCYANALYSIS_TEST_PROPERTIES_FILE</code> system property. The syntax for
  * both these options is a space separated list of class names.
  *
@@ -65,7 +63,8 @@ import junit.framework.TestSuite;
  * @version $Revision$ $Date$
  */
 public class DependencyAnalysisTestSetup
-  extends ValueAnalysisTestSetup {
+		extends ValueAnalysisTestSetup {
+
 	/**
 	 * The instance of aliased use-def info to use.
 	 */
@@ -79,7 +78,7 @@ public class DependencyAnalysisTestSetup
 	/**
 	 * The collection of dependency analyses being tested.
 	 */
-	private Collection das;
+	private Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das;
 
 	/**
 	 * The instance of equivalence class based escape analysis to use.
@@ -111,8 +110,7 @@ public class DependencyAnalysisTestSetup
 	/**
 	 * @see junit.extensions.TestSetup#setUp()
 	 */
-	protected void setUp()
-	  throws Exception {
+	@Override protected void setUp() throws Exception {
 		super.setUp();
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setStmtGraphFactory(getStmtGraphFactory());
@@ -135,7 +133,7 @@ public class DependencyAnalysisTestSetup
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, null, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
 
-		//setup info
+		// setup info
 		info = new HashMap();
 		info.put(ICallGraphInfo.ID, cgiImpl);
 		info.put(IThreadGraphInfo.ID, tgiImpl);
@@ -147,28 +145,26 @@ public class DependencyAnalysisTestSetup
 		info.put(IMonitorInfo.ID, monitorInfo);
 
 		// retrieve dependence analysis
-		das = new HashSet();
+		das = new HashSet<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
-		for (final Iterator _i =
-				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
-			  _i.hasNext();) {
-			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
+		for (final Iterator<IDependencyAnalysisTest> _i = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(),
+				IDependencyAnalysisTest.class).iterator(); _i.hasNext();) {
+			final IDependencyAnalysisTest _test = _i.next();
 			_test.setEnvironment(valueAnalyzer.getEnvironment());
 
-			final IDependencyAnalysis _da = _test.getDA();
+			final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da = _test.getDA();
 			das.add(_da);
 
-			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
-				  && (_da.getDirection().equals(IDependencyAnalysis.Direction.BI_DIRECTIONAL)
-				  || _da.getDirection().equals(IDependencyAnalysis.Direction.BACKWARD_DIRECTION))) {
-				MapUtils.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
+			if (_da.getIds().contains(IDependencyAnalysis.DependenceSort.CONTROL_DA)
+					&& (_da.getDirection().equals(IDependencyAnalysis.Direction.BI_DIRECTIONAL) || _da.getDirection().equals(
+							IDependencyAnalysis.Direction.BACKWARD_DIRECTION))) {
+				MapUtils.putIntoSetInMap(info, IDependencyAnalysis.DependenceSort.CONTROL_DA, _da);
 			}
 		}
 
-		for (final Iterator _i =
-				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedDependencyAnalysisTest.class)
-							.iterator(); _i.hasNext();) {
-			final XMLBasedDependencyAnalysisTest _test = (XMLBasedDependencyAnalysisTest) _i.next();
+		for (final Iterator<XMLBasedDependencyAnalysisTest> _i = TestHelper.getTestCasesReachableFromSuite(
+				(TestSuite) getTest(), XMLBasedDependencyAnalysisTest.class).iterator(); _i.hasNext();) {
+			final XMLBasedDependencyAnalysisTest _test = _i.next();
 			_test.setCallGraph(cgiImpl);
 		}
 
@@ -183,8 +179,8 @@ public class DependencyAnalysisTestSetup
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
 		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(ecba));
 
-		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
-			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
+		for (final Iterator<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i1 = das.iterator(); _i1.hasNext();) {
+			final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da1 = _i1.next();
 			_da1.reset();
 
 			for (final Iterator<? extends Comparable<?>> _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
@@ -199,8 +195,7 @@ public class DependencyAnalysisTestSetup
 	/**
 	 * @see junit.extensions.TestSetup#tearDown()
 	 */
-	protected void tearDown()
-	  throws Exception {
+	@Override protected void tearDown() throws Exception {
 		bbgMgr.reset();
 		bbgMgr = null;
 		// teardown TGI and ECBA here
@@ -216,8 +211,8 @@ public class DependencyAnalysisTestSetup
 		info = null;
 
 		// teardown the dependency analysis
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			((AbstractDependencyAnalysis) _i.next()).reset();
+		for (final Iterator<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = das.iterator(); _i.hasNext();) {
+			_i.next().reset();
 		}
 		das.clear();
 		das = null;

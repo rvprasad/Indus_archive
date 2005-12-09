@@ -17,13 +17,11 @@ package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.processing.Context;
-
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
-
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.util.Collection;
@@ -34,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.Stmt;
 
 
@@ -47,7 +45,7 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class DeadlockPreservingCriteriaGenerator
-  extends AbstractSliceCriteriaGenerator {
+  extends AbstractSliceCriteriaGenerator<SootMethod, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -56,21 +54,21 @@ public final class DeadlockPreservingCriteriaGenerator
 	/**
 	 * @see edu.ksu.cis.indus.tools.slicer.criteria.generators.AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()
 	 */
-	protected Collection getCriteriaTemplateMethod() {
+	@Override protected Collection<ISliceCriterion> getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: creating deadlock criteria.");
 		}
 
-		final Collection _result = new HashSet();
-		final Collection _subResult = new HashSet();
+		final Collection<ISliceCriterion> _result = new HashSet<ISliceCriterion>();
+		final Collection<ISliceCriterion> _subResult = new HashSet<ISliceCriterion>();
 		final Context _context = new Context();
-		final SlicerTool _slicer = getSlicerTool();
+		final SlicerTool<?> _slicer = getSlicerTool();
 		final BasicBlockGraphMgr _bbgMgr = _slicer.getBasicBlockGraphManager();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 
-		for (final Iterator _i = _slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
-			final Triple _mTriple = (Triple) _i.next();
-			final SootMethod _method = (SootMethod) _mTriple.getThird();
+		for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
+			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _mTriple = _i.next();
+			final SootMethod _method =  _mTriple.getThird();
 
 			if (shouldConsiderSite(_method)) {
 				_subResult.clear();
@@ -82,12 +80,12 @@ public final class DeadlockPreservingCriteriaGenerator
 						final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
 
 						if (_bbg != null) {
-							final Collection _criteria =
+							final Collection<ISliceCriterion> _criteria =
 								_criteriaFactory.getCriteria(_method, (Stmt) _bbgMgr.getStmtList(_method).get(0), false);
 							_subResult.addAll(_criteria);
 
-							for (final Iterator _j = _bbg.getSinks().iterator(); _j.hasNext();) {
-								final BasicBlock _bb = (BasicBlock) _j.next();
+							for (final Iterator<BasicBlock> _j = _bbg.getSinks().iterator(); _j.hasNext();) {
+								final BasicBlock _bb = _j.next();
 								final Stmt _stmt = _bb.getTrailerStmt();
 								_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));
 							}
@@ -99,10 +97,10 @@ public final class DeadlockPreservingCriteriaGenerator
 							}
 						}
 					} else {
-						final EnterMonitorStmt _enterStmt = (EnterMonitorStmt) _mTriple.getFirst();
+						final EnterMonitorStmt _enterStmt = _mTriple.getFirst();
 
 						_subResult.addAll(_criteriaFactory.getCriteria(_method, _enterStmt, true, true));
-						_subResult.addAll(_criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true));
+						_subResult.addAll(_criteriaFactory.getCriteria(_method, _mTriple.getSecond(), true, true));
 						_context.setStmt(_enterStmt);
 						_context.setProgramPoint(_enterStmt.getOpBox());
 						contextualizeCriteriaBasedOnProgramPoint(_context, _subResult);

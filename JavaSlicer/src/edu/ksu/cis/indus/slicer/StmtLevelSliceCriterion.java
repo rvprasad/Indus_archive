@@ -43,7 +43,7 @@ class StmtLevelSliceCriterion
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	public boolean equals(final Object other) {
+	@Override public boolean equals(final Object other) {
 		if (this == other) {
 			return true;
 		}
@@ -59,14 +59,14 @@ class StmtLevelSliceCriterion
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
-	public int hashCode() {
+	@Override public int hashCode() {
 		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(stmt).toHashCode();
 	}
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
+	@Override public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
 																					 .append("stmt", this.stmt).toString();
 	}
@@ -80,7 +80,7 @@ class StmtLevelSliceCriterion
 	 *
 	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	protected Object getCriterion() {
+	@Override protected Object getCriterion() {
 		return stmt;
 	}
 	/**

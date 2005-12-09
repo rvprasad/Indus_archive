@@ -465,8 +465,8 @@ public class ExecutableSlicePostProcessor
 		 * Include the first statement of the handler for all traps found to cover atleast one statement included in the
 		 * slice.
 		 */
-		for (final Iterator _i = TrapManager.getTrapsAt(stmt, method.retrieveActiveBody()).iterator(); _i.hasNext();) {
-			final Trap _trap = (Trap) _i.next();
+		for (final Iterator<Trap> _i = TrapManager.getTrapsAt(stmt, method.retrieveActiveBody()).iterator(); _i.hasNext();) {
+			final Trap _trap = _i.next();
 			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
 
 			if (bbg.getEnclosingBlock(_handlerUnit) != null) {
@@ -496,8 +496,8 @@ public class ExecutableSlicePostProcessor
 	private void processMethod(final SootMethod method) {
 		final Collection<Type> _temp = new HashSet<Type>();
 
-		for (final Iterator _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
+			final SootMethod _sm =  _i.next();
 			collector.includeInSlice(_sm.getDeclaringClass());
 			collector.includeInSlice(_sm);
 			_temp.clear();
@@ -536,8 +536,8 @@ public class ExecutableSlicePostProcessor
 		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
 		final UnitGraph _unitGraph = _bbg.getStmtGraph();
 
-		for (final Iterator _i = _unitGraph.iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
+		for (final Iterator<Stmt> _i = _unitGraph.iterator(); _i.hasNext();) {
+			final Stmt _stmt = _i.next();
 
 			if (_stmt instanceof IdentityStmt) {
 				final IdentityStmt _identityStmt = (IdentityStmt) _stmt;

@@ -37,7 +37,7 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class is the skeletal implementation of the interface of analyses used to execute them.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -50,7 +50,7 @@ public abstract class AbstractAnalysis
 	 * This contains auxiliary information required by the subclasses. It is recommended that this represent
 	 * <code>java.util.Properties</code> but map a <code>String</code> to an <code>Object</code>.
 	 */
-	protected final Map<Comparable, Object> info = new HashMap<Comparable, Object>();
+	protected final Map<Comparable<?>, Object> info = new HashMap<Comparable<?>, Object>();
 
 	/**
 	 * The pre-processor for this analysis, if one exists.
@@ -87,7 +87,7 @@ public abstract class AbstractAnalysis
 
 	/**
 	 * Returns the statistics about this analysis in the form of a <code>String</code>.
-	 * 
+	 *
 	 * @return the statistics about this analysis.
 	 */
 	public String getStatistics() {
@@ -100,14 +100,14 @@ public abstract class AbstractAnalysis
 	 * Refer to {@link #info info} and subclass documenation for more details.
 	 * </p>
 	 */
-	public final void initialize(final Map<Comparable, Object> infoParam) throws InitializationException {
+	public final void initialize(final Map<Comparable<?>, Object> infoParam) throws InitializationException {
 		info.putAll(infoParam);
 		setup();
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @post info.size() == 0
 	 */
 	public void reset() {
@@ -125,7 +125,7 @@ public abstract class AbstractAnalysis
 	/**
 	 * Returns the basic block graph for the given method, if available. If not it will try to acquire the unit graph from the
 	 * application. From that unit graph it will construct a basic block graph and return it.
-	 * 
+	 *
 	 * @param method for which the basic block graph is requested.
 	 * @return the basic block graph corresponding to <code>method</code>.
 	 * @pre method != null
@@ -138,14 +138,14 @@ public abstract class AbstractAnalysis
 	 * Returns a list of statements in the given method, if it exists. This implementation retrieves the statement list from
 	 * the basic block graph manager, if it is available. If not, it retrieves the statement list from the method body
 	 * directly. It will return an unmodifiable list of statements.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return an unmodifiable list of statements.
 	 * @pre method != null
 	 * @post result != null
 	 */
 	protected List<Stmt> getStmtList(final SootMethod method) {
-		List _result;
+		List<Stmt> _result;
 
 		if (graphManager != null) {
 			_result = graphManager.getStmtList(method);
@@ -155,7 +155,7 @@ public abstract class AbstractAnalysis
 			if (_stmtGraph != null) {
 				_result = Collections.unmodifiableList(new ArrayList<Stmt>(_stmtGraph.getBody().getUnits()));
 			} else {
-				_result = Collections.EMPTY_LIST;
+				_result = Collections.emptyList();
 			}
 		}
 		return _result;
@@ -163,7 +163,7 @@ public abstract class AbstractAnalysis
 
 	/**
 	 * Retrives the unit graph of the given method.
-	 * 
+	 *
 	 * @param method for which the unit graph is requested.
 	 * @return the unit graph of the method.
 	 * @post result != null
@@ -175,7 +175,7 @@ public abstract class AbstractAnalysis
 	/**
 	 * Setup data structures after initialization. This is a convenience method for subclasses to do processing after the
 	 * calls to <code>initialize</code> and before the call to <code>preprocess</code>.
-	 * 
+	 *
 	 * @throws InitializationException is never thrown by this implementation.
 	 */
 	@AEmpty protected void setup() throws InitializationException {

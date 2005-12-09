@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
  */
 public abstract class AbstractSliceCriteriaPredicate<T>
 		implements ISliceCriteriaPredicate<T> {
@@ -29,12 +30,12 @@ public abstract class AbstractSliceCriteriaPredicate<T>
 	/**
 	 * This is the slicer tool provides the context in which filtering occurs.
 	 */
-	private SlicerTool slicerTool;
+	private SlicerTool<?> slicerTool;
 
 	/**
 	 * @see ISliceCriteriaPredicate#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
 	 */
-	public void setSlicerTool(final SlicerTool slicer) {
+	public void setSlicerTool(final SlicerTool<?> slicer) {
 		slicerTool = slicer;
 	}
 
@@ -43,7 +44,7 @@ public abstract class AbstractSliceCriteriaPredicate<T>
 	 * 
 	 * @return the value in <code>slicerTool</code>.
 	 */
-	protected final SlicerTool getSlicerTool() {
+	protected final SlicerTool<?> getSlicerTool() {
 		return slicerTool;
 	}
 }

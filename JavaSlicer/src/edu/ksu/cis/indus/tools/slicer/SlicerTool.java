@@ -58,6 +58,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
@@ -90,6 +91,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
+import soot.Value;
 
 /**
  * This is a facade that exposes the slicer as a tool. This is recommended interface to interact with the slicer if the slicer
@@ -127,8 +129,9 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> dummy type parameter.
  */
-public final class SlicerTool
+public final class SlicerTool<T extends ITokens<T, Value>>
 		extends AbstractTool {
 
 	/**
@@ -230,7 +233,7 @@ public final class SlicerTool
 	/**
 	 * This is the information map used to initialized analyses.
 	 */
-	private final Map<Comparable, Object> info;
+	private final Map<Comparable<?>, Object> info;
 
 	/**
 	 * This provides mapping from init invocation expression to corresponding new expression.
@@ -245,7 +248,7 @@ public final class SlicerTool
 	/**
 	 * This provides object flow anlaysis.
 	 */
-	private final OFAnalyzer ofa;
+	private final OFAnalyzer<T> ofa;
 
 	/**
 	 * This provides pair management.
@@ -282,7 +285,7 @@ public final class SlicerTool
 	/**
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
-	private final IStmtGraphFactory stmtGraphFactory;
+	private final IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * The system to be sliced.
@@ -292,7 +295,7 @@ public final class SlicerTool
 	/**
 	 * This manages the tokens used in flow analysis.
 	 */
-	private final ITokenManager theTokenMgr;
+	private final ITokenManager<T, Value> theTokenMgr;
 
 	/**
 	 * This provides thread graph.
@@ -307,17 +310,17 @@ public final class SlicerTool
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
 	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
 	 */
-	public SlicerTool(final ITokenManager tokenMgr, final IStmtGraphFactory stmtGraphFactoryToUse) {
+	public SlicerTool(final ITokenManager<T, Value> tokenMgr, final IStmtGraphFactory<?> stmtGraphFactoryToUse) {
 		theTokenMgr = tokenMgr;
 		phase = Phase.createPhase();
 
 		rootMethods = new HashSet<SootMethod>();
 		criteria = new HashSet<ISliceCriterion>();
-		info = new HashMap<Comparable, Object>();
+		info = new HashMap<Comparable<?>, Object>();
 		criteriaGenerators = new HashSet<ISliceCriteriaGenerator>();
 
 		stmtGraphFactory = stmtGraphFactoryToUse;
-k
+
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr, getStmtGraphFactory());
 		addActivePart(ofa.getActivePart());
@@ -547,13 +550,14 @@ k
 	 * @return the collection of dependency analyses.
 	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
-	public Collection<IDependencyAnalysis> getDAs() {
-		final Collection<IDependencyAnalysis> _result = new LinkedHashSet<IDependencyAnalysis>();
+	public Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> getDAs() {
+		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _result = new LinkedHashSet<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 		final SlicerConfiguration _config = (SlicerConfiguration) getActiveConfiguration();
-		final List<Comparable> _daNames = new ArrayList<Comparable>(_config.getIDsOfDAsToUse());
+		final List<IDependencyAnalysis.DependenceSort> _daNames = new ArrayList<IDependencyAnalysis.DependenceSort>(_config
+				.getIDsOfDAsToUse());
 		Collections.sort(_daNames);
 
-		for (final Iterator<Comparable> _i = _daNames.iterator(); _i.hasNext();) {
+		for (final Iterator<IDependencyAnalysis.DependenceSort> _i = _daNames.iterator(); _i.hasNext();) {
 			_result.addAll(_config.getDependenceAnalyses(_i.next()));
 		}
 		return _result;
@@ -612,7 +616,7 @@ k
 	 * 
 	 * @return the factory object.
 	 */
-	public IStmtGraphFactory getStmtGraphFactory() {
+	public IStmtGraphFactory<?> getStmtGraphFactory() {
 		return stmtGraphFactory;
 	}
 
@@ -753,7 +757,7 @@ k
 		final IToolConfiguration _slicerConf = getActiveConfiguration();
 
 		if (((Boolean) _slicerConf.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()
-				&& _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE)) {
+				&& _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.SliceType.FORWARD_SLICE)) {
 			LOGGER.error("Forward Executable slice is unsupported.");
 			throw new IllegalStateException("Forward Executable slice is unsupported.");
 		}
@@ -806,16 +810,17 @@ k
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, _b);
 		addActivePart(daController.getActivePart());
 
-		final Collection<IDependencyAnalysis> _controlDAs = slicerConfig
-				.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
-		final Collection<IDependencyAnalysis> _deps = (Collection<IDependencyAnalysis>) MapUtils.getFromMap(info,
-				IDependencyAnalysis.CONTROL_DA, new ArrayList<IDependencyAnalysis>());
+		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _controlDAs = slicerConfig
+				.getDependenceAnalyses(IDependencyAnalysis.DependenceSort.CONTROL_DA);
+		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _deps = (Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) MapUtils
+				.getFromMap(info, IDependencyAnalysis.DependenceSort.CONTROL_DA,
+						new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>());
 		_deps.addAll(_controlDAs);
 
 		// drive the analyses
-		for (final Iterator<Comparable> _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
-			final Comparable _id = _i.next();
-			final Collection _c = slicerConfig.getDependenceAnalyses(_id);
+		for (final Iterator<IDependencyAnalysis.DependenceSort> _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
+			final IDependencyAnalysis.DependenceSort _id = _i.next();
+			final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = slicerConfig.getDependenceAnalyses(_id);
 			daController.addAnalyses(_id, _c);
 		}
 		daController.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
@@ -964,7 +969,7 @@ k
 
 			// setup the slicing engine and slice
 			engine.setCgi(callGraph);
-			engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+			engine.setSliceType((SlicingEngine.SliceType) slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 			engine.setInitMapper(initMapper);
 			engine.setBasicBlockGraphManager(bbgMgr);
 			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getIDsOfDAsToUse());
@@ -973,23 +978,23 @@ k
 			engine.setSystem(system);
 
 			if (slicerConfig.getPropertyAware()) {
-				final Map<Comparable, ICallingContextRetriever> _map = new HashMap<Comparable, ICallingContextRetriever>();
+				final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> _map = new HashMap<IDependencyAnalysis.DependenceSort, ICallingContextRetriever>();
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
-						_callingContextLimit, IDependencyAnalysis.READY_DA);
+						_callingContextLimit, IDependencyAnalysis.DependenceSort.READY_DA);
 				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
 				_t1.setCallGraph(getCallGraph());
-				_map.put(IDependencyAnalysis.READY_DA, _t1);
+				_map.put(IDependencyAnalysis.DependenceSort.READY_DA, _t1);
 
 				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
-						_callingContextLimit, IDependencyAnalysis.INTERFERENCE_DA);
+						_callingContextLimit, IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
 				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);
 				_t2.setCallGraph(getCallGraph());
-				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t2);
+				_map.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, _t2);
 
 				final DataAliasBasedCallingContextRetrieverV2 _t3 = new DataAliasBasedCallingContextRetrieverV2(
 						_callingContextLimit);
@@ -997,7 +1002,7 @@ k
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
 				_t3.setECBA(ecba);
-				_map.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA, _t3);
+				_map.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}
 			engine.initialize();

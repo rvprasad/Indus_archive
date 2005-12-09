@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IClosure;
-import edu.ksu.cis.indus.common.collections.IFactory;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,17 +53,17 @@ import soot.jimple.VirtualInvokeExpr;
 /**
  * This class encapsulates the logic to extract dependencies from a dependence analysis based on slice direction. This class
  * is meant for internal use only.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 final class DependenceExtractor
-		implements IClosure {
+		implements IClosure<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> {
 
 	/**
 	 * This interface enables to retrieve dependences.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -74,7 +72,7 @@ final class DependenceExtractor
 
 		/**
 		 * Retrieves the dependencies.
-		 * 
+		 *
 		 * @param analysis is the analysis from which to retrieve the dependences.
 		 * @param entity for which the dependences are requested.
 		 * @param method in which <code>stmt</code> occurs.
@@ -82,12 +80,12 @@ final class DependenceExtractor
 		 * @pre analysis != null and entity != null and method != null
 		 * @post result != null and result.oclIsKindOf(Collection)
 		 */
-		Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method);
+		Collection<Object> getDependences(final IDependencyAnalysis<?, ?, ?, ?, ?, ?> analysis, final Object entity, final SootMethod method);
 	}
 
 	/**
 	 * The interface used to extract program points of a statement for the purpose of context generation.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -96,24 +94,13 @@ final class DependenceExtractor
 
 		/**
 		 * Retrieves the program points of interest from the given statement.
-		 * 
+		 *
 		 * @param stmt of interest.
 		 * @return the collection of value boxes/program points.
 		 * @pre stmt != null
 		 */
 		Collection<ValueBox> getProgramPoints(Stmt stmt);
 	}
-
-	/**
-	 * DOCUMENT ME!
-	 */
-	private static final IFactory<Set<Stack<CallTriple>>> CALLING_CONTEXT_COLLECTION_FACTORY = new IFactory<Set<Stack<CallTriple>>>() {
-
-		public Set<Stack<CallTriple>> create() {
-			return new HashSet<Stack<CallTriple>>();
-		}
-
-	};
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -198,7 +185,7 @@ final class DependenceExtractor
 	/**
 	 * This maps dependence analysis IDs to the context retriever object.
 	 */
-	private final Map<Comparable, ICallingContextRetriever> depID2ctxtRetriever;
+	private final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> depID2ctxtRetriever;
 
 	/**
 	 * The instance of SlicingEngine that will use this instance.
@@ -212,7 +199,7 @@ final class DependenceExtractor
 
 	/**
 	 * Creates a new CriteriaClosure object.
-	 * 
+	 *
 	 * @param slicingEngine that will use this instance.
 	 * @pre slicingEngine != null
 	 */
@@ -220,17 +207,17 @@ final class DependenceExtractor
 		dependences = new HashSet<Object>();
 		engine = slicingEngine;
 		criteriabase2contexts = new HashMap<Object, Collection<Stack<CallTriple>>>();
-		depID2ctxtRetriever = new HashMap<Comparable, ICallingContextRetriever>();
+		depID2ctxtRetriever = new HashMap<IDependencyAnalysis.DependenceSort, ICallingContextRetriever>();
 	}
 
 	/**
 	 * Populates the criteria based on the provided analysis.
-	 * 
+	 *
 	 * @param analysis from which to extract the criteria.
-	 * @pre analysis != null and analysis.oclIsKindOf(AbstractDependencyAnalysis)
+	 * @pre analysis != null
 	 */
-	public void execute(final Object analysis) {
-		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
+	public void execute(final IDependencyAnalysis<?, ?, ?, ?, ?, ?> analysis) {
+		final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da = analysis;
 		final Collection<Object> _t = retriever.getDependences(_da, entity, occurringMethod);
 
 		if (!_t.isEmpty()) {
@@ -241,15 +228,15 @@ final class DependenceExtractor
 
 	/**
 	 * Retrieves the contexts for the given criteria base.
-	 * 
+	 *
 	 * @param criteriaBase of interest.
 	 * @return a collection of criteria.
 	 * @pre criteriaBase != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
-	public Collection<Stack<CallTriple>> getContextsFor(final Object criteriaBase) {
+	public <T> Collection<Stack<CallTriple>> getContextsFor(final T criteriaBase) {
 		@SuppressWarnings("unchecked") final Collection<Stack<CallTriple>> _result = MapUtils.queryObject(
-				criteriabase2contexts, criteriaBase, Collections.EMPTY_SET);
+				criteriabase2contexts, criteriaBase, Collections.<Stack<CallTriple>>emptySet());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getContextsFor(criteriaBase = " + criteriaBase + ") -  : _result = " + _result);
@@ -260,31 +247,27 @@ final class DependenceExtractor
 
 	/**
 	 * Sets the information that maps dependence id's to context retriever to be used.
-	 * 
+	 *
 	 * @param map a map from dependence analysis id to context retriever to be used with it.
 	 * @pre map != null and map.oclIsKindOf(Map(Object, ICallingContextRetriever))
-	 * @pre map.keySet()->forall( o | o.equals(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA) or
-	 *      o.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) or o.equals(IDependencyAnalysis.INTERFERENCE_DA) or
-	 *      o.equals(IDependencyAnalysis.READY_DA) or o.equals(IDependencyAnalysis.CONTROL_DA) or
-	 *      o.equals(IDependencyAnalysis.DIVERGENCE_DA) or o.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
 	 */
-	public void setDepID2ContextRetrieverMapping(final Map<Comparable, ICallingContextRetriever> map) {
+	public void setDepID2ContextRetrieverMapping(final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> map) {
 		depID2ctxtRetriever.putAll(map);
 	}
 
 	/**
 	 * Retrieves a collection of dependence pairs based on last trigger set.
-	 * 
+	 *
 	 * @return a collection of criteria.
 	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
 	 */
-	Collection<Object> getDependences() {
+	Collection<?> getDependences() {
 		return Collections.unmodifiableCollection(dependences);
 	}
 
 	/**
 	 * Sets the value of <code>retriever</code>.
-	 * 
+	 *
 	 * @param theRetriever the new value of <code>retriever</code>.
 	 */
 	void setDependenceRetriever(final IDependenceRetriver theRetriever) {
@@ -293,7 +276,7 @@ final class DependenceExtractor
 
 	/**
 	 * Sets the dependee/dependent. It also clears information pertaining to the previous trigger.
-	 * 
+	 *
 	 * @param theEntity is the dependent/dependee.
 	 * @param method in which the entity occurs.
 	 * @pre theEntity != null and method != null
@@ -307,25 +290,24 @@ final class DependenceExtractor
 
 	/**
 	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given interprocedural dependence analysis.
-	 * 
+	 *
 	 * @param ids of the dependence analysis from which <code>criteriaBases</code> was generated.
 	 * @param criteriaBases for which contexts are required.
 	 * @throws IllegalArgumentException when the preconditions are not satisfied.
 	 * @pre ids != null and criteriaBases != null
-	 * @pre ids.oclIsKindOf(Collection(String)) and criteriaBases.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-	 * @pre ids.contains(IDependencyAnalysis.READY_DA) or ids.contains(IDependencyAnalysis.INTERFERENCE_DA) or
-	 *      ids.contains(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) or ids.contains(IDependencyAnalysis.SYNCHRONIZATION_DA)
+	 * @pre ids.contains(IDependencyAnalysis.DependenceSort.READY_DA) or ids.contains(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) or
+	 *      ids.contains(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA) or ids.contains(IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA)
 	 */
-	private void populateContextsForInterProceduralDependences(final Collection<Comparable> ids,
+	private void populateContextsForInterProceduralDependences(final Collection<IDependencyAnalysis.DependenceSort> ids,
 			final Collection<?> criteriaBases) {
 		final IProgramPointRetriever _result;
 
-		if (ids.contains(IDependencyAnalysis.READY_DA)) {
+		if (ids.contains(IDependencyAnalysis.DependenceSort.READY_DA)) {
 			_result = READY_DA_PPR;
-		} else if (ids.contains(IDependencyAnalysis.INTERFERENCE_DA)
-				|| ids.contains(IDependencyAnalysis.REFERENCE_BASED_DATA_DA)) {
+		} else if (ids.contains(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA)
+				|| ids.contains(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA)) {
 			_result = REFERENTIAL_DA_PPR;
-		} else if (ids.contains(IDependencyAnalysis.SYNCHRONIZATION_DA)) {
+		} else if (ids.contains(IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA)) {
 			_result = SYNCHRONIZATION_DA_PPR;
 		} else {
 			throw new IllegalArgumentException("da has to have one of these Ids mentioned in the documentation. - " + ids);
@@ -333,7 +315,7 @@ final class DependenceExtractor
 
 		final IProgramPointRetriever _ppr = _result;
 
-		for (final Iterator<Comparable> _i = SetUtils.intersection(ids, depID2ctxtRetriever.keySet()).iterator(); _i
+		for (final Iterator<IDependencyAnalysis.DependenceSort> _i = SetUtils.intersection(ids, depID2ctxtRetriever.keySet()).iterator(); _i
 				.hasNext();) {
 			final ICallingContextRetriever _ctxtRetriever = depID2ctxtRetriever.get(_i.next());
 			_ctxtRetriever.setInfoFor(ICallingContextRetriever.Identifiers.SRC_ENTITY, entity);
@@ -361,15 +343,13 @@ final class DependenceExtractor
 
 							final Collection<Stack<CallTriple>> _ctxts = _ctxtRetriever
 									.getCallingContextsForProgramPoint(_context);
-							MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts,
-									CALLING_CONTEXT_COLLECTION_FACTORY);
+							MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts);
 						}
 					} else {
 						_context.setRootMethod(_criteriabaseMethod);
 
 						final Collection<Stack<CallTriple>> _ctxts = _ctxtRetriever.getCallingContextsForThis(_context);
-						MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts,
-								CALLING_CONTEXT_COLLECTION_FACTORY);
+						MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts);
 					}
 				}
 			}
@@ -378,37 +358,34 @@ final class DependenceExtractor
 
 	/**
 	 * Populates the contexts in <code>criteriabase2contexts</code> based on the given dependence analysis.
-	 * 
+	 *
 	 * @param da to be used while populating the map.
 	 * @param criteriaBases for which contexts need to be retrieved.
 	 * @pre da != null and criteriaBases != null and criteriaBases
 	 */
-	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da, final Collection<Object> criteriaBases) {
+	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis<?, ?, ?, ?, ?, ?> da, final Collection<?> criteriaBases) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("populateCriteriaBaseToContextsMap(IDependencyAnalysis da=" + da.getIds()
 					+ ", Collection criteriaBases=" + criteriaBases + ") - BEGIN");
 		}
 
-		final Collection<? extends Comparable<?>> _ids = da.getIds();
+		final Collection<IDependencyAnalysis.DependenceSort> _ids = da.getIds();
 
-		if (_ids.contains(IDependencyAnalysis.CONTROL_DA) || _ids.contains(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)) {
-			for (final Iterator<Object> _i = criteriaBases.iterator(); _i.hasNext();) {
-				MapUtils.putIntoCollectionInMap(criteriabase2contexts, _i.next(), engine.getCopyOfCallStackCache(),
-						CALLING_CONTEXT_COLLECTION_FACTORY);
+		if (_ids.contains(IDependencyAnalysis.DependenceSort.CONTROL_DA) || _ids.contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
+			for (final Iterator<?> _i = criteriaBases.iterator(); _i.hasNext();) {
+				MapUtils.putIntoCollectionInMap(criteriabase2contexts, _i.next(), engine.getCopyOfCallStackCache());
 			}
 		} else if (CollectionUtils.containsAny(_ids, depID2ctxtRetriever.keySet())) {
-			final Collection<Object> _t = criteriaBases;
-			populateContextsForInterProceduralDependences(_ids, _t);
+			populateContextsForInterProceduralDependences(_ids, criteriaBases);
 		} else {
 			// if there are no context retrievers for the given dependence analysis, then return a null context.
 			for (Object _cb : criteriaBases) {
-				MapUtils.putIntoCollectionInMap(criteriabase2contexts, _cb, (Stack<CallTriple>) null,
-						CALLING_CONTEXT_COLLECTION_FACTORY);
+				MapUtils.putIntoCollectionInMap(criteriabase2contexts, _cb, (Stack<CallTriple>) null);
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			final List<Comparable<Object>> _t = new ArrayList<Comparable<Object>>(_ids);
+			final List<IDependencyAnalysis.DependenceSort> _t = new ArrayList<IDependencyAnalysis.DependenceSort>(_ids);
 			Collections.sort(_t);
 			LOGGER.debug("populateDependenceToContextsMap(): criteriabases2contexts - " + criteriabase2contexts + " - END");
 		}

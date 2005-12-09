@@ -86,7 +86,7 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	/**
 	 * The id of this interface.
 	 */
-	Comparable<?> ID = "Monitor Information";
+	Comparable<String> ID = "Monitor Information";
 
 	/**
 	 * Retrieves the statements enclosed by the given monitor triple. Only the statements occurring in the method in which the
@@ -134,7 +134,6 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * from within the monitor (it is directly nested or nested in a method reachable via a call in the monitor) in the source
 	 * node.
 	 * 
-	 * @param <N> DOCUMENT ME!
 	 * @param callgraphInfo to be used to generate an interprocedural graph. If this parameter is <code>null</code>,
 	 *            intraprocedural monitor graph is generated.
 	 * @return a graph
