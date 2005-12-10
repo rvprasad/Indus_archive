@@ -326,7 +326,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			_cgi.createCallGraphInfo(_ofaci.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor
+			new PrintWriter(_stream).write("STATISTICS: " + MapUtils.verbosePrint(new TreeMap(_countingProcessor
 					.getStatistics())));
 			writeInfo(_stream.toString());
 

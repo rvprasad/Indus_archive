@@ -21,27 +21,21 @@ import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
-
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
-
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
@@ -57,9 +51,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-
 import java.net.URL;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,27 +66,19 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-
 import org.eclipse.swt.layout.RowLayout;
-
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-
 import org.jibx.runtime.JiBXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.Printer;
 import soot.SootClass;
@@ -112,83 +96,83 @@ import soot.Value;
 public class SliceXMLizerCLI
   extends SootBasedDriver
   implements IToolProgressListener {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(SliceXMLizerCLI.class);
 
-	/** 
+	/**
 	 * This is the name of the configuration file to use.
 	 */
 	private static String configFileName;
 
-	/** 
+	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
 	 */
 	protected String outputDirectory;
 
-	/** 
+	/**
 	 * The instance of the slicer tool.
 	 */
 	SlicerTool<?> slicer;
 
-	/** 
+	/**
 	 * This directory into which jimple should be dumped.
 	 */
 	String jimpleXMLDumpDir;
 
-	/** 
+	/**
 	 * This is the names of the classes that need to be retained when optimizing the slice for space.
 	 */
 	private Collection<String> retentionList;
 
-	/** 
+	/**
 	 * The id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
-	/** 
+	/**
 	 * The name of the criteria specification file.
 	 */
 	private String criteriaSpecFileName;
 
-	/** 
+	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
 	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
-	/** 
+	/**
 	 * The name of the slice scope specification file.
 	 */
 	private String sliceScopeSpecFileName;
 
-	/** 
+	/**
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
 	 */
 	private boolean postResJimpleDump;
 
-	/** 
+	/**
 	 * This indicates if jimple representation of the system after residualiztion should be dumped in XML form.
 	 */
 	private boolean postResXMLJimpleDump;
 
-	/** 
+	/**
 	 * This indicates if jimple representation of the system after slicing and before residualization should be dumped.
 	 */
 	private boolean preResJimpleDump;
 
-	/** 
+	/**
 	 * This indicates if jimple representation of the system after slicing and before residualiztion should be dumped in XML
 	 * form.
 	 */
 	private boolean preResXMLJimpleDump;
 
-	/** 
+	/**
 	 * This indicates if the slice should be residualized.
 	 */
 	private boolean residualize;
 
-	/** 
+	/**
 	 * This indicates if the xml representation of the slice should be generated.
 	 */
 	private boolean shouldWriteSliceXML;
@@ -753,7 +737,7 @@ public class SliceXMLizerCLI
 			_processor.unhook(_pc);
 
 
-			LOGGER.info(MapUtils.verbosePrint("PRE SLICING STATISTICS:", _processor.getStatistics()));
+			LOGGER.info("PRE SLICING STATISTICS:" + MapUtils.verbosePrint(_processor.getStatistics()));
 
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
 			_processor.hookup(_pc);
@@ -761,7 +745,7 @@ public class SliceXMLizerCLI
 			_pc.process();
 			_processor.unhook(_pc);
 
-			LOGGER.info(MapUtils.verbosePrint("POST SLICING STATISTICS:", _processor.getStatistics()));
+			LOGGER.info("POST SLICING STATISTICS:" + MapUtils.verbosePrint(_processor.getStatistics()));
 		}
 	}
 

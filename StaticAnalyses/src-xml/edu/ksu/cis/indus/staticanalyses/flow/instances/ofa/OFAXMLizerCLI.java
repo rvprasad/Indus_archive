@@ -307,7 +307,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			new PrintWriter(_stream).write(MapUtils.verbosePrint("STATISTICS:",
+			new PrintWriter(_stream).write("STATISTICS: " + MapUtils.verbosePrint(
 					new TreeMap<MetricKeys, Map<Object, Integer>>(_countingProcessor.getStatistics())));
 			writeInfo(_stream.toString());
 

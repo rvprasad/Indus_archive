@@ -61,7 +61,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class calculates the dependence information as discussed in concurrency-theory.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -122,7 +122,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * This caches dependence information as pair of statement and method.
-	 * 
+	 *
 	 * @invariant dependenceCache.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 */
 	private final Map<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> dependenceCache = new HashMap<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>();
@@ -139,7 +139,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param theTool that uses this instance.
 	 * @param ida to be used.
 	 * @param lbe to be used.
@@ -212,10 +212,12 @@ class DependenceAndMayFollowInfoCalculator
 
 		if (_c != null) {
 			final Collection<String> _birLocs = tool.generateBIRRep(_pair, false);
-			final Collection<Pair<AssignStmt,SootMethod>> _dependees = interferenceDA.getDependees((AssignStmt) _stmt, _currentMethod);
+			final Collection<Pair<AssignStmt, SootMethod>> _dependees = interferenceDA.getDependees((AssignStmt) _stmt,
+					_currentMethod);
 			addToDependenceCache(_pair, _dependees, _c, _birLocs, _flag);
 
-			final Collection<Pair<AssignStmt, SootMethod>> _dependents = interferenceDA.getDependents((AssignStmt) _stmt, _currentMethod);
+			final Collection<Pair<AssignStmt, SootMethod>> _dependents = interferenceDA.getDependents((AssignStmt) _stmt,
+					_currentMethod);
 			addToDependenceCache(_pair, _dependents, _c, _birLocs, _flag);
 			_c.addAll(_birLocs);
 		}
@@ -249,7 +251,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Sets application class filtering options for various class of operations.
-	 * 
+	 *
 	 * @param lockAcq <code>true</code> indicates that only lock acquisition operation in application classes should be
 	 *            considered; <code>false</code>, otherwise.
 	 * @param fieldRef <code>true</code> indicates that only field reference operation in application classes should be
@@ -324,7 +326,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Writes the data to files and reads it to verify the integrity.
-	 * 
+	 *
 	 * @throws IllegalStateException when file i/o error occurs or the objects cannot be serialized back.
 	 */
 	void writeDataToFiles() throws IllegalStateException {
@@ -378,8 +380,8 @@ class DependenceAndMayFollowInfoCalculator
 			_input6.close();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("consolidate()" + MapUtils.verbosePrint("Dependence Relation", _temp1) + "\n"
-						+ MapUtils.verbosePrint("May Follow Relation", _temp3) + "\n" + "Known Transitions:\n"
+				LOGGER.debug("consolidate() - Dependence Relation -" + MapUtils.verbosePrint(_temp1)
+						+ "\n May Follow Relation - " + MapUtils.verbosePrint(_temp3) + "\n" + "Known Transitions:\n"
 						+ CollectionUtils.verbosePrint(_temp2) + "\nLock Acquisitions:\n"
 						+ CollectionUtils.prettyPrint(_temp4) + "\nArray Refs:\n" + CollectionUtils.prettyPrint(_temp5)
 						+ "\nField Refs:\n" + CollectionUtils.prettyPrint(_temp6));
@@ -405,7 +407,7 @@ class DependenceAndMayFollowInfoCalculator
 	/**
 	 * Adds the given pair and it's dependence information to the dependence cache after filtering it according to
 	 * <code>applicationClassOnly</code>.
-	 * 
+	 *
 	 * @param p is the source of dependence.
 	 * @param dependence to be added
 	 * @param equivalents is the collection of location of equivalents of an operation class that needs to be updated.
@@ -416,11 +418,13 @@ class DependenceAndMayFollowInfoCalculator
 	 * @pre p.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post equivalents.containsAll(equivalents$pre)
 	 */
-	private void addToDependenceCache(final Pair<? extends Stmt, SootMethod> p, final Collection<? extends Pair<? extends Stmt, SootMethod>> dependence,
-			final Collection<String> equivalents, final Collection<String> birLocs, final boolean applicationClassesOnly) {
+	private void addToDependenceCache(final Pair<? extends Stmt, SootMethod> p,
+			final Collection<? extends Pair<? extends Stmt, SootMethod>> dependence, final Collection<String> equivalents,
+			final Collection<String> birLocs, final boolean applicationClassesOnly) {
 		if (!applicationClassesOnly || p.getSecond().getDeclaringClass().isApplicationClass()) {
 			if (!dependence.isEmpty()) {
-				final Collection<Pair<? extends Stmt, SootMethod>> _t = new ArrayList<Pair<? extends Stmt, SootMethod>>(dependence);
+				final Collection<Pair<? extends Stmt, SootMethod>> _t = new ArrayList<Pair<? extends Stmt, SootMethod>>(
+						dependence);
 
 				if (applicationClassesOnly) {
 					CollectionUtils.filter(dependence, APPLICATION_CLASS_ONLY_PREDICATE);
@@ -440,11 +444,13 @@ class DependenceAndMayFollowInfoCalculator
 
 		final Set<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _entrySet = dependenceCache
 				.entrySet();
-		final Iterator<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _i = _entrySet.iterator();
+		final Iterator<Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>> _i = _entrySet
+				.iterator();
 		final int _iEnd = _entrySet.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> _entry = _i.next();
+			final Map.Entry<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> _entry = _i
+					.next();
 			final Pair<? extends Stmt, SootMethod> _pair = _entry.getKey();
 			final Collection<Pair<? extends Stmt, SootMethod>> _depends = _entry.getValue();
 			final Collection<String> _t = tool.generateBIRRep(_pair, false);

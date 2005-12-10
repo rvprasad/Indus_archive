@@ -14,9 +14,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
-import edu.ksu.cis.indus.common.ReflectionBasedSupertypePredicate;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
-import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.ReflectionBasedSupertypePredicate;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,7 +28,7 @@ import soot.jimple.Stmt;
 /**
  * This class can be used to generate slice criteria based on statements of certain types/classes specified by the user. The
  * criteria is also guided by a specification matcher.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -50,11 +49,11 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	/**
 	 * This is used to check type conformance.
 	 */
-	private final IPredicate<Class<? extends Stmt>> subClassPredicate = new ReflectionBasedSupertypePredicate<Stmt>();
+	private final ReflectionBasedSupertypePredicate<Stmt> subClassPredicate = new ReflectionBasedSupertypePredicate<Stmt>();
 
 	/**
 	 * Sets the types of the statements to be considered as slice criteria.
-	 * 
+	 *
 	 * @param <T> DOCUMENT ME!
 	 * @param types of the statements.
 	 * @pre types != null
@@ -68,6 +67,7 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 	 * @see AbstractStmtBasedSliceCriteriaGenerator#shouldConsiderStmt(Stmt)
 	 */
 	@Override protected boolean shouldConsiderStmt(final Stmt stmt) {
+		subClassPredicate.setsubType(stmt.getClass());
 		final boolean _result = CollectionUtils.exists(stmtTypes, subClassPredicate);
 
 		if (LOGGER.isDebugEnabled()) {

@@ -102,7 +102,7 @@ import soot.jimple.Stmt;
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -112,7 +112,7 @@ public class InfluenceChecker
 
 	/**
 	 * A node that represents a pair.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -132,7 +132,7 @@ public class InfluenceChecker
 
 		/**
 		 * Creates a new PairNode object.
-		 * 
+		 *
 		 * @param f first element of the pair.
 		 * @param s second element of the pair.
 		 */
@@ -174,7 +174,7 @@ public class InfluenceChecker
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -189,7 +189,7 @@ public class InfluenceChecker
 
 		/**
 		 * Creates an instance of this class.
-		 * 
+		 *
 		 * @param theLabel DOCUMENT ME!
 		 */
 		TransitionLabel(final String theLabel) {
@@ -253,7 +253,7 @@ public class InfluenceChecker
 
 	/**
 	 * A collection of dependence analyses.
-	 * 
+	 *
 	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
 	List<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
@@ -270,7 +270,7 @@ public class InfluenceChecker
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param b DOCUMENT ME!
 	 */
 	public InfluenceChecker(final boolean b) {
@@ -279,7 +279,7 @@ public class InfluenceChecker
 
 	/**
 	 * This is the entry point via command-line.
-	 * 
+	 *
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 * @pre args != null
@@ -369,7 +369,7 @@ public class InfluenceChecker
 
 	/**
 	 * Prints the help/usage info for this class.
-	 * 
+	 *
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
@@ -380,7 +380,7 @@ public class InfluenceChecker
 
 	/**
 	 * Drives the analyses.
-	 * 
+	 *
 	 * @param <T> dummy type parameter.
 	 */
 	private <T extends ITokens<T, Value>> void execute() {
@@ -452,7 +452,7 @@ public class InfluenceChecker
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
-		writeInfo(MapUtils.verbosePrint("STATISTICS:", _countingProcessor.getStatistics()));
+		writeInfo("STATISTICS: " + MapUtils.verbosePrint(_countingProcessor.getStatistics()));
 
 		_aliasUD.hookup(_cgipc);
 		_staticFieldUD.hookup(_cgipc);
@@ -483,7 +483,7 @@ public class InfluenceChecker
 
 	/**
 	 * Retrieve the automaton based on the type of influence check.
-	 * 
+	 *
 	 * @param type of influence check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @return an automaton.
 	 * @throws IllegalArgumentException if the type is not one of the specified values.
@@ -542,7 +542,7 @@ public class InfluenceChecker
 
 	/**
 	 * Retrieves the graph based on the type of influence check.
-	 * 
+	 *
 	 * @param type of influence check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @return an automaton.
 	 * @throws IllegalArgumentException if the type is not one of the specified values.
@@ -562,7 +562,7 @@ public class InfluenceChecker
 
 	/**
 	 * Retrieves the method from the class based on it's signature.
-	 * 
+	 *
 	 * @param clazz that contains the method.
 	 * @param methodSignature obviously.
 	 * @return the method of the given signature in the named class.
@@ -577,7 +577,7 @@ public class InfluenceChecker
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param args DOCUMENT ME!
 	 * @param type DOCUMENT ME!
 	 * @param targets DOCUMENT ME!
@@ -601,7 +601,7 @@ public class InfluenceChecker
 
 	/**
 	 * Retrieves the statement at the given index in the method.
-	 * 
+	 *
 	 * @param sm containing the statement.
 	 * @param index at which the statement occurs.
 	 * @return the statement.
@@ -614,7 +614,7 @@ public class InfluenceChecker
 
 	/**
 	 * Does the check.
-	 * 
+	 *
 	 * @param args DOCUMENT ME!
 	 * @param type of check. This has to be one of "ai", "ddi", "cdi", "ci", or "di".
 	 * @pre cl != null and type != null

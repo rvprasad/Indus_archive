@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -54,7 +54,20 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param <K> DOCUMENT ME!
+	 * @param <V> DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <K, V> Collection<V> getCollectionFromMap(Map<K, Collection<V>> map, K key) {
+		return getFromMapUsingFactory(map, key, SetUtils.<V> getFactory());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -62,12 +75,12 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> Collection<V> getEmptyCollectionFromMap(final Map<K, Collection<V>> map, final K key) {
-		return getFromMap(map, key, Collections.<V>emptyList());
+		return getFromMap(map, key, Collections.<V> emptyList());
 	}
-	
+
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -75,12 +88,12 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> List<V> getEmptyListFromMap(final Map<K, List<V>> map, final K key) {
-		return getFromMap(map, key, Collections.<V>emptyList());
+		return getFromMap(map, key, Collections.<V> emptyList());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -89,12 +102,12 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, K2, V2> Map<K2, V2> getEmptyMapFromMap(final Map<K, Map<K2, V2>> map, final K key) {
-		return getFromMap(map, key, Collections.<K2, V2>emptyMap());
+		return getFromMap(map, key, Collections.<K2, V2> emptyMap());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -102,21 +115,21 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> Set<V> getEmptySetFromMap(final Map<K, Set<V>> map, final K key) {
-		return getFromMap(map, key, Collections.<V>emptySet());
+		return getFromMap(map, key, Collections.<V> emptySet());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> IFactory<Map<K, V>> getFactory() {
 		return (IFactory<Map<K, V>>) MAP_FACTORY;
 	}
-	
+
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param defaultValue DOCUMENT ME!
@@ -137,7 +150,7 @@ public final class MapUtils {
 	/**
 	 * Retrieves the value for a key from the map. If the key has no mapping, a new mapping from the key to the given default
 	 * value is inserted into the map.
-	 * 
+	 *
 	 * @param <T1> The type of keys in the input map.
 	 * @param <T2> The type of values in the input map.
 	 * @param <T3> The type of the key.
@@ -159,7 +172,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -170,9 +183,9 @@ public final class MapUtils {
 		return getFromMapUsingFactory(map, key, ListUtils.<V> getFactory());
 	}
 
-
 	/**
 	 * DOCUMENT ME!
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -180,15 +193,14 @@ public final class MapUtils {
 	 * @param <K2> DOCUMENT ME!
 	 * @param <V2> DOCUMENT ME!
 	 * @return DOCUMENT ME!
-	 * 
 	 */
 	public static <K, K1 extends K, K2, V2> Map<K2, V2> getMapFromMap(final Map<K, Map<K2, V2>> map, final K1 key) {
-		return getFromMapUsingFactory(map, key, MapUtils.<K2, V2>getFactory());
+		return getFromMapUsingFactory(map, key, MapUtils.<K2, V2> getFactory());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -200,23 +212,9 @@ public final class MapUtils {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param map DOCUMENT ME!
-	 * @param key DOCUMENT ME!
-	 * @param <K> DOCUMENT ME!
-	 * @param <V> DOCUMENT ME!
-	 * @return DOCUMENT ME!
-	 */
-	public static <K, V> Collection<V> getCollectionFromMap(Map<K, Collection<V>> map, K key) {
-		return getFromMapUsingFactory(map, key, SetUtils.<V> getFactory());
-	}
-
-	
-	/**
 	 * Inverts the given map. In the returned map, each key is mapped to a collection. This is to address situation where
 	 * multiple keys may map to the same value in the given map.
-	 * 
+	 *
 	 * @param <T1> the type of the keys in the given map.
 	 * @param <T2> the type of the elements in the given map.
 	 * @param map to be inverted.
@@ -249,7 +247,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -262,8 +260,8 @@ public final class MapUtils {
 	 * @param col DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoCollectionInMap(
-			final Map<T1, Collection<T2>> map, final T3 key, final Collection<T4> values) {
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putAllIntoCollectionInMap(final Map<T1, Collection<T2>> map,
+			final T3 key, final Collection<T4> values) {
 		return putAllIntoCollectionInMapUsingFactory(map, key, values, SetUtils.<T2> getFactory());
 	}
 
@@ -271,7 +269,7 @@ public final class MapUtils {
 	 * Puts all values in <code>values</code> into the value of the given key in the given map . If no collection exists
 	 * against the given key, the given collection is installed as the value for the given key and the values are loaded into
 	 * it.
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -298,7 +296,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -315,7 +313,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -332,7 +330,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -351,7 +349,7 @@ public final class MapUtils {
 	/**
 	 * Puts <code>value</code> into the value of the given key in the given map . If no collection exists against the given
 	 * key, the given collection is installed as the value for the given key and <code>value</code> is inserted into it.
-	 * 
+	 *
 	 * @param <T1> The type of the keys in the given map.
 	 * @param <T2> The type of the values in collection stored as values in the given map.
 	 * @param <T3> The type of the given key.
@@ -378,7 +376,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -388,14 +386,14 @@ public final class MapUtils {
 	 * @param values DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoListInMap(final Map<T1, Collection<T2>> map, final T3 key,
-			final T4 value) {
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoListInMap(final Map<T1, Collection<T2>> map,
+			final T3 key, final T4 value) {
 		return putIntoCollectionInMapUsingFactory(map, key, value, ListUtils.<T2> getFactory());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -405,14 +403,14 @@ public final class MapUtils {
 	 * @param values DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoSetInMap(final Map<T1, Collection<T2>> map, final T3 key,
-			final T4 value) {
+	public static <T1, T3 extends T1, T2, T4 extends T2> boolean putIntoSetInMap(final Map<T1, Collection<T2>> map,
+			final T3 key, final T4 value) {
 		return putIntoCollectionInMapUsingFactory(map, key, value, SetUtils.<T2> getFactory());
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -430,7 +428,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -451,17 +449,48 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param header DOCUMENT ME!
 	 * @param map DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T2> String verbosePrint(final String header, final Map<T1, T2> map) {
-		// TODO:
+	public static <T1, T2> String verbosePrint(final Map<T1, T2> map) {
+		final StringBuilder _sb = new StringBuilder();
+		final char _newline = '\n';
+		final char _indent = '\t';
+		for (final T1 _k : map.keySet()) {
+			final T2 _v = map.get(_k);
+			_sb.append(verbosePrintHelper(_indent, _k, _v));
+			_sb.append(_newline);
+		}
+		return _sb.toString();
+	}
 
-		return "fix me";
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param indent DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @param value DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private static <T1, T2> String verbosePrintHelper(final char indent, final T1 key, final T2 value) {
+		final StringBuilder _sb = new StringBuilder();
+		_sb.append(indent);
+		_sb.append(key);
+		_sb.append(" = ");
+
+		if (value instanceof Map) {
+			_sb.append(verbosePrint((Map) value));
+		} else {
+			_sb.append(value.toString());
+		}
+		_sb.append('\n');
+		return _sb.toString();
 	}
 }
 

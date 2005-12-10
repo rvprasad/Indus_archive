@@ -12,9 +12,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.collections;
 
-import edu.ksu.cis.indus.common.collections.IPredicate;
 
 /**
  * This class can be used to check if a given class object is the super type of a sub type.

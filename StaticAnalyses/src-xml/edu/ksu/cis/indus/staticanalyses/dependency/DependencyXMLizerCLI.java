@@ -424,7 +424,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 		writeInfo("EXCEPTION THROW INFO:\n" + ((ExceptionRaisingAnalysis) _eti).toString());
-		writeInfo(MapUtils.verbosePrint("STATISTICS:", new TreeMap(_countingProcessor.getStatistics())));
+		writeInfo("STATISTICS: " + MapUtils.verbosePrint(new TreeMap(_countingProcessor.getStatistics())));
 
 		_aliasUD.hookup(_cgipc);
 		_staticFieldUD.hookup(_cgipc);
