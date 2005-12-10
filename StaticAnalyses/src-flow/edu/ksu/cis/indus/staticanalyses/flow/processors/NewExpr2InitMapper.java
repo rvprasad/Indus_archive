@@ -90,7 +90,7 @@ public class NewExpr2InitMapper
 
 			final Map<NewExpr, Stmt> _ne2init = MapUtils.getMapFromMap(method2newExprStmt, _method);
 			_ne2init.put((NewExpr) _value, _stmt);
-		} else if (_value instanceof SpecialInvokeExpr) {
+		} else if (_value instanceof SpecialInvokeExpr && context.getStmt() instanceof InvokeStmt) {
 			final InvokeStmt _stmt = (InvokeStmt) context.getStmt();
 			final SootMethod _method = context.getCurrentMethod();
 			final SpecialInvokeExpr _expr = (SpecialInvokeExpr) _value;
