@@ -40,7 +40,6 @@ public class GraphInfo<N extends INode<N>> {
 	/**
 	 * The sequence of nodes in this graph. They are stored in the order that the nodes are created.
 	 * 
-	 * @invariant nodes.oclIsTypeOf(Sequence(INode))
 	 */
 	private final List<N> nodes = new ArrayList<N>();
 
@@ -53,13 +52,13 @@ public class GraphInfo<N extends INode<N>> {
 	 */
 	public final int getIndexOfNode(final N node) {
 		final int _result;
-		assert getNodes().contains(node);
 
 		if (node2index.containsKey(node)) {
 			_result = node2index.get(node);
 		} else {
 			_result = getNodes().indexOf(node);
 			node2index.put(node, _result);
+			assert _result != -1;
 		}
 		return _result;
 	}
