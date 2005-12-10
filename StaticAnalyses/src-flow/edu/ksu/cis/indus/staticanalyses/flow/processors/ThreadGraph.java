@@ -102,12 +102,12 @@ public class ThreadGraph
 		implements IThreadGraphInfo {
 
 	/**
-	 *
+	 * DOCUMENT ME!
 	 */
 	private static final String JAVA_LANG_RUNNABLE = "java.lang.Runnable";
 
 	/**
-	 *
+	 * DOCUMENT ME!
 	 */
 	private static final String JAVA_LANG_THREAD = "java.lang.Thread";
 
@@ -379,14 +379,14 @@ public class ThreadGraph
 
 		_result.append("Total number of threads: " + thread2methods.size() + "\n");
 
-		final List<Triple<? extends Object, ? extends Object, ? extends Object>> _temp1 = new ArrayList<Triple<? extends Object, ? extends Object, ? extends Object>>();
+		final List<Triple<?, ?, ?>> _temp1 = new ArrayList<Triple<?, ?, ?>>();
 		_temp1.addAll(thread2methods.keySet());
-		Collections.<Triple<? extends Object, ? extends Object, ? extends Object>> sort(_temp1,
+		Collections.<Triple<?, ?, ?>> sort(_temp1,
 				ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator<Triple<? extends Object, ? extends Object, ? extends Object>> _i = _temp1.iterator(); _i
+		for (final Iterator<Triple<?, ?, ?>> _i = _temp1.iterator(); _i
 				.hasNext();) {
-			final Triple<? extends Object, ? extends Object, ? extends Object> _triple = _i.next();
+			final Triple<?, ?, ?> _triple = _i.next();
 			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + "\n");
 			_l.clear();
 
