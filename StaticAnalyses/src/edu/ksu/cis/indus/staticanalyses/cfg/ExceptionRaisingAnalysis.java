@@ -69,7 +69,7 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This provides interprocedural analysis that calculates the propogation of uncaught exceptions.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -160,7 +160,7 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param factory to retrieve the statement graphs.
 	 * @param callgraph to be used.
 	 * @param environment to be analyzed.
@@ -254,15 +254,15 @@ public class ExceptionRaisingAnalysis
 					workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_callingStmt, _caller, _thrownType));
 				}
 			}
-			MapUtils.putIntoCollectionInMap(MapUtils.getMapFromMap(method2stmt2uncaughtExceptions, _method), 
+			MapUtils.putIntoCollectionInMap(MapUtils.getMapFromMap(method2stmt2uncaughtExceptions, _method),
 					_stmt, _thrownType);
 		}
 
 		workbagCache.clear();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("consolidate() - END - "
-					+ MapUtils.verbosePrint("method-to-stmt-to-throwntypes", method2stmt2uncaughtExceptions));
+			LOGGER.debug("consolidate() - END - method-to-stmt-to-throwntypes - "
+					+ MapUtils.verbosePrint(method2stmt2uncaughtExceptions));
 		}
 	}
 
@@ -358,7 +358,7 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Toggles the tracking of the named exception type for the given ast node type.
-	 * 
+	 *
 	 * @param astNodeType is a concrete jimple class that represents a <code>Value</code>, e.g, InstanceFieldRef.class
 	 * @param exceptionName is the name of the exception that needs to be tracked at the given ast node.
 	 * @param consider <code>true</code> indicates that the exception needs to be tracked; <code>false</code> indicates
@@ -380,8 +380,12 @@ public class ExceptionRaisingAnalysis
 	 */
 	@Override public String toString() {
 		final StringBuffer _sb = new StringBuffer();
-		_sb.append(MapUtils.verbosePrint("Caught+Uncaught Exception info", method2stmt2exceptions));
-		_sb.append(MapUtils.verbosePrint("Uncaught exception info", method2stmt2uncaughtExceptions));
+		_sb.append("Caught+Uncaught Exception info ");
+		_sb.append(MapUtils.verbosePrint(method2stmt2exceptions));
+		_sb.append("\n");
+		_sb.append("Uncaught exception info ");
+		_sb.append(MapUtils.verbosePrint(method2stmt2uncaughtExceptions));
+		_sb.append("\n");
 		return _sb.toString();
 	}
 
@@ -402,7 +406,7 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Retrieves the exception type names for the given ast node type.
-	 * 
+	 *
 	 * @param c is the ast node type.
 	 * @return a collection of exception type names.
 	 * @pre c != null
@@ -428,7 +432,7 @@ public class ExceptionRaisingAnalysis
 	/**
 	 * Checks if the given exception type thrown from the given statement in the given method is not caught in the given
 	 * method.
-	 * 
+	 *
 	 * @param stmt at which the exception occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param thrownType is the type of the exception that is thrown.
@@ -463,7 +467,7 @@ public class ExceptionRaisingAnalysis
 
 	/**
 	 * Process the given statement and method against the given exception type and updates the given collection.
-	 * 
+	 *
 	 * @param stmt that may cause the exception.
 	 * @param method contains <code>stmt</code>.
 	 * @param thrownTypes is the collection to which <code>thrownType</code> should be added if it is caught.
