@@ -485,6 +485,15 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getBackEdges()
+	 */
+	public final void setConnectivityCacheSize(final int size) {
+		final Map<Triple<N, N, Boolean>, Collection<N>> _t = new Cache<Triple<N, N, Boolean>, Collection<N>>(size);
+		_t.putAll(connectivityCache);
+		connectivityCache = _t;
+	}
+
+	/**
 	 * @see IDirectedGraph#getBackEdges()
 	 */
 	public final Collection<Pair<N, N>> getBackEdges() {
@@ -552,7 +561,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		// the order of the following check is important as connectivity depends on reachability.
 		if (hasCommonReachablesFrom(node1, forward, node2, forward)) {
 			final Triple<N, N, Boolean> _trp1 = new Triple<N, N, Boolean>(node1, node2, forward);
-			
+
 			if (connectivityCache.containsKey(_trp1)) {
 				_result = connectivityCache.get(_trp1);
 			} else {
