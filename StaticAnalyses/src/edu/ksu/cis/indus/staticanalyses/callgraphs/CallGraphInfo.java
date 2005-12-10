@@ -15,20 +15,19 @@
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.Cache;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.GraphReachabilityPredicate;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.Constants;
-
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.ArrayList;
@@ -46,13 +45,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 
 /**
  * This class calculates call graphCache information from the given object flow analysis.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
  * @author $Author$
  * @version $Revision$
@@ -63,7 +61,7 @@ public final class CallGraphInfo
 
 	/**
 	 * This is the interface is used to access call info in it's primitive form.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -72,7 +70,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the callee to callers map.
-		 * 
+		 *
 		 * @return a map for callee to callers.
 		 * @post result != null
 		 */
@@ -80,7 +78,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the caller to callees map.
-		 * 
+		 *
 		 * @return a map for caller to callees.
 		 * @post result != null
 		 */
@@ -88,7 +86,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the methods reachable in the system.
-		 * 
+		 *
 		 * @return a collection of reachable methods.
 		 * @post result != null
 		 */
@@ -97,7 +95,7 @@ public final class CallGraphInfo
 
 	/**
 	 * A comparator to compare call triples based on <code>toString()</code> value of the method being called.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -165,7 +163,7 @@ public final class CallGraphInfo
 	/**
 	 * This manages pair objects.
 	 */
-	private final PairManager pairMgr;
+	private final Pair.PairManager pairMgr;
 
 	/**
 	 * The collection of methods that are reachble in the system.
@@ -178,12 +176,18 @@ public final class CallGraphInfo
 	private List<List<SootMethod>> topDownSCC;
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
+			10000);
+
+	/**
 	 * Creates a new CallGraphInfo object.
-	 * 
+	 *
 	 * @param pairManager to be used when creating pair objects.
 	 * @pre pairManager != null
 	 */
-	public CallGraphInfo(final PairManager pairManager) {
+	public CallGraphInfo(final Pair.PairManager pairManager) {
 		pairMgr = pairManager;
 	}
 
@@ -215,7 +219,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Constructs call graph from the information provided by the given provider.
-	 * 
+	 *
 	 * @param provider provides call information to be consolidated.
 	 */
 	public void createCallGraphInfo(final ICallInfo provider) {
@@ -233,7 +237,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the set of method implementations that shall be invoked at the given callsite expression in the given method.
-	 * 
+	 *
 	 * @param invokeExpr the method call site.
 	 * @param context in which the call occurs.
 	 * @return a collection of methods.
@@ -246,13 +250,11 @@ public final class CallGraphInfo
 	public Collection<SootMethod> getCallees(final InvokeExpr invokeExpr, final Context context) {
 		final Collection<SootMethod> _result;
 
-		final Collection<CallTriple> _temp = MapUtils.queryObject(caller2callees, context.getCurrentMethod(), Collections
-				.<CallTriple> emptyList());
-
-		if (!_temp.isEmpty()) {
+		final SootMethod _currentMethod = context.getCurrentMethod();
+		if (!caller2callees.containsKey(_currentMethod)) {
 			_result = new ArrayList<SootMethod>();
 
-			for (final Iterator<CallTriple> _i = _temp.iterator(); _i.hasNext();) {
+			for (final Iterator<CallTriple> _i = caller2callees.get(_currentMethod).iterator(); _i.hasNext();) {
 				final CallTriple _ctrp = _i.next();
 
 				if (_ctrp.getExpr().equals(invokeExpr)) {
@@ -268,7 +270,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns a collection of methods called by <code>caller</code>.
-	 * 
+	 *
 	 * @param caller which calls the returned methods.
 	 * @return a collection of call sites along with callees at those sites.
 	 * @pre caller != null
@@ -283,11 +285,11 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the methods that call the given method independent of any context.
-	 * 
+	 *
 	 * @param callee is the method being called.
 	 * @return a collection of call-sites at which <code>callee</code> is called.
 	 * @pre callee != null
-	 * @post result != null and result->forall(o | o.oclIsKindOf(CallTriple))
+	 * @post result != null
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
 	 */
 	public Collection<CallTriple> getCallers(final SootMethod callee) {
@@ -301,32 +303,54 @@ public final class CallGraphInfo
 	 */
 	public Collection<SootMethod> getCommonMethodsReachableFrom(final SootMethod method1, final boolean forward1,
 			final SootMethod method2, final boolean forward2) {
-		final Collection<SimpleNode<SootMethod>> _result = graphCache.getCommonReachablesFrom(graphCache.queryNode(method1),
-				forward1, graphCache.queryNode(method2), forward2);
-		return CollectionUtils.collect(_result, graphCache.getObjectExtractor());
+		final Collection<SootMethod> _result;
+		
+		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), forward1, graphCache.queryNode(method2),
+				forward2)) {
+			final Collection<SimpleNode<SootMethod>> _r = graphCache.getCommonReachablesFrom(graphCache.queryNode(method1),
+					forward1, graphCache.queryNode(method2), forward2);
+			_result = CollectionUtils.collect(_r, graphCache.getObjectExtractor());
+		} else {
+			_result = Collections.emptyList();
+		}
+		return _result;
 	}
 
 	/**
 	 * @see ICallGraphInfo#getConnectivityCalleesFor(soot.SootMethod, soot.SootMethod)
 	 */
 	public Collection<SootMethod> getConnectivityCalleesFor(final SootMethod method1, final SootMethod method2) {
-		final Collection<SimpleNode<SootMethod>> _result = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
-				graphCache.queryNode(method2), true);
-		return CollectionUtils.collect(_result, graphCache.getObjectExtractor());
+		final Collection<SootMethod> _result;
+		
+		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), true, graphCache.queryNode(method2), true)) {
+			final Collection<SimpleNode<SootMethod>> _r = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
+					graphCache.queryNode(method2), true);
+			_result = CollectionUtils.collect(_r, graphCache.getObjectExtractor());
+		} else {
+			_result = Collections.emptyList();
+		}
+		return _result;
 	}
 
 	/**
 	 * @see ICallGraphInfo#getConnectivityCallersFor(soot.SootMethod, soot.SootMethod)
 	 */
 	public Collection<SootMethod> getConnectivityCallersFor(final SootMethod method1, final SootMethod method2) {
-		final Collection<SimpleNode<SootMethod>> _result = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
-				graphCache.queryNode(method2), false);
-		return CollectionUtils.collect(_result, graphCache.getObjectExtractor());
+		final Collection<SootMethod> _result;
+		
+		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), false, graphCache.queryNode(method2), false)) {
+			final Collection<SimpleNode<SootMethod>> _r = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
+					graphCache.queryNode(method2), false);
+			_result = CollectionUtils.collect(_r, graphCache.getObjectExtractor());
+		} else {
+			_result = Collections.emptyList();
+		}
+		return _result;
 	}
 
 	/**
 	 * Returns the methods that are the entry point for the analyzed system.
-	 * 
+	 *
 	 * @return a collection of methods.
 	 * @post result != null
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getEntryMethods()
@@ -386,7 +410,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the methods reachable in the analyzed system.
-	 * 
+	 *
 	 * @return a collection of methods.
 	 * @post result != null
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getReachableMethods()
@@ -435,19 +459,27 @@ public final class CallGraphInfo
 	 */
 	public boolean isCalleeReachableFromCallSite(final SootMethod callee, final Stmt stmt, final SootMethod caller) {
 		final boolean _result;
-		final SimpleNode<SootMethod> _n = graphCache.queryNode(callee);
-		final IPredicate<SootMethod> _rp = new GraphReachabilityPredicate<SimpleNode<SootMethod>, SootMethod>(_n, true,
-				graphCache);
+		final Triple<SootMethod, Stmt, SootMethod> _trp = new Triple<SootMethod, Stmt, SootMethod>(callee, stmt, caller);
 
-		if (_rp.evaluate(caller)) {
-			final InvokeExpr _ie = stmt.getInvokeExpr();
-			final Context _context = new Context();
-			_context.setRootMethod(caller);
+		if (!calleeCallSiteReachabilityCache.containsKey(_trp)) {
+			final SimpleNode<SootMethod> _n = graphCache.queryNode(callee);
+			final IPredicate<SootMethod> _rp = new GraphReachabilityPredicate<SimpleNode<SootMethod>, SootMethod>(_n, true,
+					graphCache);
 
-			final Collection<SootMethod> _methodsThatMayCallCallee = getCallees(_ie, _context);
-			_result = _methodsThatMayCallCallee.contains(callee) || CollectionUtils.exists(_methodsThatMayCallCallee, _rp);
+			if (_rp.evaluate(caller)) {
+				final InvokeExpr _ie = stmt.getInvokeExpr();
+				final Context _context = new Context();
+				_context.setRootMethod(caller);
+
+				final Collection<SootMethod> _methodsThatMayCallCallee = getCallees(_ie, _context);
+				_result = _methodsThatMayCallCallee.contains(callee)
+						|| CollectionUtils.exists(_methodsThatMayCallCallee, _rp);
+			} else {
+				_result = false;
+			}
+			calleeCallSiteReachabilityCache.put(_trp, Boolean.valueOf(_result));
 		} else {
-			_result = false;
+			_result = calleeCallSiteReachabilityCache.get(_trp).booleanValue();
 		}
 
 		return _result;
@@ -455,7 +487,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Checks if the given method is reachable in the analyzed system.
-	 * 
+	 *
 	 * @param method to be checked for reachabiliy.
 	 * @return <code>true</code> if <code>method</code> is reachable; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -479,11 +511,12 @@ public final class CallGraphInfo
 		heads.clear();
 		method2forwardReachableMethods.clear();
 		invocationsite2reachableMethods.clear();
+		calleeCallSiteReachabilityCache.clear();
 	}
 
 	/**
 	 * Provides a stringized representation of this call graphCache.
-	 * 
+	 *
 	 * @return stringized representation of the this call graphCache.
 	 */
 	@Override public String toString() {
@@ -494,8 +527,8 @@ public final class CallGraphInfo
 		_temp1.addAll(getEntryMethods());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
-			_result.append("\t" + ((SootMethod) _i.next()).getSignature());
+		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
+			_result.append("\t" + _i.next().getSignature());
 		}
 
 		_result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n" + getReachableMethods());
@@ -507,8 +540,8 @@ public final class CallGraphInfo
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
 		final List<CallTriple> _temp3 = new ArrayList<CallTriple>();
-		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
-			final SootMethod _caller = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
+			final SootMethod _caller = _i.next();
 			_result.append("\n" + _caller.getSignature() + "\n");
 			_temp3.clear();
 			_temp3.addAll(caller2callees.get(_caller));
@@ -525,8 +558,8 @@ public final class CallGraphInfo
 		_temp1.addAll(callee2callers.keySet());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
-			final SootMethod _callee = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
+			final SootMethod _callee = _i.next();
 			_result.append("\n" + _callee.getSignature() + "\n");
 			_temp3.clear();
 			_temp3.addAll(callee2callers.get(_callee));
@@ -543,10 +576,10 @@ public final class CallGraphInfo
 
 	/**
 	 * Testing purposes only.
-	 * 
+	 *
 	 * @return the cached copy of the call graph.
 	 */
-	IDirectedGraph getCallGraph() {
+	IDirectedGraph<?> getCallGraph() {
 		return graphCache;
 	}
 
@@ -603,7 +636,7 @@ public final class CallGraphInfo
 	/**
 	 * Retrieves the reachables in the given direction. The returned value exposes private data. Hence, callers should address
 	 * the issue of keeping this data private.
-	 * 
+	 *
 	 * @param root see IDirectedGraph.getReachableFrom(INode, boolean)
 	 * @param forward see IDirectedGraph.getReachableFrom(INode, boolean)
 	 * @return see IDirectedGraph.getReachableFrom(INode, boolean)
