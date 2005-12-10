@@ -179,7 +179,7 @@ public final class CallGraphInfo
 	 * DOCUMENT ME!
 	 */
 	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
-			10000);
+			Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * Creates a new CallGraphInfo object.
@@ -628,6 +628,8 @@ public final class CallGraphInfo
 			}
 		}
 
+		graphCache.setConnectivityCacheSize(Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: call graph consolidation");
 		}
