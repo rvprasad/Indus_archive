@@ -34,6 +34,14 @@ public final class Stack<T>
 	}
 
 	/**
+	 * @see java.util.ArrayList#clear()
+	 */
+	@Override public void clear() {
+		super.clear();
+		top = -1;
+	}
+
+	/**
 	 * @see java.util.ArrayList#clone()
 	 */
 	@Override public Stack<T> clone() {
