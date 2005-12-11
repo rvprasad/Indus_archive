@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  * DOCUMENT ME!
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -54,7 +54,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -67,7 +67,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -80,7 +80,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -93,7 +93,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -107,7 +107,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -120,7 +120,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> IFactory<Map<K, V>> getFactory() {
@@ -129,7 +129,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param defaultValue DOCUMENT ME!
@@ -150,7 +150,7 @@ public final class MapUtils {
 	/**
 	 * Retrieves the value for a key from the map. If the key has no mapping, a new mapping from the key to the given default
 	 * value is inserted into the map.
-	 *
+	 * 
 	 * @param <T1> The type of keys in the input map.
 	 * @param <T2> The type of values in the input map.
 	 * @param <T3> The type of the key.
@@ -172,7 +172,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -185,7 +185,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -200,7 +200,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param map DOCUMENT ME!
 	 * @param key DOCUMENT ME!
 	 * @param <K> DOCUMENT ME!
@@ -214,7 +214,7 @@ public final class MapUtils {
 	/**
 	 * Inverts the given map. In the returned map, each key is mapped to a collection. This is to address situation where
 	 * multiple keys may map to the same value in the given map.
-	 *
+	 * 
 	 * @param <T1> the type of the keys in the given map.
 	 * @param <T2> the type of the elements in the given map.
 	 * @param map to be inverted.
@@ -247,7 +247,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -269,7 +269,7 @@ public final class MapUtils {
 	 * Puts all values in <code>values</code> into the value of the given key in the given map . If no collection exists
 	 * against the given key, the given collection is installed as the value for the given key and the values are loaded into
 	 * it.
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -296,7 +296,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -313,7 +313,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -330,7 +330,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -349,7 +349,7 @@ public final class MapUtils {
 	/**
 	 * Puts <code>value</code> into the value of the given key in the given map . If no collection exists against the given
 	 * key, the given collection is installed as the value for the given key and <code>value</code> is inserted into it.
-	 *
+	 * 
 	 * @param <T1> The type of the keys in the given map.
 	 * @param <T2> The type of the values in collection stored as values in the given map.
 	 * @param <T3> The type of the given key.
@@ -376,7 +376,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -393,7 +393,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
@@ -410,7 +410,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -418,17 +418,55 @@ public final class MapUtils {
 	 * @param key DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T2, T3 extends T1> T2 queryObject(final Map<T1, T2> map, final T3 key) {
-		if (map.containsKey(key)) {
-			return map.get(key);
+	public static <T1, T2, T3 extends T1> Collection<T2> queryCollection(final Map<T1, ? extends Collection<T2>> map,
+			final T3 key) {
+		final Collection<T2> _value = map.get(key);
+		if (_value != null) {
+			return _value;
 		}
-		return null;
-
+		return Collections.<T2> emptySet();
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T2, T3 extends T1> List<T2> queryList(final Map<T1, ? extends List<T2>> map, final T3 key) {
+		final List<T2> _value = map.get(key);
+		if (_value != null) {
+			return _value;
+		}
+		return Collections.<T2> emptyList();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param <T4> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T2, T3, T4 extends T1> Map<T2, T3> queryMap(final Map<T1, ? extends Map<T2, T3>> map, final T4 key) {
+		final Map<T2, T3> _value = map.get(key);
+		if (_value != null) {
+			return _value;
+		}
+		return Collections.<T2, T3> emptyMap();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param <T3> DOCUMENT ME!
@@ -444,15 +482,31 @@ public final class MapUtils {
 			return map.get(key);
 		}
 		return defaultValue;
-
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
-	 * @param header DOCUMENT ME!
+	 * @param <T3> DOCUMENT ME!
+	 * @param map DOCUMENT ME!
+	 * @param key DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public static <T1, T2, T3 extends T1> Set<T2> querySet(final Map<T1, ? extends Set<T2>> map, final T3 key) {
+		final Set<T2> _value = map.get(key);
+		if (_value != null) {
+			return _value;
+		}
+		return Collections.<T2> emptySet();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <T2> DOCUMENT ME!
 	 * @param map DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -470,7 +524,7 @@ public final class MapUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param indent DOCUMENT ME!

@@ -44,7 +44,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class provides use-def information of static fields.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -157,11 +157,9 @@ public class StaticFieldUseDefInfo
 
 		if (useStmt.containsFieldRef()) {
 			final FieldRef _fieldRef = useStmt.getFieldRef();
-			final Map<Pair<Stmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _temp = MapUtils.queryObject(
-					use2defsMap, _fieldRef.getField(), Collections
-							.<Pair<Stmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> emptyMap());
-			_result = MapUtils.queryObject(_temp, new Pair<Stmt, SootMethod>(useStmt, method), Collections
-					.<Pair<DefinitionStmt, SootMethod>> emptySet());
+			final Map<Pair<Stmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _temp = MapUtils.queryMap(
+					use2defsMap, _fieldRef.getField());
+			_result = MapUtils.queryCollection(_temp, new Pair<Stmt, SootMethod>(useStmt, method));
 		} else {
 			_result = Collections.emptySet();
 		}
@@ -183,11 +181,9 @@ public class StaticFieldUseDefInfo
 
 		if (defStmt.containsFieldRef()) {
 			final FieldRef _fieldRef = defStmt.getFieldRef();
-			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _temp = MapUtils.queryObject(
-					def2usesMap, _fieldRef.getField(), Collections
-							.<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> emptyMap());
-			_result = MapUtils.queryObject(_temp, new Pair<DefinitionStmt, SootMethod>(defStmt, method), Collections
-					.<Pair<Stmt, SootMethod>> emptySet());
+			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<Stmt, SootMethod>>> _temp = MapUtils.queryMap(
+					def2usesMap, _fieldRef.getField());
+			_result = MapUtils.queryCollection(_temp, new Pair<DefinitionStmt, SootMethod>(defStmt, method));
 		} else {
 			_result = Collections.emptySet();
 		}

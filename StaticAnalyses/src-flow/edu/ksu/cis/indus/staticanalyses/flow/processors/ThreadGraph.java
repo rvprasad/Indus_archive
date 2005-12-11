@@ -289,7 +289,7 @@ public class ThreadGraph
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			final Triple<InvokeStmt, SootMethod, SootClass> _thread = new Triple<InvokeStmt, SootMethod, SootClass>(
 					startStmt, method, _sc);
-			_result.addAll(MapUtils.queryObject(thread2methods, _thread, Collections.<SootMethod> emptySet()));
+			_result.addAll(MapUtils.queryCollection(thread2methods, _thread));
 		}
 		return Collections.unmodifiableCollection(_result);
 	}
@@ -298,8 +298,8 @@ public class ThreadGraph
 	 * @see IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
 	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getExecutionThreads(final SootMethod sm) {
-		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = MapUtils.queryObject(method2threadCreationSite,
-				sm, Collections.<Triple<InvokeStmt, SootMethod, SootClass>> emptySet());
+		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = MapUtils.queryCollection(
+				method2threadCreationSite, sm);
 		return Collections.unmodifiableCollection(_result);
 	}
 
@@ -381,11 +381,9 @@ public class ThreadGraph
 
 		final List<Triple<?, ?, ?>> _temp1 = new ArrayList<Triple<?, ?, ?>>();
 		_temp1.addAll(thread2methods.keySet());
-		Collections.<Triple<?, ?, ?>> sort(_temp1,
-				ToStringBasedComparator.SINGLETON);
+		Collections.<Triple<?, ?, ?>> sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (final Iterator<Triple<?, ?, ?>> _i = _temp1.iterator(); _i
-				.hasNext();) {
+		for (final Iterator<Triple<?, ?, ?>> _i = _temp1.iterator(); _i.hasNext();) {
 			final Triple<?, ?, ?> _triple = _i.next();
 			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + "\n");
 			_l.clear();
@@ -527,14 +525,16 @@ public class ThreadGraph
 					SootPredicatesAndTransformers.NEW_EXPR_PREDICATE); _j.hasNext();) {
 				final NewExpr _value = (NewExpr) _j.next();
 				final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
-				final Collection<SootMethod> _methods = _class2runCallees.get(_sc);
-				final Triple<InvokeStmt, SootMethod, SootClass> _thread = new Triple<InvokeStmt, SootMethod, SootClass>(
-						_callStmt, _caller, _sc);
-				MapUtils.putAllIntoCollectionInMap(thread2methods, _thread, _methods);
+				if (_class2runCallees.containsKey(_sc)) {
+					final Collection<SootMethod> _methods = _class2runCallees.get(_sc);
+					final Triple<InvokeStmt, SootMethod, SootClass> _thread = new Triple<InvokeStmt, SootMethod, SootClass>(
+							_callStmt, _caller, _sc);
+					MapUtils.putAllIntoCollectionInMap(thread2methods, _thread, _methods);
 
-				for (final Iterator<SootMethod> _k = _methods.iterator(); _k.hasNext();) {
-					final SootMethod _sm = _k.next();
-					MapUtils.putIntoCollectionInMap(method2threadCreationSite, _sm, _thread);
+					for (final Iterator<SootMethod> _k = _methods.iterator(); _k.hasNext();) {
+						final SootMethod _sm = _k.next();
+						MapUtils.putIntoCollectionInMap(method2threadCreationSite, _sm, _thread);
+					}
 				}
 			}
 		}

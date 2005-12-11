@@ -58,14 +58,14 @@ import soot.jimple.Stmt;
  * is reachable from the def via the control flow graph or via the CFG, then def and use site are related by use-def relation.
  * The only exception for this case is when the def occurs in the class initializer. In this case, the defs can reach almost
  * all methods even if they are executed in a different thread from the use site.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class AliasedUseDefInfo
-		extends AbstractValueAnalyzerBasedProcessor
-		implements IUseDefInfo, IIdentification {
+		extends AbstractValueAnalyzerBasedProcessor<Value>
+		implements IUseDefInfo<Pair<DefinitionStmt, SootMethod>, Pair<DefinitionStmt, SootMethod>>, IIdentification {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -89,7 +89,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
-	 * 
+	 *
 	 * @invariant def2usesMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> def2usesMap;
@@ -101,22 +101,22 @@ public class AliasedUseDefInfo
 
 	/**
 	 * This is a map from use-sites to their corresponding to def-sites.
-	 * 
+	 *
 	 * @invariant use2defsMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> use2defsMap;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
-	 * 
+	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param bbgManager is the basic block graph manager to use.
 	 * @param pairManager to be used.
 	 * @param analysis to be used.
 	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager,
-			final CFGAnalysis analysis) {
+	public AliasedUseDefInfo(final IValueAnalyzer<Value> iva, final BasicBlockGraphMgr bbgManager,
+			final PairManager pairManager, final CFGAnalysis analysis) {
 		cfgAnalysis = analysis;
 		analyzer = iva;
 		bbgMgr = bbgManager;
@@ -158,7 +158,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Records naive interprocedural data dependence. All it does it records dependence between type conformant writes and
 	 * reads.
-	 * 
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	@Override public void consolidate() {
@@ -218,14 +218,14 @@ public class AliasedUseDefInfo
 	/**
 	 * {@inheritDoc}<i>This operation is unsupported in this implementation.</i>
 	 */
-	public Collection<Object> getDefs(@SuppressWarnings("unused") final Local local,
+	public Collection<Pair<DefinitionStmt, SootMethod>> getDefs(@SuppressWarnings("unused") final Local local,
 			@SuppressWarnings("unused") final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
 		throw new UnsupportedOperationException("This opertation is not supported.");
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param method in which the use occurs.
 	 * @pre context != null
 	 */
@@ -242,8 +242,8 @@ public class AliasedUseDefInfo
 			}
 
 			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _map = MapUtils
-					.queryObject(use2defsMap, _key);
-			_result = MapUtils.queryObject(_map, pairMgr.getPair((DefinitionStmt) useStmt, method), Collections.<Pair<DefinitionStmt, SootMethod>>emptySet());
+					.queryMap(use2defsMap, _key);
+			_result = MapUtils.queryCollection(_map, pairMgr.getPair((DefinitionStmt) useStmt, method));
 		}
 		return _result;
 	}
@@ -257,7 +257,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param method in which the definition occurs.
 	 * @pre method != null
 	 */
@@ -274,8 +274,8 @@ public class AliasedUseDefInfo
 			}
 
 			final Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _map = MapUtils
-					.queryObject(def2usesMap, _key);
-			_result = MapUtils.queryObject(_map, pairMgr.getPair(defStmt, method), Collections.<Pair<DefinitionStmt, SootMethod>>emptySet());
+					.queryMap(def2usesMap, _key);
+			_result = MapUtils.queryCollection(_map, pairMgr.getPair(defStmt, method));
 		}
 		return _result;
 	}
@@ -318,12 +318,12 @@ public class AliasedUseDefInfo
 					.getValue().entrySet().iterator(); _k.hasNext();) {
 				final Map.Entry<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>> _entry1 = _k
 						.next();
-				final Object _use = _entry1.getKey();
-				final Collection _defs = _entry1.getValue();
+				final Pair<DefinitionStmt, SootMethod> _use = _entry1.getKey();
+				final Collection<Pair<DefinitionStmt, SootMethod>> _defs = _entry1.getValue();
 				int _localEdgeCount = 0;
 
 				if (_defs != null) {
-					for (final Iterator _j = _defs.iterator(); _j.hasNext();) {
+					for (final Iterator<Pair<DefinitionStmt, SootMethod>> _j = _defs.iterator(); _j.hasNext();) {
 						final Object _def = _j.next();
 						_temp.append("\t\t" + _use + " <== " + _def + "\n");
 					}
@@ -359,7 +359,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Checks if the definition can reach the use site inter-procedurally. This implementation assumes that the definition
 	 * always reaches use site.
-	 * 
+	 *
 	 * @param defMethod is the context of definition. <i>ignored</i>
 	 * @param defStmt is the definition statement. <i>ignored</i>.
 	 * @param useMethod is the context of use. <i>ignored</i>.
@@ -374,7 +374,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * Checks if the given definition and use are related.
-	 * 
+	 *
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
@@ -425,8 +425,8 @@ public class AliasedUseDefInfo
 				// if the primaries of the access expression alias atleast one object.
 				_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), _context));
 			}
-		}		
-		
+		}
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Def: " + defSite + " / Use: " + useSite + " --> related:" + _result);
 		}
@@ -436,7 +436,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Checks if the def reaches the use site. If either of the methods are class initializers, <code>true</code> is
 	 * returned.
-	 * 
+	 *
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
@@ -460,7 +460,7 @@ public class AliasedUseDefInfo
 			}
 			_result = _r || isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 		}
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Def: " + defSite + " / Use: " + useSite + " --> related:" + _result);
 		}

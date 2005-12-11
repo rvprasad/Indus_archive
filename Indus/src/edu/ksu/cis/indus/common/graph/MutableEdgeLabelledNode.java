@@ -16,13 +16,12 @@ package edu.ksu.cis.indus.common.graph;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
  * This is an implementation of the node in mutable edge-labelled directed graphs.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -34,7 +33,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
 	 * @pre preds != null and succs != null
@@ -45,7 +44,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Removes all nodes that were related to this node via the given label by updating the given map and collection.
-	 * 
+	 *
 	 * @param <T1> the type of objects in the collection.
 	 * @param label of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
@@ -62,7 +61,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Removes the relation between this and the given node by updating the given map and collection.
-	 * 
+	 *
 	 * @param <T1> the node type.
 	 * @param node of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
@@ -83,7 +82,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Retains all elements in <code>col</code> that exist in any collection in <code>collections</code>.
-	 * 
+	 *
 	 * @param <T1> the type of objects in the collection.
 	 * @param col to be updated.
 	 * @param collections is a collection of collections.
@@ -91,10 +90,10 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	private static <T1> void retainAllIn(final Collection<T1> col, final Collection<Collection<T1>> collections) {
 		for (final Collection<T1> _c : collections) {
-			col.retainAll(_c);			
+			col.retainAll(_c);
 		}
 	}
-	
+
 	/**
 	 * @see IMutableEdgeLabelledNode#addIncomingEdgeLabelledFrom(IEdgeLabel, IMutableEdgeLabelledNode)
 	 */
@@ -170,7 +169,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	/**
 	 * Removes the edges with the given label that to/from the given node by updating the given map and collection. The map
 	 * and the collection dictate the to/from direction.
-	 * 
+	 *
 	 * @param label of interest.
 	 * @param node of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
@@ -180,7 +179,7 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 */
 	private boolean removeEdgesLabelledForViaUpdate(final IEdgeLabel label, final T node,
 			final Map<IEdgeLabel, Collection<T>> map, final Collection<T> col) {
-		final Collection<T> _t = MapUtils.queryObject(map, label, Collections.EMPTY_SET);
+		final Collection<T> _t = MapUtils.queryCollection(map, label);
 		final boolean _result;
 
 		if (_t.isEmpty()) {

@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,7 +56,7 @@ import soot.jimple.StaticFieldRef;
 
 /**
  * This implementation collects call information using rapid-type analysis.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -266,7 +265,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Initializes the collector.
-	 * 
+	 *
 	 * @param chaBasedCallInfo is the CHA based call info collector.
 	 * @param analysis is an instance of class hierarchy to use.
 	 * @pre chaBasedCallInfo != null and analysis != null
@@ -297,7 +296,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Sets the root methods for the analysis.
-	 * 
+	 *
 	 * @param rootMethods of course.
 	 */
 	public void setRootMethods(final Collection<SootMethod> rootMethods) {
@@ -320,7 +319,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Captures the class initializers stemming from the given class that are needed to execute the given method.
-	 * 
+	 *
 	 * @param sootClass of interest.
 	 * @param method of interest.
 	 * @pre sootClass != null and method != null
@@ -347,7 +346,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Process the given caller against previously processed class instantiations.
-	 * 
+	 *
 	 * @param caller of interest.
 	 * @param wb to be populated with work pertaining to expansion of call info.
 	 * @pre caller != null and wb != null
@@ -359,10 +358,8 @@ public final class RTABasedCallInfoCollector
 		}
 
 		final Collection<CallTriple> _chaCallees = new HashSet<CallTriple>();
-		_chaCallees.addAll(MapUtils.queryObject(chaCallInfo.getCallInfo().getCaller2CalleesMap(), caller, Collections
-				.<CallTriple> emptySet()));
-		_chaCallees.removeAll(MapUtils.queryObject(callInfoHolder.getCaller2CalleesMap(), caller, Collections
-				.<CallTriple> emptySet()));
+		_chaCallees.addAll(MapUtils.queryCollection(chaCallInfo.getCallInfo().getCaller2CalleesMap(), caller));
+		_chaCallees.removeAll(MapUtils.queryCollection(callInfoHolder.getCaller2CalleesMap(), caller));
 
 		final Iterator<CallTriple> _i = _chaCallees.iterator();
 		final int _iEnd = _chaCallees.size();
@@ -388,7 +385,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Process the newly instantiated classes to expand the call info.
-	 * 
+	 *
 	 * @param newClasses that were instantiated.
 	 * @param wb that will be populated with work pertaining to expansion of call info.
 	 * @pre newClasses != null and wb != null
@@ -408,8 +405,7 @@ public final class RTABasedCallInfoCollector
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final SootMethod _callee = _j.next();
-			final Collection<CallTriple> _callers = MapUtils.queryObject(_chaCallee2Callers, _callee, Collections
-					.<CallTriple> emptyList());
+			final Collection<CallTriple> _callers = MapUtils.queryCollection(_chaCallee2Callers, _callee);
 			final Iterator<CallTriple> _k = _callers.iterator();
 			final int _kEnd = _callers.size();
 			boolean _flag = false;

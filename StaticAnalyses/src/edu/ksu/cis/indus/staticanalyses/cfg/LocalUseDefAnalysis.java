@@ -46,7 +46,7 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class provides use-def information for local variables in a method.  The analysis is performed at statement level.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -76,7 +76,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Creates a new LocalDefsAnalysis object.
-	 * 
+	 *
 	 * @param graph is the control flow graph used to calculate the use-def info.
 	 * @pre graph != null
 	 */
@@ -98,7 +98,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
-	 * 
+	 *
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
 	 * @param method <i>ignored</i>.
@@ -107,13 +107,12 @@ public final class LocalUseDefAnalysis
 	 * @post result != null
 	 */
 	public Collection<DefinitionStmt> getDefs(final Local local, final Stmt stmt, @SuppressWarnings("unused") final SootMethod method) {
-		return Collections.unmodifiableCollection(MapUtils.queryObject(defInfo, new Pair<Local, Stmt>(local, stmt),
-				Collections.<DefinitionStmt>emptyList()));
+		return Collections.unmodifiableCollection(MapUtils.queryCollection(defInfo, new Pair<Local, Stmt>(local, stmt)));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param method <i>ignored</i>.
 	 */
 	public Collection<DefinitionStmt> getDefs(final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
@@ -139,7 +138,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Retrieves the uses of definitions at <code>stmt</code>.
-	 * 
+	 *
 	 * @param stmt in which a definition occurs.
 	 * @param method <i>ignored</i>.
 	 * @return a collection of statements.
@@ -147,7 +146,7 @@ public final class LocalUseDefAnalysis
 	 * @post result != null
 	 */
 	public Collection<Stmt> getUses(final DefinitionStmt stmt, @SuppressWarnings("unused") final SootMethod method) {
-		return MapUtils.queryObject(useInfo, stmt, Collections.<Stmt>emptyList());
+		return MapUtils.queryCollection(useInfo, stmt);
 	}
 
 	/**
@@ -159,7 +158,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Performs the analysis to calculate the info.
-	 * 
+	 *
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
 	 * @pre local2defs != null and listOfLocals != null
@@ -218,7 +217,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Extracts the info encoded in bits and captures as occurring between entities.
-	 * 
+	 *
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param localList is a list of the locals.
 	 * @pre local2defs != null and listOfLocals != null
@@ -258,7 +257,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Captures definition info into <code>local2defs</code>.
-	 * 
+	 *
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
 	 * @param stmt2localIndices maps a stmt to the set of local indices

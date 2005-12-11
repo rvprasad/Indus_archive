@@ -140,8 +140,7 @@ public class SharedWriteBasedEquivalence
 	 */
 	public Collection<Pair<AssignStmt, SootMethod>> getSharedWritesInEquivalenceClassOf(
 			final Pair<AssignStmt, SootMethod> pair) {
-		return Collections.unmodifiableCollection(MapUtils.queryObject(write2writes, pair, Collections
-				.<Pair<AssignStmt, SootMethod>> emptySet()));
+		return Collections.unmodifiableCollection(MapUtils.queryCollection(write2writes, pair));
 	}
 
 	/**

@@ -278,8 +278,7 @@ public final class CallGraphInfo
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallees(SootMethod)
 	 */
 	public Collection<CallTriple> getCallees(final SootMethod caller) {
-		final Collection<CallTriple> _callees = MapUtils.queryObject(caller2callees, caller, Collections
-				.<CallTriple> emptyList());
+		final Collection<CallTriple> _callees = MapUtils.queryCollection(caller2callees, caller);
 		return Collections.unmodifiableCollection(_callees);
 	}
 
@@ -293,8 +292,7 @@ public final class CallGraphInfo
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
 	 */
 	public Collection<CallTriple> getCallers(final SootMethod callee) {
-		final Collection<CallTriple> _callers = MapUtils.queryObject(callee2callers, callee, Collections
-				.<CallTriple> emptyList());
+		final Collection<CallTriple> _callers = MapUtils.queryCollection(callee2callers, callee);
 		return Collections.unmodifiableCollection(_callers);
 	}
 
@@ -304,7 +302,7 @@ public final class CallGraphInfo
 	public Collection<SootMethod> getCommonMethodsReachableFrom(final SootMethod method1, final boolean forward1,
 			final SootMethod method2, final boolean forward2) {
 		final Collection<SootMethod> _result;
-		
+
 		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), forward1, graphCache.queryNode(method2),
 				forward2)) {
 			final Collection<SimpleNode<SootMethod>> _r = graphCache.getCommonReachablesFrom(graphCache.queryNode(method1),
@@ -321,7 +319,7 @@ public final class CallGraphInfo
 	 */
 	public Collection<SootMethod> getConnectivityCalleesFor(final SootMethod method1, final SootMethod method2) {
 		final Collection<SootMethod> _result;
-		
+
 		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), true, graphCache.queryNode(method2), true)) {
 			final Collection<SimpleNode<SootMethod>> _r = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
 					graphCache.queryNode(method2), true);
@@ -337,7 +335,7 @@ public final class CallGraphInfo
 	 */
 	public Collection<SootMethod> getConnectivityCallersFor(final SootMethod method1, final SootMethod method2) {
 		final Collection<SootMethod> _result;
-		
+
 		if (graphCache.hasCommonReachablesFrom(graphCache.queryNode(method1), false, graphCache.queryNode(method2), false)) {
 			final Collection<SimpleNode<SootMethod>> _r = graphCache.getConnectivityNodesFor(graphCache.queryNode(method1),
 					graphCache.queryNode(method2), false);
@@ -615,8 +613,7 @@ public final class CallGraphInfo
 		for (final Iterator<SootMethod> _i = reachables.iterator(); _i.hasNext();) {
 			final SootMethod _caller = _i.next();
 			final SimpleNode<SootMethod> _callerNode = graphCache.getNode(_caller);
-			final Collection<CallTriple> _callees = MapUtils.queryObject(caller2callees, _caller, Collections
-					.<CallTriple> emptySet());
+			final Collection<CallTriple> _callees = MapUtils.queryCollection(caller2callees, _caller);
 
 			if (!_callees.isEmpty()) {
 				for (final Iterator<CallTriple> _j = _callees.iterator(); _j.hasNext();) {
@@ -629,7 +626,7 @@ public final class CallGraphInfo
 		}
 
 		graphCache.setConnectivityCacheSize(Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: call graph consolidation");
 		}

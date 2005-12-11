@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction
 
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -439,8 +438,7 @@ public class BackwardSlicingPart
 			exitTransformedMethods2exitpoints.put(callee, null);
 			_result = true;
 		} else if (expr) {
-			final Collection<Stmt> _temp = MapUtils.queryObject(exitTransformedMethods2exitpoints, callee, Collections
-					.<Stmt> emptySet());
+			final Collection<Stmt> _temp = MapUtils.queryCollection(exitTransformedMethods2exitpoints, callee);
 			final Iterator<Stmt> _i = _temp.iterator();
 			final int _iEnd = _temp.size();
 

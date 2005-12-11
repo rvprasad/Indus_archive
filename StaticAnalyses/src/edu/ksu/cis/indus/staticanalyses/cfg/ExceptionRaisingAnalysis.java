@@ -180,8 +180,7 @@ public class ExceptionRaisingAnalysis
 	 */
 	@Override public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
-		final Map<Stmt, Collection<SootClass>> _stmt2exceptions = MapUtils.getMapFromMap(method2stmt2exceptions,
-				_method);
+		final Map<Stmt, Collection<SootClass>> _stmt2exceptions = MapUtils.getMapFromMap(method2stmt2exceptions, _method);
 		final Collection<SootClass> _thrownTypes = MapUtils.getCollectionFromMap(_stmt2exceptions, stmt);
 
 		if (stmt instanceof ThrowStmt) {
@@ -251,11 +250,12 @@ public class ExceptionRaisingAnalysis
 				final Stmt _callingStmt = _ctrp.getStmt();
 
 				if (isThrownExceptionNotCaught(_callingStmt, _caller, _thrownType)) {
-					workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_callingStmt, _caller, _thrownType));
+					workbagCache.addWorkNoDuplicates(new Triple<Stmt, SootMethod, SootClass>(_callingStmt, _caller,
+							_thrownType));
 				}
 			}
-			MapUtils.putIntoCollectionInMap(MapUtils.getMapFromMap(method2stmt2uncaughtExceptions, _method),
-					_stmt, _thrownType);
+			MapUtils.putIntoCollectionInMap(MapUtils.getMapFromMap(method2stmt2uncaughtExceptions, _method), _stmt,
+					_thrownType);
 		}
 
 		workbagCache.clear();
@@ -270,8 +270,7 @@ public class ExceptionRaisingAnalysis
 	 * @see IExceptionRaisingInfo#doesStmtThrowUncaughtException(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public boolean doesStmtThrowUncaughtException(final Stmt stmt, final SootMethod method) {
-		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2uncaughtExceptions, method,
-				Collections.<Stmt, Collection<SootClass>>emptyMap());
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryMap(method2stmt2uncaughtExceptions, method);
 		return _map.containsKey(stmt);
 	}
 
@@ -279,9 +278,8 @@ public class ExceptionRaisingAnalysis
 	 * @see IExceptionRaisingInfo#getExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection<SootClass> getExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
-		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2exceptions, method,
-				Collections.<Stmt, Collection<SootClass>>emptyMap());
-		final Collection<SootClass> _col1 = MapUtils.queryObject(_map, stmt, Collections.<SootClass>emptySet());
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryMap(method2stmt2exceptions, method);
+		final Collection<SootClass> _col1 = MapUtils.queryCollection(_map, stmt);
 		final Collection<SootClass> _col2 = getUncaughtExceptionsThrownBy(stmt, method);
 		return SetUtils.union(_col1, _col2);
 	}
@@ -297,9 +295,8 @@ public class ExceptionRaisingAnalysis
 	 * @see IExceptionRaisingInfo#getUncaughtExceptionsThrownBy(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public Collection<SootClass> getUncaughtExceptionsThrownBy(final Stmt stmt, final SootMethod method) {
-		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryObject(method2stmt2uncaughtExceptions, method,
-				Collections.<Stmt, Collection<SootClass>>emptyMap());
-		return MapUtils.queryObject(_map, stmt, Collections.<SootClass>emptySet());
+		final Map<Stmt, Collection<SootClass>> _map = MapUtils.queryMap(method2stmt2uncaughtExceptions, method);
+		return MapUtils.queryCollection(_map, stmt);
 	}
 
 	/**
@@ -365,12 +362,12 @@ public class ExceptionRaisingAnalysis
 	 *            that the exception should not be tracked.
 	 * @pre astNodeType != null and exceptionName != null
 	 */
-	public void toggleExceptionsToTrack(final Class astNodeType, final String exceptionName, final boolean consider) {
+	public void toggleExceptionsToTrack(final Class<? extends Value> astNodeType, final String exceptionName,
+			final boolean consider) {
 		if (consider) {
 			MapUtils.putIntoCollectionInMap(astNodeType2thrownTypeNames, astNodeType, exceptionName);
 		} else {
-			final Collection<String> _typeNames = MapUtils.queryObject(astNodeType2thrownTypeNames, astNodeType,
-					Collections.<String>emptySet());
+			final Collection<String> _typeNames = MapUtils.queryCollection(astNodeType2thrownTypeNames, astNodeType);
 			_typeNames.remove(exceptionName);
 		}
 	}

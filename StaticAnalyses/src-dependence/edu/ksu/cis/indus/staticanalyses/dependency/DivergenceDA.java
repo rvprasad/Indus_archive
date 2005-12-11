@@ -56,7 +56,7 @@ import soot.jimple.Stmt;
  * This implementation does not capture intraprocedural dependence within loops. Hence, if there is a loop inside a loop, then
  * the statements in the outer loop are not flagged as being dependent on the inner loop.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -101,14 +101,14 @@ public final class DivergenceDA
 
 	/**
 	 * This maps methods to the inter-procedural divergence points they contain.
-	 * 
+	 *
 	 * @invariant method2interProcDivPoints.values()->forall(o | o->forall(p | p.containsInvokeExpr()))
 	 */
 	private final Map<SootMethod, Collection<Stmt>> method2interProcDivPoints = new HashMap<SootMethod, Collection<Stmt>>();
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param directionSensitiveInfo that controls the direction.
 	 * @param direction of the analysis
 	 * @pre info != null and direction != null
@@ -120,7 +120,7 @@ public final class DivergenceDA
 
 	/**
 	 * Retrieves an instance of divergence dependence analysis that calculates information in the specified direction.
-	 * 
+	 *
 	 * @param direction of the dependence information.
 	 * @return an instance of divergence dependence.
 	 * @throws IllegalArgumentException if direction does not satisfy the preconditions.
@@ -146,7 +146,7 @@ public final class DivergenceDA
 
 	/**
 	 * Calculates the divergence dependency in the methods.
-	 * 
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
@@ -181,7 +181,7 @@ public final class DivergenceDA
 
 	/**
 	 * Returns the statements on which the given statement depends on in the given method.
-	 * 
+	 *
 	 * @param dependentStmt is the statement for which dependees are requested.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of statements. However, in this case the collection contains only one statement as the .
@@ -189,20 +189,14 @@ public final class DivergenceDA
 	 *      java.lang.Object)
 	 */
 	public Collection<Stmt> getDependees(final Stmt dependentStmt, final SootMethod method) {
-		Collection<Stmt> _result = Collections.emptyList();
-		final Map<Stmt, Collection<Stmt>> _map = dependent2dependee.get(method);
-
-		if (_map != null) {
-			final List<Stmt> _emptyList = Collections.emptyList();
-			_result = MapUtils.queryObject(_map, dependentStmt, _emptyList);
-		}
-
-		return _result;
+		final Map<Stmt, Collection<Stmt>> _map = MapUtils.queryMap(dependent2dependee, method);
+		final Collection<Stmt> _queryCollection = MapUtils.queryCollection(_map, dependentStmt);
+		return Collections.unmodifiableCollection(_queryCollection);
 	}
 
 	/**
 	 * Returns the statements which depend on the given statement in the given method.
-	 * 
+	 *
 	 * @param dependeeStmt is the statement for which dependents are requested.
 	 * @param method in which <code>dependeeStmt</code> occurs.
 	 * @return a collection of statements.
@@ -210,10 +204,8 @@ public final class DivergenceDA
 	 *      java.lang.Object)
 	 */
 	public Collection<Stmt> getDependents(final Stmt dependeeStmt, final SootMethod method) {
-		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.queryObject(dependee2dependent, method, Collections
-				.<Stmt, Collection<Stmt>> emptyMap());
-		final List<Stmt> _list = Collections.emptyList();
-		final Collection<Stmt> _result = MapUtils.queryObject(_stmt2List, dependeeStmt, _list);
+		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.queryMap(dependee2dependent, method);
+		final Collection<Stmt> _result = MapUtils.queryCollection(_stmt2List, dependeeStmt);
 		return Collections.unmodifiableCollection(_result);
 	}
 
@@ -235,7 +227,7 @@ public final class DivergenceDA
 	/**
 	 * Sets if the analyses should consider the effects of method calls. This method may change the preprocessing requirements
 	 * of this analysis. Hence, it should be called
-	 * 
+	 *
 	 * @param consider <code>true</code> indicates call-sites that invoke methods containing pre-divergence points should be
 	 *            considered as pre-divergence points; <code>false</code>, otherwise.
 	 */
@@ -245,7 +237,7 @@ public final class DivergenceDA
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -296,7 +288,7 @@ public final class DivergenceDA
 
 	/**
 	 * Sets up internal data structures.
-	 * 
+	 *
 	 * @throws InitializationException when call graph service is not provided.
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
@@ -312,7 +304,7 @@ public final class DivergenceDA
 
 	/**
 	 * Calculates inter-basic block divergence dependence.
-	 * 
+	 *
 	 * @param method in which the basic blocks occur.
 	 * @param succsOfPreDivPoints are the successor basic blocks of pre-divergent basic blocks.
 	 * @param preDivPoints is the basic blocks which are the pre-divergent points.
@@ -364,7 +356,7 @@ public final class DivergenceDA
 
 	/**
 	 * Calculates intra-basic block divergence dependence.
-	 * 
+	 *
 	 * @param method in which the basic blocks occur.
 	 * @param preDivPoints are the basic blocks that contain pre-divergent points.
 	 * @return a collection of basic blocks that follow the blocks in <code>preDivPoints</code>.
@@ -423,7 +415,7 @@ public final class DivergenceDA
 	/**
 	 * Finds the pre-divergent points in terms of pre-divergent statements and populates the given map. It also captures the
 	 * methods in which pre-divergent points occur.
-	 * 
+	 *
 	 * @param method2preDivPoints maps methods (of interest) to a set of pre-divergent points. This is an out parameter.
 	 * @return the collection of pre-divergent methods.
 	 * @pre method2preDivPoints != null
@@ -479,7 +471,7 @@ public final class DivergenceDA
 
 	/**
 	 * Finds the pre-divergent points in terms of pre-divergent statements and populates the given map.
-	 * 
+	 *
 	 * @param method2preDivPoints maps a method to the set of pre-divergent statements in it. This is an out parameter.
 	 * @pre method2preDivPoints != null
 	 */
@@ -515,7 +507,7 @@ public final class DivergenceDA
 	 * <code>divPoint</code>. Given divergence point is not an interprocedural divergence point, then the only the
 	 * successors of <code>bb</code> that do not occur in the SCC of <code>bb</code> in <code>bbg</code> are considered
 	 * valid successors.
-	 * 
+	 *
 	 * @param divPoint of interest.
 	 * @param bb in which <code>divPoint</code> occurs.
 	 * @param bbg in which <code>bb</code> occurs.
@@ -545,7 +537,7 @@ public final class DivergenceDA
 
 	/**
 	 * Records dependence information across basic blocks while picking up basic blocks for further processing.
-	 * 
+	 *
 	 * @param method in which the dependence occurs.
 	 * @param preDivPoints are the pre-divergent basic blocks.
 	 * @param dependees are the dependees involved in depedence.
@@ -575,7 +567,7 @@ public final class DivergenceDA
 
 	/**
 	 * Records dependence information.
-	 * 
+	 *
 	 * @param dependees of course.
 	 * @param method in which the dependence occurs.
 	 * @param dependents of course.

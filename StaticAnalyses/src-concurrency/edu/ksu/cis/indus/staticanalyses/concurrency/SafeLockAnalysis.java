@@ -108,55 +108,55 @@ public class SafeLockAnalysis
 		}
 	}
 
-	/** 
+	/**
 	 * This is the id of safe lock related analysis.
 	 */
 	public static final Comparable<String> ID = "Safe Lock Analysis";
 
-	/** 
+	/**
 	 * The logger used to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(SafeLockAnalysis.class);
 
-	/** 
+	/**
 	 * The call graph to be used during analysis.
 	 */
 	ICallGraphInfo callgraphInfo;
 
-	/** 
+	/**
 	 * The monitor analysis to be used during analysis.
 	 */
 	IMonitorInfo<? extends IObjectNode<?, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> monitorInfo;
 
-	/** 
+	/**
 	 * The pair manager to be used during analysis.
 	 */
 	PairManager pairMgr;
 
-	/** 
+	/**
 	 * The map from wait invoking statements to the immediately enclosing method.
 	 *
 	 * @invariant waitStmt2method.oclIsKindOf(Map(InvokeStmt, SootMethod))
 	 */
 	final Map<InvokeStmt, SootMethod> waitStmt2method = new HashMap<InvokeStmt, SootMethod>();
 
-	/** 
+	/**
 	 * The value analyzer to be used.
 	 */
 	private IValueAnalyzer<Value> iva;
 
-	/** 
+	/**
 	 * This maps monitor to related monitors.  A monitor is related to other monitors if they may acquire the same lock.
 	 */
 	private Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> monitor2relatedMonitors = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
 
-	/** 
+	/**
 	 * This maps a monitor to a collection of wait that occur in the monitor.
 	 *
 	 */
 	private final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>> monitor2waits = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
 
-	/** 
+	/**
 	 * The collection of triples of unsafe monitors.
 	 */
 	private final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> unsafeMonitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
@@ -465,7 +465,7 @@ public class SafeLockAnalysis
 
 		while (_wb.hasWork()) {
 			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor = _wb.getWork();
-			_wb.addAllWork(MapUtils.queryObject(monitor2relatedMonitors, _monitor, Collections.<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>emptySet()));
+			_wb.addAllWork(MapUtils.queryCollection(monitor2relatedMonitors, _monitor));
 
 			final N _node = monitorGraph.queryNode(_monitor);
 			_wb.addAllWork(CollectionUtils.collect(monitorGraph.getReachablesFrom(_node, false),
@@ -485,7 +485,7 @@ public class SafeLockAnalysis
 	 */
 	private boolean safeByCondition1(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor, final IMonitorGraph<?> monitorGraph) {
 		final Collection<SootMethod> _waitMethods = new HashSet<SootMethod>();
-		final Collection<Pair<InvokeStmt, SootMethod>> _waits = MapUtils.queryObject(monitor2waits, monitor, Collections.<Pair<InvokeStmt, SootMethod>>emptySet());
+		final Collection<Pair<InvokeStmt, SootMethod>> _waits = MapUtils.queryCollection(monitor2waits, monitor);
 
 		for (final Iterator<Pair<InvokeStmt, SootMethod>> _i = _waits.iterator(); _i.hasNext();) {
 			final Pair<InvokeStmt, SootMethod> _pair = _i.next();
@@ -551,7 +551,7 @@ public class SafeLockAnalysis
 			}
 		}
 
-		final Collection<Pair<InvokeStmt, SootMethod>> _waits = MapUtils.queryObject(monitor2waits, monitor, Collections.<Pair<InvokeStmt, SootMethod>>emptySet());
+		final Collection<Pair<InvokeStmt, SootMethod>> _waits = MapUtils.queryCollection(monitor2waits, monitor);
 		final Iterator<Pair<InvokeStmt, SootMethod>> _j = _waits.iterator();
 		final int _jEnd = _waits.size();
 

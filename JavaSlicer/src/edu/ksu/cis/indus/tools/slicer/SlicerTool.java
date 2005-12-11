@@ -910,7 +910,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 		movingToNextPhase();
 
-		fireToolProgressEvent("LOW LEVEL ANALYSES: Calculating intra-procedural use-def information", phase);
+		fireToolProgressEvent("LOW LEVEL ANALYSES: Calculating inter-procedural use-def information", phase);
 
 		// process alias use-def analyses.
 		cgBasedPreProcessCtrl.reset();

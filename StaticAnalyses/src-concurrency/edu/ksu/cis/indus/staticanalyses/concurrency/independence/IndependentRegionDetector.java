@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -195,7 +194,7 @@ public final class IndependentRegionDetector
 	 * @post result != null
 	 */
 	public Collection<Stmt> getAtomicRegionBeginAfterBoundariesFor(final SootMethod method) {
-		return MapUtils.queryObject(method2beginsAfter, method, Collections.<Stmt> emptyList());
+		return MapUtils.queryCollection(method2beginsAfter, method);
 	}
 
 	/**
@@ -206,7 +205,7 @@ public final class IndependentRegionDetector
 	 * @post result != null
 	 */
 	public Collection<Stmt> getAtomicRegionBeginBeforeBoundariesFor(final SootMethod method) {
-		return MapUtils.queryObject(method2beginsBefore, method, Collections.<Stmt> emptyList());
+		return MapUtils.queryCollection(method2beginsBefore, method);
 	}
 
 	/**
@@ -217,7 +216,7 @@ public final class IndependentRegionDetector
 	 * @post result != null
 	 */
 	public Collection<Stmt> getAtomicRegionEndAfterBoundariesFor(final SootMethod method) {
-		return MapUtils.queryObject(method2endsAfter, method, Collections.<Stmt> emptyList());
+		return MapUtils.queryCollection(method2endsAfter, method);
 	}
 
 	/**
@@ -228,7 +227,7 @@ public final class IndependentRegionDetector
 	 * @post result != null
 	 */
 	public Collection<Stmt> getAtomicRegionEndBeforeBoundariesFor(final SootMethod method) {
-		return MapUtils.queryObject(method2endsBefore, method, Collections.<Stmt> emptyList());
+		return MapUtils.queryCollection(method2endsBefore, method);
 	}
 
 	/**

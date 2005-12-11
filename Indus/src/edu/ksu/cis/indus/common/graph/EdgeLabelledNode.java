@@ -72,14 +72,14 @@ public class EdgeLabelledNode<T extends EdgeLabelledNode<T>>
 	 * @see IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
 	 */
 	@SuppressWarnings("unchecked") public Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label) {
-		return MapUtils.queryObject(label2inNodes, label, Collections.EMPTY_SET);
+		return MapUtils.queryCollection(label2inNodes, label);
 	}
 
 	/**
 	 * @see IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
 	 */
 	@SuppressWarnings("unchecked") public Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label) {
-		return MapUtils.queryObject(label2outNodes, label, Collections.EMPTY_SET);
+		return MapUtils.queryCollection(label2outNodes, label);
 	}
 
 	/**

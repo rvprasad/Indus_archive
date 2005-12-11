@@ -263,16 +263,9 @@ public class InterferenceDAv1
 		}
 
 		if (_dependent != null) {
-			_pair2set = MapUtils.queryObject(dependent2dependee, _dependent, Collections
-					.<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> emptyMap());
-
-			if (_pair2set != null) {
-				final Collection<Pair<AssignStmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
-
-				if (_set != null) {
-					_result = Collections.unmodifiableCollection(_set);
-				}
-			}
+			_pair2set = MapUtils.queryMap(dependent2dependee, _dependent);
+			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt, method));
+			_result = Collections.unmodifiableCollection(_set);
 		}
 		return _result;
 	}
@@ -297,16 +290,9 @@ public class InterferenceDAv1
 		}
 
 		if (_dependee != null) {
-			_pair2set = MapUtils.queryObject(dependee2dependent, _dependee, Collections
-					.<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>> emptyMap());
-
-			if (_pair2set != null) {
-				final Collection<Pair<AssignStmt, SootMethod>> _set = _pair2set.get(pairMgr.getPair(stmt, method));
-
-				if (_set != null) {
-					_result = Collections.unmodifiableCollection(_set);
-				}
-			}
+			_pair2set = MapUtils.queryMap(dependee2dependent, _dependee);
+			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt, method));
+			_result = Collections.unmodifiableCollection(_set);
 		}
 		return _result;
 	}
