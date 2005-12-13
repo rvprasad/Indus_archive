@@ -56,7 +56,7 @@ import soot.jimple.ThrowStmt;
 
 /**
  * This class provides the logic to detect parts of a backward slice.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -66,7 +66,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This closure contains logic to generate criteria to include the value in the return statements.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -91,7 +91,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This closure contains logic to generate criteria to include return statements.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -131,7 +131,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the slice.
-	 * 
+	 *
 	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
 	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
 	 */
@@ -149,7 +149,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param theEngine of which this part is a part of.
 	 * @pre theEngine != null
 	 */
@@ -265,7 +265,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes new expressions to include corresponding init statements into the slice.
-	 * 
+	 *
 	 * @param stmt is the statement containing the new expression.
 	 * @param method contains <code>stmt</code>.
 	 * @pre stmt != null and method != null
@@ -307,7 +307,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
-	 * 
+	 *
 	 * @param stmt is the statement in which <code>pBox</code> occurs.
 	 * @param callee in which<code>stmt</code> occurs.
 	 * @pre method != null and stmt != null
@@ -424,9 +424,9 @@ public class BackwardSlicingPart
 	/**
 	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
 	 * should be marked as invoked or required before calling this method.
-	 * 
+	 *
 	 * @param callee is the method in question.
-	 * @param expr indicates if the expression in the tail statement should be probed to indicate if criteria should be
+	 * @param expr indicates if the expression in the tail statement should be checked to determine if criteria should be
 	 *            generated.
 	 * @return <code>true</code> if method's return points of callee should be considered to generate new slice criterion;
 	 *         <code>false</code>, otherwise.
@@ -435,7 +435,6 @@ public class BackwardSlicingPart
 		boolean _result = false;
 
 		if (!exitTransformedMethods2exitpoints.containsKey(callee)) {
-			exitTransformedMethods2exitpoints.put(callee, null);
 			_result = true;
 		} else if (expr) {
 			final Collection<Stmt> _temp = MapUtils.queryCollection(exitTransformedMethods2exitpoints, callee);
@@ -466,7 +465,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
-	 * 
+	 *
 	 * @param callee of interest.
 	 * @param argIndex at the call site.
 	 * @pre callee != null
@@ -502,7 +501,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the callee).
 	 * </p>
-	 * 
+	 *
 	 * @param callStmt at which the invocation occurs.
 	 * @param caller in which the invocation occurs.
 	 * @pre callStmt != null and caller != null and callee != null
@@ -525,7 +524,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes the init call to the super class inside init method.
-	 * 
+	 *
 	 * @param initMethod is the init method.
 	 * @param bbg is the basic block graph of <code>callee</code>.
 	 * @pre initMethod != null and bbg != null and engine.getCallStackCache() != null
@@ -575,7 +574,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the caller).
 	 * </p>
-	 * 
+	 *
 	 * @param callees are the methods called at the statement.
 	 * @param stmt is the statment containing the invocation.
 	 * @param caller is the method in which <code>invocationStmt</code> occurs.
@@ -653,7 +652,7 @@ public class BackwardSlicingPart
 	 * The context should be for the caller and not the callee. That is, the TOS should have the callsite for the caller
 	 * method and not the callsite for the callee in the caller method.
 	 * </p>
-	 * 
+	 *
 	 * @param stmt containing the call site.
 	 * @param caller containing <code>stmt</code>
 	 * @param callee being called.
