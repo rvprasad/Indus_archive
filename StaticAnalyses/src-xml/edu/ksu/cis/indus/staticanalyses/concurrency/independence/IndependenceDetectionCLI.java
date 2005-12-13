@@ -73,7 +73,7 @@ import soot.jimple.Stmt;
 /**
  * This is a command-line interface to drive independence detection implementation in Indus. This interface will generate
  * annotated jimple.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -99,7 +99,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param arg the detector to use.
 	 * @pre arg != null
 	 */
@@ -109,7 +109,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to the program via command line.
-	 * 
+	 *
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when CLI fails.
 	 */
@@ -169,7 +169,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 			_cli.execute(_cl);
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-
+			System.out.println("Error while parsing command line." + _e);
 			final String _cmdLineSyn = "java " + IndependenceDetectionCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {
@@ -180,7 +180,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets the output directory.
-	 * 
+	 *
 	 * @param arg is the output directory.
 	 * @pre arg != null
 	 */
@@ -190,7 +190,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Annotates the atomic statements that are in the methods reachable in given call graph.
-	 * 
+	 *
 	 * @param cgi provides the call graph.
 	 * @pre cgi != null
 	 */
@@ -220,7 +220,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes atomicity detection algorithm according to given option.
-	 * 
+	 *
 	 * @param cl is the command line.
 	 * @pre cl != null
 	 */
@@ -310,7 +310,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Annotates statements indicating boundaries of atomic regions.
-	 * 
+	 *
 	 * @param regionDetector to be used.
 	 * @param cgi provides the call graph of the reachable methods which need to be annotated.
 	 * @pre regionDetector != null and cgi != null

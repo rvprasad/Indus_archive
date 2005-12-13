@@ -160,6 +160,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			_cli.execute(_cl.hasOption('j'), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
+			System.out.println("Error while parsing command line." + _e);
 			printUsage(_options);
 		} catch (final Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);

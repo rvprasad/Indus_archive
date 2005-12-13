@@ -124,7 +124,7 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 			_cli.execute();
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-
+			System.out.println("Error while parsing command line." + _e);
 			final String _cmdLineSyn = "java " + EscapeAndReadWriteCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {

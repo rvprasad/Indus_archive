@@ -285,6 +285,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 			_xmlizerCLI.execute();
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
+			System.out.println("Error while parsing command line." + _e);
 			printUsage(_options);
 		} catch (final Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
