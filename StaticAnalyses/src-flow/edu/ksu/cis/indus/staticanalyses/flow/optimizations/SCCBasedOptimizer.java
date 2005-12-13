@@ -89,7 +89,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 	 * @param tokenMgr to be used.
 	 * @pre rootNodes != null and tokenMgr != null
 	 */
-	public void optimize(final Collection<N> rootNodes, final ITokenManager tokenMgr) {
+	public void optimize(final Collection<N> rootNodes, final ITokenManager<T, SYM, ?> tokenMgr) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Collapsing SCCs...");
 		}
