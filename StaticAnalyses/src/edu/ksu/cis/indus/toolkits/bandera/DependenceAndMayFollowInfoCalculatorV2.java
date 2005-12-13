@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.toolkits.bandera;
 
+import edu.ksu.cis.indus.annotations.Experimental;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -31,12 +32,16 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedE
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import soot.SootMethod;
 
+import soot.jimple.CaughtExceptionRef;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
@@ -47,19 +52,19 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class calculates the dependence information that is more precise than it's parent class.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class DependenceAndMayFollowInfoCalculatorV2
+@Experimental class DependenceAndMayFollowInfoCalculatorV2
 		extends DependenceAndMayFollowInfoCalculator {
 
 	/**
 	 * DOCUMENT ME!
 	 * <p>
 	 * </p>
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -109,39 +114,29 @@ class DependenceAndMayFollowInfoCalculatorV2
 		 */
 		SootMethod method;
 
-		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
-		 */
-		Stack<Pair<Stmt, SootMethod>> path;
+		final SootMethod entryPoint;
 
 		/**
 		 * Creates an instance of this class.
-		 *
+		 * 
 		 * @param sm DOCUMENT ME!
 		 * @param stmt DOCUMENT ME!
-		 * @param stack1 DOCUMENT ME!
-		 * @param stack2 DOCUMENT ME!
-		 * @param stack3 DOCUMENT ME!
-		 * @param stack4 DOCUMENT ME!
-		 * @param stack5 DOCUMENT ME!
 		 */
-		public Info(final SootMethod sm, final Stmt stmt, final Stack<Pair<Stmt, SootMethod>> stack1,
-				final Collection<Pair<Stmt, SootMethod>> stack2, final Collection<Pair<Stmt, SootMethod>> stack3,
-				final Collection<Pair<Stmt, SootMethod>> stack4, final Stack<Pair<Stmt, SootMethod>> stack5) {
+		public Info(final SootMethod sm, final Stmt stmt, final Stack<Pair<Stmt, SootMethod>> callChain,
+				final Collection<Pair<Stmt, SootMethod>> lockCol, final Collection<Pair<Stmt, SootMethod>> arefCol,
+				final Collection<Pair<Stmt, SootMethod>> frefCol, final SootMethod entry) {
 			method = sm;
-			callstack = stack1;
+			callstack = callChain;
 			currStmt = stmt;
-			lacq = stack2;
-			aref = stack3;
-			fref = stack4;
-			path = stack5;
+			lacq = lockCol;
+			aref = arefCol;
+			fref = frefCol;
+			entryPoint = entry;
 		}
 
 		/**
 		 * DOCUMENT ME!
-		 *
+		 * 
 		 * @return DOCUMENT ME!
 		 */
 		@Override public Info clone() {
@@ -152,7 +147,6 @@ class DependenceAndMayFollowInfoCalculatorV2
 				_result.aref = (Collection) ((HashSet<Pair<Stmt, SootMethod>>) aref).clone();
 				_result.fref = (Collection) ((HashSet<Pair<Stmt, SootMethod>>) fref).clone();
 				_result.lacq = (Collection) ((HashSet<Pair<Stmt, SootMethod>>) lacq).clone();
-				_result.path = path.clone();
 				_result.callstack = callstack.clone();
 			} catch (final CloneNotSupportedException _e) {
 				final IllegalStateException _r = new IllegalStateException();
@@ -164,6 +158,29 @@ class DependenceAndMayFollowInfoCalculatorV2
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	enum SuccessorType {
+
+		/**
+		 * DOCUMENT ME!
+		 */
+		EXCEPTIONAL_RETURN,
+		/**
+		 * DOCUMENT ME!
+		 */
+		INTRAPROCEDURAL,
+		/**
+		 * DOCUMENT ME!
+		 */
+		NORMAL_RETURN
+	}
+
+	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
@@ -172,7 +189,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param theTool DOCUMENT ME!
 	 * @param ida DOCUMENT ME!
 	 * @param lbe DOCUMENT ME!
@@ -184,16 +201,22 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 *      InterferenceDAv1, LockAcquisitionBasedEquivalence, ICallGraphInfo, IThreadGraphInfo, CFGAnalysis)
 	 */
 	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool<?> theTool, final InterferenceDAv1 ida,
-			final LockAcquisitionBasedEquivalence lbe, final IThreadGraphInfo threadGraph, final ICallGraphInfo callGraph,
+			final LockAcquisitionBasedEquivalence lbe,final ICallGraphInfo callGraph,  final IThreadGraphInfo threadGraph, 
 			final CFGAnalysis cfgAnalysis, final IStmtGraphFactory<?> graphFactory) {
 		super(theTool, ida, lbe, callGraph, threadGraph, cfgAnalysis);
 		stmtGraphFactory = graphFactory;
 	}
 
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableARef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableFRef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableLock = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
 	/**
-	 * DOCUMENT ME!
+	 * @see edu.ksu.cis.indus.toolkits.bandera.DependenceAndMayFollowInfoCalculator#translateAndPopulateMayFollowRelation()
 	 */
-	protected void calculatedMayFollowRelation() {
+	@Override protected void translateAndPopulateMayFollowRelation() {
 		final Iterator<SootMethod> _i = tgi.getThreadEntryPoints().iterator();
 		final int _iEnd = tgi.getThreadEntryPoints().size();
 
@@ -201,14 +224,13 @@ class DependenceAndMayFollowInfoCalculatorV2
 			final SootMethod _sm = _i.next();
 			final IWorkBag<Info> _wb = new LIFOWorkBag<Info>();
 			final Info _t = new Info(_sm, null, new Stack<Pair<Stmt, SootMethod>>(), new HashSet<Pair<Stmt, SootMethod>>(),
-					new HashSet<Pair<Stmt, SootMethod>>(), new HashSet<Pair<Stmt, SootMethod>>(),
-					new Stack<Pair<Stmt, SootMethod>>());
+					new HashSet<Pair<Stmt, SootMethod>>(), new HashSet<Pair<Stmt, SootMethod>>(), _sm);
 			_wb.addWork(_t);
 
 			while (_wb.hasWork()) {
 				final Info _info = _wb.getWork();
 
-				if (handleRecursion(_info)) {
+				if (handleRecursion(_info, _wb)) {
 					continue;
 				}
 
@@ -220,18 +242,17 @@ class DependenceAndMayFollowInfoCalculatorV2
 				} else if (_stmt instanceof EnterMonitorStmt) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
 					recordMayFollow(_pair, _info.lacq);
-					processSuccs(_info, _pair, _wb);
+					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
 				} else if (_stmt.containsArrayRef()) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
 					recordMayFollow(_pair, _info.aref);
-					processSuccs(_info, _pair, _wb);
+					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
 				} else if (_stmt.containsFieldRef()) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
 					recordMayFollow(_pair, _info.fref);
-					processSuccs(_info, _pair, _wb);
+					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
 				} else if (_stmt.containsInvokeExpr()) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-					_info.path.push(_pair);
 					_info.lacq.add(_pair);
 					_info.aref.add(_pair);
 					_info.fref.add(_pair);
@@ -258,8 +279,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 						final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
 						_info.currStmt = _caller.getFirst();
 						_info.method = _caller.getSecond();
-						// TODO: we need to process only the successor reachable upon normal return.
-						processSuccs(_info, _pair, _wb);
+						processSuccs(_info, _pair, _wb, SuccessorType.NORMAL_RETURN);
 					}
 				} else if (_stmt instanceof ThrowStmt) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
@@ -268,8 +288,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 						final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
 						_info.currStmt = _caller.getFirst();
 						_info.method = _caller.getSecond();
-						// TODO: we need to process only the handlers of the given exception.
-						processSuccs(_info, _pair, _wb);
+						processSuccs(_info, _pair, _wb, SuccessorType.EXCEPTIONAL_RETURN);
 					}
 				}
 			}
@@ -278,26 +297,44 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param info DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	private boolean handleRecursion(final Info info) {
+	private boolean handleRecursion(final Info info, final IWorkBag<Info> wb) {
 		final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(info.currStmt, info.method);
-		boolean _result = info.path.contains(_pair);
-		// TODO: logic please
+		boolean _result = info.callstack.contains(_pair);
+		if (_result) {
+			final Collection<Pair<Stmt, SootMethod>> _aref = MapUtils.getCollectionFromMap(entryPoint2reachableARef,
+					info.entryPoint);
+			_aref.addAll(info.aref);
+			info.aref = _aref;
+			final Collection<Pair<Stmt, SootMethod>> _fref = MapUtils.getCollectionFromMap(entryPoint2reachableFRef,
+					info.entryPoint);
+			_fref.addAll(info.fref);
+			info.fref = _fref;
+			final Collection<Pair<Stmt, SootMethod>> _lacq = MapUtils.getCollectionFromMap(entryPoint2reachableLock,
+					info.entryPoint);
+			_lacq.addAll(info.lacq);
+			info.lacq = _lacq;
+			final Pair<Stmt, SootMethod> _caller = info.callstack.pop();
+			info.currStmt = _caller.getFirst();
+			info.method = _caller.getSecond();
+			processSuccs(info, _pair, wb, SuccessorType.NORMAL_RETURN);
+			processSuccs(info, _pair, wb, SuccessorType.EXCEPTIONAL_RETURN);
+		}
 		return _result;
-	}
+	};
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param info DOCUMENT ME!
 	 * @param pair DOCUMENT ME!
 	 * @param wb DOCUMENT ME!
 	 */
-	private void processSuccs(final Info info, final Pair<Stmt, SootMethod> pair, final IWorkBag<Info> wb) {
-		info.path.push(pair);
+	private void processSuccs(final Info info, final Pair<Stmt, SootMethod> pair, final IWorkBag<Info> wb,
+			final SuccessorType retType) {
 		info.lacq.add(pair);
 		info.aref.add(pair);
 		info.fref.add(pair);
@@ -310,15 +347,21 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Stmt _succ = _i.next();
-			final Info _clone = info.clone();
-			_clone.currStmt = _succ;
-			wb.addWork(_clone);
+			if ((retType == SuccessorType.INTRAPROCEDURAL)
+					|| (retType == SuccessorType.NORMAL_RETURN && (!(_succ instanceof DefinitionStmt) || !(((DefinitionStmt) _succ)
+							.getRightOp() instanceof CaughtExceptionRef)))
+					|| (retType == SuccessorType.EXCEPTIONAL_RETURN && _succ instanceof DefinitionStmt && ((DefinitionStmt) _succ)
+							.getRightOp() instanceof CaughtExceptionRef)) {
+				final Info _clone = info.clone();
+				_clone.currStmt = _succ;
+				wb.addWork(_clone);
+			}
 		}
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param pair DOCUMENT ME!
 	 * @param col DOCUMENT ME!
 	 */

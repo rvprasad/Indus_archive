@@ -84,7 +84,7 @@ import soot.toolkits.graph.CompleteUnitGraph;
  * <p>
  * PUT A LINK TO THE TECH REPORT FIX_ME
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -96,7 +96,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 
 	/**
 	 * A class that houses constants use by other tools.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -104,9 +104,29 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	public static final class Constants {
 
 		/**
+		 * This identifies the input option to analyze array refs in application class only.
+		 */
+		public static final String APPL_ARRAY_REFS_ONLY = "edu.ksu.cis.indus.toolkits.bandera.ArrayRefsInApplicationClassesOnly";
+
+		/**
+		 * This identifies the input option to analyze field refs in application class only.
+		 */
+		public static final String APPL_FIELD_REFS_ONLY = "edu.ksu.cis.indus.toolkits.bandera.FieldRefsInApplicationClassesOnly";
+
+		/**
+		 * This identifies the input option to analyze lock acquisition in application class only.
+		 */
+		public static final String APPL_LOCK_ACQS_ONLY = "edu.ksu.cis.indus.toolkits.bandera.LockAcquisitionsInApplicationClassesOnly";
+
+		/**
 		 * This identifies the array refs equivalence class in the to-be serizalized output map.
 		 */
 		public static final Object ARRAY_REFS = "edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.arrayRefs";
+
+		/**
+		 * DOCUMENT ME!
+		 */
+		public static final String CALCULATOR_CLASS = "edu.ksu.cis.indus.toolkits.bandera.DependenceAndMayFollowInfoCalculator";
 
 		/**
 		 * This identifies the dependence info in the to-be serizalized output map.
@@ -139,6 +159,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 		private Constants() {
 			// prevents the creation of an instance of this class.
 		}
+
 	}
 
 	/**
@@ -185,21 +206,6 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	 * j2b.
 	 */
 	static final String UNSYNCEX_METHOD_LOCATION = "unsyncEx";
-
-	/**
-	 * This identifies the input option to analyze array refs in application class only.
-	 */
-	private static final String APPL_ARRAY_REFS_ONLY = "ArrayRefsInApplicationClassesOnly";
-
-	/**
-	 * This identifies the input option to analyze field refs in application class only.
-	 */
-	private static final String APPL_FIELD_REFS_ONLY = "FieldRefsInApplicationClassesOnly";
-
-	/**
-	 * This identifies the input option to analyze lock acquisition in application class only.
-	 */
-	private static final String APPL_LOCK_ACQS_ONLY = "LockAcquisitionsInApplicationClassesOnly";
 
 	/**
 	 * The collection of input argument identifiers.
@@ -285,7 +291,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 
 	/**
 	 * This maps methods to their bir signature.
-	 *
+	 * 
 	 * @invariant method2birsig.oclIsKindOf(Map(SootMethod, String))
 	 */
 	private final Map<SootMethod, String> method2birsig = new HashMap<SootMethod, String>();
@@ -296,8 +302,13 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	private Collection<SootMethod> rootMethods;
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	private boolean useV2Calculator;
+
+	/**
 	 * This method constructs the BIR representation of the name of a method.
-	 *
+	 * 
 	 * @param sm The soot method whose name will be compiled here.
 	 * @return the BIR representation of the name of sm.
 	 */
@@ -342,9 +353,9 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	 */
 	public String getConfiguration() throws Exception {
 		final Properties _result = new Properties();
-		_result.setProperty(APPL_ARRAY_REFS_ONLY, String.valueOf(arrayRefInApplicationClassesOnly));
-		_result.setProperty(APPL_FIELD_REFS_ONLY, String.valueOf(fieldRefInApplicationClassesOnly));
-		_result.setProperty(APPL_LOCK_ACQS_ONLY, String.valueOf(lockAcqInApplicationClassesOnly));
+		_result.setProperty(Constants.APPL_ARRAY_REFS_ONLY, String.valueOf(arrayRefInApplicationClassesOnly));
+		_result.setProperty(Constants.APPL_FIELD_REFS_ONLY, String.valueOf(fieldRefInApplicationClassesOnly));
+		_result.setProperty(Constants.APPL_LOCK_ACQS_ONLY, String.valueOf(lockAcqInApplicationClassesOnly));
 
 		final ByteArrayOutputStream _out = new ByteArrayOutputStream();
 		_result.store(_out, null);
@@ -414,12 +425,14 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	public void setConfiguration(final String arg0) throws Exception {
 		final Properties _p = new Properties();
 		_p.load(new ByteArrayInputStream(arg0.getBytes()));
-		fieldRefInApplicationClassesOnly = _p.contains(APPL_FIELD_REFS_ONLY)
-				&& Boolean.valueOf(_p.getProperty(APPL_FIELD_REFS_ONLY)).booleanValue();
-		arrayRefInApplicationClassesOnly = _p.contains(APPL_ARRAY_REFS_ONLY)
-				&& Boolean.valueOf(_p.getProperty(APPL_ARRAY_REFS_ONLY)).booleanValue();
-		lockAcqInApplicationClassesOnly = _p.contains(APPL_LOCK_ACQS_ONLY)
-				&& Boolean.valueOf(_p.getProperty(APPL_LOCK_ACQS_ONLY)).booleanValue();
+		fieldRefInApplicationClassesOnly = _p.contains(Constants.APPL_FIELD_REFS_ONLY)
+				&& Boolean.valueOf(_p.getProperty(Constants.APPL_FIELD_REFS_ONLY)).booleanValue();
+		arrayRefInApplicationClassesOnly = _p.contains(Constants.APPL_ARRAY_REFS_ONLY)
+				&& Boolean.valueOf(_p.getProperty(Constants.APPL_ARRAY_REFS_ONLY)).booleanValue();
+		lockAcqInApplicationClassesOnly = _p.contains(Constants.APPL_LOCK_ACQS_ONLY)
+				&& Boolean.valueOf(_p.getProperty(Constants.APPL_LOCK_ACQS_ONLY)).booleanValue();
+		useV2Calculator = _p.contains(Constants.CALCULATOR_CLASS)
+				&& _p.getProperty(Constants.CALCULATOR_CLASS).equals(DependenceAndMayFollowInfoCalculatorV2.class.getName());
 	}
 
 	/**
@@ -447,7 +460,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Generates the bir locations for the given statement-method pair.
-	 *
+	 * 
 	 * @param p of interest.
 	 * @param getUnlocking <code>true</code> indicates that locations names of unlocking transitions are also required if
 	 *            the method is synchronized and the statement is <code>null</code>; <code>false</code>, otherwise. This
@@ -491,15 +504,15 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes the tool.
-	 *
+	 * 
 	 * @param environment to be analyzed.
 	 * @param entryPointMethods are the entry points to the environment.
 	 */
 	void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
 		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _stmtGraphFactory = new CompleteStmtGraphFactory();
-		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
-				TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
+				.<T, Value> getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
 
 		if (abort) {
 			return;
@@ -589,7 +602,11 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 		}
 
 		final DependenceAndMayFollowInfoCalculator _proc;
-		_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);
+		if (useV2Calculator) {
+			_proc = new DependenceAndMayFollowInfoCalculatorV2(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis, _stmtGraphFactory);
+		} else {
+			_proc = new DependenceAndMayFollowInfoCalculator(this, _iDA, _lbe, _cgi, _tgi, _cfgAnalysis);
+		}
 		_proc.setApplicationClassFiltering(lockAcqInApplicationClassesOnly, fieldRefInApplicationClassesOnly,
 				arrayRefInApplicationClassesOnly);
 		_proc.hookup(_pc2);

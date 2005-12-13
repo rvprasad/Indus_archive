@@ -415,7 +415,6 @@ class DependenceAndMayFollowInfoCalculator
 	 * @param applicationClassesOnly <code>true</code> indicates only dependences in application classes should be captured;
 	 *            <code>false</code>, otherwise.
 	 * @pre p != null and dependence != null and equivalents != null and birLocs != null
-	 * @pre p.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post equivalents.containsAll(equivalents$pre)
 	 */
 	private void addToDependenceCache(final Pair<? extends Stmt, SootMethod> p,
