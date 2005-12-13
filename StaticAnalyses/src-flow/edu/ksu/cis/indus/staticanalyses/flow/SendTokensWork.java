@@ -63,6 +63,10 @@ public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SY
 		}
 
 		node.injectTokens(tokens);
+		
+		if (node instanceof AbstractFGNode) {
+			((AbstractFGNode) node).forgetSendTokensWork();
+		}
 	}
 }
 
