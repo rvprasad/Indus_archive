@@ -139,7 +139,6 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 		_option = new Option("h", "help", false, "Display message.");
-		_option.setOptionalArg(false);
 		_options.addOption(_option);
 		_option = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
 		_option.setArgs(1);
@@ -198,6 +197,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			_cli.execute(_cl.hasOption('j'));
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
+			System.out.println("Error while parsing command line. \n" + _e);
 			printUsage(_options);
 		} catch (final Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
@@ -240,7 +240,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 					getStmtGraphFactory());
 		} else {
-			throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");
+			throw new IllegalArgumentException("ofa-type has to be one of the following: fioi, fsoi, fios, fsos.");
 		}
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
@@ -319,6 +319,9 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			if (dumpJimple) {
 				((AbstractXMLizer) xmlizer).dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
+
+			final OFAStringizer _str = new OFAStringizer();
+			System.out.println(_str.getOFAInfoAsString(_info));
 		}
 	}
 

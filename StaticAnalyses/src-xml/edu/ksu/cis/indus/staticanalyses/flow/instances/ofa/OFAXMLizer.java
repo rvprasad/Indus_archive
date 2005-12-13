@@ -88,7 +88,7 @@ public final class OFAXMLizer
 		/** 
 		 * The OFA instance whose information should be xmlized.
 		 */
-		private OFAnalyzer ofa;
+		private OFAnalyzer<?> ofa;
 
 		/** 
 		 * The instance used to write xml data.
@@ -113,7 +113,7 @@ public final class OFAXMLizer
 		 *
 		 * @pre filewriter != null and analyzer != null
 		 */
-		public OFAXMLizingProcessor(final FileWriter filewriter, final OFAnalyzer analyzer) {
+		public OFAXMLizingProcessor(final FileWriter filewriter, final OFAnalyzer<?> analyzer) {
 			idGenerator = getIdGenerator();
 			ofa = analyzer;
 
@@ -127,10 +127,10 @@ public final class OFAXMLizer
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 		 */
-		public void callback(final ValueBox vBox, final Context context) {
-			final List _temp = new ArrayList();
+		@Override public void callback(final ValueBox vBox, final Context context) {
+			final List<String> _temp = new ArrayList<String>();
 
-			for (final Iterator _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
+			for (final Iterator<?> _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
 				_temp.add(_i.next().toString());
 			}
 
@@ -143,9 +143,9 @@ public final class OFAXMLizer
 					xmlWriter.startTag("program_point");
 					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
 
-					for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+					for (final Iterator<String> _i = _temp.iterator(); _i.hasNext();) {
 						xmlWriter.startTag("object");
-						xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+						xmlWriter.attribute("expr", xmlizeString(_i.next()));
 						xmlWriter.endTag();
 					}
 					xmlWriter.endTag();
@@ -158,7 +158,7 @@ public final class OFAXMLizer
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 		 */
-		public void callback(final SootMethod method) {
+		@Override public void callback(final SootMethod method) {
 			try {
 				if (processingMethod) {
 					xmlWriter.endTag();
@@ -183,11 +183,11 @@ public final class OFAXMLizer
 		 * @pre method != null
 		 */
 		private void xmlizeThrownValues(final SootMethod method) {
-			final List _temp = new ArrayList();
+			final List<String> _temp = new ArrayList<String>();
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 
-			for (final Iterator _i = ofa.getThrownValues(method, _context).iterator(); _i.hasNext();) {
+			for (final Iterator<?> _i = ofa.getThrownValues(method, _context).iterator(); _i.hasNext();) {
 				_temp.add(_i.next().toString());
 			}
 
@@ -196,9 +196,9 @@ public final class OFAXMLizer
 				try {
 					xmlWriter.startTag("thrown");
 
-					for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+					for (final Iterator<String> _i = _temp.iterator(); _i.hasNext();) {
 						xmlWriter.startTag("object");
-						xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+						xmlWriter.attribute("expr", xmlizeString(_i.next()));
 						xmlWriter.endTag();
 					}
 					xmlWriter.endTag();
@@ -215,13 +215,13 @@ public final class OFAXMLizer
 		 * @pre method != null
 		 */
 		private void xmlizeParameterValues(final SootMethod method) throws IllegalStateException, IllegalArgumentException {
-			final List _temp = new ArrayList();
+			final List<String> _temp = new ArrayList<String>();
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 			for (int _j = 0; _j < method.getParameterCount(); _j++) {
 				_temp.clear();
 
-				for (final Iterator _i = ofa.getValuesForParameter(_j, _context).iterator(); _i.hasNext();) {
+				for (final Iterator<?> _i = ofa.getValuesForParameter(_j, _context).iterator(); _i.hasNext();) {
 					_temp.add(_i.next().toString());
 				}
 	
@@ -231,7 +231,7 @@ public final class OFAXMLizer
 						xmlWriter.startTag("parameter");
 						xmlWriter.attribute("id", Integer.toString(_j));
 						
-						for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+						for (final Iterator<?> _i = _temp.iterator(); _i.hasNext();) {
 							xmlWriter.startTag("object");
 							xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
 							xmlWriter.endTag();
@@ -247,7 +247,7 @@ public final class OFAXMLizer
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 		 */
-		public void callback(final SootClass clazz) {
+		@Override public void callback(final SootClass clazz) {
 			try {
 				if (processingMethod) {
 					xmlWriter.endTag();
@@ -271,7 +271,7 @@ public final class OFAXMLizer
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 		 */
-		public void consolidate() {
+		@Override public void consolidate() {
 			try {
 				xmlWriter.endDocument();
 			} catch (final IOException _e) {
@@ -290,7 +290,7 @@ public final class OFAXMLizer
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 		 */
-		public void processingBegins() {
+		@Override public void processingBegins() {
 			processingClass = false;
 			processingMethod = false;
 
@@ -329,7 +329,7 @@ public final class OFAXMLizer
 	 */
 	public void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
-		final OFAnalyzer _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
+		final OFAnalyzer<?> _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 		final IEnvironment _env = _ofa.getEnvironment();
 		final IProcessingFilter _processingFilter = new TagBasedProcessingFilter((String) info.get(IValueAnalyzer.TAG_ID));
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
