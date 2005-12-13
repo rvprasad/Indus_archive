@@ -60,7 +60,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$ $Date$
  */
 public class OFABasedCallInfoCollector
-		extends AbstractValueAnalyzerBasedProcessor
+		extends AbstractValueAnalyzerBasedProcessor<Value>
 		implements ICallInfoCollector {
 
 	/**
@@ -73,7 +73,7 @@ public class OFABasedCallInfoCollector
 	 * 
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
-	private IValueAnalyzer analyzer;
+	private IValueAnalyzer<Value> analyzer;
 
 	/**
 	 * This holds call information.
@@ -137,9 +137,9 @@ public class OFABasedCallInfoCollector
 		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: call graph consolidation - " + callInfoHolder.toString());
+			LOGGER.info("END: call graph consolidation");
 		}
-
+		
 		stable();
 	}
 
@@ -183,7 +183,7 @@ public class OFABasedCallInfoCollector
 	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
-	@Override public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
+	@Override public void setAnalyzer(final IValueAnalyzer<Value> objFlowAnalyzer) {
 		analyzer = objFlowAnalyzer;
 	}
 
@@ -217,7 +217,7 @@ public class OFABasedCallInfoCollector
 		final SootMethod _calleeMethod = expr.getMethod();
 		context.setProgramPoint(expr.getBaseBox());
 
-		final Collection _values = analyzer.getValues(expr.getBase(), context);
+		final Collection<?> _values = analyzer.getValues(expr.getBase(), context);
 
 		if (!_values.isEmpty()) {
 			final Map<SootMethod, Collection<CallTriple>> _callee2callers = callInfoHolder.callee2callers;
@@ -225,7 +225,7 @@ public class OFABasedCallInfoCollector
 			final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(_caller2callees, _caller);
 			final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
 
-			for (final Iterator _i = _values.iterator(); _i.hasNext();) {
+			for (final Iterator<?> _i = _values.iterator(); _i.hasNext();) {
 				final Object _t = _i.next();
 				SootClass _accessClass = null;
 
@@ -241,7 +241,7 @@ public class OFABasedCallInfoCollector
 				}
 
 				final String _methodName = _calleeMethod.getName();
-				final List _parameterTypes = _calleeMethod.getParameterTypes();
+				final List<Type> _parameterTypes = _calleeMethod.getParameterTypes();
 				final Type _returnType = _calleeMethod.getReturnType();
 				final SootMethod _callee = Util.findMethodImplementation(_accessClass, _methodName, _parameterTypes,
 						_returnType);

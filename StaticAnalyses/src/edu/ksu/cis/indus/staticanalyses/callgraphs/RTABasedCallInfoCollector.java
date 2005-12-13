@@ -191,8 +191,8 @@ public final class RTABasedCallInfoCollector
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
 	 */
 	@Override public void consolidate() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("consolidate() - BEGIN");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("consolidate() - BEGIN");
 		}
 
 		final IWorkBag<SootMethod> _wb = new HistoryAwareFIFOWorkBag<SootMethod>(new HashSet());
@@ -238,8 +238,8 @@ public final class RTABasedCallInfoCollector
 
 		stable();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("consolidate() - END");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("consolidate() - END");
 		}
 	}
 
