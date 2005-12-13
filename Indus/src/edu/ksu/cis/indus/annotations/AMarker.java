@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates that an interface is a marker interface.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
