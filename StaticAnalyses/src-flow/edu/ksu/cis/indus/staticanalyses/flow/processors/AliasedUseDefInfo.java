@@ -456,7 +456,7 @@ public class AliasedUseDefInfo
 		} else {
 			boolean _r = false;
 			if (_useMethod.equals(_defMethod)) {
-				_r = cfgAnalysis.doesControlFlowPathExistsBetween(_defStmt, _useStmt, _useMethod);
+				_r = cfgAnalysis.doesControlFlowPathExistBetween(_defStmt, _useStmt, _useMethod);
 			}
 			_result = _r || isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 		}

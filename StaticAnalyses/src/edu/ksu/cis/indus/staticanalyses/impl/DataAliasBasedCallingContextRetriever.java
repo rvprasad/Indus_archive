@@ -131,7 +131,7 @@ public class DataAliasBasedCallingContextRetriever
 
 			if (_curRef == _curDefStmt.getRightOp() && _srcRef == _srcDefStmt.getLeftOp()) {
 				if (_sameMethod) {
-					_result = analysis.doesControlFlowPathExistsBetween(_srcDefStmt, _curDefStmt, _curMethod);
+					_result = analysis.doesControlFlowPathExistBetween(_srcDefStmt, _curDefStmt, _curMethod);
 				} else {
 					_result = analysis.isReachableViaInterProceduralControlFlow(
 							(SootMethod) getInfoFor(Identifiers.SRC_METHOD), _srcDefStmt, _curMethod, _curDefStmt, tgi);
@@ -139,7 +139,7 @@ public class DataAliasBasedCallingContextRetriever
 			} else {
 				// if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
 				if (_sameMethod) {
-					_result = analysis.doesControlFlowPathExistsBetween(_curDefStmt, _srcDefStmt, _curMethod);
+					_result = analysis.doesControlFlowPathExistBetween(_curDefStmt, _srcDefStmt, _curMethod);
 				} else {
 					_result = analysis.isReachableViaInterProceduralControlFlow(_curMethod, _curDefStmt,
 							(SootMethod) getInfoFor(Identifiers.SRC_METHOD), _srcDefStmt, tgi);
@@ -264,14 +264,14 @@ public class DataAliasBasedCallingContextRetriever
 		final Collection<SootMethod> _ancestors = new HashSet<SootMethod>();
 		final ICallGraphInfo _callGraph = getCallGraph();
 
-		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistsBetween(defStmt, useStmt, defMethod)) {
+		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
 			_ancestors.addAll(_callGraph.getMethodsReachableFrom(defMethod, false));
 		} else {
-			if (analysis.doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true, true)) {
+			if (analysis.doesControlFlowPathExistBetween(defMethod, defStmt, useMethod, true, true)) {
 				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
 			}
 
-			if (analysis.doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false, true)) {
+			if (analysis.doesControlFlowPathExistBetween(useMethod, useStmt, defMethod, false, true)) {
 				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
 			}
 

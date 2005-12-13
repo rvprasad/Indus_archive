@@ -47,7 +47,7 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class calculates the dependence information that is more precise than it's parent class.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -59,7 +59,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 * DOCUMENT ME!
 	 * <p>
 	 * </p>
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -118,7 +118,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 		/**
 		 * Creates an instance of this class.
-		 * 
+		 *
 		 * @param sm DOCUMENT ME!
 		 * @param stmt DOCUMENT ME!
 		 * @param stack1 DOCUMENT ME!
@@ -141,7 +141,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 		/**
 		 * DOCUMENT ME!
-		 * 
+		 *
 		 * @return DOCUMENT ME!
 		 */
 		@Override public Info clone() {
@@ -168,11 +168,11 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private final IStmtGraphFactory stmtGraphFactory;
+	private final IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param theTool DOCUMENT ME!
 	 * @param ida DOCUMENT ME!
 	 * @param lbe DOCUMENT ME!
@@ -183,9 +183,9 @@ class DependenceAndMayFollowInfoCalculatorV2
 	 * @see DependenceAndMayFollowInfoCalculator#DependenceAndMayFollowInfoCalculator(RelativeDependenceInfoTool,
 	 *      InterferenceDAv1, LockAcquisitionBasedEquivalence, ICallGraphInfo, IThreadGraphInfo, CFGAnalysis)
 	 */
-	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
+	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool<?> theTool, final InterferenceDAv1 ida,
 			final LockAcquisitionBasedEquivalence lbe, final IThreadGraphInfo threadGraph, final ICallGraphInfo callGraph,
-			final CFGAnalysis cfgAnalysis, final IStmtGraphFactory graphFactory) {
+			final CFGAnalysis cfgAnalysis, final IStmtGraphFactory<?> graphFactory) {
 		super(theTool, ida, lbe, callGraph, threadGraph, cfgAnalysis);
 		stmtGraphFactory = graphFactory;
 	}
@@ -215,7 +215,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 				final Stmt _stmt = _info.currStmt;
 
 				if (_stmt == null) {
-					_info.currStmt = (Stmt) _info.method.retrieveActiveBody().getUnits().getFirst();
+					_info.currStmt = (Stmt) stmtGraphFactory.getStmtGraph(_info.method).getBody().getUnits().getFirst();
 					_wb.addWork(_info);
 				} else if (_stmt instanceof EnterMonitorStmt) {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
@@ -241,14 +241,14 @@ class DependenceAndMayFollowInfoCalculatorV2
 					_context.setStmt(_stmt);
 					_context.setRootMethod(_info.method);
 
-					final Collection _callees = cgi.getCallees(_stmt.getInvokeExpr(), _context);
-					final Iterator _j = _callees.iterator();
+					final Collection<SootMethod> _callees = cgi.getCallees(_stmt.getInvokeExpr(), _context);
+					final Iterator<SootMethod> _j = _callees.iterator();
 					final int _jEnd = _callees.size();
 
 					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final Info _clone = _info.clone();
 						_clone.callstack.push(_pair);
-						_info.method = (SootMethod) _j.next();
+						_info.method = _j.next();
 						_wb.addWork(_clone);
 					}
 				} else if (_stmt instanceof ReturnVoidStmt || _stmt instanceof ReturnStmt) {
@@ -278,7 +278,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param info DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -291,7 +291,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param info DOCUMENT ME!
 	 * @param pair DOCUMENT ME!
 	 * @param wb DOCUMENT ME!
@@ -318,7 +318,7 @@ class DependenceAndMayFollowInfoCalculatorV2
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param pair DOCUMENT ME!
 	 * @param col DOCUMENT ME!
 	 */

@@ -93,7 +93,7 @@ class DependenceAndMayFollowInfoCalculator
 	/**
 	 * The tool that uses this instance.
 	 */
-	protected final RelativeDependenceInfoTool tool;
+	protected final RelativeDependenceInfoTool<?> tool;
 
 	/**
 	 * This provide the call graph.
@@ -149,7 +149,7 @@ class DependenceAndMayFollowInfoCalculator
 	 * @pre ida != null and lbe != null and swbe != null and callGraph != null and threadGraph != null and cfgAnalysis != null
 	 *      and theTool != null
 	 */
-	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
+	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool<?> theTool, final InterferenceDAv1 ida,
 			final LockAcquisitionBasedEquivalence lbe, final ICallGraphInfo callGraph, final IThreadGraphInfo threadGraph,
 			final CFGAnalysis cfgAnalysis) {
 		tool = theTool;
@@ -302,13 +302,13 @@ class DependenceAndMayFollowInfoCalculator
 				boolean _flag;
 
 				if (_sSrc != null && _sDest != null) {
-					_flag = cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, tgi);
+					_flag = cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, null);
 				} else if (_sSrc == null && _sDest == null) {
-					_flag = cfg.doesControlPathExistsFromTo(_mSrc, _mDest);
+					_flag = cfg.doesControlPathExistFromTo(_mSrc, _mDest);
 				} else if (_sSrc == null) {
-					_flag = cfg.doesControlFlowPathExistsBetween(_mDest, _sDest, _mSrc, false, true);
+					_flag = cfg.doesControlFlowPathExistBetween(_mDest, _sDest, _mSrc, false, true);
 				} else {
-					_flag = cfg.doesControlFlowPathExistsBetween(_mSrc, _sSrc, _mDest, true, true);
+					_flag = cfg.doesControlFlowPathExistBetween(_mSrc, _sSrc, _mDest, true, true);
 				}
 
 				if (_flag) {

@@ -116,7 +116,7 @@ public final class CFGAnalysis {
 	 *            check; <code>false</code>, otherwise.
 	 * @return <code>true</code> if there is control flow path between the given points; <code>false</code>, otherwise.
 	 */
-	public boolean doesControlFlowPathExistsBetween(final SootMethod method, final Stmt stmt, final SootMethod targetMethod,
+	public boolean doesControlFlowPathExistBetween(final SootMethod method, final Stmt stmt, final SootMethod targetMethod,
 			final boolean forward, final boolean exclusive) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("doesControlFlowPathExistsBetween(SootMethod method = " + method + ", Stmt stmt = " + stmt
@@ -177,7 +177,7 @@ public final class CFGAnalysis {
 	 *         path; <code>false</code>, otherwise.
 	 * @pre srcStmt != null and dest != null and method != null
 	 */
-	public boolean doesControlFlowPathExistsBetween(final Stmt srcStmt, final Stmt destStmt, final SootMethod method) {
+	public boolean doesControlFlowPathExistBetween(final Stmt srcStmt, final Stmt destStmt, final SootMethod method) {
 		final boolean _result;
 		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
 		final BasicBlock _bbDest = _bbg.getEnclosingBlock(destStmt);
@@ -202,7 +202,7 @@ public final class CFGAnalysis {
 	 * @return <code>true</code> if there is a control path; <code>false</code>, otherwise.
 	 * @pre srcMethod != null and destMethod != null
 	 */
-	public boolean doesControlPathExistsFromTo(final SootMethod srcMethod, final SootMethod destMethod) {
+	public boolean doesControlPathExistFromTo(final SootMethod srcMethod, final SootMethod destMethod) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("doesControlPathExistsFromTo(SootMethod srcMethod = " + srcMethod + ", SootMethod destMethod = "
 					+ destMethod + ") - BEGIN");
@@ -244,7 +244,7 @@ public final class CFGAnalysis {
 			final Stmt _stmt = _j.next();
 
 			if (cgi.isCalleeReachableFromCallSite(srcMethod, _stmt, method)) {
-				_result = doesControlFlowPathExistsBetween(method, _stmt, destMethod, true, true);
+				_result = doesControlFlowPathExistBetween(method, _stmt, destMethod, true, true);
 			}
 		}
 		return _result;
@@ -326,7 +326,7 @@ public final class CFGAnalysis {
 			 * the invocation statement that succeed srcStmt in srcMethod.
 			 */
 			if (cgi.isCalleeReachableFromCaller(destMethod, srcMethod)) {
-				_result = doesControlFlowPathExistsBetween(srcMethod, srcStmt, destMethod, true, false);
+				_result = doesControlFlowPathExistBetween(srcMethod, srcStmt, destMethod, true, false);
 			}
 
 			/*
@@ -334,7 +334,7 @@ public final class CFGAnalysis {
 			 * the invocation statements that precede destStmt in destMethod.
 			 */
 			if (!_result && cgi.isCalleeReachableFromCaller(srcMethod, destMethod)) {
-				_result = doesControlFlowPathExistsBetween(destMethod, destStmt, srcMethod, false, false);
+				_result = doesControlFlowPathExistBetween(destMethod, destStmt, srcMethod, false, false);
 			}
 
 			/*
@@ -344,7 +344,7 @@ public final class CFGAnalysis {
 			 * srcMethod may occur prior to the srcStmt. The same holds for condition two.
 			 */
 			if (!_result) {
-				_result = doesControlPathExistsFromTo(srcMethod, destMethod);
+				_result = doesControlPathExistFromTo(srcMethod, destMethod);
 			}
 		} else {
 			_result = tgi == null || tgi.containsClassInitThread(tgi.getExecutionThreads(srcMethod));

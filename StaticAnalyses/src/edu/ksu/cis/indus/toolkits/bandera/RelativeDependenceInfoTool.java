@@ -204,7 +204,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	/**
 	 * The collection of input argument identifiers.
 	 */
-	private static final List<Comparable> IN_ARGUMENTS_IDS;
+	private static final List<Comparable<?>> IN_ARGUMENTS_IDS;
 
 	/**
 	 * This is the method name prefix in bir model from j2b.
@@ -219,12 +219,12 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	/**
 	 * The collection of output argument identifiers.
 	 */
-	private static final List<Comparable> OUT_ARGUMENTS_IDS;
+	private static final List<Comparable<?>> OUT_ARGUMENTS_IDS;
 	static {
-		IN_ARGUMENTS_IDS = new ArrayList<Comparable>();
+		IN_ARGUMENTS_IDS = new ArrayList<Comparable<?>>();
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
-		OUT_ARGUMENTS_IDS = new ArrayList<Comparable>();
+		OUT_ARGUMENTS_IDS = new ArrayList<Comparable<?>>();
 		OUT_ARGUMENTS_IDS.add(SERIALIZE_DATA_OUTPUT);
 	}
 
@@ -354,7 +354,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getInputParameterList()
 	 */
-	public List<Comparable> getInputParameterList() {
+	public List<Comparable<?>> getInputParameterList() {
 		return Collections.unmodifiableList(IN_ARGUMENTS_IDS);
 	}
 
@@ -375,7 +375,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputParameterList()
 	 */
-	public List<Comparable> getOutputParameterList() {
+	public List<Comparable<?>> getOutputParameterList() {
 		return Collections.unmodifiableList(OUT_ARGUMENTS_IDS);
 	}
 
