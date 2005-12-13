@@ -56,6 +56,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 import soot.toolkits.graph.CompleteUnitGraph;
@@ -264,7 +265,7 @@ public final class OFATool <T extends ITokens<T, Value>>
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _factory = new CompleteStmtGraphFactory();
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
-				TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), _factory);
+				TokenUtil.<T, Value, Type>getTokenManager(new SootValueTypeManager()), _factory);
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();

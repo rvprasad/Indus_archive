@@ -80,6 +80,7 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Type;
 import soot.Value;
 
 /**
@@ -340,7 +341,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()),
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type>getTokenManager(new SootValueTypeManager()),
 				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();

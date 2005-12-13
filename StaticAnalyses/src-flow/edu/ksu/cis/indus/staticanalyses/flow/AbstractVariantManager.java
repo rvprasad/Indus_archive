@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @param <SYM> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		implements IVariantManager<V, E> {
 
 	/**
@@ -48,7 +48,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA<SYM, T, N> fa;
+	protected final FA<SYM, T, N, R> fa;
 
 	/**
 	 * A manager of indices that map entities to variants.
@@ -71,7 +71,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 	 * @param indexManager the manager of indices that map the entities to variants.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	AbstractVariantManager(final FA<SYM, T, N> theAnalysis, final IIndexManager<? extends IIndex<?>, E> indexManager) {
+	AbstractVariantManager(final FA<SYM, T, N, R> theAnalysis, final IIndexManager<? extends IIndex<?>, E> indexManager) {
 		this.fa = theAnalysis;
 		this.idxManager = indexManager;
 	}

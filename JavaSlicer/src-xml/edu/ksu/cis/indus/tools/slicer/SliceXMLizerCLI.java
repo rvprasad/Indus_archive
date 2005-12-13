@@ -83,6 +83,7 @@ import org.slf4j.LoggerFactory;
 import soot.Printer;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 
@@ -181,7 +182,7 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
-		slicer = new SlicerTool<T>(TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
+		slicer = new SlicerTool<T>(TokenUtil.<T, Value, Type>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 

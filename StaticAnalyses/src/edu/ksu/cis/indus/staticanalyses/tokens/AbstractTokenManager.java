@@ -27,45 +27,46 @@ import java.util.Observer;
 /**
  * This class provides the abstract implementation of <code>ITokenmanager</code>. It is advised that all token managers
  * extend this class.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <T> DOCUMENT ME!
  * @param <V> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public abstract class AbstractTokenManager<T extends ITokens<T, V>, V>
-		implements ITokenManager<T, V>, Observer {
+public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
+		implements ITokenManager<T, V, R>, Observer {
 
 	/**
 	 * This provides the logic to update token to type relation. A simple situation is that in Java <code>null</code> is a
 	 * valid value/token of all reference types in the system. Hence, token to type relation will change as more types are
 	 * loaded into the system after <code>null</code> has been considered.
 	 */
-	protected final IDynamicTokenTypeRelationDetector onlineTokenTypeRelationEvalutator;
+	protected final IDynamicTokenTypeRelationDetector<V> onlineTokenTypeRelationEvalutator;
 
 	/**
 	 * The type manager that manages the types of the tokens managed by this object.
-	 * 
+	 *
 	 * @invariant typeMgr != null
 	 */
-	protected final ITypeManager typeMgr;
+	protected final ITypeManager<R, V> typeMgr;
 
 	/**
 	 * The mapping between types to the type based filter.
-	 * 
+	 *
 	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
 	 */
 	private final Map<IType, ITokenFilter<T, V>> type2filter = new HashMap<IType, ITokenFilter<T, V>>();
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param typeManager manages the types of the tokens managed by this object. The client should relinquish ownership of
 	 *            the given argument. This argument is provided for configurability.
 	 * @pre typeManager != null
 	 */
-	public AbstractTokenManager(final ITypeManager typeManager) {
+	public AbstractTokenManager(final ITypeManager<R, V> typeManager) {
 		typeMgr = typeManager;
 		onlineTokenTypeRelationEvalutator = typeManager.getDynamicTokenTypeRelationEvaluator();
 	}
@@ -87,7 +88,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeManager()
 	 */
-	public ITypeManager getTypeManager() {
+	public ITypeManager<R, V> getTypeManager() {
 		return typeMgr;
 	}
 
@@ -114,7 +115,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V>
 
 	/**
 	 * Retrieves a new token filter for the given type.
-	 * 
+	 *
 	 * @param type for which the filter is requested.
 	 * @return a new token filter.
 	 * @pre type != null
@@ -124,7 +125,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V>
 	/**
 	 * Retrieves the values being managed by this manager. This implementation returns an empty collection. This is used to
 	 * update value-token-type relation on-the-fly.
-	 * 
+	 *
 	 * @return the values being managed by this manager.
 	 */
 	protected Collection<V> getValues() {
@@ -134,7 +135,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V>
 	/**
 	 * Records the new token-type relations. This implementation does nothing. This method will be called only be called if
 	 * new token-type relations are discovered on-the-fly.
-	 * 
+	 *
 	 * @param values whose type has been incrementally changed. This is guaranteed to be the objects in the collection
 	 *            <code>values</code> provided to <code>fixupTokenTypeRelation</code> method.
 	 * @param type is the new additional type of <code>values</code>. This is guaranteed to be one of the objects in the

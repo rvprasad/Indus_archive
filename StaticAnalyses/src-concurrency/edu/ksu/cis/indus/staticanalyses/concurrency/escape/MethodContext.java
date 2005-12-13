@@ -649,12 +649,12 @@ final class MethodContext
 			unifyAliasSets(_representative.thrown, _represented.thrown);
 			unifyAliasSets(_representative.thisAS, _represented.thisAS);
 
-			final Collection _values = ecba.class2aliasSet.values();
-			final Iterator _i = _values.iterator();
+			final Collection<AliasSet> _values = ecba.class2aliasSet.values();
+			final Iterator<AliasSet> _i = _values.iterator();
 			final int _iEnd = _values.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final AliasSet _as = (AliasSet) _i.next();
+				final AliasSet _as = _i.next();
 				AliasSet.selfUnify(_as);
 			}
 		}

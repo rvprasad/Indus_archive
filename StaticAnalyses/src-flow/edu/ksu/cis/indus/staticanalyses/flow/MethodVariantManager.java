@@ -33,8 +33,8 @@ import soot.Value;
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
-		extends AbstractVariantManager<IMethodVariant<N>, SootMethod, SYM, T, N> {
+class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
+		extends AbstractVariantManager<IMethodVariant<N>, SootMethod, SYM, T, N, R> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -50,7 +50,7 @@ class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM
 	/**
 	 * The factory used to create method variants.
 	 */
-	private final IMethodVariantFactory<SYM, T, N> mvFactory;
+	private final IMethodVariantFactory<SYM, T, N, R> mvFactory;
 
 	/**
 	 * Creates a new <code>MethodVariantManager</code> instance.
@@ -64,10 +64,10 @@ class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM
 	 * @param factory used to create method variants.
 	 * @pre theAnalysis != null and indexManager != null and astIndexManagerPrototype != null
 	 */
-	MethodVariantManager(final FA<SYM, T, N> theAnalysis,
+	MethodVariantManager(final FA<SYM, T, N, R> theAnalysis,
 			final IIndexManager<? extends IIndex<?>, SootMethod> indexManager,
 			final IPrototype<? extends IIndexManager<? extends IIndex<?>, Value>> astIndexManagerPrototype,
-			final IMethodVariantFactory<SYM, T, N> factory) {
+			final IMethodVariantFactory<SYM, T, N, R> factory) {
 		super(theAnalysis, indexManager);
 		this.astIMPrototype = astIndexManagerPrototype;
 		mvFactory = factory;
@@ -86,7 +86,7 @@ class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM
 			LOGGER.debug("STATS: Processing method: " + o + "\t number: " + (getVariantCount() + 1));
 		}
 
-		final ASTVariantManager<SYM, T, N> _astVM = new ASTVariantManager<SYM, T, N>(fa, astIMPrototype.getClone());
+		final ASTVariantManager<SYM, T, N, R> _astVM = new ASTVariantManager<SYM, T, N, R>(fa, astIMPrototype.getClone());
 		final SootMethod _sootMethod = o;
 		return mvFactory.create(_sootMethod, _astVM, fa);
 	}

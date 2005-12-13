@@ -40,7 +40,7 @@ class OFAFGNode<T extends ITokens<T, Value>>
 	 *
 	 * @invariant tokenMgr != null
 	 */
-	private final ITokenManager<T, Value> tokenMgr;
+	private final ITokenManager<T, Value, ?> tokenMgr;
 
 	/**
 	 * Creates a new <code>OFAFGNode</code> instance.
@@ -49,7 +49,7 @@ class OFAFGNode<T extends ITokens<T, Value>>
 	 * @param tokenManager that manages the tokens whose flow is being instrumented.
 	 * @pre provider != null and tokenManager != null
 	 */
-	public OFAFGNode(final IWorkBagProvider provider, final ITokenManager<T, Value> tokenManager) {
+	public OFAFGNode(final IWorkBagProvider provider, final ITokenManager<T, Value, ?> tokenManager) {
 		super(provider, tokenManager.getNewTokenSet());
 		tokenMgr = tokenManager;
 	}

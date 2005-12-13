@@ -41,9 +41,10 @@ import org.slf4j.LoggerFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <V> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public final class BitSetTokenManager<V>
-  extends AbstractTokenManager<BitSetTokenManager<V>.BitSetTokens, V> {
+public final class BitSetTokenManager<V, R>
+  extends AbstractTokenManager<BitSetTokenManager<V, R>.BitSetTokens, V, R> {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -68,7 +69,7 @@ public final class BitSetTokenManager<V>
 	 *
 	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
-	public BitSetTokenManager(final ITypeManager typeManager) {
+	public BitSetTokenManager(final ITypeManager<R, V> typeManager) {
 		super(typeManager);
         typeManager.addObserver(this);
 	}
@@ -81,7 +82,7 @@ public final class BitSetTokenManager<V>
 	 * @version $Revision$ $Date$
 	 */
 	private class BitSetTokenFilter
-	  implements ITokenFilter<BitSetTokenManager<V>.BitSetTokens, V> {
+	  implements ITokenFilter<BitSetTokenManager<V, R>.BitSetTokens, V> {
 		/**
 		 * The filter mask.
 		 */

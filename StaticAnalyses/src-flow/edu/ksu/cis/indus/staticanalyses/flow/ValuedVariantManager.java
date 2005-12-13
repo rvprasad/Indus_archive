@@ -25,9 +25,10 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-class ValuedVariantManager<E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
-		extends AbstractVariantManager<ValuedVariant<N>, E, SYM, T, N> {
+class ValuedVariantManager<E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
+		extends AbstractVariantManager<ValuedVariant<N>, E, SYM, T, N, R> {
 
 	/**
 	 * Creates a new <code>ValuedVariantManager</code> instance.
@@ -36,7 +37,7 @@ class ValuedVariantManager<E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<
 	 * @param indexManager the manager of indices which map array variants to arrays.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ValuedVariantManager(final FA<SYM, T, N> theAnalysis, final IIndexManager<? extends IIndex<?>, E> indexManager) {
+	ValuedVariantManager(final FA<SYM, T, N, R> theAnalysis, final IIndexManager<? extends IIndex<?>, E> indexManager) {
 		super(theAnalysis, indexManager);
 	}
 

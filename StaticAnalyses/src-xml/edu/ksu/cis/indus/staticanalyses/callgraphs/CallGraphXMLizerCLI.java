@@ -65,6 +65,7 @@ import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Type;
 import soot.Value;
 
 /**
@@ -273,7 +274,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 	private void executeOFA(final boolean dumpJimple) {
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
-				.<T, Value> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));

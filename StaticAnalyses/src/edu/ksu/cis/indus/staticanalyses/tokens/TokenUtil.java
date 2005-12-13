@@ -54,6 +54,7 @@ public final class TokenUtil {
 	 * <code>edu.ksu.cis.indus.staticanalyses.Constants.getTokenMgrType()</code>.
 	 * @param <T> DOCUMENT ME!
 	 * @param <V> DOCUMENT ME!
+	 * @param <R> DOCUMENT ME!
 	 *
 	 * @param typeManager being used by the user.
 	 *
@@ -64,8 +65,8 @@ public final class TokenUtil {
 	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
 	 * 		 result.oclIsKindOf(IntegerTokenManager)
 	 */
-	public static <T extends ITokens<T, V>, V> ITokenManager<T, V> getTokenManager(final ITypeManager<?, V> typeManager) {
-		ITokenManager<T, V> _tokenMgr = null;
+	public static <T extends ITokens<T, V>, V, R> ITokenManager<T, V, R> getTokenManager(final ITypeManager<R, V> typeManager) {
+		ITokenManager<T, V, R> _tokenMgr = null;
 		final String _tmType = Constants.getTokenManagerType();
 
 		try {

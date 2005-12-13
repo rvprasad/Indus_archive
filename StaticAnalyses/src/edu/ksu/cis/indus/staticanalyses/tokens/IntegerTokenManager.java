@@ -37,9 +37,10 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <V> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public class IntegerTokenManager<V>
-  extends AbstractTokenManager<IntegerTokenManager<V>.IntegerTokens, V> {
+public class IntegerTokenManager<V, R>
+  extends AbstractTokenManager<IntegerTokenManager<V, R>.IntegerTokens, V, R> {
 	/** 
 	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
@@ -64,7 +65,7 @@ public class IntegerTokenManager<V>
 	 *
 	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
-	public IntegerTokenManager(final ITypeManager typeManager) {
+	public IntegerTokenManager(final ITypeManager<R, V> typeManager) {
 		super(typeManager);
 		typeManager.addObserver(this);
 	}
@@ -89,7 +90,7 @@ public class IntegerTokenManager<V>
 		 *
 		 * @invariant tokenMgr != null
 		 */
-		private IntegerTokenManager<V> tokenMgr;
+		private IntegerTokenManager<V, R> tokenMgr;
 
 		/**
 		 * Creates a new IntegerTokens object.
@@ -98,7 +99,7 @@ public class IntegerTokenManager<V>
 		 *
 		 * @pre tokenManager != null
 		 */
-		IntegerTokens(final IntegerTokenManager<V> tokenManager) {
+		IntegerTokens(final IntegerTokenManager<V, R> tokenManager) {
 			tokenMgr = tokenManager;
 		}
 
@@ -163,7 +164,7 @@ public class IntegerTokenManager<V>
 	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
 	 */
 	private class IntegerTokenFilter
-	  implements ITokenFilter<IntegerTokenManager<V>.IntegerTokens, V> {
+	  implements ITokenFilter<IntegerTokenManager<V, R>.IntegerTokens, V> {
 		/** 
 		 * The type of values to let through the filter.
 		 *
@@ -185,9 +186,9 @@ public class IntegerTokenManager<V>
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
-		public IntegerTokenManager<V>.IntegerTokens filter(final IntegerTokenManager<V>.IntegerTokens tokens) {
-			final IntegerTokenManager<V> _l = IntegerTokenManager.this;
-			final IntegerTokenManager<V>.IntegerTokens _result = new IntegerTokens(_l);
+		public IntegerTokenManager<V, R>.IntegerTokens filter(final IntegerTokenManager<V, R>.IntegerTokens tokens) {
+			final IntegerTokenManager<V, R> _l = IntegerTokenManager.this;
+			final IntegerTokenManager<V, R>.IntegerTokens _result = new IntegerTokens(_l);
 			_result.integer |= tokens.integer;
 			_result.integer &= type2tokens.get(filterType);
 			return _result;

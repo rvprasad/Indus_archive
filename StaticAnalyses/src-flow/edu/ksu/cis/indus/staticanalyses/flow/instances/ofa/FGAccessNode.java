@@ -46,7 +46,7 @@ class FGAccessNode<T extends ITokens<T, Value>>
 	 * @pre workPeice != null and provider != null and tokenManager != null
 	 */
 	public FGAccessNode(final ITokenProcessingWork<T> workPeice, final IWorkBagProvider provider,
-			final ITokenManager<T, Value> tokenManager) {
+			final ITokenManager<T, Value, ?> tokenManager) {
 		super(provider, tokenManager);
 		this.work = workPeice;
 	}

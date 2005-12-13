@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -64,8 +63,8 @@ import soot.Body;
 import soot.Local;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
-
 
 /**
  * This is a command line interface to exercise side effect and escape information analysis.
@@ -75,9 +74,10 @@ import soot.Value;
  * @version $Revision$ $Date$
  * @param <T> dummy type parameter.
  */
-public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
-  extends SootBasedDriver {
-	/** 
+public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
+		extends SootBasedDriver {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(EscapeAndReadWriteCLI.class);
@@ -86,7 +86,6 @@ public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
 	 * The entry point to this class.
 	 *
 	 * @param args command line arguments.
-	 *
 	 * @throws RuntimeException when escape information and side-effect information calculation fails.
 	 */
 	public static void main(final String[] args) {
@@ -141,8 +140,8 @@ public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "SideEffect:FA";
-		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
+				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
@@ -186,7 +185,7 @@ public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
-        final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		final IReadWriteInfo _rwInfo = _ecba.getReadWriteInfo();
 		final IEscapeInfo _escapeInfo = _ecba.getEscapeInfo();
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
@@ -196,31 +195,32 @@ public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
 		writeInfo("END: Escape analysis");
 
 		System.out.println("ReadWrite-Effect and Escape Information:");
-        final String[] _emptyStringArray = new String[0];
+		final String[] _emptyStringArray = new String[0];
 
-		for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
+		for (final Iterator<SootMethod> _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _sm = _i.next();
 			System.out.println("Method: " + _sm.getSignature());
-            if (!_sm.isStatic()) {
+			if (!_sm.isStatic()) {
 				System.out.println("\tthis:");
-				System.out.println("\t\thread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));
+				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));
 				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, _emptyStringArray, true));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
 				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
 				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
 
-				for (final Iterator _j = _sm.getDeclaringClass().getFields().iterator(); _j.hasNext();) {
-					final String[] _accessPath = { ((SootField) _j.next()).getSignature() };
+				for (final Iterator<SootField> _j = _sm.getDeclaringClass().getFields().iterator(); _j.hasNext();) {
+					final String[] _accessPath = {_j.next().getSignature()};
 					System.out.println("\t\t\t" + _accessPath[0] + ": ["
-						+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
-						+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
+							+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
+							+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
 				}
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
 				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]:");
-				System.out.println("\t\thread = " + _rwInfo.isParameterBasedAccessPathRead(_sm, _j, _emptyStringArray, true));
-				System.out.println("\t\twritten = " + _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, _emptyStringArray, true));
+				System.out.println("\t\tread = " + _rwInfo.isParameterBasedAccessPathRead(_sm, _j, _emptyStringArray, true));
+				System.out.println("\t\twritten = "
+						+ _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, _emptyStringArray, true));
 				System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_j, _sm));
 				System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_j, _sm));
 			}
@@ -228,9 +228,9 @@ public class EscapeAndReadWriteCLI <T extends ITokens<T, Value>>
 			if (_sm.hasActiveBody()) {
 				final Body _body = _sm.getActiveBody();
 
-				for (final Iterator _j = _body.getLocals().iterator(); _j.hasNext();) {
-					final Local _local = (Local) _j.next();
-					System.out.println("\tLocal " + _local.getName() + " : ");
+				for (final Iterator<Local> _j = _body.getLocals().iterator(); _j.hasNext();) {
+					final Local _local = _j.next();
+					System.out.println("\tLocal " + _local.getName() + "[" + _local.getType() + "] : ");
 					System.out.println("\t\tescapes = " + _escapeInfo.escapes(_local, _sm));
 					System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_local, _sm));
 					System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_local, _sm));

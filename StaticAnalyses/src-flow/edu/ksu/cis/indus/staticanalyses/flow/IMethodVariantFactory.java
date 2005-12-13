@@ -26,8 +26,9 @@ import soot.SootMethod;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public interface IMethodVariantFactory<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>> {
+public interface IMethodVariantFactory<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R> {
 
 	/**
 	 * Creates a method variant.
@@ -38,7 +39,7 @@ public interface IMethodVariantFactory<SYM, T extends ITokens<T, SYM>, N extends
 	 * @return a method variant
 	 * @pre sootMethod != null and fa != null
 	 */
-	IMethodVariant<N> create(SootMethod sootMethod, ASTVariantManager<SYM, T, N> astVM, FA<SYM, T, N> fa);
+	IMethodVariant<N> create(SootMethod sootMethod, ASTVariantManager<SYM, T, N, R> astVM, FA<SYM, T, N, R> fa);
 }
 
 // End of File

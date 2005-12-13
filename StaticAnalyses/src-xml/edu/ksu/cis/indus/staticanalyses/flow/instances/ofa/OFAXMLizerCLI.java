@@ -65,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 /**
@@ -227,16 +228,16 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer<Value> _aa;
 		if (type.equals("fioi")) {
-			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 					getStmtGraphFactory());
 		} else if (type.equals("fios")) {
-			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 					getStmtGraphFactory());
 		} else if (type.equals("fsoi")) {
-			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 					getStmtGraphFactory());
 		} else if (type.equals("fsos")) {
-			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 					getStmtGraphFactory());
 		} else {
 			throw new IllegalArgumentException("ofa-type can only be fioi, fsoi, fios, fsos.");

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -23,7 +22,9 @@ import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
-import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerToolHelper;
@@ -32,6 +33,7 @@ import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
@@ -50,7 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import soot.Scene;
 import soot.SootMethod;
-
+import soot.Type;
+import soot.Value;
 
 /**
  * This class wraps the slicer in the tool interface required by the tool pipeline in Bandera.
@@ -58,51 +62,53 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T> DOCUMENT ME!
  */
-public final class SlicerTool
-  extends BaseObservable
-  implements Tool {
-	/** 
+public final class SlicerTool<T extends ITokens<T, Value>>
+		extends BaseObservable
+		implements Tool {
+
+	/**
 	 * This identifies the slicing criteria in the input arguments.
 	 */
 	public static final Object CRITERIA = "slicingCriteria";
 
-	/** 
+	/**
 	 * This identifies the slicing criteria specification in the input arguments.
 	 */
 	public static final Object CRITERIA_SPECIFICATION = "slicingCriteriaSpecification";
 
-	/** 
+	/**
 	 * This identifies the slicer configuration to be used.
 	 */
 	public static final Object ID_OF_CONFIGURATION_TO_USE = "idOfConfigurationToUse";
 
-	/** 
+	/**
 	 * This identifies the root methods/entry point methods in the input arguments.
 	 */
 	public static final Object ROOT_METHODS = "entryPoints";
-	
-	/** 
+
+	/**
 	 * This identifies the scene in the input arguments.
 	 */
 	public static final Object SCENE = "scene";
 
-	/** 
+	/**
 	 * The collection of input argument identifiers.
 	 */
 	private static final List<Object> IN_ARGUMENTS_IDS;
 
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerTool.class);
 
-	/** 
+	/**
 	 * The collection of output argument identifiers.
 	 */
 	private static final List<Object> OUT_ARGUMENTS_IDS;
 
-	/** 
+	/**
 	 * The default tag name to be used.
 	 */
 	private static final String TAG_NAME = "Slicer:Bandera";
@@ -122,38 +128,38 @@ public final class SlicerTool
 	 */
 	private boolean abortFlag;
 
-	/** 
+	/**
 	 * This is the configuration.
 	 */
 	private SlicerConfiguration configuration;
 
-	/** 
+	/**
 	 * The configuration interface provided by this object to configure the slicer tool.
 	 */
 	private SlicerConfigurationView configurationView;
 
-	/** 
+	/**
 	 * This indicates if the configuration was provided.
 	 */
 	private boolean configurationWasProvided;
 
-	/** 
+	/**
 	 * The scene being processed.
 	 */
 	private Scene scene;
 
-	/** 
+	/**
 	 * The slicer tool that is adapted by this object.
 	 */
-	private final edu.ksu.cis.indus.tools.slicer.SlicerTool tool;
+	private final edu.ksu.cis.indus.tools.slicer.SlicerTool<T> tool;
 
 	/**
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
-		tool =
-			new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()),
-				new CompleteStmtGraphFactory());
+		final SootValueTypeManager _sootValueTypeManager = new SootValueTypeManager();
+		final ITokenManager<T, Value, Type> _tokenManager = TokenUtil.<T, Value, Type> getTokenManager(_sootValueTypeManager);
+		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool<T>(_tokenManager, new CompleteStmtGraphFactory());
 		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
@@ -219,8 +225,7 @@ public final class SlicerTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#quit()
 	 */
-	public void quit()
-	  throws Exception {
+	public void quit() throws Exception {
 		tool.abort();
 		abortFlag = true;
 	}
@@ -228,17 +233,18 @@ public final class SlicerTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#run()
 	 */
-	public void run()
-	  throws Exception {
+	public void run() throws Exception {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: bandera slicer tool");
 		}
 		abortFlag = false;
 
 		if (!configurationWasProvided) {
-			final String _msg = "No configuration was provided.  Aborting!!!";
-			LOGGER.error(_msg);
-			throw new IllegalArgumentException(_msg);
+			final File _file = FileUtils.toFile(getClass().getClassLoader().getResource("bandera_slicer_configuration.xml"));
+			final String _config = FileUtils.readFileToString(_file, null);
+			setConfiguration(_config);
+			LOGGER.info("As no configuration was specified explicitly, default configuration found in "
+					+ "edu/ksu/cis/indus/toolkits/bandera/bandera_slicer_configuration.xml was loaded.");
 		}
 
 		tool.run(Phase.STARTING_PHASE, null, true);
@@ -264,15 +270,13 @@ public final class SlicerTool
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
-	public void setConfiguration(final String configStr)
-	  throws Exception {
+	public void setConfiguration(final String configStr) throws Exception {
 		configurationWasProvided = configStr != null && configStr.length() > 0;
 
 		final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
 		final IUnmarshallingContext _uctx = _bfact.createUnmarshallingContext();
-		configuration =
-			(SlicerConfiguration) _uctx.unmarshalDocument(new BufferedInputStream(
-					new ByteArrayInputStream(configStr.getBytes())), null);
+		configuration = (SlicerConfiguration) _uctx.unmarshalDocument(new BufferedInputStream(new ByteArrayInputStream(
+				configStr.getBytes())), null);
 		tool.destringizeConfiguration(configuration.slicerConfigurationStr);
 	}
 
@@ -280,13 +284,11 @@ public final class SlicerTool
 	 * {@inheritDoc}
 	 *
 	 * @param inputArgs maps the input argument identifiers to the arguments.
-	 *
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
 	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.ISliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 * @pre inputArgs.get(ID_OF_CONFIGURATION_TO_USE).oclIsKindOf(String)
-	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
 	public void setInputMap(final Map inputArgs) {
@@ -311,9 +313,9 @@ public final class SlicerTool
 
 				if (!SliceCriteriaFactory.isSlicingCriterion(_o)) {
 					LOGGER.error(_o + " is an invalid slicing criterion.  "
-						+ "All slicing criterion should be created via SliceCriteriaFactory.");
+							+ "All slicing criterion should be created via SliceCriteriaFactory.");
 					throw new IllegalArgumentException("Slicing criteion " + _o
-						+ " was not created via SliceCriteriaFactory.");
+							+ " was not created via SliceCriteriaFactory.");
 				}
 			}
 		}
@@ -335,7 +337,7 @@ public final class SlicerTool
 			}
 		}
 
-		final Collection _rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
+		final Collection<SootMethod> _rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
 
 		if (_rootMethods == null || _rootMethods.isEmpty()) {
 			final String _msg = "Atleast one method should be specified as the entry-point into the system.";
@@ -351,9 +353,9 @@ public final class SlicerTool
 		} else {
 			tool.setActiveConfiguration(_activeConfID);
 		}
-		
-		for (final Iterator _i = _rootMethods.iterator(); _i.hasNext();) {
-			tool.addCriteria(SliceCriteriaFactory.getFactory().getCriteria((SootMethod) _i.next()));
+
+		for (final Iterator<SootMethod> _i = _rootMethods.iterator(); _i.hasNext();) {
+			tool.addCriteria(SliceCriteriaFactory.getFactory().getCriteria(_i.next()));
 		}
 	}
 }

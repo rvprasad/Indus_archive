@@ -92,6 +92,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 /**
@@ -296,7 +297,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * This manages the tokens used in flow analysis.
 	 */
-	private final ITokenManager<T, Value> theTokenMgr;
+	private final ITokenManager<T, Value, Type> theTokenMgr;
 
 	/**
 	 * This provides thread graph.
@@ -311,7 +312,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
 	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
 	 */
-	public SlicerTool(final ITokenManager<T, Value> tokenMgr, final IStmtGraphFactory<?> stmtGraphFactoryToUse) {
+	public SlicerTool(final ITokenManager<T, Value, Type> tokenMgr, final IStmtGraphFactory<?> stmtGraphFactoryToUse) {
 		theTokenMgr = tokenMgr;
 		phase = Phase.createPhase();
 

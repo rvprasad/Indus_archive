@@ -68,7 +68,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @param <T> DOCUMENT ME!
  */
 class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
-		extends AbstractExprSwitch<FlowInsensitiveExprSwitch<T>, Value, T, OFAFGNode<T>> {
+		extends AbstractExprSwitch<FlowInsensitiveExprSwitch<T>, Value, T, OFAFGNode<T>, Type> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -78,7 +78,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	/**
 	 * The token manager to be used.
 	 */
-	protected final ITokenManager<T, Value> tokenMgr;
+	protected final ITokenManager<T, Value, Type> tokenMgr;
 
 	/**
 	 * Creates a new <code>FlowInsensitiveExprSwitch</code> instance.

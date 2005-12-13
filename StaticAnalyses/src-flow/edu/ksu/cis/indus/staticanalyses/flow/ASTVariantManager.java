@@ -26,9 +26,10 @@ import soot.jimple.InvokeExpr;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public class ASTVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
-		extends AbstractVariantManager<ValuedVariant<N>, Value, SYM, T, N> {
+public class ASTVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
+		extends AbstractVariantManager<ValuedVariant<N>, Value, SYM, T, N, R> {
 
 	/**
 	 * Creates a new <code>ASTVariantManager</code> instance.
@@ -37,7 +38,7 @@ public class ASTVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 	 * @param indexManager the manager that shall provide the indices to lookup the variants.
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ASTVariantManager(final FA<SYM, T, N> theAnalysis,
+	ASTVariantManager(final FA<SYM, T, N, R> theAnalysis,
 			final IIndexManager<? extends IIndex<?>, Value> indexManager) {
 		super(theAnalysis, indexManager);
 	}

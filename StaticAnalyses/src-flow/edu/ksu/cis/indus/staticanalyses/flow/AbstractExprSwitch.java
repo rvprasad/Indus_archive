@@ -38,7 +38,7 @@ import soot.jimple.AbstractJimpleValueSwitch;
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T, N>, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T, N, R>, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		extends AbstractJimpleValueSwitch
 		implements IExprSwitch<N> {
 
@@ -61,7 +61,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 	/**
 	 * The instance of the underlying flow analysis framework.
 	 */
-	protected final FA<SYM, T, N> fa;
+	protected final FA<SYM, T, N, R> fa;
 
 	/**
 	 * This visitor is used to visit the expressions in the <code>method</code> variant.

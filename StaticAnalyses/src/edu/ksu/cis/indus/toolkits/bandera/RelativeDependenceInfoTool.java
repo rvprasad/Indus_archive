@@ -73,6 +73,7 @@ import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 import soot.jimple.Stmt;
@@ -512,7 +513,7 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _stmtGraphFactory = new CompleteStmtGraphFactory();
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
-				.<T, Value> getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
+				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), _stmtGraphFactory);
 
 		if (abort) {
 			return;

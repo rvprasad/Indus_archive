@@ -96,6 +96,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 import soot.jimple.Stmt;
 
@@ -387,7 +388,7 @@ public class InfluenceChecker
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value> getTokenManager(new SootValueTypeManager()),
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();

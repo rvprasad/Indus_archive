@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -66,23 +65,23 @@ import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 import soot.jimple.Stmt;
 
-
 /**
- * This is a command-line interface to drive independence detection implementation in Indus.  This interface will generate
+ * This is a command-line interface to drive independence detection implementation in Indus. This interface will generate
  * annotated jimple.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <T> dummy type parameter.
- *
  */
 public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
-  extends SootBasedDriver {
+		extends SootBasedDriver {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -100,9 +99,8 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param arg the detector to use.
-	 *
 	 * @pre arg != null
 	 */
 	public IndependenceDetectionCLI(final IndependentStmtDetector arg) {
@@ -111,15 +109,13 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to the program via command line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
-	 *
 	 * @throws RuntimeException when CLI fails.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option =
-			new Option("o", "output", true, "Directory into which jimple files will be written into. [required]");
+		Option _option = new Option("o", "output", true, "Directory into which jimple files will be written into. [required]");
 		_option.setArgs(1);
 		_option.setArgName("ouput-directory");
 		_option.setRequired(true);
@@ -134,10 +130,9 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 		_options.addOption(_option);
 		_option = new Option("useV2", false, "Use version 2 of the atomicity detection algorithm.");
 		_options.addOption(_option);
-		_option =
-			new Option("scheme", false,
+		_option = new Option("scheme", false,
 				"Scheme to indicate atomicity. Valid values are 'tag-stmt' and 'tag-region'.  By default, 'tag-stmt' "
-				+ "scheme is used. ");
+						+ "scheme is used. ");
 		_option.setArgs(1);
 		_option.setArgName("scheme-name");
 		_options.addOption(_option);
@@ -185,9 +180,8 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets the output directory.
-	 *
+	 * 
 	 * @param arg is the output directory.
-	 *
 	 * @pre arg != null
 	 */
 	private void setOutputDir(final String arg) {
@@ -196,9 +190,8 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Annotates the atomic statements that are in the methods reachable in given call graph.
-	 *
+	 * 
 	 * @param cgi provides the call graph.
-	 *
 	 * @pre cgi != null
 	 */
 	private void annotateAtomicStmts(final ICallGraphInfo cgi) {
@@ -227,17 +220,16 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes atomicity detection algorithm according to given option.
-	 *
+	 * 
 	 * @param cl is the command line.
-	 *
 	 * @pre cl != null
 	 */
 	private void execute(final CommandLine cl) {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "AtomicityDetection:FA";
-		final IValueAnalyzer _aa =
-			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value>getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
+				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
@@ -266,7 +258,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, getBbm());
 		final IEscapeInfo _escapeInfo = _ecba.getEscapeInfo();
-        _info.put(IEscapeInfo.ID, _escapeInfo);
+		_info.put(IEscapeInfo.ID, _escapeInfo);
 
 		initialize();
 		_aa.analyze(new Environment(getScene()), getRootMethods());
@@ -312,16 +304,15 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 		} else {
 			annotateAtomicStmts(_cgi);
 		}
-        writeInfo("END: Independent region detection");
+		writeInfo("END: Independent region detection");
 		dumpJimpleAndClassFiles(outputDir, true, false);
 	}
 
 	/**
 	 * Annotates statements indicating boundaries of atomic regions.
-	 *
+	 * 
 	 * @param regionDetector to be used.
 	 * @param cgi provides the call graph of the reachable methods which need to be annotated.
-	 *
 	 * @pre regionDetector != null and cgi != null
 	 */
 	private void insertAtomicBoundaries(final IndependentRegionDetector regionDetector, final ICallGraphInfo cgi) {

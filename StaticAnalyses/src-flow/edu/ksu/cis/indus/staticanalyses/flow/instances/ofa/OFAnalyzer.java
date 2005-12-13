@@ -38,6 +38,7 @@ import soot.ArrayType;
 import soot.Modifier;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 /**
@@ -55,7 +56,7 @@ import soot.Value;
  */
 public final class OFAnalyzer<T extends ITokens<T, Value>>
 		extends
-		AbstractAnalyzer<Value, T, OFAFGNode<T>, IExprSwitch<OFAFGNode<T>>, IExprSwitch<OFAFGNode<T>>, IStmtSwitch> {
+		AbstractAnalyzer<Value, T, OFAFGNode<T>, IExprSwitch<OFAFGNode<T>>, IExprSwitch<OFAFGNode<T>>, IStmtSwitch, Type> {
 
 	/**
 	 * Creates a new <code>OFAnalyzer</code> instance.
@@ -75,7 +76,7 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	private OFAnalyzer(final String tagName, final IPrototype<? extends IIndexManager<? extends IIndex<?>, Value>> astim,
 			final IIndexManager<? extends IIndex<?>, ArrayType> arrayIM,
 			final IIndexManager<? extends IIndex<?>, SootField> instancefieldIM, final IExprSwitch<OFAFGNode<T>> lexpr,
-			final IExprSwitch<OFAFGNode<T>> rexpr, final IStmtSwitch stmt, final ITokenManager<T, Value> tokenMgr,
+			final IExprSwitch<OFAFGNode<T>> rexpr, final IStmtSwitch stmt, final ITokenManager<T, Value, Type> tokenMgr,
 			final IStmtGraphFactory<?> stmtGrphFctry) {
 		super(new AllocationContext(), tagName, tokenMgr);
 
@@ -103,7 +104,7 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOIAnalyzer(final String tagName,
-			final ITokenManager<T, Value> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()),
 				new FlowInsensitiveExprSwitch<T>(null, new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null),
@@ -122,7 +123,7 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOSAnalyzer(final String tagName,
-			final ITokenManager<T, Value> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new AllocationSiteSensitiveIndexManager<ArrayType>(),
 				new AllocationSiteSensitiveIndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(null,
 						new LHSConnector<OFAFGNode<T>>()), new FlowInsensitiveExprSwitch<T>(null,
@@ -141,7 +142,7 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOIAnalyzer(final String tagName,
-			final ITokenManager<T, Value> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()),
 				new FlowSensitiveExprSwitch<T>(null, new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null),
@@ -160,7 +161,7 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOSAnalyzer(final String tagName,
-			final ITokenManager<T, Value> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(),
 				new AllocationSiteSensitiveIndexManager<ArrayType>(), new AllocationSiteSensitiveIndexManager<SootField>(),
 				new FlowSensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()), new FlowSensitiveExprSwitch<T>(null,

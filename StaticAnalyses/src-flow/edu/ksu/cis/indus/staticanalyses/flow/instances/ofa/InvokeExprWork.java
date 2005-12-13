@@ -150,7 +150,7 @@ class InvokeExprWork <T extends ITokens<T, Value>>
 	private void processExprAgainstReceiver(final InstanceInvokeExpr expr, final Value receiver) {
 		final Type _t = receiver.getType();
 		final SootClass _sc;
-		final FA<?, ?, OFAFGNode<T>> _fa = caller.getFA();
+		final FA<?, ?, OFAFGNode<T>, ?> _fa = caller.getFA();
 
 		if (_t instanceof RefType) {
 			_sc = _fa.getClass(((RefType) receiver.getType()).getClassName());

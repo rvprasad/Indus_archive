@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import java.util.regex.Pattern;
 
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 
@@ -37,7 +38,7 @@ import soot.Value;
  * @param <T> DOCUMENT ME!
  */
 class MethodVariantFactory<T extends ITokens<T, Value>>
-  implements IMethodVariantFactory<Value, T, OFAFGNode<T>> {
+  implements IMethodVariantFactory<Value, T, OFAFGNode<T>, Type> {
 	/**
 	 * The pattern used to decide if a stub variant or a complete variant needs to be returned during <code>create()</code>
 	 * call.
@@ -70,7 +71,7 @@ class MethodVariantFactory<T extends ITokens<T, Value>>
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.ASTVariantManager, edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
 	public IMethodVariant<OFAFGNode<T>> create(final SootMethod sootMethod,
-			final ASTVariantManager<Value, T, OFAFGNode<T>> astVM, final FA<Value, T, OFAFGNode<T>> fa) {
+			final ASTVariantManager<Value, T, OFAFGNode<T>, Type> astVM, final FA<Value, T, OFAFGNode<T>, Type> fa) {
 		final IMethodVariant<OFAFGNode<T>> _result;
 
 		if (pattern == null || pattern.matcher(sootMethod.getDeclaringClass().getName()).matches()) {

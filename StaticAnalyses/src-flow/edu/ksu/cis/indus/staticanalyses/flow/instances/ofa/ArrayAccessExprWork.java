@@ -60,7 +60,7 @@ class ArrayAccessExprWork<T extends ITokens<T, Value>>
 	 */
 	@Override protected  OFAFGNode<T> getFGNodeForMemberData() {
 		final ArrayType _atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		final FA<?, ?, OFAFGNode<T>> _fa = caller.getFA();
+		final FA<?, ?, OFAFGNode<T>, ?> _fa = caller.getFA();
 		return _fa.getArrayVariant(_atype, context).getFGNode();
 	}
 }

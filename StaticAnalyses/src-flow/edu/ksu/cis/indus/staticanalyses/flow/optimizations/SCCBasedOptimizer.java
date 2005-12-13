@@ -203,7 +203,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 	 * @pre scc != nul
 	 * @pre tokenManager != null
 	 */
-	private void optimizeSCC(final Collection<N> scc, final ITokenManager<T, SYM> tokenManager) {
+	private void optimizeSCC(final Collection<N> scc, final ITokenManager<T, SYM, ?> tokenManager) {
 		final T _unifiedTokens = tokenManager.getNewTokenSet();
 		final T _newTokenSet = tokenManager.getNewTokenSet();
 		final Collection<N> _succs = new HashSet<N>();

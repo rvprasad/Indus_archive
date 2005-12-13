@@ -66,8 +66,9 @@ import soot.tagkit.Tag;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		implements IEnvironment, IWorkBagProvider {
 
 	/**
@@ -97,7 +98,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	/**
 	 * The manager of array variants.
 	 */
-	private ValuedVariantManager<ArrayType, SYM, T, N> arrayVariantManager;
+	private ValuedVariantManager<ArrayType, SYM, T, N, R> arrayVariantManager;
 
 	/**
 	 * The manager of class related primitive information and processing.
@@ -117,7 +118,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	/**
 	 * The manager of instance field variants.
 	 */
-	private ValuedVariantManager<SootField, SYM, T, N> instanceFieldVariantManager;
+	private ValuedVariantManager<SootField, SYM, T, N, R> instanceFieldVariantManager;
 
 	/**
 	 * DOCUMENT ME!
@@ -127,7 +128,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	/**
 	 * The manager of method variants.
 	 */
-	private MethodVariantManager<SYM, T, N> methodVariantManager;
+	private MethodVariantManager<SYM, T, N, R> methodVariantManager;
 
 	/**
 	 * DOCUMENT ME!
@@ -152,7 +153,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	/**
 	 * The manager of static field variants.
 	 */
-	private ValuedVariantManager<SootField, SYM, T, N> staticFieldVariantManager;
+	private ValuedVariantManager<SootField, SYM, T, N, R> staticFieldVariantManager;
 
 	/**
 	 * DOCUMENT ME!
@@ -169,7 +170,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 *
 	 * @invariant tokenManager != null
 	 */
-	private final ITokenManager<T, SYM> tokenManager;
+	private final ITokenManager<T, SYM, R> tokenManager;
 
 	/**
 	 * The collection of workbags used in tandem during analysis.
@@ -186,7 +187,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 * @param tokenMgr manages the tokens whose flow is instrumented by this instance of flow analysis.
 	 * @pre analyzer != null and tagName != null and tokenMgr != null and stmtGraphFactory != null
 	 */
-	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<T, SYM> tokenMgr) {
+	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager<T, SYM, R> tokenMgr) {
 		workBags = new IWorkBag[2];
 		workBags[0] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
 		workBags[1] = new PoolAwareWorkBag<IWork>(new LIFOWorkBag<IWork>());
@@ -403,7 +404,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 * @return the token manager.
 	 * @post tokenManager != null
 	 */
-	public final ITokenManager<T, SYM> getTokenManager() {
+	public final ITokenManager<T, SYM, R> getTokenManager() {
 		return tokenManager;
 	}
 
@@ -509,7 +510,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 * @param arrayIM DOCUMENT ME!
 	 */
 	public void setupArrayVariantManager(IIndexManager<? extends IIndex<?>, ArrayType> arrayIM) {
-		arrayVariantManager = new ValuedVariantManager<ArrayType, SYM, T, N>(this, arrayIM);
+		arrayVariantManager = new ValuedVariantManager<ArrayType, SYM, T, N, R>(this, arrayIM);
 	}
 
 	/**
@@ -518,7 +519,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 * @param instancefieldIM DOCUMENT ME!
 	 */
 	public void setupInstanceFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> instancefieldIM) {
-		instanceFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N>(this, instancefieldIM);
+		instanceFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N, R>(this, instancefieldIM);
 	}
 
 	/**
@@ -530,8 +531,8 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 */
 	public void setupMethodVariantManager(final IIndexManager<? extends IIndex<?>, SootMethod> mi,
 			final IPrototype<? extends IIndexManager<? extends IIndex<?>, Value>> astIMPrototype,
-			final IMethodVariantFactory<SYM, T, N> mvf) {
-		methodVariantManager = new MethodVariantManager<SYM, T, N>(this, mi, astIMPrototype, mvf);
+			final IMethodVariantFactory<SYM, T, N, R> mvf) {
+		methodVariantManager = new MethodVariantManager<SYM, T, N, R>(this, mi, astIMPrototype, mvf);
 	}
 
 	/**
@@ -540,7 +541,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 	 * @param staticfieldIM DOCUMENT ME!
 	 */
 	public void setupStaticFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> staticfieldIM) {
-		staticFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N>(this, staticfieldIM);
+		staticFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N, R>(this, staticfieldIM);
 	}
 
 	/**

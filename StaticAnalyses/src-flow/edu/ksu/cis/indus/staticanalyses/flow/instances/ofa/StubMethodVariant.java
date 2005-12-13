@@ -34,7 +34,7 @@ import soot.Value;
  * @param <T> DOCUMENT ME!
  */
 public class StubMethodVariant<T extends ITokens<T, Value>>
-		extends AbstractMethodVariant<Value, T, OFAFGNode<T>> {
+		extends AbstractMethodVariant<Value, T, OFAFGNode<T>, Type> {
 
 	/**
 	 * Creates an instance of this class.
@@ -45,7 +45,7 @@ public class StubMethodVariant<T extends ITokens<T, Value>>
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
 	public StubMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode<T>>, Value> astVariantManager,
-			final FA<Value, T, OFAFGNode<T>> theFA) {
+			final FA<Value, T, OFAFGNode<T>, Type> theFA) {
 		super(sm, astVariantManager, theFA);
 	}
 

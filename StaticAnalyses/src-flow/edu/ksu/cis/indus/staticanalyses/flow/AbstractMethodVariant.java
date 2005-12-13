@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -33,7 +32,6 @@ import soot.Value;
 import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 
-
 /**
  * An abstract implementation of <code>IMethodVariant</code> with the most general content in place.
  *
@@ -44,17 +42,18 @@ import soot.jimple.JimpleBody;
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
-  implements IMethodVariant<N> {
+public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
+		implements IMethodVariant<N> {
+
 	/**
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA<SYM, T, N> fa;
+	protected final FA<SYM, T, N, R> fa;
 
 	/**
-	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
+	 * The flow graph node associated with an abstract single return point of the corresponding method. This will be
 	 * <code>null</code>, if the associated method's return type is any non-ref type.
 	 *
 	 * @invariant _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar != null
@@ -63,7 +62,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	protected final N returnVar;
 
 	/**
-	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
+	 * The flow graph nodes associated with the this variable of the corresponding method. This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
 	 *
 	 * @invariant _method.isStatic() implies thisVar == null
@@ -84,7 +83,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	protected final IStmtSwitch stmt;
 
 	/**
-	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
+	 * The manager of AST node variants. This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
 	 *
 	 * @invariant astvm != null
@@ -104,9 +103,9 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	 * @invariant parameters.oclIsKindOf(Sequence(IFGNode))
 	 * @invariant _method.getParameterCount() == 0 implies parameters == null
 	 * @invariant _method.getParameterTypes()->forall(p | p.oclIsKindOf(RefLikeType) implies
-	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) != null)
+	 *            parameters.at(method.getParameterTypes().indexOf(p)) != null)
 	 * @invariant _method.getParameterTypes()->forall(p | not p.oclIsKindOf(RefLikeType) implies
-	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) == null)
+	 *            parameters.at(method.getParameterTypes().indexOf(p)) == null)
 	 */
 	protected final List<N> parameters;
 
@@ -123,10 +122,10 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	 * @param sm is the method be represented.
 	 * @param astVariantManager to be used for the AST chunks of the represented method.
 	 * @param theFA the instance of the flow framework with which this variant operates.
-	 *
 	 * @pre sm != null and astVariantManager != null and theFA != null
 	 */
-	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager, final FA<SYM, T, N> theFA) {
+	protected AbstractMethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<N>, Value> astVariantManager,
+			final FA<SYM, T, N, R> theFA) {
 		super();
 		method = sm;
 		astvm = astVariantManager;
@@ -211,7 +210,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	/**
 	 * @see IMethodVariant#getFA()
 	 */
-	public final FA<?, ?, N> getFA() {
+	public final FA<?, ?, N, ?> getFA() {
 		return fa;
 	}
 
@@ -286,7 +285,6 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	 * Retrieves the node corresponding to the exceptions thrown by this method variant.
 	 *
 	 * @return the node for thrown exceptions.
-	 *
 	 * @post result != null
 	 */
 	public final N queryThrownNode() {
@@ -297,7 +295,6 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	 * Decides if given type or references of it's type should be considered.
 	 *
 	 * @param type of interest.
-	 *
 	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.
 	 */
 	protected abstract boolean shouldConsider(Type type);

@@ -66,7 +66,7 @@ public interface IMethodVariant<N extends IFGNode<?, ?, N>>
 	 * @return the flow analysis instance used by this method.
 	 * @post result != null
 	 */
-	FA<?, ?, N> getFA();
+	FA<?, ?, N, ?> getFA();
 
 	/**
 	 * Retrieves the method used by this method variant.

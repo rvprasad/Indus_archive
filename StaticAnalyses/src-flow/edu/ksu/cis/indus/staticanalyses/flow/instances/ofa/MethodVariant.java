@@ -59,9 +59,10 @@ import soot.jimple.ThrowStmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
  * @param <T> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
 class MethodVariant<T extends ITokens<T, Value>>
-		extends AbstractMethodVariant<Value, T, OFAFGNode<T>> {
+		extends AbstractMethodVariant<Value, T, OFAFGNode<T>, Type> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -86,7 +87,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	 * @pre sm != null and astVariantManager != null and theFA != null and factory != null
 	 */
 	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode<T>>, Value> astVariantManager,
-			final FA<Value, T, OFAFGNode<T>> theFA, final IStmtGraphFactory<?> factory) {
+			final FA<Value, T, OFAFGNode<T>, Type> theFA, final IStmtGraphFactory<?> factory) {
 		super(sm, astVariantManager, theFA);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -99,7 +100,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 		 * to assume that all such objects can be considered as receivers for all run() implementations plugged into the run()
 		 * site.
 		 */
-		final ITokenManager<T, Value> _tokenMgr = fa.getTokenManager();
+		final ITokenManager<T, Value, Type> _tokenMgr = fa.getTokenManager();
 
 		if (thisVar != null) {
 			final RefType _sootType = sm.getDeclaringClass().getType();
@@ -142,7 +143,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	 * @pre node != null and type != null and tokenMgr != null
 	 */
 	static <T extends ITokens<T, Value>> void setOutFilterOfBasedOn(final OFAFGNode<T> node, final Type type,
-			final ITokenManager<T, Value> tokenMgr) {
+			final ITokenManager<T, Value, Type> tokenMgr) {
 		if (node != null) {
 			final IType _baseType = tokenMgr.getTypeManager().getTokenTypeForRepType(type);
 			final ITokenFilter<T, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);

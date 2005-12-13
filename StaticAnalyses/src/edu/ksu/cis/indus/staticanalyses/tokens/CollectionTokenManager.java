@@ -35,10 +35,11 @@ import org.slf4j.LoggerFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <V> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public final class CollectionTokenManager<V>
-  extends AbstractTokenManager<CollectionTokenManager<V>.CollectionTokens, V> {
-	/** 
+public final class CollectionTokenManager<V, R>
+  extends AbstractTokenManager<CollectionTokenManager<V, R>.CollectionTokens, V, R> {
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(CollectionTokenManager.class);
@@ -50,7 +51,7 @@ public final class CollectionTokenManager<V>
 	 *
 	 * @pre typeManager != null
 	 */
-	public CollectionTokenManager(final ITypeManager typeManager) {
+	public CollectionTokenManager(final ITypeManager<R, V> typeManager) {
 		super(typeManager);
 	}
 
@@ -62,14 +63,14 @@ public final class CollectionTokenManager<V>
 	 * @version $Revision$ $Date$
 	 */
 	private class CollectionTokenFilter
-	  implements ITokenFilter<CollectionTokenManager<V>.CollectionTokens, V> {
-		/** 
+	  implements ITokenFilter<CollectionTokenManager<V, R>.CollectionTokens, V> {
+		/**
 		 * The type associated with the filter.
 		 */
 		private final IType filterType;
 
 		/**
-		 * Creates an instance of this class. 
+		 * Creates an instance of this class.
 		 *
 		 * @param type is the type used to filter.
 		 *
@@ -82,7 +83,7 @@ public final class CollectionTokenManager<V>
 		/**
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
-		public CollectionTokenManager<V>.CollectionTokens filter(final CollectionTokenManager<V>.CollectionTokens  tokens) {
+		public CollectionTokenManager<V, R>.CollectionTokens filter(final CollectionTokenManager<V, R>.CollectionTokens  tokens) {
 			final Collection<V> _filterate = new ArrayList<V>();
 
 			for (final Iterator<V> _i = tokens.getValues().iterator(); _i.hasNext();) {
@@ -107,7 +108,7 @@ public final class CollectionTokenManager<V>
 	private class CollectionTokens
 	  extends AbstractPrototype<CollectionTokens>
 	  implements ITokens<CollectionTokens, V> {
-		/** 
+		/**
 		 * The collection of values.
 		 *
 		 * @invariant values != null
@@ -124,10 +125,10 @@ public final class CollectionTokenManager<V>
 		CollectionTokens(final Collection<V> initValues) {
 			values = new HashSet<V>(initValues);
 		}
-		
+
 		/**
 		 * Creates an instance of this class.
-		 * 
+		 *
 		 */
 		CollectionTokens() {
 			values = new HashSet<V>();

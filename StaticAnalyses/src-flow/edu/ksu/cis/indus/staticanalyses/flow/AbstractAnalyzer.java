@@ -54,8 +54,9 @@ import soot.jimple.ParameterRef;
  * @param <N> DOCUMENT ME!
  * @param <SS> DOCUMENT ME!
  * @param <RE> DOCUMENT ME!
+ * @param <R> DOCUMENT ME!
  */
-public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch>
+public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, R>
 		extends AbstractStatus
 		implements IValueAnalyzer<SYM> {
 
@@ -74,7 +75,7 @@ public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends
 	 *
 	 * @invariant fa != null
 	 */
-	protected FA<SYM, T, N> fa;
+	protected FA<SYM, T, N, R> fa;
 
 	/**
 	 * Creates a new <code>AbstractAnalyzer</code> instance.
@@ -85,9 +86,9 @@ public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends
 	 * @param tokenMgr manages the tokens that participate in the analysis.
 	 * @pre theContext != null and tagName != null and tokenMgr != null
 	 */
-	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager<T, SYM> tokenMgr) {
+	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager<T, SYM, R> tokenMgr) {
 		this.context = theContext;
-		fa = new FA<SYM, T, N>(this, tagName, tokenMgr);
+		fa = new FA<SYM, T, N, R>(this, tagName, tokenMgr);
 	}
 
 	/**
