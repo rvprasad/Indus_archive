@@ -61,6 +61,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 
+import soot.jimple.AssignStmt;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -152,7 +153,7 @@ public class ThreadGraph
 	/**
 	 * The collection of thread allocation sites.
 	 */
-	private final Collection<Pair<Stmt, SootMethod>> newThreadExprs = new HashSet<Pair<Stmt, SootMethod>>();
+	private final Collection<Pair<AssignStmt, SootMethod>> newThreadExprs = new HashSet<Pair<AssignStmt, SootMethod>>();
 
 	/**
 	 * This manages pair objects.
@@ -260,7 +261,7 @@ public class ThreadGraph
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
 	 */
-	public Collection<Pair<Stmt, SootMethod>> getAllocationSites() {
+	public Collection<Pair<AssignStmt, SootMethod>> getAllocationSites() {
 		return Collections.unmodifiableCollection(newThreadExprs);
 	}
 
@@ -402,8 +403,8 @@ public class ThreadGraph
 		int _count = 1;
 		_result.append("\nThread mapping:\n");
 
-		for (final Iterator<Pair<Stmt, SootMethod>> _j = getAllocationSites().iterator(); _j.hasNext();) {
-			final Pair<Stmt, SootMethod> _element = _j.next();
+		for (final Iterator<Pair<AssignStmt, SootMethod>> _j = getAllocationSites().iterator(); _j.hasNext();) {
+			final Pair<AssignStmt, SootMethod> _element = _j.next();
 			final String _tid = "T" + _count++;
 
 			_result.append(_tid + " -> " + _element.getFirst() + "@" + _element.getSecond() + "\n");
@@ -655,7 +656,7 @@ public class ThreadGraph
 		for (final Iterator<SootMethod> _i = cgi.getEntryMethods().iterator(); _i.hasNext();) {
 			final SootMethod _head = _i.next();
 			final Pair<InvokeStmt, SootMethod> _threadCreationSite;
-			final Pair<Stmt, SootMethod> _threadAllocationSite;
+			final Pair<AssignStmt, SootMethod> _threadAllocationSite;
 			final Triple<InvokeStmt, SootMethod, SootClass> _thread;
 
 			if (_head.getName().equals("<clinit>")) {
@@ -691,6 +692,7 @@ public class ThreadGraph
 	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
 	 * @pre context != null and env != null and newExpr != null
 	 * @pre context.getStmt() != null and context.getCurrentMethod() != null
+	 * @pre context.getStmt().isOclKindOf(AssignStmt)
 	 */
 	private void processNewExpr(final Context context, final IEnvironment env, final NewExpr newExpr) throws RuntimeException {
 		final SootClass _clazz = env.getClass(newExpr.getBaseType().getClassName());
@@ -700,7 +702,7 @@ public class ThreadGraph
 			final SootClass _temp = Util.getDeclaringClass(_clazz, START_METHOD_NAME, Collections.EMPTY_LIST, VoidType.v());
 
 			if (_temp != null && _temp.getName().equals(JAVA_LANG_THREAD)) {
-				final Stmt _stmt = context.getStmt();
+				final AssignStmt _stmt = (AssignStmt) context.getStmt();
 				final SootMethod _sm = context.getCurrentMethod();
 				newThreadExprs.add(pairMgr.getPair(_stmt, _sm));
 			} else {

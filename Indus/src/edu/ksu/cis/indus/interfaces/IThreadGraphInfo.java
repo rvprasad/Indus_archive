@@ -22,8 +22,8 @@ import java.util.Collection;
 import soot.SootClass;
 import soot.SootMethod;
 
+import soot.jimple.AssignStmt;
 import soot.jimple.InvokeStmt;
-import soot.jimple.Stmt;
 
 /**
  * This interface provides thread graph information pertaining to the analyzed system. It is adviced that any post processor
@@ -59,11 +59,10 @@ public interface IThreadGraphInfo
 	 * Returns a collection of thread allocation sites in the system.
 	 *
 	 * @return a collection of pairs of creation statements and their enclosing methods. The returned pairs consists of a
-	 *         statement and the method in which it occurs. However, system threads are represented as pairs of simple
-	 *         objects. So, the caller is adviced to check for the types of the Pair before using them.
-	 * @post result != null
+	 *         statement and the method in which it occurs. 
+	 * @post result != null 
 	 */
-	Collection<Pair<Stmt, SootMethod>> getAllocationSites();
+	Collection<Pair<AssignStmt, SootMethod>> getAllocationSites();
 
 	/**
 	 * Returns the sites which create new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
