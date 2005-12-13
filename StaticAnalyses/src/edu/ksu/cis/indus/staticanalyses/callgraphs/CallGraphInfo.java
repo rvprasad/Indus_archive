@@ -251,7 +251,7 @@ public final class CallGraphInfo
 		final Collection<SootMethod> _result;
 
 		final SootMethod _currentMethod = context.getCurrentMethod();
-		if (!caller2callees.containsKey(_currentMethod)) {
+		if (caller2callees.containsKey(_currentMethod)) {
 			_result = new ArrayList<SootMethod>();
 
 			for (final Iterator<CallTriple> _i = caller2callees.get(_currentMethod).iterator(); _i.hasNext();) {
