@@ -216,7 +216,7 @@ public final class BasicBlockGraph
 	 *            graph is required.</i>
 	 * @param analysis to be used for exception based basic block splitting. <i>This is required only if exception flow based
 	 *            basic block graph is required.</i>
-	 * @pre theStmtGraph != null
+	 * @pre theStmtGraph != null and method != null
 	 */
 	public BasicBlockGraph(final UnitGraph theStmtGraph, final SootMethod method, final IExceptionRaisingInfo analysis) {
 		this.stmtGraph = theStmtGraph;
