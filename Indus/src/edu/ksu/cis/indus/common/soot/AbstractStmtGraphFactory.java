@@ -22,16 +22,20 @@ import java.lang.ref.WeakReference;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.RefType;
 import soot.SootMethod;
+import soot.Type;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
+import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -40,7 +44,7 @@ import soot.toolkits.graph.UnitGraph;
  * retrieved. The subclasses should provide suitable unit graph implementation. The control flow edges in the provided unit
  * graphs are pruned by matching the thrown exceptions to the enclosing catch blocks. Refer to
  * <code>Util.pruneExceptionBasedControlFlow()</code> for more information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -72,7 +76,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 
 	/**
 	 * Retrieves the unit graph of the given method.
-	 *
+	 * 
 	 * @param method for which the unit graph is requested.
 	 * @return the requested unit graph.
 	 * @post result != null
@@ -110,9 +114,22 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 				// stub in an empty graph.
 				final Jimple _jimple = Jimple.v();
 				final JimpleBody _body = _jimple.newBody();
+				@SuppressWarnings("unchecked") final Collection<Stmt> _units = _body.getUnits();
 				_body.setMethod(method);
 
-				@SuppressWarnings("unchecked") final Collection<Object> _units = _body.getUnits();
+				if (!method.isStatic()) {
+					final RefType _thisType = method.getDeclaringClass().getType();
+					_units.add(_jimple.newIdentityStmt(_jimple.newLocal("r0", _thisType), _jimple.newThisRef(_thisType)));
+				}
+
+				if (method.getParameterCount() > 0) {
+					int _j = 0;
+					for (final Iterator<Type> _i = method.getParameterTypes().iterator(); _i.hasNext();) {
+						final Type _type = _i.next();
+						_units.add(_jimple.newIdentityStmt(_jimple.newLocal("p" + _j, _type), _jimple.newParameterRef(_type,
+								_j++)));
+					}
+				}
 
 				if (method.getReturnType() instanceof VoidType) {
 					_units.add(_jimple.newReturnVoidStmt());
@@ -135,7 +152,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param scopeDef DOCUMENT ME!
 	 * @param env DOCUMENT ME!
 	 * @pre scopeDef != null implies env != null
@@ -147,7 +164,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 
 	/**
 	 * Retreives the unit graph (of a particular implementation) for the given body.
-	 *
+	 * 
 	 * @param body to be represented as a graph.
 	 * @return a unit graph.
 	 * @pre body != null
@@ -158,7 +175,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	/**
 	 * Retrieves the body for the given method. This method split traps based on overlap and subtyping relation between the
 	 * exceptions trapped by overlapping regions.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @return the jimple body of the given method.
 	 * @pre method != null
@@ -218,9 +235,9 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	// }
 	// @SuppressWarnings("unchecked") final Collection<Trap> _t = _body.getTraps();
 	// _t.clear();
-	//		_t.addAll(_newTraps);
-	//		return _body;
-	//	}
+	// _t.addAll(_newTraps);
+	// return _body;
+	// }
 }
 
 // End of File
