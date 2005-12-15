@@ -1,6 +1,8 @@
 2005-12-15  venku  <rvprasad@cis.ksu.edu>
 
-	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterferenceDAv1.java:
+		- Final instance fields were being considered for interference dependence.  FIXED.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClaapeAnalysis.java:
 		- Added logic to canonicalize class level alias sets after phase 3
 		- Added logic to unify class level alias sets after phase 2
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ValueProcessor.java:

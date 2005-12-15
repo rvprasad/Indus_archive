@@ -411,15 +411,13 @@ public class InterferenceDAv1
 	 * @param dependeeFieldRef is the dependee field access expression.
 	 * @return <code>true</code> if an interference dependence exists; <code>false</code> otherwise.
 	 * @pre dependent != null and dependee != null and dependentFieldRef != null and dependeeFieldRef != null
-	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
 	protected boolean isInstanceFieldDependentOn(final Pair<AssignStmt, SootMethod> dependent,
 			final Pair<AssignStmt, SootMethod> dependee, final InstanceFieldRef dependentFieldRef,
 			final InstanceFieldRef dependeeFieldRef) {
 		boolean _result;
-		final SootField _ifr1 = dependeeFieldRef.getField();
 		final SootField _ifr2 = dependentFieldRef.getField();
-		_result = _ifr1.equals(_ifr2);
+		_result = dependeeFieldRef.getField().equals(_ifr2) && !_ifr2.isFinal();
 
 		if (_result && useOFA) {
 			_result = isFieldDependentOnByOFA(dependent, dependee);
