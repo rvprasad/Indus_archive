@@ -189,7 +189,6 @@ final class ValueProcessor
 		final SootField _field = v.getField();
 		final AliasSet _base = ecba.getASForClass(_field.getDeclaringClass());
 		final AliasSet _fieldAS = processField(v.getType(), _base, _field.getSignature());
-		_base.setGlobal();
 		setResult(_fieldAS);
 
 		if (rhs) {
@@ -347,7 +346,6 @@ final class ValueProcessor
 			processNotifyWaitSync(primaryAliasSet, _callee);
 
 			if (Util.isStartMethod(_callee)) {
-				ecba.needToMarkGlobalsAsMultiThreadAccessed();
 				_mc.markAsCrossingThreadBoundary();
 				if (_notInSameSCC) {
 					_mc.eraseIntraThreadRefEntities();

@@ -242,11 +242,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final EscapeInfo escapeInfo;
 
 	/**
-	 * This is to remember that global alias sets should be marked as being multi thread accessed.
-	 */
-	private boolean markGlobalsAsMultiThreadAccessed;
-
-	/**
 	 * This is the object that exposes object read-write info calculated by this instance.
 	 */
 	private final ReadWriteInfo objectReadWriteInfo;
@@ -300,9 +295,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
-
-		markGlobalsAsMultiThreadAccessed = false;
-
+		
 		performPhase2();
 
 		performPhase3();
@@ -427,7 +420,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		if (_result == null) {
 			_result = AliasSet.getASForType(declaringClass.getType());
-			_result.setGlobal();
 			class2aliasSet.put(declaringClass, _result);
 		}
 		return _result;
@@ -445,7 +437,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre ref != null and callee != null and site != null
 	 */
 	AliasSet getCalleeSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
-		if (ref.isGlobal()) {
+		if (class2aliasSet.containsValue(ref.find())) {
 			return ref;
 		}
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple.get(site
@@ -469,7 +461,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @pre ref != null and callee != null and site != null
 	 */
 	AliasSet getCallerSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
-		if (ref.isGlobal()) {
+		if (class2aliasSet.containsValue(ref.find())) {
 			return ref;
 		}
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = method2Triple.get(site
@@ -479,13 +471,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final MethodContext _calleeContext = method2Triple.get(callee).getFirst();
 		return _calleeContext.getImageOfRefInGivenContext(ref, _callingContext);
 
-	}
-
-	/**
-	 * Indicates that globals should be marked as multi thread accessed.
-	 */
-	void needToMarkGlobalsAsMultiThreadAccessed() {
-		markGlobalsAsMultiThreadAccessed = true;
 	}
 
 	/**
@@ -700,10 +685,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 
-		if (markGlobalsAsMultiThreadAccessed) {
+		if (tgi.getCreationSites().size() > 1) {
 			for (final Iterator<AliasSet> _i = class2aliasSet.values().iterator(); _i.hasNext();) {
 				final AliasSet _as = _i.next();
 				_as.markAsCrossingThreadBoundary();
+				AliasSet.selfUnify(_as);
 			}
 		}
 	}
@@ -768,6 +754,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
+		}
+		
+		for (final Map.Entry<SootClass, AliasSet> _e : class2aliasSet.entrySet()) {
+			_e.setValue(_e.getValue().find());
 		}
 	}
 }

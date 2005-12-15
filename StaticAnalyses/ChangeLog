@@ -1,11 +1,23 @@
+2005-12-15  venku  <rvprasad@cis.ksu.edu>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java:
+		- Added logic to canonicalize class level alias sets after phase 3
+		- Added logic to unify class level alias sets after phase 2
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ValueProcessor.java:
+		- Ripple effect of removing global field in AliasSet
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/MethodContext.java:
+		- Removed updation of class level alias sets while unifying method contexts.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/AliasSet.java:
+		- Removed global field in AliasSet as it was not serving any purpose.
+
 2005-06-27  venku  <rvprasad@cis.ksu.edu>
-	
+
 	* assumed that class initializers are always simple and will not lead to interference with other class initializers.
 	* deleted EscapeInfo.staticfieldAccessShared(SootClass, SootMethod, SootClass, SootMethod)
 	* moved AnalysesController from impl package to processing package.
 	* added an intraprocedural reachability method to CFGAnalysis and used it in AliasedUseDefInfo.
 	* refactored AliasedUseDefInfo and AliasedUseDefInfoV2 to accomodate change to CFGAnalysis.
-	* DataAliasBasedCallingContextRetriever was missing the corner case where use and def occurred in the same 
+	* DataAliasBasedCallingContextRetriever was missing the corner case where use and def occurred in the same
 	method when there were no callers. FIXED.
 	* refactored concurrency.atomicity package to concurrency.independence
 	* renamed AtomicXXXX classes as IndependentXXXX.
@@ -13,12 +25,12 @@
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CHABasedCallInfoCollector.java : ripple effect of changes to IClassHierarchy.
-	* src/edu/ksu/cis/indus/staticanalyses/impl/ClassHierarchy.java :  renamed methods and added a new method to retrieve the 
+	* src/edu/ksu/cis/indus/staticanalyses/impl/ClassHierarchy.java :  renamed methods and added a new method to retrieve the
 	classes in the hierarchy in topological order.
 
 2005-03-19  venku  <rvprasad@cis.ksu.edu>
 
-	* Changes pertaining to Class Hierarchy calculation, class hierarchy based call graph construction, rapid-type	analysis based 
+	* Changes pertaining to Class Hierarchy calculation, class hierarchy based call graph construction, rapid-type	analysis based
 	call graph construction, and refactoring of call graph constructione.
 
 2005-03-14  venku  <rvprasad@cis.ksu.edu>
@@ -27,42 +39,42 @@
 
 2005-02-27  venku  <rvprasad@cis.ksu.edu>
 
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java (getDependees): enhanced the 
-	implementation to return empty divergence dependence information if the given dependees statement does not occur 
-	in 	the given method's basic block graph. 
-	
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java (getDependees): enhanced the
+	implementation to return empty divergence dependence information if the given dependees statement does not occur
+	in 	the given method's basic block graph.
+
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterProceduralDivergenceDA.java (getDependees): enhanced
-	 the implementation to return empty divergence dependence information if the given dependees statement does not occur in 
-	 the given method's basic block graph. 
-	
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: Addressed task #275 - converted ready 
+	 the implementation to return empty divergence dependence information if the given dependees statement does not occur in
+	 the given method's basic block graph.
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: Addressed task #275 - converted ready
 	dependence info pertaining to ready dependence relating synchronized methods to be non-statement based.
-	
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/AbstractControlDA.java:  Added a new helper function and 
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/AbstractControlDA.java:  Added a new helper function and
 	enhanced the implementation to return empty control dependence information if the given dependee/dependent statement does
-	not occur in the given method's basic block graph. 
+	not occur in the given method's basic block graph.
 
 2005-02-26  venku  <rvprasad@cis.ksu.edu>
 
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java: Although divergence is captured in non-
-	termination sensitive control dependence, it's mixed with control dependence.  Hence, it is best to calculate divergence 
+	termination sensitive control dependence, it's mixed with control dependence.  Hence, it is best to calculate divergence
 	dependence separately.  This seems like an overhead, but it is useful in program comprehension.  Hence, I reverted to the
 	old code base of both intra- and inter-procedural flavour.
-		I also changed the manner in which new instances of this class wer created.	
-	
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterProceduralDivergenceDA.java: Created a pure 
+		I also changed the manner in which new instances of this class wer created.
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterProceduralDivergenceDA.java: Created a pure
 	Interprocedural divergence dependence analysis.
 		I also changed the manner in which new instances of this class wer created.
-	
+
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/NonTerminationInsensitiveEntryControlDA.java: Added support
 	to toggle between direct	and indirect version of non-termination sensitive control dependence used to calculate non-termination
 	insensitive control dependence.
 
 2005-02-25  venku  <rvprasad@cis.ksu.edu>
 
-	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizerCLI.java: Ripple effect from changes to 
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizerCLI.java: Ripple effect from changes to
 	DivergenceDA.java.
-	
+
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java: Trimmed the DivergenceDA to calculate
-	simple inter-procedural Divergence dependence.  This can be used in conjunction with non-termination-sensitive control 
+	simple inter-procedural Divergence dependence.  This can be used in conjunction with non-termination-sensitive control
 	dependence to arrive at intra- plus inter-procedural divergence dependence information.

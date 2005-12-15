@@ -594,11 +594,6 @@ final class MethodContext
 		if (_mThis != null) {
 			AliasSet.selfUnify(_mThis);
 		}
-
-		for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
-			final AliasSet _as = _j.next();
-			AliasSet.selfUnify(_as);
-		}
 	}
 
 	/**

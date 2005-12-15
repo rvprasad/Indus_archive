@@ -95,12 +95,6 @@ final class AliasSet
 	private Map<String, AliasSet> fieldMap;
 
 	/**
-	 * This indicates if this alias set is associated with a static field. This is maintained to quickly differentiate a an
-	 * alias set associated with system-common (static) data.
-	 */
-	private boolean global;
-
-	/**
 	 * DOCUMENT ME!
 	 */
 	private Collection<Object> intraProcRefEntities;
@@ -189,7 +183,6 @@ final class AliasSet
 	 */
 	private AliasSet() {
 		fieldMap = new HashMap<String, AliasSet>();
-		global = false;
 		accessed = false;
 		readyEntities = null;
 		readThreads = new HashSet<Triple<InvokeStmt, SootMethod, SootClass>>();
@@ -302,10 +295,7 @@ final class AliasSet
 	@Override public AliasSet clone() throws CloneNotSupportedException {
 		final AliasSet _result;
 
-		if (isGlobal()) {
-			// optimization
-			_result = find();
-		} else if (find() != this) {
+		if (find() != this) {
 			// just work on the representative of the class
 			_result = find().clone();
 		} else {
@@ -356,7 +346,7 @@ final class AliasSet
 				_result = Integer.toHexString(hashCode());
 			} else {
 				stringifying = true;
-				_result = new ToStringBuilder(this).append("global", this.global).append("multiThreadAccess",
+				_result = new ToStringBuilder(this).append("multiThreadAccess",
 						this.multiThreadAccessibility).append("accessed", this.accessed).append("notifies", this.notifies)
 						.append("waits", this.waits).append("locked", this.locked)
 						.append("writtenFields", this.writtenFields).append("readFields", this.readFields).append(
@@ -646,15 +636,6 @@ final class AliasSet
 		return find().accessed;
 	}
 
-	/**
-	 * Checks if the object associated with this alias set is accessible globally via static fields.
-	 * 
-	 * @return <code>true</code> if the associated object is accessible globally; <code>false</code>, otherwise.
-	 * @post result == find().global
-	 */
-	boolean isGlobal() {
-		return find().global;
-	}
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for locks and unlocks.
@@ -792,10 +773,6 @@ final class AliasSet
 	 */
 	void putASForField(final String field, final AliasSet as) {
 		find().fieldMap.put(field, as);
-
-		if (isGlobal()) {
-			as.setGlobal();
-		}
 	}
 
 	/**
@@ -826,28 +803,6 @@ final class AliasSet
 	 */
 	void setAccessed() {
 		find().accessed = true;
-	}
-
-	/**
-	 * Records that the object associated with this alias set is accessible globally via static fields.
-	 * 
-	 * @post isGlobal() == true
-	 * @post fieldMap.values()->forall(o | o.isGlobal() == true)
-	 */
-	void setGlobal() {
-		final AliasSet _rep = find();
-
-		_rep.global = true;
-
-		if (_rep.fieldMap != null) {
-			for (final Iterator<AliasSet> _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
-				final AliasSet _as = _i.next();
-
-				if (!_as.isGlobal()) {
-					_as.setGlobal();
-				}
-			}
-		}
 	}
 
 	/**
@@ -912,7 +867,6 @@ final class AliasSet
 			_representative.waits |= _represented.waits;
 			_representative.notifies |= _represented.notifies;
 			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
-			_representative.global |= _represented.global;
 			_representative.locked |= _represented.locked;
 			_representative.accessed |= _represented.accessed;
 			_representative.readThreads.addAll(_represented.readThreads);
@@ -929,10 +883,6 @@ final class AliasSet
 			_representative.handleInfoUnification(_represented);
 
 			_representative.unifyFields(_represented, unifyAll);
-
-			if (_representative.isGlobal()) {
-				_representative.setGlobal();
-			}
 		} else if (unifyAll && _m.multiThreadAccessibility) {
 			_m.unifyThreadEscapeInfo(_n);
 		}
