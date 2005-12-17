@@ -6,8 +6,8 @@
 		<collection field="retentionList" name="retentionList" ordered="false" type="java.util.ArrayList" usage="optional">
 			<value name="class" type="java.lang.String" style="element"/>
 		</collection>
-		<structure name="slicerConfig">
-			<value field="slicerConfigurationStr" style="cdata"/>			
+		<structure name="slicerConfig" usage="required">
+			<value field="slicerConfigurationStr" style="cdata"/>
 		</structure>
 	</mapping>
 </binding>

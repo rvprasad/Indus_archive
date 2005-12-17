@@ -28,10 +28,8 @@ import java.util.List;
 final class SlicerConfiguration {
 	/** 
 	 * The list of FQNs of classes that need to be retained when class erasure optimization is applied.
-	 *
-	 * @invariant retentionList.oclIsKindOf(Collection(String))
 	 */
-	List retentionList;
+	List<String> retentionList;
 
 	/** 
 	 * This is the string containing the slicer configuration.

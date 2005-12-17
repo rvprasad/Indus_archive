@@ -1,3 +1,19 @@
+2005-12-16  venku  <rvprasad@cis.ksu.edu>
+
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java:
+		- used the new method in SlicerToolHelper class to load default configuration.
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerToolHelper.java:
+		- added a new method to load default configuration.
+	* src/edu/ksu/cis/indus/toolkits/bandera/bandera_slicerConfig.xsd:
+		- moved from auxiliary folder into source package.
+	* src/edu/ksu/cis/indus/toolkits/bandera/bandera_slicer_configuration.xml:
+		- retrofitted it to confirm to bandera specific slicer configuration (retentionList, etc)
+	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java:
+		- added logic to load given configuration along with fall back logic.
+		- added logic to pick active configuration from the configuration set.
+	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerConfiguration.java:
+		- documentation
+
 2005-06-05  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java:  "Optimize for space" was a transformation and it was sucked into the tool incorrectly. FIXED.
@@ -5,7 +21,7 @@
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java: The configuration does not support "optimize for space".
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerToolHelper.java: Contains helper methods used by the slicer tool.
 	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: added command line option to explicitly trigger space optimization.
-	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java: added logic to explicitly trigger space optimization.	
+	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java: added logic to explicitly trigger space optimization.
 
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
@@ -18,9 +34,9 @@
 	  src/edu/ksu/cis/indus/slicer/IDirectionSensitivePartOfSlicingEngine.java,
 	  src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java,
 	  src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java,
-	  src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
-		 The signature of processParameterRef() was changed.  
-		 The required inter-procedural dependence based on the local's position in an assignment-invocation stmt was not 
+	  src/edu/ksu/cis/indus/slicer/SlicingEngine.java:
+		 The signature of processParameterRef() was changed.
+		 The required inter-procedural dependence based on the local's position in an assignment-invocation stmt was not
 		 recorded.  This has been addressed.
 
 2005-03-10  venku  <rvprasad@cis.ksu.edu>
@@ -31,10 +47,10 @@
 	  src/edu/ksu/cis/indus/tools/slicer/criteria/generators/DeadlockPreservingCriteriaGenerator.java,
 	  src/edu/ksu/cis/indus/tools/slicer/criteria/generators/AbstractStmtBasedSliceCriteriaGenerator.java,
 	  src/edu/ksu/cis/indus/tools/slicer/criteria/generators/AbstractSliceCriteriaGenerator.java,
-	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, 
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java,
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java,
 	  src/edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml:
-	  	Added facility to pick deadlock criteria and assertions in application classes only.	  
+	  	Added facility to pick deadlock criteria and assertions in application classes only.
 
 2005-03-09  venku  <rvprasad@cis.ksu.edu>
 
@@ -49,22 +65,22 @@
 
 2005-02-27  venku  <rvprasad@cis.ksu.edu>
 
-	* auxiliary/slicerConfig.xsd, 
-	  auxiliary/slicerConfig_JiBXBinding.xml: 
-	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java: 
+	* auxiliary/slicerConfig.xsd,
+	  auxiliary/slicerConfig_JiBXBinding.xml:
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java:
 	  	Support to control inter-procedural-ness of Ready dependence.
-	
-	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/StaticSliceCriteriaGenerator.java: The criteria were not being 
+
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/StaticSliceCriteriaGenerator.java: The criteria were not being
 	contextualized. FIXED.
-	
+
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java (setupReadyDepUI):  Altered layout.
-	Added tool tips to all graphical entities.	
-	
+	Added tool tips to all graphical entities.
+
 	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java: Ripple effect of changes to concerned classes.
-	
-	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java: Ripple effect of converting ready dependence info pertaining to ready 
+
+	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java: Ripple effect of converting ready dependence info pertaining to ready
 		dependence relating synchronized methods to be non-statement based and of the above changes.
-		
+
 	* edu.ksu.cis.indus.slicer:
 		Renamed classes as given below.
 			AbstractSliceCriterion -> AbstractProgramPointLevelSliceCriterion
@@ -74,16 +90,16 @@
 		Methods in above classes were renamed appropritately.
 		SlicingEngine was modified to calculate slice based on method level slice criterion.
 		BackwardSlicingPart, ForwardSlicingPart, and SliceCriteriaFactory had ripple effects.
-		
+
 
 2005-02-26  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml,
-	  auxiliary/slicerConfig.xsd, 
-	  auxiliary/slicerConfig_JiBXBinding.xml, 
-	  src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java, 
-	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java, 
-	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, : 
+	  auxiliary/slicerConfig.xsd,
+	  auxiliary/slicerConfig_JiBXBinding.xml,
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java,
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java,
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, :
 	  	Added support to control 
 		- inter-procedural v/s intra-procedural v/s inter-and-intra-procedural diveregence deps
 		- synchronization dependence

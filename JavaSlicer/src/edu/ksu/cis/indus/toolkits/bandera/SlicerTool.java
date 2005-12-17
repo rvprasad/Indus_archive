@@ -33,7 +33,7 @@ import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
@@ -58,7 +57,7 @@ import soot.Value;
 
 /**
  * This class wraps the slicer in the tool interface required by the tool pipeline in Bandera.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -119,6 +118,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
 		IN_ARGUMENTS_IDS.add(CRITERIA_SPECIFICATION);
+		IN_ARGUMENTS_IDS.add(ID_OF_CONFIGURATION_TO_USE);
 		OUT_ARGUMENTS_IDS = new ArrayList<Object>();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -129,6 +129,11 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	private boolean abortFlag;
 
 	/**
+	 * The id of the slicer configuration to use.
+	 */
+	private String activeConfID;
+
+	/**
 	 * This is the configuration.
 	 */
 	private SlicerConfiguration configuration;
@@ -137,11 +142,6 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	 * The configuration interface provided by this object to configure the slicer tool.
 	 */
 	private SlicerConfigurationView configurationView;
-
-	/**
-	 * This indicates if the configuration was provided.
-	 */
-	private boolean configurationWasProvided;
 
 	/**
 	 * The scene being processed.
@@ -239,12 +239,14 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		}
 		abortFlag = false;
 
-		if (!configurationWasProvided) {
-			final File _file = FileUtils.toFile(getClass().getClassLoader().getResource("bandera_slicer_configuration.xml"));
-			final String _config = FileUtils.readFileToString(_file, null);
-			setConfiguration(_config);
-			LOGGER.info("As no configuration was specified explicitly, default configuration found in "
-					+ "edu/ksu/cis/indus/toolkits/bandera/bandera_slicer_configuration.xml was loaded.");
+		if (configuration == null) {
+			setConfiguration(null);
+		}
+
+		tool.destringizeConfiguration(configuration.slicerConfigurationStr);
+
+		if (activeConfID != null) {
+			tool.setActiveConfiguration(activeConfID);
 		}
 
 		tool.run(Phase.STARTING_PHASE, null, true);
@@ -268,21 +270,31 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	}
 
 	/**
+	 * This implementation will load the default bandera configuration if the input argument is <code>null</code>.
+	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
 	public void setConfiguration(final String configStr) throws Exception {
-		configurationWasProvided = configStr != null && configStr.length() > 0;
-
-		final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
-		final IUnmarshallingContext _uctx = _bfact.createUnmarshallingContext();
-		configuration = (SlicerConfiguration) _uctx.unmarshalDocument(new BufferedInputStream(new ByteArrayInputStream(
-				configStr.getBytes())), null);
-		tool.destringizeConfiguration(configuration.slicerConfigurationStr);
+		if (configStr != null && configStr.length() > 0) {
+			final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
+			final IUnmarshallingContext _uctx = _bfact.createUnmarshallingContext();
+			configuration = (SlicerConfiguration) _uctx.unmarshalDocument(new BufferedInputStream(new ByteArrayInputStream(
+					configStr.getBytes())), null);
+		} else {
+			final InputStream _istream = getClass().getClassLoader().getResource("bandera_slicer_configuration.xml")
+					.openStream();
+			final IBindingFactory _bfact = BindingDirectory.getFactory(SlicerConfiguration.class);
+			final IUnmarshallingContext _uctx = _bfact.createUnmarshallingContext();
+			configuration = (SlicerConfiguration) _uctx.unmarshalDocument(_istream, null);
+			_istream.close();
+			LOGGER.info("As no configuration was specified explicitly, default configuration found in "
+					+ "edu/ksu/cis/indus/toolkits/bandera/bandera_slicer_configuration.xml was loaded.");
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param inputArgs maps the input argument identifiers to the arguments.
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
 	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
@@ -346,12 +358,10 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		}
 		tool.setRootMethods(_rootMethods);
 
-		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
+		activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
 
-		if (_activeConfID == null) {
+		if (activeConfID == null) {
 			LOGGER.info("No active configuration was specified.  Using the default in the provided configuration.");
-		} else {
-			tool.setActiveConfiguration(_activeConfID);
 		}
 
 		for (final Iterator<SootMethod> _i = _rootMethods.iterator(); _i.hasNext();) {

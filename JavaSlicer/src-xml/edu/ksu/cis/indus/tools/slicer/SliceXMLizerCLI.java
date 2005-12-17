@@ -51,7 +51,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -532,50 +531,14 @@ public class SliceXMLizerCLI
 	 */
 	private static String processCommandLineForConfiguration(final CommandLine cl) {
 		String _config = cl.getOptionValue('c');
-		InputStream _inStream = null;
 		String _result = null;
 
-		if (_config != null) {
-			try {
-				_inStream = new FileInputStream(_config);
-			} catch (FileNotFoundException _e) {
-				final String _msg = "Non-existent configuration file specified - " + _config;
-				LOGGER.error(_msg, _e);
-
-				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
-				_i.initCause(_e);
-				throw _i;
-			}
-		} else {
-			LOGGER.info("No configuration file specified.");
+		if (_config == null) {
+			_result = SlicerToolHelper.loadConfigurationInFile(_config);
 		}
 
 		configFileName = _config;
-
-		if (_config == null) {
-			LOGGER.info("Trying to use default configuration.");
-
-			final URL _defaultConfigFileName =
-				ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
-
-			try {
-				_inStream = _defaultConfigFileName.openStream();
-			} catch (FileNotFoundException _e1) {
-				LOGGER.error("Even default configuration file could not be found.  Aborting", _e1);
-				System.exit(1);
-			} catch (IOException _e2) {
-				LOGGER.error("Could not retrieve a handle to default configuration file.  Aborting.", _e2);
-				System.exit(1);
-			}
-		}
-
-		try {
-			_result = IOUtils.toString(_inStream);
-		} catch (IOException _e) {
-			LOGGER.error("IO error while reading configuration file.  Aborting", _e);
-			IOUtils.closeQuietly(_inStream);
-			System.exit(1);
-		}
+		
 		return _result;
 	}
 

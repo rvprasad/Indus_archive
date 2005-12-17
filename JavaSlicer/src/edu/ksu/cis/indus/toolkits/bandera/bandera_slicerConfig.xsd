@@ -1,0 +1,26 @@
+<xsd:schema
+  attributeFormDefault="qualified"
+  blockDefault="restriction"
+  elementFormDefault="qualified"
+  finalDefault="restriction"
+  id="slicerConfig"
+  targetNamespace="http://indus.projects.cis.ksu.edu/slicer/bandera"
+  version="1.0"
+  xml:lang="en"
+  xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:complexType id="configuration" name="configuration">
+		<xsd:sequence>
+			<xsd:element name="retentionList" minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="class" type="xsd:string" minOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="slicerConfig" type="normalizedString" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="eraseUnnecessaryClasses" type="xsd:boolean" use="required"/>
+	</xsd:complexType>
+</xsd:schema>
