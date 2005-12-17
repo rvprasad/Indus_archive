@@ -1,3 +1,7 @@
+2005-12-16  venku  <rvprasad@cis.ksu.edu>
+
+	* auxiliary/scoping_JiBXBinding.xml: adapted to JiBX 1.0RC2 release.
+
 2005-06-27  venku  <rvprasad@cis.ksu.edu>
 
     * deleted IEscapeInfo.staticfieldAccessShared(SootClass, SootMethod, SootClass, SootMethod)
@@ -8,21 +12,21 @@
 	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the classes
 	in the hierarchy in topological order.
 	* src/edu/ksu/cis/indus/common/soot/Util.java : deleted getClassesInTopologicalOrder().
-	
+
 
 2005-03-14  venku  <rvprasad@cis.ksu.edu>
 
 	* src-test/edu/ksu/cis/indus/IEnvironmentBasedTest.java,
-	  src-test/edu/ksu/cis/indus/AbstractEnvironmentBasedTest.java: 
+	  src-test/edu/ksu/cis/indus/AbstractEnvironmentBasedTest.java:
 		Teased apart the support required by environment requiring tests into separate classes.
-		
+
 	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java: Added interface to expose class hierarchy information.
-	
+
 	* src/edu/ksu/cis/indus/processing/ProcessingController.java,
-	  src/edu/ksu/cis/indus/processing/IProcessor.java, 
-	  src/edu/ksu/cis/indus/processing/AbstractProcessor.java: 
+	  src/edu/ksu/cis/indus/processing/IProcessor.java,
+	  src/edu/ksu/cis/indus/processing/AbstractProcessor.java:
 	  	Added the support to process locals in a method's body.
-		
+
 
 2005-03-10  venku  <rvprasad@cis.ksu.edu>
 
@@ -45,4 +49,4 @@
 2005-02-25  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/common/soot/BasicBlockGraph.java: A basic block graph containing a self-looping basic block lead to
-	infinite loops during basic block creation.  FIXED. 
+	infinite loops during basic block creation.  FIXED.

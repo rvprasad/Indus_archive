@@ -27,7 +27,8 @@
     	</structure>
 	</mapping>
 
-	<mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification" label="typeSpec">
+	<mapping class="edu.ksu.cis.indus.common.scoping.TypeSpecification" abstract="true"
+		type-name="typeSpec">
     	<value style="attribute" name="scopeExtension" get-method="getScopeExtension"
     		deserializer="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum.valueOf"
     		type="edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum" set-method="setScopeExtension" />
@@ -38,16 +39,15 @@
     <mapping name="classSpec" class="edu.ksu.cis.indus.common.scoping.ClassSpecification"
     	extends="edu.ksu.cis.indus.common.scoping.AbstractSpecification">
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
-		<structure name="typeSpec" using="typeSpec" set-method="setTypeSpec"
-			get-method="getTypeSpec"/>
+		<structure name="typeSpec" map-as="typeSpec" set-method="setTypeSpec"	get-method="getTypeSpec"/>
     </mapping>
 
     <mapping name="fieldSpec" class="edu.ksu.cis.indus.common.scoping.FieldSpecification"
     	extends="edu.ksu.cis.indus.common.scoping.AbstractSpecification">
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
-		<structure name="declaringClassSpec" using="typeSpec" set-method="setDeclaringClassSpec"
+		<structure name="declaringClassSpec" map-as="typeSpec"	set-method="setDeclaringClassSpec"
 			get-method="getDeclaringClassSpec"/>
-		<structure name="fieldTypeSpec" using="typeSpec" set-method="setFieldTypeSpec"
+		<structure name="fieldTypeSpec" map-as="typeSpec" set-method="setFieldTypeSpec"
 			get-method="getFieldTypeSpec"/>
 		<value style="attribute" name="fieldNameSpec" type="java.lang.String"  set-method="setFieldNameSpec"
 			get-method="getFieldNameSpec"/>
@@ -58,10 +58,10 @@
 		<structure map-as="edu.ksu.cis.indus.common.scoping.AbstractSpecification"/>
 		<value style="attribute" name="methodNameSpec" type="java.lang.String" set-method="setMethodNameSpec"
 			get-method="getMethodNameSpec" />
-		<structure name="declaringClassSpec" using="typeSpec" set-method="setDeclaringClassSpec"
+		<structure name="declaringClassSpec" map-as="typeSpec" set-method="setDeclaringClassSpec"
 			get-method="getDeclaringClassSpec"/>
-		<structure name="returnTypeSpec" using="typeSpec" set-method="setReturnTypeSpec"
-			get-method="getReturnTypeSpec"/>
+		<structure name="returnTypeSpec" map-as="typeSpec"
+			set-method="setReturnTypeSpec" get-method="getReturnTypeSpec"/>
 		<collection field="parameterTypeSpecs" name="parameterSpecs"
 			item-type="edu.ksu.cis.indus.common.scoping.TypeSpecification"
 			factory="edu.ksu.cis.indus.common.scoping.MethodSpecification.createParameterTypeSpecContainer"
