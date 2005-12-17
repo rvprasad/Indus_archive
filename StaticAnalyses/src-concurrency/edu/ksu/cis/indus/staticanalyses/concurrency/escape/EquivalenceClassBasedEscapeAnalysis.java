@@ -77,7 +77,7 @@ import soot.jimple.ThisRef;
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and
  * Ready Dependence for Slicing Concurrent Java Programs.</a>
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -87,7 +87,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This class retrieves the alias set corresponding to a param/arg position from a method context.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -102,7 +102,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		/**
 		 * Creates an instance of this class.
-		 * 
+		 *
 		 * @param pos is the arg/param position of interest.
 		 */
 		ArgParamAliasSetRetriever(final int pos) {
@@ -124,7 +124,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This retrives the site context in a method based on the initialized call-site.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -139,7 +139,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		/**
 		 * Creates an instance of this class.
-		 * 
+		 *
 		 * @param triple of interest.
 		 * @pre triple != null
 		 */
@@ -183,7 +183,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This maps classes to alias sets that serve as bases for static fields.
-	 * 
+	 *
 	 * @invariant class2aliasSets->forall(o | o.oclIsKindOf(AliasSet))
 	 */
 	final Map<SootClass, AliasSet> class2aliasSet;
@@ -242,6 +242,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final EscapeInfo escapeInfo;
 
 	/**
+	 * At the end of phase2, this indicates if the system contains multiple threads.
+	 */
+	private boolean multiThreadedSystem;
+
+	/**
 	 * This is the object that exposes object read-write info calculated by this instance.
 	 */
 	private final ReadWriteInfo objectReadWriteInfo;
@@ -249,12 +254,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object. The default value for escapes, reads, and writes is set to
 	 * <code>true</code>, <code>false</code>, and <code>false</code>, respectively.
-	 * 
+	 *
 	 * @param callgraph provides call-graph information.
 	 * @param threadgraph provides thread graph information. If this is <code>null</code> then read-write specific thread
 	 *            information is not captured.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
-	 * @pre scene != null and callgraph != null and threadgraph != null
+	 * @pre scene != null and callgraph != null
 	 */
 	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo threadgraph,
 			final BasicBlockGraphMgr basicBlockGraphMgr) {
@@ -273,7 +278,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Checks if the given type can contribute to aliasing. Only reference and array types can lead to aliasing.
-	 * 
+	 *
 	 * @param type to be checked for aliasing support.
 	 * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
 	 * @pre type != null
@@ -295,7 +300,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
-		
+
+		multiThreadedSystem = false;
+
 		performPhase2();
 
 		performPhase3();
@@ -329,7 +336,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Retrieves escape info provider.
-	 * 
+	 *
 	 * @return an escape info provider.
 	 * @post result != null
 	 */
@@ -339,7 +346,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Retrieves read-write info provider.
-	 * 
+	 *
 	 * @return an read-write info provider.
 	 * @post result != null
 	 */
@@ -358,7 +365,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Sets the default value to be returned on unanswerable escape equeries.
-	 * 
+	 *
 	 * @param value the new value of <code>escapesDefaultValue</code>.
 	 */
 	public void setEscapesDefaultValue(final boolean value) {
@@ -367,7 +374,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Sets the default value to be returned on unanswerable access-path based read queries.
-	 * 
+	 *
 	 * @param value the new value of <code>readDefaultValue</code>.
 	 */
 	public void setReadDefaultValue(final boolean value) {
@@ -376,7 +383,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Sets the default value to be returned on unanswerable access-path based written queries.
-	 * 
+	 *
 	 * @param value the new value of <code>value</code>.
 	 */
 	public void setWriteDefaultValue(final boolean value) {
@@ -409,7 +416,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Retrieves the alias set for the class. This will create a new alias set if none exists for the given class.
-	 * 
+	 *
 	 * @param declaringClass of interest.
 	 * @return the alias set.
 	 * @pre declaringClass != null
@@ -428,7 +435,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set on the callee side that corresponds to the given alias set on the caller side at the given call
 	 * site in the caller.
-	 * 
+	 *
 	 * @param ref the reference alias set.
 	 * @param callee provides the context in which the requested reference occurs.
 	 * @param site the call site at which <code>callee</code> is called.
@@ -452,7 +459,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Retrieves the alias set on the caller side that corresponds to the given alias set on the callee side at the given call
 	 * site in the caller.
-	 * 
+	 *
 	 * @param ref the reference alias set.
 	 * @param callee the method in which <code>ref</code> occurs.
 	 * @param site the call site at which <code>callee</code> is called.
@@ -474,8 +481,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	final void markMultiThreadedSystem() {
+		multiThreadedSystem = true;
+	}
+
+	/**
 	 * Retrieves the alias set for the given soot class. This will not create an alias set if none exists for the given class.
-	 * 
+	 *
 	 * @param sc is the class of interest.
 	 * @return an alias set.
 	 */
@@ -485,7 +499,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Retrieves the alias set corresponding to the given value. This method cannot handled <code>CaughtExceptionRef</code>.
-	 * 
+	 *
 	 * @param v is the value for which the alias set is requested.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @return the alias set corresponding to <code>v</code>.
@@ -542,7 +556,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Retrieves the alias set for "this" variable of the given method.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @return the alias set corresponding to the "this" variable of the given method.
 	 * @pre method != null and method.isStatic()
@@ -553,7 +567,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Validates the given parameter position in the given method.
-	 * 
+	 *
 	 * @param paramPos obviously.
 	 * @param method in which the position is being validated.
 	 * @throws IllegalArgumentException if the given position is invalid.
@@ -568,7 +582,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Validates if the given method is non-static.
-	 * 
+	 *
 	 * @param method of interest.
 	 * @throws IllegalArgumentException if the given method is static.
 	 */
@@ -581,7 +595,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Rewires the method context, local variable alias sets, and site contexts such that they contain only representative
 	 * alias sets and no the nominal(indirectional) alias sets.
-	 * 
+	 *
 	 * @param method for which this processing should occur.
 	 * @pre method != null
 	 */
@@ -685,7 +699,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 
-		if (tgi.getCreationSites().size() > 1) {
+		if (multiThreadedSystem) {
 			for (final Iterator<AliasSet> _i = class2aliasSet.values().iterator(); _i.hasNext();) {
 				final AliasSet _as = _i.next();
 				_as.markAsCrossingThreadBoundary();
@@ -755,7 +769,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
-		
+
 		for (final Map.Entry<SootClass, AliasSet> _e : class2aliasSet.entrySet()) {
 			_e.setValue(_e.getValue().find());
 		}

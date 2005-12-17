@@ -346,6 +346,7 @@ final class ValueProcessor
 			processNotifyWaitSync(primaryAliasSet, _callee);
 
 			if (Util.isStartMethod(_callee)) {
+				ecba.markMultiThreadedSystem();
 				_mc.markAsCrossingThreadBoundary();
 				if (_notInSameSCC) {
 					_mc.eraseIntraThreadRefEntities();
