@@ -5,7 +5,7 @@ Required software:
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
     Jakarta Commons Pool 1.2
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
-    JiBX: Binding XML to Java Code (bleeding edge >= RC1)
+    JiBX: Binding XML to Java Code (bleeding edge >= RC2)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]

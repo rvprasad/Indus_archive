@@ -1,3 +1,8 @@
+2005-12-19 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java: 
+		- changed the signature of getMonitorTriples()
+
 2005-12-16  venku  <rvprasad@cis.ksu.edu>
 
 	* auxiliary/scoping_JiBXBinding.xml: adapted to JiBX 1.0RC2 release.

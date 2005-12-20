@@ -160,12 +160,11 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param method in which monitorStmt occurs.
 	 * @return collection of monitors in the analyzed system.
 	 * @pre method != null
-	 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
 	 * @post result != null
 	 * @post result->forall(o | o.getThird().equals(method))
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(final Stmt monitorStmt,
+	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(final MonitorStmt monitorStmt,
 			final SootMethod method);
 
 	/**
