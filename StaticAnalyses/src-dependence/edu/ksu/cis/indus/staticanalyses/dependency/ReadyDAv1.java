@@ -92,7 +92,7 @@ import soot.jimple.VirtualInvokeExpr;
  * In case the body of the synchronized method is unavailable, then any dependence involving entry and exit points of the
  * method will use null as the dependee/dependent statement.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -104,7 +104,7 @@ public class ReadyDAv1
 	/**
 	 * This preprocesses information before ready dependence is calculated. Information required during the analysis is
 	 * collected by this class.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -115,7 +115,7 @@ public class ReadyDAv1
 		/**
 		 * Collects monitor statements and statements with <code>Object.wait()</code> and <code>Object.notifyXX()</code>
 		 * call-sites.
-		 *
+		 * 
 		 * @param stmt to be preprocessed.
 		 * @param context in which <code>stmt</code> occurs.
 		 * @pre stmt.oclIsTypeOf(ExitMonitorStmt) or stmt.oclIsTypeOf(EnterMonitorStmt) or stmt.oclIsTypeOf(InvokeStmt)
@@ -281,7 +281,7 @@ public class ReadyDAv1
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param directionSensitiveInfo that controls the direction.
 	 * @param direction of the analysis
 	 * @pre info != null and direction != null
@@ -295,7 +295,7 @@ public class ReadyDAv1
 
 	/**
 	 * Retrieves an instance of ready dependence analysis that calculates information in backward direction.
-	 *
+	 * 
 	 * @return an instance of ready dependence.
 	 * @post result != null
 	 */
@@ -305,7 +305,7 @@ public class ReadyDAv1
 
 	/**
 	 * Retrieves an instance of ready dependence analysis that calculates information in forward direction.
-	 *
+	 * 
 	 * @return an instance of ready dependence.
 	 * @post result != null
 	 */
@@ -316,7 +316,7 @@ public class ReadyDAv1
 	/**
 	 * Calculates ready dependency for the methods provided at initialization. It considers only the rules specified by via
 	 * <code>setRules</code> method. By default, all rules are considered for the analysis.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
@@ -352,7 +352,7 @@ public class ReadyDAv1
 	 * Returns the statements on which the <code>dependentStmt</code> depends on. Refer to class level documentation for
 	 * important details. A pair of null and method in the result indicates that the dependence is due to the synchronized
 	 * nature of the method in the pair.
-	 *
+	 * 
 	 * @param dependentStmt is the statement for which the dependee info is requested.
 	 * @param method in which the statement occurs.
 	 * @return a collection of statement.
@@ -366,7 +366,7 @@ public class ReadyDAv1
 	 * Returns the statements which depend on <code>dependeeStmt</code>. Refer to class level documentation for important
 	 * details. A pair of null and method in the result indicates that the dependence is due to the synchronized nature of the
 	 * method in the pair.
-	 *
+	 * 
 	 * @param dependeeStmt is the statement for which the dependent info is requested.
 	 * @param method in which the statement occurs.
 	 * @return a collection of statement.
@@ -386,7 +386,7 @@ public class ReadyDAv1
 
 	/**
 	 * Provides the rules that are active at present.
-	 *
+	 * 
 	 * @return the active rules as a logical OR of <i>RULE_XX</i> constants.
 	 * @post result and not (RULE_1 or RULE_2 or RULE_3 or RULE_4) == 0
 	 */
@@ -396,7 +396,7 @@ public class ReadyDAv1
 
 	/**
 	 * Resets internal data structures. <i>The rules are not reset.</i> Also, the data acquired at setup time is not erased.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	@Override public void reset() {
@@ -409,7 +409,7 @@ public class ReadyDAv1
 
 	/**
 	 * Records if ready dependency should be interprocedural or otherwise.
-	 *
+	 * 
 	 * @param consider <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor statement
 	 *            should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule 1
 	 *            and 3 are interpreted
@@ -420,7 +420,7 @@ public class ReadyDAv1
 
 	/**
 	 * Sets the rules to be processed.
-	 *
+	 * 
 	 * @param rulesParam is the logical OR of <i>RULE_XX</i> constants defined in this class.
 	 * @throws IllegalArgumentException when rules is not a valid combination of <i>RULE_XX</i> constants.
 	 */
@@ -433,7 +433,7 @@ public class ReadyDAv1
 
 	/**
 	 * Sets if object flow analysis should be used or not.
-	 *
+	 * 
 	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
 	 */
 	public final void setUseOFA(final boolean flag) {
@@ -442,7 +442,7 @@ public class ReadyDAv1
 
 	/**
 	 * Controls if safe lock analysis should be used.
-	 *
+	 * 
 	 * @param b <code>true</code> indicates the analysis should be used; <code>false</code>, otherwise.
 	 */
 	public void setUseSafeLockAnalysis(final boolean b) {
@@ -451,7 +451,7 @@ public class ReadyDAv1
 
 	/**
 	 * Returns a stringified representation of the analysis information.
-	 *
+	 * 
 	 * @return a string containing the analysis info.
 	 * @post result != null
 	 */
@@ -461,12 +461,14 @@ public class ReadyDAv1
 		int _edgeCount1 = 0;
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator<Map.Entry<SootMethod, Map<Stmt, Collection<Pair<Stmt, SootMethod>>>>> _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator<Map.Entry<SootMethod, Map<Stmt, Collection<Pair<Stmt, SootMethod>>>>> _i = dependent2dependee
+				.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry<SootMethod, Map<Stmt, Collection<Pair<Stmt, SootMethod>>>> _entry = _i.next();
 			final Object _method = _entry.getKey();
 			_result.append("In method " + _method + "\n ");
 
-			for (final Iterator<Map.Entry<Stmt, Collection<Pair<Stmt, SootMethod>>>> _k = _entry.getValue().entrySet().iterator(); _k.hasNext();) {
+			for (final Iterator<Map.Entry<Stmt, Collection<Pair<Stmt, SootMethod>>>> _k = _entry.getValue().entrySet()
+					.iterator(); _k.hasNext();) {
 				final Map.Entry<Stmt, Collection<Pair<Stmt, SootMethod>>> _entry1 = _k.next();
 				final Object _dependent = _entry1.getKey();
 
@@ -509,7 +511,7 @@ public class ReadyDAv1
 
 	/**
 	 * Checks if the given wait invocation is dependent on the notify invocation according to rule 4 based of OFA information.
-	 *
+	 * 
 	 * @param waitPair is the wait invocation statement and containg method pair.
 	 * @param notifyPair is the notify invocation statement and containg method pair.
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
@@ -555,7 +557,7 @@ public class ReadyDAv1
 	 * Checks if the given enter monitor statement/synchronized method is dependent on the exit monitor statement/synchronized
 	 * method according to rule 2. The dependence is determined based on the relation between the classes of the objects on
 	 * which synchronization is being performed.
-	 *
+	 * 
 	 * @param enterPair is the enter monitor statement and containg statement pair.
 	 * @param exitPair is the exit monitor statement and containg statement pair.
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
@@ -624,7 +626,7 @@ public class ReadyDAv1
 	 * Checks if the given <code>wait()</code> call-site is dependent on the <code>notifyXX()</code> call-site according
 	 * to rule 2. The dependence is determined based on the relation between the classes immediately enclosing the given
 	 * statements occur.
-	 *
+	 * 
 	 * @param wPair is the statement in which <code>java.lang.Object.wait()</code> is invoked.
 	 * @param nPair is the statement in which <code>java.lang.Object.notifyXX()</code> is invoked.
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
@@ -647,7 +649,7 @@ public class ReadyDAv1
 
 	/**
 	 * Extracts information provided by environment at initialization time.
-	 *
+	 * 
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 *             <code>info</code> member.
 	 * @pre info.get(IEnvironment.ID) != null and info.get(ICallGraphInfo.ID) != null
@@ -707,7 +709,7 @@ public class ReadyDAv1
 	/**
 	 * Checks if the given stmt contains a call-site. If so, it checks if it results in the invocation of a method
 	 * (ready-method) that has atleast an enter-monitor statement or a <code>wait()</code> call-site.
-	 *
+	 * 
 	 * @param stmt that could result in the invocation of ready-method via a call-chain.
 	 * @param caller in which <code>stmt</code> occurs.
 	 * @return <code>true</code> if <code>stmt</code> results in the invocation of a ready-method via a call-chain;
@@ -727,7 +729,7 @@ public class ReadyDAv1
 
 	/**
 	 * Collects the dependees in each method.
-	 *
+	 * 
 	 * @return a collection of dependees in each method.
 	 * @post result != null
 	 */
@@ -769,7 +771,7 @@ public class ReadyDAv1
 
 	/**
 	 * A helper method to retrieve dependence information.
-	 *
+	 * 
 	 * @param stmt of interest.
 	 * @param method containing <code>stmt</code>.
 	 * @param map containing dependence information.
@@ -789,7 +791,7 @@ public class ReadyDAv1
 
 	/**
 	 * Retrieves pairs of exitmonitor statements and the methods that containing the statement.
-	 *
+	 * 
 	 * @return a collection of pairs.
 	 * @post result != null and result.oclIsKindOf(Collection(Pair(ExitMonitorStmt, SootMethod)))
 	 */
@@ -812,7 +814,7 @@ public class ReadyDAv1
 	/**
 	 * Checks if the given enter monitor statement/synchronized method is dependent on the exit monitor statement/synchronized
 	 * method according to rule 2 based on OFA.
-	 *
+	 * 
 	 * @param enterPair is the enter monitor statement and containg method pair.
 	 * @param exitPair is the exit monitor statement and containg method pair.
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
@@ -889,7 +891,7 @@ public class ReadyDAv1
 
 	/**
 	 * This checks if the lock associated the given monitor is unsafe.
-	 *
+	 * 
 	 * @param monitorStmt obviously.
 	 * @param method in which <code>monitorStmt</code> occurs.
 	 * @return <code>true</code> if the lock is unsafe; <code>false</code>, otherwise.
@@ -910,7 +912,7 @@ public class ReadyDAv1
 
 	/**
 	 * Process monitor info.
-	 *
+	 * 
 	 * @return <code>true</code> if the system has any synchronization in it; <code>false</code>, otherwise.
 	 */
 	private boolean processMonitorInfo() {
@@ -967,8 +969,8 @@ public class ReadyDAv1
 			final SootMethod _method = _i.next();
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection<Stmt> _dependees = _method2dependeeMap.get(_method);
-			final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
-					dependent2dependee, _method);
+			final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(dependent2dependee,
+					_method);
 
 			for (final Iterator<?> _j = _dependees.iterator(); _j.hasNext();) {
 				final Object _o = _j.next();
@@ -1023,35 +1025,38 @@ public class ReadyDAv1
 			final Pair<ExitMonitorStmt, SootMethod> _exitPair = _i.next();
 			final ExitMonitorStmt _exit = _exitPair.getFirst();
 			final SootMethod _exitMethod = _exitPair.getSecond();
-			final Set<SootMethod> _keySet = enterMonitors.keySet();
-			final Iterator<SootMethod> _j = _keySet.iterator();
-			final int _jEnd = _keySet.size();
+			final Set<Map.Entry<SootMethod, Collection<EnterMonitorStmt>>> _entrySet = enterMonitors.entrySet();
+			final Iterator<Map.Entry<SootMethod, Collection<EnterMonitorStmt>>> _j = _entrySet.iterator();
+			final int _jEnd = _entrySet.size();
 			_dependents.clear();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final SootMethod _enterMethod = _j.next();
-				final Collection<EnterMonitorStmt> _collection = enterMonitors.get(_enterMethod);
+				final Map.Entry<SootMethod, Collection<EnterMonitorStmt>> _entry = _j.next();
+				final SootMethod _enterMethod = _entry.getKey();
+				final Collection<EnterMonitorStmt> _collection = _entry.getValue();
 				final Iterator<EnterMonitorStmt> _iter = _collection.iterator();
 				final int _iterEnd = _collection.size();
 
 				for (int _iterIndex = 0; _iterIndex < _iterEnd; _iterIndex++) {
 					final EnterMonitorStmt _enter = _iter.next();
-					final Pair<EnterMonitorStmt, SootMethod> _enterPair = pairMgr.getPair(_enter, _enterMethod);
+					if (typesAreCompatible(_enter, _enterMethod, _exit, _exitMethod)) {
+						final Pair<EnterMonitorStmt, SootMethod> _enterPair = pairMgr.getPair(_enter, _enterMethod);
 
-					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
-						final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
-								dependent2dependee, _enterMethod);
-						final Pair<Stmt, SootMethod> _nPair = pairMgr.getPair((Stmt) _enter, _enterMethod);
-						final Pair<Stmt, SootMethod> _xPair = pairMgr.getPair((Stmt) _exit, _exitMethod);
-						MapUtils.putIntoCollectionInMap(_dents2dees, _enter, _xPair);
-						_dependents.add(_nPair);
+						if (ifDependentOnByRule2(_enterPair, _exitPair)) {
+							final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
+									dependent2dependee, _enterMethod);
+							final Pair<Stmt, SootMethod> _nPair = pairMgr.getPair((Stmt) _enter, _enterMethod);
+							final Pair<Stmt, SootMethod> _xPair = pairMgr.getPair((Stmt) _exit, _exitMethod);
+							MapUtils.putIntoCollectionInMap(_dents2dees, _enter, _xPair);
+							_dependents.add(_nPair);
+						}
 					}
 				}
 			}
 
 			if (!_dependents.isEmpty()) {
-				final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getMapFromMap(
-						dependee2dependent, _exitMethod);
+				final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dees2dents = MapUtils.getMapFromMap(dependee2dependent,
+						_exitMethod);
 				MapUtils.putAllIntoCollectionInMap(_dees2dents, _exit, _dependents);
 			}
 		}
@@ -1067,7 +1072,8 @@ public class ReadyDAv1
 		/*
 		 * Iterate thru wait() call-sites and record dependencies, in both direction, between each notify() call-sites.
 		 */
-		for (final Iterator<Map.Entry<SootMethod, Collection<InvokeStmt>>> _iter = notifies.entrySet().iterator(); _iter.hasNext();) {
+		for (final Iterator<Map.Entry<SootMethod, Collection<InvokeStmt>>> _iter = notifies.entrySet().iterator(); _iter
+				.hasNext();) {
 			final Map.Entry<SootMethod, Collection<InvokeStmt>> _nEntry = _iter.next();
 			final SootMethod _nMethod = _nEntry.getKey();
 
@@ -1088,8 +1094,8 @@ public class ReadyDAv1
 						final Pair<InvokeStmt, SootMethod> _waitPair = pairMgr.getPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_waitPair, _notifyPair)) {
-							final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils
-									.getMapFromMap(dependent2dependee, _wMethod);
+							final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
+									dependent2dependee, _wMethod);
 							final Pair<Stmt, SootMethod> _wPair = pairMgr.getPair((Stmt) _wait, _wMethod);
 							MapUtils.putIntoCollectionInMap(_dents2dees, _wait, _nPair);
 							_dependents.add(_wPair);
@@ -1134,7 +1140,7 @@ public class ReadyDAv1
 	/**
 	 * Records dependent to dependee information while capturing the dependents for recording information in the other
 	 * direction.
-	 *
+	 * 
 	 * @param dependents is the collection of dependents. This is an <code>out</code> parameter.
 	 * @param method in which the dependees occur.
 	 * @param dependees is the collection of dependees.
@@ -1172,6 +1178,97 @@ public class ReadyDAv1
 			_shouldContinue = !(dependees.contains(_stmt) || callsReadyMethod(_stmt, method));
 		}
 		return _shouldContinue;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param enter DOCUMENT ME!
+	 * @param enterMethod DOCUMENT ME!
+	 * @param exit DOCUMENT ME!
+	 * @param exitMethod DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private boolean typesAreCompatible(final EnterMonitorStmt enter, final SootMethod enterMethod,
+			final ExitMonitorStmt exit, final SootMethod exitMethod) {
+		final boolean _result;
+		if (enter == null) { // synchronized enter method
+			final SootClass _nClass = enterMethod.getDeclaringClass();
+			if (enterMethod.isStatic()) { // static enter method
+				if (exit == null) { // synchronized method
+					final SootClass _xClass = exitMethod.getDeclaringClass();
+					if (exitMethod.isStatic()) { // static enter method
+						_result = _xClass.equals(_nClass);
+					} else { // instance enter method
+						_result = Util.isDescendentOf(_xClass, "java.lang.Class");
+					}
+				} else { // synchronized block
+					final Type _xType = exit.getOp().getType();
+					if (_xType instanceof RefType) {
+						final SootClass _xClass = ((RefType) _xType).getSootClass();
+						_result = Util.isDescendentOf(_xClass, "java.lang.Class");
+					} else { // _xType is an ArrayType
+						_result = false;
+					}
+				}
+			} else { // instance enter method
+				if (exit == null) { // synchronized exit method
+					final SootClass _xClass = exitMethod.getDeclaringClass();
+					if (exitMethod.isStatic()) { // static exit method
+						_result = false;
+					} else { // instance exit method
+						_result = Util.isHierarchicallyRelated(_nClass, _xClass);
+					}
+				} else { // synchronized exit block
+					final Type _xType = exit.getOp().getType();
+					if (_xType instanceof RefType) { // synchronization on non-array type
+						final SootClass _xClass = ((RefType) _xType).getSootClass();
+						_result = Util.isHierarchicallyRelated(_nClass, _xClass);
+					} else { // synchronization on array type
+						_result = _nClass.getName().equals("java.lang.Object");
+					}
+				}
+			}
+		} else { // synchronized enter block
+			final Type _nType = enter.getOp().getType();
+			if (_nType instanceof RefType) { // synchronization on non-array type
+				final SootClass _nClass = enterMethod.getDeclaringClass();
+				if (exit == null) { // synchronized exit method
+					final SootClass _xClass = exitMethod.getDeclaringClass();
+					if (exitMethod.isStatic()) { // static exit method
+						_result = Util.isDescendentOf(_nClass, "java.lang.Class");
+					} else { // instance exit method
+						_result = Util.isDescendentOf(_xClass, _nClass);
+					}
+				} else { // synchronized exit block
+					final Type _xType = exit.getOp().getType();
+					if (_xType instanceof RefType) { // synchronization on non-array type
+						final SootClass _xClass = ((RefType) _xType).getSootClass();
+						_result = Util.isDescendentOf(_xClass, _nClass);
+					} else { // synchronization on array type
+						_result = _nClass.getName().equals("java.lang.Object");
+					}
+				}
+			} else { // synchronization on array type
+				if (exit == null) { // synchronized exit method
+					final SootClass _xClass = exitMethod.getDeclaringClass();
+					if (exitMethod.isStatic()) { // static exit method
+						_result = false;
+					} else { // instance exit method
+						_result = _xClass.getName().equals("java.lang.Object");
+					}
+				} else { // synchronized exit block
+					final Type _xType = exit.getOp().getType();
+					if (_xType instanceof RefType) { // synchronization on non-array type
+						final SootClass _xClass = ((RefType) _xType).getSootClass();
+						_result = _xClass.getName().equals("java.lang.Object");
+					} else { // synchronization on array type
+						_result = _xType.equals(_nType);
+					}
+				}				
+			}
+		}
+		return _result;
 	}
 }
 

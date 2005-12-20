@@ -1,3 +1,8 @@
+2005-12-20 venku <venku@boss.dreamsoft.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: 
+		- used type information to further prune inter-thread ready dependence stemming from monitors.
+
 2005-12-19 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/SafeLockAnalysis.java: 
