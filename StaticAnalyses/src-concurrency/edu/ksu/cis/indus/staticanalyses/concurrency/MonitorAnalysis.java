@@ -151,7 +151,8 @@ public final class MonitorAnalysis
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
 			CollectionUtils.transform(_monitorNodes, getObjectExtractor(), _monitors);
 
-			@SuppressWarnings("unchecked") final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
+			@SuppressWarnings("unchecked") final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors
+					.iterator();
 			final int _iEnd = _monitors.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -203,7 +204,8 @@ public final class MonitorAnalysis
 						final Collection<Stmt> _stmts = getUnenclosedStmtsOf(_callee);
 						MapUtils.putAllIntoCollectionInMap(method2stmts, _callee, _stmts);
 
-						for (final Stmt _s : IteratorUtils.filteredIterable(_stmts,	SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE)) {
+						for (final Stmt _s : IteratorUtils.filteredIterable(_stmts,
+								SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE)) {
 							_wb.addWork(pairMgr.getPair(_s, _callee));
 						}
 					}
@@ -243,10 +245,9 @@ public final class MonitorAnalysis
 		 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
 		 * @return a map from methods to statements in them that occur in the enclosure.
 		 * @pre method != null and monitorStmt != null
-		 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
-		 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+		 * @post result != null
 		 */
-		private Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(final Stmt monitorStmt,
+		private Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(final MonitorStmt monitorStmt,
 				final SootMethod method, final boolean transitive) {
 			final Collection<Stmt> _intraStmts = new HashSet<Stmt>();
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriplesFor = getMonitorTriplesFor(
@@ -305,8 +306,7 @@ public final class MonitorAnalysis
 		 */
 		@Override public void callback(final Stmt stmt, final Context context) {
 			if (stmt instanceof EnterMonitorStmt) {
-				MapUtils.putIntoSetInMap(method2enterMonitors, context.getCurrentMethod(),
-						(EnterMonitorStmt) stmt);
+				MapUtils.putIntoSetInMap(method2enterMonitors, context.getCurrentMethod(), (EnterMonitorStmt) stmt);
 			}
 		}
 
@@ -477,7 +477,7 @@ public final class MonitorAnalysis
 				final int _iEnd = _temp.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Stmt _monitorStmt = _i.next();
+					final EnterMonitorStmt _monitorStmt = (EnterMonitorStmt) _i.next();
 					final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriplesFor = getMonitorTriplesFor(
 							_monitorStmt, _sm);
 					final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _j = _monitorTriplesFor.iterator();
@@ -497,8 +497,9 @@ public final class MonitorAnalysis
 				if (transitive) {
 					_result.addAll(calculateTransitiveClosureOfEnclosedStmts(_monitor2enclosedStmts, monitorTriple, _sm));
 				} else {
-					_result.addAll(MapUtils.getFromMap(_monitor2enclosedStmts, monitorTriple, Collections
-							.<Stmt>emptyList()));
+					_result
+							.addAll(MapUtils
+									.getFromMap(_monitor2enclosedStmts, monitorTriple, Collections.<Stmt> emptyList()));
 				}
 			}
 		}
@@ -533,7 +534,8 @@ public final class MonitorAnalysis
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getEnclosingMonitorTriples(final Stmt stmt,
 			final SootMethod method, final boolean transitive) {
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _result = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
-		final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosedStmt2monitors = MapUtils.getEmptyMapFromMap(method2enclosedStmts2monitors, method);
+		final Map<Stmt, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosedStmt2monitors = MapUtils
+				.getEmptyMapFromMap(method2enclosedStmts2monitors, method);
 
 		if (_enclosedStmt2monitors.size() > 0) {
 			if (transitive) {
@@ -555,7 +557,8 @@ public final class MonitorAnalysis
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorGraph(edu.ksu.cis.indus.interfaces.ICallGraphInfo)
 	 */
-	public IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getMonitorGraph(final ICallGraphInfo callgraphInfo) {
+	public IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getMonitorGraph(
+			final ICallGraphInfo callgraphInfo) {
 		final MonitorGraph _result = new MonitorGraph(callgraphInfo);
 		final Collection<CallTriple> _temp = new HashSet<CallTriple>();
 		final IWorkBag<CallTriple> _wb = new HistoryAwareFIFOWorkBag<CallTriple>(_temp);
@@ -632,10 +635,10 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesFor(soot.jimple.Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesFor(soot.jimple.MonitorStmt, SootMethod)
 	 */
-	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(final Stmt monitorStmt,
-			final SootMethod method) {
+	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(
+			final MonitorStmt monitorStmt, final SootMethod method) {
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _result = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriplesInMethod = getMonitorTriplesIn(method);
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriplesInMethod.iterator();
@@ -644,8 +647,8 @@ public final class MonitorAnalysis
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _triple = _i.next();
 
-			final Object _enter = _triple.getFirst();
-			final Object _exit = _triple.getSecond();
+			final EnterMonitorStmt _enter = _triple.getFirst();
+			final ExitMonitorStmt _exit = _triple.getSecond();
 
 			if ((_enter != null && _enter.equals(monitorStmt)) || (_exit != null && _exit.equals(monitorStmt))) {
 				_result.add(_triple);
@@ -691,7 +694,7 @@ public final class MonitorAnalysis
 			final int _iEnd = _stmts.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stmt _stmt = _i.next();
+				final MonitorStmt _stmt = _i.next();
 				_triples.addAll(getMonitorTriplesFor(_stmt, _method));
 			}
 		}
@@ -852,7 +855,8 @@ public final class MonitorAnalysis
 	 * @post srcs->forall(o | dests->forall(p | graph.queryNode(o).getSuccsOf()->contains(graph.queryNode(p))))
 	 */
 	private void addEdgesFromToIn(final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> srcs,
-			final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> dests, final MonitorGraph graph) {
+			final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> dests,
+			final MonitorGraph graph) {
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _k = srcs.iterator();
 		final int _kEnd = srcs.size();
 
@@ -897,7 +901,7 @@ public final class MonitorAnalysis
 			final int _iEnd = _temp.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stmt _monitorStmt = _i.next();
+				final EnterMonitorStmt _monitorStmt = (EnterMonitorStmt) _i.next();
 				_wb.addAllWorkNoDuplicates(getMonitorTriplesFor(_monitorStmt, method));
 			}
 		}
@@ -963,13 +967,12 @@ public final class MonitorAnalysis
 
 				for (final Iterator<Pair<EnterMonitorStmt, Collection<Stmt>>> _iter = enterStack.iterator(); _iter.hasNext();) {
 					final Pair<EnterMonitorStmt, Collection<Stmt>> _p = _iter.next();
-					_clone
-							.add(new Pair<EnterMonitorStmt, Collection<Stmt>>(_p.getFirst(),
-									new HashSet<Stmt>(_p.getSecond())));
+					final HashSet<Stmt> _hashSet = new HashSet<Stmt>(_p.getSecond());
+					_clone.add(new Pair<EnterMonitorStmt, Collection<Stmt>>(_p.getFirst(), _hashSet));
 				}
-				workbag
-						.addWork(new Quadraple<BasicBlock, Stmt, Stack<Pair<EnterMonitorStmt, Collection<Stmt>>>, Collection<Stmt>>(
-								_succ, _succ.getLeaderStmt(), _clone, new HashSet<Stmt>(currStmts)));
+				final Quadraple<BasicBlock, Stmt, Stack<Pair<EnterMonitorStmt, Collection<Stmt>>>, Collection<Stmt>> _quadraple = new Quadraple<BasicBlock, Stmt, Stack<Pair<EnterMonitorStmt, Collection<Stmt>>>, Collection<Stmt>>(
+						_succ, _succ.getLeaderStmt(), _clone, new HashSet<Stmt>(currStmts));
+				workbag.addWork(_quadraple);
 			}
 		}
 	}
@@ -1050,7 +1053,7 @@ public final class MonitorAnalysis
 			// add enclosure information for enter and exit monitor
 			MapUtils.putAllIntoCollectionInMap(_ddee2ddents, _dependee, currStmts);
 			MapUtils.putIntoCollectionInMap(enter2exits, _enter, _exit);
-			
+
 			// load up the statements in the enclosing critical region for processing
 			_result = _pair.getSecond();
 			_result.add(_exit);

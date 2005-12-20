@@ -57,6 +57,7 @@ import soot.Value;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
@@ -253,9 +254,8 @@ public class SafeLockAnalysis
 	 * 		   is safe; <code>false</code>, otherwise.
 	 *
 	 * @pre method != null and stmt != null
-	 * @pre stmt.oclIsKindOf(EnterMonitorStmt) || stmt.oclIsKindOf(ExitMonitorStmt)
 	 */
-	public boolean isLockSafe(final Stmt stmt, final SootMethod method) {
+	public boolean isLockSafe(final MonitorStmt stmt, final SootMethod method) {
 		return !CollectionUtils.containsAny(unsafeMonitors, monitorInfo.getMonitorTriplesFor(stmt, method));
 	}
 

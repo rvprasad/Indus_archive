@@ -325,7 +325,7 @@ public class ReadyDAv1
 		if (monitorInfo.isStable() && callgraph.isStable() && threadgraph.isStable()
 				&& (!useSafeLockAnalysis || safelockAnalysis.isStable())) {
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
+				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + "] processing");
 			}
 
 			if (!threadgraph.getCreationSites().isEmpty()) {
@@ -738,7 +738,7 @@ public class ReadyDAv1
 			for (final Iterator<SootMethod> _i = enterMonitors.keySet().iterator(); _i.hasNext();) {
 				final SootMethod _method = _i.next();
 
-				// if the method is not concrete we there can be no intra-procedural ready dependence. So, don't bother.
+				// if the method is not concrete then there can be no intra-procedural ready dependence. So, don't bother.
 				if (_method.isConcrete()) {
 					final Collection<EnterMonitorStmt> _enterMonitorStmts = enterMonitors.get(_method);
 					final Collection<Stmt> _col = new HashSet<Stmt>();
@@ -1042,8 +1042,7 @@ public class ReadyDAv1
 						final Map<Stmt, Collection<Pair<Stmt, SootMethod>>> _dents2dees = MapUtils.getMapFromMap(
 								dependent2dependee, _enterMethod);
 						final Pair<Stmt, SootMethod> _nPair = pairMgr.getPair((Stmt) _enter, _enterMethod);
-						final Pair<Stmt, SootMethod> _xPair = pairMgr.getPair((Stmt) _exit, _enterMethod);
-
+						final Pair<Stmt, SootMethod> _xPair = pairMgr.getPair((Stmt) _exit, _exitMethod);
 						MapUtils.putIntoCollectionInMap(_dents2dees, _enter, _xPair);
 						_dependents.add(_nPair);
 					}

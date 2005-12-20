@@ -125,9 +125,9 @@ public final class SynchronizationDA
 		if (_result == null) {
 			_result = new HashSet<MonitorStmt>(monitorInfo.getEnclosingMonitorStmts(dependentStmt, method, false));
 
-			if (dependentStmt instanceof ExitMonitorStmt || dependentStmt instanceof EnterMonitorStmt) {
+			if (dependentStmt instanceof MonitorStmt) {
 				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = monitorInfo
-						.getMonitorTriplesFor(dependentStmt, method);
+						.getMonitorTriplesFor((MonitorStmt) dependentStmt, method);
 
 				for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriples.iterator(); _i
 						.hasNext();) {

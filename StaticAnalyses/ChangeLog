@@ -1,3 +1,19 @@
+2005-12-19 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/SafeLockAnalysis.java: 
+		- strengthened the pre-condition of isLockSafe() by changing the type of its parameter -- ripple effect of the 
+		change to IMonitorInfo interface
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/MonitorAnalysis.java: 
+		- formatting
+		- strengthened the pre-condition of getInterProcedurallyEnclosedStmts() by changing the type of its parameter
+		- used MonitorStmt instead of Stmt wherever possible
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: 
+		- logging
+		- comments
+		- fixed an error introduced during Java 5 adoption in processRule2() method
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/SynchronizationDA.java: 
+		- weakened few type checks from Enter/ExitMonitorStmt to MonitorStmt
+
 2005-12-15  venku  <rvprasad@cis.ksu.edu>
 
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterferenceDAv1.java:
