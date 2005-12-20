@@ -670,7 +670,7 @@ public final class Util {
 	 * @post result == (class1.oclIsKindOf(class2) or class2.oclIsKindOf(class1))
 	 */
 	public static boolean isHierarchicallyRelated(final SootClass class1, final SootClass class2) {
-		return isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
+		return class1.equals(class2) || isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
 	}
 
 	/**

@@ -1,3 +1,8 @@
+2005-12-20 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/soot/Util.java: 
+		- changed the behavior of isHierarchicallyRelated() to be true when the givne classes are identical.
+
 2005-12-19 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java: 
@@ -14,8 +19,8 @@
 
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
-	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the classes
-	in the hierarchy in topological order.
+	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the 
+	classes	in the hierarchy in topological order.
 	* src/edu/ksu/cis/indus/common/soot/Util.java : deleted getClassesInTopologicalOrder().
 
 
