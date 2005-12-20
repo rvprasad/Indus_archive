@@ -175,7 +175,7 @@ public class BackwardSlicingPart
 		 * transformAndGenerateToNewCriteriaForXXXX for information about how invoke expressions are handled differently.
 		 */
 		engine.generateStmtLevelSliceCriterion(callStmt, caller, false);
-		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
+		engine.includeInSlice(callStmt.getInvokeExprBox());
 		generateCriteriaForReceiverOfAt(callStmt, caller);
 		recordCallInfoForProcessingArgsTo(callStmt, caller, callee);
 
@@ -394,7 +394,7 @@ public class BackwardSlicingPart
 
 		// we include the unincluded r-values in case the given value box represents a l-value.
 		if (stmt instanceof DefinitionStmt && stmt.getDefBoxes().contains(valueBox)) {
-			_valueBoxes.addAll(engine.collector.getUncollected(stmt.getUseBoxes()));
+			_valueBoxes.addAll(engine.getCollector().getUncollected(stmt.getUseBoxes()));
 		}
 
 		return _valueBoxes;
@@ -445,9 +445,9 @@ public class BackwardSlicingPart
 				final Stmt _tail = _i.next();
 
 				if (_tail instanceof ReturnStmt) {
-					_result |= !engine.collector.hasBeenCollected(((ReturnStmt) _tail).getOpBox());
+					_result |= !engine.getCollector().hasBeenCollected(((ReturnStmt) _tail).getOpBox());
 				} else if (_tail instanceof ThrowStmt) {
-					_result |= !engine.collector.hasBeenCollected(((ThrowStmt) _tail).getOpBox());
+					_result |= !engine.getCollector().hasBeenCollected(((ThrowStmt) _tail).getOpBox());
 				}
 			}
 		}
@@ -595,7 +595,7 @@ public class BackwardSlicingPart
 			final SootMethod _callee = _i.next();
 
 			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
-				engine.collector.includeInSlice(_callee);
+				engine.includeInSlice(_callee);
 
 				if (_callee.isConcrete()) {
 					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);

@@ -109,7 +109,7 @@ public class ForwardSlicingPart
 		 * invoke expressions are handled differently.
 		 */
 		engine.generateStmtLevelSliceCriterion(callStmt, caller, true);
-		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
+		engine.includeInSlice(callStmt.getInvokeExprBox());
 
 		if (!callee.isStatic()) {
 			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
@@ -245,7 +245,7 @@ public class ForwardSlicingPart
 
 		// we include the unincluded l-values in case the given value box appears in the r-position. 
 		if (stmt instanceof DefinitionStmt && ((DefinitionStmt) stmt).getLeftOp().getUseBoxes().contains(valueBox)) {
-			_valueBoxes.addAll(engine.collector.getUncollected(stmt.getDefBoxes()));
+			_valueBoxes.addAll(engine.getCollector().getUncollected(stmt.getDefBoxes()));
 		}
 
 		return _valueBoxes;

@@ -136,8 +136,12 @@ public class ExecutableSlicePostProcessor
 	 */
 	public final void process(final Collection<SootMethod> taggedMethods, final BasicBlockGraphMgr basicBlockMgr,
 		final SliceCollector theCollector) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Post Processing");
+		}
+		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Post Processing - " + theCollector.toString());
+			LOGGER.debug("Slice before processing: " + theCollector.toString());
 		}
 
 		collector = theCollector;
@@ -170,9 +174,13 @@ public class ExecutableSlicePostProcessor
 
 		fixupAbstractMethodsInClassHierarchy();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Post Processing - " + theCollector.toString());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Post Processing");
 		}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Slice after processing: " + theCollector.toString());
+		}
+
 	}
 
 	/**

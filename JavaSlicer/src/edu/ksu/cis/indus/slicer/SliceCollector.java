@@ -153,7 +153,7 @@ public final class SliceCollector {
 	 * @pre valueBoxes != null
 	 * @post result != nulland valueBoxes.containsAll(result)
 	 */
-	public Collection<ValueBox> getUncollected(final List<ValueBox> valueBoxes) {
+	Collection<ValueBox> getUncollected(final List<ValueBox> valueBoxes) {
 		final Collection<ValueBox> _result = new HashSet<ValueBox>();
 		final Iterator<ValueBox> _i = valueBoxes.iterator();
 		final int _iEnd = valueBoxes.size();
@@ -172,7 +172,7 @@ public final class SliceCollector {
 	 * Checks if the given host has been collected/tagged.
 	 * 
 	 * @param host to be checked.
-	 * @return <code>true</code>
+	 * @return <code>true</code> if the given host has been collected; <code>false</code>, otherwise.
 	 */
 	public boolean hasBeenCollected(final Host host) {
 		final NamedTag _temp = (NamedTag) host.getTag(tagName);

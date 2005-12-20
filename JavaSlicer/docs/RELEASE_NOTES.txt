@@ -5,7 +5,7 @@ Required software:
         (commons-io.jar) [http://jakarta.apache.org/commons/io/]
     Jakarta Commons Lang 2.1
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    JiBX: Binding XML to Java Code (RC1)
+    JiBX: Binding XML to Java Code (>=RC2)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]

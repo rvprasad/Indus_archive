@@ -199,6 +199,10 @@ public final class TagBasedDestructiveSliceResidualizer
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
 
+				if (localUseDef == null) {
+					localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(currMethod));
+				}
+				
 				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
 				@SuppressWarnings("unchecked") final Iterator<DefinitionStmt> _j = _defs.iterator();
@@ -509,7 +513,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * Local use-def analysis to be used during residualization.
 	 */
-	IUseDefInfo localUseDef;
+	IUseDefInfo<DefinitionStmt, Stmt> localUseDef;
 
 	/**
 	 * This tracks the methods of the current class that should be deleted.
@@ -616,10 +620,15 @@ public final class TagBasedDestructiveSliceResidualizer
 	@Override public void callback(final SootMethod method) {
 		if (currClass != null) {
 			consolidateMethod();
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing method " + method);
+			}
+			
 			currMethod = method;
 			methodsToKill.remove(method);
 			localsToKeep.clear();
-			localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(method));
+			localUseDef = null;
 		}
 	}
 
@@ -804,7 +813,17 @@ public final class TagBasedDestructiveSliceResidualizer
 			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
 			final Chain _ch = _body.getUnits();
 			final Jimple _jimple = Jimple.v();
-
+			
+			if (LOGGER.isDebugEnabled()) {
+				final List<Stmt> _l = new ArrayList<Stmt>(_ch);
+				final StringBuffer _sb = new StringBuffer();
+				for (final Stmt _stmt : stmtsToBeNOPed) {
+					_sb.append(_l.indexOf(_stmt));
+					_sb.append(", ");
+				}
+				LOGGER.debug("Stmts being NOP-ed: " + _sb);
+			}
+			
 			for (final Iterator<Stmt> _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
 				final Stmt _stmt = _i.next();
 				final Object _pred = _ch.getPredOf(_stmt);
@@ -819,7 +838,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 			}
 			stmtsToBeNOPed.clear();
-
+			
 			// replace statements with new statements as recorded earlier.
 			for (final Iterator<Map.Entry<Stmt, Stmt>> _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
 				final Map.Entry<Stmt, Stmt> _entry = _i.next();

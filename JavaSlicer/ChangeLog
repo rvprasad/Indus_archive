@@ -1,3 +1,22 @@
+2005-12-18 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
+		- reduced the visibility of collector.
+		- increased the visibility of includeInSlice().
+	* src/edu/ksu/cis/indus/slicer/transformations/TagBasedDestructiveSliceResidualizer.java: 
+		- added more logging statements.
+		- local use-def info is now created lazily.
+	* src/edu/ksu/cis/indus/slicer/SliceCollector.java: 
+		- reduced the visibility of getUncollected().
+		- documentation.
+	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+		- used engine.getCollector() instead of engine.collector.
+		- used engine.includeInSlice() instead of engine.collector.includeInSlice().
+	* src/edu/ksu/cis/indus/tools/slicer/processing/ExecutableSlicePostProcessor.java:
+		- changed logging from debug to info.
+		- added logging.
+
 2005-12-16  venku  <rvprasad@cis.ksu.edu>
 
 	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java:
