@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="/home/venku/workspace/eclipse/JavaSlicer/slicer.jar"/>
-    <options buildIfNeeded="false" compress="true" descriptionLocation="/JavaSlicer/slicer.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" useSourceFolders="false"/>
-    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="false">
-        <sealing sealJar="false">
-            <packagesToSeal>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.slicer"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.slicer.transformations"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.toolkits.bandera"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.contextualizers"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.generators"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.predicates"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.specification"/>
-                <package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.processing"/>
-                <package handleIdentifier="=JavaSlicer/src-xml&lt;edu.ksu.cis.indus.tools.slicer"/>
-                <package handleIdentifier="=JavaSlicer/src-test&lt;edu.ksu.cis.indus.tools.slicer"/>
-            </packagesToSeal>
-            <packagesToUnSeal/>
-        </sealing>
-    </manifest>
-    <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
-        <javaElement handleIdentifier="=JavaSlicer/src"/>
-        <javaElement handleIdentifier="=JavaSlicer/src-test"/>
-        <javaElement handleIdentifier="=JavaSlicer/src-xml"/>
-    </selectedElements>
+<jar path="/home/venku/workspace/eclipse/JavaSlicer/slicer.jar"/>
+<options buildIfNeeded="false" compress="true" descriptionLocation="/JavaSlicer/slicer.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" useSourceFolders="false"/>
+<manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="false">
+<sealing sealJar="true">
+<packagesToSeal>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.slicer"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.slicer.transformations"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.toolkits.bandera"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.contextualizers"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.generators"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.predicates"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.criteria.specification"/>
+<package handleIdentifier="=JavaSlicer/src&lt;edu.ksu.cis.indus.tools.slicer.processing"/>
+<package handleIdentifier="=JavaSlicer/src-xml&lt;edu.ksu.cis.indus.tools.slicer"/>
+<package handleIdentifier="=JavaSlicer/src-test&lt;edu.ksu.cis.indus.tools.slicer"/>
+</packagesToSeal>
+<packagesToUnSeal/>
+</sealing>
+</manifest>
+<selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
+<javaElement handleIdentifier="=JavaSlicer/src"/>
+<javaElement handleIdentifier="=JavaSlicer/src-test"/>
+<javaElement handleIdentifier="=JavaSlicer/src-xml"/>
+</selectedElements>
 </jardesc>
