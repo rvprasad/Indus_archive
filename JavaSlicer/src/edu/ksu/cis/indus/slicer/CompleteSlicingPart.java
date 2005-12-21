@@ -153,6 +153,13 @@ public class CompleteSlicingPart
 		_result.addAll(forwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		return _result;
 	}
+
+	/** 
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
+	 */
+	public boolean continueProcessing() {
+		return backwardPart.continueProcessing() || forwardPart.continueProcessing();
+	}
 }
 
 // End of File

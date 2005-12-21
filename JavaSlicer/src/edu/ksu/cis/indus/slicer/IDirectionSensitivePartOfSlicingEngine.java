@@ -34,6 +34,15 @@ interface IDirectionSensitivePartOfSlicingEngine
 		extends DependenceExtractor.IDependenceRetriver {
 
 	/**
+	 * Controls if processing of slice criteria can end.  This is involed by the engine when there are no criteria/work 
+	 * left to process.  This method would be a good place to inject new criteria/work based on some caching mechanism.
+	 * So, if the implementation adds new criteria/work then it should return <code>true</code> as the return value.  
+	 * 
+	 * @return <code>true</code> if the processing should continue; <code>false</code>, otherwise.
+	 */
+	boolean continueProcessing();
+
+	/**
 	 * Generates new criteria to capture the call to the given method <code>callee</code>.
 	 * <p>
 	 * This should be called from within the caller's context (callStack containing the call to the caller as TOS).

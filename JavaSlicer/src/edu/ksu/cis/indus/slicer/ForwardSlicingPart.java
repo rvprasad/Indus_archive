@@ -291,6 +291,15 @@ public class ForwardSlicingPart
 			}
 		}
 	}
+
+	/** 
+	 * This implementation always returns <code>false</code>.
+	 * 
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
+	 */
+	@AEmpty(value="false") public boolean continueProcessing() {
+		return false;
+	}
 }
 
 // End of File

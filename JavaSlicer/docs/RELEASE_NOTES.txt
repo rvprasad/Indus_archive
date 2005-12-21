@@ -31,8 +31,8 @@ Version 0.8
 --------------
 	- Feature request:
 		- 676 - Java 5 adoption
-	- Bug fixes: 558
-	- Removed dependence on commons-collectionsl.
+	- Bug fixes: 558, 749 (Bandera)
+	- Removed dependence on commons-collections.
 
 Version 0.7.2.1
 -------------------

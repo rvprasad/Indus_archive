@@ -1,3 +1,17 @@
+2005-12-20 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/slicer/IDirectionSensitivePartOfSlicingEngine.java: 
+		- added a new method to enable staged/accumulative progress of slicing - continueProcessing().
+	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java: 
+		- added default implementation of new method IDirectionSensitivePartOfSlicingEngine#continueProcessing().
+	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java: 
+		- added default implementation of new method IDirectionSensitivePartOfSlicingEngine#continueProcessing().
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java): 
+		- added logic to leverage IDirectionSensitivePartOfSlicingEngine#continueProcessing() method.
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+		- refactored parameter processing logic into store two parts: 1) store parameters and 2) process parameters. The
+		parameters are processed in the implementation of IDirectionSensitivePartOfSlicingEngine#continueProcessin().
+		
 2005-12-18 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
