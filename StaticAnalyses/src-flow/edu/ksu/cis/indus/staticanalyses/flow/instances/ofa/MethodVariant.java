@@ -210,9 +210,16 @@ class MethodVariant<T extends ITokens<T, Value>>
 
 			if (_stmt instanceof ThrowStmt) {
 				final Collection<Trap> _t = TrapManager.getTrapsAt(_stmt, body);
-
-				if (_t.isEmpty()) {
-					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
+				final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
+				final SootClass _exp = ((RefType) _throwStmt.getOp().getType()).getSootClass();
+				boolean _exceptionIsUncaught = true;
+				for (final Iterator<Trap> _i = _t.iterator(); _i.hasNext() && _exceptionIsUncaught;) {
+					final Trap _trap = _i.next();
+					final SootClass _sc = _trap.getException();
+					_exceptionIsUncaught = !_exp.equals(_sc) && !Util.isDescendentOf(_exp, _sc);
+				}
+				
+				if (_t.isEmpty() || _exceptionIsUncaught) {
 					_ctxt.setProgramPoint(_throwStmt.getOpBox());
 					queryASTNode(_throwStmt.getOp(), _ctxt).addSucc(thrownNode);
 				}
@@ -262,19 +269,17 @@ class MethodVariant<T extends ITokens<T, Value>>
 
 					if (_tmp instanceof ThrowStmt) {
 						final ThrowStmt _ts = (ThrowStmt) _tmp;
-
-						final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
+						final Value _op = _ts.getOp();
+						final SootClass _scTemp = fa.getClass(((RefType) _op.getType()).getClassName());
 
 						if (Util.isDescendentOf(_scTemp, _exception)) {
-							_exprCtxt.setStmt(_ts);
-
-							final OFAFGNode<T> _throwNode = getASTNode(_ts.getOp(), _exprCtxt);
+							_exprCtxt.setProgramPoint(_ts.getOpBox());
+							final OFAFGNode<T> _throwNode = getASTNode(_op, _exprCtxt);
 							_throwNode.addSucc(queryASTNode(_catchRef, _catchCtxt));
 							_caught.add(_ts);
 						}
 					} else if (_tmp.containsInvokeExpr()) {
-						_exprCtxt.setStmt(_tmp);
-
+						_exprCtxt.setProgramPoint(_tmp.getInvokeExprBox());
 						final OFAFGNode<T> _tempNode = queryThrowNode(_tmp.getInvokeExpr(), _exprCtxt);
 
 						if (_tempNode != null) {
