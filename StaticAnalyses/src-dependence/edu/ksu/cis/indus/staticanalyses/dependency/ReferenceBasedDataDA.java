@@ -158,7 +158,7 @@ public class ReferenceBasedDataDA
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
-		return aliasedUD + " " + staticFieldRefUD;
+		return aliasedUD + "\n" + staticFieldRefUD;
 	}
 
 	// /CLOVER:ON
