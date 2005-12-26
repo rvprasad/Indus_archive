@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
+import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -32,9 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
+import soot.VoidType;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
+import soot.jimple.VirtualInvokeExpr;
 
 
 /**
@@ -46,7 +52,7 @@ import soot.jimple.Stmt;
  */
 public final class DeadlockPreservingCriteriaGenerator
   extends AbstractSliceCriteriaGenerator<SootMethod, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeadlockPreservingCriteriaGenerator.class);
@@ -81,7 +87,7 @@ public final class DeadlockPreservingCriteriaGenerator
 
 						if (_bbg != null) {
 							final Collection<ISliceCriterion> _criteria =
-								_criteriaFactory.getCriteria(_method, (Stmt) _bbgMgr.getStmtList(_method).get(0), false);
+								_criteriaFactory.getCriteria(_method, _bbgMgr.getStmtList(_method).get(0), false);
 							_subResult.addAll(_criteria);
 
 							for (final Iterator<BasicBlock> _j = _bbg.getSinks().iterator(); _j.hasNext();) {
@@ -107,6 +113,27 @@ public final class DeadlockPreservingCriteriaGenerator
 					}
 				}
 				_result.addAll(_subResult);
+			}
+		}
+
+		for (final Iterator<SootMethod> _i = _slicer.getCallGraph().getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _caller = _i.next();
+			final Collection<Stmt> _sl = _bbgMgr.getStmtList(_caller);
+			_context.setRootMethod(_caller);
+			for (final Iterator<Stmt> _j = IteratorUtils.filteredIterator(_sl.iterator(), new InstanceOfPredicate<InvokeStmt, Stmt>(InvokeStmt.class)); _j.hasNext();) {
+				final InvokeStmt _stmt = (InvokeStmt) _j.next();
+				final InvokeExpr _ve = _stmt.getInvokeExpr();
+				final SootMethod _callee = _ve.getMethod();
+				if (_callee.getName().equals("join") && _callee.getParameterCount() == 0
+						&& _callee.getReturnType() == VoidType.v()
+						&& _callee.getDeclaringClass().getName().equals("java.lang.Thread")) {
+					_subResult.clear();
+					_subResult.addAll(_criteriaFactory.getCriteria(_caller, _stmt, true, true));
+					_context.setStmt(_stmt);
+					_context.setProgramPoint(((VirtualInvokeExpr) _ve).getBaseBox());
+					contextualizeCriteriaBasedOnProgramPoint(_context, _subResult);
+					_result.addAll(_subResult);
+				}
 			}
 		}
 

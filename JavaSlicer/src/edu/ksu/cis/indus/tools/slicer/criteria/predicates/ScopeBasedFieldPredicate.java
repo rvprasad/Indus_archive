@@ -19,7 +19,7 @@ import soot.SootField;
 
 /**
  * This class provides facility to filter field based slice criteria based on scope specification.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -34,18 +34,18 @@ public class ScopeBasedFieldPredicate
 
 	/**
 	 * Checks if criteria should be generated from the given entity.
-	 * 
+	 *
 	 * @param entity that serves as the basis for the slice criteria.
 	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
 	 * @pre entity.oclIsKindOf(SootField)
 	 */
-	public boolean evaluate(final SootField entity) {
+	public <T1 extends SootField> boolean evaluate(final T1 entity) {
 		return matcher.isInScope(entity, getSlicerTool().getSystem());
 	}
 
 	/**
 	 * Sets the value of <code>matcher</code>. This method should be called before using this generator.
-	 * 
+	 *
 	 * @param theMatcher the new value of <code>matcher</code>.
 	 * @pre theMatcher != null
 	 */

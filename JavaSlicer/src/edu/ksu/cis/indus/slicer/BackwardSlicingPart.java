@@ -56,7 +56,7 @@ import soot.jimple.ThrowStmt;
 
 /**
  * This class provides the logic to detect parts of a backward slice.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -66,7 +66,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This closure contains logic to generate criteria to include the value in the return statements.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -91,7 +91,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This closure contains logic to generate criteria to include return statements.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -131,7 +131,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the slice.
-	 * 
+	 *
 	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
 	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
 	 */
@@ -149,7 +149,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param theEngine of which this part is a part of.
 	 * @pre theEngine != null
 	 */
@@ -167,23 +167,31 @@ public class BackwardSlicingPart
 
 		boolean _result = false;
 
-		for (final SootMethod callee : callee2callsites.keySet()) {
-			final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = callee2callsites.get(callee);
-			for (final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple : _temp) {
-				final Stmt _stmt = _triple.getFirst();
-				final SootMethod _caller = _triple.getSecond();
-				final Stack<CallTriple> _stack = _triple.getThird();
-				final InvokeExpr _expr = _stmt.getInvokeExpr();
-				final BitSet _params = method2params.get(callee);
-				if (_params != null) {
+		for (final Iterator<Map.Entry<SootMethod, Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>>>> _i = callee2callsites.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<SootMethod, Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>>> _entry = _i.next();
+			final SootMethod callee = _entry.getKey();
+			final BitSet _params = method2params.get(callee);
+			if (_params != null) {
+				final Collection<Triple<Stmt, SootMethod, Stack<CallTriple>>> _temp = _entry.getValue();
+				final boolean _remove = _params.cardinality() == callee.getParameterCount();
+				for (final Iterator<Triple<Stmt, SootMethod, Stack<CallTriple>>> _k = _temp.iterator(); _k.hasNext();) {
+					final Triple<Stmt, SootMethod, Stack<CallTriple>> _triple =  _k.next();
+					final Stmt _stmt = _triple.getFirst();
+					final SootMethod _caller = _triple.getSecond();
+					final Stack<CallTriple> _stack =  _triple.getThird();
+					final InvokeExpr _expr = _stmt.getInvokeExpr();
 					for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-						engine.generateExprLevelSliceCriterion(_expr.getArgBox(_j), _stmt, _caller, true, _stack);
-						_result = true;
+						_result |= engine.generateExprLevelSliceCriterion(_expr.getArgBox(_j), _stmt, _caller, true, _stack);
 					}
+					if (_remove) {
+						_k.remove();
+					}
+				}
+				if (_temp.isEmpty()) {
+					_i.remove();
 				}
 			}
 		}
-		callee2callsites.clear();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("continueProcessing() - END");
@@ -292,7 +300,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes new expressions to include corresponding init statements into the slice.
-	 * 
+	 *
 	 * @param stmt is the statement containing the new expression.
 	 * @param method contains <code>stmt</code>.
 	 * @pre stmt != null and method != null
@@ -334,7 +342,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
-	 * 
+	 *
 	 * @param stmt is the statement in which <code>pBox</code> occurs.
 	 * @param callee in which<code>stmt</code> occurs.
 	 * @pre method != null and stmt != null
@@ -450,7 +458,7 @@ public class BackwardSlicingPart
 	/**
 	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
 	 * should be marked as invoked or required before calling this method.
-	 * 
+	 *
 	 * @param callee is the method in question.
 	 * @param expr indicates if the expression in the tail statement should be checked to determine if criteria should be
 	 *            generated.
@@ -490,7 +498,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the callee).
 	 * </p>
-	 * 
+	 *
 	 * @param callStmt at which the invocation occurs.
 	 * @param caller in which the invocation occurs.
 	 * @pre callStmt != null and caller != null and callee != null
@@ -513,7 +521,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Processes the init call to the super class inside init method.
-	 * 
+	 *
 	 * @param initMethod is the init method.
 	 * @param bbg is the basic block graph of <code>callee</code>.
 	 * @pre initMethod != null and bbg != null and engine.getCallStackCache() != null
@@ -563,7 +571,7 @@ public class BackwardSlicingPart
 	 * <p>
 	 * This should be called from the caller's context (callStack containing the call to the caller).
 	 * </p>
-	 * 
+	 *
 	 * @param callees are the methods called at the statement.
 	 * @param stmt is the statment containing the invocation.
 	 * @param caller is the method in which <code>invocationStmt</code> occurs.
@@ -611,8 +619,8 @@ public class BackwardSlicingPart
 				}
 			}
 			recordCallInfoForProcessingArgsTo(stmt, caller, _callee);
-			generateCriteriaForReceiverOfAt(stmt, caller);
 		}
+		generateCriteriaForReceiverOfAt(stmt, caller);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processTailsOf() , stack = " + engine.getCopyOfCallStackCache() + "- END");
@@ -621,7 +629,7 @@ public class BackwardSlicingPart
 
 	/**
 	 * Records the given callee was called from the given call-site in the current context.
-	 * 
+	 *
 	 * @param stmt containing the call site.
 	 * @param caller containing <code>stmt</code>
 	 * @param callee being called.

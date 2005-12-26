@@ -1,30 +1,49 @@
+2005-12-26 venku <venku@boss.dreamsoft.com>
+
+	* NOTE - New bug was introduced in property-aware setting.  Refer to Indus internal-bug 750.
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java:
+		- added logic to bail out if the active part has been signalled to do so.
+		- generateExprLevelCriterion() now returns a boolean value indicating if any criterion was generated.
+	* src/edu/ksu/cis/indus/slicer/SliceGotoProcessor.java:
+		- the goto statements following throw/return statements in byte code sequence are now retained retained.
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: (In response to Bandera bug 749).
+		- parameter tracking in continueProcessing() was incorrect as it assumed that generateExprLevelCriterion always
+		generated new criterion.  Also, the call stacks were retained even in cases when they were not required.
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/predicates/ScopeBasedFieldPredicate.java:
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/predicates/EscapingSliceCriteriaPredicate.java:
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/predicates/AssertionSliceCriteriaPredicate.java:
+		- generic part of a generic method cannot be erased while inheriting. Previously this was assumed in the above
+		classes.  This has been retrofitted.
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/DeadlockPreservingCriteriaGenerator.java:
+		- added logic to generate criteria to preserve Thread.join().
+
 2005-12-20 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/slicer/IDirectionSensitivePartOfSlicingEngine.java: 
+	* src/edu/ksu/cis/indus/slicer/IDirectionSensitivePartOfSlicingEngine.java:
 		- added a new method to enable staged/accumulative progress of slicing - continueProcessing().
-	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java:
 		- added default implementation of new method IDirectionSensitivePartOfSlicingEngine#continueProcessing().
-	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java:
 		- added default implementation of new method IDirectionSensitivePartOfSlicingEngine#continueProcessing().
-	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java): 
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java):
 		- added logic to leverage IDirectionSensitivePartOfSlicingEngine#continueProcessing() method.
-	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java:
 		- refactored parameter processing logic into store two parts: 1) store parameters and 2) process parameters. The
 		parameters are processed in the implementation of IDirectionSensitivePartOfSlicingEngine#continueProcessin().
-		
+
 2005-12-18 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java:
 		- reduced the visibility of collector.
 		- increased the visibility of includeInSlice().
-	* src/edu/ksu/cis/indus/slicer/transformations/TagBasedDestructiveSliceResidualizer.java: 
+	* src/edu/ksu/cis/indus/slicer/transformations/TagBasedDestructiveSliceResidualizer.java:
 		- added more logging statements.
 		- local use-def info is now created lazily.
-	* src/edu/ksu/cis/indus/slicer/SliceCollector.java: 
+	* src/edu/ksu/cis/indus/slicer/SliceCollector.java:
 		- reduced the visibility of getUncollected().
 		- documentation.
-	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java: 
-	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java:
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java:
 		- used engine.getCollector() instead of engine.collector.
 		- used engine.includeInSlice() instead of engine.collector.includeInSlice().
 	* src/edu/ksu/cis/indus/tools/slicer/processing/ExecutableSlicePostProcessor.java:
@@ -133,7 +152,7 @@
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java,
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java,
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, :
-	  	Added support to control 
+	  	Added support to control
 		- inter-procedural v/s intra-procedural v/s inter-and-intra-procedural diveregence deps
 		- synchronization dependence
 		- non-termination sensitive and insensitive control dependence.

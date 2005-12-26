@@ -27,7 +27,7 @@ import soot.jimple.Stmt;
 /**
  * This filter can be used to identify code that are involved in <code>assert</code> statements <b>as compiled by Sun's java
  * compiler</b>.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -50,7 +50,7 @@ public final class AssertionSliceCriteriaPredicate
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean evaluate(final Stmt stmt) {
+	public <E1 extends Stmt> boolean evaluate(final E1 stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("evaluate(entity = " + stmt + ":" + stmt.getClass() + ")");
 		}

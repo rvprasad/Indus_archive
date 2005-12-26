@@ -23,7 +23,7 @@ import soot.jimple.ExitMonitorStmt;
 /**
  * This class allows only criteria based on synchronization statements involving escaping lock objects. If escape information
  * is not available, then it's verdict is to generate the criteria from the given entity.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -34,7 +34,7 @@ public final class EscapingSliceCriteriaPredicate
 	/**
 	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#evaluate(Object)
 	 */
-	public boolean evaluate(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple) {
+	public <E1 extends Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> boolean evaluate(final E1 monitorTriple) {
 		final boolean _result;
 
 		final IEscapeInfo _escapes = getSlicerTool().getEscapeInfo();

@@ -161,10 +161,23 @@ public final class SliceGotoProcessor {
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final BasicBlock _bb = (BasicBlock) _j.next();
+				_bbInSlice.add(_bb);
 				final List<Stmt> _stmtsOf = new ArrayList<Stmt>(_bb.getStmtsOf());
 				CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 				sliceCollector.includeInSlice(_stmtsOf);
 			}
+			
+			final List<Stmt> _stmtList = new ArrayList<Stmt>(bbg.getStmtGraph().getBody().getUnits());
+			for (final BasicBlock _bb : _bbInSlice) {
+				final Stmt _leader = _bb.getLeaderStmt();
+				final int _i1 = _stmtList.indexOf(_leader) - 1;
+				if (_i1 >= 0) {
+					final Stmt _prev = _stmtList.get(_i1);
+					if (_prev instanceof ThrowStmt || _prev instanceof ReturnStmt || _prev instanceof ReturnVoidStmt) {
+						sliceCollector.includeInSlice(_prev);
+					}
+				}
+			}			
 		}
 
 		if (LOGGER.isDebugEnabled()) {
