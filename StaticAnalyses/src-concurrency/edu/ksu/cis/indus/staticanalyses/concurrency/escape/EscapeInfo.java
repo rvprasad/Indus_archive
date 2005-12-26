@@ -386,9 +386,9 @@ class EscapeInfo
 			} else {
 				_result = Collections.emptySet();
 
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No recorded information for " + method
-							+ " is available.  Returning pessimistic (true) info.");
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("No recorded information for " + method
+							+ " is available.  Returning optimistic info (there were no accesses).");
 				}
 			}
 		} else {
@@ -430,8 +430,8 @@ class EscapeInfo
 			final MethodContext _ctxt = _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getReadThreads());
 		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.emptySet();
 		}
@@ -456,9 +456,9 @@ class EscapeInfo
 			} else {
 				_result = Collections.emptySet();
 
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No recorded information for " + method
-							+ " is available.  Returning pessimistic (true) info.");
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("No recorded information for " + method
+							+ " is available.  Returning optimistic info (there were no accesses).");
 				}
 			}
 		} else {
@@ -500,8 +500,8 @@ class EscapeInfo
 			final MethodContext _ctxt = _triple.getFirst();
 			_result = Collections.unmodifiableCollection(_ctxt.thisAS.getWriteThreads());
 		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
 			_result = Collections.emptySet();
 		}

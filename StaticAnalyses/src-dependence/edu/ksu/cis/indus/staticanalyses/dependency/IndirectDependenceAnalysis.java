@@ -35,7 +35,7 @@ import soot.SootMethod;
 /**
  * This class provides dependence information closure. In other words, given a dependence analysis, it provides the indirect
  * version of it.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -61,7 +61,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is
 	 * recommended that the subclass use this store dependence information.
-	 * 
+	 *
 	 * @invariant dependee2dependent != null
 	 */
 	private final Map<Pair<E2, C2>, Collection<T2>> dependee2dependent = new HashMap<Pair<E2, C2>, Collection<T2>>(Constants
@@ -70,7 +70,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * This can used to store dependent->dependee direction of dependence information. Hence, it is recommended that the
 	 * subclass use this store dependence information.
-	 * 
+	 *
 	 * @invariant dependent2dependee != null
 	 */
 	private final Map<Pair<T1, C1>, Collection<E1>> dependent2dependee = new HashMap<Pair<T1, C1>, Collection<E1>>(Constants
@@ -83,7 +83,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param dependenceAnalysis for which indirect dependence info (or dependence closure) is to be provided.
 	 * @param daRetriever should be used to retrieve dependence information from the given analysis.
 	 * @pre dependenceAnalysis != null and daRetriever != null
@@ -221,7 +221,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 * 
+	 *
 	 * @param methods for which the information needs to be stringized.
 	 * @return a stringized representation of this object.
 	 * @pre methods != null

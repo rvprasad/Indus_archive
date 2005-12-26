@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 
 
-
 /**
  * This class realizes a token manager that represents tokens as bit positions in an integer via bit-encoding.  This implies
  * that this token manager can only handle system with 31 values.
@@ -41,19 +40,19 @@ import java.util.List;
  */
 public class IntegerTokenManager<V, R>
   extends AbstractTokenManager<IntegerTokenManager<V, R>.IntegerTokens, V, R> {
-	/** 
+	/**
 	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
 	static final int NO_OF_BITS_IN_AN_INTEGER = 31;
 
-	/** 
+	/**
 	 * The list used to canonicalize bit position for values.
 	 *
 	 * @invariant valueList->forall( o | valueList->remove(o)->forall(p | p != o))
 	 */
 	final List<V> valueList = new ArrayList<V>();
 
-	/** 
+	/**
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
 	 * @invariant type2tokens.oclIsKindOf(TObjectIntHashMap(IType, int))
@@ -80,12 +79,12 @@ public class IntegerTokenManager<V, R>
 	private class IntegerTokens
 	  extends AbstractPrototype<IntegerTokens>
 	  implements ITokens<IntegerTokens, V> {
-		/** 
+		/**
 		 * The integer used to capture the representation of the tokens.
 		 */
 		int integer;
 
-		/** 
+		/**
 		 * The token manager associated with this instance of collection of tokens.
 		 *
 		 * @invariant tokenMgr != null
@@ -165,7 +164,7 @@ public class IntegerTokenManager<V, R>
 	 */
 	private class IntegerTokenFilter
 	  implements ITokenFilter<IntegerTokenManager<V, R>.IntegerTokens, V> {
-		/** 
+		/**
 		 * The type of values to let through the filter.
 		 *
 		 * @invariant filterType != null

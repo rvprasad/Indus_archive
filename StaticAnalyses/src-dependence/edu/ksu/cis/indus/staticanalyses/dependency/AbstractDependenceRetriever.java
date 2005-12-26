@@ -4,7 +4,7 @@ import java.util.Collection;
 
 /**
  * DOCUMENT ME!
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$

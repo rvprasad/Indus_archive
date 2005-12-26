@@ -1,27 +1,53 @@
+2005-12-26 venku <venku@boss.dreamsoft.com>
+
+	* NOTE - the tracking of concurrent access of static variables is broken in AliasSets and ECBA.
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterferenceDAv1.java:
+		-  (isStaticFieldDependentOn) changed the condition to check for static field interference.
+		- deleted the use and implementation of method considerEffectOfClassInitializers.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/AliasedUseDefInfo.java (doesDefReachUse):
+		- changed the condition used to determine if the def reaches the use site.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/ThreadGraph.java:
+		- added some more detail to the result of toString()
+		- injectMainThreads() was incorrectly using putIntoCollectionInMap() instead of putAllIntoCollectionIMap(), hence,
+		causing incorrect results on <clinit> thread.  FIXED.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java:
+		- added call to ValueProcessor.reset()
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/MethodContext.java:
+		- unification of null argument alias sets belonging to method contexts raise an exception.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ValueProcessor.java:
+		- Not injecting a alias set for StringConstant and NullConstant will result in unification of null with alias sets while
+		unifying MethodContexts. This has been addressed by plugging in a new alias set for these constants.
+		- added a cache from string constant to alias sets along with a method to reset this map.
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphInfo.java:
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallInfo.java:
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/OFABasedCallInfoCollector.java:
+		- logging more info.
+		- recast logging levels.
+
 2005-12-21 venku <venku@boss.dreamsoft.com>
 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java:
 		- the fix for Bandera bug 742 did not make its way into the main trunk.  This has been fixed.
 
 2005-12-20 venku <venku@boss.dreamsoft.com>
 
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java:
 		- used type information to further prune inter-thread ready dependence stemming from monitors.
 
 2005-12-19 venku <venku@boss.dreamsoft.com>
 
-	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/SafeLockAnalysis.java: 
-		- strengthened the pre-condition of isLockSafe() by changing the type of its parameter -- ripple effect of the 
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/SafeLockAnalysis.java:
+		- strengthened the pre-condition of isLockSafe() by changing the type of its parameter -- ripple effect of the
 		change to IMonitorInfo interface
-	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/MonitorAnalysis.java: 
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/MonitorAnalysis.java:
 		- formatting
 		- strengthened the pre-condition of getInterProcedurallyEnclosedStmts() by changing the type of its parameter
 		- used MonitorStmt instead of Stmt wherever possible
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java:
 		- logging
 		- comments
 		- fixed an error introduced during Java 5 adoption in processRule2() method
-	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/SynchronizationDA.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/SynchronizationDA.java:
 		- weakened few type checks from Enter/ExitMonitorStmt to MonitorStmt
 
 2005-12-15  venku  <rvprasad@cis.ksu.edu>

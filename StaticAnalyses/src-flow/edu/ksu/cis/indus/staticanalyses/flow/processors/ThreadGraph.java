@@ -93,7 +93,7 @@ import soot.jimple.VirtualInvokeExpr;
  * For main/system threads, we use the main classes as the classes providing the implementation along with the system creator
  * method as the creation method along with an imaginary object indicating the invocation site.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -139,7 +139,7 @@ public class ThreadGraph
 
 	/**
 	 * This provides call graph information pertaining to the system.
-	 *
+	 * 
 	 * @invariant cgi != null
 	 */
 	private final ICallGraphInfo cgi;
@@ -190,7 +190,7 @@ public class ThreadGraph
 
 	/**
 	 * Creates a new ThreadGraph object.
-	 *
+	 * 
 	 * @param callGraph provides call graph information.
 	 * @param cfa provides control-flow information.
 	 * @param pairManager to be used.
@@ -207,7 +207,7 @@ public class ThreadGraph
 	/**
 	 * Called by the post processing controller on encountering <code>NewExpr</code> and <code>VirtualInvokeExpr</code>
 	 * values in the system.
-	 *
+	 * 
 	 * @param vBox that was encountered and needs processing.
 	 * @param context in which the value was encountered.
 	 * @pre value != null and context != null
@@ -246,8 +246,12 @@ public class ThreadGraph
 
 		considerMultipleExecutions();
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Thread graph info - " + toString());
+		}
+
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: thread graph consolidation - " + toString());
+			LOGGER.info("END: thread graph consolidation");
 		}
 	}
 
@@ -363,7 +367,7 @@ public class ThreadGraph
 
 	/**
 	 * Sets the object flow analyzer to be used for analysis.
-	 *
+	 * 
 	 * @param objFlowAnalyzer is the object flow analyzer.
 	 * @pre objFlowAnalyzer != null
 	 */
@@ -386,7 +390,8 @@ public class ThreadGraph
 
 		for (final Iterator<Triple<?, ?, ?>> _i = _temp1.iterator(); _i.hasNext();) {
 			final Triple<?, ?, ?> _triple = _i.next();
-			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + "\n");
+			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + " ["
+					+ thread2methods.get(_triple).size() + "]\n");
 			_l.clear();
 
 			for (final Iterator<SootMethod> _j = thread2methods.get(_triple).iterator(); _j.hasNext();) {
@@ -400,8 +405,29 @@ public class ThreadGraph
 			}
 		}
 
+		_result.append("Method to thread mapping: \n");
+		final List<SootMethod> _t = new ArrayList<SootMethod>(method2threadCreationSite.keySet());
+		Collections.sort(_t, ToStringBasedComparator.SINGLETON);
+
+		for (final Iterator<SootMethod> _i = _t.iterator(); _i.hasNext();) {
+			final SootMethod _sm = _i.next();
+			_result.append("\n" + _sm.toString() + " [" + ((Collection) method2threadCreationSite.get(_sm)).size() + "]\n");
+			_l.clear();
+
+			for (final Iterator<Triple<InvokeStmt, SootMethod, SootClass>> _j = method2threadCreationSite.get(_sm).iterator(); _j
+					.hasNext();) {
+				final Triple<InvokeStmt, SootMethod, SootClass> _s = _j.next();
+				_l.add(_s.toString());
+			}
+			Collections.sort(_l);
+
+			for (final Iterator<String> _j = _l.iterator(); _j.hasNext();) {
+				_result.append("\t" + _j.next() + "\n");
+			}
+		}
+
 		int _count = 1;
-		_result.append("\nThread mapping:\n");
+		_result.append("\nThread mapping: [" + getAllocationSites().size() + "]\n");
 
 		for (final Iterator<Pair<AssignStmt, SootMethod>> _j = getAllocationSites().iterator(); _j.hasNext();) {
 			final Pair<AssignStmt, SootMethod> _element = _j.next();
@@ -410,7 +436,7 @@ public class ThreadGraph
 			_result.append(_tid + " -> " + _element.getFirst() + "@" + _element.getSecond() + "\n");
 		}
 
-		_result.append("\nThread entry points:\n");
+		_result.append("\nThread entry points: [" + threadEntryPoints.size() + "]\n");
 		_result.append(CollectionUtils.prettyPrint(threadEntryPoints));
 
 		return _result.toString();
@@ -427,7 +453,7 @@ public class ThreadGraph
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param clazz DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -447,7 +473,7 @@ public class ThreadGraph
 
 	/**
 	 * Calculates thread call graph.
-	 *
+	 * 
 	 * @throws RuntimeException when the system being analyzed is not type-safe.
 	 */
 	private void calculateThreadCallGraph() throws RuntimeException {
@@ -463,8 +489,8 @@ public class ThreadGraph
 		final Collection<SootMethod> _runnables = getRunnableMethods(_threadClass);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("New thread expressions are: " + _values);
-			LOGGER.debug("New runnables are: " + _runnables);
+			LOGGER.debug("Thread expressions are: " + _values);
+			LOGGER.debug("Runnables are: " + _runnables);
 		}
 
 		for (final Iterator<Value> _i = IteratorUtils.filteredIterator(_values.iterator(),
@@ -593,7 +619,7 @@ public class ThreadGraph
 
 	/**
 	 * Retrieves a method with the signature "void run()" in the given class, if it exists.
-	 *
+	 * 
 	 * @param threadClass of interest
 	 * @return the run method
 	 * @pre threadClass != null
@@ -605,7 +631,7 @@ public class ThreadGraph
 	/**
 	 * Retrieves the runnable implementations that get executed in the <code>run()</code> method of
 	 * <code>java.lang.Thread</code>.
-	 *
+	 * 
 	 * @param threadClass is the <code>java.lang.Thread</code> class.
 	 * @return a collection of object flow values.
 	 * @pre threadClass != null
@@ -673,7 +699,7 @@ public class ThreadGraph
 			threadCreationSitesSingle.add(_threadCreationSite);
 
 			final Collection<SootMethod> _methods = transitiveThreadCallClosure(_head);
-			thread2methods.put(_thread, _methods);
+			MapUtils.putAllIntoCollectionInMap(thread2methods, _thread, _methods);
 			threadEntryPoints.add(_head);
 
 			for (final Iterator<SootMethod> _j = _methods.iterator(); _j.hasNext();) {
@@ -685,7 +711,7 @@ public class ThreadGraph
 
 	/**
 	 * Processes new expressoins.
-	 *
+	 * 
 	 * @param context in which the new expression occurs.
 	 * @param env to be used.
 	 * @param newExpr to be processed.
@@ -717,7 +743,7 @@ public class ThreadGraph
 
 	/**
 	 * Processes invocation expressoins.
-	 *
+	 * 
 	 * @param context in which the new expression occurs.
 	 * @param invokeExpr to be processed.
 	 * @pre context != null and env != null and invokeExpr != null
@@ -776,7 +802,7 @@ public class ThreadGraph
 	/**
 	 * Calculates the transitive closure of methods called from the given method. The inclusion constraint for the closure is
 	 * that the method cannot be an instance of <code>java.lang.Thread.start()</code>.
-	 *
+	 * 
 	 * @param starterMethod is the method from where the closure calculation starts.
 	 * @return a collection of <code>SootMethod</code>s occurring the call closure.
 	 * @pre starterMethod != null

@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
@@ -43,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.ArrayType;
-import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
@@ -72,7 +70,7 @@ import soot.jimple.Stmt;
  * <p>
  * This analysis should be <code>setup</code> before preprocessing.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -83,7 +81,7 @@ public class InterferenceDAv1
 
 	/**
 	 * A preprocessor which captures all the array and field access locations in the analyzed system.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -94,7 +92,7 @@ public class InterferenceDAv1
 		/**
 		 * Called by the controller when it encounters an assignment statement. This records array access and field access
 		 * expressions.
-		 *
+		 * 
 		 * @param stmt in which the access expression occurs.
 		 * @param context in which <code>stmt</code> occurs.
 		 * @pre stmt.isOclKindOf(AssignStmt)
@@ -224,7 +222,7 @@ public class InterferenceDAv1
 				for (final Iterator<Pair<AssignStmt, SootMethod>> _k = _deMap.keySet().iterator(); _k.hasNext();) {
 					final Pair<AssignStmt, SootMethod> _de = _k.next();
 
-					if (considerEffectOfClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
+					if (isDependentOn(_dt, _de)) {
 						MapUtils.putIntoCollectionInMap(_dtMap, _dt, _de);
 						MapUtils.putIntoCollectionInMap(_deMap, _de, _dt);
 					}
@@ -245,7 +243,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns the statements on which the field/array reference at the given statement and method depends on.
-	 *
+	 * 
 	 * @param stmt is the statement in which the array/field reference occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a colleciton of pairs comprising of a statement and a method.
@@ -264,7 +262,8 @@ public class InterferenceDAv1
 
 		if (_dependent != null) {
 			_pair2set = MapUtils.queryMap(dependent2dependee, _dependent);
-			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt, method));
+			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt,
+					method));
 			_result = Collections.unmodifiableCollection(_set);
 		}
 		return _result;
@@ -272,7 +271,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns the statements which depend on the field/array reference at the given statement and method.
-	 *
+	 * 
 	 * @param stmt is the statement in which the array/field reference occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a colleciton of pairs comprising of a statement and a method.
@@ -291,7 +290,8 @@ public class InterferenceDAv1
 
 		if (_dependee != null) {
 			_pair2set = MapUtils.queryMap(dependee2dependent, _dependee);
-			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt, method));
+			final Collection<Pair<AssignStmt, SootMethod>> _set = MapUtils.queryCollection(_pair2set, pairMgr.getPair(stmt,
+					method));
 			_result = Collections.unmodifiableCollection(_set);
 		}
 		return _result;
@@ -306,7 +306,7 @@ public class InterferenceDAv1
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	@Override public void reset() {
@@ -315,7 +315,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Sets if object flow analysis should be used or not.
-	 *
+	 * 
 	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
 	 */
 	public final void setUseOFA(final boolean flag) {
@@ -324,7 +324,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 *
+	 * 
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -380,7 +380,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given array accesses are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent array access expression.
 	 * @param dependee is location of the dependee array access expression.
 	 * @param dependentArrayRef is the dependent array access expression.
@@ -404,7 +404,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
@@ -427,7 +427,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given instance field access expression are interference dependent on each other.
-	 *
+	 * 
 	 * @param dependent is location of the dependent field access expression.
 	 * @param dependee is location of the dependee field access expression.
 	 * @param dependentFieldRef is the dependent field access expression.
@@ -444,18 +444,16 @@ public class InterferenceDAv1
 		_result = dependentFieldRef.getField().equals(_field) && !_field.isFinal();
 
 		if (_result) {
-			final SootMethod _dentMethod = dependent.getSecond();
 			final SootMethod _deeMethod = dependee.getSecond();
-			final String _name = _dentMethod.getName();
-			_result = !(_dentMethod.isStatic() && _deeMethod.isStatic() && _name.equals(_deeMethod.getName()) && _name
-					.equals("<clinit>"));
+			final String _name = _deeMethod.getName();
+			_result = !(_name.equals("<clinit>") && _field.getDeclaringClass().equals(_deeMethod.getDeclaringClass()));
 		}
 		return _result;
 	}
 
 	/**
 	 * Extracts information as provided by environment at initialization time.
-	 *
+	 * 
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 *             <code>info</code> member.
 	 * @pre info.get(PairManager.ID) != null and info.get(IThreadGraphInfo.ID) != null
@@ -484,55 +482,9 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the dependence based on
-	 * this information.
-	 *
-	 * @param dependent is the array/field read access site.
-	 * @param dependee is the array/field write access site.
-	 * @return <code>true</code> if the dependence should be considered; <code>false</code>, otherwise.
-	 * @pre dependent != null and dependee != null
-	 */
-	private boolean considerEffectOfClassInitializers(final Pair<?, SootMethod> dependent, final Pair<?, SootMethod> dependee) {
-		final SootMethod _deMethod = dependee.getSecond();
-		final SootMethod _dtMethod = dependent.getSecond();
-		boolean _result = true;
-
-		// If either one of the methods is a class initialization method then we can optimize.
-		final boolean _deci = _deMethod.getName().equals("<clinit>");
-		final boolean _dtci = _dtMethod.getName().equals("<clinit>");
-
-		if (_deci || _dtci) {
-			final SootClass _deClass = _deMethod.getDeclaringClass();
-			final SootClass _dtClass = _dtMethod.getDeclaringClass();
-
-			// if the classes of both the methods are not related
-			_result = !Util.isHierarchicallyRelated(_deClass, _dtClass);
-
-			if (_result) {
-				final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-				final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-
-				if (_de instanceof StaticFieldRef) {
-					final SootField _f1 = ((StaticFieldRef) _de).getField();
-					final SootField _f2 = ((FieldRef) _dt).getField();
-
-					/*
-					 * if f1 and f2 are the same fields and if deMethod is clinit and f1 was declared in deClass or dtMethod
-					 * is clinit and f2 was declared in dtClass then the dependence is invalid and it should not be
-					 * considered.
-					 */
-					_result = !((_f1.equals(_f2) && ((_deci && _f1.getDeclaringClass().equals(_deClass)) || (_dtci && _f1
-							.getDeclaringClass().equals(_dtClass)))));
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
 	 * base of the expression array access expression.
-	 *
+	 * 
 	 * @param dependent is the array read access site.
 	 * @param dependee is the array write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
@@ -568,7 +520,7 @@ public class InterferenceDAv1
 
 	/**
 	 * Checks if the given array/field access expression is dependent on the given array/field definition expression.
-	 *
+	 * 
 	 * @param dependent is the array/field read access site.
 	 * @param dependee is the array/field write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.
@@ -599,7 +551,7 @@ public class InterferenceDAv1
 	/**
 	 * Checks if a dependence relation exists between the given entities based on object flow information assocaited with the
 	 * base of the expression field access expression.
-	 *
+	 * 
 	 * @param dependent is the field read access site.
 	 * @param dependee is the field write access site.
 	 * @return <code>true</code> if the dependence exists; <code>false</code>, otherwise.

@@ -451,14 +451,18 @@ public class AliasedUseDefInfo
 		final SootMethod _defMethod = defSite.getSecond();
 		final SootMethod _useMethod = useSite.getSecond();
 
-		if (_defMethod.getName().equals("<clinit>") || _useMethod.getName().equals("<clinit>")) {
+		if (_useMethod.equals(_defMethod)) {
+			// if def and use occur in the same method
+			_result = cfgAnalysis.doesControlFlowPathExistBetween(_defStmt, _useStmt, _useMethod);
+		} else if (_defStmt.containsFieldRef()
+				&& ((_defMethod.getName().equals("<clinit>") && _defStmt.getFieldRef().getField().isStatic()) || (_defMethod
+						.getName().equals("<init>") && !_defStmt.getFieldRef().getField().isStatic()))
+				&& _defStmt.getFieldRef().getField().getDeclaringClass().equals(_defMethod.getDeclaringClass())) {
+			// if the def/use involves the same field and either the field is static and is being defined in clinit or the
+			// field is instance-based and is being defined in init
 			_result = true;
 		} else {
-			boolean _r = false;
-			if (_useMethod.equals(_defMethod)) {
-				_r = cfgAnalysis.doesControlFlowPathExistBetween(_defStmt, _useStmt, _useMethod);
-			}
-			_result = _r || isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
+			_result = isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 		}
 
 		if (LOGGER.isDebugEnabled()) {

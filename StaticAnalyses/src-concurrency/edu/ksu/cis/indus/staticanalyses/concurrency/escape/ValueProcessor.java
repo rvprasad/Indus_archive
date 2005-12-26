@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import soot.jimple.ParameterRef;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
+import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.VirtualInvokeExpr;
 
@@ -87,6 +89,11 @@ final class ValueProcessor
 	 * as rhs-value and are written to as lhs-value.
 	 */
 	private boolean rhs = true;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final Map<StringConstant, AliasSet> stringConstant2aliasSet = new HashMap<StringConstant, AliasSet>();
 
 	/**
 	 * Creates an instance of this class.
@@ -227,8 +234,18 @@ final class ValueProcessor
 	 *
 	 * @param o is a piece of IR to be processed.
 	 */
-	@Override public void defaultCase(@SuppressWarnings("unused") final Object o) {
-		setResult(null);
+	@Override public void defaultCase(final Object o) {
+		if (o instanceof StringConstant) {
+			final StringConstant _stringConstant = (StringConstant) o;
+			AliasSet _r = stringConstant2aliasSet.get(_stringConstant);
+			if (_r == null) {
+				_r = AliasSet.createAliasSet();
+				stringConstant2aliasSet.put(_stringConstant, _r);
+			}
+			setResult(_r);
+		} else {
+			setResult(null);
+		}
 	}
 
 	/**
@@ -242,6 +259,13 @@ final class ValueProcessor
 			LOGGER.debug("Processing value: " + value);
 		}
 		value.apply(this);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	void reset() {
+		stringConstant2aliasSet.clear();
 	}
 
 	/**
@@ -315,33 +339,32 @@ final class ValueProcessor
 			final AliasSet primaryAliasSet, final MethodContext siteContext) {
 		for (final Iterator<SootMethod> _i = callees.iterator(); _i.hasNext();) {
 			final SootMethod _callee = _i.next();
-			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = ecba.method2Triple
-					.get(_callee);
+			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = ecba
+					.getMethodInfo(_callee);
 
-			// This is needed when the system is not closed.
-			if (_triple == null) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
-				}
-				continue;
-			}
+			assert _triple != null : "method info was null for " + _callee + " in the calling context of " + caller;
 
 			// retrieve the method context of the callee
 			MethodContext _mc = _triple.getFirst();
-
+			final boolean _notInSameSCC = ecba.cfgAnalysis.notInSameSCC(caller, _callee);
 			/*
 			 * If the caller and callee occur in different SCCs then clone the callee method context and then unify it with
 			 * the site context. If not, unify the method context with site-context as precision will be lost any which way.
-			 */
-			final boolean _notInSameSCC = ecba.cfgAnalysis.notInSameSCC(caller, _callee);
-			if (_notInSameSCC) {
-				try {
-					_mc = _mc.clone();
-				} catch (final CloneNotSupportedException _e) {
-					LOGGER.error("Hell NO!  This should not happen.", _e);
-					throw new RuntimeException(_e);
-				}
-			}
+             */
+            /*
+             * NULL-ARGUMENT SCENARIO:
+			 * This above approach has the ill effect -- if argument position p is null then this approach results in the
+             * unnecessary combination of alias sets for this position from various callees. This can be addressed during
+             * parameter alias set retrival in MethodContext.
+             */
+            if (_notInSameSCC) {
+                try {
+                    _mc = _mc.clone();
+                } catch (final CloneNotSupportedException _e) {
+                    LOGGER.error("Hell NO!  This should not happen.", _e);
+                    throw new RuntimeException(_e);
+                }
+            }
 
 			processNotifyWaitSync(primaryAliasSet, _callee);
 
@@ -353,21 +376,22 @@ final class ValueProcessor
 				}
 			}
 
-			// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape
-			// information. But this is untrue, as all the data that can be shared across threads have been exposed and
-			// marked rightly so at allocation sites. By equivalence class-based unification, it is guaranteed that the
-			// corresponding alias set at the caller side is unified atleast twice in case these threads are started at
-			// different sites. In case the threads are started at the same site, then the processing of call-site during
-			// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves. Hence, the program
-			// structure and the language semantics along with the rules above ensure that the escape information is
-			// polluted (pessimistic) only when necessary.
-			//
-			// It would suffice to unify the method context with it self in the case of loop enclosure
-			// as this is more semantically close to what happens during execution.
-			if (Util.isStartMethod(_callee) && ecba.cfgAnalysis.executedMultipleTimes(ecba.context.getStmt(), caller)) {
-				_mc.selfUnify();
-			}
 			siteContext.unifyMethodContext(_mc);
+
+			/*
+			 * Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape information.
+			 * But this is untrue, as all the data that can be shared across threads have been exposed and marked rightly so
+			 * at allocation sites. By equivalence class-based unification, it is guaranteed that the corresponding alias set
+			 * at the caller side is unified atleast twice in case these threads are started at different sites. In case the
+			 * threads are started at the same site, then the processing of call-site during phase 2 (bottom-up) will ensure
+			 * that the alias sets are unified with themselves. Hence, the program structure and the language semantics along
+			 * with the rules above ensure that the escape information is polluted (pessimistic) only when necessary. It would
+			 * suffice to unify the method context with it self in the case of loop enclosure as this is more semantically
+			 * close to what happens during execution.
+			 */
+			if (Util.isStartMethod(_callee) && ecba.cfgAnalysis.executedMultipleTimes(ecba.context.getStmt(), caller)) {
+				siteContext.selfUnify();
+			}
 		}
 	}
 
@@ -469,10 +493,12 @@ final class ValueProcessor
 		as.setAccessed();
 
 		if (ecba.tgi != null) {
+			final SootMethod _currentMethod = ecba.context.getCurrentMethod();
+			final Collection _executionThreads = ecba.tgi.getExecutionThreads(_currentMethod);
 			if (rhs) {
-				as.addReadThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+				as.addReadThreads(_executionThreads);
 			} else {
-				as.addWriteThreads(ecba.tgi.getExecutionThreads(ecba.context.getCurrentMethod()));
+				as.addWriteThreads(_executionThreads);
 			}
 		}
 	}

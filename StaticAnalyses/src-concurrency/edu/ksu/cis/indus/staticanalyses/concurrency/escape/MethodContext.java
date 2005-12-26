@@ -537,16 +537,31 @@ final class MethodContext
 		final MethodContext _fromRep = find();
 		final MethodContext _toRep = to.find();
 
+		if (_fromRep == _toRep) {
+			return;
+		}
+
 		final int _paramCount = _fromRep.method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_fromRep.method.getParameterType(_i))) {
-				final AliasSet _temp1 = _fromRep.argAliasSets.get(_i);
-				final AliasSet _temp2 = _toRep.argAliasSets.get(_i);
+				final AliasSet _temp1 = argAliasSets.get(_i);
+                
+                if (_temp1 != null) {
+                    /*
+                     * NULL-ARGUMENT SCENARIO:
+                     * We check if the argument at the position _i was a null constant when this method context
+                     * was created.  If so, then we decided not propagate the effect.  For this reason, the reference
+                     * to the original method context should be retained and the propagation should be considered to
+                     * be directional.
+                     */
+   	    			final AliasSet _temp2 = _toRep.argAliasSets.get(_i);
+                    final AliasSet _temp3 = _fromRep.argAliasSets.get(_i);
 
-				if (_temp1 != null && _temp2 != null) {
-					_temp1.propogateInfoFromTo(_temp2);
-				}
+		    		if (_temp3 != null && _temp2 != null) {
+			    		_temp3.propogateInfoFromTo(_temp2);
+				    }
+                }
 			}
 		}
 
@@ -612,6 +627,7 @@ final class MethodContext
 	void unifyMethodContext(final MethodContext p) {
 		if (p == null) {
 			LOGGER.error("Unification with null requested.");
+			throw new IllegalArgumentException("Unification with null requested.");
 		}
 
 		final MethodContext _m = find();
@@ -637,37 +653,33 @@ final class MethodContext
 				if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
 					final AliasSet _mAS = _representative.argAliasSets.get(_i);
 					final AliasSet _nAS = _represented.argAliasSets.get(_i);
-					unifyAliasSets(_mAS, _nAS);
+					if (_mAS == null) {
+						_representative.argAliasSets.set(_i, _nAS);
+					} else {
+						_mAS.unifyAliasSet(_nAS);
+					}
 				}
 			}
 			unifyAliasSets(_representative.ret, _represented.ret);
 			unifyAliasSets(_representative.thrown, _represented.thrown);
 			unifyAliasSets(_representative.thisAS, _represented.thisAS);
-
-			final Collection<AliasSet> _values = ecba.class2aliasSet.values();
-			final Iterator<AliasSet> _i = _values.iterator();
-			final int _iEnd = _values.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final AliasSet _as = _i.next();
-				AliasSet.selfUnify(_as);
-			}
 		}
 	}
 
 	/**
 	 * Unifies the given alias sets.
 	 *
-	 * @param representative is one of the alias set to be unified.
-	 * @param represented is the other alias set to be unified.
+	 * @param representative
+	 *            is one of the alias set to be unified.
+	 * @param represented
+	 *            is the other alias set to be unified.
 	 * @pre representative != null and represented != null
 	 */
 	private void unifyAliasSets(final AliasSet representative, final AliasSet represented) {
 		if ((representative == null && represented != null) || (representative != null && represented == null)) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Incompatible method contexts being unified - representative - " + representative
+			LOGGER.error("Incompatible method contexts being unified - representative - " + representative
 						+ "\n represented - " + represented);
-			}
+			throw new IllegalStateException("Unifying null aliasSet");
 		} else if (representative != null) {
 			representative.unifyAliasSet(represented);
 		}

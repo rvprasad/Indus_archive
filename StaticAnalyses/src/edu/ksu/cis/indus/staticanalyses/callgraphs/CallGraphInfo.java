@@ -107,7 +107,8 @@ public final class CallGraphInfo
 		 * @see Comparator#compare(Object,Object)
 		 */
 		public int compare(final CallTriple o1, final CallTriple o2) {
-			return o1.getMethod().getSignature().compareTo(o2.getMethod().getSignature());
+			final int _i = o1.getMethod().getSignature().compareTo(o2.getMethod().getSignature());
+            return _i == 0 ? o1.toString().compareTo(o2.toString()) : _i;
 		}
 	}
 
@@ -521,7 +522,7 @@ public final class CallGraphInfo
 		final StringBuffer _result = new StringBuffer();
 		final List<SootMethod> _temp1 = new ArrayList<SootMethod>();
 
-		_result.append("Root of the system: ");
+		_result.append("Roots of the system: ");
 		_temp1.addAll(getEntryMethods());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
@@ -603,8 +604,8 @@ public final class CallGraphInfo
 	 * Creates a call graph.
 	 */
 	private void createGraph() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting construction of call graph...");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Starting construction of call graph...");
 		}
 
 		// construct call graph
@@ -628,7 +629,11 @@ public final class CallGraphInfo
 		graphCache.setConnectivityCacheSize(Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: call graph consolidation");
+			LOGGER.debug("Call Graph : " + toString());
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: call graph consolidation");
 		}
 	}
 

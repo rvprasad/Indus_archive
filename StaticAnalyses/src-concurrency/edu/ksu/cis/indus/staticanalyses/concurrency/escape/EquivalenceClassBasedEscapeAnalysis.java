@@ -34,6 +34,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,8 +184,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This maps classes to alias sets that serve as bases for static fields.
-	 *
-	 * @invariant class2aliasSets->forall(o | o.oclIsKindOf(AliasSet))
 	 */
 	final Map<SootClass, AliasSet> class2aliasSet;
 
@@ -303,9 +302,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		multiThreadedSystem = false;
 
-		performPhase2();
+        final List<List<SootMethod>> _sccs = new ArrayList<List<SootMethod>>(cgi.getSCCs(false));
 
-		performPhase3();
+		performPhase2(_sccs);
+
+        Collections.reverse(_sccs);
+
+		performPhase3(_sccs);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
@@ -361,6 +364,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		super.reset();
 		class2aliasSet.clear();
 		method2Triple.clear();
+		valueProcessor.reset();
 	}
 
 	/**
@@ -629,20 +633,27 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 		methodCtxtCache.discardReferentialAliasSets();
+        methodCtxtCache.find(); // cleanup mere indirection contexts.
+
+        /*
+         * We don't store methodCtxtCache.find() in the triple as we need access to the original context for handling null
+         * argument scenarios.  Read about "null-arguments scenario" in ValueProcessor.
+         */
 		method2Triple.put(method, new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(
 				methodCtxtCache, localASsCache, scCache));
 	}
 
 	/**
 	 * Performs phase 2 processing as described in the paper mentioned in the documentation of this class.
+     *
+     * @param sccsInBottomUpOrder DOCUMENT ME
 	 */
-	private void performPhase2() {
+	private void performPhase2(final List<List<SootMethod>> sccsInBottomUpOrder) {
 		final Collection<BasicBlock> _processed = new HashSet<BasicBlock>();
 		final IWorkBag<BasicBlock> _wb = new HistoryAwareFIFOWorkBag<BasicBlock>(_processed);
-		final Collection<List<SootMethod>> _sccs = cgi.getSCCs(false);
 
 		// Phase 2: The SCCs are ordered bottom up.
-		for (final Iterator<List<SootMethod>> _i = _sccs.iterator(); _i.hasNext();) {
+		for (final Iterator<List<SootMethod>> _i = sccsInBottomUpOrder.iterator(); _i.hasNext();) {
 			final List<SootMethod> _nodes = _i.next();
 
 			for (final Iterator<SootMethod> _j = _nodes.iterator(); _j.hasNext();) {
@@ -652,18 +663,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					LOGGER.debug("Bottom-up processing method " + _sm);
 				}
 
-				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
-
-				// we need to do the following even if _sm does not have a body because every
-				// reachable method should have a method context.
-				if (method2Triple.containsKey(_sm)) {
-					_triple = method2Triple.get(_sm);
-				} else {
-					final MethodContext _methodContext = new MethodContext(_sm, EquivalenceClassBasedEscapeAnalysis.this);
-					_triple = new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_methodContext,
-							new HashMap<Local, AliasSet>(), new HashMap<CallTriple, MethodContext>());
-					method2Triple.put(_sm, _triple);
-				}
+				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple = getMethodInfo(_sm);
 
 				if (!_sm.isConcrete()) {
 					if (LOGGER.isWarnEnabled()) {
@@ -710,69 +710,65 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * Performs phase 3 processing as described in the paper described in the documentation of this class.
+     *
+     * @param sccsInTopDownOrder DOCUMENT ME
 	 */
-	private void performPhase3() {
-		// Phase 3
-		final List<SootMethod> _methodsInTopologicalOrder = cgi.getMethodsInTopologicalOrder(true);
+	private void performPhase3(final List<List<SootMethod>> sccsInTopDownOrder) {
+		// Phase 2: The SCCs are ordered bottom up.
+		for (final Iterator<List<SootMethod>> _i = sccsInTopDownOrder.iterator(); _i.hasNext();) {
+			final List<SootMethod> _nodes = _i.next();
 
-		for (final Iterator<SootMethod> _cgiIterator = _methodsInTopologicalOrder.iterator(); _cgiIterator.hasNext();) {
-			final SootMethod _caller = _cgiIterator.next();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Top-down processing method : CALLER : " + _caller);
-			}
-
-			if (!method2Triple.containsKey(_caller)) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("NO BODY: " + _caller.getSignature());
-				}
-
-				continue;
-			}
-
-			final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _callerTriple = method2Triple
-					.get(_caller);
-			final Map<CallTriple, MethodContext> _ctrp2sc = _callerTriple.getThird();
-			final Collection<CallTriple> _callees = cgi.getCallees(_caller);
-
-			for (final Iterator<CallTriple> _i = _callees.iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = _i.next();
-				final SootMethod _callee = _ctrp.getMethod();
-
+			for (final Iterator<SootMethod> _j = _nodes.iterator(); _j.hasNext();) {
+				final SootMethod _caller = _j.next();
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Top-down processing : CALLEE : " + _callee);
+					LOGGER.debug("Top-down processing method : CALLER : " + _caller);
 				}
 
-				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _calleeTriple;
-				_calleeTriple = method2Triple.get(_callee);
 
-				/*
-				 * NOTE: This is an anomaly which results from how an open system is closed. Refer to MethodVariant.java for
-				 * more info.
-				 */
-				if (_calleeTriple == null) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("NO CALLEE TRIPLE: " + _callee.getSignature());
+				final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _callerTriple = method2Triple
+						.get(_caller);
+				final Map<CallTriple, MethodContext> _ctrp2sc = _callerTriple.getThird();
+				final Collection<CallTriple> _callees = cgi.getCallees(_caller);
+
+				for (final Iterator<CallTriple> _k = _callees.iterator(); _k.hasNext();) {
+					final CallTriple _ctrp = _k.next();
+					final SootMethod _callee = _ctrp.getMethod();
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Top-down processing : CALLEE : " + _callee);
 					}
 
-					continue;
+					final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _calleeTriple;
+					_calleeTriple = method2Triple.get(_callee);
+
+					final MethodContext _calleeMethodContext = _calleeTriple.getFirst();
+					final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
+					final MethodContext _calleeSiteContext = _ctrp2sc.get(_callerTrp);
+					_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 				}
-
-				final MethodContext _calleeMethodContext = _calleeTriple.getFirst();
-				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
-				final MethodContext _calleeSiteContext = _ctrp2sc.get(_callerTrp);
-
-				if (_calleeSiteContext == null) {
-					LOGGER.error("callee site context was null - (\n" + _callerTrp + "\n" + _ctrp2sc.keySet() + "\n)");
-				}
-
-				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
+	}
 
-		for (final Map.Entry<SootClass, AliasSet> _e : class2aliasSet.entrySet()) {
-			_e.setValue(_e.getValue().find());
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> getMethodInfo(final SootMethod method) {
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		// we need to do the following even if _sm does not have a body because every
+		// reachable method should have a method context.
+		if (method2Triple.containsKey(method)) {
+			_triple = method2Triple.get(method);
+		} else {
+			final MethodContext _methodContext = new MethodContext(method, this);
+			_triple = new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_methodContext,
+					new HashMap<Local, AliasSet>(), new HashMap<CallTriple, MethodContext>());
+			method2Triple.put(method, _triple);
 		}
+		return _triple;
 	}
 }
 

@@ -136,6 +136,10 @@ public class OFABasedCallInfoCollector
 
 		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Call Graph Info - " + callInfoHolder.toString());
+		}
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: call graph consolidation");
 		}

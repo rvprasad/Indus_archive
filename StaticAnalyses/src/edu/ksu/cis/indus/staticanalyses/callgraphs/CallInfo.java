@@ -54,7 +54,6 @@ final class CallInfo
 	 */
 	private final Set<SootMethod> reachables = new HashSet<SootMethod>();
 
-
 	/**
 	 * Optimization cache.
 	 */
@@ -107,13 +106,15 @@ final class CallInfo
 	 */
 	@Override public String toString() {
 		if (toString == null) {
-			toString = new ToStringBuilder(this).appendSuper(super.toString()).append("reachables", reachables).append("\n")
+			toString = new ToStringBuilder(this).appendSuper(super.toString()).append("reachables-size", reachables.size())
+					.append("\n").append("caller2callees-size", caller2callees.size()).append("\n").append(
+							"callee2callers-size", callee2callers.size()).append("reachables", reachables).append("\n")
 					.append("caller2callees", caller2callees).append("\n").append("callee2callers", callee2callers)
 					.toString();
 		}
 		return toString;
 	}
-	
+
 	/**
 	 * Injects empty sets for caller and callee information of methods with no callees and callers.
 	 */
@@ -125,11 +126,11 @@ final class CallInfo
 			final SootMethod _o = _i.next();
 
 			if (callee2callers.get(_o) == null) {
-				callee2callers.put(_o, Collections.<CallTriple>emptySet());
+				callee2callers.put(_o, Collections.<CallTriple> emptySet());
 			}
 
 			if (caller2callees.get(_o) == null) {
-				caller2callees.put(_o, Collections.<CallTriple>emptySet());
+				caller2callees.put(_o, Collections.<CallTriple> emptySet());
 			}
 		}
 

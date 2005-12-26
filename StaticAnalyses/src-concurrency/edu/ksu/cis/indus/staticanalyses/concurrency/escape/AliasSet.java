@@ -44,7 +44,7 @@ import soot.jimple.InvokeStmt;
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and
  * Ready Dependence for Slicing Concurrent Java Programs.</a> It represents an equivalence class in escape analysis defined
  * in the same document.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -200,7 +200,7 @@ final class AliasSet
 
 	/**
 	 * Creates a new alias set.
-	 * 
+	 *
 	 * @return a new alias set.
 	 * @post result != null
 	 */
@@ -210,7 +210,7 @@ final class AliasSet
 
 	/**
 	 * Creates an alias set suitable for the given type.
-	 * 
+	 *
 	 * @param type is the type from which Alias set is requested.
 	 * @return the alias set corresponding to the given type.
 	 * @post AliasSet.canHaveAliasSet(type) implies result != null
@@ -229,7 +229,7 @@ final class AliasSet
 	/**
 	 * Unifies the given object with itself. This is required when the alias set is occurs in the context of a site which is
 	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
-	 * 
+	 *
 	 * @param as the alias set to be unified with itself.
 	 * @pre as != null
 	 */
@@ -247,7 +247,7 @@ final class AliasSet
 
 	/**
 	 * Returns a new lock entity object.
-	 * 
+	 *
 	 * @return a new lock entity object.
 	 * @post result != null
 	 */
@@ -257,7 +257,7 @@ final class AliasSet
 
 	/**
 	 * Returns a new ready entity object.
-	 * 
+	 *
 	 * @return a new ready entity object.
 	 * @post result != null
 	 */
@@ -267,7 +267,7 @@ final class AliasSet
 
 	/**
 	 * Returns a new lock entity object.
-	 * 
+	 *
 	 * @return a new lock entity object.
 	 * @post result != null
 	 */
@@ -277,7 +277,7 @@ final class AliasSet
 
 	/**
 	 * Returns a new share entity object.
-	 * 
+	 *
 	 * @return a new share entity object.
 	 * @post result != null
 	 */
@@ -287,7 +287,7 @@ final class AliasSet
 
 	/**
 	 * Clones this alias set.
-	 * 
+	 *
 	 * @return the clone of this object.
 	 * @throws CloneNotSupportedException is thrown if it is thrown by <code>java.lang.Object.clone()</code>.
 	 * @post result != null and result.set != null and result.fieldMap != self.fieldMap
@@ -324,6 +324,9 @@ final class AliasSet
 			if (writtenFields != _emptySet) {
 				_clone.writtenFields = (Collection) ((HashSet<String>) writtenFields).clone();
 			}
+
+			_clone.readThreads = new HashSet<Triple<InvokeStmt,SootMethod,SootClass>>(readThreads);
+			_clone.writeThreads = new HashSet<Triple<InvokeStmt,SootMethod,SootClass>>(writeThreads);
 
 			_clone.set = null;
 
@@ -364,7 +367,7 @@ final class AliasSet
 
 	/**
 	 * Adds the given field signature to the collection of read fields of this alias set's object.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 */
 	void addReadField(final String fieldSig) {
@@ -379,7 +382,7 @@ final class AliasSet
 
 	/**
 	 * Adds the given threads as the threads that read a member of an object via the variable associated with this aliasset.
-	 * 
+	 *
 	 * @param abstractThreads collection of abstract thread objects in which the write occurs.
 	 */
 	void addReadThreads(final Collection<Triple<InvokeStmt, SootMethod, SootClass>> abstractThreads) {
@@ -388,7 +391,7 @@ final class AliasSet
 
 	/**
 	 * Adds the given threads as the threads that wrote a member of an object via the variable associated with this aliasset.
-	 * 
+	 *
 	 * @param abstractThreads collection of abstract thread objects in which the write occurs.
 	 */
 	void addWriteThreads(final Collection<Triple<InvokeStmt, SootMethod, SootClass>> abstractThreads) {
@@ -397,7 +400,7 @@ final class AliasSet
 
 	/**
 	 * Adds the given field signature to the collection of written fields of this alias set's object.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 */
 	void addWrittenField(final String fieldSig) {
@@ -420,7 +423,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessible in multiple threads.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
 	 */
 	boolean escapes() {
@@ -429,7 +432,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the end point of the specified access path.
-	 * 
+	 *
 	 * @param accesspath is a sequence of primaries in the access path. This should not include the primary for this alias
 	 *            set. It should contain the stringized form of the field signature or <code>IEscapeInfo.ARRAY_FIELD</code>.
 	 * @return the alias set that corresponds to the end point of the access path. <code>null</code> is returned if no such
@@ -452,7 +455,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
-	 * 
+	 *
 	 * @param field is the signature of the field.
 	 * @return the alias set associated with <code>field</code>.
 	 * @post result == self.find().fieldMap.get(field)
@@ -463,7 +466,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves an unmodifiable copy of the field map of this alias set.
-	 * 
+	 *
 	 * @return the field map.
 	 */
 	Map<String, AliasSet> getFieldMap() {
@@ -474,7 +477,7 @@ final class AliasSet
 	 * Retrieves the alias set that is reachable from <code>root</code> and that corresponds to <code>ref</code>, an
 	 * alias set reachable from this alias set. This method can be used to retrieve the alias set in the site-context
 	 * corresponding to an alias side in the callee method context.
-	 * 
+	 *
 	 * @param root the alias set to start point in the search context.
 	 * @param ref the alias set in end point in the reference (this) context.
 	 * @param processed a collection of alias set pairs that is used during the search. The contents of this alias set is not
@@ -515,7 +518,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the reference entities of this object.
-	 * 
+	 *
 	 * @return a collection of objects.
 	 */
 	Collection<Object> getIntraProcRefEntities() {
@@ -531,7 +534,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the lock entities of this object.
-	 * 
+	 *
 	 * @return a collection of objects.
 	 */
 	Collection<Object> getLockEntities() {
@@ -547,7 +550,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the threads that read fields of the associated object.
-	 * 
+	 *
 	 * @return the reading threads.
 	 */
 	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadThreads() {
@@ -556,7 +559,7 @@ final class AliasSet
 		if (_collection != null) {
 			_result = Collections.unmodifiableCollection(_collection);
 		} else {
-			_result = null;
+			_result = Collections.emptySet();
 		}
 		return _result;
 
@@ -564,7 +567,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the shared entities of this object.
-	 * 
+	 *
 	 * @return a collection of objects.
 	 */
 	Collection<Object> getReadWriteShareEntities() {
@@ -580,7 +583,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the ready entity object of this alias set.
-	 * 
+	 *
 	 * @return the associated readyentity object.
 	 * @post result == self.find().readyEntity
 	 */
@@ -597,7 +600,7 @@ final class AliasSet
 
 	/**
 	 * Retrieves the threads that write fields of the associated object.
-	 * 
+	 *
 	 * @return the writing threads.
 	 */
 	Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWriteThreads() {
@@ -606,14 +609,14 @@ final class AliasSet
 		if (_collection != null) {
 			_result = Collections.unmodifiableCollection(_collection);
 		} else {
-			_result = null;
+			_result = Collections.emptySet();
 		}
 		return _result;
 	}
 
 	/**
 	 * Retrieves the shared entities pertaining to write-write sharing of the associated object.
-	 * 
+	 *
 	 * @return a collection of objects.
 	 */
 	Collection<Object> getWriteWriteShareEntities() {
@@ -629,7 +632,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the alias set was accessed.
-	 * 
+	 *
 	 * @return <code>true</code> if it was accessed; <code>false</code>, otherwise.
 	 */
 	boolean isAccessed() {
@@ -639,7 +642,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for locks and unlocks.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is lock-unlock shared; <code>false</code>, otherwise.
 	 */
 	boolean lockUnlockShared() {
@@ -666,7 +669,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple methods.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is method shared; <code>false</code>, otherwise.
 	 */
 	boolean methodShared() {
@@ -676,7 +679,7 @@ final class AliasSet
 
 	/**
 	 * Propogates the information from the this alias set to the destination alias set.
-	 * 
+	 *
 	 * @param to is the destination of the information transfer.
 	 * @post to.isShared() == (isShared() or to.isShared())
 	 * @post to.getReadyEntities().containsAll(getReadyEntities())
@@ -766,7 +769,7 @@ final class AliasSet
 
 	/**
 	 * Records the given alias set represents the given field signature.
-	 * 
+	 *
 	 * @param field for which the alias set info needs to be recorded.
 	 * @param as is the alias set associated with <code>field</code>
 	 * @pre as != null
@@ -777,7 +780,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for reads and writes.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is read-write shared; <code>false</code>, otherwise.
 	 */
 	boolean readWriteShared() {
@@ -788,7 +791,7 @@ final class AliasSet
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for read and writes of the
 	 * specified field.
-	 * 
+	 *
 	 * @param fieldSignature is the signature of the field.
 	 * @return <code>true</code> if the object is shared via read-write of the given field; <code>false</code>,
 	 *         otherwise.
@@ -814,7 +817,7 @@ final class AliasSet
 
 	/**
 	 * Marks the object associated with this alias set as appearing in a <code>notify()/notifyAll()</code> call.
-	 * 
+	 *
 	 * @post find().notifies == true
 	 */
 	void setNotifies() {
@@ -823,7 +826,7 @@ final class AliasSet
 
 	/**
 	 * Marks the object associated with this alias set as appearing in a <code>wait()</code> call.
-	 * 
+	 *
 	 * @post find().waits == true
 	 */
 	void setWaits() {
@@ -832,7 +835,7 @@ final class AliasSet
 
 	/**
 	 * Unifies the given alias set with this alias set.
-	 * 
+	 *
 	 * @param a is the alias set to be unified with this alias set.
 	 * @pre a != null
 	 */
@@ -842,7 +845,7 @@ final class AliasSet
 
 	/**
 	 * Unifies the given alias set with this alias set.
-	 * 
+	 *
 	 * @param as2 obviously.
 	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
 	 *            <code>false</code>, otherwise.
@@ -890,7 +893,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for waits and notifys.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is wait-notify shared; <code>false</code>, otherwise.
 	 */
 	boolean waitNotifyShared() {
@@ -900,7 +903,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the a field of the object associated with alias set was read.
-	 * 
+	 *
 	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
 	 */
 	boolean wasAnyFieldRead() {
@@ -909,7 +912,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the a field of the object associated with alias set was written.
-	 * 
+	 *
 	 * @return <code>true</code> if it was written; <code>false</code>, otherwise.
 	 */
 	boolean wasAnyFieldWritten() {
@@ -918,7 +921,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the field of the provided signature was read via the object associated with this alias set.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
 	 */
@@ -928,7 +931,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the given field or an object reachable from it was read.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
 	 *            <code>false</code>, otherwise.
@@ -951,7 +954,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the field of the provided signature was read via the object associated with this alias set.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 * @return <code>true</code> if it was read; <code>false</code>, otherwise.
 	 */
@@ -961,7 +964,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the given field or an object reachable from it was written.
-	 * 
+	 *
 	 * @param fieldSig is the field signature.
 	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
 	 *            <code>false</code>, otherwise.
@@ -984,7 +987,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for writes.
-	 * 
+	 *
 	 * @return <code>true</code> if the object is write-write shared; <code>false</code>, otherwise.
 	 */
 	boolean writeWriteShared() {
@@ -994,7 +997,7 @@ final class AliasSet
 
 	/**
 	 * Checks if the object associated with this alias set is shared by multiple threads for writes of the specified field.
-	 * 
+	 *
 	 * @param fieldSignature is the signature of the field.
 	 * @return <code>true</code> if the object is shared via write-write of the given field; <code>false</code>,
 	 *         otherwise.
@@ -1006,7 +1009,7 @@ final class AliasSet
 
 	/**
 	 * Handles the unification of entity info.
-	 * 
+	 *
 	 * @param represented is the alias set being unified with this alias set such that this alias set is the representative
 	 *            alias set.
 	 * @pre represented != null
@@ -1083,7 +1086,7 @@ final class AliasSet
 
 	/**
 	 * Discovers a boolean property recursively through the alias set tree.
-	 * 
+	 *
 	 * @param fieldSig is the signature of the field whose alias set serves as the anchor for recursion.
 	 * @param transformer is used to extract the property.
 	 * @return <code>true</code> if the property holds on an alias set reachable from this alias set; <code>false</code>,
@@ -1113,7 +1116,7 @@ final class AliasSet
 
 	/**
 	 * Unify the fields of the given alias sets with that of this alias set.
-	 * 
+	 *
 	 * @param aliasSet is the other alias set involved in the unification.
 	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
 	 *            <code>false</code>, otherwise.
@@ -1136,7 +1139,7 @@ final class AliasSet
 
 	/**
 	 * Unify thread escape and sharing information in the given alias set.
-	 * 
+	 *
 	 * @param represented is the other alias set involved in the unification.
 	 * @pre represented != null
 	 */

@@ -114,26 +114,24 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
 	 *
-	 * @param <E3> DOCUMENT ME!
 	 * @param dependent of interest.
 	 * @param context in which the dependency information is requested.
 	 * @return a collection of objects.
 	 * @pre dependent != null
 	 * @post result != null
 	 */
-	<E3 extends E1> Collection<E3> getDependees(final T1 dependent, final C1 context);
+	Collection<E1> getDependees(final T1 dependent, final C1 context);
 
 	/**
 	 * Returns the entities which depend on the <code>dependee</code> in the given <code>context</code>.
 	 *
-	 * @param <T4> DOCUMENT ME!
 	 * @param dependee of interest.
 	 * @param context in which the dependency information is requested.
 	 * @return a collection of objects. The subclasses will further specify the types of these entities.
 	 * @pre dependee != null
 	 * @post result != null
 	 */
-	<T4 extends T2> Collection<T4> getDependents(final E2 dependee, final C2 context);
+	Collection<T2> getDependents(final E2 dependee, final C2 context);
 
 	/**
 	 * Returns the direction of the analysis. In analysis that are <code>BACKWARD_DIRECTION</code> oriented, the dependent
