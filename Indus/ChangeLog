@@ -1,11 +1,27 @@
+2005-12-26 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/soot/BasicBlockGraphMgr.java (getStmtList):
+		- strengthened the output type of getStmtList.
+	* src/edu/ksu/cis/indus/common/graph/AbstractDirectedGraph.java (getSCCs):
+		- the ordering of components in getSCCs was incorrect.  This has been fixed.
+	* src/edu/ksu/cis/indus/common/collections/CollectionUtils.java (collect):
+		- both variants now return a list instead of a collection.
+	* src/edu/ksu/cis/indus/common/soot/Util.java:
+		- fixUpThreadStartBody() implementation was messed up. FIXED.
+	* src/edu/ksu/cis/indus/common/graph/GraphReachabilityPredicate.java:
+	* src/edu/ksu/cis/indus/common/soot/SootPredicatesAndTransformers.java:
+	* src/edu/ksu/cis/indus/common/collections/InstanceOfPredicate.java:
+		- generic part of a generic method cannot be erased while inheriting. Previously this was assumed in the above
+		classes.  This has been retrofitted.
+
 2005-12-20 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/common/soot/Util.java: 
+	* src/edu/ksu/cis/indus/common/soot/Util.java:
 		- changed the behavior of isHierarchicallyRelated() to be true when the givne classes are identical.
 
 2005-12-19 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java: 
+	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java:
 		- changed the signature of getMonitorTriples()
 
 2005-12-16  venku  <rvprasad@cis.ksu.edu>
@@ -19,7 +35,7 @@
 
 2005-04-15  venku  <rvprasad@cis.ksu.edu>
 
-	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the 
+	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java : renamed methods and added a new method to retrieve the
 	classes	in the hierarchy in topological order.
 	* src/edu/ksu/cis/indus/common/soot/Util.java : deleted getClassesInTopologicalOrder().
 

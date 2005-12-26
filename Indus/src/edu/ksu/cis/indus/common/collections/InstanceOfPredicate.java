@@ -40,9 +40,9 @@ public class InstanceOfPredicate<T, V>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(Object)
+	 * @see IPredicate#evaluate(Object)
 	 */
-	public boolean evaluate(V t) {
+	public <V1 extends V> boolean evaluate(V1 t) {
 		return clazz.isInstance(t);
 	}
 

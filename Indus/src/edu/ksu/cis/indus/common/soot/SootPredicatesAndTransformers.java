@@ -34,7 +34,7 @@ import soot.jimple.ThisRef;
 /**
  * This class contains <i>jakarta commons collections</i> related predicates and transformers that are specific to Soot AST
  * types.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -52,7 +52,7 @@ public final class SootPredicatesAndTransformers {
 	 */
 	public static final IPredicate<ValueBox> ESCAPABLE_EXPR_FILTER = new IPredicate<ValueBox>() {
 
-		public boolean evaluate(final ValueBox object) {
+		public <V1 extends ValueBox> boolean evaluate(final V1 object) {
 			final Value _v = object.getValue();
 			return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
 					|| _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
@@ -65,7 +65,7 @@ public final class SootPredicatesAndTransformers {
 	 */
 	public static final IPredicate<Stmt> INVOKING_STMT_PREDICATE = new IPredicate<Stmt>() {
 
-		public boolean evaluate(final Stmt object) {
+		public <V1 extends Stmt> boolean evaluate(final V1 object) {
 			return object.containsInvokeExpr();
 		}
 	};

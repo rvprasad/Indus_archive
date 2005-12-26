@@ -116,7 +116,7 @@ public final class CollectionUtils {
 	 * @param predicate DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <T1, T2 extends T1> Collection<T2> collect(final Collection<T2> col, final IPredicate<T1> predicate) {
+	public static <T1, T2 extends T1> List<T2> collect(final Collection<T2> col, final IPredicate<T1> predicate) {
 		final List<T2> _result = new ArrayList<T2>(col.size());
 		for (final T2 _t : col) {
 			if (predicate.evaluate(_t)) {
@@ -137,9 +137,9 @@ public final class CollectionUtils {
 	 * @param tranformer DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	public static <I, TI extends I, TO, O extends TO> Collection<TO> collect(final Collection<TI> col,
+	public static <I, TI extends I, TO, O extends TO> List<TO> collect(final Collection<TI> col,
 			final ITransformer<I, O> tranformer) {
-		final Collection<TO> _r = new ArrayList<TO>(col.size());
+		final List<TO> _r = new ArrayList<TO>(col.size());
 		transform(col, tranformer, _r);
 		return _r;
 	}

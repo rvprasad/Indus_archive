@@ -152,7 +152,7 @@ public final class BasicBlockGraphMgr {
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
-	public List getStmtList(final SootMethod method) {
+	public List<Stmt> getStmtList(final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getStmtList(method = " + method + ")");
 		}

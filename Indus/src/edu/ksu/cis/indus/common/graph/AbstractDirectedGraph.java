@@ -69,11 +69,6 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private static int dfsNum;
 
 	/**
-	 * This indicates if this graph has a spanning forest.
-	 */
-	protected boolean hasSpanningForest;
-
-	/**
 	 * This is the node indexed discover time of the nodes in this graph.
 	 * 
 	 * @invariant discoverTimes.size = getNodes().size()
@@ -122,6 +117,16 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private BitSet[] forwardReachabilityMatrix;
 
 	/**
+	 * This indicates if this graph has a spanning forest.
+	 */
+	private boolean hasSpanningForest;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private boolean hasSCC;
+
+	/**
 	 * The collection of pseudo tails in the given graph. Refer to <code>getPseudoTails()</code> for details.
 	 */
 	private final Collection<N> pseudoTails = new HashSet<N>();
@@ -159,6 +164,11 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * This flag indicates if sources are available (have been calculated).
 	 */
 	private boolean sourcesAreAvailable;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private List<List<N>> scc;
 
 	/**
 	 * This maps a node to it's spanning successor nodes.
@@ -497,9 +507,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#getBackEdges()
 	 */
 	public final Collection<Pair<N, N>> getBackEdges() {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
+		createSpanningForest();
 
 		final Collection<Pair<N, N>> _result;
 
@@ -635,9 +643,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 			builder = new SimpleNodeGraphBuilder<N>();
 			builder.createGraph();
 
-			if (!hasSpanningForest) {
-				createSpanningForest();
-			}
+			createSpanningForest();
 
 			final List<N> _nodes = getNodes();
 			for (final N _node : _nodes) {
@@ -727,37 +733,47 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#getSCCs(boolean)
 	 */
 	public final List<List<N>> getSCCs(final boolean topDown) {
-		final List<N> _nodes = getNodes();
-		final Collection<List<N>> _sccs = findSCCs(_nodes);
-		final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
+		if (!hasSCC) {
+			final List<N> _nodes = getNodes();
+			final Collection<List<N>> _sccs = findSCCs(_nodes);
+			final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
+			final SimpleNodeGraphBuilder<List<N>> _sngb = new SimpleNodeGraphBuilder<List<N>>();
+			_sngb.createGraph();
 
-		for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
-			final List<N> _scc = _i.next();
+			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+				final List<N> _scc = _i.next();
+				_sngb.createNode(_scc);
 
-			for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
-				final N _n = _j.next();
-				_node2scc.put(_n, _scc);
+				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+					final N _n = _j.next();
+					_node2scc.put(_n, _scc);
+				}
 			}
+
+			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+				final List<N> _scc = _i.next();
+
+				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+					final N _n = _j.next();
+					for (final Iterator<N> _k = _n.getSuccsOf().iterator(); _k.hasNext();) {
+						final N _succ = _k.next();
+						if (!_scc.contains(_succ)) {
+							_sngb.addEdgeFromTo(_scc, _node2scc.get(_succ));
+						}
+					}
+				}
+			}
+
+			_sngb.finishBuilding();
+			final IObjectDirectedGraph<SimpleNode<List<N>>, List<N>> _sng = _sngb.getBuiltGraph();
+			final List<SimpleNode<List<N>>> _r = _sng.performTopologicalSort(true);
+			scc = CollectionUtils.collect(_r, _sng.getObjectExtractor());
+			hasSCC = true;
 		}
 
-		final List<N> _topologicallyOrdered = performTopologicalSort(false);
-		final List<List<N>> _result = new ArrayList<List<N>>();
-		final Collection<N> _keySet = _node2scc.keySet();
-		final Iterator<N> _i = IteratorUtils.filteredIterator(_topologicallyOrdered.iterator(), new IPredicate<N>() {
+		final List<List<N>> _result = new ArrayList<List<N>>(scc);
 
-			public boolean evaluate(final N o) {
-				return _node2scc.containsKey(o);
-			}
-		});
-
-		for (; _i.hasNext();) {
-			final N _o = _i.next();
-			final List<N> _scc = _node2scc.get(_o);
-			_result.add(_scc);
-			_keySet.removeAll(_scc);
-		}
-
-		if (topDown) {
+		if (!topDown) {
 			Collections.reverse(_result);
 		}
 
@@ -812,9 +828,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#getSpanningSuccs()
 	 */
 	public final Map<N, Set<N>> getSpanningSuccs() {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
+		createSpanningForest();
 		return Collections.unmodifiableMap(spanningSuccs);
 	}
 
@@ -859,9 +873,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#isAncestorOf(INode,INode)
 	 */
 	public final boolean isAncestorOf(final N ancestor, final N descendent) {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
+		createSpanningForest();
 
 		final int _anc = getIndexOfNode(ancestor);
 		final int _desc = getIndexOfNode(descendent);
@@ -978,6 +990,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		dagExists = false;
 		sinksAreAvailable = false;
 		sourcesAreAvailable = false;
+		hasSCC = false;
 	}
 
 	/**
@@ -1034,6 +1047,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @post hasSpanningForest = true
 	 */
 	private void createSpanningForest() {
+		if (hasSpanningForest) {
+			return;
+		}
+
 		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap<N, Set<N>>();
 		} else {
