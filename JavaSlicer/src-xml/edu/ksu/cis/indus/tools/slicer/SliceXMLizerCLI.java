@@ -106,6 +106,8 @@ public class SliceXMLizerCLI
 	 */
 	private static String configFileName;
 
+	private static SpecificationBasedScopeDefinition sliceScope;
+
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
 	 */
@@ -140,11 +142,6 @@ public class SliceXMLizerCLI
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
 	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
-
-	/**
-	 * The name of the slice scope specification file.
-	 */
-	private String sliceScopeSpecFileName;
 
 	/**
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
@@ -278,7 +275,7 @@ public class SliceXMLizerCLI
 		slicer.setRootMethods(rootMethods);
 
 		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
-		slicer.setSliceScopeDefinition(processSliceScopeSpecFile());
+		slicer.setSliceScopeDefinition(sliceScope);
 		slicer.addCriteria(_criteria);
 		slicer.addToolProgressListener(this);
 		slicer.run(Phase.STARTING_PHASE, null, true);
@@ -302,8 +299,8 @@ public class SliceXMLizerCLI
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(nameOfSliceTag);
-		_residualizer.setBasicBlockGraphMgr(slicer.getBasicBlockGraphManager());
-		_residualizer.residualizeSystem(slicer.getSystem());
+		_residualizer.setBasicBlockGraphMgr(getBbm());
+		_residualizer.residualizeSystem(getEnvironment());
 	}
 
 	/**
@@ -326,7 +323,7 @@ public class SliceXMLizerCLI
 			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 			_ssr.setStmtGraphFactory(getStmtGraphFactory());
 			_ctrl.setStmtSequencesRetriever(_ssr);
-			_ctrl.setEnvironment(new Environment(scene));
+			_ctrl.setEnvironment(getEnvironment());
 			_filter.chain(new TagBasedProcessingFilter(nameOfSliceTag));
 			_ctrl.setProcessingFilter(_filter);
 			((AbstractXMLizer) _xmlizer).dumpJimple(base, jimpleXMLDumpDir, _ctrl);
@@ -465,19 +462,20 @@ public class SliceXMLizerCLI
 		}
 
 		if (_cl.hasOption('S')) {
-			xmlizer.setSliceScopeSpecFile(_cl.getOptionValue('S'));
+			sliceScope = xmlizer.setScopeSpecFile(_cl.getOptionValue('S'));
+			xmlizer.setScopeSpecFile(null);
 		}
 
 		xmlizer.shouldWriteSliceXML = _cl.hasOption('x');
 
-		final List _result = _cl.getArgList();
+		final List<String> _result = _cl.getArgList();
 
 		if (_result.isEmpty()) {
 			LOGGER.error("Please specify atleast one class that contains an entry method into the system to be sliced.");
 			System.exit(1);
 		}
 
-		xmlizer.setClassNames(_cl.getArgList());
+		xmlizer.setClassNames(_result);
 	}
 
 	/**
@@ -488,7 +486,7 @@ public class SliceXMLizerCLI
 	 * @pre fileName != null
 	 */
 	private void extractExclusionListForCompaction(final String fileName) {
-		retentionList = new ArrayList();
+		retentionList = new ArrayList<String>();
 
 		try {
 			final BufferedReader _br = new BufferedReader(new FileReader(new File(fileName)));
@@ -538,7 +536,7 @@ public class SliceXMLizerCLI
 		}
 
 		configFileName = _config;
-		
+
 		return _result;
 	}
 
@@ -613,17 +611,6 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Sets the name of the file containing the slice scope specification.
-	 *
-	 * @param fileName of the slice scope spec.
-	 *
-	 * @pre fileName != null
-	 */
-	private void setSliceScopeSpecFile(final String fileName) {
-		sliceScopeSpecFileName = fileName;
-	}
-
-	/**
 	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
 	 *
 	 * @param suffix to be appended to the file name.
@@ -634,8 +621,8 @@ public class SliceXMLizerCLI
 	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
 		final Printer _printer = Printer.v();
 
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
 
 			if (!_sc.hasTag(nameOfSliceTag)) {
 				continue;
@@ -645,8 +632,8 @@ public class SliceXMLizerCLI
 				LOGGER.debug("Dumping jimple for " + _sc + " with suffix " + suffix);
 			}
 
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
+			for (final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = _j.next();
 
 				if (_sm.isConcrete()) {
 					try {
@@ -694,7 +681,7 @@ public class SliceXMLizerCLI
 			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 			_ssr.setStmtGraphFactory(getStmtGraphFactory());
 			_pc.setStmtSequencesRetriever(_ssr);
-			_pc.setEnvironment(new Environment(scene));
+			_pc.setEnvironment(getEnvironment());
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
 			_processor.hookup(_pc);
 			_pc.process();
@@ -762,39 +749,6 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Process the scope specification file.
-	 *
-	 * @return the scope definition.
-	 */
-	private SpecificationBasedScopeDefinition processSliceScopeSpecFile() {
-		SpecificationBasedScopeDefinition _result = null;
-
-		if (sliceScopeSpecFileName != null) {
-			try {
-				final InputStream _in = new FileInputStream(sliceScopeSpecFileName);
-				final String _contents = IOUtils.toString(_in);
-				IOUtils.closeQuietly(_in);
-				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
-			} catch (final IOException _e) {
-				final String _msg = "Error retrieved specification from " + sliceScopeSpecFileName;
-				LOGGER.error(_msg, _e);
-
-				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
-				_i.initCause(_e);
-				throw _i;
-			} catch (final JiBXException _e) {
-				final String _msg = "JiBX failed during deserialization.";
-				LOGGER.error(_msg, _e);
-
-				final IllegalStateException _i = new IllegalStateException(_msg);
-				_i.initCause(_e);
-				throw _i;
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
@@ -813,7 +767,7 @@ public class SliceXMLizerCLI
 			destructivelyUpdateJimple();
 
 			if (retentionList != null) {
-				final Collection _c = SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer, retentionList);
+				final Collection<SootClass> _c = SlicerToolHelper.optimizeForSpaceAfterResidualization(slicer, retentionList);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Retained classes are " + _c);
@@ -896,8 +850,8 @@ public class SliceXMLizerCLI
 			final IXMLizer _xmlizer = getXMLizer();
 			final Map _info = new HashMap();
 
-			_info.put(IEnvironment.ID, slicer.getSystem());
-			_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
+			_info.put(IEnvironment.ID, getEnvironment());
+			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			_xmlizer.setXmlOutputDir(outputDirectory);
 			_xmlizer.writeXML(_info);
 		}

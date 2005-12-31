@@ -1,3 +1,11 @@
+2005-12-30 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java:
+		- used getEnvironment() instead of getScene().
+		- defered cfg-level scope setting to the client application.
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java:
+		- used getEnvironment() instead of getScene().
+
 2005-12-26 venku <venku@boss.dreamsoft.com>
 
 	* NOTE - New bug was introduced in property-aware setting.  Refer to Indus internal-bug 750.

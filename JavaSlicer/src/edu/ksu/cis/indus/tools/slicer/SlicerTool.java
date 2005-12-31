@@ -711,7 +711,6 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	 */
 	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
 		sliceScopeDefinition = scope;
-		stmtGraphFactory.setScope(scope, getSystem());
 	}
 
 	/**
