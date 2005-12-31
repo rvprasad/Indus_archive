@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.annotations.AInternalUse;
 import edu.ksu.cis.indus.common.datastructures.IWork;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  */
-public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
+@AInternalUse public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
 		implements IFGNode<SYM, T, N> {
 
 	/**
@@ -61,6 +62,11 @@ public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends A
 	 * A filter that controls the inflow of values to this node.
 	 */
 	private ITokenFilter<T, SYM> inFilter;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private boolean inSCCWithMultipleNodes;
 
 	/**
 	 * A filter that controls the outflow of values from this node.
@@ -145,6 +151,7 @@ public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends A
 				_workBag.addWork(sendTokensWork);
 			} else {
 				sendTokensWork.addTokens(_diff);
+				_workBag.addWorkNoDuplicates(sendTokensWork);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -215,6 +222,13 @@ public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends A
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#setInSCCWithMultipleNodes()
+	 */
+	public final void setInSCCWithMultipleNodes() {
+		inSCCWithMultipleNodes = true;
+	}
+
+	/**
 	 * @see IFGNode#setOutFilter(ITokenFilter)
 	 */
 	public final void setOutFilter(final ITokenFilter<T, SYM> filterToUse) {
@@ -233,6 +247,17 @@ public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends A
 	 */
 	public final void setSuccessorSet(final Collection<N> successors) {
 		succs = successors;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param work DOCUMENT ME!
+	 */
+	public final void setTokenSendingWork(final SendTokensWork<SYM, T, N> work) {
+		assert inSCCWithMultipleNodes : "setInSCCWithMultipleNodes() before calling this method.";
+		assert work != null : "The argument to this method cannot be null.";
+		sendTokensWork = work;
 	}
 
 	/**
@@ -285,7 +310,9 @@ public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends A
 	 * Forgets about the associated work that pushes values to the successor nodes.
 	 */
 	void forgetSendTokensWork() {
-		sendTokensWork = null;
+		if (!inSCCWithMultipleNodes) {
+			sendTokensWork = null;
+		}
 	}
 }
 

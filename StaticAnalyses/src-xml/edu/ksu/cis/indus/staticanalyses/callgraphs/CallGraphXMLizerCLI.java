@@ -24,7 +24,6 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
@@ -125,6 +124,11 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		_option.setArgName("type");
 		_option.setRequired(true);
 		_options.addOption(_option);
+		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
+		_option.setArgs(1);
+		_option.setArgName("scope");
+		_option.setRequired(false);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -156,6 +160,11 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
 			_cli.addToSootClassPath(_cl.getOptionValue('p'));
+
+			if (_cl.hasOption('S')) {
+				_cli.setScopeSpecFile(_cl.getOptionValue('S'));
+			}
+
 			_cli.initialize();
 			_cli.execute(_cl.hasOption('j'), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
@@ -250,7 +259,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
-		_pc.setEnvironment(new Environment(getScene()));
+		_pc.setEnvironment(getEnvironment());
 		_cha.hookup(_pc);
 		_pc.process();
 		_cha.unhook(_pc);
@@ -264,7 +273,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		_cgi.createCallGraphInfo(_chaci.getCallInfo());
 
-		dumpInfo(dumpJimple, _cgi, "CHA-Based", new Environment(getScene()));
+		dumpInfo(dumpJimple, _cgi, "CHA-Based", getEnvironment());
 	}
 
 	/**
@@ -286,7 +295,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(_aa);
-		_pc.setEnvironment(new Environment(getScene()));
+		_pc.setEnvironment(getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 
 		final List _roots = new ArrayList();
@@ -311,7 +320,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			_aa.reset();
 			getBbm().reset();
 
-			_aa.analyze(new Environment(getScene()), _rm);
+			_aa.analyze(getEnvironment(), _rm);
 
 			final long _stop = System.currentTimeMillis();
 			addTimeLog("FA", _stop - _start);
@@ -347,7 +356,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
 		_pc.setStmtSequencesRetriever(_ssr);
-		_pc.setEnvironment(new Environment(getScene()));
+		_pc.setEnvironment(getEnvironment());
 		_cha.hookup(_pc);
 		_pc.process();
 		_cha.unhook(_pc);
@@ -368,7 +377,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		_cgi.createCallGraphInfo(_rtaci.getCallInfo());
 
-		dumpInfo(dumpJimple, _cgi, "RTA-Based", new Environment(getScene()));
+		dumpInfo(dumpJimple, _cgi, "RTA-Based", getEnvironment());
 	}
 }
 

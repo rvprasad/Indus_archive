@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
@@ -29,6 +28,9 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,6 @@ import soot.Local;
 import soot.SootField;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
@@ -74,6 +75,11 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlowInsensitiveExprSwitch.class);
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private static final Map<String, StringConstant> str2const = new HashMap<String, StringConstant>();
 
 	/**
 	 * The token manager to be used.
@@ -343,7 +349,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	 */
 	@Override public void caseStringConstant(final StringConstant e) {
 		final OFAFGNode<T> _ast = method.getASTNode(e, context);
-		_ast.injectValue(e);
+		_ast.injectValue(getCanonicalStringConstant(e));
 		setFlowNode(_ast);
 	}
 
@@ -445,6 +451,20 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processed " + e);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param e DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	private StringConstant getCanonicalStringConstant(final StringConstant e) {
+		if (str2const.containsKey(e.value)) {
+			return str2const.get(e.value);
+		}
+		str2const.put(e.value, e);
+		return e;
 	}
 
 	/**

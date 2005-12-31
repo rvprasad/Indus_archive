@@ -1,3 +1,28 @@
+2005-12-30 venku <venku@boss.dreamsoft.com>
+
+	* src-test/edu/ksu/cis/indus/staticanalyses/flow/FATestSetup.java:
+		- used getEnvironment() instead of getScene()
+	* src-temp/ase05/InfluenceChecker.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphXMLizerCLI.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeAndReadWriteCLI.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/independence/IndependenceDetectionCLI.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizerCLI.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java:
+		- used getEnvironment() instead of getScene()
+		- support for cfg-level scoping.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/SendTokensWork.java:
+		- publicized the constructor for internal used in SCCBasedOptimizer.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/IFGNode.java:
+		- added a new method in IFGNode that can be used to signal that the node belongs to a SCC containing multiple
+		flow nodes in the flow graph.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/AbstractFGNode.java:
+		- added a new method in AbstractFGNode that can be used set a token sending work.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/optimizations/SCCBasedOptimizer.java:
+		- added optimization to statically associate a common token sending work to all nodes in an SCC.
+		- The changes in this file and the above 3 files were made to facilitate this optimization.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java:
+		- added logic to use a canonical instance of StringConstant values.
+
 2005-12-26 venku <venku@boss.dreamsoft.com>
 
 	* NOTE - the tracking of concurrent access of static variables is broken in AliasSets and ECBA.

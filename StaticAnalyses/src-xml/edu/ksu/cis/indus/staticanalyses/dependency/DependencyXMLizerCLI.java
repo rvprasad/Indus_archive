@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -221,6 +220,11 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		_options.addOption(_option);
 		_option = new Option("commonuncheckedexceptions", false, "Consider common unchecked exceptions.");
 		_options.addOption(_option);
+		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
+		_option.setArgs(1);
+		_option.setArgName("scope");
+		_option.setRequired(false);
+		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
@@ -254,6 +258,11 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 			if (_cl.hasOption('p')) {
 				_xmlizerCLI.addToSootClassPath(_cl.getOptionValue('p'));
 			}
+
+			if (_cl.hasOption('S')) {
+				_xmlizerCLI.setScopeSpecFile(_cl.getOptionValue('S'));
+			}
+
 			_xmlizerCLI.dumpJimple = _cl.hasOption('j');
 			_xmlizerCLI.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
 			_xmlizerCLI.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
@@ -402,7 +411,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		}
 
 		initialize();
-		aa.analyze(new Environment(getScene()), getRootMethods());
+		aa.analyze(getEnvironment(), getRootMethods());
 
 		_callGraphInfoCollector.reset();
 		_processors.clear();
@@ -476,7 +485,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 		if (dumpJimple) {
 			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _xmlcgipc);
 		}
-		writeInfo("Total classes loaded: " + getScene().getClasses().size());
+		writeInfo("Total classes loaded: " + getEnvironment().getClasses().size());
 	}
 }
 

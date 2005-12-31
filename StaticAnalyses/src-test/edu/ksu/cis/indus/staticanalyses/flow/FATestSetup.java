@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -52,22 +51,22 @@ import soot.Value;
  */
 public class FATestSetup
   extends AbstractXMLBasedTestSetup {
-	/** 
+	/**
 	 * The tag used by the flow analysis instance.
 	 */
 	public static final String TAG_NAME = "indus.staticanalyses.flow.FATestSetup:FA";
 
-	/** 
+	/**
 	 * The value analyzer used during testing.
 	 */
 	protected IValueAnalyzer valueAnalyzer;
 
-	/** 
+	/**
 	 * The names of the class to analyze.
 	 */
 	protected final String classNames;
 
-	/** 
+	/**
 	 * The class path to use with soot in this setup.
 	 */
 	private final String sootClassPath;
@@ -99,7 +98,7 @@ public class FATestSetup
 		_driver.setClassNames(Arrays.asList(classNames.split(" ")));
 		_driver.initialize();
 		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager<Value, Type>(new SootValueTypeManager()), _driver.getStmtGraphFactory());
-		valueAnalyzer.analyze(new Environment(_driver.getScene()), _driver.getRootMethods());
+		valueAnalyzer.analyze(_driver.getEnvironment(), _driver.getRootMethods());
 
 		final Collection _temp1 = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
 
@@ -114,10 +113,10 @@ public class FATestSetup
         for (final Iterator _i = _temp2.iterator(); _i.hasNext();) {
             final FATest _test = (FATest) _i.next();
             _test.setFA(((OFAnalyzer) valueAnalyzer).fa);
-        }        
-        
+        }
+
 		if (dumpLocation != null) {
-			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getScene(), dumpLocation, null, idGenerator,
+			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getEnvironment(), dumpLocation, null, idGenerator,
 				new TagBasedProcessingFilter(TAG_NAME));
 		}
 	}

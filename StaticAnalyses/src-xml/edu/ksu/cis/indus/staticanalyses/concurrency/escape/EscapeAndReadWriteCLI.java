@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -98,6 +97,11 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
+		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
+		_option.setArgs(1);
+		_option.setArgName("scope");
+		_option.setRequired(false);
+		_options.addOption(_option);
 
 		final CommandLineParser _parser = new GnuParser();
 
@@ -120,6 +124,9 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 
+			if (_cl.hasOption('S')) {
+				_cli.setScopeSpecFile(_cl.getOptionValue('S'));
+			}
 			_cli.setClassNames(_cl.getArgList());
 			_cli.execute();
 		} catch (final ParseException _e) {
@@ -169,7 +176,7 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 		_info.put(IValueAnalyzer.ID, _aa);
 
 		initialize();
-		_aa.analyze(new Environment(getScene()), getRootMethods());
+		_aa.analyze(getEnvironment(), getRootMethods());
 
 		_processors.clear();
 		_processors.add(_callGraphInfoCollector);

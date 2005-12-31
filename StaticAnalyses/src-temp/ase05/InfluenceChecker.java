@@ -38,7 +38,6 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -435,7 +434,7 @@ public class InfluenceChecker
 		info.put(SafeLockAnalysis.ID, _sla);
 
 		initialize();
-		aa.analyze(new Environment(getScene()), getRootMethods());
+		aa.analyze(getEnvironment(), getRootMethods());
 
 		_callGraphInfoCollector.reset();
 		_processors.clear();
@@ -571,7 +570,7 @@ public class InfluenceChecker
 	 */
 	private SootMethod getMethod(final String clazz, final String methodSignature) {
 		final SootMethod _result;
-		final SootClass _sc = getScene().getSootClass(clazz);
+		final SootClass _sc = getEnvironment().getClass(clazz);
 		_result = _sc.getMethod(methodSignature);
 		return _result;
 	}

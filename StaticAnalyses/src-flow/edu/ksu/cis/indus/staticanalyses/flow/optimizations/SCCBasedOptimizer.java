@@ -17,7 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.flow.optimizations;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.SendTokensWork;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -204,6 +206,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 	 * @pre tokenManager != null
 	 */
 	private void optimizeSCC(final Collection<N> scc, final ITokenManager<T, SYM, ?> tokenManager) {
+		final SendTokensWork<SYM, T, N> _work = new SendTokensWork<SYM, T, N>(scc.iterator().next(), tokenManager.getNewTokenSet());
 		final T _unifiedTokens = tokenManager.getNewTokenSet();
 		final T _newTokenSet = tokenManager.getNewTokenSet();
 		final Collection<N> _succs = new HashSet<N>();
@@ -211,12 +214,17 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 		final Iterator<N> _i = scc.iterator();
 		final int _iEnd = scc.size();
 
+
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final N _node = _i.next();
 			_unifiedTokens.addTokens(_node.getTokens());
 			_succs.addAll(_node.getSuccs());
 			_node.setTokenSet(_newTokenSet);
 			_node.setSuccessorSet(_newSuccs);
+			_node.setInSCCWithMultipleNodes();
+			if (_node instanceof AbstractFGNode) {
+				((AbstractFGNode) _node).setTokenSendingWork(_work);
+			}
 		}
 
 		// We don't add the scc nodes to the successor set of the SCC.

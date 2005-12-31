@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor.MetricKeys;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
@@ -153,6 +152,11 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 		_options.addOption(_option);
 		_option = new Option("l", "preload", false, "Preload method bodies.");
 		_options.addOption(_option);
+		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
+		_option.setArgs(1);
+		_option.setArgName("scope");
+		_option.setRequired(false);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -186,6 +190,10 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
+			}
+
+			if (_cl.hasOption('S')) {
+				_cli.setScopeSpecFile(_cl.getOptionValue('S'));
 			}
 
 			_cli.initialize();
@@ -291,7 +299,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			_aa.reset();
 			getBbm().reset();
 
-			_aa.analyze(new Environment(getScene()), _rm);
+			_aa.analyze(getEnvironment(), _rm);
 
 			final long _stop = System.currentTimeMillis();
 			addTimeLog("FA", _stop - _start);

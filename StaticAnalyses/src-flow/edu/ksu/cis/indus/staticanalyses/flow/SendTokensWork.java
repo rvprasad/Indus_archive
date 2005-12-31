@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.annotations.AInternalUse;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+@AInternalUse public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends AbstractTokenProcessingWork<T> {
 
 	/**
@@ -48,7 +49,7 @@ public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SY
 	 *
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
-	SendTokensWork(final N associatedNode, final T tokenSet) {
+	public SendTokensWork(final N associatedNode, final T tokenSet) {
 		super(tokenSet);
 		node = associatedNode;
 	}
@@ -63,7 +64,7 @@ public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SY
 		}
 
 		node.injectTokens(tokens);
-		
+
 		if (node instanceof AbstractFGNode) {
 			((AbstractFGNode) node).forgetSendTokensWork();
 		}

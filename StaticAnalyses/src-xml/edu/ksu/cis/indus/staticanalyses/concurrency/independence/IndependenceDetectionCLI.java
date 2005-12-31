@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -136,6 +135,11 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 		_option.setArgs(1);
 		_option.setArgName("scheme-name");
 		_options.addOption(_option);
+		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
+		_option.setArgs(1);
+		_option.setArgName("scope");
+		_option.setRequired(false);
+		_options.addOption(_option);
 
 		final CommandLineParser _parser = new GnuParser();
 
@@ -162,6 +166,10 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
+			}
+
+			if (_cl.hasOption('S')) {
+				_cli.setScopeSpecFile(_cl.getOptionValue('S'));
 			}
 
 			_cli.setClassNames(_cl.getArgList());
@@ -261,7 +269,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 		_info.put(IEscapeInfo.ID, _escapeInfo);
 
 		initialize();
-		_aa.analyze(new Environment(getScene()), getRootMethods());
+		_aa.analyze(getEnvironment(), getRootMethods());
 
 		_callGraphInfoCollector.reset();
 		_processors.clear();
