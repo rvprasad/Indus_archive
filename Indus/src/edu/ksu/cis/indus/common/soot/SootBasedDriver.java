@@ -14,9 +14,15 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.Environment;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+import org.jibx.runtime.JiBXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +75,7 @@ import soot.util.Chain;
  * <p>
  * Please refer to <code>edu.ksu.cis.indus.Constants</code> for a file-based approach to specifying these properties.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -183,6 +191,47 @@ public class SootBasedDriver {
 	private final Map<String, Long> times = new LinkedHashMap<String, Long>();
 
 	/**
+	 * Sets the name of the file containing the scope specification.
+	 *
+	 * @param scopeSpecFileName of the scope spec.
+	 */
+	protected final SpecificationBasedScopeDefinition setScopeSpecFile(final String scopeSpecFileName) {
+		SpecificationBasedScopeDefinition _result = null;
+
+		if (scopeSpecFileName != null) {
+			try {
+				final InputStream _in = new FileInputStream(scopeSpecFileName);
+				final String _contents = IOUtils.toString(_in);
+				IOUtils.closeQuietly(_in);
+				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
+			} catch (final IOException _e) {
+				final String _msg = "Error retrieved specification from " + scopeSpecFileName;
+				LOGGER.error(_msg, _e);
+
+				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
+				_i.initCause(_e);
+				throw _i;
+			} catch (final JiBXException _e) {
+				final String _msg = "JiBX failed during deserialization.";
+				LOGGER.error(_msg, _e);
+
+				final IllegalStateException _i = new IllegalStateException(_msg);
+				_i.initCause(_e);
+				throw _i;
+			}
+		} else {
+			_result = null;
+		}
+		cfgProvider.setScope(_result, getEnvironment());
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private Environment env;
+
+	/**
 	 * Creates a new Test object. This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
 	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
 	 * graph provider.
@@ -196,7 +245,7 @@ public class SootBasedDriver {
 	/**
 	 * Adds an entry into the time log of this test. The subclasses should use this method to add time logs corresponding to
 	 * each analysis they test/drive.
-	 * 
+	 *
 	 * @param name of the analysis for which the timing log is being created.
 	 * @param milliseconds taken by the analysis.
 	 * @pre name != null
@@ -207,7 +256,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Records the given classpath in intention of using it while loading classes into the scene.
-	 * 
+	 *
 	 * @param classpath to be considered.
 	 * @pre classpath != null
 	 */
@@ -217,7 +266,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the basic block graph manager used by the application.
-	 * 
+	 *
 	 * @return the basic block graph manager.
 	 * @post result != null
 	 */
@@ -227,7 +276,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the root methods in the system.
-	 * 
+	 *
 	 * @return the collection of root methods.
 	 * @post result != null
 	 */
@@ -236,19 +285,19 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * Retrieves the scene used by the application.
-	 * 
-	 * @return the scene.
+	 * Retrieves the environment used by the application.
+	 *
+	 * @return the environment.
 	 */
-	public final Scene getScene() {
-		return this.scene;
+	public final IEnvironment getEnvironment() {
+		return this.env;
 	}
 
 	/**
 	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
 	 * provides an instance of <code>ExceptionFlowSensitiveStmtGraphFactory</code> initialized to prune synchronization
 	 * related exceptions.
-	 * 
+	 *
 	 * @return an unit graph factory
 	 * @post return != null
 	 */
@@ -266,7 +315,7 @@ public class SootBasedDriver {
 	/**
 	 * Initialize the driver. Loads up the classes and sets up the scene. The given classes are loaded up as application
 	 * classes.
-	 * 
+	 *
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
 	 * @pre options != null
@@ -277,6 +326,7 @@ public class SootBasedDriver {
 		}
 		writeInfo("Loading classes....");
 		scene = loadupClassesAndCollectMains(options);
+		env = new Environment(scene);
 	}
 
 	/**
@@ -284,17 +334,17 @@ public class SootBasedDriver {
 	 */
 	public void loadupMethodBodies() {
 		final Chain _classes = Scene.v().getClasses();
-		final Iterator _i = _classes.iterator();
+		final Iterator<SootClass> _i = _classes.iterator();
 		final int _iEnd = _classes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc = (SootClass) _i.next();
+			final SootClass _sc =  _i.next();
 			final List _methods = _sc.getMethods();
-			final Iterator _j = _methods.iterator();
+			final Iterator<SootMethod> _j = _methods.iterator();
 			final int _jEnd = _methods.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final SootMethod _sm = (SootMethod) _j.next();
+				final SootMethod _sm = _j.next();
 
 				if (_sm.isConcrete()) {
 					_sm.retrieveActiveBody();
@@ -305,7 +355,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Prints the timing statistics into the given stream.
-	 * 
+	 *
 	 * @pre stream != null
 	 */
 	public final void printTimingStats() {
@@ -328,7 +378,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Set the names of the classes to be loaded.
-	 * 
+	 *
 	 * @param s contains the class names.
 	 * @pre s != null
 	 */
@@ -338,7 +388,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Sets the logger to be used to log information written via <code>writeInfo</code>.
-	 * 
+	 *
 	 * @param myLogger is the logger to be used.
 	 */
 	public final void setInfoLogger(final Logger myLogger) {
@@ -347,7 +397,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Sets the root method trapper.
-	 * 
+	 *
 	 * @param trapper to be used to trap root methods.
 	 */
 	public final void setRootMethodTrapper(final RootMethodTrapper trapper) {
@@ -357,7 +407,7 @@ public class SootBasedDriver {
 	/**
 	 * Logs the given object via the logging api. Configure the logging via the logging implementation's configuration
 	 * support.
-	 * 
+	 *
 	 * @param info to be logged.
 	 */
 	public void writeInfo(final Object info) {
@@ -372,7 +422,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Dumps jimple for the classes in the scene.
-	 * 
+	 *
 	 * @param outputDirectory is the directory in which jimple files will be dumped.
 	 * @param jimpleFile <code>true</code> indicates if .jimple file should be dumped; <code>false</code>, indicates
 	 *            otherwise.
@@ -437,7 +487,7 @@ public class SootBasedDriver {
 	 * system being analyzed. All <code>public static void main()</code> methods defined in <code>public</code> classes
 	 * that are named via <code>args</code>are considered as entry points. It uses the classpath set via
 	 * <code>addToSootClassPath</code>.
-	 * 
+	 *
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @return a soot scene that provides the classes to be analyzed.
 	 * @pre args != null and classNames != null and options != null

@@ -20,5 +20,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/nlog4j.jar"/>
 	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-io.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

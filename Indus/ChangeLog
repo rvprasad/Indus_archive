@@ -1,5 +1,10 @@
 2005-12-30 venku <venku@boss.dreamsoft.com>
 
+	* src-xml/edu/ksu/cis/indus/xmlizer/JimpleXMLizerCLI.java:
+		- used getEnvironment() instead of getScene().
+	* src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java:
+		- added support to handle scoping.
+		- changed getScene() to be getEnvironment()
 	* src/edu/ksu/cis/indus/annotations/AInternalUse.java:
 		- added a new annotation to mark entities that are intended for internal use.
 

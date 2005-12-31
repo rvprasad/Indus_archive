@@ -18,6 +18,7 @@ import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
@@ -42,7 +43,7 @@ import soot.SootClass;
 
 /**
  * This utility class can be used to xmlize jimple.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -67,7 +68,7 @@ public final class JimpleXMLizerCLI {
 
 	/**
 	 * The entry point to execute this xmlizer from command prompt.
-	 * 
+	 *
 	 * @param s is the command-line arguments.
 	 * @throws RuntimeException when jimple xmlization fails.
 	 * @pre s != null
@@ -112,7 +113,7 @@ public final class JimpleXMLizerCLI {
 						_sc.addTag(_tag);
 					}
 					final IProcessingFilter _filter = new TagBasedProcessingFilter(_tag.getName());
-					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), _filter);
+					writeJimpleAsXML(new Environment(_scene), _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), _filter);
 				} else {
 					System.out.println("No classes were specified.");
 				}
@@ -128,8 +129,8 @@ public final class JimpleXMLizerCLI {
 
 	/**
 	 * Writes the jimple in the scene via the writer.
-	 * 
-	 * @param scene in which the jimple to be dumped resides.
+	 *
+	 * @param env in which the jimple to be dumped resides.
 	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad
 	 *            output.
 	 * @param suffix to be appended each file name. If <code>null</code>, no suffix is appended.
@@ -137,16 +138,15 @@ public final class JimpleXMLizerCLI {
 	 * @param processingFilter to be used to control the parts of the system that should be jimplified.
 	 * @pre scene != null and jimpleIDGenerator != null
 	 */
-	public static void writeJimpleAsXML(final Scene scene, final String directory, final String suffix,
+	public static void writeJimpleAsXML(final IEnvironment env, final String directory, final String suffix,
 			final IJimpleIDGenerator jimpleIDGenerator, final IProcessingFilter processingFilter) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
-		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
 		final IStmtGraphFactory _sgf = new CompleteStmtGraphFactory();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(_sgf);
 		_pc.setStmtSequencesRetriever(_ssr);
-		_pc.setEnvironment(_env);
+		_pc.setEnvironment(env);
 
 		final XMLizingProcessingFilter _xmlFilter = new XMLizingProcessingFilter();
 
@@ -162,7 +162,7 @@ public final class JimpleXMLizerCLI {
 
 	/**
 	 * Prints the help/usage info for this class.
-	 * 
+	 *
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
