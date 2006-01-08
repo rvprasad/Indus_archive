@@ -10,7 +10,8 @@
  *     SAnToS Laboratory
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
- */package edu.ksu.cis.indus.common.collections;
+ */
+package edu.ksu.cis.indus.common.collections;
 
 /**
  * DOCUMENT ME!
