@@ -34,7 +34,7 @@ public interface ISliceCriteriaPredicate<T>
 	 * @return <code>true</code> if
 	 * @pre entity != null and slicer != null
 	 */
-	boolean evaluate(final T entity);
+	<T1 extends T> boolean evaluate(final T1 entity);
 
 	/**
 	 * Sets the slicer tool in conjunction of which this filter is being used.
