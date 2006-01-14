@@ -44,7 +44,7 @@ import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class represents the basic block graph for a given method.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -54,7 +54,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * This class represents a basic block in a method.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -74,7 +74,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * The list of statements represented by this block.
-		 * 
+		 *
 		 */
 		private final List<Stmt> stmts;
 
@@ -85,7 +85,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Creates a new BasicBlock object.
-		 * 
+		 *
 		 * @param stmtsParam is the list of statements being represented by this block.
 		 * @param isAnExitBlock indicates if the trailer statement of this basic block may cause an exception that will result
 		 *            in the control exiting the graph.
@@ -102,7 +102,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statement at the leader position.
-		 * 
+		 *
 		 * @return the leader statement. <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getLeaderStmt() {
@@ -111,7 +111,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statements in this block starting from <code>start</code>.
-		 * 
+		 *
 		 * @param start is the statement starting from which the statements are requested.
 		 * @return a modifiable list of <code>Stmt</code>s.
 		 * @post result != null
@@ -124,7 +124,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code> (inclusive).
-		 * 
+		 *
 		 * @param start is the starting statement of the requested statement list.
 		 * @param end is the ending statement of the requested statement list.
 		 * @return a modifiable list of <code>Stmt</code>s.
@@ -152,7 +152,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statements in this block .
-		 * 
+		 *
 		 * @return an unmodifiable list of statements.
 		 */
 		public List<Stmt> getStmtsOf() {
@@ -161,7 +161,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Returns the trailer statement of this basic block.
-		 * 
+		 *
 		 * @return the trailer statement. <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getTrailerStmt() {
@@ -170,7 +170,7 @@ public final class BasicBlockGraph
 
 		/**
 		 * Checks if the trailer statement of this basic block may cause the control to exit the graph.
-		 * 
+		 *
 		 * @return <code>true</code> if the trailer statement of this basic block may cause the control to exit the graph;
 		 *         <code>false</code>, otherwise.
 		 */
@@ -193,7 +193,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * The list of statements in the method being represented by this graph.
-	 * 
+	 *
 	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
 	final List<Stmt> stmtList;
@@ -210,7 +210,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param theStmtGraph that will be represented by this basic block graph.
 	 * @param method that is being represented by this graph. <i>This is required only if exception flow based basic block
 	 *            graph is required.</i>
@@ -253,7 +253,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retreives the statements occurring in the given basic blocks.
-	 * 
+	 *
 	 * @param basicBlocks of interest.
 	 * @return a collection of statements
 	 * @pre basicBlocks != null
@@ -273,7 +273,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retreives the basic blocks in which the given statements occur.
-	 * 
+	 *
 	 * @param stmts of interest.
 	 * @return a collection of basic blocks
 	 * @pre stmts != null
@@ -302,7 +302,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retrieve the basic block enclosing the given statement.
-	 * 
+	 *
 	 * @param stmt is the statement of interest.
 	 * @return the basic block enclosing the statement.
 	 * @pre stmt != null
@@ -313,9 +313,9 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retrieves the basic blocks at which the exception handlers begin.
-	 * 
+	 *
 	 * @return the exception handler basic blocks.
-	 * @post result != null 
+	 * @post result != null
 	 */
 	public Collection<BasicBlock> getHandlerBlocks() {
 		Collection<BasicBlock> _handlerBlocks;
@@ -348,7 +348,7 @@ public final class BasicBlockGraph
 	 * <code>while</code> loop whose index variable is a field of the enclosing class. In this case, the first statement in
 	 * the method body does have a predecessor, hence, there can be no "head" as defined for graphs.
 	 * </p>
-	 * 
+	 *
 	 * @return the head node
 	 */
 	public BasicBlock getHead() {
@@ -374,7 +374,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retrieves the statement graph represented by this basic block graph.
-	 * 
+	 *
 	 * @return the statement graph.
 	 * @post result != null
 	 */
@@ -392,7 +392,7 @@ public final class BasicBlockGraph
 	/**
 	 * Retrieves the statements of the basic block being processed. <code>stmts</code> is filled with the statements that
 	 * form the current basic block graph.
-	 * 
+	 *
 	 * @param leaderStmt from which the rest of the basic block body should be discovered.
 	 * @param wb is the workbag into which new leader statement is added.
 	 * @param stmts will contain the statements that make up the current basic block graph.
@@ -456,12 +456,12 @@ public final class BasicBlockGraph
 	 */
 	private void setupGraph() {
 		// Connect the nodes of the graph.
-		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
-			final BasicBlock _block = (BasicBlock) _i.next();
+		for (final Iterator<BasicBlock> _i = getNodes().iterator(); _i.hasNext();) {
+			final BasicBlock _block = _i.next();
 			final Stmt _stmt = _block.getTrailerStmt();
 
-			for (final Iterator _j = stmtGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
-				final Stmt _succ = (Stmt) _j.next();
+			for (final Iterator<Stmt> _j = stmtGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+				final Stmt _succ = _j.next();
 				final BasicBlock _succBlock = getEnclosingBlock(_succ);
 
 				if (_succBlock != null) {

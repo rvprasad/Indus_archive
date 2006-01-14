@@ -118,8 +118,8 @@ public final class LocalUseDefAnalysis
 	public Collection<DefinitionStmt> getDefs(final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
 		final Collection<DefinitionStmt> _result = new HashSet<DefinitionStmt>();
 
-		for (final Iterator _i = useStmt.getUseBoxes().iterator(); _i.hasNext();) {
-			final ValueBox _vb = (ValueBox) _i.next();
+		for (final Iterator<ValueBox> _i = useStmt.getUseBoxes().iterator(); _i.hasNext();) {
+			final ValueBox _vb = _i.next();
 			final Value _value = _vb.getValue();
 
 			if (_value instanceof Local) {
@@ -174,7 +174,7 @@ public final class LocalUseDefAnalysis
 		while (_wb.hasWork()) {
 			final Stmt _stmt = _wb.getWork();
 			final BitSet[] _defsAtStmt = local2defs[stmtList.indexOf(_stmt)];
-			final Collection _localIndices = _stmt2localIndices.get(_stmt);
+			final Collection<Integer> _localIndices = _stmt2localIndices.get(_stmt);
 
 			// if the current statement is a def stmt then remove the index of the local being killed via definition
 			if (_stmt instanceof DefinitionStmt) {
@@ -186,8 +186,8 @@ public final class LocalUseDefAnalysis
 			}
 
 			// propagate the local defs to the successors
-			for (final Iterator _i = _localIndices.iterator(); _i.hasNext();) {
-				final Integer _localIndexValue = (Integer) _i.next();
+			for (final Iterator<Integer> _i = _localIndices.iterator(); _i.hasNext();) {
+				final Integer _localIndexValue = _i.next();
 				final int _localIndex = _localIndexValue.intValue();
 				final BitSet _defsOfLocalAtStmt = _defsAtStmt[_localIndex];
 
@@ -232,8 +232,8 @@ public final class LocalUseDefAnalysis
 			final int _stmtIndex = stmtList.indexOf(_stmt);
 			final BitSet[] _stmtDefSet = local2defs[_stmtIndex];
 
-			for (final Iterator _j = _stmt.getUseBoxes().iterator(); _j.hasNext();) {
-				final ValueBox _ub = (ValueBox) _j.next();
+			for (final Iterator<ValueBox> _j = _stmt.getUseBoxes().iterator(); _j.hasNext();) {
+				final ValueBox _ub = _j.next();
 
 				if (_ub.getValue() instanceof Local) {
 					final Local _local = (Local) _ub.getValue();
