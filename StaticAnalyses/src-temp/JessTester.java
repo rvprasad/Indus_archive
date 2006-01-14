@@ -477,10 +477,15 @@ public class JessTester {
 	private void processMethod(final SootMethod method) {
 		sm = method;
 		if (method.isConcrete()) {
-			System.out.println("MProcessing" + ++methodCount + ") " + method.getSignature());
+			System.out.println("MProcessing " + ++methodCount + ") " + method.getSignature());
 			for (final Object _except : method.getExceptions()) {
-				addClassForProcessing(((RefType)_except).getSootClass());
+				addClassForProcessing((SootClass)_except);
 			}
+
+			if (Util.isStartMethod(method)) {
+				Util.fixupThreadStartBody(scene);
+			}
+
 			final Collection<Stmt> _stmts = sm.retrieveActiveBody().getUnits();
 			for (final Iterator<Stmt> _k = _stmts.iterator(); _k.hasNext();) {
 				final Stmt _stmt = _k.next();
@@ -589,7 +594,7 @@ public class JessTester {
 			rete.executeCommand("(defrule expansionRule ?fact <- (pointsto (lhs ?a) (rhs ?b) (invocationSite ?c) (index -1))"
 					+ "=> (if (or (or (or (instanceof ?b soot.jimple.NewExpr) (instanceof ?b soot.jimple.NewArrayExpr)) "
 					+ "(instanceof ?b soot.jimple.NewMultiArrayExpr)) (instanceof ?b soot.jimple.StringConstant)) then "
-					+ "(printout t (?a toString) (?b toString)) (call (fetch Engine) resolveInvocation ?b ?c)))");
+					+ "(call (fetch Engine) resolveInvocation ?b ?c)))");
 
 			for (final String _className : classes) {
 				sc = scene.getSootClass(_className);
