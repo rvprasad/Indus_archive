@@ -114,6 +114,12 @@ public final class CallGraphInfo
 	}
 
 	/**
+	 * The constant that controls the connectivity cache size.   This constant ensures that the cache is large enough to
+	 * store all mappings under the assumption that every method is called at most 3 times.
+	 */
+	private static final int CONNECTIVITY_CACHE_SIZE = Constants.getNumOfMethodsInApplication() * 3;
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphInfo.class);
@@ -122,6 +128,13 @@ public final class CallGraphInfo
 	 * This maps callees to callers.
 	 */
 	private final Map<SootMethod, Collection<CallTriple>> callee2callers = new HashMap<SootMethod, Collection<CallTriple>>();
+
+	/**
+	 * This cache stores callee to call-site reachability information.  The cache is large enough to store all mappings under
+	 * the assumption that every method is called at most 3 times.
+	 */
+	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
+			CONNECTIVITY_CACHE_SIZE);
 
 	/**
 	 * This maps callers to callees.
@@ -171,13 +184,6 @@ public final class CallGraphInfo
 	 * The collection of SCCs in this call graph in top-down direction.
 	 */
 	private WeakReference<List<List<SootMethod>>> topDownSCC;
-
-	/**
-	 * This cache stores callee to call-site reachability information.  The cache is large enough to store all mappings under
-	 * the assumption that every method is called at most 3 times.
-	 */
-	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
-			Constants.getNumOfMethodsInApplication() * 3);
 
 	/**
 	 * Creates a new CallGraphInfo object.
@@ -619,7 +625,7 @@ public final class CallGraphInfo
 			}
 		}
 
-		graphCache.setConnectivityCacheSize(Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
+		graphCache.setConnectivityCacheSize(CONNECTIVITY_CACHE_SIZE);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Call Graph : " + toString());

@@ -18,7 +18,7 @@ import edu.ksu.cis.indus.processing.Context;
 
 /**
  * This class adds support allocation site sensitive information to be captured in a context.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -48,7 +48,7 @@ public class AllocationContext
 
 	/**
 	 * Checks if <code>o</code> is equal to this object.
-	 * 
+	 *
 	 * @param o to be checked for equality.
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
@@ -57,15 +57,14 @@ public class AllocationContext
 
 		if (o != null && o instanceof AllocationContext) {
 			final AllocationContext _c = (AllocationContext) o;
-			_result = (this == o) || (allocationSite == _c.allocationSite)
-					|| ((allocationSite != null) && allocationSite.equals(_c.allocationSite));
+			_result = (this == o) || (allocationSite == _c.allocationSite);
 		}
 		return _result && super.equals(o);
 	}
 
 	/**
 	 * Returns the allocation site in this context.
-	 * 
+	 *
 	 * @return the allocation site in this context.
 	 */
 	public Object getAllocationSite() {
@@ -74,7 +73,7 @@ public class AllocationContext
 
 	/**
 	 * Returns the hash code of this object based on the allocation site and other context constituents.
-	 * 
+	 *
 	 * @return the hash code.
 	 */
 	@Override public int hashCode() {
@@ -89,7 +88,7 @@ public class AllocationContext
 
 	/**
 	 * Sets the allocation site in this context.
-	 * 
+	 *
 	 * @param site the allocation site in this context.
 	 * @return the allocation site previously represented by this context.
 	 */

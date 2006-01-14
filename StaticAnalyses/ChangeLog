@@ -1,5 +1,10 @@
 2006-01-14 venku <venku@boss.dreamsoft.com>
 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/modes/sensitive/allocation/AllocationContext.java: 
+		- comparison based on referential equality improves accuracy.
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphInfo.java: 
+		- caching was overestimated for graphCache. This has been fixed.
+
 	* src/edu/ksu/cis/indus/staticanalyses/cfg/LocalUseDefAnalysisv2.java: 
 		- Java 5 adoption.
 		- Due to a bug in Soot, "r78=@caughtException" statement in java.lang.reflect.Proxy#getProxyClass() is not 
