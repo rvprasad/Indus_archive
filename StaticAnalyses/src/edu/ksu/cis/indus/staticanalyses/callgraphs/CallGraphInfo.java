@@ -173,11 +173,11 @@ public final class CallGraphInfo
 	private WeakReference<List<List<SootMethod>>> topDownSCC;
 
 	/**
-	 * This cache stores callee to call-site reachability information.  The cache is large enough to store 10% of the
-	 * connections occurring under worst-case connectivity (n*n/10) scenario.
+	 * This cache stores callee to call-site reachability information.  The cache is large enough to store all mappings under
+	 * the assumption that every method is called at most 3 times.
 	 */
 	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
-			Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication() / 10);
+			Constants.getNumOfMethodsInApplication() * 3);
 
 	/**
 	 * Creates a new CallGraphInfo object.

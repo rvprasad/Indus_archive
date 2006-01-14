@@ -1,3 +1,14 @@
+2006-01-14 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/LocalUseDefAnalysisv2.java: 
+		- Java 5 adoption.
+		- Due to a bug in Soot, "r78=@caughtException" statement in java.lang.reflect.Proxy#getProxyClass() is not 
+		included in a basic block.  For this reason, we need to handle this condition and produce a warning when 
+		appropriate.
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphInfo.java (calleeCallSiteReachabilityCache): 
+		- changed the cache size to be sufficient to hold all mappings under the assumption that each method will be 
+		called at most 3 times.
+
 2006-01-13 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphInfo.java: 

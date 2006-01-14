@@ -320,16 +320,22 @@ public final class LocalUseDefAnalysisv2
 			final Map<DefinitionStmt, Local> defStmt2local) {
 		final Collection<BasicBlock> _defBBs = new HashSet<BasicBlock>();
 
-		for (final Iterator _i = bbGraph.getStmtGraph().iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
+		for (final Iterator<Stmt> _i = bbGraph.getStmtGraph().iterator(); _i.hasNext();) {
+			final Stmt _stmt = _i.next();
 
 			if (_stmt instanceof DefinitionStmt) {
 				final DefinitionStmt _defStmt = (DefinitionStmt) _stmt;
 				final Value _leftOp = _defStmt.getLeftOp();
 
 				if (_leftOp instanceof Local) {
-					_defBBs.add(bbGraph.getEnclosingBlock(_defStmt));
-					defStmt2local.put(_defStmt, (Local) _leftOp);
+					final BasicBlock _enclosingBlock = bbGraph.getEnclosingBlock(_defStmt);
+					if (_enclosingBlock != null) {
+						_defBBs.add(_enclosingBlock);
+						defStmt2local.put(_defStmt, (Local) _leftOp);
+					} else if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn(_defStmt + " in " + bbGraph.getStmtGraph().getBody().getMethod() + " is not enclosed "
+								+ "by a basic block!");
+					}
 				}
 			}
 		}
@@ -341,12 +347,12 @@ public final class LocalUseDefAnalysisv2
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final BasicBlock _bb = _i.next();
-			final List _stmtsOf = _bb.getStmtsOf();
-			final Iterator _j = _stmtsOf.iterator();
+			final List<Stmt> _stmtsOf = _bb.getStmtsOf();
+			final Iterator<Stmt> _j = _stmtsOf.iterator();
 			final int _jEnd = _stmtsOf.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stmt _stmt = (Stmt) _j.next();
+				final Stmt _stmt = _j.next();
 
 				if (_stmt instanceof DefinitionStmt) {
 					final DefinitionStmt _defStmt = (DefinitionStmt) _stmt;
