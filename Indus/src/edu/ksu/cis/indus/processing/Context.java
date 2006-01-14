@@ -36,23 +36,23 @@ import soot.jimple.Stmt;
  */
 public class Context
   implements Cloneable {
-	/** 
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
-	/** 
+	/**
 	 * The call-stack sensitive component of the context.  This is relevant in call-site sensitive mode of analysis.
 	 */
 	protected Stack<SootMethod> callString;
 
-	/** 
+	/**
 	 * The statement component of the context.  This component can be used when the entity associated with the context is an
 	 * expression.
 	 */
 	protected Stmt stmt;
 
-	/** 
+	/**
 	 * The program point component of the context.  This is relevant in the flow-sensitive mode of analysis.
 	 */
 	protected ValueBox progPoint;
@@ -192,11 +192,10 @@ public class Context
 
 		if (o != null && o instanceof Context) {
 			final Context _temp = (Context) o;
-			_ret =
-				(this == o) || (progPoint == _temp.progPoint) || ((progPoint != null) && progPoint.equals(_temp.progPoint));
+			_ret = (this == o) || (progPoint == _temp.progPoint);
 
 			if (_ret) {
-				_ret = (stmt == _temp.stmt) || ((stmt != null) && stmt.equals(_temp.stmt));
+				_ret = stmt == _temp.stmt;
 
 				if (_ret) {
 					_ret = (callString == _temp.callString) || ((callString != null) && callString.equals(_temp.callString));
