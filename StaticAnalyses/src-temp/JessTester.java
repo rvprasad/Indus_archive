@@ -10,6 +10,8 @@ import jess.RU;
 import jess.Rete;
 import jess.Value;
 
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 
@@ -182,7 +184,7 @@ public class JessTester {
 		 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
 		 */
 		public void caseLocal(final Local l) {
-			processType(l.getType());
+			addTypeForProcessing(l.getType());
 			value = new Value(l);
 		}
 
@@ -190,7 +192,7 @@ public class JessTester {
 		 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
 		 */
 		public void caseNewArrayExpr(final NewArrayExpr v) {
-			processType(((ArrayType)v.getType()).getElementType());
+			addTypeForProcessing(((ArrayType)v.getType()).getElementType());
 			value = new Value(v);
 		}
 
@@ -198,7 +200,7 @@ public class JessTester {
 		 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 		 */
 		public void caseNewExpr(final NewExpr v) {
-			processType(v.getType());
+			addTypeForProcessing(v.getType());
 			value = new Value(v);
 		}
 
@@ -206,7 +208,7 @@ public class JessTester {
 		 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 		 */
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
-			processType(((ArrayType)v.getType()).getElementType());
+			addTypeForProcessing(((ArrayType)v.getType()).getElementType());
 			value = new Value(v);
 		}
 
@@ -247,7 +249,7 @@ public class JessTester {
 			try {
 				for (int i = 0; i < v.getMethod().getParameterCount(); i++) {
 					if (v.getArg(i).getType() instanceof RefType) {
-						processType(v.getArg(i).getType());
+						addTypeForProcessing(v.getArg(i).getType());
 
 						final Fact fact = new Fact(rete.findDeftemplate("pointsto"));
 						fact.setSlotValue("lhs", new Value(v.getMethod().getSignature() + "+" + i));
@@ -257,14 +259,14 @@ public class JessTester {
 					}
 				}
 
-				processClass(v.getMethod().getDeclaringClass());
+				addClassForProcessing(v.getMethod().getDeclaringClass());
 
 				if (v.getMethod().getReturnType() instanceof RefType) {
-					processType(v.getMethod().getReturnType());
+					addTypeForProcessing(v.getMethod().getReturnType());
 					value = new Value(v.getMethod().getSignature() + "+returnCaller");
 				}
 
-				processMethod(v.getMethod());
+				addMethodForProcessing(v.getMethod());
 			} catch (JessException _e) {
 				_e.printStackTrace();
 				throw new RuntimeException(_e);
@@ -276,7 +278,7 @@ public class JessTester {
 		 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
 		 */
 		public void caseStringConstant(final StringConstant v) {
-			processType(v.getType());
+			addTypeForProcessing(v.getType());
 			final String _string = v.value;
 			_string.intern();
 			value = new Value(_string);
@@ -305,7 +307,7 @@ public class JessTester {
 			try {
 				for (int i = 0; i < v.getMethod().getParameterCount(); i++) {
 					if (v.getArg(i).getType() instanceof RefType) {
-						processType(v.getArg(i).getType());
+						addTypeForProcessing(v.getArg(i).getType());
 						final Fact fact = new Fact(rete.findDeftemplate("pointsto"));
 						fact.setSlotValue("lhs", new Value(v.getMethod().getSignature() + "+" + i));
 						v.getArg(i).apply(this);
@@ -324,10 +326,10 @@ public class JessTester {
 				fact1.setSlotValue("index", new Value(-1, RU.INTEGER));
 				rete.assertFact(fact1);
 
-				processClass(v.getMethod().getDeclaringClass());
+				addClassForProcessing(v.getMethod().getDeclaringClass());
 
 				if (v.getMethod().getReturnType() instanceof RefType) {
-					processType(v.getMethod().getReturnType());
+					addTypeForProcessing(v.getMethod().getReturnType());
 					value = new Value(v.getMethod().getSignature() + "+returnCaller");
 				}
 			} catch (JessException _e) {
@@ -356,9 +358,9 @@ public class JessTester {
 
 	private int methodCount = 0;
 
-	private final Collection<SootMethod> processedMethods = new HashSet<SootMethod>();
+	final IWorkBag<SootMethod> methodsWorkBag = new HistoryAwareFIFOWorkBag<SootMethod>(new HashSet<SootMethod>());
 
-	private final Collection<Type> processedTypes = new HashSet<Type>();
+	final IWorkBag<SootClass> typesWorkBag = new HistoryAwareFIFOWorkBag<SootClass>(new HashSet<SootClass>());
 
 	private final JimpleStmtSwitch sSwitch = new JimpleStmtSwitch();
 
@@ -429,51 +431,87 @@ public class JessTester {
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param clazz
+	 * @param type DOCUMENT ME!
 	 */
-	void processClass(final SootClass clazz) {
-		if (clazz.declaresMethodByName("<clinit>")) {
-			processMethod(clazz.getMethodByName("<clinit>"));
-		}
-	}
-
-	void processMethod(final SootMethod method) {
-		sm = method;
-		if (!processedMethods.contains(method)) {
-			processedMethods.add(method);
-			if (method.isConcrete()) {
-				System.out.println("Processing " + ++methodCount + ") " + method.getSignature());
-				final Collection<Stmt> _stmts = sm.retrieveActiveBody().getUnits();
-				for (final Iterator<Stmt> _k = _stmts.iterator(); _k.hasNext();) {
-					final Stmt _stmt = _k.next();
-					_stmt.apply(sSwitch);
-				}
-			}
+	void addTypeForProcessing(final Type type) {
+		if (type instanceof RefType) {
+			typesWorkBag.addWorkNoDuplicates(((RefType)type).getSootClass());
 		}
 	}
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param type
+	 * @param clazz DOCUMENT ME!
 	 */
-	void processType(final Type type) {
-		if (type instanceof RefType && !processedTypes.contains(type)) {
-			processedTypes.add(type);
-			final RefType _t = (RefType) type;
-			final SootClass _sc = _t.getSootClass();
-			processClass(_sc);
-			System.out.println("Processing " + ++classCount  + ") " + _sc);
-			for (final Object _super : _sc.getInterfaces()) {
-				processClass((SootClass) _super);
+	void addClassForProcessing(final SootClass clazz) {
+		typesWorkBag.addWorkNoDuplicates(clazz);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method DOCUMENT ME!
+	 */
+	void addMethodForProcessing(final SootMethod method) {
+		methodsWorkBag.addWorkNoDuplicates(method);
+	}
+
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param clazz DOCUMENT ME!
+	 */
+	private void processClassInitializer(final SootClass clazz) {
+		if (clazz.declaresMethodByName("<clinit>")) {
+			processMethod(clazz.getMethodByName("<clinit>"));
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method DOCUMENT ME!
+	 */
+	private void processMethod(final SootMethod method) {
+		sm = method;
+		if (method.isConcrete()) {
+			System.out.println("MProcessing" + ++methodCount + ") " + method.getSignature());
+			for (final Object _except : method.getExceptions()) {
+				addClassForProcessing(((RefType)_except).getSootClass());
 			}
-			if (_sc.hasSuperclass()) {
-				processClass(_sc.getSuperclass());
+			final Collection<Stmt> _stmts = sm.retrieveActiveBody().getUnits();
+			for (final Iterator<Stmt> _k = _stmts.iterator(); _k.hasNext();) {
+				final Stmt _stmt = _k.next();
+				_stmt.apply(sSwitch);
 			}
 		}
 	}
 
-	public void processMethod(final Object v, final InstanceInvokeExpr e) {
+	/**
+	 * DOCUMENT ME!
+	 * @param clazz DOCUMENT ME!
+	 */
+	private void processClass(final SootClass clazz) {
+		classCount++;
+		System.out.println("CProcessing " + classCount  + ") " + clazz);
+		processClassInitializer(clazz);
+		for (final Object _super : clazz.getInterfaces()) {
+			addClassForProcessing((SootClass) _super);
+		}
+		if (clazz.hasSuperclass()) {
+			addClassForProcessing(clazz.getSuperclass());
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param e DOCUMENT ME!
+	 */
+	public void resolveInvocation(final Object v, final InstanceInvokeExpr e) {
 		final SootClass _sc;
 		if (v instanceof NewExpr) {
 			_sc = ((NewExpr) v).getBaseType().getSootClass();
@@ -485,7 +523,7 @@ public class JessTester {
 			throw new RuntimeException("Inappropriate type at receiver site - " + e + " -- " + v);
 		}
 		try {
-			processMethod(Util.findDeclaringMethod(_sc, e.getMethod()));
+			addMethodForProcessing(Util.findDeclaringMethod(_sc, e.getMethod()));
 		} catch (IllegalStateException _e) {
 			System.out.println(":-( Failed!! " + e + " -- " + v);
 			_e.printStackTrace();
@@ -494,9 +532,9 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
+	 * @param classes DOCUMENT ME!
 	 */
 	private void processScene(final Collection<String> classes) {
-		int count = 0;
 		try {
 			rete.store("Engine", this);
 			rete.executeCommand("(watch rules)");
@@ -551,15 +589,28 @@ public class JessTester {
 			rete.executeCommand("(defrule expansionRule ?fact <- (pointsto (lhs ?a) (rhs ?b) (invocationSite ?c) (index -1))"
 					+ "=> (if (or (or (or (instanceof ?b soot.jimple.NewExpr) (instanceof ?b soot.jimple.NewArrayExpr)) "
 					+ "(instanceof ?b soot.jimple.NewMultiArrayExpr)) (instanceof ?b soot.jimple.StringConstant)) then "
-					+ "(printout t (?a toString) (?b toString)) (call (fetch Engine) processMethod ?b ?c)))");
+					+ "(printout t (?a toString) (?b toString)) (call (fetch Engine) resolveInvocation ?b ?c)))");
+
 			for (final String _className : classes) {
 				sc = scene.getSootClass(_className);
+				addClassForProcessing(sc);
 				for (final Iterator<SootMethod> _j = sc.getMethods().iterator(); _j.hasNext();) {
-					processMethod(_j.next());
-					System.out.println("Processing " + ++count + ") " + sm.getSignature());
+					addMethodForProcessing(_j.next());
+				}
+			}
+
+			while (typesWorkBag.hasWork() || methodsWorkBag.hasWork()) {
+				while (typesWorkBag.hasWork()) {
+					processClass(typesWorkBag.getWork());
+				}
+				while (methodsWorkBag.hasWork()) {
+					processMethod(methodsWorkBag.getWork());
 				}
 				rete.run();
 			}
+
+			rete.run();
+
 			final StringWriter _sw = new StringWriter();
 			rete.ppFacts(_sw);
 			System.out.println(_sw.toString());
