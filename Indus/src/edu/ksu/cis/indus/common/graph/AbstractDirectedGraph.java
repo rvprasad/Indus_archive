@@ -49,7 +49,7 @@ import java.util.Set;
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code>. The subclasses are responsible for
  * maintaining the collection of nodes that make up this graph.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -70,7 +70,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed discover time of the nodes in this graph.
-	 * 
+	 *
 	 * @invariant discoverTimes.size = getNodes().size()
 	 * @invariant discoverTimes->forall(o | o > 0)
 	 */
@@ -105,7 +105,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed finish time of the nodes in this graph.
-	 * 
+	 *
 	 * @invariant finishTimes.size = getNodes().size()
 	 * @invariant finishTimes->forall(o | o > 0)
 	 */
@@ -143,7 +143,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of sink nodes in the graph.
-	 * 
+	 *
 	 * @invariant sinks->forall(o | o.getSuccsOf().size() = 0)
 	 */
 	private final Collection<N> sinks = new HashSet<N>();
@@ -155,7 +155,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of source nodes in the graph.
-	 * 
+	 *
 	 * @invariant sinks->forall(o | o.getPredsOf().size() = 0)
 	 */
 	private final Collection<N> sources = new HashSet<N>();
@@ -172,7 +172,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This maps a node to it's spanning successor nodes.
-	 * 
+	 *
 	 * @invariant getNodes().containsAll(spanningSuccs.keySet())
 	 * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
@@ -181,13 +181,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * DOCUMENT ME!
 	 */
-	private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(
-			5000);
+	private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(50);
 
 	/**
 	 * Finds cycles in the given set of nodes. This implementation is <i>exponential</i> in the number of cycles in the the
 	 * nodes.
-	 * 
+	 *
 	 * @param <T> the type of the given nodes.
 	 * @param nodes in which to search for cycles.
 	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
@@ -231,7 +230,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds SCCs in the given nodes.
-	 * 
+	 *
 	 * @param <T> the type of the given nodes.
 	 * @param nodes of interest.
 	 * @return a collection of sccs
@@ -268,7 +267,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates SCC according to the algorithm in Udi Manber's book.
-	 * 
+	 *
 	 * @param nodes of interest.
 	 * @param node2srd maps nodes to an instance of <code>SCCRelatedData</code>.
 	 * @param node to be explored.
@@ -326,7 +325,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Checks if the given cycle has been recorded.
-	 * 
+	 *
 	 * @param <T> the type of nodes being processed.
 	 * @param newCycle is the cycle being checked for if it is recorded.
 	 * @param cycles is the collection of recorded cycles.
@@ -355,7 +354,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds cycles containing only the given SCC.
-	 * 
+	 *
 	 * @param <T> DOCUMENT ME!
 	 * @param scc in which the cycles should be detected.
 	 * @param backedges is the back edges only between the given set of nodes.
@@ -436,7 +435,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates the finish times for the nodes of this graph.
-	 * 
+	 *
 	 * @param <T> the type of the node.
 	 * @param node to start dfs from.
 	 * @param processed are the nodes processed during dfs.
@@ -466,7 +465,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Gets immediate successors that occur in nodes and are not reachable via the given edges.
-	 * 
+	 *
 	 * @param node whose successors are required.
 	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result when the source node is
 	 *            same as <code>node</code>.
@@ -523,9 +522,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#getCommonReachablesFrom(INode, boolean, INode, boolean)
 	 */
 	public Collection<N> getCommonReachablesFrom(final N node1, final boolean forward1, final N node2, final boolean forward2) {
-		if (!reachability) {
-			calculateReachabilityInfo();
-		}
+		calculateReachabilityInfo();
 
 		final Collection<N> _result;
 		final BitSet _n1;
@@ -606,9 +603,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#hasCommonReachablesFrom(INode, boolean, INode, boolean)
 	 */
 	public boolean hasCommonReachablesFrom(N node1, boolean forward1, N node2, boolean forward2) {
-		if (!reachability) {
-			calculateReachabilityInfo();
-		}
+		calculateReachabilityInfo();
 
 		final BitSet _n1;
 		final BitSet _n2;
@@ -708,9 +703,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
 	 */
 	public final Collection<N> getReachablesFrom(final N root, final boolean forward) {
-		if (!reachability) {
-			calculateReachabilityInfo();
-		}
+		calculateReachabilityInfo();
 
 		final BitSet _matrix;
 
@@ -734,39 +727,39 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	public final List<List<N>> getSCCs(final boolean topDown) {
 		if (!hasSCC) {
-			final List<N> _nodes = getNodes();
-			final Collection<List<N>> _sccs = findSCCs(_nodes);
-			final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
-			final SimpleNodeGraphBuilder<List<N>> _sngb = new SimpleNodeGraphBuilder<List<N>>();
-			_sngb.createGraph();
+		final List<N> _nodes = getNodes();
+		final Collection<List<N>> _sccs = findSCCs(_nodes);
+		final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
+		final SimpleNodeGraphBuilder<List<N>> _sngb = new SimpleNodeGraphBuilder<List<N>>();
+		_sngb.createGraph();
 
-			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
-				final List<N> _scc = _i.next();
-				_sngb.createNode(_scc);
+		for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+			final List<N> _scc = _i.next();
+			_sngb.createNode(_scc);
 
-				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
-					final N _n = _j.next();
-					_node2scc.put(_n, _scc);
-				}
+			for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+				final N _n = _j.next();
+				_node2scc.put(_n, _scc);
 			}
+		}
 
-			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
-				final List<N> _scc = _i.next();
+		for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+			final List<N> _scc = _i.next();
 
-				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
-					final N _n = _j.next();
-					for (final Iterator<N> _k = _n.getSuccsOf().iterator(); _k.hasNext();) {
-						final N _succ = _k.next();
-						if (!_scc.contains(_succ)) {
-							_sngb.addEdgeFromTo(_scc, _node2scc.get(_succ));
-						}
+			for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+				final N _n = _j.next();
+				for (final Iterator<N> _k = _n.getSuccsOf().iterator(); _k.hasNext();) {
+					final N _succ = _k.next();
+					if (!_scc.contains(_succ)) {
+						_sngb.addEdgeFromTo(_scc, _node2scc.get(_succ));
 					}
 				}
 			}
+		}
 
-			_sngb.finishBuilding();
-			final IObjectDirectedGraph<SimpleNode<List<N>>, List<N>> _sng = _sngb.getBuiltGraph();
-			final List<SimpleNode<List<N>>> _r = _sng.performTopologicalSort(true);
+		_sngb.finishBuilding();
+		final IObjectDirectedGraph<SimpleNode<List<N>>, List<N>> _sng = _sngb.getBuiltGraph();
+		final List<SimpleNode<List<N>>> _r = _sng.performTopologicalSort(true);
 			scc = CollectionUtils.collect(_r, _sng.getObjectExtractor());
 			hasSCC = true;
 		}
@@ -884,9 +877,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
 	 */
 	public final boolean isReachable(final N src, final N dest, final boolean forward) {
-		if (!reachability) {
-			calculateReachabilityInfo();
-		}
+		calculateReachabilityInfo();
 
 		final BitSet[] _matrix;
 
@@ -971,7 +962,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the index of the given node in the list of nodes of this graph. This implementation will return the value of
 	 * <code>getNodes().indexOf(node)</code>. However, subclasses are free to implement this in an optimal manner.
-	 * 
+	 *
 	 * @param node for which the index is requested.
 	 * @return the index of the node in the list of nodes.
 	 * @post result = getNodes().indexOf(node)
@@ -997,53 +988,57 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * Calculates reachability information for this graph.
 	 */
 	private void calculateReachabilityInfo() {
-		final List<N> _nodes = getNodes();
-		final int _noOfNodes = _nodes.size();
-		forwardReachabilityMatrix = new BitSet[_noOfNodes];
-		backwardReachabilityMatrix = new BitSet[_noOfNodes];
+		if (!reachability) {
+			final List<N> _nodes = getNodes();
+			final int _noOfNodes = _nodes.size();
+			forwardReachabilityMatrix = new BitSet[_noOfNodes];
+			backwardReachabilityMatrix = new BitSet[_noOfNodes];
 
-		for (final List<N> _scc : getSCCs(true)) {
-			final BitSet _f = new BitSet(_noOfNodes);
-			final BitSet _b = new BitSet(_noOfNodes);
-			for (final N _node : _scc) {
-				final int _iIndex = _nodes.indexOf(_node);
-				forwardReachabilityMatrix[_iIndex] = _f;
-				backwardReachabilityMatrix[_iIndex] = _b;
+			for (final List<N> _scc : getSCCs(true)) {
+				final BitSet _f = new BitSet(_noOfNodes);
+				final BitSet _b = new BitSet(_noOfNodes);
+				for (final N _node : _scc) {
+					final int _iIndex = _nodes.indexOf(_node);
+					forwardReachabilityMatrix[_iIndex] = _f;
+					backwardReachabilityMatrix[_iIndex] = _b;
+				}
 			}
-		}
 
-		for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
-			final N _node = _nodes.get(_iIndex);
-			final Iterator<N> _j = _node.getSuccsOf().iterator();
-			final int _jEnd = _node.getSuccsOf().size();
+			for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
+				final N _node = _nodes.get(_iIndex);
+				final Iterator<N> _j = _node.getSuccsOf().iterator();
+				final int _jEnd = _node.getSuccsOf().size();
 
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final N _succ = _j.next();
-				final int _indexOfSucc = getIndexOfNode(_succ);
-				forwardReachabilityMatrix[_iIndex].set(_indexOfSucc);
-				backwardReachabilityMatrix[_indexOfSucc].set(_iIndex);
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final N _succ = _j.next();
+					final int _indexOfSucc = getIndexOfNode(_succ);
+					forwardReachabilityMatrix[_iIndex].set(_indexOfSucc);
+					backwardReachabilityMatrix[_indexOfSucc].set(_iIndex);
+				}
 			}
-		}
 
-		for (int _j = 0; _j < _noOfNodes; _j++) {
-			for (int _k = 0; _k < _noOfNodes; _k++) {
-				if (forwardReachabilityMatrix[_k].get(_j)) {
-					for (int _l = 0; _l < _noOfNodes; _l++) {
-						if (forwardReachabilityMatrix[_j].get(_l)) {
-							forwardReachabilityMatrix[_k].set(_l);
-							backwardReachabilityMatrix[_l].set(_k);
+			for (int _j = 0; _j < _noOfNodes; _j++) {
+				for (int _k = 0; _k < _noOfNodes; _k++) {
+					if (forwardReachabilityMatrix[_k].get(_j)) {
+						for (int _l = 0; _l < _noOfNodes; _l++) {
+							if (forwardReachabilityMatrix[_j].get(_l)) {
+								forwardReachabilityMatrix[_k].set(_l);
+								backwardReachabilityMatrix[_l].set(_k);
+							}
 						}
 					}
 				}
 			}
+			reachability = true;
+			// clear and resize the connectivity cache to hold 20% of the connections under worst case connectivity (n*n/4).
+			final int _noOfConnections = _nodes.size() * _nodes.size() / 5;
+			connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(_noOfConnections);
 		}
-		reachability = true;
-		connectivityCache.clear();
 	}
 
 	/**
 	 * Creates the spanning forest of the graph.
-	 * 
+	 *
 	 * @post hasSpanningForest = true
 	 */
 	private void createSpanningForest() {
@@ -1100,7 +1095,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the source nodes which cannot reach any of the given destinations. If there are no destination nodes then all
 	 * source nodes are returned.
-	 * 
+	 *
 	 * @param sourceNodes is the collection of source nodes.
 	 * @param destinations is the collection of destination nodes.
 	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following
@@ -1148,7 +1143,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Processes the given node while creating a spanning tree.
-	 * 
+	 *
 	 * @param grayNodes is the collection of nodes already visited or reached but not processed.
 	 * @param workBag is the work bag that needs to be updates during processing.
 	 * @param nodeToProcess is the node to be processed.
