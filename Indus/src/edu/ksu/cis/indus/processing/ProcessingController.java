@@ -121,7 +121,7 @@ import soot.jimple.XorExpr;
  * Please note that the processor should be registered/unregistered separately for interface-level (class/method) processing
  * and functional (method-body) processing.
  * </p>
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -130,7 +130,7 @@ public class ProcessingController {
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -326,7 +326,7 @@ public class ProcessingController {
 
 		/**
 		 * Calls the processors interested in processing objects of type <code>objClass</code>.
-		 * 
+		 *
 		 * @param objClass is the type of <code>o</code>.
 		 * @param o the AST INode to be processed.
 		 */
@@ -345,7 +345,7 @@ public class ProcessingController {
 
 		/**
 		 * Processes the value boxes in the given definition statement.
-		 * 
+		 *
 		 * @param stmt to be processed.
 		 * @pre stmt != null
 		 */
@@ -359,7 +359,7 @@ public class ProcessingController {
 
 	/**
 	 * This class walks the expressions and calls the call-methods of the registered processors.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -727,7 +727,7 @@ public class ProcessingController {
 
 		/**
 		 * Calls the processors interested in processing object of type <code>objClass</code>.
-		 * 
+		 *
 		 * @param objClass is the type of <code>o</code>
 		 */
 		public void defaultCase(final Class objClass) {
@@ -743,7 +743,7 @@ public class ProcessingController {
 
 		/**
 		 * Process expressions with binary operator.
-		 * 
+		 *
 		 * @param v is the expression with binary operator.
 		 * @pre v != null
 		 */
@@ -756,7 +756,7 @@ public class ProcessingController {
 
 		/**
 		 * Process method invocation expression.
-		 * 
+		 *
 		 * @param v is the invocation expression.
 		 * @pre v != null
 		 */
@@ -775,7 +775,7 @@ public class ProcessingController {
 
 		/**
 		 * Processes expressions with unary operator.
-		 * 
+		 *
 		 * @param v is the expression with unary operator.
 		 * @pre v != null
 		 */
@@ -871,7 +871,7 @@ public class ProcessingController {
 	/**
 	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
 	 * class type.
-	 * 
+	 *
 	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
 	 */
 	protected final Map<Class, Set<IProcessor>> class2processors = new HashMap<Class, Set<IProcessor>>();
@@ -884,7 +884,7 @@ public class ProcessingController {
 	/**
 	 * The collection of processors registered with this controller to process interfaces (class/method). This maintains the
 	 * insertion order.
-	 * 
+	 *
 	 * @invariant interfaceProcessors->forall(o | o.oclIsKindOf(IProcessor))
 	 */
 	protected final Collection<IProcessor> interfaceProcessors = new ArrayList<IProcessor>();
@@ -892,7 +892,7 @@ public class ProcessingController {
 	/**
 	 * The collection of processors registered with this controller to process method local variables. This maintains the
 	 * insertion order.
-	 * 
+	 *
 	 * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
 	 */
 	protected final Collection<IProcessor> localsProcessors = new ArrayList<IProcessor>();
@@ -943,6 +943,16 @@ public class ProcessingController {
 	 */
 	private final ValueSwitcher valueSwitcher = new ValueSwitcher();
 
+
+	/**
+	 * Retrieves the value in <code>env</code>.
+	 *
+	 * @return the value in <code>env</code>.
+	 */
+	public final IEnvironment getEnvironment() {
+		return env;
+	}
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -952,7 +962,7 @@ public class ProcessingController {
 
 	/**
 	 * Drive the given processors by the given controller. This is helpful to batch pre/post-processors.
-	 * 
+	 *
 	 * @param processors is the collection of processors.
 	 * @pre processors != null
 	 */
@@ -973,7 +983,7 @@ public class ProcessingController {
 
 	/**
 	 * Returns the active part of this object.
-	 * 
+	 *
 	 * @return the active part.
 	 */
 	public IActivePart getActivePart() {
@@ -1031,7 +1041,7 @@ public class ProcessingController {
 	/**
 	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of type
 	 * <code>interest</code>.
-	 * 
+	 *
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
 	 */
@@ -1048,7 +1058,7 @@ public class ProcessingController {
 	/**
 	 * Registers the processor for class, fields, and method interface processing only. The processors are invoked in the
 	 * order that they register.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void register(final IProcessor processor) {
@@ -1061,7 +1071,7 @@ public class ProcessingController {
 	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of statement type.
 	 * Please refer to <code>STMT_CLASSES</code> for the actual types. The processors are invoked in the order that they
 	 * register.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllStmts(final IProcessor processor) {
@@ -1073,7 +1083,7 @@ public class ProcessingController {
 	/**
 	 * Registers the processor. It indicates that the processor is interested in processing AST chunk of value type. Please
 	 * refer to <code>VALUE_CLASSES</code> for the actual types. The processors are invoked in the order that they register.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllValues(final IProcessor processor) {
@@ -1085,7 +1095,7 @@ public class ProcessingController {
 	/**
 	 * Registers the processor for method local variable processing only. The processors are invoked in the order that they
 	 * register.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForLocals(final IProcessor processor) {
@@ -1111,7 +1121,7 @@ public class ProcessingController {
 
 	/**
 	 * Sets the environment which provides the system to be processed.
-	 * 
+	 *
 	 * @param environment an instance of the FA.
 	 * @pre environment != null
 	 */
@@ -1121,7 +1131,7 @@ public class ProcessingController {
 
 	/**
 	 * Sets the filter to be used to pick the classes and methods to be processed.
-	 * 
+	 *
 	 * @param theFilter to be used.
 	 * @pre theFilter != null
 	 */
@@ -1132,7 +1142,7 @@ public class ProcessingController {
 	/**
 	 * Sets the object that controls the order in which the statements are processed. This should be called before calling
 	 * <code>process()</code> or <code>driverProcessors()</code>.
-	 * 
+	 *
 	 * @param retriever controls the statement processing order.
 	 * @pre retriever != null
 	 */
@@ -1143,7 +1153,7 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor. It indicates that the processor is no longer interested in processing AST chunk of type
 	 * <code>interest</code>.
-	 * 
+	 *
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
@@ -1159,7 +1169,7 @@ public class ProcessingController {
 
 	/**
 	 * Unregisters the processor for class and method interface processing only.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void unregister(final IProcessor processor) {
@@ -1169,7 +1179,7 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor. It indicates that the processor is not interested in processing the statement types. Please
 	 * refer to <code>STMT_CLASSES</code> for the actual types.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllStmts(final IProcessor processor) {
@@ -1181,7 +1191,7 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor. It indicates that the processor is not interested in processing the value types. Please
 	 * refer to <code>VALUE_CLASSES</code> for the actual types.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllValues(final IProcessor processor) {
@@ -1192,7 +1202,7 @@ public class ProcessingController {
 
 	/**
 	 * Registers the processor for method local variable processing only.
-	 * 
+	 *
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForLocals(final IProcessor processor) {
@@ -1208,7 +1218,7 @@ public class ProcessingController {
 
 	/**
 	 * Processes the given value boxes.
-	 * 
+	 *
 	 * @param boxes to be processed.
 	 * @pre boxes != null and boxes.oclIsKindOf(Collection(ValueBox))
 	 */
@@ -1229,7 +1239,7 @@ public class ProcessingController {
 
 	/**
 	 * Controls the processing of class level entities.
-	 * 
+	 *
 	 * @param theClasses to be processed.
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
@@ -1294,7 +1304,7 @@ public class ProcessingController {
 
 	/**
 	 * Processes the method body.
-	 * 
+	 *
 	 * @param stmt in which the locals need to be processed.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @pre method != null
@@ -1323,7 +1333,7 @@ public class ProcessingController {
 
 	/**
 	 * Processes the method body.
-	 * 
+	 *
 	 * @param method whose body needs to be processed.
 	 * @throws IllegalStateException when <code>setStmtSequenceRetriever()</code> is not called with a non-null argument
 	 *             before calling this method.
@@ -1376,7 +1386,7 @@ public class ProcessingController {
 
 	/**
 	 * Controls the processing of methods and their bodies.
-	 * 
+	 *
 	 * @param theMethods to be processed.
 	 * @pre theMethods != null
 	 */
