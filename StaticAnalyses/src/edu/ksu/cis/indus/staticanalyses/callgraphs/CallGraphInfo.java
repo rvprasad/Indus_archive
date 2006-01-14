@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.Context;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -118,11 +119,6 @@ public final class CallGraphInfo
 	private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphInfo.class);
 
 	/**
-	 * The collection of SCCs in this call graph in bottom-up direction.
-	 */
-	private List<List<SootMethod>> bottomUpSCC;
-
-	/**
 	 * This maps callees to callers.
 	 */
 	private final Map<SootMethod, Collection<CallTriple>> callee2callers = new HashMap<SootMethod, Collection<CallTriple>>();
@@ -174,13 +170,14 @@ public final class CallGraphInfo
 	/**
 	 * The collection of SCCs in this call graph in top-down direction.
 	 */
-	private List<List<SootMethod>> topDownSCC;
+	private WeakReference<List<List<SootMethod>>> topDownSCC;
 
 	/**
-	 * DOCUMENT ME!
+	 * This cache stores callee to call-site reachability information.  The cache is large enough to store 10% of the
+	 * connections occurring under worst-case connectivity (n*n/10) scenario.
 	 */
 	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
-			Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication());
+			Constants.getNumOfMethodsInApplication() * Constants.getNumOfMethodsInApplication() / 10);
 
 	/**
 	 * Creates a new CallGraphInfo object.
@@ -422,26 +419,23 @@ public final class CallGraphInfo
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getSCCs(boolean)
 	 */
 	public List<List<SootMethod>> getSCCs(final boolean topDown) {
-		if (topDownSCC == null) {
-			topDownSCC = new ArrayList<List<SootMethod>>();
-
+		List<List<SootMethod>> _r = topDownSCC == null ? null : topDownSCC.get();
+		if (_r == null) {
+			_r = new ArrayList<List<SootMethod>>();
 			final List<List<SimpleNode<SootMethod>>> _temp = graphCache.getSCCs(true);
 
 			for (final Iterator<List<SimpleNode<SootMethod>>> _i = _temp.iterator(); _i.hasNext();) {
 				final List<SimpleNode<SootMethod>> _scc = _i.next();
-				final List<SootMethod> _l = new ArrayList<SootMethod>();
-
-				for (final Iterator<SimpleNode<SootMethod>> _j = _scc.iterator(); _j.hasNext();) {
-					_l.add(_j.next().getObject());
-				}
-				topDownSCC.add(Collections.unmodifiableList(_l));
+				_r.add(Collections.unmodifiableList(CollectionUtils.collect(_scc, graphCache.getObjectExtractor())));
 			}
-			topDownSCC = Collections.unmodifiableList(topDownSCC);
-			bottomUpSCC = new ArrayList<List<SootMethod>>(topDownSCC);
-			Collections.reverse(bottomUpSCC);
-			bottomUpSCC = Collections.unmodifiableList(bottomUpSCC);
+			topDownSCC = new WeakReference<List<List<SootMethod>>>(_r);
 		}
-		return topDown ? topDownSCC : bottomUpSCC;
+		final List<List<SootMethod>> _result = new ArrayList<List<SootMethod>>(_r);
+
+		if (!topDown) {
+			 Collections.reverse(_result);
+		}
+		return _result;
 	}
 
 	/**
@@ -505,7 +499,6 @@ public final class CallGraphInfo
 		callee2callers.clear();
 		graphCache = null;
 		topDownSCC = null;
-		bottomUpSCC = null;
 		reachables.clear();
 		heads.clear();
 		method2forwardReachableMethods.clear();

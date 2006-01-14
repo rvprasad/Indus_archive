@@ -1,3 +1,9 @@
+2006-01-13 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphInfo.java: 
+		- altered callee-to-callsite cache size
+		- used weak reference to cache SCC in a memory optimal manner
+
 2005-12-30 venku <venku@boss.dreamsoft.com>
 
 	* src-test/edu/ksu/cis/indus/staticanalyses/flow/FATestSetup.java:
