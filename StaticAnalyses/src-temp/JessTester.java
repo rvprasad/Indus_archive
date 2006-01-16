@@ -401,6 +401,7 @@ public class JessTester {
 
 	private int classCount = 0;
 
+
 	/**
 	 * DOCUMENT ME!
 	 *
@@ -607,6 +608,24 @@ public class JessTester {
 		}
 	}
 
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param obj DOCUMENT ME!
+	 */
+	public boolean isCompatible(final Object v, final Object obj) {
+		if (v instanceof soot.Value) {
+			final SootClass _sootClass = ((RefType) ((soot.Value) v).getType()).getSootClass();
+			if (obj instanceof StringConstant) {
+				return _sootClass.getName().equals("java.lang.String");
+			}
+			return Util.isDescendentOf(((RefType)((soot.Value)obj).getType()).getSootClass(), _sootClass);
+		}
+		return true;
+	}
+
 	/**
 	 * DOCUMENT ME!
 	 * @param classes DOCUMENT ME!
@@ -623,7 +642,8 @@ public class JessTester {
 			rete.executeCommand("(defrule pointsToRule "
 					+ "(and (assignTo (lhs ?c) (rhs ?a) (invocationSite ?) (index ?) (context ?ctxt) )"
 					+ "(pointsTo (reference ?a) (object ?o) (context ?))) "
-					+ "=> (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt))))");
+					+ "=> (if (call (fetch Engine) isCompatible ?c ?o) "
+					+ "then (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt)))))");
 			rete.executeCommand("(defrule expansionRule "
 					+ "(and (assignTo (lhs ?a) (rhs ?) (invocationSite ?c&~nil) (index -1) (context ?d)) "
 					+ "(pointsTo (reference ?a) (object ?o) (context ?d))) "
