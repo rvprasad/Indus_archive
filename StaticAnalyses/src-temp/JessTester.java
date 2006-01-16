@@ -68,18 +68,29 @@ public class JessTester {
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
-			if (stmt.getLeftOp().getType() instanceof RefType) {
+			final soot.Value _rightOp = stmt.getRightOp();
+			if (_rightOp.getType() instanceof RefType) {
+
 				try {
-					final Fact fact = new Fact(rete.findDeftemplate("pointsTo"));
+				final Fact _fact;
+				if (_rightOp instanceof NewExpr || _rightOp instanceof NewArrayExpr || _rightOp instanceof NewMultiArrayExpr
+						|| _rightOp instanceof StringConstant) {
+					_fact = new Fact(rete.findDeftemplate("pointsTo"));
+					_fact.setSlotValue("object", new Value(_rightOp));
 					stmt.getLeftOp().apply(vSwitch);
-					fact.setSlotValue("lhs", value);
-					stmt.getRightOp().apply(vSwitch);
-					fact.setSlotValue("rhs", value);
+					_fact.setSlotValue("reference", value);
+				} else {
+					_fact = new Fact(rete.findDeftemplate("assignTo"));
+					_rightOp.apply(vSwitch);
+					_fact.setSlotValue("rhs", value);
+					stmt.getLeftOp().apply(vSwitch);
+					_fact.setSlotValue("lhs", value);
 					if (stmt.containsInvokeExpr()) {
-						fact.setSlotValue("invocationSite", new Value(stmt.getInvokeExpr()));
+						_fact.setSlotValue("invocationSite", new Value(stmt.getInvokeExpr()));
 					}
-					fact.setSlotValue("context", new Value(sm));
-					rete.assertFact(fact);
+				}
+				_fact.setSlotValue("context", new Value(sm));
+				rete.assertFact(_fact);
 				} catch (final JessException _e) {
 					_e.printStackTrace();
 					throw new RuntimeException(_e);
@@ -95,7 +106,7 @@ public class JessTester {
 		public void caseIdentityStmt(final IdentityStmt stmt) {
 			if (stmt.getLeftOp().getType() instanceof RefType && !(stmt.getRightOp() instanceof CaughtExceptionRef)) {
 				try {
-					final Fact fact = new Fact(rete.findDeftemplate("pointsTo"));
+					final Fact fact = new Fact(rete.findDeftemplate("assignTo"));
 					stmt.getLeftOp().apply(vSwitch);
 					fact.setSlotValue("lhs", value);
 					stmt.getRightOp().apply(vSwitch);
@@ -121,7 +132,7 @@ public class JessTester {
 		 */
 		public void caseReturnStmt(final ReturnStmt stmt) {
 			try {
-				final Fact fact = new Fact(rete.findDeftemplate("pointsTo"));
+				final Fact fact = new Fact(rete.findDeftemplate("assignTo"));
 				fact.setSlotValue("lhs", new Value(sm.getSignature() + "+returnCallee"));
 				stmt.getOp().apply(vSwitch);
 				fact.setSlotValue("rhs", value);
@@ -139,7 +150,7 @@ public class JessTester {
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
 			try {
-				final Fact fact = new Fact(rete.findDeftemplate("pointsTo"));
+				final Fact fact = new Fact(rete.findDeftemplate("assignTo"));
 				fact.setSlotValue("lhs", new Value(sm.getSignature() + "+throwCallee"));
 				stmt.getOp().apply(vSwitch);
 				fact.setSlotValue("rhs", value);
@@ -262,7 +273,7 @@ public class JessTester {
 					if (v.getArg(_i).getType() instanceof RefType) {
 						addTypeForProcessing(v.getArg(_i).getType());
 
-						final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+						final Fact _fact = new Fact(rete.findDeftemplate("assignTo"));
 						_fact.setSlotValue("lhs", new Value(_callee.getSignature() + "+" + _i));
 						v.getArg(_i).apply(this);
 						_fact.setSlotValue("rhs", value);
@@ -276,7 +287,7 @@ public class JessTester {
 				if (_callee.getReturnType() instanceof RefType) {
 					addTypeForProcessing(_callee.getReturnType());
 					value = new Value(_callee.getSignature() + "+returnCaller");
-					final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+					final Fact _fact = new Fact(rete.findDeftemplate("assignTo"));
 					_fact.setSlotValue("lhs", value);
 					_fact.setSlotValue("rhs", new Value(_callee.getSignature() + "+returnCallee"));
 					_fact.setSlotValue("invocationSite", new Value(v));
@@ -330,7 +341,7 @@ public class JessTester {
 					if (v.getArg(_i).getType() instanceof RefType) {
 						addTypeForProcessing(v.getArg(_i).getType());
 
-						final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+						final Fact _fact = new Fact(rete.findDeftemplate("assignTo"));
 						_fact.setSlotValue("lhs", new Value(_invokedMethod.getSignature() + "+" + _i));
 						v.getArg(_i).apply(this);
 						_fact.setSlotValue("rhs", value);
@@ -341,7 +352,7 @@ public class JessTester {
 					}
 				}
 
-				final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+				final Fact _fact = new Fact(rete.findDeftemplate("assignTo"));
 				_fact.setSlotValue("lhs", new Value(_invokedMethod.getSignature() + "+thisRefCaller"));
 				v.getBase().apply(this);
 				_fact.setSlotValue("rhs", value);
@@ -386,7 +397,7 @@ public class JessTester {
 
 	private final JimpleStmtSwitch sSwitch = new JimpleStmtSwitch();
 
-	private final JimpleValueSwitch vSwitch = new JimpleValueSwitch();
+	final JimpleValueSwitch vSwitch = new JimpleValueSwitch();
 
 	private int classCount = 0;
 
@@ -547,13 +558,13 @@ public class JessTester {
 		} else if (v instanceof StringConstant) {
 			_sc = scene.getSootClass("java.lang.String");
 		} else {
-			throw new RuntimeException("Inappropriate type at receiver site - " + e + " -- " + v);
+			throw new RuntimeException("Inappropriate type at receiver site - " + e + " -- " + v + " -- " + v.getClass());
 		}
 		try {
 			final SootMethod _invokedMethod = e.getMethod();
 			final SootMethod _resolvedMethod = Util.findDeclaringMethod(_sc, _invokedMethod);
 
-			final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+			final Fact _fact = new Fact(rete.findDeftemplate("assignTo"));
 			_fact.setSlotValue("lhs", new Value(_resolvedMethod.getSignature() + "+thisRefCallee"));
 			_fact.setSlotValue("rhs", new Value(_invokedMethod.getSignature() + "+thisRefCaller"));
 			_fact.setSlotValue("invocationSite", new Value(e));
@@ -566,7 +577,7 @@ public class JessTester {
 
 			for (int _i = 0; _i < _resolvedMethod.getParameterCount(); _i++) {
 				if (_resolvedMethod.getParameterType(_i) instanceof RefType) {
-					final Fact _pFact = new Fact(rete.findDeftemplate("pointsTo"));
+					final Fact _pFact = new Fact(rete.findDeftemplate("assignTo"));
 					_pFact.setSlotValue("lhs", new Value(_resolvedMethod.getSignature() + "+" + _i));
 					_pFact.setSlotValue("rhs", new Value(_invokedMethod.getSignature() + "+" + _i));
 					_pFact.setSlotValue("invocationSite", new Value(e));
@@ -578,7 +589,7 @@ public class JessTester {
 
 			if (_resolvedMethod.getReturnType() instanceof RefType) {
 				addTypeForProcessing(_resolvedMethod.getReturnType());
-				final Fact _rFact = new Fact(rete.findDeftemplate("pointsTo"));
+				final Fact _rFact = new Fact(rete.findDeftemplate("assignTo"));
 				_rFact.setSlotValue("lhs", new Value(_invokedMethod.getSignature() + "+returnCaller"));
 				_rFact.setSlotValue("rhs", new Value(_resolvedMethod.getSignature() + "+returnCallee"));
 				_rFact.setSlotValue("invocationSite", new Value(e));
@@ -606,56 +617,26 @@ public class JessTester {
 			rete.executeCommand("(watch rules)");
 			//rete.executeCommand("(watch activations)");
 			rete.executeCommand("(import soot.jimple.*)");
-			rete.executeCommand("(deftemplate pointsTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
+			rete.executeCommand("(deftemplate assignTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
 					+ "(slot index (default -4)) (slot context (default nil)))");
-			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
-			rete.executeCommand("(deffunction ifThis (?i1 ?i2) (if (or (= ?i1 -1) (= ?i2 -1)) then -1 else -4))");
-			rete.executeCommand("(defrule equivRule1 (and (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?) (index ?)) "
-					+ "(pointsTo (lhs ?b) (rhs ?a) (invocationSite ?) (index ?))) => "
-					+ "(assert (equiv (one ?a) (two ?b))) (assert (equiv (one ?b) (two ?a))))");
-			rete.executeCommand("(defrule equivRule2 (and (equiv (one ?a) (two ?b)) (equiv (one ?b) (two ?c))) => "
-					+ "(assert (equiv (one ?a) (two ?c))) (assert (equiv (one ?c) (two ?a))))");
-			rete.executeCommand("(defrule flowRule (and "
-					+ "(and (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?) (index ?i1) (context ?)) "
-					+ "(pointsTo (lhs ?c) (rhs ?a) (invocationSite ?s) (index ?i2) (context ?cCtxt))) "
-					+ "(not (equiv (one ?c) (two ?a)))) => "
-					+ "(assert (pointsTo (lhs ?c) (rhs ?b) (invocationSite ?s) (index (ifThis ?i1 ?i2)) (context ?cCtxt))))");
+			rete.executeCommand("(deftemplate pointsTo (slot reference) (slot object) (slot context))");
+			rete.executeCommand("(defrule pointsToRule "
+					+ "(and (assignTo (lhs ?c) (rhs ?a) (invocationSite ?) (index ?) (context ?ctxt) )"
+					+ "(pointsTo (reference ?a) (object ?o) (context ?))) "
+					+ "=> (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt))))");
+			rete.executeCommand("(defrule expansionRule "
+					+ "(and (assignTo (lhs ?a) (rhs ?) (invocationSite ?c&~nil) (index -1) (context ?d)) "
+					+ "(pointsTo (reference ?a) (object ?o) (context ?d))) "
+					+ "=> (call (fetch Engine) resolveInvocation ?o ?c ?d))");
 			rete.executeCommand("(defquery findParamFactsFor \"Finds facts for Parameters at given invocation site\""
 					+ "(declare (variables ?callSite)) "
-					+ "(pointsTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(> ?i -1)) (context ?)))");
+					+ "(assignTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(> ?i -1)) (context ?)))");
 			rete.executeCommand("(defquery findReturnFactsFor \"Finds facts for returned values at given invocation site\""
 					+ "(declare (variables ?callSite)) "
-					+ "(pointsTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -2)) (context ?)))");
+					+ "(assignTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -2)) (context ?)))");
 			rete.executeCommand("(defquery findThrowFactsFor \"Finds facts for Thrown exceptions at given invocation site\""
 					+ "(declare (variables ?callSite)) "
-					+ "(pointsTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -3)) (context ?)))");
-			/*rete.executeCommand("(defrule connectionRule (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?d&~nil) (index -1)"
-					+ " (context ?ctxt)) => (if (or (or (or (instanceof ?b soot.jimple.NewExpr) "
-					+ "(instanceof ?b soot.jimple.NewArrayExpr)) (instanceof ?b soot.jimple.NewMultiArrayExpr))"
-					+ "(instanceof ?b soot.jimple.StringConstant)) then "
-					+ "(bind ?invoked (call (call ?d getMethod) getSignature)) "
-					+ "(bind ?resolved (call ?ctxt getSignature)) "
-					+ "(bind ?it (run-query findParamFactsFor ?d)) "
-					+ "(while (call ?it hasNext) do "
-					+ "(bind ?token (call ?it next)) "
-					+ "(bind ?fact (call ?token fact 1)) "
-					+ "(bind ?index (fact-slot-value ?fact index)) "
-					+ "(bind ?rhs (str-cat ?invoked \"+\" ?index)) "
-					+ "(bind ?lhs (str-cat ?resolved \"+\" ?index)) "
-					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs) (invocationSite ?d) (context ?ctxt)))"
-					+ "(bind ?it (run-query findReturnFactsFor ?d)) "
-					+ "(while (call ?it hasNext) do "
-					+ "(bind ?token (call ?it next)) "
-					+ "(bind ?fact (call ?token fact 1)) "
-					+ "(bind ?rhs (str-cat ?resolved \"+returnCallee\")) "
-					+ "(bind ?lhs (str-cat ?invoked \"+returnCaller\")) "
-					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs) (invocationSite ?d) (context ?ctxt)))))"
-					+ "))");*/
-			rete.executeCommand("(defrule expansionRule ?fact <- (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?c&~nil)"
-					+ "(index -1) (context ?d)) => (if (and (or (or (or (instanceof ?b soot.jimple.NewExpr) "
-					+ "(instanceof ?b soot.jimple.NewArrayExpr)) (instanceof ?b soot.jimple.NewMultiArrayExpr))"
-					+ "(instanceof ?b soot.jimple.StringConstant)) (instanceof ?c soot.jimple.InstanceInvokeExpr))"
-					+ " then (printout t (call (call ?c getClass) toString) (call (call ?d getClass) toString) crlf) (call (fetch Engine) resolveInvocation ?b ?c ?d)))");
+					+ "(assignTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -3)) (context ?)))");
 			//rete.executeCommand("(set-strategy breadth)");
 
 			final ArrayType _stringArrayType = ArrayType.v(scene.getSootClass("java.lang.String").getType(), 1);
@@ -672,16 +653,14 @@ public class JessTester {
 				}
 			}
 
-			while (typesWorkBag.hasWork() || methodsWorkBag.hasWork() || rete.listActivations().hasNext()) {
+			while (typesWorkBag.hasWork() || methodsWorkBag.hasWork()) {
 				while (typesWorkBag.hasWork()) {
 					processClass(typesWorkBag.getWork());
-					rete.run(1000);
 				}
 				while (methodsWorkBag.hasWork()) {
 					processMethod(methodsWorkBag.getWork());
-					rete.run(1000);
 				}
-				rete.run(100000);
+				rete.run();
 			}
 
 			final StringWriter _sw = new StringWriter();
@@ -703,8 +682,8 @@ public class JessTester {
 		final Context _context = rete.getGlobalContext();
 		for (final Iterator<Fact> _i = rete.listFacts(); _i.hasNext();) {
 			final Fact _fact = _i.next();
-			if (_fact.getName().equals("MAIN::pointsTo")) {
-				writer.append("(pointsTo\n\t(lhs ");
+			if (_fact.getName().equals("MAIN::assignTo")) {
+				writer.append("(assignTo\n\t(lhs ");
 				writer.append(_fact.getSlotValue("lhs").javaObjectValue(_context).toString());
 				writer.append(")\n\t(rhs ");
 				writer.append(_fact.getSlotValue("rhs").javaObjectValue(_context).toString());
@@ -725,6 +704,14 @@ public class JessTester {
 				}
 				writer.append(")\n\t(index ");
 				writer.append(String.valueOf(_fact.getSlotValue("index").intValue(_context)));
+				writer.append("))\n");
+			} else if (_fact.getName().equals("MAIN::pointsTo")) {
+				writer.append("(pointsTo\n\t(reference ");
+				writer.append(_fact.getSlotValue("reference").javaObjectValue(_context).toString());
+				writer.append(")\n\t(object ");
+				writer.append(_fact.getSlotValue("object").javaObjectValue(_context).toString());
+				writer.append(")\n\t(context ");
+				writer.append(_fact.getSlotValue("context").javaObjectValue(_context).toString());
 				writer.append("))\n");
 			}
 		}
