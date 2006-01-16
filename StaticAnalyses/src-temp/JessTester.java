@@ -32,6 +32,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.VoidType;
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.ArrayRef;
@@ -79,7 +80,7 @@ public class JessTester {
 					}
 					fact.setSlotValue("context", new Value(sm.getSignature()));
 					rete.assertFact(fact);
-				} catch (JessException _e) {
+				} catch (final JessException _e) {
 					_e.printStackTrace();
 					throw new RuntimeException(_e);
 				}
@@ -101,7 +102,7 @@ public class JessTester {
 					fact.setSlotValue("rhs", value);
 					fact.setSlotValue("context", new Value(sm.getSignature()));
 					rete.assertFact(fact);
-				} catch (JessException _e) {
+				} catch (final JessException _e) {
 					_e.printStackTrace();
 					throw new RuntimeException(_e);
 				}
@@ -127,7 +128,7 @@ public class JessTester {
 				fact.setSlotValue("index", new Value(-2, RU.INTEGER));
 				fact.setSlotValue("context", new Value(sm.getSignature()));
 				rete.assertFact(fact);
-			} catch (JessException _e) {
+			} catch (final JessException _e) {
 				_e.printStackTrace();
 				throw new RuntimeException(_e);
 			}
@@ -145,7 +146,7 @@ public class JessTester {
 				fact.setSlotValue("index", new Value(-3, RU.INTEGER));
 				fact.setSlotValue("context", new Value(sm.getSignature()));
 				rete.assertFact(fact);
-			} catch (JessException _e) {
+			} catch (final JessException _e) {
 				_e.printStackTrace();
 				throw new RuntimeException(_e);
 			}
@@ -253,6 +254,10 @@ public class JessTester {
 		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
 			try {
 				final SootMethod _callee = v.getMethod();
+
+				addClassForProcessing(_callee.getDeclaringClass());
+				addMethodForProcessing(_callee);
+
 				for (int _i = 0; _i < _callee.getParameterCount(); _i++) {
 					if (v.getArg(_i).getType() instanceof RefType) {
 						addTypeForProcessing(v.getArg(_i).getType());
@@ -268,8 +273,6 @@ public class JessTester {
 					}
 				}
 
-				addClassForProcessing(_callee.getDeclaringClass());
-
 				if (_callee.getReturnType() instanceof RefType) {
 					addTypeForProcessing(_callee.getReturnType());
 					value = new Value(_callee.getSignature() + "+returnCaller");
@@ -281,9 +284,7 @@ public class JessTester {
 					_fact.setSlotValue("index", new Value(-2, RU.INTEGER));
 					rete.assertFact(_fact);
 				}
-
-				addMethodForProcessing(_callee);
-			} catch (JessException _e) {
+			} catch (final JessException _e) {
 				_e.printStackTrace();
 				throw new RuntimeException(_e);
 			}
@@ -353,7 +354,7 @@ public class JessTester {
 					addTypeForProcessing(_invokedMethod.getReturnType());
 					value = new Value(_invokedMethod.getSignature() + "+returnCaller");
 				}
-			} catch (JessException _e) {
+			} catch (final JessException _e) {
 				_e.printStackTrace();
 				throw new RuntimeException(_e);
 			}
@@ -537,7 +538,7 @@ public class JessTester {
 	 * @param v DOCUMENT ME!
 	 * @param e DOCUMENT ME!
 	 */
-	public void resolveInvocation(final Object v, final InstanceInvokeExpr e) {
+	public void resolveInvocation(final Object v, final InstanceInvokeExpr e, final Object ctxt) {
 		final SootClass _sc;
 		if (v instanceof NewExpr) {
 			_sc = ((NewExpr) v).getBaseType().getSootClass();
@@ -549,8 +550,47 @@ public class JessTester {
 			throw new RuntimeException("Inappropriate type at receiver site - " + e + " -- " + v);
 		}
 		try {
-			addMethodForProcessing(Util.findDeclaringMethod(_sc, e.getMethod()));
-		} catch (IllegalStateException _e) {
+			final SootMethod _invokedMethod = e.getMethod();
+			final SootMethod _resolvedMethod = Util.findDeclaringMethod(_sc, _invokedMethod);
+
+			final Fact _fact = new Fact(rete.findDeftemplate("pointsTo"));
+			_fact.setSlotValue("lhs", new Value(_resolvedMethod.getSignature() + "+thisRefCallee"));
+			_fact.setSlotValue("rhs", new Value(_invokedMethod.getSignature() + "+thisRefCaller"));
+			_fact.setSlotValue("invocationSite", new Value(e));
+			_fact.setSlotValue("context", new Value(ctxt));
+			_fact.setSlotValue("index", new Value(-1, RU.INTEGER));
+			rete.assertFact(_fact);
+
+			addClassForProcessing(_resolvedMethod.getDeclaringClass());
+			addMethodForProcessing(_resolvedMethod);
+
+			for (int _i = 0; _i < _resolvedMethod.getParameterCount(); _i++) {
+				if (_resolvedMethod.getParameterType(_i) instanceof RefType) {
+					final Fact _pFact = new Fact(rete.findDeftemplate("pointsTo"));
+					_pFact.setSlotValue("lhs", new Value(_resolvedMethod.getSignature() + "+" + _i));
+					_pFact.setSlotValue("rhs", new Value(_invokedMethod.getSignature() + "+" + _i));
+					_pFact.setSlotValue("invocationSite", new Value(e));
+					_pFact.setSlotValue("context", new Value(ctxt));
+					_pFact.setSlotValue("index", new Value(_i, RU.INTEGER));
+					rete.assertFact(_pFact);
+				}
+			}
+
+			if (_resolvedMethod.getReturnType() instanceof RefType) {
+				addTypeForProcessing(_resolvedMethod.getReturnType());
+				final Fact _rFact = new Fact(rete.findDeftemplate("pointsTo"));
+				_rFact.setSlotValue("lhs", new Value(_invokedMethod.getSignature() + "+returnCaller"));
+				_rFact.setSlotValue("rhs", new Value(_resolvedMethod.getSignature() + "+returnCallee"));
+				_rFact.setSlotValue("invocationSite", new Value(e));
+				_rFact.setSlotValue("context", new Value(ctxt));
+				_rFact.setSlotValue("index", new Value(-2, RU.INTEGER));
+				rete.assertFact(_rFact);
+			}
+
+		} catch (final IllegalStateException _e) {
+			System.out.println(":-( Failed!! " + e + " -- " + v);
+			_e.printStackTrace();
+		} catch (final JessException _e) {
 			System.out.println(":-( Failed!! " + e + " -- " + v);
 			_e.printStackTrace();
 		}
@@ -564,20 +604,20 @@ public class JessTester {
 		try {
 			rete.store("Engine", this);
 			rete.executeCommand("(watch rules)");
-			rete.executeCommand("(watch activations)");
+			//rete.executeCommand("(watch activations)");
 			rete.executeCommand("(import soot.jimple.*)");
 			rete.executeCommand("(deftemplate pointsTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
 					+ "(slot index (default -4)) (slot context (default nil)))");
 			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
-			/* rete.executeCommand("(defrule equivRule (and (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?) (index ?)) "
-					+ "(pointsTo (lhs ?b) (rhs ?a) (invocationSite ?) (index ?))) => "
-					+ "(assert (equiv (one ?a) (two ?b))))"); */
 			rete.executeCommand("(deffunction ifThis (?i1 ?i2) (if (or (= ?i1 -1) (= ?i2 -1)) then -1 else -4))");
+			rete.executeCommand("(defrule equivRule (and (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?) (index ?)) "
+					+ "(pointsTo (lhs ?b) (rhs ?a) (invocationSite ?) (index ?))) => "
+					+ "(assert (equiv (one ?a) (two ?b))))");
 			rete.executeCommand("(defrule flowRule (and "
 					+ "(and (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?) (index ?i1) (context ?)) "
-					+ "(pointsTo (lhs ?c) (rhs ?a) (invocationSite ?s) (index ?i2) (context ?))) "
+					+ "(pointsTo (lhs ?c) (rhs ?a) (invocationSite ?s) (index ?i2) (context ?cCtxt))) "
 					+ "(and (not (equiv (one ?c) (two ?a))) (not (equiv (one ?a) (two ?c))))) => "
-					+ "(assert (pointsTo (lhs ?c) (rhs ?b) (invocationSite ?s) (index (ifThis ?i1 ?i2)))))");
+					+ "(assert (pointsTo (lhs ?c) (rhs ?b) (invocationSite ?s) (index (ifThis ?i1 ?i2)) (context ?cCtxt))))");
 			rete.executeCommand("(defquery findParamFactsFor \"Finds facts for Parameters at given invocation site\""
 					+ "(declare (variables ?callSite)) "
 					+ "(pointsTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(> ?i -1)) (context ?)))");
@@ -587,41 +627,44 @@ public class JessTester {
 			rete.executeCommand("(defquery findThrowFactsFor \"Finds facts for Thrown exceptions at given invocation site\""
 					+ "(declare (variables ?callSite)) "
 					+ "(pointsTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -3)) (context ?)))");
-			rete.executeCommand("(defrule connectionRule (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?d&~nil) (index -1)"
-					+ " (context ?)) => (bind ?it (run-query findParamFactsFor ?d)) "
-					+ "(bind ?callee (call (call ?d getMethod) getSignature)) "
-					+ "(while (call ?it hasNext) do "
-					+ "(bind ?token (call ?it next)) "
-					+ "(bind ?fact (call ?token fact 1)) "
-					+ "(bind ?invocationSite (fact-slot-value ?fact invocationSite)) "
-					+ "(bind ?method (call ?invocationSite getMethod)) "
-					+ "(bind ?callSite (call ?method getSignature)) "
-					+ "(bind ?index (fact-slot-value ?fact index)) "
-					+ "(bind ?rhs (str-cat ?callSite \"+\" ?index)) "
-					+ "(bind ?lhs (str-cat ?callee \"+\" ?index)) "
-					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs))))"
-					+ "(bind ?it (run-query findReturnFactsFor ?d)) "
-					+ "(bind ?callee (call (call ?d getMethod) getSignature)) "
-					+ "(while (call ?it hasNext) do "
-					+ "(bind ?token (call ?it next)) "
-					+ "(bind ?fact (call ?token fact 1)) "
-					+ "(bind ?invocationSite (fact-slot-value ?fact invocationSite)) "
-					+ "(bind ?method (call ?invocationSite getMethod)) "
-					+ "(bind ?callSite (call ?method getSignature)) "
-					+ "(bind ?rhs (str-cat ?callee \"+returnCallee\")) "
-					+ "(bind ?lhs (str-cat ?callSite \"+returnCaller\")) "
-					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs))))"
-					+ ")");
-			rete.executeCommand("(defrule expansionRule ?fact <- (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?c) (index -1)"
-					+ " (context ?)) => (if (or (or (or (instanceof ?b soot.jimple.NewExpr) "
+			/*rete.executeCommand("(defrule connectionRule (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?d&~nil) (index -1)"
+					+ " (context ?ctxt)) => (if (or (or (or (instanceof ?b soot.jimple.NewExpr) "
 					+ "(instanceof ?b soot.jimple.NewArrayExpr)) (instanceof ?b soot.jimple.NewMultiArrayExpr))"
-					+ "(instanceof ?b soot.jimple.StringConstant)) then (call (fetch Engine) resolveInvocation ?b ?c)))");
+					+ "(instanceof ?b soot.jimple.StringConstant)) then "
+					+ "(bind ?invoked (call (call ?d getMethod) getSignature)) "
+					+ "(bind ?resolved (call ?ctxt getSignature)) "
+					+ "(bind ?it (run-query findParamFactsFor ?d)) "
+					+ "(while (call ?it hasNext) do "
+					+ "(bind ?token (call ?it next)) "
+					+ "(bind ?fact (call ?token fact 1)) "
+					+ "(bind ?index (fact-slot-value ?fact index)) "
+					+ "(bind ?rhs (str-cat ?invoked \"+\" ?index)) "
+					+ "(bind ?lhs (str-cat ?resolved \"+\" ?index)) "
+					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs) (invocationSite ?d) (context ?ctxt)))"
+					+ "(bind ?it (run-query findReturnFactsFor ?d)) "
+					+ "(while (call ?it hasNext) do "
+					+ "(bind ?token (call ?it next)) "
+					+ "(bind ?fact (call ?token fact 1)) "
+					+ "(bind ?rhs (str-cat ?resolved \"+returnCallee\")) "
+					+ "(bind ?lhs (str-cat ?invoked \"+returnCaller\")) "
+					+ "(assert (pointsTo (lhs ?lhs) (rhs ?rhs) (invocationSite ?d) (context ?ctxt)))))"
+					+ "))");*/
+			rete.executeCommand("(defrule expansionRule ?fact <- (pointsTo (lhs ?a) (rhs ?b) (invocationSite ?c&~nil)"
+					+ "(index -1) (context ?d)) => (if (or (or (or (instanceof ?b soot.jimple.NewExpr) "
+					+ "(instanceof ?b soot.jimple.NewArrayExpr)) (instanceof ?b soot.jimple.NewMultiArrayExpr))"
+					+ "(instanceof ?b soot.jimple.StringConstant)) then (call (fetch Engine) resolveInvocation ?b ?c ?d)))");
 
+			final ArrayType _stringArrayType = ArrayType.v(scene.getSootClass("java.lang.String").getType(), 1);
+			final VoidType _voidType = VoidType.v();
 			for (final String _className : classes) {
 				sc = scene.getSootClass(_className);
 				addClassForProcessing(sc);
 				for (final Iterator<SootMethod> _j = sc.getMethods().iterator(); _j.hasNext();) {
-					addMethodForProcessing(_j.next());
+					final SootMethod _m = _j.next();
+					if (_m.getName().equals("main") && _m.getReturnType().equals(_voidType) && _m.getParameterCount() == 1
+							&& _m.getParameterType(0).equals(_stringArrayType)) {
+						addMethodForProcessing(_m);
+					}
 				}
 			}
 
@@ -640,7 +683,7 @@ public class JessTester {
 			final StringWriter _sw = new StringWriter();
 			extractFactsAsString(_sw);
 			System.out.println(_sw.toString());
-		} catch (JessException _e) {
+		} catch (final JessException _e) {
 			_e.printStackTrace();
 			throw new RuntimeException(_e);
 		}
