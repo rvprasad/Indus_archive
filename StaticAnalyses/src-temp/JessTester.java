@@ -639,14 +639,21 @@ public class JessTester {
 			rete.executeCommand("(deftemplate assignTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
 					+ "(slot index (default -4)) (slot context (default nil)))");
 			rete.executeCommand("(deftemplate pointsTo (slot reference) (slot object) (slot context))");
-			rete.executeCommand("(defrule pointsToRule "
-					+ "(and (assignTo (lhs ?c) (rhs ?a) (invocationSite ?) (index ?) (context ?ctxt) )"
+			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
+			rete.executeCommand("(defrule equivRule "
+					+ "(and (assignTo (lhs ?c) (rhs ?a) (invocationSite ?) (index ?) (context ?ctxt)) "
+					+ "(assignTo (lhs ?a) (rhs ?c) (invocationSite ?) (index ?) (context ?ctxt))) "
+					+ "=> (assert (equiv (one ?c) (two ?a))) (assert (equiv (one ?a) (two ?c))))");
+			rete.executeCommand("(defrule pointsToRule (and "
+					+ "(and (assignTo (lhs ?c) (rhs ?a) (invocationSite ?) (index ?) (context ?ctxt))"
 					+ "(pointsTo (reference ?a) (object ?o) (context ?))) "
+					+ "(not (equiv (one ?c) (two ?a)))) "
 					+ "=> (if (call (fetch Engine) isCompatible ?c ?o) "
 					+ "then (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt)))))");
 			rete.executeCommand("(defrule expansionRule "
 					+ "(and (assignTo (lhs ?a) (rhs ?) (invocationSite ?c&~nil) (index -1) (context ?d)) "
-					+ "(pointsTo (reference ?a) (object ?o) (context ?d))) "
+					+ "(or (pointsTo (reference ?a) (object ?o) (context ?d)) "
+					+ "(and (equiv (one ?a) (two ?b)) (pointsTo (reference ?b) (object ?o)))))"
 					+ "=> (call (fetch Engine) resolveInvocation ?o ?c ?d))");
 			rete.executeCommand("(defquery findParamFactsFor \"Finds facts for Parameters at given invocation site\""
 					+ "(declare (variables ?callSite)) "
