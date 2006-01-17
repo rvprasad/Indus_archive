@@ -46,7 +46,7 @@ import soot.jimple.VirtualInvokeExpr;
 
 /**
  * This implementation calculates call information based on class-hierarchy information.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -148,11 +148,11 @@ public final class CHABasedCallInfoCollector
 				}
 			}
 
-			final Iterator _k = _callerTriples.iterator();
+			final Iterator<CallTriple> _k = _callerTriples.iterator();
 			final int _kEnd = _callerTriples.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final CallTriple _callerTriple = (CallTriple) _k.next();
+				final CallTriple _callerTriple = _k.next();
 				final SootMethod _caller = _callerTriple.getMethod();
 				final Stmt _stmt = _callerTriple.getStmt();
 				final InvokeExpr _expr = _callerTriple.getExpr();
@@ -172,6 +172,10 @@ public final class CHABasedCallInfoCollector
 		invokedMethod2callerTriple.clear();
 
 		stable();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END - Call info collection");
+		}
 	}
 
 	/**
@@ -194,7 +198,7 @@ public final class CHABasedCallInfoCollector
 
 	/**
 	 * Creates an instance of this class.
-	 * 
+	 *
 	 * @param analysis to be used.
 	 */
 	public void initialize(final IClassHierarchy analysis) {
@@ -206,6 +210,10 @@ public final class CHABasedCallInfoCollector
 	 */
 	@Override public void processingBegins() {
 		unstable();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN - Call info collection");
+		}
 	}
 
 	/**

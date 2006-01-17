@@ -150,8 +150,6 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 		_option.setOptionalArg(false);
 		_option.setRequired(true);
 		_options.addOption(_option);
-		_option = new Option("l", "preload", false, "Preload method bodies.");
-		_options.addOption(_option);
 		_option = new Option("S", "scope", true, "The scope that should be analyzed.");
 		_option.setArgs(1);
 		_option.setArgName("scope");
@@ -197,10 +195,6 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			}
 
 			_cli.initialize();
-
-			if (_cl.hasOption('l')) {
-				_cli.loadupMethodBodies();
-			}
 
 			_cli.execute(_cl.hasOption('j'));
 		} catch (final ParseException _e) {

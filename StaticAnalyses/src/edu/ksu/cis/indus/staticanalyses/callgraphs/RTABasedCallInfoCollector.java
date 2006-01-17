@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -36,7 +37,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import soot.ArrayType;
 import soot.Local;
 import soot.RefType;
 import soot.SootClass;
@@ -47,12 +47,16 @@ import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.CastExpr;
-import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
+import soot.jimple.StaticInvokeExpr;
+import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 
 /**
  * This implementation collects call information using rapid-type analysis.
@@ -86,12 +90,12 @@ public final class RTABasedCallInfoCollector
 	private CHABasedCallInfoCollector chaCallInfo;
 
 	/**
-	 * The collection of classes that are instantiated.
+	 * DOCUMENT ME!
 	 */
-	private final Collection<SootClass> instantiatedClasses = new HashSet<SootClass>();
+	private IEnvironment env;
 
 	/**
-	 * This maps method to the collection of classes that are instantiated whose effect has been considered on the key method.
+	 * This maps method to the collection of classes whose instances are created in the key method.
 	 */
 	private final Map<SootMethod, Collection<SootClass>> method2instantiatedClasses = new HashMap<SootMethod, Collection<SootClass>>();
 
@@ -104,23 +108,6 @@ public final class RTABasedCallInfoCollector
 	 * The collection of methods that serve as root methods during the analysis.
 	 */
 	private final Collection<SootMethod> roots = new HashSet<SootMethod>();
-
-	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.Local, soot.SootMethod)
-	 */
-	@Override public void callback(final Local local, final SootMethod method) {
-		final Type _type = local.getType();
-
-		if (_type instanceof RefType) {
-			capturePossibleRoots(((RefType) _type).getSootClass(), method);
-		} else if (_type instanceof ArrayType) {
-			final Type _baseType = ((ArrayType) _type).baseType;
-
-			if (_baseType instanceof RefType) {
-				capturePossibleRoots(((RefType) _baseType).getSootClass(), method);
-			}
-		}
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
@@ -159,31 +146,30 @@ public final class RTABasedCallInfoCollector
 		final Value _value = vBox.getValue();
 		Type _type = null;
 
-		if (_value instanceof NewExpr) {
-			_type = ((NewExpr) _value).getType();
-		} else if (_value instanceof InstanceFieldRef || _value instanceof StaticFieldRef) {
-			final FieldRef _f = (FieldRef) _value;
-			_type = _f.getType();
-			MapUtils.putIntoCollectionInMap(method2instantiatedClasses, context.getCurrentMethod(), _f.getField()
-					.getDeclaringClass());
-		} else if (_value instanceof ArrayRef) {
-			final ArrayRef _a = (ArrayRef) _value;
-			_type = _a.getType();
-		} else if (_value instanceof CastExpr) {
-			final CastExpr _c = (CastExpr) _value;
-			_type = _c.getType();
+		final SootMethod _currentMethod = context.getCurrentMethod();
+		if (_value instanceof NewExpr || _value instanceof InstanceFieldRef || _value instanceof StaticFieldRef
+				|| _value instanceof ArrayRef || _value instanceof CastExpr || _value instanceof Local) {
+			_type = _value.getType();
 		} else if (_value instanceof NewArrayExpr) {
 			final NewArrayExpr _n = (NewArrayExpr) _value;
 			_type = _n.getBaseType();
-		} else {
-			// if (_value instanceof NewMultiArrayExpr)
+		} else if (_value instanceof StringConstant) {
+			_type = env.getClass("java.lang.String").getType();
+		} else if (_value instanceof StaticInvokeExpr) {
+			recordCall(context, (InvokeExpr) _value);
+		} else if (_value instanceof SpecialInvokeExpr) {
+			final SootMethod _invoked = ((SpecialInvokeExpr) _value).getMethod();
+			if (_invoked.getName().equals("<init>") || _invoked.isPrivate()) {
+				recordCall(context, (InvokeExpr) _value);
+			}
+		} else if (_value instanceof NewMultiArrayExpr) {
 			final NewMultiArrayExpr _n = (NewMultiArrayExpr) _value;
 			_type = _n.getBaseType().baseType;
 		}
 
 		if (_type != null && _type instanceof RefType) {
-			MapUtils.putIntoCollectionInMap(method2instantiatedClasses, context.getCurrentMethod(),
-					((RefType) _type).getSootClass());
+			MapUtils.putIntoCollectionInMap(method2instantiatedClasses, _currentMethod, ((RefType) _type).getSootClass());
+			capturePossibleRoots(((RefType) _type).getSootClass(), _currentMethod);
 		}
 	}
 
@@ -195,7 +181,8 @@ public final class RTABasedCallInfoCollector
 			LOGGER.info("consolidate() - BEGIN");
 		}
 
-		final IWorkBag<SootMethod> _wb = new HistoryAwareFIFOWorkBag<SootMethod>(new HashSet());
+		final Collection<SootClass> _instantiatedClasses = new HashSet<SootClass>();
+		final IWorkBag<SootMethod> _wb = new HistoryAwareFIFOWorkBag<SootMethod>(new HashSet<SootMethod>());
 		_wb.addAllWorkNoDuplicates(roots);
 
 		while (_wb.hasWork()) {
@@ -203,20 +190,20 @@ public final class RTABasedCallInfoCollector
 			callInfoHolder.addReachable(_sootMethod);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("consolidate() - Processed method:  : " + _sootMethod);
+				LOGGER.debug("consolidate() - Processed method: " + _sootMethod);
 			}
 
-			processCallerAndAlreadyInstantiatedClasses(_sootMethod, _wb);
+			processCallerAndAlreadyInstantiatedClasses(_sootMethod, _wb, _instantiatedClasses);
 
 			final Collection<SootClass> _t = MapUtils.getCollectionFromMap(method2instantiatedClasses, _sootMethod);
 
-			if (!instantiatedClasses.containsAll(_t)) {
-				_t.removeAll(instantiatedClasses);
-				instantiatedClasses.addAll(_t);
+			if (!_instantiatedClasses.containsAll(_t)) {
+				_t.removeAll(_instantiatedClasses);
+				_instantiatedClasses.addAll(_t);
 				processNewInstantiatedClasses(_t, _wb);
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("consolidate() - Considered classes:  : " + _t);
+					LOGGER.debug("consolidate() - Considered classes: " + _t);
 				}
 			}
 
@@ -225,13 +212,12 @@ public final class RTABasedCallInfoCollector
 			_wb.addAllWorkNoDuplicates(_requiredClassInitializers);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("consolidate() - Required initializers:  : " + _requiredClassInitializers);
+				LOGGER.debug("consolidate() - Required initializers: " + _requiredClassInitializers);
 			}
 		}
 
 		callInfoHolder.fixupMethodsHavingZeroCallersAndCallees();
 
-		instantiatedClasses.clear();
 		method2instantiatedClasses.clear();
 		method2requiredCLInits.clear();
 		roots.clear();
@@ -260,7 +246,11 @@ public final class RTABasedCallInfoCollector
 		ppc.register(StaticFieldRef.class, this);
 		ppc.register(ArrayRef.class, this);
 		ppc.register(CastExpr.class, this);
-		ppc.registerForLocals(this);
+		ppc.register(Local.class, this);
+		ppc.register(SpecialInvokeExpr.class, this);
+		ppc.register(StaticInvokeExpr.class, this);
+		ppc.register(StringConstant.class, this);
+		env = ppc.getEnvironment();
 	}
 
 	/**
@@ -314,7 +304,11 @@ public final class RTABasedCallInfoCollector
 		ppc.unregister(StaticFieldRef.class, this);
 		ppc.unregister(ArrayRef.class, this);
 		ppc.unregister(CastExpr.class, this);
-		ppc.unregisterForLocals(this);
+		ppc.unregister(Local.class, this);
+		ppc.unregister(SpecialInvokeExpr.class, this);
+		ppc.unregister(StaticInvokeExpr.class, this);
+		ppc.unregister(StringConstant.class, this);
+		env = null;
 	}
 
 	/**
@@ -325,12 +319,12 @@ public final class RTABasedCallInfoCollector
 	 * @pre sootClass != null and method != null
 	 */
 	private void capturePossibleRoots(final SootClass sootClass, final SootMethod method) {
+		final Collection<SootMethod> _reqMethods = MapUtils.getCollectionFromMap(method2requiredCLInits, method);
 		final Collection<SootClass> _classes = new HashSet<SootClass>();
 		_classes.add(sootClass);
 		_classes.addAll(cha.getProperAncestorClassesOf(sootClass));
 		_classes.addAll(cha.getProperAncestorInterfacesOf(sootClass));
 
-		final Collection<SootMethod> _reqMethods = MapUtils.getCollectionFromMap(method2requiredCLInits, method);
 		final Iterator<SootClass> _i = _classes.iterator();
 		final int _iEnd = _classes.size();
 
@@ -349,9 +343,11 @@ public final class RTABasedCallInfoCollector
 	 *
 	 * @param caller of interest.
 	 * @param wb to be populated with work pertaining to expansion of call info.
-	 * @pre caller != null and wb != null
+	 * @param instantiatedClasses is the collection of classes that have been instantiated.
+	 * @pre caller != null and wb != null and instantiatedClasses != null
 	 */
-	private void processCallerAndAlreadyInstantiatedClasses(final SootMethod caller, final IWorkBag<SootMethod> wb) {
+	private void processCallerAndAlreadyInstantiatedClasses(final SootMethod caller, final IWorkBag<SootMethod> wb,
+			final Collection<SootClass> instantiatedClasses) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processCallerAndAlreadyInstantiatedClasses(SootMethod caller = " + caller + ", IWorkBag wb = " + wb
 					+ ") - BEGIN");
@@ -369,10 +365,14 @@ public final class RTABasedCallInfoCollector
 			final SootMethod _callee = _calleeTriple.getMethod();
 			final SootClass _calleeDeclaringClass = _callee.getDeclaringClass();
 
-			if (instantiatedClasses.contains(_calleeDeclaringClass)
-					|| CollectionUtils.containsAny(instantiatedClasses, cha.getProperSubclassesOf(_calleeDeclaringClass))) {
-				MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _callee, new CallTriple(caller,
-						_calleeTriple.getStmt(), _calleeTriple.getExpr()));
+			if (!_callee.isAbstract()
+					&& (instantiatedClasses.contains(_calleeDeclaringClass)
+							|| CollectionUtils.containsAny(instantiatedClasses, cha
+									.getProperSubclassesOf(_calleeDeclaringClass)) || _callee.isStatic() || (_calleeTriple
+							.getExpr() instanceof SpecialInvokeExpr)
+							&& _callee.getName().equals("<init>"))) {
+				MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _callee, new CallTriple(caller, _calleeTriple
+						.getStmt(), _calleeTriple.getExpr()));
 				MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, caller, _calleeTriple);
 				wb.addWorkNoDuplicates(_callee);
 			}
@@ -389,7 +389,6 @@ public final class RTABasedCallInfoCollector
 	 * @param newClasses that were instantiated.
 	 * @param wb that will be populated with work pertaining to expansion of call info.
 	 * @pre newClasses != null and wb != null
-	 * @pre newClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	private void processNewInstantiatedClasses(final Collection<SootClass> newClasses, final IWorkBag<SootMethod> wb) {
 		if (LOGGER.isDebugEnabled()) {
@@ -397,11 +396,11 @@ public final class RTABasedCallInfoCollector
 					+ ", IWorkBag wb = " + wb + ") - BEGIN");
 		}
 
-		final Collection<SootMethod> _col = Util.getResolvedMethods(newClasses);
 		final Map<SootMethod, Collection<CallTriple>> _chaCallee2Callers = chaCallInfo.getCallInfo().getCallee2CallersMap();
 		final Collection<SootMethod> _reachables = callInfoHolder.getReachableMethods();
-		final Iterator<SootMethod> _j = _col.iterator();
-		final int _jEnd = _col.size();
+		final Collection<SootMethod> _methodsInNewClasses = Util.getResolvedMethods(newClasses);
+		final Iterator<SootMethod> _j = _methodsInNewClasses.iterator();
+		final int _jEnd = _methodsInNewClasses.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final SootMethod _callee = _j.next();
@@ -417,8 +416,8 @@ public final class RTABasedCallInfoCollector
 				if (_reachables.contains(_caller)) {
 					_flag |= true;
 					MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _callee, _callerTriple);
-					MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, _caller, new CallTriple(
-							_callee, _callerTriple.getStmt(), _callerTriple.getExpr()));
+					MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, _caller, new CallTriple(_callee,
+							_callerTriple.getStmt(), _callerTriple.getExpr()));
 				}
 			}
 
@@ -430,6 +429,23 @@ public final class RTABasedCallInfoCollector
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processNewInstantiatedClassesAndReachables() - END");
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param context DOCUMENT ME!
+	 * @param expr DOCUMENT ME!
+	 */
+	private void recordCall(final Context context, final InvokeExpr expr) {
+		final SootMethod _invokedMethod = expr.getMethod();
+		final Stmt _stmt = context.getStmt();
+		final SootMethod _caller = context.getCurrentMethod();
+		final CallTriple _callerTriple = new CallTriple(_caller, _stmt, expr);
+		MapUtils.putIntoCollectionInMap(callInfoHolder.callee2callers, _invokedMethod, _callerTriple);
+		MapUtils.putIntoCollectionInMap(callInfoHolder.caller2callees, _caller, new CallTriple(_invokedMethod, _stmt, expr));
+		callInfoHolder.addReachable(_caller);
+		callInfoHolder.addReachable(_invokedMethod);
 	}
 }
 
