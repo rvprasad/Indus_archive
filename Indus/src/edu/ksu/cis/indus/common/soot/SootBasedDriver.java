@@ -90,7 +90,7 @@ public class SootBasedDriver {
 	/**
 	 * The default object that can be used for created statement graphs.
 	 */
-	private static final IStmtGraphFactory DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
+	private static final IStmtGraphFactory<?> DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 
 	/**
 	 * The logger used by instances of this class and it's subclasses to log messages.
@@ -152,7 +152,7 @@ public class SootBasedDriver {
 	 * This provides <code>UnitGraph</code>s required by the analyses. By defaults this will be initialized to
 	 * <code>ExceptionFlowSensitiveStmtGraphFactory</code>.
 	 */
-	protected IStmtGraphFactory cfgProvider;
+	protected IStmtGraphFactory<?> cfgProvider;
 
 	/**
 	 * The list of classes that should be considered as the core of the system.
@@ -194,6 +194,7 @@ public class SootBasedDriver {
 	 * Sets the name of the file containing the scope specification.
 	 *
 	 * @param scopeSpecFileName of the scope spec.
+	 * @return the scope definition stored in the given file.
 	 */
 	protected final SpecificationBasedScopeDefinition setScopeSpecFile(final String scopeSpecFileName) {
 		SpecificationBasedScopeDefinition _result = null;
@@ -227,7 +228,7 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * The environment.
 	 */
 	private Environment env;
 
@@ -301,7 +302,7 @@ public class SootBasedDriver {
 	 * @return an unit graph factory
 	 * @post return != null
 	 */
-	public IStmtGraphFactory getStmtGraphFactory() {
+	public IStmtGraphFactory<?> getStmtGraphFactory() {
 		return DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 	}
 
@@ -339,7 +340,7 @@ public class SootBasedDriver {
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _sc =  _i.next();
-			final List _methods = _sc.getMethods();
+			final List<SootMethod> _methods = _sc.getMethods();
 			final Iterator<SootMethod> _j = _methods.iterator();
 			final int _jEnd = _methods.size();
 
@@ -436,15 +437,15 @@ public class SootBasedDriver {
 
 		final Printer _printer = Printer.v();
 
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Dumping jimple for " + _sc);
 			}
 
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
+			for (final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = _j.next();
 
 				if (_sm.isConcrete()) {
 					try {
@@ -524,10 +525,10 @@ public class SootBasedDriver {
 			final SootClass _sc = _i.next();
 
 			if (_rmt.considerClassForEntryPoint(_sc)) {
-				final Collection _methods = _sc.getMethods();
+				final Collection<SootMethod> _methods = _sc.getMethods();
 
-				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
-					final SootMethod _sm = (SootMethod) _j.next();
+				for (final Iterator<SootMethod> _j = _methods.iterator(); _j.hasNext();) {
+					final SootMethod _sm = _j.next();
 
 					if (_rmt.isThisARootMethod(_sm)) {
 						rootMethods.add(_sm);

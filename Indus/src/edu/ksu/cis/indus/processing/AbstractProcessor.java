@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.processing;
 import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
-import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -27,7 +26,7 @@ import soot.jimple.Stmt;
 
 /**
  * Abstract implementation of IProcessor.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -35,13 +34,6 @@ import soot.jimple.Stmt;
 public abstract class AbstractProcessor
 		extends AbstractStatus
 		implements IProcessor {
-
-	/**
-	 * @see IProcessor#callback(Local, SootMethod)
-	 */
-	@AEmpty public void callback(@SuppressWarnings("unused") final Local local, @SuppressWarnings("unused") final SootMethod method) {
-		// does nothing
-	}
 
 	/**
 	 * @see IProcessor#callback(ValueBox, Context)
