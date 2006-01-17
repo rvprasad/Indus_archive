@@ -36,7 +36,6 @@ import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.AbstractJimpleValueSwitch;
@@ -330,14 +329,14 @@ public class ProcessingController {
 		 * @param objClass is the type of <code>o</code>.
 		 * @param o the AST INode to be processed.
 		 */
-		public void defaultCase(final Class objClass, final Object o) {
-			final Collection _temp = class2processors.get(objClass);
+		public void defaultCase(final Class<?> objClass, final Stmt o) {
+			final Collection<IProcessor> _temp = class2processors.get(objClass);
 
 			if (_temp != null) {
-				final Stmt _stmt = (Stmt) o;
+				final Stmt _stmt = o;
 
-				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-					final IProcessor _pp = (IProcessor) _i.next();
+				for (final Iterator<IProcessor> _i = _temp.iterator(); _i.hasNext();) {
+					final IProcessor _pp = _i.next();
 					_pp.callback(_stmt, context);
 				}
 			}
@@ -730,13 +729,14 @@ public class ProcessingController {
 		 *
 		 * @param objClass is the type of <code>o</code>
 		 */
-		public void defaultCase(final Class objClass) {
-			final Collection _temp = class2processors.get(objClass);
+		public void defaultCase(final Class<?> objClass) {
+			final Collection<IProcessor> _temp = class2processors.get(objClass);
 
 			if (_temp != null) {
-				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-					final IProcessor _pp = (IProcessor) _i.next();
-					_pp.callback(context.getProgramPoint(), context);
+				final ValueBox _programPoint = context.getProgramPoint();
+				for (final Iterator<IProcessor> _i = _temp.iterator(); _i.hasNext();) {
+					final IProcessor _pp = _i.next();
+					_pp.callback(_programPoint, context);
 				}
 			}
 		}
@@ -787,12 +787,12 @@ public class ProcessingController {
 	/**
 	 * A collection of all possible Jimple statement types for which a processor can register interest.
 	 */
-	public static final Collection<Class> STMT_CLASSES;
+	public static final Collection<Class<?>> STMT_CLASSES;
 
 	/**
 	 * A collection of all possible Jimple value types for which a processor can register interest.
 	 */
-	public static final Collection<Class> VALUE_CLASSES;
+	public static final Collection<Class<?>> VALUE_CLASSES;
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -800,7 +800,7 @@ public class ProcessingController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingController.class);
 
 	static {
-		Collection<Class> _t = new HashSet<Class>();
+		Collection<Class<?>> _t = new HashSet<Class<?>>();
 		_t.add(AssignStmt.class);
 		_t.add(BreakpointStmt.class);
 		_t.add(EnterMonitorStmt.class);
@@ -819,7 +819,7 @@ public class ProcessingController {
 
 		STMT_CLASSES = Collections.unmodifiableCollection(_t);
 
-		_t = new HashSet<Class>();
+		_t = new HashSet<Class<?>>();
 		_t.add(AddExpr.class);
 		_t.add(AndExpr.class);
 		_t.add(ArrayRef.class);
@@ -871,10 +871,8 @@ public class ProcessingController {
 	/**
 	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
 	 * class type.
-	 *
-	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
 	 */
-	protected final Map<Class, Set<IProcessor>> class2processors = new HashMap<Class, Set<IProcessor>>();
+	protected final Map<Class<?>, Set<IProcessor>> class2processors = new HashMap<Class<?>, Set<IProcessor>>();
 
 	/**
 	 * The context in which the AST chunk is visited during post processing.
@@ -884,18 +882,8 @@ public class ProcessingController {
 	/**
 	 * The collection of processors registered with this controller to process interfaces (class/method). This maintains the
 	 * insertion order.
-	 *
-	 * @invariant interfaceProcessors->forall(o | o.oclIsKindOf(IProcessor))
 	 */
 	protected final Collection<IProcessor> interfaceProcessors = new ArrayList<IProcessor>();
-
-	/**
-	 * The collection of processors registered with this controller to process method local variables. This maintains the
-	 * insertion order.
-	 *
-	 * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
-	 */
-	protected final Collection<IProcessor> localsProcessors = new ArrayList<IProcessor>();
 
 	/**
 	 * This indicates if statements are being processed.
@@ -918,11 +906,6 @@ public class ProcessingController {
 	private IEnvironment env;
 
 	/**
-	 * This caches the processed locals while processing each method body.
-	 */
-	private final Collection<Value> processedLocals = new HashSet<Value>();
-
-	/**
 	 * The filter used to filter the classes that select the classes and methods to be processed.
 	 */
 	private IProcessingFilter processingFilter;
@@ -942,16 +925,6 @@ public class ProcessingController {
 	 * This walks over the value for processing.
 	 */
 	private final ValueSwitcher valueSwitcher = new ValueSwitcher();
-
-
-	/**
-	 * Retrieves the value in <code>env</code>.
-	 *
-	 * @return the value in <code>env</code>.
-	 */
-	public final IEnvironment getEnvironment() {
-		return env;
-	}
 
 	/**
 	 * Creates an instance of this class.
@@ -988,6 +961,15 @@ public class ProcessingController {
 	 */
 	public IActivePart getActivePart() {
 		return activePart;
+	}
+
+	/**
+	 * Retrieves the value in <code>env</code>.
+	 *
+	 * @return the value in <code>env</code>.
+	 */
+	public final IEnvironment getEnvironment() {
+		return env;
 	}
 
 	/**
@@ -1045,7 +1027,7 @@ public class ProcessingController {
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
 	 */
-	public final void register(final Class interest, final IProcessor processor) {
+	public final void register(final Class<?> interest, final IProcessor processor) {
 		Set<IProcessor> _temp = class2processors.get(interest);
 
 		if (_temp == null) {
@@ -1075,7 +1057,7 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllStmts(final IProcessor processor) {
-		for (final Iterator<Class> _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
+		for (final Iterator<Class<?>> _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
 			register(_i.next(), processor);
 		}
 	}
@@ -1087,23 +1069,11 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public final void registerForAllValues(final IProcessor processor) {
-		for (final Iterator<Class> _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
+		for (final Iterator<Class<?>> _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
 			register(_i.next(), processor);
 		}
 	}
-
-	/**
-	 * Registers the processor for method local variable processing only. The processors are invoked in the order that they
-	 * register.
-	 *
-	 * @param processor the instance of processor.
-	 */
-	public final void registerForLocals(final IProcessor processor) {
-		if (!localsProcessors.contains(processor)) {
-			localsProcessors.add(processor);
-		}
-	}
-
+	
 	/**
 	 * Clears internal data structures. It does not reset values set via set methods.
 	 */
@@ -1158,8 +1128,8 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
-	public final void unregister(final Class interest, final IProcessor processor) {
-		final Set _temp = class2processors.get(interest);
+	public final void unregister(final Class<?> interest, final IProcessor processor) {
+		final Set<IProcessor> _temp = class2processors.get(interest);
 
 		if (_temp == null) {
 			throw new IllegalArgumentException("There are no processors registered  for " + interest.getName());
@@ -1183,7 +1153,7 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllStmts(final IProcessor processor) {
-		for (final Iterator<Class> _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
+		for (final Iterator<Class<?>> _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
 			unregister(_i.next(), processor);
 		}
 	}
@@ -1195,18 +1165,9 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public final void unregisterForAllValues(final IProcessor processor) {
-		for (final Iterator<Class> _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
+		for (final Iterator<Class<?>> _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
 			unregister(_i.next(), processor);
 		}
-	}
-
-	/**
-	 * Registers the processor for method local variable processing only.
-	 *
-	 * @param processor the instance of processor.
-	 */
-	public final void unregisterForLocals(final IProcessor processor) {
-		localsProcessors.remove(processor);
 	}
 
 	/**
@@ -1305,35 +1266,6 @@ public class ProcessingController {
 	/**
 	 * Processes the method body.
 	 *
-	 * @param stmt in which the locals need to be processed.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @pre method != null
-	 */
-	private void processLocals(final Stmt stmt, final SootMethod method) {
-		@SuppressWarnings("unchecked") final Iterator<ValueBox> _i = stmt.getUseAndDefBoxes().iterator();
-		final int _iEnd = stmt.getUseAndDefBoxes().size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final ValueBox _vb = _i.next();
-			final Value _value = _vb.getValue();
-
-			if (_value instanceof Local && !processedLocals.contains(_value)) {
-				processedLocals.add(_value);
-
-				final Iterator<IProcessor> _j = localsProcessors.iterator();
-				final int _jEnd = localsProcessors.size();
-
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final IProcessor _processor = _j.next();
-					_processor.callback((Local) _value, method);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Processes the method body.
-	 *
 	 * @param method whose body needs to be processed.
 	 * @throws IllegalStateException when <code>setStmtSequenceRetriever()</code> is not called with a non-null argument
 	 *             before calling this method.
@@ -1352,9 +1284,7 @@ public class ProcessingController {
 		}
 
 		try {
-			processedLocals.clear();
-
-			final Collection<List<Stmt>> _col1 = stmtSequencesRetriever.retreiveStmtSequences(method);
+			final Collection<List<Stmt>> _col1 = stmtSequencesRetriever.retrieveStmtSequences(method);
 			final Iterator<List<Stmt>> _j = _col1.iterator();
 			final int _jEnd = _col1.size();
 
@@ -1372,7 +1302,6 @@ public class ProcessingController {
 
 				for (int _iIndex = 0; _iIndex < _iEnd && activePart.canProceed(); _iIndex++) {
 					final Stmt _stmt = _i.next();
-					processLocals(_stmt, method);
 					context.setStmt(_stmt);
 					_stmt.apply(stmtSwitcher);
 				}

@@ -1,7 +1,15 @@
+2006-01-17 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/processing/ProcessingController.java:
+		- removed the support to process method locals.
+	* src/edu/ksu/cis/indus/processing/IStmtSequencesRetriever.java:
+	* src/edu/ksu/cis/indus/processing/OneAllStmtSequenceRetriever.java:
+		- renamed retreiveStmtSequences() to retrieveStmtSequences().
+
 2006-01-14 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/processing/Context.java:
-		- comparison of components of a context via referential equality will improve accuracy. 
+		- comparison of components of a context via referential equality will improve accuracy.
 
 2006-01-13 venku <venku@boss.dreamsoft.com>
 

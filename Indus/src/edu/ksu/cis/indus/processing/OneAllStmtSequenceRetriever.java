@@ -38,7 +38,7 @@ import soot.toolkits.graph.UnitGraph;
  * This implementation provides one sequence containing statements of the method as captured by either the basic block or the
  * statement graph (in that order of preference). Hence, the user must call <code>setStmtGraphFactory()</code> or
  * <code>setBasicBlockGraphMgr()</code> before using this object.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -59,9 +59,9 @@ public final class OneAllStmtSequenceRetriever
 	}
 
 	/**
-	 * @see IStmtSequencesRetriever#retreiveStmtSequences(SootMethod)
+	 * @see IStmtSequencesRetriever#retrieveStmtSequences(SootMethod)
 	 */
-	public Collection<List<Stmt>> retreiveStmtSequences(final SootMethod method) {
+	public Collection<List<Stmt>> retrieveStmtSequences(final SootMethod method) {
 		final List<Stmt> _temp = new ArrayList<Stmt>();
 		final Collection<List<Stmt>> _result = new ArrayList<List<Stmt>>();
 		_result.add(_temp);
@@ -78,7 +78,7 @@ public final class OneAllStmtSequenceRetriever
 				_temp.addAll(_bb.getStmtsOf());
 			}
 		} else {
-			final IStmtGraphFactory _sgf = getStmtGraphFactory();
+			final IStmtGraphFactory<?> _sgf = getStmtGraphFactory();
 
 			if (_sgf != null) {
 				final UnitGraph _sg = _sgf.getStmtGraph(method);
