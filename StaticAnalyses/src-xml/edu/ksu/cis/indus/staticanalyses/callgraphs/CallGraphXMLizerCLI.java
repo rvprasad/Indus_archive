@@ -153,7 +153,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
-			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
+			final CallGraphXMLizerCLI<?> _cli = new CallGraphXMLizerCLI();
 
 			_cli.xmlizer.setXmlOutputDir(_outputDir);
 			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
@@ -166,6 +166,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			}
 
 			_cli.initialize();
+
 			_cli.execute(_cl.hasOption('j'), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
