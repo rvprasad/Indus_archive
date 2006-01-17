@@ -640,9 +640,10 @@ public class JessTester {
 					+ "(slot index (default -4)) (slot context (default nil)))");
 			rete.executeCommand("(deftemplate pointsTo (slot reference) (slot object) (slot context))");
 			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
+			// TODO: we eventually should move the context into the slots and out of the template
 			rete.executeCommand("(defrule equivRule "
-					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?ctxt)) "
-					+ "(assignTo (lhs ?a) (rhs ?c) (invocationSite ?) (index ?) (context ?ctxt))) "
+					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?)) "
+					+ "(assignTo (lhs ?a) (rhs ?c) (invocationSite ?) (index ?) (context ?))) "
 					+ "=> (assert (equiv (one ?c) (two ?a))) (assert (equiv (one ?a) (two ?c))))");
 			rete.executeCommand("(defrule expansionRule "
 					+ "(and (assignTo (lhs ?a) (rhs ?) (invocationSite ?c&~nil) (index -1) (context ?d)) "
