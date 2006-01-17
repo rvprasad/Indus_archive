@@ -180,6 +180,11 @@ public class SootBasedDriver {
 	private String classpathToAdd;
 
 	/**
+	 * The environment.
+	 */
+	private Environment env;
+
+	/**
 	 * This traps the root methods.
 	 */
 	private RootMethodTrapper rootMethodTrapper;
@@ -189,48 +194,6 @@ public class SootBasedDriver {
 	 * <code>printTimingStats</code>.
 	 */
 	private final Map<String, Long> times = new LinkedHashMap<String, Long>();
-
-	/**
-	 * Sets the name of the file containing the scope specification.
-	 *
-	 * @param scopeSpecFileName of the scope spec.
-	 * @return the scope definition stored in the given file.
-	 */
-	protected final SpecificationBasedScopeDefinition setScopeSpecFile(final String scopeSpecFileName) {
-		SpecificationBasedScopeDefinition _result = null;
-
-		if (scopeSpecFileName != null) {
-			try {
-				final InputStream _in = new FileInputStream(scopeSpecFileName);
-				final String _contents = IOUtils.toString(_in);
-				IOUtils.closeQuietly(_in);
-				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
-			} catch (final IOException _e) {
-				final String _msg = "Error retrieved specification from " + scopeSpecFileName;
-				LOGGER.error(_msg, _e);
-
-				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
-				_i.initCause(_e);
-				throw _i;
-			} catch (final JiBXException _e) {
-				final String _msg = "JiBX failed during deserialization.";
-				LOGGER.error(_msg, _e);
-
-				final IllegalStateException _i = new IllegalStateException(_msg);
-				_i.initCause(_e);
-				throw _i;
-			}
-		} else {
-			_result = null;
-		}
-		cfgProvider.setScope(_result, getEnvironment());
-		return _result;
-	}
-
-	/**
-	 * The environment.
-	 */
-	private Environment env;
 
 	/**
 	 * Creates a new Test object. This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
@@ -276,6 +239,15 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Retrieves the environment used by the application.
+	 *
+	 * @return the environment.
+	 */
+	public final IEnvironment getEnvironment() {
+		return this.env;
+	}
+
+	/**
 	 * Retrieves the root methods in the system.
 	 *
 	 * @return the collection of root methods.
@@ -283,15 +255,6 @@ public class SootBasedDriver {
 	 */
 	public final Collection<SootMethod> getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
-	}
-
-	/**
-	 * Retrieves the environment used by the application.
-	 *
-	 * @return the environment.
-	 */
-	public final IEnvironment getEnvironment() {
-		return this.env;
 	}
 
 	/**
@@ -328,30 +291,6 @@ public class SootBasedDriver {
 		writeInfo("Loading classes....");
 		scene = loadupClassesAndCollectMains(options);
 		env = new Environment(scene);
-	}
-
-	/**
-	 * Loads the bodies of all methods in the system.
-	 */
-	public void loadupMethodBodies() {
-		final Chain _classes = Scene.v().getClasses();
-		final Iterator<SootClass> _i = _classes.iterator();
-		final int _iEnd = _classes.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc =  _i.next();
-			final List<SootMethod> _methods = _sc.getMethods();
-			final Iterator<SootMethod> _j = _methods.iterator();
-			final int _jEnd = _methods.size();
-
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final SootMethod _sm = _j.next();
-
-				if (_sm.isConcrete()) {
-					_sm.retrieveActiveBody();
-				}
-			}
-		}
 	}
 
 	/**
@@ -484,6 +423,43 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Sets the name of the file containing the scope specification.
+	 *
+	 * @param scopeSpecFileName of the scope spec.
+	 * @return the scope definition stored in the given file.
+	 */
+	protected final SpecificationBasedScopeDefinition setScopeSpecFile(final String scopeSpecFileName) {
+		SpecificationBasedScopeDefinition _result = null;
+
+		if (scopeSpecFileName != null) {
+			try {
+				final InputStream _in = new FileInputStream(scopeSpecFileName);
+				final String _contents = IOUtils.toString(_in);
+				IOUtils.closeQuietly(_in);
+				_result = SpecificationBasedScopeDefinition.deserialize(_contents);
+			} catch (final IOException _e) {
+				final String _msg = "Error retrieved specification from " + scopeSpecFileName;
+				LOGGER.error(_msg, _e);
+
+				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
+				_i.initCause(_e);
+				throw _i;
+			} catch (final JiBXException _e) {
+				final String _msg = "JiBX failed during deserialization.";
+				LOGGER.error(_msg, _e);
+
+				final IllegalStateException _i = new IllegalStateException(_msg);
+				_i.initCause(_e);
+				throw _i;
+			}
+		} else {
+			_result = null;
+		}
+		cfgProvider.setScope(_result, getEnvironment());
+		return _result;
+	}
+
+	/**
 	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
 	 * system being analyzed. All <code>public static void main()</code> methods defined in <code>public</code> classes
 	 * that are named via <code>args</code>are considered as entry points. It uses the classpath set via
@@ -537,7 +513,34 @@ public class SootBasedDriver {
 			}
 		}
 		Util.fixupThreadStartBody(_result);
+
+		loadupMethodBodies();
+
 		return _result;
+	}
+
+	/**
+	 * Loads the bodies of all methods in the system.
+	 */
+	private void loadupMethodBodies() {
+		final Chain _classes = Scene.v().getClasses();
+		final Iterator<SootClass> _i = _classes.iterator();
+		final int _iEnd = _classes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc =  _i.next();
+			final List<SootMethod> _methods = _sc.getMethods();
+			final Iterator<SootMethod> _j = _methods.iterator();
+			final int _jEnd = _methods.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final SootMethod _sm = _j.next();
+
+				if (_sm.isConcrete()) {
+					_sm.retrieveActiveBody();
+				}
+			}
+		}
 	}
 }
 
