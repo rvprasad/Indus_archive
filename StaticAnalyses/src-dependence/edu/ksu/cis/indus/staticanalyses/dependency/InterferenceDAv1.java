@@ -19,13 +19,10 @@ import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
@@ -46,7 +43,6 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
@@ -337,7 +333,7 @@ public class InterferenceDAv1
 
 		final List<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>> _entrySet = new ArrayList<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>>(
 				dependent2dependee.entrySet());
-		Collections.sort(_entrySet, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_entrySet, ToStringBasedComparator.getComparator());
 
 		for (final Iterator<Map.Entry<Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>>> _i = _entrySet
 				.iterator(); _i.hasNext();) {

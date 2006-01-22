@@ -21,25 +21,21 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedEquivalence;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import soot.SootMethod;
-
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.EnterMonitorStmt;
@@ -47,7 +43,6 @@ import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
-
 import soot.toolkits.graph.UnitGraph;
 
 /**
@@ -200,8 +195,8 @@ import soot.toolkits.graph.UnitGraph;
 	 * @see DependenceAndMayFollowInfoCalculator#DependenceAndMayFollowInfoCalculator(RelativeDependenceInfoTool,
 	 *      InterferenceDAv1, LockAcquisitionBasedEquivalence, ICallGraphInfo, IThreadGraphInfo, CFGAnalysis)
 	 */
-	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool<?> theTool, final InterferenceDAv1 ida,
-			final LockAcquisitionBasedEquivalence lbe,final ICallGraphInfo callGraph,  final IThreadGraphInfo threadGraph, 
+	DependenceAndMayFollowInfoCalculatorV2(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
+			final LockAcquisitionBasedEquivalence lbe, final ICallGraphInfo callGraph, final IThreadGraphInfo threadGraph,
 			final CFGAnalysis cfgAnalysis, final IStmtGraphFactory<?> graphFactory) {
 		super(theTool, ida, lbe, callGraph, threadGraph, cfgAnalysis);
 		stmtGraphFactory = graphFactory;

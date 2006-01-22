@@ -17,22 +17,17 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.independence;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentRegionDetector;
-import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetector;
-import edu.ksu.cis.indus.staticanalyses.concurrency.independence.IndependentStmtDetectorv2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -58,7 +53,6 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,19 +60,17 @@ import soot.Body;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.Stmt;
 
 /**
  * This is a command-line interface to drive independence detection implementation in Indus. This interface will generate
  * annotated jimple.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
+public final class IndependenceDetectionCLI
 		extends SootBasedDriver {
 
 	/**
@@ -98,7 +90,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param arg the detector to use.
 	 * @pre arg != null
 	 */
@@ -108,7 +100,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to the program via command line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when CLI fails.
 	 */
@@ -188,7 +180,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets the output directory.
-	 *
+	 * 
 	 * @param arg is the output directory.
 	 * @pre arg != null
 	 */
@@ -198,7 +190,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Annotates the atomic statements that are in the methods reachable in given call graph.
-	 *
+	 * 
 	 * @param cgi provides the call graph.
 	 * @pre cgi != null
 	 */
@@ -228,18 +220,19 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes atomicity detection algorithm according to given option.
-	 *
+	 * 
 	 * @param cl is the command line.
 	 * @pre cl != null
+	 * @param <T> dummy type parameter.
 	 */
-	private void execute(final CommandLine cl) {
+	private <T extends ITokens<T, Value>> void execute(final CommandLine cl) {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "AtomicityDetection:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
 				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
+		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
@@ -282,7 +275,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
-		_processors.add(_tgi);
+		_processors.add((IProcessor) _tgi);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
@@ -318,7 +311,7 @@ public final class IndependenceDetectionCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Annotates statements indicating boundaries of atomic regions.
-	 *
+	 * 
 	 * @param regionDetector to be used.
 	 * @param cgi provides the call graph of the reachable methods which need to be annotated.
 	 * @pre regionDetector != null and cgi != null

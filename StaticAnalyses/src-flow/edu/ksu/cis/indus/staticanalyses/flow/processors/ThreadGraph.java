@@ -21,21 +21,18 @@ import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.ApplicationInitInfoFactory;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
@@ -60,7 +57,6 @@ import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
-
 import soot.jimple.AssignStmt;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -386,7 +382,7 @@ public class ThreadGraph
 
 		final List<Triple<?, ?, ?>> _temp1 = new ArrayList<Triple<?, ?, ?>>();
 		_temp1.addAll(thread2methods.keySet());
-		Collections.<Triple<?, ?, ?>> sort(_temp1, ToStringBasedComparator.SINGLETON);
+		Collections.<Triple<?, ?, ?>> sort(_temp1, ToStringBasedComparator.getComparator());
 
 		for (final Iterator<Triple<?, ?, ?>> _i = _temp1.iterator(); _i.hasNext();) {
 			final Triple<?, ?, ?> _triple = _i.next();
@@ -407,7 +403,7 @@ public class ThreadGraph
 
 		_result.append("Method to thread mapping: \n");
 		final List<SootMethod> _t = new ArrayList<SootMethod>(method2threadCreationSite.keySet());
-		Collections.sort(_t, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_t, ToStringBasedComparator.getComparator());
 
 		for (final Iterator<SootMethod> _i = _t.iterator(); _i.hasNext();) {
 			final SootMethod _sm = _i.next();
@@ -725,7 +721,8 @@ public class ThreadGraph
 
 		// collect the new expressions which create Thread objects.
 		if (Util.isDescendentOf(_clazz, JAVA_LANG_THREAD)) {
-			final SootClass _temp = Util.getDeclaringClass(_clazz, START_METHOD_NAME, Collections.EMPTY_LIST, VoidType.v());
+			final SootClass _temp = Util.getDeclaringClass(_clazz, START_METHOD_NAME, Collections.<Type> emptyList(),
+					VoidType.v());
 
 			if (_temp != null && _temp.getName().equals(JAVA_LANG_THREAD)) {
 				final AssignStmt _stmt = (AssignStmt) context.getStmt();

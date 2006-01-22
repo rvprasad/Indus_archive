@@ -17,26 +17,21 @@ package edu.ksu.cis.indus.toolkits.bandera;
 import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
-
 import edu.ksu.cis.bandera.util.BaseObservable;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
@@ -57,7 +52,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,7 +69,6 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.Stmt;
 import soot.toolkits.graph.CompleteUnitGraph;
 
@@ -89,9 +82,8 @@ import soot.toolkits.graph.CompleteUnitGraph;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
+public final class RelativeDependenceInfoTool
 		extends BaseObservable
 		implements Tool {
 
@@ -508,8 +500,9 @@ public final class RelativeDependenceInfoTool<T extends ITokens<T, Value>>
 	 * 
 	 * @param environment to be analyzed.
 	 * @param entryPointMethods are the entry points to the environment.
+	 * @param <T> dummy type parameter.
 	 */
-	void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
+	<T extends ITokens<T, Value>> void run(final IEnvironment environment, final Collection<SootMethod> entryPointMethods) {
 		final String _tagName = "RelativeDependenceInfoTool:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _stmtGraphFactory = new CompleteStmtGraphFactory();
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil

@@ -21,13 +21,11 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor.MetricKeys;
-
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
@@ -36,13 +34,11 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
-
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +55,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +64,12 @@ import soot.Value;
 
 /**
  * This class provides a command-line interface to xmlize object flow information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
+public final class OFAXMLizerCLI
 		extends SootBasedDriver {
 
 	/**
@@ -101,7 +95,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 	/**
 	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
 	 * methods to be considered in one execution of the analyses.
-	 *
+	 * 
 	 * @param root is the object based on which base name should be generated.
 	 * @param methods is the collection that will contain the root methods upon return.
 	 * @return a name along with the root methods via <code>methods</code>.
@@ -124,7 +118,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to the program via command line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when object flow analysis fails.
 	 */
@@ -209,7 +203,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
@@ -220,27 +214,28 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Xmlize the given system.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>,
 	 *            otherwise.
+	 * @param <T> dummy type parameter.
 	 */
-	private void execute(final boolean dumpJimple) {
+	private <T extends ITokens<T, Value>> void execute(final boolean dumpJimple) {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer<Value> _aa;
 		if (type.equals("fioi")) {
-			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
-					getStmtGraphFactory());
+			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fios")) {
-			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
-					getStmtGraphFactory());
+			_aa = OFAnalyzer.getFIOSAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fsoi")) {
-			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
-					getStmtGraphFactory());
+			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else if (type.equals("fsos")) {
-			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
-					getStmtGraphFactory());
+			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else {
 			throw new IllegalArgumentException("ofa-type has to be one of the following: fioi, fsoi, fios, fsos.");
 		}
@@ -277,7 +272,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 		} else {
 			_roots.addAll(getRootMethods());
 		}
-		Collections.sort(_roots, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_roots, ToStringBasedComparator.getComparator());
 		writeInfo("Root methods are: " + _roots.size() + "\n" + _roots);
 
 		for (final Iterator<Object> _k = _roots.iterator(); _k.hasNext();) {
@@ -310,8 +305,9 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 			_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			new PrintWriter(_stream).write("STATISTICS: " + MapUtils.verbosePrint(
-					new TreeMap<MetricKeys, Map<Object, Integer>>(_countingProcessor.getStatistics())));
+			new PrintWriter(_stream).write("STATISTICS: "
+					+ MapUtils
+							.verbosePrint(new TreeMap<MetricKeys, Map<Object, Integer>>(_countingProcessor.getStatistics())));
 			writeInfo(_stream.toString());
 
 			_info.put(AbstractXMLizer.FILE_NAME_ID, _fileBaseName);
@@ -329,7 +325,7 @@ public final class OFAXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets cumulative mode.
-	 *
+	 * 
 	 * @param option <code>true</code> indicates all root methods should be analyzed in one go; <code>false</code>
 	 *            indicates analysis should be executed once for each root method.
 	 */

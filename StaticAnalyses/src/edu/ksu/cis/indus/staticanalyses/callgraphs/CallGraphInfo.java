@@ -51,7 +51,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class calculates call graphCache information from the given object flow analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
  * @author $Author$
  * @version $Revision$
@@ -62,7 +62,7 @@ public final class CallGraphInfo
 
 	/**
 	 * This is the interface is used to access call info in it's primitive form.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -71,7 +71,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the callee to callers map.
-		 *
+		 * 
 		 * @return a map for callee to callers.
 		 * @post result != null
 		 */
@@ -79,7 +79,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the caller to callees map.
-		 *
+		 * 
 		 * @return a map for caller to callees.
 		 * @post result != null
 		 */
@@ -87,7 +87,7 @@ public final class CallGraphInfo
 
 		/**
 		 * Retrieves the methods reachable in the system.
-		 *
+		 * 
 		 * @return a collection of reachable methods.
 		 * @post result != null
 		 */
@@ -96,7 +96,7 @@ public final class CallGraphInfo
 
 	/**
 	 * A comparator to compare call triples based on <code>toString()</code> value of the method being called.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -109,13 +109,13 @@ public final class CallGraphInfo
 		 */
 		public int compare(final CallTriple o1, final CallTriple o2) {
 			final int _i = o1.getMethod().getSignature().compareTo(o2.getMethod().getSignature());
-            return _i == 0 ? o1.toString().compareTo(o2.toString()) : _i;
+			return _i == 0 ? o1.toString().compareTo(o2.toString()) : _i;
 		}
 	}
 
 	/**
-	 * The constant that controls the connectivity cache size.   This constant ensures that the cache is large enough to
-	 * store all mappings under the assumption that every method is called at most 3 times.
+	 * The constant that controls the connectivity cache size. This constant ensures that the cache is large enough to store
+	 * all mappings under the assumption that every method is called at most 3 times.
 	 */
 	private static final int CONNECTIVITY_CACHE_SIZE = Constants.getNumOfMethodsInApplication() * 3;
 
@@ -130,7 +130,7 @@ public final class CallGraphInfo
 	private final Map<SootMethod, Collection<CallTriple>> callee2callers = new HashMap<SootMethod, Collection<CallTriple>>();
 
 	/**
-	 * This cache stores callee to call-site reachability information.  The cache is large enough to store all mappings under
+	 * This cache stores callee to call-site reachability information. The cache is large enough to store all mappings under
 	 * the assumption that every method is called at most 3 times.
 	 */
 	private Map<Triple<SootMethod, Stmt, SootMethod>, Boolean> calleeCallSiteReachabilityCache = new Cache<Triple<SootMethod, Stmt, SootMethod>, Boolean>(
@@ -187,7 +187,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Creates a new CallGraphInfo object.
-	 *
+	 * 
 	 * @param pairManager to be used when creating pair objects.
 	 * @pre pairManager != null
 	 */
@@ -223,7 +223,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Constructs call graph from the information provided by the given provider.
-	 *
+	 * 
 	 * @param provider provides call information to be consolidated.
 	 */
 	public void createCallGraphInfo(final ICallInfo provider) {
@@ -241,7 +241,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the set of method implementations that shall be invoked at the given callsite expression in the given method.
-	 *
+	 * 
 	 * @param invokeExpr the method call site.
 	 * @param context in which the call occurs.
 	 * @return a collection of methods.
@@ -274,7 +274,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns a collection of methods called by <code>caller</code>.
-	 *
+	 * 
 	 * @param caller which calls the returned methods.
 	 * @return a collection of call sites along with callees at those sites.
 	 * @pre caller != null
@@ -288,7 +288,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the methods that call the given method independent of any context.
-	 *
+	 * 
 	 * @param callee is the method being called.
 	 * @return a collection of call-sites at which <code>callee</code> is called.
 	 * @pre callee != null
@@ -352,7 +352,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the methods that are the entry point for the analyzed system.
-	 *
+	 * 
 	 * @return a collection of methods.
 	 * @post result != null
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getEntryMethods()
@@ -412,7 +412,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Returns the methods reachable in the analyzed system.
-	 *
+	 * 
 	 * @return a collection of methods.
 	 * @post result != null
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getReachableMethods()
@@ -439,7 +439,7 @@ public final class CallGraphInfo
 		final List<List<SootMethod>> _result = new ArrayList<List<SootMethod>>(_r);
 
 		if (!topDown) {
-			 Collections.reverse(_result);
+			Collections.reverse(_result);
 		}
 		return _result;
 	}
@@ -486,7 +486,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Checks if the given method is reachable in the analyzed system.
-	 *
+	 * 
 	 * @param method to be checked for reachabiliy.
 	 * @return <code>true</code> if <code>method</code> is reachable; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -514,7 +514,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Provides a stringized representation of this call graphCache.
-	 *
+	 * 
 	 * @return stringized representation of the this call graphCache.
 	 */
 	@Override public String toString() {
@@ -523,7 +523,7 @@ public final class CallGraphInfo
 
 		_result.append("Roots of the system: ");
 		_temp1.addAll(getEntryMethods());
-		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_temp1, ToStringBasedComparator.getComparator());
 
 		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
 			_result.append("\t" + _i.next().getSignature());
@@ -535,7 +535,7 @@ public final class CallGraphInfo
 
 		_temp1.clear();
 		_temp1.addAll(caller2callees.keySet());
-		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_temp1, ToStringBasedComparator.getComparator());
 
 		final List<CallTriple> _temp3 = new ArrayList<CallTriple>();
 		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
@@ -554,7 +554,7 @@ public final class CallGraphInfo
 		_result.append("bottom-up\n");
 		_temp1.clear();
 		_temp1.addAll(callee2callers.keySet());
-		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_temp1, ToStringBasedComparator.getComparator());
 
 		for (final Iterator<SootMethod> _i = _temp1.iterator(); _i.hasNext();) {
 			final SootMethod _callee = _i.next();
@@ -574,7 +574,7 @@ public final class CallGraphInfo
 
 	/**
 	 * Testing purposes only.
-	 *
+	 * 
 	 * @return the cached copy of the call graph.
 	 */
 	IDirectedGraph<?> getCallGraph() {
@@ -639,7 +639,7 @@ public final class CallGraphInfo
 	/**
 	 * Retrieves the reachables in the given direction. The returned value exposes private data. Hence, callers should address
 	 * the issue of keeping this data private.
-	 *
+	 * 
 	 * @param root see IDirectedGraph.getReachableFrom(INode, boolean)
 	 * @param forward see IDirectedGraph.getReachableFrom(INode, boolean)
 	 * @return see IDirectedGraph.getReachableFrom(INode, boolean)

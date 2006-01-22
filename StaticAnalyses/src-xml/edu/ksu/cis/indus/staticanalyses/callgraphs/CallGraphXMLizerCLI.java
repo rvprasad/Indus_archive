@@ -20,14 +20,12 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -37,13 +35,11 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
-
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,22 +56,21 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 
 /**
  * This class provides the command line interface to xmlize call graphs.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
+public final class CallGraphXMLizerCLI
 		extends SootBasedDriver {
 
 	/**
@@ -95,7 +90,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to the program via command line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when the analyses fail.
 	 */
@@ -153,7 +148,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
-			final CallGraphXMLizerCLI<?> _cli = new CallGraphXMLizerCLI();
+			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
 
 			_cli.xmlizer.setXmlOutputDir(_outputDir);
 			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
@@ -180,7 +175,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
@@ -191,7 +186,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets cumulative mode.
-	 *
+	 * 
 	 * @param option <code>true</code> indicates one cumulative call graph for all root methods; <code>false</code>
 	 *            indicates separate call graphs for each root method.
 	 */
@@ -201,7 +196,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Dumps information onto the stdout and as jimple.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 * @param cgi to be dumped.
 	 * @param fileBaseName provides the base for the name of the file.
@@ -233,7 +228,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Xmlize the given system.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicates xmlized jimple should be dumped; <code>false</code>, otherwise.
 	 * @param type of call graph analysis.
 	 */
@@ -251,7 +246,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executed CHA-based call graph analysis.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 */
 	private void executeCHA(final boolean dumpJimple) {
@@ -279,18 +274,19 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executed OFA-based call graph analysis.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
+	 * @param <T> dummy type parameter.
 	 */
-	private void executeOFA(final boolean dumpJimple) {
+	private <T extends ITokens<T, Value>> void executeOFA(final boolean dumpJimple) {
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
 				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
+		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final OFABasedCallInfoCollector _ofaci = new OFABasedCallInfoCollector();
-		final Collection _rm = new ArrayList();
+		final Collection<SootMethod> _rm = new ArrayList<SootMethod>();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		_ssr.setStmtGraphFactory(getStmtGraphFactory());
@@ -299,17 +295,17 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 		_pc.setEnvironment(getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 
-		final List _roots = new ArrayList();
+		final List<Object> _roots = new ArrayList<Object>();
 
 		if (cumulative) {
 			_roots.add(getRootMethods());
 		} else {
 			_roots.addAll(getRootMethods());
 		}
-		Collections.sort(_roots, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_roots, ToStringBasedComparator.getComparator());
 		writeInfo("Root methods are: " + _roots.size() + "\n" + _roots);
 
-		for (final Iterator _k = _roots.iterator(); _k.hasNext();) {
+		for (final Iterator<Object> _k = _roots.iterator(); _k.hasNext();) {
 			_rm.clear();
 
 			final Object _root = _k.next();
@@ -338,8 +334,8 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 			_cgi.createCallGraphInfo(_ofaci.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
-			new PrintWriter(_stream).write("STATISTICS: " + MapUtils.verbosePrint(new TreeMap(_countingProcessor
-					.getStatistics())));
+			new PrintWriter(_stream).write("STATISTICS: "
+					+ MapUtils.verbosePrint(new TreeMap(_countingProcessor.getStatistics())));
 			writeInfo(_stream.toString());
 
 			dumpInfo(dumpJimple, _cgi, _fileBaseName, _aa.getEnvironment());
@@ -348,7 +344,7 @@ public final class CallGraphXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Executed RTA-based call graph analysis.
-	 *
+	 * 
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 */
 	private void executeRTA(final boolean dumpJimple) {

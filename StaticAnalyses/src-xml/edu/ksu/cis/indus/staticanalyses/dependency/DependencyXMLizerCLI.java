@@ -21,7 +21,6 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
@@ -29,12 +28,10 @@ import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
@@ -44,6 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.DependenceSort;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.AliasedUseDefInfov2;
@@ -55,7 +53,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
-
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.ArrayList;
@@ -75,7 +72,6 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,13 +81,12 @@ import soot.Value;
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
  * more configuration infomration.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
+public class DependencyXMLizerCLI
 		extends SootBasedDriver {
 
 	/**
@@ -106,13 +101,12 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * A collection of dependence analyses.
-	 *
 	 */
-	protected List<IDependencyAnalysis> das = new ArrayList<IDependencyAnalysis>();
+	protected List<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 	/**
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
-	 *
+	 * 
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
 	protected final Map info = new HashMap();
@@ -149,7 +143,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * This is the entry point via command-line.
-	 *
+	 * 
 	 * @param args is the command line arguments.
 	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 * @pre args != null
@@ -269,7 +263,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 			_xmlizerCLI.exceptionalExits = _cl.hasOption("exceptionalexits");
 			_xmlizerCLI.commonUncheckedException = _cl.hasOption("commonuncheckedexceptions");
 
-			final List _classNames = _cl.getArgList();
+			final List<String> _classNames = _cl.getArgList();
 
 			if (_classNames.isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
@@ -281,8 +275,8 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 			if (_cl.hasOption(_dasOptions[_exitControlDAIndex][0].toString())) {
 				_xmlizerCLI.das.add(_ncda);
 
-				for (final Iterator _i = _ncda.getIds().iterator(); _i.hasNext();) {
-					final Object _id = _i.next();
+				for (final Iterator<DependenceSort> _i = _ncda.getIds().iterator(); _i.hasNext();) {
+					final DependenceSort _id = _i.next();
 					MapUtils.putIntoCollectionInMapUsingFactory(_xmlizerCLI.info, _id, _ncda, SetUtils.getFactory());
 				}
 			}
@@ -304,7 +298,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Parses command line for dependence analysis options.
-	 *
+	 * 
 	 * @param dependenceOptions supported by this CLI.
 	 * @param cmdLine provided by the user.
 	 * @param xmlizerCLI that will be influenced by the provided dependence analysis options.
@@ -316,7 +310,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 		for (int _i = 0; _i < dependenceOptions.length; _i++) {
 			if (cmdLine.hasOption(dependenceOptions[_i][0].toString())) {
-				final IDependencyAnalysis _da = (IDependencyAnalysis) dependenceOptions[_i][2];
+				final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da = (IDependencyAnalysis) dependenceOptions[_i][2];
 				xmlizerCLI.das.add(_da);
 				_flag = true;
 
@@ -335,7 +329,7 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
 	 * @pre options != null
 	 */
@@ -346,12 +340,14 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * Drives the analyses.
+	 * 
+	 * @param <T> dummy type parameter.
 	 */
-	private void execute() {
+	private <T extends ITokens<T, Value>> void execute() {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type>getTokenManager(new SootValueTypeManager()),
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
 				getStmtGraphFactory());
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
@@ -428,8 +424,8 @@ public class DependencyXMLizerCLI<T extends ITokens<T, Value>>
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
-		_processors.add((IProcessor)_tgi);
-		_processors.add((IProcessor)_eti);
+		_processors.add((IProcessor) _tgi);
+		_processors.add((IProcessor) _eti);
 		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);

@@ -26,16 +26,13 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
@@ -60,7 +57,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
@@ -68,12 +64,11 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
-
 import soot.tagkit.Host;
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -113,7 +108,7 @@ public final class SlicingEngine {
 
 	/**
 	 * The work bag used during slicing.
-	 *
+	 * 
 	 * @invariant workbag != null
 	 */
 	private final IWorkBag<ISliceCriterion> workbag = new FIFOWorkBag<ISliceCriterion>();
@@ -146,14 +141,14 @@ public final class SlicingEngine {
 
 	/**
 	 * The list of slice criteria.
-	 *
+	 * 
 	 * @invariant criteria != null
 	 */
 	private List<ISliceCriterion> criteria = new ArrayList<ISliceCriterion>();
 
 	/**
 	 * The direction of the slice. It's default value is <code>BACKWARD_SLICE</code>.
-	 *
+	 * 
 	 * @invariant sliceTypes.contains(sliceType)
 	 */
 	private SliceType sliceType = SliceType.BACKWARD_SLICE;
@@ -191,7 +186,7 @@ public final class SlicingEngine {
 
 	/**
 	 * This predicate can be used to filter out java.lang.Thread.start methods from a set of methods.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -209,7 +204,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Returns the active part of this object.
-	 *
+	 * 
 	 * @return the active part.
 	 */
 	public IActivePart getActivePart() {
@@ -219,7 +214,7 @@ public final class SlicingEngine {
 	/**
 	 * Sets the the id's of the dependence analyses to be used for slicing. The analyses are provided by the given controller
 	 * that was used to initialize the analyses. to
-	 *
+	 * 
 	 * @param ctrl provides dependency information required for slicing.
 	 * @param dependenciesToUse is the ids of the dependecies to be considered for slicing.
 	 * @pre ctrl != null and dependenciesToUse != null
@@ -244,7 +239,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the basic block graph manager to be used during slicing.
-	 *
+	 * 
 	 * @param basicBlockGraphMgr is the basic block graph manager for the system being sliced.
 	 * @pre bbgMgr != null
 	 */
@@ -254,7 +249,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the call graph to be used during slicing.
-	 *
+	 * 
 	 * @param callgraph provides call graph information about the system being sliced.
 	 * @pre callgraph != null
 	 */
@@ -264,7 +259,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves the slice collector being used by this instance of the slice engine.
-	 *
+	 * 
 	 * @return the slice collector
 	 * @post result != null
 	 */
@@ -274,7 +269,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the information that provides context retriever based on dependence analysis id.
-	 *
+	 * 
 	 * @param map a map from dependence analysis id to context retriever to be used with it.
 	 * @pre map != null
 	 */
@@ -284,7 +279,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the object that maps new expressions to corresponding init invocation sites.
-	 *
+	 * 
 	 * @param mapper maps new expressions to corresponding init invocation sites.
 	 * @pre mapper != null
 	 */
@@ -294,7 +289,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the given criteria as the slicing criteria over the next run.
-	 *
+	 * 
 	 * @param sliceCriteria are ofcourse the slicing criteria
 	 * @throws IllegalStateException when there are criteria which are not of type <code>ISliceCriterion</code>.
 	 * @pre sliceCriteria != null
@@ -326,7 +321,7 @@ public final class SlicingEngine {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
+			Collections.sort(criteria, ToStringBasedComparator.getComparator());
 
 			final StringBuffer _sb = new StringBuffer();
 
@@ -341,7 +336,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the scope for slicing.
-	 *
+	 * 
 	 * @param scope to be used.
 	 */
 	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
@@ -350,7 +345,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the type of slice to be generated by the slicer.
-	 *
+	 * 
 	 * @param theSliceType is the type of slice requested.
 	 * @throws IllegalArgumentException when the given slice type is illegal.
 	 * @pre theSliceType != null
@@ -370,7 +365,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the value of <code>system</code>.
-	 *
+	 * 
 	 * @param theSystem the new value of <code>system</code>.
 	 */
 	public void setSystem(final IEnvironment theSystem) {
@@ -379,7 +374,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves the value in <code>system</code>.
-	 *
+	 * 
 	 * @return the value in <code>system</code>.
 	 */
 	public IEnvironment getSystem() {
@@ -388,7 +383,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the name of the tag to be used identify the elements of the AST belonging to the slice.
-	 *
+	 * 
 	 * @param tagName is the name of the tag
 	 * @pre tagName != null
 	 */
@@ -399,7 +394,7 @@ public final class SlicingEngine {
 	/**
 	 * Places the given call site on top of the call stack to simulate a call. The callsite comprises of the caller and the
 	 * invocation statement in the caller.
-	 *
+	 * 
 	 * @param callsite is the call site.
 	 * @pre callsite != null
 	 */
@@ -414,7 +409,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Checks if the processing is embedded in a calling context.
-	 *
+	 * 
 	 * @return <code>true</code> if the processing is embedded in a calling context; <code>false</code>, otherwise.
 	 */
 	public boolean ifInsideContext() {
@@ -423,7 +418,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Initializes the slicing engine.
-	 *
+	 * 
 	 * @throws IllegalStateException when the tag name is not set.
 	 */
 	public void initialize() {
@@ -460,7 +455,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Pops the TOS of the call stack.
-	 *
+	 * 
 	 * @return the callsite from which the processing returned.
 	 */
 	public CallTriple returnFromMethod() {
@@ -533,7 +528,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves the basic block graph manager used in the engine.
-	 *
+	 * 
 	 * @return the basic block graph manager.
 	 * @post result != null
 	 */
@@ -543,7 +538,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves the value in <code>cgi</code>.
-	 *
+	 * 
 	 * @return the value in <code>cgi</code>.
 	 */
 	ICallGraphInfo getCgi() {
@@ -552,7 +547,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves a copy of <code>callStackCache</code>.
-	 *
+	 * 
 	 * @return a copy of <code>callStackCache</code>.
 	 */
 	Stack<CallTriple> getCopyOfCallStackCache() {
@@ -568,7 +563,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Retrieves the value in <code>initMapper</code>.
-	 *
+	 * 
 	 * @return the value in <code>initMapper</code>.
 	 */
 	INewExpr2InitMapper getInitMapper() {
@@ -577,7 +572,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates new slice criterion that captures the sites that invoke the given method.
-	 *
+	 * 
 	 * @param method is the method whose calling sites needs to be included in the slice.
 	 * @pre method != null
 	 */
@@ -619,7 +614,7 @@ public final class SlicingEngine {
 	/**
 	 * Specialized form of <code>generateSliceExprCriterion</code> that generates the criterion against the given call stack
 	 * instead of the current call stack.
-	 *
+	 * 
 	 * @param valueBox is the program point for which slice criterion should be generated.
 	 * @param stmt is the statement containing <code>valueBox</code>.
 	 * @param method is the method containing <code>stmt</code>.
@@ -640,7 +635,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates slice criterion for teh given program point.
-	 *
+	 * 
 	 * @param valueBox is the program point for which slice criterion should be generated.
 	 * @param stmt is the statement containing <code>valueBox</code>.
 	 * @param method is the method containing <code>stmt</code>.
@@ -680,7 +675,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates slice criterion for the given statement.
-	 *
+	 * 
 	 * @param stmt is the statement.
 	 * @param method is the method containing <code>stmt</code>.
 	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
@@ -733,7 +728,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Includes the given method and it's declaring class in the slice.
-	 *
+	 * 
 	 * @param method to be included in the slice.
 	 * @pre method != null
 	 */
@@ -759,7 +754,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the value of <code>callStackCache</code>.
-	 *
+	 * 
 	 * @param callStack the new value of <code>callStackCache</code>.
 	 */
 	private void setCallStackCache(final Stack<CallTriple> callStack) {
@@ -768,7 +763,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Sets the direction and the calling context on the given criteria.
-	 *
+	 * 
 	 * @param theCriteria a collection of criteria
 	 * @pre theCriteria != null
 	 */
@@ -787,7 +782,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Checks if the given host is not included in the slice.
-	 *
+	 * 
 	 * @param host to be checked.
 	 * @return <code>true</code> if the host is not included in the slice; <code>false</code>, otherwise.
 	 * @pre host != null
@@ -799,7 +794,7 @@ public final class SlicingEngine {
 	/**
 	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
 	 * the given dependency analyses.
-	 *
+	 * 
 	 * @param stmt that will trigger the dependence.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param das is a collection of dependency analyses.
@@ -865,7 +860,7 @@ public final class SlicingEngine {
 	/**
 	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression (caller-callee). By
 	 * nature of Jimple, only one invoke expression can occur in a statement, hence, the arguments.
-	 *
+	 * 
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @pre stmt != null and method != null
@@ -902,7 +897,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates criteria for locals based on identifier based data dependence.
-	 *
+	 * 
 	 * @param locals for which criteria should be generated.
 	 * @param stmt in which <code>locals</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
@@ -950,7 +945,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates method level slice criteria for the given method.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @pre method != null
 	 */
@@ -971,7 +966,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Includes the given host in the slice.
-	 *
+	 * 
 	 * @param host to be included in the slice.
 	 * @pre host != null
 	 * @post not isNotIncludedInSlice(host)
@@ -982,7 +977,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Includes the class associated with the given types.
-	 *
+	 * 
 	 * @param types to be included in the slice.
 	 * @pre types != null
 	 */
@@ -1000,7 +995,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Tries to record the current call stack against the given method and returns the status of the recording.
-	 *
+	 * 
 	 * @param method of interest
 	 * @return <code>true</code> if the call stack was recored; <code>false</code> if another call stack subsumed this.
 	 * @pre method != null
@@ -1034,7 +1029,7 @@ public final class SlicingEngine {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param methodNode DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -1095,7 +1090,7 @@ public final class SlicingEngine {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param method DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -1110,7 +1105,7 @@ public final class SlicingEngine {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param method DOCUMENT ME!
 	 */
 	private void markAsCollectedAllInvocationSites(final SootMethod method) {
@@ -1123,7 +1118,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Checks if method level criteria should be generated for the given method.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
 	 * @pre method != null
@@ -1144,7 +1139,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Generates immediate slice for the given expression.
-	 *
+	 * 
 	 * @param expr is the expression-level slice criterion.
 	 * @pre expr != null and expr.getOccurringStmt() != null and expr.getOccurringMethod() != null
 	 * @pre expr.getCriterion() != null and expr.getCriterion().oclIsKindOf(ValueBox)
@@ -1188,7 +1183,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Transforms the given method and generates suitable slice criteria based on various dependences.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @pre method != null
 	 */
@@ -1214,7 +1209,7 @@ public final class SlicingEngine {
 	/**
 	 * Transforms the given statement and generates new criteria. The given statement is only collected if
 	 * <code>considerExecution</code> is <code>true</code>.
-	 *
+	 * 
 	 * @param stmt is the statement-level slice criterion.
 	 * @param method is the method in which <code>stmt</code> occurs.
 	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
@@ -1261,7 +1256,7 @@ public final class SlicingEngine {
 
 	/**
 	 * Transforms the given value boxes and generates criteria that are required to consider execution.
-	 *
+	 * 
 	 * @param stmt in which the value boxes occur.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param vBoxes are the ValueBoxesto be transformed.

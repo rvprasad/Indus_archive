@@ -16,16 +16,14 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -54,7 +52,6 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,13 +64,12 @@ import soot.Value;
 
 /**
  * This is a command line interface to exercise side effect and escape information analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> dummy type parameter.
  */
-public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
+public class EscapeAndReadWriteCLI
 		extends SootBasedDriver {
 
 	/**
@@ -83,7 +79,7 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point to this class.
-	 *
+	 * 
 	 * @param args command line arguments.
 	 * @throws RuntimeException when escape information and side-effect information calculation fails.
 	 */
@@ -142,15 +138,17 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 
 	/**
 	 * This contains the driver logic.
+	 * 
+	 * @param <T> dummy type parameter.
 	 */
-	private void execute() {
+	private <T extends ITokens<T, Value>> void execute() {
 		setInfoLogger(LOGGER);
 
 		final String _tagName = "SideEffect:FA";
 		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
 				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
-		final Collection _processors = new ArrayList();
+		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
@@ -188,7 +186,7 @@ public class EscapeAndReadWriteCLI<T extends ITokens<T, Value>>
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
-		_processors.add(_tgi);
+		_processors.add((IProcessor) _tgi);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());

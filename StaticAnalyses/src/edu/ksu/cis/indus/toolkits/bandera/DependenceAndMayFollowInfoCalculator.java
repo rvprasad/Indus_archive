@@ -19,14 +19,11 @@ import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.LockAcquisitionBasedEquivalence;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
@@ -37,7 +34,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
@@ -61,7 +56,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class calculates the dependence information as discussed in concurrency-theory.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -93,7 +88,7 @@ class DependenceAndMayFollowInfoCalculator
 	/**
 	 * The tool that uses this instance.
 	 */
-	protected final RelativeDependenceInfoTool<?> tool;
+	protected final RelativeDependenceInfoTool tool;
 
 	/**
 	 * This provide the call graph.
@@ -122,7 +117,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * This caches dependence information as pair of statement and method.
-	 *
+	 * 
 	 * @invariant dependenceCache.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 */
 	private final Map<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> dependenceCache = new HashMap<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>();
@@ -139,7 +134,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theTool that uses this instance.
 	 * @param ida to be used.
 	 * @param lbe to be used.
@@ -149,7 +144,7 @@ class DependenceAndMayFollowInfoCalculator
 	 * @pre ida != null and lbe != null and swbe != null and callGraph != null and threadGraph != null and cfgAnalysis != null
 	 *      and theTool != null
 	 */
-	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool<?> theTool, final InterferenceDAv1 ida,
+	public DependenceAndMayFollowInfoCalculator(final RelativeDependenceInfoTool theTool, final InterferenceDAv1 ida,
 			final LockAcquisitionBasedEquivalence lbe, final ICallGraphInfo callGraph, final IThreadGraphInfo threadGraph,
 			final CFGAnalysis cfgAnalysis) {
 		tool = theTool;
@@ -251,7 +246,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Sets application class filtering options for various class of operations.
-	 *
+	 * 
 	 * @param lockAcq <code>true</code> indicates that only lock acquisition operation in application classes should be
 	 *            considered; <code>false</code>, otherwise.
 	 * @param fieldRef <code>true</code> indicates that only field reference operation in application classes should be
@@ -326,7 +321,7 @@ class DependenceAndMayFollowInfoCalculator
 
 	/**
 	 * Writes the data to files and reads it to verify the integrity.
-	 *
+	 * 
 	 * @throws IllegalStateException when file i/o error occurs or the objects cannot be serialized back.
 	 */
 	void writeDataToFiles() throws IllegalStateException {
@@ -407,7 +402,7 @@ class DependenceAndMayFollowInfoCalculator
 	/**
 	 * Adds the given pair and it's dependence information to the dependence cache after filtering it according to
 	 * <code>applicationClassOnly</code>.
-	 *
+	 * 
 	 * @param p is the source of dependence.
 	 * @param dependence to be added
 	 * @param equivalents is the collection of location of equivalents of an operation class that needs to be updated.
