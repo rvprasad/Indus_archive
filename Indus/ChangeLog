@@ -1,3 +1,9 @@
+2006-01-22 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/ToStringBasedComparator.java: 
+		- The SINGLETON can now be accessed via a getter method.
+		- This has a major ripple effect.
+
 2006-01-17 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java:

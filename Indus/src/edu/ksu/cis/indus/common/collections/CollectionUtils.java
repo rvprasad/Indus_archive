@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * DOCUMENT ME!
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -57,7 +57,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col DOCUMENT ME!
@@ -71,7 +71,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col DOCUMENT ME!
@@ -85,7 +85,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param obj DOCUMENT ME!
@@ -109,7 +109,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col DOCUMENT ME!
@@ -128,7 +128,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <TI> DOCUMENT ME!
 	 * @param <TO> DOCUMENT ME!
 	 * @param <I> DOCUMENT ME!
@@ -146,7 +146,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col1 DOCUMENT ME!
@@ -173,7 +173,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col DOCUMENT ME!
@@ -191,7 +191,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param col DOCUMENT ME!
 	 * @param predicate DOCUMENT ME!
 	 * @param <T> DOCUMENT ME!
@@ -208,7 +208,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T1> DOCUMENT ME!
 	 * @param <T2> DOCUMENT ME!
 	 * @param col DOCUMENT ME!
@@ -224,7 +224,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <T> DOCUMENT ME!
 	 * @param values DOCUMENT ME!
 	 * @param predicate DOCUMENT ME!
@@ -241,7 +241,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param col DOCUMENT ME!
 	 * @param closure DOCUMENT ME!
 	 * @param <T1> DOCUMENT ME!
@@ -255,7 +255,7 @@ public final class CollectionUtils {
 
 	/**
 	 * Returns a pretty print representation of the given collection.
-	 *
+	 * 
 	 * @param <T> the type of the elements in the collection.
 	 * @param collection to be pretty printed.
 	 * @return pretty print representation.
@@ -268,13 +268,13 @@ public final class CollectionUtils {
 				+ " [" + collection.size() + "]");
 
 		final List<T> _t = new ArrayList<T>(collection);
-		Collections.sort(_t, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_t, ToStringBasedComparator.getComparator());
 
-		final Iterator _i = _t.iterator();
+		final Iterator<T> _i = _t.iterator();
 		final int _iEnd = _t.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _element = _i.next();
+			final T _element = _i.next();
 			_sb.append("\n");
 			_sb.append(_element.toString());
 		}
@@ -284,7 +284,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param <TI> DOCUMENT ME!
 	 * @param <TO> DOCUMENT ME!
 	 * @param <I> DOCUMENT ME!
@@ -302,7 +302,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param col1 DOCUMENT ME!
 	 * @param col2 DOCUMENT ME!
 	 * @return DOCUMENT ME!
@@ -321,7 +321,7 @@ public final class CollectionUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param col DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */

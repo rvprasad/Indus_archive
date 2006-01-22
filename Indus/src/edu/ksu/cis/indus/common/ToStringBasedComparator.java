@@ -31,8 +31,14 @@ public final class ToStringBasedComparator<T>
 
 	/**
 	 * A single of this class.
+	 * 
+	 * @param <T1> is the type of object that the return comparator will handle.
+	 * @return the comparator
+	 * @post result != null
 	 */
-	public static final Comparator<Object> SINGLETON = new ToStringBasedComparator<Object>();
+	public static final <T1> Comparator<T1> getComparator() {
+		return new ToStringBasedComparator<T1>();
+	}
 
 	// / CLOVER:OFF
 

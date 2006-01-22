@@ -18,9 +18,7 @@ import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import gnu.trove.TObjectIntHashMap;
-
 import gnu.trove.decorator.TObjectIntHashMapDecorator;
 
 import java.util.Collection;
@@ -34,16 +32,13 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.Constant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
-
 import soot.jimple.internal.InvokeExprBox;
-
 import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
@@ -255,14 +250,14 @@ public final class MetricsProcessor
 	 * <code>Integer</code> representing the number of occurrences of entities of the corresponding kind.
 	 * 
 	 * @return a map.
-	 * @post result != null 
+	 * @post result != null
 	 */
 	@SuppressWarnings("unchecked") public Map<MetricKeys, Map<Object, Integer>> getStatistics() {
 		final Map<MetricKeys, Map<Object, Integer>> _result = new HashMap<MetricKeys, Map<Object, Integer>>();
-		final Map<Object, Integer> _map1 = new TreeMap<Object, Integer>(ToStringBasedComparator.SINGLETON);
+		final Map<Object, Integer> _map1 = new TreeMap<Object, Integer>(ToStringBasedComparator.getComparator());
 		_map1.putAll(new TObjectIntHashMapDecorator(applicationStatistics));
 		_result.put(MetricKeys.APPLICATION_STATISTICS, _map1);
-		final Map<Object, Integer> _map2 = new TreeMap<Object, Integer>(ToStringBasedComparator.SINGLETON);
+		final Map<Object, Integer> _map2 = new TreeMap<Object, Integer>(ToStringBasedComparator.getComparator());
 		_map2.putAll(new TObjectIntHashMapDecorator(libraryStatistics));
 		_result.put(MetricKeys.LIBRARY_STATISTICS, _map2);
 		return _result;

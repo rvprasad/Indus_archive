@@ -32,7 +32,6 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 /**
@@ -91,7 +90,7 @@ public final class UniqueJimpleIDGenerator
 	 */
 	private static <T> List<T> sort(final Collection<T> collection) {
 		final List<T> _result = new ArrayList<T>(collection);
-		Collections.sort(_result, ToStringBasedComparator.SINGLETON);
+		Collections.sort(_result, ToStringBasedComparator.getComparator());
 		return _result;
 	}
 
@@ -142,7 +141,7 @@ public final class UniqueJimpleIDGenerator
 			@SuppressWarnings("unchecked") final List<SootMethod> _c = new ArrayList<SootMethod>(_declClass.getMethods());
 			class2methods.put(_declClass, sort(_c));
 		}
-		
+
 		final List<SootMethod> _methods = class2methods.get(_declClass);
 		return getIdForClass(method.getDeclaringClass()) + "_m" + _methods.indexOf(method);
 	}
