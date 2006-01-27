@@ -27,7 +27,7 @@ import java.util.Observer;
 /**
  * This class provides the abstract implementation of <code>ITokenmanager</code>. It is advised that all token managers
  * extend this class.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -47,21 +47,19 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 
 	/**
 	 * The type manager that manages the types of the tokens managed by this object.
-	 *
+	 * 
 	 * @invariant typeMgr != null
 	 */
 	protected final ITypeManager<R, V> typeMgr;
 
 	/**
 	 * The mapping between types to the type based filter.
-	 *
-	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
 	 */
 	private final Map<IType, ITokenFilter<T, V>> type2filter = new HashMap<IType, ITokenFilter<T, V>>();
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param typeManager manages the types of the tokens managed by this object. The client should relinquish ownership of
 	 *            the given argument. This argument is provided for configurability.
 	 * @pre typeManager != null
@@ -106,7 +104,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 	public final void update(@SuppressWarnings("unused") final Observable observer, final Object arg) {
 		if (arg instanceof NewTypeCreated && onlineTokenTypeRelationEvalutator != null) {
 			final IType _type = ((NewTypeCreated) arg).getCreatedType();
-			final Collection _values = onlineTokenTypeRelationEvalutator.getValuesConformingTo(getValues(), _type);
+			final Collection<V> _values = onlineTokenTypeRelationEvalutator.getValuesConformingTo(getValues(), _type);
 			if (!_values.isEmpty()) {
 				recordNewTokenTypeRelations(_values, _type);
 			}
@@ -115,17 +113,17 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 
 	/**
 	 * Retrieves a new token filter for the given type.
-	 *
+	 * 
 	 * @param type for which the filter is requested.
 	 * @return a new token filter.
 	 * @pre type != null
 	 */
-	protected abstract ITokenFilter<T,V> getNewFilterForType(final IType type);
+	protected abstract ITokenFilter<T, V> getNewFilterForType(final IType type);
 
 	/**
 	 * Retrieves the values being managed by this manager. This implementation returns an empty collection. This is used to
 	 * update value-token-type relation on-the-fly.
-	 *
+	 * 
 	 * @return the values being managed by this manager.
 	 */
 	protected Collection<V> getValues() {
@@ -135,7 +133,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 	/**
 	 * Records the new token-type relations. This implementation does nothing. This method will be called only be called if
 	 * new token-type relations are discovered on-the-fly.
-	 *
+	 * 
 	 * @param values whose type has been incrementally changed. This is guaranteed to be the objects in the collection
 	 *            <code>values</code> provided to <code>fixupTokenTypeRelation</code> method.
 	 * @param type is the new additional type of <code>values</code>. This is guaranteed to be one of the objects in the
