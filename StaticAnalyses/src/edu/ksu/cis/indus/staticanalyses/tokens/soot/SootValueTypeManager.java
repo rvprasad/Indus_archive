@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationDetector;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
@@ -27,7 +26,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
@@ -79,11 +77,6 @@ public class SootValueTypeManager
 	}
 
 	/**
-	 * This caches the soot/java types that have been "captured" as valid types fro <code>null</code>.
-	 */
-	final Collection<Type> typesForNullConstant;
-
-	/**
 	 * This is the dynamic token-type relation evaluator.
 	 */
 	private final IDynamicTokenTypeRelationDetector<Value> evaluator;
@@ -108,7 +101,6 @@ public class SootValueTypeManager
 	 */
 	public SootValueTypeManager() {
 		super();
-		typesForNullConstant = new HashSet<Type>();
 		typesForNullConstPredicate = new InstanceOfPredicate<RefLikeType, Type>(RefLikeType.class);
 		evaluator = new SootDynamicTokenTypeRelationDetector();
 		sootType2Type = new HashMap<Type, IType>(Constants.getNumOfClassesInApplication());
@@ -137,7 +129,6 @@ public class SootValueTypeManager
 				final Type _t = _i.next();
 				_result.add(sootType2Type.get(_t));
 			}
-			typesForNullConstant.addAll(_s);
 		} else if (_type instanceof ArrayType) {
 			final IType _t = getTokenTypeForObjectType();
 
@@ -183,7 +174,6 @@ public class SootValueTypeManager
 	 */
 	public void reset() {
 		sootType2Type.clear();
-		typesForNullConstant.clear();
 		evaluator.reset();
 		tokenTypeForObjectType = null;
 	}
