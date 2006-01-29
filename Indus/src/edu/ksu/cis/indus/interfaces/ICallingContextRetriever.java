@@ -29,7 +29,7 @@ import java.util.Collections;
  * <li>A <code>null</code> value in the calling context indicates that the context should be considered as terminating.
  * Also, a <code>null</code> value may only occur at the bottom of the stack.</li>
  * <ul>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -39,12 +39,16 @@ public interface ICallingContextRetriever
 
 	/**
 	 * This enum type defines values used to idenfity values in the id-based info map.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
 	public enum Identifiers {
+		/**
+		 * This identifies the calling context leading to the method.
+		 */
+		SRC_CALLING_CONTEXT,
 		/**
 		 * This identifies the entity at the program point.
 		 */
@@ -86,11 +90,11 @@ public interface ICallingContextRetriever
 	/**
 	 * This is a collection of calling contexts that imply all call chains should be followed.
 	 */
-	Collection<Stack<CallTriple>> NULL_CONTEXTS = Collections.<Stack<CallTriple>>singleton(null);;
+	Collection<Stack<CallTriple>> NULL_CONTEXTS = Collections.<Stack<CallTriple>> singleton(null);;
 
 	/**
 	 * Retrieves the calling contexts for the program point specified in the given context.
-	 *
+	 * 
 	 * @param programPointContext of interest.
 	 * @return a collection of calling contexts for the given program point.
 	 * @pre programPointContext != null
@@ -100,7 +104,7 @@ public interface ICallingContextRetriever
 
 	/**
 	 * Retrieves the calling contexts for the method specified in the given context based on it's "this" variable.
-	 *
+	 * 
 	 * @param methodContext of interest.
 	 * @return a collection of calling contexts for the given method based on it's "this" variable.
 	 * @pre methodContext != null

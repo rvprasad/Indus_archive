@@ -1,6 +1,11 @@
+2006-01-29 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/interfaces/ICallingContextRetriever.java:
+		- added a new constant to identify calling context. (in the context of Bug #768)
+
 2006-01-22 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/common/ToStringBasedComparator.java: 
+	* src/edu/ksu/cis/indus/common/ToStringBasedComparator.java:
 		- The SINGLETON can now be accessed via a getter method.
 		- This has a major ripple effect.
 

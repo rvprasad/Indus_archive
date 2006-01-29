@@ -33,6 +33,8 @@ Version 0.8
 --------------
 	- Feature request:
 		- 676 - Java 5 adoption
+	- Bug report:
+		- 768 - Context-sensitive slicing seems to be overly perssimistic
 	- Removed dependence on commons-collectionsl.
 
 Version 0.7.2
