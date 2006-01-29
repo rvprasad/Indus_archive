@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
@@ -29,15 +28,12 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceType;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -45,7 +41,6 @@ import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.DataAliasBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
@@ -54,13 +49,13 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.impl.DataAliasBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
-
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
@@ -71,7 +66,6 @@ import edu.ksu.cis.indus.tools.slicer.processing.ExecutableSlicePostProcessor;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -87,7 +81,6 @@ import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +120,7 @@ import soot.Value;
  * However, these are generated on behalf of the application/driver (as a convenience) and not for internal use. Hence, the
  * application/driver is responsible for the disposal of these criteria.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -181,14 +174,14 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * This manages the basic block graphs for the methods being transformed.
-	 *
+	 * 
 	 * @invariant bbgMgr != null
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * This provides the call graph.
-	 *
+	 * 
 	 * @invariant callGraph != null
 	 */
 	private final CallGraphInfo callGraph;
@@ -205,7 +198,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * The slicing criteria.
-	 *
+	 * 
 	 * @invariant criteria != null
 	 */
 	private final Collection<ISliceCriterion> criteria;
@@ -217,7 +210,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * This controls dependency analysis.
-	 *
+	 * 
 	 * @invariant daController != null
 	 */
 	private AnalysesController daController;
@@ -264,7 +257,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * The entry point methods.
-	 *
+	 * 
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	private final Collection<SootMethod> rootMethods;
@@ -307,7 +300,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * Creates a new SlicerTool object. The client should relinquish control/ownership of the arguments as they are provided
 	 * to configure the tool.
-	 *
+	 * 
 	 * @param tokenMgr is the token manager to be used with this instance of slicer tool.
 	 * @param stmtGraphFactoryToUse is the statement graph factory to use.
 	 * @pre tokenMgr != null and stmtGraphFactoryToUse != null
@@ -391,7 +384,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Adds the given slicing criteria to the existing set of criteria.
-	 *
+	 * 
 	 * @param theCriteria is a collection of slicing criteria.
 	 * @pre theCriteria != null
 	 * @pre theCriteria->forall(o | o != null)
@@ -402,7 +395,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Adds <code>criteriaGenerator</code> to the collection of criteria generator.
-	 *
+	 * 
 	 * @param theCriteriaGenerator anothre criteria generator.
 	 * @return <code>true</code> if the given generator was added; <code>false</code>, otherwise.
 	 * @pre theCriteriaGenerator != null
@@ -520,7 +513,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the basic block graph manager used by this tool.
-	 *
+	 * 
 	 * @return the basic block graph manager.
 	 */
 	public BasicBlockGraphMgr getBasicBlockGraphManager() {
@@ -529,7 +522,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the call graph used by the slicer.
-	 *
+	 * 
 	 * @return the call graph used by the slicer.
 	 */
 	public ICallGraphInfo getCallGraph() {
@@ -538,7 +531,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the slicing criteria.
-	 *
+	 * 
 	 * @return returns the criteria.
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
@@ -548,7 +541,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the dependency analyses used by this object.
-	 *
+	 * 
 	 * @return the collection of dependency analyses.
 	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
@@ -567,7 +560,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the equivalance class based escape analysis implementation.
-	 *
+	 * 
 	 * @return the escape analysis implementation.
 	 * @post result != null
 	 */
@@ -577,7 +570,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves escape info provider.
-	 *
+	 * 
 	 * @return an escape info provider.
 	 * @post result != null
 	 */
@@ -587,7 +580,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the value in <code>monitorInfo</code>.
-	 *
+	 * 
 	 * @return the value in <code>monitorInfo</code>.
 	 */
 	public MonitorAnalysis getMonitorInfo() {
@@ -596,7 +589,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the phase in which the tool's execution.
-	 *
+	 * 
 	 * @return an object that represents the phase of the tool's execution.
 	 */
 	public Object getPhase() {
@@ -605,7 +598,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns the methods which serve as the entry point into the system to be sliced.
-	 *
+	 * 
 	 * @return Returns the root methods of the system.
 	 * @post result!= null and result.oclIsKindOf(Collection(SootMethod))
 	 */
@@ -615,7 +608,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the statement graph (CFG) provider/factory used by the tool.
-	 *
+	 * 
 	 * @return the factory object.
 	 */
 	public IStmtGraphFactory<?> getStmtGraphFactory() {
@@ -624,7 +617,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the system being sliced.
-	 *
+	 * 
 	 * @return the system being sliced.
 	 * @post result != null
 	 */
@@ -645,7 +638,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Removes <code>criteriaGenerator</code> to the collection of criteria generator.
-	 *
+	 * 
 	 * @param theCriteriaGenerator anothre criteria generator.
 	 * @return <code>true</code> if the given generator was removed; <code>false</code>, otherwise.
 	 * @pre theCriteriaGenerator != null
@@ -681,7 +674,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets configuration named by <code>configName</code> as the active configuration.
-	 *
+	 * 
 	 * @param configID is id of the configuration to activate.
 	 * @pre configID != null
 	 */
@@ -693,7 +686,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Set the methods which serve as the entry point into the system to be sliced.
-	 *
+	 * 
 	 * @param theRootMethods is a collection of methods.
 	 * @pre theRootMethods != null
 	 * @pre theRootMethods->forall(o | o != null)
@@ -704,9 +697,9 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	}
 
 	/**
-	 * Sets the scope of the slicing.
-	 * <i>This needs to be called after <code>setSystem()</code> has been called with a non-null argument.</i>
-	 *
+	 * Sets the scope of the slicing. <i>This needs to be called after <code>setSystem()</code> has been called with a
+	 * non-null argument.</i>
+	 * 
 	 * @param scope to be used.
 	 */
 	public void setSliceScopeDefinition(final SpecificationBasedScopeDefinition scope) {
@@ -715,7 +708,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Set the system to be sliced.
-	 *
+	 * 
 	 * @param theEnvironment contains the class of the system to be sliced.
 	 * @pre theEnvironment != null
 	 */
@@ -725,7 +718,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Set the tag name to identify the slice.
-	 *
+	 * 
 	 * @param tagName of the slice.
 	 * @pre tagName != null
 	 */
@@ -753,7 +746,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @throws IllegalStateException if forward executable slice is requested.
 	 */
 	@Override protected void checkConfiguration() {
@@ -772,7 +765,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Retrieves the slice collector used by this tool.
-	 *
+	 * 
 	 * @return the slice collector.
 	 */
 	SliceCollector getSliceCollector() {
@@ -781,7 +774,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes dependency analyses and monitor analysis.
-	 *
+	 * 
 	 * @param slicerConfig provides the configuration.
 	 * @pre slicerConfig != null
 	 */
@@ -852,7 +845,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes low level analyses.
-	 *
+	 * 
 	 * @throws InterruptedException when the tool is interrupted when moving between phases.
 	 */
 	private void lowLevelAnalysisPhase() throws InterruptedException {
@@ -943,7 +936,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 	/**
 	 * Executes the slicer.
-	 *
+	 * 
 	 * @param slicerConfig provides the configuration.
 	 * @pre slicerConfig != null
 	 */
@@ -1000,12 +993,12 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetrieverV2 _t3 = new DataAliasBasedCallingContextRetrieverV2(
+				final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever(
 						_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
-				_t3.setECBA(ecba);
+				// _t3.setECBA(ecba); // in case _t3 is of type DataAliasBasedCallingContextRetriever
 				_map.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}

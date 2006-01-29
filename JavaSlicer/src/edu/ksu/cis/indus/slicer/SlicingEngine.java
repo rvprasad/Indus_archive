@@ -808,7 +808,7 @@ public final class SlicingEngine {
 					+ ", Collection das) - BEGIN");
 		}
 
-		dependenceExtractor.setTrigger(stmt, method);
+		dependenceExtractor.setTrigger(stmt, method, getCopyOfCallStackCache());
 		CollectionUtils.forAllDo(das, dependenceExtractor);
 
 		for (final Iterator<?> _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
@@ -921,7 +921,7 @@ public final class SlicingEngine {
 				final ValueBox _vBox = _k.next();
 				final Local _local = (Local) _vBox.getValue();
 				final Pair<Stmt, Local> _pair = new Pair<Stmt, Local>(stmt, _local);
-				dependenceExtractor.setTrigger(_pair, method);
+				dependenceExtractor.setTrigger(_pair, method, getCopyOfCallStackCache());
 				CollectionUtils.forAllDo((Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) _analyses, dependenceExtractor);
 
 				final Collection<?> _dependences = dependenceExtractor.getDependences();

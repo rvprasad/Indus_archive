@@ -31,7 +31,10 @@ Version 0.8
 --------------
 	- Feature request:
 		- 676 - Java 5 adoption
-	- Bug fixes: 558, 749 (Bandera)
+	- Bug report:
+		- 558 - Property-awareness is broken
+		- 749 - Siena/s2: Inconsistent result and over-aggressive slicing (Bandera)
+		- 768 - Context-sensitive slicing seems to be overly perssimistic
 	- Removed dependence on commons-collections.
 
 Version 0.7.2.1
