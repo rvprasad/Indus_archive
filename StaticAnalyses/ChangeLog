@@ -1,3 +1,11 @@
+2006-01-29 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
+		- this context retriever is inaccurate, hence, it has been pulled back. (in the context of Bug #768)
+	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
+		- token generation was inaccurate, hence, the generated calling contexts.  This has been addressed with new
+		  logic to utilize source end calling context. (in the context of Bug #768)
+
 2006-01-22 venku <venku@boss.dreamsoft.com>
 
 	- The ripple effect of changing the direct access to ToStringBasedComparator.SINGLETON via a getter method.

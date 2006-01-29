@@ -30,6 +30,8 @@ Version 0.8
 		- 717 - used scoping framework to perform scoped analyses
 		- 676 - Java 5 adoption
 		- 701 - refactorings.
+	- Bug report:
+		- 768 - Context-sensitive slicing seems to be overly perssimistic
 	- Removed dependence on commons-collections and commons-pool.
 
 Version 0.7.2.1

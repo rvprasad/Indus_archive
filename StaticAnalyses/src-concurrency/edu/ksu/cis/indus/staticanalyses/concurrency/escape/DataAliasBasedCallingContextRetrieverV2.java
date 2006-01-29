@@ -32,12 +32,12 @@ import soot.Value;
 /**
  * This implementation provides program-point-relative intra-thread calling contexts based on equivalence-class based
  * information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class DataAliasBasedCallingContextRetrieverV2
+class DataAliasBasedCallingContextRetrieverV2
 		extends DataAliasBasedCallingContextRetriever {
 
 	/**
@@ -52,7 +52,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 
 	/**
 	 * Creates an instance of this instance.
-	 *
+	 * 
 	 * @param callingContextLengthLimit <i>refer to the constructor of the super class</i>.
 	 */
 	public DataAliasBasedCallingContextRetrieverV2(final int callingContextLengthLimit) {
@@ -61,7 +61,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 
 	/**
 	 * Sets the object that guides calling context construction.
-	 *
+	 * 
 	 * @param oracle to be used.
 	 * @pre oracle != null
 	 */
@@ -102,7 +102,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, edu.ksu.cis.indus.common.collections.Stack)
 	 */
 	@Override protected Object getCallerSideToken(final Object token, final SootMethod callee, final CallTriple callsite,
-			@SuppressWarnings ("unused") final Stack<CallTriple> calleeCallStack) {
+			@SuppressWarnings("unused") final Stack<CallTriple> calleeCallStack) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getCallerSideToken(Object token = " + token + ", SootMethod callee = " + callee
 					+ ", CallTriple callsite = " + callsite + ") - BEGIN");

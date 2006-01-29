@@ -19,11 +19,9 @@ import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 
 import java.util.Collection;
@@ -35,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.ConcreteRef;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
@@ -166,11 +163,10 @@ public class DataAliasBasedCallingContextRetriever
 		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
 
 		final SootMethod _caller = callsite.getMethod();
-		final Collection<SootMethod> _ancestors = (Collection) token;
+		final Collection<CallTriple> _ancestors = (Collection) token;
 
-		if (!Util.isStartMethod(callee) && _ancestors.contains(_caller)) {
-			final Collection<SootMethod> _col = SetUtils.intersection(getCallGraph().getMethodsReachableFrom(_caller, false),
-					_ancestors);
+		if (!Util.isStartMethod(callee) && _ancestors.contains(callsite)) {
+			final Collection<CallTriple> _col = SetUtils.intersection(getCallGraph().getCallers(_caller), _ancestors);
 			_col.remove(callee);
 
 			if (!_col.isEmpty()) {
@@ -249,6 +245,31 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
+	 * Checks for rechability of the callers to/from the given program point and updates the ancestors with callers that
+	 * satisfy reachability condition.
+	 * 
+	 * @param stmt of interest.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param ancestors is the out parameter that should be populated with reachable callers.
+	 * @param callers of interest.
+	 * @param isSource <code>true</code> if the program point is the source; <code>false</code> if the program point is
+	 *            the destination.
+	 * @pre stmt != null and method != null and ancestors != null and callers != null
+	 */
+	private void checkReachabilityAndUpdateAncestors(final Stmt stmt, final SootMethod method,
+			final Collection<CallTriple> ancestors, final Collection<CallTriple> callers, final boolean isSource) {
+		for (final Iterator<CallTriple> _i = callers.iterator(); _i.hasNext();) {
+			final CallTriple _destCallTriple = _i.next();
+			final SootMethod _destMethod = _destCallTriple.getMethod();
+			final Stmt _destStmt = _destCallTriple.getStmt();
+			if ((isSource && analysis.doesControlFlowPathExistBetween(method, stmt, _destMethod, isSource, true))
+					|| (!isSource && analysis.doesControlFlowPathExistBetween(_destMethod, _destStmt, method, isSource, true))) {
+				ancestors.add(_destCallTriple);
+			}
+		}
+	}
+
+	/**
 	 * Retrieves the ancestors.
 	 * 
 	 * @param defMethod is the method in which the definition occurs.
@@ -259,33 +280,34 @@ public class DataAliasBasedCallingContextRetriever
 	 * @return a token object.
 	 * @pre defMethod != null and useMethod != null and defStmt != null and useStmt != null and curMethod != null
 	 */
-	protected final Collection<SootMethod> retrieveAncestors(final SootMethod defMethod, final SootMethod useMethod,
+	private Collection<CallTriple> retrieveAncestors(final SootMethod defMethod, final SootMethod useMethod,
 			final DefinitionStmt defStmt, final DefinitionStmt useStmt, final SootMethod curMethod) {
-		final Collection<SootMethod> _ancestors = new HashSet<SootMethod>();
+		final Collection<CallTriple> _ancestors = new HashSet<CallTriple>();
 		final ICallGraphInfo _callGraph = getCallGraph();
+		final Stack<CallTriple> _stack = (Stack) getInfoFor(Identifiers.SRC_CALLING_CONTEXT);
+		final Collection<CallTriple> _callers = _callGraph.getCallers(curMethod);
+		final boolean _curMethodIsUseMethod;
 
-		if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
-			_ancestors.addAll(_callGraph.getMethodsReachableFrom(defMethod, false));
+		if (useMethod == curMethod) {
+			_curMethodIsUseMethod = true;
 		} else {
-			if (analysis.doesControlFlowPathExistBetween(defMethod, defStmt, useMethod, true, true)) {
-				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(defMethod, true, useMethod, false));
+			// if (defMethod == curMethod)
+			_curMethodIsUseMethod = false;
+		}
+
+		if (_stack != null && !_stack.isEmpty()) {
+			final CallTriple _srcCallTriple = _stack.peek();
+			final Stmt _srcStmt = _srcCallTriple.getStmt();
+			final SootMethod _srcMethod = _srcCallTriple.getMethod();
+			checkReachabilityAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers, _curMethodIsUseMethod);
+			if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
+				_ancestors.add(_srcCallTriple);
 			}
-
-			if (analysis.doesControlFlowPathExistBetween(useMethod, useStmt, defMethod, false, true)) {
-				_ancestors.addAll(_callGraph.getCommonMethodsReachableFrom(useMethod, true, defMethod, false));
-			}
-
-			final Collection<SootMethod> _callersOfCurrMethod = _callGraph.getMethodsReachableFrom(curMethod, false);
-
-			if (!_callersOfCurrMethod.isEmpty()) {
-				final Collection<SootMethod> _commonAncestors = _callGraph.getConnectivityCallersFor(defMethod, useMethod);
-
-				for (final Iterator<SootMethod> _i = _commonAncestors.iterator(); _i.hasNext();) {
-					final SootMethod _sm = _i.next();
-					final Collection<SootMethod> _methodsReachableFrom = _callGraph.getMethodsReachableFrom(_sm, true);
-					_ancestors.addAll(SetUtils.intersection(_methodsReachableFrom, _callersOfCurrMethod));
-				}
-				_ancestors.addAll(_commonAncestors);
+		} else {
+			if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
+				_ancestors.addAll(_callers);
+			} else {
+				checkReachabilityAndUpdateAncestors(defStmt, defMethod, _ancestors, _callers, _curMethodIsUseMethod);
 			}
 		}
 
@@ -293,22 +315,22 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the token.
 	 * 
-	 * @param defMethod DOCUMENT ME!
-	 * @param defStmt DOCUMENT ME!
-	 * @param useMethod DOCUMENT ME!
-	 * @param useStmt DOCUMENT ME!
+	 * @param defMethod is the method in which definition occurs.
+	 * @param defStmt is the statement in which definition occurs.
+	 * @param useMethod is the method in which use occurs.
+	 * @param useStmt is the statement in which use occurs.
 	 * @param curMethod is the method in which the context will be rooted.
-	 * @return DOCUMENT ME!
+	 * @return the token
 	 * @pre defMethod != null and useMethod != null and defStmt != null and useStmt != null and curMethod != null
 	 * @post result != null
 	 */
-	protected Object retrieveToken(final SootMethod defMethod, final DefinitionStmt defStmt, final SootMethod useMethod,
+	private Object retrieveToken(final SootMethod defMethod, final DefinitionStmt defStmt, final SootMethod useMethod,
 			final DefinitionStmt useStmt, final SootMethod curMethod) {
 		final Object _result;
-		final Object _t = retrieveAncestors(defMethod, useMethod, defStmt, useStmt, curMethod);
-		if (_t == null) {
+		final Collection<?> _t = retrieveAncestors(defMethod, useMethod, defStmt, useStmt, curMethod);
+		if (_t.isEmpty()) {
 			_result = Tokens.DISCARD_CONTEXT_TOKEN;
 		} else {
 			_result = _t;
