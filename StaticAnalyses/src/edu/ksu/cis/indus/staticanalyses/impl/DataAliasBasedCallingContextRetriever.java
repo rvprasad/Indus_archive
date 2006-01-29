@@ -251,10 +251,12 @@ public class DataAliasBasedCallingContextRetriever
 	 * @param stmt of interest.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @param ancestors is the out parameter that should be populated with reachable callers.
-	 * @param callers of interest.
+	 * @param callers of interest. The callers added to ancestors are removed.
 	 * @param isSource <code>true</code> if the program point is the source; <code>false</code> if the program point is
 	 *            the destination.
 	 * @pre stmt != null and method != null and ancestors != null and callers != null
+	 * @post (ancestors - ancestors$pre).containsAll(callers$pre - callers)
+	 * @post (callers$pre - callers).containsAll(ancestors - ancestors$pre)
 	 */
 	private void checkReachabilityAndUpdateAncestors(final Stmt stmt, final SootMethod method,
 			final Collection<CallTriple> ancestors, final Collection<CallTriple> callers, final boolean isSource) {
@@ -265,6 +267,7 @@ public class DataAliasBasedCallingContextRetriever
 			if ((isSource && analysis.doesControlFlowPathExistBetween(method, stmt, _destMethod, isSource, true))
 					|| (!isSource && analysis.doesControlFlowPathExistBetween(_destMethod, _destStmt, method, isSource, true))) {
 				ancestors.add(_destCallTriple);
+				_i.remove();
 			}
 		}
 	}
@@ -296,12 +299,14 @@ public class DataAliasBasedCallingContextRetriever
 		}
 
 		if (_stack != null && !_stack.isEmpty()) {
-			final CallTriple _srcCallTriple = _stack.peek();
-			final Stmt _srcStmt = _srcCallTriple.getStmt();
-			final SootMethod _srcMethod = _srcCallTriple.getMethod();
-			checkReachabilityAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers, _curMethodIsUseMethod);
-			if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
-				_ancestors.add(_srcCallTriple);
+			for (final Iterator<CallTriple> _i = _stack.iterator(); _i.hasNext();) {
+				final CallTriple _srcCallTriple = _i.next();
+				final Stmt _srcStmt = _srcCallTriple.getStmt();
+				final SootMethod _srcMethod = _srcCallTriple.getMethod();
+				checkReachabilityAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers, _curMethodIsUseMethod);
+				if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
+					_ancestors.add(_srcCallTriple);
+				}
 			}
 		} else {
 			if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
