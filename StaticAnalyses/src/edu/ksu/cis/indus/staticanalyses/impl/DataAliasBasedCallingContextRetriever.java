@@ -14,7 +14,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.impl;
 
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
@@ -33,8 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
+import soot.Value;
+import soot.jimple.ArrayRef;
 import soot.jimple.ConcreteRef;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.FieldRef;
 import soot.jimple.Stmt;
 
 /**
@@ -56,6 +58,11 @@ public class DataAliasBasedCallingContextRetriever
 	 * The CFG analysis to be used.
 	 */
 	private CFGAnalysis analysis;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final Collection<CallTriple> previous = new HashSet<CallTriple>();
 
 	/**
 	 * The thread graph to be used.
@@ -164,10 +171,23 @@ public class DataAliasBasedCallingContextRetriever
 
 		final SootMethod _caller = callsite.getMethod();
 		final Collection<CallTriple> _ancestors = (Collection) token;
+		final boolean _flag = isDefinitionTheSource();
+		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
+		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
 
 		if (!Util.isStartMethod(callee) && _ancestors.contains(callsite)) {
-			final Collection<CallTriple> _col = SetUtils.intersection(getCallGraph().getCallers(_caller), _ancestors);
-			_col.remove(callee);
+			final Collection<CallTriple> _col = new HashSet<CallTriple>();
+			previous.add(callsite);
+			for (final Iterator<CallTriple> _i = getCallGraph().getCallers(_caller).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = _i.next();
+				if ((_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(), _ctrp
+						.getStmt(), tgi))
+						|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(),
+								_ctrp.getStmt(), tgi))) {
+					_col.add(_ctrp);
+				}
+			}
+			_col.removeAll(previous);
 
 			if (!_col.isEmpty()) {
 				_result = _col;
@@ -238,6 +258,8 @@ public class DataAliasBasedCallingContextRetriever
 			_result = retrieveToken(_defMethod, _defStmt, _useMethod, _useStmt, _curMethod);
 		}
 
+		previous.clear();
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getTokenForProgramPoint() - END - return value = " + _result);
 		}
@@ -245,7 +267,7 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * Checks for rechability of the callers to/from the given program point and updates the ancestors with callers that
+	 * /** Checks for rechability of the callers to/from the given program point and updates the ancestors with callers that
 	 * satisfy reachability condition.
 	 * 
 	 * @param stmt of interest.
@@ -258,18 +280,36 @@ public class DataAliasBasedCallingContextRetriever
 	 * @post (ancestors - ancestors$pre).containsAll(callers$pre - callers)
 	 * @post (callers$pre - callers).containsAll(ancestors - ancestors$pre)
 	 */
-	private void checkReachabilityAndUpdateAncestors(final Stmt stmt, final SootMethod method,
+	private void checkReachabilityFromCallersAndUpdateAncestors(final Stmt stmt, final SootMethod method,
 			final Collection<CallTriple> ancestors, final Collection<CallTriple> callers, final boolean isSource) {
 		for (final Iterator<CallTriple> _i = callers.iterator(); _i.hasNext();) {
 			final CallTriple _destCallTriple = _i.next();
 			final SootMethod _destMethod = _destCallTriple.getMethod();
 			final Stmt _destStmt = _destCallTriple.getStmt();
-			if ((isSource && analysis.doesControlFlowPathExistBetween(method, stmt, _destMethod, isSource, true))
-					|| (!isSource && analysis.doesControlFlowPathExistBetween(_destMethod, _destStmt, method, isSource, true))) {
+			if ((isSource && analysis.isReachableViaInterProceduralControlFlow(method, stmt, _destMethod, _destStmt, tgi))
+					|| (!isSource && analysis.isReachableViaInterProceduralControlFlow(_destMethod, _destStmt, method, stmt,
+							tgi))) {
 				ancestors.add(_destCallTriple);
 				_i.remove();
 			}
 		}
+	}
+
+	/**
+	 * Checks if the source triggering the context retrival is a def site.
+	 * 
+	 * @return <code>true</code> if the source triggering the context retrival is a def site; <code>false</code>,
+	 *         otherwise.
+	 */
+	private boolean isDefinitionTheSource() {
+		final DefinitionStmt _stmt = (DefinitionStmt) getInfoFor(Identifiers.SRC_ENTITY);
+		final boolean _result;
+		final Value _leftOp = _stmt.getLeftOp();
+		if (_leftOp instanceof ArrayRef || _leftOp instanceof FieldRef)
+			_result = true;
+		else
+			_result = false;
+		return _result;
 	}
 
 	/**
@@ -288,7 +328,7 @@ public class DataAliasBasedCallingContextRetriever
 		final Collection<CallTriple> _ancestors = new HashSet<CallTriple>();
 		final ICallGraphInfo _callGraph = getCallGraph();
 		final Stack<CallTriple> _stack = (Stack) getInfoFor(Identifiers.SRC_CALLING_CONTEXT);
-		final Collection<CallTriple> _callers = _callGraph.getCallers(curMethod);
+		final Collection<CallTriple> _callers = new HashSet<CallTriple>(_callGraph.getCallers(curMethod));
 		final boolean _curMethodIsUseMethod;
 
 		if (useMethod == curMethod) {
@@ -301,18 +341,30 @@ public class DataAliasBasedCallingContextRetriever
 		if (_stack != null && !_stack.isEmpty()) {
 			for (final Iterator<CallTriple> _i = _stack.iterator(); _i.hasNext();) {
 				final CallTriple _srcCallTriple = _i.next();
-				final Stmt _srcStmt = _srcCallTriple.getStmt();
-				final SootMethod _srcMethod = _srcCallTriple.getMethod();
-				checkReachabilityAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers, _curMethodIsUseMethod);
-				if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
-					_ancestors.add(_srcCallTriple);
+				if (_srcCallTriple != null) {
+					final Stmt _srcStmt = _srcCallTriple.getStmt();
+					final SootMethod _srcMethod = _srcCallTriple.getMethod();
+					checkReachabilityFromCallersAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers,
+							_curMethodIsUseMethod);
+					if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
+						_ancestors.add(_srcCallTriple);
+					}
 				}
 			}
 		} else {
 			if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
 				_ancestors.addAll(_callers);
 			} else {
-				checkReachabilityAndUpdateAncestors(defStmt, defMethod, _ancestors, _callers, _curMethodIsUseMethod);
+				final SootMethod _method;
+				final Stmt _stmt;
+				if (_curMethodIsUseMethod) {
+					_stmt = defStmt;
+					_method = defMethod;
+				} else {
+					_stmt = useStmt;
+					_method = useMethod;
+				}
+				checkReachabilityFromCallersAndUpdateAncestors(_stmt, _method, _ancestors, _callers, _curMethodIsUseMethod);
 			}
 		}
 

@@ -1,6 +1,12 @@
 2006-01-29 venku <venku@boss.dreamsoft.com>
 
-	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
+	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
+		- the context calculation now considers the reachability during each step of building the calling context to improve
+		  accuracy.  This may be expensive.  We will need to add memoization support in CFGAnalysis to alleviate the cost.
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/CFGAnalysis.java (doesMethodLiesOnTheDataFlowPathBetween):
+		- while checking if sm is the common ancestor along the interprocedural control flow path between two methods,
+		  it is more accurate to not consider the site that invokes the source method.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java:
 		- this context retriever is inaccurate, hence, it has been pulled back. (in the context of Bug #768)
 	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
 		- token generation was inaccurate, hence, the generated calling contexts.  This has been addressed with new
