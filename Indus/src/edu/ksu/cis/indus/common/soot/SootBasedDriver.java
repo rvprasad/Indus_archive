@@ -24,7 +24,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,9 +42,7 @@ import soot.Printer;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-
 import soot.options.Options;
-
 import soot.util.Chain;
 
 /**
@@ -75,7 +72,7 @@ import soot.util.Chain;
  * <p>
  * Please refer to <code>edu.ksu.cis.indus.Constants</code> for a file-based approach to specifying these properties.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -209,7 +206,7 @@ public class SootBasedDriver {
 	/**
 	 * Adds an entry into the time log of this test. The subclasses should use this method to add time logs corresponding to
 	 * each analysis they test/drive.
-	 *
+	 * 
 	 * @param name of the analysis for which the timing log is being created.
 	 * @param milliseconds taken by the analysis.
 	 * @pre name != null
@@ -220,7 +217,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Records the given classpath in intention of using it while loading classes into the scene.
-	 *
+	 * 
 	 * @param classpath to be considered.
 	 * @pre classpath != null
 	 */
@@ -230,7 +227,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the basic block graph manager used by the application.
-	 *
+	 * 
 	 * @return the basic block graph manager.
 	 * @post result != null
 	 */
@@ -240,7 +237,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the environment used by the application.
-	 *
+	 * 
 	 * @return the environment.
 	 */
 	public final IEnvironment getEnvironment() {
@@ -249,7 +246,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the root methods in the system.
-	 *
+	 * 
 	 * @return the collection of root methods.
 	 * @post result != null
 	 */
@@ -261,7 +258,7 @@ public class SootBasedDriver {
 	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
 	 * provides an instance of <code>ExceptionFlowSensitiveStmtGraphFactory</code> initialized to prune synchronization
 	 * related exceptions.
-	 *
+	 * 
 	 * @return an unit graph factory
 	 * @post return != null
 	 */
@@ -279,7 +276,7 @@ public class SootBasedDriver {
 	/**
 	 * Initialize the driver. Loads up the classes and sets up the scene. The given classes are loaded up as application
 	 * classes.
-	 *
+	 * 
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
 	 * @pre options != null
@@ -295,7 +292,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Prints the timing statistics into the given stream.
-	 *
+	 * 
 	 * @pre stream != null
 	 */
 	public final void printTimingStats() {
@@ -318,7 +315,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Set the names of the classes to be loaded.
-	 *
+	 * 
 	 * @param s contains the class names.
 	 * @pre s != null
 	 */
@@ -328,7 +325,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Sets the logger to be used to log information written via <code>writeInfo</code>.
-	 *
+	 * 
 	 * @param myLogger is the logger to be used.
 	 */
 	public final void setInfoLogger(final Logger myLogger) {
@@ -337,7 +334,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Sets the root method trapper.
-	 *
+	 * 
 	 * @param trapper to be used to trap root methods.
 	 */
 	public final void setRootMethodTrapper(final RootMethodTrapper trapper) {
@@ -347,7 +344,7 @@ public class SootBasedDriver {
 	/**
 	 * Logs the given object via the logging api. Configure the logging via the logging implementation's configuration
 	 * support.
-	 *
+	 * 
 	 * @param info to be logged.
 	 */
 	public void writeInfo(final Object info) {
@@ -362,7 +359,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Dumps jimple for the classes in the scene.
-	 *
+	 * 
 	 * @param outputDirectory is the directory in which jimple files will be dumped.
 	 * @param jimpleFile <code>true</code> indicates if .jimple file should be dumped; <code>false</code>, indicates
 	 *            otherwise.
@@ -424,7 +421,7 @@ public class SootBasedDriver {
 
 	/**
 	 * Sets the name of the file containing the scope specification.
-	 *
+	 * 
 	 * @param scopeSpecFileName of the scope spec.
 	 * @return the scope definition stored in the given file.
 	 */
@@ -464,7 +461,7 @@ public class SootBasedDriver {
 	 * system being analyzed. All <code>public static void main()</code> methods defined in <code>public</code> classes
 	 * that are named via <code>args</code>are considered as entry points. It uses the classpath set via
 	 * <code>addToSootClassPath</code>.
-	 *
+	 * 
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @return a soot scene that provides the classes to be analyzed.
 	 * @pre args != null and classNames != null and options != null
@@ -514,7 +511,9 @@ public class SootBasedDriver {
 		}
 		Util.fixupThreadStartBody(_result);
 
-		loadupMethodBodies();
+		if (System.getProperty(Constants.LOAD_METHOD_BODIES_DURING_INITIALIZATION) != null) {
+			loadupMethodBodies();
+		}
 
 		return _result;
 	}
@@ -528,7 +527,7 @@ public class SootBasedDriver {
 		final int _iEnd = _classes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootClass _sc =  _i.next();
+			final SootClass _sc = _i.next();
 			final List<SootMethod> _methods = _sc.getMethods();
 			final Iterator<SootMethod> _j = _methods.iterator();
 			final int _jEnd = _methods.size();
