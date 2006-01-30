@@ -240,7 +240,7 @@ public final class CFGAnalysis {
 			final Stmt _stmt = _j.next();
 
 			if (cgi.isCalleeReachableFromCallSite(srcMethod, _stmt, method)) {
-				_result = doesControlFlowPathExistBetween(method, _stmt, destMethod, false, true);
+				_result = doesControlFlowPathExistBetween(method, _stmt, destMethod, true, true);
 			}
 		}
 		return _result;

@@ -1,5 +1,7 @@
 2006-01-29 venku <venku@boss.dreamsoft.com>
 
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/CFGAnalysis.java (doesMethodLiesOnTheDataFlowPathBetween): 
+		- incorrectly changed the correct logic :-(  FIXED.
 	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
 		- the context calculation now considers the reachability during each step of building the calling context to improve
 		  accuracy.  This may be expensive.  We will need to add memoization support in CFGAnalysis to alleviate the cost.
