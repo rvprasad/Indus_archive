@@ -1,2 +1,8 @@
+Version 0.7.2.2
+-------------------
+	- Bug reports
+		- 768 - Context-sensitive slicing seems to be overly perssimistic
+	- Contains all changes and fixes done while writing TACAS06 paper.
+
 - Indus-Plugin version 0.7 (20050713)
 	This provides the framework for using the Indus 0.7 version library in eclipse.
