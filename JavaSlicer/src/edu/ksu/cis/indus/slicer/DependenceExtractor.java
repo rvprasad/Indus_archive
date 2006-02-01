@@ -339,10 +339,9 @@ final class DependenceExtractor
 					final Stmt _stmt = _pair.getFirst();
 					final SootMethod _criteriabaseMethod = _pair.getSecond();
 
+					_context.setStmt(_stmt);
+					_context.setRootMethod(_criteriabaseMethod);
 					if (_stmt != null) {
-						_context.setStmt(_stmt);
-						_context.setRootMethod(_criteriabaseMethod);
-
 						final Collection<ValueBox> _programPoints = _ppr.getProgramPoints(_stmt);
 
 						for (final Iterator<ValueBox> _k = _programPoints.iterator(); _k.hasNext();) {
@@ -353,8 +352,6 @@ final class DependenceExtractor
 							MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts);
 						}
 					} else {
-						_context.setRootMethod(_criteriabaseMethod);
-
 						final Collection<Stack<CallTriple>> _ctxts = _ctxtRetriever.getCallingContextsForThis(_context);
 						MapUtils.putAllIntoCollectionInMap(criteriabase2contexts, _pair, _ctxts);
 					}
