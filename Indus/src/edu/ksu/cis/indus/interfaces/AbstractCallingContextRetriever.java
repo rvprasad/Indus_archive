@@ -19,9 +19,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
@@ -55,13 +53,11 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected enum Tokens {
 		/**
-		 * This value indicates that the current context should be accepted as a terminal 
-		 * context
+		 * This value indicates that the current context should be accepted as a terminal context
 		 */
 		ACCEPT_TERMINAL_CONTEXT_TOKEN,
 		/**
-		 * This value indicates that the current context should be accepted as a non-terminal 
-		 * context. 
+		 * This value indicates that the current context should be accepted as a non-terminal context.
 		 */
 		ACCEPT_NON_TERMINAL_CONTEXT_TOKEN,
 		/**
@@ -258,7 +254,6 @@ public abstract class AbstractCallingContextRetriever
 		throw new UnsupportedOperationException("This method is unsupported.");
 	}
 
-
 	/**
 	 * Retrieves the contexts based on the given token and method in which it occurs.
 	 * 
@@ -295,7 +290,7 @@ public abstract class AbstractCallingContextRetriever
 			final int _jEnd = _result.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stack _stack = _j.next();
+				final Stack<?> _stack = _j.next();
 
 				if (_stack != null) {
 					Collections.reverse(_stack);
@@ -348,22 +343,20 @@ public abstract class AbstractCallingContextRetriever
 							if (LOGGER.isDebugEnabled()) {
 								LOGGER.debug("Discarding context " + calleeToken + "   " + this.getClass());
 							}
-						} else if (_callerToken == Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN ||
-								_callerToken == Tokens.ACCEPT_NON_TERMINAL_CONTEXT_TOKEN) {
+						} else if (_callerToken == Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN
+								|| _callerToken == Tokens.ACCEPT_NON_TERMINAL_CONTEXT_TOKEN) {
 							/*
 							 * if we have reached the property-based "pivotal" point in the call chain then we decide to
 							 * extend all call chains and add it to the resulting contexts.
 							 */
-							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack
-									.clone();
+							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack.clone();
 							_callerStack.push(_callSite);
 							if (_callerToken == Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN) {
 								_callerStack.push(null);
 							}
 							result.add(_callerStack);
 						} else {
-							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack
-									.clone();
+							@SuppressWarnings("unchecked") final Stack<CallTriple> _callerStack = calleeCallStack.clone();
 							_callerStack.push(_callSite);
 							wb.addWorkNoDuplicates(new Triple<SootMethod, Object, Stack<CallTriple>>(_callSite.getMethod(),
 									_callerToken, _callerStack));
