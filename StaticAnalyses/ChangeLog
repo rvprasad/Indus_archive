@@ -1,6 +1,16 @@
+2006-02-01 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV3.java:
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV3.java:
+		- added new implementation that checks entity based coupling at each step of building the context.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java:
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetriever.java:
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV2.java:
+		- refactoring to enable context coupling extension.
+
 2006-01-29 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/staticanalyses/cfg/CFGAnalysis.java (doesMethodLiesOnTheDataFlowPathBetween): 
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/CFGAnalysis.java (doesMethodLiesOnTheDataFlowPathBetween):
 		- incorrectly changed the correct logic :-(  FIXED.
 	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
 		- the context calculation now considers the reachability during each step of building the calling context to improve

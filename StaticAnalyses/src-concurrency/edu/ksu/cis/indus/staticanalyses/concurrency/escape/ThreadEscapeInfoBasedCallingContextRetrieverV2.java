@@ -17,9 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
@@ -32,7 +31,6 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
-
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InvokeExpr;
@@ -44,7 +42,7 @@ import soot.jimple.VirtualInvokeExpr;
 /**
  * This implementation facilitates the extraction of calling-contexts based on multithread data sharing (more precise than
  * escape information).
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -60,16 +58,16 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	/**
 	 * This indicates if this instance retrieves context required to preserve interference dependence.
 	 */
-	private final boolean interferenceBased;
+	protected final boolean interferenceBased;
 
 	/**
 	 * This indicates if this instance retrieves context required to preserve ready dependence.
 	 */
-	private final boolean readyBased;
+	protected final boolean readyBased;
 
 	/**
 	 * Creates an instance of this instance.
-	 *
+	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
 	 * @param dependenceID id of the dependence type for which this retriever is used.
 	 * @pre depenenceID != null
@@ -163,36 +161,48 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 			final AliasSet _callerSideToken = (AliasSet) _result;
 			final AliasSet _calleeSideToken = (AliasSet) token;
 
-			if (_callerSideToken != null && _calleeSideToken != null) {
-				final boolean _discardToken;
-
-				if (interferenceBased) {
-					final Collection<?> _callerRWEntities = _callerSideToken.getReadWriteShareEntities();
-					final Collection<?> _calleeRWEntities = _calleeSideToken.getReadWriteShareEntities();
-					_discardToken = _callerRWEntities == null || _calleeRWEntities == null
-							|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
-				} else if (readyBased) {
-					final Collection<?> _callerReadyEntities = _callerSideToken.getReadyEntities();
-					final Collection<?> _calleeReadyEntities = _calleeSideToken.getReadyEntities();
-					final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
-							|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
-					final Collection<?> _callerLockEntities = _callerSideToken.getLockEntities();
-					final Collection<?> _calleeLockEntities = _calleeSideToken.getLockEntities();
-					_discardToken = _b2
-							|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
-									_callerLockEntities, _calleeLockEntities));
-
-				} else {
-					_discardToken = false;
-				}
-
-				if (_discardToken && Util.isStartMethod(callee)) {
+			if (_callerSideToken != null && _calleeSideToken != null
+					&& shouldCallerSideTokenBeDiscarded(_callerSideToken, _calleeSideToken)) {
+				if (Util.isStartMethod(callee)) {
 					_result = Tokens.ACCEPT_NON_TERMINAL_CONTEXT_TOKEN;
+				} else {
+					_result = Tokens.DISCARD_CONTEXT_TOKEN;
 				}
 			}
 		}
 
 		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param callerSideToken DOCUMENT ME!
+	 * @param calleeSideToken DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken, final AliasSet calleeSideToken) {
+		final boolean _discardToken;
+		if (interferenceBased) {
+			final Collection<?> _callerRWEntities = callerSideToken.getReadWriteShareEntities();
+			final Collection<?> _calleeRWEntities = calleeSideToken.getReadWriteShareEntities();
+			_discardToken = _callerRWEntities == null || _calleeRWEntities == null
+					|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
+		} else if (readyBased) {
+			final Collection<?> _callerReadyEntities = callerSideToken.getReadyEntities();
+			final Collection<?> _calleeReadyEntities = calleeSideToken.getReadyEntities();
+			final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
+					|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
+			final Collection<?> _callerLockEntities = callerSideToken.getLockEntities();
+			final Collection<?> _calleeLockEntities = calleeSideToken.getLockEntities();
+			_discardToken = _b2
+					|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
+							_callerLockEntities, _calleeLockEntities));
+
+		} else {
+			_discardToken = false;
+		}
+		return _discardToken;
 	}
 
 }

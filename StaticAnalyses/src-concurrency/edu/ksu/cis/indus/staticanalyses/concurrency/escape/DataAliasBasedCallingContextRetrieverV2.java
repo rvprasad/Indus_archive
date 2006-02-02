@@ -48,7 +48,7 @@ class DataAliasBasedCallingContextRetrieverV2
 	/**
 	 * This guides calling context construction.
 	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
+	protected EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * Creates an instance of this instance.
@@ -85,7 +85,7 @@ class DataAliasBasedCallingContextRetrieverV2
 			if (_o == null) {
 				_result = super.considerProgramPoint(programPointContext);
 			} else {
-				_result = !_o.isEmpty();
+				_result = shouldConsiderCallerSideToken(_o);
 			}
 		} else {
 			_result = !EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_value.getType());
@@ -115,7 +115,7 @@ class DataAliasBasedCallingContextRetrieverV2
 			if (_as != null) {
 				final Collection<Object> _c1 = ((AliasSet) token).getIntraProcRefEntities();
 				final Collection<Object> _c2 = _as.getIntraProcRefEntities();
-				if (_c1 != null && _c2 != null && CollectionUtils.containsAny(_c1, _c2)) {
+				if (_c1 != null && _c2 != null && CollectionUtils.containsAny(_c1, _c2) && shouldConsiderCallerSideToken(_c2)) {
 					_result = _as;
 				}
 			} else {
@@ -155,6 +155,16 @@ class DataAliasBasedCallingContextRetrieverV2
 			LOGGER.debug("getTokenForProgramPoint() - END - return value = " + _result);
 		}
 		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param callerSideEntities DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	protected boolean shouldConsiderCallerSideToken(final Collection<Object> callerSideEntities) {
+		return !callerSideEntities.isEmpty();
 	}
 }
 

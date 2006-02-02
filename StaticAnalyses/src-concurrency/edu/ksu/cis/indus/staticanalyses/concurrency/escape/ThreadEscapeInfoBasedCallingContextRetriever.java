@@ -16,11 +16,9 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.AbstractCallingContextRetriever;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 
 import org.slf4j.Logger;
@@ -53,7 +51,7 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	/**
 	 * This guides calling context construction.
 	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
+	protected EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * Creates an instance of this instance.
