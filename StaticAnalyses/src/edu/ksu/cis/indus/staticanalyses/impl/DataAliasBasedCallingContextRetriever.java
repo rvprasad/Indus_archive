@@ -170,7 +170,7 @@ public class DataAliasBasedCallingContextRetriever
 		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
 
 		final SootMethod _caller = callsite.getMethod();
-		final Collection<CallTriple> _ancestors = (Collection) token;
+		@SuppressWarnings("unchecked") final Collection<CallTriple> _ancestors = (Collection) token;
 		final boolean _flag = isDefinitionTheSource();
 		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
 		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
@@ -305,10 +305,11 @@ public class DataAliasBasedCallingContextRetriever
 		final DefinitionStmt _stmt = (DefinitionStmt) getInfoFor(Identifiers.SRC_ENTITY);
 		final boolean _result;
 		final Value _leftOp = _stmt.getLeftOp();
-		if (_leftOp instanceof ArrayRef || _leftOp instanceof FieldRef)
+		if (_leftOp instanceof ArrayRef || _leftOp instanceof FieldRef) {
 			_result = true;
-		else
+		} else {
 			_result = false;
+		}
 		return _result;
 	}
 
@@ -327,7 +328,7 @@ public class DataAliasBasedCallingContextRetriever
 			final DefinitionStmt defStmt, final DefinitionStmt useStmt, final SootMethod curMethod) {
 		final Collection<CallTriple> _ancestors = new HashSet<CallTriple>();
 		final ICallGraphInfo _callGraph = getCallGraph();
-		final Stack<CallTriple> _stack = (Stack) getInfoFor(Identifiers.SRC_CALLING_CONTEXT);
+		@SuppressWarnings("unchecked") final Stack<CallTriple> _stack = (Stack) getInfoFor(Identifiers.SRC_CALLING_CONTEXT);
 		final Collection<CallTriple> _callers = new HashSet<CallTriple>(_callGraph.getCallers(curMethod));
 		final boolean _curMethodIsUseMethod;
 
