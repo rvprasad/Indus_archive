@@ -33,7 +33,7 @@ import soot.jimple.StaticFieldRef;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class DataAliasBasedCallingContextRetrieverV3
+public class DataAliasBasedCallingContextRetrieverV3
 		extends DataAliasBasedCallingContextRetrieverV2 {
 
 	/**

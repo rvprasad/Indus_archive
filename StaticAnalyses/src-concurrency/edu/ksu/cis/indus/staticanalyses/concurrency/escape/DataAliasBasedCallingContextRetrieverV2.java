@@ -37,7 +37,7 @@ import soot.Value;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class DataAliasBasedCallingContextRetrieverV2
+public class DataAliasBasedCallingContextRetrieverV2
 		extends DataAliasBasedCallingContextRetriever {
 
 	/**
