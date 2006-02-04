@@ -16,6 +16,9 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.soot.Util;
+
+import java.util.Collection;
+
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.FieldRef;
@@ -106,11 +109,19 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 		boolean _result = initialResult;
 		if (_as != null) {
 			if (interferenceBased) {
-				_result = CollectionUtils.containsAny(callerSideToken.getReadWriteShareEntities(), _as
-						.getReadWriteShareEntities());
+				final Collection<Object> _callerRWEntities = callerSideToken.getReadWriteShareEntities();
+				final Collection<Object> _srcRWEntities = _as.getReadWriteShareEntities();
+				_result = _callerRWEntities != null && _srcRWEntities != null
+						&& CollectionUtils.containsAny(_callerRWEntities, _srcRWEntities);
 			} else if (readyBased) {
-				_result = CollectionUtils.containsAny(callerSideToken.getReadyEntities(), _as.getReadyEntities())
-						|| CollectionUtils.containsAny(callerSideToken.getLockEntities(), _as.getLockEntities());
+				final Collection<Object> _callerReadyEntities = callerSideToken.getReadyEntities();
+				final Collection<Object> _srcReadyEntities = _as.getReadyEntities();
+				final Collection<Object> _callerLockEntities = callerSideToken.getLockEntities();
+				final Collection<Object> _srcLockEntities = _as.getLockEntities();
+				_result = (_callerReadyEntities != null && _srcReadyEntities != null && CollectionUtils.containsAny(
+						_callerReadyEntities, _srcReadyEntities))
+						|| (_callerLockEntities != null && _srcLockEntities != null && CollectionUtils.containsAny(
+								_callerLockEntities, _srcLockEntities));
 			}
 		} else {
 			_result = false;
@@ -137,8 +148,14 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 		boolean _result = initialResult;
 		if (_as != null) {
 			if (readyBased) {
-				_result = CollectionUtils.containsAny(callerSideToken.getReadyEntities(), _as.getReadyEntities())
-						|| CollectionUtils.containsAny(callerSideToken.getLockEntities(), _as.getLockEntities());
+				final Collection<Object> _callerReadyEntities = callerSideToken.getReadyEntities();
+				final Collection<Object> _srcReadyEntities = _as.getReadyEntities();
+				final Collection<Object> _callerLockEntities = callerSideToken.getLockEntities();
+				final Collection<Object> _srcLockEntities = _as.getLockEntities();
+				_result = (_callerReadyEntities != null && _srcReadyEntities != null && CollectionUtils.containsAny(
+						_callerReadyEntities, _srcReadyEntities))
+						|| (_callerLockEntities != null && _srcLockEntities != null && CollectionUtils.containsAny(
+								_callerLockEntities, _srcLockEntities));
 			}
 		} else {
 			_result = false;
