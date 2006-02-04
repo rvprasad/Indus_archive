@@ -125,6 +125,10 @@ public class DataAliasBasedCallingContextRetriever
 		} else if (_curStmt.containsFieldRef() && _srcStmt.containsFieldRef()) {
 			_curRef = _curStmt.getFieldRef();
 			_srcRef = _srcStmt.getFieldRef();
+
+			if (((FieldRef) _curRef).getField().isFinal()) {
+				return true;
+			}
 		}
 
 		boolean _result = _curRef != null && _curStmt instanceof DefinitionStmt && _srcStmt instanceof DefinitionStmt;
@@ -182,8 +186,8 @@ public class DataAliasBasedCallingContextRetriever
 				final CallTriple _ctrp = _i.next();
 				if ((_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(), _ctrp
 						.getStmt(), tgi))
-						|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(),
-								_ctrp.getStmt(), tgi))) {
+						|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_ctrp.getMethod(), _ctrp.getStmt(),
+								_method, _stmt, tgi))) {
 					_col.add(_ctrp);
 				}
 			}
@@ -194,6 +198,8 @@ public class DataAliasBasedCallingContextRetriever
 			} else {
 				_result = Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN;
 			}
+		} else if (_ancestors.contains(null)) {
+			_result = Tokens.ACCEPT_TERMINAL_CONTEXT_TOKEN;
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -229,6 +235,10 @@ public class DataAliasBasedCallingContextRetriever
 		} else if (_curDefStmt.containsFieldRef() && _srcDefStmt.containsFieldRef()) {
 			_curRef = _curDefStmt.getFieldRef();
 			_srcRef = _srcDefStmt.getFieldRef();
+
+			if (((FieldRef) _curRef).getField().isFinal()) {
+				return Tokens.CONSIDER_ALL_CONTEXTS_TOKEN;
+			}
 		}
 
 		final Object _result;
@@ -347,9 +357,10 @@ public class DataAliasBasedCallingContextRetriever
 					final SootMethod _srcMethod = _srcCallTriple.getMethod();
 					checkReachabilityFromCallersAndUpdateAncestors(_srcStmt, _srcMethod, _ancestors, _callers,
 							_curMethodIsUseMethod);
-					if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
-						_ancestors.add(_srcCallTriple);
-					}
+				}
+
+				if (defMethod.equals(useMethod) && analysis.doesControlFlowPathExistBetween(defStmt, useStmt, defMethod)) {
+					_ancestors.add(_srcCallTriple);
 				}
 			}
 		} else {

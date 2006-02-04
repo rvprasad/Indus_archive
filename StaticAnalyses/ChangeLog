@@ -1,3 +1,14 @@
+2006-02-04 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java:
+		- terminal (null-terminated) contexts should be considered asis when calculating context-coupled calling contexts.
+		This is facililated by injecting null into the ancestors/tokens when def-use occur in the same method with null as
+		the TOS on the src end and leveraging this information while generting caller side token. (Bug #750)
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV2.java:
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV3.java:
+		- the logic determined if the context should be considered while the variable/method naming suggested otherwise.
+		FIXED.
+
 2006-02-01 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV3.java:
