@@ -182,11 +182,11 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 * @return DOCUMENT ME!
 	 */
 	protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken, final AliasSet calleeSideToken) {
-		final boolean _discardToken;
+		final boolean _considerToken;
 		if (interferenceBased) {
 			final Collection<?> _callerRWEntities = callerSideToken.getReadWriteShareEntities();
 			final Collection<?> _calleeRWEntities = calleeSideToken.getReadWriteShareEntities();
-			_discardToken = _callerRWEntities == null || _calleeRWEntities == null
+			_considerToken = _callerRWEntities == null || _calleeRWEntities == null
 					|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
 		} else if (readyBased) {
 			final Collection<?> _callerReadyEntities = callerSideToken.getReadyEntities();
@@ -195,14 +195,14 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 					|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
 			final Collection<?> _callerLockEntities = callerSideToken.getLockEntities();
 			final Collection<?> _calleeLockEntities = calleeSideToken.getLockEntities();
-			_discardToken = _b2
+			_considerToken = _b2
 					|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
 							_callerLockEntities, _calleeLockEntities));
 
 		} else {
-			_discardToken = false;
+			_considerToken = true;
 		}
-		return _discardToken;
+		return !_considerToken;
 	}
 
 }

@@ -113,9 +113,9 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 						|| CollectionUtils.containsAny(callerSideToken.getLockEntities(), _as.getLockEntities());
 			}
 		} else {
-			_result = true;
+			_result = false;
 		}
-		return _result;
+		return !_result;
 	}
 
 	/**
@@ -134,16 +134,16 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 			_as = ecba.queryAliasSetForThis(_sm);
 		}
 
-		boolean _r = initialResult;
+		boolean _result = initialResult;
 		if (_as != null) {
 			if (readyBased) {
-				_r = CollectionUtils.containsAny(callerSideToken.getReadyEntities(), _as.getReadyEntities())
+				_result = CollectionUtils.containsAny(callerSideToken.getReadyEntities(), _as.getReadyEntities())
 						|| CollectionUtils.containsAny(callerSideToken.getLockEntities(), _as.getLockEntities());
 			}
 		} else {
-			_r = true;
+			_result = false;
 		}
-		return _r;
+		return !_result;
 	}
 
 }
