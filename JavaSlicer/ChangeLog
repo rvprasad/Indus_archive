@@ -1,11 +1,16 @@
+2006-02-04 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java:
+		- DataAliasBasedCallingContextRetrieverV2 is used by default.
+
 2006-01-29 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java:
 		- passed calling context to dependence extraction. (in the context of Bug #768)
-	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java: 
+	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java:
 		- requires calling context to be set when the trigger is set. (in the context of Bug #768)
-	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java: 
-		- reverted back to version 1 of DataAliasBasedCallingContextRetriever as it is now more accurate. (in the context 
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java:
+		- reverted back to version 1 of DataAliasBasedCallingContextRetriever as it is now more accurate. (in the context
 		  of Bug #768)
 
 2006-01-22 venku <venku@boss.dreamsoft.com>

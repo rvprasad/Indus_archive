@@ -41,6 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.DataAliasBasedCallingContextRetrieverV2;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
@@ -49,7 +50,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.impl.DataAliasBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -993,12 +993,12 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetriever _t3 = new DataAliasBasedCallingContextRetriever(
+				final DataAliasBasedCallingContextRetrieverV2 _t3 = new DataAliasBasedCallingContextRetrieverV2(
 						_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
 				_t3.setCfgAnalysis(new CFGAnalysis(getCallGraph(), getBasicBlockGraphManager()));
-				// _t3.setECBA(ecba); // in case _t3 is of type DataAliasBasedCallingContextRetriever
+				_t3.setECBA(ecba); // in case _t3 is of type DataAliasBasedCallingContextRetriever
 				_map.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA, _t3);
 				engine.setDepID2ContextRetrieverMapping(_map);
 			}
