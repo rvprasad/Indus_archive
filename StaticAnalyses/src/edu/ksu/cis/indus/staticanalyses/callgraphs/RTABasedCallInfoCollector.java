@@ -19,11 +19,9 @@ import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
-
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IClassHierarchy;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -44,7 +42,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.CastExpr;
 import soot.jimple.InstanceFieldRef;
@@ -60,7 +57,7 @@ import soot.jimple.StringConstant;
 
 /**
  * This implementation collects call information using rapid-type analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -110,6 +107,8 @@ public final class RTABasedCallInfoCollector
 	private final Collection<SootMethod> roots = new HashSet<SootMethod>();
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
 	@Override public void callback(final SootMethod method) {
@@ -140,6 +139,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	@Override public void callback(final ValueBox vBox, final Context context) {
@@ -174,6 +175,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
 	 */
 	@Override public void consolidate() {
@@ -230,6 +233,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ICallInfoCollector#getCallInfo()
 	 */
 	public CallGraphInfo.ICallInfo getCallInfo() {
@@ -237,6 +242,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -255,7 +262,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Initializes the collector.
-	 *
+	 * 
 	 * @param chaBasedCallInfo is the CHA based call info collector.
 	 * @param analysis is an instance of class hierarchy to use.
 	 * @pre chaBasedCallInfo != null and analysis != null
@@ -266,6 +273,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
 	 */
 	@Override public void processingBegins() {
@@ -273,6 +282,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
 	 */
 	@Override public void reset() {
@@ -286,7 +297,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Sets the root methods for the analysis.
-	 *
+	 * 
 	 * @param rootMethods of course.
 	 */
 	public void setRootMethods(final Collection<SootMethod> rootMethods) {
@@ -295,6 +306,8 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -313,7 +326,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Captures the class initializers stemming from the given class that are needed to execute the given method.
-	 *
+	 * 
 	 * @param sootClass of interest.
 	 * @param method of interest.
 	 * @pre sootClass != null and method != null
@@ -340,7 +353,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Process the given caller against previously processed class instantiations.
-	 *
+	 * 
 	 * @param caller of interest.
 	 * @param wb to be populated with work pertaining to expansion of call info.
 	 * @param instantiatedClasses is the collection of classes that have been instantiated.
@@ -385,7 +398,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * Process the newly instantiated classes to expand the call info.
-	 *
+	 * 
 	 * @param newClasses that were instantiated.
 	 * @param wb that will be populated with work pertaining to expansion of call info.
 	 * @pre newClasses != null and wb != null
@@ -433,7 +446,7 @@ public final class RTABasedCallInfoCollector
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param context DOCUMENT ME!
 	 * @param expr DOCUMENT ME!
 	 */
