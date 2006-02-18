@@ -83,6 +83,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractCallingContextRetriever#considerProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	@Override protected boolean considerProgramPoint(final Context context) {
@@ -103,6 +105,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractCallingContextRetriever#considerThis(Context)
 	 */
 	@Override protected boolean considerThis(final Context methodContext) {
@@ -123,6 +127,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractCallingContextRetriever#getCallerSideToken(Object, SootMethod,
 	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, Stack)
 	 */
@@ -155,6 +161,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractCallingContextRetriever#getTokenForProgramPoint(edu.ksu.cis.indus.processing.Context)
 	 */
 	@Override protected Object getTokenForProgramPoint(final Context context) {
@@ -175,6 +183,8 @@ public class ThreadEscapeInfoBasedCallingContextRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractCallingContextRetriever#getTokenForThis(Context)
 	 */
 	@Override protected Object getTokenForThis(final Context methodContext) {

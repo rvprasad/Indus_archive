@@ -16,9 +16,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
-
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +35,6 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.ArrayRef;
 import soot.jimple.CastExpr;
@@ -58,7 +56,7 @@ import soot.jimple.VirtualInvokeExpr;
  * <p>
  * The arguments to any of the overridden methods cannot be <code>null</code>.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -97,7 +95,7 @@ final class ValueProcessor
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param analysis associated with this instance.
 	 * @pre analysis != null
 	 */
@@ -107,8 +105,8 @@ final class ValueProcessor
 
 	/**
 	 * Provides the alias set associated with the array element being referred. All elements in a dimension of an array are
-	 * abstracted by a single alias set.
-	 *
+	 * abstracted by a single alias set. {@inheritDoc}
+	 * 
 	 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 	 */
 	@Override public void caseArrayRef(final ArrayRef v) {
@@ -124,6 +122,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
 	 */
 	@Override public void caseCastExpr(final CastExpr v) {
@@ -131,6 +131,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 	 */
 	@Override public void caseInstanceFieldRef(final InstanceFieldRef v) {
@@ -147,6 +149,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr( soot.jimple.InterfaceInvokeExpr)
 	 */
 	@Override public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
@@ -154,6 +158,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.JimpleValueSwitch#caseLocal(Local)
 	 */
 	@Override public void caseLocal(final Local v) {
@@ -175,6 +181,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.RefSwitch#caseParameterRef( soot.jimple.ParameterRef)
 	 */
 	@Override public void caseParameterRef(final ParameterRef v) {
@@ -183,6 +191,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr( soot.jimple.SpecialInvokeExpr)
 	 */
 	@Override public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
@@ -190,6 +200,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.RefSwitch#caseStaticFieldRef( soot.jimple.StaticFieldRef)
 	 */
 	@Override public void caseStaticFieldRef(final StaticFieldRef v) {
@@ -206,6 +218,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr( soot.jimple.StaticInvokeExpr)
 	 */
 	@Override public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
@@ -213,6 +227,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
 	@Override public void caseThisRef(@SuppressWarnings("unused") final ThisRef v) {
@@ -221,6 +237,8 @@ final class ValueProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr( soot.jimple.VirtualInvokeExpr)
 	 */
 	@Override public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
@@ -231,7 +249,7 @@ final class ValueProcessor
 	 * Creates an alias set if <code>o</code> is of type <code>Value</code>. It uses <code>AliasSet</code> to decide if
 	 * the given type requires an alias set. If not, <code>null</code> is provided as the alias set. This is also the case
 	 * when <code>o</code> is not of type <code>Value</code>.
-	 *
+	 * 
 	 * @param o is a piece of IR to be processed.
 	 */
 	@Override public void defaultCase(final Object o) {
@@ -250,7 +268,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the given value/expression.
-	 *
+	 * 
 	 * @param value to be processed.
 	 * @pre value != null
 	 */
@@ -270,7 +288,7 @@ final class ValueProcessor
 
 	/**
 	 * Sets the value of <code>markLocals</code>.
-	 *
+	 * 
 	 * @param value the new value of <code>markLocals</code>.
 	 * @return the previous value of markLocals.
 	 */
@@ -282,7 +300,7 @@ final class ValueProcessor
 
 	/**
 	 * Sets the value of <code>rhs</code>.
-	 *
+	 * 
 	 * @param b the new value of <code>rhs</code>.
 	 * @return the previous value of rhs.
 	 */
@@ -294,7 +312,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the arguments of the invoke expression.
-	 *
+	 * 
 	 * @param v is the invoke expressions containing the arguments to be processed.
 	 * @return the list of alias sets corresponding to the arguments.
 	 * @pre v != null
@@ -327,7 +345,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the callees in a caller.
-	 *
+	 * 
 	 * @param callees is the collection of methods called.
 	 * @param caller is the calling method.
 	 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
@@ -350,21 +368,20 @@ final class ValueProcessor
 			/*
 			 * If the caller and callee occur in different SCCs then clone the callee method context and then unify it with
 			 * the site context. If not, unify the method context with site-context as precision will be lost any which way.
-             */
-            /*
-             * NULL-ARGUMENT SCENARIO:
-			 * This above approach has the ill effect -- if argument position p is null then this approach results in the
-             * unnecessary combination of alias sets for this position from various callees. This can be addressed during
-             * parameter alias set retrival in MethodContext.
-             */
-            if (_notInSameSCC) {
-                try {
-                    _mc = _mc.clone();
-                } catch (final CloneNotSupportedException _e) {
-                    LOGGER.error("Hell NO!  This should not happen.", _e);
-                    throw new RuntimeException(_e);
-                }
-            }
+			 */
+			/*
+			 * NULL-ARGUMENT SCENARIO: This above approach has the ill effect -- if argument position p is null then this
+			 * approach results in the unnecessary combination of alias sets for this position from various callees. This can
+			 * be addressed during parameter alias set retrival in MethodContext.
+			 */
+			if (_notInSameSCC) {
+				try {
+					_mc = _mc.clone();
+				} catch (final CloneNotSupportedException _e) {
+					LOGGER.error("Hell NO!  This should not happen.", _e);
+					throw new RuntimeException(_e);
+				}
+			}
 
 			processNotifyWaitSync(primaryAliasSet, _callee);
 
@@ -397,7 +414,7 @@ final class ValueProcessor
 
 	/**
 	 * Processes the fields.
-	 *
+	 * 
 	 * @param t type of the access expression.
 	 * @param base is the alias set of the primary.
 	 * @param fieldSig is the signature of the accessed field.
@@ -428,7 +445,7 @@ final class ValueProcessor
 
 	/**
 	 * Processes invoke expressions/call-sites.
-	 *
+	 * 
 	 * @param expr invocation expresison to be processed.
 	 */
 	private void processInvokeExpr(final InvokeExpr expr) {
@@ -469,7 +486,7 @@ final class ValueProcessor
 
 	/**
 	 * Process the called method for <code>notify(), nofityAll(),</code>, and variants of <code>wait</code> methods.
-	 *
+	 * 
 	 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
 	 * @param callee being called.
 	 * @pre primaryAliasSet != null and callee != null
@@ -485,7 +502,7 @@ final class ValueProcessor
 
 	/**
 	 * Helper method to record threads in which alias is accessed.
-	 *
+	 * 
 	 * @param as is the alias set to be marked.
 	 * @pre as != null
 	 */

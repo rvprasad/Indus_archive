@@ -18,8 +18,8 @@ import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +40,7 @@ import soot.jimple.VirtualInvokeExpr;
 
 /**
  * This class provides implementation of <code>IEscapeInfo</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -86,7 +86,7 @@ class EscapeInfo
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param instance that creates this instance.
 	 * @pre instance != null
 	 */
@@ -100,6 +100,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#areCoupledViaLocking(soot.Local, soot.SootMethod, soot.Local, soot.SootMethod)
 	 */
 	public boolean areCoupledViaLocking(final Local local1, final SootMethod method1, final Local local2,
@@ -122,6 +124,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#areMonitorsCoupled(MonitorStmt, SootMethod, MonitorStmt, SootMethod)
 	 */
 	public boolean areMonitorsCoupled(final MonitorStmt enter, final SootMethod enterMethod, final MonitorStmt exit,
@@ -171,6 +175,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#areWaitAndNotifyCoupled(InvokeStmt, SootMethod, InvokeStmt, SootMethod)
 	 */
 	public boolean areWaitAndNotifyCoupled(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
@@ -225,6 +231,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#escapes(SootClass, SootMethod)
 	 */
 	public boolean escapes(final SootClass sc, final SootMethod sm) {
@@ -249,6 +257,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#escapes(Value, SootMethod)
 	 */
 	public boolean escapes(final Value v, final SootMethod sm) {
@@ -271,6 +281,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, Object)
 	 */
 	public boolean fieldAccessShared(final Value v, final SootMethod sm, final Object sharedAccessSort) {
@@ -300,6 +312,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#fieldAccessShared(soot.Value, soot.SootMethod, String, Object)
 	 */
 	public boolean fieldAccessShared(final Value v, final SootMethod sm, final String fieldSignature,
@@ -330,6 +344,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#fieldAccessShared(Value, SootMethod, Value, SootMethod, Object)
 	 */
 	public boolean fieldAccessShared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2,
@@ -362,6 +378,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection<Comparable<String>> getIds() {
@@ -369,9 +387,12 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final int paramIndex,
+			final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
 		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
@@ -398,10 +419,14 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final Local local, final SootMethod method) {
-		Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = Collections.<Triple<InvokeStmt, SootMethod, SootClass>>emptySet();
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOf(final Local local,
+			final SootMethod method) {
+		Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = Collections
+				.<Triple<InvokeStmt, SootMethod, SootClass>> emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
 
@@ -417,6 +442,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getReadingThreadsOfThis(soot.SootMethod)
 	 */
 	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getReadingThreadsOfThis(final SootMethod method) {
@@ -439,9 +466,12 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(int, soot.SootMethod)
 	 */
-	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final int paramIndex, final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final int paramIndex,
+			final SootMethod method) {
 		this.analysis.validate(paramIndex, method);
 
 		final Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result;
@@ -468,9 +498,12 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOf(soot.Local, soot.SootMethod)
 	 */
-	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final Local local, final SootMethod method) {
+	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOf(final Local local,
+			final SootMethod method) {
 		Collection<Triple<InvokeStmt, SootMethod, SootClass>> _result = Collections.emptySet();
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
 		_triple = this.analysis.method2Triple.get(method);
@@ -487,6 +520,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#getWritingThreadsOfThis(soot.SootMethod)
 	 */
 	public Collection<Triple<InvokeStmt, SootMethod, SootClass>> getWritingThreadsOfThis(final SootMethod method) {
@@ -509,6 +544,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#lockUnlockShared(soot.Value, soot.SootMethod)
 	 */
 	public boolean lockUnlockShared(final Value v, final SootMethod sm) {
@@ -531,6 +568,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod, Object)
 	 */
 	public boolean staticfieldAccessShared(final SootClass sc, final SootMethod sm, final Object sharedAccessSort) {
@@ -562,6 +601,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#staticfieldAccessShared(soot.SootClass, soot.SootMethod,
 	 *      java.lang.String, Object)
 	 */
@@ -595,6 +636,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#thisEscapes(SootMethod)
 	 */
 	public boolean thisEscapes(final SootMethod method) {
@@ -620,6 +663,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#thisFieldAccessShared(SootMethod, Object)
 	 */
 	public boolean thisFieldAccessShared(final SootMethod method, final Object sharedAccessSort) {
@@ -652,6 +697,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#thisFieldAccessShared(SootMethod, String, Object)
 	 */
 	public boolean thisFieldAccessShared(final SootMethod method, final String signature, final Object sharedAccessSort) {
@@ -684,6 +731,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#thisLockUnlockShared(SootMethod)
 	 */
 	public boolean thisLockUnlockShared(final SootMethod method) {
@@ -709,6 +758,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IEscapeInfo#thisWaitNotifyShared(SootMethod)
 	 */
 	public boolean thisWaitNotifyShared(final SootMethod method) {
@@ -734,6 +785,8 @@ class EscapeInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IEscapeInfo#waitNotifyShared(soot.Value, soot.SootMethod)
 	 */
 	public boolean waitNotifyShared(final Value v, final SootMethod sm) {
@@ -771,7 +824,7 @@ class EscapeInfo
 
 	/**
 	 * Retrieves the alias set for the given local in the given method.
-	 *
+	 * 
 	 * @param local of interest.
 	 * @param method in which <code>local</code> occurs.
 	 * @return the alias set if it exists.
@@ -802,7 +855,7 @@ class EscapeInfo
 
 	/**
 	 * Retrieves the default value for the given sort of shared access.
-	 *
+	 * 
 	 * @param sharedAccessSort of interest.
 	 * @return the default value.
 	 * @pre shareadAccessSort != null

@@ -18,10 +18,9 @@ import edu.ksu.cis.indus.common.collections.ChainedTransformer;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
-
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -100,6 +99,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#doesInvocationReadGlobalData(CallTriple)
 	 */
 	public boolean doesInvocationReadGlobalData(final CallTriple callerTriple) {
@@ -108,6 +109,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#doesInvocationWriteGlobalData(CallTriple)
 	 */
 	public boolean doesInvocationWriteGlobalData(final CallTriple callerTriple) {
@@ -116,6 +119,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#doesMethodReadGlobalData(soot.SootMethod)
 	 */
 	public boolean doesMethodReadGlobalData(final SootMethod method) {
@@ -123,6 +128,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#doesMethodWriteGlobalData(SootMethod)
 	 */
 	public boolean doesMethodWriteGlobalData(final SootMethod method) {
@@ -130,6 +137,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection<? extends Comparable<?>> getIds() {
@@ -137,6 +146,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isArgumentBasedAccessPathRead(edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, int,
 	 *      java.lang.String[], boolean)
 	 */
@@ -152,6 +163,8 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isArgumentBasedAccessPathWritten(CallTriple, int, String[], boolean)
 	 */
 	public boolean isArgumentBasedAccessPathWritten(final CallTriple callerTriple, final int argPos,
@@ -160,36 +173,42 @@ class ReadWriteInfo
 
 		this.analysis.validate(argPos, _callee);
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
-				this.analysis.new ArgParamAliasSetRetriever(argPos));
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				this.analysis.new SiteContextRetriever(callerTriple), this.analysis.new ArgParamAliasSetRetriever(argPos));
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isParameterBasedAccessPathRead(soot.SootMethod, int, java.lang.String[], boolean)
 	 */
 	public boolean isParameterBasedAccessPathRead(final SootMethod method, final int paramPos, final String[] accesspath,
 			final boolean recurse) throws IllegalArgumentException {
 		this.analysis.validate(paramPos, method);
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
-				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isParameterBasedAccessPathWritten(SootMethod, int, String[], boolean)
 	 */
 	public boolean isParameterBasedAccessPathWritten(final SootMethod method, final int paramPos, final String[] accesspath,
 			final boolean recurse) {
 		this.analysis.validate(paramPos, method);
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
-				this.analysis.new ArgParamAliasSetRetriever(paramPos));
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				methodCtxtRetriever, this.analysis.new ArgParamAliasSetRetriever(paramPos));
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isReceiverBasedAccessPathRead(CallTriple, java.lang.String[], boolean)
 	 */
 	public boolean isReceiverBasedAccessPathRead(final CallTriple callerTriple, final String[] accesspath,
@@ -198,12 +217,14 @@ class ReadWriteInfo
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				this.analysis.new SiteContextRetriever(callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, true);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isReceiverBasedAccessPathWritten(CallTriple, String[], boolean)
 	 */
 	public boolean isReceiverBasedAccessPathWritten(final CallTriple callerTriple, final String[] accesspath,
@@ -212,12 +233,14 @@ class ReadWriteInfo
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(this.analysis.new SiteContextRetriever(callerTriple),
-				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				this.analysis.new SiteContextRetriever(callerTriple), ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(callerTriple.getMethod(), accesspath, recurse, _transformer, false);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IReadWriteInfo#isThisBasedAccessPathRead(soot.SootMethod, java.lang.String[],
 	 *      boolean)
 	 */
@@ -225,17 +248,21 @@ class ReadWriteInfo
 			throws IllegalArgumentException {
 		this.analysis.validate(method);
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, true);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IReadWriteInfo#isThisBasedAccessPathWritten(SootMethod, String[], boolean)
 	 */
 	public boolean isThisBasedAccessPathWritten(final SootMethod method, final String[] accesspath, final boolean recurse) {
 		this.analysis.validate(method);
 
-		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
+		final ITransformer<SootMethod, AliasSet> _transformer = new ChainedTransformer<SootMethod, MethodContext, AliasSet>(
+				methodCtxtRetriever, ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER);
 		return instanceDataReadWriteHelper(method, accesspath, recurse, _transformer, false);
 	}
 

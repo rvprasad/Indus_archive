@@ -62,6 +62,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
 	@Override public void caseAssignStmt(final AssignStmt stmt) {
@@ -79,6 +81,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 	 */
 	@Override public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
@@ -87,6 +91,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 	 */
 	@Override public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
@@ -94,6 +100,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
 	@Override public void caseIdentityStmt(final IdentityStmt stmt) {
@@ -112,6 +120,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 	 */
 	@Override public void caseInvokeStmt(final InvokeStmt stmt) {
@@ -119,6 +129,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 	 */
 	@Override public void caseReturnStmt(final ReturnStmt stmt) {
@@ -132,6 +144,8 @@ final class StmtProcessor
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 	 */
 	@Override public void caseThrowStmt(final ThrowStmt stmt) {

@@ -16,9 +16,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -35,7 +33,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
@@ -46,7 +43,7 @@ import soot.jimple.Stmt;
 /**
  * This class contains the logic to calculate equivalence classes of shared-write statements in the system. Two shared-write
  * statement belong to the same equivalence class if they may write to the same field/array cell.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -56,7 +53,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * This is the collection of definition statements involving array reference or field reference.
-	 *
+	 * 
 	 * @invariant defStmts->forall(o | o.containsArrayRef() or o.containsFieldRef())
 	 */
 	private final Collection<Pair<AssignStmt, SootMethod>> defStmts;
@@ -69,7 +66,7 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * This maps a shared write statement to the collection of shared write statements that are in the same equivalence class
 	 * as the key.
-	 *
+	 * 
 	 * @invariant write2writes.keySet()->forall(o | o.getFirst().getLeftOp().oclIsKindOf(ArrayRef) or
 	 *            o.getFirst().getLeftOp().oclIsKindOf(StaticFieldRef) or
 	 *            o.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef))
@@ -78,7 +75,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param escapeInfo to be used.
 	 */
 	public SharedWriteBasedEquivalence(final IEscapeInfo escapeInfo) {
@@ -88,6 +85,8 @@ public class SharedWriteBasedEquivalence
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	@Override public void callback(final ValueBox vBox, final Context context) {
@@ -130,7 +129,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * Retrieves the shared writes that belong to the same equivalence class as the given shared write.
-	 *
+	 * 
 	 * @param pair of interest.
 	 * @return a collection of lock acquisition.
 	 * @pre pair.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
@@ -145,7 +144,7 @@ public class SharedWriteBasedEquivalence
 
 	/**
 	 * Retrieves the shared writes that belong to a non-singleton equivalence class.
-	 *
+	 * 
 	 * @return a collection of lock acquisition.
 	 * @post result.getFirst().oclIsKindOf(AssignStmt)
 	 * @post result.getFirst().getLeftOp().oclIsKindOf(InstanceFieldRef) or
@@ -157,6 +156,8 @@ public class SharedWriteBasedEquivalence
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -164,6 +165,8 @@ public class SharedWriteBasedEquivalence
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override public String toString() {
@@ -171,6 +174,8 @@ public class SharedWriteBasedEquivalence
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -180,7 +185,7 @@ public class SharedWriteBasedEquivalence
 	/**
 	 * Checks if the given definition statements are dependent based on the fact that they may update the same field on an
 	 * object or the same cell of an array.
-	 *
+	 * 
 	 * @param s1 is one statement of interest.
 	 * @param m1 is the method containing <code>s1</code>.
 	 * @param s2 is the second statement of interest.

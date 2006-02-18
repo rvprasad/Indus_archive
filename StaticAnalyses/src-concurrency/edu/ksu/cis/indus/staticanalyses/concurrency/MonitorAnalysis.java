@@ -24,25 +24,22 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
-
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
-
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -55,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.slf4j.Logger;
@@ -63,7 +61,6 @@ import org.slf4j.LoggerFactory;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.MonitorStmt;
@@ -111,6 +108,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosedStmts(Triple, boolean)
 		 */
 		public Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(
@@ -128,6 +127,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosingMonitorTriples(Stmt,
 		 *      SootMethod, boolean)
 		 */
@@ -281,7 +282,7 @@ public final class MonitorAnalysis
 			extends AbstractProcessor {
 
 		/**
-		 * Preprocesses the given method. It records if the method is synchronized.
+		 * Preprocesses the given method. It records if the method is synchronized. * {@inheritDoc}
 		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(SootMethod)
 		 */
@@ -311,6 +312,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
@@ -319,6 +322,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
@@ -450,6 +455,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(edu.ksu.cis.indus.common.datastructures.Triple,
 	 *      boolean)
 	 */
@@ -507,6 +514,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorStmts(soot.jimple.Stmt, soot.SootMethod, boolean)
 	 */
 	public Collection<MonitorStmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive) {
@@ -529,6 +538,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorTriples(soot.jimple.Stmt, SootMethod, boolean)
 	 */
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getEnclosingMonitorTriples(final Stmt stmt,
@@ -548,6 +559,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection<? extends Comparable<?>> getIds() {
@@ -555,6 +568,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorGraph(edu.ksu.cis.indus.interfaces.ICallGraphInfo)
 	 */
 	public IMonitorGraph<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getMonitorGraph(
@@ -635,6 +650,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesFor(soot.jimple.MonitorStmt, SootMethod)
 	 */
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(
@@ -658,6 +675,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesIn(SootMethod)
 	 */
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesIn(final SootMethod method) {
@@ -676,6 +695,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriplesOf(edu.ksu.cis.indus.common.datastructures.Triple)
 	 */
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesOf(
@@ -702,6 +723,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getStmtsOfMonitor(edu.ksu.cis.indus.common.datastructures.Triple)
 	 */
 	public Collection<MonitorStmt> getStmtsOfMonitor(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor) {
@@ -724,6 +747,8 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getUnenclosedStmtsOf(soot.SootMethod)
 	 */
 	public Collection<Stmt> getUnenclosedStmtsOf(final SootMethod method) {
@@ -735,12 +760,14 @@ public final class MonitorAnalysis
 			}
 		};
 
-		final Collection<Stmt> _result = IteratorUtils.toList(IteratorUtils.filteredIterator(getUnitGraph(method).iterator(),
-				_predicate));
+		final Collection<Stmt> _result = IteratorUtils.toList(IteratorUtils.<Stmt, Stmt> filteredIterator(
+				getUnitGraph(method).iterator(), _predicate));
 		return _result;
 	}
 
 	/**
+	 * * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	@Override public void reset() {
@@ -967,7 +994,7 @@ public final class MonitorAnalysis
 
 				for (final Iterator<Pair<EnterMonitorStmt, Collection<Stmt>>> _iter = enterStack.iterator(); _iter.hasNext();) {
 					final Pair<EnterMonitorStmt, Collection<Stmt>> _p = _iter.next();
-					final HashSet<Stmt> _hashSet = new HashSet<Stmt>(_p.getSecond());
+					final Set<Stmt> _hashSet = new HashSet<Stmt>(_p.getSecond());
 					_clone.add(new Pair<EnterMonitorStmt, Collection<Stmt>>(_p.getFirst(), _hashSet));
 				}
 				final Quadraple<BasicBlock, Stmt, Stack<Pair<EnterMonitorStmt, Collection<Stmt>>>, Collection<Stmt>> _quadraple = new Quadraple<BasicBlock, Stmt, Stack<Pair<EnterMonitorStmt, Collection<Stmt>>>, Collection<Stmt>>(

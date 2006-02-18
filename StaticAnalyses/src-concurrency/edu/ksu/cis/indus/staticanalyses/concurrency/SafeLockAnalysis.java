@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -22,14 +21,14 @@ import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectNode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph;
@@ -61,28 +60,31 @@ import soot.jimple.MonitorStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * This class is an implementation of Safe lock analysis as described in the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
- * with JVM Concurrency Primitives"</a>.
- *
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal Study of Slicing for Multi-threaded Program with
+ * JVM Concurrency Primitives"</a>.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class SafeLockAnalysis
-  extends AbstractAnalysis {
+		extends AbstractAnalysis {
+
 	/**
 	 * This processor collects <code>wait</code> invocations.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private final class WaitInvocationCollectingProcessor
-	  extends AbstractProcessor {
+			extends AbstractProcessor {
+
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 		 */
 		@Override public void callback(final Stmt stmt, final Context context) {
@@ -95,6 +97,8 @@ public class SafeLockAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
@@ -102,6 +106,8 @@ public class SafeLockAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
@@ -136,7 +142,7 @@ public class SafeLockAnalysis
 
 	/**
 	 * The map from wait invoking statements to the immediately enclosing method.
-	 *
+	 * 
 	 * @invariant waitStmt2method.oclIsKindOf(Map(InvokeStmt, SootMethod))
 	 */
 	final Map<InvokeStmt, SootMethod> waitStmt2method = new HashMap<InvokeStmt, SootMethod>();
@@ -147,20 +153,22 @@ public class SafeLockAnalysis
 	private IValueAnalyzer<Value> iva;
 
 	/**
-	 * This maps monitor to related monitors.  A monitor is related to other monitors if they may acquire the same lock.
+	 * This maps monitor to related monitors. A monitor is related to other monitors if they may acquire the same lock.
 	 */
-	private Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> monitor2relatedMonitors = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
+	private Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> monitor2relatedMonitors = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>(
+			MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
 
 	/**
 	 * This maps a monitor to a collection of wait that occur in the monitor.
-	 *
 	 */
-	private final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>> monitor2waits = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
+	private final Map<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>> monitor2waits = new HashMap<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>, Collection<Pair<InvokeStmt, SootMethod>>>(
+			MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
 
 	/**
 	 * The collection of triples of unsafe monitors.
 	 */
-	private final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> unsafeMonitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
+	private final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> unsafeMonitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(
+			MonitorAnalysis.NUM_OF_MONITORS_IN_APPLICATION);
 
 	/**
 	 * Creates an instance of the analysis.
@@ -170,36 +178,34 @@ public class SafeLockAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	@Override public void analyze() {
 		unstable();
 
 		if (monitorInfo.isStable() && callgraphInfo.isStable()) {
-			final IMonitorGraph<? extends IObjectNode<?, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _monitorGraph = monitorInfo.getMonitorGraph(callgraphInfo);
+			final IMonitorGraph<? extends IObjectNode<?, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _monitorGraph = monitorInfo
+					.getMonitorGraph(callgraphInfo);
 			processMonitorAndWaitsForLockBasedRelation();
 			processMonitorsAndWaitsForEnclosureBaseRelation(_monitorGraph);
 
 			/*
-			 * Assume there is an API that can be used to check if waits and notifies are valid.
-			 * For each method do the following.  [processMethod]
-			 * - Find all the statements immediately enclosed in monitors.
-			 * - If any of these statements correspond to a invalid wait, then the enclosing monitor is unsafe. Hence,
-			 *   the lock of objects that are used as monitor variable are unsafe.  {monitorIsSafeBasedOnWaitSafety}
-			 * - For each such statement set in safe monitors do the following [waitFreeCyclesExistInMonitor]
-			 *   - find the basic blocks containing these statements
-			 *   - Check if there is a cycle in the basic blocks (excluding those containing the enclosing monitor)
-			 *     with no wait().
-			 *     - If so, the monitor is unsafe.  Hence, the lock of objects that are used as monitor variable are
-			 *       unsafe.
-			 * Retrieve monitor containment graph for the system.
-			 * Do a fixed point
-			 * - propagate the unsafe=ness information in the graph.
-			 * - for each monitor newly marked as unsafe, mark related waits with their enclosing monitors and
-			 *   related monitors as unsafe.
+			 * Assume there is an API that can be used to check if waits and notifies are valid. For each method do the
+			 * following. [processMethod] - Find all the statements immediately enclosed in monitors. - If any of these
+			 * statements correspond to a invalid wait, then the enclosing monitor is unsafe. Hence, the lock of objects that
+			 * are used as monitor variable are unsafe. {monitorIsSafeBasedOnWaitSafety} - For each such statement set in safe
+			 * monitors do the following [waitFreeCyclesExistInMonitor] - find the basic blocks containing these statements -
+			 * Check if there is a cycle in the basic blocks (excluding those containing the enclosing monitor) with no
+			 * wait(). - If so, the monitor is unsafe. Hence, the lock of objects that are used as monitor variable are
+			 * unsafe. Retrieve monitor containment graph for the system. Do a fixed point - propagate the unsafe=ness
+			 * information in the graph. - for each monitor newly marked as unsafe, mark related waits with their enclosing
+			 * monitors and related monitors as unsafe.
 			 */
-			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = monitorInfo.getMonitorTriples();
-			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>_seedUnsafeMonitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = monitorInfo
+					.getMonitorTriples();
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _seedUnsafeMonitors = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
 			final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitors.iterator();
 			final int _iEnd = _monitors.size();
 
@@ -217,27 +223,27 @@ public class SafeLockAnalysis
 			stable();
 
 			if (LOGGER.isDebugEnabled()) {
-				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _safeMonitors = SetUtils.difference(monitorInfo.getMonitorTriples(), unsafeMonitors);
+				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _safeMonitors = SetUtils.difference(
+						monitorInfo.getMonitorTriples(), unsafeMonitors);
 				LOGGER.debug("Unsafe Monitors: \n" + CollectionUtils.prettyPrint(unsafeMonitors));
 				LOGGER.debug("Safe Monitors: \n" + CollectionUtils.prettyPrint(_safeMonitors));
 
-				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _temp = SetUtils.difference(monitorInfo.getMonitorTriples(), _safeMonitors);
+				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _temp = SetUtils.difference(
+						monitorInfo.getMonitorTriples(), _safeMonitors);
 				_temp.removeAll(unsafeMonitors);
 				LOGGER.debug("Unaccounted Monitors: \n" + CollectionUtils.prettyPrint(_temp));
 				LOGGER.debug("Overlapping Monitors: \n"
-					+ CollectionUtils.prettyPrint(SetUtils.intersection(_safeMonitors, unsafeMonitors)));
+						+ CollectionUtils.prettyPrint(SetUtils.intersection(_safeMonitors, unsafeMonitors)));
 			}
 		}
 	}
 
 	/**
 	 * Checks if the lock associated with the monitor of the given synchronized method is safe.
-	 *
+	 * 
 	 * @param method of interest.
-	 *
 	 * @return <code>true</code> if the lock associated with the monitor of the given synchronized method is safe;
-	 * 		   <code>false</code>, otherwise.
-	 *
+	 *         <code>false</code>, otherwise.
 	 * @pre method != null and method.isSynchronized()
 	 */
 	public boolean isLockSafe(final SootMethod method) {
@@ -246,13 +252,11 @@ public class SafeLockAnalysis
 
 	/**
 	 * Checks if the lock associated with the monitor occurring in the given statement in the given method is safe.
-	 *
+	 * 
 	 * @param stmt is a monitor (enter/exit) statement.
 	 * @param method containing <code>stmt</code>.
-	 *
-	 * @return <code>true</code> if the lock associated with the monitor occurring in the given statement in the given method
-	 * 		   is safe; <code>false</code>, otherwise.
-	 *
+	 * @return <code>true</code> if the lock associated with the monitor occurring in the given statement in the given
+	 *         method is safe; <code>false</code>, otherwise.
 	 * @pre method != null and stmt != null
 	 */
 	public boolean isLockSafe(final MonitorStmt stmt, final SootMethod method) {
@@ -260,6 +264,8 @@ public class SafeLockAnalysis
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	@Override public void reset() {
@@ -272,14 +278,12 @@ public class SafeLockAnalysis
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @throws InitializationException when any of the implementations required in the preconditions are not provided.
-	 *
 	 * @pre info.get(IMonitorInfo.ID) != null and info.get(ICallGraphInfo.ID) != null
 	 * @pre info.get(IValueAnalyzer.ID) != null and info.get(PairManager.ID) != null
 	 */
-	@Override protected void setup()
-	  throws InitializationException {
+	@Override protected void setup() throws InitializationException {
 		super.setup();
 		monitorInfo = (IMonitorInfo) info.get(IMonitorInfo.ID);
 
@@ -316,30 +320,27 @@ public class SafeLockAnalysis
 
 	/**
 	 * Checks if the given basic blocks are safe by condition 1 of safe lock.
-	 *
+	 * 
 	 * @param bbg containing the given basic blocks.
 	 * @param basicBlocks enclosed by the monitor being checked.
 	 * @param method in which the basic blocks occur.
 	 * @param waitMethods are the collection of wait methods in the system.
-	 *
 	 * @return <code>true</code> if the given blocks are safe by condition 1; <code>false</code>, otherwise.
-	 *
 	 * @pre bbg != null and basicBlocks != null and waitMethods != null and method != null
 	 * @pre bbg.getNodes().containsAll(basicBlocks)
 	 */
-	private boolean isMonitorSafeByCond1InTheseBasicBlocks(final BasicBlockGraph bbg, final Collection<BasicBlock> basicBlocks,
-		final SootMethod method, final Collection<SootMethod> waitMethods) {
+	private boolean isMonitorSafeByCond1InTheseBasicBlocks(final BasicBlockGraph bbg,
+			final Collection<BasicBlock> basicBlocks, final SootMethod method, final Collection<SootMethod> waitMethods) {
 		boolean _result = true;
 		final Collection<List<BasicBlock>> _t = AbstractDirectedGraph.findCycles(basicBlocks, bbg.getBackEdges());
 		final Iterator<List<BasicBlock>> _j = _t.iterator();
 		final int _jEnd = _t.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd && _result; _jIndex++) {
-			final Collection<BasicBlock> _cycle =  _j.next();
+			final Collection<BasicBlock> _cycle = _j.next();
 			boolean _cycleIsUnsafe = true;
 			final Collection<Stmt> _invocationStmts = bbg.getEnclosedStmts(_cycle);
-			final Iterator<Stmt> _filteredIterator =
-				IteratorUtils.filteredIterator(_invocationStmts.iterator(),
+			final Iterator<Stmt> _filteredIterator = IteratorUtils.filteredIterator(_invocationStmts.iterator(),
 					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
 
 			while (_filteredIterator.hasNext() && _cycleIsUnsafe) {
@@ -354,8 +355,10 @@ public class SafeLockAnalysis
 	 * Processes the monitors and the wait invocations in the system to establish lock based relation.
 	 */
 	private void processMonitorAndWaitsForLockBasedRelation() {
-		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = monitorInfo.getMonitorTriples();
-		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _temp = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(_monitorTriples);
+		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = monitorInfo
+				.getMonitorTriples();
+		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _temp = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(
+				_monitorTriples);
 		final Context _context = new Context();
 		final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriples.iterator();
 		final int _iEnd = _monitorTriples.size();
@@ -418,9 +421,8 @@ public class SafeLockAnalysis
 
 	/**
 	 * Processes the monitors and the wait invocations in the system to establish "semantic" enclosure relation.
-	 *
+	 * 
 	 * @param monitorGraph to be used.
-	 *
 	 * @pre monitorGraph != null
 	 */
 	private void processMonitorsAndWaitsForEnclosureBaseRelation(final IMonitorGraph<?> monitorGraph) {
@@ -431,18 +433,19 @@ public class SafeLockAnalysis
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final InvokeStmt _waitStmt = _i.next();
 			final SootMethod _method = waitStmt2method.get(_waitStmt);
-			final Collection<Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosingMonitors =
-				monitorGraph.getInterProcedurallyEnclosingMonitorTriples(_waitStmt, _method, false).values();
-			final Iterator<Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _j = _enclosingMonitors.iterator();
+			final Collection<Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _enclosingMonitors = monitorGraph
+					.getInterProcedurallyEnclosingMonitorTriples(_waitStmt, _method, false).values();
+			final Iterator<Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _j = _enclosingMonitors
+					.iterator();
 			final int _jEnd = _enclosingMonitors.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors =  _j.next();
+				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitors = _j.next();
 				final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _k = _monitors.iterator();
 				final int _kEnd = _monitors.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor =  _k.next();
+					final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _monitor = _k.next();
 					MapUtils.putIntoCollectionInMap(monitor2waits, _monitor, pairMgr.getPair(_waitStmt, _method));
 				}
 			}
@@ -451,16 +454,18 @@ public class SafeLockAnalysis
 
 	/**
 	 * Propagates the "unsafe" information to other monitors based on monitor enclosures and lock based relations.
+	 * 
 	 * @param <N> DOCUMENT ME!
-	 *
 	 * @param collectedUnsafeMonitors is the collection of unsafe monitors.
 	 * @param monitorGraph to be used.
-	 *
 	 * @pre monitorGraph != null
 	 * @pre collectedUnsafeMonitors != null
 	 */
-	private <N  extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>void propagateSafetyInformation(final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> collectedUnsafeMonitors, final IMonitorGraph<N> monitorGraph) {
-		final IWorkBag<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _wb = new HistoryAwareLIFOWorkBag<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(unsafeMonitors);
+	private <N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> void propagateSafetyInformation(
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> collectedUnsafeMonitors,
+			final IMonitorGraph<N> monitorGraph) {
+		final IWorkBag<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _wb = new HistoryAwareLIFOWorkBag<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>(
+				unsafeMonitors);
 		_wb.addAllWork(collectedUnsafeMonitors);
 
 		while (_wb.hasWork()) {
@@ -468,22 +473,21 @@ public class SafeLockAnalysis
 			_wb.addAllWork(MapUtils.queryCollection(monitor2relatedMonitors, _monitor));
 
 			final N _node = monitorGraph.queryNode(_monitor);
-			_wb.addAllWork(CollectionUtils.collect(monitorGraph.getReachablesFrom(_node, false),
-					monitorGraph.getObjectExtractor()));
+			_wb.addAllWork(CollectionUtils.collect(monitorGraph.getReachablesFrom(_node, false), monitorGraph
+					.getObjectExtractor()));
 		}
 	}
 
 	/**
 	 * Checks if the given monitor is safe by condition 1 - there are no wait free loops in the monitor.
-	 *
+	 * 
 	 * @param monitor to be analyzed.
 	 * @param monitorGraph to be used.
-	 *
 	 * @return <code>true</code> if the monitor is safe; <code>false</code>, otherwise.
-	 *
 	 * @pre monitor != null
 	 */
-	private boolean safeByCondition1(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor, final IMonitorGraph<?> monitorGraph) {
+	private boolean safeByCondition1(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor,
+			final IMonitorGraph<?> monitorGraph) {
 		final Collection<SootMethod> _waitMethods = new HashSet<SootMethod>();
 		final Collection<Pair<InvokeStmt, SootMethod>> _waits = MapUtils.queryCollection(monitor2waits, monitor);
 
@@ -494,9 +498,10 @@ public class SafeLockAnalysis
 
 		boolean _monitorIsSafe = true;
 		SootMethod _method = monitor.getThird();
-		final Map<SootMethod, Collection<Stmt>> _method2enclosedStmts = monitorGraph.getInterProcedurallyEnclosedStmts(monitor, false);
+		final Map<SootMethod, Collection<Stmt>> _method2enclosedStmts = monitorGraph.getInterProcedurallyEnclosedStmts(
+				monitor, false);
 		BasicBlockGraph _bbg = getBasicBlockGraph(_method);
-		Collection<Stmt> _stmts =  _method2enclosedStmts.remove(_method);
+		Collection<Stmt> _stmts = _method2enclosedStmts.remove(_method);
 		final Collection<BasicBlock> _basicBlocks = _bbg.getEnclosingBasicBlocks(_stmts);
 
 		if (monitor.getFirst() != null) {
@@ -515,7 +520,7 @@ public class SafeLockAnalysis
 			_bbg = getBasicBlockGraph(_method);
 			_stmts = _entry.getValue();
 			_monitorIsSafe &= isMonitorSafeByCond1InTheseBasicBlocks(_bbg, _bbg.getEnclosingBasicBlocks(_stmts), _method,
-				  _waitMethods);
+					_waitMethods);
 		}
 
 		return _monitorIsSafe;
@@ -523,11 +528,9 @@ public class SafeLockAnalysis
 
 	/**
 	 * Checks if the given monitor is safe by condition 2 - no waits for other locks.
-	 *
+	 * 
 	 * @param monitor to be analyzed.
-	 *
 	 * @return <code>true</code> if the monitor is safe; <code>false</code>, otherwise.
-	 *
 	 * @pre monitor != null
 	 */
 	private boolean safeByCondition2(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor) {
@@ -556,7 +559,7 @@ public class SafeLockAnalysis
 		final int _jEnd = _waits.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd && _safe; _jIndex++) {
-			final Pair<InvokeStmt, SootMethod> _pair =  _j.next();
+			final Pair<InvokeStmt, SootMethod> _pair = _j.next();
 			final InvokeStmt _waitStmt = _pair.getFirst();
 			final SootMethod _waitMethod = _pair.getSecond();
 			final VirtualInvokeExpr _invokeExpr = (VirtualInvokeExpr) _waitStmt.getInvokeExpr();

@@ -81,6 +81,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerProgramPoint(Context)
 	 */
 	@Override protected boolean considerProgramPoint(final Context context) {
@@ -132,6 +134,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ThreadEscapeInfoBasedCallingContextRetriever#considerThis(Context)
 	 */
 	@Override protected boolean considerThis(final Context methodContext) {
@@ -149,6 +153,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ThreadEscapeInfoBasedCallingContextRetriever#getCallerSideToken(java.lang.Object, soot.SootMethod,
 	 *      edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple, Stack)
 	 */

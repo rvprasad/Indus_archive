@@ -53,6 +53,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ThreadEscapeInfoBasedCallingContextRetrieverV2#shouldCallerSideTokenBeDiscarded(AliasSet, AliasSet)
 	 */
 	@Override protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken,
