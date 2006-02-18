@@ -166,7 +166,7 @@ public final class IndependenceDetectionCLI
 
 			_cli.setClassNames(_cl.getArgList());
 			_cli.setOutputDir(_cl.getOptionValue('o'));
-			_cli.execute(_cl);
+			_cli.<ITokens> execute(_cl);
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			System.out.println("Error while parsing command line." + _e);

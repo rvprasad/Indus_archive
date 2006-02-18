@@ -285,7 +285,7 @@ public class DependencyXMLizerCLI
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
 
-			_xmlizerCLI.execute();
+			_xmlizerCLI.<ITokens> execute();
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			System.out.println("Error while parsing command line." + _e);

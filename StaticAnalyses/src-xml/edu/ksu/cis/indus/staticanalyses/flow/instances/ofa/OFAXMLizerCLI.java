@@ -190,7 +190,7 @@ public final class OFAXMLizerCLI
 
 			_cli.initialize();
 
-			_cli.execute(_cl.hasOption('j'));
+			_cli.<ITokens> execute(_cl.hasOption('j'));
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			System.out.println("Error while parsing command line. \n" + _e);

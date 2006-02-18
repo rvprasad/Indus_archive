@@ -240,7 +240,7 @@ public final class CallGraphXMLizerCLI
 		} else if (type.equals("rta")) {
 			executeRTA(dumpJimple);
 		} else if (type.equals("ofa")) {
-			executeOFA(dumpJimple);
+			this.<ITokens> executeOFA(dumpJimple);
 		}
 	}
 

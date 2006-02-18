@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
@@ -190,8 +191,8 @@ public final class OFATool
 	 * @post result.get(REACHABLE_CLASSES_AND_FIELDS_OUTPUT_KEY) != null
 	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputMap()
 	 */
-	public Map getOutputMap() {
-		final Map _m = new HashMap(1);
+	public Map<Object, Object> getOutputMap() {
+		final Map<Object, Object> _m = new HashMap<Object, Object>(3);
 		_m.put(CALL_GRAPH_OUTPUT_KEY, callgraph);
 		_m.put(REACHABLE_CLASSES_AND_FIELDS_OUTPUT_KEY, Collections.unmodifiableMap(reachableClass2Fields));
 		_m.put(BASIC_BLOCK_GRAPH_MGR_OUTPUT_KEY, basicBlockGraphMgr);
@@ -209,7 +210,7 @@ public final class OFATool
 	}
 
 	/**
-	 * Always return null since there is no ToolConfigurationView at this time.
+	 * Always return <code>null</code> since there is no ToolConfigurationView at this time.
 	 * 
 	 * @return Always returns null.
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolConfigurationView()
@@ -219,7 +220,7 @@ public final class OFATool
 	}
 
 	/**
-	 * Always return null since there is no ToolIconView at this time.
+	 * Always return <code>null</code> since there is no ToolIconView at this time.
 	 * 
 	 * @return Always returns null.
 	 * @see edu.ksu.cis.bandera.tool.Tool#getToolIconView()
@@ -229,8 +230,7 @@ public final class OFATool
 	}
 
 	/**
-	 * Quit the generation of the Set of reachable SootMethods. At this point, we cannot quit and just have to wait for it to
-	 * complete.
+	 * Quit the generation of the set of reachable SootMethods.
 	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#quit()
 	 */
@@ -241,14 +241,14 @@ public final class OFATool
 	/**
 	 * Run the call graph generation to create a Set of SootMethod objects that are reachable.
 	 * 
-	 * @exception IllegalStateException Thrown when the preconditions are not satisfied (this is usually from not calling with
-	 *                setInputMap with proper inputs).
+	 * @throws IllegalStateException when the preconditions are not satisfied (this is usually from not calling with
+	 *             setInputMap with proper inputs).
 	 * @pre scene != null && scene is not empty
 	 * @pre entryPoints != null && entryPoints.size() >= 1
 	 * @see edu.ksu.cis.bandera.tool.Tool#run()
 	 */
 	public void run() throws IllegalStateException {
-		execute();
+		this.<ITokens> execute();
 	}
 
 	/**
@@ -308,7 +308,7 @@ public final class OFATool
 			throw new IllegalArgumentException("The set of entry points must be of type Set.");
 		}
 
-		final Set _tempEntryPoints = (Set) _entryPointsObject;
+		final Set<SootMethod> _tempEntryPoints = (Set) _entryPointsObject;
 
 		if (_tempEntryPoints.size() < 1) {
 			throw new IllegalArgumentException("The set of entry points must have at least one entry point");
@@ -334,8 +334,9 @@ public final class OFATool
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IStmtGraphFactory<CompleteUnitGraph> _factory = new CompleteStmtGraphFactory();
-		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
-				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), _factory);
+		final ITokenManager<T, Value, Type> _tokenManager = TokenUtil
+				.<T, Value, Type> getTokenManager(new SootValueTypeManager());
+		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, _tokenManager, _factory);
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
@@ -348,7 +349,7 @@ public final class OFATool
 
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
-		final Map _info = new HashMap();
+		final Map<Object, Object> _info = new HashMap<Object, Object>();
 		_info.put(ICallGraphInfo.ID, callgraph);
 
 		activePart = _aa.getActivePart();
@@ -373,10 +374,11 @@ public final class OFATool
 	 * @param tagName used to identify reachable parts.
 	 * @pre valueAnalyzer != null and tagName != null
 	 */
-	private void retrieveReachableClassesAndFields(final IValueAnalyzer valueAnalyzer, final String tagName) {
-		for (final Iterator _i = valueAnalyzer.getEnvironment().getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-			final Collection _temp = Util.getHostsWithTag(_sc.getFields(), tagName);
+	private void retrieveReachableClassesAndFields(final IValueAnalyzer<Value> valueAnalyzer, final String tagName) {
+		for (final Iterator<SootClass> _i = valueAnalyzer.getEnvironment().getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = _i.next();
+			final Collection<SootField> _fields = _sc.getFields();
+			final Collection<SootField> _temp = Util.getHostsWithTag(_fields, tagName);
 			reachableClass2Fields.put(_sc, _temp);
 		}
 	}

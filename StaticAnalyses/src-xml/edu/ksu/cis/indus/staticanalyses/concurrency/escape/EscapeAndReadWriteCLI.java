@@ -124,7 +124,7 @@ public class EscapeAndReadWriteCLI
 				_cli.setScopeSpecFile(_cl.getOptionValue('S'));
 			}
 			_cli.setClassNames(_cl.getArgList());
-			_cli.execute();
+			_cli.<ITokens> execute();
 		} catch (final ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			System.out.println("Error while parsing command line." + _e);

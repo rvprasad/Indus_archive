@@ -409,7 +409,7 @@ public final class RelativeDependenceInfoTool
 	 */
 	public void run() throws Exception {
 		abort = false;
-		run(env, rootMethods);
+		this.<ITokens> run(env, rootMethods);
 	}
 
 	/**
