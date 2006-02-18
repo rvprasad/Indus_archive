@@ -223,7 +223,8 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 			_node.setSuccessorSet(_newSuccs);
 			_node.setInSCCWithMultipleNodes();
 			if (_node instanceof AbstractFGNode) {
-				((AbstractFGNode) _node).setTokenSendingWork(_work);
+				final AbstractFGNode _abstractFGNode = (AbstractFGNode) _node;
+				(_abstractFGNode).setTokenSendingWork(_work);
 			}
 		}
 
