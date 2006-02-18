@@ -242,7 +242,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * @return the stringized representation of this object.
 	 */
 	protected String stringize() {
-		return "(" + first + ", " + second + ", " + third + ", " + fourth + ")";
+		return ("(" + first + ", " + second + ", " + third + ", " + fourth + ")").intern();
 	}
 }
 

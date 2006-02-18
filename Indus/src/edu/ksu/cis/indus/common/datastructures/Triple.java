@@ -34,10 +34,11 @@ package edu.ksu.cis.indus.common.datastructures;
  * @author $Author$
  * @version $Revision$
  * @param <T1> The type of the first element of this triple.
- * @param <T2> The type of the second element of this triple. 
+ * @param <T2> The type of the second element of this triple.
  * @param <T3> The type of the first element of this triple.
  */
 public class Triple<T1, T2, T3> {
+
 	/**
 	 * The first object in this triple.
 	 */
@@ -207,7 +208,7 @@ public class Triple<T1, T2, T3> {
 	 * @return the stringized representation of this object.
 	 */
 	protected String stringize() {
-		return "(" + first + ", " + second + ", " + third + ")";
+		return ("(" + first + ", " + second + ", " + third + ")").intern();
 	}
 }
 

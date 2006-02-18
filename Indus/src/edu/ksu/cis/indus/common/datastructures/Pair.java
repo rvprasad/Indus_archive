@@ -61,7 +61,7 @@ public final class Pair<T1, T2> {
 		/**
 		 * This is the id of this service.
 		 */
-		public static final Comparable <? extends Object> ID = "Pair management service";
+		public static final Comparable<? extends Object> ID = "Pair management service";
 
 		/**
 		 * DOCUMENT ME!
@@ -73,7 +73,7 @@ public final class Pair<T1, T2> {
 			}
 
 		};
-		
+
 		/**
 		 * This indicates if the generated pairs should be optimized for hash code.
 		 */
@@ -372,7 +372,7 @@ public final class Pair<T1, T2> {
 	 * @return the stringized representation of this object.
 	 */
 	protected String stringize() {
-		return "(" + first + ", " + second + ")";
+		return ("(" + first + ", " + second + ")").intern();
 	}
 }
 
