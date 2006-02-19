@@ -102,7 +102,7 @@ public final class OFAXMLizerCLI
 	 * @pre root != null and methods != null
 	 * @post result != null and (methods.contains(root) or methods.containsAll(root))
 	 */
-	public static String getBaseNameOfFileAndRootMethods(final Object root, final Collection methods) {
+	public static String getBaseNameOfFileAndRootMethods(final Object root, final Collection<SootMethod> methods) {
 		final String _result;
 
 		if (root instanceof SootMethod) {
@@ -110,7 +110,7 @@ public final class OFAXMLizerCLI
 			_result = (_sm.getDeclaringClass().getJavaStyleName() + "_" + _sm.getSubSignature()).replaceAll(" ", "_");
 			methods.add(_sm);
 		} else {
-			_result = "cumulative_call_graph" + System.currentTimeMillis();
+			_result = "cumulative_" + System.currentTimeMillis();
 			methods.addAll((Collection) root);
 		}
 		return _result;
@@ -222,7 +222,7 @@ public final class OFAXMLizerCLI
 	private <T extends ITokens<T, Value>> void execute(final boolean dumpJimple) {
 		setInfoLogger(LOGGER);
 
-		final String _tagName = "CallGraphXMLizer:FA";
+		final String _tagName = "OFAXMLizer:FA";
 		final IValueAnalyzer<Value> _aa;
 		if (type.equals("fioi")) {
 			_aa = OFAnalyzer.getFIOIAnalyzer(_tagName,

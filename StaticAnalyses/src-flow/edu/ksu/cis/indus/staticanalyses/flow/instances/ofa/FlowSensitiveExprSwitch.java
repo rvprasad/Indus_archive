@@ -83,6 +83,8 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 	 */
 	@Override public void caseLocal(final Local e) {
 		final OFAFGNode<T> _localNode = method.getASTNode(e, context);
+		MethodVariant.setFilterOfBasedOn(_localNode, e.getType(), tokenMgr);
+
 		final Stmt _stmt = context.getStmt();
 		final ValueBox _backup = context.setProgramPoint(null);
 
@@ -99,7 +101,7 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);
 				}
 				_defNode.addSucc(_localNode);
-				MethodVariant.setOutFilterOfBasedOn(_defNode, e.getType(), tokenMgr);
+				MethodVariant.setFilterOfBasedOn(_defNode, e.getType(), tokenMgr);
 			}
 		}
 

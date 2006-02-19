@@ -113,15 +113,7 @@ import java.util.Collection;
 	 * @param filter object to be used.
 	 * @pre filter != null
 	 */
-	void setInFilter(ITokenFilter<T, SYM> filter);
-
-	/**
-	 * Sets a filter object which will filter the values flowing out of this node.
-	 * 
-	 * @param filter object to be used.
-	 * @pre filter != null
-	 */
-	void setOutFilter(ITokenFilter<T, SYM> filter);
+	void setFilter(ITokenFilter<T, SYM> filter);
 
 	/**
 	 * Sets the given data as the SCC related data of this node.
@@ -141,7 +133,6 @@ import java.util.Collection;
 
 	/**
 	 * DOCUMENT ME!
-	 *
 	 */
 	void setInSCCWithMultipleNodes();
 

@@ -58,19 +58,14 @@ import org.slf4j.LoggerFactory;
 	protected final IWorkBagProvider workbagProvider;
 
 	/**
-	 * A filter that controls the inflow of values to this node.
+	 * A filter that controls the flow values into and out of this node.
 	 */
-	private ITokenFilter<T, SYM> inFilter;
+	private ITokenFilter<T, SYM> filter;
 
 	/**
 	 * DOCUMENT ME!
 	 */
 	private boolean inSCCWithMultipleNodes;
-
-	/**
-	 * A filter that controls the outflow of values from this node.
-	 */
-	private ITokenFilter<T, SYM> outFilter;
 
 	/**
 	 * The piece of data required to perform strongly connected component-based optimization.
@@ -114,30 +109,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
-	 * Provides the tokens that go through the given filter.
+	 * {@inheritDoc}
 	 * 
-	 * @param <T> DOCUMENT ME!
-	 * @param <S> DOCUMENT ME!
-	 * @param filter to be used.
-	 * @param tokenSet to be filtered.
-	 * @return the filterate tokens.
-	 * @pre tokenSet != null
-	 * @post result != null
-	 * @post filter == null implies result.equals(tokenSet)
-	 */
-	private static <T extends ITokens<T, S>, S> T filterTokens(final ITokenFilter<T, S> filter, final T tokenSet) {
-		final T _result;
-
-		if (filter != null) {
-			_result = filter.filter(tokenSet);
-		} else {
-			_result = tokenSet;
-		}
-
-		return _result;
-	}
-
-	/**
 	 * @see IFGNode#absorbTokensLazily(ITokens)
 	 */
 	public void absorbTokensLazily(final T tokensToBeInjected) {
@@ -162,6 +135,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#addSucc(IFGNode)
 	 */
 	public void addSucc(final N node) {
@@ -173,6 +148,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#getSCCRelatedData()
 	 */
 	public final SCCRelatedData getSCCRelatedData() {
@@ -183,6 +160,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#getSuccs()
 	 */
 	public final Collection<N> getSuccs() {
@@ -190,13 +169,17 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#getTokens()
 	 */
 	public final T getTokens() {
-		return filterTokens(outFilter, tokens);
+		return filterTokens(tokens);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#getValues()
 	 */
 	public final Collection<SYM> getValues() {
@@ -204,10 +187,12 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#injectTokens(ITokens)
 	 */
 	public final void injectTokens(final T newTokens) {
-		final T _diffTokens = filterTokens(inFilter, newTokens.diffTokens(tokens));
+		final T _diffTokens = filterTokens(newTokens.diffTokens(tokens));
 		final boolean _injectedTokens = !_diffTokens.isEmpty();
 
 		if (_injectedTokens) {
@@ -217,13 +202,17 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
-	 * @see IFGNode#setInFilter(ITokenFilter)
+	 * {@inheritDoc}
+	 * 
+	 * @see IFGNode#setFilter(ITokenFilter)
 	 */
-	public final void setInFilter(final ITokenFilter<T, SYM> filterToUse) {
-		inFilter = filterToUse;
+	public final void setFilter(final ITokenFilter<T, SYM> filterToUse) {
+		filter = filterToUse;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#setInSCCWithMultipleNodes()
 	 */
 	public final void setInSCCWithMultipleNodes() {
@@ -231,13 +220,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
-	 * @see IFGNode#setOutFilter(ITokenFilter)
-	 */
-	public final void setOutFilter(final ITokenFilter<T, SYM> filterToUse) {
-		outFilter = filterToUse;
-	}
-
-	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#setSCCRelatedData(SCCRelatedData)
 	 */
 	public final void setSCCRelatedData(final SCCRelatedData data) {
@@ -245,6 +229,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#setSuccessorSet(Collection)
 	 */
 	public final void setSuccessorSet(final Collection<N> successors) {
@@ -263,6 +249,8 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IFGNode#setTokenSet(ITokens)
 	 */
 	public final void setTokenSet(final T newTokenSet) {
@@ -277,6 +265,27 @@ import org.slf4j.LoggerFactory;
 	 */
 	@Override public String toString() {
 		return "IFGNode:" + hashCode();
+	}
+
+	/**
+	 * Provides the tokens that go through the in filter.
+	 * 
+	 * @param tokenSet to be filtered.
+	 * @return the filterate tokens.
+	 * @pre tokenSet != null
+	 * @post result != null
+	 * @post filter == null implies result.equals(tokenSet)
+	 */
+	protected final T filterTokens(final T tokenSet) {
+		final T _result;
+
+		if (filter != null) {
+			_result = filter.filter(tokenSet);
+		} else {
+			_result = tokenSet;
+		}
+
+		return _result;
 	}
 
 	/**
@@ -300,10 +309,11 @@ import org.slf4j.LoggerFactory;
 	 */
 	protected void onNewTokens(final T newTokens) {
 		if (!succs.isEmpty()) {
+			final T _outTokens = filterTokens(newTokens);
 
 			for (final Iterator<N> _i = succs.iterator(); _i.hasNext();) {
 				final N _succ = _i.next();
-				_succ.absorbTokensLazily(newTokens);
+				_succ.absorbTokensLazily(_outTokens);
 			}
 		}
 	}

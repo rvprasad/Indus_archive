@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
@@ -44,7 +43,6 @@ import soot.Trap;
 import soot.TrapManager;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.JimpleBody;
@@ -55,7 +53,7 @@ import soot.jimple.ThrowStmt;
  * The variant that represents a method implementation. It maintains variant specific information about local variables and
  * the AST nodes in associated method. It also maintains information about the parameters, this variable, and return values,
  * if any are present.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
  * @param <T> DOCUMENT ME!
@@ -77,7 +75,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	/**
 	 * Creates a new <code>MethodVariant</code> instance. This will not process the statements of this method. That is
 	 * accomplished via call to <code>process()</code>. This will also mark the field with the flow analysis tag.
-	 *
+	 * 
 	 * @param sm the method represented by this variant. This parameter cannot be <code>null</code>.
 	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>. This
 	 *            parameter cannot be <code>null</code>.
@@ -107,24 +105,23 @@ class MethodVariant<T extends ITokens<T, Value>>
 			final ITypeManager<Type, Value> _typeManager = _tokenMgr.getTypeManager();
 			final IType _tokenTypeForRepType = _typeManager.getTokenTypeForRepType(_sootType);
 			final ITokenFilter<T, Value> _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
-			thisVar.setInFilter(_typeBasedFilter);
-			thisVar.setOutFilter(_typeBasedFilter);
+			thisVar.setFilter(_typeBasedFilter);
 		}
 
 		// We also want to use retrieve acceptable values from other interfacial data entities.
 		if (returnVar != null) {
-			setOutFilterOfBasedOn(returnVar, sm.getReturnType(), _tokenMgr);
+			setFilterOfBasedOn(returnVar, sm.getReturnType(), _tokenMgr);
 		}
 
 		for (int _i = parameters.size() - 1; _i >= 0; _i--) {
 			final OFAFGNode<T> _pNode = parameters.get(_i);
 
 			if (_pNode != null) {
-				setOutFilterOfBasedOn(_pNode, sm.getParameterType(_i), _tokenMgr);
+				setFilterOfBasedOn(_pNode, sm.getParameterType(_i), _tokenMgr);
 			}
 		}
 
-		setOutFilterOfBasedOn(thrownNode, this.fa.getClass("java.lang.Throwable").getType(), _tokenMgr);
+		setFilterOfBasedOn(thrownNode, this.fa.getClass("java.lang.Throwable").getType(), _tokenMgr);
 
 		stmtGraphFactory = factory;
 
@@ -135,19 +132,19 @@ class MethodVariant<T extends ITokens<T, Value>>
 
 	/**
 	 * Sets the out filter based on the given type for the given node.
+	 * 
 	 * @param <T> DOCUMENT ME!
-	 *
 	 * @param node of interest.
 	 * @param type for the filter.
 	 * @param tokenMgr used in the creation of the type-based filter.
 	 * @pre node != null and type != null and tokenMgr != null
 	 */
-	static <T extends ITokens<T, Value>> void setOutFilterOfBasedOn(final OFAFGNode<T> node, final Type type,
+	static <T extends ITokens<T, Value>> void setFilterOfBasedOn(final OFAFGNode<T> node, final Type type,
 			final ITokenManager<T, Value, Type> tokenMgr) {
 		if (node != null) {
 			final IType _baseType = tokenMgr.getTypeManager().getTokenTypeForRepType(type);
 			final ITokenFilter<T, Value> _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
-			node.setOutFilter(_baseFilter);
+			node.setFilter(_baseFilter);
 		}
 	}
 
@@ -192,7 +189,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	/**
 	 * Connects the nodes corresponding the exceptions thrown (throw and method invocations) in the body to the nodd
 	 * corresponding to the expression thrown by the method.
-	 *
+	 * 
 	 * @param body of the method.
 	 * @param stmtList is the list of statements that make up the body.
 	 * @pre body != null and stmtList != null
@@ -218,7 +215,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 					final SootClass _sc = _trap.getException();
 					_exceptionIsUncaught = !_exp.equals(_sc) && !Util.isDescendentOf(_exp, _sc);
 				}
-				
+
 				if (_t.isEmpty() || _exceptionIsUncaught) {
 					_ctxt.setProgramPoint(_throwStmt.getOpBox());
 					queryASTNode(_throwStmt.getOp(), _ctxt).addSucc(thrownNode);
@@ -232,7 +229,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 
 	/**
 	 * Process the body.
-	 *
+	 * 
 	 * @param body to be processed.
 	 * @param stmtList is the list of statements that make up the body.
 	 * @pre body != null and stmtList != null

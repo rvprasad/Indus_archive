@@ -1,3 +1,17 @@
+2006-02-19 venku <venku@boss.dreamsoft.com>
+
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/AbstractFGNode.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/IFGNode.java: 
+		- collapsed setInFilter() and setOutFilter() into setFilter().  Now, the same filter will be applied to both incoming 
+		and outgoing values.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java:
+		- leveraged the new setFilter() method in places where setIn(Out)Filter() methods were used.
+		- added logic to inject filters into almost all nodes.
+	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java: 
+		- changed the pattern for the output file.
+	
 2006-02-18 venku <venku@boss.dreamsoft.com>
 
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
