@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -28,7 +27,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @param <I> DOCUMENT ME!
  */
 public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
-  implements IIndexManagementStrategy<I> {
+		implements IIndexManagementStrategy<I> {
+
 	/**
 	 * The collection of indices managed by this object.
 	 * 
@@ -37,6 +37,8 @@ public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
 	private final RetrievableSet<I> indices = new RetrievableSet<I>();
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IIndexManagementStrategy#getEquivalentIndex(edu.ksu.cis.indus.staticanalyses.flow.IIndex)
 	 */
 	public I getEquivalentIndex(final I index) {

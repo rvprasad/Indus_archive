@@ -30,6 +30,8 @@ public final class MemoryIntensiveIndexManagementStrategy<I extends IIndex<I>>
 		implements IIndexManagementStrategy<I> {
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IIndexManagementStrategy#getEquivalentIndex(IIndex)
 	 */
 	public I getEquivalentIndex(final I index) {
