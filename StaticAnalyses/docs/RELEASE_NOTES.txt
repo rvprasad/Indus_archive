@@ -25,6 +25,10 @@ Required software:
 
 Version 0.8
 --------------
+	- New optimizations to flow analysis cuts down the execution time by close to 80% in some cases.  This enables the
+	framework to scale on system that rely on Java AWT and Swing libraries.
+	- A new flow analysis mode (along the lines of Rapid Type Analysis) enables memory optimal object flow information 
+	calculation for purposes such as call graph construction.	
 	- Feature request:
 		- 747 - Enhance OFA info display on the command line interface
 		- 717 - used scoping framework to perform scoped analyses
