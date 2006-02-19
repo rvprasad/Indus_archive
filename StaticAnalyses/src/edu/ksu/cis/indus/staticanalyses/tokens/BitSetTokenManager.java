@@ -101,10 +101,10 @@ public final class BitSetTokenManager<V, R>
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
 		public BitSetTokens filter(final BitSetTokens tokens) {
-			final BitSetTokens _result = new BitSetTokens();
+			final BitSetTokens _result = new BitSetTokens(bitmask.size());
 			final BitSet _temp = _result.bitset;
-			_temp.or(tokens.bitset);
-			_temp.and(bitmask);
+			_temp.or(bitmask);
+			_temp.and(tokens.bitset);
 			return _result;
 		}
 	}
@@ -191,7 +191,11 @@ public final class BitSetTokenManager<V, R>
 		public BitSetTokens diffTokens(final BitSetTokens tokens) {
 			final BitSetTokens _result = new BitSetTokens(bitset.size());
 			_result.bitset.or(bitset);
-			_result.bitset.andNot(tokens.bitset);
+
+			if (bitset.intersects(tokens.bitset)) {
+				_result.bitset.andNot(tokens.bitset);
+			}
+
 			return _result;
 		}
 	}
