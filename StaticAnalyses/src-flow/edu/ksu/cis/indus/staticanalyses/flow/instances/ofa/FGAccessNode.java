@@ -59,8 +59,11 @@ class FGAccessNode<T extends ITokens<T, Value>>
 	 */
 	@Override protected void onNewTokens(final T newTokens) {
 		super.onNewTokens(newTokens);
-		work.addTokens(newTokens);
-		workbagProvider.getWorkBag().addWork(work);
+
+		if (!newTokens.isEmpty()) {
+			work.addTokens(filterTokens(newTokens));
+			workbagProvider.getWorkBag().addWork(work);
+		}
 	}
 }
 
