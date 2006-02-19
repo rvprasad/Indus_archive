@@ -15,21 +15,18 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,12 +35,11 @@ import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 /**
  * This class can be used to xmlize object flow information.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -57,7 +53,7 @@ public final class OFAStringizer {
 
 	/**
 	 * This class is used by the xmlizer to xmlize OFA information.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -70,90 +66,126 @@ public final class OFAStringizer {
 		 */
 		private OFAnalyzer<?> ofa;
 
-		private final StringWriter writer;
+		/**
+		 * The writer into which OFA info will be written into.
+		 */
+		private final Writer writer;
 
 		/**
 		 * Creates an instance of the processor.
-		 *
+		 * 
 		 * @param analyzer is the OFA instance whose information should be xmlized.
-		 * @pre analyzer != null
+		 * @param w is the writer into which data will be written.
+		 * @pre analyzer != null and w != null
 		 */
-		public OFAXMLizingProcessor(final OFAnalyzer<?> analyzer) {
+		public OFAXMLizingProcessor(final OFAnalyzer<?> analyzer, final Writer w) {
 			ofa = analyzer;
-			writer = new StringWriter();
+			writer = w;
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 		 */
 		@Override public void callback(final ValueBox vBox, final Context context) {
-			writer.append("\n\t\t<");
-			writer.append(vBox.getValue().toString());
-			writer.append(">: ");
+			try {
+				writer.append("\n\t\t<");
+				writer.append(vBox.getValue().toString());
+				writer.append(">: ");
 
-			for (final Iterator<?> _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
-				writer.append(_i.next().toString());
-				writer.append(", ");
+				for (final Iterator<?> _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
+					writer.append(_i.next().toString());
+					writer.append(", ");
+				}
+			} catch (final IOException _e) {
+				throw new RuntimeException(_e);
 			}
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 		 */
 		@Override public void callback(final SootMethod method) {
-			writer.append('\n');
-			writer.append(method.getSignature());
+			try {
+				writer.append('\n');
+				writer.append(method.getSignature());
+			} catch (final IOException _e) {
+				throw new RuntimeException(_e);
+			}
+
 			xmlizeParameterValues(method);
 			xmlizeThrownValues(method);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
+		 * {@inheritDoc}
+		 * 
+		 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.jimple.Stmt,
+		 *      edu.ksu.cis.indus.processing.Context)
 		 */
 		@Override public void callback(final Stmt stmt, @SuppressWarnings("unused") final Context context) {
-			writer.append("\n\t");
-			writer.append(stmt.toString());
+			try {
+				writer.append("\n\t");
+				writer.append(stmt.toString());
+			} catch (final IOException _e) {
+				throw new RuntimeException(_e);
+			}
+
 		}
 
 		/**
 		 * Xmlize information about the exceptions thrown by this method.
-		 *
+		 * 
 		 * @param method of interest.
 		 * @pre method != null
 		 */
 		private void xmlizeThrownValues(final SootMethod method) {
 			final Context _context = new Context();
 			_context.setRootMethod(method);
-			writer.append("\n\tThrows: ");
-			for (final Iterator<?> _i = ofa.getThrownValues(method, _context).iterator(); _i.hasNext();) {
-				writer.append(_i.next().toString());
-				writer.append(", ");
+			try {
+				writer.append("\n\tThrows: ");
+				for (final Iterator<?> _i = ofa.getThrownValues(method, _context).iterator(); _i.hasNext();) {
+					writer.append(_i.next().toString());
+					writer.append(", ");
+				}
+			} catch (final IOException _e) {
+				throw new RuntimeException(_e);
 			}
+
 		}
 
 		/**
 		 * Xmlize information about the arguments provided for the given method.
-		 *
+		 * 
 		 * @param method of interest
 		 * @pre method != null
 		 */
 		private void xmlizeParameterValues(final SootMethod method) {
 			final Context _context = new Context();
 			_context.setRootMethod(method);
-			for (int _j = 0; _j < method.getParameterCount(); _j++) {
-				writer.append("\n\t");
-				writer.append("Param_");
-				writer.append(String.valueOf(_j));
-				writer.append(": ");
-				for (final Iterator<?> _i = ofa.getValuesForParameter(_j, _context).iterator(); _i.hasNext();) {
-					writer.append(_i.next().toString());
-					writer.append(", ");
+			try {
+				for (int _j = 0; _j < method.getParameterCount(); _j++) {
+					writer.append("\n\t");
+					writer.append("Param_");
+					writer.append(String.valueOf(_j));
+					writer.append(": ");
+					for (final Iterator<?> _i = ofa.getValuesForParameter(_j, _context).iterator(); _i.hasNext();) {
+						writer.append(_i.next().toString());
+						writer.append(", ");
+					}
 				}
+			} catch (final IOException _e) {
+				throw new RuntimeException(_e);
 			}
+
 		}
 
-
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
@@ -163,6 +195,8 @@ public final class OFAStringizer {
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
@@ -170,24 +204,16 @@ public final class OFAStringizer {
 			ppc.unregisterForAllStmts(this);
 			ppc.unregister(this);
 		}
-
-		/**
-		 * @see java.lang.Object#toString()
-		 */
-		@Override public String toString() {
-			return writer.toString();
-		}
 	}
 
 	/**
 	 * Retrieves object flow information as a textual string.
-	 *
+	 * 
 	 * @param info maps well known indus interface ids to the implementation that provide these interfaces.
-	 * @return string representation of OFA info.
-	 * @pre info != null
-	 *
+	 * @param writer to write the data into.
+	 * @pre info != null and writer != null
 	 */
-	public String getOFAInfoAsString(final Map info) {
+	public void getOFAInfoAsString(final Map info, final Writer writer) {
 		final ProcessingController _ctrl = new ProcessingController();
 		final OFAnalyzer<?> _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 		final IEnvironment _env = _ofa.getEnvironment();
@@ -199,11 +225,10 @@ public final class OFAStringizer {
 		_ctrl.setEnvironment(_env);
 		_processingFilter.chain(new XMLizingProcessingFilter());
 
-		final OFAXMLizingProcessor _processor = new OFAXMLizingProcessor(_ofa);
+		final OFAXMLizingProcessor _processor = new OFAXMLizingProcessor(_ofa, writer);
 		_processor.hookup(_ctrl);
 		_ctrl.process();
 		_processor.unhook(_ctrl);
-		return _processor.toString();
 	}
 }
 

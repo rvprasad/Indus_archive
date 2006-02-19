@@ -326,7 +326,7 @@ public final class OFAXMLizerCLI
 			}
 
 			final OFAStringizer _str = new OFAStringizer();
-			System.out.println(_str.getOFAInfoAsString(_info));
+			_str.getOFAInfoAsString(_info, new PrintWriter(System.out));
 		}
 	}
 
