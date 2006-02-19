@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,7 +19,6 @@ import edu.ksu.cis.indus.common.collections.ListOrderedSet;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
-
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
 import java.util.ArrayList;
@@ -33,10 +31,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class realizes a token manager that represents tokens as bits via bit-encoding.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -44,7 +41,8 @@ import org.slf4j.LoggerFactory;
  * @param <R> DOCUMENT ME!
  */
 public final class BitSetTokenManager<V, R>
-  extends AbstractTokenManager<BitSetTokenManager<V, R>.BitSetTokens, V, R> {
+		extends AbstractTokenManager<BitSetTokenManager<V, R>.BitSetTokens, V, R> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -52,37 +50,38 @@ public final class BitSetTokenManager<V, R>
 
 	/**
 	 * The list used to canonicalize bit position for values.
-	 *
+	 * 
 	 * @invariant valueList.oclIsKindOf(Sequence(Object))
 	 */
 	final ListOrderedSet<V> valueList = new ListOrderedSet<V>();
 
 	/**
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
-	 *
+	 * 
 	 * @invariant type2tokens.values()->forall( o | o.size() &lt;= valueList.size())
 	 */
 	private final Map<IType, BitSet> type2tokens = new HashMap<IType, BitSet>(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
-	 *
+	 * 
 	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
 	public BitSetTokenManager(final ITypeManager<R, V> typeManager) {
 		super(typeManager);
-        typeManager.addObserver(this);
+		typeManager.addObserver(this);
 	}
 
 	/**
 	 * This class represents a token filter based on bit representation of tokens.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class BitSetTokenFilter
-	  implements ITokenFilter<BitSetTokenManager<V, R>.BitSetTokens, V> {
+			implements ITokenFilter<BitSetTokenManager<V, R>.BitSetTokens, V> {
+
 		/**
 		 * The filter mask.
 		 */
@@ -90,9 +89,8 @@ public final class BitSetTokenManager<V, R>
 
 		/**
 		 * Creates an instance of this class.
-		 *
+		 * 
 		 * @param mask is the filter mask.
-		 *
 		 * @pre mask != null
 		 */
 		BitSetTokenFilter(final BitSet mask) {
@@ -113,14 +111,15 @@ public final class BitSetTokenManager<V, R>
 
 	/**
 	 * This class represents a collection of tokens represented as bits in a bitset.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class BitSetTokens
-	  extends AbstractPrototype<BitSetTokens>
-	  implements ITokens<BitSetTokens, V> {
+			extends AbstractPrototype<BitSetTokens>
+			implements ITokens<BitSetTokens, V> {
+
 		/**
 		 * The bitset used to capture the representation of the tokens.
 		 */
@@ -128,17 +127,27 @@ public final class BitSetTokenManager<V, R>
 
 		/**
 		 * Creates a new BitSetTokens object.
-		 *
 		 */
 		BitSetTokens() {
-			bitset = new BitSet();
+			this(8);
+		}
+
+		/**
+		 * Creates an instance of this class.
+		 * 
+		 * @param initLength of the bitset.
+		 * @pre initLength >= 0
+		 */
+		private BitSetTokens(int initLength) {
+			assert initLength >= 0;
+			bitset = new BitSet(initLength);
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
 		 */
-		@Override public BitSetTokens getClone(@SuppressWarnings("unused") final Object...o) {
-			final BitSetTokens _result = new BitSetTokens();
+		@Override public BitSetTokens getClone(@SuppressWarnings("unused") final Object... o) {
+			final BitSetTokens _result = new BitSetTokens(bitset.size());
 			_result.bitset.or(bitset);
 			return _result;
 		}
@@ -180,7 +189,7 @@ public final class BitSetTokenManager<V, R>
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
 		 */
 		public BitSetTokens diffTokens(final BitSetTokens tokens) {
-			final BitSetTokens _result = new BitSetTokens();
+			final BitSetTokens _result = new BitSetTokens(bitset.size());
 			_result.bitset.or(bitset);
 			_result.bitset.andNot(tokens.bitset);
 			return _result;
@@ -198,7 +207,7 @@ public final class BitSetTokenManager<V, R>
 	 * @see ITokenManager#getTokens(java.util.Collection)
 	 */
 	public BitSetTokens getTokens(final Collection<V> values) {
-		final BitSetTokens _result = new BitSetTokens();
+		final BitSetTokens _result = new BitSetTokens(values.size());
 
 		if (!values.isEmpty()) {
 			final Collection<V> _commons = SetUtils.intersection(valueList, values);
@@ -220,8 +229,8 @@ public final class BitSetTokenManager<V, R>
 
 				for (final Iterator<IType> _j = _types.iterator(); _j.hasNext();) {
 					final IType _type = _j.next();
-					final BitSet _tokens =
-						MapUtils.getFromMapUsingFactory(type2tokens, _type, CollectionUtils.BITSET_FACTORY);
+					final BitSet _tokens = MapUtils
+							.getFromMapUsingFactory(type2tokens, _type, CollectionUtils.BITSET_FACTORY);
 					_tokens.set(_index);
 				}
 				_index++;
@@ -243,8 +252,7 @@ public final class BitSetTokenManager<V, R>
 	 * @see AbstractTokenManager#getNewFilterForType(IType)
 	 */
 	@Override protected BitSetTokenFilter getNewFilterForType(final IType type) {
-		final BitSet _mask =
-			MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
+		final BitSet _mask = MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
 
 		return new BitSetTokenFilter(_mask);
 	}
@@ -253,20 +261,20 @@ public final class BitSetTokenManager<V, R>
 	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
 	 */
 	@Override protected void recordNewTokenTypeRelations(final Collection<V> values, final IType type) {
-        final BitSet _b = MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
-        final Iterator<V> _i = values.iterator();
-        final int _iEnd = values.size();
-        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-            _b.set(valueList.indexOf(_i.next()));
-        }
+		final BitSet _b = MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
+		final Iterator<V> _i = values.iterator();
+		final int _iEnd = values.size();
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			_b.set(valueList.indexOf(_i.next()));
+		}
 	}
 
-    /**
-     * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
-     */
-    @Override protected Collection<V> getValues() {
-        return valueList;
-    }
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
+	 */
+	@Override protected Collection<V> getValues() {
+		return valueList;
+	}
 }
 
 // End of File
