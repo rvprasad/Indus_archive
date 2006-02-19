@@ -141,11 +141,12 @@ import org.slf4j.LoggerFactory;
 	 * @see IFGNode#absorbTokensLazily(ITokens)
 	 */
 	public void absorbTokensLazily(final T tokensToBeInjected) {
-		final IWorkBag<IWork> _workBag = workbagProvider.getWorkBag();
 		final T _diff = tokensToBeInjected.diffTokens(tokens);
 		final boolean _tokensWillBeAbsorbed = !_diff.isEmpty();
 
 		if (_tokensWillBeAbsorbed) {
+			final IWorkBag<IWork> _workBag = workbagProvider.getWorkBag();
+
 			if (sendTokensWork == null) {
 				sendTokensWork = new SendTokensWork<SYM, T, N>((N) this, _diff);
 				_workBag.addWork(sendTokensWork);
