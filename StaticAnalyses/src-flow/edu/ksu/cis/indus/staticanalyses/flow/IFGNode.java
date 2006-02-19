@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import edu.ksu.cis.indus.annotations.AInternalUse;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 import edu.ksu.cis.indus.interfaces.IPrototype;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -34,7 +33,7 @@ import java.util.Collection;
  * removing of nodes or values as it is designed to be used in an additive environment. Moreover, removing of either nodes or
  * values will require other specific processing which is unknown at this level of abstraction.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <N> DOCUMENT ME!
@@ -46,7 +45,7 @@ import java.util.Collection;
 
 	/**
 	 * Absorbs the tokens lazily. The laziness is defined by the implementation.
-	 *
+	 * 
 	 * @param tokens to be absorbed.
 	 * @pre tokens != null
 	 */
@@ -54,7 +53,7 @@ import java.util.Collection;
 
 	/**
 	 * Adds a successor node to this node.
-	 *
+	 * 
 	 * @param node the node to be added as a successor node.
 	 * @pre node != null
 	 */
@@ -62,7 +61,7 @@ import java.util.Collection;
 
 	/**
 	 * Retrieves SCC related data of this node.
-	 *
+	 * 
 	 * @return SCC related data.
 	 * @post result != null
 	 */
@@ -70,7 +69,7 @@ import java.util.Collection;
 
 	/**
 	 * Retrieves the successors of this node.
-	 *
+	 * 
 	 * @return the successor nodes.
 	 * @post result != null
 	 */
@@ -78,7 +77,7 @@ import java.util.Collection;
 
 	/**
 	 * Retrieves the tokens accumulated at this node.
-	 *
+	 * 
 	 * @return the accumulated tokens.
 	 * @post result != null
 	 */
@@ -86,7 +85,7 @@ import java.util.Collection;
 
 	/**
 	 * Returns the values in this node.
-	 *
+	 * 
 	 * @return the values in this node.
 	 * @post result != null
 	 */
@@ -94,7 +93,7 @@ import java.util.Collection;
 
 	/**
 	 * Injects the given tokens into this node.
-	 *
+	 * 
 	 * @param tokens to be injected into this node.
 	 * @pre tokens != null
 	 */
@@ -102,15 +101,15 @@ import java.util.Collection;
 
 	/**
 	 * Injects a value into this node.
-	 *
+	 * 
 	 * @param value to be injected into this node.
-	 * @pre value !- null
+	 * @pre value != null
 	 */
 	void injectValue(SYM value);
 
 	/**
 	 * Sets a filter object which will filter the values flowing into this node.
-	 *
+	 * 
 	 * @param filter object to be used.
 	 * @pre filter != null
 	 */
@@ -118,7 +117,7 @@ import java.util.Collection;
 
 	/**
 	 * Sets a filter object which will filter the values flowing out of this node.
-	 *
+	 * 
 	 * @param filter object to be used.
 	 * @pre filter != null
 	 */
@@ -126,7 +125,7 @@ import java.util.Collection;
 
 	/**
 	 * Sets the given data as the SCC related data of this node.
-	 *
+	 * 
 	 * @param data to be used.
 	 * @pre data != null
 	 */
@@ -134,7 +133,7 @@ import java.util.Collection;
 
 	/**
 	 * Sets the successor collection to be used to store successors.
-	 *
+	 * 
 	 * @param successors the new collection.
 	 * @pre successors != null
 	 */
@@ -148,7 +147,7 @@ import java.util.Collection;
 
 	/**
 	 * Sets the token set to be used.
-	 *
+	 * 
 	 * @param newTokenSet to be used.
 	 * @pre newTokenSet != null
 	 */
