@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.IStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.lang.ref.WeakReference;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,23 +30,20 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.CompleteUnitGraph;
-
 import soot.toolkits.scalar.SimpleLocalDefs;
 
 /**
  * The expression visitor used in flow sensitive mode of object flow analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Date$
  * @param <T> DOCUMENT ME!
  */
 class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
-		extends FlowInsensitiveExprSwitch <T>{
+		extends FlowInsensitiveExprSwitch<T> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -67,19 +63,21 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Creates a new <code>FlowSensitiveExprSwitch</code> instance.
-	 *
+	 * 
 	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
+	 * @param type2valueMapper DOCUMENT ME!
 	 * @pre stmtSwitchParam != null and nodeConnector != null
 	 */
-	public FlowSensitiveExprSwitch(final IStmtSwitch stmtSwitchParam, final IFGNodeConnector<OFAFGNode<T>> nodeConnector) {
-		super(stmtSwitchParam, nodeConnector);
+	public FlowSensitiveExprSwitch(final IFGNodeConnector<OFAFGNode<T>> nodeConnector,
+			final Type2ValueMapper type2valueMapper, final IStmtSwitch stmtSwitchParam) {
+		super(nodeConnector, type2valueMapper, stmtSwitchParam);
 	}
 
 	/**
 	 * Processes the local expression. This implementation connects the nodes at the def sites to the nodes at the use site of
 	 * the local.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -111,19 +109,19 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns a new instance of this class.
-	 *
+	 * 
 	 * @param o the statement visitor which shall use the created visitor instance.
 	 * @return the new visitor instance.
 	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
 	 * @post result != null
 	 */
 	@Override public FlowSensitiveExprSwitch<T> getClone(final Object... o) {
-		return new FlowSensitiveExprSwitch<T>((IStmtSwitch) o[0], connector);
+		return new FlowSensitiveExprSwitch<T>(connector, valueRetriever, (IStmtSwitch) o[0]);
 	}
 
 	/**
 	 * Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.
-	 *
+	 * 
 	 * @param l the local for which the definitions are requested.
 	 * @param s the statement at which the definitions are requested.
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.

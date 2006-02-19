@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a peice of work to inject a set of tokens into a flow graph node.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -45,8 +45,8 @@ import org.slf4j.LoggerFactory;
 
 	/**
 	 * Creates an instance of this class.
+	 * 
 	 * @param associatedNode DOCUMENT ME!
-	 *
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
 	public SendTokensWork(final N associatedNode, final T tokenSet) {
@@ -68,6 +68,8 @@ import org.slf4j.LoggerFactory;
 		if (node instanceof AbstractFGNode) {
 			((AbstractFGNode) node).forgetSendTokensWork();
 		}
+
+		tokens.clear();
 	}
 }
 

@@ -138,7 +138,7 @@ public final class OFAXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("t", "ofa-type", false, "Type of analysis : fioi, fsoi, fios, fsos.");
+		_option = new Option("t", "ofa-type", false, "Type of analysis : fioi, fsoi, fios, fsos, fioirt, fsoirt.");
 		_option.setArgs(1);
 		_option.setArgName("type");
 		_option.setOptionalArg(false);
@@ -236,8 +236,15 @@ public final class OFAXMLizerCLI
 		} else if (type.equals("fsos")) {
 			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
 					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		} else if (type.equals("fioirt")) {
+			_aa = OFAnalyzer.getFSOIRTAnalyzer(_tagName, TokenUtil
+					.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		} else if (type.equals("fsoirt")) {
+			_aa = OFAnalyzer.getFSOIRTAnalyzer(_tagName, TokenUtil
+					.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
 		} else {
-			throw new IllegalArgumentException("ofa-type has to be one of the following: fioi, fsoi, fios, fsos.");
+			throw new IllegalArgumentException("ofa-type has to be one of the following: fioi, fsoi, fios, fsos, fioirt,"
+					+ " fsoirt.");
 		}
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();

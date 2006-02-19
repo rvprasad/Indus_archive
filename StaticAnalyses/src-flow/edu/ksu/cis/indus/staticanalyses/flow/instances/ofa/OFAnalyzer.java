@@ -105,10 +105,11 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOIAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new IndexManager<ArrayType>(),
-				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()),
-				new FlowInsensitiveExprSwitch<T>(null, new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null),
-				tokenManager, stmtGrphFctry);
+				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -124,10 +125,12 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOSAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new AllocationSiteSensitiveIndexManager<ArrayType>(),
-				new AllocationSiteSensitiveIndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(null,
-						new LHSConnector<OFAFGNode<T>>()), new FlowInsensitiveExprSwitch<T>(null,
-						new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
+				new AllocationSiteSensitiveIndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(
+						new LHSConnector<OFAFGNode<T>>(), _type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(
+						new RHSConnector<OFAFGNode<T>>(), _type2valueMapper, null), new StmtSwitch<T>(null), tokenManager,
+				stmtGrphFctry);
 	}
 
 	/**
@@ -143,10 +146,55 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOIAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
-				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()),
-				new FlowSensitiveExprSwitch<T>(null, new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null),
-				tokenManager, stmtGrphFctry);
+				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new FlowSensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
+	}
+
+	/**
+	 * Returns the analyzer that is flow sensitive, allocation-site insensitive, and object-transparent (rapid-type) in
+	 * nature. Due to its object-transparent nature, every variable will point to utmost one object of a type. Also, if two
+	 * variables points to an object of a type then they will point to the same object.
+	 * 
+	 * @param <T> DOCUMENT ME!
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
+	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
+	 * @param tokenManager manages the tokens for the objects in OFA. *
+	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @return the instance of analyzer correponding to the given name.
+	 * @post result != null and tagName != null and tokenMgr != null
+	 */
+	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOIRTAnalyzer(final String tagName,
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2CanonicalValueMapper();
+		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
+				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new FlowSensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
+	}
+
+	/**
+	 * Returns the analyzer that is flow insensitive, allocation-site insensitive, and object-transparent (rapid-type) in
+	 * nature. Due to its object-transparent nature, every variable will point to utmost one object of a type. Also, if two
+	 * variables points to an object of a type then they will point to the same object.
+	 * 
+	 * @param <T> DOCUMENT ME!
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
+	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
+	 * @param tokenManager manages the tokens for the objects in OFA. *
+	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @return the instance of analyzer correponding to the given name.
+	 * @post result != null and tagName != null and tokenMgr != null
+	 */
+	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOIRTAnalyzer(final String tagName,
+			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2CanonicalValueMapper();
+		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
+				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
+						_type2valueMapper, null), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
 	}
 
 	/**
@@ -162,10 +210,12 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOSAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
+		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(),
 				new AllocationSiteSensitiveIndexManager<ArrayType>(), new AllocationSiteSensitiveIndexManager<SootField>(),
-				new FlowSensitiveExprSwitch<T>(null, new LHSConnector<OFAFGNode<T>>()), new FlowSensitiveExprSwitch<T>(null,
-						new RHSConnector<OFAFGNode<T>>()), new StmtSwitch<T>(null), tokenManager, stmtGrphFctry);
+				new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(), _type2valueMapper, null),
+				new FlowSensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(), _type2valueMapper, null), new StmtSwitch<T>(
+						null), tokenManager, stmtGrphFctry);
 	}
 
 	/**

@@ -1,3 +1,28 @@
+2006-02-18 venku <venku@boss.dreamsoft.com>
+
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java: 
+		- In most cases, a variables evaluates to multiple objects (allocations sites) of the same type.  This is multiplicity is
+		relevant for points-to/alias analysis, hence, for accuracy of object flow info.  However, this multiplicity  is irrelevant 
+		for analysis such as call graph analysis.  In such cases, we can optimize the object flow by canonicalizing the 
+		allocation site for each type, i.e. we use a canonical allocation site to represent all allocation sites of a particular 
+		type.  This is useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.		
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAnalyzer.java:
+		- In conjuction with the changes to Flow(In)SensitiveExprSwitch, new factory methods were added to create flow
+		analyzers that would perform object-insensitive, object-transparent (rapid-type), object flow anlaysis.  This is 
+		useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.		
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2CanonicalValueMapper.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2ValueMapper.java: 
+		- These mappers were used to facilitate the object-insensitive, object-transparent (rapid-type), object flow analysis.	
+	* src-xml/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphXMLizerCLI.java: 
+	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java: 
+		- Added logic to execute object-transparent/rapid-type style object flow analysis.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/AbstractMemberDataAccessExprWork.java (execute): 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/SendTokensWork.java(execute): 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/InvokeExprWork.java (execute): 
+		- AbstractTokenProcessingWork.tokens was not cleared after IWork.execute() finished execution, and this led to 
+		poor performance. FIXED.
+
 2006-02-04 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV3.java:

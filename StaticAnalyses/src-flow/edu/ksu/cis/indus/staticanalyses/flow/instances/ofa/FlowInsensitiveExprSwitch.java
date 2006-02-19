@@ -63,7 +63,7 @@ import soot.jimple.VirtualInvokeExpr;
 
 /**
  * The expression visitor used in flow insensitive mode of object flow analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <T> DOCUMENT ME!
@@ -87,13 +87,20 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	protected final ITokenManager<T, Value, Type> tokenMgr;
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	protected final Type2ValueMapper valueRetriever;
+
+	/**
 	 * Creates a new <code>FlowInsensitiveExprSwitch</code> instance.
-	 *
+	 * 
 	 * @param statementSwitch the statement visitor which uses this object.
 	 * @param nodeConnector the connector to be used to connect ast and non-ast flow graph node.
+	 * @param type2valueMapper DOCUMENT ME!
 	 * @pre statementSwitch != null and nodeConnector != null
 	 */
-	public FlowInsensitiveExprSwitch(final IStmtSwitch statementSwitch, final IFGNodeConnector<OFAFGNode<T>> nodeConnector) {
+	FlowInsensitiveExprSwitch(final IFGNodeConnector<OFAFGNode<T>> nodeConnector, final Type2ValueMapper type2valueMapper,
+			final IStmtSwitch statementSwitch) {
 		super(statementSwitch, nodeConnector);
 
 		if (fa != null) {
@@ -101,12 +108,14 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 		} else {
 			tokenMgr = null;
 		}
+
+		valueRetriever = type2valueMapper;
 	}
 
 	/**
 	 * Processes array access expressions. Current implementation processes the primary and connects a node associated with
 	 * the primary to a <code>FGAccessNode</code> which monitors this access expressions for new values in the primary.
-	 *
+	 * 
 	 * @param e the array access expressions.
 	 * @pre e != null
 	 */
@@ -127,7 +136,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the cast expression. Current implementation processes the expression being cast.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -147,7 +156,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the given exception reference expression. This is required to thread the flow of exception in the system.
-	 *
+	 * 
 	 * @param e is the caught exception reference.
 	 * @pre e != null
 	 */
@@ -159,7 +168,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the field expression in a fashion similar to array access expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -179,7 +188,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -189,7 +198,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -199,7 +208,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the local expression.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre != null
 	 */
@@ -211,7 +220,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the new array expression. This injects a value into the flow graph.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -229,7 +238,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 		final OFAFGNode<T> _ast = method.getASTNode(e, context);
 		MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
-		_ast.injectValue(e);
+		_ast.injectValue(valueRetriever.getValue(e));
 		setFlowNode(_ast);
 
 		if (_flag) {
@@ -239,20 +248,20 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the new expression. This injects a value into the flow graph.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
 	@Override public void caseNewExpr(final NewExpr e) {
 		final OFAFGNode<T> _ast = method.getASTNode(e, context);
-		_ast.injectValue(e);
+		_ast.injectValue(valueRetriever.getValue(e));
 		setFlowNode(_ast);
 	}
 
 	/**
 	 * Processes the new array expression. This injects values into the flow graph for each dimension for which the size is
 	 * specified.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -272,7 +281,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 			final ArrayType _aType = ArrayType.v(_baseType, _i);
 			final ValuedVariant<OFAFGNode<T>> _array = fa.getArrayVariant(_aType, context);
 			process(e.getSizeBox(_sizes - 1));
-			_array.getFGNode().injectValue(e);
+			_array.getFGNode().injectValue(valueRetriever.getValue(e));
 		}
 
 		if (_flag) {
@@ -280,13 +289,13 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 		}
 
 		final OFAFGNode<T> _ast = method.getASTNode(e, context);
-		_ast.injectValue(e);
+		_ast.injectValue(valueRetriever.getValue(e));
 		setFlowNode(_ast);
 	}
 
 	/**
 	 * Processes <code>null</code>. This injects a value into the flow graph.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -298,7 +307,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes parameter reference expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -308,7 +317,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 */
 	@Override public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
@@ -317,7 +326,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -333,7 +342,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -343,7 +352,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes a string constant. This injects a value into the flow graph.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -356,7 +365,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	/**
 	 * Processes the <code>this</code> variable. Current implementation returns the node associated with the enclosing
 	 * method.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -366,7 +375,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the embedded expressions.
-	 *
+	 * 
 	 * @param e the expression to be processed.
 	 * @pre e != null
 	 */
@@ -376,7 +385,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Processes cases which are not dealt by this visitor methods or delegates to suitable methods depending on the type.
-	 *
+	 * 
 	 * @param o the expression to be processed.
 	 * @pre e != null
 	 */
@@ -397,20 +406,20 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * Returns a new instance of the this class.
-	 *
+	 * 
 	 * @param o the statement visitor which uses the new instance.
 	 * @return the new instance of this class.
 	 * @pre o != null and o[0].oclIsKindOf(IStmtSwitch)
 	 * @post result != null
 	 */
 	@Override public FlowInsensitiveExprSwitch<T> getClone(final Object... o) {
-		return new FlowInsensitiveExprSwitch<T>((IStmtSwitch) o[0], connector);
+		return new FlowInsensitiveExprSwitch<T>(connector, valueRetriever, (IStmtSwitch) o[0]);
 	}
 
 	/**
 	 * Processes the invoke expressions that require resolution by creating nodes to various data components present at the
 	 * call-site and making them available to be connected when new method implementations are plugged in.
-	 *
+	 * 
 	 * @param e the invoke expression to be processed.
 	 * @pre e != null
 	 */
@@ -455,7 +464,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param e DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
@@ -470,7 +479,7 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	/**
 	 * Processes the invoke expressions that do not require resolution by creating nodes to various data components present at
 	 * the call-site and making them available to be connected when new method implementations are plugged in.
-	 *
+	 * 
 	 * @param e the invoke expression to be processed.
 	 * @pre e != null
 	 */

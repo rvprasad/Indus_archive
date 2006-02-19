@@ -15,9 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -37,19 +35,18 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.NullConstant;
 
 /**
  * This class represents a peice of work that plugin new fragments of flow graph as new types which provide new
  * implementations flow into the receiver at the associated call-site.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <T> DOCUMENT ME!
  */
-class InvokeExprWork <T extends ITokens<T, Value>>
+class InvokeExprWork<T extends ITokens<T, Value>>
 		extends AbstractAccessExprWork<T> {
 
 	/**
@@ -59,7 +56,7 @@ class InvokeExprWork <T extends ITokens<T, Value>>
 
 	/**
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
-	 *
+	 * 
 	 * @invariant returnsRefLikeType != null
 	 */
 	protected final boolean returnsRefLikeType;
@@ -67,14 +64,14 @@ class InvokeExprWork <T extends ITokens<T, Value>>
 	/**
 	 * The collection of variants already processed/installed at the given access expression. We do not want to process
 	 * variants again and again.
-	 *
+	 * 
 	 * @invariant installedVariants != null
 	 */
-	private final Collection<IMethodVariant<OFAFGNode< T>>> installedVariants = new HashSet<IMethodVariant<OFAFGNode<T>>>();
+	private final Collection<IMethodVariant<OFAFGNode<T>>> installedVariants = new HashSet<IMethodVariant<OFAFGNode<T>>>();
 
 	/**
 	 * Creates a new <code>InvokeExprWork</code> instance.
-	 *
+	 * 
 	 * @param callerMethod the method in which the call occurs.
 	 * @param callContext the context in which the invocation occurs.
 	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
@@ -128,11 +125,12 @@ class InvokeExprWork <T extends ITokens<T, Value>>
 			}
 		}
 		context.setProgramPoint(_vb);
+		tokens.clear();
 	}
 
 	/**
 	 * Returns a stringized representation of this object.
-	 *
+	 * 
 	 * @return the stringized representation of this object.
 	 * @post result != null
 	 */
@@ -142,7 +140,7 @@ class InvokeExprWork <T extends ITokens<T, Value>>
 
 	/**
 	 * Processes the given invoke expression for the given receiver object.
-	 *
+	 * 
 	 * @param expr is the invoke expr.
 	 * @param receiver is the receiver object.
 	 * @pre expr != null and receiver != null

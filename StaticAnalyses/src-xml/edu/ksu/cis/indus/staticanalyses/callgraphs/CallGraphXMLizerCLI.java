@@ -114,7 +114,8 @@ public final class CallGraphXMLizerCLI
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("t", "call-graph-type", true, "Call graph type.  This has to be one of {cha, rta, ofa}.");
+		_option = new Option("t", "call-graph-type", true, "Call graph type.  This has to be one of {cha, rta, ofa-oi, "
+				+ "ofa-oirt, ofa-os}.");
 		_option.setArgs(1);
 		_option.setArgName("type");
 		_option.setRequired(true);
@@ -239,8 +240,8 @@ public final class CallGraphXMLizerCLI
 			executeCHA(dumpJimple);
 		} else if (type.equals("rta")) {
 			executeRTA(dumpJimple);
-		} else if (type.equals("ofa")) {
-			this.<ITokens> executeOFA(dumpJimple);
+		} else if (type.indexOf("ofa") == 0) {
+			this.<ITokens> executeOFA(dumpJimple, type);
 		}
 	}
 
@@ -278,10 +279,22 @@ public final class CallGraphXMLizerCLI
 	 * @param dumpJimple <code>true</code> indicate that jimple should be dumped; <code>false</code>, otherwise.
 	 * @param <T> dummy type parameter.
 	 */
-	private <T extends ITokens<T, Value>> void executeOFA(final boolean dumpJimple) {
+	private <T extends ITokens<T, Value>> void executeOFA(final boolean dumpJimple, final String OFAType) {
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer<Value> _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil
-				.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		final IValueAnalyzer<Value> _aa;
+		if (OFAType.equals("ofa-oi"))
+			_aa = OFAnalyzer.getFSOIAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		else if (OFAType.equals("ofa-oirt"))
+			_aa = OFAnalyzer.getFSOIRTAnalyzer(_tagName, TokenUtil
+					.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		else if (OFAType.equals("ofa-os"))
+			_aa = OFAnalyzer.getFSOSAnalyzer(_tagName,
+					TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), getStmtGraphFactory());
+		else {
+			throw new IllegalArgumentException("callgraph-type has to be one of the following: ofa-oi, ofa-oirt, ofa-os,"
+					+ " fsoirt.");
+		}
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
