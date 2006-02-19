@@ -14,15 +14,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import soot.Value;
 import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+import soot.Value;
 
 /**
  * This class extends the flow graph node by associating a work peice with it.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <T> DOCUMENT ME!
@@ -32,14 +32,14 @@ class FGAccessNode<T extends ITokens<T, Value>>
 
 	/**
 	 * The work associated with this node.
-	 *
+	 * 
 	 * @invariant work != null
 	 */
 	private final ITokenProcessingWork<T> work;
 
 	/**
 	 * Creates a new <code>FGAccessNode</code> instance.
-	 *
+	 * 
 	 * @param workPeice the work peice associated with this node.
 	 * @param provider provides the workbag into which <code>work</code> will be added.
 	 * @param tokenManager that manages the tokens used in the enclosing flow analysis.
@@ -53,7 +53,7 @@ class FGAccessNode<T extends ITokens<T, Value>>
 
 	/**
 	 * Adds the given tokens to the work peice for processing.
-	 *
+	 * 
 	 * @param newTokens the collection of values that need to be processed at the given node.
 	 * @pre newTokens != null
 	 */
