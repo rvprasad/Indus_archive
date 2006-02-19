@@ -18,7 +18,6 @@ import edu.ksu.cis.indus.annotations.AInternalUse;
 import edu.ksu.cis.indus.common.datastructures.IWork;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * an implementation may transform the existing values as new values arrive, or change successors as new successors are added.
  * Hence, all imlementing classes are required to implement <code>IFGNode.onNewSucc</code> and
  * <code>IFGNode.onNewTokens</code> methods.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <N> DOCUMENT ME!
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
 	/**
 	 * The work bag provided associated with the enclosing instance of the framework. This is required if subclasses want to
 	 * generate new work depending on the new values or new successors that may occur.
-	 *
+	 * 
 	 * @invariant workbagProvider != null
 	 */
 	protected final IWorkBagProvider workbagProvider;
@@ -90,21 +89,21 @@ import org.slf4j.LoggerFactory;
 	/**
 	 * The set of immediate successor nodes, i.e., there is direct edge from this node to the successor nodes, of this node.
 	 * The elements in the set are of type <code>IFGNode</code>.
-	 *
+	 * 
 	 * @invariant succs != null
 	 */
 	private Collection<N> succs = new HashSet<N>();
 
 	/**
 	 * The set of tokens that will be used to store tokens at this node.
-	 *
+	 * 
 	 * @invariant tokens != null
 	 */
 	private T tokens;
 
 	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
-	 *
+	 * 
 	 * @param provider provides the work bag instance associated with the enclosing instance of the framework.
 	 * @param tokenSet to be used to store the tokens at this node.
 	 * @pre worklistToUse != null and tokenSet != null
@@ -116,7 +115,7 @@ import org.slf4j.LoggerFactory;
 
 	/**
 	 * Provides the tokens that go through the given filter.
-	 *
+	 * 
 	 * @param <T> DOCUMENT ME!
 	 * @param <S> DOCUMENT ME!
 	 * @param filter to be used.
@@ -144,8 +143,9 @@ import org.slf4j.LoggerFactory;
 	public void absorbTokensLazily(final T tokensToBeInjected) {
 		final IWorkBag<IWork> _workBag = workbagProvider.getWorkBag();
 		final T _diff = tokensToBeInjected.diffTokens(tokens);
+		final boolean _tokensWillBeAbsorbed = !_diff.isEmpty();
 
-		if (!_diff.isEmpty()) {
+		if (_tokensWillBeAbsorbed) {
 			if (sendTokensWork == null) {
 				sendTokensWork = new SendTokensWork<SYM, T, N>((N) this, _diff);
 				_workBag.addWork(sendTokensWork);
@@ -207,8 +207,9 @@ import org.slf4j.LoggerFactory;
 	 */
 	public final void injectTokens(final T newTokens) {
 		final T _diffTokens = filterTokens(inFilter, newTokens.diffTokens(tokens));
+		final boolean _injectedTokens = !_diffTokens.isEmpty();
 
-		if (!_diffTokens.isEmpty()) {
+		if (_injectedTokens) {
 			tokens.addTokens(_diffTokens);
 			onNewTokens(_diffTokens);
 		}
@@ -251,7 +252,7 @@ import org.slf4j.LoggerFactory;
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param work DOCUMENT ME!
 	 */
 	public final void setTokenSendingWork(final SendTokensWork<SYM, T, N> work) {
@@ -269,7 +270,7 @@ import org.slf4j.LoggerFactory;
 
 	/**
 	 * Returns a stringized representation of this object.
-	 *
+	 * 
 	 * @return the stringized representation of this object.
 	 * @post result != null
 	 */
@@ -280,7 +281,7 @@ import org.slf4j.LoggerFactory;
 	/**
 	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>. Only the difference
 	 * values are propogated.
-	 *
+	 * 
 	 * @param succ the successor node that was added to this node.
 	 * @pre succ != null
 	 */
@@ -291,7 +292,7 @@ import org.slf4j.LoggerFactory;
 	/**
 	 * Processing to be done on receiving new acceptable tokens. This implementation adds a new work to the worklist to
 	 * propogate the new values to it's successor nodes.
-	 *
+	 * 
 	 * @param newTokens the values to be propogated to the successor node. The collection contains object of type
 	 *            <code>Object</code>.
 	 * @pre newTokens != null
