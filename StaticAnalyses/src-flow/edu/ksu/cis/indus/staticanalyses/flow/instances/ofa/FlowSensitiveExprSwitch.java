@@ -95,13 +95,14 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 				final DefinitionStmt _defStmt = _i.next();
 				context.setProgramPoint(_defStmt.getLeftOpBox());
 
-				final OFAFGNode<T> _defNode = method.getASTNode(_defStmt.getLeftOp(), context);
+				final Value _leftOp = _defStmt.getLeftOp();
+				final OFAFGNode<T> _defNode = method.getASTNode(_leftOp, context);
+				MethodVariant.setFilterOfBasedOn(_defNode, _leftOp.getType(), tokenMgr);
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);
+					LOGGER.debug("Local Def:" + _leftOp + "\n" + _defNode + context);
 				}
 				_defNode.addSucc(_localNode);
-				MethodVariant.setFilterOfBasedOn(_defNode, e.getType(), tokenMgr);
 			}
 		}
 

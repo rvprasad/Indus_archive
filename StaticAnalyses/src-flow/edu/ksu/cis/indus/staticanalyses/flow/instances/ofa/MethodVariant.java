@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
-import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -102,10 +101,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 
 		if (thisVar != null) {
 			final RefType _sootType = sm.getDeclaringClass().getType();
-			final ITypeManager<Type, Value> _typeManager = _tokenMgr.getTypeManager();
-			final IType _tokenTypeForRepType = _typeManager.getTokenTypeForRepType(_sootType);
-			final ITokenFilter<T, Value> _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
-			thisVar.setFilter(_typeBasedFilter);
+			setFilterOfBasedOn(thisVar, _sootType, _tokenMgr);
 		}
 
 		// We also want to use retrieve acceptable values from other interfacial data entities.

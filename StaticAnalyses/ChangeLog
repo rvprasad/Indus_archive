@@ -1,3 +1,10 @@
+2006-02-20 venku <venku@boss.dreamsoft.com>
+
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java: 
+		- changed some incorrect types in filter setting expressions.
+		
 2006-02-19 venku <venku@boss.dreamsoft.com>
 
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/AbstractFGNode.java: 
