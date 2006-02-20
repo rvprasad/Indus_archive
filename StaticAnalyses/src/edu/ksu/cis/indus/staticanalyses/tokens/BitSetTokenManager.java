@@ -62,6 +62,9 @@ public final class BitSetTokenManager<V, R>
 	 */
 	private final Map<IType, BitSet> type2tokens = new HashMap<IType, BitSet>(Constants.getNumOfClassesInApplication());
 
+	private final Map<IType, BitSetTokenFilter> type2tokenfilters = new HashMap<IType, BitSetTokenFilter>(Constants
+			.getNumOfClassesInApplication());
+
 	/**
 	 * Creates an instacne of this class.
 	 * 
@@ -98,6 +101,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
 		 */
 		public BitSetTokens filter(final BitSetTokens tokens) {
@@ -144,6 +149,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
 		 */
 		@Override public BitSetTokens getClone(@SuppressWarnings("unused") final Object... o) {
@@ -153,6 +160,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#isEmpty()
 		 */
 		public boolean isEmpty() {
@@ -160,6 +169,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#getValues()
 		 */
 		public Collection<V> getValues() {
@@ -172,6 +183,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#addTokens(ITokens)
 		 */
 		public void addTokens(final BitSetTokens newTokens) {
@@ -179,6 +192,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#clear()
 		 */
 		public void clear() {
@@ -186,6 +201,8 @@ public final class BitSetTokenManager<V, R>
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
 		 */
 		public BitSetTokens diffTokens(final BitSetTokens tokens) {
@@ -201,6 +218,8 @@ public final class BitSetTokenManager<V, R>
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ITokenManager#getNewTokenSet()
 	 */
 	public BitSetTokens getNewTokenSet() {
@@ -208,6 +227,8 @@ public final class BitSetTokenManager<V, R>
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ITokenManager#getTokens(java.util.Collection)
 	 */
 	public BitSetTokens getTokens(final Collection<V> values) {
@@ -244,24 +265,39 @@ public final class BitSetTokenManager<V, R>
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see ITokenManager#reset()
 	 */
 	@Override public void reset() {
 		super.reset();
 		valueList.clear();
 		type2tokens.clear();
+		type2tokenfilters.clear();
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractTokenManager#getNewFilterForType(IType)
 	 */
 	@Override protected BitSetTokenFilter getNewFilterForType(final IType type) {
-		final BitSet _mask = MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
+		final BitSetTokenFilter _result;
 
-		return new BitSetTokenFilter(_mask);
+		if (type2tokenfilters.containsKey(type)) {
+			_result = type2tokenfilters.get(type);
+		} else {
+			final BitSet _mask = MapUtils.getFromMapUsingFactory(type2tokens, type, CollectionUtils.BITSET_FACTORY);
+			_result = new BitSetTokenFilter(_mask);
+			type2tokenfilters.put(type, _result);
+		}
+
+		return _result;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
 	 */
 	@Override protected void recordNewTokenTypeRelations(final Collection<V> values, final IType type) {
@@ -274,6 +310,8 @@ public final class BitSetTokenManager<V, R>
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
 	 */
 	@Override protected Collection<V> getValues() {
