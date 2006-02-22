@@ -29,6 +29,7 @@ Required software:
 
 Version 0.8
 --------------
+	- The slicer tool now uses object flow analysis in flow insenstive mode instead of flow-sensitive mode.
 	- Feature request:
 		- 676 - Java 5 adoption
 	- Bug report:
