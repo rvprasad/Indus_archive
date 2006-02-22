@@ -317,7 +317,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		stmtGraphFactory = stmtGraphFactoryToUse;
 
 		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr, getStmtGraphFactory());
+		ofa = OFAnalyzer.getFIOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr, getStmtGraphFactory());
 		addActivePart(ofa.getActivePart());
 
 		// create the pre processor for call graph construction.
