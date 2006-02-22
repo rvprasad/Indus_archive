@@ -17,10 +17,8 @@ package edu.ksu.cis.indus.common.soot;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -58,7 +56,6 @@ import soot.Trap;
 import soot.Type;
 import soot.Value;
 import soot.VoidType;
-
 import soot.jimple.DoubleConstant;
 import soot.jimple.FloatConstant;
 import soot.jimple.IntConstant;
@@ -70,7 +67,6 @@ import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
-
 import soot.tagkit.Host;
 
 /**
@@ -242,8 +238,12 @@ public final class Util {
 		if (_declClass != null) {
 			final SootMethod _sm = _declClass.getMethodByName("start");
 
-			if (_sm != null && _sm.isConcrete()) {
-				JimpleBody _threadStartBody = (JimpleBody) _sm.retrieveActiveBody();
+			if (_sm != null) {
+				JimpleBody _threadStartBody = null;
+
+				if (_sm.isConcrete()) {
+					_threadStartBody = (JimpleBody) _sm.retrieveActiveBody();
+				}
 
 				if (_threadStartBody == null) {
 					_declClass.setApplicationClass();

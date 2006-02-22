@@ -17,9 +17,6 @@ package edu.ksu.cis.indus.common.soot;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,11 +29,9 @@ import soot.RefType;
 import soot.SootMethod;
 import soot.Type;
 import soot.VoidType;
-
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.UnitGraph;
 
 /**
@@ -66,8 +61,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	/**
 	 * This maps methods to unit graphs.
 	 */
-	private final Map<SootMethod, Reference<T>> method2UnitGraph = new HashMap<SootMethod, Reference<T>>(Constants
-			.getNumOfMethodsInApplication());
+	private final Map<SootMethod, T> method2UnitGraph = new HashMap<SootMethod, T>(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * DOCUMENT ME!
@@ -88,21 +82,9 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 			LOGGER.debug("getStmtGraph(method = " + method + ")");
 		}
 
-		final Reference<T> _ref = method2UnitGraph.get(method);
-		T _result = null;
-		boolean _flag = false;
+		T _result = method2UnitGraph.get(method);
 
-		if (_ref == null) {
-			_flag = true;
-		} else {
-			_result = _ref.get();
-
-			if (_result == null) {
-				_flag = true;
-			}
-		}
-
-		if (_flag) {
+		if (_result == null) {
 			if ((scope == null || scope.isInScope(method, environment)) && method.isConcrete()) {
 				final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
 				_result = getStmtGraphForBody(_body);
@@ -138,7 +120,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 				}
 				_result = getStmtGraphForBody(_body);
 			}
-			method2UnitGraph.put(method, new WeakReference<T>(_result));
+			method2UnitGraph.put(method, _result);
 		}
 		return _result;
 	}
