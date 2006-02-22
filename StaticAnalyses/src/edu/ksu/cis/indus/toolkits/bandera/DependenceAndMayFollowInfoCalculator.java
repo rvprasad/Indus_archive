@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,11 +118,14 @@ class DependenceAndMayFollowInfoCalculator
 	private final CFGAnalysis cfg;
 
 	/**
-	 * This caches dependence information as pair of statement and method.
-	 * 
-	 * @invariant dependenceCache.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
+	 * This stores dependence information as pair of statement and method.
 	 */
 	private final Map<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>> dependenceCache = new HashMap<Pair<? extends Stmt, SootMethod>, Collection<Pair<? extends Stmt, SootMethod>>>();
+
+	/**
+	 * This stores the reachable program points.
+	 */
+	private final List<Pair<? extends Stmt, SootMethod>> knownTransitions = new ArrayList<Pair<? extends Stmt, SootMethod>>();
 
 	/**
 	 * This indicates if only field reference operation in application classes should be considered.
@@ -182,6 +187,8 @@ class DependenceAndMayFollowInfoCalculator
 			final Collection<Pair<? extends Stmt, SootMethod>> _c = locking.getLockAcquisitionsInEquivalenceClassOf(_p);
 			addToDependenceCache(_p, _c, tool.lockAcquisitions, _birLocs, lockAcqInApplicationClassesOnly);
 		}
+
+		knownTransitions.add(_p);
 	}
 
 	/**
@@ -278,18 +285,17 @@ class DependenceAndMayFollowInfoCalculator
 		final Map<String, Collection<String>> _result = tool.mayFollow;
 		_result.clear();
 
-		final Set<? extends Pair<? extends Stmt, SootMethod>> _keys = dependenceCache.keySet();
-		final Iterator<? extends Pair<? extends Stmt, SootMethod>> _i = _keys.iterator();
-		final int _iEnd = _keys.size();
+		final ListIterator<Pair<? extends Stmt, SootMethod>> _i = knownTransitions.listIterator();
+		final int _iEnd = knownTransitions.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Pair<? extends Stmt, SootMethod> _pSrc = _i.next();
 			final Stmt _sSrc = _pSrc.getFirst();
 			final SootMethod _mSrc = _pSrc.getSecond();
 			final Collection<String> _pSrcInBIR = tool.generateBIRRep(_pSrc, false);
-			final Iterator<? extends Pair<? extends Stmt, SootMethod>> _j = _keys.iterator();
+			final Iterator<? extends Pair<? extends Stmt, SootMethod>> _j = dependenceCache.keySet().iterator();
 
-			for (int _jIndex = 0; _jIndex < _iEnd; _jIndex++) {
+			while (_j.hasNext()) {
 				final Pair<? extends Stmt, SootMethod> _pDest = _j.next();
 				final Stmt _sDest = _pDest.getFirst();
 				final SootMethod _mDest = _pDest.getSecond();
@@ -314,6 +320,8 @@ class DependenceAndMayFollowInfoCalculator
 					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 						MapUtils.putAllIntoCollectionInMap(_result, _k.next(), _birLocs);
 					}
+				} else if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug(_sDest + "@" + _mDest + " will not follow " + _sSrc + "@" + _mDest);
 				}
 			}
 		}
@@ -460,6 +468,8 @@ class DependenceAndMayFollowInfoCalculator
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 					MapUtils.putAllIntoCollectionInMap(_result, _k.next(), _t2);
 				}
+
+				knownTransitions.add(_p);
 			}
 		}
 	}
