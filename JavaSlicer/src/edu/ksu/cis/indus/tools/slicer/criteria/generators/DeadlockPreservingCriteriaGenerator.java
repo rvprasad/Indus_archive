@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -20,12 +19,12 @@ import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,22 +41,24 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-
 /**
  * This class generates seed slicing criteria to preserve the deadlocking property of the system being sliced.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class DeadlockPreservingCriteriaGenerator
-  extends AbstractSliceCriteriaGenerator<SootMethod, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
+		extends AbstractSliceCriteriaGenerator<SootMethod, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeadlockPreservingCriteriaGenerator.class);
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.tools.slicer.criteria.generators.AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()
 	 */
 	@Override protected Collection<ISliceCriterion> getCriteriaTemplateMethod() {
@@ -72,9 +73,12 @@ public final class DeadlockPreservingCriteriaGenerator
 		final BasicBlockGraphMgr _bbgMgr = _slicer.getBasicBlockGraphManager();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 
-		for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
+		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _monitorTriples = _slicer.getMonitorInfo()
+				.getMonitorTriples();
+		for (final Iterator<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _i = _monitorTriples.iterator(); _i
+				.hasNext();) {
 			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _mTriple = _i.next();
-			final SootMethod _method =  _mTriple.getThird();
+			final SootMethod _method = _mTriple.getThird();
 
 			if (shouldConsiderSite(_method)) {
 				_subResult.clear();
@@ -83,25 +87,8 @@ public final class DeadlockPreservingCriteriaGenerator
 				if (shouldGenerateCriteriaFrom(_mTriple)) {
 					if (_mTriple.getFirst() == null) {
 						// add all entry points and return points (including throws) of the method as the criteria
-						final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
-
-						if (_bbg != null) {
-							final Collection<ISliceCriterion> _criteria =
-								_criteriaFactory.getCriteria(_method, _bbgMgr.getStmtList(_method).get(0), false);
-							_subResult.addAll(_criteria);
-
-							for (final Iterator<BasicBlock> _j = _bbg.getSinks().iterator(); _j.hasNext();) {
-								final BasicBlock _bb = _j.next();
-								final Stmt _stmt = _bb.getTrailerStmt();
-								_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));
-							}
-							contextualizeCriteriaBasedOnThis(_method, _subResult);
-						} else {
-							if (LOGGER.isWarnEnabled()) {
-								LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
-									+ ".  Moving on.");
-							}
-						}
+						_subResult.addAll(generateCriteriaForMethodBoundary(_method, _bbgMgr, _criteriaFactory));
+						contextualizeCriteriaBasedOnThis(_method, _subResult);
 					} else {
 						final EnterMonitorStmt _enterStmt = _mTriple.getFirst();
 
@@ -116,14 +103,18 @@ public final class DeadlockPreservingCriteriaGenerator
 			}
 		}
 
+		final InstanceOfPredicate<InvokeStmt, Stmt> _instanceOfPredicate = new InstanceOfPredicate<InvokeStmt, Stmt>(
+				InvokeStmt.class);
 		for (final Iterator<SootMethod> _i = _slicer.getCallGraph().getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _caller = _i.next();
-			final Collection<Stmt> _sl = _bbgMgr.getStmtList(_caller);
+			final Iterator<Stmt> _sl = _bbgMgr.getStmtList(_caller).iterator();
 			_context.setRootMethod(_caller);
-			for (final Iterator<Stmt> _j = IteratorUtils.filteredIterator(_sl.iterator(), new InstanceOfPredicate<InvokeStmt, Stmt>(InvokeStmt.class)); _j.hasNext();) {
+
+			for (final Iterator<Stmt> _j = IteratorUtils.filteredIterator(_sl, _instanceOfPredicate); _j.hasNext();) {
 				final InvokeStmt _stmt = (InvokeStmt) _j.next();
 				final InvokeExpr _ve = _stmt.getInvokeExpr();
 				final SootMethod _callee = _ve.getMethod();
+
 				if (_callee.getName().equals("join") && _callee.getParameterCount() == 0
 						&& _callee.getReturnType() == VoidType.v()
 						&& _callee.getDeclaringClass().getName().equals("java.lang.Thread")) {
@@ -141,6 +132,39 @@ public final class DeadlockPreservingCriteriaGenerator
 			LOGGER.debug("END: creating deadlock criteria. - " + _result);
 		}
 
+		return _result;
+	}
+
+	/**
+	 * Generates the slice criteria to capture the boundary statements of the given method.
+	 * 
+	 * @param method of interest
+	 * @param bbgMgr is the basic block graph manager to use.
+	 * @param criteriaFactory is the slice criteria factory to use.
+	 * @return the collection of slice criteria
+	 * @throws IllegalStateException when the basic block graph manager is improperly initialized.
+	 * @pre method != null and bbgMgr != null and criteriaFactory != null
+	 */
+	private Collection<ISliceCriterion> generateCriteriaForMethodBoundary(final SootMethod method,
+			final BasicBlockGraphMgr bbgMgr, final SliceCriteriaFactory criteriaFactory) throws IllegalStateException {
+		final Collection<ISliceCriterion> _result = new ArrayList<ISliceCriterion>();
+		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
+
+		if (_bbg != null) {
+			final Collection<ISliceCriterion> _criteria = criteriaFactory.getCriteria(method, bbgMgr.getStmtList(method).get(
+					0), false);
+			_result.addAll(_criteria);
+
+			for (final Iterator<BasicBlockGraph.BasicBlock> _j = _bbg.getSinks().iterator(); _j.hasNext();) {
+				final BasicBlockGraph.BasicBlock _bb = _j.next();
+				final Stmt _stmt = _bb.getTrailerStmt();
+				_result.addAll(criteriaFactory.getCriteria(method, _stmt, false));
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Could not retrieve the basic block graph for " + method.getSignature() + ".  Moving on.");
+			}
+		}
 		return _result;
 	}
 }
