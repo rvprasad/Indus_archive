@@ -198,9 +198,19 @@ public class SootBasedDriver {
 	 * graph provider.
 	 */
 	public SootBasedDriver() {
-		cfgProvider = getStmtGraphFactory();
+		cfgProvider = getDefaultStmtGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setStmtGraphFactory(cfgProvider);
+	}
+
+	/**
+	 * Provides the default statement graph factory as configured by properties at the time of class initialization. By
+	 * default, it provides an instance of <code>CompleteStmtGraphFactory</code>.
+	 * 
+	 * @return a unit graph factory.
+	 */
+	public static IStmtGraphFactory<?> getDefaultStmtGraphFactory() {
+		return DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 	}
 
 	/**
@@ -255,15 +265,13 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
-	 * provides an instance of <code>ExceptionFlowSensitiveStmtGraphFactory</code> initialized to prune synchronization
-	 * related exceptions.
+	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation.
 	 * 
 	 * @return an unit graph factory
 	 * @post return != null
 	 */
 	public IStmtGraphFactory<?> getStmtGraphFactory() {
-		return DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
+		return cfgProvider;
 	}
 
 	/**
@@ -511,7 +519,7 @@ public class SootBasedDriver {
 		}
 		Util.fixupThreadStartBody(_result);
 
-		if (System.getProperty(Constants.LOAD_METHOD_BODIES_DURING_INITIALIZATION) != null) {
+		if (Constants.shouldLoadMethodBodiesDuringInitialization()) {
 			loadupMethodBodies();
 		}
 

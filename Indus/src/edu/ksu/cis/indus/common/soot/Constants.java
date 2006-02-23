@@ -41,46 +41,46 @@ public final class Constants {
 	public static final String CONSTANTS_CONFIGURATION_FILE_PROPERTY = "indus.constant.configuration.properties.file";
 
 	/**
-	 * This is the name of the property that control the number of methods in the system. It's name is
-	 * "NumOfMethodsInApplication".
+	 * The name of the property via which the loading method bodies during initialization can be controlled. It's name is
+	 * "edu.ksu.cis.indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit".
 	 */
-	public static final String NUM_OF_METHODS_IN_APPLICATION_PROPERTY = "NumOfMethodsInApplication";
+	public static final String LOAD_METHOD_BODIES_DURING_INITIALIZATION = "edu.ksu.cis.indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit";
 
 	/**
 	 * This is the name of the property that control the number of classes in the system. It's name is
-	 * "NumOfClassesInApplication".
+	 * "edu.ksu.cis.indus.NumOfClassesInApplication".
 	 */
-	public static final String NUM_OF_CLASSES_IN_APPLICATION_PROPERTY = "NumOfClassesInApplication";
+	public static final String NUM_OF_CLASSES_IN_APPLICATION_PROPERTY = "edu.ksu.cis.indus.NumOfClassesInApplication";
 
 	/**
 	 * This is the name of the property that control the number of fields in the system. It's name is
-	 * "NumOfFieldsInApplication".
+	 * "edu.ksu.cis.indus.NumOfFieldsInApplication".
 	 */
-	public static final String NUM_OF_FIELDS_IN_APPLICATION_PROPERTY = "NumOfFieldsInApplication";
+	public static final String NUM_OF_FIELDS_IN_APPLICATION_PROPERTY = "edu.ksu.cis.indus.NumOfFieldsInApplication";
 
 	/**
-	 * The name of the property via which the name of the statement graph factory class can be specified. It's name is
-	 * "indus.common.soot.SootBasedDriver.StmtGraphFactory.class".
+	 * This is the name of the property that control the number of methods in the system. It's name is
+	 * "edu.ksu.cis.indus.NumOfMethodsInApplication".
 	 */
-	public static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
-
-	/**
-	 * The name of the property via which the loading method bodies during initialization can be controlled. It's name is
-	 * "indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit".
-	 */
-	public static final String LOAD_METHOD_BODIES_DURING_INITIALIZATION = "indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit";
+	public static final String NUM_OF_METHODS_IN_APPLICATION_PROPERTY = "edu.ksu.cis.indus.NumOfMethodsInApplication";
 
 	/**
 	 * The name of the property via which the name of the root method trapper class can be specified. The name is
-	 * "indus.common.soot.RootMethodTrapper.class". The specified class should be a subclass of
+	 * "edu.ksu.cis.indus.common.soot.RootMethodTrapper.class". The specified class should be a subclass of
 	 * <code>edu.ksu.cis.indus.soot.RootMethodTrapper</code>.
 	 */
-	public static final String ROOT_METHOD_TRAPPER_CLASS_PROPERTY = "indus.common.soot.RootMethodTrapper.class";
+	public static final String ROOT_METHOD_TRAPPER_CLASS_PROPERTY = "edu.ksu.cis.indus.common.soot.RootMethodTrapper.class";
 
 	/**
-	 * This is the default for the number of classes in the system.
+	 * The name of the property via which the name of the statement graph factory class can be specified. It's name is
+	 * "edu.ksu.cis.indus.common.soot.SootBasedDriver.StmtGraphFactory.class".
 	 */
-	private static final int DEFAULT_NUM_OF_METHODS_IN_APPLICATION = 5000;
+	public static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY = "edu.ksu.cis.indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
+
+	/**
+	 * This contains the constants.
+	 */
+	private static final Properties CONFIGURATIONS = new Properties();
 
 	/**
 	 * This is the default for the number of classes in the system.
@@ -93,9 +93,9 @@ public final class Constants {
 	private static final int DEFAULT_NUM_OF_FIELDS_IN_APPLICATION = 3000;
 
 	/**
-	 * This contains the constants.
+	 * This is the default for the number of classes in the system.
 	 */
-	private static final Properties CONFIGURATIONS = new Properties();
+	private static final int DEFAULT_NUM_OF_METHODS_IN_APPLICATION = 5000;
 
 	static {
 		final String _propFileName = System.getProperty(CONSTANTS_CONFIGURATION_FILE_PROPERTY);
@@ -104,7 +104,7 @@ public final class Constants {
 			try {
 				final InputStream _stream = ClassLoader.getSystemResourceAsStream(_propFileName);
 				CONFIGURATIONS.load(_stream);
-			} catch (IOException _e) {
+			} catch (final IOException _e) {
 				System.err.println("Well, error loading property file.  Bailing.");
 				throw new RuntimeException(_e);
 			}
@@ -211,6 +211,24 @@ public final class Constants {
 			_result = Integer.parseInt(_temp);
 		} else {
 			_result = defaultValue;
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if method bodies should be loaded during initialization. If not specified, it defaults to <code>false</code>.
+	 * 
+	 * @return <code>true</code> if the bodies should be loaded; <code>false</code>, otherwise.
+	 */
+	public static boolean shouldLoadMethodBodiesDuringInitialization() {
+		final boolean _defaultValue = false;
+		final boolean _result;
+		final String _temp = CONFIGURATIONS.getProperty(LOAD_METHOD_BODIES_DURING_INITIALIZATION);
+
+		if (_temp != null) {
+			_result = Boolean.parseBoolean(_temp);
+		} else {
+			_result = _defaultValue;
 		}
 		return _result;
 	}

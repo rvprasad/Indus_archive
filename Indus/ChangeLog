@@ -1,3 +1,12 @@
+2006-02-22 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/soot/ExceptionFlowInsensitiveStmtGraphFactory.java: 
+		- added a new statement graph factory that produces exception insensitive statement graphs.
+	* src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java: 
+	* src/edu/ksu/cis/indus/common/soot/Constants.java: 
+		- changed the way in the method body loading option was handled.
+		- changed the names of the constants as well.
+
 2006-02-21 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/common/soot/AbstractStmtGraphFactory.java: 
