@@ -85,10 +85,9 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * @param exceptionEdges <code>true</code> indicates that the edges from the predecessors of excepting statements should
 	 *            be included; <code>false</code>, otherwise.
 	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
-	 * @pre namesOfExceptionsToIgnore.oclIsKindOf(Collection(String))
 	 */
-	@SuppressWarnings("unchecked") ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody,
-			final Collection namesOfExceptionsToIgnore, final boolean exceptionEdges) {
+	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection<String> namesOfExceptionsToIgnore,
+			final boolean exceptionEdges) {
 		super(unitBody, true, exceptionEdges);
 		predsToBeProcessedCache = new HashSet<Stmt>();
 		succsToBeProcessedCache = new HashSet<Stmt>();
@@ -125,13 +124,12 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of exceptions. Control flow based on these exceptions is
 	 *            deleted from the graph.
 	 */
-	@SuppressWarnings("unchecked") private void deleteEdgesResultingFromTheseExceptions(
-			final Collection<String> namesOfExceptionsToIgnore) {
+	private void deleteEdgesResultingFromTheseExceptions(final Collection<String> namesOfExceptionsToIgnore) {
 		final Chain _traps = body.getTraps();
 		final Chain _units = body.getUnits();
 
-		for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
-			final Trap _trap = (Trap) _j.next();
+		for (final Iterator<Trap> _j = _traps.iterator(); _j.hasNext();) {
+			final Trap _trap = _j.next();
 
 			if (namesOfExceptionsToIgnore.contains(_trap.getException().getName())) {
 				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
@@ -139,8 +137,8 @@ final class ExceptionFlowSensitiveStmtGraph
 
 				final List<Stmt> _preds = new ArrayList<Stmt>((Collection) unitToPreds.get(_handler));
 
-				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _endUnit); _i.hasNext();) {
-					final Stmt _unit = (Stmt) _i.next();
+				for (final Iterator<Stmt> _i = _units.iterator(_trap.getBeginUnit(), _endUnit); _i.hasNext();) {
+					final Stmt _unit = _i.next();
 					final List<Stmt> _succs = new ArrayList<Stmt>((Collection) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
 					unitToSuccs.put(_unit, _succs);
@@ -157,7 +155,7 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * Fixes up the maps for unreachable statements and collects the reachable nodes to be made available for iterators.
 	 */
-	@SuppressWarnings("unchecked") private void fixupMapsAndIterator() {
+	private void fixupMapsAndIterator() {
 		final List<Object> _temp = new ArrayList<Object>();
 		final IWorkBag<Object> _wb = new HistoryAwareFIFOWorkBag<Object>(_temp);
 		final PatchingChain _units = getBody().getUnits();
@@ -178,7 +176,7 @@ final class ExceptionFlowSensitiveStmtGraph
 		final Collection<Stmt> _stmts = new ArrayList<Stmt>(_units);
 		_stmts.removeAll(_temp);
 
-		for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
+		for (final Iterator<?> _i = _stmts.iterator(); _i.hasNext();) {
 			final Object _stmt = _i.next();
 			unitToPreds.remove(_stmt);
 			unitToSuccs.remove(_stmt);
@@ -191,15 +189,15 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * 
 	 * @pre body != null
 	 */
-	@SuppressWarnings("unchecked") private void pruneExceptionBasedControlFlow() {
+	private void pruneExceptionBasedControlFlow() {
 		// process each trapped unit
-		for (final Iterator _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
-			final Stmt _unit = (Stmt) _i.next();
-			final List _traps = TrapManager.getTrapsAt(_unit, body);
+		for (final Iterator<Stmt> _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
+			final Stmt _unit = _i.next();
+			final List<Trap> _traps = TrapManager.getTrapsAt(_unit, body);
 
 			// gather all the exception types that is assumed to be thrown by the current unit.
-			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
-				final Trap _trap = (Trap) _j.next();
+			for (final Iterator<Trap> _j = _traps.iterator(); _j.hasNext();) {
+				final Trap _trap = _j.next();
 				final SootClass _exception = _trap.getException();
 
 				if (NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.contains(_exception.getName())) {
@@ -214,25 +212,25 @@ final class ExceptionFlowSensitiveStmtGraph
 				final InvokeExpr _invokeExpr = _hasInvokeExpr ? _unit.getInvokeExpr() : null;
 				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
 
-				// for the declared caught exception type validate the declaration and tailor the graph as needed.
+				// for the declared caught exception type, validate the declaration and tailor the graph as needed.
 				boolean _retainflag = (_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
 						&& Util.isDescendentOf(_exception, "java.lang.NullPointerException");
 				_retainflag |= _hasArrayRef && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
 
 				if (_hasInvokeExpr) {
-					for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
-						final SootClass _thrown = (SootClass) _l.next();
+					for (final Iterator<SootClass> _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
+						final SootClass _thrown = _l.next();
 						_retainflag |= Util.isDescendentOf(_thrown, _exception);
 					}
 				}
 
 				if (!_retainflag) {
-					final List _preds = new ArrayList((Collection) unitToPreds.get(_handler));
+					final List<?> _preds = new ArrayList<Stmt>((Collection) unitToPreds.get(_handler));
 					_preds.remove(_unit);
 					unitToPreds.put(_handler, _preds);
 					predsToBeProcessedCache.add(_handler);
 
-					final List _succs = new ArrayList((Collection) unitToSuccs.get(_unit));
+					final List<?> _succs = new ArrayList<Stmt>((Collection) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
 					unitToSuccs.put(_unit, _succs);
 					succsToBeProcessedCache.add(_unit);
