@@ -37,7 +37,6 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 
 	/**
 	 * The names of the exceptions via which the control flow should be ignored.
-	 * 
 	 */
 	private Collection<String> exceptionsToIgnore = new ArrayList<String>();
 
@@ -73,6 +72,8 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
 	@Override protected ExceptionFlowSensitiveStmtGraph getStmtGraphForBody(final JimpleBody body) {
