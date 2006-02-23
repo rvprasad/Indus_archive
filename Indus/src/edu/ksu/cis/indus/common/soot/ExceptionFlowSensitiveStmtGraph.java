@@ -28,15 +28,12 @@ import soot.PatchingChain;
 import soot.SootClass;
 import soot.Trap;
 import soot.TrapManager;
-
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.UnitGraph;
-
 import soot.util.Chain;
 
 /**
@@ -67,7 +64,7 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * The sequence of units represented in this graph.
 	 */
-	private List nodes;
+	private List<Stmt> nodes;
 
 	/**
 	 * A cache of the nodes for which predecessors need to be fixed after processing.
@@ -114,11 +111,11 @@ final class ExceptionFlowSensitiveStmtGraph
 
 	/**
 	 * Returns an iterator over the statements represented in this graph. The order of the statements will reflect the order
-	 * of the statements in the sequence of statements obtained from the method.
+	 * of the statements in the sequence of statements obtained from the method. {@inheritDoc}
 	 * 
 	 * @see soot.toolkits.graph.DirectedGraph#iterator()
 	 */
-	@Override public Iterator iterator() {
+	@Override public Iterator<Stmt> iterator() {
 		return nodes.iterator();
 	}
 
