@@ -1,5 +1,8 @@
 2006-02-22 venku <venku@boss.dreamsoft.com>
 
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: 
+		- rather than defaulting to CompleteStmtGraphFactory, the cli defaults to the graph factory initialized during system
+		bootstrapping.
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java: 
 		- the slicer tool uses flow-insensitive object flow analysis instead of flow-sensitive mode as SSA form should 
 		compensate for flow sensitivity.

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,7 +16,6 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -85,17 +83,17 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 
-
 /**
  * This is the command-line driver class for the slicer tool.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class SliceXMLizerCLI
-  extends SootBasedDriver
-  implements IToolProgressListener {
+		extends SootBasedDriver
+		implements IToolProgressListener {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -106,6 +104,9 @@ public class SliceXMLizerCLI
 	 */
 	private static String configFileName;
 
+	/**
+	 * DOCUMENT ME!
+	 */
 	private static SpecificationBasedScopeDefinition sliceScope;
 
 	/**
@@ -178,13 +179,14 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
-		slicer = new SlicerTool<T>(TokenUtil.<T, Value, Type>getTokenManager(new SootValueTypeManager()), new CompleteStmtGraphFactory());
+		slicer = new SlicerTool<T>(TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
+				getStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
 	/**
 	 * The entry point to the driver.
-	 *
+	 * 
 	 * @param args contains the command line arguments.
 	 */
 	public static void main(final String[] args) {
@@ -223,9 +225,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets the configuration to be used.
-	 *
+	 * 
 	 * @param configuration is the stringized form of the slicer configuration.
-	 *
 	 * @pre configuration != null
 	 */
 	protected final void setConfiguration(final String configuration) {
@@ -234,9 +235,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Retrieves the xmlizer to be used to xmlizer the slice.
-	 *
+	 * 
 	 * @return the slice xmlizer.
-	 *
 	 * @post result != null
 	 */
 	protected final TagBasedSliceXMLizer getXMLizer() {
@@ -245,9 +245,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets the id generator to use during xmlization.
-	 *
+	 * 
 	 * @param generator used to generate the id's during xmlization.
-	 *
 	 * @pre generator != null
 	 */
 	protected void setIDGenerator(final IJimpleIDGenerator generator) {
@@ -256,9 +255,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets the output directory into which files should be dumped.
-	 *
+	 * 
 	 * @param oDir is the output directory.
-	 *
 	 * @pre oDir != null
 	 */
 	protected final void setOutputDirectory(final String oDir) {
@@ -305,9 +303,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Dump xmlized jimple.
-	 *
+	 * 
 	 * @param base from which the names of the jimple file will be built.
-	 *
 	 * @pre base != null
 	 */
 	void dumpJimpleAsXML(final String base) {
@@ -336,17 +333,15 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Parses the command line argument.
-	 *
+	 * 
 	 * @param args contains the command line arguments.
 	 * @param xmlizer used to xmlize the slice.
-	 *
 	 * @pre args != null and xmlizer != null
 	 */
 	private static void parseCommandLine(final String[] args, final SliceXMLizerCLI xmlizer) {
 		// create options
 		final Options _options = new Options();
-		Option _o =
-			new Option("c", "config-file", true,
+		Option _o = new Option("c", "config-file", true,
 				"The configuration file to use.  If unspecified, uses default configuration file.");
 		_o.setArgs(1);
 		_o.setArgName("config-file");
@@ -401,10 +396,13 @@ public class SliceXMLizerCLI
 		_o.setArgName("slice-scope-spec-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("r", "residualize", true,
+		_o = new Option(
+				"r",
+				"residualize",
+				true,
 				"Residualize after slicing. This will also dump the class files for the residualized classes.  Provide the "
-				+ "name of the file as an optional argument to optimize the slice (via transformation) for space.  The file should"
-				+ "contain the FQN of classes (1 per line) to be retained during optimization.");
+						+ "name of the file as an optional argument to optimize the slice (via transformation) for space.  The file should"
+						+ "contain the FQN of classes (1 per line) to be retained during optimization.");
 		_o.setOptionalArg(true);
 		_options.addOption(_o);
 		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");
@@ -480,9 +478,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Extracts the FQN of classes that need to retained in the system when optimizing the slice for space.
-	 *
+	 * 
 	 * @param fileName obviously.
-	 *
 	 * @pre fileName != null
 	 */
 	private void extractExclusionListForCompaction(final String fileName) {
@@ -506,9 +503,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Prints the help/usage info for this class.
-	 *
+	 * 
 	 * @param options is the command line option.
-	 *
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
@@ -517,13 +513,11 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Processes the command line for slicer tool configuration information.  Defaults to a configuration if none are
+	 * Processes the command line for slicer tool configuration information. Defaults to a configuration if none are
 	 * specified.
-	 *
+	 * 
 	 * @param cl is the parsed command line.
-	 *
 	 * @return the tool configuration as a string.
-	 *
 	 * @post result != null
 	 * @pre cl != null
 	 */
@@ -542,10 +536,9 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets up the output options according to the command line args.
-	 *
+	 * 
 	 * @param cl contains the command line.
 	 * @param xmlizer that needs to be configured.
-	 *
 	 * @pre cl != null and xmlizer != null
 	 */
 	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
@@ -554,8 +547,8 @@ public class SliceXMLizerCLI
 		if (cl.hasOption('o')) {
 			_outputDir = cl.getOptionValue("o");
 		} else {
-			final File _tempDir =
-				new File(System.getProperty("java.io.tmpdir") + File.separator + System.currentTimeMillis() + "_slicer");
+			final File _tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + System.currentTimeMillis()
+					+ "_slicer");
 			_tempDir.mkdirs();
 			_outputDir = _tempDir.getAbsolutePath();
 
@@ -569,10 +562,8 @@ public class SliceXMLizerCLI
 		xmlizer.preResJimpleDump = cl.hasOption('I');
 		xmlizer.postResJimpleDump = cl.hasOption('J') && cl.hasOption('r');
 
-		if (xmlizer.preResXMLJimpleDump
-			  || xmlizer.postResXMLJimpleDump
-			  || xmlizer.preResJimpleDump
-			  || xmlizer.postResJimpleDump) {
+		if (xmlizer.preResXMLJimpleDump || xmlizer.postResXMLJimpleDump || xmlizer.preResJimpleDump
+				|| xmlizer.postResJimpleDump) {
 			xmlizer.jimpleXMLDumpDir = _outputDir;
 		}
 
@@ -581,9 +572,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Changes the active configuration to use.
-	 *
+	 * 
 	 * @param configID is the id of the active configuration.
-	 *
 	 * @pre configID != null
 	 */
 	private void setConfigName(final String configID) {
@@ -592,7 +582,7 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets if the slice should be residualized.
-	 *
+	 * 
 	 * @param flag <code>true</code> indicates the slice should be residualized; <code>false</code>, otherwise.
 	 */
 	private void setResidulization(final boolean flag) {
@@ -601,9 +591,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Sets the name of the file containing the slice criteria specification.
-	 *
+	 * 
 	 * @param fileName of the slice criteria spec.
-	 *
 	 * @pre fileName != null
 	 */
 	private void setSliceCriteriaSpecFile(final String fileName) {
@@ -611,12 +600,13 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
-	 *
+	 * Dumps jimple for the classes in the scene. The jimple file names will end with the given suffix.
+	 * 
 	 * @param suffix to be appended to the file name.
 	 * @param jimpleFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
-	 * 		  otherwise.
-	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>, otherwise.
+	 *            otherwise.
+	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
+	 *            otherwise.
 	 */
 	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
 		final Printer _printer = Printer.v();
@@ -687,7 +677,6 @@ public class SliceXMLizerCLI
 			_pc.process();
 			_processor.unhook(_pc);
 
-
 			LOGGER.info("PRE SLICING STATISTICS:" + MapUtils.verbosePrint(_processor.getStatistics()));
 
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
@@ -702,14 +691,12 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Process the criteria specification file.
-	 *
+	 * 
 	 * @return a collection of criteria
-	 *
 	 * @throws IllegalArgumentException when the errors occur while accessing the specified file.
 	 * @throws IllegalStateException when the parsing of the specified file fails.
 	 */
-	private Collection<ISliceCriterion> processCriteriaSpecFile()
-	  throws IllegalArgumentException, IllegalStateException {
+	private Collection<ISliceCriterion> processCriteriaSpecFile() throws IllegalArgumentException, IllegalStateException {
 		final Collection<ISliceCriterion> _criteria = new HashSet<ISliceCriterion>();
 
 		if (criteriaSpecFileName != null) {
@@ -804,14 +791,15 @@ public class SliceXMLizerCLI
 		final Button _ok = new Button(_shell, SWT.PUSH);
 		_ok.setText("Ok");
 		_ok.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					_shell.dispose();
-				}
 
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			});
+			public void widgetSelected(final SelectionEvent evt) {
+				_shell.dispose();
+			}
+
+			public void widgetDefaultSelected(final SelectionEvent evt) {
+				widgetSelected(evt);
+			}
+		});
 		_shell.layout();
 		_shell.pack();
 		_shell.open();
