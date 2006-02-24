@@ -199,6 +199,11 @@ public class EscapeAndReadWriteCLI
 		_ac.execute();
 		writeInfo("END: Escape analysis");
 
+		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_escapeInfo, _cgi);
+		_lbe.hookup(_cgipc);
+		_cgipc.process();
+		_lbe.unhook(_cgipc);
+
 		System.out.println("ReadWrite-Effect and Escape Information:");
 		final String[] _emptyStringArray = new String[0];
 

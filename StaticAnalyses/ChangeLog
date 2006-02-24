@@ -1,3 +1,8 @@
+2006-02-23 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/LockAcquisitionBasedEquivalence.java: 
+		- the processor was registered for processing method interfaces, hence, the information was inaccurate. FIXED.
+
 2006-02-21 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/toolkits/bandera/DependenceAndMayFollowInfoCalculator.java: 
