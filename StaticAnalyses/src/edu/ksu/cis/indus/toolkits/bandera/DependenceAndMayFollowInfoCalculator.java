@@ -221,7 +221,6 @@ class DependenceAndMayFollowInfoCalculator
 			final Collection<Pair<AssignStmt, SootMethod>> _dependents = interferenceDA.getDependents((AssignStmt) _stmt,
 					_currentMethod);
 			addToDependenceCache(_pair, _dependents, _c, _birLocs, _flag);
-			_c.addAll(_birLocs);
 		}
 	}
 
@@ -423,17 +422,15 @@ class DependenceAndMayFollowInfoCalculator
 	private void addToDependenceCache(final Pair<? extends Stmt, SootMethod> p,
 			final Collection<? extends Pair<? extends Stmt, SootMethod>> dependence, final Collection<String> equivalents,
 			final Collection<String> birLocs, final boolean applicationClassesOnly) {
-		if (!applicationClassesOnly || p.getSecond().getDeclaringClass().isApplicationClass()) {
-			if (!dependence.isEmpty()) {
-				final Collection<Pair<? extends Stmt, SootMethod>> _t = new ArrayList<Pair<? extends Stmt, SootMethod>>(
-						dependence);
+		if ((!applicationClassesOnly || p.getSecond().getDeclaringClass().isApplicationClass()) && !dependence.isEmpty()) {
+			final Collection<Pair<? extends Stmt, SootMethod>> _t = new ArrayList<Pair<? extends Stmt, SootMethod>>(
+					dependence);
 
-				if (applicationClassesOnly) {
-					CollectionUtils.filter(dependence, APPLICATION_CLASS_ONLY_PREDICATE);
-				}
-				MapUtils.putAllIntoCollectionInMap(dependenceCache, p, _t);
-				equivalents.addAll(birLocs);
+			if (applicationClassesOnly) {
+				CollectionUtils.filter(_t, APPLICATION_CLASS_ONLY_PREDICATE);
 			}
+			MapUtils.putAllIntoCollectionInMap(dependenceCache, p, _t);
+			equivalents.addAll(birLocs);
 		}
 	}
 
