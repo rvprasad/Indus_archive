@@ -16,12 +16,9 @@ package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
-
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
@@ -33,11 +30,13 @@ import java.util.Map;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.InvokeStmt;
+import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 
 /**
  * This class provides an implementation of <code>INewExpr2InitMapper</code> based on object flow information. The approach
@@ -69,9 +68,13 @@ public class NewExpr2InitMapper
 
 	/**
 	 * DOCUMENT ME!
+	 * 
+	 * @invariant method2newExprStmt.keySet()->forall(o | method2newExprStmt.get(o)->keySet()->forall(p | (
+	 *            p.oclIsKindOf(NewExpr) or p.oclIsKindOf(NewArrayExpr) or p.oclIsKindOf(NewMultiArrayExpr) or
+	 *            p.oclIsKindOf(StringConstant))))
 	 */
-	private final Map<SootMethod, Map<NewExpr, Stmt>> method2newExprStmt = new HashMap<SootMethod, Map<NewExpr, Stmt>>(
-			Constants.getNumOfMethodsInApplication());
+	private final Map<SootMethod, Map<Value, Stmt>> method2newExprStmt = new HashMap<SootMethod, Map<Value, Stmt>>(Constants
+			.getNumOfMethodsInApplication());
 
 	/**
 	 * This is the object flow information to be used to improve precision.
@@ -79,6 +82,8 @@ public class NewExpr2InitMapper
 	private IValueAnalyzer<Value> ofa;
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 	 */
 	@Override public void callback(final ValueBox vBox, final Context context) {
@@ -88,8 +93,8 @@ public class NewExpr2InitMapper
 			final Stmt _stmt = context.getStmt();
 			final SootMethod _method = context.getCurrentMethod();
 
-			final Map<NewExpr, Stmt> _ne2init = MapUtils.getMapFromMap(method2newExprStmt, _method);
-			_ne2init.put((NewExpr) _value, _stmt);
+			final Map<Value, Stmt> _ne2init = MapUtils.getMapFromMap(method2newExprStmt, _method);
+			_ne2init.put(_value, _stmt);
 		} else if (_value instanceof SpecialInvokeExpr && context.getStmt() instanceof InvokeStmt) {
 			final InvokeStmt _stmt = (InvokeStmt) context.getStmt();
 			final SootMethod _method = context.getCurrentMethod();
@@ -98,7 +103,7 @@ public class NewExpr2InitMapper
 
 			if (_sm.getName().equals("<init>")) {
 				final Map<Stmt, InvokeStmt> _ne2initStmt = MapUtils.getMapFromMap(method2initStmt, _method);
-				final Map<NewExpr, Stmt> _ne2newStmt = MapUtils.getMapFromMap(method2newExprStmt, _method);
+				final Map<Value, Stmt> _ne2newStmt = MapUtils.getMapFromMap(method2newExprStmt, _method);
 				contextCache.setRootMethod(_method);
 				contextCache.setStmt(_stmt);
 				contextCache.setProgramPoint(_expr.getBaseBox());
@@ -106,8 +111,8 @@ public class NewExpr2InitMapper
 				final Collection<Value> _values = ofa.getValues(_expr.getBase(), contextCache);
 
 				for (final Iterator<Value> _i = _values.iterator(); _i.hasNext();) {
-					final NewExpr _e = (NewExpr) _i.next();
-					final Stmt _newStmt = _ne2newStmt.remove(_e);
+					final Value _o = _i.next();
+					final Stmt _newStmt = _ne2newStmt.remove(_o);
 					_ne2initStmt.put(_newStmt, _stmt);
 				}
 			}
@@ -115,6 +120,20 @@ public class NewExpr2InitMapper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#consolidate()
+	 */
+	@Override public void consolidate() {
+		super.consolidate();
+		contextCache.setStmt(null);
+		contextCache.setProgramPoint(null);
+		contextCache.setRootMethod(null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see INewExpr2InitMapper#getInitCallStmtForNewExprStmt(Stmt,SootMethod)
 	 */
 	public InvokeStmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method) {
@@ -128,14 +147,21 @@ public class NewExpr2InitMapper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
+		ppc.register(NewArrayExpr.class, this);
+		ppc.register(NewMultiArrayExpr.class, this);
 		ppc.register(SpecialInvokeExpr.class, this);
+		ppc.register(StringConstant.class, this);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
 	@Override public void processingBegins() {
@@ -147,12 +173,11 @@ public class NewExpr2InitMapper
 	 */
 	@Override public final void reset() {
 		method2initStmt.clear();
-		contextCache.setStmt(null);
-		contextCache.setProgramPoint(null);
-		contextCache.setRootMethod(null);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see AbstractValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	@Override public void setAnalyzer(final IValueAnalyzer<Value> analyzer) {
@@ -160,11 +185,16 @@ public class NewExpr2InitMapper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
+		ppc.unregister(NewArrayExpr.class, this);
+		ppc.unregister(NewMultiArrayExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
+		ppc.unregister(StringConstant.class, this);
 	}
 }
 

@@ -1,58 +1,64 @@
+2006-02-28 venku <venku@boss.dreamsoft.com>
+
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/NewExpr2InitMapper.java:
+		- it is possible for non-new expressions (NewArrayExpr, NewMultiArrayExpr, and StringConstant) to flow into the
+		receiver variable at an invocation site.  This was not being handled. FIXED.
+
 2006-02-23 venku <venku@boss.dreamsoft.com>
 
-	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/LockAcquisitionBasedEquivalence.java: 
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/LockAcquisitionBasedEquivalence.java:
 		- the processor was registered for processing method interfaces, hence, the information was inaccurate. FIXED.
 
 2006-02-21 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/toolkits/bandera/DependenceAndMayFollowInfoCalculator.java: 
-		- may-follow relation was only considering the dependent transitions as the destination instead of considering 
+	* src/edu/ksu/cis/indus/toolkits/bandera/DependenceAndMayFollowInfoCalculator.java:
+		- may-follow relation was only considering the dependent transitions as the destination instead of considering
 		every transitions. This lead to inaccurate search results.  FIXED.
 
 2006-02-20 venku <venku@boss.dreamsoft.com>
 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java:
 		- changed some incorrect types in filter setting expressions.
-		
+
 2006-02-19 venku <venku@boss.dreamsoft.com>
 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/AbstractFGNode.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/IFGNode.java: 
-		- collapsed setInFilter() and setOutFilter() into setFilter().  Now, the same filter will be applied to both incoming 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/AbstractFGNode.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/IFGNode.java:
+		- collapsed setInFilter() and setOutFilter() into setFilter().  Now, the same filter will be applied to both incoming
 		and outgoing values.
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/MethodVariant.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java:
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java:
 		- leveraged the new setFilter() method in places where setIn(Out)Filter() methods were used.
 		- added logic to inject filters into almost all nodes.
-	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java: 
+	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java:
 		- changed the pattern for the output file.
-	
+
 2006-02-18 venku <venku@boss.dreamsoft.com>
 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java: 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowSensitiveExprSwitch.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/FlowInsensitiveExprSwitch.java:
 		- In most cases, a variables evaluates to multiple objects (allocations sites) of the same type.  This is multiplicity is
-		relevant for points-to/alias analysis, hence, for accuracy of object flow info.  However, this multiplicity  is irrelevant 
-		for analysis such as call graph analysis.  In such cases, we can optimize the object flow by canonicalizing the 
-		allocation site for each type, i.e. we use a canonical allocation site to represent all allocation sites of a particular 
-		type.  This is useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.		
+		relevant for points-to/alias analysis, hence, for accuracy of object flow info.  However, this multiplicity  is irrelevant
+		for analysis such as call graph analysis.  In such cases, we can optimize the object flow by canonicalizing the
+		allocation site for each type, i.e. we use a canonical allocation site to represent all allocation sites of a particular
+		type.  This is useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAnalyzer.java:
 		- In conjuction with the changes to Flow(In)SensitiveExprSwitch, new factory methods were added to create flow
-		analyzers that would perform object-insensitive, object-transparent (rapid-type), object flow anlaysis.  This is 
-		useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.		
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2CanonicalValueMapper.java: 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2ValueMapper.java: 
-		- These mappers were used to facilitate the object-insensitive, object-transparent (rapid-type), object flow analysis.	
-	* src-xml/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphXMLizerCLI.java: 
-	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java: 
+		analyzers that would perform object-insensitive, object-transparent (rapid-type), object flow anlaysis.  This is
+		useful if we want to start with a precise call graph analysis and then use Coupling style alias analysis.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2CanonicalValueMapper.java:
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/Type2ValueMapper.java:
+		- These mappers were used to facilitate the object-insensitive, object-transparent (rapid-type), object flow analysis.
+	* src-xml/edu/ksu/cis/indus/staticanalyses/callgraphs/CallGraphXMLizerCLI.java:
+	* src-xml/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/OFAXMLizerCLI.java:
 		- Added logic to execute object-transparent/rapid-type style object flow analysis.
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/AbstractMemberDataAccessExprWork.java (execute): 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/SendTokensWork.java(execute): 
-	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/InvokeExprWork.java (execute): 
-		- AbstractTokenProcessingWork.tokens was not cleared after IWork.execute() finished execution, and this led to 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/AbstractMemberDataAccessExprWork.java (execute):
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/SendTokensWork.java(execute):
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/instances/ofa/InvokeExprWork.java (execute):
+		- AbstractTokenProcessingWork.tokens was not cleared after IWork.execute() finished execution, and this led to
 		poor performance. FIXED.
 
 2006-02-04 venku <venku@boss.dreamsoft.com>
