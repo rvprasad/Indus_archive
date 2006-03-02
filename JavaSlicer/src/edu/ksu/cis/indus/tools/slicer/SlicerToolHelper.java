@@ -14,16 +14,12 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import org.apache.log4j.Logger;
-
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.transformations.ExecutableSlicePostProcessorAndModifier;
-
 import edu.ksu.cis.indus.tools.slicer.processing.ISlicePostProcessor;
 
 import java.io.File;
@@ -36,13 +32,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
 
 /**
  * This is a helper class for the slicer tool.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -52,7 +50,7 @@ public final class SlicerToolHelper {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger LOGGER = Logger.getLogger(SlicerToolHelper.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SlicerToolHelper.class);
 
 	/**
 	 * Creates an instance of this class.
@@ -63,7 +61,7 @@ public final class SlicerToolHelper {
 
 	/**
 	 * Applies the given post processor o the slice calculated by the given tool.
-	 *
+	 * 
 	 * @param tool of interest.
 	 * @param processor to be applied.
 	 * @pre tool != null and processor != null
@@ -79,7 +77,7 @@ public final class SlicerToolHelper {
 
 	/**
 	 * Loads the configuration in the named file.
-	 *
+	 * 
 	 * @param configFileName is the name of the configuration file to load; if this is <code>null</code> then the default
 	 *            configuration file will be loaded.
 	 * @return the configuration as stored in the named file.
@@ -118,7 +116,7 @@ public final class SlicerToolHelper {
 
 	/**
 	 * Optimizes the slice calculated by the given tool for space. This method should be called after residualization.
-	 *
+	 * 
 	 * @param tool in which the slice should be optimized.
 	 * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 * @return the unspecified classes that were retained.
@@ -147,7 +145,7 @@ public final class SlicerToolHelper {
 
 	/**
 	 * Optimizes the slice calculated by the given tool for space. This method should be called before residualization.
-	 *
+	 * 
 	 * @param tool in which the slice should be optimized.
 	 * @param classesToRetain is the collection of FQN of classes that need to be retained in the slice.
 	 * @pre tool != null and classesToRetain != null
