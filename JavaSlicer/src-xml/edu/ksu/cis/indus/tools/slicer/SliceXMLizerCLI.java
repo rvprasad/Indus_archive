@@ -177,6 +177,8 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Creates an instance of this class.
+	 * 
+	 * @param <T> DOCUMENT ME!
 	 */
 	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
 		slicer = new SlicerTool<T>(TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
@@ -215,6 +217,8 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IToolProgressListener#toolProgess(IToolProgressListener.ToolProgressEvent)
 	 */
 	public void toolProgess(final ToolProgressEvent evt) {
@@ -522,10 +526,10 @@ public class SliceXMLizerCLI
 	 * @pre cl != null
 	 */
 	private static String processCommandLineForConfiguration(final CommandLine cl) {
-		String _config = cl.getOptionValue('c');
+		final String _config = cl.getOptionValue('c');
 		String _result = null;
 
-		if (_config == null) {
+		if (_config != null) {
 			_result = SlicerToolHelper.loadConfigurationInFile(_config);
 		}
 
@@ -792,7 +796,7 @@ public class SliceXMLizerCLI
 		_ok.setText("Ok");
 		_ok.addSelectionListener(new SelectionListener() {
 
-			public void widgetSelected(final SelectionEvent evt) {
+			public void widgetSelected(@SuppressWarnings("unused") final SelectionEvent evt) {
 				_shell.dispose();
 			}
 
@@ -836,7 +840,7 @@ public class SliceXMLizerCLI
 		if (shouldWriteSliceXML) {
 			// serialize the output of the slicer
 			final IXMLizer _xmlizer = getXMLizer();
-			final Map _info = new HashMap();
+			final Map<Object, Object> _info = new HashMap<Object, Object>();
 
 			_info.put(IEnvironment.ID, getEnvironment());
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
