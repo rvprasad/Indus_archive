@@ -670,6 +670,10 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		theTokenMgr.reset();
 		threadGraph.reset();
 		activePart.activate();
+
+        if (daController != null) {
+            daController.reset();
+        }
 	}
 
 	/**
