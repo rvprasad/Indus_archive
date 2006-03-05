@@ -14,10 +14,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.Collection;
@@ -28,14 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.AssignStmt;
 
 /**
  * This class provides data dependence information which considers references. Hence, it considers the effects of aliasing. It
  * is an adapter for an interprocedural use-def analysis which considers the effects of aliasing. It can be configured to
  * provide dependence based on static field references.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -43,6 +43,12 @@ import soot.jimple.AssignStmt;
 public class ReferenceBasedDataDA
 		extends
 		AbstractDependencyAnalysis<AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>, Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>, AssignStmt, SootMethod, Pair<AssignStmt, SootMethod>, Object, Map<Pair<AssignStmt, SootMethod>, Collection<Pair<AssignStmt, SootMethod>>>> {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<ReferenceBasedDataDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			ReferenceBasedDataDA.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -91,7 +97,7 @@ public class ReferenceBasedDataDA
 
 	/**
 	 * Return the statements on which field/array access in <code>stmt</code> in <code>method</code> depends on.
-	 *
+	 * 
 	 * @param stmt in which aliased data is read.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a collection of statements which affect the data being read in <code>stmt</code>.
@@ -118,7 +124,7 @@ public class ReferenceBasedDataDA
 
 	/**
 	 * Return the statements which depend on the field/array access in <code>stmt</code> in <code>method</code>.
-	 *
+	 * 
 	 * @param stmt in which aliased data is written.
 	 * @param method in which <code>stmt</code> occurs.
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
@@ -154,7 +160,7 @@ public class ReferenceBasedDataDA
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 *
+	 * 
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -174,7 +180,7 @@ public class ReferenceBasedDataDA
 	 * Extracts information provided by environment at initialization time. The user can configure this analysis to include
 	 * static field reference based dependence information by passing in an implementation of <code>IUseDefInfo</code>
 	 * implementation mapped to <code>IUseDefInfo.GLOBAL_USE_DEF_ID</code> constant in the information map.
-	 *
+	 * 
 	 * @throws InitializationException if an implementation that provides aliased interprocedural use-def information is not
 	 *             provided.
 	 * @pre info.get(IUseDefInfo.ALIASED_USE_DEF_ID) != null

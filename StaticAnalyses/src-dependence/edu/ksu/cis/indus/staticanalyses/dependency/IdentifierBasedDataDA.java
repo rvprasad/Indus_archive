@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -57,6 +59,12 @@ import soot.toolkits.scalar.UnitValueBoxPair;
 public class IdentifierBasedDataDA
 		extends
 		AbstractDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, SootMethod, List<Map<Local, Collection<DefinitionStmt>>>, DefinitionStmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>> {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<IdentifierBasedDataDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			IdentifierBasedDataDA.class);
 
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in

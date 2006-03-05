@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -54,7 +56,7 @@ import soot.jimple.Stmt;
  * monitor pair as there are many return points, hence, not all statements in the method may be dependent on the same monitor
  * pair.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -62,6 +64,12 @@ import soot.jimple.Stmt;
 public final class SynchronizationDA
 		extends
 		AbstractDependencyAnalysis<Stmt, SootMethod, MonitorStmt, SootMethod, Map<Stmt, Collection<MonitorStmt>>, MonitorStmt, SootMethod, Stmt, SootMethod, Map<MonitorStmt, Collection<Stmt>>> {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<SynchronizationDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			SynchronizationDA.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -82,7 +90,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
@@ -111,7 +119,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns the enter and exit monitor statements on which the given statement is dependent on in the given method.
-	 *
+	 * 
 	 * @param dependentStmt is a statement in the method.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of enter and exit monitor statements.
@@ -148,7 +156,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns the statements which depend on the given enter or exit monitor statement in the given method.
-	 *
+	 * 
 	 * @param dependeeStmt is the enter or exit monitor statement.
 	 * @param method in which<code>dependeeStmt</code> occurs.
 	 * @return a collection of statements.
@@ -202,7 +210,7 @@ public final class SynchronizationDA
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 *
+	 * 
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -243,7 +251,7 @@ public final class SynchronizationDA
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @throws InitializationException when monitor analysis is not provided.
 	 * @pre info.get(IMonitorInfo.ID) != null and info.get(IMonitorInfo.ID).oclIsTypeOf(IMonitorInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()

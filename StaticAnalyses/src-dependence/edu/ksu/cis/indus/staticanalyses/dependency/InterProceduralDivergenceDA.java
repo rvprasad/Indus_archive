@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
@@ -21,10 +23,8 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSensitiveInfo;
 import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 
 /**
@@ -55,7 +54,7 @@ import soot.jimple.Stmt;
  * <code>ExitControlDA</code> instance along with that from an instance of this class can be combined to obtain a intra- and
  * inter-procedural divergence dependence information.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -63,6 +62,12 @@ import soot.jimple.Stmt;
 public final class InterProceduralDivergenceDA
 		extends
 		AbstractDependencyAnalysis<Stmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>, Stmt, SootMethod, Stmt, SootMethod, Map<Stmt, Collection<Stmt>>> {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<InterProceduralDivergenceDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			InterProceduralDivergenceDA.class);
 
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
@@ -94,7 +99,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param directionSensitiveInfo that controls the direction.
 	 * @param direction of the analysis
 	 * @pre info != null and direction != null
@@ -106,7 +111,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Retrieves an instance of divergence dependence analysis that calculates information in the specified direction.
-	 *
+	 * 
 	 * @param direction of the dependence information.
 	 * @return an instance of divergence dependence.
 	 * @throws IllegalArgumentException if direction does not satisfy the preconditions.
@@ -132,7 +137,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Calculates the divergence dependency in the methods.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
@@ -167,7 +172,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Returns the statements on which the given statement depends on in the given method.
-	 *
+	 * 
 	 * @param dependentStmt is the statement for which dependees are requested.
 	 * @param method in which <code>dependentStmt</code> occurs.
 	 * @return a collection of statements. However, in this case the collection contains only one statement as the .
@@ -191,7 +196,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Returns the statements which depend on the given statement in the given method.
-	 *
+	 * 
 	 * @param dependeeStmt is the statement for which dependents are requested.
 	 * @param method in which <code>dependeeStmt</code> occurs.
 	 * @return a collection of statements.
@@ -225,7 +230,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 *
+	 * 
 	 * @return a stringized representation of this object.
 	 */
 	@Override public String toString() {
@@ -237,7 +242,8 @@ public final class InterProceduralDivergenceDA
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator<Map.Entry<SootMethod, List<Collection<Stmt>>>> _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator<Map.Entry<SootMethod, List<Collection<Stmt>>>> _i = dependent2dependee.entrySet().iterator(); _i
+				.hasNext();) {
 			final Map.Entry<SootMethod, List<Collection<Stmt>>> _entry = _i.next();
 			final SootMethod _method = _entry.getKey();
 			_localEdgeCount = 0;
@@ -276,7 +282,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Sets up internal data structures.
-	 *
+	 * 
 	 * @throws InitializationException when call graph service is not provided.
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
@@ -292,7 +298,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Calculates inter-basic block divergence dependence.
-	 *
+	 * 
 	 * @param method in which the basic blocks occur.
 	 * @param succsOfDivergentBBs are the successor basic blocks of divergent basic blocks.
 	 * @param divergentStmts is the basic blocks which are the pre-divergent points.
@@ -348,7 +354,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Calculates intra-basic block divergence dependence.
-	 *
+	 * 
 	 * @param method in which the basic blocks occur.
 	 * @param divergencePoints are the basic blocks that contain divergent points.
 	 * @return a collection of basic blocks that follow the blocks in <code>divergencePoints</code>.
@@ -409,7 +415,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Finds the divergence points in terms of divergent invocation statements and populates the given map.
-	 *
+	 * 
 	 * @param method2divPoints maps a method to the set of divergent statements in it. This is an out parameter.
 	 * @pre method2divPoints != null
 	 * @post method2preDivPoints.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
@@ -438,7 +444,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Finds methods that contain divergent/looping code.
-	 *
+	 * 
 	 * @return the collection of divergent methods.
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
@@ -452,7 +458,7 @@ public final class InterProceduralDivergenceDA
 			boolean _doesNotContainLoops = true;
 
 			for (final Iterator<List<BasicBlock>> _j = _sccs.iterator(); _j.hasNext() && _doesNotContainLoops;) {
-				final List<BasicBlock> _scc =  _j.next();
+				final List<BasicBlock> _scc = _j.next();
 				final BasicBlock _bb = _scc.iterator().next();
 				_doesNotContainLoops = _scc.size() == 1 && !_bb.getSuccsOf().contains(_bb);
 			}
@@ -466,7 +472,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Records dependence information across basic blocks while picking up basic blocks for further processing.
-	 *
+	 * 
 	 * @param method in which the dependence occurs.
 	 * @param preDivPoints are the pre-divergent basic blocks.
 	 * @param dependees are the dependees involved in depedence.
@@ -500,7 +506,7 @@ public final class InterProceduralDivergenceDA
 
 	/**
 	 * Records dependence information.
-	 *
+	 * 
 	 * @param dependees of course.
 	 * @param method in which the dependence occurs.
 	 * @param dependents of course.

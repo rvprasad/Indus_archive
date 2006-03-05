@@ -14,12 +14,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 
 /**
@@ -54,6 +54,12 @@ import soot.jimple.Stmt;
  */
 public class ExitControlDA
 		extends AbstractControlDA {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<ExitControlDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			ExitControlDA.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.

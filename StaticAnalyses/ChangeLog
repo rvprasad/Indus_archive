@@ -1,3 +1,17 @@
+2006-03-05 venku <venku@boss.dreamsoft.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ExitControlDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterferenceDAv1.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterProceduralDivergenceDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/NonTerminationInsensitiveEntryControlDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/NonTerminationSensitiveEntryControlDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReadyDAv1.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/ReferenceBasedDataDA.java:
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/SynchronizationDA.java:
+		- added a singleton predicate based on instanceof checks.
+
 2006-02-28 venku <venku@boss.dreamsoft.com>
 
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/NewExpr2InitMapper.java:

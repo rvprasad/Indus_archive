@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.ListUtils;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
@@ -23,11 +24,9 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
@@ -40,41 +39,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 
-
 /**
- * This class provides intraprocedural non-termination sensitive backward control dependence information based on the
- * indirect version of non-termination sensitive backward control dependence.  For more information about the dependence
- * calculated in  this implementation, please refer to  <a
+ * This class provides intraprocedural non-termination sensitive backward control dependence information based on the indirect
+ * version of non-termination sensitive backward control dependence. For more information about the dependence calculated in
+ * this implementation, please refer to <a
  * href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class NonTerminationInsensitiveEntryControlDA
-  extends AbstractControlDA {
-	/** 
+		extends AbstractControlDA {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<NonTerminationInsensitiveEntryControlDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			NonTerminationInsensitiveEntryControlDA.class);
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(NonTerminationInsensitiveEntryControlDA.class);
 
-	/** 
+	/**
 	 * The instance of analysis that provides backward control dependence information.
 	 */
 	private final NonTerminationSensitiveEntryControlDA entryControlDA;
 
-	/** 
+	/**
 	 * This indicates which version, direct or indirect, of non-termination sensitive backward dependence should be used as
 	 * the basis of this analysis.
 	 */
 	private final boolean useIndirectBackwardDependence;
 
 	/**
-	 * Creates a new NonTerminationInsensitiveEntryControlDA object in which the indirect version of non-termination
-	 * sensitive backward dependence will be used.
+	 * Creates a new NonTerminationInsensitiveEntryControlDA object in which the indirect version of non-termination sensitive
+	 * backward dependence will be used.
 	 */
 	public NonTerminationInsensitiveEntryControlDA() {
 		this(false);
@@ -82,13 +86,13 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param indirect <code>true</code> indicates that indirect version of non-termination sensitive  backward dependence
-	 * 		  should be used as the basis of this analysis; <code>false</code> indicates the direct version of
-	 * 		  non-termination sensitive  backward dependence should be used as the basis of this analysis.  <i>Please note
-	 * 		  that this  constructor is  provided only for <b>experimentation</b> purposes.  As discussed in <a
-	 * 		  href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>, only the
-	 * 		  results based on the indirect non-termination sensitive backward dependence will be  complete.</i>
+	 * 
+	 * @param indirect <code>true</code> indicates that indirect version of non-termination sensitive backward dependence
+	 *            should be used as the basis of this analysis; <code>false</code> indicates the direct version of
+	 *            non-termination sensitive backward dependence should be used as the basis of this analysis. <i>Please note
+	 *            that this constructor is provided only for <b>experimentation</b> purposes. As discussed in <a
+	 *            href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>, only the
+	 *            results based on the indirect non-termination sensitive backward dependence will be complete.</i>
 	 */
 	NonTerminationInsensitiveEntryControlDA(final boolean indirect) {
 		super(Direction.BI_DIRECTIONAL);
@@ -98,21 +102,18 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public void analyze() {
 		analyze(callgraph.getReachableMethods());
 	}
 
-
-
 	/**
-	 * Calculates the control dependency information for the provided methods.  The use of this method does not require a
-	 * prior call to <code>setup</code>.
-	 *
+	 * Calculates the control dependency information for the provided methods. The use of this method does not require a prior
+	 * call to <code>setup</code>.
+	 * 
 	 * @param methods to be analyzed.
-	 *
 	 * @pre methods != null and not method->includes(null)
 	 */
 	public void analyze(final Collection<SootMethod> methods) {
@@ -163,15 +164,12 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Sets up internal data structures.
-	 *
+	 * 
 	 * @throws InitializationException when call graph service is not provided.
-	 *
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
-	@Override protected void setup()
-	  throws InitializationException {
+	@Override protected void setup() throws InitializationException {
 		super.setup();
 
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
@@ -185,11 +183,9 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Retrieves the control sinks in the given graph.
-	 *
+	 * 
 	 * @param graph of interest.
-	 *
 	 * @return a collection of control sinks.
-	 *
 	 * @pre graph != null
 	 * @post result != null
 	 * @post result->forall(o | o->forall(p | graph.getNodes().contains(p)))
@@ -202,20 +198,20 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			boolean _isAControlSink = true;
-			final List<BasicBlock> _scc =  _i.next();
-            final int _sccSize = _scc.size();
+			final List<BasicBlock> _scc = _i.next();
+			final int _sccSize = _scc.size();
 
-            if (_scc.size() > 1) {
-            final Iterator<BasicBlock> _j = _scc.iterator();
+			if (_scc.size() > 1) {
+				final Iterator<BasicBlock> _j = _scc.iterator();
 
-			for (int _jIndex = 0; _jIndex < _sccSize && _isAControlSink; _jIndex++) {
-				final BasicBlock _node = _j.next();
-                _isAControlSink &= _scc.containsAll(_node.getSuccsOf()) && !_node.isAnExitBlock();
+				for (int _jIndex = 0; _jIndex < _sccSize && _isAControlSink; _jIndex++) {
+					final BasicBlock _node = _j.next();
+					_isAControlSink &= _scc.containsAll(_node.getSuccsOf()) && !_node.isAnExitBlock();
+				}
+			} else {
+				final BasicBlock _node = _scc.iterator().next();
+				_isAControlSink &= _node.getSuccsOf().contains(_node) || _node.isAnExitBlock();
 			}
-            } else {
-                final BasicBlock _node = _scc.iterator().next();
-                _isAControlSink &= _node.getSuccsOf().contains(_node) || _node.isAnExitBlock();
-            }
 
 			if (_isAControlSink) {
 				_result.add(_scc);
@@ -226,17 +222,16 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Retrieves the nodes belonging to the control sinks that do not contain the given node.
-	 *
+	 * 
 	 * @param node of interest.
 	 * @param sinks a collection of control sinks.
-	 *
 	 * @return a collection of nodes.
-	 *
 	 * @pre node != null and sinks != null
-	 * @post result != null 
+	 * @post result != null
 	 * @post result->foreach(o | sinks->exists(p | p.contains(o) and not p.contains(node)))
 	 */
-	private Collection<BasicBlock> getNodesOfSinksNotContainingNode(final INode node, final Collection<Collection<BasicBlock>> sinks) {
+	private Collection<BasicBlock> getNodesOfSinksNotContainingNode(final INode node,
+			final Collection<Collection<BasicBlock>> sinks) {
 		final Collection<BasicBlock> _result = new ArrayList<BasicBlock>();
 		final Iterator<Collection<BasicBlock>> _i = sinks.iterator();
 		final int _iEnd = sinks.size();
@@ -253,10 +248,9 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Analyzes the given method.
-	 *
+	 * 
 	 * @param method to be analyzed.
 	 * @param da is the control dependence to be used.
-	 *
 	 * @pre method != null
 	 */
 	private void processMethod(final SootMethod method, final IDependencyAnalysis da) {
@@ -299,17 +293,15 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/**
 	 * Checks if the dependence relation should be removed between statements in the given basic blocks.
-	 *
+	 * 
 	 * @param dependeeBB contains the dependee statement.
 	 * @param dependentBB contains the dependent statements.
 	 * @param sinkNodes is the collection of nodes that belong to control sinks of the basic block graph.
-	 *
 	 * @return <code>true</code> if the dependence relation should be removed; <code>false</code>, otherwise.
-	 *
 	 * @pre dependeeBB != null and dependentBB != null and sinkNodes != null
 	 */
 	private boolean shouldRemoveDependenceBetween(final BasicBlock dependeeBB, final BasicBlock dependentBB,
-		final Collection<BasicBlock> sinkNodes) {
+			final Collection<BasicBlock> sinkNodes) {
 		final Collection<BasicBlock> _visited = new HashSet<BasicBlock>();
 		final IWorkBag<BasicBlock> _wb = new HistoryAwareFIFOWorkBag<BasicBlock>(_visited);
 		boolean _notcd = true;
@@ -329,25 +321,25 @@ public final class NonTerminationInsensitiveEntryControlDA
 	}
 
 	/**
-	 * Updates the dependence of statements in <code>dependentBB</code> on statements in <code>dependeeBB</code>. It updates
-	 * the dependence information in both directions.
-	 *
+	 * Updates the dependence of statements in <code>dependentBB</code> on statements in <code>dependeeBB</code>. It
+	 * updates the dependence information in both directions.
+	 * 
 	 * @param dependentBB is the basic block containing the dependent statements.
 	 * @param dependeeBB is the basic block containing the dependee statements.
 	 * @param methodLocalDee2Dent is the map for dependee to dependent that is to be updated.
 	 * @param methodLocalDent2Dee is the map for dependent to dependee that is to be updated.
 	 * @param stmtList is the list of statements.
-	 * @param remove <code>true</code> indicates the dependence should be removed. <code>false</code> if dependence should be
-	 * 		  added.
-	 *
+	 * @param remove <code>true</code> indicates the dependence should be removed. <code>false</code> if dependence should
+	 *            be added.
 	 * @pre dependentBB != null and dependeeBB != null and methodLocalDee2Dent != null and methodLocalDent2Dee != null and
-	 * 		stmtList != null
+	 *      stmtList != null
 	 */
-	private void updateDependence(final BasicBlock dependentBB, final BasicBlock dependeeBB, final List<Collection<Stmt>> methodLocalDee2Dent,
-		final List<Collection<Stmt>> methodLocalDent2Dee, final List<Stmt> stmtList, final boolean remove) {
+	private void updateDependence(final BasicBlock dependentBB, final BasicBlock dependeeBB,
+			final List<Collection<Stmt>> methodLocalDee2Dent, final List<Collection<Stmt>> methodLocalDent2Dee,
+			final List<Stmt> stmtList, final boolean remove) {
 		final Stmt _deeStmt = dependeeBB.getTrailerStmt();
-		final Collection<Stmt> _stmtLevelDependentSet =
-			ListUtils.getAtIndexFromListUsingFactory(methodLocalDee2Dent, stmtList.indexOf(_deeStmt), SetUtils.<Stmt>getFactory());
+		final Collection<Stmt> _stmtLevelDependentSet = ListUtils.getAtIndexFromListUsingFactory(methodLocalDee2Dent,
+				stmtList.indexOf(_deeStmt), SetUtils.<Stmt> getFactory());
 		final List<Stmt> _dents = dependentBB.getStmtsOf();
 
 		if (remove) {
@@ -361,8 +353,8 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Stmt _dentStmt = _i.next();
-			final Collection<Stmt> _stmtLevelDependeeSet =
-				ListUtils.getAtIndexFromListUsingFactory(methodLocalDent2Dee, stmtList.indexOf(_dentStmt), SetUtils.<Stmt>getFactory());
+			final Collection<Stmt> _stmtLevelDependeeSet = ListUtils.getAtIndexFromListUsingFactory(methodLocalDent2Dee,
+					stmtList.indexOf(_dentStmt), SetUtils.<Stmt> getFactory());
 
 			if (remove) {
 				_stmtLevelDependeeSet.remove(_deeStmt);

@@ -14,15 +14,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
@@ -47,13 +47,15 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Sequence(Stmt)))
- * @invariant dependent2dependee.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
- * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
- * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
 public final class NonTerminationSensitiveEntryControlDA
 		extends AbstractControlDA {
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<NonTerminationSensitiveEntryControlDA, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			NonTerminationSensitiveEntryControlDA.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.

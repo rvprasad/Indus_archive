@@ -15,6 +15,8 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.IPredicate;
+import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -150,6 +152,12 @@ public class InterferenceDAv1
 			}
 		}
 	}
+
+	/**
+	 * This predicate can be used to check if an object of this class type.
+	 */
+	public static final IPredicate<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> INSTANCEOF_PREDICATE = new InstanceOfPredicate<InterferenceDAv1, IDependencyAnalysis<?, ?, ?, ?, ?, ?>>(
+			InterferenceDAv1.class);
 
 	/**
 	 * The logger used by instances of this class to log messages.
