@@ -14,8 +14,6 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
 import edu.ksu.cis.indus.slicer.SliceType;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
@@ -66,7 +64,7 @@ import soot.jimple.ThrowStmt;
 /**
  * This represents a configurationCollection of the slicer. The slicer tool should be configured via an object of this class
  * obtained from the slicer tool. The type of the propoerty values are documented with the property identifiers.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -356,7 +354,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the configuration factory object.
-	 *
+	 * 
 	 * @return the configuration factory.
 	 * @post result != null
 	 */
@@ -367,7 +365,7 @@ public final class SlicerConfiguration
 	/**
 	 * IFactory method to create a configuration. This is used by the factory and in java-2-xml binding. It is adviced to use
 	 * the factory object rather than using this method.
-	 *
+	 * 
 	 * @return a new instance of a configuration.
 	 * @post result != null
 	 */
@@ -380,7 +378,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if assertions only in application classes will be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if assertions only in application classes will be considered.; <code>false</code>,
 	 *         otherwise.
 	 */
@@ -390,7 +388,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if common unchecked exception based exit sensitive control dependence should be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if common unchecked exception based exit control dependence should be considered;
 	 *         <code>false</code>, otherwise.
 	 */
@@ -400,7 +398,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if synchronization constructs only in application classes will be considered.
-	 *
+	 * 
 	 * @return <code>true</code> if synchronization constructs only in application classes will be considered.;
 	 *         <code>false</code>, otherwise.
 	 */
@@ -410,7 +408,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the propery the governs if only assertions in application classes are considered.
-	 *
+	 * 
 	 * @param value <code>true</code> if only assertions in application classes should be considered; <code>false</code>,
 	 *            otherwise.
 	 */
@@ -420,7 +418,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if implicit common unchecked exception based exit sensitive control dependence should be considered.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates implicit common unchecked exception based exit sensitive control dependence
 	 *            should be considered; <code>false</code>, otherwise.
 	 */
@@ -430,7 +428,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the propery the governs if only synchronization constructs in application classes are considered.
-	 *
+	 * 
 	 * @param value <code>true</code> if only synchronization constructs in application classes should be considered;
 	 *            <code>false</code>, otherwise.
 	 */
@@ -462,7 +460,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the limit on the length of the calling context.
-	 *
+	 * 
 	 * @return the limit.
 	 */
 	public int getCallingContextLimit() {
@@ -471,7 +469,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the strategy used to select deadlock perserving criteria.
-	 *
+	 * 
 	 * @return the selection strategy used.
 	 */
 	public String getDeadlockCriteriaSelectionStrategy() {
@@ -485,7 +483,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Provides the dependency analysis corresponding to the given id.
-	 *
+	 * 
 	 * @param id of the requested dependence analyses.
 	 * @return the dependency analyses identified by <code>id</code>.
 	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
@@ -501,7 +499,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the executability of the generated slice.
-	 *
+	 * 
 	 * @return <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
 	 */
 	public boolean getExecutableSlice() {
@@ -510,7 +508,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the nature of divergence dependence analysis specified by this configuration.
-	 *
+	 * 
 	 * @return the nature of divergence dependence analysis.
 	 * @post result != null
 	 */
@@ -525,7 +523,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the nature of interference dependence analysis specified by this configuration.
-	 *
+	 * 
 	 * @return <code>true</code> if the use of interference dependence analysis enabled; <code>false</code>, otherwise.
 	 * @post result != null
 	 */
@@ -540,7 +538,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the nature of ready dependence analysis specified by this configuration.
-	 *
+	 * 
 	 * @return the nature of ready dependence analysis.
 	 * @post result != null
 	 */
@@ -555,7 +553,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if property aware slices will be generated.
-	 *
+	 * 
 	 * @return <code>true</code> if the property aware slices will be generated; <code>false</code>, otherwise.
 	 */
 	public boolean getPropertyAware() {
@@ -564,7 +562,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if the slice was done to preserve deadlocking properties.
-	 *
+	 * 
 	 * @return <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
 	 */
 	public boolean getSliceForDeadlock() {
@@ -573,7 +571,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if the slice was done to preserve assertions.
-	 *
+	 * 
 	 * @return <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
 	 */
 	public boolean getSliceToPreserveAssertions() {
@@ -582,7 +580,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the type of slice that will be generated.
-	 *
+	 * 
 	 * @return the type of slice.
 	 * @post result != null
 	 */
@@ -634,7 +632,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if call-site sensitive ready dependence is used.
-	 *
+	 * 
 	 * @return <code>true</code> if call-site based ready dependence is used; <code>false</code>, otherwise.
 	 */
 	public boolean isCallSiteSensitiveReadyUsed() {
@@ -643,7 +641,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if divergence dependence analysis is enabled in this configuration.
-	 *
+	 * 
 	 * @return <code>true</code> if the use of divergence dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isDivergenceDepAnalysisUsed() {
@@ -652,7 +650,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if explicit exceptional exit sensitive control dependence should be used.
-	 *
+	 * 
 	 * @return <code>true</code> if explicit exceptional exit control dependence should be used; <code>false</code>,
 	 *         otherwise.
 	 */
@@ -662,7 +660,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if interference dependence analysis is enabled in this configuration.
-	 *
+	 * 
 	 * @return <code>true</code> if the use of interference dependence analysis is enabled; <code>false</code>,
 	 *         otherwise.
 	 */
@@ -672,7 +670,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if non-termination sensitive control dependence should be used.
-	 *
+	 * 
 	 * @return <code>true</code> if non-termination sensitive control dependence should be used; <code>false</code>,
 	 *         otherwise.
 	 */
@@ -682,7 +680,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if OFA is being used for interference dependence calculation.
-	 *
+	 * 
 	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isOFAUsedForInterference() {
@@ -691,7 +689,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if OFA is being used for ready dependence calculation.
-	 *
+	 * 
 	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isOFAUsedForReady() {
@@ -700,7 +698,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if ready dependence analysis is enabled in this configuration.
-	 *
+	 * 
 	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyDepAnalysisUsed() {
@@ -710,7 +708,7 @@ public final class SlicerConfiguration
 	/**
 	 * Checks if ready dependence condition/rule 1 is enabled. Rule 1 being the intraprocedural ready dependence induced by
 	 * enter monitor statements.
-	 *
+	 * 
 	 * @return <code>true</code> if ready dependence analysis rule 1 is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyRule1Used() {
@@ -720,7 +718,7 @@ public final class SlicerConfiguration
 	/**
 	 * Checks if ready dependence condition/rule 2 is enabled. Rule 2 being the interprocedural ready dependence induced by
 	 * enter/exit monitor statements.
-	 *
+	 * 
 	 * @return <code>true</code> if ready dependence analysis rule 2 is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyRule2Used() {
@@ -730,7 +728,7 @@ public final class SlicerConfiguration
 	/**
 	 * Checks if ready dependence condition/rule 3 is enabled. Rule 3 being the intraprocedural ready dependence induced by
 	 * wait statements.
-	 *
+	 * 
 	 * @return <code>true</code> if ready dependence analysis rule 3 is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyRule3Used() {
@@ -740,7 +738,7 @@ public final class SlicerConfiguration
 	/**
 	 * Checks if ready dependence condition/rule 4 is enabled. Rule 4 being the interprocedural ready dependence induced by
 	 * wait/notify statements.
-	 *
+	 * 
 	 * @return <code>true</code> if ready dependence analysis rule 4 is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyRule4Used() {
@@ -749,7 +747,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if Safe Lock Analysis is being used for ready dependence calculation.
-	 *
+	 * 
 	 * @return <code>true</code> if SLA is used for ready dependence; <code>false</code>, otherwise.
 	 */
 	public boolean isSafeLockAnalysisUsedForReady() {
@@ -758,7 +756,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Checks if synchronization dependence analysis is enabled in this configuration.
-	 *
+	 * 
 	 * @return <code>true</code> if the use of synchronization dependence analysis is enabled; <code>false</code>,
 	 *         otherwise.
 	 */
@@ -768,7 +766,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * sets the limit of calling context length.
-	 *
+	 * 
 	 * @param limit obviously. If this is <= 0 then it will be set to 10.
 	 */
 	public void setCallingContextLimit(final int limit) {
@@ -783,7 +781,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the strategy to be used to select deadlock preserving criteria.
-	 *
+	 * 
 	 * @param dc specifies the strategy. It has to be one of <code>ALL_SYNC_CONSTRUCTS</code> or
 	 *            <code>ESCAPING_SYNC_CONSTRUCTS</code>.
 	 */
@@ -793,7 +791,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the executability of the generated slice.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
 	 * @throws IllegalStateException when executability is set on forward slices.
 	 */
@@ -807,7 +805,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the nature of divergence dependence analysis to be used.
-	 *
+	 * 
 	 * @param use specifies the nature of analysis. It has to be one of values defined by
 	 *            <code>INTRA_PROCEDURAL_DIVERGENCE</code>, <code>INTER_PROCEDURAL_DIVERGENCE</code>, and
 	 *            <code>INTRA_AND_INTER_PROCEDURAL_DIVERGENCE</code>.
@@ -819,7 +817,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the nature of interference dependence analysis to be used.
-	 *
+	 * 
 	 * @param use specifies the nature of analysis. It has to be one of values defined by
 	 *            <code>EQUIVALENCE_CLASS_BASED_INFO</code>, <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
 	 *            <code>TYPE_BASED_INFO</code>.
@@ -831,7 +829,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the nature of ready dependence analysis to be used.
-	 *
+	 * 
 	 * @param use specifies the nature of analysis. It has to be one of values defined by
 	 *            <code>EQUIVALENCE_CLASS_BASED_INFO</code>, <code>SYMBOL_AND_EQUIVCLS_BASED_INFO</code>, and
 	 *            <code>TYPE_BASED_INFO</code>.
@@ -843,7 +841,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the property that governs if property aware slices will be generated.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates property aware slices should be generated; <code>false</code>, otherwise.
 	 */
 	public void setPropertyAware(final boolean value) {
@@ -852,7 +850,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the preservation of deadlocking in the slice.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>,
 	 *            otherwise.
 	 */
@@ -862,7 +860,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the preservation of assertions in the slice.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
 	 */
 	public void setSliceToPreserveAssertions(final boolean value) {
@@ -871,9 +869,8 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets the type of slice to be generated.
-	 *
-	 * @param type specifies the type of slice. It has to be one of values defined by
-	 *            <code>SlicingEngine.SliceType</code>.
+	 * 
+	 * @param type specifies the type of slice. It has to be one of values defined by <code>SlicingEngine.SliceType</code>.
 	 * @pre use != null
 	 */
 	public void setSliceType(final SliceType type) {
@@ -882,7 +879,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if call-site sensitive ready dependence is used.
-	 *
+	 * 
 	 * @param use <code>true</code> if call-site based ready dependence should be used; <code>false</code>, otherwise.
 	 */
 	public void useCallSiteSensitiveReady(final boolean use) {
@@ -891,7 +888,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if divergence dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useDivergenceDepAnalysis(final boolean use) {
@@ -900,7 +897,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if explicit exceptional exit sensitive control dependence should be used.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates explicit exceptional exit sensitive control dependence should be used;
 	 *            <code>false</code>, otherwise.
 	 */
@@ -910,7 +907,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if interference dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useInterferenceDepAnalysis(final boolean use) {
@@ -919,7 +916,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if non-termination sensitive control dependence should be used.
-	 *
+	 * 
 	 * @param value <code>true</code> indicates non-termination sensitive control dependence should be used;
 	 *            <code>false</code>, otherwise.
 	 */
@@ -929,7 +926,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if OFA should be used during interference dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
 	 */
 	public void useOFAForInterference(final boolean use) {
@@ -938,7 +935,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if OFA should be used during ready dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
 	 */
 	public void useOFAForReady(final boolean use) {
@@ -947,7 +944,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyDepAnalysis(final boolean use) {
@@ -956,7 +953,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule1(final boolean use) {
@@ -965,7 +962,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule2(final boolean use) {
@@ -974,7 +971,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule3(final boolean use) {
@@ -983,7 +980,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useReadyRule4(final boolean use) {
@@ -992,7 +989,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets if Safe Lock Analysis should be used during ready dependence calculation.
-	 *
+	 * 
 	 * @param use <code>true</code> if SLA should be used; <code>false</code>, otherwise.
 	 */
 	public void useSafeLockAnalysisForReady(final boolean use) {
@@ -1001,7 +998,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Configures if synchronization dependence analysis should be used during slicing.
-	 *
+	 * 
 	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
 	 */
 	public void useSynchronizationDepAnalysis(final boolean use) {
@@ -1011,13 +1008,14 @@ public final class SlicerConfiguration
 	/**
 	 * {@inheritDoc} This implementation will always return <code>true</code>.
 	 */
-	@Override protected boolean processProperty(@SuppressWarnings("unused") final Comparable<?> propertyID, @SuppressWarnings("unused") final Object value) {
+	@Override protected boolean processProperty(@SuppressWarnings("unused") final Comparable<?> propertyID,
+			@SuppressWarnings("unused") final Object value) {
 		return true;
 	}
 
 	/**
 	 * Provides the id of the dependences to use for slicing.
-	 *
+	 * 
 	 * @return a collection of id of the dependence analyses.
 	 * @post result != null
 	 */
@@ -1027,7 +1025,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves slicing criteria generators.
-	 *
+	 * 
 	 * @return the slice criteria generators.
 	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriteriaGenerator))
 	 */
@@ -1050,7 +1048,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the boolean value of the given property.
-	 *
+	 * 
 	 * @param propertyId identifies the property for which the value is required.
 	 * @return the value associated with <code>propertyId</code>. Default value is <code>false</code>.
 	 */
@@ -1067,7 +1065,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the direction of divergence dependence that needs to be calculated.
-	 *
+	 * 
 	 * @return the direction.
 	 * @throws IllegalStateException if the direction cannot be decided due to illegal slice type.
 	 */
@@ -1090,13 +1088,13 @@ public final class SlicerConfiguration
 
 	/**
 	 * Retrieves the class of ready dependence analysis to be used.
-	 *
+	 * 
 	 * @param nature of ready dependence.
 	 * @return the ready dependence analysis class.
 	 * @throws IllegalStateException when the given nature is not supported.
 	 */
-	private Class<? extends  ReadyDAv1> getReadyDAClass(final Comparable<?> nature) throws IllegalStateException {
-		final Class<? extends  ReadyDAv1> _result;
+	private Class<? extends ReadyDAv1> getReadyDAClass(final Comparable<?> nature) throws IllegalStateException {
+		final Class<? extends ReadyDAv1> _result;
 
 		if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(nature)) {
 			_result = ReadyDAv3.class;
@@ -1135,7 +1133,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the deadlock preserving part of the slicer.
-	 *
+	 * 
 	 * @throws IllegalStateException when the deadlock preserving part of the slicer cannot be setup.
 	 */
 	private void setupDeadlockPreservation() {
@@ -1151,7 +1149,8 @@ public final class SlicerConfiguration
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
-				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(getCallingContextLimit(), IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
+				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
+						getCallingContextLimit(), IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(_retriever));
 			} else {
 				final String _msg = "Deadlock preservation criteria generation could not be configured due to illegal "
@@ -1169,7 +1168,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up divergence dependence.
-	 *
+	 * 
 	 * @throws IllegalStateException when divergence dependence cannot be setup due to invalid nature or illegal slice type.
 	 */
 	private void setupDivergenceDependence() {
@@ -1221,7 +1220,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up interference dependence.
-	 *
+	 * 
 	 * @throws IllegalStateException when interference dependence cannot be setup.
 	 */
 	private void setupInterferenceDependence() {
@@ -1250,9 +1249,9 @@ public final class SlicerConfiguration
 
 			try {
 				_constructor = _clazz.getConstructor((Class[]) null);
-				final InterferenceDAv1 _newInstance =  _constructor.newInstance((Object[]) null);
+				final InterferenceDAv1 _newInstance = _constructor.newInstance((Object[]) null);
 				id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, Collections
-						.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(_newInstance));
+						.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> singleton(_newInstance));
 			} catch (final NoSuchMethodException _e) {
 				final String _msg = "Dependence analysis does not provide zero parameter constructor :" + _clazz;
 				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
@@ -1294,7 +1293,8 @@ public final class SlicerConfiguration
 				throw _runtimeException;
 			}
 
-			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(
+					IDependencyAnalysis.DependenceSort.INTERFERENCE_DA).iterator(); _i.hasNext();) {
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
 				_ida.setUseOFA(isOFAUsedForInterference());
 			}
@@ -1306,7 +1306,7 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the nature of ready dependence.
-	 *
+	 * 
 	 * @param nature of ready dependence.
 	 */
 	private void setupNatureOfReadyDep(final Comparable<?> nature) {
@@ -1319,10 +1319,13 @@ public final class SlicerConfiguration
 				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class[]) null).invoke(null,
 						(Object[]) null));
 			} else if (SliceType.BACKWARD_SLICE.equals(getSliceType())) {
-				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class[]) null).invoke(null,
+						(Object[]) null));
 			} else if (SliceType.COMPLETE_SLICE.equals(getSliceType())) {
-				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class []) null).invoke(null, (Object []) null));
-				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class []) null).invoke(null, (Object []) null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getBackwardReadyDA", (Class[]) null).invoke(null,
+						(Object[]) null));
+				_temp.add((IDependencyAnalysis) _clazz.getMethod("getForwardReadyDA", (Class[]) null).invoke(null,
+						(Object[]) null));
 			} else {
 				final String _msg = "Illegal slice type :" + _clazz.toString() + " : " + getSliceType();
 				LOGGER.error("setupNatureOfReadyDep" + "() -  : " + _msg);
@@ -1389,7 +1392,8 @@ public final class SlicerConfiguration
 			_rule = ReadyDAv1.RULE_4;
 		}
 
-		final Collection<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = id2dependencyAnalyses.get(IDependencyAnalysis.DependenceSort.READY_DA);
+		final Collection<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = id2dependencyAnalyses
+				.get(IDependencyAnalysis.DependenceSort.READY_DA);
 
 		for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _iter = _c.iterator(); _iter.hasNext();) {
 			final ReadyDAv1 _rd = (ReadyDAv1) _iter.next();
@@ -1410,21 +1414,24 @@ public final class SlicerConfiguration
 
 			final boolean _usedForReady = isOFAUsedForReady();
 
-			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id)
+					.iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseOFA(_usedForReady);
 			}
 
 			final boolean _safeLockAnalysisUsedForReady = isSafeLockAnalysisUsedForReady();
 
-			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id)
+					.iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseSafeLockAnalysis(_safeLockAnalysisUsedForReady);
 			}
 
 			final boolean _callSiteSensitiveReadyUsed = isCallSiteSensitiveReadyUsed();
 
-			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id).iterator(); _i.hasNext();) {
+			for (final Iterator<? extends IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _i = id2dependencyAnalyses.get(_id)
+					.iterator(); _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setConsiderCallSites(_callSiteSensitiveReadyUsed);
 			}
@@ -1437,18 +1444,17 @@ public final class SlicerConfiguration
 
 	/**
 	 * Sets up the part of the slicer dependent on the direction of the slice.
-	 *
+	 * 
 	 * @throws IllegalStateException when direction dependent part of the slicer cannot be setup.
 	 */
 	private void setupSliceTypeRelatedData() {
 		final SliceType _sliceType = getSliceType();
 		id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA, Collections
-				.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new IdentifierBasedDataDAv3()));
-		id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA,  Collections
-				.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new ReferenceBasedDataDA()));
+				.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> singleton(new IdentifierBasedDataDAv3()));
+		id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA, Collections
+				.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> singleton(new ReferenceBasedDataDA()));
 
-		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = MapUtils.getFromMapUsingFactory(id2dependencyAnalyses,
-				IDependencyAnalysis.DependenceSort.CONTROL_DA, SetUtils.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>getFactory());
+		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _c = new HashSet<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 		if (isNonTerminationSensitiveControlDependenceUsed()) {
 			_c.add(new NonTerminationSensitiveEntryControlDA());
@@ -1475,7 +1481,8 @@ public final class SlicerConfiguration
 
 		if (isSynchronizationDepAnalysisUsed()) {
 			dependencesToUse.add(_id);
-			id2dependencyAnalyses.put(_id, Collections.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>singleton(new SynchronizationDA()));
+			id2dependencyAnalyses.put(_id, Collections
+					.<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> singleton(new SynchronizationDA()));
 		} else {
 			dependencesToUse.remove(_id);
 			id2dependencyAnalyses.remove(_id);
