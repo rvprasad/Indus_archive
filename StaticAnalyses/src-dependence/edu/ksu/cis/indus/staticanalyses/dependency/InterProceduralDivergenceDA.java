@@ -208,7 +208,7 @@ public final class InterProceduralDivergenceDA
 	 */
 	public Collection<Stmt> getDependents(final Stmt dependeeStmt, final SootMethod method) {
 		final Map<Stmt, Collection<Stmt>> _stmt2List = MapUtils.getEmptyMapFromMap(dependee2dependent, method);
-		final Collection<Stmt> _result = MapUtils.getEmptyCollectionFromMap(_stmt2List, dependeeStmt);
+		final Collection<Stmt> _result = MapUtils.queryCollection(_stmt2List, dependeeStmt);
 		return Collections.unmodifiableCollection(_result);
 	}
 
