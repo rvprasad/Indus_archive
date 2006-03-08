@@ -87,8 +87,8 @@ public final class SlicerToolHelper {
 	public static String loadConfigurationInFile(final String configFileName) {
 		InputStream _inStream = null;
 		String _result = null;
-
 		final URL _filename;
+		
 		if (configFileName == null) {
 			LOGGER.warn("Trying to use default configuration.");
 			_filename = ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
