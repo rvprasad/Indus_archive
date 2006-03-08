@@ -1,3 +1,10 @@
+2006-03-07 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java:
+		- while performing the previous change to this class, I forgot to plug in the new instances of control DA. FIXED.
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java:
+		- incorrect check while loading configuration. FIXED.
+
 2006-03-05 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java:

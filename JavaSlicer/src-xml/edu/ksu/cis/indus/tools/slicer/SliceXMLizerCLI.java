@@ -527,15 +527,8 @@ public class SliceXMLizerCLI
 	 */
 	private static String processCommandLineForConfiguration(final CommandLine cl) {
 		final String _config = cl.getOptionValue('c');
-		String _result = null;
-
-		if (_config != null) {
-			_result = SlicerToolHelper.loadConfigurationInFile(_config);
-		}
-
 		configFileName = _config;
-
-		return _result;
+		return SlicerToolHelper.loadConfigurationInFile(_config);
 	}
 
 	/**

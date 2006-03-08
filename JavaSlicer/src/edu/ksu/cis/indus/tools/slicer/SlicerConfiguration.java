@@ -1471,6 +1471,8 @@ public final class SlicerConfiguration
 			throw new IllegalStateException("Slice type was not either of BACKWARD_SLICE, FORWARD_SLICE, "
 					+ "or COMPLETE_SLICE.");
 		}
+
+		id2dependencyAnalyses.put(IDependencyAnalysis.DependenceSort.CONTROL_DA, _c);
 	}
 
 	/**
