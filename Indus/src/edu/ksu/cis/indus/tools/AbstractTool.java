@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -112,7 +112,7 @@ public abstract class AbstractTool
 	/**
 	 * This executor executes actions corresponding to delivering tool progress events.
 	 */
-	private final Executor executor = Executors.newSingleThreadExecutor();
+	ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	/**
 	 * Creates a new AbstractTool object.
@@ -270,6 +270,8 @@ public abstract class AbstractTool
 							childException = _temp;
 						}
 						pause = false;
+						executor.shutdown();
+						executor = Executors.newSingleThreadExecutor();
 					}
 				}
 			};

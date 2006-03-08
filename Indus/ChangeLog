@@ -1,20 +1,27 @@
+2006-03-07 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/tools/AbstractTool.java:
+		- java.uti.concurrent.Executor framework was used for handling progress events.  However, this framework was
+		not shutdown when the tool stopped, hence, caused the VM to wait forever.  Now the framework() is being
+		shutdown.
+
 2006-02-22 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/common/soot/ExceptionFlowInsensitiveStmtGraphFactory.java: 
+	* src/edu/ksu/cis/indus/common/soot/ExceptionFlowInsensitiveStmtGraphFactory.java:
 		- added a new statement graph factory that produces exception insensitive statement graphs.
-	* src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java: 
-	* src/edu/ksu/cis/indus/common/soot/Constants.java: 
+	* src/edu/ksu/cis/indus/common/soot/SootBasedDriver.java:
+	* src/edu/ksu/cis/indus/common/soot/Constants.java:
 		- changed the way in the method body loading option was handled.
 		- changed the names of the constants as well.
 
 2006-02-21 venku <venku@boss.dreamsoft.com>
 
-	* src/edu/ksu/cis/indus/common/soot/AbstractStmtGraphFactory.java: 
-		- although memory issues can be addressed in small ways by using references, it is not worth the hassle while 
-		dealing with Soot.  So, I  have given up on reference-based memory tuning and reverted back to maintianing direct 
+	* src/edu/ksu/cis/indus/common/soot/AbstractStmtGraphFactory.java:
+		- although memory issues can be addressed in small ways by using references, it is not worth the hassle while
+		dealing with Soot.  So, I  have given up on reference-based memory tuning and reverted back to maintianing direct
 		references to statement graphs.
-	* src/edu/ksu/cis/indus/common/soot/Util.java: 
-		- the assumptions with Soot need to be fixed.  For now, we check if the Thread class exists. If so, we check if the 
+	* src/edu/ksu/cis/indus/common/soot/Util.java:
+		- the assumptions with Soot need to be fixed.  For now, we check if the Thread class exists. If so, we check if the
 		start() method is concrete.  If it is concrete then we do nothing.  If not, we plugin a new body for the method.
 
 2006-01-29 venku <venku@boss.dreamsoft.com>
