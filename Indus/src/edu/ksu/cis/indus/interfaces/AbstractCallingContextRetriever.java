@@ -164,7 +164,7 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected boolean considerProgramPoint(final Context programPointContext) {
 		if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("considerProgramPoint(programPointContext = " + programPointContext + ")", null);
+			LOGGER.warn("considerProgramPoint(programPointContext = " + programPointContext + ")");
 		}
 
 		throw new UnsupportedOperationException("This method is unsupported.");
@@ -181,7 +181,7 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected boolean considerThis(final Context methodContext) {
 		if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("considerThis(methodContext = " + methodContext + ")", null);
+			LOGGER.warn("considerThis(methodContext = " + methodContext + ")");
 		}
 
 		throw new UnsupportedOperationException("This method is unsupported.");
@@ -229,7 +229,7 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected Object getTokenForProgramPoint(final Context programPointContext) {
 		if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("getTokenForProgramPoint(programPointContext = " + programPointContext + ")", null);
+			LOGGER.warn("getTokenForProgramPoint(programPointContext = " + programPointContext + ")");
 		}
 
 		throw new UnsupportedOperationException("This method is unsupported.");
@@ -248,7 +248,7 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected Object getTokenForThis(final Context methodContext) {
 		if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("getTokenForThis(methodContext = " + methodContext + ")", null);
+			LOGGER.warn("getTokenForThis(methodContext = " + methodContext + ")");
 		}
 
 		throw new UnsupportedOperationException("This method is unsupported.");

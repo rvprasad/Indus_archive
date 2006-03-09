@@ -67,7 +67,7 @@ public final class StaticEnvironment
 	 */
 	public SootClass getClass(@SuppressWarnings("unused") final String className) {
 		final String _msg = "This operation is not supported by this implementation.";
-		LOGGER.error("getClass() -  : _msg = " + _msg, null);
+		LOGGER.error("getClass() -  : _msg = " + _msg);
 		throw new UnsupportedOperationException(_msg);
 	}
 
@@ -119,7 +119,7 @@ public final class StaticEnvironment
 	 */
 	public void removeClass(@SuppressWarnings("unused") final SootClass clazz) {
 		final String _msg = "This operation is not supported by this implementation.";
-		LOGGER.error("getClass() -  : _msg = " + _msg, null);
+		LOGGER.error("getClass() -  : _msg = " + _msg);
 		throw new UnsupportedOperationException(_msg);
 	}
 }
