@@ -46,7 +46,7 @@ public interface IDependenceRetriever<T1, C1, E1, E2, C2, T2> {
 	/**
 	 * DOCUMENT ME!
 	 * 
-	 * @param dependees DOCUMENT ME!
+	 * @param dependents DOCUMENT ME!
 	 * @param base DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 * @return DOCUMENT ME!
