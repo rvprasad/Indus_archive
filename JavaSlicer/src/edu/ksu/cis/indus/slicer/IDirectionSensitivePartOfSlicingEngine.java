@@ -19,7 +19,6 @@ import java.util.Collection;
 import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.IdentityStmt;
 import soot.jimple.Stmt;
 
@@ -34,9 +33,9 @@ interface IDirectionSensitivePartOfSlicingEngine
 		extends DependenceExtractor.IDependenceRetriver {
 
 	/**
-	 * Controls if processing of slice criteria can end.  This is involed by the engine when there are no criteria/work 
-	 * left to process.  This method would be a good place to inject new criteria/work based on some caching mechanism.
-	 * So, if the implementation adds new criteria/work then it should return <code>true</code> as the return value.  
+	 * Controls if processing of slice criteria can end. This is involed by the engine when there are no criteria/work left to
+	 * process. This method would be a good place to inject new criteria/work based on some caching mechanism. So, if the
+	 * implementation adds new criteria/work then it should return <code>true</code> as the return value.
 	 * 
 	 * @return <code>true</code> if the processing should continue; <code>false</code>, otherwise.
 	 */
