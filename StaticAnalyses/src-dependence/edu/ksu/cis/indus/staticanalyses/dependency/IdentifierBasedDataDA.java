@@ -58,7 +58,7 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  */
 public class IdentifierBasedDataDA
 		extends
-		AbstractDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, SootMethod, List<Map<Local, Collection<DefinitionStmt>>>, DefinitionStmt, SootMethod, Stmt, SootMethod, List<Collection<Stmt>>> {
+		AbstractDependencyAnalysis<Pair<Local, Stmt>, SootMethod, DefinitionStmt, SootMethod, List<Map<Local, Collection<DefinitionStmt>>>, DefinitionStmt, SootMethod, Pair<Local, Stmt>, SootMethod, List<Collection<Pair<Local, Stmt>>>> {
 
 	/**
 	 * This predicate can be used to check if an object of this class type.
@@ -102,7 +102,7 @@ public class IdentifierBasedDataDA
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 */
 	final static Collection<DefinitionStmt> getDependeesHelper(final Stmt stmt, final SootMethod method,
-			final IDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, ?, ?, ?> da) {
+			final IDependencyAnalysis<Pair<Local, Stmt>, SootMethod, DefinitionStmt, ?, ?, ?> da) {
 		Collection<DefinitionStmt> _result = Collections.emptySet();
 
 		for (final Iterator<ValueBox> _i = stmt.getUseBoxes().iterator(); _i.hasNext();) {
@@ -110,7 +110,7 @@ public class IdentifierBasedDataDA
 			final Value _v = _vb.getValue();
 
 			if (_v instanceof Local) {
-				final Collection<DefinitionStmt> _c = da.getDependees(new Pair<Stmt, Local>(stmt, (Local) _v), method);
+				final Collection<DefinitionStmt> _c = da.getDependees(new Pair<Local, Stmt>((Local) _v, stmt), method);
 
 				if (_c != null) {
 					_result = Collections.unmodifiableCollection(_c);
@@ -173,11 +173,11 @@ public class IdentifierBasedDataDA
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 * @pre programPoint.oclTypeOf(Pair).getFirst() != null and programPoint.oclTypeOf(Pair).getSecond() != null
 	 */
-	public Collection<DefinitionStmt> getDependees(final Pair<Stmt, Local> programPoint, final SootMethod method) {
+	public Collection<DefinitionStmt> getDependees(final Pair<Local, Stmt> programPoint, final SootMethod method) {
 		Collection<DefinitionStmt> _result = Collections.emptySet();
 
-		final Stmt _stmt = programPoint.getFirst();
-		final Local _local = programPoint.getSecond();
+		final Stmt _stmt = programPoint.getSecond();
+		final Local _local = programPoint.getFirst();
 		final List<Map<Local, Collection<DefinitionStmt>>> _dependees = dependent2dependee.get(method);
 		final Map<Local, Collection<DefinitionStmt>> _local2defs = _dependees.get(getStmtList(method).indexOf(_stmt));
 		final Collection<DefinitionStmt> _c = _local2defs.get(_local);
@@ -214,13 +214,13 @@ public class IdentifierBasedDataDA
 	 * @return a collection of statement and program points in them which depend on the definition at
 	 *         <code>programPoint</code>.
 	 */
-	public Collection<Stmt> getDependents(final DefinitionStmt programPoint, final SootMethod method) {
-		Collection<Stmt> _result = Collections.emptySet();
+	public Collection<Pair<Local, Stmt>> getDependents(final DefinitionStmt programPoint, final SootMethod method) {
+		Collection<Pair<Local, Stmt>> _result = Collections.emptySet();
 
-		final List<Collection<Stmt>> _dependents = dependee2dependent.get(method);
+		final List<Collection<Pair<Local, Stmt>>> _dependents = dependee2dependent.get(method);
 
 		if (_dependents != null) {
-			final Collection<Stmt> _temp = _dependents.get(getStmtList(method).indexOf(programPoint));
+			final Collection<Pair<Local, Stmt>> _temp = _dependents.get(getStmtList(method).indexOf(programPoint));
 			if (_temp != null) {
 				_result = Collections.unmodifiableCollection(_temp);
 			}
@@ -250,16 +250,16 @@ public class IdentifierBasedDataDA
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator<Map.Entry<SootMethod, List<Collection<Stmt>>>> _i = dependee2dependent.entrySet().iterator(); _i
-				.hasNext();) {
-			final Map.Entry<SootMethod, List<Collection<Stmt>>> _entry = _i.next();
+		for (final Iterator<Map.Entry<SootMethod, List<Collection<Pair<Local, Stmt>>>>> _i = dependee2dependent.entrySet()
+				.iterator(); _i.hasNext();) {
+			final Map.Entry<SootMethod, List<Collection<Pair<Local, Stmt>>>> _entry = _i.next();
 			_localEdgeCount = 0;
 
 			final List<Stmt> _stmts = getStmtList(_entry.getKey());
 			int _count = 0;
 
-			for (final Iterator<Collection<Stmt>> _j = _entry.getValue().iterator(); _j.hasNext();) {
-				final Collection<Stmt> _c = _j.next();
+			for (final Iterator<Collection<Pair<Local, Stmt>>> _j = _entry.getValue().iterator(); _j.hasNext();) {
+				final Collection<Pair<Local, Stmt>> _c = _j.next();
 				final Stmt _stmt = _stmts.get(_count++);
 
 				for (final Iterator<?> _k = _c.iterator(); _k.hasNext();) {
@@ -282,7 +282,7 @@ public class IdentifierBasedDataDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected IDependenceRetriever<Pair<Stmt, Local>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Stmt> getDependenceRetriever() {
+	@Override protected IDependenceRetriever<Pair<Local, Stmt>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Pair<Local, Stmt>> getDependenceRetriever() {
 		return new LocalStmtPairRetriever();
 	}
 
@@ -315,21 +315,21 @@ public class IdentifierBasedDataDA
 		final Collection<Stmt> _t = getStmtList(method);
 		final List<Map<Local, Collection<DefinitionStmt>>> _dependees = new ArrayList<Map<Local, Collection<DefinitionStmt>>>(
 				_t.size());
-		final List<Collection<Stmt>> _dependents = new ArrayList<Collection<Stmt>>(_t.size());
+		final List<Collection<Pair<Local, Stmt>>> _dependents = new ArrayList<Collection<Pair<Local, Stmt>>>(_t.size());
 
 		for (final Iterator<Stmt> _j = _t.iterator(); _j.hasNext();) {
 			final Stmt _currStmt = _j.next();
-			Collection<Stmt> _currUses = Collections.emptySet();
+			Collection<Pair<Local, Stmt>> _currUses = Collections.emptySet();
 
 			if (_currStmt instanceof DefinitionStmt) {
 				final Collection<UnitValueBoxPair> _temp = _uses.getUsesOf(_currStmt);
 
 				if (_temp.size() != 0) {
-					_currUses = new ArrayList<Stmt>();
+					_currUses = new ArrayList<Pair<Local, Stmt>>();
 
 					for (final Iterator<UnitValueBoxPair> _k = _temp.iterator(); _k.hasNext();) {
 						final UnitValueBoxPair _p = _k.next();
-						_currUses.add((Stmt) _p.getUnit());
+						_currUses.add(new Pair<Local, Stmt>((Local) _p.getValueBox().getValue(), (Stmt) _p.getUnit()));
 					}
 				}
 			}

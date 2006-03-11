@@ -15,10 +15,10 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysisv2;
-
+import soot.Local;
 import soot.SootMethod;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
@@ -42,7 +42,7 @@ public final class IdentifierBasedDataDAv3
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv2#getLocalUseDefAnalysis(soot.SootMethod)
 	 */
-	@Override protected IUseDefInfo<DefinitionStmt, Stmt> getLocalUseDefAnalysis(final SootMethod method) {
+	@Override protected IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> getLocalUseDefAnalysis(final SootMethod method) {
 		return new LocalUseDefAnalysisv2(getBasicBlockGraph(method));
 	}
 }

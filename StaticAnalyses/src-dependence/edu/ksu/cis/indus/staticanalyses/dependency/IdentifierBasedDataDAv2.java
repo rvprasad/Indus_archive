@@ -15,10 +15,8 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis;
 
@@ -32,10 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import soot.Local;
 import soot.SootMethod;
-
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.UnitGraph;
 
 /**
@@ -46,14 +42,14 @@ import soot.toolkits.graph.UnitGraph;
  * <p>
  * This implementation is based on <code>edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis</code> class.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class IdentifierBasedDataDAv2
 		extends
-		AbstractDependencyAnalysis<Pair<Stmt, Local>, SootMethod, DefinitionStmt, SootMethod, IUseDefInfo<DefinitionStmt, Stmt>, DefinitionStmt, SootMethod, Stmt, SootMethod, IUseDefInfo<DefinitionStmt, Stmt>> {
+		AbstractDependencyAnalysis<Pair<Local, Stmt>, SootMethod, DefinitionStmt, SootMethod, IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>>, DefinitionStmt, SootMethod, Pair<Local, Stmt>, SootMethod, IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>>> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -74,7 +70,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Calculates the dependency information for locals in the methods provided during initialization.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	@Override public final void analyze() {
@@ -93,7 +89,7 @@ public class IdentifierBasedDataDAv2
 					LOGGER.debug("Processing " + _currMethod.getSignature());
 				}
 
-				final IUseDefInfo<DefinitionStmt, Stmt> _useDef = getLocalUseDefAnalysis(_currMethod);
+				final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDef = getLocalUseDefAnalysis(_currMethod);
 				dependee2dependent.put(_currMethod, _useDef);
 				dependent2dependee.put(_currMethod, _useDef);
 			} else {
@@ -115,7 +111,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Returns the statements on which <code>o</code>, depends in the given <code>method</code>.
-	 *
+	 * 
 	 * @param programPoint is the program point at which a local occurs in the statement. If it is a statement, then
 	 *            information about all the locals in the statement is provided. If it is a pair of statement and program
 	 *            point in it, then only information about the local at that program point is provided.
@@ -123,13 +119,13 @@ public class IdentifierBasedDataDAv2
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 * @pre programPoint.oclTypeOf(Pair).getFirst() != null and programPoint.oclTypeOf(Pair).getSecond() != null
 	 */
-	public final Collection<DefinitionStmt> getDependees(final Pair<Stmt, Local> programPoint, final SootMethod method) {
+	public final Collection<DefinitionStmt> getDependees(final Pair<Local, Stmt> programPoint, final SootMethod method) {
 		Collection<DefinitionStmt> _result = Collections.emptyList();
-		final IUseDefInfo<DefinitionStmt, Stmt> _useDefAnalysis = dependee2dependent.get(method);
+		final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDefAnalysis = dependee2dependent.get(method);
 
 		if (_useDefAnalysis != null) {
-			final Stmt _stmt = programPoint.getFirst();
-			final Local _local = programPoint.getSecond();
+			final Stmt _stmt = programPoint.getSecond();
+			final Local _local = programPoint.getFirst();
 			_result = _useDefAnalysis.getDefs(_local, _stmt, method);
 		} else {
 			if (LOGGER.isWarnEnabled()) {
@@ -143,14 +139,14 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Returns the statements on which the locals in <code>stmt</code> depends in the given <code>method</code>.
-	 *
+	 * 
 	 * @param stmt in which the locals occur.
 	 * @param method in which <code>programPoint</code> occurs.
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 */
 	public Collection<DefinitionStmt> getDependees(final Stmt stmt, final SootMethod method) {
 		Collection<DefinitionStmt> _result = Collections.emptyList();
-		final IUseDefInfo<DefinitionStmt, Stmt> _useDefAnalysis = dependee2dependent.get(method);
+		final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDefAnalysis = dependee2dependent.get(method);
 
 		if (_useDefAnalysis != null) {
 			_result = _useDefAnalysis.getDefs(stmt, method);
@@ -166,7 +162,7 @@ public class IdentifierBasedDataDAv2
 	/**
 	 * Returns the statement and the program point in it which depends on statement provided via <code>programPoint</code>
 	 * occurring in the given <code>method</code>.
-	 *
+	 * 
 	 * @param programPoint is the definition statement or a pair containing the definition statement as the first element.
 	 *            Although, only one variable can be defined in a Jimple statement, we allow for a pair in this query to make
 	 *            <code>getDependees</code> and <code>getDependents</code> symmetrical for ease of usage.
@@ -174,9 +170,9 @@ public class IdentifierBasedDataDAv2
 	 * @return a collection of statement and program points in them which depend on the definition at
 	 *         <code>programPoint</code>.
 	 */
-	public final Collection<Stmt> getDependents(final DefinitionStmt programPoint, final SootMethod method) {
-		final IUseDefInfo<DefinitionStmt, Stmt> _useDefAnalysis = dependee2dependent.get(method);
-		Collection<Stmt> _result = Collections.emptyList();
+	public final Collection<Pair<Local, Stmt>> getDependents(final DefinitionStmt programPoint, final SootMethod method) {
+		final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDefAnalysis = dependee2dependent.get(method);
+		Collection<Pair<Local, Stmt>> _result = Collections.emptyList();
 
 		if (_useDefAnalysis != null) {
 			_result = _useDefAnalysis.getUses(programPoint, method);
@@ -195,7 +191,7 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Returns a stringized representation of this analysis. The representation includes the results of the analysis.
-	 *
+	 * 
 	 * @return a stringized representation of this object.
 	 */
 	@Override public final String toString() {
@@ -206,11 +202,12 @@ public class IdentifierBasedDataDAv2
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator<Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Stmt>>> _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Stmt>> _entry = _i.next();
+		for (final Iterator<Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>>>> _i = dependee2dependent
+				.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry<SootMethod, IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>>> _entry = _i.next();
 			_localEdgeCount = 0;
 
-			final IUseDefInfo<DefinitionStmt, Stmt> _useDef = _entry.getValue();
+			final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDef = _entry.getValue();
 
 			final SootMethod _sm = _entry.getKey();
 
@@ -240,7 +237,7 @@ public class IdentifierBasedDataDAv2
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependenceRetriever()
 	 */
-	@Override protected IDependenceRetriever<Pair<Stmt, Local>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Stmt> getDependenceRetriever() {
+	@Override protected IDependenceRetriever<Pair<Local, Stmt>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Pair<Local, Stmt>> getDependenceRetriever() {
 		return new LocalStmtPairRetriever();
 	}
 
@@ -248,18 +245,18 @@ public class IdentifierBasedDataDAv2
 
 	/**
 	 * Retrieves the local use def analysis for the given method.
-	 *
+	 * 
 	 * @param method of interest.
 	 * @return local use-def analysis.
 	 * @pre method != null
 	 */
-	protected IUseDefInfo<DefinitionStmt, Stmt> getLocalUseDefAnalysis(final SootMethod method) {
+	protected IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> getLocalUseDefAnalysis(final SootMethod method) {
 		return new LocalUseDefAnalysis(getUnitGraph(method));
 	}
 
 	/**
 	 * Sets up internal data structures.
-	 *
+	 * 
 	 * @throws InitializationException when call graph service is not provided.
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()

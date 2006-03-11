@@ -1,3 +1,17 @@
+2006-03-10 venku <venku@boss.dreamsoft.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDA.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDAv2.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDAv3.java: 
+		- changed the type of the dependents to Pair<Local, Stmt>
+		- changed the type of the input to dependee query to Pair<Local, Stmt>	
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/LocalStmtPairRetriever.java: 
+		- changed the type of the dependents to Pair<Local, Stmt>
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/LocalUseDefAnalysis.java: 
+		- I had incorrectly assumed every definition will be used in the method.  FIXED.
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/LocalUseDefAnalysisv2.java: 
+		- Both versions of LocalUseDefAnalysis now provide dependents of type Pair<Local, Stmt>.
+
 2006-03-05 venku <venku@boss.dreamsoft.com>
 
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java:

@@ -32,7 +32,8 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 public class LocalStmtPairRetriever
-		extends AbstractDependenceRetriever<Pair<Stmt, Local>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Stmt> {
+		extends
+		AbstractDependenceRetriever<Pair<Local, Stmt>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Pair<Local, Stmt>> {
 
 	/**
 	 * Creates an instance of this class.
@@ -42,22 +43,26 @@ public class LocalStmtPairRetriever
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependenceRetriever#convertToConformantDependees(java.util.Collection,
 	 *      java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Pair<DefinitionStmt, SootMethod>> convertToConformantDependees(final Collection<Stmt> dependees,
-			final DefinitionStmt base, final SootMethod context) {
+	public Collection<Pair<DefinitionStmt, SootMethod>> convertToConformantDependees(
+			final Collection<Pair<Local, Stmt>> dependees, final DefinitionStmt base, final SootMethod context) {
 		// TODO: Auto-generated method stub
 		return null;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependenceRetriever#convertToConformantDependents(java.util.Collection,
 	 *      java.lang.Object, java.lang.Object)
 	 */
-	public Collection<Pair<Pair<Stmt, Local>, SootMethod>> convertToConformantDependents(
-			final Collection<DefinitionStmt> dependees, final Pair<Stmt, Local> base, final SootMethod context) {
-
+	public Collection<Pair<Pair<Local, Stmt>, SootMethod>> convertToConformantDependents(
+			final Collection<DefinitionStmt> dependents, final Pair<Local, Stmt> base, final SootMethod context) {
+		// TODO: Auto-generated method stub
 		return null;
 	}
 }

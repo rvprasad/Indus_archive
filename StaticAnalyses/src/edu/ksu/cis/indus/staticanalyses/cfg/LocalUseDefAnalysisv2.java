@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
-
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import java.util.ArrayList;
@@ -46,19 +45,18 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 /**
  * This class provides use-def information for local variables in a method. The analysis is performed at basic block level.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class LocalUseDefAnalysisv2
-		implements IUseDefInfo<DefinitionStmt, Stmt> {
+		implements IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> {
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -78,11 +76,11 @@ public final class LocalUseDefAnalysisv2
 	/**
 	 * A map from definition statement to a collection of statements.
 	 */
-	private final Map<DefinitionStmt, Collection<Stmt>> useInfo = new HashMap<DefinitionStmt, Collection<Stmt>>();
+	private final Map<DefinitionStmt, Collection<Pair<Local, Stmt>>> useInfo = new HashMap<DefinitionStmt, Collection<Pair<Local, Stmt>>>();
 
 	/**
 	 * Creates a new LocalDefsAnalysis object.
-	 *
+	 * 
 	 * @param graph is the control flow graph used to calculate the use-def info.
 	 * @pre graph != null
 	 */
@@ -116,7 +114,7 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
-	 *
+	 * 
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
 	 * @param method <i>ignored</i>.
@@ -131,7 +129,7 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method <i>ignored</i>.
 	 */
 	public Collection<DefinitionStmt> getDefs(final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
@@ -157,14 +155,15 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * Retrieves the uses of definitions at <code>stmt</code>.
-	 *
+	 * 
 	 * @param stmt in which a definition occurs.
 	 * @param method <i>ignored</i>.
 	 * @return a collection of statements.
 	 * @pre stmt != null
 	 * @post result != null
 	 */
-	public Collection<Stmt> getUses(final DefinitionStmt stmt, @SuppressWarnings("unused") final SootMethod method) {
+	public Collection<Pair<Local, Stmt>> getUses(final DefinitionStmt stmt,
+			@SuppressWarnings("unused") final SootMethod method) {
 		return MapUtils.queryCollection(useInfo, stmt);
 	}
 
@@ -177,7 +176,7 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * Performs the analysis to calculate the info.
-	 *
+	 * 
 	 * @param listOfLocals is a list of the locals.
 	 * @pre local2defs != null and listOfLocals != null
 	 */
@@ -239,7 +238,7 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * Calculates Intra basic-block use-def info while recording the use-def info.
-	 *
+	 * 
 	 * @param defStmt2local maps definition statement to the local being defined.
 	 * @param bb2reachingDefStmts maps basic blocks to the definition statements that reaches the basic block.
 	 * @pre defStmt2local != null and bb2reachingDefStmts != null
@@ -251,7 +250,6 @@ public final class LocalUseDefAnalysisv2
 		}
 
 		// calculate information at intra bb level and record the use-def information.
-		final Collection<DefinitionStmt> _defStmts = new HashSet<DefinitionStmt>();
 		final PairManager _pairMgr = new PairManager(false, true);
 		final Map<Local, Set<DefinitionStmt>> _local2defStmts = MapUtils.invertMap(defStmt2local);
 
@@ -273,26 +271,19 @@ public final class LocalUseDefAnalysisv2
 				final List<ValueBox> _useBoxes = _stmt.getUseBoxes();
 				final Iterator<ValueBox> _k = _useBoxes.iterator();
 				final int _kEnd = _useBoxes.size();
-				_defStmts.clear();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 					final ValueBox _vb = _k.next();
 					final Value _value = _vb.getValue();
 
 					if (_value instanceof Local) {
+						final Pair<Local, Stmt> _pair = _pairMgr.getPair((Local) _value, _stmt);
 						final Collection<DefinitionStmt> _d = SetUtils.intersection(_local2defStmts.get(_value), _rDefs);
-						defInfo.put(_pairMgr.getPair((Local) _value, _stmt), _d);
-						_defStmts.addAll(_d);
+						defInfo.put(_pair, _d);
+						for (final DefinitionStmt _defStmt : _d) {
+							MapUtils.putIntoCollectionInMap(useInfo, _defStmt, _pair);
+						}
 					}
-				}
-
-				// record use information
-				final Iterator<DefinitionStmt> _l = _defStmts.iterator();
-				final int _lEnd = _defStmts.size();
-
-				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final DefinitionStmt _defStmt = _l.next();
-					MapUtils.putIntoCollectionInMap(useInfo, _defStmt, _stmt);
 				}
 
 				// prune reaching def for further intra basic block processing
@@ -306,7 +297,7 @@ public final class LocalUseDefAnalysisv2
 
 	/**
 	 * Captures the definitions alive at the end of each basic block.
-	 *
+	 * 
 	 * @param listOfLocals is a list of the locals.
 	 * @param intraBB2local2exitDefStmts maps a basic block to a map from locals to definitions statements alive at the end of
 	 *            the basic block.

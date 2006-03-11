@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import java.util.ArrayList;
@@ -38,21 +37,19 @@ import soot.PatchingChain;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.UnitGraph;
 
 /**
- * This class provides use-def information for local variables in a method.  The analysis is performed at statement level.
- *
+ * This class provides use-def information for local variables in a method. The analysis is performed at statement level.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class LocalUseDefAnalysis
-		implements IUseDefInfo<DefinitionStmt, Stmt> {
+		implements IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> {
 
 	/**
 	 * A map from local and statement pair to a collection of def statement.
@@ -72,11 +69,11 @@ public final class LocalUseDefAnalysis
 	/**
 	 * A map from definition statement to a collection of statements.
 	 */
-	private final Map<DefinitionStmt, Collection<Stmt>> useInfo = new HashMap<DefinitionStmt, Collection<Stmt>>();
+	private final Map<DefinitionStmt, Collection<Pair<Local, Stmt>>> useInfo = new HashMap<DefinitionStmt, Collection<Pair<Local, Stmt>>>();
 
 	/**
 	 * Creates a new LocalDefsAnalysis object.
-	 *
+	 * 
 	 * @param graph is the control flow graph used to calculate the use-def info.
 	 * @pre graph != null
 	 */
@@ -98,7 +95,7 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
-	 *
+	 * 
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
 	 * @param method <i>ignored</i>.
@@ -106,13 +103,14 @@ public final class LocalUseDefAnalysis
 	 * @pre local != null and stmt != null
 	 * @post result != null
 	 */
-	public Collection<DefinitionStmt> getDefs(final Local local, final Stmt stmt, @SuppressWarnings("unused") final SootMethod method) {
+	public Collection<DefinitionStmt> getDefs(final Local local, final Stmt stmt,
+			@SuppressWarnings("unused") final SootMethod method) {
 		return Collections.unmodifiableCollection(MapUtils.queryCollection(defInfo, new Pair<Local, Stmt>(local, stmt)));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method <i>ignored</i>.
 	 */
 	public Collection<DefinitionStmt> getDefs(final Stmt useStmt, @SuppressWarnings("unused") final SootMethod method) {
@@ -138,18 +136,21 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Retrieves the uses of definitions at <code>stmt</code>.
-	 *
+	 * 
 	 * @param stmt in which a definition occurs.
 	 * @param method <i>ignored</i>.
 	 * @return a collection of statements.
 	 * @pre stmt != null
 	 * @post result != null
 	 */
-	public Collection<Stmt> getUses(final DefinitionStmt stmt, @SuppressWarnings("unused") final SootMethod method) {
+	public Collection<Pair<Local, Stmt>> getUses(final DefinitionStmt stmt,
+			@SuppressWarnings("unused") final SootMethod method) {
 		return MapUtils.queryCollection(useInfo, stmt);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
 	 */
 	public boolean isStable() {
@@ -158,11 +159,10 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Performs the analysis to calculate the info.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
 	 * @pre local2defs != null and listOfLocals != null
-	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 */
 	private void analyze(final BitSet[][] local2defs, final List<Local> listOfLocals) {
 		final IWorkBag<Stmt> _wb = new FIFOWorkBag<Stmt>();
@@ -217,14 +217,12 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Extracts the info encoded in bits and captures as occurring between entities.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param localList is a list of the locals.
 	 * @pre local2defs != null and listOfLocals != null
-	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 */
 	private void extract(final BitSet[][] local2defs, final List<Local> localList) {
-		final Collection<DefinitionStmt> _cache = new ArrayList<DefinitionStmt>();
 		final PairManager _pairMgr = new PairManager(false, true);
 
 		for (final Iterator<Stmt> _i = unitGraph.iterator(); _i.hasNext();) {
@@ -237,18 +235,20 @@ public final class LocalUseDefAnalysis
 
 				if (_ub.getValue() instanceof Local) {
 					final Local _local = (Local) _ub.getValue();
+					final Pair<Local, Stmt> _pair = _pairMgr.getPair(_local, _stmt);
 					final int _lindex = localList.indexOf(_local);
 					final BitSet _defs = _stmtDefSet[_lindex];
 
-					if (!(_defs == null || _defs.isEmpty())) {
-						_cache.clear();
+					if (_defs != null && !_defs.isEmpty()) {
 
 						for (int _k = _defs.nextSetBit(0); _k >= 0; _k = _defs.nextSetBit(_k + 1)) {
 							final DefinitionStmt _defStmt = (DefinitionStmt) stmtList.get(_k);
-							_cache.add(_defStmt);
-							MapUtils.getCollectionFromMap(useInfo, _defStmt).add(_stmt);
+							final Local _l = (Local) _defStmt.getLeftOp();
+							if (_l == _local) {
+								MapUtils.putIntoCollectionInMap(useInfo, _defStmt, _pair);
+								MapUtils.putIntoCollectionInMap(defInfo, _pair, _defStmt);
+							}
 						}
-						MapUtils.putAllIntoCollectionInMap(defInfo, _pairMgr.getPair(_local, _stmt), _cache);
 					}
 				}
 			}
@@ -257,14 +257,13 @@ public final class LocalUseDefAnalysis
 
 	/**
 	 * Captures definition info into <code>local2defs</code>.
-	 *
+	 * 
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
 	 * @param stmt2localIndices maps a stmt to the set of local indices
 	 * @return a collection of definition statements.
 	 * @pre local2defs != null and listOfLocals != null and stmt2localIndices != null
-	 * @pre listOfLocals.oclIsKindOf(List(Local))
-	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
+	 * @post result != null
 	 */
 	private Collection<Stmt> seedDefInfo(final BitSet[][] local2defs, final List<Local> listOfLocals,
 			final Map<Stmt, Collection<Integer>> stmt2localIndices) {
@@ -284,7 +283,7 @@ public final class LocalUseDefAnalysis
 			final DefinitionStmt _stmt = _i.next();
 			final Value _value = _stmt.getLeftOp();
 
-			if (_value instanceof Local) {
+			if (_value instanceof Local && listOfLocals.contains(_value)) {
 				final int _localIndex = listOfLocals.indexOf(_value);
 				final int _stmtIndex = stmtList.indexOf(_stmt);
 
