@@ -37,6 +37,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 import soot.jimple.FieldRef;
@@ -73,11 +74,19 @@ final class DependenceExtractor
 		 * @param entity for which the dependences are requested.
 		 * @param method in which <code>stmt</code> occurs.
 		 * @return a collection of dependences.
-		 * @pre analysis != null and entity != null and method != null
-		 * @post result != null and result.oclIsKindOf(Collection)
+		 * @pre analysis != null and stmt != null and method != null
+		 * @post result != null
 		 */
-		Collection<Object> getDependences(final IDependencyAnalysis<?, ?, ?, ?, ?, ?> analysis, final Object entity,
-				final SootMethod method);
+		Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method);
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * @param local DOCUMENT ME!
+		 * @param stmt DOCUMENT ME!
+		 * @return DOCUMENT ME!
+		 */
+		Object getEntityForIdentifierBasedDataDA(Local local, Stmt stmt);
 	}
 
 	/**
@@ -235,7 +244,7 @@ final class DependenceExtractor
 	 * @param criteriaBase of interest.
 	 * @return a collection of criteria.
 	 * @pre criteriaBase != null
-	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
+	 * @post result != null
 	 */
 	public <T> Collection<Stack<CallTriple>> getContextsFor(final T criteriaBase) {
 		final Collection<Stack<CallTriple>> _result = MapUtils.queryCollection(criteriabase2contexts, criteriaBase);
@@ -248,10 +257,21 @@ final class DependenceExtractor
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param local DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public Object getEntityForIdentifierBasedDataDA(final Local local, final Stmt stmt) {
+		return retriever.getEntityForIdentifierBasedDataDA(local, stmt);
+	}
+
+	/**
 	 * Sets the information that maps dependence id's to context retriever to be used.
 	 * 
 	 * @param map a map from dependence analysis id to context retriever to be used with it.
-	 * @pre map != null and map.oclIsKindOf(Map(Object, ICallingContextRetriever))
+	 * @pre map != null
 	 */
 	public void setDepID2ContextRetrieverMapping(final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> map) {
 		depID2ctxtRetriever.putAll(map);
@@ -261,7 +281,7 @@ final class DependenceExtractor
 	 * Retrieves a collection of dependence pairs based on last trigger set.
 	 * 
 	 * @return a collection of criteria.
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @post result != null
 	 */
 	Collection<?> getDependences() {
 		return Collections.unmodifiableCollection(dependences);
@@ -397,5 +417,4 @@ final class DependenceExtractor
 		}
 	}
 }
-
 // End of File

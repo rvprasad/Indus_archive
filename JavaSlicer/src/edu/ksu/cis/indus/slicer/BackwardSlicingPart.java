@@ -114,6 +114,12 @@ public class BackwardSlicingPart
 	}
 
 	/**
+	 * This controls if the generated slice criterion either preserves the control leaving the criterion (true) or preserves
+	 * the control reaching the criterion (false).
+	 */
+	private final boolean CONSIDER_EXECUTION = true;
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(BackwardSlicingPart.class);
@@ -187,7 +193,8 @@ public class BackwardSlicingPart
 					final Stack<CallTriple> _stack = _triple.getThird();
 					final InvokeExpr _expr = _stmt.getInvokeExpr();
 					for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-						_result |= engine.generateExprLevelSliceCriterion(_expr.getArgBox(_j), _stmt, _caller, true, _stack);
+						_result |= engine.generateExprLevelSliceCriterion(_expr.getArgBox(_j), _stmt, _caller,
+								CONSIDER_EXECUTION, _stack);
 					}
 				}
 				if (_params.cardinality() == _callee.getParameterCount()) {
@@ -269,6 +276,15 @@ public class BackwardSlicingPart
 		}
 
 		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see DependenceExtractor.IDependenceRetriver#getEntityForIdentifierBasedDataDA(soot.Local, soot.jimple.Stmt)
+	 */
+	public Object getEntityForIdentifierBasedDataDA(final Local local, final Stmt stmt) {
+		return new Pair<Local, Stmt>(local, stmt);
 	}
 
 	/**
@@ -560,10 +576,12 @@ public class BackwardSlicingPart
 		if (initMethod.getName().equals("<init>") && initMethod.getDeclaringClass().hasSuperclass()) {
 			final LocalUseDefAnalysisv2 _udl = new LocalUseDefAnalysisv2(engine.getBasicBlockGraphManager()
 					.getBasicBlockGraph(initMethod));
-			final Collection<Stmt> _uses = _udl.getUses((DefinitionStmt) bbg.getHead().getLeaderStmt(), initMethod);
+			final Collection<Pair<Local, Stmt>> _uses = _udl.getUses((DefinitionStmt) bbg.getHead().getLeaderStmt(),
+					initMethod);
 
-			for (final Iterator<Stmt> _i = _uses.iterator(); _i.hasNext();) {
-				final Stmt _stmt = _i.next();
+			for (final Iterator<Pair<Local, Stmt>> _i = _uses.iterator(); _i.hasNext();) {
+				final Pair<Local, Stmt> _pair = _i.next();
+				final Stmt _stmt = _pair.getSecond();
 
 				if (_stmt instanceof InvokeStmt) {
 					final SootMethod _called = _stmt.getInvokeExpr().getMethod();
@@ -668,6 +686,7 @@ public class BackwardSlicingPart
 			LOGGER.debug("recordCallInfoForParameterProcessing() - END");
 		}
 	}
+
 }
 
 // End of File

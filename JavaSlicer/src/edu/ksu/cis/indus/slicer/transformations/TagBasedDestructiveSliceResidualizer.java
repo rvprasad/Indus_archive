@@ -22,16 +22,13 @@ import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysisv2;
 
 import java.util.ArrayList;
@@ -57,7 +54,6 @@ import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
-
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
@@ -79,18 +75,14 @@ import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
-
 import soot.jimple.toolkits.scalar.ConditionalBranchFolder;
 import soot.jimple.toolkits.scalar.LocalCreation;
 import soot.jimple.toolkits.scalar.NopEliminator;
 import soot.jimple.toolkits.scalar.UnconditionalBranchFolder;
 import soot.jimple.toolkits.scalar.UnreachableCodeEliminator;
-
 import soot.tagkit.Host;
 import soot.tagkit.Tag;
-
 import soot.toolkits.scalar.UnusedLocalEliminator;
-
 import soot.util.Chain;
 
 /**
@@ -106,14 +98,14 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * A factory to create pair to contain members of a class.
 	 */
-	static final IFactory<Pair<Collection<SootMethod>, Collection<SootField>>> pairValueFactory = new IFactory<Pair<Collection<SootMethod>, Collection<SootField>>>() {
+	static final IFactory<Pair<Collection<SootMethod>, Collection<SootField>>> PAIR_VALUE_FACTORY = new IFactory<Pair<Collection<SootMethod>, Collection<SootField>>>() {
 
 		public Pair<Collection<SootMethod>, Collection<SootField>> create() {
-			return new Pair<Collection<SootMethod>, Collection<SootField>>(new ArrayList<SootMethod>(), new ArrayList<SootField>());
+			return new Pair<Collection<SootMethod>, Collection<SootField>>(new ArrayList<SootMethod>(),
+					new ArrayList<SootField>());
 		}
 	};
 
-	
 	/**
 	 * This class residualizes statements.
 	 * 
@@ -129,7 +121,6 @@ public final class TagBasedDestructiveSliceResidualizer
 		 */
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
 
-	
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -202,7 +193,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				if (localUseDef == null) {
 					localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(currMethod));
 				}
-				
+
 				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
 				@SuppressWarnings("unchecked") final Iterator<DefinitionStmt> _j = _defs.iterator();
@@ -310,7 +301,7 @@ public final class TagBasedDestructiveSliceResidualizer
 					clazz.removeMethod(_init);
 
 					final Pair<Collection<SootMethod>, Collection<SootField>> _pair;
-					_pair = MapUtils.getFromMapUsingFactory(class2members, clazz, pairValueFactory);
+					_pair = MapUtils.getFromMapUsingFactory(class2members, clazz, PAIR_VALUE_FACTORY);
 					final Collection<SootMethod> _clazzMethodsToKill = _pair.getFirst();
 					_clazzMethodsToKill.remove(_init);
 				}
@@ -513,7 +504,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * Local use-def analysis to be used during residualization.
 	 */
-	IUseDefInfo<DefinitionStmt, Stmt> localUseDef;
+	IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> localUseDef;
 
 	/**
 	 * This tracks the methods of the current class that should be deleted.
@@ -584,6 +575,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
 	@Override public void callback(final SootClass clazz) {
@@ -602,6 +595,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
 	@Override public void callback(final SootField field) {
@@ -615,16 +610,18 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
 	@Override public void callback(final SootMethod method) {
 		if (currClass != null) {
 			consolidateMethod();
-			
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Processing method " + method);
 			}
-			
+
 			currMethod = method;
 			methodsToKill.remove(method);
 			localsToKeep.clear();
@@ -652,6 +649,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	@Override public void consolidate() {
@@ -695,6 +694,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -771,6 +772,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -813,7 +816,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
 			final Chain _ch = _body.getUnits();
 			final Jimple _jimple = Jimple.v();
-			
+
 			if (LOGGER.isDebugEnabled()) {
 				final List<Stmt> _l = new ArrayList<Stmt>(_ch);
 				final StringBuffer _sb = new StringBuffer();
@@ -823,7 +826,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 				LOGGER.debug("Stmts being NOP-ed: " + _sb);
 			}
-			
+
 			for (final Iterator<Stmt> _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
 				final Stmt _stmt = _i.next();
 				final Object _pred = _ch.getPredOf(_stmt);
@@ -838,7 +841,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 			}
 			stmtsToBeNOPed.clear();
-			
+
 			// replace statements with new statements as recorded earlier.
 			for (final Iterator<Map.Entry<Stmt, Stmt>> _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
 				final Map.Entry<Stmt, Stmt> _entry = _i.next();

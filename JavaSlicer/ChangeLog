@@ -1,3 +1,20 @@
+2006-03-11 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java: 
+	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java: 
+	* src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java: 
+		- added a new method getEntityForIdentifierBasedDA() to DependenceExtractor.IDependenceRetriever
+		- every slicing part implemented this method to provide an uniform access to identifier based data dependence info
+		- similar method was exposed by the DependenceExtractor for purposes of SlicingEngine.
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
+		- formatting
+		- changed the logic of generateCriteriaForLocals() to handle dependence targets of both Stmt and 
+		Pair<Local, Stmt> types.  This change leveraged the new method introduced into DependenceExtractor.
+
+	* src/edu/ksu/cis/indus/slicer/transformations/TagBasedDestructiveSliceResidualizer.java: 
+		- ripple effect of the change to the type of dependents returned by IdentifierBasedDataDA.
+
 2006-03-07 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java:

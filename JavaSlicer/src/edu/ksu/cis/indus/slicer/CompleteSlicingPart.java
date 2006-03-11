@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,8 +14,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,40 +23,38 @@ import java.util.HashSet;
 import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.IdentityStmt;
 import soot.jimple.Stmt;
 
-
 /**
  * This class provides the logic to detect parts of a complete (backward and forward) slice.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class CompleteSlicingPart
-  implements IDirectionSensitivePartOfSlicingEngine {
-	/** 
+		implements IDirectionSensitivePartOfSlicingEngine {
+
+	/**
 	 * This part provides the backward slice creation logic.
 	 */
 	private final BackwardSlicingPart backwardPart;
 
-	/** 
-	 * This part provides the forward slice creation logic.
-	 */
-	private final ForwardSlicingPart forwardPart;
-
-	/** 
+	/**
 	 * The engine with which this part is a part of.
 	 */
 	private final SlicingEngine engine;
 
 	/**
+	 * This part provides the forward slice creation logic.
+	 */
+	private final ForwardSlicingPart forwardPart;
+
+	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theEngine of which this part is a part of.
-	 *
 	 * @pre theEngine != null
 	 */
 	public CompleteSlicingPart(final SlicingEngine theEngine) {
@@ -67,26 +64,19 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod)
+	 * {@inheritDoc}
+	 * 
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
 	 */
-	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection<Object> _result = new HashSet<Object>();
-		final Object _direction = analysis.getDirection();
-
-		/*
-		 * We need getDependees() for forward, backward, and bidirectional.
-		 */ 
-		_result.addAll(analysis.getDependees(entity, method));
-
-		if (_direction.equals(Direction.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependents(entity, method));
-		}
-		return _result;
+	public boolean continueProcessing() {
+		return backwardPart.continueProcessing() || forwardPart.continueProcessing();
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod,     soot.SootMethod,
-	 * 		soot.jimple.Stmt)
+	 * {@inheritDoc}
+	 * 
+	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod, soot.SootMethod,
+	 *      soot.jimple.Stmt)
 	 */
 	public void generateCriteriaForTheCallToMethod(final SootMethod callee, final SootMethod caller, final Stmt callStmt) {
 		backwardPart.generateCriteriaForTheCallToMethod(callee, caller, callStmt);
@@ -94,8 +84,10 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#generateCriteriaToIncludeCallees(soot.jimple.Stmt,
-	 * 		soot.SootMethod, java.util.Collection)
+	 *      soot.SootMethod, java.util.Collection)
 	 */
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
 		backwardPart.generateCriteriaToIncludeCallees(stmt, caller, callees);
@@ -103,6 +95,30 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod)
+	 */
+	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection<Object> _result = new HashSet<Object>();
+		_result.addAll(backwardPart.getDependences(analysis, ((Pair) entity).getFirst(), method));
+		_result.addAll(forwardPart.getDependences(analysis, ((Pair) entity).getSecond(), method));
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see DependenceExtractor.IDependenceRetriver#getEntityForIdentifierBasedDataDA(soot.Local, soot.jimple.Stmt)
+	 */
+	public Object getEntityForIdentifierBasedDataDA(final Local local, final Stmt stmt) {
+		return new Pair<Object, Object>(backwardPart.getEntityForIdentifierBasedDataDA(local, stmt), forwardPart
+				.getEntityForIdentifierBasedDataDA(local, stmt));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
@@ -111,6 +127,8 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processNewExpr(Stmt, SootMethod)
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
@@ -119,6 +137,8 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(IdentityStmt, SootMethod)
 	 */
 	public void processParameterRef(final IdentityStmt stmt, final SootMethod method) {
@@ -127,6 +147,8 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
 	 */
 	public void reset() {
@@ -135,6 +157,8 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
 	public Collection<ValueBox> retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
@@ -145,6 +169,8 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
 	public Collection<ValueBox> retrieveValueBoxesToTransformStmt(final Stmt stmt) {
@@ -152,13 +178,6 @@ public class CompleteSlicingPart
 		_result.addAll(backwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		_result.addAll(forwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		return _result;
-	}
-
-	/** 
-	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
-	 */
-	public boolean continueProcessing() {
-		return backwardPart.continueProcessing() || forwardPart.continueProcessing();
 	}
 }
 

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,9 +16,7 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.annotations.AEmpty;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
@@ -35,7 +32,6 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
@@ -45,31 +41,30 @@ import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
 
-
 /**
  * This class provides the logic to detect parts of a forward slice.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ForwardSlicingPart
-  implements IDirectionSensitivePartOfSlicingEngine {
-	/** 
+		implements IDirectionSensitivePartOfSlicingEngine {
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ForwardSlicingPart.class);
 
-	/** 
+	/**
 	 * The engine with which this part is a part of.
 	 */
 	private final SlicingEngine engine;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theEngine of which this part is a part of.
-	 *
 	 * @pre theEngine != null
 	 */
 	ForwardSlicingPart(final SlicingEngine theEngine) {
@@ -77,36 +72,27 @@ public class ForwardSlicingPart
 	}
 
 	/**
-	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
+	 * This implementation always returns <code>false</code>. {@inheritDoc}
+	 * 
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
 	 */
-	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
-		final Collection<Object> _result = new HashSet<Object>();
-		final Object _dir = analysis.getDirection();
-
-		if (_dir.equals(Direction.FORWARD_DIRECTION)) {
-			_result.addAll(analysis.getDependees(entity, method));
-		} else if (_dir.equals(Direction.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependents(entity, method));
-		} else if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction. -- "
-				+ analysis.getClass() + " - " + _dir);
-		}
-
-		return _result;
+	@AEmpty(value = "false") public boolean continueProcessing() {
+		return false;
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod,     soot.SootMethod,
-	 * 		soot.jimple.Stmt)
+	 * {@inheritDoc}
+	 * 
+	 * @see IDirectionSensitivePartOfSlicingEngine#generateCriteriaForTheCallToMethod(soot.SootMethod, soot.SootMethod,
+	 *      soot.jimple.Stmt)
 	 */
 	public void generateCriteriaForTheCallToMethod(final SootMethod callee, final SootMethod caller, final Stmt callStmt) {
 		/*
-		 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
-		 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
-		 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
-		 * parameters to suck in the arguments.  So, we generate criteria only for the invocation expression and
-		 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
-		 * invoke expressions are handled differently.
+		 * _stmt may be an assignment statement. Hence, we want the control to reach the statement but not leave it. However,
+		 * the execution of the invoke expression should be considered as it is requied to reach the callee. Likewise, we want
+		 * to include the expression but not all arguments. We rely on the reachable parameters to suck in the arguments. So,
+		 * we generate criteria only for the invocation expression and not the arguments. Refer to
+		 * transformAndGenerateToNewCriteriaForXXXX for information about how invoke expressions are handled differently.
 		 */
 		engine.generateStmtLevelSliceCriterion(callStmt, caller, true);
 		engine.includeInSlice(callStmt.getInvokeExprBox());
@@ -118,15 +104,18 @@ public class ForwardSlicingPart
 
 		if (callStmt instanceof AssignStmt) {
 			final AssignStmt _defStmt = (AssignStmt) callStmt;
-			engine.generateExprLevelSliceCriterion(_defStmt.getLeftOpBox(), callStmt, caller, false);
+			engine.generateExprLevelSliceCriterion(_defStmt.getLeftOpBox(), callStmt, caller, true);
 		}
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#generateCriteriaToIncludeCallees(soot.jimple.Stmt,
-	 * 		soot.SootMethod, java.util.Collection)
+	 *      soot.SootMethod, java.util.Collection)
 	 */
-	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection<SootMethod> callees) {
+	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller,
+			final Collection<SootMethod> callees) {
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 
 		if (_expr instanceof InstanceInvokeExpr) {
@@ -158,10 +147,59 @@ public class ForwardSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see DependenceExtractor.IDependenceRetriver#getDependences(IDependencyAnalysis, Object, SootMethod )
+	 */
+	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
+		final Collection<Object> _result = new HashSet<Object>();
+		final Object _dir = analysis.getDirection();
+
+		if (_dir.equals(Direction.FORWARD_DIRECTION)) {
+			_result.addAll(analysis.getDependees(entity, method));
+		} else if (_dir.equals(Direction.BI_DIRECTIONAL)) {
+			_result.addAll(analysis.getDependents(entity, method));
+		} else if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD in direction. -- "
+					+ analysis.getClass() + " - " + _dir);
+		}
+
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see DependenceExtractor.IDependenceRetriver#getEntityForIdentifierBasedDataDA(soot.Local, soot.jimple.Stmt)
+	 */
+	public Object getEntityForIdentifierBasedDataDA(@SuppressWarnings("unused") final Local local, final Stmt stmt) {
+		final Object _result;
+		if (stmt instanceof DefinitionStmt) {
+			_result = stmt;
+		} else {
+			_result = null;
+		}
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
-		engine.generateStmtLevelSliceCriterion(stmt, method, false);
+		engine.generateStmtLevelSliceCriterion(stmt, method, true);
+
+		if (stmt instanceof DefinitionStmt) {
+			final Collection<ValueBox> _boxes = ((DefinitionStmt) stmt).getRightOp().getUseBoxes();
+			for (final ValueBox _box : _boxes) {
+				final Value _v = _box.getValue();
+				if (_v == local) {
+					engine.generateExprLevelSliceCriterion(_box, stmt, method, false);
+					break;
+				}
+			}
+		}
 
 		if (stmt.containsInvokeExpr()) {
 			final Collection<ValueBox> _useBoxes = stmt.getInvokeExpr().getUseBoxes();
@@ -195,16 +233,20 @@ public class ForwardSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processNewExpr(Stmt, SootMethod)
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
 		if (stmt instanceof AssignStmt) {
-            final AssignStmt _as = (AssignStmt) stmt;
-            engine.generateExprLevelSliceCriterion(_as.getLeftOpBox(), stmt, method, false);
-        }
+			final AssignStmt _as = (AssignStmt) stmt;
+			engine.generateExprLevelSliceCriterion(_as.getLeftOpBox(), stmt, method, false);
+		}
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(IdentityStmt, SootMethod)
 	 */
 	public void processParameterRef(final IdentityStmt stmt, final SootMethod method) {
@@ -212,6 +254,8 @@ public class ForwardSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
 	 */
 	@AEmpty public void reset() {
@@ -219,6 +263,8 @@ public class ForwardSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
 	public Collection<ValueBox> retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
@@ -227,7 +273,7 @@ public class ForwardSlicingPart
 
 		final Value _value = valueBox.getValue();
 
-		//if it is an invocation expression, we do not want to include the arguments/sub-expressions. 
+		// if it is an invocation expression, we do not want to include the arguments/sub-expressions.
 		// in case of instance invocation, we do want to include the receiver position expression.
 		if (_value instanceof InvokeExpr) {
 			_valueBoxes.addAll(_value.getUseBoxes());
@@ -238,12 +284,12 @@ public class ForwardSlicingPart
 		}
 
 		/*
-		 *  Note that l-position is the lhs of an assignment statement whereas an l-value is value that occurs the l-position
-		 * and is defined.  In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
+		 * Note that l-position is the lhs of an assignment statement whereas an l-value is value that occurs the l-position
+		 * and is defined. In a[i] = v; a is the l-value whereas i is a r-value in the l-position and v is r-value in the
 		 * r-position.
 		 */
 
-		// we include the unincluded l-values in case the given value box appears in the r-position. 
+		// we include the unincluded l-values in case the given value box appears in the r-position.
 		if (stmt instanceof DefinitionStmt && ((DefinitionStmt) stmt).getLeftOp().getUseBoxes().contains(valueBox)) {
 			_valueBoxes.addAll(engine.getCollector().getUncollected(stmt.getDefBoxes()));
 		}
@@ -252,6 +298,8 @@ public class ForwardSlicingPart
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
 	public Collection<ValueBox> retrieveValueBoxesToTransformStmt(final Stmt stmt) {
@@ -260,10 +308,9 @@ public class ForwardSlicingPart
 
 	/**
 	 * Generates criteria to include statements that pop the arguments of the call stack in the callees.
-	 *
+	 * 
 	 * @param argIndex is the index of the argument whose read should be included.
 	 * @param callees are the methods called.
-	 *
 	 * @pre argIndex != null and callees != null
 	 * @pre callees.oclIsKindOf(Collection(SootMethod))
 	 * @pre callees->forall(o | o.getParameterCount() > argIndex)
@@ -290,15 +337,6 @@ public class ForwardSlicingPart
 				}
 			}
 		}
-	}
-
-	/** 
-	 * This implementation always returns <code>false</code>.
-	 * 
-	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
-	 */
-	@AEmpty(value="false") public boolean continueProcessing() {
-		return false;
 	}
 }
 

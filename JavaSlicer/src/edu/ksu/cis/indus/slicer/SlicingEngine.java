@@ -34,7 +34,6 @@ import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AnalysesController;
 
 import java.util.ArrayList;
@@ -76,14 +75,29 @@ import soot.tagkit.Host;
 public final class SlicingEngine {
 
 	/**
+	 * This predicate can be used to filter out java.lang.Thread.start methods from a set of methods.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private static class NonStartMethodPredicate
+			implements IPredicate<SootMethod> {
+
+		/**
+		 * {@inheritDoc}
+		 * 
+		 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(java.lang.Object)
+		 */
+		public <T1 extends SootMethod> boolean evaluate(final T1 object) {
+			return !Util.isStartMethod(object);
+		}
+	}
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Logger LOGGER = LoggerFactory.getLogger(SlicingEngine.class);
-
-	/**
-	 * This collects the parts of the system that make up the slice.
-	 */
-	private SliceCollector collector;
 
 	/**
 	 * The object used to realize the "active" part of this object.
@@ -91,27 +105,31 @@ public final class SlicingEngine {
 	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
 	/**
-	 * The controller used to access the dependency analysis info during slicing.
-	 */
-	private AnalysesController controller;
-
-	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
 	/**
-	 * The closure used to extract dependence information based on slice direction. See <code>setSliceType()</code> for
-	 * details.
+	 * This caches the call stack of the criteria currently being processed. It will hold the call-site of the current method
+	 * in which the processing is occurring. This will NOT include the current method being processed at TOS unless there is
+	 * recursion.
 	 */
-	private final DependenceExtractor dependenceExtractor = new DependenceExtractor(this);
+	private Stack<CallTriple> callStackCache;
 
 	/**
-	 * The work bag used during slicing.
-	 * 
-	 * @invariant workbag != null
+	 * DOCUMENT ME!
 	 */
-	private final IWorkBag<ISliceCriterion> workbag = new FIFOWorkBag<ISliceCriterion>();
+	private SimpleNodeGraph<Object> callStringGraph;
+
+	/**
+	 * This provides the call graph information in the system being sliced.
+	 */
+	private ICallGraphInfo cgi;
+
+	/**
+	 * This collects the parts of the system that make up the slice.
+	 */
+	private SliceCollector collector;
 
 	/**
 	 * The collection of control based Dependence analysis to be used during slicing. Synchronization, Divergence, and Control
@@ -120,24 +138,9 @@ public final class SlicingEngine {
 	private Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> controlflowBasedDAs = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
 
 	/**
-	 * This provides the call graph information in the system being sliced.
+	 * The controller used to access the dependency analysis info during slicing.
 	 */
-	private ICallGraphInfo cgi;
-
-	/**
-	 * This provides the logic to determine parts of the slice that are direction dependent.
-	 */
-	private IDirectionSensitivePartOfSlicingEngine directionSensitiveInfo;
-
-	/**
-	 * The system being sliced.
-	 */
-	private IEnvironment system;
-
-	/**
-	 * This maps new expressions to corresponding init call sites.
-	 */
-	private INewExpr2InitMapper initMapper;
+	private AnalysesController controller;
 
 	/**
 	 * The list of slice criteria.
@@ -147,11 +150,20 @@ public final class SlicingEngine {
 	private List<ISliceCriterion> criteria = new ArrayList<ISliceCriterion>();
 
 	/**
-	 * The direction of the slice. It's default value is <code>BACKWARD_SLICE</code>.
-	 * 
-	 * @invariant sliceTypes.contains(sliceType)
+	 * The closure used to extract dependence information based on slice direction. See
+	 * <code>setSliceType()</code> for details.
 	 */
-	private SliceType sliceType = SliceType.BACKWARD_SLICE;
+	private final DependenceExtractor dependenceExtractor = new DependenceExtractor(this);
+
+	/**
+	 * This provides the logic to determine parts of the slice that are direction dependent.
+	 */
+	private IDirectionSensitivePartOfSlicingEngine directionSensitiveInfo;
+
+	/**
+	 * This maps new expressions to corresponding init call sites.
+	 */
+	private INewExpr2InitMapper initMapper;
 
 	/**
 	 * This predicate is used to filter out java.lang.Thread.start methods from a set of methods.
@@ -164,16 +176,28 @@ public final class SlicingEngine {
 	private SpecificationBasedScopeDefinition sliceScope;
 
 	/**
-	 * This caches the call stack of the criteria currently being processed. It will hold the call-site of the current method
-	 * in which the processing is occurring. This will NOT include the current method being processed at TOS unless there is
-	 * recursion.
+	 * The direction of the slice. It's default value is <code>BACKWARD_SLICE</code>.
+	 * 
+	 * @invariant sliceTypes.contains(sliceType)
 	 */
-	private Stack<CallTriple> callStackCache;
+	private SliceType sliceType = SliceType.BACKWARD_SLICE;
+
+	/**
+	 * The system being sliced.
+	 */
+	private IEnvironment system;
 
 	/**
 	 * This caches the informaiton - is interference dependence being used in this execution?
 	 */
 	private boolean useInterferenceDACache;
+
+	/**
+	 * The work bag used during slicing.
+	 * 
+	 * @invariant workbag != null
+	 */
+	private final IWorkBag<ISliceCriterion> workbag = new FIFOWorkBag<ISliceCriterion>();
 
 	/**
 	 * Creates a new SlicingEngine object.
@@ -185,20 +209,18 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * This predicate can be used to filter out java.lang.Thread.start methods from a set of methods.
+	 * Places the given call site on top of the call stack to simulate a call. The callsite comprises of the caller and the
+	 * invocation statement in the caller.
 	 * 
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
+	 * @param callsite is the call site.
+	 * @pre callsite != null
 	 */
-	private static class NonStartMethodPredicate
-			implements IPredicate<SootMethod> {
-
-		/**
-		 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(java.lang.Object)
-		 */
-		public <T1 extends SootMethod> boolean evaluate(T1 object) {
-			return !Util.isStartMethod(object);
+	public void enterMethod(final CallTriple callsite) {
+		if (callsite != null) {
+			if (callStackCache == null) {
+				callStackCache = new Stack<CallTriple>();
+			}
+			callStackCache.push(callsite);
 		}
 	}
 
@@ -209,6 +231,88 @@ public final class SlicingEngine {
 	 */
 	public IActivePart getActivePart() {
 		return activePart;
+	}
+
+	/**
+	 * Retrieves the slice collector being used by this instance of the slice engine.
+	 * 
+	 * @return the slice collector
+	 * @post result != null
+	 */
+	public SliceCollector getCollector() {
+		return collector;
+	}
+
+	/**
+	 * Retrieves the value in <code>system</code>.
+	 * 
+	 * @return the value in <code>system</code>.
+	 */
+	public IEnvironment getSystem() {
+		return system;
+	}
+
+	/**
+	 * Checks if the processing is embedded in a calling context.
+	 * 
+	 * @return <code>true</code> if the processing is embedded in a calling context; <code>false</code>, otherwise.
+	 */
+	public boolean ifInsideContext() {
+		return callStackCache != null && !callStackCache.isEmpty();
+	}
+
+	/**
+	 * Initializes the slicing engine.
+	 * 
+	 * @throws IllegalStateException when the tag name is not set.
+	 */
+	public void initialize() {
+		if (collector.getTagName() == null) {
+			final String _temp = "Please set the tag name before executing the engine.";
+			LOGGER.error(_temp);
+			throw new IllegalStateException(_temp);
+		}
+
+		useInterferenceDACache = controller.getAnalyses(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) != null;
+	}
+
+	/**
+	 * Resets internal data structures and removes all references to objects provided at initialization time. For other
+	 * operations to be meaningful following a call to this method, the user should call <code>initialize</code> before
+	 * calling any other methods.
+	 */
+	public void reset() {
+		cgi = null;
+		collector.reset();
+		callStackCache = null;
+		criteria.clear();
+		activePart.activate();
+
+		callStringGraph = new SimpleNodeGraph<Object>();
+		callStringGraph.getNode(null);
+
+		if (directionSensitiveInfo != null) {
+			directionSensitiveInfo.reset();
+		}
+
+		workbag.clear();
+	}
+
+	/**
+	 * Pops the TOS of the call stack.
+	 * 
+	 * @return the callsite from which the processing returned.
+	 */
+	public CallTriple returnFromMethod() {
+		CallTriple _result = null;
+
+		if (callStackCache != null) {
+			if (ifInsideContext()) {
+				_result = callStackCache.pop();
+			}
+		}
+
+		return _result;
 	}
 
 	/**
@@ -232,7 +336,7 @@ public final class SlicingEngine {
 					|| _id.equals(IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA)
 					|| _id.equals(IDependencyAnalysis.DependenceSort.DIVERGENCE_DA)
 					|| _id.equals(IDependencyAnalysis.DependenceSort.READY_DA)) {
-				controlflowBasedDAs.addAll((Collection<IDependencyAnalysis>) controller.getAnalyses(_id));
+				controlflowBasedDAs.addAll((Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) controller.getAnalyses(_id));
 			}
 		}
 	}
@@ -255,16 +359,6 @@ public final class SlicingEngine {
 	 */
 	public void setCgi(final ICallGraphInfo callgraph) {
 		cgi = callgraph;
-	}
-
-	/**
-	 * Retrieves the slice collector being used by this instance of the slice engine.
-	 * 
-	 * @return the slice collector
-	 * @post result != null
-	 */
-	public SliceCollector getCollector() {
-		return collector;
 	}
 
 	/**
@@ -373,15 +467,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Retrieves the value in <code>system</code>.
-	 * 
-	 * @return the value in <code>system</code>.
-	 */
-	public IEnvironment getSystem() {
-		return system;
-	}
-
-	/**
 	 * Sets the name of the tag to be used identify the elements of the AST belonging to the slice.
 	 * 
 	 * @param tagName is the name of the tag
@@ -389,85 +474,6 @@ public final class SlicingEngine {
 	 */
 	public void setTagName(final String tagName) {
 		collector.setTagName(tagName);
-	}
-
-	/**
-	 * Places the given call site on top of the call stack to simulate a call. The callsite comprises of the caller and the
-	 * invocation statement in the caller.
-	 * 
-	 * @param callsite is the call site.
-	 * @pre callsite != null
-	 */
-	public void enterMethod(final CallTriple callsite) {
-		if (callsite != null) {
-			if (callStackCache == null) {
-				callStackCache = new Stack<CallTriple>();
-			}
-			callStackCache.push(callsite);
-		}
-	}
-
-	/**
-	 * Checks if the processing is embedded in a calling context.
-	 * 
-	 * @return <code>true</code> if the processing is embedded in a calling context; <code>false</code>, otherwise.
-	 */
-	public boolean ifInsideContext() {
-		return callStackCache != null && !callStackCache.isEmpty();
-	}
-
-	/**
-	 * Initializes the slicing engine.
-	 * 
-	 * @throws IllegalStateException when the tag name is not set.
-	 */
-	public void initialize() {
-		if (collector.getTagName() == null) {
-			final String _temp = "Please set the tag name before executing the engine.";
-			LOGGER.error(_temp);
-			throw new IllegalStateException(_temp);
-		}
-
-		useInterferenceDACache = controller.getAnalyses(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) != null;
-	}
-
-	/**
-	 * Resets internal data structures and removes all references to objects provided at initialization time. For other
-	 * operations to be meaningful following a call to this method, the user should call <code>initialize</code> before
-	 * calling any other methods.
-	 */
-	public void reset() {
-		cgi = null;
-		collector.reset();
-		callStackCache = null;
-		criteria.clear();
-		activePart.activate();
-
-		callStringGraph = new SimpleNodeGraph<Object>();
-		callStringGraph.getNode(null);
-
-		if (directionSensitiveInfo != null) {
-			directionSensitiveInfo.reset();
-		}
-
-		workbag.clear();
-	}
-
-	/**
-	 * Pops the TOS of the call stack.
-	 * 
-	 * @return the callsite from which the processing returned.
-	 */
-	public CallTriple returnFromMethod() {
-		CallTriple _result = null;
-
-		if (callStackCache != null) {
-			if (ifInsideContext()) {
-				_result = callStackCache.pop();
-			}
-		}
-
-		return _result;
 	}
 
 	/**
@@ -527,50 +533,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Retrieves the basic block graph manager used in the engine.
-	 * 
-	 * @return the basic block graph manager.
-	 * @post result != null
-	 */
-	BasicBlockGraphMgr getBasicBlockGraphManager() {
-		return bbgMgr;
-	}
-
-	/**
-	 * Retrieves the value in <code>cgi</code>.
-	 * 
-	 * @return the value in <code>cgi</code>.
-	 */
-	ICallGraphInfo getCgi() {
-		return cgi;
-	}
-
-	/**
-	 * Retrieves a copy of <code>callStackCache</code>.
-	 * 
-	 * @return a copy of <code>callStackCache</code>.
-	 */
-	Stack<CallTriple> getCopyOfCallStackCache() {
-		final Stack<CallTriple> _result;
-
-		if (callStackCache != null) {
-			_result = callStackCache.clone();
-		} else {
-			_result = null;
-		}
-		return _result;
-	}
-
-	/**
-	 * Retrieves the value in <code>initMapper</code>.
-	 * 
-	 * @return the value in <code>initMapper</code>.
-	 */
-	INewExpr2InitMapper getInitMapper() {
-		return initMapper;
-	}
-
-	/**
 	 * Generates new slice criterion that captures the sites that invoke the given method.
 	 * 
 	 * @param method is the method whose calling sites needs to be included in the slice.
@@ -612,28 +574,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Specialized form of <code>generateSliceExprCriterion</code> that generates the criterion against the given call stack
-	 * instead of the current call stack.
-	 * 
-	 * @param valueBox is the program point for which slice criterion should be generated.
-	 * @param stmt is the statement containing <code>valueBox</code>.
-	 * @param method is the method containing <code>stmt</code>.
-	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
-	 *            reaching it.
-	 * @param callStack to use instead of the current call stack.
-	 * @return <code>true</code> if the expression was previously not in the slice; <code>false</code>, otherwise.
-	 * @pre valueBox != null and stmt != null and method != null and callstack != null
-	 */
-	boolean generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
-			final boolean considerExecution, final Stack<CallTriple> callStack) {
-		final Stack<CallTriple> _stack = callStackCache;
-		callStackCache = callStack;
-		final boolean _result = generateExprLevelSliceCriterion(valueBox, stmt, method, considerExecution);
-		callStackCache = _stack;
-		return _result;
-	}
-
-	/**
 	 * Generates slice criterion for teh given program point.
 	 * 
 	 * @param valueBox is the program point for which slice criterion should be generated.
@@ -670,6 +610,28 @@ public final class SlicingEngine {
 			}
 			_result = false;
 		}
+		return _result;
+	}
+
+	/**
+	 * Specialized form of <code>generateSliceExprCriterion</code> that generates the criterion against the given call stack
+	 * instead of the current call stack.
+	 * 
+	 * @param valueBox is the program point for which slice criterion should be generated.
+	 * @param stmt is the statement containing <code>valueBox</code>.
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
+	 *            reaching it.
+	 * @param callStack to use instead of the current call stack.
+	 * @return <code>true</code> if the expression was previously not in the slice; <code>false</code>, otherwise.
+	 * @pre valueBox != null and stmt != null and method != null and callstack != null
+	 */
+	boolean generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+			final boolean considerExecution, final Stack<CallTriple> callStack) {
+		final Stack<CallTriple> _stack = callStackCache;
+		callStackCache = callStack;
+		final boolean _result = generateExprLevelSliceCriterion(valueBox, stmt, method, considerExecution);
+		callStackCache = _stack;
 		return _result;
 	}
 
@@ -727,6 +689,61 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Retrieves the basic block graph manager used in the engine.
+	 * 
+	 * @return the basic block graph manager.
+	 * @post result != null
+	 */
+	BasicBlockGraphMgr getBasicBlockGraphManager() {
+		return bbgMgr;
+	}
+
+	/**
+	 * Retrieves the value in <code>cgi</code>.
+	 * 
+	 * @return the value in <code>cgi</code>.
+	 */
+	ICallGraphInfo getCgi() {
+		return cgi;
+	}
+
+	/**
+	 * Retrieves a copy of <code>callStackCache</code>.
+	 * 
+	 * @return a copy of <code>callStackCache</code>.
+	 */
+	Stack<CallTriple> getCopyOfCallStackCache() {
+		final Stack<CallTriple> _result;
+
+		if (callStackCache != null) {
+			_result = callStackCache.clone();
+		} else {
+			_result = null;
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the value in <code>initMapper</code>.
+	 * 
+	 * @return the value in <code>initMapper</code>.
+	 */
+	INewExpr2InitMapper getInitMapper() {
+		return initMapper;
+	}
+
+	/**
+	 * Includes the given host in the slice.
+	 * 
+	 * @param host to be included in the slice.
+	 * @pre host != null
+	 * @post not isNotIncludedInSlice(host)
+	 */
+	void includeInSlice(final Host host) {
+		collector.includeInSlice(host);
+	}
+
+	/**
 	 * Includes the given method and it's declaring class in the slice.
 	 * 
 	 * @param method to be included in the slice.
@@ -753,45 +770,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Sets the value of <code>callStackCache</code>.
-	 * 
-	 * @param callStack the new value of <code>callStackCache</code>.
-	 */
-	private void setCallStackCache(final Stack<CallTriple> callStack) {
-		callStackCache = callStack;
-	}
-
-	/**
-	 * Sets the direction and the calling context on the given criteria.
-	 * 
-	 * @param theCriteria a collection of criteria
-	 * @pre theCriteria != null
-	 */
-	private void setContext(final Collection<ISliceCriterion> theCriteria) {
-		if (callStackCache != null) {
-			final Iterator<ISliceCriterion> _i = theCriteria.iterator();
-			final int _iEnd = theCriteria.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final ISliceCriterion _criterion = _i.next();
-
-				_criterion.setCallStack(callStackCache.clone());
-			}
-		}
-	}
-
-	/**
-	 * Checks if the given host is not included in the slice.
-	 * 
-	 * @param host to be checked.
-	 * @return <code>true</code> if the host is not included in the slice; <code>false</code>, otherwise.
-	 * @pre host != null
-	 */
-	private boolean isNotIncludedInSlice(final Host host) {
-		return !collector.hasBeenCollected(host);
-	}
-
-	/**
 	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
 	 * the given dependency analyses.
 	 * 
@@ -801,7 +779,7 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null and das != null
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
-	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method,
+	private void generateCriteriaBasedOnStmtLevelDependences(final Stmt stmt, final SootMethod method,
 			final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaBasedOnDependences(Stmt stmt=" + stmt + ", SootMethod method=" + method
@@ -910,7 +888,7 @@ public final class SlicingEngine {
 					+ ", SootMethod method = " + method + ", stack =" + callStackCache + ") - BEGIN");
 		}
 
-		final Collection<? extends IAnalysis> _analyses = controller
+		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _analyses = (Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) controller
 				.getAnalyses(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
 
 		if (_analyses.size() > 0) {
@@ -918,20 +896,30 @@ public final class SlicingEngine {
 			final int _kEnd = locals.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final ValueBox _vBox = _k.next();
-				final Local _local = (Local) _vBox.getValue();
-				final Pair<Stmt, Local> _pair = new Pair<Stmt, Local>(stmt, _local);
-				dependenceExtractor.setTrigger(_pair, method, getCopyOfCallStackCache());
-				CollectionUtils.forAllDo((Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) _analyses, dependenceExtractor);
+				final Local _local = (Local) _k.next().getValue();
+				dependenceExtractor.setTrigger(dependenceExtractor.getEntityForIdentifierBasedDataDA(_local, stmt), method, getCopyOfCallStackCache());
+				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
 				final Collection<?> _dependences = dependenceExtractor.getDependences();
 				final Iterator<?> _l = _dependences.iterator();
 				final int _lEnd = _dependences.size();
 
 				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final Stmt _depStmt = (Stmt) _l.next();
+					final Object _o = _l.next();
+					final Local _depLocal;
+					final Stmt _depStmt;
+					if (_o instanceof Stmt) {
+						_depStmt = (Stmt) _o;
+						_depLocal = _local;
+					} else if (_o instanceof Pair) {
+						final Pair<Local, Stmt> _p = (Pair) _o;
+						_depLocal = _p.getFirst();
+						_depStmt = _p.getSecond();
+					} else {
+						throw new IllegalStateException("Identifier-based Data DA returned result of type - " + _o.getClass());
+					}
 
-					directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
+					directionSensitiveInfo.processLocalAt(_depLocal, _depStmt, method);
 				}
 
 				directionSensitiveInfo.processLocalAt(_local, stmt, method);
@@ -965,14 +953,13 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given host in the slice.
+	 * DOCUMENT ME!
 	 * 
-	 * @param host to be included in the slice.
-	 * @pre host != null
-	 * @post not isNotIncludedInSlice(host)
+	 * @param method DOCUMENT ME!
+	 * @return DOCUMENT ME!
 	 */
-	void includeInSlice(final Host host) {
-		collector.includeInSlice(host);
+	private boolean haveCollectedAllInvocationSites(final SootMethod method) {
+		return callStringGraph.queryNode(method) != null && callStringGraph.queryNode(method).getSuccsOf().isEmpty();
 	}
 
 	/**
@@ -990,6 +977,30 @@ public final class SlicingEngine {
 			} else if (_type instanceof ArrayType && ((ArrayType) _type).baseType instanceof RefType) {
 				includeInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
+		}
+	}
+
+	/**
+	 * Checks if the given host is not included in the slice.
+	 * 
+	 * @param host to be checked.
+	 * @return <code>true</code> if the host is not included in the slice; <code>false</code>, otherwise.
+	 * @pre host != null
+	 */
+	private boolean isNotIncludedInSlice(final Host host) {
+		return !collector.hasBeenCollected(host);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 */
+	private void markAsCollectedAllInvocationSites(final SootMethod method) {
+		final SimpleNode<Object> _n = callStringGraph.getNode(method);
+		for (final Iterator<SimpleNode<Object>> _i = new ArrayList<SimpleNode<Object>>(_n.getSuccsOf()).iterator(); _i
+				.hasNext();) {
+			_n.removeSuccessor(_i.next());
 		}
 	}
 
@@ -1089,30 +1100,30 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the value of <code>callStackCache</code>.
 	 * 
-	 * @param method DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callStack the new value of <code>callStackCache</code>.
 	 */
-	private boolean haveCollectedAllInvocationSites(final SootMethod method) {
-		return callStringGraph.queryNode(method) != null && callStringGraph.queryNode(method).getSuccsOf().isEmpty();
+	private void setCallStackCache(final Stack<CallTriple> callStack) {
+		callStackCache = callStack;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 */
-	private SimpleNodeGraph<Object> callStringGraph;
-
-	/**
-	 * DOCUMENT ME!
+	 * Sets the direction and the calling context on the given criteria.
 	 * 
-	 * @param method DOCUMENT ME!
+	 * @param theCriteria a collection of criteria
+	 * @pre theCriteria != null
 	 */
-	private void markAsCollectedAllInvocationSites(final SootMethod method) {
-		final SimpleNode<Object> _n = callStringGraph.getNode(method);
-		for (final Iterator<SimpleNode<Object>> _i = new ArrayList<SimpleNode<Object>>(_n.getSuccsOf()).iterator(); _i
-				.hasNext();) {
-			_n.removeSuccessor(_i.next());
+	private void setContext(final Collection<ISliceCriterion> theCriteria) {
+		if (callStackCache != null) {
+			final Iterator<ISliceCriterion> _i = theCriteria.iterator();
+			final int _iEnd = theCriteria.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ISliceCriterion _criterion = _i.next();
+
+				_criterion.setCallStack(callStackCache.clone());
+			}
 		}
 	}
 
@@ -1193,7 +1204,7 @@ public final class SlicingEngine {
 		}
 
 		generateCriteriaForTheCallToMethod(method);
-		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
+		generateCriteriaBasedOnStmtLevelDependences(null, method, controlflowBasedDAs);
 
 		if (callStackCache == null) {
 			markAsCollectedAllInvocationSites(method);
@@ -1240,7 +1251,7 @@ public final class SlicingEngine {
 
 		// capture control flow based dependences.
 		if (isNotIncludedInSlice(stmt)) {
-			generateCriteriaBasedOnDependences(stmt, method, controlflowBasedDAs);
+			generateCriteriaBasedOnStmtLevelDependences(stmt, method, controlflowBasedDAs);
 		}
 
 		// generate new slice criteria
@@ -1318,7 +1329,7 @@ public final class SlicingEngine {
 
 		// create new slice criteria based on statement level dependence.
 		if (!_das.isEmpty()) {
-			generateCriteriaBasedOnDependences(stmt, method, _das);
+			generateCriteriaBasedOnStmtLevelDependences(stmt, method, _das);
 		}
 
 		// create new criteria based on program point level dependence (identifier based dependence).
