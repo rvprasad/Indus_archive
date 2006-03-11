@@ -36,12 +36,12 @@ public interface IDependenceRetriever<T1, C1, E1, E2, C2, T2> {
 	/**
 	 * DOCUMENT ME!
 	 * 
-	 * @param dependees DOCUMENT ME!
-	 * @param base DOCUMENT ME!
+	 * @param dependents DOCUMENT ME!
+	 * @param dependee DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	Collection<Pair<E2, C2>> convertToConformantDependees(final Collection<T2> dependees, final E2 base, final C2 context);
+	Collection<Pair<E2, C2>> convertToConformantDependees(final Collection<T2> dependents, final E2 dependee, final C2 context);
 
 	/**
 	 * DOCUMENT ME!
@@ -51,7 +51,8 @@ public interface IDependenceRetriever<T1, C1, E1, E2, C2, T2> {
 	 * @param context DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
-	Collection<Pair<T1, C1>> convertToConformantDependents(final Collection<E1> dependents, final T1 base, final C1 context);
+	Collection<Pair<T1, C1>> convertToConformantDependents(final Collection<E1> dependents, final T1 dependent,
+			final C1 context);
 
 	/**
 	 * Retrieves the dependees based on <code>dependence</code> from <code>da</code>.
