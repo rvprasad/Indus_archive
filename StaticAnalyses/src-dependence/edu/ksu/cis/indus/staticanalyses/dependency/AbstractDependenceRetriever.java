@@ -4,7 +4,7 @@ import java.util.Collection;
 
 /**
  * DOCUMENT ME!
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -19,6 +19,8 @@ public abstract class AbstractDependenceRetriever<T1, C1, E1, E2, C2, T2>
 		implements IDependenceRetriever<T1, C1, E1, E2, C2, T2> {
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDependenceRetriever#getDependees(edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis,
 	 *      java.lang.Object, java.lang.Object)
 	 */
@@ -27,6 +29,8 @@ public abstract class AbstractDependenceRetriever<T1, C1, E1, E2, C2, T2>
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * @see IDependenceRetriever#getDependents(edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis,
 	 *      java.lang.Object, java.lang.Object)
 	 */
