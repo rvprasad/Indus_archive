@@ -1,4 +1,9 @@
 //import java.io.IOException;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
+
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,11 +15,6 @@ import jess.JessException;
 import jess.RU;
 import jess.Rete;
 import jess.Value;
-
-import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -401,7 +401,6 @@ public class JessTester {
 
 	private int classCount = 0;
 
-
 	/**
 	 * DOCUMENT ME!
 	 *
@@ -490,7 +489,6 @@ public class JessTester {
 	void addMethodForProcessing(final SootMethod method) {
 		methodsWorkBag.addWorkNoDuplicates(method);
 	}
-
 
 	/**
 	 * DOCUMENT ME!
@@ -607,7 +605,6 @@ public class JessTester {
 			_e.printStackTrace();
 		}
 	}
-
 
 	/**
 	 * DOCUMENT ME!
