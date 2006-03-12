@@ -5,43 +5,63 @@
 <!--#include virtual="/header.shtml" -->
 
 <p>
+    <ul>
+        <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/116/tacas06.pdf">Evaluating the Effectiveness of 
+            Slicing for Model Reduction of Concurrent Object-Oriented Programs</a> -- <i>Matthew B. Dwyer, John Hatcliff, 
+            Matthew Hoosier, Venkatesh Ranganath ,Robby, Todd Wallentine</i>.  
+            <br /><u>Accepted at Tools and Algorithms for the Construction and Analysis of Systems (TACAS) held as part of 
+            ETAPS 2006.</u>
+            <br />This document describes an empirical evaluation of the effectiveness of Slicing as a model reduction
+            technique in the realm of verifying concurrent Java programs via software model checking.
+        </li>
+    </ul>
+    <ul>
+        <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/117/stt05-submission.pdf">Slicing Concurrent 
+            Java Programs using Indus and Kaveri</a> -- <i>Venkatesh Prasad Ranganath and John Hatcliff</i>.
+            <br /><u>Submitted.</u> 
+            <br />This document is in part an extension of the FASE 2005 effort titled "Kaveri: Delivering Indus Java Program
+            Slicer to Eclipse" with detailed exposition about the Indus program slicing framework and Kaveri.
+        </li>
+    </ul>
 	<ul>
-	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-TR2004-8.pdf">A New Foundation For
-    	    Control-Dependence and Slicing for Modern Program Structures (extended version)</a>
-			<i>Venkatesh Prasad Ranganath, Torben Amtoft, Anindya Banerjee, Matthew B. Dwyer, and John Hatcliff</i>.
-			<br />October 2004, Technical Report, SAnToS-TR2004-8.  <i>Last updated: March 29, 2005</i>
+	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/112/santos-TR2005-5.pdf">Enriching Component 
+            Interfaces with Checkable Dependence Specifications </a> -- <i>Venkatesh Prasad Ranganath, Georg Jung, John 
+            Hatcliff, and Matthew B. Dwyer</i>.
+			<br /><u>Technical Report, SAnToS-TR2005-5, 2005.  <i>Last updated: September 10, 2005</i></u>
+            <br />This report describes how component interface specifications can be enriched with dependence and flow
+            information to enable automated checking based program dependences.
         </li>
 	</ul> 
 	<ul>
 	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/110/esop2005.pdf">A New Foundation For
-    	    Control-Dependence and Slicing for Modern Program Structures</a>
-			<i>Venkatesh Prasad Ranganath, Torben Amtoft, Anindya Banerjee, Matthew B. Dwyer, and John Hatcliff</i>.
-        	 <br />Accepted at European Symposium On Programming (ESOP'05) held as part of ETAPS 2005. 
+    	    Control-Dependence and Slicing for Modern Program Structures</a> -- <i>Venkatesh Prasad Ranganath, Torben Amtoft, 
+            Anindya Banerjee, Matthew B. Dwyer, and John Hatcliff</i>.
+            <br /><u>Accepted at European Symposium On Programming (ESOP'05) held as part of ETAPS 2005. </u>(<a 
+                href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">extended version</a>)
+            <br /> This document provides new definitions for control and control-based dependences for 
+            CFGs independent of the number of exit nodes and their reducibility.  It also provides complete proofs for
+            correctness of slicing based on proposed definitions along with algorithms to calculate the proposed notions of
+            dependences.
         </li>
 	</ul>  
     <ul>
         <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/111/fase2005-tool.pdf">Kaveri: Delivering Indus Java 
-				Program Slicer to Eclipse</a>
-            <i>Ganeshan Jayaraman, Venkatesh Prasad Ranganath, and John Hatcliff</i>. 
-			<br />Accepted at <i>Fundamental Approaches to Software Engineering (FASE'05)</i> held as part of 
-			ETAPS 2005.  (<a href="http://projects.cis.ksu.edu/docman/view.php/12/97/fase2005-tool-extended.ps">extended version</a>)
+				Program Slicer to Eclipse</a> -- <i>Ganeshan Jayaraman, Venkatesh Prasad Ranganath, and John Hatcliff</i>. 
+			<br /><u>Accepted at <i>Fundamental Approaches to Software Engineering (FASE'05)</i> held as part of 
+			ETAPS 2005.</u>  (<a href="http://projects.cis.ksu.edu/docman/view.php/12/97/fase2005-tool-extended.ps">extended
+                    version</a>)
+            <br />This document describes the Kaveri, a Eclipse-based Java program slicing tool. 
         </li>
     </ul>
 	<ul>
     	<li><a href="http://projects.cis.ksu.edu/docman/view.php/12/68/cc04.pdf">Pruning Interference and Ready 
-				Dependence for Slicing Concurrent Java Programs.</a> 
-			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. 
-			<br />Accepted at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of 
-			ETAPS 2004.
+				Dependence for Slicing Concurrent Java Programs.</a> -- <i>Venkatesh Prasad Ranganath, John Hatcliff</i>. 
+			<br /><u>Accepted at <i>13th International Conference on Compiler Construction (CC) 2004</i> held as part of 
+			ETAPS 2004. </u> (<a href="http://projects.cis.ksu.edu/docman/view.php/12/106/cc04-extended.pdf">extended version</a>)
+            <br />This document describes the extension and application of escape analysis for Java in the context of
+            interference dependence and program slicing.
         </li>
 	</ul>
-	<ul>
-	    <li><a href="http://projects.cis.ksu.edu/docman/view.php/12/106/cc04-extended.pdf">Pruning the Detection of 
-				Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
-			<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. October 2003, Technical Report, SAnToS-TR2003-6. 
-			<i>Last updated: March 29, 2005.</i>
-        </li>
-	</ul>  
 </p>
 
 <!--#include virtual="/footer.shtml" -->
