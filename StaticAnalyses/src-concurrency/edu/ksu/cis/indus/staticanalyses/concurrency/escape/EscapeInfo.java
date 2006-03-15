@@ -237,19 +237,14 @@ class EscapeInfo
 	 */
 	public boolean escapes(final SootClass sc, final SootMethod sm) {
 		boolean _result = escapesDefaultValue;
+		final AliasSet _as = this.analysis.queryAliasSetFor(sc);
 
-		try {
-			final AliasSet _as = this.analysis.queryAliasSetFor(sc);
-
-			if (_as != null) {
-				_result = _as.escapes();
-			} else {
-				_result = false;
-			}
-		} catch (final NullPointerException _e) {
+		if (_as != null) {
+			_result = _as.escapes();
+		} else {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("There is no information about " + sc + " occurring in " + sm
-						+ ".  So, providing default value - " + _result, _e);
+						+ ".  So, providing default value - " + _result);
 			}
 		}
 
@@ -264,18 +259,23 @@ class EscapeInfo
 	public boolean escapes(final Value v, final SootMethod sm) {
 		boolean _result = escapesDefaultValue;
 
-		try {
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
-				_result = this.analysis.queryAliasSetFor(v, sm).escapes();
+		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+			final AliasSet _as = this.analysis.queryAliasSetFor(v, sm);
+			if (_as != null) {
+				_result = _as.escapes();
 			} else {
-				_result = false;
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("There is no information about " + v + " occurring in " + sm
+						+ ".  So, providing default value - " + _result);
+				}				
 			}
-		} catch (final NullPointerException _e) {
+		} else {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("There is no information about " + v + " occurring in " + sm
-						+ ".  So, providing default value - " + _result, _e);
+					+ ".  So, providing default value - " + _result);
 			}
 		}
+
 
 		return _result;
 	}
