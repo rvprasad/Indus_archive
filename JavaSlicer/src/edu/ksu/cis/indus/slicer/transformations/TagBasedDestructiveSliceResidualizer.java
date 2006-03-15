@@ -122,6 +122,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		@Override public void caseAssignStmt(final AssignStmt stmt) {
@@ -129,6 +131,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
 		@Override public void caseIdentityStmt(final IdentityStmt stmt) {
@@ -136,6 +140,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		@Override public void caseInvokeStmt(final InvokeStmt stmt) {
@@ -147,6 +153,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 		 */
 		@Override public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
@@ -158,6 +166,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
 		@Override public void caseReturnStmt(final ReturnStmt stmt) {
@@ -169,6 +179,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 		 */
 		@Override public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
@@ -180,6 +192,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
 		@Override public void caseThrowStmt(final ThrowStmt stmt) {
@@ -196,7 +210,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 				final Collection<DefinitionStmt> _defs = localUseDef.getDefs(stmt, currMethod);
 				boolean _injectNewCode = true;
-				@SuppressWarnings("unchecked") final Iterator<DefinitionStmt> _j = _defs.iterator();
+				final Iterator<DefinitionStmt> _j = _defs.iterator();
 				final int _jEnd = _defs.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd && _injectNewCode; _jIndex++) {
@@ -293,8 +307,12 @@ public final class TagBasedDestructiveSliceResidualizer
 				_superinit = prepareInitIn(clazz.getSuperclass());
 			}
 
-			SootMethod _init = clazz.getMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
-			final boolean _existsButIsNotIncluded = _init != null ? !_init.hasTag(theNameOfTagToResidualize) : false;
+			SootMethod _init = null;
+			boolean _existsButIsNotIncluded = false;
+			if (clazz.declaresMethod("<init>", Collections.EMPTY_LIST, VoidType.v())) {
+				_init = clazz.getMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
+				_existsButIsNotIncluded = _init != null ? !_init.hasTag(theNameOfTagToResidualize) : false;
+			}
 
 			if (_init == null || _existsButIsNotIncluded) {
 				if (_existsButIsNotIncluded) {
@@ -391,6 +409,8 @@ public final class TagBasedDestructiveSliceResidualizer
 			extends AbstractJimpleValueSwitch {
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 		 */
 		@Override public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
@@ -399,6 +419,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 		 */
 		@Override public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
@@ -407,6 +429,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 		 */
 		@Override public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
@@ -414,6 +438,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 		 */
 		@Override public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
@@ -422,6 +448,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
 		 */
 		@Override public void defaultCase(final Object v) {
@@ -969,7 +997,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		// add the identity statements to pop out the parameters
-		@SuppressWarnings("unchecked") final Collection<Type> _paramType = currMethod.getParameterTypes();
+		final Collection<Type> _paramType = currMethod.getParameterTypes();
 		final int _end = _paramType.size();
 		final Iterator<Type> _i = _paramType.iterator();
 
@@ -1004,7 +1032,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @param stmt in which to process the locals.
 	 * @pre stmt != null
 	 */
-	@SuppressWarnings("unchecked") private void pruneLocals(final Stmt stmt) {
+	private void pruneLocals(final Stmt stmt) {
 		if (stmt.hasTag(theNameOfTagToResidualize)) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Pruning locals in " + stmt);
@@ -1035,7 +1063,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		final Chain _traps = body.getTraps();
-		@SuppressWarnings("unchecked") final Iterator<Trap> _i = _traps.iterator();
+		final Iterator<Trap> _i = _traps.iterator();
 		final int _iEnd = _traps.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {

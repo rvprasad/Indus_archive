@@ -1,3 +1,10 @@
+2006-03-15 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/slicer/transformations/TagBasedDestructiveSliceResidualizer.java: 
+		- using getMethod() on the class returns the method of the given signature that is associated (may not be declared)
+		with the receiver class.  So, we need to call declaresMethod() and then call getMethod() only if the previous call
+		succeeds.
+		
 2006-03-11 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
