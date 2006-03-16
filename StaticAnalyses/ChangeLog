@@ -1,3 +1,11 @@
+2006-03-16 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
+		- superclass checks were not being performed and this led to inaccurracy.  This has been addressed, but the
+		inaccuracy is persisting.
+	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java: 
+		- refactored the class to enable subclasses to check control flow reachability.
+
 2006-03-15 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeInfo.java: 
