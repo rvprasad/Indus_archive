@@ -79,18 +79,20 @@ public class DataAliasBasedCallingContextRetrieverV2
 			LOGGER.debug("considerProgramPoint(Context programPointContext = " + programPointContext + ") - BEGIN");
 		}
 
-		final Value _value = programPointContext.getProgramPoint().getValue();
-		final AliasSet _as = ecba.queryAliasSetFor(_value, programPointContext.getCurrentMethod());
-		boolean _result;
-		if (_as != null) {
-			final Collection<Object> _o = _as.getIntraProcRefEntities();
-			if (_o == null) {
-				_result = super.considerProgramPoint(programPointContext);
+		boolean _result = super.considerProgramPoint(programPointContext);
+
+		if (_result) {
+			final Value _value = programPointContext.getProgramPoint().getValue();
+			final AliasSet _as = ecba.queryAliasSetFor(_value, programPointContext.getCurrentMethod());
+
+			if (_as != null) {
+				final Collection<Object> _o = _as.getIntraProcRefEntities();
+				if (_o != null) {
+					_result = shouldConsiderCallerSideToken(_o);
+				}
 			} else {
-				_result = shouldConsiderCallerSideToken(_o);
+				_result = !EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_value.getType());
 			}
-		} else {
-			_result = !EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_value.getType());
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -119,7 +121,8 @@ public class DataAliasBasedCallingContextRetrieverV2
 			if (_as != null) {
 				final Collection<Object> _c1 = ((AliasSet) token).getIntraProcRefEntities();
 				final Collection<Object> _c2 = _as.getIntraProcRefEntities();
-				if (_c1 != null && _c2 != null && CollectionUtils.containsAny(_c1, _c2) && shouldConsiderCallerSideToken(_c2)) {
+				if (_c1 != null && _c2 != null && CollectionUtils.containsAny(_c1, _c2) && shouldConsiderCallerSideToken(_c2)
+						&& !getCallSitesThatCanReachSource(callsite.getMethod()).isEmpty()) {
 					_result = _as;
 				}
 			} else {

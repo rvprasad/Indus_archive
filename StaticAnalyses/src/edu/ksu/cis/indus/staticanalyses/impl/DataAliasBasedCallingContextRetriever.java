@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -175,22 +176,10 @@ public class DataAliasBasedCallingContextRetriever
 
 		final SootMethod _caller = callsite.getMethod();
 		@SuppressWarnings("unchecked") final Collection<CallTriple> _ancestors = (Collection) token;
-		final boolean _flag = isDefinitionTheSource();
-		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
-		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
-
 		if (!Util.isStartMethod(callee) && _ancestors.contains(callsite)) {
 			final Collection<CallTriple> _col = new HashSet<CallTriple>();
 			previous.add(callsite);
-			for (final Iterator<CallTriple> _i = getCallGraph().getCallers(_caller).iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = _i.next();
-				if ((_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(), _ctrp
-						.getStmt(), tgi))
-						|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_ctrp.getMethod(), _ctrp.getStmt(),
-								_method, _stmt, tgi))) {
-					_col.add(_ctrp);
-				}
-			}
+			_col.addAll(getCallSitesThatCanReachSource(_caller));
 			_col.removeAll(previous);
 
 			if (!_col.isEmpty()) {
@@ -206,6 +195,29 @@ public class DataAliasBasedCallingContextRetriever
 			LOGGER.debug("getCallerSideToken() - END - return value = " + _result);
 		}
 
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param caller DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	protected final Collection<CallTriple> getCallSitesThatCanReachSource(final SootMethod caller) {
+		final Collection<CallTriple> _result = new ArrayList<CallTriple>();
+		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
+		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
+		final boolean _flag = isSourceADefSite();
+		for (final Iterator<CallTriple> _i = getCallGraph().getCallers(caller).iterator(); _i.hasNext();) {
+			final CallTriple _ctrp = _i.next();
+			if ((_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(), _ctrp
+					.getStmt(), tgi))
+					|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_ctrp.getMethod(), _ctrp.getStmt(),
+							_method, _stmt, tgi))) {
+				_result.add(_ctrp);
+			}
+		}
 		return _result;
 	}
 
@@ -311,7 +323,7 @@ public class DataAliasBasedCallingContextRetriever
 	 * @return <code>true</code> if the source triggering the context retrival is a def site; <code>false</code>,
 	 *         otherwise.
 	 */
-	private boolean isDefinitionTheSource() {
+	protected final boolean isSourceADefSite() {
 		final DefinitionStmt _stmt = (DefinitionStmt) getInfoFor(Identifiers.SRC_ENTITY);
 		final boolean _result;
 		final Value _leftOp = _stmt.getLeftOp();
