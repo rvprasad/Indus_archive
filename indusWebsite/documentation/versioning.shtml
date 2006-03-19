@@ -9,15 +9,35 @@
 	<ol>
 	<li>Each project should start with a version tag <i>(v0_0)</i>.</li>
 	<li>After each "settled" change to the project, the project can be tagged with date tag.</li>
-	<li>When the project reaches a state that warrants a new version (minor or major), the project should be tagged with a revision 
-	tag <i>(v0_1)</i>.</li>
+	<li>When the project reaches a state that warrants a new version (minor or major), the project should be tagged with
+	 a revision tag <i>(v0_1)</i>.</li>
 	<li>Each time a project releases software, it should be tagged a revision tag <i>(v0_1)</i>.</li>
 	<li>The name of every artifact in a release should reflect the revision tag associated with it <i>(module-0.1)</i>.</li>
 	<li>If an older version (v0_0) is updated then it is released as <i>module-0.0.1</i>.</li>
 	</ol>
-
-According to the above guidelines, all changes pertaining to an upcoming version will be released as enhancement to the current 
-version. <i>So, in case there are breaking API changes, the project should make an initial release of the upcoming version and 
-release the artifacts as part of this new version.</i> This system does not allow for alpha/beta releases. This is intentional.
-</p>    
+</p>
+<p>
+According to the above guidelines, all changes pertaining to an upcoming version will be released as enhancement to 
+the current version. <i>So, in case there are breaking API changes, the project should make an initial release of the 
+upcoming version and release the artifacts as part of this new version.</i> This system does not allow for alpha/beta 
+releases. This is intentional.
+</p>
+<p>
+When solutions to each bug report or feature request, a new tag with the name "bugfix_&lt;bug report number&gt;" or
+"feature_&lt;feature request number&gt;" should be created 
+upon committing.  For example, the fix for bug #768 should be tagged with "bugfix_768".  
+</p>
+<p>
+As for cases where a single commit includes fixes for multiple bug fixes and feature requests, the new tag should be 
+named as "fixes_N" and the tag name should be recorded along with the list of bug report and feature request numbers 
+in the TAGS file in the project.  The number N is the next positive integer in the sequence of recorded tags.  So, if 
+"fixes_31" is the last tag recorded in TAGS file then the next combined tag will be "fixes_32".
+</p>
+<p>
+If a bug report or feature request #X is marked as addressed but later on reopened and subsequently addressed, then 
+the tags will be "bugfix_X" and "bugfix_X_1".  If the same report is again reopened and addressed then another tag 
+"bugfix_X_2" will be added.  If X was previously addressed in a fix with combined tag then the next tag for the fix for X 
+will be "bugfix_X_2".  Given the combined tagging can cause confusion, developers are discouraged from using it and 
+addressing the reports individually.
+</p>
 <!--#include virtual="/footer.shtml" -->
