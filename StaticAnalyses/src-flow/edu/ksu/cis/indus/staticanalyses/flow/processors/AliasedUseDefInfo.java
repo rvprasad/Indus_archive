@@ -20,13 +20,10 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Constants;
-
 import edu.ksu.cis.indus.interfaces.IIdentification;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
@@ -45,7 +42,6 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
@@ -58,7 +54,7 @@ import soot.jimple.Stmt;
  * is reachable from the def via the control flow graph or via the CFG, then def and use site are related by use-def relation.
  * The only exception for this case is when the def occurs in the class initializer. In this case, the defs can reach almost
  * all methods even if they are executed in a different thread from the use site.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -89,7 +85,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
-	 *
+	 * 
 	 * @invariant def2usesMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> def2usesMap;
@@ -101,14 +97,14 @@ public class AliasedUseDefInfo
 
 	/**
 	 * This is a map from use-sites to their corresponding to def-sites.
-	 *
+	 * 
 	 * @invariant use2defsMap.keySet()->forall(o | o.oclIsKindOf(SootField) or o.oclIsKindOf(Type))
 	 */
 	private final Map<Object, Map<Pair<DefinitionStmt, SootMethod>, Collection<Pair<DefinitionStmt, SootMethod>>>> use2defsMap;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
-	 *
+	 * 
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param bbgManager is the basic block graph manager to use.
 	 * @param pairManager to be used.
@@ -158,7 +154,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Records naive interprocedural data dependence. All it does it records dependence between type conformant writes and
 	 * reads.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	@Override public void consolidate() {
@@ -225,7 +221,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method in which the use occurs.
 	 * @pre context != null
 	 */
@@ -257,7 +253,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * @param method in which the definition occurs.
 	 * @pre method != null
 	 */
@@ -359,7 +355,7 @@ public class AliasedUseDefInfo
 	/**
 	 * Checks if the definition can reach the use site inter-procedurally. This implementation assumes that the definition
 	 * always reaches use site.
-	 *
+	 * 
 	 * @param defMethod is the context of definition. <i>ignored</i>
 	 * @param defStmt is the definition statement. <i>ignored</i>.
 	 * @param useMethod is the context of use. <i>ignored</i>.
@@ -374,7 +370,7 @@ public class AliasedUseDefInfo
 
 	/**
 	 * Checks if the given definition and use are related.
-	 *
+	 * 
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
@@ -436,12 +432,11 @@ public class AliasedUseDefInfo
 	/**
 	 * Checks if the def reaches the use site. If either of the methods are class initializers, <code>true</code> is
 	 * returned.
-	 *
+	 * 
 	 * @param defSite is the definition site.
 	 * @param useSite is the use site.
 	 * @return <code>true</code> if the def and use site are related; <code>false</code>, otherwise.
 	 * @pre defSite != null and useSite != null
-	 * @pre defSite.oclIsKindOf(Pair(Stmt, SootMethod)) and useSite.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
 	private boolean doesDefReachUse(final Pair<DefinitionStmt, SootMethod> defSite,
 			final Pair<DefinitionStmt, SootMethod> useSite) {
