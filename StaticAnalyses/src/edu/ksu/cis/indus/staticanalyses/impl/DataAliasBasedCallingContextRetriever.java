@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -142,8 +141,9 @@ public class DataAliasBasedCallingContextRetriever
 				if (_sameMethod) {
 					_result = analysis.doesControlFlowPathExistBetween(_srcDefStmt, _curDefStmt, _curMethod);
 				} else {
-					_result = analysis.isReachableViaInterProceduralControlFlow(
-							(SootMethod) getInfoFor(Identifiers.SRC_METHOD), _srcDefStmt, _curMethod, _curDefStmt, tgi);
+					_result = analysis
+							.isReachableViaInterProceduralControlFlow((SootMethod) getInfoFor(Identifiers.SRC_METHOD),
+									_srcDefStmt, _curMethod, _curDefStmt, tgi, false);
 				}
 			} else {
 				// if (_curRef == _srcDefStmt.getRightOp() && _srcRef == _curDefStmt.getLeftOp())
@@ -151,7 +151,7 @@ public class DataAliasBasedCallingContextRetriever
 					_result = analysis.doesControlFlowPathExistBetween(_curDefStmt, _srcDefStmt, _curMethod);
 				} else {
 					_result = analysis.isReachableViaInterProceduralControlFlow(_curMethod, _curDefStmt,
-							(SootMethod) getInfoFor(Identifiers.SRC_METHOD), _srcDefStmt, tgi);
+							(SootMethod) getInfoFor(Identifiers.SRC_METHOD), _srcDefStmt, tgi, false);
 				}
 			}
 		}
@@ -174,12 +174,16 @@ public class DataAliasBasedCallingContextRetriever
 
 		Object _result = Tokens.DISCARD_CONTEXT_TOKEN;
 
-		final SootMethod _caller = callsite.getMethod();
 		@SuppressWarnings("unchecked") final Collection<CallTriple> _ancestors = (Collection) token;
 		if (!Util.isStartMethod(callee) && _ancestors.contains(callsite)) {
 			final Collection<CallTriple> _col = new HashSet<CallTriple>();
 			previous.add(callsite);
-			_col.addAll(getCallSitesThatCanReachSource(_caller));
+			for (final Iterator<CallTriple> _i = getCallGraph().getCallers(callsite.getMethod()).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = _i.next();
+				if (getCallSitesThatCanReachSource(_ctrp, false)) {
+					_col.add(_ctrp);
+				}
+			}
 			_col.removeAll(previous);
 
 			if (!_col.isEmpty()) {
@@ -201,24 +205,19 @@ public class DataAliasBasedCallingContextRetriever
 	/**
 	 * DOCUMENT ME!
 	 * 
-	 * @param caller DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callsite DOCUMENT ME!
+	 * @param exclusive <code>true</code> indicates that <code>callsite</code> should not be considered during existence
+	 *            check; <code>false</code>, otherwise. Unless the client is sure, this should be <code>false</code>.
+	 * @return <code>true</code> if such a path exists; <code>false</code>, otherwise.
 	 */
-	protected final Collection<CallTriple> getCallSitesThatCanReachSource(final SootMethod caller) {
-		final Collection<CallTriple> _result = new ArrayList<CallTriple>();
+	protected final boolean getCallSitesThatCanReachSource(final CallTriple callsite, final boolean exclusive) {
 		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
 		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
 		final boolean _flag = isSourceADefSite();
-		for (final Iterator<CallTriple> _i = getCallGraph().getCallers(caller).iterator(); _i.hasNext();) {
-			final CallTriple _ctrp = _i.next();
-			if ((_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, _ctrp.getMethod(), _ctrp
-					.getStmt(), tgi))
-					|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(_ctrp.getMethod(), _ctrp.getStmt(),
-							_method, _stmt, tgi))) {
-				_result.add(_ctrp);
-			}
-		}
-		return _result;
+		return (_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, callsite.getMethod(), callsite
+				.getStmt(), tgi, exclusive))
+				|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(callsite.getMethod(), callsite.getStmt(),
+						_method, _stmt, tgi, exclusive));
 	}
 
 	/**
@@ -308,9 +307,10 @@ public class DataAliasBasedCallingContextRetriever
 			final CallTriple _destCallTriple = _i.next();
 			final SootMethod _destMethod = _destCallTriple.getMethod();
 			final Stmt _destStmt = _destCallTriple.getStmt();
-			if ((isSource && analysis.isReachableViaInterProceduralControlFlow(method, stmt, _destMethod, _destStmt, tgi))
+			if ((isSource && analysis.isReachableViaInterProceduralControlFlow(method, stmt, _destMethod, _destStmt, tgi,
+					true))
 					|| (!isSource && analysis.isReachableViaInterProceduralControlFlow(_destMethod, _destStmt, method, stmt,
-							tgi))) {
+							tgi, true))) {
 				ancestors.add(_destCallTriple);
 				_i.remove();
 			}

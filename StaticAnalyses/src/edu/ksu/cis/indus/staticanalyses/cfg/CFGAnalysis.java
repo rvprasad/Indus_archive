@@ -307,11 +307,13 @@ public final class CFGAnalysis {
 	 * @param destMethod contains the use site.
 	 * @param destStmt is the use site.
 	 * @param tgi is the thread graph.
+	 * @param exclusive <code>true</code> indicates that <code>stmt</code> should not be considered during existence
+	 *            check; <code>false</code>, otherwise. Unless the client is sure, this should be <code>false</code>.
 	 * @return <code>true</code> if such a path exists; <code>false</code>, otherwise.
 	 * @pre srdMethod != null and srcStmt != null and destMethod != null and destStmt != null and tgi != null
 	 */
 	public boolean isReachableViaInterProceduralControlFlow(final SootMethod srcMethod, final Stmt srcStmt,
-			final SootMethod destMethod, final Stmt destStmt, final IThreadGraphInfo tgi) {
+			final SootMethod destMethod, final Stmt destStmt, final IThreadGraphInfo tgi, final boolean exclusive) {
 		boolean _result = tgi == null || !tgi.mustOccurInDifferentThread(srcMethod, destMethod);
 
 		if (_result) {
@@ -322,7 +324,7 @@ public final class CFGAnalysis {
 			 * the invocation statement that succeed srcStmt in srcMethod.
 			 */
 			if (cgi.isCalleeReachableFromCaller(destMethod, srcMethod)) {
-				_result = doesControlFlowPathExistBetween(srcMethod, srcStmt, destMethod, true, false);
+				_result = doesControlFlowPathExistBetween(srcMethod, srcStmt, destMethod, true, exclusive);
 			}
 
 			/*
@@ -330,7 +332,7 @@ public final class CFGAnalysis {
 			 * the invocation statements that precede destStmt in destMethod.
 			 */
 			if (!_result && cgi.isCalleeReachableFromCaller(srcMethod, destMethod)) {
-				_result = doesControlFlowPathExistBetween(destMethod, destStmt, srcMethod, false, false);
+				_result = doesControlFlowPathExistBetween(destMethod, destStmt, srcMethod, false, exclusive);
 			}
 
 			/*

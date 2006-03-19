@@ -122,7 +122,7 @@ public class DataAliasBasedCallingContextRetrieverV2
 				final Collection<Object> _c1 = ((AliasSet) token).getIntraProcRefEntities();
 				final Collection<Object> _c2 = _as.getIntraProcRefEntities();
 				if (_c1 != null && _c2 != null && CollectionUtils.containsAny(_c1, _c2) && shouldConsiderCallerSideToken(_c2)
-						&& !getCallSitesThatCanReachSource(callsite.getMethod()).isEmpty()) {
+						&& getCallSitesThatCanReachSource(callsite, true)) {
 					_result = _as;
 				}
 			} else {

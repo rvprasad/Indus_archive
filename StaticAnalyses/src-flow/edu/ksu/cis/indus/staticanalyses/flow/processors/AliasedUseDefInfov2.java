@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
@@ -86,7 +85,7 @@ public final class AliasedUseDefInfov2
 	 */
 	@Override public boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
 			final SootMethod useMethod, final Stmt useStmt) {
-		return cfgAnalysis.isReachableViaInterProceduralControlFlow(defMethod, defStmt, useMethod, useStmt, tgi);
+		return cfgAnalysis.isReachableViaInterProceduralControlFlow(defMethod, defStmt, useMethod, useStmt, tgi, false);
 	}
 }
 

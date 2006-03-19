@@ -302,7 +302,7 @@ class DependenceAndMayFollowInfoCalculator
 				boolean _flag;
 
 				if (_sSrc != null && _sDest != null) {
-					_flag = cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, null);
+					_flag = cfg.isReachableViaInterProceduralControlFlow(_mSrc, _sSrc, _mDest, _sDest, null, false);
 				} else if (_sSrc == null && _sDest == null) {
 					_flag = cfg.doesControlPathExistFromTo(_mSrc, _mDest);
 				} else if (_sSrc == null) {

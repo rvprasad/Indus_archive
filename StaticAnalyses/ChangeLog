@@ -1,3 +1,19 @@
+2006-03-18 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
+		- ripple effect of change in DataAliasBasedCallingContextRetriever
+		- bug fix for the reopening of #768 on 03/11/2006
+	* src/edu/ksu/cis/indus/staticanalyses/impl/DataAliasBasedCallingContextRetriever.java: 
+		- ripple effect of change to CFGAnalysis.isReachableViaInterProceduralControlFlow().
+		- refactored getCallSitesThatCanReachSource() and getCallerSideTokenFor() to facilitate changes in 
+		DataAliasBasedCallingContextRetrieverV2.
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/AliasedUseDefInfov2.java: 
+	* src/edu/ksu/cis/indus/toolkits/bandera/DependenceAndMayFollowInfoCalculator.java: 
+	* src/edu/ksu/cis/indus/staticanalyses/cfg/CFGAnalysis.java: 
+		- added a new parameter to isReachableViaInterProceduralControlFlow() method to control exclusion of source
+		and destination when calculating reachability.  Most invocations to this method use false as the argument to stay
+		loyal to the previous default behavior.
+
 2006-03-16 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
