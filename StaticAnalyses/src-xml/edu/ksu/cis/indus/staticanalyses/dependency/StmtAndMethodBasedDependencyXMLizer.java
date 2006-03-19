@@ -43,8 +43,10 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <T1> DOCUMENT ME!
+ * @param <E2> DOCUMENT ME!
  */
-final class StmtAndMethodBasedDependencyXMLizer
+final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt>
 		extends AbstractProcessor {
 
 	/**
@@ -55,7 +57,7 @@ final class StmtAndMethodBasedDependencyXMLizer
 	/**
 	 * This is the dependency analysis whose information should be xmlized.
 	 */
-	private IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?> analysis;
+	private IDependencyAnalysis<T1, SootMethod, ?, E2, SootMethod, ?> analysis;
 
 	/**
 	 * This is used to generate id's for xml elements.
@@ -83,6 +85,16 @@ final class StmtAndMethodBasedDependencyXMLizer
 	private int totalDependences;
 
 	/**
+	 * DOCUMENT ME!
+	 */
+	private final Class<E2> classForE2;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private final Class<T1> classForT1;
+
+	/**
 	 * Creates a new StmtAndMethodBasedDependencyXMLizer object.
 	 * 
 	 * @param out is the writer to be used to write xml data.
@@ -91,10 +103,12 @@ final class StmtAndMethodBasedDependencyXMLizer
 	 * @pre out != null and generator != null and depAnalysis != null
 	 */
 	public StmtAndMethodBasedDependencyXMLizer(final XMLOutputter out, final IJimpleIDGenerator generator,
-			final IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?> depAnalysis) {
+			final IDependencyAnalysis<T1, SootMethod, ?, E2, SootMethod, ?> depAnalysis) {
 		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
+		classForT1 = (Class<T1>) getClass().getTypeParameters()[0].getGenericDeclaration();
+		classForE2 = (Class<E2>) getClass().getTypeParameters()[1].getGenericDeclaration();
 	}
 
 	/**
@@ -105,8 +119,20 @@ final class StmtAndMethodBasedDependencyXMLizer
 	@Override public void callback(final Stmt stmt, final Context context) {
 		final SootMethod _method = context.getCurrentMethod();
 		try {
-			final Collection<?> _dependents = analysis.getDependents(stmt, _method);
-			final Collection<?> _dependees = analysis.getDependees(stmt, _method);
+			final Collection<?> _dependents;
+
+			if (classForE2.isInstance(stmt)) {
+				_dependents = analysis.getDependents((E2) stmt, _method);
+			} else {
+				_dependents = Collections.emptySet();
+			}
+
+			final Collection<?> _dependees;
+			if (classForT1.isInstance(stmt)) {
+				_dependees = analysis.getDependees((T1) stmt, _method);
+			} else {
+				_dependees = Collections.emptySet();
+			}
 
 			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
 				writer.startTag("dependency_info");

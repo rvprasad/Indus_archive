@@ -111,8 +111,9 @@ public final class DependencyXMLizer
 	 * @param ctrl to unhook the xmlizers from.
 	 * @pre xmlizers != null and ctrl != null
 	 */
-	public void flushXMLizers(final Map<StmtAndMethodBasedDependencyXMLizer, Writer> xmlizers, final ProcessingController ctrl) {
-		for (final Iterator<StmtAndMethodBasedDependencyXMLizer> _i = xmlizers.keySet().iterator(); _i.hasNext();) {
+	public void flushXMLizers(final Map<StmtAndMethodBasedDependencyXMLizer<?, ?>, Writer> xmlizers,
+			final ProcessingController ctrl) {
+		for (final Iterator<StmtAndMethodBasedDependencyXMLizer<?, ?>> _i = xmlizers.keySet().iterator(); _i.hasNext();) {
 			final IProcessor _p = _i.next();
 			_p.unhook(ctrl);
 
@@ -140,7 +141,7 @@ public final class DependencyXMLizer
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) info.get(ICallGraphInfo.ID)));
 
-		final Map<StmtAndMethodBasedDependencyXMLizer, Writer> _xmlizers = initXMLizers(info, _ctrl);
+		final Map<StmtAndMethodBasedDependencyXMLizer<?, ?>, Writer> _xmlizers = initXMLizers(info, _ctrl);
 		_ctrl.process();
 		flushXMLizers(_xmlizers, _ctrl);
 	}
@@ -162,25 +163,27 @@ public final class DependencyXMLizer
 	/**
 	 * Retrives the xmlizer for the given dependence analysis based on the properties.
 	 * 
+	 * @param <T1> DOCUMENT ME!
+	 * @param <E2> DOCUMENT ME!
 	 * @param writer to be used by the xmlizer.
 	 * @param da is the dependence analysis for which the xmlizer is requested.
 	 * @return the xmlizer.
 	 * @pre writer != null and da != null
 	 * @post result != null
 	 */
-	private StmtAndMethodBasedDependencyXMLizer getXMLizerFor(final Writer writer,
-			final IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?> da) {
-		StmtAndMethodBasedDependencyXMLizer _result = null;
+	private <T1 extends Stmt, E2 extends Stmt> StmtAndMethodBasedDependencyXMLizer<T1, E2> getXMLizerFor(final Writer writer,
+			final IDependencyAnalysis<T1, SootMethod, ?, E2, SootMethod, ?> da) {
+		StmtAndMethodBasedDependencyXMLizer<T1, E2> _result = null;
 		final List<IDependencyAnalysis.DependenceSort> _t = new ArrayList<IDependencyAnalysis.DependenceSort>(da.getIds());
 		Collections.sort(_t);
 
 		final String _xmlizerId = _t.toString();
-
 		final String _temp = PROPERTIES.getProperty(_xmlizerId);
 
 		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
 			try {
-				_result = new StmtAndMethodBasedDependencyXMLizer(new CustomXMLOutputter(writer), getIdGenerator(), da);
+				_result = new StmtAndMethodBasedDependencyXMLizer<T1, E2>(new CustomXMLOutputter(writer), getIdGenerator(),
+						da);
 			} catch (final UnsupportedEncodingException _e) {
 				LOGGER.error("UTF-8 encoding is unsupported.  Now, this contradicts the documentation!!", _e);
 			}
@@ -201,8 +204,9 @@ public final class DependencyXMLizer
 	 * @pre rootname != null and ctrl != null
 	 * @post result != null
 	 */
-	private Map<StmtAndMethodBasedDependencyXMLizer, Writer> initXMLizers(final Map info, final ProcessingController ctrl) {
-		final Map<StmtAndMethodBasedDependencyXMLizer, Writer> _result = new HashMap<StmtAndMethodBasedDependencyXMLizer, Writer>();
+	private Map<StmtAndMethodBasedDependencyXMLizer<?, ?>, Writer> initXMLizers(final Map info,
+			final ProcessingController ctrl) {
+		final Map<StmtAndMethodBasedDependencyXMLizer<?, ?>, Writer> _result = new HashMap<StmtAndMethodBasedDependencyXMLizer<?, ?>, Writer>();
 
 		if (getXmlOutputDir() == null) {
 			LOGGER.error("Please specify an output directory while using the xmlizer.");
@@ -211,12 +215,13 @@ public final class DependencyXMLizer
 
 		for (final Iterator<Comparable<?>> _i = AbstractDependencyAnalysis.IDENTIFIERS.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
-			final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?>> _col = (Collection) info.get(_id);
+			final Collection<IDependencyAnalysis<? extends Stmt, SootMethod, ?, ? extends Stmt, SootMethod, ?>> _col = (Collection) info
+					.get(_id);
 
 			if (_col != null) {
-				for (final Iterator<IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?>> _j = _col.iterator(); _j
-						.hasNext();) {
-					final IDependencyAnalysis<Stmt, SootMethod, ?, Stmt, SootMethod, ?> _da = _j.next();
+				for (final Iterator<IDependencyAnalysis<? extends Stmt, SootMethod, ?, ? extends Stmt, SootMethod, ?>> _j = _col
+						.iterator(); _j.hasNext();) {
+					final IDependencyAnalysis<? extends Stmt, SootMethod, ?, ? extends Stmt, SootMethod, ?> _da = _j.next();
 					String _providedFileName = (String) info.get(FILE_NAME_ID);
 
 					if (_providedFileName == null) {
@@ -230,7 +235,7 @@ public final class DependencyXMLizer
 
 					try {
 						final FileWriter _writer = new FileWriter(_f);
-						final StmtAndMethodBasedDependencyXMLizer _xmlizer = getXMLizerFor(_writer, _da);
+						final StmtAndMethodBasedDependencyXMLizer<?, ?> _xmlizer = getXMLizerFor(_writer, _da);
 
 						if (_xmlizer == null) {
 							LOGGER.error("No xmlizer specified for dependency calculated by " + _da.getClass()

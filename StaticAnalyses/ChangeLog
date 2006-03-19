@@ -1,5 +1,10 @@
 2006-03-18 venku <venku@boss.dreamsoft.com>
 
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/StmtAndMethodBasedDependencyXMLizer.java: 
+		- Genericized this class.  This required we have access to type arguments to the class.  We facilitated this via the
+		reflection API.  This further requires that type arguments be provided when creating instances of this class.
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizer.java: 
+		- ripple effect of changes to StmtAndMethodBasedDependencyXMLizer.
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/DataAliasBasedCallingContextRetrieverV2.java: 
 		- ripple effect of change in DataAliasBasedCallingContextRetriever
 		- bug fix for the reopening of #768 on 03/11/2006
