@@ -41,7 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.ExceptionRaisingAnalysis;
 import edu.ksu.cis.indus.staticanalyses.cfg.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.DataAliasBasedCallingContextRetrieverV2;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.DataAliasBasedCallingContextRetrieverV3;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetrieverV2;
@@ -671,9 +671,9 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		threadGraph.reset();
 		activePart.activate();
 
-        if (daController != null) {
-            daController.reset();
-        }
+		if (daController != null) {
+			daController.reset();
+		}
 	}
 
 	/**
@@ -997,7 +997,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 				_t2.setCallGraph(getCallGraph());
 				_map.put(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA, _t2);
 
-				final DataAliasBasedCallingContextRetrieverV2 _t3 = new DataAliasBasedCallingContextRetrieverV2(
+				final DataAliasBasedCallingContextRetrieverV3 _t3 = new DataAliasBasedCallingContextRetrieverV3(
 						_callingContextLimit);
 				_t3.setCallGraph(getCallGraph());
 				_t3.setThreadGraph(threadGraph);
