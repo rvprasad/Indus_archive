@@ -21,9 +21,6 @@ import java.util.Collection;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
-import soot.jimple.FieldRef;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.StaticFieldRef;
 
 /**
  * This implementation provides program-point-relative intra-thread calling contexts based on equivalence-class based
@@ -56,14 +53,9 @@ public class DataAliasBasedCallingContextRetrieverV3
 		final Value _value;
 
 		if (_stmt.containsArrayRef()) {
-			_value = _stmt.getArrayRef().getBase();
+			_value = _stmt.getArrayRef();
 		} else {
-			final FieldRef _fr = _stmt.getFieldRef();
-			if (_fr instanceof StaticFieldRef) {
-				_value = _fr;
-			} else {
-				_value = ((InstanceFieldRef) _fr).getBase();
-			}
+			_value = _stmt.getFieldRef();
 		}
 
 		boolean _result = true;
