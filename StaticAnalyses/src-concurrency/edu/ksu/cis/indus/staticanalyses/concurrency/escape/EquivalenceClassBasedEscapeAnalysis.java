@@ -318,6 +318,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
 
+		processGlobalAliasSets();
+		processMethodsForAccessToGlobalData();
 		stable();
 		escapeInfo.stableAdapter();
 		objectReadWriteInfo.stableAdapter();
@@ -484,6 +486,75 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final MethodContext _calleeContext = method2Triple.get(callee).getFirst();
 		return _calleeContext.getImageOfRefInGivenContext(ref, _callingContext);
 
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> getMethodInfo(final SootMethod method) {
+		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
+		// we need to do the following even if _sm does not have a body because every
+		// reachable method should have a method context.
+		if (method2Triple.containsKey(method)) {
+			_triple = method2Triple.get(method);
+		} else {
+			final MethodContext _methodContext = new MethodContext(method, this);
+			_triple = new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_methodContext,
+					new HashMap<Local, AliasSet>(), new HashMap<CallTriple, MethodContext>());
+			method2Triple.put(method, _triple);
+		}
+		return _triple;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param sm DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	boolean isMethodAtomic(final SootMethod sm) {
+		final MethodContext _m = getMethodInfo(sm).getFirst();
+		boolean _result = _m.getThrownAS().isSharedDataReachable();
+
+		if (_m.getThisAS() != null) {
+			_result |= _m.getThisAS().isSharedDataReachable();
+		}
+
+		if (!_result && _m.getReturnAS() != null) {
+			_result |= _m.getReturnAS().isSharedDataReachable();
+		}
+
+		final int _iEnd = sm.getParameterCount();
+		for (int _i = 0; _i < _iEnd && !_result; _i++) {
+			final AliasSet _arg = _m.getParamAS(_i);
+			if (_arg != null) {
+				_result |= _arg.isSharedDataReachable();
+			}
+		}
+
+		if (!_result) {
+			for (final AliasSet _as : method2Triple.get(sm).getSecond().values()) {
+				if (_as != null) {
+					_result |= _as.isSharedDataReachable();
+				}
+			}
+		}
+
+		return !_result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param sm DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	boolean isMethodSealed(final SootMethod sm) {
+		final MethodContext _m = getMethodInfo(sm).getFirst();
+		return isMethodAtomic(sm) || !(_m.isGlobalDataRead() || _m.isGlobalDataWritten());
 	}
 
 	/**
@@ -753,24 +824,84 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
-	 * @param method DOCUMENT ME!
-	 * @return DOCUMENT ME!
 	 */
-	Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> getMethodInfo(final SootMethod method) {
-		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
-		// we need to do the following even if _sm does not have a body because every
-		// reachable method should have a method context.
-		if (method2Triple.containsKey(method)) {
-			_triple = method2Triple.get(method);
-		} else {
-			final MethodContext _methodContext = new MethodContext(method, this);
-			_triple = new Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>>(_methodContext,
-					new HashMap<Local, AliasSet>(), new HashMap<CallTriple, MethodContext>());
-			method2Triple.put(method, _triple);
+	private void processGlobalAliasSets() {
+		final Collection<AliasSet> _proc = new HashSet<AliasSet>();
+		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(_proc);
+		for (final AliasSet _as : class2aliasSet.values()) {
+			_wb.clear();
+			_proc.clear();
+			_wb.addWork(_as.find());
+			while (_wb.hasWork()) {
+				final AliasSet _a = _wb.getWork();
+				_a.setGlobal();
+				for (final AliasSet _fs : _a.getFieldMap().values()) {
+					_wb.addWork(_fs.find());
+				}
+			}
 		}
-		return _triple;
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private void processMethodsForAccessToGlobalData() {
+		final Collection<AliasSet> _proc = new HashSet<AliasSet>();
+		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(_proc);
+
+		for (final SootMethod _sm : method2Triple.keySet()) {
+			final Triple<MethodContext, ?, ?> _t = method2Triple.get(_sm);
+			final MethodContext _m = _t.getFirst();
+			_wb.clear();
+			_proc.clear();
+
+			if (_m.getThisAS() != null) {
+				_wb.addWork(_m.getThisAS());
+			}
+
+			if (_m.getReturnAS() != null) {
+				_wb.addWork(_m.getReturnAS());
+			}
+
+			final int _iEnd = _sm.getParameterCount();
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final AliasSet _arg = _m.getParamAS(_iIndex);
+				if (_arg != null) {
+					_wb.addWork(_arg);
+				}
+			}
+
+			_wb.addWork(_m.getThrownAS());
+
+			for (final AliasSet _as : method2Triple.get(_sm).getSecond().values()) {
+				if (_as != null) {
+					_wb.addWork(_as);
+				}
+			}
+
+			boolean _read = _m.isGlobalDataRead();
+			boolean _written = _m.isGlobalDataWritten();
+			while (_wb.hasWork() && !(_read && _written)) {
+				final AliasSet _a = _wb.getWork();
+				if (_a.isGlobal()) {
+					_read |= _a.wasAnyFieldRead();
+					_written |= _a.wasAnyFieldWritten();
+				}
+				for (final AliasSet _fs : _a.getFieldMap().values()) {
+					_wb.addWork(_fs.find());
+				}
+			}
+
+			if (_read) {
+				_m.globalDataWasRead();
+			}
+
+			if (_written) {
+				_m.globalDataWasWritten();
+			}
+		}
+	}
+
 }
 
 // End of File

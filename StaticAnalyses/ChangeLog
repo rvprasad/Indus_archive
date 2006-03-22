@@ -1,3 +1,17 @@
+2006-03-22 venku <venku@boss.dreamsoft.com>
+
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeAndReadWriteCLI.java: 
+		- added logic to extract and output atomiticity and sealing information.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ValueProcessor.java: 
+		- the change to MethodContext resulted elimination of notification of global data reading in the processor.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/MethodContext.java: 
+		- added logic to improve soundness and accuracy of read/write info about global data.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/AliasSet.java: 
+		- added features to capture global-ness and to provide information about shared data for purpose of sealing and 
+		atomicity.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java: 
+		- added new methods to provide atomicity and sealing information.
+		
 2006-03-18 venku <venku@boss.dreamsoft.com>
 
 	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/StmtAndMethodBasedDependencyXMLizer.java: 

@@ -209,12 +209,6 @@ final class ValueProcessor
 		final AliasSet _base = ecba.getASForClass(_field.getDeclaringClass());
 		final AliasSet _fieldAS = processField(v.getType(), _base, _field.getSignature());
 		setResult(_fieldAS);
-
-		if (rhs) {
-			ecba.methodCtxtCache.globalDataWasRead();
-		} else {
-			ecba.methodCtxtCache.globalDataWasWritten();
-		}
 	}
 
 	/**

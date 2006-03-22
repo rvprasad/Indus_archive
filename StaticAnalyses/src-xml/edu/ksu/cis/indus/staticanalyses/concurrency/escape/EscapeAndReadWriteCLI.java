@@ -210,6 +210,7 @@ public class EscapeAndReadWriteCLI
 		for (final Iterator<SootMethod> _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _sm = _i.next();
 			System.out.println("Method: " + _sm.getSignature());
+			System.out.println("\tsealed: " + _ecba.isMethodSealed(_sm) + ", atomic: " + _ecba.isMethodAtomic(_sm));
 			if (!_sm.isStatic()) {
 				System.out.println("\tthis:");
 				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));

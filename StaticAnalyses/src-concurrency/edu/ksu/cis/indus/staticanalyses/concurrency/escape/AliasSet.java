@@ -95,6 +95,13 @@ final class AliasSet
 	private Map<String, AliasSet> fieldMap;
 
 	/**
+	 * This field indicates if this alias set is associated with a static field or a field reachable from a static field.  
+	 * This field is orthogonal to sharing information.  It is used solely for the purpose of tracking globalness of the alias sets
+	 * and if methods read and write global data.
+	 */
+	private boolean global;
+
+	/**
 	 * DOCUMENT ME!
 	 */
 	private Collection<Object> intraProcRefEntities;
@@ -111,7 +118,7 @@ final class AliasSet
 
 	/**
 	 * This is used to indicate that the alias set represents an object that is accessible in multiple threads. This differs
-	 * from <code>shared</code> as this captures the exposure of the object in multiple threads and not the access.
+	 * from sharing as this captures the exposure of the object in multiple threads and not the access.
 	 */
 	private boolean multiThreadAccessibility;
 
@@ -641,6 +648,53 @@ final class AliasSet
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
+	 */
+	boolean isGlobal() {
+		return find().global;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
+	 */
+	boolean isGlobalDataReachable() {
+		boolean _result = false;
+		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
+		_wb.addWork(find());
+		while (!_result && _wb.hasWork()) {
+			final AliasSet _a = _wb.getWork();
+			_result |= _a.isGlobal();
+			for (final AliasSet _fs : _a.getFieldMap().values()) {
+				_wb.addWork(_fs.find());
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
+	 */
+	boolean isSharedDataReachable() {
+		boolean _result = false;
+		final IWorkBag<AliasSet> _process = new HistoryAwareLIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
+		_process.addWork(find());
+		while (_process.hasWork() && !_result) {
+			final AliasSet _as = _process.getWork();
+			_result |= _as.multiThreadAccessibility;
+			for (final AliasSet _fs : _as.getFieldMap().values()) {
+				_process.addWork(_fs.find());
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the object associated with this alias set is accessed by multiple threads for locks and unlocks.
 	 * 
 	 * @return <code>true</code> if the object is lock-unlock shared; <code>false</code>, otherwise.
@@ -806,6 +860,21 @@ final class AliasSet
 	 */
 	void setAccessed() {
 		find().accessed = true;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	void setGlobal() {
+		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
+		_wb.addWork(find());
+		while (_wb.hasWork()) {
+			final AliasSet _a = _wb.getWork();
+			_a.global = true;
+			for (final AliasSet _fs : _a.getFieldMap().values()) {
+				_wb.addWork(_fs.find());
+			}
+		}
 	}
 
 	/**

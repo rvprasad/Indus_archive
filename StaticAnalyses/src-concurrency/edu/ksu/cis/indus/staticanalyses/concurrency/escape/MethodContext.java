@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ import soot.Type;
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports/SAnToS-TR2003-6.pdf">Honing the Detection of Interference and
  * Ready Dependence for Slicing Concurrent Java Programs.</a> This serves more as a container for the various alias
  * sets/equivalence classes that occur at the method interface.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -58,7 +57,7 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the return value of the associated method.
-	 *
+	 * 
 	 * @invariant AliasSet.canHaveAliasSet(method.getReturnType()) implies ret != null
 	 * @invariant not AliasSet.canHaveAliasSet(method.getReturnType()) implies ret == null
 	 */
@@ -66,7 +65,7 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the <code>this</code> variable of the associated method.
-	 *
+	 * 
 	 * @invariant method.isStatic() implies thisAS == null
 	 * @invariant not method.isStatic() implies thisAS != null
 	 */
@@ -74,14 +73,14 @@ final class MethodContext
 
 	/**
 	 * The alias set associated with the exceptions thrown by the associated method.
-	 *
+	 * 
 	 * @invariant thrown != null
 	 */
 	AliasSet thrown;
 
 	/**
 	 * The alias sets associated with the arguments to the associated method.
-	 *
+	 * 
 	 * @invariant method.getParameterTypes()->forall(o | AliasSet.canHaveAliasSet(o) implies
 	 *            argAliasSets.get(method.getParameterTypes().indexOf(o)) != null)
 	 * @invariant method.getParameterTypes()->forall(o | not AliasSet.canHaveAliasSet(o) implies
@@ -111,7 +110,7 @@ final class MethodContext
 
 	/**
 	 * Creates a new MethodContext object.
-	 *
+	 * 
 	 * @param sm is the method being represented by this object.
 	 * @param thisASParam is the alias set corresponding to "this" variable.
 	 * @param argASs is the alias sets corresponding to the arguments/parameters of the method.
@@ -139,7 +138,7 @@ final class MethodContext
 	/**
 	 * Creates a new MethodContext object. The alias sets for the various parts of the method interface is created as
 	 * required.
-	 *
+	 * 
 	 * @param sm is the method being represented by this object.
 	 * @param analysis that created this instance.
 	 * @pre sm != null and analysis != null
@@ -175,7 +174,7 @@ final class MethodContext
 	/**
 	 * Fixes up the field maps of the alias sets in the given map. When alias sets are cloned, the field maps are cloned.
 	 * Hence, they are shallow copied. This method clones the relation between the alias sets among their clones.
-	 *
+	 * 
 	 * @param src2clone maps an representative alias set to it's clone. This is also an out parameter that will contain new
 	 *            mappings.
 	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
@@ -232,7 +231,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the clone corresponding to the equivalence class of the given alias set.
-	 *
+	 * 
 	 * @param src2clone maps alias set to alias set.
 	 * @param as for which the clone is required.
 	 * @return an alias set.
@@ -257,7 +256,7 @@ final class MethodContext
 
 	/**
 	 * Clones this object.
-	 *
+	 * 
 	 * @return clone of this object.
 	 * @throws CloneNotSupportedException if <code>java.lang.Object.clone()</code> fails.
 	 */
@@ -375,7 +374,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set in the given method context that corresponds to the given alias set in this method context.
-	 *
+	 * 
 	 * @param ref the reference alias set that occurs in this context.
 	 * @param context the context in which <code>ref</code> occurs.
 	 * @return the alias set in this context and that corresponds to <code>ref</code>. This will be <code>null</code> if
@@ -429,7 +428,7 @@ final class MethodContext
 	/**
 	 * Retrieves the alias set corresponding to the parameter occuring at position <code>index</code> in the method
 	 * interface.
-	 *
+	 * 
 	 * @param index is the position of the parameter.
 	 * @return the corresponding alias set.
 	 */
@@ -439,7 +438,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to the return value of the method.
-	 *
+	 * 
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getReturnAS() {
@@ -448,7 +447,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to "this" variable of the method.
-	 *
+	 * 
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getThisAS() {
@@ -457,7 +456,7 @@ final class MethodContext
 
 	/**
 	 * Retrieves the alias set corresponding to the exceptions thrown by the method.
-	 *
+	 * 
 	 * @return the corresponding alias set.
 	 * @post result != null
 	 */
@@ -481,7 +480,7 @@ final class MethodContext
 
 	/**
 	 * Provides information if this method reads global data.
-	 *
+	 * 
 	 * @return <code>true</code> if global data is read by this method; <code>false</code>, otherwise.
 	 */
 	boolean isGlobalDataRead() {
@@ -490,7 +489,7 @@ final class MethodContext
 
 	/**
 	 * Provides information if this method writes global data.
-	 *
+	 * 
 	 * @return <code>true</code> if global data is written by this method; <code>false</code>, otherwise.
 	 */
 	boolean isGlobalDataWritten() {
@@ -529,7 +528,7 @@ final class MethodContext
 	/**
 	 * Propogates the information from the source (this) context to the destination context. Please refer to the {@link
 	 * #unifyMethodContext(MethodContext) unify(MethodContext)} for important information.
-	 *
+	 * 
 	 * @param to is the destination of the information transfer.
 	 * @pre to != null
 	 */
@@ -546,22 +545,21 @@ final class MethodContext
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_fromRep.method.getParameterType(_i))) {
 				final AliasSet _temp1 = argAliasSets.get(_i);
-                
-                if (_temp1 != null) {
-                    /*
-                     * NULL-ARGUMENT SCENARIO:
-                     * We check if the argument at the position _i was a null constant when this method context
-                     * was created.  If so, then we decided not propagate the effect.  For this reason, the reference
-                     * to the original method context should be retained and the propagation should be considered to
-                     * be directional.
-                     */
-   	    			final AliasSet _temp2 = _toRep.argAliasSets.get(_i);
-                    final AliasSet _temp3 = _fromRep.argAliasSets.get(_i);
 
-		    		if (_temp3 != null && _temp2 != null) {
-			    		_temp3.propogateInfoFromTo(_temp2);
-				    }
-                }
+				if (_temp1 != null) {
+					/*
+					 * NULL-ARGUMENT SCENARIO: We check if the argument at the position _i was a null constant when this
+					 * method context was created. If so, then we decided not propagate the effect. For this reason, the
+					 * reference to the original method context should be retained and the propagation should be considered to
+					 * be directional.
+					 */
+					final AliasSet _temp2 = _toRep.argAliasSets.get(_i);
+					final AliasSet _temp3 = _fromRep.argAliasSets.get(_i);
+
+					if (_temp3 != null && _temp2 != null) {
+						_temp3.propogateInfoFromTo(_temp2);
+					}
+				}
 			}
 		}
 
@@ -621,7 +619,7 @@ final class MethodContext
 	 * non-null argument may be provided. In such cases, we safely warn and continue. However, this cannot happen for thrown
 	 * exception, this, or return references. associated with call sites and methods.
 	 * </p>
-	 *
+	 * 
 	 * @param p is the context with which the unification should occur.
 	 */
 	void unifyMethodContext(final MethodContext p) {
@@ -668,17 +666,15 @@ final class MethodContext
 
 	/**
 	 * Unifies the given alias sets.
-	 *
-	 * @param representative
-	 *            is one of the alias set to be unified.
-	 * @param represented
-	 *            is the other alias set to be unified.
+	 * 
+	 * @param representative is one of the alias set to be unified.
+	 * @param represented is the other alias set to be unified.
 	 * @pre representative != null and represented != null
 	 */
 	private void unifyAliasSets(final AliasSet representative, final AliasSet represented) {
 		if ((representative == null && represented != null) || (representative != null && represented == null)) {
 			LOGGER.error("Incompatible method contexts being unified - representative - " + representative
-						+ "\n represented - " + represented);
+					+ "\n represented - " + represented);
 			throw new IllegalStateException("Unifying null aliasSet");
 		} else if (representative != null) {
 			representative.unifyAliasSet(represented);
