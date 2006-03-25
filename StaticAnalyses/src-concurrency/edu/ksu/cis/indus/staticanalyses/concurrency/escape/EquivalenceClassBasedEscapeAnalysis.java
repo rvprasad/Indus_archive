@@ -579,8 +579,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * 
 	 * @param v is the value for which the alias set is requested.
 	 * @param sm is the method in which <code>v</code> occurs.
-	 * @return the alias set corresponding to <code>v</code>.
-	 * @throws IllegalArgumentException if <code>sm</code> was not analyzed.
+	 * @return the alias set corresponding to <code>v</code>. <code>null</code> if <code>sm</code> was not analyzed.
 	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
 	 *      v.isOclKindOf(InstanceFieldRef) or v.isOclIsKindOf(ParameterRef)
 	 */
@@ -591,37 +590,40 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _trp = method2Triple.get(sm);
 
-		if (_trp == null) {
-			throw new IllegalArgumentException("Method " + sm + " was not analyzed.");
-		}
-
-		final Map<Local, AliasSet> _local2AS = _trp.getSecond();
 		final AliasSet _result;
-
-		if (v instanceof InstanceFieldRef) {
-			final InstanceFieldRef _i = (InstanceFieldRef) v;
-			final AliasSet _temp = _local2AS.get(_i.getBase());
-			_result = _temp.getASForField(_i.getField().getSignature());
-		} else if (v instanceof StaticFieldRef) {
-			final SootField _field = ((StaticFieldRef) v).getField();
-			final AliasSet _base = getASForClass(_field.getDeclaringClass());
-			_result = _base.getASForField(_field.getSignature());
-		} else if (v instanceof ArrayRef) {
-			final ArrayRef _a = (ArrayRef) v;
-			final AliasSet _temp = _local2AS.get(_a.getBase());
-			_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
-		} else if (v instanceof Local) {
-			_result = _local2AS.get(v);
-		} else if (v instanceof ThisRef) {
-			_result = _trp.getFirst().getThisAS();
-		} else if (v instanceof ParameterRef) {
-			_result = _trp.getFirst().getParamAS(((ParameterRef) v).getIndex());
-		} else if (v instanceof CaughtExceptionRef) {
-			final String _msg = "CaughtExceptionRef cannot be handled.";
-			LOGGER.error(_msg);
-			throw new IllegalArgumentException(_msg);
-		} else {
+		if (_trp == null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Non-existent method triple for " + sm);
+			}
 			_result = null;
+		} else {
+			final Map<Local, AliasSet> _local2AS = _trp.getSecond();
+	
+			if (v instanceof InstanceFieldRef) {
+				final InstanceFieldRef _i = (InstanceFieldRef) v;
+				final AliasSet _temp = _local2AS.get(_i.getBase());
+				_result = _temp.getASForField(_i.getField().getSignature());
+			} else if (v instanceof StaticFieldRef) {
+				final SootField _field = ((StaticFieldRef) v).getField();
+				final AliasSet _base = getASForClass(_field.getDeclaringClass());
+				_result = _base.getASForField(_field.getSignature());
+			} else if (v instanceof ArrayRef) {
+				final ArrayRef _a = (ArrayRef) v;
+				final AliasSet _temp = _local2AS.get(_a.getBase());
+				_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD); 
+			} else if (v instanceof Local) {
+				_result = _local2AS.get(v);
+			} else if (v instanceof ThisRef) {
+				_result = _trp.getFirst().getThisAS();
+			} else if (v instanceof ParameterRef) {
+				_result = _trp.getFirst().getParamAS(((ParameterRef) v).getIndex());
+			} else if (v instanceof CaughtExceptionRef) {
+				final String _msg = "CaughtExceptionRef cannot be handled.";
+				LOGGER.error(_msg);
+				throw new IllegalArgumentException(_msg);
+			} else {
+				_result = null;
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {

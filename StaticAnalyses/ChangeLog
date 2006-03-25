@@ -1,3 +1,8 @@
+2006-03-25 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java: 
+		- null is returned instead of raising an exception an unanalyzed method is provided as input to queryAliasSet() method.
+
 2006-03-22 venku <venku@boss.dreamsoft.com>
 
 	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeAndReadWriteCLI.java: 
