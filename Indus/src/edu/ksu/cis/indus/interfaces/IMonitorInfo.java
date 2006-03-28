@@ -54,27 +54,6 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 			extends IObjectDirectedGraph<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 
 		/**
-		 * Retrieves the monitor triples that are immediately enclosed by the given <code>monitor</code>.
-		 * 
-		 * @param monitor of interest.
-		 * @return a colleciton of monitor triples.
-		 * @pre monitor != null
-		 * @post result != null and result->forall(o | o != null)
-		 */
-		Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getImmediatelyEnclosedMonitorTriples(
-				final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
-
-		/**
-		 * Retrieves the monitor triples that are immediately enclosed by the given <code>monitor</code>.
-		 * 
-		 * @param monitor of interest.
-		 * @return a colleciton of monitor triples.
-		 * @pre monitor != null
-		 * @post result != null and result->forall(o | o != null)
-		 */
-		Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getImmediatelyEnclosingMonitorTriples(
-				final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
-		/**
 		 * Retrieves the statements enclosed by the given monitor triple, both intra and interprocedurally.
 		 * 
 		 * @param monitorTriple describes the monitor of interest.
@@ -86,7 +65,7 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 		 */
 		Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(
 				final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple, final boolean transitive);
-		
+
 		/**
 		 * Retrieves the monitor triples for monitors enclosing the given statement in the given method, both intra and
 		 * interprocedurally.

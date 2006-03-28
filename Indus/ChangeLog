@@ -2,6 +2,8 @@
 
 	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java: 
 		- extend the interface to provide immediate enclosure information.
+		- fortunately, the above information is already available by toggling the "transitive" flag on other methods.  Hence,
+		the above change has been unrolled.
 
 2006-03-07 venku <venku@boss.dreamsoft.com>
 
