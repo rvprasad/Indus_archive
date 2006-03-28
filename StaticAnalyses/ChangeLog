@@ -1,3 +1,9 @@
+2006-03-28 venku <venku@boss.dreamsoft.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/MonitorAnalysis.java: 
+		- the condition that checked types on enter and exit monitor was weak in shouldCollectInfo().  Further, the result
+		was used conservatively. FIXED.
+
 2006-03-25 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java: 

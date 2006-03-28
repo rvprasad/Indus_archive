@@ -32,7 +32,6 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
-import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
@@ -218,29 +217,6 @@ public final class MonitorAnalysis
 		 * Retrieves the statements enclosed in the monitor of the synchronized method. This retrieves inter procedural
 		 * enclosures.
 		 * 
-		 * @param method of interest.
-		 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
-		 * @return a map from methods to statements in them that occur in the enclosure.
-		 * @pre method != null
-		 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
-		 */
-		private Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(final SootMethod method,
-				final boolean transitive) {
-			final Collection<Stmt> _intraStmts = getEnclosedStmts(new Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>(
-					null, null, method), transitive);
-			final Map<SootMethod, Collection<Stmt>> _method2stmts = new HashMap<SootMethod, Collection<Stmt>>();
-			_method2stmts.put(method, _intraStmts);
-
-			final Iterator<Stmt> _stmtsWithInvokeExpr = IteratorUtils.filteredIterator(_intraStmts.iterator(),
-					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
-			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
-			return _method2stmts;
-		}
-
-		/**
-		 * Retrieves the statements enclosed in the monitor of the synchronized method. This retrieves inter procedural
-		 * enclosures.
-		 * 
 		 * @param monitorStmt of interest.
 		 * @param method of interest.
 		 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
@@ -261,6 +237,29 @@ public final class MonitorAnalysis
 				_intraStmts.addAll(getEnclosedStmts(_monitor, transitive));
 			}
 
+			final Map<SootMethod, Collection<Stmt>> _method2stmts = new HashMap<SootMethod, Collection<Stmt>>();
+			_method2stmts.put(method, _intraStmts);
+
+			final Iterator<Stmt> _stmtsWithInvokeExpr = IteratorUtils.filteredIterator(_intraStmts.iterator(),
+					SootPredicatesAndTransformers.INVOKING_STMT_PREDICATE);
+			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
+			return _method2stmts;
+		}
+
+		/**
+		 * Retrieves the statements enclosed in the monitor of the synchronized method. This retrieves inter procedural
+		 * enclosures.
+		 * 
+		 * @param method of interest.
+		 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
+		 * @return a map from methods to statements in them that occur in the enclosure.
+		 * @pre method != null
+		 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+		 */
+		private Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(final SootMethod method,
+				final boolean transitive) {
+			final Collection<Stmt> _intraStmts = getEnclosedStmts(new Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>(
+					null, null, method), transitive);
 			final Map<SootMethod, Collection<Stmt>> _method2stmts = new HashMap<SootMethod, Collection<Stmt>>();
 			_method2stmts.put(method, _intraStmts);
 
@@ -1216,10 +1215,9 @@ public final class MonitorAnalysis
 		 */
 		final Type _enterType = enter.getOp().getType();
 		final Type _exitType = exit.getOp().getType();
-		boolean _result = Util.isSameOrSubType(_enterType, _exitType, ofa.getEnvironment())
-				|| Util.isSameOrSubType(_exitType, _enterType, ofa.getEnvironment());
+		boolean _result = _enterType.equals(_exitType);
 
-		if (!_result) {
+		if (_result) {
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 			_context.setProgramPoint(enter.getOpBox());
