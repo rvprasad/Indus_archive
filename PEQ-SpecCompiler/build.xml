@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="peq-specCompiler" default="build" basedir=".">
+    <description>Builds, tests, and runs the project PEQ-SpecCompiler.</description>
+	<import file="prelocalbuild.xml" />
+	<target name="init">
+		<tstamp />
+	</target>
+	
+	<target name="localbuild" depends="init">
+		<mkdir dir="${build.dir}" />
+		<javac source="1.4" target="1.4" destdir="${build.dir}" debug="on" 
+			debuglevel="${debuglevel}" includes="**/*.java">
+			<src refid="${ant.project.name}.srcpath" />
+			<classpath refid="${classpath}" />
+		</javac>
+	</target>
+	
+	<target name="jar" depends="init">
+		<jar destfile="${jarfile}">
+            <fileset dir="${build.dir}">
+                <exclude name="**/.*"/>
+                <exclude name="**/*Test.class"/>
+                <exclude name="**/*TestSetup.class"/>
+                <exclude name="**/*TestSuite.class"/>
+                <exclude name="**/*TestCase.class"/>
+                <exclude name="**/*Test$*.class"/>            	
+            	<exclude name="**/*Test?.class"/>
+            </fileset>
+        </jar>
+	</target>
+
+	<target name="buildAndJar" depends="build">
+        <antcall target="jar"/>
+	</target>
+
+	<target name="build" depends="init">
+		<mkdir dir="${build.dir}" />
+		<antcall target="localbuild">
+					<param name="srcpath" value="${ant.project.name}.srcpath" />
+					<param name="classpath" value="${ant.project.name}.classpath" />
+ 					<param name="debuglevel" value="lines" />
+		</antcall>		
+	</target>
+	
+	<target name="docs" depends="init">
+			<antcall target="javadocs">
+				<param name="access" value="protected" />
+				<param name="jdklink" value="${remote.jdk.link}" />
+				<param name="srcpath" value="${ant.project.name}.srcpath" />
+				<param name="exclude" value="yes" />
+			</antcall>
+		</target>
+	
+	    <target name="dist" depends="build,docs">
+			<antcall target="backup" />
+		</target>
+	
+	<target name="backup" depends="init">
+			<mkdir dir="${dist}" />
+			<property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}" />
+			<jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz" />
+			<tar tarfile="${filename}.tar"
+			     basedir="."
+			     excludes="**/\..*, **/rational/html/**"
+			     includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"	/>
+			<gzip src="${filename}.tar" zipfile="${filename}.tgz" />
+			<delete file="${filename}.tar" />
+		</target>
+	
+		<target name="javadocs">
+			<delete dir="${docs}/javadocs" />
+			<mkdir dir="${docs}/javadocs" />
+			<javadoc packagenames="${package}.*"
+			         destdir="${docs}/javadocs"
+			         access="${access}"
+			         use="true"
+			         author="true"
+			         additionalparam="-breakiterator"
+			         defaultexcludes="${exclude}"
+			         doctitle="&lt;b>PEQ, a parametric regular path query library.&lt;/b>"
+					 source="1.4">
+				<classpath refid="${ant.project.name}.classpath" />
+				<sourcepath refid="${srcpath}" />
+				<link href="${jdklink}" />
+				<tag name="pre" description="Precondition:" scope="constructors,methods" />
+				<tag name="post" description="Postcondition:" scope="constructors,methods" />
+			</javadoc>
+		</target>
+	
+	 <target name="clean" depends="init">
+		<delete includeEmptyDirs="true" quiet="true">
+			<fileset dir="${build.dir}" includes="**/*" />
+		</delete>
+		<delete dir="${docs}/javadocs" quiet="true" />	
+	</target>
+	
+</project>

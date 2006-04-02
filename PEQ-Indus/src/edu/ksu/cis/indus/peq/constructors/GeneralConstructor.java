@@ -19,8 +19,6 @@ import edu.ksu.cis.indus.peq.graph.Edge;
 import edu.ksu.cis.peq.constructor.interfaces.IConstructor;
 import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 /**
  * @author ganeshan
  *

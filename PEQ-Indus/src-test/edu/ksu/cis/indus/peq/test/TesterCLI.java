@@ -63,13 +63,12 @@ public final class TesterCLI {
             final QueryObject _qo = _qc.getQueryObject(_query);
             if (_qo != null) {
                 final FSMBuilder$v1_2 _builder = new FSMBuilder$v1_2(_qo);
-                final IState _state = _builder.getInitialState();
                 EpsClosureConvertor _ecc = new EpsClosureConvertor(_builder);
                 _ecc.processShallow();
                 final IFSM _eFreeFSM = _ecc.getResult();
                 final EFreeNFA2DFATransformer _efn2dt = new EFreeNFA2DFATransformer(_eFreeFSM);
 				_efn2dt.process();				
-                describeFSM(_efn2dt.getDfaAutomata().getInitialState(), new HashSet());
+                describeFSM(_efn2dt.getDfaAutomata().getInitialState(), new HashSet<IState>());
             }
         } catch (IOException _ie) {
             _ie.printStackTrace();
@@ -84,7 +83,7 @@ public final class TesterCLI {
      *            The current state.
      * @param reachSet The reach set.
      */
-    private static void describeFSM(final IState state, final Set reachSet) {
+    private static void describeFSM(final IState state, final Set<IState> reachSet) {
         if (!reachSet.contains(state)) {
             reachSet.add(state);
         } else return;

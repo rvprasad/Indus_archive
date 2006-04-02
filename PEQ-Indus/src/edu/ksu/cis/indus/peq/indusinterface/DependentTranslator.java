@@ -49,7 +49,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getControlInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.CONTROL_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.CONTROL_DA);
     }
 
     /**
@@ -59,7 +59,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getIDataInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
     }
 
     /**
@@ -70,7 +70,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getRefDataInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA);
     }
     /**
      * @param informationStmt
@@ -79,7 +79,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getDvgInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DIVERGENCE_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.DIVERGENCE_DA);
     }
 
     /**
@@ -89,7 +89,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getIntfInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.INTERFERENCE_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
     }
 
     /**
@@ -99,7 +99,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getSyncInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.SYNCHRONIZATION_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.SYNCHRONIZATION_DA);
     }
 
     /**
@@ -109,7 +109,7 @@ public class DependentTranslator extends AbstractDependenceAnalyser {
     public Collection getReadyInfo(Pair informationStmt) {
         final Stmt _stmt = (Stmt) informationStmt.getFirst();
         final SootMethod _sm = (SootMethod) informationStmt.getSecond();
-        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.READY_DA);
+        return super.getDependentInfo(_stmt, _sm, IDependencyAnalysis.DependenceSort.READY_DA);
     }
 
 }

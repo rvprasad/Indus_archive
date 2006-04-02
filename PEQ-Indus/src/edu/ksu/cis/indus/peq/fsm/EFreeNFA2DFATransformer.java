@@ -39,13 +39,6 @@ public class EFreeNFA2DFATransformer {
     private IFSM srcAutomata;
     
     /**
-     * The dfa automata for the source automata.
-     * 
-     */
-    private IFSM dfaAutomata;
-    
-    
-    /**
      * The map of sets of old states to new automata states.
      * @inv stateSet2NewStateMap.keys.oclIsKindOf(Set(State)) and 
      * stateSet2NewStateMap.values.oclIsKindOf(State)

@@ -1,0 +1,15 @@
+<project>
+    <property file="antbuild.properties"/>        
+    <property name="package" value="edu.ksu.cis.indus.peq"/>
+    <property name="ant.project.name" value="peq-specCompiler"/>
+   
+    <path id="peq-specCompiler.srcpath">
+        <pathelement location="src"/>
+    </path>
+    
+    <property name="home" value="${basedir}"/>
+    
+      <path id="peq-specCompiler.classpath">
+	    <pathelement location="${home}/lib/antlr.jar"/>	   
+	 </path>  
+</project>

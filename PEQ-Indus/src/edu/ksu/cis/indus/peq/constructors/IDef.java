@@ -24,8 +24,6 @@ import edu.ksu.cis.indus.peq.graph.Edge;
 import edu.ksu.cis.indus.peq.graph.Node;
 import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 /**
  * @author ganeshan
  *
@@ -48,11 +46,10 @@ public class IDef extends GeneralConstructor {
             final Value _val = _dsdt.getLeftOp();
             if (!(_val instanceof Local)) {
                 throw new IllegalArgumentException("Left operand of definition stmt is not a local");
-            } else {
-                if (!cons.getVariableName().equals("_")) {   
-                    _token.getSubstituitionMap().put(cons.getVariableName(), _val);
-                }
             }
+			if (!cons.getVariableName().equals("_")) {   
+			    _token.getSubstituitionMap().put(cons.getVariableName(), _val);
+			}
             
         } else if(!(cons instanceof WcConstructor)) {
             _token.setEmpty(true);

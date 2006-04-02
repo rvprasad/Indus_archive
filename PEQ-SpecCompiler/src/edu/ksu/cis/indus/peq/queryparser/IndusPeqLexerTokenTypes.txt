@@ -1,0 +1,20 @@
+// $ANTLR : IndusPEQLanguageSpecification.g -> IndusPeqLexerTokenTypes.txt$
+IndusPeqLexer    // output token vocab name
+LPAREN=4
+RPAREN=5
+IDENT=6
+WS=7
+RANGLE=8
+LITERAL_cdepd="cdepd"=9
+LITERAL_cdept="cdept"=10
+LITERAL_dvgd="dvgd"=11
+LITERAL_dvgdt="dvgdt"=12
+LITERAL_readydd="readydd"=13
+LITERAL_readydt="readydt"=14
+LITERAL_syncdd="syncdd"=15
+LITERAL_syncdt="syncdt"=16
+LITERAL_datadef="datadef"=17
+LITERAL_datause="datause"=18
+LITERAL_intfdd="intfdd"=19
+LITERAL_intfdt="intfdt"=20
+LITERAL_wc="wc"=21

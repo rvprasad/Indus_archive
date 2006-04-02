@@ -24,6 +24,7 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -55,7 +56,7 @@ public class AbstractDependenceAnalyser {
      * @param depType The dependence type.
      * @return Collection The collection of dependee program points.
      */
-    protected Collection getDependeeInfo(final Stmt stmt, final SootMethod sm, final Object depType) {
+    protected Collection getDependeeInfo(final Stmt stmt, final SootMethod sm, final IDependencyAnalysis.DependenceSort depType) {
         if (sTool == null) {
             return Collections.EMPTY_LIST;
         }
@@ -82,7 +83,7 @@ public class AbstractDependenceAnalyser {
      * @param depType The dependence type.
      * @return Collection The collection of dependee program points.
      */
-    protected Collection getDependentInfo(final Stmt stmt, final SootMethod sm, final Object depType) {
+    protected Collection getDependentInfo(final Stmt stmt, final SootMethod sm, final IDependencyAnalysis.DependenceSort depType) {
         if (sTool == null) {
             return Collections.EMPTY_LIST;
         }

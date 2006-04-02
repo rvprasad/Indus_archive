@@ -23,11 +23,6 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * The interface to Indus.
  */
 public class IndusInterface {
-
-    /**
-     * The slicer tool instance.
-     */
-    private SlicerTool sTool;
     
     /**
      * The class instance.
@@ -44,7 +39,6 @@ public class IndusInterface {
     
     
     public void setSlicer(final SlicerTool sTool) {
-        this.sTool = sTool;
         dependeeTranslator.setSlicerTool(sTool);
         dependentTranslator.setSlicerTool(sTool);
     }

@@ -1,0 +1,20 @@
+// $ANTLR : L1LanguageSpecification.g -> Level1LexerTokenTypes.txt$
+Level1Lexer    // output token vocab name
+LPAREN=4
+RPAREN=5
+LBRACKET=6
+RBRACKET=7
+LBRACE=8
+RBRACE=9
+ONE_OR_MORE=10
+ZERO_OR_MORE=11
+ZERO_OR_ONE=12
+NEG=13
+ALTERNATION=14
+ANY=15
+SEMICOLON=16
+NAME=17
+WS=18
+LANGLE=19
+LITERAL_Uquery="Uquery"=20
+LITERAL_Equery="Equery"=21
