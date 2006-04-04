@@ -210,6 +210,7 @@ public class DeadlockAnalysisCLI
 		System.out.println("Total number of monitors: " + _monitorInfo.getMonitorTriples().size());
 		calculateDeadlockInfo(_aa, _monitorInfo, null, null);
 		calculateDeadlockInfo(_aa, _monitorInfo, _escapeInfo, null);
+		calculateDeadlockInfo(_aa, _monitorInfo, null, _lbe);
 		calculateDeadlockInfo(_aa, _monitorInfo, _escapeInfo, _lbe);
 	}
 
@@ -226,7 +227,8 @@ public class DeadlockAnalysisCLI
 		final DeadlockAnalysis _dla = new DeadlockAnalysis(monitorInfo, aa, lbe, escapeInfo);
 		final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _deadlockingMonitors = _dla
 				.getDeadlockingMonitors();
-		System.out.println("Deadlocking Monitors: " + _deadlockingMonitors.size());
+		System.out.println("Deadlocking Monitors: " + _deadlockingMonitors.size() + " -- using escapeInfo :"
+				+ (escapeInfo != null) + " -- using locking based equiv : " + (lbe != null));
 		for (final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> _m : _deadlockingMonitors) {
 			System.out.println("\t" + _m);
 		}
