@@ -1,3 +1,12 @@
+2006-04-04 venku <venku@boss.dreamsoft.com>
+
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeAndReadWriteCLI.java: 
+		- removed the code that instantiated locking based equivalence analysis.
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/DeadlockAnalysisCLI.java: 
+		- added a CLI driver to test deadlock analysis.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/DeadlockAnalysis.java: 
+		- added a new analysis to detect locks that contribute to deadlocks.
+		
 2006-03-28 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/MonitorAnalysis.java: 
