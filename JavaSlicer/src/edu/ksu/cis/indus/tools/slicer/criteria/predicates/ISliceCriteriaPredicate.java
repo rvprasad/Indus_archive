@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * This is the interface used to filter the basis of criteria during automatic criteria generation.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -27,9 +27,11 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  */
 public interface ISliceCriteriaPredicate<T>
 		extends IPredicate<T> {
+
 	/**
 	 * Checks if the entity should be generated based on the given entity.
-	 *
+	 * 
+	 * @param <T1> DOCUMENT ME!
 	 * @param entity forms the base for the criteria.
 	 * @return <code>true</code> if
 	 * @pre entity != null and slicer != null
@@ -38,7 +40,7 @@ public interface ISliceCriteriaPredicate<T>
 
 	/**
 	 * Sets the slicer tool in conjunction of which this filter is being used.
-	 *
+	 * 
 	 * @param slicer is the tool to be used.
 	 */
 	void setSlicerTool(SlicerTool<?> slicer);
