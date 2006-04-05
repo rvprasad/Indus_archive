@@ -122,6 +122,11 @@ public final class RelativeDependenceInfoTool
 		public static final String CALCULATOR_CLASS = "edu.ksu.cis.indus.toolkits.bandera.DependenceAndMayFollowInfoCalculator";
 
 		/**
+		 * This identifies the method level atomicity info in the to-be serizalized output map.
+		 */
+		public static final Object ATOMIC_METHODS = "edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.atomicMethods";
+
+		/**
 		 * This identifies the dependence info in the to-be serizalized output map.
 		 */
 		public static final Object DEPENDENCE = "edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.dependence";
@@ -236,6 +241,11 @@ public final class RelativeDependenceInfoTool
 	 * The collection of array referring bir locations.
 	 */
 	final Collection<String> arrayRefs = new HashSet<String>();
+
+	/**
+	 * The collection of signatures of atomic methods.
+	 */
+	final Collection<String> atomicMethodSignatures = new HashSet<String>();
 
 	/**
 	 * This is dependence info in terms of bir locations.
@@ -373,6 +383,7 @@ public final class RelativeDependenceInfoTool
 		_map.put(Constants.LOCK_ACQUISITIONS, lockAcquisitions);
 		_map.put(Constants.ARRAY_REFS, arrayRefs);
 		_map.put(Constants.FIELD_REFS, fieldRefs);
+		_map.put(Constants.ATOMIC_METHODS, atomicMethodSignatures);
 		return Collections.singletonMap(SERIALIZE_DATA_OUTPUT, _map);
 	}
 
@@ -584,6 +595,12 @@ public final class RelativeDependenceInfoTool
 
 		if (abort) {
 			return;
+		}
+
+		for (final SootMethod _sm : _cgi.getReachableMethods()) {
+			if (_ecba.isMethodAtomic(_sm)) {
+				atomicMethodSignatures.add(RelativeDependenceInfoTool.constructMethodName(_sm));
+			}
 		}
 
 		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_ecba.getEscapeInfo(), _cgi);

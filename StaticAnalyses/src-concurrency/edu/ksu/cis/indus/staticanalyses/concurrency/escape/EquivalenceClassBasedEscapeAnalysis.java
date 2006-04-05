@@ -360,6 +360,54 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param sm DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public boolean isMethodAtomic(final SootMethod sm) {
+		final MethodContext _m = getMethodInfo(sm).getFirst();
+		boolean _result = _m.getThrownAS().isSharedDataReachable();
+
+		if (_m.getThisAS() != null) {
+			_result |= _m.getThisAS().isSharedDataReachable();
+		}
+
+		if (!_result && _m.getReturnAS() != null) {
+			_result |= _m.getReturnAS().isSharedDataReachable();
+		}
+
+		final int _iEnd = sm.getParameterCount();
+		for (int _i = 0; _i < _iEnd && !_result; _i++) {
+			final AliasSet _arg = _m.getParamAS(_i);
+			if (_arg != null) {
+				_result |= _arg.isSharedDataReachable();
+			}
+		}
+
+		if (!_result) {
+			for (final AliasSet _as : method2Triple.get(sm).getSecond().values()) {
+				if (_as != null) {
+					_result |= _as.isSharedDataReachable();
+				}
+			}
+		}
+
+		return !_result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param sm DOCUMENT ME!
+	 * @return DOCUMENT ME!
+	 */
+	public boolean isMethodSealed(final SootMethod sm) {
+		final MethodContext _m = getMethodInfo(sm).getFirst();
+		return isMethodAtomic(sm) || !(_m.isGlobalDataRead() || _m.isGlobalDataWritten());
+	}
+
+	/**
 	 * Reset internal data structures.
 	 */
 	@Override public void reset() {
@@ -511,54 +559,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
-	 * 
-	 * @param sm DOCUMENT ME!
-	 * @return DOCUMENT ME!
-	 */
-	boolean isMethodAtomic(final SootMethod sm) {
-		final MethodContext _m = getMethodInfo(sm).getFirst();
-		boolean _result = _m.getThrownAS().isSharedDataReachable();
-
-		if (_m.getThisAS() != null) {
-			_result |= _m.getThisAS().isSharedDataReachable();
-		}
-
-		if (!_result && _m.getReturnAS() != null) {
-			_result |= _m.getReturnAS().isSharedDataReachable();
-		}
-
-		final int _iEnd = sm.getParameterCount();
-		for (int _i = 0; _i < _iEnd && !_result; _i++) {
-			final AliasSet _arg = _m.getParamAS(_i);
-			if (_arg != null) {
-				_result |= _arg.isSharedDataReachable();
-			}
-		}
-
-		if (!_result) {
-			for (final AliasSet _as : method2Triple.get(sm).getSecond().values()) {
-				if (_as != null) {
-					_result |= _as.isSharedDataReachable();
-				}
-			}
-		}
-
-		return !_result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param sm DOCUMENT ME!
-	 * @return DOCUMENT ME!
-	 */
-	boolean isMethodSealed(final SootMethod sm) {
-		final MethodContext _m = getMethodInfo(sm).getFirst();
-		return isMethodAtomic(sm) || !(_m.isGlobalDataRead() || _m.isGlobalDataWritten());
-	}
-
-	/**
-	 * DOCUMENT ME!
 	 */
 	void markMultiThreadedSystem() {
 		multiThreadedSystem = true;
@@ -598,7 +598,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			_result = null;
 		} else {
 			final Map<Local, AliasSet> _local2AS = _trp.getSecond();
-	
+
 			if (v instanceof InstanceFieldRef) {
 				final InstanceFieldRef _i = (InstanceFieldRef) v;
 				final AliasSet _temp = _local2AS.get(_i.getBase());
@@ -610,7 +610,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (v instanceof ArrayRef) {
 				final ArrayRef _a = (ArrayRef) v;
 				final AliasSet _temp = _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD); 
+				_result = _temp.getASForField(IReadWriteInfo.ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				_result = _local2AS.get(v);
 			} else if (v instanceof ThisRef) {
