@@ -369,7 +369,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final MethodContext _m = getMethodInfo(sm).getFirst();
 		boolean _result = _m.getThrownAS().isSharedDataReachable();
 
-		if (_m.getThisAS() != null) {
+		if (!_result && _m.getThisAS() != null) {
 			_result |= _m.getThisAS().isSharedDataReachable();
 		}
 
@@ -404,7 +404,36 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public boolean isMethodSealed(final SootMethod sm) {
 		final MethodContext _m = getMethodInfo(sm).getFirst();
-		return isMethodAtomic(sm) || !(_m.isGlobalDataRead() || _m.isGlobalDataWritten());
+		boolean _result = isMethodAtomic(sm);
+		if (!_result) {
+			boolean _r = _m.getThrownAS().isGlobalDataReachable();
+
+			if (!_r && _m.getThisAS() != null) {
+				_r |= _m.getThisAS().isGlobalDataReachable();
+			}
+
+			if (!_r && _m.getReturnAS() != null) {
+				_r |= _m.getReturnAS().isGlobalDataReachable();
+			}
+
+			final int _iEnd = sm.getParameterCount();
+			for (int _i = 0; _i < _iEnd && !_r; _i++) {
+				final AliasSet _arg = _m.getParamAS(_i);
+				if (_arg != null) {
+					_r |= _arg.isGlobalDataReachable();
+				}
+			}
+
+			if (!_r) {
+				for (final AliasSet _as : method2Triple.get(sm).getSecond().values()) {
+					if (_as != null) {
+						_r |= _as.isGlobalDataReachable();
+					}
+				}
+			}
+			_result = !_r;
+		}
+		return _result;
 	}
 
 	/**

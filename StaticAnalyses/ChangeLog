@@ -2,6 +2,7 @@
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java: 
 		- publicized the query methods for atomicity and sealing property.
+		- changed the logic to calculate sealed methods.
 	* src/edu/ksu/cis/indus/toolkits/bandera/RelativeDependenceInfoTool.java: 
 		- added logic to output signatures of atomic methods.
 
@@ -23,7 +24,8 @@
 2006-03-25 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EquivalenceClassBasedEscapeAnalysis.java: 
-		- null is returned instead of raising an exception an unanalyzed method is provided as input to queryAliasSet() method.
+		- null is returned instead of raising an exception an unanalyzed method is provided as input to queryAliasSet() 
+		method.
 
 2006-03-22 venku <venku@boss.dreamsoft.com>
 
