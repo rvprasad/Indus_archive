@@ -5,6 +5,7 @@
 		- changed the logic to calculate sealed methods.
 	* src/edu/ksu/cis/indus/toolkits/bandera/RelativeDependenceInfoTool.java: 
 		- added logic to output signatures of atomic methods.
+		- added logic to output signatures of non-atomic sealed methods.
 
 2006-04-04 venku <venku@boss.dreamsoft.com>
 

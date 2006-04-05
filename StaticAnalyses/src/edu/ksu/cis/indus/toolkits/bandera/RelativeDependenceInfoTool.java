@@ -127,6 +127,12 @@ public final class RelativeDependenceInfoTool
 		public static final Object ATOMIC_METHODS = "edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.atomicMethods";
 
 		/**
+		 * This identifies the method level sealing (runtime conditional atomicity) info (for non-atomic methods) in the to-be
+		 * serizalized output map.
+		 */
+		public static final Object NON_ATOMIC_SEALED_METHODS = "edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.sealedMethods";
+
+		/**
 		 * This identifies the dependence info in the to-be serizalized output map.
 		 */
 		public static final Object DEPENDENCE = "edu.ksu.cis.projects.bogor.module.por.indus.RDPORSchedulingStrategist.dependence";
@@ -246,6 +252,11 @@ public final class RelativeDependenceInfoTool
 	 * The collection of signatures of atomic methods.
 	 */
 	final Collection<String> atomicMethodSignatures = new HashSet<String>();
+
+	/**
+	 * The collection of signatures of non-atomic sealed methods.
+	 */
+	final Collection<String> nonAtomicSealedMethodSignatures = new HashSet<String>();
 
 	/**
 	 * This is dependence info in terms of bir locations.
@@ -384,6 +395,7 @@ public final class RelativeDependenceInfoTool
 		_map.put(Constants.ARRAY_REFS, arrayRefs);
 		_map.put(Constants.FIELD_REFS, fieldRefs);
 		_map.put(Constants.ATOMIC_METHODS, atomicMethodSignatures);
+		_map.put(Constants.NON_ATOMIC_SEALED_METHODS, nonAtomicSealedMethodSignatures);
 		return Collections.singletonMap(SERIALIZE_DATA_OUTPUT, _map);
 	}
 
@@ -600,6 +612,8 @@ public final class RelativeDependenceInfoTool
 		for (final SootMethod _sm : _cgi.getReachableMethods()) {
 			if (_ecba.isMethodAtomic(_sm)) {
 				atomicMethodSignatures.add(RelativeDependenceInfoTool.constructMethodName(_sm));
+			} else if (_ecba.isMethodSealed(_sm)) {
+				nonAtomicSealedMethodSignatures.add(RelativeDependenceInfoTool.constructMethodName(_sm));
 			}
 		}
 
