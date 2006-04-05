@@ -540,7 +540,7 @@ public final class RelativeDependenceInfoTool
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
-		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final CallGraphInfo _cgi = new CallGraphInfo(_pairManager);
 		final CFGAnalysis _cfgAnalysis = new CFGAnalysis(_cgi, _bbm);
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, _cfgAnalysis, _pairManager);
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
@@ -568,14 +568,16 @@ public final class RelativeDependenceInfoTool
 			return;
 		}
 
-		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, null, _bbm);
-		_info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
 		_callGraphInfoCollector.reset();
 		_processors.clear();
 		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
 		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Call Graph: \n" + _cgi.toString());
+		}
 
 		if (abort) {
 			return;
@@ -587,6 +589,8 @@ public final class RelativeDependenceInfoTool
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, _bbm);
+		_info.put(IEscapeInfo.ID, _ecba.getEscapeInfo());
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, _bbm);
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
@@ -615,6 +619,11 @@ public final class RelativeDependenceInfoTool
 			} else if (_ecba.isMethodSealed(_sm)) {
 				nonAtomicSealedMethodSignatures.add(RelativeDependenceInfoTool.constructMethodName(_sm));
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Atomic methods : " + atomicMethodSignatures);
+			LOGGER.debug("Non-atomic Sealed methods : " + nonAtomicSealedMethodSignatures);
 		}
 
 		final LockAcquisitionBasedEquivalence _lbe = new LockAcquisitionBasedEquivalence(_ecba.getEscapeInfo(), _cgi);

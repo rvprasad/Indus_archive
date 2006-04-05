@@ -150,7 +150,7 @@ public class EscapeAndReadWriteCLI
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection<IProcessor> _processors = new ArrayList<IProcessor>();
 		final PairManager _pairManager = new PairManager(false, true);
-		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final CallGraphInfo _cgi = new CallGraphInfo(_pairManager);
 		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
@@ -180,7 +180,6 @@ public class EscapeAndReadWriteCLI
 		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
-		_cgi.reset();
 		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
