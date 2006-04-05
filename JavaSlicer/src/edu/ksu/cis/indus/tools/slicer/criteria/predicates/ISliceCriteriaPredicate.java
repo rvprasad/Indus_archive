@@ -29,16 +29,6 @@ public interface ISliceCriteriaPredicate<T>
 		extends IPredicate<T> {
 
 	/**
-	 * Checks if the entity should be generated based on the given entity.
-	 * 
-	 * @param <T1> DOCUMENT ME!
-	 * @param entity forms the base for the criteria.
-	 * @return <code>true</code> if
-	 * @pre entity != null and slicer != null
-	 */
-	<T1 extends T> boolean evaluate(final T1 entity);
-
-	/**
 	 * Sets the slicer tool in conjunction of which this filter is being used.
 	 * 
 	 * @param slicer is the tool to be used.
