@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
 import java.util.Collection;
 
@@ -69,15 +68,13 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 * Creates an instance of this instance.
 	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
-	 * @param dependenceID id of the dependence type for which this retriever is used.
-	 * @pre depenenceID != null
-	 * @pre dependenceId.equals(IDependencyAnalysis.DependenceSort.READY_DA) or
-	 *      dependenceId.equals(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA)
+	 * @param preserveReady DOCUMENT ME!
+	 * @param preserveInterference DOCUMENT ME!
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final Object dependenceID) {
+	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final boolean preserveReady, final boolean preserveInterference) {
 		super(callContextLenLimit);
-		readyBased = dependenceID.equals(IDependencyAnalysis.DependenceSort.READY_DA);
-		interferenceBased = dependenceID.equals(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
+		readyBased = preserveReady;
+		interferenceBased = preserveInterference;
 	}
 
 	/**
@@ -188,27 +185,32 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 * @return DOCUMENT ME!
 	 */
 	protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken, final AliasSet calleeSideToken) {
-		final boolean _considerToken;
+		final boolean _considerForInterference;
 		if (interferenceBased) {
 			final Collection<?> _callerRWEntities = callerSideToken.getReadWriteShareEntities();
 			final Collection<?> _calleeRWEntities = calleeSideToken.getReadWriteShareEntities();
-			_considerToken = _callerRWEntities == null || _calleeRWEntities == null
-					|| CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
-		} else if (readyBased) {
+			_considerForInterference = _callerRWEntities != null && _calleeRWEntities != null
+					&& CollectionUtils.containsAny(_callerRWEntities, _calleeRWEntities);
+		} else {
+			_considerForInterference = false;
+		}
+		
+		final boolean _considerForReady;
+		final boolean _considerForLock;
+		if (readyBased) {
 			final Collection<?> _callerReadyEntities = callerSideToken.getReadyEntities();
 			final Collection<?> _calleeReadyEntities = calleeSideToken.getReadyEntities();
-			final boolean _b2 = _callerReadyEntities == null || _calleeReadyEntities == null
-					|| CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
+			_considerForReady = _callerReadyEntities != null && _calleeReadyEntities != null
+					&& CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
 			final Collection<?> _callerLockEntities = callerSideToken.getLockEntities();
 			final Collection<?> _calleeLockEntities = calleeSideToken.getLockEntities();
-			_considerToken = _b2
-					|| (_callerLockEntities == null || _calleeLockEntities == null || CollectionUtils.containsAny(
-							_callerLockEntities, _calleeLockEntities));
-
+			_considerForLock = _callerLockEntities != null || _calleeLockEntities != null && CollectionUtils.containsAny(
+							_callerLockEntities, _calleeLockEntities);
 		} else {
-			_considerToken = true;
+			_considerForReady = false;
+			_considerForLock = false;
 		}
-		return !_considerToken;
+		return !_considerForInterference && !_considerForReady && !_considerForLock;
 	}
 
 }

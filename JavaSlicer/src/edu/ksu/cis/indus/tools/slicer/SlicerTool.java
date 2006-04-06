@@ -982,7 +982,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 				final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> _map = new HashMap<IDependencyAnalysis.DependenceSort, ICallingContextRetriever>();
 				final int _callingContextLimit = slicerConfig.getCallingContextLimit();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
-						_callingContextLimit, IDependencyAnalysis.DependenceSort.READY_DA);
+						_callingContextLimit, true, false);
 				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t1.setEscapeInfo(getEscapeInfo());
 				_t1.setECBA(ecba);
@@ -990,7 +990,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 				_map.put(IDependencyAnalysis.DependenceSort.READY_DA, _t1);
 
 				final ThreadEscapeInfoBasedCallingContextRetriever _t2 = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
-						_callingContextLimit, IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
+						_callingContextLimit, false, true);
 				// new ThreadEscapeInfoBasedCallingContextRetriever(_callingContextLimit);
 				_t2.setEscapeInfo(getEscapeInfo());
 				_t2.setECBA(ecba);

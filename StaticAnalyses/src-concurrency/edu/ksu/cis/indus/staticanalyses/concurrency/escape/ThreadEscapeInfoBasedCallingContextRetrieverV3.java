@@ -43,13 +43,11 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 	 * Creates an instance of this instance.
 	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
-	 * @param dependenceID id of the dependence type for which this retriever is used.
-	 * @pre depenenceID != null
-	 * @pre dependenceId.equals(IDependencyAnalysis.DependenceSort.READY_DA) or
-	 *      dependenceId.equals(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA)
+	 * @param preserveReady <i>refer to the constructor of the super class</i>.
+	 * @param preserveInterference <i>refer to the constructor of the super class</i>.
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV3(final int callContextLenLimit, final Object dependenceID) {
-		super(callContextLenLimit, dependenceID);
+	public ThreadEscapeInfoBasedCallingContextRetrieverV3(final int callContextLenLimit, final boolean preserveReady, final boolean preserveInterference) {
+		super(callContextLenLimit, preserveReady, preserveInterference);
 	}
 
 	/**

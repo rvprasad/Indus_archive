@@ -1150,7 +1150,7 @@ public final class SlicerConfiguration
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
 				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
 				final ThreadEscapeInfoBasedCallingContextRetrieverV2 _retriever = new ThreadEscapeInfoBasedCallingContextRetrieverV2(
-						getCallingContextLimit(), IDependencyAnalysis.DependenceSort.INTERFERENCE_DA);
+						getCallingContextLimit(), true, false);
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer(_retriever));
 			} else {
 				final String _msg = "Deadlock preservation criteria generation could not be configured due to illegal "

@@ -1,3 +1,9 @@
+2006-04-06 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java: 
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java: 
+		- ripple effect of change to ThreadEscapeInfoBasedCallingContextRetrieverV2 constructor.
+
 2006-03-18 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java: 
