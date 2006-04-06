@@ -210,6 +210,9 @@ public class EscapeAndReadWriteCLI
 				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));
 				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, _emptyStringArray, true));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
+				System.out.println("\t\tmulti-thread RW = " + _escapeInfo.thisFieldAccessShared(_sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
+				System.out.println("\t\tmulti-thread LU = " + _escapeInfo.thisLockUnlockShared(_sm));
+				System.out.println("\t\tmulti-thread WN = " + _escapeInfo.thisWaitNotifyShared(_sm));
 				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
 				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
 
