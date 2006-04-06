@@ -538,8 +538,8 @@ public class BackwardSlicingPart
 	 */
 	private void generateCriteriaForReceiverOfAt(final Stmt callStmt, final SootMethod caller) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt + ", SootMethod caller = " + caller
-					+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
+			LOGGER.debug("generateCriteriaForReceiverOfAt(Stmt invocationStmt = " + callStmt + ", SootMethod caller = "
+					+ caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		if (!callStmt.getInvokeExpr().getMethod().isStatic()) {
@@ -548,7 +548,7 @@ public class BackwardSlicingPart
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaForReceiver(), stack = " + engine.getCopyOfCallStackCache() + " - END");
+			LOGGER.debug("generateCriteriaForReceiverOfAt(), stack = " + engine.getCopyOfCallStackCache() + " - END");
 		}
 	}
 
