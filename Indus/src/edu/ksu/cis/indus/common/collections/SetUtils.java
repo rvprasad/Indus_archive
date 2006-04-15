@@ -31,16 +31,6 @@ public class SetUtils {
 	// /CLOVER:OFF
 
 	/**
-	 * DOCUMENT ME!
-	 */
-	public static final IFactory<Set> SET_FACTORY = new IFactory<Set>() {
-
-		public Set create() {
-			return new HashSet();
-		}
-	};
-
-	/**
 	 * Creates an instance of this class.
 	 */
 	public SetUtils() {
@@ -69,10 +59,16 @@ public class SetUtils {
 	/**
 	 * DOCUMENT ME!
 	 * 
+	 * @param <T> DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
 	public static <T> IFactory<Set<T>> getFactory() {
-		return (IFactory<Set<T>>) SET_FACTORY;
+		return new IFactory<Set<T>>() {
+
+			public Set<T> create() {
+				return new HashSet<T>();
+			}
+		};
 	}
 
 	/**

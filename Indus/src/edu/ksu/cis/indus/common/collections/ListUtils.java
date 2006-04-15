@@ -26,16 +26,6 @@ import java.util.List;
  */
 public final class ListUtils {
 
-	/**
-	 * DOCUMENT ME!
-	 */
-	public static final IFactory<List> LIST_FACTORY = new IFactory<List>() {
-
-		public List<Object> create() {
-			return new ArrayList<Object>();
-		}
-	};
-
 	// / CLOVER:OFF
 	/**
 	 * Creates an instance of this class.
@@ -126,12 +116,17 @@ public final class ListUtils {
 
 	/**
 	 * DOCUMENT ME!
-	 * @param <T> DOCUMENT ME!
 	 * 
+	 * @param <T> DOCUMENT ME!
 	 * @return DOCUMENT ME!
 	 */
 	public static <T> IFactory<List<T>> getFactory() {
-		return (IFactory<List<T>>) LIST_FACTORY;
+		return new IFactory<List<T>>() {
+
+			public List<T> create() {
+				return new ArrayList<T>();
+			}
+		};
 	}
 
 }

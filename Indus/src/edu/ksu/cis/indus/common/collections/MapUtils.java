@@ -31,17 +31,6 @@ import java.util.Set;
  */
 public final class MapUtils {
 
-	/**
-	 * DOCUMENT ME!
-	 */
-	public static final IFactory<Map> MAP_FACTORY = new IFactory<Map>() {
-
-		public Map create() {
-			return new HashMap();
-		}
-
-	};
-
 	// / CLOVER:OFF
 	/**
 	 * Creates an instance of this class.
@@ -124,7 +113,13 @@ public final class MapUtils {
 	 * @return DOCUMENT ME!
 	 */
 	public static <K, V> IFactory<Map<K, V>> getFactory() {
-		return (IFactory<Map<K, V>>) MAP_FACTORY;
+		return new IFactory<Map<K, V>>() {
+
+			public Map create() {
+				return new HashMap<K, V>();
+			}
+
+		};
 	}
 
 	/**
