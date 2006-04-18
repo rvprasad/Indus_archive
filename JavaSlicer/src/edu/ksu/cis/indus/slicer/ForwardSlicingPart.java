@@ -76,7 +76,7 @@ public class ForwardSlicingPart
 	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
 	 */
-	@Empty(value = "false") public boolean continueProcessing() {
+	@Empty public boolean continueProcessing() {
 		return false;
 	}
 

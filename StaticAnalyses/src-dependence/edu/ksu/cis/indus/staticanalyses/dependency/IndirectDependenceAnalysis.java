@@ -104,7 +104,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#doesPreProcessing()
 	 */
-	@Empty("false") public boolean doesPreProcessing() {
+	@Empty public boolean doesPreProcessing() {
 		return false;
 	}
 
@@ -185,7 +185,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#getPreProcessor()
 	 */
-	@Empty("null") public IProcessor getPreProcessor() {
+	@Empty public IProcessor getPreProcessor() {
 		return null;
 	}
 
