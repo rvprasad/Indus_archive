@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +48,7 @@ public final class RetrievableSet<E>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public boolean add(final E o) {
+	@Override public boolean add(@Immutable final E o) {
 		final boolean _result = !map.containsKey(o);
 
 		if (_result) {
@@ -63,7 +67,7 @@ public final class RetrievableSet<E>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public boolean contains(final Object o) {
+	@Functional @Override public boolean contains(final Object o) {
 		return map.containsKey(o);
 	}
 
@@ -76,7 +80,7 @@ public final class RetrievableSet<E>
 	 * @pre o != null
 	 * @post result != null and result.equals(o)
 	 */
-	public E get(final E o) {
+	@Functional public E get(final E o) {
 		final E _result;
 
 		if (map.containsKey(o)) {
@@ -90,14 +94,14 @@ public final class RetrievableSet<E>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public Iterator<E> iterator() {
+	@Functional @NonNull @Override public Iterator<E> iterator() {
 		return map.keySet().iterator();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public boolean remove(final Object o) {
+	@Override public boolean remove(@Immutable final Object o) {
 		final boolean _result = map.containsKey(o);
 
 		if (_result) {
@@ -109,7 +113,7 @@ public final class RetrievableSet<E>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override public int size() {
+	@Functional @Override public int size() {
 		return map.size();
 	}
 }

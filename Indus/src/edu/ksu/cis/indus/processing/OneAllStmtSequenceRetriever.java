@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.processing;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -54,7 +54,7 @@ public final class OneAllStmtSequenceRetriever
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty public OneAllStmtSequenceRetriever() {
+	@Empty public OneAllStmtSequenceRetriever() {
 		// does nothing
 	}
 

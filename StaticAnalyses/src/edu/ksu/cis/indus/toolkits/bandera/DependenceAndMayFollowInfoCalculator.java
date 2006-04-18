@@ -384,7 +384,7 @@ class DependenceAndMayFollowInfoCalculator
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("consolidate() - Dependence Relation -" + MapUtils.verbosePrint(_temp1)
 						+ "\n May Follow Relation - " + MapUtils.verbosePrint(_temp3) + "\n" + "Known Transitions:\n"
-						+ CollectionUtils.verbosePrint(_temp2) + "\nLock Acquisitions:\n"
+						+ CollectionUtils.prettyPrint(_temp2) + "\nLock Acquisitions:\n"
 						+ CollectionUtils.prettyPrint(_temp4) + "\nArray Refs:\n" + CollectionUtils.prettyPrint(_temp5)
 						+ "\nField Refs:\n" + CollectionUtils.prettyPrint(_temp6));
 				LOGGER.debug("consolidate()" + this.tool.dependence.equals(_temp1) + " " + this.tool.seenStmts.equals(_temp2)

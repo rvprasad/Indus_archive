@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,20 +14,23 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This is a First-in-First-out implementation of the workbag.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <T> The type of work handled by this work bag.
  */
 public final class FIFOWorkBag<T>
-  extends AbstractWorkBag<T> {
+		extends AbstractWorkBag<T> {
+
 	/**
-	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWork(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public void addWork(final T o) {
+	public void addWork(@Immutable final T o) {
 		container.add(o);
 		updateInternal(o);
 	}

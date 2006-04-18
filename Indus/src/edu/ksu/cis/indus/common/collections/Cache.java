@@ -13,18 +13,21 @@
  */
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
- * DOCUMENT ME!
- *
+ * This is a least-recently-accessed algorithm based cache implementation.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <K> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
+ * @param <K> the type of the key in this cache.
+ * @param <V> the type of the value in this cache.
  */
 public final class Cache<K, V>
 		extends LinkedHashMap<K, V> {
@@ -35,60 +38,52 @@ public final class Cache<K, V>
 	private static final long serialVersionUID = 4347239164041878764L;
 
 	/**
-	 * DOCUMENT ME!
+	 * The default load factor to be used when none is specified. This is taken from the super class
+	 */
+	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+	/**
+	 * The number of elements this cache will hold.
 	 */
 	private final int maximumCapacity;
 
 	/**
-	 * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
-	 */
-	@Override protected boolean removeEldestEntry(@SuppressWarnings("unused") final Entry<K, V> eldest) {
-		return size() > maximumCapacity;
-	}
-
-	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param loadFactor DOCUMENT ME!
-	 * @param maxCapacity DOCUMENT ME!
+	 * 
+	 * @param loadFactor <i>see the documentation in the super class.</i>
+	 * @param maxCapacity <i>see the documentation in the super class.</i>
 	 */
-	public Cache(final float loadFactor, final int maxCapacity) {
-		super(maxCapacity, loadFactor);
+	public Cache(final int maxCapacity, final float loadFactor) {
+		super(maxCapacity, loadFactor, true);
 		maximumCapacity = maxCapacity;
 	}
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param maxCapacity DOCUMENT ME!
+	 * 
+	 * @param maxCapacity <i>see the documentation in the super class.</i>
 	 */
 	public Cache(final int maxCapacity) {
-		super(maxCapacity);
+		super(maxCapacity, DEFAULT_LOAD_FACTOR, true);
 		maximumCapacity = maxCapacity;
 	}
 
 	/**
 	 * Creates an instance of this class.
-	 *
-	 * @param m DOCUMENT ME!
-	 * @param maxCapacity DOCUMENT ME!
+	 * 
+	 * @param m is the map whose mappings should be injected into this map.
+	 * @param maxCapacity is the threshold on the size of this cache.
 	 */
-	public Cache(final Map<K, V> m, final int maxCapacity) {
+	public Cache(@NonNull @Immutable final Map<K, V> m, final int maxCapacity) {
 		this(maxCapacity);
 		putAll(m);
 	}
 
 	/**
-	 * Creates an instance of this class.
-	 *
-	 * @param initialCapacity DOCUMENT ME!
-	 * @param loadFactor DOCUMENT ME!
-	 * @param accessOrder DOCUMENT ME!
-	 * @param maxCapacity DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
-	public Cache(final float loadFactor, final boolean accessOrder, final int maxCapacity) {
-		super(maxCapacity, loadFactor, accessOrder);
-		maximumCapacity = maxCapacity;
+	@Functional @Override protected boolean removeEldestEntry(@SuppressWarnings("unused") final Map.Entry<K, V> eldest) {
+		return size() > maximumCapacity;
 	}
 
 }

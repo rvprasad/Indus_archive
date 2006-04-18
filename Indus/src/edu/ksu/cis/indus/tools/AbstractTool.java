@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.tools;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.tools.IToolProgressListener.ToolProgressEvent;
@@ -327,7 +327,7 @@ public abstract class AbstractTool
 	 * 
 	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
-	@AEmpty protected void checkConfiguration() throws ToolConfigurationException {
+	@Empty protected void checkConfiguration() throws ToolConfigurationException {
 		// does nothing
 	}
 

@@ -1,23 +1,23 @@
 package edu.ksu.cis.indus.common.collections;
 
 /**
- * DOCUMENT ME!
+ * A transformer.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <I>
- * @param <O>
+ * @param <I> is the type of input object to the transformer.
+ * @param <O> is the type of output object to the transformer.
  */
 public interface ITransformer<I, O> {
 
 	/**
-	 * DOCUMENT ME!
+	 * Transforms the given object.
 	 * 
-	 * @param input DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param input is the object to be transformed
+	 * @return the transformed object.
 	 */
-	public O transform(I input);
+	O transform(I input);
 
 }
 

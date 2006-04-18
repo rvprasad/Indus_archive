@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
@@ -106,7 +106,7 @@ public final class LocalUseDefAnalysisv2
 	/**
 	 * Creates a new LocalUseDefAnalysisv2 object.
 	 */
-	@AEmpty private LocalUseDefAnalysisv2() {
+	@Empty private LocalUseDefAnalysisv2() {
 		// does nothing
 	}
 
@@ -226,7 +226,7 @@ public final class LocalUseDefAnalysisv2
 				final Collection<DefinitionStmt> _defsReachingSuccBB = MapUtils.getCollectionFromMap(_bb2reachingDefStmts,
 						_succBB);
 
-				if (!SetUtils.isSubCollection(_defsExitingBB, _defsReachingSuccBB)) {
+				if (!_defsReachingSuccBB.containsAll(_defsExitingBB)) {
 					_defsReachingSuccBB.addAll(_defsExitingBB);
 					_wb.addWorkNoDuplicates(_succBB);
 				}

@@ -19,14 +19,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the entity is experimental in nature, hence, the entity may be subject to API breaking changes in
- * the future releases and the concepts embodied in the entity may not be documented.
+ * This annotation indicates the entity cannot evaluate to <code>null</code>. When used on methods, it applies to the
+ * return value of the method.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR }) @Documented @Empty public @interface Experimental {
+@Target({ ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.FIELD, ElementType.METHOD }) @Empty @Documented public @interface NonNull {
 	// empty
 }
 

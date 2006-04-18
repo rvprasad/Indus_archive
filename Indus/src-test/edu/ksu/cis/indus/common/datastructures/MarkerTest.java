@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.IndusTestCase;
 
 
 /**
- * This class tests <code>AMarker</code> class.
+ * This class tests <code>Marker</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AInternalUse;
+import edu.ksu.cis.indus.annotations.InternalUse;
 import edu.ksu.cis.indus.common.datastructures.IWork;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  */
-@AInternalUse public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
+@InternalUse public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
 		implements IFGNode<SYM, T, N> {
 
 	/**

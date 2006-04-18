@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,36 +14,40 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
- * This class serves as a marker in sequences of data.  The stringized representation of this object is dependent on  the
- * stringized representation of it's constituents.  Hence, the stringized representation of this object will change if  that
- * of the constituents change.  A similar dependency exists for hashCode too.
- *
+ * This class serves as a marker in sequences of data. The stringized representation of this object is dependent on the
+ * stringized representation of it's constituents. Hence, the stringized representation of this object will change if that of
+ * the constituents change. A similar dependency exists for hashCode too.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class Marker {
-	/** 
-	 * Any content to be stored in the marker.
-	 */
-	private final Object content;
 
 	/**
-	 * Creates a new AMarker object.
-	 *
+	 * Any content to be stored in the marker.
+	 */
+	@Immutable private final Object content;
+
+	/**
+	 * Creates a new Marker object.
+	 * 
 	 * @param o is any content to be stored in the marker.
 	 */
-	public Marker(final Object o) {
+	public Marker(@Immutable final Object o) {
 		content = o;
 	}
 
 	/**
 	 * Retrieves the contents of this marker.
-	 *
+	 * 
 	 * @return the content of this marker.
 	 */
-	public final Object getContent() {
+	@Functional public final Object getContent() {
 		return this.content;
 	}
 }

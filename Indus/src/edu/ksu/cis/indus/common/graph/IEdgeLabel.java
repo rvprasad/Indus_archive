@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
 
 /**
  * This is a marker interface to the edge labels of this graph.
@@ -23,7 +23,7 @@ import edu.ksu.cis.indus.annotations.AMarker;
  * @author $Author$
  * @version $Revision$
  */
-@AMarker public interface IEdgeLabel {
+@Marker public interface IEdgeLabel {
 
 	/**
 	 * This represents a dummy edge label.

@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This represents an object as a state in a finite state automata.
  * 
@@ -27,14 +29,14 @@ public class State
 	/**
 	 * The object being represented by this state.
 	 */
-	final Object object;
+	@Immutable final Object object;
 
 	/**
 	 * Creates a new State object.
 	 * 
 	 * @param obj is the object to be represented by this state.
 	 */
-	public State(final Object obj) {
+	public State(@Immutable final Object obj) {
 		object = obj;
 	}
 }

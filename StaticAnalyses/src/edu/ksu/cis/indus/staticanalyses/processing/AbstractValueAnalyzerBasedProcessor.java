@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -35,7 +35,7 @@ public abstract class AbstractValueAnalyzerBasedProcessor<V>
 	/**
 	 * @see IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
-	@AEmpty public void setAnalyzer(@SuppressWarnings("unused") final IValueAnalyzer<V> analyzer) {
+	@Empty public void setAnalyzer(@SuppressWarnings("unused") final IValueAnalyzer<V> analyzer) {
 		// does nothing
 	}
 }

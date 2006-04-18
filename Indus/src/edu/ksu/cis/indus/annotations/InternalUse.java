@@ -20,12 +20,12 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates the entities are for internal use only.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD}) @Documented public @interface AInternalUse {
+@Target({ ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD }) @Empty @Documented public @interface InternalUse {
 	// empty
 }
 

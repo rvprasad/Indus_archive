@@ -20,7 +20,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
@@ -130,7 +130,7 @@ public class MetricsTool
 	 * 
 	 * @see edu.ksu.cis.bandera.tool.Tool#quit()
 	 */
-	@AEmpty public void quit() throws Exception {
+	@Empty public void quit() throws Exception {
 		// does nothing
 	}
 

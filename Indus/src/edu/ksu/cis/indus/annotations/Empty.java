@@ -19,14 +19,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the entity is experimental in nature, hence, the entity may be subject to API breaking changes in
- * the future releases and the concepts embodied in the entity may not be documented.
+ * This annotation indicates empty constructors, methods, and annotation types.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR }) @Documented @Empty public @interface Experimental {
+@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.ANNOTATION_TYPE }) @Documented @Empty public @interface Empty {
 	// empty
 }
 

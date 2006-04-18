@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -76,7 +76,7 @@ public class ForwardSlicingPart
 	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#continueProcessing()
 	 */
-	@AEmpty(value = "false") public boolean continueProcessing() {
+	@Empty(value = "false") public boolean continueProcessing() {
 		return false;
 	}
 
@@ -258,7 +258,7 @@ public class ForwardSlicingPart
 	 * 
 	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
 	 */
-	@AEmpty public void reset() {
+	@Empty public void reset() {
 		// DOES NOTHING.
 	}
 

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
@@ -86,7 +86,7 @@ public final class SliceCriteriaFactory {
 	/**
 	 * Creates a new SliceCriteriaFactory object.
 	 */
-	@AEmpty private SliceCriteriaFactory() {
+	@Empty private SliceCriteriaFactory() {
 		// does nothing
 	}
 

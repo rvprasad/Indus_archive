@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
@@ -64,7 +64,7 @@ public interface ICallingContextRetriever
 	 */
 	ICallingContextRetriever NULL_CONTEXT_RETRIEVER = new ICallingContextRetriever() {
 
-		@AEmpty public void clearInfo() {
+		@Empty public void clearInfo() {
 			// does nothing
 		}
 

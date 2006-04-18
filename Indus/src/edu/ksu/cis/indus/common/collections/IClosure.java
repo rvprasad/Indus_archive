@@ -14,21 +14,22 @@
 package edu.ksu.cis.indus.common.collections;
 
 /**
- * DOCUMENT ME!
+ * A closure that can operate on objects a certain type.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the objects on which this closure can operate.
  */
 public interface IClosure<T> {
 
 	/**
-	 * DOCUMENT ME!
+	 * Executes this closure on the given input.
 	 * 
-	 * @param input
+	 * @param <T1> is the type of the input.
+	 * @param input to be operated on.
 	 */
-	public void execute(T input);
+	<T1 extends T> void execute(T1 input);
 
 }
 

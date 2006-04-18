@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.specification;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 
 import java.io.StringReader;
@@ -56,7 +56,7 @@ public final class SliceCriteriaParser {
 	/**
 	 * Creates a new SliceCriteriaParser object.
 	 */
-	@AEmpty private SliceCriteriaParser() {
+	@Empty private SliceCriteriaParser() {
 		// Does nothing
 	}
 

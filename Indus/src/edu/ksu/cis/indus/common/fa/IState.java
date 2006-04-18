@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.fa;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
 
 /**
  * This is a marker interface to be implemented by states of a FA.
@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.annotations.AMarker;
  * @version $Revision$
  * @param <S> the type of the implementation of this interface.
  */
-@AMarker public interface IState<S extends IState<S>> {
+@Marker public interface IState<S extends IState<S>> {
 	// empty
 }
 

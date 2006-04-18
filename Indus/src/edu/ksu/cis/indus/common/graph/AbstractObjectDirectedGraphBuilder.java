@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -64,7 +64,7 @@ public abstract class AbstractObjectDirectedGraphBuilder<N extends IObjectNode<N
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#finishBuilding()
 	 */
-	@AEmpty public void finishBuilding() {
+	@Empty public void finishBuilding() {
 		// does nothing
 	}
 

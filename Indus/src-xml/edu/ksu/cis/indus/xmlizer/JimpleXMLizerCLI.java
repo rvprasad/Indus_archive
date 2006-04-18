@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
@@ -58,7 +58,7 @@ public final class JimpleXMLizerCLI {
 	/**
 	 * <i>This constructor cannot be used.</i>
 	 */
-	@AEmpty private JimpleXMLizerCLI() {
+	@Empty private JimpleXMLizerCLI() {
 		// does nothing.
 	}
 

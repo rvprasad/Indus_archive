@@ -15,23 +15,23 @@
 package edu.ksu.cis.indus.common.collections;
 
 /**
- * DOCUMENT ME!
+ * A predicate to check on an object.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of object on which the predicate is evaluated.
  */
 public interface IPredicate<T> {
 
 	/**
-	 * DOCUMENT ME!
+	 * Evaluates the predicate on the given object.
 	 * 
-	 * @param <T1> DOCUMENT ME!
-	 * @param t DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T1> is the type of the input.
+	 * @param t is the input.
+	 * @return <code>true</code> if the predicate evaluates to <code>true</code>; <code>false</code>, otherwise.
 	 */
-	public <T1 extends T> boolean evaluate(T1 t);
+	<T1 extends T> boolean evaluate(T1 t);
 
 }
 

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
 
 /**
  * A marker interface to be implemented by all classes whose instances will be used as indices in FA framework.
@@ -23,7 +23,7 @@ import edu.ksu.cis.indus.annotations.AMarker;
  * @version $Revision$
  * @param <I> DOCUMENT ME!
  */
-@AMarker public interface IIndex<I extends IIndex<I>>{
+@Marker public interface IIndex<I extends IIndex<I>>{
 	// empty
 }
 

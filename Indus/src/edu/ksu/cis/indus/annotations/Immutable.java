@@ -19,14 +19,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the entity is experimental in nature, hence, the entity may be subject to API breaking changes in
- * the future releases and the concepts embodied in the entity may not be documented.
+ * This annotation indicates immutability of entities via published (public, protected, package-private) interfaces.
+ * Immutability is that the data reachable from the entities will not be mutated.
+ * <ul>
+ * <li>With fields and local variables, this annotation indicates requirement.
+ * <li>With parameters, it indicates guarantee provided by the enclosed method.
+ * <li>With instance methods, it indicates guarantee provided by the method about the receiver object.
+ * <li>With static methods, it indicates guarantee provided by the method about class entities.
+ * </ul>
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR }) @Documented @Empty public @interface Experimental {
+@Target({ ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE, ElementType.METHOD }) @Documented @Empty public @interface Immutable {
 	// empty
 }
 

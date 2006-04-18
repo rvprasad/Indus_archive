@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
@@ -178,7 +178,7 @@ public abstract class AbstractAnalysis
 	 *
 	 * @throws InitializationException is never thrown by this implementation.
 	 */
-	@AEmpty protected void setup() throws InitializationException {
+	@Empty protected void setup() throws InitializationException {
 		// does nothing
 	}
 }

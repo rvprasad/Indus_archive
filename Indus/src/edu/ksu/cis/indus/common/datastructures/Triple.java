@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
  * This class represents a triplet of objects. The hashcode/stringized rep. of this object is derived from it's constituents.
  * <p>
@@ -70,9 +74,8 @@ public class Triple<T1, T2, T3> {
 	 * @param firstParam the first object of this triple.
 	 * @param secondParam the second object of this triple.
 	 * @param thirdParam the third object of this triple
-	 * @post str != null
 	 */
-	public Triple(final T1 firstParam, final T2 secondParam, final T3 thirdParam) {
+	public Triple(@Immutable final T1 firstParam, @Immutable final T2 secondParam, @Immutable final T3 thirdParam) {
 		this.first = firstParam;
 		this.second = secondParam;
 		this.third = thirdParam;
@@ -86,11 +89,11 @@ public class Triple<T1, T2, T3> {
 	 * @post result == true implies o.oclTypeOf(Triple) and (o.first.equals(first) or o.first == first) and
 	 *       (o.second.equals(second) or o.second == second) and (o.third.equals(third) or o.third == third)
 	 */
-	@Override public boolean equals(final Object o) {
+	@Override public boolean equals(@Immutable final Object o) {
 		boolean _result = false;
 
 		if (o instanceof Triple) {
-			final Triple _temp = (Triple) o;
+			final Triple<?, ?, ?> _temp = (Triple) o;
 			_result = (this == o) || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
 					&& ((second == _temp.second) || ((second != null) && second.equals(_temp.second)))
 					&& ((third == _temp.third) || ((third != null) && third.equals(_temp.third)));
@@ -103,7 +106,7 @@ public class Triple<T1, T2, T3> {
 	 * 
 	 * @return the first object in the triple.
 	 */
-	public final T1 getFirst() {
+	@Functional public final T1 getFirst() {
 		return first;
 	}
 
@@ -112,7 +115,7 @@ public class Triple<T1, T2, T3> {
 	 * 
 	 * @return the second object in the triple.
 	 */
-	public final T2 getSecond() {
+	@Functional public final T2 getSecond() {
 		return second;
 	}
 
@@ -121,7 +124,7 @@ public class Triple<T1, T2, T3> {
 	 * 
 	 * @return the third object in the triple.
 	 */
-	public final T3 getThird() {
+	@Functional public final T3 getThird() {
 		return third;
 	}
 
@@ -159,7 +162,7 @@ public class Triple<T1, T2, T3> {
 	 * 
 	 * @return stringified representation of this object.
 	 */
-	@Override public final String toString() {
+	@NonNull @Override public final String toString() {
 		String _result;
 
 		if (str == null) {
@@ -207,7 +210,7 @@ public class Triple<T1, T2, T3> {
 	 * 
 	 * @return the stringized representation of this object.
 	 */
-	protected String stringize() {
+	@Functional protected String stringize() {
 		return ("(" + first + ", " + second + ", " + third + ")").intern();
 	}
 }

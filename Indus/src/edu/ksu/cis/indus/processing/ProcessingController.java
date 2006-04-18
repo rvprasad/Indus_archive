@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.processing;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -1173,7 +1173,7 @@ public class ProcessingController {
 	/**
 	 * Initializes the processors before processing the system.
 	 */
-	@AEmpty protected void initializeProcessors() {
+	@Empty protected void initializeProcessors() {
 		// does nothing.
 	}
 

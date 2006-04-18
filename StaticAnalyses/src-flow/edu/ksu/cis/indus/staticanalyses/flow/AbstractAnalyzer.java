@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -370,7 +370,7 @@ public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends
 	 * Reset the analyzer so that a fresh run of the analysis can occur. This is intended to be overridden by the subclasses
 	 * to reset analysis specific data structures. It shall be called before the framework data structures are reset.
 	 */
-	@AEmpty protected final void resetAnalysis() {
+	@Empty protected final void resetAnalysis() {
 		// does nothing
 	}
 }

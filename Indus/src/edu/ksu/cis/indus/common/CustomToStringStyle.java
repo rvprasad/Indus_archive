@@ -14,7 +14,8 @@
 
 package edu.ksu.cis.indus.common;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.NonNull;
 
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -44,24 +45,24 @@ public final class CustomToStringStyle
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty private CustomToStringStyle() {
+	@Empty private CustomToStringStyle() {
 		// does nothing
 	}
 
 	// / CLOVER:ON
 
 	/**
-	 * @see org.apache.commons.lang.builder.ToStringStyle#appendEnd(java.lang.StringBuffer, java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public void appendEnd(final StringBuffer buffer, final Object object) {
+	@Override public void appendEnd(@NonNull final StringBuffer buffer, final Object object) {
 		super.appendEnd(buffer, object);
 		appendIdentityHashCode(buffer, object);
 	}
 
 	/**
-	 * @see org.apache.commons.lang.builder.ToStringStyle#appendStart(java.lang.StringBuffer, java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public void appendStart(final StringBuffer buffer, final Object object) {
+	@Override public void appendStart(@NonNull final StringBuffer buffer, final Object object) {
 		appendClassName(buffer, object);
 		appendContentStart(buffer);
 

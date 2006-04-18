@@ -13,7 +13,8 @@
  */
 package edu.ksu.cis.indus.common.fa;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 
 /**
@@ -24,25 +25,25 @@ import edu.ksu.cis.indus.common.graph.IEdgeLabel;
  * @version $Revision$
  * @param <L> the type of the implementation of this interface.
  */
-@AMarker public interface ITransitionLabel<L extends ITransitionLabel<L>>
+@Marker public interface ITransitionLabel<L extends ITransitionLabel<L>>
 		extends IEdgeLabel {
 
 	/**
-	 * DOCUMENT ME!
+	 * The factory that creates epsilon transition labels.
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
-	 * @param <L> DOCUMENT ME!
+	 * @param <L> is the type of the labels.
 	 */
 	interface IEpsilonLabelFactory<L> {
 
 		/**
-		 * DOCUMENT ME!
+		 * Retrieves an epsilon label.
 		 * 
-		 * @return DOCUMENT ME!
+		 * @return the epsilon label.
 		 */
-		L getEpsilonTransitionLabel();
+		@NonNull L getEpsilonTransitionLabel();
 	}
 	// empty
 }

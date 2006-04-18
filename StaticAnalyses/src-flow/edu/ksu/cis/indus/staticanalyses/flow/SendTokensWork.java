@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AInternalUse;
+import edu.ksu.cis.indus.annotations.InternalUse;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> DOCUMENT ME!
  * @param <N> DOCUMENT ME!
  */
-@AInternalUse public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+@InternalUse public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends AbstractTokenProcessingWork<T> {
 
 	/**

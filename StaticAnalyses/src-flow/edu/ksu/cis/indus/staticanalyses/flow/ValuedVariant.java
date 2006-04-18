@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 
 /**
  * This class represents the variants of entities associated with AST nodes and fields.  This class should be extended as
@@ -59,7 +59,7 @@ public class ValuedVariant <N extends IFGNode<?, ?, N>>
 	/**
 	 * Performs nothing.  This will be called after a variant is created and should be implemented by subclasses.
 	 */
-	@AEmpty public void process() {
+	@Empty public void process() {
 		// does nothing
 	}
 }

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
 
 /**
  * This is the marker interface that identifies edge labelled directed graph.
@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.annotations.AMarker;
  * @version $Revision$
  * @param <N> the node type of this graph.
  */
-@AMarker public interface IEdgeLabelledDirectedGraph<N extends IEdgeLabelledNode<N>>
+@Marker public interface IEdgeLabelledDirectedGraph<N extends IEdgeLabelledNode<N>>
 		extends IDirectedGraph<N> {
 	// empty
 }

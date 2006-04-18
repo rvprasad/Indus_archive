@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.processing;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -120,7 +120,7 @@ public class ExecutableSlicePostProcessor
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty public ExecutableSlicePostProcessor() {
+	@Empty public ExecutableSlicePostProcessor() {
 		// does nothing
 	}
 

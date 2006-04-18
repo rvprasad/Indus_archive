@@ -19,14 +19,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the entity is experimental in nature, hence, the entity may be subject to API breaking changes in
- * the future releases and the concepts embodied in the entity may not be documented.
+ * This annotation indicates that an interface is a marker interface. <i>As annotation type inheritance is not supported in
+ * Java, marker interfaces should be annotated with <code>Empty</code> and <code>Marker</code>.</i>
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR }) @Documented @Empty public @interface Experimental {
+@Target(ElementType.TYPE) @Documented @Empty public @interface Marker {
 	// empty
 }
 

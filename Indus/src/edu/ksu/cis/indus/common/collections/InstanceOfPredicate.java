@@ -13,37 +13,40 @@
  */
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
- * DOCUMENT ME!
+ * This predicate performs <code>instanceof</code> check.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
+ * @param <T> is the type in the instanceof check.
+ * @param <V> is the type of value that participates in the instanceof check.
  */
 public class InstanceOfPredicate<T, V>
 		implements IPredicate<V> {
 
 	/**
-	 * DOCUMENT ME!
+	 * The class of the type that participates in the instanceof check.
 	 */
 	private Class<T> clazz;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param instanceClass DOCUMENT ME!
+	 * @param instanceClass is the class of the type involved in the instanceof check.
 	 */
-	public InstanceOfPredicate(final Class<T> instanceClass) {
+	public InstanceOfPredicate(@NonNull final Class<T> instanceClass) {
 		super();
 		clazz = instanceClass;
 	}
 
 	/**
-	 * @see IPredicate#evaluate(Object)
+	 * {@inheritDoc}
 	 */
-	public <V1 extends V> boolean evaluate(V1 t) {
+	@Functional public <V1 extends V> boolean evaluate(final V1 t) {
 		return clazz.isInstance(t);
 	}
 

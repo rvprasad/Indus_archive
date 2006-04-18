@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.tools;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -102,7 +102,7 @@ public final class CompositeToolConfiguration
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
-	@AEmpty public void initialize() {
+	@Empty public void initialize() {
 		// Does nothing
 	}
 

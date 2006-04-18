@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager.NewTypeCreated;
 
 import java.util.Collection;
@@ -141,7 +141,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 	 * @pre values != null and type != null
 	 * @pre not values.isEmpty()
 	 */
-	@AEmpty protected void recordNewTokenTypeRelations(@SuppressWarnings("unused") final Collection<V> values,
+	@Empty protected void recordNewTokenTypeRelations(@SuppressWarnings("unused") final Collection<V> values,
 			@SuppressWarnings("unused") final IType type) {
 		// does nothing
 	}

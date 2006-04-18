@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -97,14 +97,14 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#analyze()
 	 */
-	@AEmpty public void analyze() {
+	@Empty public void analyze() {
 		// does nothing
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#doesPreProcessing()
 	 */
-	@AEmpty("false") public boolean doesPreProcessing() {
+	@Empty("false") public boolean doesPreProcessing() {
 		return false;
 	}
 
@@ -185,14 +185,14 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#getPreProcessor()
 	 */
-	@AEmpty("null") public IProcessor getPreProcessor() {
+	@Empty("null") public IProcessor getPreProcessor() {
 		return null;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#initialize(java.util.Map)
 	 */
-	@SuppressWarnings("unused") @AEmpty public void initialize(final Map<Comparable<?>, Object> infoParam)
+	@SuppressWarnings("unused") @Empty public void initialize(final Map<Comparable<?>, Object> infoParam)
 			throws InitializationException {
 		// does nothing
 	}
@@ -215,7 +215,7 @@ final class IndirectDependenceAnalysis<T1, C1, E1, KE, VT, E2, C2, T2, KT, VE>
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis#setBasicBlockGraphManager(edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr)
 	 */
-	@AEmpty public void setBasicBlockGraphManager(@SuppressWarnings("unused") final BasicBlockGraphMgr bbm) {
+	@Empty public void setBasicBlockGraphManager(@SuppressWarnings("unused") final BasicBlockGraphMgr bbm) {
 		// does nothing
 	}
 

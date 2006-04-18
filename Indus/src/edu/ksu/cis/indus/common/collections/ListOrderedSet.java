@@ -14,36 +14,42 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NumericalConstraint;
+import edu.ksu.cis.indus.annotations.NumericalConstraint.NumericalValue;
+
 import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 
 /**
- * DOCUMENT ME!
+ * This is a ordered set that maintains insertion ordering.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <E>
+ * @param <E> is the type of object in the set.
  */
 public class ListOrderedSet<E>
 		extends AbstractSet<E> {
 
 	/**
-	 * DOCUMENT ME!
+	 * This stores the elements for order related operation.
 	 */
-	final List<E> list;
+	@NonNull final List<E> list;
 
 	/**
-	 * DOCUMENT ME!
+	 * This stores the elements in a set for fast access.
 	 */
-	private final Set<E> set;
+	@NonNull private final Set<E> set;
 
 	/**
 	 * Creates an instance of this class.
@@ -57,9 +63,9 @@ public class ListOrderedSet<E>
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param c DOCUMENT ME!
+	 * @param c is the collection whose contents will be added to this set.
 	 */
-	public ListOrderedSet(final Collection<E> c) {
+	public ListOrderedSet(@NonNull @Immutable final Collection<E> c) {
 		set = new HashSet<E>(c);
 		list = new ArrayList<E>(c);
 	}
@@ -67,9 +73,9 @@ public class ListOrderedSet<E>
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param initialCapacity DOCUMENT ME!
+	 * @param initialCapacity <i>see super class constructor.</i>
 	 */
-	public ListOrderedSet(final int initialCapacity) {
+	public ListOrderedSet(@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int initialCapacity) {
 		set = new HashSet<E>(initialCapacity);
 		list = new ArrayList<E>(initialCapacity);
 	}
@@ -77,18 +83,19 @@ public class ListOrderedSet<E>
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param initialCapacity DOCUMENT ME!
-	 * @param loadFactor DOCUMENT ME!
+	 * @param initialCapacity <i>see super class constructor.</i>
+	 * @param loadFactor <i>see super class constructor.</i>
 	 */
-	public ListOrderedSet(final int initialCapacity, final float loadFactor) {
+	public ListOrderedSet(@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int initialCapacity,
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final float loadFactor) {
 		set = new HashSet<E>(initialCapacity, loadFactor);
 		list = new ArrayList<E>(initialCapacity);
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#add(Object)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean add(final E o) {
+	@Override public boolean add(@Immutable final E o) {
 		final boolean _t = set.add(o);
 		if (_t) {
 			list.add(o);
@@ -97,7 +104,7 @@ public class ListOrderedSet<E>
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#clear()
+	 * {@inheritDoc}
 	 */
 	@Override public void clear() {
 		set.clear();
@@ -105,23 +112,23 @@ public class ListOrderedSet<E>
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#contains(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean contains(Object o) {
+	@Functional @Override public boolean contains(final Object o) {
 		return set.contains(o);
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#containsAll(java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean containsAll(final Collection<?> c) {
+	@Functional @Override public boolean containsAll(@NonNull final Collection<?> c) {
 		return set.containsAll(c);
 	}
 
 	/**
-	 * @see java.util.AbstractSet#equals(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean equals(final Object o) {
+	@Functional @Override public boolean equals(@NonNull @Immutable final Object o) {
 		if (o instanceof ListOrderedSet) {
 			final ListOrderedSet<?> _t = (ListOrderedSet) o;
 			return set.equals(_t.list) && list.equals(_t.list);
@@ -130,26 +137,26 @@ public class ListOrderedSet<E>
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the i-th element according to the insertion order.
 	 * 
-	 * @param i DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param i is the index.
+	 * @return the element, if it exists.
 	 * @throws IndexOutOfBoundsException when <code>i</code> is less than 0 or when <code>i</code> is greater than or
 	 *             equal to size().
 	 */
-	public E get(final int i) throws IndexOutOfBoundsException {
+	@Functional public E get(final int i) throws IndexOutOfBoundsException {
 		return list.get(i);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a view of the set as an unmodifiable list.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return the unmodifiable sequential view of the set.
 	 */
-	public List<E> getUnmodifiableList() {
+	@Functional @NonNull public List<E> getUnmodifiableList() {
 		return Collections.unmodifiableList(new AbstractList<E>() {
 
-			@Override public E get(int index) {
+			@Override public E get(final int index) {
 				return list.get(index);
 			}
 
@@ -161,91 +168,91 @@ public class ListOrderedSet<E>
 	}
 
 	/**
-	 * @see java.util.AbstractSet#hashCode()
+	 * {@inheritDoc}
 	 */
-	@Override public int hashCode() {
+	@Functional @Override public int hashCode() {
 		return set.hashCode() + list.hashCode();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the index of the given object corresponding to its first insertion into the set.
 	 * 
-	 * @param object DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param object of interest.
+	 * @return a non-negative index if <code>object</code> exists in the set; -1, otherwise.
 	 */
-	public int indexOf(final E object) {
+	@Functional public int indexOf(final E object) {
 		return list.indexOf(object);
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#isEmpty()
+	 * {@inheritDoc}
 	 */
-	@Override public boolean isEmpty() {
+	@Functional @Override public boolean isEmpty() {
 		return set.isEmpty();
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#iterator()
+	 * {@inheritDoc}
 	 */
-	@Override public Iterator<E> iterator() {
+	@Functional @NonNull @Override public Iterator<E> iterator() {
 		return list.iterator();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Removes the i-th inserted element.
 	 * 
-	 * @param i DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param i is the index of the element that should be removed.
+	 * @return the removed element, if it existed.
 	 * @throws IndexOutOfBoundsException when <code>i</code> is less than 0 or when <code>i</code> is greater than or
 	 *             equal to size().
 	 */
-	public E remove(final int i) {
+	@Functional @NonNull public E remove(final int i) throws IndexOutOfBoundsException {
 		final E _t = get(i);
 		set.remove(_t);
 		return _t;
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#remove(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean remove(final Object o) {
+	@Override public boolean remove(@Immutable final Object o) {
 		list.remove(o);
 		return set.remove(o);
 	}
 
 	/**
-	 * @see java.util.AbstractSet#removeAll(java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean removeAll(final Collection<?> c) {
+	@Override public boolean removeAll(@NonNull @Immutable final Collection<?> c) {
 		return super.removeAll(c);
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#retainAll(java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean retainAll(final Collection<?> c) {
+	@Override public boolean retainAll(@NonNull @Immutable final Collection<?> c) {
 		list.retainAll(c);
 		return set.retainAll(c);
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#size()
+	 * {@inheritDoc}
 	 */
-	@Override public int size() {
+	@Functional @Override public int size() {
 		return set.size();
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#toArray()
+	 * {@inheritDoc}
 	 */
-	@Override public Object[] toArray() {
+	@Functional @NonNull @Override public Object[] toArray() {
 		return list.toArray();
 	}
 
 	/**
-	 * @see java.util.AbstractCollection#toArray(T[])
+	 * {@inheritDoc}
 	 */
-	@Override public <T> T[] toArray(final T[] a) {
+	@Functional @Override public <T> T[] toArray(@NonNull final T[] a) {
 		return list.toArray(a);
 	}
 

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
@@ -38,7 +38,7 @@ final class StmtRetriever
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty public StmtRetriever() {
+	@Empty public StmtRetriever() {
 		// does nothing
 	}
 

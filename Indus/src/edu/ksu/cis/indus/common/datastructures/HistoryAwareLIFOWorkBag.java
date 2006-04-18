@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,33 +14,36 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import java.util.Collection;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 
+import java.util.Collection;
 
 /**
  * This is a Last-in-First-out implementation of the workbag that can remember previous work pieces put into it.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  * @param <T> The type of work handled by this work bag.
  */
 public final class HistoryAwareLIFOWorkBag<T>
-  extends AbstractHistoryAwareWorkBag<T> {
+		extends AbstractHistoryAwareWorkBag<T> {
+
 	/**
 	 * Creates a new LIFOWorkBag object.
-	 *
-	 * @param processed is the collection to be used to remember work pieces put into the bag.  Refer to
-	 * 		  <code>AbstractHistoryAwareWorkBag#AbstractHistoryAwareWorkBag(Collection)</code>.
+	 * 
+	 * @param processed is the collection to be used to remember work pieces put into the bag. Refer to
+	 *            <code>AbstractHistoryAwareWorkBag#AbstractHistoryAwareWorkBag(Collection)</code>.
 	 */
-	public HistoryAwareLIFOWorkBag(final Collection<T> processed) {
+	public HistoryAwareLIFOWorkBag(@NonNull final Collection<T> processed) {
 		super(processed);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.datastructures.AbstractHistoryAwareWorkBag#subAddWork(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override protected void subAddWork(final T o) {
+	@Override protected void subAddWork(@NonNull @Immutable final T o) {
 		container.add(0, o);
 		updateInternal(o);
 	}

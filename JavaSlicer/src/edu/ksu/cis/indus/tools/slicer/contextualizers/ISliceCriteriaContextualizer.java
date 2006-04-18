@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.contextualizers;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -38,17 +38,17 @@ public interface ISliceCriteriaContextualizer {
 	 */
 	ISliceCriteriaContextualizer DUMMY_CONTEXTUALIZER = new ISliceCriteriaContextualizer() {
 
-		@AEmpty public void processCriteriaBasedOnProgramPoint(@SuppressWarnings("unused") final Context programPoint,
+		@Empty public void processCriteriaBasedOnProgramPoint(@SuppressWarnings("unused") final Context programPoint,
 				@SuppressWarnings("unused") final Collection<ISliceCriterion> baseCriteria) {
 			// does nothing
 		}
 
-		@AEmpty public void processCriteriaBasedOnThis(@SuppressWarnings("unused") final SootMethod method,
+		@Empty public void processCriteriaBasedOnThis(@SuppressWarnings("unused") final SootMethod method,
 				@SuppressWarnings("unused") final Collection<ISliceCriterion> baseCriteria) {
 			// does nothing
 		}
 
-		@AEmpty public void setSlicerTool(@SuppressWarnings("unused") final SlicerTool<?> slicer) {
+		@Empty public void setSlicerTool(@SuppressWarnings("unused") final SlicerTool<?> slicer) {
 			// does nothing
 		}
 	};

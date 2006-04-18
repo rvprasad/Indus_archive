@@ -14,55 +14,60 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * DOCUMENT ME!
+ * This class contains static utility methods that are useful in the context of <code>java.util.Set</code> instances.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class SetUtils {
+public final class SetUtils {
 
 	// /CLOVER:OFF
 
 	/**
 	 * Creates an instance of this class.
 	 */
-	public SetUtils() {
+	private SetUtils() {
 		super();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Performs set difference on the minuend and subtrahend collections.
 	 * 
-	 * @param <T3> DOCUMENT ME!
-	 * @param <T1> DOCUMENT ME!
-	 * @param <T2> DOCUMENT ME!
-	 * @param col1 DOCUMENT ME!
-	 * @param col2 DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T3> is the type of the objects in the difference set.
+	 * @param <T1> is the type of the objects in the minuend collection.
+	 * @param <T2> is the type of the objects in the subtrahend collection.
+	 * @param col1 is the minuend collection.
+	 * @param col2 is the subtrahend collection.
+	 * @return the difference set.
 	 */
-	public static <T3, T1 extends T3, T2 extends T3> Set<T3> difference(final Collection<T1> col1, final Collection<T2> col2) {
+	@NonNull @Functional public static <T3, T1 extends T3, T2 extends T3> Set<T3> difference(
+			@NonNull final Collection<T1> col1, @NonNull final Collection<T2> col2) {
 		final Set<T3> _r = new HashSet<T3>(col1);
 		for (final Iterator<T3> _i = _r.iterator(); _i.hasNext();) {
-			if (col2.contains(_i.next()))
+			if (col2.contains(_i.next())) {
 				_i.remove();
+			}
 		}
 		return _r;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a set creating factory.
 	 * 
-	 * @param <T> DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T> is the type of objects stored in the set created by the returned factory.
+	 * @return a factory
 	 */
-	public static <T> IFactory<Set<T>> getFactory() {
+	@Functional @NonNull public static <T> IFactory<Set<T>> getFactory() {
 		return new IFactory<Set<T>>() {
 
 			public Set<T> create() {
@@ -72,18 +77,19 @@ public class SetUtils {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Performs set intersection operation on the two input collections.
 	 * 
-	 * @param <O> DOCUMENT ME!
-	 * @param <T1> DOCUMENT ME!
-	 * @param <T2> DOCUMENT ME!
-	 * @param col1 DOCUMENT ME!
-	 * @param col2 DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T3> is the type of the objects in the intersection set.
+	 * @param <T1> is the type of the objects in the first input collection.
+	 * @param <T2> is the type of the objects in the second input collection.
+	 * @param col1 is an input collection.
+	 * @param col2 is another input collection.
+	 * @return the intersection set.
 	 */
-	public static <O, T1 extends O, T2 extends O> Set<O> intersection(final Collection<T1> col1, final Collection<T2> col2) {
-		final Set<O> _result = new HashSet<O>(CollectionUtils.maxSize(col1, col2));
-		for (final O _t : col1) {
+	@NonNull @Functional public static <T3, T1 extends T3, T2 extends T3> Set<T3> intersection(
+			@NonNull final Collection<T1> col1, @NonNull final Collection<T2> col2) {
+		final Set<T3> _result = new HashSet<T3>(CollectionUtils.maxSize(col1, col2));
+		for (final T3 _t : col1) {
 			if (col2.contains(_t)) {
 				_result.add(_t);
 			}
@@ -92,35 +98,18 @@ public class SetUtils {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Performs set union operation on the two input collections.
 	 * 
-	 * @param col1 DOCUMENT ME!
-	 * @param col2 DOCUMENT ME!
-	 * @param <T1> DOCUMENT ME!
-	 * @param <T2> DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T3> is the type of the objects in the union set.
+	 * @param <T1> is the type of the objects in the first input collection.
+	 * @param <T2> is the type of the objects in the second input collection.
+	 * @param col1 is an input collection.
+	 * @param col2 is another input collection.
+	 * @return the union set.
 	 */
-	public static <T1, T2 extends T1> boolean isSubCollection(final Collection<T2> col1, final Collection<T1> col2) {
-		for (final T2 _t1 : col1) {
-			if (!col2.contains(_t1)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param <T> DOCUMENT ME!
-	 * @param <T1> DOCUMENT ME!
-	 * @param <T2> DOCUMENT ME!
-	 * @param col1 DOCUMENT ME!
-	 * @param col2 DOCUMENT ME!
-	 * @return DOCUMENT ME!
-	 */
-	public static <T, T1 extends T, T2 extends T> Set<T> union(final Collection<T1> col1, final Collection<T2> col2) {
-		final Set<T> _r = new HashSet<T>(CollectionUtils.maxSize(col1, col2));
+	@NonNull @Functional public static <T3, T1 extends T3, T2 extends T3> Set<T3> union(@NonNull final Collection<T1> col1,
+			@NonNull final Collection<T2> col2) {
+		final Set<T3> _r = new HashSet<T3>(CollectionUtils.maxSize(col1, col2));
 		_r.addAll(col1);
 		_r.addAll(col2);
 		return _r;

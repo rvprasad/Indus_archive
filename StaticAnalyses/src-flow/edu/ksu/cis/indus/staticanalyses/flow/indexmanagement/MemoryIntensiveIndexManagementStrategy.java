@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
@@ -39,9 +39,9 @@ public final class MemoryIntensiveIndexManagementStrategy<I extends IIndex<I>>
 	}
 
 	/**
-	 * {@inheritDoc} AEmpty method.
+	 * {@inheritDoc} Empty method.
 	 */
-	@AEmpty public void reset() {
+	@Empty public void reset() {
 		// does nothing
 	}
 }

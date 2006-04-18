@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,42 +14,40 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A worklist implementation.
- * 
  * <p>
  * Created: Tue Jan 22 02:43:16 2002
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  * @param <T> The type of work handled by this work bag.
  */
 public final class WorkList<T> {
-	/** 
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(WorkList.class);
 
-	/** 
+	/**
 	 * The backend workbag object which holds the work piece.
 	 */
-	private final IWorkBag<T> workbag;
+	@NonNull private final IWorkBag<T> workbag;
 
 	/**
 	 * Creates a new <code>WorkList</code> instance.
-	 *
+	 * 
 	 * @param container that will contain the work pieces.
-	 *
-	 * @pre container != null
 	 */
-	public WorkList(final IWorkBag<T> container) {
+	public WorkList(@NonNull final IWorkBag<T> container) {
 		workbag = container;
 	}
 
@@ -62,12 +59,11 @@ public final class WorkList<T> {
 	}
 
 	/**
-	 * Executes the work pieces in the worklist.  This method returns when the worklist is empty, i.e., all the work peices
+	 * Executes the work pieces in the worklist. This method returns when the worklist is empty, i.e., all the work peices
 	 * have been executed.
-	 *
+	 * 
 	 * @return the number of work pieces processed in this cycle.
-     * 
-     * @post resutl &gt;= 0
+	 * @post resutl &gt;= 0
 	 */
 	public int process() {
 		int _result = 0;

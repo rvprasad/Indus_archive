@@ -1,3 +1,8 @@
+2006-04-18 venku <venku@boss.dreamsoft.com>
+	* Renamed annotations to exclude the A prefix.  
+	* Added new annotations
+	* Added annotations and documentation to classes in package upto edu.ksu.cis.indus.common.fa.
+	
 2006-03-28 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/interfaces/IMonitorInfo.java: 

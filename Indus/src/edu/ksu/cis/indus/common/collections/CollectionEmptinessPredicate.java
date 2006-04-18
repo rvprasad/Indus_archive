@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 
 /**
@@ -25,7 +28,7 @@ import java.util.Collection;
  * @version $Revision$ $Date$
  */
 public final class CollectionEmptinessPredicate
-		implements IPredicate<Collection> {
+		implements IPredicate<Collection<?>> {
 
 	/**
 	 * The singleton instance of this predicate that checks for emptiness.
@@ -52,9 +55,9 @@ public final class CollectionEmptinessPredicate
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(Object)
+	 * {@inheritDoc}
 	 */
-	public boolean evaluate(final Collection object) {
+	@Functional public boolean evaluate(@NonNull final Collection<?> object) {
 		return object.isEmpty() == emptiness;
 	}
 }

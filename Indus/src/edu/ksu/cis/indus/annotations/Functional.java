@@ -19,13 +19,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates that an interface is a marker interface.
- *
+ * This annotation indicates the method is functional (side-effect free).
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-@Target(ElementType.TYPE) @Documented public @interface AMarker {
+@Target({ ElementType.METHOD }) @Documented @Empty public @interface Functional {
 	// empty
 }
 

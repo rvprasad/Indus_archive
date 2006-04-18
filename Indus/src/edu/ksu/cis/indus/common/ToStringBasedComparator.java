@@ -14,7 +14,8 @@
 
 package edu.ksu.cis.indus.common;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
 
 import java.util.Comparator;
 
@@ -29,6 +30,17 @@ import java.util.Comparator;
 public final class ToStringBasedComparator<T>
 		implements Comparator<T> {
 
+	// / CLOVER:ON
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty private ToStringBasedComparator() {
+		// does nothing.
+	}
+
+	// / CLOVER:ON
+
 	/**
 	 * A single of this class.
 	 * 
@@ -36,25 +48,14 @@ public final class ToStringBasedComparator<T>
 	 * @return the comparator
 	 * @post result != null
 	 */
-	public static final <T1> Comparator<T1> getComparator() {
+	public static <T1> Comparator<T1> getComparator() {
 		return new ToStringBasedComparator<T1>();
 	}
 
-	// / CLOVER:OFF
-
 	/**
-	 * Creates an instance of this class.
+	 * {@inheritDoc}
 	 */
-	@AEmpty private ToStringBasedComparator() {
-		// does nothing.
-	}
-
-	// / CLOVER:ON
-
-	/**
-	 * @see java.util.Comparator#compare(Object, Object)
-	 */
-	public int compare(final T o1, final T o2) {
+	@Functional public int compare(final T o1, final T o2) {
 		return String.valueOf(o1).compareTo(String.valueOf(o2));
 	}
 }

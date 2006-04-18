@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import soot.ValueBox;
 import soot.jimple.Stmt;
 
@@ -32,7 +32,7 @@ public final class CriteriaSpecHelper {
 	/**
 	 * Creates a new CriteriaSpecHelper object.
 	 */
-	@AEmpty private CriteriaSpecHelper() {
+	@Empty private CriteriaSpecHelper() {
 		// does nothing
 	}
 

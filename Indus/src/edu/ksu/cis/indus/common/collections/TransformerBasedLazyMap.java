@@ -14,83 +14,89 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * DOCUMENT ME!
+ * This is a lazy map that stores mappings from a key to its transformed value as determined by the transformer provided
+ * during creation.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <K> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
+ * @param <K> is the type of keys.
+ * @param <V> is the type of values.
  */
 public class TransformerBasedLazyMap<K, V>
 		implements Map<K, V> {
 
 	/**
-	 * DOCUMENT ME!
+	 * This stores the mappings.
 	 */
-	private final Map<K, V> backedMap;
+	@NonNull private final Map<K, V> backedMap;
 
 	/**
-	 * DOCUMENT ME!
+	 * This is used to transform the keys into values.
 	 */
-	private final ITransformer<K, V> transformer;
+	@NonNull private final ITransformer<K, V> transformer;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param map DOCUMENT ME!
-	 * @param valueTransformer DOCUMENT ME!
+	 * @param map to be used internally to store the mapping.
+	 * @param valueTransformer to be used to transform the keys into values.
 	 */
-	public TransformerBasedLazyMap(final Map<K, V> map, final ITransformer<K, V> valueTransformer) {
+	public TransformerBasedLazyMap(@NonNull final Map<K, V> map,
+			@NonNull @Immutable final ITransformer<K, V> valueTransformer) {
 		backedMap = map;
 		transformer = valueTransformer;
 	}
 
 	/**
-	 * @see java.util.Map#clear()
+	 * {@inheritDoc}
 	 */
 	public void clear() {
 		backedMap.clear();
 	}
 
 	/**
-	 * @see java.util.Map#containsKey(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public boolean containsKey(final Object key) {
+	@Functional public boolean containsKey(@SuppressWarnings("unused") final Object key) {
 		return true;
 	}
 
 	/**
-	 * @see java.util.Map#containsValue(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public boolean containsValue(final Object value) {
+	@Functional public boolean containsValue(final Object value) {
 		return backedMap.containsValue(value);
 	}
 
 	/**
-	 * @see java.util.AbstractMap#entrySet()
+	 * {@inheritDoc}
 	 */
-	public Set<Map.Entry<K, V>> entrySet() {
+	@Functional public Set<Map.Entry<K, V>> entrySet() {
 		return backedMap.entrySet();
 	}
 
 	/**
-	 * @see java.util.Map#equals(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean equals(final Object o) {
+	@Functional @Override public boolean equals(final Object o) {
 		return backedMap.equals(o);
 	}
 
 	/**
-	 * @see java.util.Map#get(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public V get(final Object key) {
-		final K _k = (K) key;
+	public V get(@Immutable final Object key) {
+		@SuppressWarnings("unchecked") final K _k = (K) key;
 		if (!backedMap.containsKey(key)) {
 			final V _t = transformer.transform(_k);
 			backedMap.put(_k, _t);
@@ -100,58 +106,64 @@ public class TransformerBasedLazyMap<K, V>
 	}
 
 	/**
-	 * @see java.util.Map#hashCode()
+	 * {@inheritDoc}
 	 */
-	@Override public int hashCode() {
+	@Functional @Override public int hashCode() {
 		return backedMap.hashCode();
 	}
 
 	/**
-	 * @see java.util.Map#isEmpty()
+	 * {@inheritDoc}
 	 */
-	public boolean isEmpty() {
+	@Functional public boolean isEmpty() {
 		return backedMap.isEmpty();
 	}
 
 	/**
-	 * @see java.util.Map#keySet()
+	 * {@inheritDoc}
 	 */
-	public Set<K> keySet() {
+	@Functional public Set<K> keySet() {
 		return backedMap.keySet();
 	}
 
 	/**
-	 * @see java.util.Map#put(K, V)
+	 * {@inheritDoc}
+	 * 
+	 * @throws UnsupportedOperationException always.
 	 */
-	public V put(final K key, final V value) {
+	@Functional public V put(@SuppressWarnings("unused") final K key, @SuppressWarnings("unused") final V value)
+			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
 	/**
-	 * @see java.util.Map#putAll(java.util.Map)
+	 * {@inheritDoc}
+	 * 
+	 * @throws UnsupportedOperationException always.
 	 */
-	public void putAll(Map<? extends K, ? extends V> t) {
+	@Functional public void putAll(@SuppressWarnings("unused") final Map<? extends K, ? extends V> t)
+			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
 	/**
-	 * @see java.util.Map#remove(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public V remove(final Object key) {
+	public V remove(@Immutable final Object key) {
 		return backedMap.remove(key);
 	}
 
 	/**
-	 * @see java.util.Map#size()
+	 * {@inheritDoc}
 	 */
-	public int size() {
+	@Functional public int size() {
 		return backedMap.size();
 	}
 
 	/**
-	 * @see java.util.Map#values()
+	 * {@inheritDoc}
 	 */
-	public Collection<V> values() {
+	@Functional public Collection<V> values() {
 		return backedMap.values();
 	}
 }

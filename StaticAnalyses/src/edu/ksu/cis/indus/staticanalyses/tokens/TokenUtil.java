@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.staticanalyses.Constants;
 
 import java.lang.reflect.Constructor;
@@ -43,7 +43,7 @@ public final class TokenUtil {
 	/**
 	 * <i>Prevents creation instances of this class.</i>
 	 */
-	@AEmpty private TokenUtil() {
+	@Empty private TokenUtil() {
 		//does nothing
 	}
 

@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This indicates an unavailable transition was attempted from the current state of an automaton.
  * 
@@ -41,7 +43,7 @@ public final class UnavailableTransitionException
 	 * 
 	 * @param message of interest.
 	 */
-	public UnavailableTransitionException(final String message) {
+	public UnavailableTransitionException(@Immutable final String message) {
 		super(message);
 	}
 }

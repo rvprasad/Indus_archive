@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 
 /**
@@ -32,16 +36,16 @@ public class DFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * Creates an instance of this class.
 	 * 
 	 * @param eFactory <i>refer to documentation in super class constructor</i>
-	 * @pre eFactory != null
 	 */
-	public DFA(final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
+	public DFA(@NonNull @Immutable final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
 		super(eFactory);
 	}
 
 	/**
-	 * @see NFA#addLabelledTransitionFromTo(IState, ITransitionLabel, IState)
+	 * {@inheritDoc}
 	 */
-	@Override public void addLabelledTransitionFromTo(final S src, final L label, final S dest) {
+	@Override public void addLabelledTransitionFromTo(@NonNull @Immutable final S src, @NonNull @Immutable final L label,
+			@NonNull @Immutable final S dest) {
 		final Collection<S> _states = getResultingStates(src, label);
 
 		if (!_states.isEmpty()) {
@@ -56,9 +60,9 @@ public class DFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
+	 * {@inheritDoc}
 	 */
-	@Override public boolean isDeterministic() {
+	@Override @Functional public boolean isDeterministic() {
 		return true;
 	}
 }

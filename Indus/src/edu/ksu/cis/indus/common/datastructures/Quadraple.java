@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
  * This class represents a quadraple of objects. The hashcode/stringized rep. of this object is derived from it's
  * constituents.
@@ -45,22 +49,22 @@ public final class Quadraple<T1, T2, T3, T4>
 	/**
 	 * The first object in this quadraple.
 	 */
-	protected T1 first;
+	@Immutable protected T1 first;
 
 	/**
 	 * The fourth object in this quadraple.
 	 */
-	protected T4 fourth;
+	@Immutable protected T4 fourth;
 
 	/**
 	 * The second object in this quadraple.
 	 */
-	protected T2 second;
+	@Immutable protected T2 second;
 
 	/**
 	 * The third object in this quadraple.
 	 */
-	protected T3 third;
+	@Immutable protected T3 third;
 
 	/**
 	 * A cached copy of the hash code of this object.
@@ -79,9 +83,9 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * @param secondParam the second object of this quadraple.
 	 * @param thirdParam the third object of this quadraple
 	 * @param fourthParam fourth element of the requested quadraple.
-	 * @post str != null
 	 */
-	public Quadraple(final T1 firstParam, final T2 secondParam, final T3 thirdParam, final T4 fourthParam) {
+	public Quadraple(@Immutable final T1 firstParam, @Immutable final T2 secondParam, @Immutable final T3 thirdParam,
+			@Immutable final T4 fourthParam) {
 		this.first = firstParam;
 		this.second = secondParam;
 		this.third = thirdParam;
@@ -94,8 +98,9 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * @return a cloned copy of this quadraple.
 	 * @throws CloneNotSupportedException if <code>super.clone()</code> fails.
 	 */
-	@Override public Quadraple clone() throws CloneNotSupportedException {
-		return (Quadraple) super.clone();
+	@NonNull @Immutable @Override public Quadraple<T1, T2, T3, T4> clone() throws CloneNotSupportedException {
+		@SuppressWarnings("unchecked") final Quadraple<T1, T2, T3, T4> _quadraple = (Quadraple) super.clone();
+		return _quadraple;
 	}
 
 	/**
@@ -106,11 +111,11 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * @post result == true implies o.oclTypeOf(Quadraple) and (o.first.equals(first) or o.first == first) and
 	 *       (o.second.equals(second) or o.second == second) and (o.third.equals(third) or o.third == third)
 	 */
-	@Override public boolean equals(final Object o) {
+	@Override public boolean equals(@Immutable final Object o) {
 		boolean _result = false;
 
 		if (o instanceof Quadraple) {
-			final Quadraple _temp = (Quadraple) o;
+			final Quadraple<?, ?, ?, ?> _temp = (Quadraple) o;
 			_result = (this == o) || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
 					&& ((second == _temp.second) || ((second != null) && second.equals(_temp.second)))
 					&& ((third == _temp.third) || ((third != null) && third.equals(_temp.third)))
@@ -124,7 +129,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return the first object in the quadraple.
 	 */
-	public T1 getFirst() {
+	@Functional public T1 getFirst() {
 		return first;
 	}
 
@@ -133,7 +138,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return the fourth object in the quadraple.
 	 */
-	public T4 getFourth() {
+	@Functional public T4 getFourth() {
 		return fourth;
 	}
 
@@ -142,7 +147,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return the second object in the quadraple.
 	 */
-	public T2 getSecond() {
+	@Functional public T2 getSecond() {
 		return second;
 	}
 
@@ -151,7 +156,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return the third object in the quadraple.
 	 */
-	public T3 getThird() {
+	@Functional public T3 getThird() {
 		return third;
 	}
 
@@ -189,7 +194,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return stringified representation of this object.
 	 */
-	@Override public String toString() {
+	@NonNull @Override public String toString() {
 		String _result;
 
 		if (str == null) {
@@ -241,7 +246,7 @@ public final class Quadraple<T1, T2, T3, T4>
 	 * 
 	 * @return the stringized representation of this object.
 	 */
-	protected String stringize() {
+	@Functional protected String stringize() {
 		return ("(" + first + ", " + second + ", " + third + ", " + fourth + ")").intern();
 	}
 }

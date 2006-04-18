@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
@@ -40,7 +40,7 @@ final class PairRetriever<T1, C1, E1, E2, C2, T2>
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty public PairRetriever() {
+	@Empty public PairRetriever() {
 		// does nothing
 	}
 

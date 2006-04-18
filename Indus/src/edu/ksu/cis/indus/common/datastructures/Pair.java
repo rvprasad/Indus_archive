@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.IFactory;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
@@ -64,12 +67,12 @@ public final class Pair<T1, T2> {
 		public static final Comparable<? extends Object> ID = "Pair management service";
 
 		/**
-		 * DOCUMENT ME!
+		 * The factory used to create pairs.
 		 */
-		private static final IFactory<Map<Object, Pair>> factory = new IFactory<Map<Object, Pair>>() {
+		private static final IFactory<Map<Object, Pair<?, ?>>> PAIR_FACTORY = new IFactory<Map<Object, Pair<?, ?>>>() {
 
-			public Map<Object, Pair> create() {
-				return new HashMap<Object, Pair>();
+			public Map<Object, Pair<?, ?>> create() {
+				return new HashMap<Object, Pair<?, ?>>();
 			}
 
 		};
@@ -82,10 +85,10 @@ public final class Pair<T1, T2> {
 		/**
 		 * The collection of managed pairs.
 		 * 
-		 * @invariant pairs.entrySet()->forall(o | o.getValue()->forall(p | p.entrySet()->forall(q | q.getFirst() == 0 and
+		 * @invariant pairs.entrySet()->forall(o | o.getValue()->forall(p | p.entrySet()->forall(q | q.getFirst() == o and
 		 *            q.getSecond() == p)))
 		 */
-		private final Map<Object, Map<Object, Pair>> pairs;
+		private final Map<Object, Map<Object, Pair<?, ?>>> pairs;
 
 		/**
 		 * This indicates if the generated pairs should be optimized for string generation.
@@ -100,10 +103,10 @@ public final class Pair<T1, T2> {
 		 * @param optimizeHashCode <code>true</code> indicates generated pairs are optimized for hash code generation;
 		 *            <code>false</code>, otherwise.
 		 */
-		public PairManager(final boolean optimizeToString, final boolean optimizeHashCode) {
+		@SuppressWarnings("unchecked") public PairManager(final boolean optimizeToString, final boolean optimizeHashCode) {
 			stringOptimized = optimizeToString;
 			hashcodeOptimized = optimizeHashCode;
-			pairs = new HashMap<Object, Map<Object, Pair>>(Constants.getNumOfMethodsInApplication());
+			pairs = new HashMap<Object, Map<Object, Pair<?, ?>>>(Constants.getNumOfMethodsInApplication());
 		}
 
 		/**
@@ -116,9 +119,10 @@ public final class Pair<T1, T2> {
 		 * @return the pair containing the given objects.
 		 * @post result != null
 		 */
-		public <T1, T2> Pair<T1, T2> getPair(final T1 firstParam, final T2 secondParam) {
-			final Map<Object, Pair> _values = MapUtils.getFromMapUsingFactory(pairs, secondParam, factory);
-			@SuppressWarnings("unchecked") Pair<T1, T2> _result = _values.get(firstParam);
+		@NonNull public <T1, T2> Pair<T1, T2> getPair(@Immutable final T1 firstParam, @Immutable final T2 secondParam) {
+			@SuppressWarnings("unchecked") final Map<Object, Pair<?, ?>> _values = MapUtils.getFromMapUsingFactory(pairs,
+					secondParam, PAIR_FACTORY);
+			@SuppressWarnings("unchecked") Pair<T1, T2> _result = (Pair<T1, T2>) _values.get(firstParam);
 
 			if (_result == null) {
 				_result = new Pair<T1, T2>(firstParam, secondParam, hashcodeOptimized, stringOptimized);
@@ -138,12 +142,12 @@ public final class Pair<T1, T2> {
 	/**
 	 * The first element of this pair.
 	 */
-	protected final T1 first;
+	@Immutable protected final T1 first;
 
 	/**
 	 * The second element of this pair.
 	 */
-	protected final T2 second;
+	@Immutable protected final T2 second;
 
 	/**
 	 * A cached copy of the hash code of this object.
@@ -166,7 +170,7 @@ public final class Pair<T1, T2> {
 	 * @param firstParam the first element of this pair.
 	 * @param secondParam the second element of this pair.
 	 */
-	public Pair(final T1 firstParam, final T2 secondParam) {
+	public Pair(@Immutable final T1 firstParam, @Immutable final T2 secondParam) {
 		this.first = firstParam;
 		this.second = secondParam;
 	}
@@ -185,7 +189,8 @@ public final class Pair<T1, T2> {
 	 * @post optimized == false implies str == null
 	 * @post optimized == true implies str != null
 	 */
-	public Pair(final T1 firstParam, final T2 secondParam, final boolean hashcodeOptimized, final boolean toStringOptimized) {
+	public Pair(@Immutable final T1 firstParam, @Immutable final T2 secondParam, final boolean hashcodeOptimized,
+			final boolean toStringOptimized) {
 		this.first = firstParam;
 		this.second = secondParam;
 
@@ -209,11 +214,12 @@ public final class Pair<T1, T2> {
 	 * @post result->entrySet()->forall(o | o.getValue()->forall(p | pairs->includes(Pair(o.getKey(), p))))
 	 * @post pairs->forall(o | result.get(o.getFirst())->includes(o.getSecond()))
 	 */
-	public static Map<Object, Collection<Object>> mapify(final Collection<Pair> pairs, final boolean forward) {
+	@NonNull @Immutable public static Map<Object, Collection<Object>> mapify(
+			@Immutable @NonNull final Collection<Pair<?, ?>> pairs, final boolean forward) {
 		Map<Object, Collection<Object>> _result = new HashMap<Object, Collection<Object>>();
 
-		for (final Iterator _i = pairs.iterator(); _i.hasNext();) {
-			final Pair _pair = (Pair) _i.next();
+		for (final Iterator<Pair<?, ?>> _i = pairs.iterator(); _i.hasNext();) {
+			final Pair<?, ?> _pair = _i.next();
 			Object _key;
 			Object _value;
 
@@ -248,11 +254,11 @@ public final class Pair<T1, T2> {
 	 * @post result == true implies o.oclTypeOf(Pair) and (o.first.equals(first) or o.first == first) and
 	 *       (o.second.equals(second) or o.second == second)
 	 */
-	@Override public boolean equals(final Object o) {
+	@Override public boolean equals(@Immutable final Object o) {
 		boolean _result = false;
 
 		if (o instanceof Pair) {
-			final Pair _temp = (Pair) o;
+			final Pair<?, ?> _temp = (Pair) o;
 			_result = (this == o) || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
 					&& ((second == _temp.second) || ((second != null) && second.equals(_temp.second)));
 		}
@@ -264,7 +270,7 @@ public final class Pair<T1, T2> {
 	 * 
 	 * @return the first element in the pair.
 	 */
-	public T1 getFirst() {
+	@Functional public T1 getFirst() {
 		return first;
 	}
 
@@ -273,7 +279,7 @@ public final class Pair<T1, T2> {
 	 * 
 	 * @return the second element in the pair.
 	 */
-	public T2 getSecond() {
+	@Functional public T2 getSecond() {
 		return second;
 	}
 
@@ -319,7 +325,7 @@ public final class Pair<T1, T2> {
 	 * 
 	 * @return a stringified version of this object.
 	 */
-	@Override public String toString() {
+	@Override @NonNull public String toString() {
 		String _result;
 
 		if (str == null) {
@@ -371,7 +377,7 @@ public final class Pair<T1, T2> {
 	 * 
 	 * @return the stringized representation of this object.
 	 */
-	protected String stringize() {
+	@NonNull @Immutable protected String stringize() {
 		return ("(" + first + ", " + second + ")").intern();
 	}
 }

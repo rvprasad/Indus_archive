@@ -14,11 +14,17 @@
 
 package edu.ksu.cis.indus.common.collections;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NumericalConstraint;
+import edu.ksu.cis.indus.annotations.NumericalConstraint.NumericalValue;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DOCUMENT ME!
+ * This class contains static utility methods that are useful in the context of <code>java.util.List</code> instances.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -34,6 +40,8 @@ public final class ListUtils {
 		super();
 	}
 
+	// / CLOVER:ON
+
 	/**
 	 * Ensures that <code>list.size()</code> returns <code>finalSize</code>. This is achieved by appending
 	 * <code>defaultValue</code> appropriate number of times to <code>list</code>.
@@ -41,13 +49,13 @@ public final class ListUtils {
 	 * @param <T> The type of the elements in the list.
 	 * @param list to be modified.
 	 * @param finalSize of <code>list</code>
-	 * @param defaultValue to be injected into the list, if required, to ensure it's size.
-	 * @pre list != null
+	 * @param defaultValue to be injected into the list, if needed.
 	 * @post list.size() = finalSize
 	 * @post list$pre.size() &lt; finalSize implies list.contains(defaultValue)
 	 * @post list$pre.size() &gt;= finalSize implies list$pre.equals(list)
 	 */
-	public static <T> void ensureSize(final List<T> list, final int finalSize, final T defaultValue) {
+	@Functional public static <T> void ensureSize(@NonNull final List<T> list,
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int finalSize, final T defaultValue) {
 		final int _size = list.size();
 
 		if (finalSize > _size) {
@@ -58,15 +66,19 @@ public final class ListUtils {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the element at the given index from the given list; if none exists, then the list is extended to accomodate
+	 * the index, the default value is inserted at the given index, and the default value is returned.
 	 * 
-	 * @param <T> DOCUMENT ME!
-	 * @param list DOCUMENT ME!
-	 * @param index DOCUMENT ME!
-	 * @param defaultValue DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T> is the type of object in the list.
+	 * @param list of interest.
+	 * @param index of interest.
+	 * @param defaultValue to be used, if needed.
+	 * @return the value in <code>list</code> at index <code>i</code>.
+	 * @post list$pre.size() &lt; index implies (list.size() = index and list.get(index) = defaultValue)
+	 * @post list.containsAll(list$pre)
+	 * @post result = list.get(index)
 	 */
-	public static <T> T getAtIndexFromList(final List<T> list, final int index, final T defaultValue) {
+	@Immutable public static <T> T getAtIndexFromList(@NonNull final List<T> list, final int index, @Immutable final T defaultValue) {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}
@@ -80,27 +92,24 @@ public final class ListUtils {
 		return list.get(index);
 	}
 
-	// / CLOVER:ON
-
 	/**
 	 * Retrieves an element at the given index in the list. If the value at the given index is <code>null</code> then the
-	 * null value is replaced by the <code>defaultValue</code> and the same is returned. If the index does not occur in the
-	 * list (list is short) then the list is extended with null values, <code>defaultValue</code> is added at the
-	 * appropriate index, and the same is returned.
+	 * <code>null</code> value is replaced by the defaultValue and the same is returned. If the index does not occur in the
+	 * list (list is short) then the list is extended with null values, defaultValue is added at the appropriate index, and
+	 * the same is returned.
 	 * 
-	 * @param <T> is the type of the elements of the list
-	 * @param <T2> DOCUMENT ME!
+	 * @param <T> is the type of the elements of the list.
+	 * @param <T2> is the type of object created by the factory.
 	 * @param list from which to retrieve the value.
 	 * @param index in <code>list</code> from which to retrive the value.
 	 * @param factory provides the default value to be injected and returned if none exists or if <code>null</code> exists.
 	 * @return the value at <code>index</code> in <code>list</code>.
 	 * @throws IndexOutOfBoundsException when <code>index</code> is less than 0.
-	 * @pre list != null and index != null and defaultValue != null
-	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result = defaultValue
+	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result = factory.create()
 	 * @post list.get(index) = result
 	 */
-	public static <T, T2 extends T> T getAtIndexFromListUsingFactory(final List<T> list, final int index,
-			final IFactory<T2> factory) {
+	@NonNull @Functional public static <T, T2 extends T> T getAtIndexFromListUsingFactory(@NonNull final List<T> list,
+			final int index, @NonNull final IFactory<T2> factory) throws IndexOutOfBoundsException {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}
@@ -115,12 +124,12 @@ public final class ListUtils {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a list factory.
 	 * 
-	 * @param <T> DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param <T> is the type of object stored in the list created by the returned factory.
+	 * @return a factory.
 	 */
-	public static <T> IFactory<List<T>> getFactory() {
+	@NonNull @Functional public static <T> IFactory<List<T>> getFactory() {
 		return new IFactory<List<T>>() {
 
 			public List<T> create() {

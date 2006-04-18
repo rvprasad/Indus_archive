@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.annotations.AInternalUse;
+import edu.ksu.cis.indus.annotations.InternalUse;
 import edu.ksu.cis.indus.common.graph.SCCRelatedData;
 import edu.ksu.cis.indus.interfaces.IPrototype;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
@@ -40,7 +40,7 @@ import java.util.Collection;
  * @param <SYM> DOCUMENT ME!
  * @param <T> DOCUMENT ME!
  */
-@AInternalUse public interface IFGNode<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
+@InternalUse public interface IFGNode<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends IPrototype<N> {
 
 	/**

@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.tools;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -73,7 +73,7 @@ public final class Phase
 	/**
 	 * Creates a new Phase object.
 	 */
-	@AEmpty private Phase() {
+	@Empty private Phase() {
 		// does nothing
 	}
 

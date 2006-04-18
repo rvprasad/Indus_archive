@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.annotations.AMarker;
+import edu.ksu.cis.indus.annotations.Marker;
 
 /**
  * This marker interface represents the type in the type system used in the analysis. It is possible that the user will use a
@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.annotations.AMarker;
  * @author $Author$
  * @version $Revision$
  */
-@AMarker public interface IType {
+@Marker public interface IType {
 	// empty
 }
 

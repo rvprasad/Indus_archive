@@ -14,146 +14,87 @@
 
 package edu.ksu.cis.indus.common.collections;
 
-import java.util.Collection;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * DOCUMENT ME!
+ * A factory based lazy map that uses the factory to creates values when there is no mapping for a given key.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <K>
- * @param <V>
+ * @param <K> is the type of the key.
+ * @param <V> is the type of the value.
  */
 public class FactoryBasedLazyMap<K, V>
-		implements Map<K, V> {
+		extends AbstractMap<K, V> {
 
 	/**
-	 * DOCUMENT ME!
+	 * The map that actually stores the mapping.
 	 */
-	private final Map<K, V> backedMap;
+	@NonNull private final Map<K, V> backedMap;
 
 	/**
-	 * DOCUMENT ME!
+	 * The factory used to create values.
 	 */
-	private final IFactory<V> factory;
+	@NonNull private final IFactory<V> factory;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param map DOCUMENT ME!
-	 * @param valueFactory DOCUMENT ME!
+	 * @param map to be used to store the actual mappings.
+	 * @param valueFactory to be used to create values.
 	 */
-	public FactoryBasedLazyMap(final Map<K, V> map, final IFactory<V> valueFactory) {
+	public FactoryBasedLazyMap(@NonNull @Immutable final Map<K, V> map, @NonNull @Immutable final IFactory<V> valueFactory) {
 		backedMap = map;
 		factory = valueFactory;
 	}
 
 	/**
-	 * @see java.util.Map#clear()
+	 * {@inheritDoc}
 	 */
-	public void clear() {
-		backedMap.clear();
-	}
-
-	/**
-	 * @see java.util.Map#containsKey(java.lang.Object)
-	 */
-	public boolean containsKey(final Object key) {
+	@Functional @Override public boolean containsKey(final Object key) {
 		return get(key) != null;
 	}
 
 	/**
-	 * @see java.util.Map#containsValue(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public boolean containsValue(final Object value) {
-		return backedMap.containsValue(value);
-	}
-
-	/**
-	 * @see java.util.AbstractMap#entrySet()
-	 */
-	public Set<Map.Entry<K, V>> entrySet() {
+	@Functional @Override @NonNull public Set<Map.Entry<K, V>> entrySet() {
 		return backedMap.entrySet();
 	}
 
 	/**
-	 * @see java.util.Map#equals(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public boolean equals(final Object o) {
+	@Functional @Override public boolean equals(final Object o) {
 		return backedMap.equals(o);
 	}
 
 	/**
-	 * @see java.util.AbstractMap#get(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public V get(final Object key) {
+	@Functional @Override public V get(final Object key) {
 		if (!backedMap.containsKey(key)) {
 			final V _c = factory.create();
-			backedMap.put((K) key, _c);
+			@SuppressWarnings("unchecked") final K _k = (K) key;
+			backedMap.put(_k, _c);
 			return _c;
 		}
 		return backedMap.get(key);
 	}
 
 	/**
-	 * @see java.util.Map#hashCode()
+	 * {@inheritDoc}
 	 */
-	public int hashCode() {
+	@Functional @Override public int hashCode() {
 		return backedMap.hashCode();
 	}
-
-	/**
-	 * @see java.util.Map#isEmpty()
-	 */
-	public boolean isEmpty() {
-		return backedMap.isEmpty();
-	}
-
-	/**
-	 * @see java.util.Map#keySet()
-	 */
-	public Set<K> keySet() {
-		return backedMap.keySet();
-	}
-
-	/**
-	 * @see java.util.Map#put(K, V)
-	 */
-	public V put(final K key, final V value) {
-		return backedMap.put(key, value);
-	}
-
-	/**
-	 * @see java.util.Map#putAll(java.util.Map)
-	 */
-	public void putAll(final Map<? extends K, ? extends V> t) {
-		backedMap.putAll(t);
-	}
-
-	/**
-	 * @see java.util.Map#remove(java.lang.Object)
-	 */
-	public V remove(final Object key) {
-		return backedMap.remove(key);
-	}
-
-	/**
-	 * @see java.util.Map#size()
-	 */
-	public int size() {
-		return backedMap.size();
-	}
-
-	/**
-	 * @see java.util.Map#values()
-	 */
-	public Collection<V> values() {
-		return backedMap.values();
-	}
-
 }
 
 // End of File

@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This indicates a transition was attempted on a stopped automaton.
  * 
@@ -41,7 +43,7 @@ public final class StoppedAutomatonException
 	 * 
 	 * @param message of interest.
 	 */
-	public StoppedAutomatonException(final String message) {
+	public StoppedAutomatonException(@Immutable final String message) {
 		super(message);
 	}
 }

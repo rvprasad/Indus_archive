@@ -18,7 +18,7 @@ import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
@@ -257,7 +257,7 @@ public final class OFATool
 	 * @param configurationString Ignored at this time.
 	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
-	@AEmpty public void setConfiguration(@SuppressWarnings("unused") final String configurationString) {
+	@Empty public void setConfiguration(@SuppressWarnings("unused") final String configurationString) {
 		// Does nothing
 	}
 

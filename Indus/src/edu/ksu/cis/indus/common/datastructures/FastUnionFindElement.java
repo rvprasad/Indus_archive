@@ -14,7 +14,10 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,7 @@ import java.util.List;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> the type parameter for this class. <code>T</code> has to be a subtype of this class.
+ * @param <T> the type parameter for this class.
  */
 public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 
@@ -48,7 +51,7 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	/**
 	 * Creates an instance of this class.
 	 */
-	@AEmpty public FastUnionFindElement() {
+	@Empty public FastUnionFindElement() {
 		// does nothing
 	}
 
@@ -56,9 +59,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * Adds a new child to this element.
 	 * 
 	 * @param child to be added.
-	 * @pre child != null
 	 */
-	public final void addChild(final T child) {
+	public final void addChild(@NonNull @Immutable final T child) {
 		if (children == null) {
 			children = new ArrayList<T>();
 		}
@@ -69,10 +71,9 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * Retrieves the element that represents the equivalence class to which this element belongs to.
 	 * 
 	 * @return the representative element.
-	 * @post result != null
 	 */
-	public final T find() {
-		T _result = (T) this;
+	@NonNull public final T find() {
+		@SuppressWarnings("unchecked") T _result = (T) this;
 
 		while (_result.set != null) {
 			_result = _result.set;
@@ -89,7 +90,7 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @return the type of this element.
 	 */
-	public final Object getType() {
+	@Functional public final Object getType() {
 		return find().type;
 	}
 
@@ -98,7 +99,7 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @return <code>true</code> if it has children; <code>false</code>, otherwise.
 	 */
-	public final boolean isAtomic() {
+	@Functional public final boolean isAtomic() {
 		return children == null || children.size() == 0;
 	}
 
@@ -107,7 +108,7 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @return <code>true</code> if it is bound to a type; <code>false</code>, otherwise.
 	 */
-	public final boolean isBound() {
+	@Functional public final boolean isBound() {
 		return find().type != null;
 	}
 
@@ -117,9 +118,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @param e is the element to checked for equivalence.
 	 * @return <code>false</code>
-	 * @pre e != null
 	 */
-	public final boolean sameType(final T e) {
+	@Functional public final boolean sameType(@NonNull @Immutable final T e) {
 		boolean _result = false;
 
 		if (e.type != null && type != null) {
@@ -133,9 +133,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @param theType of the element.
 	 * @throws IllegalStateException when the type of the element is already set.
-	 * @pre theType != null
 	 */
-	public final void setType(final Object theType) {
+	public final void setType(@NonNull @Immutable final Object theType) {
 		if (set == null) {
 			if (type == null) {
 				type = theType;
@@ -152,9 +151,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * 
 	 * @param e is the element to be unified with this element.
 	 * @return <code>true</code> if this element was unified with the given element; <code>false</code>, otherwise.
-	 * @pre e != null
 	 */
-	public final boolean unify(final T e) {
+	public final boolean unify(@NonNull final T e) {
 		boolean _result = false;
 		final T _a = find();
 		final T _b = e.find();
@@ -178,9 +176,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * @param e is the element whose children needs to be unified with that of this element.
 	 * @return <code>true</code>, if the tree rooted at this element and at <code>e</code> was unified successfully;
 	 *         <code>false</code>, otherwise.
-	 * @pre e != null
 	 */
-	public final boolean unifyChildren(final T e) {
+	public final boolean unifyChildren(@NonNull final T e) {
 		boolean _result = false;
 
 		if (children != null && e.children != null && children.size() == e.children.size()) {
@@ -199,9 +196,8 @@ public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
 	 * Merges the equivalence classes containing <code>e</code> and this element.
 	 * 
 	 * @param e is the element in an equivalence class that needs to be merged.
-	 * @pre e != null
 	 */
-	public final void union(final FastUnionFindElement<T> e) {
+	public final void union(@NonNull final FastUnionFindElement<T> e) {
 		final T _a = find();
 		final T _b = e.find();
 

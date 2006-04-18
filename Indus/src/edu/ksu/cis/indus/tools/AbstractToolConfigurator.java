@@ -14,7 +14,7 @@
 
 package edu.ksu.cis.indus.tools;
 
-import edu.ksu.cis.indus.annotations.AEmpty;
+import edu.ksu.cis.indus.annotations.Empty;
 
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -120,7 +120,7 @@ public abstract class AbstractToolConfigurator
 	/**
 	 * @see IToolConfigurator#widgetDisposed(DisposeEvent)
 	 */
-	@AEmpty public void widgetDisposed(@SuppressWarnings("unused") final DisposeEvent evt) {
+	@Empty public void widgetDisposed(@SuppressWarnings("unused") final DisposeEvent evt) {
 		// does nothing
 	}
 

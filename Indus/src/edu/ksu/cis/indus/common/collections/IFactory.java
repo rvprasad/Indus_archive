@@ -13,34 +13,24 @@
  */
 package edu.ksu.cis.indus.common.collections;
 
-import java.util.BitSet;
+import edu.ksu.cis.indus.annotations.NonNull;
 
 /**
- * DOCUMENT ME!
+ * A factory used to create objects.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of object created by this factory.
  */
 public interface IFactory<T> {
 
 	/**
-	 * A factory to create <code>java.util.BitSet</code>.
-	 */
-	IFactory<BitSet> BIT_SET_FACTORY = new IFactory<BitSet>() {
-
-		public BitSet create() {
-			return new BitSet();
-		}
-	};
-
-	/**
-	 * DOCUMENT ME!
+	 * Creates an object.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return the created object.
 	 */
-	T create();
+	@NonNull T create();
 
 }
 

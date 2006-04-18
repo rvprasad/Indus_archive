@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.fa;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.fa.ITransitionLabel.IEpsilonLabelFactory;
@@ -37,9 +40,9 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 		implements IAutomaton<S, L> {
 
 	/**
-	 * DOCUMENT ME!
+	 * The epsilon label factory.
 	 */
-	protected final IEpsilonLabelFactory<L> epsilonFactory;
+	@NonNull protected final IEpsilonLabelFactory<L> epsilonFactory;
 
 	/**
 	 * The current state of the NFA. This is <code>null</code> if the automaton is not running.
@@ -48,17 +51,15 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 
 	/**
 	 * The final states of this automaton.
-	 * 
-	 * @invariant finalStates.oclIsKindOf(Set(IState))
 	 */
 	private final Collection<S> finalStates = new HashSet<S>();
 
 	/**
-	 * DOCUMENT ME!
+	 * The object extractor.
 	 */
-	private final ITransformer<SimpleEdgeLabelledNode<S>, S> OBJECT_EXTRACTOR = new ITransformer<SimpleEdgeLabelledNode<S>, S>() {
+	private final ITransformer<SimpleEdgeLabelledNode<S>, S> objectExtractor = new ITransformer<SimpleEdgeLabelledNode<S>, S>() {
 
-		public S transform(final SimpleEdgeLabelledNode<S> input) {
+		@Functional public S transform(final SimpleEdgeLabelledNode<S> input) {
 			return input.getObject();
 		}
 	};
@@ -76,10 +77,9 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param eFactory DOCUMENT ME!
-	 * @pre eFactory != null
+	 * @param eFactory the epsilon factory.
 	 */
-	public NFA(final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
+	public NFA(@NonNull @Immutable final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
 		super();
 		epsilonFactory = eFactory;
 	}
@@ -88,9 +88,8 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * Adds a final state to the automaton.
 	 * 
 	 * @param state to be added as a final state.
-	 * @pre state != null
 	 */
-	public void addFinalState(final S state) {
+	public void addFinalState(@NonNull @Immutable final S state) {
 		assert state != null;
 
 		seg.getNode(state);
@@ -106,7 +105,8 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code> has been
 	 *             called but <code>stop()</code> has not been called.
 	 */
-	public void addLabelledTransitionFromTo(final S src, final L label, final S dest) {
+	public void addLabelledTransitionFromTo(@NonNull @Immutable final S src, @NonNull @Immutable final L label,
+			@NonNull @Immutable final S dest) {
 		if (currentState != null) {
 			throw new IllegalStateException(
 					"The automata should be altered when it is not not running (prior to starting it or"
@@ -116,9 +116,9 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	}
 
 	/**
-	 * @see IAutomaton#canPerformTransition(ITransitionLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean canPerformTransition(final L label) {
+	public boolean canPerformTransition(@NonNull @Immutable final L label) {
 		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(currentState);
 		final boolean _result;
 
@@ -131,9 +131,9 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	}
 
 	/**
-	 * @see java.lang.Object#clone()
+	 * {@inheritDoc}
 	 */
-	@Override public NFA<S, L> clone() {
+	@Override @SuppressWarnings("unchecked") public NFA<S, L> clone() {
 		try {
 			return (NFA) super.clone();
 		} catch (final CloneNotSupportedException _e) {
@@ -142,16 +142,16 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getCurrentState()
+	 * {@inheritDoc}
 	 */
-	public S getCurrentState() {
+	@Functional public S getCurrentState() {
 		return currentState;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#getFinalStates()
+	 * {@inheritDoc}
 	 */
-	public Collection<S> getFinalStates() {
+	@Functional @NonNull public Collection<S> getFinalStates() {
 		return finalStates;
 	}
 
@@ -162,10 +162,8 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * @param state of interest.
 	 * @param label of the outgoing transitions from <code>state</code>.
 	 * @return the collection of states.
-	 * @pre state != null and label != null
-	 * @post result != null
 	 */
-	public Collection<S> getResultingStates(final S state, final L label) {
+	@NonNull public Collection<S> getResultingStates(@NonNull @Immutable final S state, @NonNull @Immutable final L label) {
 		assert state != null && label != null;
 
 		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(state);
@@ -173,7 +171,7 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 
 		if (_node != null) {
 			final Collection<SimpleEdgeLabelledNode<S>> _dests = _node.getSuccsViaEdgesLabelled(label);
-			_result = CollectionUtils.collect(_dests, OBJECT_EXTRACTOR);
+			_result = CollectionUtils.collect(_dests, objectExtractor);
 		} else {
 			_result = Collections.emptySet();
 		}
@@ -185,28 +183,28 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * 
 	 * @return the start state.
 	 */
-	public S getStartState() {
+	@Functional @NonNull public S getStartState() {
 		return startState;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isDeterministic()
+	 * {@inheritDoc}
 	 */
-	public boolean isDeterministic() {
+	@Functional public boolean isDeterministic() {
 		return false;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#isInFinalState()
+	 * {@inheritDoc}
 	 */
-	public boolean isInFinalState() {
+	@Functional public boolean isInFinalState() {
 		return finalStates.contains(currentState);
 	}
 
 	/**
-	 * @see IAutomaton#performTransitionOn(ITransitionLabel)
+	 * {@inheritDoc}
 	 */
-	public void performTransitionOn(final L label) {
+	public void performTransitionOn(@NonNull @Immutable final L label) {
 		final SimpleEdgeLabelledNode<S> _node = seg.queryNode(currentState);
 
 		if (_node != null) {
@@ -227,7 +225,8 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * @throws IllegalStateException if the automaton is altered while it's running, i.e. <code>start()</code> has been
 	 *             called but <code>stop()</code> has not been called.
 	 */
-	public boolean removeLabelledTransitionFromTo(final S src, final L label, final S dest) {
+	public boolean removeLabelledTransitionFromTo(@NonNull @Immutable final S src, @NonNull @Immutable final L label,
+			@NonNull @Immutable final S dest) {
 		if (currentState != null) {
 			throw new IllegalStateException("The automata should be altered when it is not active (prior to starting it or"
 					+ "after it is stopped).");
@@ -239,9 +238,8 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	 * Sets the start state of the automaton.
 	 * 
 	 * @param state to be the start state.
-	 * @pre state != null
 	 */
-	public void setStartState(final S state) {
+	public void setStartState(@NonNull @Immutable final S state) {
 		assert state != null;
 
 		seg.getNode(state);
@@ -249,14 +247,14 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#start()
+	 * {@inheritDoc}
 	 */
 	public void start() {
 		currentState = startState;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.fa.IAutomaton#stop()
+	 * {@inheritDoc}
 	 */
 	public void stop() {
 		currentState = null;
