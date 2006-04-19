@@ -109,13 +109,13 @@ public final class UniqueJimpleIDGenerator
 	 */
 	public String getIdForField(final SootField field) {
 		final SootClass _declClass = field.getDeclaringClass();
-		final List<SootField> _fields = class2fields.get(_declClass);
 
-		if (class2fields.containsKey(_declClass)) {
+		if (!class2fields.containsKey(_declClass)) {
 			@SuppressWarnings("unchecked") final List<SootField> _f = new ArrayList<SootField>(_declClass.getFields());
 			class2fields.put(_declClass, sort(_f));
 		}
 
+		final List<SootField> _fields = class2fields.get(_declClass);
 		return getIdForClass(_declClass) + "_f" + _fields.indexOf(field);
 	}
 
