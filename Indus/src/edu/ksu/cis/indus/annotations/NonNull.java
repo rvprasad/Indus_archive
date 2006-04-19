@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ 
  */
 @Target({ ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.FIELD, ElementType.METHOD }) @Empty @Documented public @interface NonNull {
 	// empty
