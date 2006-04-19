@@ -10,10 +10,13 @@
 	<li>Each project should start with a version tag <i>(v0_0)</i>.</li>
 	<li>After each "settled" change to the project, the project can be tagged with date tag.</li>
 	<li>When the project reaches a state that warrants a new version (minor or major), the project should be tagged with
-	 a revision tag <i>(v0_1)</i>.</li>
-	<li>Each time a project releases software, it should be tagged a revision tag <i>(v0_1)</i>.</li>
+		 a revision tag <i>(v0_1)</i>.</li>
+	<li>Each time the project enters a release mode for version <i>v0_X</i>, it should be tagged with a revision tag 
+		<i>v0_X_preparation</i>.</li>
+	<li>Each time a project releases software version <i>v0_X</i>, it should be tagged with a revision tag 
+		<i>v0_X_release</i>.</li>
 	<li>The name of every artifact in a release should reflect the revision tag associated with it <i>(module-0.1)</i>.</li>
-	<li>If an older version (v0_0) is updated then it is released as <i>module-0.0.1</i>.</li>
+	<li>If an older version <i>v0_0</i> is updated then it is released as <i>module-0.0.1</i>.</li>
 	</ol>
 </p>
 <p>
