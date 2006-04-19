@@ -7,10 +7,8 @@
 <p>Libraries from the following projects are used in Indus and it's subprojects during execution.<br/>
   <ul>
     <li><a href="http://jakarta.apache.org/commons/cli/">Jakarta Commons CLI</a></li>
-    <li><a href="http://jakarta.apache.org/commons/collections/">Jakarta Commons Collection </a></li>
     <li><a href="http://jakarta.apache.org/commons/io/">Jakarta Commons IO</a></li>
     <li><a href="http://jakarta.apache.org/commons/lang/">Jakarta Commons Lang</a></li>
-    <li><a href="http://jakarta.apache.org/commons/logging/">Jakarta Commons Logging</a></li>
     <li><a href="http://jakarta.apache.org/commons/pool/">Jakarta Commons Pool</a></li>
     <li><a href="http://jibx.sourceforge.net/index.html">JiBX: Binding XML to Java Code</a></li>
         <ul>
@@ -27,9 +25,10 @@
     <li><a href="http://xstream.codehaus.org/">XStream</a></li>
     <li><a href="http://trove4j.sourceforge.net/">GNU Trove</a></li>
     <li><a href="http://junit.org">JUnit</a></li>
+    <li><a href="http://slf4j.org">SLF4J</a></li>
   </ul>
   </p>
-  <p>Artifacts from following projects are used while developing Indus and it's subprojects.<br/>
+  <p>Artifacts from following projects were used while developing Indus and it's subprojects.<br/>
   <ul>
       <li><a href="http://www.thecortex.net/clover/index.html">Clover</a></li>
       <li><a href="http://jalopy.sourceforge.net/">Jalopy</a></li>
