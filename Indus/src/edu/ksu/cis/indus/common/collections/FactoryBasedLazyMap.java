@@ -95,6 +95,13 @@ public class FactoryBasedLazyMap<K, V>
 	@Functional @Override public int hashCode() {
 		return backedMap.hashCode();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override public V put(@Immutable final K key, @Immutable final V value) {
+		return backedMap.put(key, value);
+	}
 }
 
 // End of File
