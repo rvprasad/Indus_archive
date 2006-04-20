@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.annotations;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
@@ -25,7 +26,7 @@ import java.lang.annotation.Target;
  * @author $Author$
  * @version $Revision$
  */
-@Target({ ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER }) public @interface NumericalConstraint {
+@Target({ ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER }) @Documented public @interface NumericalConstraint {
 
 	/**
 	 * The numerical value partition type.
