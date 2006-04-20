@@ -91,7 +91,7 @@
 		
         <zip destfile="${examples.src.zip.filename}">
             <fileset dir="${projects.dir}">
-                <include name="*/src-xml/**/*CLI.java"/>
+                <include name="*/src-xml/**/*.java"/>
             	<include name="Indus/src/**/SootBasedDriver.java"/>
             	<include name="*/src/**/*.xsd"/>
             </fileset>

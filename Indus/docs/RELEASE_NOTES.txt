@@ -39,6 +39,7 @@ Version 0.8
 	- Removed types: FixedSizeSet.
 	- Refactored annotation types: Empty, Experimental, Functional, Immutable, InternalUse, Marker, NonNull, 
 		NonNullContainer, NumericalConstraint.
+	- Example code base has been expanded.
 
 Version 0.7.2
 -----------------

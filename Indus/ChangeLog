@@ -1,3 +1,7 @@
+2006-04-20 venku <venku@boss.dreamsoft.com>
+
+	* distbuild.xml: changes to release every java file in src-xml folders.
+
 2006-04-18 venku <venku@boss.dreamsoft.com>
 	* Renamed annotations to exclude the A prefix.  
 	* Added new annotations
