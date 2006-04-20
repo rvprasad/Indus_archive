@@ -39,7 +39,7 @@ import soot.jimple.internal.AbstractStmt;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 public final class ApplicationInitInfoFactory {
 
@@ -48,7 +48,7 @@ public final class ApplicationInitInfoFactory {
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 */
 	private static final class ThreadCreatingStmt
 			extends AbstractStmt
@@ -130,7 +130,7 @@ public final class ApplicationInitInfoFactory {
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 */
 	private static final class ThreadStartingStmt
 			extends AbstractStmt

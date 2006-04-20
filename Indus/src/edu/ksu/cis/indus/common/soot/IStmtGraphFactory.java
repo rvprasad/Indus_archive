@@ -26,7 +26,7 @@ import soot.toolkits.graph.UnitGraph;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the type of the manufactured graph.
  */
 public interface IStmtGraphFactory<T extends UnitGraph> {

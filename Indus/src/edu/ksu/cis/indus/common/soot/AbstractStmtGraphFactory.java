@@ -42,7 +42,7 @@ import soot.toolkits.graph.UnitGraph;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the type of the manufactored graph.
  */
 public abstract class AbstractStmtGraphFactory<T extends UnitGraph>

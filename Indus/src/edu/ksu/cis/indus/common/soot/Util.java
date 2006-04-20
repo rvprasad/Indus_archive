@@ -73,7 +73,7 @@ import soot.tagkit.Host;
  * General utility class providing common chore methods.
  * 
  * @author <a href="mailto:rvprasad@cis.ksu.edu">Venkatesh Prasad Ranganath</a>
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 public final class Util {
 
