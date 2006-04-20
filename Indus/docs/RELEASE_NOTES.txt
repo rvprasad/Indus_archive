@@ -37,7 +37,8 @@ Version 0.8
 		- 768 - Context-sensitive slicing seems to be overly perssimistic
 	- Removed dependence on commons-collections.
 	- Removed types: FixedSizeSet.
-	- Renamed annotation types.
+	- Refactored annotation types: Empty, Experimental, Functional, Immutable, InternalUse, Marker, NonNull, 
+		NonNullContainer, NumericalConstraint.
 
 Version 0.7.2
 -----------------
