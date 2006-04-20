@@ -14,7 +14,6 @@
 
 package edu.ksu.cis.indus.common.collections;
 
-import edu.ksu.cis.indus.annotations.Functional;
 import edu.ksu.cis.indus.annotations.Immutable;
 import edu.ksu.cis.indus.annotations.NonNull;
 
@@ -23,7 +22,7 @@ import edu.ksu.cis.indus.annotations.NonNull;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <I1> the input type of parameter to the first transformer.
  * @param <O1> the output type of the result of the first transformer and the input type of the parameter to the second
  *            transformer.
@@ -58,7 +57,7 @@ public class ChainedTransformer<I1, O1, O2>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Functional public O2 transform(final I1 input) {
+	public O2 transform(final I1 input) {
 		return transformer2.transform(transformer1.transform(input));
 	}
 }

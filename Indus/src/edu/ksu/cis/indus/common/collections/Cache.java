@@ -25,7 +25,7 @@ import java.util.Map;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <K> the type of the key in this cache.
  * @param <V> the type of the value in this cache.
  */

@@ -25,7 +25,7 @@ import java.util.Collection;
  * to this bag.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad</a>
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the type of the work handled by this work bag.
  * @since Created: Thu Jul 25 18:37:24 2002.
  */

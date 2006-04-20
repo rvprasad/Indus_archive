@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 
 /**
@@ -21,7 +24,7 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> a subtype of this type.
  */
 public interface IEdgeLabelledNode<T extends IEdgeLabelledNode<T>>
@@ -31,51 +34,45 @@ public interface IEdgeLabelledNode<T extends IEdgeLabelledNode<T>>
 	 * Retrieves the labels of the incoming edges.
 	 * 
 	 * @return the labels on the incoming edges.
-	 * @post result != null
 	 */
-	Collection<IEdgeLabel> getIncomingEdgeLabels();
+	@Functional @NonNull Collection<IEdgeLabel> getIncomingEdgeLabels();
 
 	/**
 	 * Retrieves the labels of the outgoing edges.
 	 * 
 	 * @return the labels on the outgoing edges.
-	 * @post result != null
 	 */
-	Collection<IEdgeLabel> getOutGoingEdgeLabels();
+	@Functional @NonNull Collection<IEdgeLabel> getOutGoingEdgeLabels();
 
 	/**
 	 * Retrieves the nodes from which the edge labelled with <code>label</code> are incident on this node.
 	 * 
 	 * @param label of the incoming edges onto this node.
 	 * @return a collection of nodes.
-	 * @pre label != null
 	 */
-	Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label);
+	@Functional @NonNull Collection<T> getPredsViaEdgesLabelled(@NonNull final IEdgeLabel label);
 
 	/**
 	 * Retrieves the destination nodes of the outgoing edges from this node that are labelled with <code>label</code>.
 	 * 
 	 * @param label of the outgoing edges from this node.
 	 * @return a collection of nodes.
-	 * @pre label != null
 	 */
-	Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label);
+	@Functional @NonNull Collection<T> getSuccsViaEdgesLabelled(@NonNull final IEdgeLabel label);
 
 	/**
 	 * Checks if there is an incoming edge with the given label on this node.
 	 * 
 	 * @param label of the outgoing edge.
 	 * @return <code>true</code> if there is such an outgoing edge; <code>false</code>, otherwise.
-	 * @pre label != null
 	 */
-	boolean hasIncomingEdgeLabelled(final IEdgeLabel label);
+	@Functional @NonNull boolean hasIncomingEdgeLabelled(@NonNull final IEdgeLabel label);
 
 	/**
 	 * Checks if there is an outgoing edge with the given label from this node.
 	 * 
 	 * @param label of the outgoing edge.
 	 * @return <code>true</code> if there is such an outgoing edge; <code>false</code>, otherwise.
-	 * @pre label != null
 	 */
-	boolean hasOutgoingEdgeLabelled(final IEdgeLabel label);
+	@Functional @NonNull boolean hasOutgoingEdgeLabelled(@NonNull final IEdgeLabel label);
 }

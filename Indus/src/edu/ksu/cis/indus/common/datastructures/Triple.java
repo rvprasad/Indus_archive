@@ -36,7 +36,7 @@ import edu.ksu.cis.indus.annotations.NonNull;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T1> The type of the first element of this triple.
  * @param <T2> The type of the second element of this triple.
  * @param <T3> The type of the first element of this triple.

@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
@@ -43,14 +46,14 @@ public class SimpleEdgeGraph<O>
 		/**
 		 * The object contained in this label.
 		 */
-		private final Object object;
+		@Immutable private final Object object;
 
 		/**
 		 * Creates an instance of this class.
 		 * 
 		 * @param obj to be contained in this label.
 		 */
-		public SimpleLabel(final Object obj) {
+		public SimpleLabel(@Immutable final Object obj) {
 			object = obj;
 		}
 
@@ -59,7 +62,7 @@ public class SimpleEdgeGraph<O>
 		 * 
 		 * @return the contained object.
 		 */
-		public Object getObject() {
+		@Functional public Object getObject() {
 			return object;
 		}
 	}
@@ -67,7 +70,7 @@ public class SimpleEdgeGraph<O>
 	/**
 	 * This is a label that represents <code>null</code> object.
 	 */
-	public static final IEdgeLabel NULL_LABEL = new SimpleLabel(null);
+	@Immutable public static final IEdgeLabel NULL_LABEL = new SimpleLabel(null);
 
 	/**
 	 * Creates an instance of this class.
@@ -86,24 +89,21 @@ public class SimpleEdgeGraph<O>
 	 * 
 	 * @param o is the object being represented by a node in this graph.
 	 * @return the node representing <code>o</code>.
-	 * @pre o != null
-	 * @post object2nodes$pre.get(o) == null implies inclusion
-	 * @post inclusion: nodes->includes(result) and heads->includes(result) and tails->includes(result) and
-	 *       object2nodes.get(o) == result
-	 * @post result != null
+	 * @post object2nodes$pre.get(o) == null implies (nodes->includes(result) and heads->includes(result) and
+	 *       tails->includes(result) and object2nodes.get(o) == result)
 	 */
-	public SimpleEdgeLabelledNode<O> getNode(final O o) {
-		final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
+	@NonNull public SimpleEdgeLabelledNode<O> getNode(@Immutable final O o) {
+		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		final SimpleEdgeLabelledNode<O> _result = _objectGraphInfo.getNode(o);
 		shapeChanged();
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public SimpleEdgeLabelledNode<O> queryNode(final O o) {
-		final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
+	public SimpleEdgeLabelledNode<O> queryNode(@Immutable final O o) {
+		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleEdgeLabelledNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		return _objectGraphInfo.queryNode(o);
 	}
 
@@ -112,16 +112,15 @@ public class SimpleEdgeGraph<O>
 	 * 
 	 * @param obj to serve as the contents of the label.
 	 * @return the label.
-	 * @post result != null
 	 */
-	protected IEdgeLabel getLabel(final Object obj) {
+	@NonNull protected IEdgeLabel getLabel(@Immutable final Object obj) {
 		return new SimpleLabel(obj);
 	}
 
-	/** 
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#getObjectExtractor()
+	/**
+	 * {@inheritDoc}
 	 */
-	public ITransformer<SimpleEdgeLabelledNode<O>, O> getObjectExtractor() {
+	@NonNull @Functional public ITransformer<SimpleEdgeLabelledNode<O>, O> getObjectExtractor() {
 		return new ITransformer<SimpleEdgeLabelledNode<O>, O>() {
 
 			public O transform(final SimpleEdgeLabelledNode<O> input) {

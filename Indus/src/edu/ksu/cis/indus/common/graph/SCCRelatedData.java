@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+
 /**
  * This is data structure class to represent strongly connected component data. Each node may be associated with 0 or 1
  * instance of this class. Please refer to <code>AbstractDirectedGraph</code> to understand how this class is used.
@@ -44,7 +46,7 @@ public final class SCCRelatedData {
 	 * 
 	 * @return the value in <code>componentNum</code>.
 	 */
-	public int getComponentNum() {
+	@Functional public int getComponentNum() {
 		return componentNum;
 	}
 
@@ -53,7 +55,7 @@ public final class SCCRelatedData {
 	 * 
 	 * @return the value in <code>dfsNum</code>.
 	 */
-	public int getDfsNum() {
+	@Functional public int getDfsNum() {
 		return dfsNum;
 	}
 
@@ -62,7 +64,7 @@ public final class SCCRelatedData {
 	 * 
 	 * @return the value in <code>high</code>.
 	 */
-	public int getHigh() {
+	@Functional public int getHigh() {
 		return high;
 	}
 

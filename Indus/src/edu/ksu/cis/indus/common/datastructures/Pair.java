@@ -46,7 +46,7 @@ import java.util.Map;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T1> The type of the first element of this pair.
  * @param <T2> The type of the second element of this pair.
  */
@@ -57,7 +57,7 @@ public final class Pair<T1, T2> {
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 */
 	public static final class PairManager {
 

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <R> is the type of receiver object of the invoked method.
  * @param <O> is the type of return value from the invoked method.
  */

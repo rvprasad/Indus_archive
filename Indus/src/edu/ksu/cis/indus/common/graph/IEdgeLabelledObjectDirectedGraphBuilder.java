@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.Collection;
 
 /**
@@ -21,20 +25,20 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <O> the type of object stored in the nodes of this graph.
  */
 public interface IEdgeLabelledObjectDirectedGraphBuilder<O> {
 
 	/**
-	 * Adds a labelled edge between each of the source nodes and the destination node
+	 * Adds a labelled edge between each of the source nodes and the destination node.
 	 * 
 	 * @param sources are the source nodes.
 	 * @param label is the edge label.
 	 * @param dest is the destination node.
-	 * @pre src != null and dest != null
 	 */
-	void addEdgeFromTo(final Collection<O> sources, final Object label, final O dest);
+	void addEdgeFromTo(@NonNull @Immutable @NonNullContainer final Collection<O> sources,
+			@NonNull @Immutable final Object label, @NonNull final O dest);
 
 	/**
 	 * Adds a labelled edge between the source node and each of the destination nodes.
@@ -42,9 +46,9 @@ public interface IEdgeLabelledObjectDirectedGraphBuilder<O> {
 	 * @param src is the source node.
 	 * @param label is the edge label.
 	 * @param destinations are the destination nodes.
-	 * @pre src != null and dest != null
 	 */
-	void addEdgeFromTo(final O src, final Object label, final Collection<O> destinations);
+	void addEdgeFromTo(@NonNull final O src, @NonNull @Immutable final Object label,
+			@NonNull @Immutable @NonNullContainer final Collection<O> destinations);
 
 	/**
 	 * Adds a labelled edge between 2 nodes.
@@ -52,9 +56,8 @@ public interface IEdgeLabelledObjectDirectedGraphBuilder<O> {
 	 * @param src is the source node.
 	 * @param label is the edge label.
 	 * @param dest is the destination node.
-	 * @pre src != null and dest != null
 	 */
-	void addEdgeFromTo(final O src, final Object label, final O dest);
+	void addEdgeFromTo(@NonNull final O src, @NonNull @Immutable final Object label, @NonNull final O dest);
 }
 
 // End of File

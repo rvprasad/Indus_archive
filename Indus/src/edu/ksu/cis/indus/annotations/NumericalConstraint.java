@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 @Target({ ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER }) @Documented public @interface NumericalConstraint {
 
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 */
 	public enum NumericalValue {
 

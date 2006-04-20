@@ -11,27 +11,33 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
+
 package edu.ksu.cis.indus.common.collections;
 
-import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.Immutable;
 
 /**
- * A factory used to create objects.
+ * This exception is thrown by the factory when object creation fails.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
- * @param <T> is the type of object created by this factory.
+ * @version $Revision$
  */
-public interface IFactory<T> {
+public class UnableToCreateInstanceException
+		extends RuntimeException {
 
 	/**
-	 * Creates an object.
-	 * 
-	 * @return the created object.
-	 * @throws UnableToCreateInstanceException when object creation fails.
+	 * The serial version id.
 	 */
-	@NonNull T create() throws UnableToCreateInstanceException;
-}
+	private static final long serialVersionUID = -5452536480248170725L;
 
-// End of File
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param message to be conveyed.
+	 * @param cause to be conveyed.
+	 */
+	public UnableToCreateInstanceException(@Immutable final String message, @Immutable final Throwable cause) {
+		super(message, cause);
+	}
+}

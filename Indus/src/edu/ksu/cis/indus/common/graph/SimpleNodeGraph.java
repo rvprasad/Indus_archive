@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
@@ -21,14 +24,17 @@ import edu.ksu.cis.indus.common.collections.ITransformer;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <O> the type of the object stored in the nodes of this graph.
  */
 public class SimpleNodeGraph<O>
 		extends MutableDirectedGraph<SimpleNode<O>>
 		implements IObjectDirectedGraph<SimpleNode<O>, O> {
 
-	private final ITransformer<SimpleNode<O>, O> objectExtractor;
+	/**
+	 * The object extractor that can be used to extract objects stored in the nodes of this graph.
+	 */
+	@NonNull private final ITransformer<SimpleNode<O>, O> objectExtractor;
 
 	/**
 	 * Creates an instance of this class.
@@ -54,13 +60,11 @@ public class SimpleNodeGraph<O>
 	 * 
 	 * @param o is the object being represented by a node in this graph.
 	 * @return the node representing <code>o</code>.
-	 * @pre o != null
 	 * @post object2nodes$pre.get(o) == null implies inclusion
 	 * @post inclusion: nodes->includes(result) and heads->includes(result) and tails->includes(result) and
 	 *       object2nodes.get(o) == result
-	 * @post result != null
 	 */
-	public SimpleNode<O> getNode(final O o) {
+	@NonNull public SimpleNode<O> getNode(@Immutable final O o) {
 		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		final SimpleNode<O> _result = _objectGraphInfo.getNode(o);
 		shapeChanged();
@@ -68,16 +72,16 @@ public class SimpleNodeGraph<O>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#getObjectExtractor()
+	 * {@inheritDoc}
 	 */
-	public ITransformer<SimpleNode<O>, O> getObjectExtractor() {
+	@NonNull @Functional public ITransformer<SimpleNode<O>, O> getObjectExtractor() {
 		return objectExtractor;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public SimpleNode<O> queryNode(final O o) {
+	@Functional public SimpleNode<O> queryNode(@Immutable final O o) {
 		@SuppressWarnings("unchecked") final ObjectGraphInfo<SimpleNode<O>, O> _objectGraphInfo = (ObjectGraphInfo) graphInfo;
 		return _objectGraphInfo.queryNode(o);
 	}

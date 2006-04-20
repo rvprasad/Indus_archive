@@ -14,6 +14,13 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+import edu.ksu.cis.indus.annotations.NumericalConstraint;
+import edu.ksu.cis.indus.annotations.Functional.AccessSpecifier;
+import edu.ksu.cis.indus.annotations.NumericalConstraint.NumericalValue;
 import edu.ksu.cis.indus.common.collections.Cache;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.FactoryBasedLazyMap;
@@ -49,10 +56,10 @@ import java.util.Set;
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code>. The subclasses are responsible for
  * maintaining the collection of nodes that make up this graph.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the node type of this graph.
  */
 public abstract class AbstractDirectedGraph<N extends INode<N>>
@@ -70,9 +77,8 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed discover time of the nodes in this graph.
-	 *
+	 * 
 	 * @invariant discoverTimes.size = getNodes().size()
-	 * @invariant discoverTimes->forall(o | o > 0)
 	 */
 	int[] discoverTimes;
 
@@ -80,7 +86,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * This is the collection of back edges in this graph corresponding to the minimum spanning calculated for this instance
 	 * of the graph.
 	 */
-	private Collection<Pair<N, N>> backedges = new ArrayList<Pair<N, N>>();
+	@NonNullContainer private final Collection<Pair<N, N>> backedges = new ArrayList<Pair<N, N>>();
 
 	/**
 	 * This captures backward reachability information.
@@ -96,7 +102,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * This is the collection of cross edges in this graph corresponding to the minimum spanning calculated for this instance
 	 * of the graph.
 	 */
-	private Collection<Pair<N, N>> crossedges = new ArrayList<Pair<N, N>>();
+	@NonNullContainer private final Collection<Pair<N, N>> crossedges = new ArrayList<Pair<N, N>>();
 
 	/**
 	 * This indicates if dag has been calculated for this graph.
@@ -105,9 +111,8 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the node indexed finish time of the nodes in this graph.
-	 *
+	 * 
 	 * @invariant finishTimes.size = getNodes().size()
-	 * @invariant finishTimes->forall(o | o > 0)
 	 */
 	private int[] finishTimes;
 
@@ -122,14 +127,14 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private boolean hasSpanningForest;
 
 	/**
-	 * DOCUMENT ME!
+	 * This indicates if the SCCs have been identified for this graph.
 	 */
 	private boolean hasSCC;
 
 	/**
 	 * The collection of pseudo tails in the given graph. Refer to <code>getPseudoTails()</code> for details.
 	 */
-	private final Collection<N> pseudoTails = new HashSet<N>();
+	@NonNullContainer private final Collection<N> pseudoTails = new HashSet<N>();
 
 	/**
 	 * This indicates if pseudo tails have been calculated for this graph.
@@ -143,10 +148,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of sink nodes in the graph.
-	 *
+	 * 
 	 * @invariant sinks->forall(o | o.getSuccsOf().size() = 0)
 	 */
-	private final Collection<N> sinks = new HashSet<N>();
+	@NonNullContainer private final Collection<N> sinks = new HashSet<N>();
 
 	/**
 	 * This flag indicates if sinks are available (have been calculated).
@@ -155,10 +160,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * This is the collection of source nodes in the graph.
-	 *
+	 * 
 	 * @invariant sinks->forall(o | o.getPredsOf().size() = 0)
 	 */
-	private final Collection<N> sources = new HashSet<N>();
+	@NonNullContainer private final Collection<N> sources = new HashSet<N>();
 
 	/**
 	 * This flag indicates if sources are available (have been calculated).
@@ -166,38 +171,37 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private boolean sourcesAreAvailable;
 
 	/**
-	 * DOCUMENT ME!
+	 * This is the collection of SCCs in this graph.
 	 */
-	private List<List<N>> scc;
+	@NonNullContainer private List<List<N>> scc;
 
 	/**
 	 * This maps a node to it's spanning successor nodes.
-	 *
+	 * 
 	 * @invariant getNodes().containsAll(spanningSuccs.keySet())
 	 * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
 	private Map<N, Set<N>> spanningSuccs;
 
 	/**
-	 * DOCUMENT ME!
+	 * This is a node-node connectivity cache.
 	 */
-	private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(50);
+	@NonNull private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(
+			50);
 
 	/**
 	 * Finds cycles in the given set of nodes. This implementation is <i>exponential</i> in the number of cycles in the the
 	 * nodes.
-	 *
+	 * 
 	 * @param <T> the type of the given nodes.
 	 * @param nodes in which to search for cycles.
 	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
 	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
-	 * @pre scc != null
-	 * @pre backEdges != null
-	 * @post result != null
 	 * @post result->forall(o | nodes.containsAll(o))
 	 */
-	public static <T extends INode<T>> Collection<List<T>> findCycles(final Collection<T> nodes,
-			final Collection<Pair<T, T>> backedges) {
+	@NonNull @NonNullContainer @Functional public static <T extends INode<T>> Collection<List<T>> findCycles(
+			@NonNull @NonNullContainer @Immutable final Collection<T> nodes,
+			@NonNull @NonNullContainer @Immutable final Collection<Pair<T, T>> backedges) {
 		final Collection<List<T>> _result = new ArrayList<List<T>>();
 		final Collection<List<T>> _sccs = findSCCs(nodes);
 		final Iterator<List<T>> _j = _sccs.iterator();
@@ -230,16 +234,15 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds SCCs in the given nodes.
-	 *
+	 * 
 	 * @param <T> the type of the given nodes.
 	 * @param nodes of interest.
 	 * @return a collection of sccs
-	 * @pre nodes != null
-	 * @post result != null
 	 * @post result->forall(o | o->forall(p | nodes.contains(p)))
 	 * @post nodes->forall(o | result->exists(p | p.contains(o)))
 	 */
-	public static <T extends INode<T>> Collection<List<T>> findSCCs(final Collection<T> nodes) {
+	@NonNull @NonNullContainer @Functional public static <T extends INode<T>> Collection<List<T>> findSCCs(
+			@NonNull @NonNullContainer @Immutable final Collection<T> nodes) {
 		final Collection<List<T>> _result = new ArrayList<List<T>>();
 		final Map<T, SCCRelatedData> _node2srd = new FactoryBasedLazyMap<T, SCCRelatedData>(new HashMap<T, SCCRelatedData>(),
 				new IFactory<SCCRelatedData>() {
@@ -267,33 +270,29 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates SCC according to the algorithm in Udi Manber's book.
-	 *
+	 * 
 	 * @param nodes of interest.
 	 * @param node2srd maps nodes to an instance of <code>SCCRelatedData</code>.
 	 * @param node to be explored.
 	 * @param stack to be used.
 	 * @param sccs is the outgoing argument to contains the SCCs.
-	 * @pre nodes != null
-	 * @pre node != null
-	 * @pre sccs != null
 	 * @post sccs.containsAll(sccs$pre)
 	 * @post sccs->forall(o | o->forall(p | nodes.contains(p)))
 	 * @param <T> the type of nodes being processed.
 	 */
-	private static <T extends INode<T>> void calculateSCCs(final Collection<T> nodes, final Map<T, SCCRelatedData> node2srd,
-			final T node, final Stack<T> stack, final Collection<List<T>> sccs) {
+	@Immutable private static <T extends INode<T>> void calculateSCCs(
+			@NonNull @NonNullContainer @Immutable final Collection<T> nodes,
+			@NonNull @NonNullContainer final Map<T, SCCRelatedData> node2srd,
+			@NonNull @NonNullContainer @Immutable final T node, @NonNull @NonNullContainer final Stack<T> stack,
+			@NonNull @NonNullContainer final Collection<List<T>> sccs) {
 		final SCCRelatedData _nodeSRD = node2srd.get(node);
 		_nodeSRD.setDfsNum(dfsNum);
 		_nodeSRD.setHigh(dfsNum);
 		stack.push(node);
 		dfsNum--;
 
-		final Iterator<T> _j = IteratorUtils.filteredIterator(node.getSuccsOf().iterator(), new IPredicate<Object>() {
-
-			public boolean evaluate(final Object o) {
-				return nodes.contains(o);
-			}
-		});
+		final Iterator<T> _j = IteratorUtils.filteredIterator(node.getSuccsOf().iterator(), new MembershipPredicate<T>(true,
+				nodes));
 
 		for (; _j.hasNext();) {
 			final T _succ = _j.next();
@@ -325,15 +324,16 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Checks if the given cycle has been recorded.
-	 *
+	 * 
 	 * @param <T> the type of nodes being processed.
 	 * @param newCycle is the cycle being checked for if it is recorded.
 	 * @param cycles is the collection of recorded cycles.
 	 * @return <code>true</code> if <code>newCycle</code> occurs in <code>cycles</code>; <code>false</code>,
 	 *         otherwise.
-	 * @pre newCycle != null and cycles != null
 	 */
-	private static <T extends INode<T>> boolean cycleNotRecorded(final List<T> newCycle, final Collection<List<T>> cycles) {
+	@Functional private static <T extends INode<T>> boolean cycleNotRecorded(
+			@NonNull @NonNullContainer @Immutable final List<T> newCycle,
+			@Immutable @NonNull @NonNullContainer final Collection<List<T>> cycles) {
 		boolean _result = true;
 		final List<T> _temp = new ArrayList<T>();
 		final Iterator<List<T>> _iter = cycles.iterator();
@@ -354,19 +354,16 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Finds cycles containing only the given SCC.
-	 *
-	 * @param <T> DOCUMENT ME!
+	 * 
+	 * @param <T> is the type of the nodes occuring in the SCC.
 	 * @param scc in which the cycles should be detected.
 	 * @param backedges is the back edges only between the given set of nodes.
 	 * @return a collection of cycles.
-	 * @pre nodes != null and nodes.size() > 1
-	 * @post result != null
-	 * @post result->forall(o | nodes->containsAll(o))
-	 * @pre backEdges != null
+	 * @post result->forall(o | scc->containsAll(o))
 	 * @pre backEdges->forall(o | scc.contains(o.getFirst()) and scc.contains(o.getSecond()))
 	 */
-	private static <T extends INode<T>> Collection<List<T>> findCyclesOccurringIn(final List<T> scc,
-			final Collection<Pair<T, T>> backedges) {
+	@NonNull @NonNullContainer @Functional private static <T extends INode<T>> Collection<List<T>> findCyclesOccurringIn(
+			@NonNull @NonNullContainer final List<T> scc, @NonNull @NonNullContainer final Collection<Pair<T, T>> backedges) {
 		final IWorkBag<Object> _wb = new LIFOWorkBag<Object>();
 		final Stack<T> _dfsPath = new Stack<T>();
 		final Collection<List<T>> _result = new HashSet<List<T>>();
@@ -394,7 +391,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 						_dfsPath.pop();
 					}
 				} else {
-					final T _node = (T) _o;
+					@SuppressWarnings("unchecked") final T _node = (T) _o;
 					final Collection<T> _succsOf = getLimitedImmediateSuccsOf(_node, _backEdgesNotToUse, scc);
 
 					_dfsPath.push(_node);
@@ -435,7 +432,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Calculates the finish times for the nodes of this graph.
-	 *
+	 * 
 	 * @param <T> the type of the node.
 	 * @param node to start dfs from.
 	 * @param processed are the nodes processed during dfs.
@@ -444,8 +441,9 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @return the finish time after the given dfs traversal.
 	 * @pre getNodes().contains(node)
 	 */
-	private static <T extends INode<T>> int getFinishTimes(final T node, final Collection<T> processed,
-			final TIntObjectHashMap finishTime2node, final int time) {
+	@Immutable private static <T extends INode<T>> int getFinishTimes(@NonNull @Immutable final T node,
+			@NonNull @NonNullContainer final Collection<T> processed,
+			@NonNull @NonNullContainer final TIntObjectHashMap finishTime2node, final int time) {
 		processed.add(node);
 
 		int _temp = time;
@@ -465,20 +463,20 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Gets immediate successors that occur in nodes and are not reachable via the given edges.
-	 *
+	 * 
 	 * @param node whose successors are required.
 	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result when the source node is
 	 *            same as <code>node</code>.
 	 * @param nodes is a collection of nodes of which the result nodes should be a members of.
 	 * @return a collection of nodes.
 	 * @param <T> the type of nodes being processed.
-	 * @pre node != null and edgesNotToUse != null and nodes != null
-	 * @post result != null
 	 * @post nodes.containsAll(result)
 	 * @post edgesNotToUse->forall(o | o.getFirst().equals(node) implies !result.contains(o.getSecond()))
 	 */
-	private static <T extends INode<T>> Collection<T> getLimitedImmediateSuccsOf(final T node,
-			final Collection<Pair<T, T>> edgesNotToUse, final Collection<T> nodes) {
+	@Functional @NonNull @NonNullContainer private static <T extends INode<T>> Collection<T> getLimitedImmediateSuccsOf(
+			@NonNull @Immutable final T node,
+			@NonNull @NonNullContainer @Immutable final Collection<Pair<T, T>> edgesNotToUse,
+			@NonNull @Immutable final Collection<T> nodes) {
 		final Collection<T> _result = new HashSet<T>(node.getSuccsOf());
 
 		for (final Iterator<Pair<T, T>> _i = edgesNotToUse.iterator(); _i.hasNext();) {
@@ -494,18 +492,21 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getBackEdges()
+	 * Sets the size of the connectivity cache.
+	 * 
+	 * @param size to be used.
 	 */
-	public final void setConnectivityCacheSize(final int size) {
+	@Functional public final void setConnectivityCacheSize(
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int size) {
 		final Map<Triple<N, N, Boolean>, Collection<N>> _t = new Cache<Triple<N, N, Boolean>, Collection<N>>(size);
 		_t.putAll(connectivityCache);
 		connectivityCache = _t;
 	}
 
 	/**
-	 * @see IDirectedGraph#getBackEdges()
+	 * {@inheritDoc}
 	 */
-	public final Collection<Pair<N, N>> getBackEdges() {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<Pair<N, N>> getBackEdges() {
 		createSpanningForest();
 
 		final Collection<Pair<N, N>> _result;
@@ -519,9 +520,11 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getCommonReachablesFrom(INode, boolean, INode, boolean)
+	 * {@inheritDoc}
 	 */
-	public Collection<N> getCommonReachablesFrom(final N node1, final boolean forward1, final N node2, final boolean forward2) {
+	@NonNull @NonNullContainer @Functional(level = AccessSpecifier.PACKAGE) public Collection<N> getCommonReachablesFrom(
+			@NonNull @Immutable final N node1, final boolean forward1, @NonNull @Immutable final N node2,
+			final boolean forward2) {
 		calculateReachabilityInfo();
 
 		final Collection<N> _result;
@@ -558,9 +561,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getConnectivityNodesFor(INode, INode, boolean)
+	 * {@inheritDoc}
 	 */
-	public Collection<N> getConnectivityNodesFor(final N node1, final N node2, final boolean forward) {
+	@Functional @NonNull @NonNullContainer public final Collection<N> getConnectivityNodesFor(
+			@NonNull @Immutable final N node1, @NonNull @Immutable final N node2, final boolean forward) {
 		final boolean _direction = !forward;
 		Collection<N> _result = Collections.emptySet();
 		// the order of the following check is important as connectivity depends on reachability.
@@ -600,9 +604,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#hasCommonReachablesFrom(INode, boolean, INode, boolean)
+	 * {@inheritDoc}
 	 */
-	public boolean hasCommonReachablesFrom(N node1, boolean forward1, N node2, boolean forward2) {
+	@Functional public final boolean hasCommonReachablesFrom(@NonNull @Immutable final N node1, final boolean forward1,
+			@NonNull @Immutable final N node2, final boolean forward2) {
 		calculateReachabilityInfo();
 
 		final BitSet _n1;
@@ -624,16 +629,16 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getCycles()
+	 * {@inheritDoc}
 	 */
-	public final Collection<List<N>> getCycles() {
+	@NonNull @NonNullContainer @Functional(level = AccessSpecifier.PACKAGE) public final Collection<List<N>> getCycles() {
 		return findCycles(getNodes(), getBackEdges());
 	}
 
 	/**
-	 * @see IDirectedGraph#getDAG()
+	 * {@inheritDoc}
 	 */
-	public final SimpleNodeGraph<N> getDAG() {
+	@NonNull @Functional(level = AccessSpecifier.PACKAGE) public final SimpleNodeGraph<N> getDAG() {
 		if (!dagExists) {
 			builder = new SimpleNodeGraphBuilder<N>();
 			builder.createGraph();
@@ -662,9 +667,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodesOnPathBetween(java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	public Collection<N> getNodesOnPathBetween(final Collection<N> nodes) {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public Collection<N> getNodesOnPathBetween(
+			@NonNull @NonNullContainer final Collection<N> nodes) {
 		final Collection<N> _result = new HashSet<N>();
 		final Map<N, Collection<N>> _node2ancestorsMap = new TransformerBasedLazyMap<N, Collection<N>>(
 				new HashMap<N, Collection<N>>(), new ITransformer<N, Collection<N>>() {
@@ -700,9 +706,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
+	 * {@inheritDoc}
 	 */
-	public final Collection<N> getReachablesFrom(final N root, final boolean forward) {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<N> getReachablesFrom(
+			@NonNull @Immutable final N root, final boolean forward) {
 		calculateReachabilityInfo();
 
 		final BitSet _matrix;
@@ -723,43 +730,44 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getSCCs(boolean)
+	 * {@inheritDoc}
 	 */
-	public final List<List<N>> getSCCs(final boolean topDown) {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final List<List<N>> getSCCs(
+			final boolean topDown) {
 		if (!hasSCC) {
-		final List<N> _nodes = getNodes();
-		final Collection<List<N>> _sccs = findSCCs(_nodes);
-		final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
-		final SimpleNodeGraphBuilder<List<N>> _sngb = new SimpleNodeGraphBuilder<List<N>>();
-		_sngb.createGraph();
+			final List<N> _nodes = getNodes();
+			final Collection<List<N>> _sccs = findSCCs(_nodes);
+			final Map<N, List<N>> _node2scc = new HashMap<N, List<N>>();
+			final SimpleNodeGraphBuilder<List<N>> _sngb = new SimpleNodeGraphBuilder<List<N>>();
+			_sngb.createGraph();
 
-		for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
-			final List<N> _scc = _i.next();
-			_sngb.createNode(_scc);
+			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+				final List<N> _scc = _i.next();
+				_sngb.createNode(_scc);
 
-			for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
-				final N _n = _j.next();
-				_node2scc.put(_n, _scc);
+				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+					final N _n = _j.next();
+					_node2scc.put(_n, _scc);
+				}
 			}
-		}
 
-		for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
-			final List<N> _scc = _i.next();
+			for (final Iterator<List<N>> _i = _sccs.iterator(); _i.hasNext();) {
+				final List<N> _scc = _i.next();
 
-			for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
-				final N _n = _j.next();
-				for (final Iterator<N> _k = _n.getSuccsOf().iterator(); _k.hasNext();) {
-					final N _succ = _k.next();
-					if (!_scc.contains(_succ)) {
-						_sngb.addEdgeFromTo(_scc, _node2scc.get(_succ));
+				for (final Iterator<N> _j = _scc.iterator(); _j.hasNext();) {
+					final N _n = _j.next();
+					for (final Iterator<N> _k = _n.getSuccsOf().iterator(); _k.hasNext();) {
+						final N _succ = _k.next();
+						if (!_scc.contains(_succ)) {
+							_sngb.addEdgeFromTo(_scc, _node2scc.get(_succ));
+						}
 					}
 				}
 			}
-		}
 
-		_sngb.finishBuilding();
-		final IObjectDirectedGraph<SimpleNode<List<N>>, List<N>> _sng = _sngb.getBuiltGraph();
-		final List<SimpleNode<List<N>>> _r = _sng.performTopologicalSort(true);
+			_sngb.finishBuilding();
+			final IObjectDirectedGraph<SimpleNode<List<N>>, List<N>> _sng = _sngb.getBuiltGraph();
+			final List<SimpleNode<List<N>>> _r = _sng.performTopologicalSort(true);
 			scc = CollectionUtils.collect(_r, _sng.getObjectExtractor());
 			hasSCC = true;
 		}
@@ -774,9 +782,9 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getSinks()
+	 * {@inheritDoc}
 	 */
-	public final Collection<N> getSinks() {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<N> getSinks() {
 		if (!sinksAreAvailable) {
 			sinks.clear();
 
@@ -796,9 +804,9 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getSources()
+	 * {@inheritDoc}
 	 */
-	public final Collection<N> getSources() {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<N> getSources() {
 		if (!sourcesAreAvailable) {
 			sources.clear();
 
@@ -818,17 +826,17 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#getSpanningSuccs()
+	 * {@inheritDoc}
 	 */
-	public final Map<N, Set<N>> getSpanningSuccs() {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Map<N, Set<N>> getSpanningSuccs() {
 		createSpanningForest();
 		return Collections.unmodifiableMap(spanningSuccs);
 	}
 
 	/**
-	 * @see IDirectedGraph#getTails()
+	 * {@inheritDoc}
 	 */
-	public final Collection<N> getTails() {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<N> getTails() {
 		if (!pseudoTailsCalculated) {
 			// get the tails of the DAG into dtails
 			final SimpleNodeGraph<N> _graph = getDAG();
@@ -863,9 +871,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#isAncestorOf(INode,INode)
+	 * {@inheritDoc}
 	 */
-	public final boolean isAncestorOf(final N ancestor, final N descendent) {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final boolean isAncestorOf(
+			@NonNull @Immutable final N ancestor, @NonNull @Immutable final N descendent) {
 		createSpanningForest();
 
 		final int _anc = getIndexOfNode(ancestor);
@@ -874,9 +883,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
+	 * {@inheritDoc}
 	 */
-	public final boolean isReachable(final N src, final N dest, final boolean forward) {
+	@Functional(level = AccessSpecifier.PACKAGE) public final boolean isReachable(@NonNull @Immutable final N src,
+			@NonNull @Immutable final N dest, final boolean forward) {
 		calculateReachabilityInfo();
 
 		final BitSet[] _matrix;
@@ -890,16 +900,17 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see java.lang.Iterable#iterator()
+	 * {@inheritDoc}
 	 */
-	public Iterator<N> iterator() {
+	@Functional @NonNull @NonNullContainer public Iterator<N> iterator() {
 		return getNodes().iterator();
 	}
 
 	/**
-	 * @see IDirectedGraph#performTopologicalSort(boolean)
+	 * {@inheritDoc}
 	 */
-	public final List<N> performTopologicalSort(final boolean topdown) {
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final List<N> performTopologicalSort(
+			final boolean topdown) {
 		final SimpleNodeGraph<N> _dag = getDAG();
 		final List<SimpleNode<N>> _nodes = _dag.getNodes();
 		final TIntObjectHashMap _finishTime2node = new TIntObjectHashMap();
@@ -933,9 +944,9 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * @see Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		final StringBuffer _sb = new StringBuffer();
 		final List<N> _nodes = getNodes();
 
@@ -962,12 +973,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the index of the given node in the list of nodes of this graph. This implementation will return the value of
 	 * <code>getNodes().indexOf(node)</code>. However, subclasses are free to implement this in an optimal manner.
-	 *
+	 * 
 	 * @param node for which the index is requested.
 	 * @return the index of the node in the list of nodes.
 	 * @post result = getNodes().indexOf(node)
 	 */
-	protected int getIndexOfNode(final N node) {
+	@Functional protected int getIndexOfNode(@Immutable @NonNull final N node) {
 		return getNodes().indexOf(node);
 	}
 
@@ -1038,7 +1049,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Creates the spanning forest of the graph.
-	 *
+	 * 
 	 * @post hasSpanningForest = true
 	 */
 	private void createSpanningForest() {
@@ -1095,7 +1106,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Retrieves the source nodes which cannot reach any of the given destinations. If there are no destination nodes then all
 	 * source nodes are returned.
-	 *
+	 * 
 	 * @param sourceNodes is the collection of source nodes.
 	 * @param destinations is the collection of destination nodes.
 	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following
@@ -1105,14 +1116,14 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 *            then the source node will not occur in the result if this parameter is <code>true</code>. It will occur
 	 *            in the result when the parameter is <code>false</code>.
 	 * @return a collection of source nodes.
-	 * @pre sourceNodes != null and destinations != null
-	 * @post result != null
 	 * @post sources->includesAll(result)
 	 * @post considerSelfReachability implies not result->exists(o | sources.contains(o))
 	 * @post (not considerSelfReachability) implies sources->forall(o | destinations.contains(o) implies result.contains(o))
 	 */
-	private Collection<N> getDestUnreachableSources(final Collection<N> sourceNodes, final Collection<N> destinations,
-			final boolean forward, final boolean considerSelfReachability) {
+	@NonNull @Functional private Collection<N> getDestUnreachableSources(
+			@NonNull @NonNullContainer @Immutable final Collection<N> sourceNodes,
+			@NonNull @NonNullContainer @Immutable final Collection<N> destinations, final boolean forward,
+			final boolean considerSelfReachability) {
 		final Collection<N> _result = new HashSet<N>(sourceNodes);
 		final Collection<N> _temp = new ArrayList<N>(destinations);
 
@@ -1143,7 +1154,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 
 	/**
 	 * Processes the given node while creating a spanning tree.
-	 *
+	 * 
 	 * @param grayNodes is the collection of nodes already visited or reached but not processed.
 	 * @param workBag is the work bag that needs to be updates during processing.
 	 * @param nodeToProcess is the node to be processed.
@@ -1152,8 +1163,8 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @post reachedNodes.containsAll(reachedNodes$pre)
 	 * @post processedNodes.containsAll(processedNodes$pre)
 	 */
-	private void processNodeForSpanningTree(final Collection<N> grayNodes, final IWorkBag<Object> workBag,
-			final N nodeToProcess) {
+	private void processNodeForSpanningTree(@NonNull @NonNullContainer @Immutable final Collection<N> grayNodes,
+			@NonNull @NonNullContainer final IWorkBag<Object> workBag, @NonNull @NonNullContainer final N nodeToProcess) {
 		final Set<N> _temp = new HashSet<N>();
 		spanningSuccs.put(nodeToProcess, _temp);
 

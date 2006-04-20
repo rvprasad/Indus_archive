@@ -19,14 +19,47 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the method is functional (side-effect free).
+ * This annotation indicates the degree to which a method is functional (free of observational side-effect). Parameters and
+ * return values of the method are immutable independent of the degree of functional-ness.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
-@Target({ ElementType.METHOD }) @Documented @Empty public @interface Functional {
-	// empty
+@Target({ ElementType.METHOD }) @Documented public @interface Functional {
+
+	/**
+	 * The enumeration of various access specifiers in Java.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public enum AccessSpecifier {
+		/**
+		 * Private access specification.
+		 */
+		PRIVATE,
+		/**
+		 * Package private access specification.
+		 */
+		PACKAGE,
+		/**
+		 * Protected access specification.
+		 */
+		PROTECTED,
+		/**
+		 * Public access specification.
+		 */
+		PUBLIC
+	};
+
+	/**
+	 * Provides the access specification level at and beyond (less exposure) which the method is functional.
+	 * 
+	 * @return the access specification level.
+	 */
+	AccessSpecifier level() default AccessSpecifier.PRIVATE;
 }
 
 // End of File

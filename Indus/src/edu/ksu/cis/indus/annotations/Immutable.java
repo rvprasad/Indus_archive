@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 @Target({ ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE, ElementType.METHOD }) @Documented @Empty public @interface Immutable {
 	// empty

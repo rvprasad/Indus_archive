@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import gnu.trove.TObjectIntHashMap;
 
 import java.util.ArrayList;
@@ -39,18 +44,16 @@ public class GraphInfo<N extends INode<N>> {
 
 	/**
 	 * The sequence of nodes in this graph. They are stored in the order that the nodes are created.
-	 * 
 	 */
-	private final List<N> nodes = new ArrayList<N>();
+	@NonNullContainer private final List<N> nodes = new ArrayList<N>();
 
 	/**
 	 * Retrieves the index of the given node in the sequence of nodes in the associated graph.
 	 * 
 	 * @param node of interest.
 	 * @return the index of the given node.
-	 * @pre node != null
 	 */
-	public final int getIndexOfNode(final N node) {
+	public final int getIndexOfNode(@NonNull @Immutable final N node) {
 		final int _result;
 
 		if (node2index.containsKey(node)) {
@@ -67,9 +70,8 @@ public class GraphInfo<N extends INode<N>> {
 	 * Retrieves the nodes maintained by this object.
 	 * 
 	 * @return a collection of nodes.
-	 * @post result != null
 	 */
-	public final List<N> getNodes() {
+	@NonNull @NonNullContainer @Functional public final List<N> getNodes() {
 		return Collections.unmodifiableList(nodes);
 	}
 
@@ -79,7 +81,7 @@ public class GraphInfo<N extends INode<N>> {
 	 * @param node of interest.
 	 * @return <code>true</code> if <code>node</code> was maintained and was removed; <code>false</code>, otherwise.
 	 */
-	public boolean removeNode(final N node) {
+	public boolean removeNode(@NonNull @Immutable final N node) {
 		node2index.remove(node);
 		return nodes.remove(node);
 	}
@@ -87,7 +89,7 @@ public class GraphInfo<N extends INode<N>> {
 	/**
 	 * Resets internal caches.
 	 */
-	public void shapeChanged() {
+	public final void shapeChanged() {
 		node2index.clear();
 	}
 
@@ -97,7 +99,7 @@ public class GraphInfo<N extends INode<N>> {
 	 * @param node to be maintained.
 	 * @return <code>true</code> if the node was new; <code>false</code>, otherwise.
 	 */
-	protected final boolean addNode(final N node) {
+	protected final boolean addNode(@NonNull @Immutable final N node) {
 		final boolean _result = nodes.add(node);
 
 		if (_result) {

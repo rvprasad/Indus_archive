@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.annotations.NonNull;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> is the type in the instanceof check.
  * @param <V> is the type of value that participates in the instanceof check.
  */

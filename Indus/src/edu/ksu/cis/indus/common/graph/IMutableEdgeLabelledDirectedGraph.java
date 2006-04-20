@@ -14,12 +14,15 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
  * This is the interface to mutable edge-labelled directed graphs.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the node type of this graph.
  */
 public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelledNode<N>>
@@ -32,9 +35,8 @@ public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelle
 	 * @param label is the edge label.
 	 * @param dest is the destination node of the edge to be added.
 	 * @return <code>true</code> if the edge did not exist and it was added; <code>false</code>, otherwise.
-	 * @pre src != null and label != null and dest != null
 	 */
-	boolean addEdgeFromTo(N src, IEdgeLabel label, N dest);
+	boolean addEdgeFromTo(@NonNull N src, @NonNull @Immutable IEdgeLabel label, @NonNull N dest);
 
 	/**
 	 * Removes all edges in this graph that are labelled with <code>label</code>. This updates the source and destination
@@ -42,9 +44,8 @@ public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelle
 	 * 
 	 * @param label of the edges to be removed.
 	 * @return <code>true</code> if all edges were removed; <code>false</code>, otherwise.
-	 * @pre label != null
 	 */
-	boolean removeAllEdgesLabelled(IEdgeLabel label);
+	boolean removeAllEdgesLabelled(@NonNull @Immutable IEdgeLabel label);
 
 	/**
 	 * Removes all edges from <code>node</code> that are labelled with <code>label</code>. This updates the destinations
@@ -53,9 +54,8 @@ public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelle
 	 * @param label of the edge to be removed.
 	 * @param node is the source of the edge to be removed.
 	 * @return <code>true</code> if there were such edges and they were all removed; <code>false</code>, otherwise.
-	 * @pre label != null and node != null
 	 */
-	boolean removeAllEdgesLabelledFrom(IEdgeLabel label, N node);
+	boolean removeAllEdgesLabelledFrom(@NonNull @Immutable IEdgeLabel label, @NonNull N node);
 
 	/**
 	 * Removes all edges to <code>node</code> that are labelled with <code>label</code>. This updates the sources of the
@@ -64,9 +64,8 @@ public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelle
 	 * @param label of the edge to be removed.
 	 * @param node is the destination of the edge to be removed.
 	 * @return <code>true</code> if there were such edges and they were all removed; <code>false</code>, otherwise.
-	 * @pre label != null and node != null
 	 */
-	boolean removeAllEdgesLabelledTo(IEdgeLabel label, N node);
+	boolean removeAllEdgesLabelledTo(@NonNull @Immutable IEdgeLabel label, @NonNull N node);
 
 	/**
 	 * Removes the edge labelled <code>label</code> between <code>source</code> and <code>destination</code>.
@@ -75,9 +74,9 @@ public interface IMutableEdgeLabelledDirectedGraph<N extends IMutableEdgeLabelle
 	 * @param label of the edge to be removed
 	 * @param destination of the edge to be removed.
 	 * @return <code>true</code> if there was such an edge and it was removed; <code>false</code>, otherwise.
-	 * @pre source != null and destination != null and label != null
 	 */
-	boolean removeEdgeFromTo(N source, IEdgeLabel label, N destination);
+	boolean removeEdgeFromTo(@NonNull N source, @NonNull @Immutable IEdgeLabel label,
+			@NonNull  N destination);
 }
 
 // End of File

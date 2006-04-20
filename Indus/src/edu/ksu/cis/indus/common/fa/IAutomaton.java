@@ -24,7 +24,7 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <S> the type of the states.
  * @param <L> the type of the labels.
  */

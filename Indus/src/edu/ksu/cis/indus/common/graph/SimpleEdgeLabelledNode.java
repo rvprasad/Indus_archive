@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.HashSet;
 
 /**
@@ -31,14 +35,14 @@ public class SimpleEdgeLabelledNode<O>
 	/**
 	 * The object being represetned by this node.
 	 */
-	final O object;
+	@Immutable final O object;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
 	 * @param o is the object to be represented by the node.
 	 */
-	SimpleEdgeLabelledNode(final O o) {
+	SimpleEdgeLabelledNode(@Immutable final O o) {
 		super(new HashSet<SimpleEdgeLabelledNode<O>>(), new HashSet<SimpleEdgeLabelledNode<O>>());
 		object = o;
 	}
@@ -48,7 +52,7 @@ public class SimpleEdgeLabelledNode<O>
 	 * 
 	 * @return the associated object.
 	 */
-	public O getObject() {
+	@Functional public O getObject() {
 		return object;
 	}
 
@@ -56,9 +60,8 @@ public class SimpleEdgeLabelledNode<O>
 	 * Returns the stringized representation of this object.
 	 * 
 	 * @return stringized representation.
-	 * @post result != null
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		return object + "";
 	}
 }

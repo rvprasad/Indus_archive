@@ -22,7 +22,7 @@ import edu.ksu.cis.indus.common.graph.IEdgeLabel;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <L> the type of the implementation of this interface.
  */
 @Marker public interface ITransitionLabel<L extends ITransitionLabel<L>>
@@ -33,7 +33,7 @@ import edu.ksu.cis.indus.common.graph.IEdgeLabel;
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 * @param <L> is the type of the labels.
 	 */
 	interface IEpsilonLabelFactory<L> {

@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.Collection;
 
 /**
@@ -33,37 +37,37 @@ public class MutableNode<T extends MutableNode<T>>
 	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 * @pre preds != null and succs != null
 	 */
-	protected MutableNode(final Collection<T> preds, final Collection<T> succs) {
+	protected MutableNode(@NonNull @NonNullContainer final Collection<T> preds,
+			@NonNull @NonNullContainer final Collection<T> succs) {
 		super(preds, succs);
 	}
 
 	/**
-	 * @see IMutableNode#addPredecessor(INode)
+	 * {@inheritDoc}
 	 */
-	public final boolean addPredecessor(final T node) {
+	public final boolean addPredecessor(@Immutable @NonNull final T node) {
 		return predecessors.add(node);
 	}
 
 	/**
-	 * @see IMutableNode#addSuccessor(INode)
+	 * {@inheritDoc}
 	 */
-	public final boolean addSuccessor(final T node) {
+	public final boolean addSuccessor(@Immutable @NonNull final T node) {
 		return successors.add(node);
 	}
 
 	/**
-	 * @see IMutableNode#removePredecessor(INode)
+	 * {@inheritDoc}
 	 */
-	public boolean removePredecessor(final T node) {
+	public boolean removePredecessor(@Immutable @NonNull final T node) {
 		return predecessors.remove(node);
 	}
 
 	/**
-	 * @see IMutableNode#removeSuccessor(INode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeSuccessor(final T node) {
+	public boolean removeSuccessor(@Immutable @NonNull final T node) {
 		return successors.remove(node);
 	}
 }

@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> The type of work handled by this work bag.
  */
 public final class WorkList<T> {
@@ -40,14 +41,14 @@ public final class WorkList<T> {
 	/**
 	 * The backend workbag object which holds the work piece.
 	 */
-	@NonNull private final IWorkBag<T> workbag;
+	@NonNull @NonNullContainer private final IWorkBag<T> workbag;
 
 	/**
 	 * Creates a new <code>WorkList</code> instance.
 	 * 
 	 * @param container that will contain the work pieces.
 	 */
-	public WorkList(@NonNull final IWorkBag<T> container) {
+	public WorkList(@NonNull @NonNullContainer final IWorkBag<T> container) {
 		workbag = container;
 	}
 

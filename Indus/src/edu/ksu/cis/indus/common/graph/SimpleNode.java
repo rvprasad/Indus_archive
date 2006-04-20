@@ -13,6 +13,10 @@
  */
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.HashSet;
 
 /**
@@ -20,7 +24,7 @@ import java.util.HashSet;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the type of the object stored in this node.
  */
 public class SimpleNode<T>
@@ -30,14 +34,14 @@ public class SimpleNode<T>
 	/**
 	 * The object being represetned by this node.
 	 */
-	final T object;
+	@Immutable final T object;
 
 	/**
 	 * Creates a new SimpleNode object.
 	 * 
 	 * @param o is the object to be represented by this node.
 	 */
-	SimpleNode(final T o) {
+	SimpleNode(@Immutable final T o) {
 		super(new HashSet<SimpleNode<T>>(), new HashSet<SimpleNode<T>>());
 		this.object = o;
 	}
@@ -47,7 +51,7 @@ public class SimpleNode<T>
 	 * 
 	 * @return the associated object.
 	 */
-	public T getObject() {
+	@Functional public T getObject() {
 		return object;
 	}
 
@@ -55,10 +59,8 @@ public class SimpleNode<T>
 	 * Returns the stringized representation of this object.
 	 * 
 	 * @return stringized representation.
-	 * @post result != null
 	 */
-	@Override public String toString() {
+	@NonNull @Functional @Override public String toString() {
 		return object + "";
 	}
 }
-

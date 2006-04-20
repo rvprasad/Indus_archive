@@ -13,6 +13,9 @@
  */
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 
 import java.util.Collection;
@@ -21,7 +24,7 @@ import java.util.Map;
 
 /**
  * This is an implementation of the node in mutable edge-labelled directed graphs.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -33,27 +36,27 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 * @pre preds != null and succs != null
 	 */
-	protected MutableEdgeLabelledNode(final Collection<T> preds, final Collection<T> succs) {
+	protected MutableEdgeLabelledNode(@Immutable @NonNull @NonNullContainer final Collection<T> preds,
+			@Immutable @NonNull @NonNullContainer final Collection<T> succs) {
 		super(preds, succs);
 	}
 
 	/**
 	 * Removes all nodes that were related to this node via the given label by updating the given map and collection.
-	 *
+	 * 
 	 * @param <T1> the type of objects in the collection.
 	 * @param label of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
 	 * @param col is a collection of predecessor or successor nodes of this node. This is updated.
 	 * @return <code>true</code> if the node was related to this node and it as removed; <code>false</code>, otherwise.
-	 * @pre map != null and col != null
 	 */
-	private static <T1> boolean removedEdgesLabelled(final IEdgeLabel label, final Map<IEdgeLabel, Collection<T1>> map,
-			final Collection<T1> col) {
+	private static <T1> boolean removedEdgesLabelled(@NonNull @Immutable final IEdgeLabel label,
+			@NonNull @NonNullContainer final Map<IEdgeLabel, Collection<T1>> map,
+			@NonNull @NonNullContainer final Collection<T1> col) {
 		final boolean _result = map.remove(label) != null;
 		retainAllIn(col, map.values());
 		return _result;
@@ -61,15 +64,16 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Removes the relation between this and the given node by updating the given map and collection.
-	 *
+	 * 
 	 * @param <T1> the node type.
 	 * @param node of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
 	 * @param col is a collection of predecessor or successor nodes of this node. This is updated.
 	 * @return <code>true</code> if the node was related to this node and it as removed; <code>false</code>, otherwise.
-	 * @pre map != null and col != null
 	 */
-	private static <T1> boolean removeNode(final T1 node, final Map<IEdgeLabel, Collection<T1>> map, final Collection<T1> col) {
+	private static <T1> boolean removeNode(@NonNull @Immutable final T1 node,
+			@NonNull @NonNullContainer final Map<IEdgeLabel, Collection<T1>> map,
+			@NonNull @NonNullContainer final Collection<T1> col) {
 		final Iterator<IEdgeLabel> _i = map.keySet().iterator();
 		final int _iEnd = map.keySet().size();
 
@@ -82,103 +86,107 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 
 	/**
 	 * Retains all elements in <code>col</code> that exist in any collection in <code>collections</code>.
-	 *
+	 * 
 	 * @param <T1> the type of objects in the collection.
 	 * @param col to be updated.
 	 * @param collections is a collection of collections.
-	 * @pre col != null and collections != null
 	 */
-	private static <T1> void retainAllIn(final Collection<T1> col, final Collection<Collection<T1>> collections) {
+	private static <T1> void retainAllIn(@NonNull @NonNullContainer final Collection<T1> col,
+			@NonNull @NonNullContainer @Immutable final Collection<Collection<T1>> collections) {
 		for (final Collection<T1> _c : collections) {
 			col.retainAll(_c);
 		}
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#addIncomingEdgeLabelledFrom(IEdgeLabel, IMutableEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean addIncomingEdgeLabelledFrom(final IEdgeLabel label, final T node) {
+	public final boolean addIncomingEdgeLabelledFrom(@NonNull @Immutable final IEdgeLabel label,
+			@NonNull @Immutable final T node) {
 		predecessors.add(node);
 		return MapUtils.putIntoCollectionInMap(label2inNodes, label, node);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#addOutgoingEdgeLabelledTo(IEdgeLabel, IMutableEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean addOutgoingEdgeLabelledTo(final IEdgeLabel label, final T node) {
+	public final boolean addOutgoingEdgeLabelledTo(@NonNull @Immutable final IEdgeLabel label,
+			@NonNull @Immutable final T node) {
 		successors.add(node);
 		return MapUtils.putIntoCollectionInMap(label2outNodes, label, node);
 	}
 
 	/**
-	 * @see IMutableNode#addPredecessor(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public final boolean addPredecessor(final T node) {
+	public final boolean addPredecessor(@NonNull @Immutable final T node) {
 		return addIncomingEdgeLabelledFrom(IEdgeLabel.DUMMY_LABEL, node);
 	}
 
 	/**
-	 * @see IMutableNode#addSuccessor(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public final boolean addSuccessor(final T node) {
+	public final boolean addSuccessor(@NonNull @Immutable final T node) {
 		return addOutgoingEdgeLabelledTo(IEdgeLabel.DUMMY_LABEL, node);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#removeIncomingEdgeLabelledFrom(IEdgeLabel, IMutableEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeIncomingEdgeLabelledFrom(final IEdgeLabel label, final T node) {
+	public final boolean removeIncomingEdgeLabelledFrom(@NonNull @Immutable final IEdgeLabel label,
+			@NonNull @Immutable final T node) {
 		return removeEdgesLabelledForViaUpdate(label, node, label2inNodes, predecessors);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#removeIncomingEdgesLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean removeIncomingEdgesLabelled(final IEdgeLabel label) {
+	public final boolean removeIncomingEdgesLabelled(@NonNull @Immutable final IEdgeLabel label) {
 		return removedEdgesLabelled(label, label2inNodes, predecessors);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#removeOutgoingEdgeLabelledTo(IEdgeLabel, IMutableEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeOutgoingEdgeLabelledTo(final IEdgeLabel label, final T node) {
+	public final boolean removeOutgoingEdgeLabelledTo(@NonNull @Immutable final IEdgeLabel label,
+			@Immutable @NonNull final T node) {
 		return removeEdgesLabelledForViaUpdate(label, node, label2outNodes, successors);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledNode#removeOutgoingEdgesLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean removeOutgoingEdgesLabelled(final IEdgeLabel label) {
+	public final boolean removeOutgoingEdgesLabelled(@Immutable @NonNull final IEdgeLabel label) {
 		return removedEdgesLabelled(label, label2outNodes, successors);
 	}
 
 	/**
-	 * @see IMutableNode#removePredecessor(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removePredecessor(final T node) {
+	public final boolean removePredecessor(@Immutable @NonNull final T node) {
 		return removeNode(node, label2inNodes, predecessors);
 	}
 
 	/**
-	 * @see IMutableNode#removeSuccessor(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeSuccessor(final T node) {
+	public final boolean removeSuccessor(@NonNull @Immutable final T node) {
 		return removeNode(node, label2outNodes, successors);
 	}
 
 	/**
 	 * Removes the edges with the given label that to/from the given node by updating the given map and collection. The map
 	 * and the collection dictate the to/from direction.
-	 *
+	 * 
 	 * @param label of interest.
 	 * @param node of interest.
 	 * @param map that maps labels to predecessor or successor nodes. This is updated.
 	 * @param col is a collection of predecessor or successor nodes of this node. This is updated.
 	 * @return <code>true</code> if the node existed and was removed; <code>false</code>, otherwise.
-	 * @pre map != null and col != null
 	 */
-	private boolean removeEdgesLabelledForViaUpdate(final IEdgeLabel label, final T node,
-			final Map<IEdgeLabel, Collection<T>> map, final Collection<T> col) {
+	private boolean removeEdgesLabelledForViaUpdate(@NonNull @Immutable final IEdgeLabel label,
+			@NonNull @Immutable final T node, @NonNull @NonNullContainer final Map<IEdgeLabel, Collection<T>> map,
+			@NonNull @NonNullContainer final Collection<T> col) {
 		final Collection<T> _t = MapUtils.queryCollection(map, label);
 		final boolean _result;
 

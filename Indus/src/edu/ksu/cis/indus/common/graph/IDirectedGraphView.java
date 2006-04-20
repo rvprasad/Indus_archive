@@ -14,7 +14,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
 import edu.ksu.cis.indus.annotations.Marker;
+import edu.ksu.cis.indus.annotations.NonNull;
 
 import java.util.Collection;
 
@@ -23,7 +25,7 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the type of the nodes in this view.
  */
 public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
@@ -33,10 +35,10 @@ public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
-	 * @version $Revision$
+	 * @version $Revision$ $Date$
 	 */
 	@Marker public interface INode {
-		// does nothing
+		// empty
 	}
 
 	/**
@@ -46,7 +48,7 @@ public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
 	 * @return the collection of predecessors of the given node.
 	 * @post result->forall(o | getSuccsOf(o)->includes(node))
 	 */
-	Collection<N> getPredsOf(final N node);
+	@Functional @NonNull Collection<N> getPredsOf(@NonNull final N node);
 
 	/**
 	 * Retrieves the successors of the given node.
@@ -55,7 +57,7 @@ public interface IDirectedGraphView<N extends IDirectedGraphView.INode> {
 	 * @return the collection of successors of the given node.
 	 * @post result->forall(o | getPredsOf(o)->includes(node))
 	 */
-	Collection<N> getSuccsOf(final N node);
+	@Functional @NonNull Collection<N> getSuccsOf(@NonNull final N node);
 }
 
 // End of File

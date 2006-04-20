@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,7 +39,7 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	/**
 	 * This maintains the graph information.
 	 */
-	protected final GraphInfo<N> graphInfo;
+	@NonNull protected final GraphInfo<N> graphInfo;
 
 	/**
 	 * Creates a new AbstractDirectedGraph object.
@@ -49,14 +54,14 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	 * @param info maintains the information for this graph.
 	 * @pre info != null
 	 */
-	protected MutableDirectedGraph(final GraphInfo<N> info) {
+	protected MutableDirectedGraph(@NonNull @Immutable final GraphInfo<N> info) {
 		graphInfo = info;
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addEdgeFromTo(IMutableNode, IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public boolean addEdgeFromTo(final N src, final N dest) {
+	public boolean addEdgeFromTo(@NonNull final N src, @NonNull final N dest) {
 		boolean _result = false;
 
 		if (containsNode(src) && containsNode(dest)) {
@@ -72,23 +77,23 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#addNode(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public boolean addNode(final N node) {
+	public boolean addNode(@NonNull @Immutable final N node) {
 		return graphInfo.addNode(node);
 	}
 
 	/**
-	 * @see IDirectedGraph#getNodes()
+	 * {@inheritDoc}
 	 */
-	public List<N> getNodes() {
+	@NonNull @NonNullContainer public List<N> getNodes() {
 		return graphInfo.getNodes();
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(IMutableNode,IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeEdgeFromTo(final N src, final N dest) {
+	public boolean removeEdgeFromTo(@NonNull final N src, @NonNull final N dest) {
 		boolean _result = false;
 
 		if (containsNode(src) && containsNode(dest)) {
@@ -104,9 +109,9 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeNode(IMutableNode)
+	 * {@inheritDoc}
 	 */
-	public final boolean removeNode(final N node) {
+	public final boolean removeNode(@NonNull final N node) {
 		final Collection<N> _succsOf = new ArrayList<N>(node.getSuccsOf());
 		final Iterator<N> _i = _succsOf.iterator();
 		final int _iEnd = _succsOf.size();
@@ -131,21 +136,20 @@ public class MutableDirectedGraph<N extends IMutableNode<N>>
 	 * 
 	 * @param node to be checked for containment.
 	 * @return <code>true</code> if <code>node</code> is contained in this graph; <code>false</code>, otherwise.
-	 * @pre node != null
 	 */
-	protected final boolean containsNode(final N node) {
+	@Functional protected final boolean containsNode(@NonNull final N node) {
 		return getNodes().contains(node);
 	}
 
 	/**
-	 * @see AbstractDirectedGraph#getIndexOfNode(INode)
+	 * {@inheritDoc}
 	 */
-	@Override protected final int getIndexOfNode(final N node) {
+	@Override protected final int getIndexOfNode(@NonNull @Immutable final N node) {
 		return graphInfo.getIndexOfNode(node);
 	}
 
 	/**
-	 * @see AbstractDirectedGraph#shapeChanged()
+	 * {@inheritDoc}
 	 */
 	@Override protected final void shapeChanged() {
 		super.shapeChanged();

@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 
 import java.util.HashMap;
@@ -35,20 +39,20 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 	/**
 	 * This transforms objects to nodes.
 	 */
-	private final ITransformer<O, N> obj2nodeTransformer;
+	@NonNull private final ITransformer<O, N> obj2nodeTransformer;
 
 	/**
 	 * This maps objects to their representative nodes.
 	 */
-	private final Map<O, N> object2nodes = new HashMap<O, N>();
+	@NonNull @NonNullContainer private final Map<O, N> object2nodes = new HashMap<O, N>();
 
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param object2nodeTransformer to be used by this object.
-	 * @pre object2nodeTransformer != null
+	 * @param object2nodeTransformer to be used by this object. This transformer should return a non-null node as a result of
+	 *            every transformation.
 	 */
-	public ObjectGraphInfo(final ITransformer<O, N> object2nodeTransformer) {
+	public ObjectGraphInfo(@NonNull @Immutable final ITransformer<O, N> object2nodeTransformer) {
 		obj2nodeTransformer = object2nodeTransformer;
 	}
 
@@ -59,7 +63,7 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 	 * @param object of interest.
 	 * @return a node.
 	 */
-	public N getNode(final O object) {
+	@NonNull public N getNode(@Immutable final O object) {
 		N _result = queryNode(object);
 
 		if (_result == null) {
@@ -76,15 +80,15 @@ final class ObjectGraphInfo<N extends IObjectNode<N, O>, O>
 	 * @param o is the object of interest.
 	 * @return the node if one exists.
 	 */
-	public N queryNode(final O o) {
+	@Functional public N queryNode(@Immutable final O o) {
 		final N _result = object2nodes.get(o);
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.GraphInfo#removeNode(INode)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean removeNode(final N node) {
+	@Override public boolean removeNode(@NonNull @Immutable final N node) {
 		final Iterator<Map.Entry<O, N>> _i = object2nodes.entrySet().iterator();
 		final int _iEnd = object2nodes.entrySet().size();
 

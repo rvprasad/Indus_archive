@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+import edu.ksu.cis.indus.annotations.Functional.AccessSpecifier;
+
 import java.util.Collection;
 
 /**
@@ -22,7 +27,7 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the type of the node in this view.
  */
 public interface IEdgeLabelledDirectedGraphView<N extends IDirectedGraphView.INode>
@@ -33,18 +38,19 @@ public interface IEdgeLabelledDirectedGraphView<N extends IDirectedGraphView.INo
 	 * 
 	 * @param node of interest.
 	 * @return the labels on the incoming edges of the given node.
-	 * @post result != null
 	 */
-	Collection<IEdgeLabel> getIncomingEdgeLabels(N node);
+	@Functional(level = AccessSpecifier.PUBLIC) @NonNull @NonNullContainer Collection<IEdgeLabel> getIncomingEdgeLabels(
+			@NonNull N node);
 
 	/**
 	 * Retrieves the labels of the outgoing edges of the given node.
 	 * 
 	 * @param node of interest.
 	 * @return the labels on the outgoing edges of the given node.
-	 * @post result != null and result.oclIsKindOf(Collection(ILabel))
+	 * @post result.oclIsKindOf(Collection(ILabel))
 	 */
-	Collection<IEdgeLabel> getOutgoingEdgeLabels(INode node);
+	@Functional(level = AccessSpecifier.PUBLIC) @NonNull @NonNullContainer Collection<IEdgeLabel> getOutgoingEdgeLabels(
+			@NonNull N node);
 
 	/**
 	 * Retrieves the source nodes of the edges that are labelled with <code>label</code> and are incident on the given node.
@@ -52,9 +58,9 @@ public interface IEdgeLabelledDirectedGraphView<N extends IDirectedGraphView.INo
 	 * @param node of interest.
 	 * @param label of the incoming edges onto <code>node</code>.
 	 * @return a collection of nodes.
-	 * @pre label != null and node != null
 	 */
-	Collection<N> getPredsViaEdgesLabelled(N node, IEdgeLabel label);
+	@Functional(level = AccessSpecifier.PUBLIC) @NonNull @NonNullContainer Collection<N> getPredsViaEdgesLabelled(
+			@NonNull N node, @NonNull IEdgeLabel label);
 
 	/**
 	 * Retrieves the destination nodes of the outgoing edges from the given node that are labelled with <code>label</code>.
@@ -62,9 +68,9 @@ public interface IEdgeLabelledDirectedGraphView<N extends IDirectedGraphView.INo
 	 * @param node of interest.
 	 * @param label of the outgoing edges from <code>node</code>.
 	 * @return a collection of nodes.
-	 * @pre label != null and node != null
 	 */
-	Collection<N> getSuccsViaEdgesLabelled(N node, IEdgeLabel label);
+	@Functional(level = AccessSpecifier.PUBLIC) @NonNull @NonNullContainer Collection<N> getSuccsViaEdgesLabelled(
+			@NonNull N node, @NonNull IEdgeLabel label);
 }
 
 // End of File

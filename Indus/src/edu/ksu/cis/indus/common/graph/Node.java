@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -30,42 +35,37 @@ public class Node<T extends Node<T>>
 
 	/**
 	 * The collection of nodes which precede this node in the graph.
-	 * 
-	 * @invariant predecessors != null
 	 */
-	protected final Collection<T> predecessors;
+	@NonNull @NonNullContainer protected final Collection<T> predecessors;
 
 	/**
 	 * The collection of nodes which succeed this node in the graph.
-	 * 
-	 * @invariant successors != null
 	 */
-	protected final Collection<T> successors;
+	@NonNull @NonNullContainer protected final Collection<T> successors;
 
 	/**
 	 * Creates an instance of this class.
 	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 * @pre preds != null and succs != null
 	 */
-	public Node(final Collection<T> preds, final Collection<T> succs) {
+	public Node(@Immutable @NonNull @NonNullContainer final Collection<T> preds, @Immutable @NonNull @NonNullContainer final Collection<T> succs) {
 		super();
 		this.predecessors = preds;
 		this.successors = succs;
 	}
 
 	/**
-	 * @see INode#getPredsOf()
+	 * {@inheritDoc}
 	 */
-	public Collection<T> getPredsOf() {
+	@NonNull @NonNullContainer @Functional public Collection<T> getPredsOf() {
 		return Collections.unmodifiableCollection(predecessors);
 	}
 
 	/**
-	 * @see INode#getSuccsNodesInDirection(boolean)
+	 * {@inheritDoc}
 	 */
-	public final Collection<T> getSuccsNodesInDirection(final boolean forward) {
+	@NonNull @NonNullContainer @Functional public final Collection<T> getSuccsNodesInDirection(final boolean forward) {
 		Collection<T> _result;
 
 		if (forward) {
@@ -77,9 +77,9 @@ public class Node<T extends Node<T>>
 	}
 
 	/**
-	 * @see INode#getSuccsOf()
+	 * {@inheritDoc}
 	 */
-	public Collection<T> getSuccsOf() {
+	@NonNull @NonNullContainer @Functional public Collection<T> getSuccsOf() {
 		return Collections.unmodifiableCollection(successors);
 	}
 }

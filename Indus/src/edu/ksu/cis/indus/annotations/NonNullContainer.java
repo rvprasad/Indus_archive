@@ -19,12 +19,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates the container cannot contain <code>null</code> values. When used on methods, it applies to the
- * return value of the method.
+ * This annotation indicates the container will not contain <code>null</code> values (those exposed by published
+ * interfaces). When used on methods, it applies to the return value of the method.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 @Target({ ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.FIELD, ElementType.METHOD }) @Empty @Documented public @interface NonNullContainer {
 	// empty

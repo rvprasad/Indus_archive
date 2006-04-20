@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This class builds a <code>SimpleNodeGraph</code>.
  * 
@@ -26,9 +28,9 @@ public class SimpleNodeGraphBuilder<O>
 		extends AbstractObjectDirectedGraphBuilder<SimpleNode<O>, O, SimpleNodeGraph<O>> {
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
+	 * {@inheritDoc}
 	 */
-	public void addEdgeFromTo(final O src, final O dest) {
+	public void addEdgeFromTo(@Immutable final O src, @Immutable final O dest) {
 		final SimpleNodeGraph<O> _simpleNodeGraph = graph;
 		final SimpleNode<O> _s = _simpleNodeGraph.getNode(src);
 		final SimpleNode<O> _d = _simpleNodeGraph.getNode(dest);
@@ -36,16 +38,16 @@ public class SimpleNodeGraphBuilder<O>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
+	 * {@inheritDoc}
 	 */
 	public void createGraph() {
 		graph = new SimpleNodeGraph<O>();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public void createNode(final O obj) {
+	public void createNode(@Immutable final O obj) {
 		final SimpleNodeGraph<O> _simpleNodeGraph = graph;
 		_simpleNodeGraph.getNode(obj);
 	}

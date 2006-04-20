@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.annotations.Marker;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <S> the type of the implementation of this interface.
  */
 @Marker public interface IState<S extends IState<S>> {

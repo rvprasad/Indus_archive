@@ -14,12 +14,14 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+
 /**
  * This interface facilitates the access to the object in a node.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the subtype of this type.
  * @param <O> the type of the objects stored in the nodes of this graph.
  */
@@ -31,5 +33,5 @@ public interface IObjectNode<T extends IObjectNode<T, O>, O>
 	 * 
 	 * @return the node.
 	 */
-	O getObject();
+	@Functional O getObject();
 }

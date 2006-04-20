@@ -26,7 +26,7 @@ import java.util.EmptyStackException;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> is the type of object stored in this stack.
  */
 public final class Stack<T>

@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 
 import java.util.Collection;
@@ -36,63 +40,63 @@ public class EdgeLabelledNode<T extends EdgeLabelledNode<T>>
 	/**
 	 * This maps nodes to maps that map labels to nodes reachable from the key node via an edge with the key label.
 	 */
-	final Map<IEdgeLabel, Collection<T>> label2inNodes = new HashMap<IEdgeLabel, Collection<T>>();
+	@NonNullContainer final Map<IEdgeLabel, Collection<T>> label2inNodes = new HashMap<IEdgeLabel, Collection<T>>();
 
 	/**
 	 * This maps nodes to maps that map labels to nodes that can reachable the key node via an edge with the key label.
 	 */
-	final Map<IEdgeLabel, Collection<T>> label2outNodes = new HashMap<IEdgeLabel, Collection<T>>();
+	@NonNullContainer final Map<IEdgeLabel, Collection<T>> label2outNodes = new HashMap<IEdgeLabel, Collection<T>>();
 
 	/**
 	 * Creates an instance of this class.
 	 * 
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
-	 * @pre preds != null and succs != null
 	 */
-	protected EdgeLabelledNode(final Collection<T> preds, final Collection<T> succs) {
+	protected EdgeLabelledNode(@Immutable @NonNull @NonNullContainer final Collection<T> preds,
+			@Immutable @NonNull @NonNullContainer final Collection<T> succs) {
 		super(preds, succs);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getIncomingEdgeLabels()
+	 * {@inheritDoc}
 	 */
-	public Collection<IEdgeLabel> getIncomingEdgeLabels() {
+	@NonNull @NonNullContainer @Functional public Collection<IEdgeLabel> getIncomingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2inNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getOutGoingEdgeLabels()
+	 * {@inheritDoc}
 	 */
-	public Collection<IEdgeLabel> getOutGoingEdgeLabels() {
+	@NonNull @NonNullContainer @Functional public Collection<IEdgeLabel> getOutGoingEdgeLabels() {
 		return Collections.unmodifiableCollection(label2outNodes.keySet());
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getPredsViaEdgesLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked") public Collection<T> getPredsViaEdgesLabelled(final IEdgeLabel label) {
+	@NonNull @NonNullContainer @Functional public Collection<T> getPredsViaEdgesLabelled(@NonNull final IEdgeLabel label) {
 		return MapUtils.queryCollection(label2inNodes, label);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#getSuccsViaEdgesLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked") public Collection<T> getSuccsViaEdgesLabelled(final IEdgeLabel label) {
+	@NonNull @NonNullContainer @Functional public Collection<T> getSuccsViaEdgesLabelled(@NonNull final IEdgeLabel label) {
 		return MapUtils.queryCollection(label2outNodes, label);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#hasIncomingEdgeLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean hasIncomingEdgeLabelled(final IEdgeLabel label) {
+	@Functional public final boolean hasIncomingEdgeLabelled(@NonNull final IEdgeLabel label) {
 		return label2inNodes.containsKey(label);
 	}
 
 	/**
-	 * @see IEdgeLabelledNode#hasOutgoingEdgeLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean hasOutgoingEdgeLabelled(final IEdgeLabel label) {
+	@Functional public final boolean hasOutgoingEdgeLabelled(@NonNull final IEdgeLabel label) {
 		return label2outNodes.containsKey(label);
 	}
 }

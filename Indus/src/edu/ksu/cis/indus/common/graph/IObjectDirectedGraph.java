@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.ITransformer;
 
 /**
@@ -21,7 +23,7 @@ import edu.ksu.cis.indus.common.collections.ITransformer;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the type of the nodes of this graph.
  * @param <O> the type of the objects stored in the nodes of this graph.
  */
@@ -29,20 +31,19 @@ public interface IObjectDirectedGraph<N extends IObjectNode<N, O>, O>
 		extends IDirectedGraph<N> {
 
 	/**
-	 * DOCUMENT ME!
+	 * Provides the object extractor that can be used to extract objects embedded in the nodes of this graph.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return an object extractor.
 	 */
-	ITransformer<N, O> getObjectExtractor();
+	@NonNull ITransformer<N, O> getObjectExtractor();
 
 	/**
 	 * Returns a node that represents <code>o</code> in this graph.
 	 * 
 	 * @param o is the object being represented by a node in this graph.
 	 * @return the node representing <code>o</code>.
-	 * @pre o != null
 	 */
-	N queryNode(O o);
+	@Functional N queryNode(@NonNull O o);
 }
 
 // End of File

@@ -28,7 +28,7 @@ import java.util.List;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  */
 public final class ListUtils {
 
@@ -78,7 +78,8 @@ public final class ListUtils {
 	 * @post list.containsAll(list$pre)
 	 * @post result = list.get(index)
 	 */
-	@Immutable public static <T> T getAtIndexFromList(@NonNull final List<T> list, final int index, @Immutable final T defaultValue) {
+	@Immutable public static <T> T getAtIndexFromList(@NonNull final List<T> list,
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int index, @Immutable final T defaultValue) {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}
@@ -109,7 +110,8 @@ public final class ListUtils {
 	 * @post list.get(index) = result
 	 */
 	@NonNull @Functional public static <T, T2 extends T> T getAtIndexFromListUsingFactory(@NonNull final List<T> list,
-			final int index, @NonNull final IFactory<T2> factory) throws IndexOutOfBoundsException {
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int index, @NonNull final IFactory<T2> factory)
+			throws IndexOutOfBoundsException {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}

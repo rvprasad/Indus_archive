@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -39,10 +43,10 @@ public abstract class AbstractEdgeLabelledObjectDirectedGraphBuilder<N extends I
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.util.Collection,
-	 *      java.lang.Object, java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public void addEdgeFromTo(final Collection<O> sources, final Object label, final O dest) {
+	public final void addEdgeFromTo(@NonNull @NonNullContainer final Collection<O> sources, @Immutable final Object label,
+			final O dest) {
 		final Iterator<O> _i = sources.iterator();
 		final int _iEnd = sources.size();
 
@@ -53,10 +57,10 @@ public abstract class AbstractEdgeLabelledObjectDirectedGraphBuilder<N extends I
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.lang.Object,
-	 *      java.lang.Object, java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	public void addEdgeFromTo(final O src, final Object label, final Collection<O> destinations) {
+	public final void addEdgeFromTo(final O src, @Immutable final Object label,
+			@NonNull @NonNullContainer final Collection<O> destinations) {
 		final Iterator<O> _i = destinations.iterator();
 		final int _iEnd = destinations.size();
 

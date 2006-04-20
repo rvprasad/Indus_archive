@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.Collection;
 
 /**
@@ -21,7 +25,7 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the type of nodes in the built graph.
  * @param <O> the type of objects stored in the nodes in the build graph.
  */
@@ -32,18 +36,16 @@ public interface IObjectDirectedGraphBuilder<N extends IObjectNode<N, O>, O> {
 	 * 
 	 * @param nodes are the nodes in the originating graph.
 	 * @param dest is the node in the originating graph.
-	 * @pre dest != null and nodes != null and nodes.oclIsKindOf(Collection(Object))
 	 */
-	void addEdgeFromTo(Collection<O> nodes, O dest);
+	void addEdgeFromTo(@NonNull @NonNullContainer @Immutable Collection<O> nodes, @Immutable O dest);
 
 	/**
 	 * Adds an edge from the node representing <code>src</code> to the nodes representing the object in <code>dests</code>.
 	 * 
 	 * @param src is the node in the originating graph.
 	 * @param dests are the nodes in the originating graph.
-	 * @pre src != null and nodes != null
 	 */
-	void addEdgeFromTo(O src, Collection<O> dests);
+	void addEdgeFromTo(@Immutable O src, @NonNull @NonNullContainer @Immutable Collection<O> dests);
 
 	/**
 	 * Adds an edge from the node representing <code>src</code> the node representing <code>dest</code>.
@@ -54,7 +56,7 @@ public interface IObjectDirectedGraphBuilder<N extends IObjectNode<N, O>, O> {
 	void addEdgeFromTo(final O src, final O dest);
 
 	/**
-	 * Create the graph to be build.
+	 * Create the graph to be built. This method should be called before starting to build the graph.
 	 */
 	void createGraph();
 
@@ -63,7 +65,7 @@ public interface IObjectDirectedGraphBuilder<N extends IObjectNode<N, O>, O> {
 	 * 
 	 * @param obj to be represented.
 	 */
-	void createNode(O obj);
+	void createNode(@Immutable O obj);
 
 	/**
 	 * Finish up the built graph.
@@ -75,7 +77,7 @@ public interface IObjectDirectedGraphBuilder<N extends IObjectNode<N, O>, O> {
 	 * 
 	 * @return the build graph.
 	 */
-	IObjectDirectedGraph<N, O> getBuiltGraph();
+	@NonNull IObjectDirectedGraph<N, O> getBuiltGraph();
 }
 
 // End of File

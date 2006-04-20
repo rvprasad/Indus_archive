@@ -14,46 +14,49 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+
 /**
  * This class builds a <code>SimpleNodeGraph</code>.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @param <O> is the type of the object stored in nodes of this graph.
  */
 public class SimpleEdgeGraphBuilder<O>
 		extends AbstractEdgeLabelledObjectDirectedGraphBuilder<SimpleEdgeLabelledNode<O>, O, SimpleEdgeGraph<O>>
 		implements IEdgeLabelledObjectDirectedGraphBuilder<O> {
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object, Object)
+	 * {@inheritDoc}
 	 */
-	public void addEdgeFromTo(final O src, final O dest) {
+	public void addEdgeFromTo(@Immutable final O src, @Immutable final O dest) {
 		final SimpleEdgeGraph<O> _simpleEdgeGraph = graph;
 		_simpleEdgeGraph.addEdgeFromTo(_simpleEdgeGraph.getNode(src), SimpleEdgeGraph.NULL_LABEL, _simpleEdgeGraph
 				.getNode(dest));
 	}
 
 	/**
-	 * @see IEdgeLabelledObjectDirectedGraphBuilder#addEdgeFromTo(java.lang.Object, java.lang.Object, java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public void addEdgeFromTo(final O src, final Object label, final O dest) {
+	public void addEdgeFromTo(@Immutable final O src, @Immutable final Object label, @Immutable final O dest) {
 		final SimpleEdgeGraph<O> _simpleEdgeGraph = graph;
 		_simpleEdgeGraph.addEdgeFromTo(_simpleEdgeGraph.getNode(src), _simpleEdgeGraph.getLabel(label), _simpleEdgeGraph
 				.getNode(dest));
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createGraph()
+	 * {@inheritDoc}
 	 */
 	public void createGraph() {
 		graph = new SimpleEdgeGraph<O>();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#createNode(java.lang.Object)
+	 * {@inheritDoc}
 	 */
-	public void createNode(final O obj) {
+	public void createNode(@Immutable final O obj) {
 		graph.getNode(obj);
 	}
 }

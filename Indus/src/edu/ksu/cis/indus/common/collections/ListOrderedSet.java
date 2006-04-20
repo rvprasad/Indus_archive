@@ -35,7 +35,7 @@ import java.util.Set;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <E> is the type of object in the set.
  */
 public class ListOrderedSet<E>

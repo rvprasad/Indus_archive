@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.annotations.Marker;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <N> the node type of this graph.
  */
 @Marker public interface IEdgeLabelledDirectedGraph<N extends IEdgeLabelledNode<N>>

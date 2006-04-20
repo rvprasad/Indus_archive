@@ -15,6 +15,10 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,9 +42,9 @@ public abstract class AbstractObjectDirectedGraphBuilder<N extends IObjectNode<N
 	protected G graph;
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(java.util.Collection, Object)
+	 * {@inheritDoc}
 	 */
-	public final void addEdgeFromTo(final Collection<O> preds, final O node) {
+	public final void addEdgeFromTo(@NonNull @NonNullContainer final Collection<O> preds, @NonNull @Immutable final O node) {
 		final Iterator<O> _i = preds.iterator();
 		final int _iEnd = preds.size();
 
@@ -50,9 +54,9 @@ public abstract class AbstractObjectDirectedGraphBuilder<N extends IObjectNode<N
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#addEdgeFromTo(Object, java.util.Collection)
+	 * {@inheritDoc}
 	 */
-	public final void addEdgeFromTo(final O node, final Collection<O> succs) {
+	public final void addEdgeFromTo(@NonNull @Immutable final O node, @NonNull @NonNullContainer final Collection<O> succs) {
 		final Iterator<O> _i = succs.iterator();
 		final int _iEnd = succs.size();
 
@@ -62,16 +66,16 @@ public abstract class AbstractObjectDirectedGraphBuilder<N extends IObjectNode<N
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#finishBuilding()
+	 * {@inheritDoc}
 	 */
 	@Empty public void finishBuilding() {
 		// does nothing
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraphBuilder#getBuiltGraph()
+	 * {@inheritDoc}
 	 */
-	public final G getBuiltGraph() {
+	@Functional public final G getBuiltGraph() {
 		return graph;
 	}
 

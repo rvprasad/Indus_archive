@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,16 +36,15 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	 * Creates an instance of this class.
 	 * 
 	 * @param info maintains the information of this graph.
-	 * @pre info != null
 	 */
-	protected MutableEdgeLabelledDirectedGraph(final GraphInfo<N> info) {
+	protected MutableEdgeLabelledDirectedGraph(@NonNull @Immutable final GraphInfo<N> info) {
 		super(info);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#addEdgeFromTo(IEdgeLabelledNode, IEdgeLabel, IEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public final boolean addEdgeFromTo(final N src, final IEdgeLabel label, final N dest) {
+	public final boolean addEdgeFromTo(@NonNull final N src, @NonNull final IEdgeLabel label, @NonNull final N dest) {
 		final boolean _result = super.addEdgeFromTo(src, dest);
 
 		if (_result) {
@@ -54,18 +56,15 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @pre src != null and dest != null
-	 * @pre src.oclIsKindOf(IEdgeLabelledNode) and dest.oclIsKindOf(IEdgeLabelledNode)
 	 */
-	@Override public boolean addEdgeFromTo(final N src, final N dest) {
+	@Override public final boolean addEdgeFromTo(@NonNull final N src, @NonNull final N dest) {
 		return addEdgeFromTo(src, IEdgeLabel.DUMMY_LABEL, dest);
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelled(IEdgeLabel)
+	 * {@inheritDoc}
 	 */
-	public boolean removeAllEdgesLabelled(final IEdgeLabel label) {
+	public final boolean removeAllEdgesLabelled(@NonNull @Immutable final IEdgeLabel label) {
 		boolean _result = true;
 		final Iterator<N> _i = getNodes().iterator();
 		final int _iEnd = getNodes().size();
@@ -79,9 +78,9 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledFrom(IEdgeLabel, IEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeAllEdgesLabelledFrom(final IEdgeLabel label, final N node) {
+	public final boolean removeAllEdgesLabelledFrom(@NonNull @Immutable final IEdgeLabel label, @NonNull final N node) {
 		final Collection<N> _dests = node.getSuccsViaEdgesLabelled(label);
 		final Iterator<N> _i = _dests.iterator();
 		final int _iEnd = _dests.size();
@@ -94,9 +93,9 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeAllEdgesLabelledTo(IEdgeLabel, IEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeAllEdgesLabelledTo(final IEdgeLabel label, final N node) {
+	public final boolean removeAllEdgesLabelledTo(@NonNull @Immutable final IEdgeLabel label, @NonNull final N node) {
 		final Collection<N> _srcs = node.getPredsViaEdgesLabelled(label);
 		final Iterator<N> _i = _srcs.iterator();
 		final int _iEnd = _srcs.size();
@@ -109,16 +108,17 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	}
 
 	/**
-	 * @see IMutableEdgeLabelledDirectedGraph#removeEdgeFromTo(IEdgeLabelledNode, IEdgeLabel, IEdgeLabelledNode)
+	 * {@inheritDoc}
 	 */
-	public boolean removeEdgeFromTo(final N src, final IEdgeLabel label, final N dest) {
+	public final boolean removeEdgeFromTo(@NonNull @Immutable final N src, @NonNull @Immutable final IEdgeLabel label,
+			@Immutable @NonNull final N dest) {
 		return src.removeOutgoingEdgeLabelledTo(label, dest) && dest.removeIncomingEdgeLabelledFrom(label, src);
 	}
 
 	/**
-	 * @see IMutableDirectedGraph#removeEdgeFromTo(INode, INode)
+	 * {@inheritDoc}
 	 */
-	@Override public boolean removeEdgeFromTo(final N src, final N dest) {
+	@Override public final boolean removeEdgeFromTo(@Immutable @NonNull final N src, @Immutable @NonNull final N dest) {
 		return removeEdgeFromTo(src, IEdgeLabel.DUMMY_LABEL, dest);
 	}
 }

@@ -19,7 +19,7 @@ package edu.ksu.cis.indus.common.collections;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> is the type of object on which the predicate is evaluated.
  */
 public interface IPredicate<T> {

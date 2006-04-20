@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.common.collections;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> is the type of the objects on which this closure can operate.
  */
 public interface IClosure<T> {

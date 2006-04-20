@@ -28,7 +28,7 @@ import java.util.List;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
+ * @version $Revision$ $Date$
  * @param <T> the type parameter for this class.
  */
 public class FastUnionFindElement<T extends FastUnionFindElement<T>> {
