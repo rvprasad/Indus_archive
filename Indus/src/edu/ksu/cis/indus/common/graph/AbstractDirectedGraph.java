@@ -99,6 +99,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private SimpleNodeGraphBuilder<N> builder;
 
 	/**
+	 * This is a node-node connectivity cache.
+	 */
+	@NonNull private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(
+			50);
+
+	/**
 	 * This is the collection of cross edges in this graph corresponding to the minimum spanning calculated for this instance
 	 * of the graph.
 	 */
@@ -122,14 +128,14 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private BitSet[] forwardReachabilityMatrix;
 
 	/**
-	 * This indicates if this graph has a spanning forest.
-	 */
-	private boolean hasSpanningForest;
-
-	/**
 	 * This indicates if the SCCs have been identified for this graph.
 	 */
 	private boolean hasSCC;
+
+	/**
+	 * This indicates if this graph has a spanning forest.
+	 */
+	private boolean hasSpanningForest;
 
 	/**
 	 * The collection of pseudo tails in the given graph. Refer to <code>getPseudoTails()</code> for details.
@@ -145,6 +151,11 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * This indicates if reachability information has been calculated for this graph.
 	 */
 	private boolean reachability;
+
+	/**
+	 * This is the collection of SCCs in this graph.
+	 */
+	@NonNullContainer private List<List<N>> scc;
 
 	/**
 	 * This is the collection of sink nodes in the graph.
@@ -171,23 +182,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	private boolean sourcesAreAvailable;
 
 	/**
-	 * This is the collection of SCCs in this graph.
-	 */
-	@NonNullContainer private List<List<N>> scc;
-
-	/**
 	 * This maps a node to it's spanning successor nodes.
 	 * 
 	 * @invariant getNodes().containsAll(spanningSuccs.keySet())
 	 * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
 	private Map<N, Set<N>> spanningSuccs;
-
-	/**
-	 * This is a node-node connectivity cache.
-	 */
-	@NonNull private Map<Triple<N, N, Boolean>, Collection<N>> connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(
-			50);
 
 	/**
 	 * Finds cycles in the given set of nodes. This implementation is <i>exponential</i> in the number of cycles in the the
@@ -492,18 +492,6 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
-	 * Sets the size of the connectivity cache.
-	 * 
-	 * @param size to be used.
-	 */
-	@Functional public final void setConnectivityCacheSize(
-			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int size) {
-		final Map<Triple<N, N, Boolean>, Collection<N>> _t = new Cache<Triple<N, N, Boolean>, Collection<N>>(size);
-		_t.putAll(connectivityCache);
-		connectivityCache = _t;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<Pair<N, N>> getBackEdges() {
@@ -565,7 +553,6 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 */
 	@Functional @NonNull @NonNullContainer public final Collection<N> getConnectivityNodesFor(
 			@NonNull @Immutable final N node1, @NonNull @Immutable final N node2, final boolean forward) {
-		final boolean _direction = !forward;
 		Collection<N> _result = Collections.emptySet();
 		// the order of the following check is important as connectivity depends on reachability.
 		if (hasCommonReachablesFrom(node1, forward, node2, forward)) {
@@ -579,53 +566,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 				if (connectivityCache.containsKey(_trp2)) {
 					_result = connectivityCache.get(_trp2);
 				} else {
-					final Collection<N> _col = new HashSet<N>();
-					final IWorkBag<N> _wb = new HistoryAwareFIFOWorkBag<N>(new HashSet<N>());
-					_wb.addAllWork(node1.getSuccsNodesInDirection(forward));
-
-					while (_wb.hasWork()) {
-						final N _succ = _wb.getWork();
-
-						if (isReachable(_succ, node2, _direction)) {
-							_col.add(_succ);
-						} else {
-							_wb.addAllWorkNoDuplicates(_succ.getSuccsNodesInDirection(forward));
-						}
-					}
-
-					if (!_col.isEmpty()) {
-						_result = _col;
-					}
+					_result = calculateConnectivityNodes(node1, node2, forward);
 					connectivityCache.put(_trp1, _result);
 				}
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Functional public final boolean hasCommonReachablesFrom(@NonNull @Immutable final N node1, final boolean forward1,
-			@NonNull @Immutable final N node2, final boolean forward2) {
-		calculateReachabilityInfo();
-
-		final BitSet _n1;
-		final BitSet _n2;
-
-		if (forward1) {
-			_n1 = forwardReachabilityMatrix[getIndexOfNode(node1)];
-		} else {
-			_n1 = backwardReachabilityMatrix[getIndexOfNode(node1)];
-		}
-
-		if (forward2) {
-			_n2 = forwardReachabilityMatrix[getIndexOfNode(node2)];
-		} else {
-			_n2 = backwardReachabilityMatrix[getIndexOfNode(node2)];
-		}
-
-		return _n1.intersects(_n2);
 	}
 
 	/**
@@ -873,6 +819,31 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * {@inheritDoc}
 	 */
+	@Functional public final boolean hasCommonReachablesFrom(@NonNull @Immutable final N node1, final boolean forward1,
+			@NonNull @Immutable final N node2, final boolean forward2) {
+		calculateReachabilityInfo();
+
+		final BitSet _n1;
+		final BitSet _n2;
+
+		if (forward1) {
+			_n1 = forwardReachabilityMatrix[getIndexOfNode(node1)];
+		} else {
+			_n1 = backwardReachabilityMatrix[getIndexOfNode(node1)];
+		}
+
+		if (forward2) {
+			_n2 = forwardReachabilityMatrix[getIndexOfNode(node2)];
+		} else {
+			_n2 = backwardReachabilityMatrix[getIndexOfNode(node2)];
+		}
+
+		return _n1.intersects(_n2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final boolean isAncestorOf(
 			@NonNull @Immutable final N ancestor, @NonNull @Immutable final N descendent) {
 		createSpanningForest();
@@ -944,6 +915,18 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	}
 
 	/**
+	 * Sets the size of the connectivity cache.
+	 * 
+	 * @param size to be used.
+	 */
+	@Functional public final void setConnectivityCacheSize(
+			@NumericalConstraint(value = NumericalValue.NON_NEGATIVE) final int size) {
+		final Map<Triple<N, N, Boolean>, Collection<N>> _t = new Cache<Triple<N, N, Boolean>, Collection<N>>(size);
+		_t.putAll(connectivityCache);
+		connectivityCache = _t;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Functional @NonNull @Override public String toString() {
@@ -993,6 +976,33 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		sinksAreAvailable = false;
 		sourcesAreAvailable = false;
 		hasSCC = false;
+	}
+
+	/**
+	 * Calculates the nodes that are needed to connect the given nodes.
+	 * 
+	 * @param src is the source node.
+	 * @param dest is the destination node.
+	 * @param forward <code>true</code> indicates forward direction; <code>false</code> indicates backward direction.
+	 * @return a collection of connectivity nodes.
+	 */
+	@NonNull @NonNullContainer @Functional private Collection<N> calculateConnectivityNodes(@NonNull final N src,
+			@NonNull final N dest, final boolean forward) {
+		final Collection<N> _col = new HashSet<N>();
+		final IWorkBag<N> _wb = new HistoryAwareFIFOWorkBag<N>(new HashSet<N>());
+		_wb.addAllWork(src.getSuccsNodesInDirection(forward));
+
+		while (_wb.hasWork()) {
+			final N _succ = _wb.getWork();
+
+			if (isReachable(_succ, dest, !forward)) {
+				_col.add(_succ);
+			} else {
+				_wb.addAllWorkNoDuplicates(_succ.getSuccsNodesInDirection(forward));
+			}
+		}
+
+		return _col;
 	}
 
 	/**

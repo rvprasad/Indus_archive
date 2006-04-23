@@ -68,12 +68,13 @@ public interface IDirectedGraph<N extends INode<N>> {
 
 	/**
 	 * Returns the minimum set of nodes that are needed to ensure that the given nodes remain reachable from or can reach
-	 * common nodes.
+	 * common nodes. The removal of this set of nodes will ensure that there are no common ancestors (descendants) of the
+	 * given nodes when forward is true (false).
 	 * 
 	 * @param node1 is one node of interest.
 	 * @param node2 is another node of interest.
-	 * @param forward <code>true</code> indicates that common nodes that can reach the given nodes is required;
-	 *            <code>false</code> indicates that the common nodes that can be reached from the given nodes is required.
+	 * @param forward <code>true</code> indicates that common nodes that can reach the given nodes are required;
+	 *            <code>false</code> indicates that the common nodes that are reachable from the given nodes are required.
 	 * @return a collection of nodes.
 	 * @post getNodes().containsAll(result)
 	 * @post result->forall(o | isReachable(o, node1, forward) and isReachable(o, node2, forward))
