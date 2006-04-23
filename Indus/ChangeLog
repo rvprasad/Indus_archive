@@ -1,3 +1,11 @@
+2006-04-23 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/scoping/ISpecification.java: 
+	* src/edu/ksu/cis/indus/common/scoping/SpecificationBasedScopeDefinition.java: 
+	* src/edu/ksu/cis/indus/common/scoping/AbstractSpecification.java: 
+		- added a new type to represent specification (ISpecification).  
+		- ripple effect.
+
 2006-04-20 venku <venku@boss.dreamsoft.com>
 
 	* distbuild.xml: changes to release every java file in src-xml folders.

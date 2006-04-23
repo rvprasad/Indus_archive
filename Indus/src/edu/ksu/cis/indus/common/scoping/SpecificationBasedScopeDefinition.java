@@ -18,19 +18,17 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import soot.SootClass;
 import soot.SootField;
@@ -39,7 +37,7 @@ import soot.SootMethod;
 /**
  * This class represents scope definition. It can be used to filter classes, methods, and fields based on names and
  * hierarchical relation.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -78,7 +76,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Deserializes the given content into a scope definition.
-	 *
+	 * 
 	 * @param contents to be deserialized.
 	 * @return a scope definition.
 	 * @throws JiBXException when the content cannot be deserialized due to IO exceptions or malformed contents.
@@ -109,7 +107,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Serializes the given scope definition.
-	 *
+	 * 
 	 * @param scopeDef to be serialized.
 	 * @return the serialized form the scope definition.
 	 * @throws JiBXException when the content cannot be serialized.
@@ -142,18 +140,18 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Creates the container for specifications. This is used by java-xml binding.
-	 *
-	 * @param <T> DOCUMENT ME!
+	 * 
+	 * @param <T> is a specification type.
 	 * @return a container.
 	 * @post result != null
 	 */
-	static <T extends AbstractSpecification> Collection<T> createSpecContainer() {
+	static <T extends ISpecification> Collection<T> createSpecContainer() {
 		return new ArrayList<T>();
 	}
 
 	/**
 	 * Retrieves the value in <code>classSpecs</code>.
-	 *
+	 * 
 	 * @return the value in <code>classSpecs</code>.
 	 */
 	public Collection<ClassSpecification> getClassSpecs() {
@@ -162,7 +160,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Retrieves the value in <code>fieldSpecs</code>.
-	 *
+	 * 
 	 * @return the value in <code>fieldSpecs</code>.
 	 */
 	public Collection<FieldSpecification> getFieldSpecs() {
@@ -171,7 +169,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Retrieves the value in <code>methodSpecs</code>.
-	 *
+	 * 
 	 * @return the value in <code>methodSpecs</code>.
 	 */
 	public Collection<MethodSpecification> getMethodSpecs() {
@@ -180,7 +178,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Retrieves the value in <code>name</code>.
-	 *
+	 * 
 	 * @return the value in <code>name</code>.
 	 */
 	public String getName() {
@@ -189,7 +187,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Checks if the given class is in the scope in the given system.
-	 *
+	 * 
 	 * @param clazz to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given class is in the scope in the given system; <code>false</code>, otherwise.
@@ -209,7 +207,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Checks if the given field is in the scope in the given system.
-	 *
+	 * 
 	 * @param field to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given field is in the scope in the given system; <code>false</code>, otherwise.
@@ -229,7 +227,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Checks if the given method is in the scope in the given system.
-	 *
+	 * 
 	 * @param method to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given method is in the scope in the given system; <code>false</code>, otherwise.
@@ -249,7 +247,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Sets the value of <code>classSpecs</code>.
-	 *
+	 * 
 	 * @param theClassSpecs the new value of <code>classSpecs</code>.
 	 */
 	public void setClassSpecs(final Collection<ClassSpecification> theClassSpecs) {
@@ -258,7 +256,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Sets the value of <code>fieldSpecs</code>.
-	 *
+	 * 
 	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
 	 */
 	public void setFieldSpecs(final Collection<FieldSpecification> theFieldSpecs) {
@@ -267,7 +265,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Sets the value of <code>methodSpecs</code>.
-	 *
+	 * 
 	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
 	 */
 	public void setMethodSpecs(final Collection<MethodSpecification> theMethodSpecs) {
@@ -276,7 +274,7 @@ public final class SpecificationBasedScopeDefinition {
 
 	/**
 	 * Sets the value of <code>name</code>.
-	 *
+	 * 
 	 * @param nameOfTheSpec the new value of <code>name</code>.
 	 */
 	public void setName(final String nameOfTheSpec) {

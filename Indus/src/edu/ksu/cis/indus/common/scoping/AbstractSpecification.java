@@ -17,13 +17,14 @@ package edu.ksu.cis.indus.common.scoping;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * This class captures attributes common all specifications.
+ * This class captures attributes common all scope specifications.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-abstract class AbstractSpecification {
+abstract class AbstractSpecification
+		implements ISpecification {
 
 	/**
 	 * This is the access control specification.
@@ -41,38 +42,36 @@ abstract class AbstractSpecification {
 	private String name;
 
 	/**
-	 * Retrieves the value in <code>name</code>.
+	 * {@inheritDoc}
 	 * 
-	 * @return the value in <code>name</code>.
+	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#getName()
 	 */
 	public final String getName() {
 		return name;
 	}
 
 	/**
-	 * Sets the access specification. If not set, default access specification is attached to this specification.
+	 * {@inheritDoc}
 	 * 
-	 * @param accessSpecification for this specification.
-	 * @pre accessSpecification != null
+	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setAccessSpec(edu.ksu.cis.indus.common.scoping.AccessSpecification)
 	 */
 	public final void setAccessSpec(final AccessSpecification accessSpecification) {
 		this.accessSpec = accessSpecification;
 	}
 
 	/**
-	 * Sets the value of <code>inclusion</code>.
+	 * {@inheritDoc}
 	 * 
-	 * @param value the new value of <code>inclusion</code>.
+	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setInclusion(boolean)
 	 */
 	public final void setInclusion(final boolean value) {
 		this.inclusion = value;
 	}
 
 	/**
-	 * Sets the value of <code>name</code>.
+	 * {@inheritDoc}
 	 * 
-	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 * @pre nameOfTheSpec != null
+	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setName(java.lang.String)
 	 */
 	public final void setName(final String nameOfTheSpec) {
 		this.name = nameOfTheSpec;
