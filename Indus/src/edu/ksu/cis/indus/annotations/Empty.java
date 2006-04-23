@@ -19,7 +19,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates empty constructors, methods, and annotation types.
+ * This annotation indicates empty constructors, methods, and annotation types. This annotation implies the method is
+ * functional.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
