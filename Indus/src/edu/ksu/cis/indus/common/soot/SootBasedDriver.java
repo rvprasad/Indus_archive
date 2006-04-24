@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.Environment;
@@ -105,7 +109,8 @@ public class SootBasedDriver {
 			if (_o instanceof RootMethodTrapper) {
 				DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = (RootMethodTrapper) _o;
 			} else {
-				throw new IllegalArgumentException(_rmtClassName + " is not a subclass of SootBasedDriver.RootMethodTrapper.");
+				final String _msg = _rmtClassName + " is not a subclass of SootBasedDriver.RootMethodTrapper.";
+				throw new IllegalArgumentException(_msg);
 			}
 		} catch (final ClassNotFoundException _e) {
 			LOGGER.error("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
@@ -149,12 +154,12 @@ public class SootBasedDriver {
 	 * This provides <code>UnitGraph</code>s required by the analyses. By defaults this will be initialized to
 	 * <code>ExceptionFlowSensitiveStmtGraphFactory</code>.
 	 */
-	protected IStmtGraphFactory<?> cfgProvider;
+	@NonNull protected IStmtGraphFactory<?> cfgProvider;
 
 	/**
 	 * The list of classes that should be considered as the core of the system.
 	 */
-	protected List<String> classNames;
+	@NonNullContainer @NonNull protected List<String> classNames;
 
 	/**
 	 * Logger to be used to log information written via <code>writeInfo</code>.
@@ -164,12 +169,12 @@ public class SootBasedDriver {
 	/**
 	 * This is the set of methods which serve as the entry point into the system being analyzed.
 	 */
-	protected Collection<SootMethod> rootMethods = new HashSet<SootMethod>();
+	@NonNullContainer @NonNull protected Collection<SootMethod> rootMethods = new HashSet<SootMethod>();
 
 	/**
 	 * The scene that contains the classes of the system.
 	 */
-	protected Scene scene;
+	@NonNull protected Scene scene;
 
 	/**
 	 * The class path that should be added.
@@ -179,18 +184,18 @@ public class SootBasedDriver {
 	/**
 	 * The environment.
 	 */
-	private Environment env;
+	@NonNull private Environment env;
 
 	/**
 	 * This traps the root methods.
 	 */
-	private RootMethodTrapper rootMethodTrapper;
+	@NonNull private RootMethodTrapper rootMethodTrapper;
 
 	/**
 	 * This is used to maintain the execution time of each analysis/transformation. This timing information is printed via
 	 * <code>printTimingStats</code>.
 	 */
-	private final Map<String, Long> times = new LinkedHashMap<String, Long>();
+	@NonNullContainer @NonNull private final Map<String, Long> times = new LinkedHashMap<String, Long>();
 
 	/**
 	 * Creates a new Test object. This also initializes <code>cfgProvider</code> to <code>CompleteStmtGraphFactory</code>
@@ -209,7 +214,7 @@ public class SootBasedDriver {
 	 * 
 	 * @return a unit graph factory.
 	 */
-	public static IStmtGraphFactory<?> getDefaultStmtGraphFactory() {
+	@NonNull public static IStmtGraphFactory<?> getDefaultStmtGraphFactory() {
 		return DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 	}
 
@@ -219,9 +224,8 @@ public class SootBasedDriver {
 	 * 
 	 * @param name of the analysis for which the timing log is being created.
 	 * @param milliseconds taken by the analysis.
-	 * @pre name != null
 	 */
-	public final void addTimeLog(final String name, final long milliseconds) {
+	public final void addTimeLog(@NonNull @Immutable final String name, final long milliseconds) {
 		times.put("[" + times.size() + "]" + name, new Long(milliseconds));
 	}
 
@@ -229,9 +233,8 @@ public class SootBasedDriver {
 	 * Records the given classpath in intention of using it while loading classes into the scene.
 	 * 
 	 * @param classpath to be considered.
-	 * @pre classpath != null
 	 */
-	public final void addToSootClassPath(final String classpath) {
+	public final void addToSootClassPath(@NonNull @Immutable final String classpath) {
 		classpathToAdd = classpath;
 	}
 
@@ -239,9 +242,8 @@ public class SootBasedDriver {
 	 * Retrieves the basic block graph manager used by the application.
 	 * 
 	 * @return the basic block graph manager.
-	 * @post result != null
 	 */
-	public final BasicBlockGraphMgr getBbm() {
+	@Functional @NonNull public final BasicBlockGraphMgr getBbm() {
 		return this.bbm;
 	}
 
@@ -250,7 +252,7 @@ public class SootBasedDriver {
 	 * 
 	 * @return the environment.
 	 */
-	public final IEnvironment getEnvironment() {
+	@Functional @NonNull public final IEnvironment getEnvironment() {
 		return this.env;
 	}
 
@@ -258,9 +260,8 @@ public class SootBasedDriver {
 	 * Retrieves the root methods in the system.
 	 * 
 	 * @return the collection of root methods.
-	 * @post result != null
 	 */
-	public final Collection<SootMethod> getRootMethods() {
+	@Functional @NonNullContainer @NonNull public final Collection<SootMethod> getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
 	}
 
@@ -268,9 +269,8 @@ public class SootBasedDriver {
 	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation.
 	 * 
 	 * @return an unit graph factory
-	 * @post return != null
 	 */
-	public IStmtGraphFactory<?> getStmtGraphFactory() {
+	@Functional @NonNull public IStmtGraphFactory<?> getStmtGraphFactory() {
 		return cfgProvider;
 	}
 
@@ -287,9 +287,8 @@ public class SootBasedDriver {
 	 * 
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
-	 * @pre options != null
 	 */
-	public final void initialize(final String[] options) {
+	public final void initialize(@NonNull final String[] options) {
 		if (classNames == null) {
 			throw new RuntimeException("Please call setClassNames() before using this object.");
 		}
@@ -300,10 +299,8 @@ public class SootBasedDriver {
 
 	/**
 	 * Prints the timing statistics into the given stream.
-	 * 
-	 * @pre stream != null
 	 */
-	public final void printTimingStats() {
+	@Functional public final void printTimingStats() {
 		writeInfo("Timing statistics:");
 
 		for (final Iterator<String> _i = times.keySet().iterator(); _i.hasNext();) {
@@ -325,9 +322,8 @@ public class SootBasedDriver {
 	 * Set the names of the classes to be loaded.
 	 * 
 	 * @param s contains the class names.
-	 * @pre s != null
 	 */
-	public final void setClassNames(final Collection<String> s) {
+	public final void setClassNames(@NonNullContainer @NonNull final Collection<String> s) {
 		classNames = new ArrayList<String>(s);
 	}
 
@@ -336,7 +332,7 @@ public class SootBasedDriver {
 	 * 
 	 * @param myLogger is the logger to be used.
 	 */
-	public final void setInfoLogger(final Logger myLogger) {
+	public final void setInfoLogger(@NonNull final Logger myLogger) {
 		infoLogger = myLogger;
 	}
 
@@ -345,7 +341,7 @@ public class SootBasedDriver {
 	 * 
 	 * @param trapper to be used to trap root methods.
 	 */
-	public final void setRootMethodTrapper(final RootMethodTrapper trapper) {
+	public final void setRootMethodTrapper(@NonNull final RootMethodTrapper trapper) {
 		rootMethodTrapper = trapper;
 	}
 
@@ -357,11 +353,7 @@ public class SootBasedDriver {
 	 */
 	public void writeInfo(final Object info) {
 		if (infoLogger != null && infoLogger.isInfoEnabled()) {
-			if (info != null) {
-				infoLogger.info(info.toString());
-			} else {
-				infoLogger.info("null");
-			}
+			infoLogger.info(String.valueOf(info));
 		}
 	}
 
@@ -374,21 +366,22 @@ public class SootBasedDriver {
 	 * @param classFile <code>true</code> indicates if .class file should be dumped; <code>false</code>, indicates
 	 *            otherwise.
 	 */
-	protected void dumpJimpleAndClassFiles(final String outputDirectory, final boolean jimpleFile, final boolean classFile) {
+	protected void dumpJimpleAndClassFiles(@Immutable @NonNull final String outputDirectory, final boolean jimpleFile,
+			final boolean classFile) {
 		if (!jimpleFile && !classFile) {
 			return;
 		}
 
 		final Printer _printer = Printer.v();
 
-		for (final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
+		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Dumping jimple for " + _sc);
 			}
 
-			for (final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
 				final SootMethod _sm = _j.next();
 
 				if (_sm.isConcrete()) {
@@ -433,7 +426,8 @@ public class SootBasedDriver {
 	 * @param scopeSpecFileName of the scope spec.
 	 * @return the scope definition stored in the given file.
 	 */
-	protected final SpecificationBasedScopeDefinition setScopeSpecFile(final String scopeSpecFileName) {
+	@Functional protected final SpecificationBasedScopeDefinition setScopeSpecFile(
+			@Immutable @NonNull final String scopeSpecFileName) {
 		SpecificationBasedScopeDefinition _result = null;
 
 		if (scopeSpecFileName != null) {
@@ -457,8 +451,6 @@ public class SootBasedDriver {
 				_i.initCause(_e);
 				throw _i;
 			}
-		} else {
-			_result = null;
 		}
 		cfgProvider.setScope(_result, getEnvironment());
 		return _result;
@@ -472,9 +464,8 @@ public class SootBasedDriver {
 	 * 
 	 * @param options to be used while setting up Soot infrastructure.
 	 * @return a soot scene that provides the classes to be analyzed.
-	 * @pre args != null and classNames != null and options != null
 	 */
-	private Scene loadupClassesAndCollectMains(final String[] options) {
+	@NonNull private Scene loadupClassesAndCollectMains(@NonNull final String[] options) {
 		final Scene _result = Scene.v();
 		String _temp = _result.getSootClassPath();
 		Options.v().parse(options);
@@ -531,12 +522,12 @@ public class SootBasedDriver {
 	 */
 	private void loadupMethodBodies() {
 		final Chain _classes = Scene.v().getClasses();
-		final Iterator<SootClass> _i = _classes.iterator();
+		@SuppressWarnings("unchecked") final Iterator<SootClass> _i = _classes.iterator();
 		final int _iEnd = _classes.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _sc = _i.next();
-			final List<SootMethod> _methods = _sc.getMethods();
+			@SuppressWarnings("unchecked") final List<SootMethod> _methods = _sc.getMethods();
 			final Iterator<SootMethod> _j = _methods.iterator();
 			final int _jEnd = _methods.size();
 

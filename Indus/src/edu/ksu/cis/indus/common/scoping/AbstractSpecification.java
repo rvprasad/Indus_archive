@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -39,21 +42,17 @@ abstract class AbstractSpecification
 	/**
 	 * The name of this specification.
 	 */
-	private String name;
+	@NonNull private String name;
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#getName()
 	 */
-	public final String getName() {
+	@Functional public final String getName() {
 		return name;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setAccessSpec(edu.ksu.cis.indus.common.scoping.AccessSpecification)
 	 */
 	public final void setAccessSpec(final AccessSpecification accessSpecification) {
 		this.accessSpec = accessSpecification;
@@ -61,8 +60,6 @@ abstract class AbstractSpecification
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setInclusion(boolean)
 	 */
 	public final void setInclusion(final boolean value) {
 		this.inclusion = value;
@@ -70,17 +67,15 @@ abstract class AbstractSpecification
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.common.scoping.ISpecification#setName(java.lang.String)
 	 */
 	public final void setName(final String nameOfTheSpec) {
 		this.name = nameOfTheSpec;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		return new ToStringBuilder(this).append("inclusion", this.inclusion).append("accessSpec", this.accessSpec).append(
 				"name", this.name).toString();
 	}
@@ -90,9 +85,8 @@ abstract class AbstractSpecification
 	 * 
 	 * @param accessSpecifier to be tested.
 	 * @return <code>true</code> if it is conformant; <code>false</code>, otherwise.
-	 * @pre accessSpecifier != null
 	 */
-	protected final boolean accessConformant(final AccessSpecifierWrapper accessSpecifier) {
+	protected final boolean accessConformant(@NonNull final AccessSpecifierWrapper accessSpecifier) {
 		return accessSpec.conformant(accessSpecifier);
 	}
 

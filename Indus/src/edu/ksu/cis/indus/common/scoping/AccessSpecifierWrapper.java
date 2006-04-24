@@ -15,6 +15,8 @@
 package edu.ksu.cis.indus.common.scoping;
 
 import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -49,9 +51,8 @@ final class AccessSpecifierWrapper
 	 * Creates an instance of this class.
 	 * 
 	 * @param theClazz being wrapped.
-	 * @pre theClazz != null
 	 */
-	public AccessSpecifierWrapper(final SootClass theClazz) {
+	public AccessSpecifierWrapper(@NonNull final SootClass theClazz) {
 		clazz = theClazz;
 	}
 
@@ -59,9 +60,8 @@ final class AccessSpecifierWrapper
 	 * Creates an instance of this class.
 	 * 
 	 * @param theField being wrapped.
-	 * @pre theField != null
 	 */
-	public AccessSpecifierWrapper(final SootField theField) {
+	public AccessSpecifierWrapper(@NonNull final SootField theField) {
 		field = theField;
 	}
 
@@ -69,14 +69,13 @@ final class AccessSpecifierWrapper
 	 * Creates an instance of this class.
 	 * 
 	 * @param theMethod being wrapped.
-	 * @pre theMethod != null
 	 */
-	public AccessSpecifierWrapper(final SootMethod theMethod) {
+	public AccessSpecifierWrapper(@NonNull final SootMethod theMethod) {
 		method = theMethod;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isDefaultAccess()
+	 * {@inheritDoc}
 	 */
 	public boolean isDefaultAccess() {
 		boolean _result = false;
@@ -92,7 +91,7 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isPrivateAccess()
+	 * {@inheritDoc}
 	 */
 	public boolean isPrivateAccess() {
 		boolean _result = false;
@@ -108,7 +107,7 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isProtectedAccess()
+	 * {@inheritDoc}
 	 */
 	public boolean isProtectedAccess() {
 		boolean _result = false;
@@ -124,7 +123,7 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#isPublicAccess()
+	 * {@inheritDoc}
 	 */
 	public boolean isPublicAccess() {
 		boolean _result = false;
@@ -140,28 +139,28 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setDefaultAccess(boolean)
+	 * {@inheritDoc}
 	 */
 	@Empty public void setDefaultAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPrivateAccess(boolean)
+	 * {@inheritDoc}
 	 */
 	@Empty public void setPrivateAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setProtectedAccess(boolean)
+	 * {@inheritDoc}
 	 */
 	@Empty public void setProtectedAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPublicAccess(boolean)
+	 * {@inheritDoc}
 	 */
 	@Empty public void setPublicAccess(@SuppressWarnings("unused") final boolean value) {
 		// Does nothing

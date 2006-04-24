@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Functional;
+
 /**
  * This interface provides information about access control for entities such as class, methods, and fields. This interface
  * will eventually be moved to Espina.
@@ -29,28 +31,28 @@ interface IAccessSpecifiers {
 	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
-	boolean isDefaultAccess();
+	@Functional boolean isDefaultAccess();
 
 	/**
 	 * Checks if private access level is enabled.
 	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
-	boolean isPrivateAccess();
+	@Functional boolean isPrivateAccess();
 
 	/**
 	 * Checks if protected access level is enabled.
 	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
-	boolean isProtectedAccess();
+	@Functional boolean isProtectedAccess();
 
 	/**
 	 * Checks if public access level is enabled.
 	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
-	boolean isPublicAccess();
+	@Functional boolean isPublicAccess();
 
 	/**
 	 * Enables/disables default access.

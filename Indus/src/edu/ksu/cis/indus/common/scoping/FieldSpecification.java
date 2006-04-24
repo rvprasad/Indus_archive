@@ -14,12 +14,15 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,24 +46,31 @@ public final class FieldSpecification
 	/**
 	 * This is the specification of the type of the class that declares the field.
 	 */
-	private TypeSpecification declaringClassSpec;
+	@NonNull private TypeSpecification declaringClassSpec;
 
 	/**
 	 * This is the specification of the type of the field.
 	 */
-	private TypeSpecification fieldTypeSpec;
+	@NonNull private TypeSpecification fieldTypeSpec;
 
 	/**
 	 * The pattern of the field's name.
 	 */
-	private Pattern namePattern;
+	@NonNull private Pattern namePattern;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public FieldSpecification() {
+		super();
+	}
 
 	/**
 	 * Retrieves the specification of the class that declares the field.
 	 * 
 	 * @return the specification.
 	 */
-	public TypeSpecification getDeclaringClassSpec() {
+	@NonNull @Functional public TypeSpecification getDeclaringClassSpec() {
 		return declaringClassSpec;
 	}
 
@@ -69,7 +79,7 @@ public final class FieldSpecification
 	 * 
 	 * @return the specification.
 	 */
-	public String getFieldNameSpec() {
+	@NonNull @Functional public String getFieldNameSpec() {
 		return namePattern.pattern();
 	}
 
@@ -78,7 +88,7 @@ public final class FieldSpecification
 	 * 
 	 * @return the specification.
 	 */
-	public TypeSpecification getFieldTypeSpec() {
+	@NonNull @Functional public TypeSpecification getFieldTypeSpec() {
 		return fieldTypeSpec;
 	}
 
@@ -89,9 +99,8 @@ public final class FieldSpecification
 	 * @param system in which the check the constraints.
 	 * @return <code>true</code> if the given field lies within the scope defined by this specification; <code>false</code>,
 	 *         otherwise.
-	 * @pre field != null and system != null
 	 */
-	public boolean isInScope(final SootField field, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootField field, @NonNull final IEnvironment system) {
 		boolean _result = accessConformant(new AccessSpecifierWrapper(field));
 		_result = _result && fieldTypeSpec.conformant(field.getType(), system);
 		_result = _result && declaringClassSpec.conformant(field.getDeclaringClass().getType(), system);
@@ -112,9 +121,8 @@ public final class FieldSpecification
 	 * Sets the specification of the class that declares the field.
 	 * 
 	 * @param spec the specification.
-	 * @pre spec != null
 	 */
-	public void setDeclaringClassSpec(final TypeSpecification spec) {
+	public void setDeclaringClassSpec(@NonNull @Immutable final TypeSpecification spec) {
 		declaringClassSpec = spec;
 	}
 
@@ -122,9 +130,8 @@ public final class FieldSpecification
 	 * Sets the specification of the field's name.
 	 * 
 	 * @param spec is a regular expression.
-	 * @pre spec != null
 	 */
-	public void setFieldNameSpec(final String spec) {
+	public void setFieldNameSpec(@NonNull @Immutable final String spec) {
 		namePattern = Pattern.compile(spec);
 	}
 
@@ -132,16 +139,15 @@ public final class FieldSpecification
 	 * Sets the specification of the type of the field.
 	 * 
 	 * @param spec the specification.
-	 * @pre spec != null
 	 */
-	public void setFieldTypeSpec(final TypeSpecification spec) {
+	public void setFieldTypeSpec(@NonNull @Immutable final TypeSpecification spec) {
 		fieldTypeSpec = spec;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
 				.append("fieldTypeSpec", this.fieldTypeSpec).append("declaringClassSpec", this.declaringClassSpec).toString();
 	}

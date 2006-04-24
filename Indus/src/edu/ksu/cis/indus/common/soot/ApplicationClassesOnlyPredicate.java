@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 
 import soot.SootMethod;
@@ -31,12 +32,12 @@ public class ApplicationClassesOnlyPredicate
 	/**
 	 * Creates an instance of this class.
 	 */
-	public ApplicationClassesOnlyPredicate() {
+	@Empty public ApplicationClassesOnlyPredicate() {
 		super();
 	}
 
 	/**
-	 * @see IPredicate#evaluate(java.lang.Object)
+	 * {@inheritDoc}
 	 */
 	public boolean evaluate(final SootMethod object) {
 		return object.getDeclaringClass().isApplicationClass();

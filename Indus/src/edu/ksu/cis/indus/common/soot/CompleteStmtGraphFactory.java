@@ -14,8 +14,11 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import soot.jimple.JimpleBody;
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
 
+import soot.jimple.JimpleBody;
 import soot.toolkits.graph.CompleteUnitGraph;
 
 /**
@@ -29,9 +32,16 @@ public final class CompleteStmtGraphFactory
 		extends AbstractStmtGraphFactory<CompleteUnitGraph> {
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
+	 * Creates an instance of this class.
 	 */
-	@Override protected CompleteUnitGraph getStmtGraphForBody(final JimpleBody body) {
+	@Empty public CompleteStmtGraphFactory() {
+		super();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Functional @Override protected CompleteUnitGraph getStmtGraphForBody(@Immutable final JimpleBody body) {
 		return new CompleteUnitGraph(body);
 	}
 }

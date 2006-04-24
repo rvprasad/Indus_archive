@@ -58,7 +58,7 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	 * {@inheritDoc}
 	 */
 	@Override public final boolean addEdgeFromTo(@NonNull final N src, @NonNull final N dest) {
-		return addEdgeFromTo(src, IEdgeLabel.DUMMY_LABEL, dest);
+		return addEdgeFromTo(src, IEdgeLabelledDirectedGraph.DUMMY_LABEL, dest);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class MutableEdgeLabelledDirectedGraph<N extends MutableEdgeLabelledNode<
 	 * {@inheritDoc}
 	 */
 	@Override public final boolean removeEdgeFromTo(@Immutable @NonNull final N src, @Immutable @NonNull final N dest) {
-		return removeEdgeFromTo(src, IEdgeLabel.DUMMY_LABEL, dest);
+		return removeEdgeFromTo(src, IEdgeLabelledDirectedGraph.DUMMY_LABEL, dest);
 	}
 }
 

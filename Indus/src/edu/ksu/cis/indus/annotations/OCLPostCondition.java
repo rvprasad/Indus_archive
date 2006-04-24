@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 	/**
 	 * Provides the post-condition as an OCL expression.
 	 * 
-	 * @return the invariant.
+	 * @return the post-condition.
 	 */
 	String value();
 

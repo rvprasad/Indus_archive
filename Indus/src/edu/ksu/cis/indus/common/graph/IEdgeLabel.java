@@ -24,13 +24,7 @@ import edu.ksu.cis.indus.annotations.Marker;
  * @version $Revision$ $Date$
  */
 @Marker public interface IEdgeLabel {
-
-	/**
-	 * This represents a dummy edge label.
-	 */
-	IEdgeLabel DUMMY_LABEL = new IEdgeLabel() {
-		// empty
-	};
+	// empty
 }
 
 // End of File

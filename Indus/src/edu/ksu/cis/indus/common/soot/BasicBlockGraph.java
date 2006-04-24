@@ -14,11 +14,14 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.MutableDirectedGraph;
 import edu.ksu.cis.indus.common.graph.MutableNode;
-
 import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import java.util.ArrayList;
@@ -31,20 +34,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
 import soot.Trap;
-
 import soot.jimple.Stmt;
-
 import soot.toolkits.graph.UnitGraph;
 
 /**
  * This class represents the basic block graph for a given method.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -54,7 +54,7 @@ public final class BasicBlockGraph
 
 	/**
 	 * This class represents a basic block in a method.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -70,29 +70,27 @@ public final class BasicBlockGraph
 		/**
 		 * This is the leader statement in the block.
 		 */
-		private final Stmt leaderStmt;
+		@NonNull private final Stmt leaderStmt;
 
 		/**
 		 * The list of statements represented by this block.
-		 *
 		 */
-		private final List<Stmt> stmts;
+		@NonNull @NonNullContainer private final List<Stmt> stmts;
 
 		/**
 		 * This is the trailer statement in the block.
 		 */
-		private final Stmt trailerStmt;
+		@NonNull private final Stmt trailerStmt;
 
 		/**
 		 * Creates a new BasicBlock object.
-		 *
+		 * 
 		 * @param stmtsParam is the list of statements being represented by this block.
 		 * @param isAnExitBlock indicates if the trailer statement of this basic block may cause an exception that will result
 		 *            in the control exiting the graph.
-		 * @pre stmtsParam != null
 		 * @pre getStmtGraph().getBody().getUnits().containsAll(stmtsParam)
 		 */
-		BasicBlock(final List<Stmt> stmtsParam, final boolean isAnExitBlock) {
+		BasicBlock(@NonNull @NonNullContainer @Immutable final List<Stmt> stmtsParam, final boolean isAnExitBlock) {
 			super(new HashSet<BasicBlock>(), new HashSet<BasicBlock>());
 			stmts = new ArrayList<Stmt>(stmtsParam);
 			leaderStmt = stmts.get(0);
@@ -102,39 +100,37 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statement at the leader position.
-		 *
-		 * @return the leader statement. <code>null</code> if no leader statement exists.
+		 * 
+		 * @return the leader statement.
 		 */
-		public Stmt getLeaderStmt() {
+		@NonNull public Stmt getLeaderStmt() {
 			return leaderStmt;
 		}
 
 		/**
 		 * Retrieves the statements in this block starting from <code>start</code>.
-		 *
+		 * 
 		 * @param start is the statement starting from which the statements are requested.
 		 * @return a modifiable list of <code>Stmt</code>s.
-		 * @post result != null
 		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
 		 *       getStmtGraph().getBody().getUnits().indexOf(start) > trailer) implies (result.size() = 0)
 		 */
-		public List<Stmt> getStmtsFrom(final Stmt start) {
+		@Functional @NonNull @NonNullContainer public List<Stmt> getStmtsFrom(final Stmt start) {
 			return getStmtsFromTo(start, trailerStmt);
 		}
 
 		/**
 		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code> (inclusive).
-		 *
+		 * 
 		 * @param start is the starting statement of the requested statement list.
 		 * @param end is the ending statement of the requested statement list.
 		 * @return a modifiable list of <code>Stmt</code>s.
-		 * @post result != null
 		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
 		 *       getStmtGraph().getBody().getUnits().indexOf(end) > trailer or
 		 *       getStmtGraph().getBody().getUnits().indexOf(start) > sgetStmtGraph().getBody().getUnits().indexOf(end))
 		 *       implies (result.size() = 0)
 		 */
-		public List<Stmt> getStmtsFromTo(final Stmt start, final Stmt end) {
+		@Functional @NonNullContainer @NonNull public List<Stmt> getStmtsFromTo(final Stmt start, final Stmt end) {
 			final List<Stmt> _result;
 			final int _startIndex = stmtList.indexOf(start);
 			final int _endIndex = stmtList.indexOf(end);
@@ -152,25 +148,25 @@ public final class BasicBlockGraph
 
 		/**
 		 * Retrieves the statements in this block .
-		 *
+		 * 
 		 * @return an unmodifiable list of statements.
 		 */
-		public List<Stmt> getStmtsOf() {
+		@Functional @NonNullContainer @NonNull public List<Stmt> getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
 		}
 
 		/**
 		 * Returns the trailer statement of this basic block.
-		 *
-		 * @return the trailer statement. <code>null</code> if no leader statement exists.
+		 * 
+		 * @return the trailer statement.
 		 */
-		public Stmt getTrailerStmt() {
+		@NonNull @NonNullContainer @Functional public Stmt getTrailerStmt() {
 			return trailerStmt;
 		}
 
 		/**
 		 * Checks if the trailer statement of this basic block may cause the control to exit the graph.
-		 *
+		 * 
 		 * @return <code>true</code> if the trailer statement of this basic block may cause the control to exit the graph;
 		 *         <code>false</code>, otherwise.
 		 */
@@ -179,9 +175,9 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * @see java.lang.Object#toString()
+		 * {@inheritDoc}
 		 */
-		@Override public String toString() {
+		@Functional @NonNull @Override public String toString() {
 			return new ToStringBuilder(this).append("stmts", this.stmts).toString();
 		}
 	}
@@ -193,32 +189,30 @@ public final class BasicBlockGraph
 
 	/**
 	 * The list of statements in the method being represented by this graph.
-	 *
-	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
-	final List<Stmt> stmtList;
+	@NonNull @NonNullContainer final List<Stmt> stmtList;
 
 	/**
 	 * An array of <code>BasicBlock</code> objects.
 	 */
-	private final Map<Stmt, BasicBlock> stmt2BlockMap;
+	@NonNull @NonNullContainer private final Map<Stmt, BasicBlock> stmt2BlockMap;
 
 	/**
 	 * The control flow graph of the method represented by this graph.
 	 */
-	private final UnitGraph stmtGraph;
+	@NonNull private final UnitGraph stmtGraph;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param theStmtGraph that will be represented by this basic block graph.
 	 * @param method that is being represented by this graph. <i>This is required only if exception flow based basic block
 	 *            graph is required.</i>
 	 * @param analysis to be used for exception based basic block splitting. <i>This is required only if exception flow based
 	 *            basic block graph is required.</i>
-	 * @pre theStmtGraph != null and method != null
 	 */
-	public BasicBlockGraph(final UnitGraph theStmtGraph, final SootMethod method, final IExceptionRaisingInfo analysis) {
+	public BasicBlockGraph(@NonNull @Immutable final UnitGraph theStmtGraph, @NonNull @Immutable final SootMethod method,
+			@Immutable final IExceptionRaisingInfo analysis) {
 		this.stmtGraph = theStmtGraph;
 
 		@SuppressWarnings("unchecked") final List<Stmt> _units = new ArrayList<Stmt>(stmtGraph.getBody().getUnits());
@@ -253,13 +247,12 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retreives the statements occurring in the given basic blocks.
-	 *
+	 * 
 	 * @param basicBlocks of interest.
 	 * @return a collection of statements
-	 * @pre basicBlocks != null
-	 * @post result != null
 	 */
-	public List<Stmt> getEnclosedStmts(final Collection<BasicBlock> basicBlocks) {
+	@NonNull @NonNullContainer public List<Stmt> getEnclosedStmts(
+			@NonNull @NonNullContainer @Immutable final Collection<BasicBlock> basicBlocks) {
 		final List<Stmt> _result = new ArrayList<Stmt>();
 		final Iterator<BasicBlock> _i = basicBlocks.iterator();
 		final int _iEnd = basicBlocks.size();
@@ -273,13 +266,12 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retreives the basic blocks in which the given statements occur.
-	 *
+	 * 
 	 * @param stmts of interest.
 	 * @return a collection of basic blocks
-	 * @pre stmts != null
-	 * @post result != null
 	 */
-	public List<BasicBlock> getEnclosingBasicBlocks(final Collection<Stmt> stmts) {
+	@NonNull @NonNullContainer public List<BasicBlock> getEnclosingBasicBlocks(
+			@NonNull @NonNullContainer @Immutable final Collection<Stmt> stmts) {
 		final List<BasicBlock> _result = new ArrayList<BasicBlock>();
 		final Iterator<Stmt> _i = stmts.iterator();
 		final int _iEnd = stmts.size();
@@ -302,22 +294,20 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retrieve the basic block enclosing the given statement.
-	 *
+	 * 
 	 * @param stmt is the statement of interest.
 	 * @return the basic block enclosing the statement.
-	 * @pre stmt != null
 	 */
-	public BasicBlock getEnclosingBlock(final Stmt stmt) {
+	@Functional public BasicBlock getEnclosingBlock(final Stmt stmt) {
 		return stmt2BlockMap.get(stmt);
 	}
 
 	/**
 	 * Retrieves the basic blocks at which the exception handlers begin.
-	 *
+	 * 
 	 * @return the exception handler basic blocks.
-	 * @post result != null
 	 */
-	public Collection<BasicBlock> getHandlerBlocks() {
+	@NonNull @NonNullContainer @Functional public Collection<BasicBlock> getHandlerBlocks() {
 		Collection<BasicBlock> _handlerBlocks;
 		@SuppressWarnings("unchecked") final Collection<Trap> _traps = stmtGraph.getBody().getTraps();
 
@@ -341,17 +331,17 @@ public final class BasicBlockGraph
 	/**
 	 * Return the head node of this graph. Basic Block graphs in general have a single head and this contains the first
 	 * statement reachable in the CFG of the method. Hence, this method returns the basic block enclosing the first statement
-	 * of the method if the underlying CFG contain the first statement. Otherwise, it returns <code>null</code>. If the
-	 * method is native, <code>null</code> is returned.
+	 * of the method if the underlying CFG contain the first statement. If the method is native, <code>null</code> is
+	 * returned.
 	 * <p>
 	 * Note that the head returned by this method may not be the head of the graph. An example is a method that starts with a
 	 * <code>while</code> loop whose index variable is a field of the enclosing class. In this case, the first statement in
 	 * the method body does have a predecessor, hence, there can be no "head" as defined for graphs.
 	 * </p>
-	 *
+	 * 
 	 * @return the head node
 	 */
-	public BasicBlock getHead() {
+	@Functional public BasicBlock getHead() {
 		final Collection<BasicBlock> _heads = getSources();
 		BasicBlock _result = null;
 
@@ -374,25 +364,24 @@ public final class BasicBlockGraph
 
 	/**
 	 * Retrieves the statement graph represented by this basic block graph.
-	 *
+	 * 
 	 * @return the statement graph.
-	 * @post result != null
 	 */
-	public UnitGraph getStmtGraph() {
+	@NonNull @Functional public UnitGraph getStmtGraph() {
 		return stmtGraph;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		return new ToStringBuilder(this).append("blocks", getNodes()).toString();
 	}
 
 	/**
 	 * Retrieves the statements of the basic block being processed. <code>stmts</code> is filled with the statements that
 	 * form the current basic block graph.
-	 *
+	 * 
 	 * @param leaderStmt from which the rest of the basic block body should be discovered.
 	 * @param wb is the workbag into which new leader statement is added.
 	 * @param stmts will contain the statements that make up the current basic block graph.
@@ -400,10 +389,10 @@ public final class BasicBlockGraph
 	 * @param method for which the basic block graph is being constructed.
 	 * @return <code>true</code> if the trailer statement of the detected basic block may cause the control to exit the
 	 *         graph; <code>false</code>, otherwise.
-	 * @pre leaderStmt != null and wb != null and stmts != null
 	 */
-	private boolean getBasicBlockStmts(final Stmt leaderStmt, final IWorkBag<Stmt> wb, final List<Stmt> stmts,
-			final IExceptionRaisingInfo analysis, final SootMethod method) {
+	private boolean getBasicBlockStmts(@NonNull @NonNullContainer @Immutable final Stmt leaderStmt,
+			@NonNull final IWorkBag<Stmt> wb, @NonNull @NonNullContainer final List<Stmt> stmts,
+			@Immutable final IExceptionRaisingInfo analysis, @NonNull @Immutable final SootMethod method) {
 		stmts.add(leaderStmt);
 
 		@SuppressWarnings("unchecked") final Collection<Stmt> _t = stmtGraph.getSuccsOf(leaderStmt);
@@ -460,7 +449,8 @@ public final class BasicBlockGraph
 			final BasicBlock _block = _i.next();
 			final Stmt _stmt = _block.getTrailerStmt();
 
-			for (final Iterator<Stmt> _j = stmtGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<Stmt> _j = stmtGraph.getSuccsOf(_stmt).iterator(); _j
+					.hasNext();) {
 				final Stmt _succ = _j.next();
 				final BasicBlock _succBlock = getEnclosingBlock(_succ);
 

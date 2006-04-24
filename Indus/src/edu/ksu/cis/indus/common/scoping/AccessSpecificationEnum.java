@@ -13,11 +13,13 @@
  */
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import java.util.EnumSet;
 
 /**
  * The enumeration to identify various access specifiers.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -42,11 +44,10 @@ public enum AccessSpecificationEnum {
 
 	/**
 	 * Retrieves a container for this enum type.
-	 *
+	 * 
 	 * @return the container.
-	 * @post result != null
 	 */
-	public static EnumSet<AccessSpecificationEnum> getContainer() {
+	@NonNull public static EnumSet<AccessSpecificationEnum> getContainer() {
 		return EnumSet.noneOf(AccessSpecificationEnum.class);
 	}
 }

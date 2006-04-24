@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 	/**
 	 * Provides the pre-condition as an OCL expression.
 	 * 
-	 * @return the invariant.
+	 * @return the pre-condition.
 	 */
 	String value();
 

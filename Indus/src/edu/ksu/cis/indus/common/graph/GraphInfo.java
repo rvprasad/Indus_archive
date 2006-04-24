@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.annotations.Functional;
 import edu.ksu.cis.indus.annotations.Immutable;
 import edu.ksu.cis.indus.annotations.NonNull;
@@ -46,6 +47,13 @@ public class GraphInfo<N extends INode<N>> {
 	 * The sequence of nodes in this graph. They are stored in the order that the nodes are created.
 	 */
 	@NonNullContainer private final List<N> nodes = new ArrayList<N>();
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public GraphInfo() {
+		super();
+	}
 
 	/**
 	 * Retrieves the index of the given node in the sequence of nodes in the associated graph.

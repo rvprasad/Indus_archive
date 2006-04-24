@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
@@ -64,17 +67,17 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * The sequence of units represented in this graph.
 	 */
-	private List<Stmt> nodes;
+	@NonNull @NonNullContainer private List<Stmt> nodes;
 
 	/**
 	 * A cache of the nodes for which predecessors need to be fixed after processing.
 	 */
-	private Collection<Stmt> predsToBeProcessedCache;
+	@NonNull @NonNullContainer private Collection<Stmt> predsToBeProcessedCache;
 
 	/**
 	 * A cache of the nodes for which successors need to be fixed after processing.
 	 */
-	private Collection<Stmt> succsToBeProcessedCache;
+	@NonNull @NonNullContainer private Collection<Stmt> succsToBeProcessedCache;
 
 	/**
 	 * Creates an instance of this unit graph corresponding to the given body and options.
@@ -84,10 +87,9 @@ final class ExceptionFlowSensitiveStmtGraph
 	 *            are not captured in the graph.
 	 * @param exceptionEdges <code>true</code> indicates that the edges from the predecessors of excepting statements should
 	 *            be included; <code>false</code>, otherwise.
-	 * @pre unitBody != null and namesOfExceptionsToIgnore != null
 	 */
-	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection<String> namesOfExceptionsToIgnore,
-			final boolean exceptionEdges) {
+	@SuppressWarnings("unchecked") ExceptionFlowSensitiveStmtGraph(@NonNull final JimpleBody unitBody,
+			@NonNull final Collection<String> namesOfExceptionsToIgnore, final boolean exceptionEdges) {
 		super(unitBody, true, exceptionEdges);
 		predsToBeProcessedCache = new HashSet<Stmt>();
 		succsToBeProcessedCache = new HashSet<Stmt>();
@@ -111,10 +113,8 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * Returns an iterator over the statements represented in this graph. The order of the statements will reflect the order
 	 * of the statements in the sequence of statements obtained from the method. {@inheritDoc}
-	 * 
-	 * @see soot.toolkits.graph.DirectedGraph#iterator()
 	 */
-	@Override public Iterator<Stmt> iterator() {
+	@Functional @NonNull @Override public Iterator<Stmt> iterator() {
 		return nodes.iterator();
 	}
 
@@ -124,11 +124,12 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of exceptions. Control flow based on these exceptions is
 	 *            deleted from the graph.
 	 */
-	private void deleteEdgesResultingFromTheseExceptions(final Collection<String> namesOfExceptionsToIgnore) {
+	@SuppressWarnings("unchecked") private void deleteEdgesResultingFromTheseExceptions(
+			@NonNullContainer @NonNull final Collection<String> namesOfExceptionsToIgnore) {
 		final Chain _traps = body.getTraps();
 		final Chain _units = body.getUnits();
 
-		for (final Iterator<Trap> _j = _traps.iterator(); _j.hasNext();) {
+		for (@SuppressWarnings("unchecked") final Iterator<Trap> _j = _traps.iterator(); _j.hasNext();) {
 			final Trap _trap = _j.next();
 
 			if (namesOfExceptionsToIgnore.contains(_trap.getException().getName())) {
@@ -155,7 +156,7 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * Fixes up the maps for unreachable statements and collects the reachable nodes to be made available for iterators.
 	 */
-	private void fixupMapsAndIterator() {
+	@SuppressWarnings("unchecked") private void fixupMapsAndIterator() {
 		final List<Object> _temp = new ArrayList<Object>();
 		final IWorkBag<Object> _wb = new HistoryAwareFIFOWorkBag<Object>(_temp);
 		final PatchingChain _units = getBody().getUnits();
@@ -186,10 +187,8 @@ final class ExceptionFlowSensitiveStmtGraph
 	/**
 	 * Removes control flow edges based on the matching of the exceptions resulting from source expression and the exception
 	 * being handled.
-	 * 
-	 * @pre body != null
 	 */
-	private void pruneExceptionBasedControlFlow() {
+	@SuppressWarnings("unchecked") private void pruneExceptionBasedControlFlow() {
 		// process each trapped unit
 		for (final Iterator<Stmt> _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
 			final Stmt _unit = _i.next();

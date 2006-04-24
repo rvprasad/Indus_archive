@@ -49,7 +49,8 @@ public class Node<T extends Node<T>>
 	 * @param preds is the reference to the collection of predecessors.
 	 * @param succs is the reference to the collection of successors.
 	 */
-	public Node(@Immutable @NonNull @NonNullContainer final Collection<T> preds, @Immutable @NonNull @NonNullContainer final Collection<T> succs) {
+	public Node(@Immutable @NonNull @NonNullContainer final Collection<T> preds,
+			@Immutable @NonNull @NonNullContainer final Collection<T> succs) {
 		super();
 		this.predecessors = preds;
 		this.successors = succs;

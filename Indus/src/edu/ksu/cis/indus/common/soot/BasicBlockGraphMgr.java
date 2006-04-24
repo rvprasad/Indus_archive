@@ -14,12 +14,15 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.IteratorUtils;
 import edu.ksu.cis.indus.interfaces.IExceptionRaisingInfo;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 import soot.toolkits.graph.UnitGraph;
 
@@ -55,22 +57,22 @@ public final class BasicBlockGraphMgr {
 	/**
 	 * This maps methods to basic block graphs.
 	 */
-	private final Map<SootMethod, Reference<BasicBlockGraph>> method2graph;
+	@NonNull @NonNullContainer private final Map<SootMethod, Reference<BasicBlockGraph>> method2graph;
 
 	/**
 	 * This maps methods to their statement list.
 	 */
-	private final Map<SootMethod, List<Stmt>> method2stmtlist = new HashMap<SootMethod, List<Stmt>>();
+	@NonNull @NonNullContainer private final Map<SootMethod, List<Stmt>> method2stmtlist = new HashMap<SootMethod, List<Stmt>>();
 
 	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	private IStmtGraphFactory stmtGraphProvider;
+	private IStmtGraphFactory<?> stmtGraphProvider;
 
 	/**
 	 * Creates a new BasicBlockGraphMgr object.
 	 */
-	public BasicBlockGraphMgr() {
+	@Empty public BasicBlockGraphMgr() {
 		this(null);
 	}
 
@@ -80,7 +82,7 @@ public final class BasicBlockGraphMgr {
 	 * @param info provides excpetion throwing information. If this is not provided then implicit exceptional exits are not
 	 *            considered for graph construction.
 	 */
-	public BasicBlockGraphMgr(final IExceptionRaisingInfo info) {
+	public BasicBlockGraphMgr(@Immutable final IExceptionRaisingInfo info) {
 		super();
 		eti = info;
 		method2graph = new HashMap<SootMethod, Reference<BasicBlockGraph>>(Constants.getNumOfMethodsInApplication());
@@ -93,9 +95,8 @@ public final class BasicBlockGraphMgr {
 	 * @param sm is the method for which the graph is requested.
 	 * @return the basic block graph corresponding to <code>sm</code>.
 	 * @throws IllegalStateException when a statement graph factory was not set before calling this method.
-	 * @pre sm != null
 	 */
-	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) throws IllegalStateException {
+	public BasicBlockGraph getBasicBlockGraph(@NonNull final SootMethod sm) throws IllegalStateException {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getBasicBlockGraph(SootMethod sm = " + sm + ") - BEGIN");
 		}
@@ -137,10 +138,8 @@ public final class BasicBlockGraphMgr {
 	 * 
 	 * @param method for which the unit graph is requested.
 	 * @return the unit graph for the method.
-	 * @pre method != null
-	 * @post result != null
 	 */
-	public UnitGraph getStmtGraph(final SootMethod method) {
+	@NonNull public UnitGraph getStmtGraph(@NonNull final SootMethod method) {
 		return stmtGraphProvider.getStmtGraph(method);
 	}
 
@@ -149,10 +148,8 @@ public final class BasicBlockGraphMgr {
 	 * 
 	 * @param method of interest.
 	 * @return an unmodifiable list of statements.
-	 * @pre method != null
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
-	public List<Stmt> getStmtList(final SootMethod method) {
+	@NonNull @NonNullContainer public List<Stmt> getStmtList(@NonNull final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getStmtList(method = " + method + ")");
 		}
@@ -163,7 +160,7 @@ public final class BasicBlockGraphMgr {
 			final UnitGraph _stmtGraph = getStmtGraph(method);
 
 			if (_stmtGraph != null) {
-				final List<Stmt> _toList = IteratorUtils.toList(_stmtGraph.iterator());
+				@SuppressWarnings("unchecked") final List<Stmt> _toList = IteratorUtils.toList(_stmtGraph.iterator());
 				_result = Collections.unmodifiableList(_toList);
 			} else {
 				_result = Collections.emptyList();
@@ -184,9 +181,10 @@ public final class BasicBlockGraphMgr {
 	/**
 	 * Sets the unit graph provider.
 	 * 
+	 * @param <T> is the type of cfgs provided by the factory.
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
+	public <T extends UnitGraph> void setStmtGraphFactory(@NonNull @Immutable final IStmtGraphFactory<T> cfgProvider) {
 		stmtGraphProvider = cfgProvider;
 	}
 }

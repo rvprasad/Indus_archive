@@ -14,10 +14,14 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import gnu.trove.TObjectIntHashMap;
 import gnu.trove.decorator.TObjectIntHashMapDecorator;
 
@@ -151,9 +155,9 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final SootClass clazz) {
+	@Override public void callback(@Immutable @NonNull final SootClass clazz) {
 		if (clazz.isApplicationClass()) {
 			statistics = applicationStatistics;
 		} else {
@@ -166,9 +170,9 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final SootField field) {
+	@Override public void callback(@Immutable @NonNull final SootField field) {
 		if (!statistics.increment(MetricKeys.NUM_OF_FIELDS)) {
 			statistics.put(MetricKeys.NUM_OF_FIELDS, 1);
 		}
@@ -180,9 +184,9 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final SootMethod method) {
+	@Override public void callback(@Immutable @NonNull final SootMethod method) {
 		if (!statistics.increment(MetricKeys.NUM_OF_METHODS)) {
 			statistics.put(MetricKeys.NUM_OF_METHODS, 1);
 		}
@@ -209,18 +213,18 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final Stmt stmt, @SuppressWarnings("unused") final Context context) {
+	@Override public void callback(@Immutable @NonNull final Stmt stmt, @SuppressWarnings("unused") final Context context) {
 		if (!statistics.increment(stmt.getClass().getName())) {
 			statistics.put(stmt.getClass().getName(), 1);
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final ValueBox vBox, @SuppressWarnings("unused") final Context context) {
+	@Override public void callback(@Immutable @NonNull final ValueBox vBox, @SuppressWarnings("unused") final Context context) {
 		if (!statistics.increment(vBox.getValue().getClass().getName())) {
 			statistics.put(vBox.getValue().getClass().getName(), 1);
 		}
@@ -228,7 +232,7 @@ public final class MetricsProcessor
 		if (vBox instanceof InvokeExprBox) {
 			int _constArgs = 0;
 			final InvokeExpr _expr = (InvokeExpr) vBox.getValue();
-			final Iterator _i = _expr.getArgs().iterator();
+			final Iterator<?> _i = _expr.getArgs().iterator();
 			final int _iEnd = _expr.getArgs().size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -250,9 +254,8 @@ public final class MetricsProcessor
 	 * <code>Integer</code> representing the number of occurrences of entities of the corresponding kind.
 	 * 
 	 * @return a map.
-	 * @post result != null
 	 */
-	@SuppressWarnings("unchecked") public Map<MetricKeys, Map<Object, Integer>> getStatistics() {
+	@NonNull @Functional public Map<MetricKeys, Map<Object, Integer>> getStatistics() {
 		final Map<MetricKeys, Map<Object, Integer>> _result = new HashMap<MetricKeys, Map<Object, Integer>>();
 		final Map<Object, Integer> _map1 = new TreeMap<Object, Integer>(ToStringBasedComparator.getComparator());
 		_map1.putAll(new TObjectIntHashMapDecorator(applicationStatistics));
@@ -264,7 +267,7 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
+	 * {@inheritDoc}
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(this);
@@ -273,7 +276,7 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
+	 * {@inheritDoc}
 	 */
 	@Override public void processingBegins() {
 		applicationStatistics.clear();
@@ -281,7 +284,7 @@ public final class MetricsProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
+	 * {@inheritDoc}
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(this);
@@ -293,18 +296,17 @@ public final class MetricsProcessor
 	 * Calculates the return point statistics for the given method body.
 	 * 
 	 * @param body of the method to be processed.
-	 * @pre body != null
 	 */
-	private void calculateReturnPointStats(final Body body) {
+	private void calculateReturnPointStats(@NonNull @Immutable final Body body) {
 		int _returnPoints = 0;
 		int _throwPoints = 0;
 		final UnitGraph _completeUnitGraph = new CompleteUnitGraph(body);
-		final Collection _tails = _completeUnitGraph.getTails();
-		final Iterator _i = _tails.iterator();
+		@SuppressWarnings("unchecked") final Collection<Stmt> _tails = _completeUnitGraph.getTails();
+		@SuppressWarnings("unchecked") final Iterator<Stmt> _i = _tails.iterator();
 		final int _iEnd = _tails.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stmt _stmt = (Stmt) _i.next();
+			final Stmt _stmt = _i.next();
 
 			if (_stmt instanceof ReturnStmt || _stmt instanceof ReturnVoidStmt) {
 				_returnPoints++;

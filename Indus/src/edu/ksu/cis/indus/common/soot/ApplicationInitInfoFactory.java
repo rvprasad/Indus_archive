@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.InternalUse;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
@@ -35,8 +40,9 @@ import soot.jimple.Stmt;
 import soot.jimple.internal.AbstractStmt;
 
 /**
- * DOCUMENT ME!
- *
+ * This factory provides information required to boot-strap the application being analyzed but not explicitly provided in the
+ * application source.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -44,156 +50,187 @@ import soot.jimple.internal.AbstractStmt;
 public final class ApplicationInitInfoFactory {
 
 	/**
-	 * DOCUMENT ME!
-	 *
+	 * This statement creates a thread. This statement is for internal use only.
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private static final class ThreadCreatingStmt
+	@InternalUse static class ThreadCreatingStmt
 			extends AbstractStmt
 			implements AssignStmt {
 
 		/**
-		 * @see soot.Unit#branches()
+		 * The serial version ID.
 		 */
-		public boolean branches() {
+		private static final long serialVersionUID = 2814575491539829268L;
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		ThreadCreatingStmt() {
+			super();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Functional public boolean branches() {
 			return false;
 		}
 
 		/**
-		 * @see soot.AbstractUnit#clone()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		@Override public Object clone() {
+		@Functional @Override public Object clone() {
 			return null;
 		}
 
 		/**
-		 * @see soot.Unit#fallsThrough()
+		 * {@inheritDoc}
 		 */
-		public boolean fallsThrough() {
+		@Functional public boolean fallsThrough() {
 			return false;
 		}
 
 		/**
-		 * @see soot.jimple.DefinitionStmt#getLeftOp()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		public Value getLeftOp() {
+		@Functional public Value getLeftOp() {
 			return null;
 		}
 
 		/**
-		 * @see soot.jimple.DefinitionStmt#getLeftOpBox()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		public ValueBox getLeftOpBox() {
+		@Functional public ValueBox getLeftOpBox() {
 			return null;
 		}
 
 		/**
-		 * @see soot.jimple.DefinitionStmt#getRightOp()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		public Value getRightOp() {
+		@Functional public Value getRightOp() {
 			return null;
 		}
 
 		/**
-		 * @see soot.jimple.DefinitionStmt#getRightOpBox()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		public ValueBox getRightOpBox() {
+		@Functional public ValueBox getRightOpBox() {
 			return null;
 		}
 
 		/**
-		 * @see soot.jimple.AssignStmt#setLeftOp(soot.Value)
+		 * {@inheritDoc}
 		 */
-		public void setLeftOp(@SuppressWarnings("unused") final Value variable) {
+		@Empty public void setLeftOp(@SuppressWarnings("unused") final Value variable) {
 			// does nothing
 		}
 
 		/**
-		 * @see soot.jimple.AssignStmt#setRightOp(soot.Value)
+		 * {@inheritDoc}
 		 */
-		public void setRightOp(@SuppressWarnings("unused") final Value rvalue) {
+		@Empty public void setRightOp(@SuppressWarnings("unused") final Value rvalue) {
 			// does nothing
 		}
 
 		/**
-		 * @see soot.jimple.Stmt#toString(soot.UnitPrinter)
+		 * {@inheritDoc}
 		 */
-		public void toString(@SuppressWarnings("unused") final UnitPrinter up) {
+		@Empty public void toString(@SuppressWarnings("unused") final UnitPrinter up) {
 			// does nothing
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
+	 * This statement starts a thread. This statement is for internal use only.
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private static final class ThreadStartingStmt
+	@InternalUse static class ThreadStartingStmt
 			extends AbstractStmt
 			implements InvokeStmt {
 
 		/**
-		 * @see soot.Unit#branches()
+		 * The serial version ID.
 		 */
-		public boolean branches() {
+		private static final long serialVersionUID = -4968749658097774678L;
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		ThreadStartingStmt() {
+			super();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Functional public boolean branches() {
 			return false;
 		}
 
 		/**
-		 * @see soot.AbstractUnit#clone()
+		 * {@inheritDoc} This implementation will always return null.
 		 */
-		@Override public Object clone() {
+		@Functional @Override public Object clone() {
 			return null;
 		}
 
 		/**
-		 * @see soot.Unit#fallsThrough()
+		 * {@inheritDoc}
 		 */
-		public boolean fallsThrough() {
+		@Functional public boolean fallsThrough() {
 			return false;
 		}
 
 		/**
-		 * @see soot.jimple.InvokeStmt#setInvokeExpr(soot.Value)
+		 * {@inheritDoc}
 		 */
-		public void setInvokeExpr(@SuppressWarnings("unused") final Value invokeExpr) {
+		@Empty public void setInvokeExpr(@SuppressWarnings("unused") final Value invokeExpr) {
 			// does nothing
 		}
 
 		/**
-		 * @see soot.jimple.Stmt#toString(soot.UnitPrinter)
+		 * {@inheritDoc}
 		 */
-		public void toString(final UnitPrinter up) {
+		@Empty public void toString(@SuppressWarnings("unused") final UnitPrinter up) {
 			// does nothing
 		}
 
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * The name of a proxy method that creates the application.
 	 */
-	public static final String APPLICATION_STARTING_METHOD = "applicationStartingMethod";
+	public static final String APPLICATION_STARTING_METHOD = "<applicationStartingMethod>";
 
 	/**
-	 * DOCUMENT ME!
+	 * The name of a proxy method that starts the class initializing thread.
 	 */
-	public static final String CLASS_INIT_THREAD_STARTING_METHOD = "classInitThreadStartingMethod";
+	public static final String CLASS_INIT_THREAD_STARTING_METHOD = "<classInitThreadStartingMethod>";
 
 	/**
-	 * DOCUMENT ME!
+	 * The name of a proxy class that initializes the system.
 	 */
 	public static final String SYSTEM_INIT_CLASS = "$SystemInitClass$";
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Creates an instance of this class.
 	 */
-	public static final Triple<InvokeStmt, SootMethod, SootClass> getApplicationStartingThread() {
+	@Empty private ApplicationInitInfoFactory() {
+		super();
+	}
+
+	/**
+	 * Retrieves the thread that starts the application.
+	 * 
+	 * @return a triple identifying the application starting thread.
+	 */
+	@NonNull public static Triple<InvokeStmt, SootMethod, SootClass> getApplicationStartingThread() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -209,11 +246,11 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Retrieves the allocation site of the thread that starts the application.
+	 * 
+	 * @return a pair identifying the allocation of the application starting thread.
 	 */
-	public static final Pair<AssignStmt, SootMethod> getApplicationStartingThreadAllocationSite() {
+	@NonNull public static Pair<AssignStmt, SootMethod> getApplicationStartingThreadAllocationSite() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -227,11 +264,11 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Retrieves the call (creation) site of the thread that starts the application.
+	 * 
+	 * @return a pair identifying the call (creation) site of the application starting thread.
 	 */
-	public static final Pair<InvokeStmt, SootMethod> getApplicationStartingThreadCreationSite() {
+	@NonNull public static Pair<InvokeStmt, SootMethod> getApplicationStartingThreadCreationSite() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -246,11 +283,11 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Retrieves the thread that initializes the classes.
+	 * 
+	 * @return a triple identifying the class initializing thread.
 	 */
-	public static final Triple<InvokeStmt, SootMethod, SootClass> getClassInitExecutingThread() {
+	@NonNull public static Triple<InvokeStmt, SootMethod, SootClass> getClassInitExecutingThread() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -266,11 +303,11 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Retrieves the allocation site of the thread that starts the application.
+	 * 
+	 * @return a pair identifying the allocation of the application starting thread.
 	 */
-	public static final Pair<AssignStmt, SootMethod> getClassInitExecutingThreadAllocationSite() {
+	@NonNull public static Pair<AssignStmt, SootMethod> getClassInitExecutingThreadAllocationSite() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -285,11 +322,11 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * Retrieves the creation site of the class initializing thread.
+	 * 
+	 * @return a pair identifying the creation site of the class initializing thread.
 	 */
-	public static final Pair<InvokeStmt, SootMethod> getClassInitExecutingThreadCreationSite() {
+	@NonNull public static Pair<InvokeStmt, SootMethod> getClassInitExecutingThreadCreationSite() {
 		final Scene _scene = Scene.v();
 		if (!_scene.containsClass(SYSTEM_INIT_CLASS)) {
 			setupSystemInitClass(_scene);
@@ -304,45 +341,46 @@ public final class ApplicationInitInfoFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param sc DOCUMENT ME!
+	 * Sets up the method that starts the application in the given class. It adds a new method of name
+	 * APPLICATION_STARTING_METHOD to the given class as the application startup method.
+	 * 
+	 * @param sc is the class to be extended (in-place) with application starting method.
 	 */
-	private static void setupAppStartingMethod(final SootClass sc) {
-		final SootMethod _sootMethod = new SootMethod(APPLICATION_STARTING_METHOD, Collections.EMPTY_LIST, VoidType.v());
+	@Immutable private static void setupAppStartingMethod(@NonNull final SootClass sc) {
+		final SootMethod _sm = new SootMethod(APPLICATION_STARTING_METHOD, Collections.EMPTY_LIST, VoidType.v());
 		final JimpleBody _body = Jimple.v().newBody();
-		_body.setMethod(_sootMethod);
-		final Collection<Stmt> _units = _body.getUnits();
+		_body.setMethod(_sm);
+		@SuppressWarnings("unchecked") final Collection<Stmt> _units = _body.getUnits();
 		_units.add(new ThreadCreatingStmt());
 		_units.add(new ThreadStartingStmt());
 		_units.add(Jimple.v().newReturnVoidStmt());
-		_sootMethod.setActiveBody(_body);
-		sc.addMethod(_sootMethod);
+		_sm.setActiveBody(_body);
+		sc.addMethod(_sm);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param sc DOCUMENT ME!
+	 * Sets up a method that starts and creates class initialization thread in the given class.
+	 * 
+	 * @param sc is the class to be extended (in-place) with method that starts and creates class init thread.
 	 */
 	private static void setupClassInitializingThreadStartingMethod(final SootClass sc) {
-		final SootMethod _sootMethod = new SootMethod(CLASS_INIT_THREAD_STARTING_METHOD, Collections.EMPTY_LIST, VoidType.v());
+		final SootMethod _sm = new SootMethod(CLASS_INIT_THREAD_STARTING_METHOD, Collections.EMPTY_LIST, VoidType.v());
 		final JimpleBody _body = Jimple.v().newBody();
-		_body.setMethod(_sootMethod);
-		final Collection<Stmt> _units = _body.getUnits();
+		_body.setMethod(_sm);
+		@SuppressWarnings("unchecked") final Collection<Stmt> _units = _body.getUnits();
 		_units.add(new ThreadCreatingStmt());
 		_units.add(new ThreadStartingStmt());
 		_units.add(Jimple.v().newReturnVoidStmt());
-		_sootMethod.setActiveBody(_body);
-		sc.addMethod(_sootMethod);
+		_sm.setActiveBody(_body);
+		sc.addMethod(_sm);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param scene DOCUMENT ME!
+	 * Sets up a class that performs system initialization.
+	 * 
+	 * @param scene to be modified.
 	 */
-	private static void setupSystemInitClass(final Scene scene) {
+	@Immutable private static void setupSystemInitClass(@NonNull final Scene scene) {
 		final SootClass _sc = new SootClass(SYSTEM_INIT_CLASS);
 		_sc.setSuperclass(scene.getSootClass("java.lang.Object"));
 		scene.addClass(_sc);

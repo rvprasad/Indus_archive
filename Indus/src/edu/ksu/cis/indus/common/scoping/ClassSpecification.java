@@ -14,10 +14,13 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +44,21 @@ public final class ClassSpecification
 	/**
 	 * This is the type specification.
 	 */
-	private TypeSpecification typeSpec;
+	@NonNull private TypeSpecification typeSpec;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public ClassSpecification() {
+		super();
+	}
 
 	/**
 	 * Retrieves the value in <code>typeSpec</code>.
 	 * 
 	 * @return the value in <code>typeSpec</code>.
 	 */
-	public TypeSpecification getTypeSpec() {
+	@NonNull @Functional public TypeSpecification getTypeSpec() {
 		return typeSpec;
 	}
 
@@ -59,9 +69,8 @@ public final class ClassSpecification
 	 * @param system in which the check the constraints.
 	 * @return <code>true</code> if the given class lies within the scope defined by this specification; <code>false</code>,
 	 *         otherwise.
-	 * @pre clazz != null and system != null
 	 */
-	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootClass clazz, @NonNull final IEnvironment system) {
 		boolean _result = accessConformant(new AccessSpecifierWrapper(clazz));
 		_result = _result && typeSpec.conformant(clazz.getType(), system);
 
@@ -81,14 +90,14 @@ public final class ClassSpecification
 	 * 
 	 * @param theTypeSpec the new value of <code>typeSpec</code>.
 	 */
-	public void setTypeSpec(final TypeSpecification theTypeSpec) {
+	public void setTypeSpec(@NonNull @Immutable final TypeSpecification theTypeSpec) {
 		typeSpec = theTypeSpec;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("typeSpec", this.typeSpec).toString();
 	}
 }

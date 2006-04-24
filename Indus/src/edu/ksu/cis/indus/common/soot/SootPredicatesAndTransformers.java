@@ -14,13 +14,13 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
 
 import soot.Local;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.ArrayRef;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.InstanceFieldRef;
@@ -34,7 +34,7 @@ import soot.jimple.ThisRef;
 /**
  * This class contains <i>jakarta commons collections</i> related predicates and transformers that are specific to Soot AST
  * types.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -83,7 +83,7 @@ public final class SootPredicatesAndTransformers {
 	/**
 	 * Creates an instance of this class.
 	 */
-	public SootPredicatesAndTransformers() {
+	@Empty public SootPredicatesAndTransformers() {
 		super();
 	}
 }

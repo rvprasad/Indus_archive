@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -54,9 +57,14 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtGraphFactory.class);
 
 	/**
-	 * DOCUMENT ME!
+	 * The scope specification.
 	 */
-	private IEnvironment environment;
+	protected SpecificationBasedScopeDefinition scope;
+
+	/**
+	 * The environment with which this factory is associated with.
+	 */
+	@NonNull private IEnvironment environment;
 
 	/**
 	 * This maps methods to unit graphs.
@@ -64,20 +72,14 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	private final Map<SootMethod, T> method2UnitGraph = new HashMap<SootMethod, T>(Constants.getNumOfMethodsInApplication());
 
 	/**
-	 * DOCUMENT ME!
-	 */
-	private SpecificationBasedScopeDefinition scope;
-
-	/**
 	 * Retrieves the unit graph of the given method.
 	 * 
 	 * @param method for which the unit graph is requested.
 	 * @return the requested unit graph.
-	 * @post result != null
 	 * @post method.isConcrete() implies result.getBody() = method.getBody()
-	 * @post 1method.isConcrete() implies result.getBody() != method.getBody()
+	 * @post (not method.isConcrete()) implies result.getBody() != method.getBody()
 	 */
-	public final T getStmtGraph(final SootMethod method) {
+	@NonNull public final T getStmtGraph(@NonNull @Immutable final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getStmtGraph(method = " + method + ")");
 		}
@@ -85,12 +87,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 		T _result = method2UnitGraph.get(method);
 
 		if (_result == null) {
-			if ((scope == null || scope.isInScope(method, environment)) && method.isConcrete()) {
-				final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
-				_result = getStmtGraphForBody(_body);
-			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Method " + method + " is out of scope or is not concrete.");
-			}
+			_result = getBodyForMethod(method);
 
 			if (_result == null) {
 				// stub in an empty graph.
@@ -106,7 +103,8 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 
 				if (method.getParameterCount() > 0) {
 					int _j = 0;
-					for (final Iterator<Type> _i = method.getParameterTypes().iterator(); _i.hasNext();) {
+					for (@SuppressWarnings("unchecked") final Iterator<Type> _i = method.getParameterTypes().iterator(); _i
+							.hasNext();) {
 						final Type _type = _i.next();
 						_units.add(_jimple.newIdentityStmt(_jimple.newLocal("p" + _j, _type), _jimple.newParameterRef(_type,
 								_j++)));
@@ -133,11 +131,7 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param scopeDef DOCUMENT ME!
-	 * @param env DOCUMENT ME!
-	 * @pre scopeDef != null implies env != null
+	 * {@inheritDoc}
 	 */
 	public void setScope(final SpecificationBasedScopeDefinition scopeDef, final IEnvironment env) {
 		scope = scopeDef;
@@ -145,81 +139,39 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 	}
 
 	/**
+	 * Retrieves the body for the given method.
+	 * 
+	 * @param method of interest.
+	 * @return the method body.
+	 */
+	protected T getBodyForMethod(@NonNull final SootMethod method) {
+		T _result = null;
+		if (isInScope(method)) {
+			final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
+			_result = getStmtGraphForBody(_body);
+		} else if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Method " + method + " is out of scope or is not concrete.");
+		}
+		return _result;
+	}
+
+	/**
 	 * Retreives the unit graph (of a particular implementation) for the given body.
 	 * 
 	 * @param body to be represented as a graph.
 	 * @return a unit graph.
-	 * @pre body != null
-	 * @post result != null
 	 */
-	protected abstract T getStmtGraphForBody(final JimpleBody body);
+	@NonNull protected abstract T getStmtGraphForBody(@NonNull final JimpleBody body);
 
 	/**
-	 * Retrieves the body for the given method. This method split traps based on overlap and subtyping relation between the
-	 * exceptions trapped by overlapping regions.
+	 * Checks if the given method is in the scope.
 	 * 
 	 * @param method of interest.
-	 * @return the jimple body of the given method.
-	 * @pre method != null
+	 * @return <code>true</code> if the method is in scope; <code>false</code>, otherwise.
 	 */
-	// private JimpleBody getMethodBody(final SootMethod method) {
-	// final JimpleBody _body = (JimpleBody) method.retrieveActiveBody();
-	// final List<Trap> _newTraps = new ArrayList<Trap>();
-	// final Jimple _jimple = Jimple.v();
-	// @SuppressWarnings("unchecked") final List<Stmt> _stmts = new ArrayList<Stmt>(_body.getUnits());
-	// final IWorkBag<Trap> _traps = new FIFOWorkBag<Trap>();
-	// _traps.addAllWork(_body.getTraps());
-	// while (_traps.hasWork()) {
-	// final Trap _trap1 = _traps.getWork();
-	// final SootClass _sc1 = _trap1.getException();
-	// int _bIndex1 = _stmts.indexOf(_trap1.getBeginUnit());
-	// int _eIndex1 = _stmts.indexOf(_trap1.getEndUnit());
-	// boolean _retainTrap = true;
-	// for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
-	// final Trap _trap2 = _i.next();
-	// final SootClass _sc2 = _trap2.getException();
-	// if (_sc1.equals(_sc2) || Util.isDescendentOf(_sc1, _sc2)) {
-	// final int _bIndex2 = _stmts.indexOf(_trap2.getBeginUnit());
-	// final int _eIndex2 = _stmts.indexOf(_trap2.getEndUnit()); // A trap's begin boundary is inclusive while
-	// // the end boundary is exclusive
-	// if (_bIndex1 < _eIndex2 && _eIndex1 > _bIndex2) {
-	// if (_eIndex1 <= _eIndex2) {
-	// if (_bIndex1 >= _bIndex2) { // position: _bIndex2 _bIndex1 _eIndex1 _eIndex2
-	// _retainTrap = false;
-	//
-	// } else { // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex1 _eIndex2
-	// _eIndex1 = _bIndex2;
-	// }
-	// } else {
-	// // if (_eIndex1 > _eIndex2)
-	// if (_bIndex1 >= _bIndex2) { // position: _bIndex2 _bIndex1 _eIndex2 _eIndex1
-	// _bIndex1 = _eIndex2;
-	// } else { // if (_bIndex1 < _bIndex2) position: _bIndex1 _bIndex2 _eIndex2 _eIndex1
-	// _traps.addWork(_jimple.newTrap(_sc1, _stmts.get(_eIndex2), _trap1.getEndUnit(), _trap1
-	// .getHandlerUnit()));
-	// _eIndex1 = _bIndex2;
-	// }
-	// }
-	// }
-	// }
-	// }
-	// if (_retainTrap && _bIndex1 < _eIndex1) {
-	// _newTraps.add(_trap1);
-	// _trap1.setBeginUnit(_stmts.get(_bIndex1));
-	// _trap1.setEndUnit(_stmts.get(_eIndex1));
-	// }
-	// }
-	// for (final Iterator<Trap> _i = _newTraps.iterator(); _i.hasNext();) {
-	// final Trap _t = _i.next();
-	// if (_t.getBeginUnit() == _t.getEndUnit()) {
-	// _i.remove();
-	// }
-	// }
-	// @SuppressWarnings("unchecked") final Collection<Trap> _t = _body.getTraps();
-	// _t.clear();
-	// _t.addAll(_newTraps);
-	// return _body;
-	// }
+	@Functional protected final boolean isInScope(@NonNull final SootMethod method) {
+		return (scope == null || scope.isInScope(method, environment)) && method.isConcrete();
+	}
 }
 
 // End of File

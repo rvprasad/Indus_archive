@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
  * This is the interface to a scope specification.
  * 
@@ -28,15 +32,14 @@ interface ISpecification {
 	 * 
 	 * @return the value in <code>name</code>.
 	 */
-	String getName();
+	@Functional String getName();
 
 	/**
 	 * Sets the access specification. If not set, default access specification is attached to this specification.
 	 * 
 	 * @param accessSpecification for this specification.
-	 * @pre accessSpecification != null
 	 */
-	void setAccessSpec(final AccessSpecification accessSpecification);
+	void setAccessSpec(@NonNull @Immutable final AccessSpecification accessSpecification);
 
 	/**
 	 * Sets the value of <code>inclusion</code>.
@@ -49,9 +52,8 @@ interface ISpecification {
 	 * Sets the value of <code>name</code>.
 	 * 
 	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 * @pre nameOfTheSpec != null
 	 */
-	void setName(final String nameOfTheSpec);
+	void setName(@NonNull @Immutable final String nameOfTheSpec);
 
 }
 

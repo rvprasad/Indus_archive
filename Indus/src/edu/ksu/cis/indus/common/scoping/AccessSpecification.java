@@ -14,15 +14,17 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
-import java.util.EnumSet;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
 
+import java.util.EnumSet;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * This class represents access control specification for the purpose of serialization and deserialization in the realm of
  * scope definition.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -45,19 +47,18 @@ public final class AccessSpecification {
 
 	/**
 	 * Checks if the given access control specifier confirms to this specification.
-	 *
+	 * 
 	 * @param specifier to be checked for conformance.
 	 * @return <code>true</code> if <code>specifier</code> confirms to this spec; <code>false</code>, otherwise.
-	 * @pre specifier != null
 	 */
-	public boolean conformant(final IAccessSpecifiers specifier) {
+	public boolean conformant(@NonNull final IAccessSpecifiers specifier) {
 		return isDefaultAccess() == specifier.isDefaultAccess() || isProtectedAccess() == specifier.isProtectedAccess()
 				|| isPublicAccess() == specifier.isPublicAccess() || isPrivateAccess() == specifier.isPrivateAccess();
 	}
 
 	/**
 	 * Retrieves default access control level.
-	 *
+	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isDefaultAccess() {
@@ -66,7 +67,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Retrieves private access control level.
-	 *
+	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isPrivateAccess() {
@@ -75,7 +76,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Retrieves protected access control level.
-	 *
+	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isProtectedAccess() {
@@ -84,7 +85,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Retrieves public access control level.
-	 *
+	 * 
 	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isPublicAccess() {
@@ -93,7 +94,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Sets the default access control (package-private) level.
-	 *
+	 * 
 	 * @param value to be set.
 	 */
 	public void setDefaultAccess(final boolean value) {
@@ -106,7 +107,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Sets the private access control level.
-	 *
+	 * 
 	 * @param value to be set.
 	 */
 	public void setPrivateAccess(final boolean value) {
@@ -119,7 +120,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Sets the protected access control level.
-	 *
+	 * 
 	 * @param value to be set.
 	 */
 	public void setProtectedAccess(final boolean value) {
@@ -132,7 +133,7 @@ public final class AccessSpecification {
 
 	/**
 	 * Sets the public access control level.
-	 *
+	 * 
 	 * @param value to be set.
 	 */
 	public void setPublicAccess(final boolean value) {
@@ -144,9 +145,9 @@ public final class AccessSpecification {
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@NonNull @Functional @Override public String toString() {
 		final StringBuffer _access = new StringBuffer(access + " ");
 
 		if (isPrivateAccess()) {

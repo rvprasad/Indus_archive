@@ -26,6 +26,13 @@ import edu.ksu.cis.indus.annotations.Marker;
  */
 @Marker public interface IEdgeLabelledDirectedGraph<N extends IEdgeLabelledNode<N>>
 		extends IDirectedGraph<N> {
+
+	/**
+	 * This represents a dummy edge label.
+	 */
+	IEdgeLabel DUMMY_LABEL = new IEdgeLabel() {
+		// empty
+	};
 	// empty
 }
 

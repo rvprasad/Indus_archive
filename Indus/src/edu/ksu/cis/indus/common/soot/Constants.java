@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +45,8 @@ public final class Constants {
 	 * The name of the property via which the loading method bodies during initialization can be controlled. It's name is
 	 * "edu.ksu.cis.indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit".
 	 */
-	public static final String LOAD_METHOD_BODIES_DURING_INITIALIZATION = "edu.ksu.cis.indus.common.soot.SootBasedDriver.LoadMethodBodiesDuringInit";
+	public static final String LOAD_METHOD_BODIES_DURING_INITIALIZATION = "edu.ksu.cis.indus.common.soot.SootBasedDriver"
+			+ ".LoadMethodBodiesDuringInit";
 
 	/**
 	 * This is the name of the property that control the number of classes in the system. It's name is
@@ -75,7 +77,8 @@ public final class Constants {
 	 * The name of the property via which the name of the statement graph factory class can be specified. It's name is
 	 * "edu.ksu.cis.indus.common.soot.SootBasedDriver.StmtGraphFactory.class".
 	 */
-	public static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY = "edu.ksu.cis.indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
+	public static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY = "edu.ksu.cis.indus.common.soot.SootBasedDriver"
+			+ ".StmtGraphFactory.class";
 
 	/**
 	 * This contains the constants.
@@ -166,9 +169,8 @@ public final class Constants {
 	 * <code>edu.ksu.cis.indus.common.soot.RootMethodTrapper$MainMethodTrapper</code>.
 	 * 
 	 * @return the class name if specified.
-	 * @post result != null
 	 */
-	public static String getRootMethodTrapperClassName() {
+	@NonNull public static String getRootMethodTrapperClassName() {
 		String _result = CONFIGURATIONS.getProperty(ROOT_METHOD_TRAPPER_CLASS_PROPERTY);
 
 		if (_result == null) {
@@ -182,9 +184,8 @@ public final class Constants {
 	 * <code>edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory</code>.
 	 * 
 	 * @return the class name if specified.
-	 * @post result != null
 	 */
-	public static String getStmtGraphFactoryClassName() {
+	@NonNull public static String getStmtGraphFactoryClassName() {
 		String _result = CONFIGURATIONS.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
 
 		if (_result == null) {

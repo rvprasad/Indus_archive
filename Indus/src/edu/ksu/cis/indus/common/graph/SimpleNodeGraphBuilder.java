@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.annotations.Immutable;
 
 /**
@@ -26,6 +27,13 @@ import edu.ksu.cis.indus.annotations.Immutable;
  */
 public class SimpleNodeGraphBuilder<O>
 		extends AbstractObjectDirectedGraphBuilder<SimpleNode<O>, O, SimpleNodeGraph<O>> {
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public SimpleNodeGraphBuilder() {
+		super();
+	}
 
 	/**
 	 * {@inheritDoc}

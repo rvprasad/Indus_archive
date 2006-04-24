@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 import soot.tagkit.Tag;
 
 /**
@@ -29,20 +33,19 @@ public class NamedTag
 	/**
 	 * The name of this tag.
 	 */
-	protected final String name;
+	@NonNull protected final String name;
 
 	/**
 	 * Creates a new NamedTag object.
 	 * 
 	 * @param theName is the name associated with this tag.
-	 * @pre theName != null
 	 */
-	public NamedTag(final String theName) {
+	public NamedTag(@NonNull @Immutable final String theName) {
 		name = theName.intern();
 	}
 
 	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * {@inheritDoc}
 	 */
 	@Override public boolean equals(final Object o) {
 		boolean _result = false;
@@ -58,32 +61,31 @@ public class NamedTag
 	 * Returns the name of this tag as provided at it's creation.
 	 * 
 	 * @return the name of this tag.
-	 * @post result != null
 	 */
-	public final String getName() {
+	@Functional @NonNull public final String getName() {
 		return name;
 	}
 
 	/**
-	 * @see soot.tagkit.Tag#getValue()
+	 * {@inheritDoc}
 	 */
 	public final byte[] getValue() {
 		return name.getBytes();
 	}
 
 	/**
-	 * @see java.lang.Object#hashCode()
+	 * {@inheritDoc}
 	 */
-	@Override public int hashCode() {
+	@Functional @Override public int hashCode() {
 		int _result = 17;
 		_result = _result * 37 + name.hashCode();
 		return _result;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		return super.toString() + "[name = " + name + "]";
 	}
 }

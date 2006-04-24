@@ -14,16 +14,20 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,9 +44,7 @@ import soot.Trap;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.ParameterRef;
-
 
 /**
  * This processor can be used to erase a collection of classes along with their references. References to the erased class are
@@ -63,20 +65,20 @@ final class ClassEraser
 	/**
 	 * The collection of classes to erase.
 	 */
-	private final Collection<SootClass> classesToErase;
+	@NonNullContainer @NonNull private final Collection<SootClass> classesToErase;
 
 	/**
 	 * A work bag cache.
 	 */
-	private final IWorkBag<Pair<SootClass, SootClass>> wbCache = new LIFOWorkBag<Pair<SootClass, SootClass>>();
+	@NonNullContainer private final IWorkBag<Pair<SootClass, SootClass>> wbCache = new LIFOWorkBag<Pair<SootClass, SootClass>>();
 
 	/**
 	 * Creates an instance of this class.
 	 * 
 	 * @param classes to be erased.
 	 */
-	ClassEraser(final Collection<SootClass> classes) {
-		classesToErase = classes;
+	ClassEraser(@NonNull @NonNullContainer @Immutable final Collection<SootClass> classes) {
+		classesToErase = new HashSet<SootClass>(classes);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("ClassEraser(classes = " + classes + ") - Classes to be erased");
@@ -84,9 +86,9 @@ final class ClassEraser
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootClass)
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked") @Override public void callback(final SootClass clazz) {
+	@Override public void callback(@NonNull final SootClass clazz) {
 		super.callback(clazz);
 
 		wbCache.clear();
@@ -99,7 +101,7 @@ final class ClassEraser
 			}
 		}
 
-		final Iterator<SootClass> _i = clazz.getInterfaces().iterator();
+		@SuppressWarnings("unchecked") final Iterator<SootClass> _i = clazz.getInterfaces().iterator();
 		final int _iEnd = clazz.getInterfaces().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -116,10 +118,11 @@ final class ClassEraser
 			final SootClass _superClass = _p.getSecond();
 
 			if (_superClass.isInterface()) {
-				final Collection<SootClass> _interfaces = _clazz.getInterfaces();
+				@SuppressWarnings("unchecked") final Collection<SootClass> _interfaces = _clazz.getInterfaces();
 				_interfaces.remove(_superClass);
 
-				final Collection<SootClass> _superSuperInterfaces = _superClass.getInterfaces();
+				@SuppressWarnings("unchecked") final Collection<SootClass> _superSuperInterfaces = _superClass
+						.getInterfaces();
 				_interfaces.addAll(_superSuperInterfaces);
 
 				final Iterator<SootClass> _j = _superSuperInterfaces.iterator();
@@ -144,21 +147,21 @@ final class ClassEraser
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootField)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final SootField field) {
+	@Override public void callback(@NonNull final SootField field) {
 		super.callback(field);
 		field.setType(getType(field.getType()));
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked") @Override public void callback(final SootMethod method) {
+	@Override public void callback(@NonNull final SootMethod method) {
 		super.callback(method);
 
-		final List _c = new ArrayList();
-		final Iterator<SootClass> _i = method.getExceptions().iterator();
+		final List<Object> _c = new ArrayList<Object>();
+		@SuppressWarnings("unchecked") final Iterator<SootClass> _i = method.getExceptions().iterator();
 		final int _iEnd = method.getExceptions().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
@@ -171,7 +174,7 @@ final class ClassEraser
 
 		_c.clear();
 
-		final Iterator<Type> _j = method.getParameterTypes().iterator();
+		@SuppressWarnings("unchecked") final Iterator<Type> _j = method.getParameterTypes().iterator();
 		final int _jEnd = method.getParameterTypes().size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
@@ -184,10 +187,10 @@ final class ClassEraser
 		method.setReturnType(getType(method.getReturnType()));
 
 		if (method.hasActiveBody()) {
-			_c.clear();
-			_c.addAll(method.getActiveBody().getTraps());
+			@SuppressWarnings("unchecked") final Collection<Trap> _traps = new HashSet<Trap>(method.getActiveBody()
+					.getTraps());
 
-			@SuppressWarnings("unchecked") final Iterator<Trap> _k = _c.iterator();
+			final Iterator<Trap> _k = _traps.iterator();
 			final int _kEnd = _c.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
@@ -198,9 +201,9 @@ final class ClassEraser
 	}
 
 	/**
-	 * @see AbstractProcessor#callback(ValueBox, Context)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(@Immutable @NonNull final ValueBox vBox, @Immutable @NonNull final Context context) {
 		super.callback(vBox, context);
 
 		final Value _v = vBox.getValue();
@@ -215,17 +218,17 @@ final class ClassEraser
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
+	 * {@inheritDoc}
 	 */
-	public void hookup(final ProcessingController ppc) {
+	public void hookup(@NonNull @Immutable final ProcessingController ppc) {
 		ppc.registerForAllValues(this);
 		ppc.register(this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
+	 * {@inheritDoc}
 	 */
-	public void unhook(final ProcessingController ppc) {
+	public void unhook(@NonNull @Immutable final ProcessingController ppc) {
 		ppc.unregisterForAllValues(this);
 		ppc.unregister(this);
 	}
@@ -235,9 +238,8 @@ final class ClassEraser
 	 * 
 	 * @param clazz that can be replaced.
 	 * @return the replacement class. This can be the same as <code>clazz</code>.
-	 * @pre clazz != null
 	 */
-	private SootClass getClass(final SootClass clazz) {
+	private SootClass getClass(@NonNull final SootClass clazz) {
 		SootClass _result = clazz;
 
 		while (classesToErase.contains(_result)) {
@@ -253,9 +255,8 @@ final class ClassEraser
 	 * 
 	 * @param type that can be replaced.
 	 * @return the replacement class. This can be the same as <code>type</code>.
-	 * @pre type != null
 	 */
-	private Type getType(final Type type) {
+	@NonNull @Functional private Type getType(@NonNull final Type type) {
 		Type _result = type;
 
 		if (_result instanceof RefType) {

@@ -57,12 +57,7 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	/**
 	 * The object extractor.
 	 */
-	private final ITransformer<SimpleEdgeLabelledNode<S>, S> objectExtractor = new ITransformer<SimpleEdgeLabelledNode<S>, S>() {
-
-		@Functional public S transform(final SimpleEdgeLabelledNode<S> input) {
-			return input.getObject();
-		}
-	};
+	private final ITransformer<SimpleEdgeLabelledNode<S>, S> objectExtractor;
 
 	/**
 	 * This graph is used to represent the shape of the automaton.
@@ -82,6 +77,12 @@ public class NFA<S extends IState<S>, L extends ITransitionLabel<L>>
 	public NFA(@NonNull @Immutable final ITransitionLabel.IEpsilonLabelFactory<L> eFactory) {
 		super();
 		epsilonFactory = eFactory;
+		objectExtractor = new ITransformer<SimpleEdgeLabelledNode<S>, S>() {
+
+			@Functional public S transform(final SimpleEdgeLabelledNode<S> input) {
+				return input.getObject();
+			}
+		};
 	}
 
 	/**

@@ -14,11 +14,16 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -51,11 +56,17 @@ public class RootMethodTrapper {
 			extends RootMethodTrapper {
 
 		/**
-		 * This implementation will only consider <code>public static void main(java.lang.String[])</code> as root methods.
-		 * 
-		 * @see edu.ksu.cis.indus.common.soot.RootMethodTrapper#isThisARootMethod(soot.SootMethod)
+		 * Creates an instance of this class.
 		 */
-		@Override protected boolean isThisARootMethod(final SootMethod sm) {
+		@Empty public MainMethodTrapper() {
+			super();
+		}
+
+		/**
+		 * This implementation will only consider <code>public static void main(java.lang.String[])</code> as root methods.
+		 * {@inheritDoc} *
+		 */
+		@Override protected boolean isThisARootMethod(@Immutable @NonNull final SootMethod sm) {
 			final boolean _result;
 
 			if (sm.getName().equals("main") && sm.isPublic() && sm.isStatic() && sm.getParameterCount() == 1
@@ -77,25 +88,31 @@ public class RootMethodTrapper {
 	/**
 	 * The collection of regular expression that is used to match classes which may contain root methods.
 	 */
-	private final Collection<Pattern> rootClassNamePatterns = new HashSet<Pattern>();
+	@NonNullContainer @NonNull private final Collection<Pattern> rootClassNamePatterns = new HashSet<Pattern>();
 
 	/**
 	 * The collection of regular expression that is used to match methods which should be root methods.
 	 */
-	private final Collection<Pattern> rootMethodSignaturePatterns = new HashSet<Pattern>();
+	@NonNullContainer @NonNull private final Collection<Pattern> rootMethodSignaturePatterns = new HashSet<Pattern>();
 
 	/**
 	 * The FQNs of the classes which can contribute entry points.
 	 */
-	private final Collection<String> theClassNames = new HashSet<String>();
+	@NonNullContainer @NonNull private final Collection<String> theClassNames = new HashSet<String>();
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public RootMethodTrapper() {
+		super();
+	}
 
 	/**
 	 * Retrieves the string patterns of the admissible root class names.
 	 * 
 	 * @return a collection of string patterns.
-	 * @post result != null
 	 */
-	public Collection<String> getClassNamePatterns() {
+	@Functional @NonNullContainer @NonNull public Collection<String> getClassNamePatterns() {
 		final Collection<String> _result = new ArrayList<String>();
 
 		for (final Iterator<Pattern> _i = rootClassNamePatterns.iterator(); _i.hasNext();) {
@@ -109,9 +126,8 @@ public class RootMethodTrapper {
 	 * Retrieves the FQNs of the admissible root class.
 	 * 
 	 * @return a collection of string patterns.
-	 * @post result != null
 	 */
-	public Collection<String> getClassNames() {
+	@Functional @NonNullContainer @NonNull public Collection<String> getClassNames() {
 		return new ArrayList<String>(theClassNames);
 	}
 
@@ -119,9 +135,8 @@ public class RootMethodTrapper {
 	 * Retrieves the string patterns of admissible root method signatures.
 	 * 
 	 * @return a collection of string patterns.
-	 * @post result != null
 	 */
-	public Collection<String> getMethodSignaturePatterns() {
+	@Functional @NonNullContainer @NonNull public Collection<String> getMethodSignaturePatterns() {
 		final Collection<String> _result = new ArrayList<String>();
 
 		for (final Iterator<Pattern> _i = rootMethodSignaturePatterns.iterator(); _i.hasNext();) {
@@ -135,9 +150,8 @@ public class RootMethodTrapper {
 	 * Set the string patterns of root class names. Only root classes can contain root methods.
 	 * 
 	 * @param namePatterns are patterns specified as regular expressions.
-	 * @pre names != null
 	 */
-	public void setClassNamePatterns(final Collection<String> namePatterns) {
+	public void setClassNamePatterns(@NonNullContainer @NonNull final Collection<String> namePatterns) {
 		rootClassNamePatterns.clear();
 
 		for (final Iterator<String> _i = namePatterns.iterator(); _i.hasNext();) {
@@ -156,9 +170,8 @@ public class RootMethodTrapper {
 	 * Set the FQNs of the admissible root classes.
 	 * 
 	 * @param names is FQNs of application / root classes.
-	 * @pre names != null
 	 */
-	public void setClassNames(final Collection<String> names) {
+	public void setClassNames(@NonNullContainer @NonNull @Immutable final Collection<String> names) {
 		theClassNames.clear();
 		theClassNames.addAll(names);
 	}
@@ -167,9 +180,8 @@ public class RootMethodTrapper {
 	 * Set the string patterns of admissible root method signatures. Only root classes can contain root methods.
 	 * 
 	 * @param namePatterns are patterns specified as regular expressions.
-	 * @pre names != null
 	 */
-	public void setMethodSignaturePatterns(final Collection<String> namePatterns) {
+	public void setMethodSignaturePatterns(@NonNullContainer @NonNull @Immutable final Collection<String> namePatterns) {
 		rootMethodSignaturePatterns.clear();
 
 		for (final Iterator<String> _i = namePatterns.iterator(); _i.hasNext();) {
@@ -192,9 +204,8 @@ public class RootMethodTrapper {
 	 * @param sc is the class to check.
 	 * @return <code>true</code> if <code>sc</code> should be examined for possible root method contribution;
 	 *         <code>false</code>, otherwise.
-	 * @pre sc != null
 	 */
-	protected boolean considerClassForEntryPoint(final SootClass sc) {
+	@Functional protected boolean considerClassForEntryPoint(@Immutable @NonNull final SootClass sc) {
 		boolean _result = rootClassNamePatterns.isEmpty() && theClassNames.isEmpty();
 		final String _scName = sc.getName();
 		final Iterator<Pattern> _i = rootClassNamePatterns.iterator();
@@ -224,9 +235,8 @@ public class RootMethodTrapper {
 	 * @param sm is the method that may be an entry point into the system.
 	 * @return <code>true</code> if <code>_sm</code> should be considered as a root method; <code>false</code>,
 	 *         otherwise.
-	 * @pre sm != null
 	 */
-	protected boolean isThisARootMethod(final SootMethod sm) {
+	@Functional protected boolean isThisARootMethod(@NonNull @Immutable final SootMethod sm) {
 		boolean _result = rootMethodSignaturePatterns.isEmpty();
 		final Iterator<Pattern> _i = rootMethodSignaturePatterns.iterator();
 		final int _iEnd = rootMethodSignaturePatterns.size();

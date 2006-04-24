@@ -120,14 +120,14 @@ public class MutableEdgeLabelledNode<T extends MutableEdgeLabelledNode<T>>
 	 * {@inheritDoc}
 	 */
 	public final boolean addPredecessor(@NonNull @Immutable final T node) {
-		return addIncomingEdgeLabelledFrom(IEdgeLabel.DUMMY_LABEL, node);
+		return addIncomingEdgeLabelledFrom(IEdgeLabelledDirectedGraph.DUMMY_LABEL, node);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public final boolean addSuccessor(@NonNull @Immutable final T node) {
-		return addOutgoingEdgeLabelledTo(IEdgeLabel.DUMMY_LABEL, node);
+		return addOutgoingEdgeLabelledTo(IEdgeLabelledDirectedGraph.DUMMY_LABEL, node);
 	}
 
 	/**

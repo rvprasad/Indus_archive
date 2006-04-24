@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.io.StringReader;
@@ -57,22 +61,29 @@ public final class SpecificationBasedScopeDefinition {
 	/**
 	 * The collection of class-level specification.
 	 */
-	private Collection<ClassSpecification> classSpecs;
+	@NonNull @NonNullContainer private Collection<ClassSpecification> classSpecs;
 
 	/**
 	 * The collection of field-level specification.
 	 */
-	private Collection<FieldSpecification> fieldSpecs;
+	@NonNull @NonNullContainer private Collection<FieldSpecification> fieldSpecs;
 
 	/**
 	 * The collection of method-level specification.
 	 */
-	private Collection<MethodSpecification> methodSpecs;
+	@NonNull @NonNullContainer private Collection<MethodSpecification> methodSpecs;
 
 	/**
 	 * The name of this specification.
 	 */
-	private String name;
+	@NonNull @NonNullContainer private String name;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public SpecificationBasedScopeDefinition() {
+		super();
+	}
 
 	/**
 	 * Deserializes the given content into a scope definition.
@@ -80,9 +91,8 @@ public final class SpecificationBasedScopeDefinition {
 	 * @param contents to be deserialized.
 	 * @return a scope definition.
 	 * @throws JiBXException when the content cannot be deserialized due to IO exceptions or malformed contents.
-	 * @pre contents != null
 	 */
-	public static SpecificationBasedScopeDefinition deserialize(final String contents) throws JiBXException {
+	public static SpecificationBasedScopeDefinition deserialize(@NonNull final String contents) throws JiBXException {
 		final SpecificationBasedScopeDefinition _result;
 		IUnmarshallingContext _unmarshallingContext;
 
@@ -111,9 +121,8 @@ public final class SpecificationBasedScopeDefinition {
 	 * @param scopeDef to be serialized.
 	 * @return the serialized form the scope definition.
 	 * @throws JiBXException when the content cannot be serialized.
-	 * @pre scopeDef != null
 	 */
-	public static String serialize(final SpecificationBasedScopeDefinition scopeDef) throws JiBXException {
+	public static String serialize(@NonNull final SpecificationBasedScopeDefinition scopeDef) throws JiBXException {
 		final String _result;
 		IMarshallingContext _marshallingContext;
 
@@ -143,9 +152,8 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @param <T> is a specification type.
 	 * @return a container.
-	 * @post result != null
 	 */
-	static <T extends ISpecification> Collection<T> createSpecContainer() {
+	@NonNull static <T extends ISpecification> Collection<T> createSpecContainer() {
 		return new ArrayList<T>();
 	}
 
@@ -154,7 +162,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @return the value in <code>classSpecs</code>.
 	 */
-	public Collection<ClassSpecification> getClassSpecs() {
+	@Functional @NonNull public Collection<ClassSpecification> getClassSpecs() {
 		return classSpecs;
 	}
 
@@ -163,7 +171,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @return the value in <code>fieldSpecs</code>.
 	 */
-	public Collection<FieldSpecification> getFieldSpecs() {
+	@Functional @NonNull public Collection<FieldSpecification> getFieldSpecs() {
 		return fieldSpecs;
 	}
 
@@ -172,7 +180,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @return the value in <code>methodSpecs</code>.
 	 */
-	public Collection<MethodSpecification> getMethodSpecs() {
+	@Functional @NonNull public Collection<MethodSpecification> getMethodSpecs() {
 		return methodSpecs;
 	}
 
@@ -181,7 +189,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @return the value in <code>name</code>.
 	 */
-	public String getName() {
+	@Functional @NonNull public String getName() {
 		return name;
 	}
 
@@ -191,9 +199,8 @@ public final class SpecificationBasedScopeDefinition {
 	 * @param clazz to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given class is in the scope in the given system; <code>false</code>, otherwise.
-	 * @pre clazz != null and system != null
 	 */
-	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootClass clazz, @NonNull final IEnvironment system) {
 		final Iterator<ClassSpecification> _i = classSpecs.iterator();
 		final int _iEnd = classSpecs.size();
 		boolean _result = false;
@@ -211,12 +218,16 @@ public final class SpecificationBasedScopeDefinition {
 	 * @param field to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given field is in the scope in the given system; <code>false</code>, otherwise.
-	 * @pre field != null and system != null
 	 */
-	public boolean isInScope(final SootField field, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootField field, @NonNull final IEnvironment system) {
 		final Iterator<FieldSpecification> _i = fieldSpecs.iterator();
 		final int _iEnd = fieldSpecs.size();
-		boolean _result = !classSpecs.isEmpty() ? isInScope(field.getDeclaringClass(), system) : false;
+		boolean _result;
+		if (!classSpecs.isEmpty()) {
+			_result = isInScope(field.getDeclaringClass(), system);
+		} else {
+			_result = false;
+		}
 
 		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 			final FieldSpecification _fs = _i.next();
@@ -231,12 +242,16 @@ public final class SpecificationBasedScopeDefinition {
 	 * @param method to be checked.
 	 * @param system in which to check.
 	 * @return <code>true</code> if the given method is in the scope in the given system; <code>false</code>, otherwise.
-	 * @pre method != null and system != null
 	 */
-	public boolean isInScope(final SootMethod method, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootMethod method, @NonNull final IEnvironment system) {
 		final Iterator<MethodSpecification> _i = methodSpecs.iterator();
 		final int _iEnd = methodSpecs.size();
-		boolean _result = !classSpecs.isEmpty() ? isInScope(method.getDeclaringClass(), system) : false;
+		boolean _result;
+		if (!classSpecs.isEmpty()) {
+			_result = isInScope(method.getDeclaringClass(), system);
+		} else {
+			_result = false;
+		}
 
 		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 			final MethodSpecification _ms = _i.next();
@@ -250,7 +265,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @param theClassSpecs the new value of <code>classSpecs</code>.
 	 */
-	public void setClassSpecs(final Collection<ClassSpecification> theClassSpecs) {
+	public void setClassSpecs(@NonNull final Collection<ClassSpecification> theClassSpecs) {
 		this.classSpecs = theClassSpecs;
 	}
 
@@ -259,7 +274,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
 	 */
-	public void setFieldSpecs(final Collection<FieldSpecification> theFieldSpecs) {
+	public void setFieldSpecs(@NonNull final Collection<FieldSpecification> theFieldSpecs) {
 		this.fieldSpecs = theFieldSpecs;
 	}
 
@@ -268,7 +283,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
 	 */
-	public void setMethodSpecs(final Collection<MethodSpecification> theMethodSpecs) {
+	public void setMethodSpecs(@NonNull final Collection<MethodSpecification> theMethodSpecs) {
 		this.methodSpecs = theMethodSpecs;
 	}
 
@@ -277,7 +292,7 @@ public final class SpecificationBasedScopeDefinition {
 	 * 
 	 * @param nameOfTheSpec the new value of <code>name</code>.
 	 */
-	public void setName(final String nameOfTheSpec) {
+	public void setName(@NonNull final String nameOfTheSpec) {
 		this.name = nameOfTheSpec;
 	}
 

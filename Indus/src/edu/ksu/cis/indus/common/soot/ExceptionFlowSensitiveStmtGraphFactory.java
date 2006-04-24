@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +42,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	/**
 	 * The names of the exceptions via which the control flow should be ignored.
 	 */
-	private Collection<String> exceptionsToIgnore = new ArrayList<String>();
+	@NonNullContainer @NonNull private Collection<String> exceptionsToIgnore = new ArrayList<String>();
 
 	/**
 	 * This flag indicates if the unit graph should be like complete unit graph or like trap unit graph in terms considering
@@ -62,10 +66,10 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
 	 *            before the unit that begins the trap protected region to the handler unit should be omitted;
 	 *            <code>false</code>, otherwise.
-	 * @pre namesOfExceptionToIgnore != null
 	 * @pre namesOfExceptionToIgnore->forall(o | ClassLoader.getSystemClassLoader().loadClass(o) != null)
 	 */
-	public ExceptionFlowSensitiveStmtGraphFactory(final Collection<String> namesOfExceptionToIgnore,
+	public ExceptionFlowSensitiveStmtGraphFactory(
+			@NonNull @NonNullContainer final Collection<String> namesOfExceptionToIgnore,
 			final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
 		flag = dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock;
 		exceptionsToIgnore.addAll(namesOfExceptionToIgnore);
@@ -73,10 +77,8 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	@Override protected ExceptionFlowSensitiveStmtGraph getStmtGraphForBody(final JimpleBody body) {
+	@Functional @Override protected ExceptionFlowSensitiveStmtGraph getStmtGraphForBody(@NonNull final JimpleBody body) {
 		return new ExceptionFlowSensitiveStmtGraph(body, exceptionsToIgnore, flag);
 	}
 }

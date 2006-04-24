@@ -10,6 +10,9 @@
  *******************************************************************************/
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+
 import soot.jimple.JimpleBody;
 import soot.toolkits.graph.BriefUnitGraph;
 
@@ -32,10 +35,8 @@ public final class ExceptionFlowInsensitiveStmtGraphFactory
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	@Override protected BriefUnitGraph getStmtGraphForBody(final JimpleBody body) {
+	@Functional @Override protected BriefUnitGraph getStmtGraphForBody(@Immutable final JimpleBody body) {
 		return new BriefUnitGraph(body);
 	}
 

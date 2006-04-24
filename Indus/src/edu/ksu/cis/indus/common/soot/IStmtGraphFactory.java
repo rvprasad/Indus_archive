@@ -14,16 +14,18 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import soot.SootMethod;
 
+import soot.SootMethod;
 import soot.toolkits.graph.UnitGraph;
 
 /**
  * This is the interface via which the user can plugin various sorts of unit graphs into the analyses and also reuse the same
  * implementation at many places.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -38,22 +40,19 @@ public interface IStmtGraphFactory<T extends UnitGraph> {
 
 	/**
 	 * Retrieves the unit graph of the given method.
-	 *
+	 * 
 	 * @param method for which the unit graph is requested.
 	 * @return the requested unit graph.
-	 * @post result != null
-	 * @post method.isConcrete() implies result != null
 	 */
-	T getStmtGraph(final SootMethod method);
+	@NonNull T getStmtGraph(final SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param scopeDef DOCUMENT ME!
-	 * @param env DOCUMENT ME!
-	 * @pre scopeDef != null implies env != null
+	 * Sets the scope specification.
+	 * 
+	 * @param scopeDef is the scope definition.
+	 * @param env is the environment in which the scope is defined.
 	 */
-	public void setScope(final SpecificationBasedScopeDefinition scopeDef, final IEnvironment env);
+	void setScope(@Immutable final SpecificationBasedScopeDefinition scopeDef, @NonNull @Immutable final IEnvironment env);
 
 	/**
 	 * Resets all internal datastructures.

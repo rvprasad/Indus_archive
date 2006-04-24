@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.annotations.Immutable;
 
 /**
@@ -27,6 +28,13 @@ import edu.ksu.cis.indus.annotations.Immutable;
 public class SimpleEdgeGraphBuilder<O>
 		extends AbstractEdgeLabelledObjectDirectedGraphBuilder<SimpleEdgeLabelledNode<O>, O, SimpleEdgeGraph<O>>
 		implements IEdgeLabelledObjectDirectedGraphBuilder<O> {
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public SimpleEdgeGraphBuilder() {
+		super();
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.annotations.Functional;
 
 /**
@@ -40,6 +41,13 @@ public final class SCCRelatedData {
 	 * The high number of the node associated with this data.
 	 */
 	private int high;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public SCCRelatedData() {
+		super();
+	}
 
 	/**
 	 * Retrieves the value in <code>componentNum</code>.

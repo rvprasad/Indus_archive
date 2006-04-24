@@ -14,8 +14,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import soot.jimple.JimpleBody;
+import edu.ksu.cis.indus.annotations.Empty;
 
+import soot.jimple.JimpleBody;
 import soot.toolkits.graph.TrapUnitGraph;
 
 /**
@@ -29,7 +30,15 @@ public final class TrapStmtGraphFactory
 		extends AbstractStmtGraphFactory<TrapUnitGraph> {
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
+	 * Creates an instance of this class.
+	 */
+	@Empty public TrapStmtGraphFactory() {
+		super();
+
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override protected TrapUnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new TrapUnitGraph(body);

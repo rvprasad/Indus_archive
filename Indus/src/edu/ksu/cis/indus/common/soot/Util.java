@@ -14,6 +14,11 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -87,7 +92,7 @@ public final class Util {
 	/**
 	 * A private constructor to prevent the instantiation of this class.
 	 */
-	private Util() {
+	@Empty private Util() {
 		super();
 	}
 
@@ -99,10 +104,9 @@ public final class Util {
 	 * @param classes to be erased.
 	 * @param env to be updated.
 	 * @return the classes that were erased. It is possible that for safety reasons some classes are retained.
-	 * @pre env != null and classes != null
-	 * @post result != null and classes.containsAll(result)
 	 */
-	public static Collection<SootClass> eraseClassesFrom(final Collection<SootClass> classes, final IEnvironment env) {
+	@NonNullContainer @NonNull @Immutable public static Collection<SootClass> eraseClassesFrom(
+			@Immutable @NonNull @NonNullContainer final Collection<SootClass> classes, @NonNull final IEnvironment env) {
 		final Collection<SootClass> _result = new ArrayList<SootClass>(classes);
 		final ProcessingController _pc = new ProcessingController();
 		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
@@ -136,10 +140,9 @@ public final class Util {
 	 * @param sm the method to search for in the class hierarchy. This parameter cannot be <code>null</code>.
 	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
 	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
-	 * @pre sc != null and sm != null
-	 * @post result != null
 	 */
-	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
+	@Functional @NonNull public static SootMethod findDeclaringMethod(@NonNull final SootClass sc,
+			@NonNull final SootMethod sm) {
 		final SootMethod _result;
 
 		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
@@ -162,8 +165,9 @@ public final class Util {
 	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
 	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
 	 */
-	public static SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
-			final List<Type> parameterTypes, final Type returnType) {
+	@Functional public static SootMethod findMethodImplementation(@NonNull final SootClass accessClass,
+			@Immutable @NonNull final String methodName, @NonNull @NonNullContainer final List<Type> parameterTypes,
+			@NonNull final Type returnType) {
 		SootMethod _result = null;
 
 		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
@@ -188,15 +192,14 @@ public final class Util {
 	 * 
 	 * @param method of interest.
 	 * @return a collection of methods.
-	 * @pre method != null
-	 * @post result != null
 	 */
-	public static Collection<SootMethod> findMethodInSuperClassesAndInterfaces(final SootMethod method) {
+	@Functional @NonNullContainer @NonNull public static Collection<SootMethod> findMethodInSuperClassesAndInterfaces(
+			@NonNull final SootMethod method) {
 		final IWorkBag<SootClass> _toProcess = new HistoryAwareFIFOWorkBag<SootClass>(new HashSet<SootClass>());
 		Collection<SootMethod> _result = new HashSet<SootMethod>();
 		_toProcess.addWork(method.getDeclaringClass());
 
-		final List<Type> _parameterTypes = method.getParameterTypes();
+		@SuppressWarnings("unchecked") final List<Type> _parameterTypes = method.getParameterTypes();
 		final Type _retType = method.getReturnType();
 		final String _methodName = method.getName();
 
@@ -213,7 +216,7 @@ public final class Util {
 				_toProcess.addWorkNoDuplicates(_superClass);
 			}
 
-			for (final Iterator<SootClass> _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
 				final SootClass _interface = _i.next();
 
 				_toProcess.addWorkNoDuplicates(_interface);
@@ -232,7 +235,7 @@ public final class Util {
 	 * 
 	 * @param scm is the scene in which the alteration occurs.
 	 */
-	public static void fixupThreadStartBody(final Scene scm) {
+	@SuppressWarnings("unchecked") @Immutable public static void fixupThreadStartBody(@NonNull final Scene scm) {
 		final SootClass _declClass = scm.getSootClass("java.lang.Thread");
 
 		if (_declClass != null) {
@@ -279,10 +282,8 @@ public final class Util {
 	 * 
 	 * @param sootClass for which the ancestors are requested.
 	 * @return a collection of classes.
-	 * @pre sootClass != null
-	 * @post result != null
 	 */
-	public static Collection<SootClass> getAncestors(final SootClass sootClass) {
+	@Functional @NonNullContainer @NonNull public static Collection<SootClass> getAncestors(@NonNull final SootClass sootClass) {
 		final Collection<SootClass> _result = new HashSet<SootClass>();
 		final Collection<SootClass> _temp = new HashSet<SootClass>();
 		final IWorkBag<SootClass> _wb = new HistoryAwareLIFOWorkBag<SootClass>(_result);
@@ -317,10 +318,9 @@ public final class Util {
 	 * @param returnType return type of the method.
 	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
 	 *         otherwise.
-	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
 	 */
-	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List<Type> parameterTypes,
-			final Type returnType) {
+	@Functional public static SootClass getDeclaringClass(@NonNull final SootClass sc, @NonNull final String method,
+			@NonNullContainer @NonNull final List<Type> parameterTypes, @NonNull final Type returnType) {
 		SootClass _contains = sc;
 
 		while (!_contains.declaresMethod(method, parameterTypes, returnType)) {
@@ -341,10 +341,8 @@ public final class Util {
 	 * @param type for which the default value is requested.
 	 * @return the default value
 	 * @throws IllegalArgumentException when an invalid type is provided.
-	 * @pre type != null
-	 * @post result != null
 	 */
-	public static Value getDefaultValueFor(final Type type) {
+	@NonNull @Functional public static Value getDefaultValueFor(@NonNull final Type type) {
 		Value _result = null;
 
 		if (type instanceof RefLikeType) {
@@ -382,11 +380,12 @@ public final class Util {
 	 * @param stmt is the statement being enclosed.
 	 * @param stmtList is the list of statements.
 	 * @return a list of traps.
-	 * @pre traps != null and stmt != null and stmtList != null
 	 * @pre stmtList.contains(stmt)
 	 * @post traps.containsAll(result)
 	 */
-	public static List<Trap> getEnclosingTrap(final List<Trap> traps, final Stmt stmt, final List<Stmt> stmtList) {
+	@Functional @NonNullContainer @NonNull public static List<Trap> getEnclosingTrap(
+			@NonNull @NonNullContainer final List<Trap> traps, @NonNull final Stmt stmt,
+			@NonNull @NonNullContainer final List<Stmt> stmtList) {
 		final List<Trap> _result = new ArrayList<Trap>();
 		final int _stmtIndex = stmtList.indexOf(stmt);
 		for (final Trap _trap : traps) {
@@ -404,11 +403,10 @@ public final class Util {
 	 * @param hosts is the collection of hosts to filter.
 	 * @param tagName is the name of the tag to filter <code>hosts</code>.
 	 * @return a collection of hosts.
-	 * @pre hosts != null and tagName != null
-	 * @post result != null
 	 * @post result->forall(o | hosts->contains(o) and o.hasTag(tagName))
 	 */
-	public static <T extends Host> Collection<T> getHostsWithTag(final Collection<T> hosts, final String tagName) {
+	@Functional @NonNull public static <T extends Host> Collection<T> getHostsWithTag(
+			@NonNullContainer @NonNull final Collection<T> hosts, @NonNull final String tagName) {
 		Collection<T> _result = new ArrayList<T>();
 
 		for (final Iterator<T> _i = hosts.iterator(); _i.hasNext();) {
@@ -432,9 +430,9 @@ public final class Util {
 	 * @param scene contains the classes that make up the system.
 	 * @return the type object
 	 * @throws MissingResourceException when the named type does not exists.
-	 * @pre typeName != null and scene != null and typeName.indexOf("[") = -1
+	 * @pre typeName.indexOf("[") = -1
 	 */
-	public static Type getPrimitiveTypeFor(final String typeName, final Scene scene) {
+	@Immutable public static Type getPrimitiveTypeFor(@NonNull @Immutable final String typeName, @NonNull final Scene scene) {
 		final Type _result;
 
 		if (typeName.equals("int")) {
@@ -474,10 +472,9 @@ public final class Util {
 	 * 
 	 * @param newClasses is a collection of classes to be processed.
 	 * @return the resolved methods
-	 * @pre newClasses != null and newClasses->forall(o | o != null)
-	 * @post result != null
 	 */
-	public static Collection<SootMethod> getResolvedMethods(final Collection<SootClass> newClasses) {
+	@NonNull @Functional public static Collection<SootMethod> getResolvedMethods(
+			@NonNullContainer @NonNull final Collection<SootClass> newClasses) {
 		final Collection<SootMethod> _col = new HashSet<SootMethod>();
 		final Collection<String> _temp = new HashSet<String>();
 		final Iterator<SootClass> _i = newClasses.iterator();
@@ -536,11 +533,10 @@ public final class Util {
 	 * analyses in the project.
 	 * 
 	 * @return the soot options.
-	 * @post result != null.
 	 */
-	public static String[] getSootOptions() {
-		final String[] _options = {"-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p",
-				"jb.a", "enabled:true,only-stack-locals:true", "-p", "jb.ulp", "enabled:false",};
+	@NonNull @NonNullContainer @Functional public static String[] getSootOptions() {
+		final String[] _options = { "-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p",
+				"jb.a", "enabled:true,only-stack-locals:true", "-p", "jb.ulp", "enabled:false", };
 
 		return _options;
 	}
@@ -551,9 +547,8 @@ public final class Util {
 	 * @param typeName is the name of the type.
 	 * @param scene contains the classes that make up the system.
 	 * @return the type object.
-	 * @pre typeName != null and scene != null
 	 */
-	public static Type getTypeFor(final String typeName, final Scene scene) {
+	@Immutable @NonNull public static Type getTypeFor(@NonNull @Immutable final String typeName, @NonNull final Scene scene) {
 		final Type _result;
 		final int _i = typeName.indexOf("[", 0);
 
@@ -571,11 +566,10 @@ public final class Util {
 	 * 
 	 * @param sc is the class to be tested.
 	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
-	 * @pre sc != null
 	 * @post sc.getName().equals("java.lang.Object") implies result = false
 	 * @post (not sc.getName().equals("java.lang.Object")) implies result = true
 	 */
-	public static boolean hasSuperclass(final SootClass sc) {
+	@Functional public static boolean hasSuperclass(@NonNull final SootClass sc) {
 		boolean _result = false;
 
 		if (!sc.getName().equals("java.lang.Object")) {
@@ -592,7 +586,7 @@ public final class Util {
 	 * @return <code>true</code> if <code>child</code> implements the named interface; <code>false</code>, otherwise.
 	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
-	public static boolean implementsInterface(final SootClass child, final String ancestor) {
+	@Functional public static boolean implementsInterface(@NonNull final SootClass child, @NonNull final String ancestor) {
 		boolean _result = false;
 		SootClass _temp = child;
 
@@ -613,10 +607,9 @@ public final class Util {
 	 * @param ancestor the ancestor class.
 	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class;
 	 *         false otherwise.
-	 * @pre child != null and ancestor != null
 	 * @post result == child.oclIsKindOf(ancestor)
 	 */
-	public static boolean isDescendentOf(final SootClass child, final SootClass ancestor) {
+	@Functional public static boolean isDescendentOf(@NonNull final SootClass child, @NonNull final SootClass ancestor) {
 		return isDescendentOf(child, ancestor.getName());
 	}
 
@@ -627,10 +620,9 @@ public final class Util {
 	 * @param ancestor fully qualified name of the ancestor class.
 	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of
 	 *         <code>child</code> class; false otherwise.
-	 * @pre child != null and ancestor != null
 	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
-	public static boolean isDescendentOf(final SootClass child, final String ancestor) {
+	@Functional public static boolean isDescendentOf(@NonNull final SootClass child, @NonNull final String ancestor) {
 		boolean _retval = false;
 		SootClass _temp = child;
 
@@ -661,10 +653,9 @@ public final class Util {
 	 * @param class2 one of the two classes to be checked for relation.
 	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>,
 	 *         otherwise.
-	 * @pre class1 != null and class2 != null
 	 * @post result == (class1.oclIsKindOf(class2) or class2.oclIsKindOf(class1))
 	 */
-	public static boolean isHierarchicallyRelated(final SootClass class1, final SootClass class2) {
+	@Functional public static boolean isHierarchicallyRelated(@NonNull final SootClass class1, @NonNull final SootClass class2) {
 		return class1.equals(class2) || isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
 	}
 
@@ -678,7 +669,8 @@ public final class Util {
 	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>notify</code> methods in
 	 *         <code>java.lang.Object</code> class; <code>false</code>, otherwise.
 	 */
-	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+	@Functional public static boolean isNotifyInvocation(@NonNull final InvokeStmt stmt, final SootMethod method,
+			final ICallGraphInfo cgi) {
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 		final SootMethod _sm = _expr.getMethod();
 		boolean _result = isNotifyMethod(_sm);
@@ -695,9 +687,8 @@ public final class Util {
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>notify</code> methods in <code>java.lang.Object</code> class;
 	 *         <code>false</code>, otherwise.
-	 * @pre method != null
 	 */
-	public static boolean isNotifyMethod(final SootMethod method) {
+	@Functional public static boolean isNotifyMethod(@NonNull final SootMethod method) {
 		return method.getDeclaringClass().getName().equals("java.lang.Object")
 				&& (method.getName().equals("notify") || method.getName().equals("notifyAll"));
 	}
@@ -707,9 +698,8 @@ public final class Util {
 	 * 
 	 * @param t is the type to checked.
 	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
-	 * @pre t != null
 	 */
-	public static boolean isReferenceType(final Type t) {
+	@Functional public static boolean isReferenceType(@NonNull final Type t) {
 		return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
 	}
 
@@ -723,7 +713,8 @@ public final class Util {
 	 *         otherwise.
 	 * @post result == t1.oclIsKindOf(t2)
 	 */
-	public static boolean isSameOrSubType(final Type t1, final Type t2, final IEnvironment env) {
+	@Immutable public static boolean isSameOrSubType(@NonNull @Immutable final Type t1, @NonNull @Immutable final Type t2,
+			@NonNull final IEnvironment env) {
 		boolean _result = false;
 
 		if (t1.equals(t2)) {
@@ -742,9 +733,8 @@ public final class Util {
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>java.lang.Thread.start()</code> method; <code>false</code>,
 	 *         otherwise.
-	 * @pre method != null
 	 */
-	public static boolean isStartMethod(final SootMethod method) {
+	@Functional public static boolean isStartMethod(@NonNull final SootMethod method) {
 		return method.getName().equals("start") && method.getDeclaringClass().getName().equals("java.lang.Thread")
 				&& method.getReturnType() instanceof VoidType && method.getParameterCount() == 0;
 	}
@@ -759,7 +749,8 @@ public final class Util {
 	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>wait</code> methods in
 	 *         <code>java.lang.Object</code> class; <code>false</code>, otherwise.
 	 */
-	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+	@Immutable public static boolean isWaitInvocation(@NonNull @Immutable final InvokeStmt stmt,
+			@Immutable final SootMethod method, @Immutable final ICallGraphInfo cgi) {
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 		final SootMethod _sm = _expr.getMethod();
 		boolean _result = isWaitMethod(_sm);
@@ -776,9 +767,8 @@ public final class Util {
 	 * @param method to be checked.
 	 * @return <code>true</code> if the method is <code>wait</code> methods in <code>java.lang.Object</code> class;
 	 *         <code>false</code>, otherwise.
-	 * @pre method != null
 	 */
-	public static boolean isWaitMethod(final SootMethod method) {
+	@Functional public static boolean isWaitMethod(@Immutable @NonNull final SootMethod method) {
 		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
 	}
 
@@ -786,10 +776,9 @@ public final class Util {
 	 * Prunes the given list of traps that cover atleast one common statement.
 	 * 
 	 * @param enclosingTraps is the list of traps.
-	 * @pre enclosingTraps != null
 	 * @post enclosingTraps.containsAll(enclosingTraps$pre)
 	 */
-	public static void pruneEnclosingTraps(final List<Trap> enclosingTraps) {
+	public static void pruneEnclosingTraps(@NonNullContainer @NonNull final List<Trap> enclosingTraps) {
 		final Collection<Trap> _r = new ArrayList<Trap>();
 		int _size = enclosingTraps.size();
 		for (int _i = 0; _i < _size; _i++) {
@@ -814,10 +803,10 @@ public final class Util {
 	 * 
 	 * @param methods is the collection of methods to be modified.
 	 * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
-	 * @pre methods != null and methodsToRemove != null
 	 */
-	public static void removeMethodsWithSameSignature(final Collection<SootMethod> methods,
-			final Collection<SootMethod> methodsToRemove) {
+	@Immutable public static void removeMethodsWithSameSignature(
+			@NonNullContainer @NonNull final Collection<SootMethod> methods,
+			@Immutable @NonNullContainer @NonNull final Collection<SootMethod> methodsToRemove) {
 		final Collection<SootMethod> _removeSet = new HashSet<SootMethod>();
 		_removeSet.addAll(methods);
 		retainMethodsWithSameSignature(_removeSet, methodsToRemove);
@@ -830,10 +819,10 @@ public final class Util {
 	 * 
 	 * @param methods is the collection of methods to be modified.
 	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
-	 * @pre methods != null and methodsToRetain!= null
 	 */
-	public static void retainMethodsWithSameSignature(final Collection<SootMethod> methods,
-			final Collection<SootMethod> methodsToRetain) {
+	@Immutable public static void retainMethodsWithSameSignature(
+			@NonNullContainer @NonNull final Collection<SootMethod> methods,
+			@NonNullContainer @NonNull @Immutable final Collection<SootMethod> methodsToRetain) {
 		final Collection<SootMethod> _retainSet = new HashSet<SootMethod>();
 
 		for (final Iterator<SootMethod> _j = methods.iterator(); _j.hasNext();) {
@@ -859,10 +848,9 @@ public final class Util {
 	 * @param method containing <code>stmt</code>.
 	 * @param cgi to be used for method resolution.
 	 * @return <code>true</code> if <code> invokedMethod</code> is invoked; <code>false</code>, otherwise.
-	 * @pre invokedMethod != null and stmt != null and method != null and cgi != null
 	 */
-	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
-			final SootMethod method, final ICallGraphInfo cgi) {
+	@Functional private static boolean wasMethodInvocationHelper(@NonNull final SootMethod invokedMethod,
+			@NonNull final InvokeStmt stmt, @NonNull final SootMethod method, @NonNull final ICallGraphInfo cgi) {
 		final Context _context = new Context();
 		_context.setRootMethod(method);
 		_context.setStmt(stmt);

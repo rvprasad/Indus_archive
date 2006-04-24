@@ -14,16 +14,19 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,30 +51,36 @@ public final class MethodSpecification
 	/**
 	 * This is the specification of the type of the class that declares the method.
 	 */
-	private TypeSpecification declaringClassSpec;
+	@NonNull private TypeSpecification declaringClassSpec;
 
 	/**
 	 * The pattern of the method's name.
 	 */
-	private Pattern namePattern;
+	@NonNull private Pattern namePattern;
 
 	/**
 	 * This is the specifications of the types of the parameters.
 	 */
-	private final List<TypeSpecification> parameterTypeSpecs = new ArrayList<TypeSpecification>();
+	@NonNullContainer private final List<TypeSpecification> parameterTypeSpecs = new ArrayList<TypeSpecification>();
 
 	/**
 	 * This is the specification of the return type of the method.
 	 */
-	private TypeSpecification returnTypeSpec;
+	@NonNull private TypeSpecification returnTypeSpec;
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	@Empty public MethodSpecification() {
+		super();
+	}
 
 	/**
 	 * Creates the container for parameter type specifications. This is used by java-xml binding.
 	 * 
 	 * @return a container.
-	 * @post result != null
 	 */
-	static List createParameterTypeSpecContainer() {
+	@SuppressWarnings("unchecked") @NonNull static List createParameterTypeSpecContainer() {
 		return new ArrayList();
 	}
 
@@ -80,7 +89,7 @@ public final class MethodSpecification
 	 * 
 	 * @return the specification.
 	 */
-	public TypeSpecification getDeclaringClassSpec() {
+	@Functional @NonNull public TypeSpecification getDeclaringClassSpec() {
 		return declaringClassSpec;
 	}
 
@@ -89,7 +98,7 @@ public final class MethodSpecification
 	 * 
 	 * @return the specification.
 	 */
-	public String getMethodNameSpec() {
+	@Functional @NonNull public String getMethodNameSpec() {
 		return namePattern.pattern();
 	}
 
@@ -98,7 +107,7 @@ public final class MethodSpecification
 	 * 
 	 * @return a list of specifications.
 	 */
-	public List<TypeSpecification> getParameterTypeSpecs() {
+	@Functional @NonNullContainer @NonNull public List<TypeSpecification> getParameterTypeSpecs() {
 		return parameterTypeSpecs;
 	}
 
@@ -107,7 +116,7 @@ public final class MethodSpecification
 	 * 
 	 * @return the specification.
 	 */
-	public TypeSpecification getReturnTypeSpec() {
+	@NonNull @Functional public TypeSpecification getReturnTypeSpec() {
 		return returnTypeSpec;
 	}
 
@@ -118,21 +127,20 @@ public final class MethodSpecification
 	 * @param system in which the check the constraints.
 	 * @return <code>true</code> if the given method lies within the scope defined by this specification; <code>false</code>,
 	 *         otherwise.
-	 * @pre method != null and system != null
 	 */
-	public boolean isInScope(final SootMethod method, final IEnvironment system) {
+	@Functional public boolean isInScope(@NonNull final SootMethod method, @NonNull final IEnvironment system) {
 		boolean _result = namePattern.matcher(method.getName()).matches();
 		_result = _result && declaringClassSpec.conformant(method.getDeclaringClass().getType(), system);
 		_result = _result && returnTypeSpec.conformant(method.getReturnType(), system);
 		_result = _result && accessConformant(new AccessSpecifierWrapper(method));
 
 		if (_result) {
-			final List _parameterTypes = method.getParameterTypes();
-			final Iterator _i = _parameterTypes.iterator();
+			@SuppressWarnings("unchecked") final List<Type> _parameterTypes = method.getParameterTypes();
+			final Iterator<Type> _i = _parameterTypes.iterator();
 			final int _iEnd = _parameterTypes.size();
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-				final Type _type = (Type) _i.next();
+				final Type _type = _i.next();
 				final TypeSpecification _pTypeSpec = parameterTypeSpecs.get(_iIndex);
 
 				if (_pTypeSpec != null) {
@@ -156,9 +164,8 @@ public final class MethodSpecification
 	 * Sets the specification of the class that declares the method.
 	 * 
 	 * @param spec the specification.
-	 * @pre spec != null
 	 */
-	public void setDeclaringClassSpec(final TypeSpecification spec) {
+	public void setDeclaringClassSpec(@NonNull @Immutable final TypeSpecification spec) {
 		declaringClassSpec = spec;
 	}
 
@@ -166,9 +173,8 @@ public final class MethodSpecification
 	 * Sets the specification of the method's name.
 	 * 
 	 * @param spec is a regular expression.
-	 * @pre spec != null
 	 */
-	public void setMethodNameSpec(final String spec) {
+	public void setMethodNameSpec(@NonNull @Immutable final String spec) {
 		namePattern = Pattern.compile(spec);
 	}
 
@@ -176,9 +182,8 @@ public final class MethodSpecification
 	 * Sets the specification of the type of the parameters of the method.
 	 * 
 	 * @param specs the specifications.
-	 * @pre spec != null
 	 */
-	public void setParameterTypeSpecs(final List<TypeSpecification> specs) {
+	public void setParameterTypeSpecs(@NonNull @Immutable final List<TypeSpecification> specs) {
 		parameterTypeSpecs.addAll(specs);
 	}
 
@@ -186,16 +191,15 @@ public final class MethodSpecification
 	 * Sets the specification of the return type of the method.
 	 * 
 	 * @param spec the specification.
-	 * @pre spec != null
 	 */
-	public void setReturnTypeSpec(final TypeSpecification spec) {
+	public void setReturnTypeSpec(@NonNull @Immutable final TypeSpecification spec) {
 		returnTypeSpec = spec;
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
-	@Override public String toString() {
+	@Functional @NonNull @Override public String toString() {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
 				.append("returnTypeSpec", this.returnTypeSpec).append("parameterTypeSpecs", this.parameterTypeSpecs).append(
 						"declaringClassSpec", this.declaringClassSpec).toString();
