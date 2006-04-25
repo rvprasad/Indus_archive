@@ -41,7 +41,7 @@ import soot.jimple.ExitMonitorStmt;
 import soot.jimple.Stmt;
 
 /**
- * DOCUMENT ME!
+ * This analysis performs a conservative static analysis to detect statements that may participate in deadlocks.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -50,22 +50,22 @@ import soot.jimple.Stmt;
 public final class DeadlockAnalysis {
 
 	/**
-	 * DOCUMENT ME!
+	 * This provides monitor information.
 	 */
 	private final IMonitorInfo<?> monitorInfo;
 
 	/**
-	 * DOCUMENT ME!
+	 * This provides object flow information.
 	 */
 	private final IValueAnalyzer<Value> ofa;
 
 	/**
-	 * DOCUMENT ME!
+	 * This provides lock based equivalence information.
 	 */
 	private final LockAcquisitionBasedEquivalence lbe;
 
 	/**
-	 * DOCUMENT ME!
+	 * This provides escape information.
 	 */
 	private final IEscapeInfo escapeInfo;
 
@@ -87,9 +87,9 @@ public final class DeadlockAnalysis {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the collection of monitors that may participate in deadlock.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return a collection of monitors.
 	 */
 	public Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getDeadlockingMonitors() {
 		final SimpleNodeGraphBuilder<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _sng = new SimpleNodeGraphBuilder<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
@@ -131,11 +131,11 @@ public final class DeadlockAnalysis {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given monitors are related.
 	 * 
-	 * @param m1 DOCUMENT ME!
-	 * @param m2 DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param m1 is a monitor of interest.
+	 * @param m2 is another monitor of interest.
+	 * @return <code>true</code> if the monitors are related; <code>false</code>, otherwise.
 	 */
 	private boolean areMonitorsRelated(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> m1,
 			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> m2) {

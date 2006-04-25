@@ -43,10 +43,7 @@ public class DataAliasBasedCallingContextRetrieverV3
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param callerSideEntities DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
 	@Override protected boolean shouldConsiderCallerSideToken(final Collection<Object> callerSideEntities) {
 		final DefinitionStmt _stmt = (DefinitionStmt) getInfoFor(Identifiers.SRC_ENTITY);

@@ -89,7 +89,7 @@ final class ValueProcessor
 	private boolean rhs = true;
 
 	/**
-	 * DOCUMENT ME!
+	 * This maps string constant AST nodes to alias sets.
 	 */
 	private final Map<StringConstant, AliasSet> stringConstant2aliasSet = new HashMap<StringConstant, AliasSet>();
 
@@ -274,7 +274,7 @@ final class ValueProcessor
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Resets the processor.
 	 */
 	void reset() {
 		stringConstant2aliasSet.clear();
@@ -383,7 +383,7 @@ final class ValueProcessor
 				ecba.markMultiThreadedSystem();
 				_mc.markAsCrossingThreadBoundary();
 				if (_notInSameSCC) {
-					_mc.eraseIntraThreadRefEntities();
+					_mc.eraseIntraThreadInterProcRefEntities();
 				}
 			}
 

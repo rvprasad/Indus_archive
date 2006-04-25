@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectNode;
@@ -37,7 +39,7 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <N> is the type of the node of the graph used to store the monitor information.
  */
 public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>
 		extends IStatus, IIdentification {
@@ -59,12 +61,11 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 		 * @param monitorTriple describes the monitor of interest.
 		 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 		 * @return a map from a method to the statements of that method that are enclosed by the given monitor.
-		 * @pre monitorTriple != null and monitorTriple.getThird() != null
-		 * @post result != null
+		 * @pre monitorTriple.getThird() != null
 		 * @post (not transitive) implies result.size() = 1
 		 */
-		Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(
-				final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple, final boolean transitive);
+		@NonNull Map<SootMethod, Collection<Stmt>> getInterProcedurallyEnclosedStmts(
+				@NonNull final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple, final boolean transitive);
 
 		/**
 		 * Retrieves the monitor triples for monitors enclosing the given statement in the given method, both intra and
@@ -74,12 +75,10 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 		 * @param method in which the monitor occurs.
 		 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 		 * @return a collection of triples
-		 * @pre stmt != null and method != null
-		 * @post result != null
 		 * @post (not transitive) implies result.size() = 1
 		 */
-		Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getInterProcedurallyEnclosingMonitorTriples(
-				final Stmt stmt, final SootMethod method, final boolean transitive);
+		@NonNull Map<SootMethod, Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> getInterProcedurallyEnclosingMonitorTriples(
+				@NonNull final Stmt stmt, @NonNull final SootMethod method, final boolean transitive);
 	}
 
 	/**
@@ -94,10 +93,9 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param monitorTriple describes the monitor of interest.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 	 * @return a collection of statements.
-	 * @pre monitorTriple != null and monitorTriple.getThird() != null
-	 * @post result != null
+	 * @pre monitorTriple.getThird() != null
 	 */
-	Collection<Stmt> getEnclosedStmts(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple,
+	@NonNull @NonNullContainer Collection<Stmt> getEnclosedStmts(@NonNull final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple,
 			final boolean transitive);
 
 	/**
@@ -108,10 +106,8 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 	 * @return a collection of statements
-	 * @pre stmt != null and method != null
-	 * @post result != null
 	 */
-	Collection<MonitorStmt> getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive);
+	@NonNull @NonNullContainer Collection<MonitorStmt> getEnclosingMonitorStmts(@NonNull final Stmt stmt, @NonNull final SootMethod method, final boolean transitive);
 
 	/**
 	 * Retrieves the monitor triples for monitors enclosing the given statement in the given method. Only the monitors
@@ -121,11 +117,9 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 	 * @return a collection of triples
-	 * @pre stmt != null and method != null
-	 * @post result != null
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getEnclosingMonitorTriples(final Stmt stmt,
-			final SootMethod method, final boolean transitive);
+	@NonNull @NonNullContainer Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getEnclosingMonitorTriples(@NonNull final Stmt stmt,
+			@NonNull final SootMethod method, final boolean transitive);
 
 	/**
 	 * Retrieves the monitor graph based on the shape of the call graph and the monitors in the method. Each monitor triple is
@@ -136,9 +130,8 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param callgraphInfo to be used to generate an interprocedural graph. If this parameter is <code>null</code>,
 	 *            intraprocedural monitor graph is generated.
 	 * @return a graph
-	 * @post result != null
 	 */
-	IMonitorGraph<N> getMonitorGraph(final ICallGraphInfo callgraphInfo);
+	@NonNull IMonitorGraph<N> getMonitorGraph(final ICallGraphInfo callgraphInfo);
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>,
@@ -146,10 +139,9 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * first and the second element of the triple are <code>null</code> then this means the method is a synchronized.
 	 * 
 	 * @return collection of monitors in the analyzed system.
-	 * @post result != null
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriples();
+	@NonNull @NonNullContainer Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriples();
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>,
@@ -158,13 +150,11 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * @param monitorStmt obviously.
 	 * @param method in which monitorStmt occurs.
 	 * @return collection of monitors in the analyzed system.
-	 * @pre method != null
-	 * @post result != null
 	 * @post result->forall(o | o.getThird().equals(method))
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(final MonitorStmt monitorStmt,
-			final SootMethod method);
+	@NonNull @NonNullContainer Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesFor(final MonitorStmt monitorStmt,
+			@NonNull final SootMethod method);
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>,
@@ -174,44 +164,36 @@ public interface IMonitorInfo<N extends IObjectNode<N, Triple<EnterMonitorStmt, 
 	 * 
 	 * @param method in which the monitors occur.
 	 * @return collection of monitors in the analyzed system.
-	 * @pre method != null
-	 * @post result != null
 	 * @post result->forall(o | o.getThird().equals(method))
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesIn(final SootMethod method);
+	@NonNull @NonNullContainer Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesIn(@NonNull final SootMethod method);
 
 	/**
 	 * Retrieves all the monitor triples corresponding to the given monitor.
 	 * 
 	 * @param monitor of interest
 	 * @return the collection of monitor triples
-	 * @pre monitor != null
-	 * @post result != null
 	 */
-	Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesOf(
-			final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
+	@NonNull @NonNullContainer Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> getMonitorTriplesOf(
+			@NonNull final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
 
 	/**
 	 * Retrieves the statements that form the given monitor.
 	 * 
 	 * @param monitor of interest.
 	 * @return a collection of statements.
-	 * @pre monitor != null
-	 * @post result != null
 	 * @post monitor.getFirst() = null implies result.isEmpty()
 	 */
-	Collection<? extends MonitorStmt> getStmtsOfMonitor(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
+	@NonNull @NonNullContainer Collection<? extends MonitorStmt> getStmtsOfMonitor(@NonNull final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitor);
 
 	/**
 	 * Retreives the statements of the given method not enclosed by a monitor in that method.
 	 * 
 	 * @param method of interest.
 	 * @return the collection of statements.
-	 * @pre method != null
-	 * @post result != null
 	 */
-	Collection<Stmt> getUnenclosedStmtsOf(final SootMethod method);
+	@NonNull @NonNullContainer Collection<Stmt> getUnenclosedStmtsOf(@NonNull final SootMethod method);
 }
 
 // End of File

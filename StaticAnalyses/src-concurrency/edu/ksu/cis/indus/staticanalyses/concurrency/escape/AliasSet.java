@@ -64,7 +64,7 @@ final class AliasSet
 	private static long readyEntityCount;
 
 	/**
-	 * DOCUMENT ME!
+	 * This is used to generate unique reference entities.
 	 */
 	private static int referenceEntityCount;
 
@@ -95,16 +95,16 @@ final class AliasSet
 	private Map<String, AliasSet> fieldMap;
 
 	/**
-	 * This field indicates if this alias set is associated with a static field or a field reachable from a static field.  
-	 * This field is orthogonal to sharing information.  It is used solely for the purpose of tracking globalness of the alias sets
+	 * This field indicates if this alias set is associated with a static field or a field reachable from a static field. This
+	 * field is orthogonal to sharing information. It is used solely for the purpose of tracking globalness of the alias sets
 	 * and if methods read and write global data.
 	 */
 	private boolean global;
 
 	/**
-	 * DOCUMENT ME!
+	 * This represents the interprocedural reference entities associated with this alias set.
 	 */
-	private Collection<Object> intraProcRefEntities;
+	private Collection<Object> intraThreadInterProcRefEntities;
 
 	/**
 	 * This indicates the alias set participated in a locking operation.
@@ -199,7 +199,7 @@ final class AliasSet
 		sigsOfRWSharedFields = null;
 		sigsOfWWSharedFields = null;
 		lockEntities = null;
-		intraProcRefEntities = null;
+		intraThreadInterProcRefEntities = null;
 		multiThreadAccessibility = false;
 		readFields = Collections.emptySet();
 		writtenFields = Collections.emptySet();
@@ -364,8 +364,8 @@ final class AliasSet
 						this.readFields).append("readyEntities", this.readyEntities)
 						.append("lockEntities", this.lockEntities).append("rwEntities", this.readwriteEntities).append(
 								"wwEntities", this.writewriteEntities).append("intraProcRefEntities",
-								this.intraProcRefEntities).append("sigsOfSharedFields", sigsOfRWSharedFields).append(
-								"sigsOfWriteWriteSharedFields", sigsOfWWSharedFields).append("readThreads", readThreads)
+								this.intraThreadInterProcRefEntities).append("sigsOfSharedFields", sigsOfRWSharedFields)
+						.append("sigsOfWriteWriteSharedFields", sigsOfWWSharedFields).append("readThreads", readThreads)
 						.append("writeThreads", writeThreads).append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
@@ -421,11 +421,11 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Erases intra thread and inter-procedural reference entities.
 	 */
-	void eraseIntraThreadRefEntities() {
-		if (intraProcRefEntities != null) {
-			intraProcRefEntities.clear();
+	void eraseIntraThreadInterProcRefEntities() {
+		if (intraThreadInterProcRefEntities != null) {
+			intraThreadInterProcRefEntities.clear();
 		}
 	}
 
@@ -530,7 +530,7 @@ final class AliasSet
 	 * @return a collection of objects.
 	 */
 	Collection<Object> getIntraProcRefEntities() {
-		final Collection<Object> _collection = find().intraProcRefEntities;
+		final Collection<Object> _collection = find().intraThreadInterProcRefEntities;
 		final Collection<Object> _result;
 		if (_collection != null) {
 			_result = Collections.unmodifiableCollection(_collection);
@@ -648,18 +648,19 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if this alias set is associated with a global variable.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if this alias set is associated with a global variable; <code>false</code>, otherwise.
 	 */
 	boolean isGlobal() {
 		return find().global;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if an alias set associated with a global variable is reachable from this alias set.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if an alias set associated with a global variable is reachable from this alias set.;
+	 *         <code>false</code>, otherwise.
 	 */
 	boolean isGlobalDataReachable() {
 		boolean _result = false;
@@ -676,9 +677,10 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if an alias set associated with an inter-thread shared variable is reachable from this alias set.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if an alias set associated with an inter-thread shared variable is reachable from this alias set.;
+	 *         <code>false</code>, otherwise.
 	 */
 	boolean isSharedDataReachable() {
 		boolean _result = false;
@@ -728,7 +730,7 @@ final class AliasSet
 	 */
 	boolean methodShared() {
 		final AliasSet _rep = find();
-		return _rep.intraProcRefEntities != null && !_rep.intraProcRefEntities.isEmpty();
+		return _rep.intraThreadInterProcRefEntities != null && !_rep.intraThreadInterProcRefEntities.isEmpty();
 	}
 
 	/**
@@ -787,11 +789,11 @@ final class AliasSet
 					_toRep.lockEntities.addAll(_fromRep.lockEntities);
 				}
 
-				if (_fromRep.intraProcRefEntities != null) {
-					if (_toRep.intraProcRefEntities == null) {
-						_toRep.intraProcRefEntities = new HashSet<Object>();
+				if (_fromRep.intraThreadInterProcRefEntities != null) {
+					if (_toRep.intraThreadInterProcRefEntities == null) {
+						_toRep.intraThreadInterProcRefEntities = new HashSet<Object>();
 					}
-					_toRep.intraProcRefEntities.addAll(_fromRep.intraProcRefEntities);
+					_toRep.intraThreadInterProcRefEntities.addAll(_fromRep.intraThreadInterProcRefEntities);
 				}
 
 				if (_fromRep.sigsOfRWSharedFields != null) {
@@ -863,7 +865,7 @@ final class AliasSet
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Marks the alias set as being associated with a global variable.
 	 */
 	void setGlobal() {
 		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(new HashSet<AliasSet>());
@@ -1091,16 +1093,16 @@ final class AliasSet
 		}
 		represented.lockEntities = null;
 
-		if (intraProcRefEntities == null) {
-			intraProcRefEntities = represented.intraProcRefEntities;
-			if (intraProcRefEntities == null) {
-				intraProcRefEntities = new HashSet<Object>();
-				intraProcRefEntities.add(getNewReferenceEntity());
+		if (intraThreadInterProcRefEntities == null) {
+			intraThreadInterProcRefEntities = represented.intraThreadInterProcRefEntities;
+			if (intraThreadInterProcRefEntities == null) {
+				intraThreadInterProcRefEntities = new HashSet<Object>();
+				intraThreadInterProcRefEntities.add(getNewReferenceEntity());
 			}
-		} else if (represented.intraProcRefEntities != null) {
-			intraProcRefEntities.addAll(represented.intraProcRefEntities);
+		} else if (represented.intraThreadInterProcRefEntities != null) {
+			intraThreadInterProcRefEntities.addAll(represented.intraThreadInterProcRefEntities);
 		}
-		represented.intraProcRefEntities = null;
+		represented.intraThreadInterProcRefEntities = null;
 
 		if (readyEntities == null) {
 			readyEntities = represented.readyEntities;

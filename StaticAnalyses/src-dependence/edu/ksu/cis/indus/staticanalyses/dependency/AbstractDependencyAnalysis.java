@@ -16,7 +16,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.Constants;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
@@ -38,16 +37,16 @@ import java.util.Map;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <E1> DOCUMENT ME!
- * @param <C1> DOCUMENT ME!
- * @param <T1> DOCUMENT ME!
- * @param <KE> DOCUMENT ME!
- * @param <VT> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
- * @param <KT> DOCUMENT ME!
- * @param <VE> DOCUMENT ME!
+ * @param <E1> is the type of dependee object in the context of dependee-to-dependent info maintenance.
+ * @param <C1> is the type of context object in the context of dependee-to-dependent info maintenance.
+ * @param <T1> is the type of dependent object in the context of dependee-to-dependent info maintenance.
+ * @param <KE> is the type of key object in the context of dependee-to-dependent info maintenance.
+ * @param <VT> is the type of value object in the context of dependee-to-dependent info maintenance.
+ * @param <T2> is the type of dependent object in the context of dependent-to-dependee info maintenance.
+ * @param <C2> is the type of context object in the context of dependent-to-dependee info maintenance.
+ * @param <E2> is the type of dependee object in the context of dependent-to-dependee info maintenance.
+ * @param <KT> is the type of key object in the context of dependent-to-dependee info maintenance.
+ * @param <VE> is the type of value object in the context of dependent-to-dependee info maintenance.
  * @invariant doesPreProcessing() implies getPreProcessor() != null
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
@@ -133,9 +132,9 @@ public abstract class AbstractDependencyAnalysis<T1, C1, E1, KT, VE, E2, C2, T2,
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Provides the dependence retriever.
 	 * 
-	 * @return DOCUMENT ME!
+	 * @return the dependence retriever.
 	 */
 	protected abstract IDependenceRetriever<T1, C1, E1, E2, C2, T2> getDependenceRetriever();
 

@@ -27,12 +27,12 @@ import java.util.HashSet;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T1> DOCUMENT ME!
- * @param <C1> DOCUMENT ME!
- * @param <E1> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
+ * @param <E1> is the type of dependee object in the context of dependee-to-dependent info maintenance.
+ * @param <C1> is the type of context object in the context of dependee-to-dependent info maintenance.
+ * @param <T1> is the type of dependent object in the context of dependee-to-dependent info maintenance.
+ * @param <T2> is the type of dependent object in the context of dependent-to-dependee info maintenance.
+ * @param <C2> is the type of context object in the context of dependent-to-dependee info maintenance.
+ * @param <E2> is the type of dependee object in the context of dependent-to-dependee info maintenance.
  */
 final class PairRetriever<T1, C1, E1, E2, C2, T2>
 		extends AbstractDependenceRetriever<T1, C1, Pair<E1, C1>, E2, C2, Pair<T2, C2>> {

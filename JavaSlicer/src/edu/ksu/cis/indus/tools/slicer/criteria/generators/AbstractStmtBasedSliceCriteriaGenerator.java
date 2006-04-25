@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -44,7 +46,7 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T1> DOCUMENT ME!
+ * @param <T1> is the type of objects that will be considered for being used as slice criteria. 
  */
 public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
   extends AbstractSliceCriteriaGenerator<SootMethod, T1> {
@@ -58,9 +60,8 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 	 *
 	 * @return a collection of criterion.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	@Override protected final Collection<ISliceCriterion> getCriteriaTemplateMethod() {
+	@NonNull @Override protected final Collection<ISliceCriterion> getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: creating field criteria.");
 		}
@@ -128,9 +129,8 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 	 *
 	 * @return the entity.  This implementation returns <code>stmt</code>.
 	 *
-	 * @pre stmt != null and sm != null
 	 */
-	protected T1 getEntityForCriteriaFiltering(final Stmt stmt, @SuppressWarnings("unused") final SootMethod sm) {
+	@Functional protected T1 getEntityForCriteriaFiltering(@NonNull final Stmt stmt, @SuppressWarnings("unused") final SootMethod sm) {
 		return (T1) stmt;
 	}
 
@@ -143,9 +143,8 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 	 * @return <code>true</code> if <code>stmt</code> should be considered; <code>false</code>, otherwise.  This
 	 * 		   implementation always returns <code>true</code>.
 	 *
-	 * @pre stmt != null
 	 */
-	protected boolean shouldConsiderStmt(@SuppressWarnings("unused") final Stmt stmt) {
+	@Functional protected boolean shouldConsiderStmt(@SuppressWarnings("unused") final Stmt stmt) {
 		return true;
 	}
 }

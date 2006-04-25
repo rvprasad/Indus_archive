@@ -16,6 +16,7 @@ package edu.ksu.cis.indus.tools.slicer.criteria.predicates;
 
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
+
 import soot.SootMethod;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
@@ -23,7 +24,7 @@ import soot.jimple.ExitMonitorStmt;
 /**
  * This class allows only criteria based on synchronization statements involving escaping lock objects. If escape information
  * is not available, then it's verdict is to generate the criteria from the given entity.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -32,7 +33,7 @@ public final class EscapingSliceCriteriaPredicate
 		extends AbstractSliceCriteriaPredicate<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> {
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#evaluate(Object)
+	 * {@inheritDoc}
 	 */
 	public <E1 extends Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> boolean evaluate(final E1 monitorTriple) {
 		final boolean _result;

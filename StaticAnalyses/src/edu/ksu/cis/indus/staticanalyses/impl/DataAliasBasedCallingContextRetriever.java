@@ -60,7 +60,7 @@ public class DataAliasBasedCallingContextRetriever
 	private CFGAnalysis analysis;
 
 	/**
-	 * DOCUMENT ME!
+	 * This stores the call sites visited while constructing the call stack.
 	 */
 	private final Collection<CallTriple> previous = new HashSet<CallTriple>();
 
@@ -203,9 +203,9 @@ public class DataAliasBasedCallingContextRetriever
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the call sites that can reach the source of data dependence.
 	 * 
-	 * @param callsite DOCUMENT ME!
+	 * @param callsite of interest.
 	 * @param exclusive <code>true</code> indicates that <code>callsite</code> should not be considered during existence
 	 *            check; <code>false</code>, otherwise. Unless the client is sure, this should be <code>false</code>.
 	 * @return <code>true</code> if such a path exists; <code>false</code>, otherwise.

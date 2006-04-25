@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.InstanceOfPredicate;
@@ -21,8 +23,8 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.SimpleNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.ReturnStmt;
@@ -45,7 +46,7 @@ import soot.jimple.ThrowStmt;
 /**
  * This class provides the logic required to process the given slice in order to include goto statements such that it realizes
  * the control as in the original program but as required in the slice.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -74,7 +75,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Creates a new AbstractSliceGotoProcessor object.
-	 *
+	 * 
 	 * @param collector collects the slice.
 	 * @pre collector != null
 	 */
@@ -84,7 +85,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the given methods.
-	 *
+	 * 
 	 * @param methods to be processed.
 	 * @param bbgMgr provides the basic block required to process the methods.
 	 * @pre methods != null and bbgMgr != null
@@ -104,7 +105,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the current method's body for goto-based control flow retention.
-	 *
+	 * 
 	 * @param theMethod to be processed.
 	 * @param bbg is the basic block graph of <code>theMethod</code>.
 	 * @pre theMethod != null
@@ -166,7 +167,7 @@ public final class SliceGotoProcessor {
 				CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 				sliceCollector.includeInSlice(_stmtsOf);
 			}
-			
+
 			final List<Stmt> _stmtList = new ArrayList<Stmt>(bbg.getStmtGraph().getBody().getUnits());
 			for (final BasicBlock _bb : _bbInSlice) {
 				final Stmt _leader = _bb.getLeaderStmt();
@@ -177,7 +178,7 @@ public final class SliceGotoProcessor {
 						sliceCollector.includeInSlice(_prev);
 					}
 				}
-			}			
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -186,12 +187,13 @@ public final class SliceGotoProcessor {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param bbInSlice DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * Checks if the given basic blocks contain parts of a non-trivial slice, i.e. contains an expression with side effect
+	 * beyond the scope of the method.
+	 * 
+	 * @param bbInSlice are the basic blocks to check in.
+	 * @return <code>true</code> if the blocks contain parts of a non-trivial slice; <code>false</code>, otherwise.
 	 */
-	private boolean methodBodyContainsNonTrivialSlice(final Collection<BasicBlock> bbInSlice) {
+	private boolean methodBodyContainsNonTrivialSlice(@NonNull @NonNullContainer final Collection<BasicBlock> bbInSlice) {
 		boolean _result = false;
 		for (final BasicBlock _block : bbInSlice) {
 			for (final Stmt _s : _block.getStmtsOf()) {
@@ -207,13 +209,13 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the basic block to consider intra basic block gotos to reconstruct the control flow.
-	 *
+	 * 
 	 * @param bb is the basic block to be processed.
 	 * @param bbInSlice is the collection of basic blocks containing atleast one statement in the slice. This is an out param.
-	 * @pre bb != null and bbInSlice != null
 	 * @post bbInSlice.containsAll(bbInSlice$pre)
 	 */
-	private void processForIntraBasicBlockGotos(final BasicBlock bb, final Collection<BasicBlock> bbInSlice) {
+	private void processForIntraBasicBlockGotos(@NonNull final BasicBlock bb,
+			@NonNull @NonNullContainer final Collection<BasicBlock> bbInSlice) {
 		for (final Iterator<Stmt> _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
 			final Stmt _stmt = _i.next();
 
@@ -230,7 +232,7 @@ public final class SliceGotoProcessor {
 
 	/**
 	 * Process the basic block graph to consider intra basic block gotos to reconstruct the control flow.
-	 *
+	 * 
 	 * @param bbg is the basic block graph containing the basic blocks to be processed.
 	 * @return the basic blocks containing atleast one statement in the slice.
 	 * @pre bbg != null

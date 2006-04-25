@@ -24,34 +24,34 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <E1> DOCUMENT ME!
- * @param <C1> DOCUMENT ME!
- * @param <T1> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
+ * @param <E1> is the type of dependee object in the context of dependee-to-dependent info maintenance.
+ * @param <C1> is the type of context object in the context of dependee-to-dependent info maintenance.
+ * @param <T1> is the type of dependent object in the context of dependee-to-dependent info maintenance.
+ * @param <T2> is the type of dependent object in the context of dependent-to-dependee info maintenance.
+ * @param <C2> is the type of context object in the context of dependent-to-dependee info maintenance.
+ * @param <E2> is the type of dependee object in the context of dependent-to-dependee info maintenance.
  */
 public interface IDependenceRetriever<T1, C1, E1, E2, C2, T2> {
 
 	/**
-	 * DOCUMENT ME!
+	 * Converts the given dependents to a form that they can be used as dependees.
 	 * 
-	 * @param dependents DOCUMENT ME!
-	 * @param dependee DOCUMENT ME!
-	 * @param context DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param dependents to be converted.
+	 * @param dependee yielding the dependents.
+	 * @param context in which the dependee yields the dependents.
+	 * @return the collection containing the dependents in a form that they can be used dependees.
 	 */
 	Collection<Pair<E2, C2>> convertToConformantDependees(final Collection<T2> dependents, final E2 dependee, final C2 context);
 
 	/**
-	 * DOCUMENT ME!
+	 * Converts the given dependees to a form that they can be used as dependents.
 	 * 
-	 * @param dependents DOCUMENT ME!
-	 * @param base DOCUMENT ME!
-	 * @param context DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param dependees to be converted.
+	 * @param dependent yielding the dependees.
+	 * @param context in which the dependent yields the dependees.
+	 * @return the collection containing the dependees in a form that they can be used dependents.
 	 */
-	Collection<Pair<T1, C1>> convertToConformantDependents(final Collection<E1> dependents, final T1 dependent,
+	Collection<Pair<T1, C1>> convertToConformantDependents(final Collection<E1> dependees, final T1 dependent,
 			final C1 context);
 
 	/**

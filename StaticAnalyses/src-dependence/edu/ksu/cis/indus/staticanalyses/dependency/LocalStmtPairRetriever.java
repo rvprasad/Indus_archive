@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Experimental;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
@@ -25,13 +26,14 @@ import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 /**
- * DOCUMENT ME!
+ * * This implementation of <code>IDependenceRetriever</code> is used in instance when the dependence information is
+ * provided in terms of local variables and statements pair. Use this in cases such as ready dependence.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class LocalStmtPairRetriever
+@Experimental public class LocalStmtPairRetriever
 		extends
 		AbstractDependenceRetriever<Pair<Local, Stmt>, SootMethod, DefinitionStmt, DefinitionStmt, SootMethod, Pair<Local, Stmt>> {
 
@@ -44,24 +46,20 @@ public class LocalStmtPairRetriever
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependenceRetriever#convertToConformantDependees(java.util.Collection,
-	 *      java.lang.Object, java.lang.Object)
 	 */
 	public Collection<Pair<DefinitionStmt, SootMethod>> convertToConformantDependees(
-			final Collection<Pair<Local, Stmt>> dependees, final DefinitionStmt base, final SootMethod context) {
+			@SuppressWarnings("unused") final Collection<Pair<Local, Stmt>> dependees,
+			@SuppressWarnings("unused") final DefinitionStmt base, @SuppressWarnings("unused") final SootMethod context) {
 		// TODO: Auto-generated method stub
 		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependenceRetriever#convertToConformantDependents(java.util.Collection,
-	 *      java.lang.Object, java.lang.Object)
 	 */
 	public Collection<Pair<Pair<Local, Stmt>, SootMethod>> convertToConformantDependents(
-			final Collection<DefinitionStmt> dependents, final Pair<Local, Stmt> base, final SootMethod context) {
+			@SuppressWarnings("unused") final Collection<DefinitionStmt> dependents,
+			@SuppressWarnings("unused") final Pair<Local, Stmt> base, @SuppressWarnings("unused") final SootMethod context) {
 		// TODO: Auto-generated method stub
 		return null;
 	}

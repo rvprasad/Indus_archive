@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.ReflectionBasedSupertypePredicate;
 
@@ -28,7 +30,7 @@ import soot.jimple.Stmt;
 /**
  * This class can be used to generate slice criteria based on statements of certain types/classes specified by the user. The
  * criteria is also guided by a specification matcher.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -53,18 +55,17 @@ public final class StmtTypeBasedSliceCriteriaGenerator
 
 	/**
 	 * Sets the types of the statements to be considered as slice criteria.
-	 *
-	 * @param <T> DOCUMENT ME!
+	 * 
+	 * @param <T> is the type of the statement AST nodes.
 	 * @param types of the statements.
-	 * @pre types != null
 	 */
-	public <T extends Stmt> void setStmtTypes(final Collection<Class<T>> types) {
+	public <T extends Stmt> void setStmtTypes(@NonNull @NonNullContainer final Collection<Class<T>> types) {
 		stmtTypes.clear();
 		stmtTypes.addAll(types);
 	}
 
 	/**
-	 * @see AbstractStmtBasedSliceCriteriaGenerator#shouldConsiderStmt(Stmt)
+	 * {@inheritDoc}
 	 */
 	@Override protected boolean shouldConsiderStmt(final Stmt stmt) {
 		subClassPredicate.setsubType(stmt.getClass());

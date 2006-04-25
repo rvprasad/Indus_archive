@@ -117,7 +117,7 @@ public final class RelativeDependenceInfoTool
 		public static final Object ARRAY_REFS = "edu.ksu.cis.projects.bogor.module.por.indus.DynamicRDPORSchedulingStrategist.arrayRefs";
 
 		/**
-		 * DOCUMENT ME!
+		 * This identifies the class used to calculate dependence and may follow information.
 		 */
 		public static final String CALCULATOR_CLASS = "edu.ksu.cis.indus.toolkits.bandera.DependenceAndMayFollowInfoCalculator";
 
@@ -316,7 +316,7 @@ public final class RelativeDependenceInfoTool
 	private Collection<SootMethod> rootMethods;
 
 	/**
-	 * DOCUMENT ME!
+	 * This indicates if version 2 of information calculator should be used.
 	 */
 	private boolean useV2Calculator;
 

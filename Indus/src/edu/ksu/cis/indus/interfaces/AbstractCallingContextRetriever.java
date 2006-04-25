@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.annotations.Immutable;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
@@ -53,13 +55,13 @@ public abstract class AbstractCallingContextRetriever
 	 */
 	protected enum Tokens {
 		/**
-		 * This value indicates that the current context should be accepted as a terminal context
-		 */
-		ACCEPT_TERMINAL_CONTEXT_TOKEN,
-		/**
 		 * This value indicates that the current context should be accepted as a non-terminal context.
 		 */
 		ACCEPT_NON_TERMINAL_CONTEXT_TOKEN,
+		/**
+		 * This value indicates that the current context should be accepted as a terminal context
+		 */
+		ACCEPT_TERMINAL_CONTEXT_TOKEN,
 		/**
 		 * This value indicates that all context should be considered.
 		 */
@@ -86,7 +88,7 @@ public abstract class AbstractCallingContextRetriever
 	private ICallGraphInfo callGraph;
 
 	/**
-	 * DOCUMENT ME!
+	 * The collection of explored call sites.
 	 */
 	private final Collection<Pair<CallTriple, Object>> exploredCallSites = new HashSet<Pair<CallTriple, Object>>();
 
@@ -108,7 +110,7 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * @see ICallingContextRetriever#getCallingContextsForProgramPoint(Context)
+	 * {@inheritDoc}
 	 */
 	public final Collection<Stack<CallTriple>> getCallingContextsForProgramPoint(final Context context) {
 		final Collection<Stack<CallTriple>> _result;
@@ -127,7 +129,7 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * @see ICallingContextRetriever#getCallingContextsForThis(Context)
+	 * {@inheritDoc}
 	 */
 	public final Collection<Stack<CallTriple>> getCallingContextsForThis(final Context methodContext) {
 		final Collection<Stack<CallTriple>> _result;
@@ -255,70 +257,17 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the contexts based on the given token and method in which it occurs.
+	 * Calculates the caller side call stack.
 	 * 
-	 * @param token is the seed token
-	 * @param method where the calling context should start from.
-	 * @return a collection of calling contexts.
-	 * @pre token != null and method != null
-	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
+	 * @param callee of interest.
+	 * @param calleeToken is the callee side token.
+	 * @param calleeCallStack is the call stack up until callee.
+	 * @param wb is the workbag that is updated with new caller-side call stacks that need to be further extended.
+	 * @param result is updated with a collection of call stacks that need not be further extended.
 	 */
-	private Collection<Stack<CallTriple>> getCallingContexts(final Object token, final SootMethod method) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getCallingContexts(Object token = " + token + ", SootMethod method = " + method + ") - BEGIN");
-		}
-
-		final Collection<Stack<CallTriple>> _result;
-
-		if (token == Tokens.CONSIDER_ALL_CONTEXTS_TOKEN) {
-			_result = ICallingContextRetriever.NULL_CONTEXTS;
-		} else if (token != Tokens.DISCARD_CONTEXT_TOKEN) {
-			final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> _wb = new LIFOWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>>();
-			_wb.addWork(new Triple<SootMethod, Object, Stack<CallTriple>>(method, token, new Stack<CallTriple>()));
-			_result = new HashSet<Stack<CallTriple>>();
-
-			while (_wb.hasWork()) {
-				final Triple<SootMethod, Object, Stack<CallTriple>> _triple = _wb.getWork();
-				final SootMethod _callee = _triple.getFirst();
-				final Object _calleeToken = _triple.getSecond();
-				final Stack<CallTriple> _calleeCallStack = _triple.getThird();
-				calculateCallStack(_callee, _calleeToken, _calleeCallStack, _wb, _result);
-			}
-
-			// Reverse the call stacks as they have been constructed bottom-up.
-			final Iterator<Stack<CallTriple>> _j = _result.iterator();
-			final int _jEnd = _result.size();
-
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stack<?> _stack = _j.next();
-
-				if (_stack != null) {
-					Collections.reverse(_stack);
-				}
-			}
-		} else {
-			_result = Collections.emptySet();
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getCallingContexts() - END - return value = " + _result);
-		}
-
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param callee DOCUMENT ME!
-	 * @param calleeToken DOCUMENT ME!
-	 * @param calleeCallStack DOCUMENT ME!
-	 * @param wb DOCUMENT ME!
-	 * @param result DOCUMENT ME!
-	 */
-	private void calculateCallStack(final SootMethod callee, final Object calleeToken,
-			final Stack<CallTriple> calleeCallStack, final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> wb,
-			final Collection<Stack<CallTriple>> result) {
+	private void calculateCallStack(@NonNull @Immutable final SootMethod callee,
+			@NonNull @Immutable final Object calleeToken, @NonNull @Immutable final Stack<CallTriple> calleeCallStack,
+			final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> wb, final Collection<Stack<CallTriple>> result) {
 		if (calleeCallStack.size() == callContextLenLimit) {
 			result.add(calleeCallStack);
 		} else {
@@ -377,13 +326,67 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the contexts based on the given token and method in which it occurs.
 	 * 
-	 * @param callSite DOCUMENT ME!
-	 * @param calleeToken DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param token is the seed token
+	 * @param method where the calling context should start from.
+	 * @return a collection of calling contexts.
+	 * @pre token != null and method != null
+	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
-	private boolean isCallSiteExplored(final CallTriple callSite, final Object calleeToken) {
+	private Collection<Stack<CallTriple>> getCallingContexts(final Object token, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallingContexts(Object token = " + token + ", SootMethod method = " + method + ") - BEGIN");
+		}
+
+		final Collection<Stack<CallTriple>> _result;
+
+		if (token == Tokens.CONSIDER_ALL_CONTEXTS_TOKEN) {
+			_result = ICallingContextRetriever.NULL_CONTEXTS;
+		} else if (token != Tokens.DISCARD_CONTEXT_TOKEN) {
+			final IWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>> _wb = new LIFOWorkBag<Triple<SootMethod, Object, Stack<CallTriple>>>();
+			_wb.addWork(new Triple<SootMethod, Object, Stack<CallTriple>>(method, token, new Stack<CallTriple>()));
+			_result = new HashSet<Stack<CallTriple>>();
+
+			while (_wb.hasWork()) {
+				final Triple<SootMethod, Object, Stack<CallTriple>> _triple = _wb.getWork();
+				final SootMethod _callee = _triple.getFirst();
+				final Object _calleeToken = _triple.getSecond();
+				final Stack<CallTriple> _calleeCallStack = _triple.getThird();
+				calculateCallStack(_callee, _calleeToken, _calleeCallStack, _wb, _result);
+			}
+
+			// Reverse the call stacks as they have been constructed bottom-up.
+			final Iterator<Stack<CallTriple>> _j = _result.iterator();
+			final int _jEnd = _result.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final Stack<?> _stack = _j.next();
+
+				if (_stack != null) {
+					Collections.reverse(_stack);
+				}
+			}
+		} else {
+			_result = Collections.emptySet();
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getCallingContexts() - END - return value = " + _result);
+		}
+
+		return _result;
+	}
+
+	/**
+	 * Checks if the given call site and callee-side token have been explored.
+	 * 
+	 * @param callSite of interest.
+	 * @param calleeToken of interest.
+	 * @return <code>true</code> if they have been explored; <code>false</code>, otherwise.
+	 */
+	private boolean isCallSiteExplored(@NonNull @Immutable final CallTriple callSite,
+			@NonNull @Immutable final Object calleeToken) {
 		final Pair<CallTriple, Object> _pair = new Pair<CallTriple, Object>(callSite, calleeToken, true, false);
 		return exploredCallSites.add(_pair);
 	}

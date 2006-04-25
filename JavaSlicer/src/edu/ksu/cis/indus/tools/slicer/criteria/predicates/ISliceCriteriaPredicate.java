@@ -23,7 +23,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T>
+ * @param <T> is the type of input object to the predicate.
  */
 public interface ISliceCriteriaPredicate<T>
 		extends IPredicate<T> {

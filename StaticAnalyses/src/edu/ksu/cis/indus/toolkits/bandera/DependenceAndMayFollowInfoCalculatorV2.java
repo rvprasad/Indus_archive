@@ -46,7 +46,7 @@ import soot.jimple.ThrowStmt;
 import soot.toolkits.graph.UnitGraph;
 
 /**
- * This class calculates the dependence information that is more precise than it's parent class.
+ * This class calculates the dependence information that considers the type of return (normal vs exceptional) from a method.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -56,9 +56,7 @@ import soot.toolkits.graph.UnitGraph;
 		extends DependenceAndMayFollowInfoCalculator {
 
 	/**
-	 * DOCUMENT ME!
-	 * <p>
-	 * </p>
+	 * This is a data class to capture the information during calculations.
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -68,54 +66,50 @@ import soot.toolkits.graph.UnitGraph;
 			implements Cloneable {
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The collection of array references.
 		 */
 		Collection<Pair<Stmt, SootMethod>> aref;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The call stack.
 		 */
 		Stack<Pair<Stmt, SootMethod>> callstack;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The current statement.
 		 */
 		Stmt currStmt;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The entry that creates the thread.
+		 */
+		final SootMethod entryPoint;
+
+		/**
+		 * The collection of field references.
 		 */
 		Collection<Pair<Stmt, SootMethod>> fref;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The collection of lock acquisitions.
 		 */
 		Collection<Pair<Stmt, SootMethod>> lacq;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The current method.
 		 */
 		SootMethod method;
-
-		final SootMethod entryPoint;
 
 		/**
 		 * Creates an instance of this class.
 		 * 
-		 * @param sm DOCUMENT ME!
-		 * @param stmt DOCUMENT ME!
+		 * @param sm is the current method.
+		 * @param stmt is the current statement.
+		 * @param callChain is the call stack.
+		 * @param lockCol is the collection of lock acquisitions.
+		 * @param arefCol is the collection of array references.
+		 * @param frefCol is the collection of field references.
+		 * @param entry is the entry point to the containing thread.
 		 */
 		public Info(final SootMethod sm, final Stmt stmt, final Stack<Pair<Stmt, SootMethod>> callChain,
 				final Collection<Pair<Stmt, SootMethod>> lockCol, final Collection<Pair<Stmt, SootMethod>> arefCol,
@@ -130,9 +124,7 @@ import soot.toolkits.graph.UnitGraph;
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * @return DOCUMENT ME!
+		 * {@inheritDoc}
 		 */
 		@Override public Info clone() {
 			final Info _result;
@@ -153,45 +145,58 @@ import soot.toolkits.graph.UnitGraph;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * The enumeration of successor type in a inter-procedural control graph.
 	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	enum SuccessorType {
+	private enum SuccessorType {
 
 		/**
-		 * DOCUMENT ME!
+		 * The successor due to exceptional control return from a call-site.
 		 */
 		EXCEPTIONAL_RETURN,
 		/**
-		 * DOCUMENT ME!
+		 * The successor due to intraprocedural control flow.
 		 */
 		INTRAPROCEDURAL,
 		/**
-		 * DOCUMENT ME!
+		 * The successor due to normal control return from a call-site.
 		 */
 		NORMAL_RETURN
 	}
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This stores the mapping from entry point to reachable array references.
+	 */
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableARef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
+	/**
+	 * This stores the mapping from entry point to reachable array references.
+	 */
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableFRef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
+	/**
+	 * This stores the mapping from entry point to reachable lock acquisitions.
+	 */
+	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableLock = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
+
+	/**
+	 * This provides statement graphs.
 	 */
 	private final IStmtGraphFactory<?> stmtGraphFactory;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 * 
-	 * @param theTool DOCUMENT ME!
-	 * @param ida DOCUMENT ME!
-	 * @param lbe DOCUMENT ME!
-	 * @param threadGraph DOCUMENT ME!
-	 * @param callGraph DOCUMENT ME!
-	 * @param cfgAnalysis DOCUMENT ME!
-	 * @param graphFactory DOCUMENT ME!
+	 * @param theTool is the tool that defines the context for this calculator.
+	 * @param ida is the interference dependence analysis to use.
+	 * @param lbe is the lock acquisition based dependence analysis to use.
+	 * @param threadGraph is the thread graph to use.
+	 * @param callGraph is the call graph to use.
+	 * @param cfgAnalysis is the CFG analysis to use.
+	 * @param graphFactory is the statement graph factory to use.
 	 * @see DependenceAndMayFollowInfoCalculator#DependenceAndMayFollowInfoCalculator(RelativeDependenceInfoTool,
 	 *      InterferenceDAv1, LockAcquisitionBasedEquivalence, ICallGraphInfo, IThreadGraphInfo, CFGAnalysis)
 	 */
@@ -202,14 +207,8 @@ import soot.toolkits.graph.UnitGraph;
 		stmtGraphFactory = graphFactory;
 	}
 
-	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableARef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
-
-	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableFRef = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
-
-	private final Map<SootMethod, Collection<Pair<Stmt, SootMethod>>> entryPoint2reachableLock = new HashMap<SootMethod, Collection<Pair<Stmt, SootMethod>>>();
-
 	/**
-	 * @see edu.ksu.cis.indus.toolkits.bandera.DependenceAndMayFollowInfoCalculator#translateAndPopulateMayFollowRelation()
+	 * {@inheritDoc}
 	 */
 	@Override protected void translateAndPopulateMayFollowRelation() {
 		final Iterator<SootMethod> _i = tgi.getThreadEntryPoints().iterator();
@@ -234,56 +233,51 @@ import soot.toolkits.graph.UnitGraph;
 				if (_stmt == null) {
 					_info.currStmt = (Stmt) stmtGraphFactory.getStmtGraph(_info.method).getBody().getUnits().getFirst();
 					_wb.addWork(_info);
-				} else if (_stmt instanceof EnterMonitorStmt) {
+				} else {
 					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-					recordMayFollow(_pair, _info.lacq);
-					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
-				} else if (_stmt.containsArrayRef()) {
-					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-					recordMayFollow(_pair, _info.aref);
-					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
-				} else if (_stmt.containsFieldRef()) {
-					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-					recordMayFollow(_pair, _info.fref);
-					processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
-				} else if (_stmt.containsInvokeExpr()) {
-					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-					_info.lacq.add(_pair);
-					_info.aref.add(_pair);
-					_info.fref.add(_pair);
-					_info.currStmt = null;
+					if (_stmt instanceof EnterMonitorStmt) {
+						recordMayFollow(_pair, _info.lacq);
+						processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
+					} else if (_stmt.containsArrayRef()) {
+						recordMayFollow(_pair, _info.aref);
+						processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
+					} else if (_stmt.containsFieldRef()) {
+						recordMayFollow(_pair, _info.fref);
+						processSuccs(_info, _pair, _wb, SuccessorType.INTRAPROCEDURAL);
+					} else if (_stmt.containsInvokeExpr()) {
+						_info.lacq.add(_pair);
+						_info.aref.add(_pair);
+						_info.fref.add(_pair);
+						_info.currStmt = null;
 
-					final Context _context = new Context();
-					_context.setStmt(_stmt);
-					_context.setRootMethod(_info.method);
+						final Context _context = new Context();
+						_context.setStmt(_stmt);
+						_context.setRootMethod(_info.method);
 
-					final Collection<SootMethod> _callees = cgi.getCallees(_stmt.getInvokeExpr(), _context);
-					final Iterator<SootMethod> _j = _callees.iterator();
-					final int _jEnd = _callees.size();
+						final Collection<SootMethod> _callees = cgi.getCallees(_stmt.getInvokeExpr(), _context);
+						final Iterator<SootMethod> _j = _callees.iterator();
+						final int _jEnd = _callees.size();
 
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Info _clone = _info.clone();
-						_clone.callstack.push(_pair);
-						_info.method = _j.next();
-						_wb.addWork(_clone);
-					}
-				} else if (_stmt instanceof ReturnVoidStmt || _stmt instanceof ReturnStmt) {
-					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-
-					if (!_info.callstack.isEmpty()) {
-						final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
-						_info.currStmt = _caller.getFirst();
-						_info.method = _caller.getSecond();
-						processSuccs(_info, _pair, _wb, SuccessorType.NORMAL_RETURN);
-					}
-				} else if (_stmt instanceof ThrowStmt) {
-					final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(_stmt, _info.method);
-
-					if (!_info.callstack.isEmpty()) {
-						final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
-						_info.currStmt = _caller.getFirst();
-						_info.method = _caller.getSecond();
-						processSuccs(_info, _pair, _wb, SuccessorType.EXCEPTIONAL_RETURN);
+						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+							final Info _clone = _info.clone();
+							_clone.callstack.push(_pair);
+							_info.method = _j.next();
+							_wb.addWork(_clone);
+						}
+					} else if (_stmt instanceof ReturnVoidStmt || _stmt instanceof ReturnStmt) {
+						if (!_info.callstack.isEmpty()) {
+							final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
+							_info.currStmt = _caller.getFirst();
+							_info.method = _caller.getSecond();
+							processSuccs(_info, _pair, _wb, SuccessorType.NORMAL_RETURN);
+						}
+					} else if (_stmt instanceof ThrowStmt) {
+						if (!_info.callstack.isEmpty()) {
+							final Pair<Stmt, SootMethod> _caller = _info.callstack.pop();
+							_info.currStmt = _caller.getFirst();
+							_info.method = _caller.getSecond();
+							processSuccs(_info, _pair, _wb, SuccessorType.EXCEPTIONAL_RETURN);
+						}
 					}
 				}
 			}
@@ -291,10 +285,11 @@ import soot.toolkits.graph.UnitGraph;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes information to handle recursion.
 	 * 
-	 * @param info DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param info to be processed.
+	 * @param wb to be used.
+	 * @return <code>true</code> recursion occurred; <code>false</code>, otherwise.
 	 */
 	private boolean handleRecursion(final Info info, final IWorkBag<Info> wb) {
 		final Pair<Stmt, SootMethod> _pair = new Pair<Stmt, SootMethod>(info.currStmt, info.method);
@@ -322,11 +317,11 @@ import soot.toolkits.graph.UnitGraph;
 	};
 
 	/**
-	 * DOCUMENT ME!
+	 * Process the successors.
 	 * 
-	 * @param info DOCUMENT ME!
-	 * @param pair DOCUMENT ME!
-	 * @param wb DOCUMENT ME!
+	 * @param info of the current node.
+	 * @param pair the current node.
+	 * @param wb to be used.
 	 */
 	private void processSuccs(final Info info, final Pair<Stmt, SootMethod> pair, final IWorkBag<Info> wb,
 			final SuccessorType retType) {
@@ -355,10 +350,10 @@ import soot.toolkits.graph.UnitGraph;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Records may follow information.
 	 * 
-	 * @param pair DOCUMENT ME!
-	 * @param col DOCUMENT ME!
+	 * @param pair is the current CFG node.
+	 * @param col contains may follow information.
 	 */
 	private void recordMayFollow(final Pair<Stmt, SootMethod> pair, final Collection<Pair<Stmt, SootMethod>> col) {
 		final Iterator<Pair<Stmt, SootMethod>> _i = col.iterator();

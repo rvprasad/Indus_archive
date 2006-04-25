@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
@@ -26,40 +27,40 @@ import java.util.Collection;
 
 import soot.SootMethod;
 
-
 /**
  * This is an abstract implementation of <code>ISliceCriteriaGenerator</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T1> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
+ * @param <T1> is the type of objects that are selected in expectation of containing slice criteria.
+ * @param <T2> is the type of objects that will be considered for being used as slice criteria.
  */
 public abstract class AbstractSliceCriteriaGenerator<T1, T2>
-  implements ISliceCriteriaGenerator<T1, T2> {
-	/** 
+		implements ISliceCriteriaGenerator<T1, T2> {
+
+	/**
 	 * The contextualizer to use.
 	 */
 	private ISliceCriteriaContextualizer contextualizer;
 
-	/** 
+	/**
 	 * The filter to use.
 	 */
 	private ISliceCriteriaPredicate<T2> criteriaPredicate;
 
-	/** 
-	 * The predicate to select sites in which the criteria may occur. 
+	/**
+	 * The predicate to select sites in which the criteria may occur.
 	 */
 	private IPredicate<T1> siteSelectionPredicate;
 
-	/** 
+	/**
 	 * The slicer that defines the context in which generator functions.
 	 */
 	private SlicerTool<?> slicerTool;
 
 	/**
-	 * @see ISliceCriteriaGenerator#getCriteria(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * {@inheritDoc}
 	 */
 	public final Collection<ISliceCriterion> getCriteria(final SlicerTool<?> slicer) {
 		slicerTool = slicer;
@@ -75,21 +76,21 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setCriteriaContextualizer(ISliceCriteriaContextualizer)
+	 * {@inheritDoc}
 	 */
 	public final void setCriteriaContextualizer(final ISliceCriteriaContextualizer theContextualizer) {
 		contextualizer = theContextualizer;
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setCriteriaFilterPredicate(ISliceCriteriaPredicate)
+	 * {@inheritDoc}
 	 */
 	public final void setCriteriaFilterPredicate(final ISliceCriteriaPredicate<T2> thePredicate) {
 		criteriaPredicate = thePredicate;
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setSiteSelectionPredicate(IPredicate)
+	 * {@inheritDoc}
 	 */
 	public final void setSiteSelectionPredicate(final IPredicate<T1> thePredicate) {
 		siteSelectionPredicate = thePredicate;
@@ -97,16 +98,13 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 
 	/**
 	 * Contextualizes the given criteria.
-	 *
+	 * 
 	 * @param context in which <code>baseCriteria</code> were generated.
-	 * @param baseCriteria is the collection of criteria to be contextualized.  This collection will be modified upon return
-	 * 		  with contextualized criteria.
-	 *
-	 * @pre context != null and baseCriteria != null
-	 * @pre baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
-	 * @post baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @param baseCriteria is the collection of criteria to be contextualized. This collection will be modified upon return
+	 *            with contextualized criteria.
 	 */
-	protected final void contextualizeCriteriaBasedOnProgramPoint(final Context context, final Collection<ISliceCriterion> baseCriteria) {
+	protected final void contextualizeCriteriaBasedOnProgramPoint(@NonNull final Context context,
+			@NonNull @NonNullContainer final Collection<ISliceCriterion> baseCriteria) {
 		if (contextualizer != null) {
 			contextualizer.processCriteriaBasedOnProgramPoint(context, baseCriteria);
 		}
@@ -114,16 +112,13 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 
 	/**
 	 * Contextualizes the given criteria.
-	 *
+	 * 
 	 * @param method in which <code>baseCriteria</code> were generated.
-	 * @param baseCriteria is the collection of criteria to be contextualized.  This collection will be modified upon return
-	 * 		  with contextualized criteria.
-	 *
-	 * @pre context != null and baseCriteria != null
-	 * @pre baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
-	 * @post baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @param baseCriteria is the collection of criteria to be contextualized. This collection will be modified upon return
+	 *            with contextualized criteria.
 	 */
-	protected final void contextualizeCriteriaBasedOnThis(final SootMethod method, final Collection<ISliceCriterion> baseCriteria) {
+	protected final void contextualizeCriteriaBasedOnThis(@NonNull final SootMethod method,
+			@NonNull @NonNullContainer final Collection<ISliceCriterion> baseCriteria) {
 		if (contextualizer != null) {
 			contextualizer.processCriteriaBasedOnThis(method, baseCriteria);
 		}
@@ -131,9 +126,8 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 
 	/**
 	 * Checks if the given site should be considered for criteria generation.
-	 *
+	 * 
 	 * @param site to be checked.
-	 *
 	 * @return <code>true</code> if site should be considered; <code>false</code>, otherwise.
 	 */
 	protected final boolean shouldConsiderSite(final T1 site) {
@@ -149,16 +143,14 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 
 	/**
 	 * This is a template method that the subclasses should implement to generate the criteria.
-	 *
+	 * 
 	 * @return a collection of criteria.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	protected abstract Collection<ISliceCriterion> getCriteriaTemplateMethod();
+	@NonNull @NonNullContainer protected abstract Collection<ISliceCriterion> getCriteriaTemplateMethod();
 
 	/**
 	 * Retrieves the value in <code>slicerTool</code>.
-	 *
+	 * 
 	 * @return the value in <code>slicerTool</code>.
 	 */
 	protected SlicerTool<?> getSlicerTool() {
@@ -166,15 +158,12 @@ public abstract class AbstractSliceCriteriaGenerator<T1, T2>
 	}
 
 	/**
-	 * Checks if  criteria should be generated based on the given entity.
-	 *
+	 * Checks if criteria should be generated based on the given entity.
+	 * 
 	 * @param entity forms the base for the criteria.
-	 *
 	 * @return <code>true</code>
-	 *
-	 * @pre entity != null and slicer != null
 	 */
-	protected final boolean shouldGenerateCriteriaFrom(final T2 entity) {
+	protected final boolean shouldGenerateCriteriaFrom(@NonNull final T2 entity) {
 		final boolean _result;
 
 		if (criteriaPredicate != null) {

@@ -455,7 +455,7 @@ public class SafeLockAnalysis
 	/**
 	 * Propagates the "unsafe" information to other monitors based on monitor enclosures and lock based relations.
 	 * 
-	 * @param <N> DOCUMENT ME!
+	 * @param <N> is the type of the node of the monitor graph.k
 	 * @param collectedUnsafeMonitors is the collection of unsafe monitors.
 	 * @param monitorGraph to be used.
 	 * @pre monitorGraph != null

@@ -14,9 +14,12 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
- * DOCUMENT ME!
- *
+ * The enumeration of types of slices.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -38,12 +41,12 @@ public enum SliceType {
 	FORWARD_SLICE;
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param v DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * Provides the name of the slice type.
+	 * 
+	 * @param v is the slice type of interest.
+	 * @return the name of the slice type.
 	 */
-	public static String name(final SliceType v) {
+	@NonNull @Functional public static String name(@NonNull final SliceType v) {
 		return v.name();
 	}
 }

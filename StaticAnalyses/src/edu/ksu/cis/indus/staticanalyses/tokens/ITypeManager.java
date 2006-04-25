@@ -23,8 +23,8 @@ import java.util.Observer;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <R> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
+ * @param <R> is the type of the representation types.
+ * @param <V> is the type of the value object (in the representation).
  */
 public interface ITypeManager<R, V> {
 

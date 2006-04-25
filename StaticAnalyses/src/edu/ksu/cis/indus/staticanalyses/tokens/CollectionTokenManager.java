@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -27,18 +26,18 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class realizes a token manager that represents tokens asis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <V> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <V> is the type of the value object (in the representation).
+ * @param <R> is the type of the representation types.
  */
 public final class CollectionTokenManager<V, R>
-  extends AbstractTokenManager<CollectionTokenManager<V, R>.CollectionTokens, V, R> {
+		extends AbstractTokenManager<CollectionTokenManager<V, R>.CollectionTokens, V, R> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -46,9 +45,8 @@ public final class CollectionTokenManager<V, R>
 
 	/**
 	 * Creates an instacne of this class.
-	 *
+	 * 
 	 * @param typeManager to be used.
-	 *
 	 * @pre typeManager != null
 	 */
 	public CollectionTokenManager(final ITypeManager<R, V> typeManager) {
@@ -57,13 +55,14 @@ public final class CollectionTokenManager<V, R>
 
 	/**
 	 * This class represents a token filter based on collection of tokens.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class CollectionTokenFilter
-	  implements ITokenFilter<CollectionTokenManager<V, R>.CollectionTokens, V> {
+			implements ITokenFilter<CollectionTokenManager<V, R>.CollectionTokens, V> {
+
 		/**
 		 * The type associated with the filter.
 		 */
@@ -71,9 +70,8 @@ public final class CollectionTokenManager<V, R>
 
 		/**
 		 * Creates an instance of this class.
-		 *
+		 * 
 		 * @param type is the type used to filter.
-		 *
 		 * @pre type != null
 		 */
 		CollectionTokenFilter(final IType type) {
@@ -81,9 +79,9 @@ public final class CollectionTokenManager<V, R>
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
+		 * {@inheritDoc}
 		 */
-		public CollectionTokenManager<V, R>.CollectionTokens filter(final CollectionTokenManager<V, R>.CollectionTokens  tokens) {
+		public CollectionTokenManager<V, R>.CollectionTokens filter(final CollectionTokenManager<V, R>.CollectionTokens tokens) {
 			final Collection<V> _filterate = new ArrayList<V>();
 
 			for (final Iterator<V> _i = tokens.getValues().iterator(); _i.hasNext();) {
@@ -97,29 +95,28 @@ public final class CollectionTokenManager<V, R>
 		}
 	}
 
-
 	/**
 	 * This class represents a collection of tokens represented asis.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class CollectionTokens
-	  extends AbstractPrototype<CollectionTokens>
-	  implements ITokens<CollectionTokens, V> {
+			extends AbstractPrototype<CollectionTokens>
+			implements ITokens<CollectionTokens, V> {
+
 		/**
 		 * The collection of values.
-		 *
+		 * 
 		 * @invariant values != null
 		 */
 		private Collection<V> values;
 
 		/**
 		 * Creates a new instance of this class.
-		 *
+		 * 
 		 * @param initValues are the values to be put into this instnace.
-		 *
 		 * @pre initValues != null
 		 */
 		CollectionTokens(final Collection<V> initValues) {
@@ -128,71 +125,70 @@ public final class CollectionTokenManager<V, R>
 
 		/**
 		 * Creates an instance of this class.
-		 *
 		 */
 		CollectionTokens() {
 			values = new HashSet<V>();
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
+		 * {@inheritDoc}
 		 */
-		@Override public CollectionTokens getClone(@SuppressWarnings("unused") final Object...o) {
+		@Override public CollectionTokens getClone(@SuppressWarnings("unused") final Object... o) {
 			return new CollectionTokens(values);
 		}
 
 		/**
-		 * @see ITokens#isEmpty()
+		 * {@inheritDoc}
 		 */
 		public boolean isEmpty() {
 			return values.isEmpty();
 		}
 
 		/**
-		 * @see ITokens#getValues()
+		 * {@inheritDoc}
 		 */
 		public Collection<V> getValues() {
 			return Collections.unmodifiableCollection(values);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#addTokens(ITokens)
+		 * {@inheritDoc}
 		 */
 		public void addTokens(final CollectionTokens newTokens) {
 			values.addAll(newTokens.values);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#clear()
+		 * {@inheritDoc}
 		 */
 		public void clear() {
 			values.clear();
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
+		 * {@inheritDoc}
 		 */
-		public CollectionTokens diffTokens(final CollectionTokens  tokens) {
+		public CollectionTokens diffTokens(final CollectionTokens tokens) {
 			return new CollectionTokens(SetUtils.difference(values, tokens.values));
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 * {@inheritDoc}
 	 */
 	public CollectionTokens getNewTokenSet() {
 		return new CollectionTokens();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
+	 * {@inheritDoc}
 	 */
 	public CollectionTokens getTokens(final Collection<V> values) {
 		return new CollectionTokens(values);
 	}
 
 	/**
-	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
+	 * {@inheritDoc}
 	 */
 	@Override protected CollectionTokenFilter getNewFilterForType(final IType type) {
 		return new CollectionTokenFilter(type);

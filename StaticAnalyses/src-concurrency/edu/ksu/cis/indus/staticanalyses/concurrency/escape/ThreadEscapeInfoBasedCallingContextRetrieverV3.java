@@ -46,14 +46,13 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 	 * @param preserveReady <i>refer to the constructor of the super class</i>.
 	 * @param preserveInterference <i>refer to the constructor of the super class</i>.
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV3(final int callContextLenLimit, final boolean preserveReady, final boolean preserveInterference) {
+	public ThreadEscapeInfoBasedCallingContextRetrieverV3(final int callContextLenLimit, final boolean preserveReady,
+			final boolean preserveInterference) {
 		super(callContextLenLimit, preserveReady, preserveInterference);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see ThreadEscapeInfoBasedCallingContextRetrieverV2#shouldCallerSideTokenBeDiscarded(AliasSet, AliasSet)
 	 */
 	@Override protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken,
 			final AliasSet calleeSideToken) {
@@ -61,9 +60,9 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 		boolean _result = super.shouldCallerSideTokenBeDiscarded(callerSideToken, calleeSideToken);
 		if (!_result) {
 			if (_stmt != null) {
-				_result = process1(callerSideToken, _stmt, _result);
+				_result = shouldCallerSideTokenBeDiscardedWhenSrcStmtIsNonNull(callerSideToken, _stmt, _result);
 			} else {
-				_result = process2(callerSideToken, _result);
+				_result = shouldCallerSideTokenBeDiscardedWhenSrcStmtIsNull(callerSideToken, _result);
 			}
 		}
 
@@ -71,14 +70,15 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the caller side token should be discarded.
 	 * 
-	 * @param callerSideToken DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param initialResult DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callerSideToken of interest.
+	 * @param stmt that lead to this context.
+	 * @param initialResult is the collection that needs to be updated.
+	 * @return <code>true</code> if the token should be discarded; <code>false</code>, otherwise.
 	 */
-	private boolean process1(final AliasSet callerSideToken, final Stmt stmt, final boolean initialResult) {
+	private boolean shouldCallerSideTokenBeDiscardedWhenSrcStmtIsNonNull(final AliasSet callerSideToken, final Stmt stmt,
+			final boolean initialResult) {
 		Value _value = null;
 		if (interferenceBased) {
 			if (stmt.containsArrayRef()) {
@@ -130,13 +130,14 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV3
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the caller side token should be discarded.
 	 * 
-	 * @param callerSideToken DOCUMENT ME!
-	 * @param initialResult DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callerSideToken of interest.
+	 * @param initialResult is the collection that needs to be updated.
+	 * @return <code>true</code> if the token should be discarded; <code>false</code>, otherwise.
 	 */
-	private boolean process2(final AliasSet callerSideToken, final boolean initialResult) {
+	private boolean shouldCallerSideTokenBeDiscardedWhenSrcStmtIsNull(final AliasSet callerSideToken,
+			final boolean initialResult) {
 		final AliasSet _as;
 		final SootMethod _sm = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
 		if (_sm.isStatic()) {

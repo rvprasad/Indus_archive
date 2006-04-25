@@ -167,10 +167,10 @@ public class DataAliasBasedCallingContextRetrieverV2
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given caller site entities should be considered for further processing. 
 	 * 
-	 * @param callerSideEntities DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callerSideEntities to be judged.
+	 * @return <code>true</code> if they are to be considered; <code>false</code>, otherwise.
 	 */
 	protected boolean shouldConsiderCallerSideToken(final Collection<Object> callerSideEntities) {
 		return !callerSideEntities.isEmpty();

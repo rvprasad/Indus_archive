@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+
 /**
  * This interface helps realize the <i>IPrototype</i> design pattern as defined in the Gang of Four book. It provides the
  * methods via which concrete object can be created from a prototype object. The default implementation for these methods
@@ -21,18 +23,18 @@ package edu.ksu.cis.indus.interfaces;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <P> DOCUMENT ME!
+ * @param <T> is the type of the prototype.
  */
-public interface IPrototype<P> {
+public interface IPrototype<T> {
+
 	/**
 	 * Creates a concrete object from this prototype object. The concrete object can be parameterized by the information in
 	 * <code>o</code>.
 	 * 
 	 * @param o object containing the information to parameterize the concrete object.
 	 * @return concrete object based on this prototype object.
-	 * @pre o != null
 	 */
-	P getClone(Object... o);
+	T getClone(@NonNull Object... o);
 }
 
 // End of File

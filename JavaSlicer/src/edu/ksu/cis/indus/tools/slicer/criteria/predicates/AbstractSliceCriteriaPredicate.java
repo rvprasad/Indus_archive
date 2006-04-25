@@ -22,7 +22,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the input objects to the predicate.
  */
 public abstract class AbstractSliceCriteriaPredicate<T>
 		implements ISliceCriteriaPredicate<T> {
@@ -33,7 +33,7 @@ public abstract class AbstractSliceCriteriaPredicate<T>
 	private SlicerTool<?> slicerTool;
 
 	/**
-	 * @see ISliceCriteriaPredicate#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * {@inheritDoc}
 	 */
 	public void setSlicerTool(final SlicerTool<?> slicer) {
 		slicerTool = slicer;

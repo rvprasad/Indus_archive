@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IClosure;
 import edu.ksu.cis.indus.common.collections.MapUtils;
@@ -74,17 +75,16 @@ final class DependenceExtractor
 		 * @param entity for which the dependences are requested.
 		 * @param method in which <code>stmt</code> occurs.
 		 * @return a collection of dependences.
-		 * @pre analysis != null and stmt != null and method != null
-		 * @post result != null
 		 */
-		Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method);
+		@NonNull Collection<Object> getDependences(@NonNull IDependencyAnalysis<?, ?, ?, ?, ?, ?> analysis,
+				@NonNull Object entity, @NonNull SootMethod method);
 
 		/**
-		 * DOCUMENT ME!
+		 * Retrieves the entity that can be used to retrieve Identifier based data dependence.
 		 * 
-		 * @param local DOCUMENT ME!
-		 * @param stmt DOCUMENT ME!
-		 * @return DOCUMENT ME!
+		 * @param local of interest.
+		 * @param stmt is the statement in which <code>local</code> occurs.
+		 * @return the entity.
 		 */
 		Object getEntityForIdentifierBasedDataDA(Local local, Stmt stmt);
 	}
@@ -240,13 +240,11 @@ final class DependenceExtractor
 	/**
 	 * Retrieves the contexts for the given criteria base.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the criteria base.
 	 * @param criteriaBase of interest.
 	 * @return a collection of criteria.
-	 * @pre criteriaBase != null
-	 * @post result != null
 	 */
-	public <T> Collection<Stack<CallTriple>> getContextsFor(final T criteriaBase) {
+	@NonNull public <T> Collection<Stack<CallTriple>> getContextsFor(@NonNull final T criteriaBase) {
 		final Collection<Stack<CallTriple>> _result = MapUtils.queryCollection(criteriabase2contexts, criteriaBase);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -257,11 +255,11 @@ final class DependenceExtractor
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the entity that can be used to retrieve Identifier based data dependence.
 	 * 
-	 * @param local DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param local of interest.
+	 * @param stmt is the statement in which <code>local</code> occurs.
+	 * @return the entity.
 	 */
 	public Object getEntityForIdentifierBasedDataDA(final Local local, final Stmt stmt) {
 		return retriever.getEntityForIdentifierBasedDataDA(local, stmt);
@@ -271,9 +269,9 @@ final class DependenceExtractor
 	 * Sets the information that maps dependence id's to context retriever to be used.
 	 * 
 	 * @param map a map from dependence analysis id to context retriever to be used with it.
-	 * @pre map != null
 	 */
-	public void setDepID2ContextRetrieverMapping(final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> map) {
+	public void setDepID2ContextRetrieverMapping(
+			@NonNull final Map<IDependencyAnalysis.DependenceSort, ICallingContextRetriever> map) {
 		depID2ctxtRetriever.putAll(map);
 	}
 
@@ -281,9 +279,8 @@ final class DependenceExtractor
 	 * Retrieves a collection of dependence pairs based on last trigger set.
 	 * 
 	 * @return a collection of criteria.
-	 * @post result != null
 	 */
-	Collection<?> getDependences() {
+	@NonNull Collection<?> getDependences() {
 		return Collections.unmodifiableCollection(dependences);
 	}
 

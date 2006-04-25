@@ -28,23 +28,23 @@ import java.util.Collection;
  * dependee and dependent info, respectively, in backward direction while <code>getDependents</code> and
  * <code>getDependees</code> provide dependee and dependent info, respectively, in forward direction.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <E1> DOCUMENT ME!
- * @param <C1> DOCUMENT ME!
- * @param <T1> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
+ * @param <E1> is the type of dependee object in the context of dependee-to-dependent info maintenance.
+ * @param <C1> is the type of context object in the context of dependee-to-dependent info maintenance.
+ * @param <T1> is the type of dependent object in the context of dependee-to-dependent info maintenance.
+ * @param <T2> is the type of dependent object in the context of dependent-to-dependee info maintenance.
+ * @param <C2> is the type of context object in the context of dependent-to-dependee info maintenance.
+ * @param <E2> is the type of dependee object in the context of dependent-to-dependee info maintenance.
  */
 public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 		extends IIdentification, IStatus, IAnalysis {
 
 	/**
-	 * DOCUMENT ME!
-	 *
+	 * The enumeration of sorts of dependences.
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -87,8 +87,8 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
+	 * The enumeration of the dependence direction.
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
@@ -113,7 +113,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
-	 *
+	 * 
 	 * @param dependent of interest.
 	 * @param context in which the dependency information is requested.
 	 * @return a collection of objects.
@@ -124,7 +124,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * Returns the entities which depend on the <code>dependee</code> in the given <code>context</code>.
-	 *
+	 * 
 	 * @param dependee of interest.
 	 * @param context in which the dependency information is requested.
 	 * @return a collection of objects. The subclasses will further specify the types of these entities.
@@ -138,7 +138,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 	 * is related to the dependee via the dependence against the flow of control. In analysis that are
 	 * <code>FORWARD_DIRECTION</code> oriented, the dependent is related to the dependee via the dependence along the flow
 	 * of control. Analysis that are direction independent should return <code>BI_DIRECTIONAL</code>.
-	 *
+	 * 
 	 * @return the direction of the implementation.
 	 * @post result != null
 	 */
@@ -146,7 +146,7 @@ public interface IDependencyAnalysis<T1, C1, E1, E2, C2, T2>
 
 	/**
 	 * Retrieves dependence analysis that provides indirect dependence information corresponding to this dependence analysis.
-	 *
+	 * 
 	 * @return a dependence analysis.
 	 * @post result != null
 	 */

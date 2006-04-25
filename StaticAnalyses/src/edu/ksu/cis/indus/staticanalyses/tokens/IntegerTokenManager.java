@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,7 +14,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.soot.Constants;
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
@@ -27,19 +25,19 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
- * This class realizes a token manager that represents tokens as bit positions in an integer via bit-encoding.  This implies
+ * This class realizes a token manager that represents tokens as bit positions in an integer via bit-encoding. This implies
  * that this token manager can only handle system with 31 values.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <V> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <V> is the type of the value object (in the representation).
+ * @param <R> is the type of the representation types.
  */
 public class IntegerTokenManager<V, R>
-  extends AbstractTokenManager<IntegerTokenManager<V, R>.IntegerTokens, V, R> {
+		extends AbstractTokenManager<IntegerTokenManager<V, R>.IntegerTokens, V, R> {
+
 	/**
 	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
@@ -47,21 +45,22 @@ public class IntegerTokenManager<V, R>
 
 	/**
 	 * The list used to canonicalize bit position for values.
-	 *
+	 * 
 	 * @invariant valueList->forall( o | valueList->remove(o)->forall(p | p != o))
 	 */
 	final List<V> valueList = new ArrayList<V>();
 
 	/**
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
-	 *
+	 * 
 	 * @invariant type2tokens.oclIsKindOf(TObjectIntHashMap(IType, int))
 	 */
 	final TObjectIntHashMap type2tokens = new TObjectIntHashMap(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
-	 *
+	 * 
+	 * @param typeManager to be used.
 	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
 	public IntegerTokenManager(final ITypeManager<R, V> typeManager) {
@@ -71,14 +70,15 @@ public class IntegerTokenManager<V, R>
 
 	/**
 	 * This class represents a collection of tokens represented as bits in an integer.
-	 *
+	 * 
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
 	private class IntegerTokens
-	  extends AbstractPrototype<IntegerTokens>
-	  implements ITokens<IntegerTokens, V> {
+			extends AbstractPrototype<IntegerTokens>
+			implements ITokens<IntegerTokens, V> {
+
 		/**
 		 * The integer used to capture the representation of the tokens.
 		 */
@@ -86,16 +86,15 @@ public class IntegerTokenManager<V, R>
 
 		/**
 		 * The token manager associated with this instance of collection of tokens.
-		 *
+		 * 
 		 * @invariant tokenMgr != null
 		 */
 		private IntegerTokenManager<V, R> tokenMgr;
 
 		/**
 		 * Creates a new IntegerTokens object.
-		 *
+		 * 
 		 * @param tokenManager associated with this instance.
-		 *
 		 * @pre tokenManager != null
 		 */
 		IntegerTokens(final IntegerTokenManager<V, R> tokenManager) {
@@ -103,23 +102,23 @@ public class IntegerTokenManager<V, R>
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
+		 * {@inheritDoc}
 		 */
-		@Override public IntegerTokens getClone(@SuppressWarnings("unused") final Object...o) {
+		@Override public IntegerTokens getClone(@SuppressWarnings("unused") final Object... o) {
 			final IntegerTokens _result = new IntegerTokens(tokenMgr);
 			_result.integer = integer;
 			return _result;
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#isEmpty()
+		 * {@inheritDoc}
 		 */
 		public boolean isEmpty() {
 			return integer == 0;
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#getValues()
+		 * {@inheritDoc}
 		 */
 		public Collection<V> getValues() {
 			final Collection<V> _result = new ArrayList<V>();
@@ -133,21 +132,21 @@ public class IntegerTokenManager<V, R>
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#addTokens(ITokens)
+		 * {@inheritDoc}
 		 */
 		public void addTokens(final IntegerTokens newTokens) {
 			integer |= newTokens.integer;
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#clear()
+		 * {@inheritDoc}
 		 */
 		public void clear() {
 			integer = 0;
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#diffTokens(ITokens)
+		 * {@inheritDoc}
 		 */
 		public IntegerTokens diffTokens(final IntegerTokens tokens) {
 			final IntegerTokens _result = new IntegerTokens(tokenMgr);
@@ -156,26 +155,25 @@ public class IntegerTokenManager<V, R>
 		}
 	}
 
-
 	/**
 	 * This class represents a token filter based on bit representation of tokens via integers.
-	 *
-	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 * 
+	 * @author venku To change this generated comment go to Window>Preferences>Java>Code Generation>Code Template
 	 */
 	private class IntegerTokenFilter
-	  implements ITokenFilter<IntegerTokenManager<V, R>.IntegerTokens, V> {
+			implements ITokenFilter<IntegerTokenManager<V, R>.IntegerTokens, V> {
+
 		/**
 		 * The type of values to let through the filter.
-		 *
+		 * 
 		 * @invariant filterType != null
 		 */
 		final Object filterType;
 
 		/**
 		 * Creates an instance of this class.
-		 *
+		 * 
 		 * @param type is the filter type.
-		 *
 		 * @pre type != null
 		 */
 		IntegerTokenFilter(final Object type) {
@@ -183,7 +181,7 @@ public class IntegerTokenManager<V, R>
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter#filter(ITokens)
+		 * {@inheritDoc}
 		 */
 		public IntegerTokenManager<V, R>.IntegerTokens filter(final IntegerTokenManager<V, R>.IntegerTokens tokens) {
 			final IntegerTokenManager<V, R> _l = IntegerTokenManager.this;
@@ -195,14 +193,14 @@ public class IntegerTokenManager<V, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 * {@inheritDoc}
 	 */
 	public IntegerTokens getNewTokenSet() {
 		return new IntegerTokens(this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
+	 * {@inheritDoc}
 	 */
 	public IntegerTokens getTokens(final Collection<V> values) {
 		final IntegerTokens _result = new IntegerTokens(this);
@@ -220,7 +218,7 @@ public class IntegerTokenManager<V, R>
 			for (final Iterator<V> _i = _diff.iterator(); _i.hasNext();) {
 				if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
 					throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
-						+ NO_OF_BITS_IN_AN_INTEGER + " values.");
+							+ NO_OF_BITS_IN_AN_INTEGER + " values.");
 				}
 
 				final V _value = _i.next();
@@ -242,7 +240,7 @@ public class IntegerTokenManager<V, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
+	 * {@inheritDoc}
 	 */
 	@Override public void reset() {
 		super.reset();
@@ -251,21 +249,21 @@ public class IntegerTokenManager<V, R>
 	}
 
 	/**
-	 * @see AbstractTokenManager#getNewFilterForType(IType)
+	 * {@inheritDoc}
 	 */
 	@Override protected ITokenFilter<IntegerTokens, V> getNewFilterForType(final IType type) {
 		return new IntegerTokenFilter(type);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.AbstractTokenManager#getValues()
+	 * {@inheritDoc}
 	 */
 	@Override protected Collection<V> getValues() {
 		return valueList;
 	}
 
 	/**
-	 * @see AbstractTokenManager#recordNewTokenTypeRelations(Collection, IType)
+	 * {@inheritDoc}
 	 */
 	@Override protected void recordNewTokenTypeRelations(final Collection<V> values, final IType type) {
 		int _t = type2tokens.get(type);

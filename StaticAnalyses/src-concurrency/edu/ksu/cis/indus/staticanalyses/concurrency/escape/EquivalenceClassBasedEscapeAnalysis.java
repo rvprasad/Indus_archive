@@ -360,10 +360,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given method is unconditionally atomic.
 	 * 
-	 * @param sm DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param sm is the method of interest.
+	 * @return <code>true</code> if the method is unconditionally atomic; <code>false</code>, otherwise.
 	 */
 	public boolean isMethodAtomic(final SootMethod sm) {
 		final MethodContext _m = getMethodInfo(sm).getFirst();
@@ -397,10 +397,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given method can be conditionally atomic.
 	 * 
-	 * @param sm DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param sm is the method of interest.
+	 * @return <code>true</code> if the method can be conditionally atomic; <code>false</code>, otherwise.
 	 */
 	public boolean isMethodSealed(final SootMethod sm) {
 		final MethodContext _m = getMethodInfo(sm).getFirst();
@@ -566,10 +566,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the information corresponding to the given method.
 	 * 
-	 * @param method DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param method of interest.
+	 * @return the information.
 	 */
 	Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> getMethodInfo(final SootMethod method) {
 		final Triple<MethodContext, Map<Local, AliasSet>, Map<CallTriple, MethodContext>> _triple;
@@ -587,7 +587,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Records the system being analyzed is multithreaded.
 	 */
 	void markMultiThreadedSystem() {
 		multiThreadedSystem = true;
@@ -750,7 +750,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Performs phase 2 processing as described in the paper mentioned in the documentation of this class.
 	 * 
-	 * @param sccsInBottomUpOrder DOCUMENT ME
+	 * @param sccsInBottomUpOrder is the SCCs in bottom up order.
 	 */
 	private void performPhase2(final List<List<SootMethod>> sccsInBottomUpOrder) {
 		final Collection<BasicBlock> _processed = new HashSet<BasicBlock>();
@@ -815,7 +815,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Performs phase 3 processing as described in the paper described in the documentation of this class.
 	 * 
-	 * @param sccsInTopDownOrder DOCUMENT ME
+	 * @param sccsInTopDownOrder is the SCCs in top-down order.
 	 */
 	private void performPhase3(final List<List<SootMethod>> sccsInTopDownOrder) {
 		// Phase 2: The SCCs are ordered bottom up.
@@ -854,7 +854,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes alias sets to mark appropriate ones as being associated with global variable.
 	 */
 	private void processGlobalAliasSets() {
 		final Collection<AliasSet> _proc = new HashSet<AliasSet>();
@@ -874,7 +874,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes methods to calculate access to global data.
 	 */
 	private void processMethodsForAccessToGlobalData() {
 		final Collection<AliasSet> _proc = new HashSet<AliasSet>();

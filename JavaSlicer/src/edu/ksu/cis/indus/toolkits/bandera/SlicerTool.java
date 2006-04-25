@@ -61,7 +61,7 @@ import soot.Value;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of tokens used in the flow analysis used by the slicer. This is a dummy parameter.
  */
 public final class SlicerTool<T extends ITokens<T, Value>>
 		extends BaseObservable

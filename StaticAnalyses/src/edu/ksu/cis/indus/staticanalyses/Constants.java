@@ -137,7 +137,7 @@ public final class Constants {
 	/**
 	 * Returns the index management strategy.
 	 * 
-	 * @param <I> DOCUMENT ME!
+	 * @param <I> is the type of the indices.
 	 * @return index management strategy.
 	 * @post result != null
 	 */

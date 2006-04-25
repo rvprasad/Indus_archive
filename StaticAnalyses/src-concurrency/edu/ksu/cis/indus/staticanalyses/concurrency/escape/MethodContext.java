@@ -301,36 +301,36 @@ final class MethodContext
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Erases intra thread and inter-procedural reference entities.
 	 */
-	public void eraseIntraThreadRefEntities() {
+	public void eraseIntraThreadInterProcRefEntities() {
 		if (find() != this) {
-			find().eraseIntraThreadRefEntities();
+			find().eraseIntraThreadInterProcRefEntities();
 		} else {
 			if (ret != null) {
-				ret.eraseIntraThreadRefEntities();
+				ret.eraseIntraThreadInterProcRefEntities();
 			}
 
 			if (thrown != null) {
-				thrown.eraseIntraThreadRefEntities();
+				thrown.eraseIntraThreadInterProcRefEntities();
 			}
 
 			if (thisAS != null) {
-				thisAS.eraseIntraThreadRefEntities();
+				thisAS.eraseIntraThreadInterProcRefEntities();
 			}
 
 			for (final Iterator<AliasSet> _i = argAliasSets.iterator(); _i.hasNext();) {
 				final AliasSet _argAS = _i.next();
 
 				if (_argAS != null) {
-					_argAS.eraseIntraThreadRefEntities();
+					_argAS.eraseIntraThreadInterProcRefEntities();
 				}
 			}
 
 			for (final Iterator<AliasSet> _j = ecba.class2aliasSet.values().iterator(); _j.hasNext();) {
 				final AliasSet _as = _j.next();
 
-				_as.eraseIntraThreadRefEntities();
+				_as.eraseIntraThreadInterProcRefEntities();
 			}
 		}
 	}

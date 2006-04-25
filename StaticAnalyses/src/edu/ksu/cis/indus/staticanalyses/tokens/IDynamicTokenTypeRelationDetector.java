@@ -20,12 +20,12 @@ import java.util.Collection;
 
 /**
  * This interface can be used to detect value-to-type relationship that may be orthogonal or transparent to the type system
- * being represented. 
- *
+ * being represented.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <V> DOCUMENT ME!
+ * @param <V> is the type of the value object (in the representation).
  */
 public interface IDynamicTokenTypeRelationDetector<V> {
 	/**

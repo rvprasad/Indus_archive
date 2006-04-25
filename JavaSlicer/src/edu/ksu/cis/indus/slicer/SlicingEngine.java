@@ -14,6 +14,10 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.Functional;
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
@@ -85,6 +89,13 @@ public final class SlicingEngine {
 			implements IPredicate<SootMethod> {
 
 		/**
+		 * Creates an instance of this class.
+		 */
+		@Empty NonStartMethodPredicate() {
+			super();
+		}
+
+		/**
 		 * {@inheritDoc}
 		 * 
 		 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(java.lang.Object)
@@ -117,7 +128,7 @@ public final class SlicingEngine {
 	private Stack<CallTriple> callStackCache;
 
 	/**
-	 * DOCUMENT ME!
+	 * This graph stores the call strings that have been captured during slicing.
 	 */
 	private SimpleNodeGraph<Object> callStringGraph;
 
@@ -150,8 +161,8 @@ public final class SlicingEngine {
 	private List<ISliceCriterion> criteria = new ArrayList<ISliceCriterion>();
 
 	/**
-	 * The closure used to extract dependence information based on slice direction. See
-	 * <code>setSliceType()</code> for details.
+	 * The closure used to extract dependence information based on slice direction. See <code>setSliceType()</code> for
+	 * details.
 	 */
 	private final DependenceExtractor dependenceExtractor = new DependenceExtractor(this);
 
@@ -755,11 +766,11 @@ public final class SlicingEngine {
 		final SootClass _sc = method.getDeclaringClass();
 		includeInSlice(_sc);
 
-		final Collection<Type> _types = new HashSet<Type>(method.getParameterTypes());
+		@SuppressWarnings("unchecked") final Collection<Type> _types = new HashSet<Type>(method.getParameterTypes());
 		_types.add(method.getReturnType());
 		includeTypesInSlice(_types);
 
-		final List<SootClass> _exceptions = method.getExceptions();
+		@SuppressWarnings("unchecked") final List<SootClass> _exceptions = method.getExceptions();
 		final Iterator<SootClass> _i = _exceptions.iterator();
 		final int _iEnd = _exceptions.size();
 
@@ -796,7 +807,7 @@ public final class SlicingEngine {
 			final SootMethod _methodToBeIncluded;
 
 			if (_o instanceof Pair) {
-				final Pair<Stmt, SootMethod> _pair = (Pair) _o;
+				@SuppressWarnings("unchecked") final Pair<Stmt, SootMethod> _pair = (Pair) _o;
 				_stmtToBeIncluded = _pair.getFirst();
 				_methodToBeIncluded = _pair.getSecond();
 			} else {
@@ -888,7 +899,7 @@ public final class SlicingEngine {
 					+ ", SootMethod method = " + method + ", stack =" + callStackCache + ") - BEGIN");
 		}
 
-		final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _analyses = (Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) controller
+		@SuppressWarnings("unchecked") final Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> _analyses = (Collection<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>) controller
 				.getAnalyses(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA);
 
 		if (_analyses.size() > 0) {
@@ -897,7 +908,8 @@ public final class SlicingEngine {
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 				final Local _local = (Local) _k.next().getValue();
-				dependenceExtractor.setTrigger(dependenceExtractor.getEntityForIdentifierBasedDataDA(_local, stmt), method, getCopyOfCallStackCache());
+				dependenceExtractor.setTrigger(dependenceExtractor.getEntityForIdentifierBasedDataDA(_local, stmt), method,
+						getCopyOfCallStackCache());
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
 				final Collection<?> _dependences = dependenceExtractor.getDependences();
@@ -912,7 +924,7 @@ public final class SlicingEngine {
 						_depStmt = (Stmt) _o;
 						_depLocal = _local;
 					} else if (_o instanceof Pair) {
-						final Pair<Local, Stmt> _p = (Pair) _o;
+						@SuppressWarnings("unchecked") final Pair<Local, Stmt> _p = (Pair) _o;
 						_depLocal = _p.getFirst();
 						_depStmt = _p.getSecond();
 					} else {
@@ -953,12 +965,13 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if all invocation sites of the given method have been included in the slice.
 	 * 
-	 * @param method DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param method of interest.
+	 * @return <code>true</code> if all invocation sites of <code>method</code> have been included in the slice;
+	 *         <code>false</code>, otherwise.
 	 */
-	private boolean haveCollectedAllInvocationSites(final SootMethod method) {
+	@Functional private boolean haveCollectedAllInvocationSites(@NonNull final SootMethod method) {
 		return callStringGraph.queryNode(method) != null && callStringGraph.queryNode(method).getSuccsOf().isEmpty();
 	}
 
@@ -966,9 +979,8 @@ public final class SlicingEngine {
 	 * Includes the class associated with the given types.
 	 * 
 	 * @param types to be included in the slice.
-	 * @pre types != null
 	 */
-	private void includeTypesInSlice(final Collection<Type> types) {
+	private void includeTypesInSlice(@NonNull @NonNullContainer final Collection<Type> types) {
 		for (final Iterator<Type> _i = types.iterator(); _i.hasNext();) {
 			final Type _type = _i.next();
 
@@ -992,11 +1004,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Records information to indicate that all invocation sites of the given method have been included in the slice.  
 	 * 
-	 * @param method DOCUMENT ME!
+	 * @param method of interest.
 	 */
-	private void markAsCollectedAllInvocationSites(final SootMethod method) {
+	private void markAsCollectedAllInvocationSites(@NonNull final SootMethod method) {
 		final SimpleNode<Object> _n = callStringGraph.getNode(method);
 		for (final Iterator<SimpleNode<Object>> _i = new ArrayList<SimpleNode<Object>>(_n.getSuccsOf()).iterator(); _i
 				.hasNext();) {
@@ -1009,9 +1021,8 @@ public final class SlicingEngine {
 	 * 
 	 * @param method of interest
 	 * @return <code>true</code> if the call stack was recored; <code>false</code> if another call stack subsumed this.
-	 * @pre method != null
 	 */
-	private boolean recordCallStackForMethod(final SootMethod method) {
+	private boolean recordCallStackForMethod(@NonNull final SootMethod method) {
 		boolean _result = true;
 
 		final SimpleNode<Object> _methodNode = callStringGraph.getNode(method);
@@ -1039,10 +1050,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Records the call stack for the method stored in the given node.
 	 * 
-	 * @param methodNode DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param methodNode of interest.
+	 * @return <code>true</code> if new method nodes were created or if current call stack needs to be considered for processing.  In other words,
+	 * <code>true</code> is returned when the call stack to the given method node extended call stack graph; <code>false</code>, otherwise.
 	 */
 	private boolean recordCallStackForVisitedMethod(final SimpleNode<Object> methodNode) {
 		final int _limit = callStackCache.size() - 1;

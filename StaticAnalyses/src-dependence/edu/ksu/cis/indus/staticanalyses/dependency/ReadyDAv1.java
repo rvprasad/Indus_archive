@@ -1185,13 +1185,13 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the monitors are type compatible.
 	 * 
-	 * @param enter DOCUMENT ME!
-	 * @param enterMethod DOCUMENT ME!
-	 * @param exit DOCUMENT ME!
-	 * @param exitMethod DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param enter is an enter monitor statement.
+	 * @param enterMethod is the method in which <code>enter</code> occurs.
+	 * @param exit is an exit monitor statement.
+	 * @param exitMethod is the method in which <code>exit</code> occurs.
+	 * @return <code>true</code> if they are compatible; <code>false</code>, otherwise.
 	 */
 	private boolean typesAreCompatible(final EnterMonitorStmt enter, final SootMethod enterMethod,
 			final ExitMonitorStmt exit, final SootMethod exitMethod) {

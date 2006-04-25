@@ -68,10 +68,13 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	 * Creates an instance of this instance.
 	 * 
 	 * @param callContextLenLimit <i>refer to the constructor of the super class</i>.
-	 * @param preserveReady DOCUMENT ME!
-	 * @param preserveInterference DOCUMENT ME!
+	 * @param preserveReady <code>true</code> indicates ready dependence should be preserved; <code>false</code>,
+	 *            otherwise.
+	 * @param preserveInterference <code>true</code> indicates interference dependence should be preserved;
+	 *            <code>false</code>, otherwise.
 	 */
-	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final boolean preserveReady, final boolean preserveInterference) {
+	public ThreadEscapeInfoBasedCallingContextRetrieverV2(final int callContextLenLimit, final boolean preserveReady,
+			final boolean preserveInterference) {
 		super(callContextLenLimit);
 		readyBased = preserveReady;
 		interferenceBased = preserveInterference;
@@ -178,11 +181,11 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given caller side token can be discarded.
 	 * 
-	 * @param callerSideToken DOCUMENT ME!
-	 * @param calleeSideToken DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param callerSideToken of interest.
+	 * @param calleeSideToken of interest.
+	 * @return <code>true</code> if the given caller side token can be discarded; <code>false</code>, otherwise.
 	 */
 	protected boolean shouldCallerSideTokenBeDiscarded(final AliasSet callerSideToken, final AliasSet calleeSideToken) {
 		final boolean _considerForInterference;
@@ -194,7 +197,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 		} else {
 			_considerForInterference = false;
 		}
-		
+
 		final boolean _considerForReady;
 		final boolean _considerForLock;
 		if (readyBased) {
@@ -204,8 +207,8 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 					&& CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
 			final Collection<?> _callerLockEntities = callerSideToken.getLockEntities();
 			final Collection<?> _calleeLockEntities = calleeSideToken.getLockEntities();
-			_considerForLock = _callerLockEntities != null || _calleeLockEntities != null && CollectionUtils.containsAny(
-							_callerLockEntities, _calleeLockEntities);
+			_considerForLock = _callerLockEntities != null || _calleeLockEntities != null
+					&& CollectionUtils.containsAny(_callerLockEntities, _calleeLockEntities);
 		} else {
 			_considerForReady = false;
 			_considerForLock = false;

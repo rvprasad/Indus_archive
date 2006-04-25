@@ -15,14 +15,12 @@
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
 import edu.ksu.cis.indus.interfaces.IActivePart;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
 import soot.SootMethod;
 import soot.Value;
-
 import soot.jimple.InvokeExpr;
 
 /**
@@ -32,7 +30,7 @@ import soot.jimple.InvokeExpr;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <V> DOCUMENT ME!
+ * @param <V> is the type of the value object.
  */
 public interface IValueAnalyzer<V>
 		extends IAnalyzer {

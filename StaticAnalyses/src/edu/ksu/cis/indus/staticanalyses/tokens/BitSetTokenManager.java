@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <V> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <V> is the type of the value object (in the representation).
+ * @param <R> is the type of the representation types.
  */
 public final class BitSetTokenManager<V, R>
 		extends AbstractTokenManager<BitSetTokenManager<V, R>.BitSetTokens, V, R> {
@@ -62,12 +62,16 @@ public final class BitSetTokenManager<V, R>
 	 */
 	private final Map<IType, BitSet> type2tokens = new HashMap<IType, BitSet>(Constants.getNumOfClassesInApplication());
 
+	/**
+	 * The mapping between type in the token universe to that types filter.
+	 */
 	private final Map<IType, BitSetTokenFilter> type2tokenfilters = new HashMap<IType, BitSetTokenFilter>(Constants
 			.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
 	 * 
+	 * @param typeManager to be used.
 	 * @see AbstractTokenManager#AbstractTokenManager(ITypeManager)
 	 */
 	public BitSetTokenManager(final ITypeManager<R, V> typeManager) {
@@ -143,15 +147,13 @@ public final class BitSetTokenManager<V, R>
 		 * @param initLength of the bitset.
 		 * @pre initLength >= 0
 		 */
-		private BitSetTokens(int initLength) {
+		BitSetTokens(final int initLength) {
 			assert initLength >= 0;
 			bitset = new BitSet(initLength);
 		}
 
 		/**
 		 * {@inheritDoc}
-		 * 
-		 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone()
 		 */
 		@Override public BitSetTokens getClone(@SuppressWarnings("unused") final Object... o) {
 			final BitSetTokens _result = new BitSetTokens(bitset.size());

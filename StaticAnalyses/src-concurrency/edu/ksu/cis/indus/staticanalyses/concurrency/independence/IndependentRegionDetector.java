@@ -20,9 +20,8 @@ import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
-
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -37,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
 
 /**
@@ -338,7 +336,7 @@ public final class IndependentRegionDetector
 	/**
 	 * Collects the objects in the collections that are values in the given map.
 	 *
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of objects in the collection values. 
 	 * @param key2collection is the map from which to collect.
 	 * @return a collection of objects.
 	 * @post result != null

@@ -87,7 +87,7 @@ public final class RTABasedCallInfoCollector
 	private CHABasedCallInfoCollector chaCallInfo;
 
 	/**
-	 * DOCUMENT ME!
+	 * The system that is being analyzed.
 	 */
 	private IEnvironment env;
 
@@ -445,10 +445,10 @@ public final class RTABasedCallInfoCollector
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Record call information.
 	 * 
-	 * @param context DOCUMENT ME!
-	 * @param expr DOCUMENT ME!
+	 * @param context in which the invocation expression occurs.
+	 * @param expr is the invocation expression.
 	 */
 	private void recordCall(final Context context, final InvokeExpr expr) {
 		final SootMethod _invokedMethod = expr.getMethod();

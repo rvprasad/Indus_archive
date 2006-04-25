@@ -105,7 +105,7 @@ public class SliceXMLizerCLI
 	private static String configFileName;
 
 	/**
-	 * DOCUMENT ME!
+	 * This specifies the scope of the slice.
 	 */
 	private static SpecificationBasedScopeDefinition sliceScope;
 
@@ -178,7 +178,7 @@ public class SliceXMLizerCLI
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of tokens used in the flow analysis of the slicer. This is a dummy parameter.
 	 */
 	protected <T extends ITokens<T, Value>> SliceXMLizerCLI() {
 		slicer = new SlicerTool<T>(TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),

@@ -31,9 +31,9 @@ import java.util.Observer;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
- * @param <V> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <T> is the type of token set objects.
+ * @param <V> is the type of the value objects (in the representation).
+ * @param <R> is the type of the representation types.
  */
 public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 		implements ITokenManager<T, V, R>, Observer {
@@ -70,7 +70,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
+	 * {@inheritDoc}
 	 */
 	public final ITokenFilter<T, V> getTypeBasedFilter(final IType type) {
 		ITokenFilter<T, V> _result = type2filter.get(type);
@@ -84,7 +84,7 @@ public abstract class AbstractTokenManager<T extends ITokens<T, V>, V, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeManager()
+	 * {@inheritDoc}
 	 */
 	public ITypeManager<R, V> getTypeManager() {
 		return typeMgr;

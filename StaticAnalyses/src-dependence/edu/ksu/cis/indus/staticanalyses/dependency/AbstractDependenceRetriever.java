@@ -3,17 +3,17 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import java.util.Collection;
 
 /**
- * DOCUMENT ME!
+ * This is an abstract implementation of dependence retriever.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T1> DOCUMENT ME!
- * @param <C1> DOCUMENT ME!
- * @param <E1> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
- * @param <C2> DOCUMENT ME!
- * @param <T2> DOCUMENT ME!
+ * @param <T1> is the type of the dependent in dependent to dependee query.
+ * @param <C1> is the type of the context in dependent to dependee query.
+ * @param <E1> is the type of the dependee in dependent to dependee query.
+ * @param <E2> is the type of the dependee in dependee to dependent query.
+ * @param <C2> is the type of the context in dependee to dependent query.
+ * @param <T2> is the type of the dependent in dependee to dependent query.
  */
 public abstract class AbstractDependenceRetriever<T1, C1, E1, E2, C2, T2>
 		implements IDependenceRetriever<T1, C1, E1, E2, C2, T2> {

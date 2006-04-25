@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -17,20 +16,21 @@ package edu.ksu.cis.indus.interfaces;
 
 /**
  * This class is the abstract implementation of <code>IPrototype</code>.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <P> DOCUMENT ME!
+ * @param <T> is the type of the prototype object.
  */
-public abstract class AbstractPrototype<P>
-  implements IPrototype<P> {
+public abstract class AbstractPrototype<T>
+		implements IPrototype<T> {
+
 	/**
 	 * This implementation throws <code>UnsupportedOperationException</code>.
-	 *
+	 * 
 	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object[])
 	 */
-	public P getClone(@SuppressWarnings("unused") final Object ... o) {
+	public T getClone(@SuppressWarnings("unused") final Object... o) {
 		throw new UnsupportedOperationException("getClone(Object) is not supported.");
 	}
 }

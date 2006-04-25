@@ -14,12 +14,13 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,9 +34,7 @@ import org.slf4j.LoggerFactory;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
-
 import soot.tagkit.Host;
 
 /**
@@ -106,13 +105,12 @@ public final class SliceCollector {
 	/**
 	 * Retrieves <code>Host</code> objects from hosts which are collected by the tag used by this collector.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the hosts.
 	 * @param hosts is the collection of hosts
 	 * @return a collection of collected hosts.
-	 * @pre hosts != null
-	 * @post result != null
 	 */
-	public <T extends Host> Collection<T> getCollected(final Collection<T> hosts) {
+	@NonNull @NonNullContainer public <T extends Host> Collection<T> getCollected(
+			@NonNull @NonNullContainer final Collection<T> hosts) {
 		final Collection<T> _result = new ArrayList<T>();
 
 		for (final Iterator<T> _i = hosts.iterator(); _i.hasNext();) {
@@ -129,9 +127,8 @@ public final class SliceCollector {
 	 * Retrieves the methods included in the slice.
 	 * 
 	 * @return a collection of methods included in the slice.
-	 * @post result != null
 	 */
-	public Collection<SootMethod> getMethodsInSlice() {
+	@NonNull @NonNullContainer public Collection<SootMethod> getMethodsInSlice() {
 		return Collections.unmodifiableCollection(taggedMethods);
 	}
 
@@ -139,9 +136,8 @@ public final class SliceCollector {
 	 * Retrieves the tag name used by this collector.
 	 * 
 	 * @return the name of the tag used.
-	 * @post result != null
 	 */
-	public String getTagName() {
+	@NonNull public String getTagName() {
 		return tagName;
 	}
 
@@ -150,10 +146,9 @@ public final class SliceCollector {
 	 * 
 	 * @param valueBoxes of interest.
 	 * @return uncollect value boxes.
-	 * @pre valueBoxes != null
-	 * @post result != nulland valueBoxes.containsAll(result)
+	 * @post valueBoxes.containsAll(result)
 	 */
-	Collection<ValueBox> getUncollected(final List<ValueBox> valueBoxes) {
+	@NonNull @NonNullContainer Collection<ValueBox> getUncollected(@NonNull @NonNullContainer final List<ValueBox> valueBoxes) {
 		final Collection<ValueBox> _result = new HashSet<ValueBox>();
 		final Iterator<ValueBox> _i = valueBoxes.iterator();
 		final int _iEnd = valueBoxes.size();
@@ -262,7 +257,7 @@ public final class SliceCollector {
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
 	@Override public String toString() {
 		final StringWriter _sw = new StringWriter();
@@ -274,22 +269,26 @@ public final class SliceCollector {
 
 			_pw.println("  Fields:");
 
-			for (final Iterator<Host> _j = getCollected(_sc.getFields()).iterator(); _j.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<Host> _j = getCollected(_sc.getFields()).iterator(); _j
+					.hasNext();) {
 				_pw.println("    " + _j.next());
 			}
 
 			_pw.println("  Methods:");
 
-			for (final Iterator<Host> _j = getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<Host> _j = getCollected(_sc.getMethods()).iterator(); _j
+					.hasNext();) {
 				final SootMethod _method = (SootMethod) _j.next();
 				_pw.println("    " + _method);
 
 				if (_method.hasActiveBody()) {
-					for (final Iterator<Host> _k = getCollected(_method.getActiveBody().getUnits()).iterator(); _k.hasNext();) {
+					for (@SuppressWarnings("unchecked") final Iterator<Host> _k = getCollected(
+							_method.getActiveBody().getUnits()).iterator(); _k.hasNext();) {
 						final Stmt _stmt = (Stmt) _k.next();
 						_pw.println("      " + _stmt);
 
-						for (final Iterator<Host> _l = getCollected(_stmt.getUseAndDefBoxes()).iterator(); _l.hasNext();) {
+						for (@SuppressWarnings("unchecked") final Iterator<Host> _l = getCollected(_stmt.getUseAndDefBoxes())
+								.iterator(); _l.hasNext();) {
 							_pw.println("        " + ((ValueBox) _l.next()).getValue());
 						}
 					}
