@@ -44,13 +44,13 @@ import org.slf4j.LoggerFactory;
  * algorithm in terms of initialization of dfs number and high value associated with the nodes. This optimization can handle
  * graphs of with 2^31 - 1 nodes.
  * </p>
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <SYM> is the type of value being tracked.
+ * @param <T> is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>> {
 
@@ -86,7 +86,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 
 	/**
 	 * Starting from the given nodes, optimize the graph based on SCC.
-	 *
+	 * 
 	 * @param rootNodes are the nodes that serve as root nodes for SCC detection.
 	 * @param tokenMgr to be used.
 	 * @pre rootNodes != null and tokenMgr != null
@@ -122,7 +122,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 
 	/**
 	 * Calculates the SCC starting from the given root node.
-	 *
+	 * 
 	 * @param root to start SCC detection from.
 	 * @param sccs is an out argument that contains SCCs.
 	 * @param stack used during DFS.
@@ -172,7 +172,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 
 	/**
 	 * Retrieves the SCCs in the graph.
-	 *
+	 * 
 	 * @param rootNodes to start SCC detection algorithm from.
 	 * @return a collection of SCCs.
 	 * @pre rootNodes != null
@@ -199,21 +199,21 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 
 	/**
 	 * Optimize the SCC.
-	 *
+	 * 
 	 * @param scc to be optimized.
 	 * @param tokenManager to be used.
 	 * @pre scc != nul
 	 * @pre tokenManager != null
 	 */
 	private void optimizeSCC(final Collection<N> scc, final ITokenManager<T, SYM, ?> tokenManager) {
-		final SendTokensWork<SYM, T, N> _work = new SendTokensWork<SYM, T, N>(scc.iterator().next(), tokenManager.getNewTokenSet());
+		final SendTokensWork<SYM, T, N> _work = new SendTokensWork<SYM, T, N>(scc.iterator().next(), tokenManager
+				.getNewTokenSet());
 		final T _unifiedTokens = tokenManager.getNewTokenSet();
 		final T _newTokenSet = tokenManager.getNewTokenSet();
 		final Collection<N> _succs = new HashSet<N>();
 		final Collection<N> _newSuccs = new HashSet<N>();
 		final Iterator<N> _i = scc.iterator();
 		final int _iEnd = scc.size();
-
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final N _node = _i.next();
@@ -257,7 +257,7 @@ public class SCCBasedOptimizer<SYM, T extends ITokens<T, SYM>, N extends IFGNode
 
 	/**
 	 * Checks if the given data (hence the associated node) is unexplored.
-	 *
+	 * 
 	 * @param data to be checked.
 	 * @return <code>true</code> if unexplored; <code>false</code>, otherwise.
 	 * @pre data != null

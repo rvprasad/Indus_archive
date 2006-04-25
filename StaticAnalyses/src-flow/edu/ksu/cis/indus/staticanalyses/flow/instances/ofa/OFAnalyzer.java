@@ -52,7 +52,7 @@ import soot.Value;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the token set object.
  */
 public final class OFAnalyzer<T extends ITokens<T, Value>>
 		extends
@@ -95,17 +95,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	/**
 	 * Returns the analyzer that operates in flow insensitive and allocation-site insensitive modes.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA.
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOIAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
 						_type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
@@ -115,17 +115,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	/**
 	 * Returns the analyzer that operates in flow insensitive and allocation-site sensitive modes.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA.
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOSAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new IndexManager<Value>(), new AllocationSiteSensitiveIndexManager<ArrayType>(),
 				new AllocationSiteSensitiveIndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(
 						new LHSConnector<OFAFGNode<T>>(), _type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(
@@ -136,17 +136,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	/**
 	 * Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA. *
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOIAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
 						_type2valueMapper, null), new FlowSensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
@@ -158,17 +158,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * nature. Due to its object-transparent nature, every variable will point to utmost one object of a type. Also, if two
 	 * variables points to an object of a type then they will point to the same object.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA. *
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOIRTAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2CanonicalValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2CanonicalValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
 						_type2valueMapper, null), new FlowSensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
@@ -180,17 +180,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	 * nature. Due to its object-transparent nature, every variable will point to utmost one object of a type. Also, if two
 	 * variables points to an object of a type then they will point to the same object.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA. *
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFIOIRTAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2CanonicalValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2CanonicalValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(), new IndexManager<ArrayType>(),
 				new IndexManager<SootField>(), new FlowInsensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(),
 						_type2valueMapper, null), new FlowInsensitiveExprSwitch<T>(new RHSConnector<OFAFGNode<T>>(),
@@ -200,17 +200,17 @@ public final class OFAnalyzer<T extends ITokens<T, Value>>
 	/**
 	 * Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T> is the type of the token set object.
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this analysis
 	 *            instance to tag parts of the AST. Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more detail.
 	 * @param tokenManager manages the tokens for the objects in OFA. *
-	 * @param stmtGrphFctry DOCUMENT ME!
+	 * @param stmtGrphFctry provides the CFGs.
 	 * @return the instance of analyzer correponding to the given name.
 	 * @post result != null and tagName != null and tokenMgr != null
 	 */
 	public static <T extends ITokens<T, Value>> OFAnalyzer<T> getFSOSAnalyzer(final String tagName,
 			final ITokenManager<T, Value, Type> tokenManager, final IStmtGraphFactory<?> stmtGrphFctry) {
-		final Type2ValueMapper _type2valueMapper = new Type2ValueMapper();
+		final Value2ValueMapper _type2valueMapper = new Value2ValueMapper();
 		return new OFAnalyzer<T>(tagName, new FlowSensitiveIndexManager<Value>(),
 				new AllocationSiteSensitiveIndexManager<ArrayType>(), new AllocationSiteSensitiveIndexManager<SootField>(),
 				new FlowSensitiveExprSwitch<T>(new LHSConnector<OFAFGNode<T>>(), _type2valueMapper, null),

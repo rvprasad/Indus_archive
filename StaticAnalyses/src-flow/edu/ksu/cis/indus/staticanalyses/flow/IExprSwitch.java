@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -16,40 +15,39 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
+
 import soot.ValueBox;
-
 import soot.jimple.JimpleValueSwitch;
-
 
 /**
  * This is the interface to be provided by expression walkers/visitors used in flow analysis.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <N> is the type of the summary node in the flow analysis.
  */
-public interface IExprSwitch <N extends IFGNode<?, ?, N>>
-  extends IPrototype<IExprSwitch<N>>, JimpleValueSwitch {
+public interface IExprSwitch<N extends IFGNode<?, ?, N>>
+		extends IPrototype<IExprSwitch<N>>, JimpleValueSwitch {
+
 	/**
-	 * Retreives the result of visiting the object.
-	 *
-	 * @return the result of visiting the object.
+	 * Retreives the result of visiting the expression.
+	 * 
+	 * @return the result of visiting the expression.
 	 */
 	N getFlowNode();
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param node DOCUMENT ME!
+	 * Sets the node resulting from visiting the expression.
+	 * 
+	 * @param node resulting from visiting the expression.
 	 */
 	void setFlowNode(N node);
 
 	/**
 	 * Processes the expression at the given program point, <code>v</code>.
-	 *
+	 * 
 	 * @param v the program point at which the to-be-processed expression occurs.
-	 *
 	 * @pre v != null
 	 */
 	void process(final ValueBox v);

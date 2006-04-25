@@ -24,8 +24,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <C> DOCUMENT ME!
- * @param <E> DOCUMENT ME!
+ * @param <C> is the type of the context in which the entity has been indexed.
+ * @param <E> is the type of the entity that has been indexed.
  */
 public class OneContextInfoIndex<E, C>
 		implements IIndex<OneContextInfoIndex<E, C>> {

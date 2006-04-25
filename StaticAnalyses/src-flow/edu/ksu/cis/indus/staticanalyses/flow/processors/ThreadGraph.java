@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.processors;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IteratorUtils;
@@ -99,12 +101,12 @@ public class ThreadGraph
 		implements IThreadGraphInfo {
 
 	/**
-	 * DOCUMENT ME!
+	 * The name of the runnable interface in Java.
 	 */
 	private static final String JAVA_LANG_RUNNABLE = "java.lang.Runnable";
 
 	/**
-	 * DOCUMENT ME!
+	 * The name of the thread class in Java.
 	 */
 	private static final String JAVA_LANG_THREAD = "java.lang.Thread";
 
@@ -448,12 +450,12 @@ public class ThreadGraph
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the runnable methods in the given class
 	 * 
-	 * @param clazz DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param clazz of interest.
+	 * @return a collection of runnable methods in the given class.
 	 */
-	Collection<SootMethod> getRunnableMethods(final SootClass clazz) {
+	@NonNull @NonNullContainer Collection<SootMethod> getRunnableMethods(@NonNull final SootClass clazz) {
 		final Collection<Value> _runnables = getRunnables(clazz);
 		final IEnvironment _env = analyzer.getEnvironment();
 		final Collection<SootMethod> _result = new HashSet<SootMethod>(_runnables.size());

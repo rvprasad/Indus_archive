@@ -3,19 +3,19 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import soot.Value;
 
 /**
- * DOCUMENT ME!
+ * This maps values (expression AST nodes) to to other nodes.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-class Type2ValueMapper {
+class Value2ValueMapper {
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the value to which the given value is mapped to.
 	 * 
-	 * @param e DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param e is the value of interest.
+	 * @return the mapped value.
 	 */
 	Value getValue(final Value e) {
 		return e;

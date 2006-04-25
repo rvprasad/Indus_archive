@@ -28,26 +28,25 @@ import soot.RefType;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 
 /**
  * An abstract implementation of <code>IMethodVariant</code> with the most general content in place.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T> is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		implements IMethodVariant<N> {
 
 	/**
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
-	 *
+	 * 
 	 * @invariant fa != null
 	 */
 	protected final FA<SYM, T, N, R> fa;
@@ -55,7 +54,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	/**
 	 * The flow graph node associated with an abstract single return point of the corresponding method. This will be
 	 * <code>null</code>, if the associated method's return type is any non-ref type.
-	 *
+	 * 
 	 * @invariant _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar != null
 	 * @invariant not _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar == null
 	 */
@@ -64,7 +63,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	/**
 	 * The flow graph nodes associated with the this variable of the corresponding method. This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
-	 *
+	 * 
 	 * @invariant _method.isStatic() implies thisVar == null
 	 * @invariant not _method.isStatic() implies thisVar != null
 	 */
@@ -77,7 +76,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 
 	/**
 	 * The statement visitor used to process in the statement in the correpsonding method.
-	 *
+	 * 
 	 * @invariant stmt != null
 	 */
 	protected final IStmtSwitch stmt;
@@ -85,21 +84,21 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 	/**
 	 * The manager of AST node variants. This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
-	 *
+	 * 
 	 * @invariant astvm != null
 	 */
 	protected final IVariantManager<ValuedVariant<N>, Value> astvm;
 
 	/**
 	 * The method represented by this variant.
-	 *
+	 * 
 	 * @invariant method != null
 	 */
 	protected final SootMethod method;
 
 	/**
 	 * The array of flow graph nodes associated with the parameters of thec corresponding method.
-	 *
+	 * 
 	 * @invariant parameters.oclIsKindOf(Sequence(IFGNode))
 	 * @invariant _method.getParameterCount() == 0 implies parameters == null
 	 * @invariant _method.getParameterTypes()->forall(p | p.oclIsKindOf(RefLikeType) implies
@@ -111,14 +110,14 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 
 	/**
 	 * The context which resulted in the creation of this variant.
-	 *
+	 * 
 	 * @invariant context != null
 	 */
 	private final Context context;
 
 	/**
 	 * Creates an instance of this class.
-	 *
+	 * 
 	 * @param sm is the method be represented.
 	 * @param astVariantManager to be used for the AST chunks of the represented method.
 	 * @param theFA the instance of the flow framework with which this variant operates.
@@ -283,7 +282,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 
 	/**
 	 * Retrieves the node corresponding to the exceptions thrown by this method variant.
-	 *
+	 * 
 	 * @return the node for thrown exceptions.
 	 * @post result != null
 	 */
@@ -293,7 +292,7 @@ public abstract class AbstractMethodVariant<SYM, T extends ITokens<T, SYM>, N ex
 
 	/**
 	 * Decides if given type or references of it's type should be considered.
-	 *
+	 * 
 	 * @param type of interest.
 	 * @return <code>true</code> if it should be considered; <code>false</code>, otherwise.
 	 */

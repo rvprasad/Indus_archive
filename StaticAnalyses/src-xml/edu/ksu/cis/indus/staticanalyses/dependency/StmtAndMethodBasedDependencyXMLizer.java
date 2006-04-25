@@ -43,8 +43,8 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T1> DOCUMENT ME!
- * @param <E2> DOCUMENT ME!
+ * @param <T1> is the type of the dependent entity.
+ * @param <E2> is the type of the dependee entity.
  */
 final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt>
 		extends AbstractProcessor {
@@ -85,12 +85,12 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 	private int totalDependences;
 
 	/**
-	 * DOCUMENT ME!
+	 * The class of dependee objects.
 	 */
 	private final Class<E2> classForE2;
 
 	/**
-	 * DOCUMENT ME!
+	 * The class of dependent objects.
 	 */
 	private final Class<T1> classForT1;
 

@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
@@ -64,7 +65,7 @@ import soot.jimple.VirtualInvokeExpr;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the token set object.
  */
 class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 		extends AbstractExprSwitch<FlowInsensitiveExprSwitch<T>, Value, T, OFAFGNode<T>, Type> {
@@ -75,9 +76,9 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlowInsensitiveExprSwitch.class);
 
 	/**
-	 * DOCUMENT ME!
+	 * This maps Java strings to Jimple string constant objects.
 	 */
-	private static final Map<String, StringConstant> str2const = new HashMap<String, StringConstant>();
+	private static final Map<String, StringConstant> STR_TO_CONST = new HashMap<String, StringConstant>();
 
 	/**
 	 * The token manager to be used.
@@ -85,20 +86,19 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	protected final ITokenManager<T, Value, Type> tokenMgr;
 
 	/**
-	 * DOCUMENT ME!
+	 * This retrieves values for a given type.
 	 */
-	protected final Type2ValueMapper valueRetriever;
+	protected final Value2ValueMapper valueRetriever;
 
 	/**
 	 * Creates a new <code>FlowInsensitiveExprSwitch</code> instance.
 	 * 
 	 * @param statementSwitch the statement visitor which uses this object.
 	 * @param nodeConnector the connector to be used to connect ast and non-ast flow graph node.
-	 * @param type2valueMapper DOCUMENT ME!
-	 * @pre statementSwitch != null and nodeConnector != null
+	 * @param type2valueMapper provides the values of a given type in the system.
 	 */
-	FlowInsensitiveExprSwitch(final IFGNodeConnector<OFAFGNode<T>> nodeConnector, final Type2ValueMapper type2valueMapper,
-			final IStmtSwitch statementSwitch) {
+	FlowInsensitiveExprSwitch(@NonNull final IFGNodeConnector<OFAFGNode<T>> nodeConnector,
+			@NonNull final Value2ValueMapper type2valueMapper, @NonNull final IStmtSwitch statementSwitch) {
 		super(statementSwitch, nodeConnector);
 
 		if (fa != null) {
@@ -462,16 +462,16 @@ class FlowInsensitiveExprSwitch<T extends ITokens<T, Value>>
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the canonical string constant that represents the given string constant.
 	 * 
-	 * @param e DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * @param e is the string constant that needs to be canonicalized.
+	 * @return the canonical string constant.
 	 */
 	private StringConstant getCanonicalStringConstant(final StringConstant e) {
-		if (str2const.containsKey(e.value)) {
-			return str2const.get(e.value);
+		if (STR_TO_CONST.containsKey(e.value)) {
+			return STR_TO_CONST.get(e.value);
 		}
-		str2const.put(e.value, e);
+		STR_TO_CONST.put(e.value, e);
 		return e;
 	}
 

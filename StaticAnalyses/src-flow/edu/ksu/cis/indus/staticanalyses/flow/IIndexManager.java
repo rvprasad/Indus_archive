@@ -22,8 +22,8 @@ import edu.ksu.cis.indus.processing.Context;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <I> DOCUMENT ME!
- * @param <E> DOCUMENT ME!
+ * @param <I> is the type of the index.
+ * @param <E> is the type of the indexed entity.
  */
 public interface IIndexManager<I extends IIndex<I>, E> {
 

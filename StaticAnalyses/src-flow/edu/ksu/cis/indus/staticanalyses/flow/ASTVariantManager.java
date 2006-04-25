@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 import soot.Value;
 import soot.jimple.InvokeExpr;
 
@@ -23,10 +24,10 @@ import soot.jimple.InvokeExpr;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T> is the type of the token set object.
+ *  @param <N>is the type of the summary node in the flow analysis.
+ * @param <R> is the type of the symbol types.
  */
 public class ASTVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		extends AbstractVariantManager<ValuedVariant<N>, Value, SYM, T, N, R> {

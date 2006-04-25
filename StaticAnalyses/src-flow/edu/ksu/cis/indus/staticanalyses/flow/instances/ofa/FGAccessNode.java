@@ -18,6 +18,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 import soot.Value;
 
 /**
@@ -25,7 +26,7 @@ import soot.Value;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class FGAccessNode<T extends ITokens<T, Value>>
 		extends OFAFGNode<T> {

@@ -7,25 +7,22 @@ import soot.Type;
 import soot.Value;
 
 /**
- * DOCUMENT ME!
+ * This maps types to a collection of canonical values of that type.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-class Type2CanonicalValueMapper
-		extends Type2ValueMapper {
+class Value2CanonicalValueMapper
+		extends Value2ValueMapper {
 
 	/**
-	 * DOCUMENT ME!
+	 * This maps a type to the collection of canonical values of that type.
 	 */
 	final Map<Type, Value> type2canonicalValue = new HashMap<Type, Value>();
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @param e DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
 	@Override Value getValue(final Value e) {
 		final Type _type = e.getType();

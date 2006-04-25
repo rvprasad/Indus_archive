@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
@@ -24,7 +23,6 @@ import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.ArrayType;
 import soot.Value;
-
 import soot.jimple.ArrayRef;
 
 
@@ -34,7 +32,7 @@ import soot.jimple.ArrayRef;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class ArrayAccessExprWork<T extends ITokens<T, Value>>
   extends AbstractMemberDataAccessExprWork<T> {

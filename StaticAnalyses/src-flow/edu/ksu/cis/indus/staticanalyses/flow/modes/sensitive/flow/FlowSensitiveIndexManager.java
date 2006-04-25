@@ -31,7 +31,8 @@ import soot.ValueBox;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <E> DOCUMENT ME!
+ * @param <E> is the type of the entity that has been indexed.
+
  */
 public class FlowSensitiveIndexManager<E>
 		extends AbstractIndexManager<OneContextInfoIndex<E, ValueBox>, E>

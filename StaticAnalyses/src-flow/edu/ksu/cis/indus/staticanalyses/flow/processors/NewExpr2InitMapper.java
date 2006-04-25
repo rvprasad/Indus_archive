@@ -67,7 +67,7 @@ public class NewExpr2InitMapper
 			Constants.getNumOfMethodsInApplication());
 
 	/**
-	 * DOCUMENT ME!
+	 * This maps methods to a map from new expressions to statements in which they occur.
 	 * 
 	 * @invariant method2newExprStmt.keySet()->forall(o | method2newExprStmt.get(o)->keySet()->forall(p | (
 	 *            p.oclIsKindOf(NewExpr) or p.oclIsKindOf(NewArrayExpr) or p.oclIsKindOf(NewMultiArrayExpr) or

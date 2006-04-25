@@ -163,8 +163,8 @@ public final class DependencyXMLizer
 	/**
 	 * Retrives the xmlizer for the given dependence analysis based on the properties.
 	 * 
-	 * @param <T1> DOCUMENT ME!
-	 * @param <E2> DOCUMENT ME!
+	 * @param <T1> is the type of the dependent entity.
+	 * @param <E2> is the type of the dependee entity.
 	 * @param writer to be used by the xmlizer.
 	 * @param da is the dependence analysis for which the xmlizer is requested.
 	 * @return the xmlizer.

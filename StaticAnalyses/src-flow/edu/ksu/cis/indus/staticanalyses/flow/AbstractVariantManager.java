@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 /**
  * This class manages variants. An variant manager classes should extend this class. This class embodies the logic to manage
  * the variants.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <V> DOCUMENT ME!
- * @param <E> DOCUMENT ME!
- * @param <SYM> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <V> is the type of the variant.
+ * @param <E> is the type of the entity whose variance is being tracked.
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		implements IVariantManager<V, E> {
@@ -45,28 +45,28 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 
 	/**
 	 * The instance of the framework in which this object is used.
-	 *
+	 * 
 	 * @invariant fa != null
 	 */
 	protected final FA<SYM, T, N, R> fa;
 
 	/**
 	 * A manager of indices that map entities to variants.
-	 *
+	 * 
 	 * @invariant indexManager != null
 	 */
 	private final IIndexManager<? extends IIndex<?>, E> idxManager;
 
 	/**
 	 * A map from indices to variants.
-	 *
+	 * 
 	 * @invariant index2variant != null
 	 */
 	private final Map<IIndex<?>, V> index2variant = new HashMap<IIndex<?>, V>();
 
 	/**
 	 * Creates a new <code>AbstractVariantManager</code> instance.
-	 *
+	 * 
 	 * @param theAnalysis the instance of the framework in which this object is used.
 	 * @param indexManager the manager of indices that map the entities to variants.
 	 * @pre theAnalysis != null and indexManager != null
@@ -78,7 +78,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 
 	/**
 	 * Returns the variant corresponding to the given entity in the given context, if one exists.
-	 *
+	 * 
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant correponding to the entity in the given context, if one exists. <code>null</code> if none exist.
@@ -102,7 +102,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 	/**
 	 * Returns the variant corresponding to the given entity in the given context. If a variant does not exist, a new one is
 	 * created. If one exists, it shall be returned.
-	 *
+	 * 
 	 * @param o the entity whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
 	 * @return the variant correponding to the entity in the given context.
@@ -135,7 +135,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 	/**
 	 * Returns the new variant correponding to the given object. This is a template method to be provided by concrete
 	 * implementations.
-	 *
+	 * 
 	 * @param o the object whose corresponding variant is to be returned.
 	 * @return the new variant corresponding to the given object.
 	 * @pre o != null
@@ -145,7 +145,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 
 	/**
 	 * Returns the total variants managed by this manager.
-	 *
+	 * 
 	 * @return number of variants managed.
 	 */
 	protected int getVariantCount() {
@@ -154,7 +154,7 @@ public abstract class AbstractVariantManager<V extends IVariant, E, SYM, T exten
 
 	/**
 	 * Retrieves the variants managed by this object.
-	 *
+	 * 
 	 * @return the variants.
 	 * @post result != null
 	 */

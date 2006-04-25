@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
@@ -23,7 +24,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <I> DOCUMENT ME!
+ * @param <I> is the type of the index.
  */
 public interface IIndexManagementStrategy <I extends IIndex<I>> {
 	/**
@@ -33,9 +34,8 @@ public interface IIndexManagementStrategy <I extends IIndex<I>> {
 	 *
 	 * @return the equivalent index.
 	 *
-	 * @pre index != null
 	 */
-	I getEquivalentIndex(I index);
+	@NonNull I getEquivalentIndex(@NonNull I index);
 
 	/**
 	 * Resets internal data structures.

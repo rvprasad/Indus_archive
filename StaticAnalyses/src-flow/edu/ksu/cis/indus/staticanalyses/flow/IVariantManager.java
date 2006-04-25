@@ -22,8 +22,8 @@ import edu.ksu.cis.indus.processing.Context;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <V> DOCUMENT ME!
- * @param <E> DOCUMENT ME!
+ * @param <V> is the type of the variant.
+ * @param <E> is the type of the entity whose variance is being managed.
  */
 public interface IVariantManager<V extends IVariant, E> {
 

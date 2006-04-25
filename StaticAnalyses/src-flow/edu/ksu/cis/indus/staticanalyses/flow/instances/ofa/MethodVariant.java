@@ -55,8 +55,7 @@ import soot.jimple.ThrowStmt;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
- * @param <T> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class MethodVariant<T extends ITokens<T, Value>>
 		extends AbstractMethodVariant<Value, T, OFAFGNode<T>, Type> {
@@ -80,7 +79,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	 *            parameter cannot be <code>null</code>.
 	 * @param theFA the instance of <code>FA</code> which was responsible for the creation of this variant. This parameter
 	 *            cannot be <code>null</code>.
-	 * @param factory DOCUMENT ME!
+	 * @param factory provides the CFGs.
 	 * @pre sm != null and astVariantManager != null and theFA != null and factory != null
 	 */
 	protected MethodVariant(final SootMethod sm, final IVariantManager<ValuedVariant<OFAFGNode<T>>, Value> astVariantManager,
@@ -129,7 +128,7 @@ class MethodVariant<T extends ITokens<T, Value>>
 	/**
 	 * Sets the out filter based on the given type for the given node.
 	 * 
-	 * @param <T> DOCUMENT ME!
+	 * @param <T>  is the type of the token set object.
 	 * @param node of interest.
 	 * @param type for the filter.
 	 * @param tokenMgr used in the creation of the type-based filter.

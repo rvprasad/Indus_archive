@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <N>  is the type of the token set object.
  */
 class LHSConnector<N extends IFGNode<?, ?, N>>
 		implements IFGNodeConnector<N> {

@@ -22,7 +22,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public class InvocationVariant <N extends IFGNode<?, ?, N>>
   extends ValuedVariant<N> {

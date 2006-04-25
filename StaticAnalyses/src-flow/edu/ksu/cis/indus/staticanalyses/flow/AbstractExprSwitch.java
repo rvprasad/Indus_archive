@@ -22,21 +22,20 @@ import org.slf4j.LoggerFactory;
 
 import soot.Value;
 import soot.ValueBox;
-
 import soot.jimple.AbstractJimpleValueSwitch;
 
 /**
  * The expression visitor class. This class provides the default method implementations for all the expressions that need to
  * be dealt at Jimple level. The class is tagged as <code>abstract</code> to force the users to extend the class as
  * required.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <E> DOCUMENT ME!
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <E> is the type of the expression visitor.
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T> is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T, N, R>, SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		extends AbstractJimpleValueSwitch
@@ -74,14 +73,14 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 	protected final IStmtSwitch stmtSwitch;
 
 	/**
-	 * DOCUMENT ME!
+	 * This captures the flow node resulting from visiting an expression.
 	 */
 	private N resultFlowNode;
 
 	/**
 	 * Creates a new <code>AbstractExprSwitch</code> instance. In non-prototype mode, all of the fields (declared in this
 	 * class) will be non-null after returning from the constructor.
-	 *
+	 * 
 	 * @param stmtVisitor the statement visitor which shall use this expression visitor.
 	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding to
 	 *            AST and non-AST entities.
@@ -105,7 +104,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 	/**
 	 * Provides the default implementation when any expression is not handled by the visitor. It sets the flow node associated
 	 * with the AST as the result.
-	 *
+	 * 
 	 * @param o the expression which is not handled by the visitor.
 	 */
 	@Override public void defaultCase(final Object o) {
@@ -118,7 +117,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 
 	/**
 	 * This method will throw <code>UnsupportedOperationException</code>.
-	 *
+	 * 
 	 * @return (This method raises an exception.)
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
@@ -135,7 +134,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 
 	/**
 	 * Processes the expression at the given program point, <code>v</code>.
-	 *
+	 * 
 	 * @param v the program point at which the to-be-processed expression occurs.
 	 * @pre v != null
 	 */
@@ -154,7 +153,7 @@ public abstract class AbstractExprSwitch<E extends AbstractExprSwitch<E, SYM, T,
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IExprSwitch#setFlowNode(N)
+	 * {@inheritDoc}
 	 */
 	public void setFlowNode(final N node) {
 		resultFlowNode = node;

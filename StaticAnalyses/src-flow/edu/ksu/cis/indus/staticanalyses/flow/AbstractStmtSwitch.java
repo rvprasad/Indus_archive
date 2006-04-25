@@ -41,8 +41,8 @@ import soot.jimple.ThrowStmt;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <S> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <S> is the type of the statement visitor.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 public abstract class AbstractStmtSwitch<S extends AbstractStmtSwitch<S, N>, N extends IFGNode<?, ?, N>>
 		extends soot.jimple.AbstractStmtSwitch

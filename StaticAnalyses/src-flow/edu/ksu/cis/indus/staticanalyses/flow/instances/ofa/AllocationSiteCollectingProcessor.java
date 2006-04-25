@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -15,6 +14,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.collections.MapUtils;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.AbstractProcessor;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,15 +31,10 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.NewExpr;
 import soot.jimple.StringConstant;
-import edu.ksu.cis.indus.common.collections.MapUtils;
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.processing.AbstractProcessor;
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.ProcessingController;
 
 /**
- * DOCUMENT ME!
- *
+ * This processor collects allocation sites.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -43,14 +43,19 @@ public final class AllocationSiteCollectingProcessor
 		extends AbstractProcessor {
 
 	/**
-	 * DOCUMENT ME!
+	 * This maps classes to allocation sites at which their instances are created.
+	 */
+	private Map<SootClass, Collection<Value>> class2allocationSite = new HashMap<SootClass, Collection<Value>>();
+
+	/**
+	 * The application/environment in which the allocation sites occur.
 	 */
 	private IEnvironment env;
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
+	 * {@inheritDoc}
 	 */
-	@Override public void callback(final ValueBox vBox, final Context context) {
+	@Override public void callback(final ValueBox vBox, @SuppressWarnings("unused") final Context context) {
 		final Value _v = vBox.getValue();
 		if (_v instanceof StringConstant) {
 			MapUtils.putIntoCollectionInMap(class2allocationSite, env.getClass("java.lang.String"), _v);
@@ -60,12 +65,20 @@ public final class AllocationSiteCollectingProcessor
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the allocation sites for the given class.
+	 * 
+	 * @param clazz of interest.
+	 * @return the collection of allocation sites.
 	 */
-	private Map<SootClass, Collection<Value>> class2allocationSite = new HashMap<SootClass, Collection<Value>>();
+	public Collection<Value> getAllocationSitesFor(final SootClass clazz) {
+		if (class2allocationSite.containsKey(clazz)) {
+			return class2allocationSite.get(clazz);
+		}
+		return Collections.singleton(null);
+	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
+	 * {@inheritDoc}
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
@@ -74,16 +87,7 @@ public final class AllocationSiteCollectingProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
-	 */
-	public void unhook(final ProcessingController ppc) {
-		ppc.unregister(NewExpr.class, this);
-		ppc.unregister(StringConstant.class, this);
-		env = null;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
+	 * {@inheritDoc}
 	 */
 	@Override public void reset() {
 		super.reset();
@@ -91,16 +95,12 @@ public final class AllocationSiteCollectingProcessor
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param declaringClass DOCUMENT ME!
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
 	 */
-	public Collection<Value> getAllocationSitesFor(SootClass declaringClass) {
-		if (class2allocationSite.containsKey(declaringClass)) {
-			return class2allocationSite.get(declaringClass);
-		}
-		return Collections.singleton(null);
+	public void unhook(final ProcessingController ppc) {
+		ppc.unregister(NewExpr.class, this);
+		ppc.unregister(StringConstant.class, this);
+		env = null;
 	}
 }
 

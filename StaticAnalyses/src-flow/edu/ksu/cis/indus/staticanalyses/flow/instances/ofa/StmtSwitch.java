@@ -18,6 +18,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 import soot.Value;
 import soot.jimple.DefinitionStmt;
 
@@ -27,7 +28,7 @@ import soot.jimple.DefinitionStmt;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class StmtSwitch<T extends ITokens<T, Value>>
 		extends AbstractStmtSwitch<StmtSwitch<T>, OFAFGNode<T>> {

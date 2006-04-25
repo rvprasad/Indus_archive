@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.annotations.Marker;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <I> DOCUMENT ME!
+ * @param <I> is the type of the index.
  */
 @Marker public interface IIndex<I extends IIndex<I>>{
 	// empty

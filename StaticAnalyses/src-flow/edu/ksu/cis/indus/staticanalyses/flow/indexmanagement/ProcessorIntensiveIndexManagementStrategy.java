@@ -14,6 +14,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
+import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.collections.RetrievableSet;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
@@ -24,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <I> DOCUMENT ME!
+ * @param <I> is the type of the index.
  */
 public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
 		implements IIndexManagementStrategy<I> {
@@ -32,16 +34,14 @@ public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
 	/**
 	 * The collection of indices managed by this object.
 	 * 
-	 * @invariant indices != null
 	 */
-	private final RetrievableSet<I> indices = new RetrievableSet<I>();
+	@NonNullContainer private final RetrievableSet<I> indices = new RetrievableSet<I>();
 
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @see IIndexManagementStrategy#getEquivalentIndex(edu.ksu.cis.indus.staticanalyses.flow.IIndex)
 	 */
-	public I getEquivalentIndex(final I index) {
+	@NonNull public I getEquivalentIndex(@NonNull final I index) {
 		final I _result;
 
 		if (indices.contains(index)) {
@@ -54,7 +54,7 @@ public class ProcessorIntensiveIndexManagementStrategy<I extends IIndex<I>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStrategy#reset()
+	 * {@inheritDoc}
 	 */
 	public void reset() {
 		indices.clear();

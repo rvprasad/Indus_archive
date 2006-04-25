@@ -215,12 +215,12 @@ public class DeadlockAnalysisCLI
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates deadlock information based on the given inputs.
 	 * 
-	 * @param aa DOCUMENT ME!
-	 * @param monitorInfo DOCUMENT ME!
-	 * @param escapeInfo DOCUMENT ME!
-	 * @param lbe DOCUMENT ME!
+	 * @param aa is the OFA to be used.
+	 * @param monitorInfo is the monitor analysis to be used.
+	 * @param escapeInfo is the escape analysis to be used.
+	 * @param lbe is the lock based equivalence analysis to be used.
 	 */
 	private void calculateDeadlockInfo(final IValueAnalyzer<Value> aa, final MonitorAnalysis monitorInfo,
 			final IEscapeInfo escapeInfo, final LockAcquisitionBasedEquivalence lbe) {

@@ -30,7 +30,7 @@ import soot.Value;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class OFAFGNode<T extends ITokens<T, Value>>
 		extends AbstractFGNode<Value, T, OFAFGNode<T>> {

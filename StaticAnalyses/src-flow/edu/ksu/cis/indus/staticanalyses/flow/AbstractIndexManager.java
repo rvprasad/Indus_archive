@@ -26,8 +26,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStr
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <I> DOCUMENT ME!
- * @param <E> DOCUMENT ME!
+ * @param <I> is the type of the index.
+ * @param <E> is the type of the indexed entity. 
  */
 public abstract class AbstractIndexManager<I extends IIndex<I>, E>
   implements IIndexManager<I, E> {

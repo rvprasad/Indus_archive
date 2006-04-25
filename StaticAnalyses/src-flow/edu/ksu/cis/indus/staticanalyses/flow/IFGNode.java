@@ -36,9 +36,9 @@ import java.util.Collection;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> DOCUMENT ME!
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
+ * @param <N> is the type of the summary node in the flow analysis.
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T>  is the type of the token set object.
  */
 @InternalUse public interface IFGNode<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends IPrototype<N> {
@@ -132,7 +132,7 @@ import java.util.Collection;
 	void setSuccessorSet(final Collection<N> successors);
 
 	/**
-	 * DOCUMENT ME!
+	 * Marks the node as being part of a SCC of multiple nodes in the flow graph.
 	 */
 	void setInSCCWithMultipleNodes();
 

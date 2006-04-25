@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -16,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
 
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
@@ -31,17 +29,17 @@ import soot.RefType;
 import soot.Type;
 import soot.Value;
 
-
 /**
- * This class manages indices associated with fields and array components  in allocation-site sensitive mode.  In reality, it
- * provides the implementation to create new indices.  Created: Tue Mar  5 14:08:18 2002.
- *
+ * This class manages indices associated with fields and array components in allocation-site sensitive mode. In reality, it
+ * provides the implementation to create new indices. Created: Tue Mar 5 14:08:18 2002.
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <O> DOCUMENT ME!
+ * @param <E> is the type of the entity that has been indexed.
  */
-public class AllocationSiteSensitiveIndexManager <O>
-  extends AbstractIndexManager<OneContextInfoIndex<O, Object>, O> {
+public class AllocationSiteSensitiveIndexManager<E>
+		extends AbstractIndexManager<OneContextInfoIndex<E, Object>, E> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -74,17 +72,15 @@ public class AllocationSiteSensitiveIndexManager <O>
 
 	/**
 	 * Returns an index corresponding to the given entity and context.
-	 *
-	 * @param o the entity for which the index in required.  Although it is not enforced, this should be of type
-	 * 		  <code>FielRef</code> or <code>ArrayRef</code>.
+	 * 
+	 * @param o the entity for which the index in required. Although it is not enforced, this should be of type
+	 *            <code>FielRef</code> or <code>ArrayRef</code>.
 	 * @param c the context in which information pertaining to <code>o</code> needs to be captured.
-	 *
 	 * @return the index that uniquely identifies <code>o</code> in context, <code>c</code>.
-	 *
 	 * @pre o != null and c != null and
-	 * 		c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
+	 *      c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
 	 */
-	@Override protected OneContextInfoIndex<O, Object> createIndex(final O o, final Context c) {
+	@Override protected OneContextInfoIndex<E, Object> createIndex(final E o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
@@ -92,10 +88,10 @@ public class AllocationSiteSensitiveIndexManager <O>
 		final AllocationContext _ctxt = (AllocationContext) c;
 		final Type _type = ((Value) _ctxt.allocationSite).getType();
 		if ((_type instanceof RefType && pattern != null && pattern.matcher(((RefType) _type).getClassName()).matches())
-			  || (objectSensitiveArrayTracking && _type instanceof ArrayType)) {
-			return new OneContextInfoIndex<O, Object>(o, _ctxt.getAllocationSite());
+				|| (objectSensitiveArrayTracking && _type instanceof ArrayType)) {
+			return new OneContextInfoIndex<E, Object>(o, _ctxt.getAllocationSite());
 		}
-		return new OneContextInfoIndex<O, Object>(o, null);
+		return new OneContextInfoIndex<E, Object>(o, null);
 	}
 }
 

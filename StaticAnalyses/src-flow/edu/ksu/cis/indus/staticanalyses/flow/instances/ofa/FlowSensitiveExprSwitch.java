@@ -40,7 +40,7 @@ import soot.toolkits.scalar.SimpleLocalDefs;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the token set object.
  */
 class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 		extends FlowInsensitiveExprSwitch<T> {
@@ -66,11 +66,11 @@ class FlowSensitiveExprSwitch<T extends ITokens<T, Value>>
 	 * 
 	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
-	 * @param type2valueMapper DOCUMENT ME!
+	 * @param type2valueMapper provides the values of a given type in the system.
 	 * @pre stmtSwitchParam != null and nodeConnector != null
 	 */
 	public FlowSensitiveExprSwitch(final IFGNodeConnector<OFAFGNode<T>> nodeConnector,
-			final Type2ValueMapper type2valueMapper, final IStmtSwitch stmtSwitchParam) {
+			final Value2ValueMapper type2valueMapper, final IStmtSwitch stmtSwitchParam) {
 		super(nodeConnector, type2valueMapper, stmtSwitchParam);
 	}
 

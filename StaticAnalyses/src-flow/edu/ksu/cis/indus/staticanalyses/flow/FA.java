@@ -23,13 +23,10 @@ import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.datastructures.WorkList;
 import edu.ksu.cis.indus.common.soot.NamedTag;
-
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IPrototype;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCBasedOptimizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
@@ -52,7 +49,6 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-
 import soot.tagkit.Tag;
 
 /**
@@ -63,10 +59,10 @@ import soot.tagkit.Tag;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T>  is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
+ * @param <R> is the type of the symbol types.
  */
 public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		implements IEnvironment, IWorkBagProvider {
@@ -121,7 +117,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	private ValuedVariantManager<SootField, SYM, T, N, R> instanceFieldVariantManager;
 
 	/**
-	 * DOCUMENT ME!
+	 * The prototype for lhs expression visitor.
 	 */
 	private IPrototype<? extends IExprSwitch<N>> lhsVisitorPrototype;
 
@@ -131,12 +127,12 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	private MethodVariantManager<SYM, T, N, R> methodVariantManager;
 
 	/**
-	 * DOCUMENT ME!
+	 * The prototype for flow graph node.
 	 */
 	private IPrototype<N> nodePrototype;
 
 	/**
-	 * DOCUMENT ME!
+	 * The prototype for lhs expression visitor.
 	 */
 	private IPrototype<? extends IExprSwitch<N>> rhsVisitorPrototype;
 
@@ -156,7 +152,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	private ValuedVariantManager<SootField, SYM, T, N, R> staticFieldVariantManager;
 
 	/**
-	 * DOCUMENT ME!
+	 * The prototype for statement visitor.
 	 */
 	private IPrototype<? extends IStmtSwitch> stmtVisitorPrototype;
 
@@ -362,7 +358,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
+	 * {@inheritDoc}
 	 */
 	public Collection<SootMethod> getRoots() {
 		return Collections.unmodifiableCollection(rootMethods);
@@ -409,14 +405,14 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * @see IWorkBagProvider#getWorkBag()
+	 * {@inheritDoc}
 	 */
 	public final IWorkBag<IWork> getWorkBag() {
 		return currWorkBag;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
+	 * {@inheritDoc}
 	 */
 	public boolean hasClass(final String scName) {
 		return environment.hasClass(scName);
@@ -433,7 +429,7 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
+	 * {@inheritDoc}
 	 */
 	public void removeClass(final SootClass clazz) {
 		environment.removeClass(clazz);
@@ -468,9 +464,9 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the prototype of flow node.
 	 *
-	 * @param node DOCUMENT ME!
+	 * @param node is the prototype flow node.
 	 */
 	public void setNodePrototype(N node) {
 		nodePrototype = node;
@@ -505,29 +501,29 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets up the variant manager to handle variance of array objects.
 	 *
-	 * @param arrayIM DOCUMENT ME!
+	 * @param arrayIM is the variant manager. 
 	 */
 	public void setupArrayVariantManager(IIndexManager<? extends IIndex<?>, ArrayType> arrayIM) {
 		arrayVariantManager = new ValuedVariantManager<ArrayType, SYM, T, N, R>(this, arrayIM);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets up the variant manager to handle variance of instance fields.
 	 *
-	 * @param instancefieldIM DOCUMENT ME!
+	 * @param instancefieldIM is the variant manager.
 	 */
 	public void setupInstanceFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> instancefieldIM) {
 		instanceFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N, R>(this, instancefieldIM);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets up the variant manager to handle variance of methods.
 	 *
-	 * @param mi DOCUMENT ME!
-	 * @param astIMPrototype DOCUMENT ME!
-	 * @param mvf DOCUMENT ME!
+	 * @param mi is the variant manager.
+	 * @param astIMPrototype is the prototype AST variant manager.
+	 * @param mvf is the factory that handles method variance.
 	 */
 	public void setupMethodVariantManager(final IIndexManager<? extends IIndex<?>, SootMethod> mi,
 			final IPrototype<? extends IIndexManager<? extends IIndex<?>, Value>> astIMPrototype,
@@ -536,9 +532,9 @@ public class FA<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * 	 * Sets up the variant manager to handle variance of static fields.
 	 *
-	 * @param staticfieldIM DOCUMENT ME!
+	 * @param staticfieldIM is the variant manager.
 	 */
 	public void setupStaticFieldVariantManager(final IIndexManager<? extends IIndex<?>, SootField> staticfieldIM) {
 		staticFieldVariantManager = new ValuedVariantManager<SootField, SYM, T, N, R>(this, staticfieldIM);

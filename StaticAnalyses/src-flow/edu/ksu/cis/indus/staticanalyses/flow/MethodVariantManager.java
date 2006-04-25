@@ -29,9 +29,9 @@ import soot.Value;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T>  is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 class MethodVariantManager<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, R>
 		extends AbstractVariantManager<IMethodVariant<N>, SootMethod, SYM, T, N, R> {

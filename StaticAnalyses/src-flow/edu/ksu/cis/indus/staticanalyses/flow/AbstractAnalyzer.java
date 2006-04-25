@@ -18,9 +18,7 @@ import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -36,7 +34,6 @@ import soot.ArrayType;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
-
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
@@ -48,13 +45,13 @@ import soot.jimple.ParameterRef;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <LE> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
- * @param <SS> DOCUMENT ME!
- * @param <RE> DOCUMENT ME!
- * @param <R> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed. 
+ * @param <T>  is the type of the token set object.
+ * @param <LE> is the type of the lhs expression visitor.
+ * @param <N> is the type of the summary node in the flow analysis.
+ * @param <SS> is the type of the statement visitor.
+ * @param <RE> is the type of the rhs expression visitor.
+ * @param <R> is the type of the symbol types.
  */
 public abstract class AbstractAnalyzer<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>, LE extends IExprSwitch<N>, RE extends IExprSwitch<N>, SS extends IStmtSwitch, R>
 		extends AbstractStatus

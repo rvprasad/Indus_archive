@@ -22,10 +22,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 /**
  * This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
  * correspond to r-values.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> DOCUMENT ME!
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 class RHSConnector<N extends IFGNode<?, ?, N>>
   implements IFGNodeConnector<N> {

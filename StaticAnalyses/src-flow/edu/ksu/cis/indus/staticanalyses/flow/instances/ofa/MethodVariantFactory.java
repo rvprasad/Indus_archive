@@ -35,7 +35,7 @@ import soot.Value;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 class MethodVariantFactory<T extends ITokens<T, Value>>
   implements IMethodVariantFactory<Value, T, OFAFGNode<T>, Type> {

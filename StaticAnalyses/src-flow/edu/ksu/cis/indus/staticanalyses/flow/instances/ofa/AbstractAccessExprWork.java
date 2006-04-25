@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -25,10 +24,10 @@ import soot.ValueBox;
 
 /**
  * This class encapsulates the logic and data related to work to be done in correspondence to access expressions.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <T> DOCUMENT ME!
+ * @param <T> is the type of the token set object.
  */
 abstract class AbstractAccessExprWork<T extends ITokens<T, Value>>
 		extends AbstractTokenProcessingWork<T> {

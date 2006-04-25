@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IVariantManager;
@@ -31,7 +32,7 @@ import soot.Value;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T> DOCUMENT ME!
+ * @param <T>  is the type of the token set object.
  */
 public class StubMethodVariant<T extends ITokens<T, Value>>
 		extends AbstractMethodVariant<Value, T, OFAFGNode<T>, Type> {
@@ -50,16 +51,16 @@ public class StubMethodVariant<T extends ITokens<T, Value>>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.MethodVariant#process()
+	 * {@inheritDoc}
 	 */
 	public void process() {
 		// TODO: add code that can plug in flow summary depending on the configuration.
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.AbstractMethodVariant#shouldConsider(soot.Type)
+	 * {@inheritDoc}
 	 */
-	@Override protected boolean shouldConsider(final Type type) {
+	@Empty @Override protected boolean shouldConsider(final Type type) {
 		// TODO: Auto-generated method stub
 		return false;
 	}

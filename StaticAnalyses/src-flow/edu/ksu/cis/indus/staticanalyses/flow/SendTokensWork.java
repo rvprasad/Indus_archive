@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
- * @param <N> DOCUMENT ME!
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T> is the type of the token set object.
+ * @param <N> is the type of the summary node in the flow analysis.
  */
 @InternalUse public class SendTokensWork<SYM, T extends ITokens<T, SYM>, N extends IFGNode<SYM, T, N>>
 		extends AbstractTokenProcessingWork<T> {
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param associatedNode DOCUMENT ME!
+	 * @param associatedNode is the desitination node on which this work operates.
 	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
 	public SendTokensWork(final N associatedNode, final T tokenSet) {

@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <E> DOCUMENT ME!
+ * @param <E> is the type of the entity that has been indexed.
  */
 public class IndexManager<E>
 		extends AbstractIndexManager<IndexManager.DummyIndex<E>, E>
@@ -34,7 +34,7 @@ public class IndexManager<E>
 	/**
 	 * This class represents an index that identifies an entity independent of any context information..
 	 * 
-	 * @param <E> DOCUMENT ME!
+	 * @param <E> is the type of the entity that has been indexed.
 	 */
 	private static class DummyIndex<E>
 			implements IIndex<DummyIndex<E>> {
@@ -97,7 +97,7 @@ public class IndexManager<E>
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IPrototype#getClone(java.lang.Object[])
+	 * {@inheritDoc}
 	 */
 	public IndexManager<E> getClone(@SuppressWarnings("unused") Object... o) {
 		return new IndexManager<E>();

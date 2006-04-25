@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
- * @param <N> DOCUMENT ME!
- * @param <SYM> DOCUMENT ME!
- * @param <T> DOCUMENT ME!
+ * @param <N> is the type of the summary node in the flow analysis.
+ * @param <SYM> is the type of symbol whose flow is being analyzed.
+ * @param <T> is the type of the token set object.
  */
 @InternalUse public abstract class AbstractFGNode<SYM, T extends ITokens<T, SYM>, N extends AbstractFGNode<SYM, T, N>>
 		implements IFGNode<SYM, T, N> {
@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
 	private ITokenFilter<T, SYM> filter;
 
 	/**
-	 * DOCUMENT ME!
+	 * This indicates if the node occurs in an SCC with multiple nodes in the flow graph.
 	 */
 	private boolean inSCCWithMultipleNodes;
 
@@ -238,9 +238,9 @@ import org.slf4j.LoggerFactory;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the token sending work for this node.
 	 * 
-	 * @param work DOCUMENT ME!
+	 * @param work of interest.
 	 */
 	public final void setTokenSendingWork(final SendTokensWork<SYM, T, N> work) {
 		assert inSCCWithMultipleNodes : "setInSCCWithMultipleNodes() before calling this method.";

@@ -15,6 +15,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
 import edu.ksu.cis.indus.annotations.Empty;
+import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
@@ -24,22 +25,20 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <I> DOCUMENT ME!
+ * @param <I> is the type of the index.
  */
 public final class MemoryIntensiveIndexManagementStrategy<I extends IIndex<I>>
 		implements IIndexManagementStrategy<I> {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see IIndexManagementStrategy#getEquivalentIndex(IIndex)
 	 */
-	public I getEquivalentIndex(final I index) {
+	@NonNull public I getEquivalentIndex(@NonNull final I index) {
 		return index;
 	}
 
 	/**
-	 * {@inheritDoc} Empty method.
+	 * {@inheritDoc}
 	 */
 	@Empty public void reset() {
 		// does nothing
