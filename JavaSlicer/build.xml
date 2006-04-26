@@ -14,6 +14,10 @@
 		<isset property="docbook.base"/>
 	</condition>
 
+	<condition property="compilerToUse" value="modern">
+		<isset property="compilerToUse"/>
+	</condition>
+		
 	<target name="init">
 		<tstamp />
 	</target>
@@ -21,7 +25,7 @@
 	<target name="localbuild" depends="init">
 		<mkdir dir="${build.dir}" />
 		<javac source="1.5" target="1.5" destdir="${build.dir}" debug="on" 
-			debuglevel="${debuglevel}" includes="**/*.java"  compiler="modern">
+			debuglevel="${debuglevel}" includes="**/*.java"  compiler="${compilerToUse}">
 			<src refid="${ant.project.name}.srcpath" />
 			<classpath refid="${classpath}" />
 		</javac>
