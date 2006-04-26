@@ -57,7 +57,7 @@ public final class CollectionEmptinessPredicate
 	/**
 	 * {@inheritDoc}
 	 */
-	@Functional public boolean evaluate(@NonNull final Collection<?> object) {
+	@Functional public <T1 extends Collection<?>> boolean evaluate(@NonNull final T1 object) {
 		return object.isEmpty() == emptiness;
 	}
 }

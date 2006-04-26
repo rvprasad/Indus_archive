@@ -54,11 +54,11 @@ public final class IteratorUtils {
 	 * @return a iterable that will provide the elements from <code>i1</code> and then from <code>i2</code>.
 	 */
 	@Functional @NonNull public static <T3, T1 extends T3, T2 extends T3> Iterable<T3> chainedIterable(
-			@NonNull @Immutable final Iterator<T1> i1, @NonNull @Immutable final Iterator<T2> i2) {
+			@NonNull @Immutable final Iterable<T1> i1, @NonNull @Immutable final Iterable<T2> i2) {
 		return new Iterable<T3>() {
 
 			public Iterator<T3> iterator() {
-				return chainedIterator(i1, i2);
+				return chainedIterator(i1.iterator(), i2.iterator());
 			}
 		};
 	}
