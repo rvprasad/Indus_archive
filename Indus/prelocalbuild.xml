@@ -27,6 +27,7 @@
         <pathelement location="${jars.dir}/nlog4j.jar"/>
         <pathelement location="${jars.dir}/commons-collections.jar"/>
         <pathelement location="${jars.dir}/commons-lang.jar"/>
+        <pathelement location="${jars.dir}/commons-io.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
 		<pathelement location="${jars.dir}/commons-cli.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
