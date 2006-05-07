@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
+import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.Collection;
@@ -161,10 +162,10 @@ final class CallInfo
 			}
 		}
 
-		assert _k1.containsAll(reachables);
-		assert _k2.containsAll(reachables);
-		assert reachables.containsAll(_k1);
-		assert reachables.containsAll(_k2);
+		assert _k1.containsAll(reachables) : SetUtils.difference(reachables, _k1);
+		assert _k2.containsAll(reachables) : SetUtils.difference(reachables, _k2);
+		assert reachables.containsAll(_k1) : SetUtils.difference(_k1, reachables);
+		assert reachables.containsAll(_k2) : SetUtils.difference(_k2, reachables);
 
 		return true;
 	}
