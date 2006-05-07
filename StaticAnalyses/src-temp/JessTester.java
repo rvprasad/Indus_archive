@@ -407,11 +407,14 @@ public class JessTester {
 		final Options _options = new Options();
 		Option _option = new Option("o", "output", true, "Directory into which xml files will be written into.");
 		_option.setArgs(1);
+		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		_option = new Option("p", "soot-classpath", true, "Prepend this to soot class path.");
 		_option.setArgs(1);
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
+		_options.addOption(_option);
+		_option = new Option("l", "pre-load-classes", false, "Preload the system before starting OFA.");
 		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
@@ -443,6 +446,18 @@ public class JessTester {
 
 			for (final String _cls : _cl.getArgs()) {
 				_scene.loadClassAndSupport(_cls);
+			}
+
+			if (_cl.hasOption('l')) {
+				for (final Iterator<SootClass> _i = _scene.getClasses().iterator(); _i.hasNext();) {
+					final SootClass _sc = _i.next();
+					for (final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
+						final SootMethod _sm = _j.next();
+						if (_sm.isConcrete()) {
+							_sm.retrieveActiveBody();
+						}
+					}
+				}
 			}
 
 			final JessTester _jt = new JessTester();
@@ -637,19 +652,13 @@ public class JessTester {
 			rete.executeCommand("(deftemplate assignTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
 					+ "(slot index (default -4)) (slot context (default nil)))");
 			rete.executeCommand("(deftemplate pointsTo (slot reference) (slot object) (slot context))");
-			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
-			rete.executeCommand("(defrule equivRule "
-					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?)) "
-					+ "(assignTo (lhs ?a) (rhs ?c) (invocationSite ?) (index ?) (context ?))) "
-					+ "=> (assert (equiv (one ?c) (two ?a))) (assert (equiv (one ?a) (two ?c))))");
 			rete.executeCommand("(defrule expansionRule "
 					+ "(and (assignTo (lhs ?a) (rhs ?) (invocationSite ?c&~nil) (index -1) (context ?d)) "
-					+ "(or (pointsTo (reference ?a) (object ?o) (context ?d)) "
-					+ "(and (equiv (one ?a) (two ?b)) (pointsTo (reference ?b) (object ?o)))))"
-					+ "=> (call (fetch Engine) resolveInvocation ?o ?c ?d))");
-			rete.executeCommand("(defrule pointsToRule (and "
+					+ "(pointsTo (reference ?a) (object ?o) (context ?d)) "
+					+ ") => (call (fetch Engine) resolveInvocation ?o ?c ?d))");
+			rete.executeCommand("(defrule pointsToRule "
 					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?ctxt))"
-					+ "(pointsTo (reference ?a) (object ?o) (context ?))) (not (equiv (one ?c) (two ?a)))) "
+					+ "(pointsTo (reference ?a) (object ?o) (context ?)))"
 					+ "=> (if (and (call (fetch Engine) isCompatible ?c ?o) (call (fetch Engine) isCompatible ?a ?c)) "
 					+ "then (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt)))))");
 			rete.executeCommand("(defquery findParamFactsFor \"Finds facts for Parameters at given invocation site\""
