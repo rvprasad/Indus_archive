@@ -1,4 +1,3 @@
-//import java.io.IOException;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -65,32 +64,32 @@ public class JessTester {
 			extends AbstractStmtSwitch {
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
+		 * {@inheritDoc}
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
 			final soot.Value _rightOp = stmt.getRightOp();
 			if (_rightOp.getType() instanceof RefType) {
 
 				try {
-				final Fact _fact;
-				if (_rightOp instanceof NewExpr || _rightOp instanceof NewArrayExpr || _rightOp instanceof NewMultiArrayExpr
-						|| _rightOp instanceof StringConstant) {
-					_fact = new Fact(rete.findDeftemplate("pointsTo"));
-					_fact.setSlotValue("object", new Value(_rightOp));
-					stmt.getLeftOp().apply(vSwitch);
-					_fact.setSlotValue("reference", value);
-				} else {
-					_fact = new Fact(rete.findDeftemplate("assignTo"));
-					_rightOp.apply(vSwitch);
-					_fact.setSlotValue("rhs", value);
-					stmt.getLeftOp().apply(vSwitch);
-					_fact.setSlotValue("lhs", value);
-					if (stmt.containsInvokeExpr()) {
-						_fact.setSlotValue("invocationSite", new Value(stmt.getInvokeExpr()));
+					final Fact _fact;
+					if (_rightOp instanceof NewExpr || _rightOp instanceof NewArrayExpr
+							|| _rightOp instanceof NewMultiArrayExpr || _rightOp instanceof StringConstant) {
+						_fact = new Fact(rete.findDeftemplate("pointsTo"));
+						_fact.setSlotValue("object", new Value(_rightOp));
+						stmt.getLeftOp().apply(vSwitch);
+						_fact.setSlotValue("reference", value);
+					} else {
+						_fact = new Fact(rete.findDeftemplate("assignTo"));
+						_rightOp.apply(vSwitch);
+						_fact.setSlotValue("rhs", value);
+						stmt.getLeftOp().apply(vSwitch);
+						_fact.setSlotValue("lhs", value);
+						if (stmt.containsInvokeExpr()) {
+							_fact.setSlotValue("invocationSite", new Value(stmt.getInvokeExpr()));
+						}
 					}
-				}
-				_fact.setSlotValue("context", new Value(sm));
-				rete.assertFact(_fact);
+					_fact.setSlotValue("context", new Value(sm));
+					rete.assertFact(_fact);
 				} catch (final JessException _e) {
 					_e.printStackTrace();
 					throw new RuntimeException(_e);
@@ -101,7 +100,7 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
+		 * {@inheritDoc}
 		 */
 		public void caseIdentityStmt(final IdentityStmt stmt) {
 			if (stmt.getLeftOp().getType() instanceof RefType && !(stmt.getRightOp() instanceof CaughtExceptionRef)) {
@@ -121,14 +120,14 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
+		 * {@inheritDoc}
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
 			stmt.getInvokeExpr().apply(vSwitch);
 		}
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
+		 * {@inheritDoc}
 		 */
 		public void caseReturnStmt(final ReturnStmt stmt) {
 			try {
@@ -146,7 +145,7 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
+		 * {@inheritDoc}
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
 			try {
@@ -168,21 +167,21 @@ public class JessTester {
 			extends AbstractJimpleValueSwitch {
 
 		/**
-		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
+		 * {@inheritDoc}
 		 */
 		public void caseArrayRef(final ArrayRef v) {
 			value = new Value(v.getType());
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseCastExpr(final CastExpr v) {
 			v.getOp().apply(this);
 		}
 
 		/**
-		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
+		 * {@inheritDoc}
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
 			if (v.getField().getType() instanceof RefType) {
@@ -191,14 +190,14 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 			caseInstanceInvokeExpr(v);
 		}
 
 		/**
-		 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
+		 * {@inheritDoc}
 		 */
 		public void caseLocal(final Local l) {
 			addTypeForProcessing(l.getType());
@@ -206,15 +205,15 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseNewArrayExpr(final NewArrayExpr v) {
-			addTypeForProcessing(((ArrayType)v.getType()).getElementType());
+			addTypeForProcessing(((ArrayType) v.getType()).getElementType());
 			value = new Value(v);
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseNewExpr(final NewExpr v) {
 			addTypeForProcessing(v.getType());
@@ -222,22 +221,22 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
-			addTypeForProcessing(((ArrayType)v.getType()).getElementType());
+			addTypeForProcessing(((ArrayType) v.getType()).getElementType());
 			value = new Value(v);
 		}
 
 		/**
-		 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
+		 * {@inheritDoc}
 		 */
 		public void caseNullConstant(final NullConstant v) {
 			value = new Value(NULL);
 		}
 
 		/**
-		 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
+		 * {@inheritDoc}
 		 */
 		public void caseParameterRef(final ParameterRef v) {
 			if (v.getType() instanceof RefType) {
@@ -246,21 +245,21 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 			caseInstanceInvokeExpr(v);
 		}
 
 		/**
-		 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
+		 * {@inheritDoc}
 		 */
 		public void caseStaticFieldRef(final StaticFieldRef v) {
 			value = new Value(v.getField());
 		}
 
 		/**
-		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
+		 * {@inheritDoc}
 		 */
 		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
 			try {
@@ -303,17 +302,15 @@ public class JessTester {
 		}
 
 		/**
-		 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
+		 * {@inheritDoc}
 		 */
 		public void caseStringConstant(final StringConstant v) {
 			addTypeForProcessing(v.getType());
-			final String _string = v.value;
-			_string.intern();
-			value = new Value(_string);
+			value = new Value(v);
 		}
 
 		/**
-		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
+		 * {@inheritDoc}
 		 */
 		public void caseThisRef(final ThisRef v) {
 			value = new Value(sm.getSignature() + "+thisRefCallee");
@@ -328,7 +325,7 @@ public class JessTester {
 
 		/**
 		 * DOCUMENT ME!
-		 *
+		 * 
 		 * @param v
 		 */
 		private void caseInstanceInvokeExpr(final InstanceInvokeExpr v) {
@@ -403,7 +400,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param args
 	 */
 	public static void main(final String[] args) {
@@ -463,18 +460,18 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param type DOCUMENT ME!
 	 */
 	void addTypeForProcessing(final Type type) {
 		if (type instanceof RefType) {
-			typesWorkBag.addWorkNoDuplicates(((RefType)type).getSootClass());
+			typesWorkBag.addWorkNoDuplicates(((RefType) type).getSootClass());
 		}
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param clazz DOCUMENT ME!
 	 */
 	void addClassForProcessing(final SootClass clazz) {
@@ -483,7 +480,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param method DOCUMENT ME!
 	 */
 	void addMethodForProcessing(final SootMethod method) {
@@ -492,7 +489,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param clazz DOCUMENT ME!
 	 */
 	private void processClassInitializer(final SootClass clazz) {
@@ -503,7 +500,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param method DOCUMENT ME!
 	 */
 	private void processMethod(final SootMethod method) {
@@ -511,7 +508,7 @@ public class JessTester {
 		if (method.isConcrete()) {
 			System.out.println("MProcessing " + ++methodCount + ") " + method.getSignature());
 			for (final Object _except : method.getExceptions()) {
-				addClassForProcessing((SootClass)_except);
+				addClassForProcessing((SootClass) _except);
 			}
 
 			if (Util.isStartMethod(method)) {
@@ -528,11 +525,12 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * @param clazz DOCUMENT ME!
 	 */
 	private void processClass(final SootClass clazz) {
 		classCount++;
-		System.out.println("CProcessing " + classCount  + ") " + clazz);
+		System.out.println("CProcessing " + classCount + ") " + clazz);
 		processClassInitializer(clazz);
 		for (final Object _super : clazz.getInterfaces()) {
 			addClassForProcessing((SootClass) _super);
@@ -544,7 +542,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param v DOCUMENT ME!
 	 * @param e DOCUMENT ME!
 	 */
@@ -608,7 +606,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param v DOCUMENT ME!
 	 * @param obj DOCUMENT ME!
 	 */
@@ -617,27 +615,29 @@ public class JessTester {
 			final SootClass _sootClass = ((RefType) ((soot.Value) v).getType()).getSootClass();
 			if (obj instanceof StringConstant) {
 				return _sootClass.getName().equals("java.lang.String");
+			} else if (obj instanceof soot.Value) {
+				final SootClass _sootClass2 = ((RefType) ((soot.Value) obj).getType()).getSootClass();
+				return _sootClass2.equals(_sootClass) || Util.isDescendentOf(_sootClass2, _sootClass);
 			}
-			return Util.isDescendentOf(((RefType)((soot.Value)obj).getType()).getSootClass(), _sootClass);
 		}
 		return true;
 	}
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * @param classes DOCUMENT ME!
 	 */
 	private void processScene(final Collection<String> classes) {
 		try {
 			rete.store("Engine", this);
-			rete.executeCommand("(watch rules)");
-			//rete.executeCommand("(watch activations)");
+			// rete.executeCommand("(watch rules)");
+			// rete.executeCommand("(watch activations)");
 			rete.executeCommand("(import soot.jimple.*)");
 			rete.executeCommand("(deftemplate assignTo (slot lhs) (slot rhs) (slot invocationSite (default nil)) "
 					+ "(slot index (default -4)) (slot context (default nil)))");
 			rete.executeCommand("(deftemplate pointsTo (slot reference) (slot object) (slot context))");
 			rete.executeCommand("(deftemplate equiv (slot one) (slot two))");
-			// TODO: we eventually should move the context into the slots and out of the template
 			rete.executeCommand("(defrule equivRule "
 					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?)) "
 					+ "(assignTo (lhs ?a) (rhs ?c) (invocationSite ?) (index ?) (context ?))) "
@@ -649,9 +649,8 @@ public class JessTester {
 					+ "=> (call (fetch Engine) resolveInvocation ?o ?c ?d))");
 			rete.executeCommand("(defrule pointsToRule (and "
 					+ "(and (assignTo (lhs ?c) (rhs ?a&:(neq ?a ?c)) (invocationSite ?) (index ?) (context ?ctxt))"
-					+ "(pointsTo (reference ?a) (object ?o) (context ?))) "
-					+ "(not (equiv (one ?c) (two ?a)))) "
-					+ "=> (if (call (fetch Engine) isCompatible ?c ?o) "
+					+ "(pointsTo (reference ?a) (object ?o) (context ?))) (not (equiv (one ?c) (two ?a)))) "
+					+ "=> (if (and (call (fetch Engine) isCompatible ?c ?o) (call (fetch Engine) isCompatible ?a ?c)) "
 					+ "then (assert (pointsTo (reference ?c) (object ?o) (context ?ctxt)))))");
 			rete.executeCommand("(defquery findParamFactsFor \"Finds facts for Parameters at given invocation site\""
 					+ "(declare (variables ?callSite)) "
@@ -662,7 +661,7 @@ public class JessTester {
 			rete.executeCommand("(defquery findThrowFactsFor \"Finds facts for Thrown exceptions at given invocation site\""
 					+ "(declare (variables ?callSite)) "
 					+ "(assignTo (lhs ?a) (rhs ?b) (invocationSite ?callSite) (index ?i&:(= ?i -3)) (context ?)))");
-			//rete.executeCommand("(set-strategy breadth)");
+			// rete.executeCommand("(set-strategy breadth)");
 
 			final ArrayType _stringArrayType = ArrayType.v(scene.getSootClass("java.lang.String").getType(), 1);
 			final VoidType _voidType = VoidType.v();
@@ -699,7 +698,7 @@ public class JessTester {
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * @param writer DOCUMENT ME!
 	 * @throws JessException DOCUMENT ME!
 	 */
