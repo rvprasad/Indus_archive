@@ -1,3 +1,8 @@
+2006-05-16 venku <venku@boss.dreamsoft.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java: 
+		- NPE due to direct unchecked retrieval from map. FIXED.
+
 2006-04-06 venku <venku@boss.dreamsoft.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ThreadEscapeInfoBasedCallingContextRetrieverV3.java: 

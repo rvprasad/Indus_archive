@@ -582,7 +582,7 @@ public final class DivergenceDA
 	 */
 	private void recordDependenceInfoInBB(final Collection<Stmt> dependees, final SootMethod method,
 			final Collection<Stmt> dependents) {
-		final Map<Stmt, Collection<Stmt>> _de = dependent2dependee.get(method);
+		final Map<Stmt, Collection<Stmt>> _de = MapUtils.getMapFromMap(dependent2dependee, method);
 
 		for (final Iterator<Stmt> _i = dependents.iterator(); _i.hasNext();) {
 			final Stmt _dependent = _i.next();
