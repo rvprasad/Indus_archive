@@ -2,7 +2,6 @@ The Indus-Plugin is provided under the SAnToS academic license.
 The Indus-Plugin uses the following software during execution:
 
 - commons-cli-1.0.jar  (The Apache Software License, Version 1.1)
-- commons-collection-3.1.jar  (The Apache Software License, Version 1.1)
 - commons-io-1.0.jar  (Apache License Version 2.0)
 - commons-lang-2.0.jar (The Apache Software License, Version 1.1)
 - commons-pool-1.1.jar (The Apache Software License, Version 1.1)
@@ -15,7 +14,7 @@ The Indus-Plugin uses the following software during execution:
 - soot-2.1.0-modified.jar (Lesser GNU public license (LGPL))
 - staticanalyses.jar (SAnToS academic license)
 - trove.jar (Lesser GNU public license (LGPL))
-- xmlenc-0.50.jar (xmlenc license)
+- xmlenc.jar (xmlenc license)
 - xmlunit1.0.jar (xmlunit license)
 - xpp3.jar (Indiana University Extreme! Lab Software License)
 
